@@ -49,19 +49,10 @@
                             </c:data>
                         </xsl:template>
                     	<xsl:template match="c:error">
-                            <xsl:text> </xsl:text>
-                            <xsl:if test="@line">
-                    	       <xsl:text>on line </xsl:text>
-                               <xsl:value-of select="@line"/>
-                                <xsl:if test="@column">
-                        	        <xsl:text>, column </xsl:text>
-                                    <xsl:value-of select="@column"/>
-                        	        <xsl:text> </xsl:text>
-                        	    </xsl:if>
-                    	    </xsl:if>
+                            <xsl:text>&#xA;</xsl:text>
                             <xsl:choose>
-                                <xsl:when test="starts-with(.,'org.xml.sax.SAXParseException; ')">
-                                    <xsl:value-of select="substring-after(.,'org.xml.sax.SAXParseException; ')" />
+                                <xsl:when test="contains(.,'Exception; ')">
+                                    <xsl:value-of select="substring-after(.,'Exception; ')" />
                                 </xsl:when>
                                 <xsl:otherwise>
                                     <xsl:value-of select="."/>

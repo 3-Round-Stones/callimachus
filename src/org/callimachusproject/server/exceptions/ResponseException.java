@@ -58,7 +58,11 @@ public abstract class ResponseException extends RuntimeException {
 		String[] titleBody = readMessage(resp, line.getReasonPhrase());
 		String msg = titleBody[0];
 		if (from != null && from.length() > 0) {
-			msg += " from " + from;
+			if (msg.contains("\n")) {
+				msg = msg.replaceFirst("\n", " from " + from + "\n");
+			} else {
+				msg += " from " + from;
+			}
 		}
 		return create(code, msg, titleBody[1]);
 	}
@@ -120,11 +124,11 @@ public abstract class ResponseException extends RuntimeException {
 			if (body.startsWith("<")) {
 				if (body.contains("<title") && body.contains("</title>")) {
 					title = body.substring(body.indexOf("<title"), body.indexOf("</title>"));
-					title = title.replaceAll("\\s+", " ").replaceAll("<title[^>]*>\\s*", "");
+					title = title.replaceAll("<title[^>]*>\\s*", "");
 					title = decodeHtmlText(title).trim();
 				} else if (body.contains("<TITLE") && body.contains("</TITLE>")) {
 					title = body.substring(body.indexOf("<TITLE"), body.indexOf("</TITLE>"));
-					title = title.replaceAll("\\s+", " ").replaceAll("<TITLE[^>]*>\\s*", "");
+					title = title.replaceAll("<TITLE[^>]*>\\s*", "");
 					title = decodeHtmlText(title).trim();
 				} else {
 					title = defaultTitle;
@@ -177,7 +181,11 @@ public abstract class ResponseException extends RuntimeException {
 
 	public ResponseException(Throwable cause) {
 		super(cause);
-		this.msg = trimMessage(full = firstMessage(cause.toString()));
+		if (cause instanceof ResponseException) {
+			this.msg = trimMessage(full = firstMessage(((ResponseException) cause).getLongMessage()));
+		} else {
+			this.msg = trimMessage(full = firstMessage(cause.toString()));
+		}
 	}
 
 	public ResponseException(String message, String stack) {
@@ -218,16 +226,22 @@ public abstract class ResponseException extends RuntimeException {
 				msg = cause.getClass().getName();
 			}
 		}
-		if (msg.contains("\r")) {
-			msg = msg.substring(0, msg.indexOf('\r'));
+		if (msg.contains("\r\n\tat ")) {
+			msg = msg.substring(0, msg.indexOf("\r\n\tat "));
 		}
-		if (msg.contains("\n")) {
-			msg = msg.substring(0, msg.indexOf('\n'));
+		if (msg.contains("\n\tat ")) {
+			msg = msg.substring(0, msg.indexOf("\n\tat "));
 		}
 		return trimExceptionClass(msg, this);
 	}
 
 	private String trimMessage(String msg) {
+		if (msg.contains("\r")) {
+			msg = msg.substring(0, msg.indexOf("\r"));
+		}
+		if (msg.contains("\n")) {
+			msg = msg.substring(0, msg.indexOf("\n"));
+		}
 		if (msg.length() > 192) {
 			msg = msg.substring(0, 136) + "..." + msg.substring(msg.length() - 53);
 		}

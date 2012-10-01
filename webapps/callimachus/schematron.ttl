@@ -128,9 +128,13 @@
     calli:requires calli:reader;
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
     calli:script """
-        var message = this.GetValidationError(xmlToValidate).replace(/^\\s+|\\s+$/g,'');
-        if (message)
-            throw new BadRequest(message.replace(/\\s+/g,' '));
+        try {
+            var message = this.GetValidationError(xmlToValidate).replace(/^\\s+|\\s+$/g,'');
+            if (message)
+                throw new BadRequest(message);
+        } catch (e if e.javaException) {
+            throw new BadRequest(e.javaException);
+        }
     """.
 
 :xmlToValidate a owl:FunctionalProperty, owl:ObjectProperty;

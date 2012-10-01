@@ -49,16 +49,7 @@
                             </c:data>
                         </xsl:template>
                     	<xsl:template match="c:error">
-                            <xsl:text> </xsl:text>
-                            <xsl:if test="@line">
-                    	       <xsl:text>on line </xsl:text>
-                               <xsl:value-of select="@line"/>
-                                <xsl:if test="@column">
-                        	        <xsl:text>, column </xsl:text>
-                                    <xsl:value-of select="@column"/>
-                        	        <xsl:text> </xsl:text>
-                        	    </xsl:if>
-                    	    </xsl:if>
+                            <xsl:text>&#xA;</xsl:text>
                             <xsl:value-of select="."/>
                     	</xsl:template>
                     </xsl:stylesheet>

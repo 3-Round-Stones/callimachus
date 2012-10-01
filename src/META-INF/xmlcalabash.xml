@@ -5,4 +5,10 @@
 <implementation type="calli:render"
 		class-name="org.callimachusproject.xproc.RenderStep" />
 
+<implementation type="calli:render-sparql-query"
+		class-name="org.callimachusproject.xproc.RenderSparqlQueryStep" />
+
+<implementation type="calli:sparql"
+		class-name="org.callimachusproject.xproc.SparqlStep" />
+
 </xproc-config>

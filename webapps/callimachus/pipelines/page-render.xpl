@@ -13,18 +13,18 @@
     <p:option name="template" required="true" />
     <p:option name="target" required="true" />
     <p:option name="query" required="true" />
-    
+
     <p:declare-step type="calli:render">
         <p:input port="source" sequence="true" primary="true" />
-        <p:input port="template"/>
-        <p:option name="output-base-uri"/>
+        <p:input port="template" />
+        <p:option name="output-base-uri" />
         <p:output port="result" sequence="true" />
     </p:declare-step>
-    
+
     <p:load name="template-load">
         <p:with-option name="href" select="$template" />
     </p:load>
-    
+
     <calli:render>
         <p:input port="template">
             <p:pipe step="template-load" port="result" />
@@ -33,7 +33,7 @@
             <p:pipe step="pipeline" port="source" />
         </p:input>
     </calli:render>
-    
+
     <p:xslt>
         <p:with-param name="target" select="$target"/>
         <p:with-param name="query" select="$query"/>

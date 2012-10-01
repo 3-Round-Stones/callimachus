@@ -1,12 +1,13 @@
 package org.callimachusproject.xproc;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringWriter;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
-import javax.xml.stream.XMLEventReader;
-import javax.xml.transform.stream.StreamSource;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.dom.DOMSource;
 
 import net.sf.saxon.s9api.DocumentBuilder;
 import net.sf.saxon.s9api.QName;
@@ -18,12 +19,14 @@ import org.callimachusproject.engine.Template;
 import org.callimachusproject.engine.TemplateEngine;
 import org.callimachusproject.engine.TemplateException;
 import org.callimachusproject.engine.model.TermFactory;
-import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidException;
 import org.callimachusproject.fluid.FluidFactory;
-import org.openrdf.query.TupleQueryResult;
+import org.callimachusproject.xml.DocumentFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
+import com.xmlcalabash.core.XProcConstants;
 import com.xmlcalabash.core.XProcException;
 import com.xmlcalabash.core.XProcRuntime;
 import com.xmlcalabash.core.XProcStep;
@@ -31,27 +34,32 @@ import com.xmlcalabash.io.ReadablePipe;
 import com.xmlcalabash.io.WritablePipe;
 import com.xmlcalabash.model.RuntimeValue;
 import com.xmlcalabash.runtime.XAtomicStep;
+import com.xmlcalabash.util.Base64;
 import com.xmlcalabash.util.S9apiUtils;
 
-public class RenderStep implements XProcStep {
-	private static final FluidFactory FF = FluidFactory.getInstance();
+public class RenderSparqlQueryStep implements XProcStep {
 	private static final TemplateEngine ENGINE = TemplateEngine.newInstance();
+	private static final QName _content_type = new QName("content-type");
+	public static final QName _encoding = new QName("", "encoding");
+	private static final FluidFactory FF = FluidFactory.getInstance();
+	private static final DocumentFactory df = DocumentFactory.newInstance();
+	private final FluidBuilder fb = FF.builder();
+	private final Map<String, String> parameters = new LinkedHashMap<String, String>();
 	private final XProcRuntime runtime;
 	private final XAtomicStep step;
 	private ReadablePipe sourcePipe = null;
 	private ReadablePipe templatePipe = null;
 	private WritablePipe resultPipe = null;
 	private String outputBase;
-	private final FluidBuilder fb = FF.builder();
 
-	public RenderStep(XProcRuntime runtime, XAtomicStep step) {
+	public RenderSparqlQueryStep(XProcRuntime runtime, XAtomicStep step) {
 		this.runtime = runtime;
 		this.step = step;
 	}
 
 	@Override
 	public void setParameter(QName name, RuntimeValue value) {
-        throw new XProcException("No parameters allowed.");
+		parameters.put(name.getLocalName(), value.getString());
 	}
 
 	@Override
@@ -90,7 +98,6 @@ public class RenderStep implements XProcStep {
 
 	public void run() throws SaxonApiException {
 		runtime.reportStep(step);
-
 		if (templatePipe == null || !templatePipe.moreDocuments()) {
 			throw XProcException.dynamicError(6, step.getNode(),
 					"No template provided.");
@@ -101,9 +108,15 @@ public class RenderStep implements XProcStep {
 		}
 		try {
 			XdmNode template = templatePipe.read();
-			while (sourcePipe.moreDocuments()) {
-				XdmNode xml = render(template, sourcePipe.read());
+			while (sourcePipe != null && sourcePipe.moreDocuments()) {
+				XdmNode query = sourcePipe.read();
+				String queryBaseURI = query.getBaseURI().toASCIIString();
+				String queryString = getQueryString(query);
+				XdmNode xml = render(template, queryString, queryBaseURI);
 				if (resultPipe != null && xml != null) {
+					if (outputBase != null) {
+						xml.getUnderlyingNode().setSystemId(resolve(outputBase));
+					}
 					resultPipe.write(xml);
 				}
 			}
@@ -115,34 +128,44 @@ public class RenderStep implements XProcStep {
 			throw new XProcException(e);
 		} catch (TemplateException e) {
 			throw new XProcException(e);
+		} catch (ParserConfigurationException e) {
+			throw new XProcException(e);
 		}
 	}
 
-	public XdmNode render(XdmNode t, XdmNode s) throws SaxonApiException,
-			IOException, FluidException, TemplateException {
+	private String getQueryString(XdmNode document) {
+		XdmNode root = S9apiUtils.getDocumentElement(document);
+
+		if ((XProcConstants.c_data.equals(root.getNodeName()) && "application/octet-stream"
+				.equals(root.getAttributeValue(_content_type)))
+				|| "base64".equals(root.getAttributeValue(_encoding))) {
+			byte[] decoded = Base64.decode(root.getStringValue());
+			return new String(decoded);
+		}
+		return root.getStringValue();
+	}
+
+	public XdmNode render(XdmNode t, String queryString, String queryBaseURI)
+			throws SaxonApiException, IOException, FluidException,
+			TemplateException, ParserConfigurationException {
 		String tempId = t.getBaseURI().toASCIIString();
 		Reader template = asReader(t);
 		Template tem = ENGINE.getTemplate(template, tempId);
-		TupleQueryResult source = asTupleQueryResult(s);
-		Reader result = asReader(tem.render(source), resolve(outputBase));
+		Document doc = toDocument(tem.getQueryString(queryString));
 
 		DocumentBuilder xdmBuilder = newDocumentBuilder();
-		XdmNode xformed = xdmBuilder.build(new StreamSource(result));
-
-		if (xformed != null
-				&& outputBase != null
-				&& (xformed.getBaseURI() == null || "".equals(xformed
-						.getBaseURI().toASCIIString()))) {
-			xformed.getUnderlyingNode().setSystemId(resolve(outputBase));
-		}
-		return xformed;
+		return xdmBuilder.build(new DOMSource(doc, queryBaseURI));
 	}
 
-	private String resolve(String href) {
-		String base = step.getNode().getBaseURI().toASCIIString();
-		if (href == null)
-			return base;
-		return TermFactory.newInstance(base).resolve(href);
+	private Document toDocument(String result)
+			throws ParserConfigurationException {
+		Document doc = df.newDocument();
+		Element data = doc.createElementNS("http://www.w3.org/ns/xproc-step",
+				"data");
+		data.setAttribute("content-type", "application/sparql-query");
+		data.appendChild(doc.createTextNode(result));
+		doc.appendChild(data);
+		return doc;
 	}
 
 	private Reader asReader(XdmNode document) throws SaxonApiException,
@@ -157,26 +180,15 @@ public class RenderStep implements XProcStep {
 				.asReader();
 	}
 
-	private TupleQueryResult asTupleQueryResult(XdmNode document)
-			throws SaxonApiException, IOException, FluidException {
-		String sysId = document.getBaseURI().toASCIIString();
-		ByteArrayOutputStream s = new ByteArrayOutputStream();
-		Serializer serializer = new Serializer();
-		serializer.setOutputStream(s);
-		S9apiUtils.serialize(runtime, document, serializer);
-		String media = "application/sparql-results+xml";
-		Fluid fluid = fb.consume(s, sysId, ByteArrayOutputStream.class, media);
-		return (TupleQueryResult) fluid.as(TupleQueryResult.class, media);
-	}
-
-	private Reader asReader(XMLEventReader xml, String base)
-			throws IOException, FluidException {
-		Fluid fluid = fb.consume(xml, base, XMLEventReader.class,
-				"application/xml");
-		return fluid.asReader();
+	private String resolve(String href) {
+		String base = step.getNode().getBaseURI().toASCIIString();
+		if (href == null)
+			return base;
+		return TermFactory.newInstance(base).resolve(href);
 	}
 
 	private DocumentBuilder newDocumentBuilder() {
 		return runtime.getConfiguration().getProcessor().newDocumentBuilder();
 	}
+
 }

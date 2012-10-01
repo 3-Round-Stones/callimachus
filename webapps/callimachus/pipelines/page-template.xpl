@@ -12,7 +12,7 @@
 
     <p:variable name="systemIdOrBaseUri" select="if (string-length($systemId) &gt; 0) then $systemId else base-uri()" />
 
-    <p:xinclude name="xinclude" />
+    <p:xinclude name="xinclude" fixup-xml-base="true" fixup-xml-lang="true" />
 
     <p:xslt name="xml-stylesheet">
         <p:input port="stylesheet">

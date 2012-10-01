@@ -15,14 +15,13 @@
         </aside>
     </div>
     <form method="POST" action="" enctype="application/rdf+xml" typeof="calli:Folder"
-            onsubmit="return calli.saveResourceAs(event)">
-        <input id="localname" type="hidden" />
+            onsubmit="return calli.saveResourceAs(event,encodeURIComponent($('#label').val().toLowerCase().replace(/\s+/g,'-'))+'/')">
         <fieldset>
             <div class="control-group">
                 <label for="label" class="control-label">Name</label>
                 <div class="controls">
                     <input id="label" value="{rdfs:label}" class="auto-expand" required="required" autofocus="autofocus"
-                        onchange="value = value.toLowerCase();$('#localname').val(value.replace(/ /g,'-')+'/');" />
+                        onchange="value = value.toLowerCase()" />
                 </div>
             </div>
             <div class="form-actions">

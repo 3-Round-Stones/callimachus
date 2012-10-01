@@ -28,7 +28,18 @@ window.calli.saveResourceAs = function(event, fileName, create) {
 
     $(form).find("input").change(); // IE may not have called onchange before onsubmit
     var resource = $(form).attr('about') || $(form).attr('resource');
-    if (!nestedSubmit && fileName) { // prompt for a new URI
+    if (!nestedSubmit && fileName && !create && calli.getFormAction(form).indexOf('?create=') >= 0) {
+        // set resource and submit
+        var ns = calli.listResourceIRIs(calli.getPageUrl())[0];
+        if (ns.lastIndexOf('/') != ns.length - 1) {
+            ns += '/';
+        }
+        var local = encodeURI(fileName).replace(/%25(\w\w)/g, '%$1').replace(/%20/g, '+');
+        $(form).attr('resource', ns + local);
+        overrideLocation(form, $(form).attr('about') || $(form).attr('resource'));
+        return true;
+    } else if (!nestedSubmit && fileName) {
+        // prompt for a new URI
         $(form).removeAttr('about');
         $(form).removeAttr('resource');
         $(form).removeAttr('action');

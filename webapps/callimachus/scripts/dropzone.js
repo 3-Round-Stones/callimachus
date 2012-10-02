@@ -29,17 +29,6 @@ function initDropArea(construct) {
         event.preventDefault();
         return false;
     });
-    dropzone.bind('drop', function(event) {
-        $(this).removeClass("drag-over");
-        event.preventDefault();
-        if (typeof this.ondrop == 'function') {
-            return false; // event registered
-        } else if (typeof $(this).attr('ondrop') == 'string') {
-            return eval('(function(){' + $(this).attr('ondrop') + '})()');
-        } else {
-            return calli.insertResource(event);
-        }
-    });
     dropzone.bind('calliLink', function(event) {
         var de = jQuery.Event('drop');
         de.dataTransfer = {getData:function(){return event.location}};

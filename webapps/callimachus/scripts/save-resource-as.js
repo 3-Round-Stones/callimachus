@@ -22,14 +22,14 @@ if (!window.calli) {
     window.calli = {};
 }
 
-window.calli.encodePathSegment = function(label) {
+window.calli.slugify = function(label) {
     if (!label)
         return label;
     if (label.lastIndexOf('\\') > 0) {
         // IE file input
         label = label.substring(label.lastIndexOf('\\') + 1);
     }
-    return encodeURIComponent(removeDiacritics(label).toLowerCase().replace(/\s+/g, '+'));
+    return removeDiacritics(label).toLowerCase().replace(/\s+/g, '+').replace(/[^\w\-\_\.\!\~\*\'\(\);\,\&\=\$\[\]]+/g,'_');
 };
 window.calli.saveFormAs = function(event, fileName, create) {
     return calli.saveResourceAs(event, fileName, create);
@@ -89,7 +89,7 @@ function findLabel(form) {
         };
         field.bind('change', onchange);
     }
-    return calli.encodePathSegment(input);
+    return calli.slugify(input);
 }
 
 function openSaveAsDialog(form, label, create, callback) {

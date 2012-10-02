@@ -56,6 +56,6 @@ to start Callimachus.
 
 Every create template, that has a onsubmit="return calli.saveResourceAs(event)",
 will need to be replaced with onsubmit="return calli.saveResourceAs(event,
-calli.encodePathSegment($('#label').val()))" where "label" is the id of the
+calli.slugify($('#label').val()))" where "label" is the id of the
 first input field in the form.
 

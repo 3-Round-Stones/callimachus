@@ -93,7 +93,7 @@
             <span rev="calli:hasComponent" resource="?parent">
                 <a href="?parent" class="view ui-icon ui-icon-arrowthick-1-n" property="rdfs:label" content="?plabel" title="Up to {?plabel}" />
             </span>
-            <span>
+            <span class="hidden-logout">
                 <a href="javascript:void(0)" class="ui-icon ui-icon-gear" title="Create something new"
                     onclick="$('#create-menu').toggleClass('open');return false" />
                 <nav id="create-menu" onclick="$('#create-menu').removeClass('open')">
@@ -116,7 +116,7 @@
                     </ul>
                 </nav>
             </span>
-            <span>
+            <span class="hidden-logout">
                 <a id="exploreanchor" href="../pages/explore.xhtml?view" class="ui-icon ui-icon-lightbulb" title="Explore RDF in this folder"
                         onmousedown="if(this.href.indexOf('#')&lt;0)this.href+='#!'+$('body').attr('resource')" />
             </span>

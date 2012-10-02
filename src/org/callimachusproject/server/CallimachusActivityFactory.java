@@ -29,18 +29,39 @@ public final class CallimachusActivityFactory implements ActivityFactory {
 	private static final Executor executor = ManagedExecutors.newSingleScheduler(CallimachusActivityFactory.class.getSimpleName());
 	private static final TimeZone UTC = TimeZone.getTimeZone("UTC");
 	private static final String ACTIVITY = "http://www.w3.org/ns/prov#Activity";
-	private static final String ENDED_AT = "http://www.w3.org/ns/prov#endedAtTime";
-	private static final String INSERT_FOLDER = "PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>\n"
-			+ "PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>\n"
+	private static final String PREFIX = "PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
+			+ "PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>\n"
+			+ "PREFIX prov:<http://www.w3.org/ns/prov#>\n"
+			+ "PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>\n";
+	private static final String END_ACTIVITY = PREFIX
 			+ "INSERT {\n"
+			+ "    GRAPH $activity {\n"
+			+ "          $activity prov:endedAtTime ?endedAtTime; calli:reader ?reader\n"
+			+ "      }\n"
+			+ "} WHERE {{ BIND ( $now AS ?endedAtTime) } UNION { {\n"
+			+ "            $activity prov:used ?entity\n"
+			+ "        } UNION {\n"
+			+ "            $activity prov:wasInformedBy ?entity\n"
+			+ "        }  {\n"
+			+ "            ?entity calli:subscriber ?reader\n"
+			+ "        } UNION {\n"
+			+ "            ?entity calli:editor ?reader\n"
+			+ "        } UNION {\n"
+			+ "            ?entity calli:administrator ?reader\n"
+			+ "        } UNION {\n"
+			+ "            ?entity rdf:type/rdfs:subClassOf* ?type {\n"
+			+ "                ?type calli:subscriber ?reader\n"
+			+ "            } UNION {\n"
+			+ "                ?type calli:editor ?reader\n"
+			+ "            } UNION {\n"
+			+ "                ?type calli:administrator ?reader\n"
+			+ "}   }   }   }";
+	private static final String INSERT_FOLDER = PREFIX + "INSERT {\n"
 			+ "$parent calli:hasComponent $folder .\n"
-			+ "$folder a calli:Folder, $folderType;\n"
-			+ "rdfs:label $label;\n"
+			+ "$folder a calli:Folder, $folderType;\n" + "rdfs:label $label;\n"
 			+ "calli:administrator ?administrator;\n"
-			+ "calli:editor ?editor;\n"
-			+ "calli:subscriber ?subscriber;\n"
-			+ "calli:reader ?reader\n"
-			+ "} WHERE {\n"
+			+ "calli:editor ?editor;\n" + "calli:subscriber ?subscriber;\n"
+			+ "calli:reader ?reader\n" + "} WHERE {\n"
 			+ "OPTIONAL {$parent calli:administrator ?administrator}\n"
 			+ "OPTIONAL {$parent calli:editor ?editor}\n"
 			+ "OPTIONAL {$parent calli:subscriber ?subscriber}\n"
@@ -93,7 +114,16 @@ public final class CallimachusActivityFactory implements ActivityFactory {
 		ValueFactory vf = con.getValueFactory();
 		XMLGregorianCalendar now = df
 				.newXMLGregorianCalendar(new GregorianCalendar(UTC));
-		con.add(act, vf.createURI(ENDED_AT), vf.createLiteral(now), act);
+		try {
+			Update up = con.prepareUpdate(QueryLanguage.SPARQL, END_ACTIVITY);
+			up.setBinding("activity", act);
+			up.setBinding("now", vf.createLiteral(now));
+			up.execute();
+		} catch (UpdateExecutionException e) {
+			throw new RepositoryException(e);
+		} catch (MalformedQueryException e) {
+			throw new RepositoryException(e);
+		}
 		createFolder(act);
 	}
 

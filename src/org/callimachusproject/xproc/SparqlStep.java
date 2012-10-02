@@ -18,7 +18,6 @@ import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidException;
 import org.callimachusproject.fluid.FluidFactory;
-import org.callimachusproject.server.util.ChannelUtil;
 import org.callimachusproject.xml.XdmNodeFactory;
 import org.openrdf.OpenRDFException;
 import org.openrdf.query.TupleQueryResult;

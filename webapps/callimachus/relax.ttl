@@ -102,7 +102,7 @@
         try {
             this.ValidateRelax();
         } catch (e if e.javaException instanceof ServiceUnavailable) {
-            println("Storing " + this);
+            java.lang.System.err.println("Storing " + this);
         }
         this.touchRevision();
     """.

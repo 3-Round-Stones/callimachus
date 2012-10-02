@@ -197,7 +197,7 @@
         try {
             this.ValidateVectorGraphic();
         } catch (e if e.javaException instanceof ServiceUnavailable) {
-            println("Storing " + this);
+            java.lang.System.err.println("Storing " + this);
         }
         this.touchRevision();
     """.

@@ -101,7 +101,7 @@
             created.ValidateArticle();
             created.CheckArticle();
         } catch (e if e.javaException instanceof ServiceUnavailable) {
-            println("Storing " + this);
+            java.lang.System.err.println("Storing " + this);
         } catch (e if e.javaException instanceof BadRequest) {
             println(e.javaException.message);
         }
@@ -131,7 +131,7 @@
             this.ValidateArticle();
             this.CheckArticle();
         } catch (e if e.javaException instanceof ServiceUnavailable) {
-            println("Storing " + this);
+            java.lang.System.err.println("Storing " + this);
         }
         this.touchRevision();
     """.

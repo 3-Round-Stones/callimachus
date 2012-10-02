@@ -150,7 +150,7 @@
     calli:method "GET";
     calli:query "profile";
     calli:requires calli:subscriber;
-    calli:header "cache-control:max-age:3600";
+    calli:header "cache-control:no-store";
     calli:type "text/html";
     calli:script """
         var iter = this.calliAuthentication.iterator();

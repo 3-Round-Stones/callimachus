@@ -147,33 +147,31 @@ function openSaveAsDialog(form, label, create, callback) {
 
 function updateFormAction(form, target, create) {
     var action = calli.getFormAction(form);
-    if (action.indexOf('?create') >= 0 || action.indexOf('?edit') >= 0) {
-        var m;
+    var m;
+    if (create) {
+        form.setAttribute("method", "POST");
+        form.action = target + '?create=' + encodeURIComponent(create);
+    } else if (m = action.match(/^([^\?]*)\?create(&.*)?$/)) {
+        action = target + '?create=';
         if (create) {
-            form.setAttribute("method", "POST");
-            form.action = target + '?create=' + encodeURIComponent(create);
-        } else if (m = action.match(/^([^\?]*)\?create(&.*)?$/)) {
-            action = target + '?create=';
-            if (create) {
-                action += create;
-            } else if (m[1]) {
-                action += calli.listResourceIRIs(m[1])[0];
-            } else {
-                action += calli.listResourceIRIs(location.pathname)[0];
-            }
-            if (m[2]) {
-                action += m[2];
-            }
-            form.setAttribute("method", "POST");
-            form.action = action;
-        } else if (m = action.match(/^([^\?]*)(\?create=[^&]+)(&.*)?$/)) {
-            action = target + m[2];
-            if (m[3]) {
-                action += m[3];
-            }
-            form.setAttribute("method", "POST");
-            form.action = action;
+            action += create;
+        } else if (m[1]) {
+            action += calli.listResourceIRIs(m[1])[0];
+        } else {
+            action += calli.listResourceIRIs(location.pathname)[0];
         }
+        if (m[2]) {
+            action += m[2];
+        }
+        form.setAttribute("method", "POST");
+        form.action = action;
+    } else if (m = action.match(/^([^\?]*)(\?create=[^&]+)(&.*)?$/)) {
+        action = target + m[2];
+        if (m[3]) {
+            action += m[3];
+        }
+        form.setAttribute("method", "POST");
+        form.action = action;
     }
 }
 

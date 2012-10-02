@@ -126,7 +126,7 @@ jQuery(function($) {
                 var response = handleMessage(header, body);
                 if (!response && typeof response == 'boolean') {
                     parent.postMessage('Not Found\n\n' + header, '*');
-                } else if (response && typeof response != 'boolean') {
+                } else if (response && typeof response != 'boolean' || typeof response == 'string') {
                     parent.postMessage('OK\n\n' + header + '\n\n' + response, '*');
                 } else {
                     parent.postMessage('OK\n\n' + header, '*');

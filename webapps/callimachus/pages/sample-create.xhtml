@@ -9,7 +9,8 @@
 </head>
 <body>
     <h1>New Resource</h1>
-    <form method="POST" action="" enctype="application/rdf+xml" onsubmit="return calli.saveResourceAs(event)">
+    <form method="POST" action="" enctype="application/rdf+xml"
+            onsubmit="return calli.saveResourceAs(event,calli.slugify($('#label').val()))">
         <fieldset>
             <div class="control-group">
                 <label for="label" class="control-label">Label</label>

@@ -9,7 +9,8 @@
     <script type="text/javascript" src="/callimachus/editor/create.js"> </script>
 </head>
 <body>
-    <form id="form" method="POST" action="" enctype="text/html" onsubmit="return calli.saveResourceAs(event,'untitled.html')">
+    <form id="form" method="POST" action="" enctype="text/html"
+            onsubmit="return calli.saveResourceAs(event, 'untitled.html', calli.getCallimachusUrl('HypertextFile'))">
         <iframe id="iframe" class="flex" src="/callimachus/editor/text-editor.html#html"> </iframe>
         <button type="submit" class="btn btn-success">Create</button>
     </form>

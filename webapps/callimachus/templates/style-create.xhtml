@@ -9,7 +9,8 @@
     <script type="text/javascript" src="/callimachus/editor/create.js"> </script>
 </head>
 <body>
-    <form id="form" method="POST" action="" enctype="text/css" onsubmit="return calli.saveResourceAs(event, 'untitled style.css')">
+    <form id="form" method="POST" action="" enctype="text/css"
+            onsubmit="return calli.saveResourceAs(event, 'untitled style.css', calli.getCallimachusUrl('Style'))">
         <iframe id="iframe" class="flex" src="/callimachus/editor/text-editor.html#css"> </iframe>
         <button type="submit" class="btn btn-success">Create</button>
     </form>

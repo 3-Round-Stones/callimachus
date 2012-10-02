@@ -18,7 +18,8 @@
 </p:pipeline>]]></script>
 </head>
 <body>
-    <form id="form" method="POST" action="" enctype="application/xproc+xml" onsubmit="return calli.saveResourceAs(event,'untitled pipeline.xpl')">
+    <form id="form" method="POST" action="" enctype="application/xproc+xml"
+            onsubmit="return calli.saveResourceAs(event, 'untitled pipeline.xpl', calli.getCallimachusUrl('Pipeline'))">
         <iframe id="iframe" class="flex" src="/callimachus/editor/text-editor.html#xml"> </iframe>
         <button type="submit" class="btn btn-success">Create</button>
     </form>

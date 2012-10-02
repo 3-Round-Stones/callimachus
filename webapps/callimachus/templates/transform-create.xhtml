@@ -22,7 +22,8 @@
 </xsl:stylesheet>]]></script>
 </head>
 <body>
-    <form id="form" method="POST" action="" enctype="text/xsl" onsubmit="return calli.saveResourceAs(event, 'untitled transform.xsl')">
+    <form id="form" method="POST" action="" enctype="text/xsl"
+            onsubmit="return calli.saveResourceAs(event, 'untitled transform.xsl', calli.getCallimachusUrl('Transform'))">
         <iframe id="iframe" class="flex" src="/callimachus/editor/text-editor.html#xml"> </iframe>
         <button type="submit" class="btn btn-success">Create</button>
     </form>

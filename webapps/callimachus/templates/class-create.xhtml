@@ -96,7 +96,7 @@
         </aside>
     </div>
     <form id="form" method="POST" action="" enctype="application/rdf+xml" typeof="owl:Class"
-            onsubmit="return calli.saveResourceAs(event,encodeURIComponent($('#label').val().replace(/([a-z])\s([A-Z])/g, '$1$2').replace(/\s+/g,'_')))">
+            onsubmit="return calli.saveResourceAs(event,calli.encodePathSegment($('#label').val().replace(/([a-z])\s([A-Z])/g, '$1$2').replace(/\s+/g,'_')))">
         <fieldset class="hbox">
             <div class="control-group">
                 <label for="label" class="control-label">Label</label>

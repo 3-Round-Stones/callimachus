@@ -18,7 +18,20 @@ function resubmit(form) {
     }
 }
 
-calli.saveFormAs = function(event, fileName, create) {
+if (!window.calli) {
+    window.calli = {};
+}
+
+window.calli.encodePathSegment = function(label) {
+    if (!label)
+        return label;
+    if (label.lastIndexOf('\\') > 0) {
+        // IE file input
+        label = label.substring(label.lastIndexOf('\\') + 1);
+    }
+    return encodeURIComponent(removeDiacritics(label).toLowerCase().replace(/\s+/g, '+'));
+};
+window.calli.saveFormAs = function(event, fileName, create) {
     return calli.saveResourceAs(event, fileName, create);
 };
 window.calli.saveResourceAs = function(event, fileName, create) {
@@ -28,7 +41,11 @@ window.calli.saveResourceAs = function(event, fileName, create) {
 
     $(form).find("input").change(); // IE may not have called onchange before onsubmit
     var resource = $(form).attr('about') || $(form).attr('resource');
-    if (!nestedSubmit && fileName && !create && calli.getFormAction(form).indexOf('?create=') >= 0) {
+    if (resource && (!fileName || nestedSubmit)) {
+        // resource attribute ready, let's go
+        overrideLocation(form, $(form).attr('about') || $(form).attr('resource'));
+        return true;
+    } else if (fileName && !create && window.location.search != '?create') {
         // set resource and submit
         var ns = calli.listResourceIRIs(calli.getPageUrl())[0];
         if (ns.lastIndexOf('/') != ns.length - 1) {
@@ -38,73 +55,41 @@ window.calli.saveResourceAs = function(event, fileName, create) {
         $(form).attr('resource', ns + local);
         overrideLocation(form, $(form).attr('about') || $(form).attr('resource'));
         return true;
-    } else if (!nestedSubmit && fileName) {
-        // prompt for a new URI
-        $(form).removeAttr('about');
-        $(form).removeAttr('resource');
-        $(form).removeAttr('action');
-        openSaveAsDialog(form, fileName, create, function(ns, local){
-            $(form).attr('resource', ns + local.replace(/\+/g,'-').toLowerCase());
-            resubmit(form);
-        });
-        return false;
-    } else if (resource && calli.getFormAction(form).indexOf('?create=') < 0) {
-        openSaveAsDialog(form, decodeURI(resource), create, function(ns, local) {
+    } else {
+        // prompt for a new resource URI
+        var label = fileName || findLabel(form);
+        openSaveAsDialog(form, label, create, function(ns, local) {
+            if (fileName) {
+                local = local.replace(/\+/g,'-');
+            }
             $(form).removeAttr('about');
-            $(form).attr('resource', ns + local);
+            $(form).attr('resource', ns + local.toLowerCase());
             resubmit(form); // this time with an resource attribute
         });
         return false;
-    } else if (resource) { // resource attribute already set
-        overrideLocation(form, $(form).attr('about') || $(form).attr('resource'));
-        return true;
-    } else { // no identifier at all
-        var field = $($(form).find('input:not(:checkbox,:disabled,:button,:password,:radio)')[0]);
-        var input = field.val();
-        if (input) {
-            var onchange = function() {
-                if (input != $(field).val()) {
-                    // restore the resource attribute when this field changes
-                    if (resource) {
-                        $(form).removeAttr('about');
-                        $(form).attr('resource', resource);
-                    } else {
-                        $(form).removeAttr('about');
-                        $(form).removeAttr('resource');
-                    }
-                    field.unbind('change', onchange);
-                }
-            };
-            field.bind('change', onchange);
-        }
-        var label = input;
-        if (label && label.lastIndexOf('\\') > 0) {
-            label = label.substring(label.lastIndexOf('\\') + 1);
-        }
-        return promptIfNeeded(form, removeDiacritics(label), create, function(ns, local){
-            $(form).removeAttr('about');
-            $(form).attr('resource', ns + local.toLowerCase());
-        });
     }
 };
 
-function promptIfNeeded(form, label, create, callback) {
-    if (label && label.search(/^[\w\.\-\_ ]*\/?$/) == 0 && location.search.search(/\?\w+=/) >= 0) {
-        var ns = calli.listResourceIRIs(calli.getPageUrl())[0];
-        if (ns.lastIndexOf('/') != ns.length - 1) {
-            ns += '/';
-        }
-        var local = encodeURI(label).replace(/%20/g, '+');
-        callback(ns, local);
-        overrideLocation(form, $(form).attr('about') || $(form).attr('resource'));
-        return true;
-    } else {
-        openSaveAsDialog(form, label, create, function(ns, local) {
-            callback(ns, local);
-            resubmit(form); // this time with an resource attribute
-        });
-        return false;
+function findLabel(form) {
+    var field = $($(form).find('input:not(:checkbox,:disabled,:button,:password,:radio)')[0]);
+    var input = field.val();
+    if (input) {
+        var onchange = function() {
+            if (input != $(field).val()) {
+                // restore the resource attribute when this field changes
+                if (resource) {
+                    $(form).removeAttr('about');
+                    $(form).attr('resource', resource);
+                } else {
+                    $(form).removeAttr('about');
+                    $(form).removeAttr('resource');
+                }
+                field.unbind('change', onchange);
+            }
+        };
+        field.bind('change', onchange);
     }
+    return calli.encodePathSegment(input);
 }
 
 function openSaveAsDialog(form, label, create, callback) {

@@ -16,7 +16,8 @@
             <p>Use Wiki text to describe the group</p>
         </aside>
     </div>
-    <form id="form" method="POST" action="" enctype="application/rdf+xml" typeof="calli:Party calli:Group" onsubmit="return calli.saveResourceAs(event)">
+    <form id="form" method="POST" action="" enctype="application/rdf+xml" typeof="calli:Party calli:Group"
+            onsubmit="return calli.saveResourceAs(event,calli.encodePathSegment($('#label').val()))">
         <fieldset>
             <div class="control-group">
                 <label for="label" class="control-label">Name</label>

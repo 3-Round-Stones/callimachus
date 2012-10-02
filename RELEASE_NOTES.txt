@@ -4,7 +4,7 @@ http://callimachusproject.org/
 
 5 June 2012
 
-= REQUIREMENTS OF 0.17 =
+= REQUIREMENTS OF 0.18 =
 
 Callimachus works best on browsers that are closely tracking the
 development of HTML5.  At the time of this writing, Callimachus
@@ -12,7 +12,7 @@ works best on Chrome, with Firefox and Safari as second choices.  It is
 recommended that Callimachus users track updates to their browsers for
 the best usage experience.
 
-Chrome 17 has been thoroughly tested.
+Chrome 20 has been thoroughly tested.
 Firefox 10 and Safari 5 have no known issues.
 Internet Explorer 8 and 9 can login and read content, use the
 edit form, but cannot edit text documents or create complex resources.
@@ -20,23 +20,13 @@ edit form, but cannot edit text documents or create complex resources.
 The Callimachus server requires Java JDK 1.6.0_18+ (before 1.7) on the
 server to run.
 
-= NEW IN VERSION 0.17 =
+= NEW IN VERSION 0.18 =
 
-Named queries in Callimachus may now include parameters to facilitate their
-reuse.  For example, a simple SPARQL SELECT query may now be created once
-and used with different parameters, like this:
-[[
-SELECT * { <$param> ?p ?o }
-]]
+Named queries can have view templates. Pipelines are new. User groups can now
+auth/auth by client domain.
 
-Named queries can also now specify their max cache age. Include a comment in the
-query string of "# @Cache-Control: max-age=600" to cache query results for 10
-minutes. Most Response Cache-Control Directives can be used here to control how
-query results should be cached.
+= KNOWN ISSUES IN 0.18 =
 
-= KNOWN ISSUES IN 0.17 =
-
- * Empty table cells are omitted in from template.
  * All possible options in check boxes must have a label.
  * Trailing whitespace in @typeof attribute causes unexpected behaviour.
  * rdf:XMLLiteral on form create auto adds xmlns to elements.
@@ -50,17 +40,22 @@ compiler...FilePermission" exceptions. This is often due to an issue in the
 embedded Java compiler and if so has no impact on the run time behaviour of
 Callimachus.
 
-= HOWTO UPGRADE FROM 0.16 =
+= HOWTO UPGRADE FROM 0.17 =
 
 All information saved through a Web browser is saved in the repositories
 directory. This directory should be backed up (in the stopped state) before
 attempting to upgrade.
 
-Stop the 0.16 server using the callimachus-stop script in the bin directory.
+Stop the 0.17 server using the callimachus-stop script in the bin directory.
 Remove the lib, bin, tmp, src directories.
 
-Download and unzip the callimachus-0.17.zip file in the install directory of
-the Callimachus 0.16 instance. Run the bin/callimachus-setup.sh/.bat script to
+Download and unzip the callimachus-0.18.zip file in the install directory of
+the Callimachus 0.17 instance. Run the bin/callimachus-setup.sh/.bat script to
 upgrade the repositories directory. Run the bin/callimachus-start.sh/.bat script
 to start Callimachus.
+
+Every create template, that has a onsubmit="return calli.saveResourceAs(event)",
+will need to be replaced with onsubmit="return calli.saveResourceAs(event,
+calli.encodePathSegment($('#label').val()))" where "label" is the id of the
+first input field in the form.
 

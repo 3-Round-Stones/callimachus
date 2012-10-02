@@ -16,7 +16,8 @@
             <p>The definition, example, and scope can be provide to clarify usage and meaning</p>
         </aside>
     </div>
-    <form id="form" method="POST" action="" enctype="application/rdf+xml" typeof="skos:Concept" onsubmit="return calli.saveResourceAs(event)">
+    <form id="form" method="POST" action="" enctype="application/rdf+xml" typeof="skos:Concept"
+            onsubmit="return calli.saveResourceAs(event,calli.encodePathSegment($('#label').val()))">
         <fieldset class="hbox">
             <div class="control-group">
                 <label for="label" class="control-label">Label</label>

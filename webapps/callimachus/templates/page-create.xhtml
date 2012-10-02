@@ -21,7 +21,8 @@
 </html>]]></script>
 </head>
 <body>
-    <form id="form" method="POST" action="" enctype="application/xhtml+xml" onsubmit="return calli.saveResourceAs(event,'untitled page.xhtml')">
+    <form id="form" method="POST" action="" enctype="application/xhtml+xml"
+            onsubmit="return calli.saveResourceAs(event, 'untitled page.xhtml', calli.getCallimachusUrl('Page'))">
         <iframe id="iframe" class="flex" src="/callimachus/editor/text-editor.html#html"> </iframe>
         <button type="submit" class="btn btn-success">Create</button>
     </form>

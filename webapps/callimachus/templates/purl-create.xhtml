@@ -38,7 +38,8 @@
             the problem of transitory URIs in location-based URI schemes like HTTP</p>
         </aside>
     </div>
-    <form id="form" method="POST" action="" enctype="application/rdf+xml" onsubmit="return calli.saveResourceAs(event)">
+    <form id="form" method="POST" action="" enctype="application/rdf+xml"
+            onsubmit="return calli.saveResourceAs(event,calli.encodePathSegment($('#label').val()))">
         <fieldset>
             <div class="control-group">
                 <label for="label" class="control-label">Label</label>

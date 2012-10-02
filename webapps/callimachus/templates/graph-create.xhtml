@@ -24,7 +24,8 @@
 ]]></script>
 </head>
 <body>
-    <form id="form" method="POST" action="" enctype="text/turtle" onsubmit="return calli.saveResourceAs(event, 'untitled graph.ttl')">
+    <form id="form" method="POST" action="" enctype="text/turtle"
+            onsubmit="return calli.saveResourceAs(event, 'untitled graph.ttl', calli.getCallimachusUrl('GraphDocument'))">
         <iframe id="iframe" class="flex" src="/callimachus/editor/text-editor.html#sparql"> </iframe>
         <button type="submit" class="btn btn-success">Create</button>
     </form>

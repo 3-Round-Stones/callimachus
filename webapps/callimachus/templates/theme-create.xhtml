@@ -21,7 +21,8 @@
             <p>Theme layouts cannot contain RDFa specific markup</p>
         </aside>
     </div>
-    <form id="form" method="POST" action="" enctype="application/rdf+xml" typeof="calli:Theme" onsubmit="return calli.saveResourceAs(event)">
+    <form id="form" method="POST" action="" enctype="application/rdf+xml" typeof="calli:Theme"
+            onsubmit="return calli.saveResourceAs(event,calli.encodePathSegment($('#label').val()))">
         <fieldset>
             <div class="control-group">
                 <label for="label" class="control-label">Label</label>

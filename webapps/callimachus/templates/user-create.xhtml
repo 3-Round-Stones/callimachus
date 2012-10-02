@@ -23,7 +23,8 @@
             <p>You can customize the message sent in the email here</p>
         </aside>
     </div>
-    <form id="form" method="POST" action="" enctype="multipart/form-data" autocomplete="off" onsubmit="return calli.saveResourceAs(event)">
+    <form id="form" method="POST" action="" enctype="multipart/form-data" autocomplete="off"
+            onsubmit="return calli.saveResourceAs(event,calli.encodePathSegment($('#name').val()))">
         <fieldset>
             <div class="control-group">
                 <label for="name" class="control-label">Username</label>

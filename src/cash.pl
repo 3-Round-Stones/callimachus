@@ -43,12 +43,13 @@ use XML::Simple qw(:strict);
 use Data::Dumper;
 
 # Globals
+my $version = "0.12";
 my $debug = 0;
 my $autols = 0;
 my $term;
 my $server = new Server;
 my $ua = new LWP::UserAgent;
-$ua->agent("CallimachusShell/0.1 " . $ua->agent);
+$ua->agent("CallimachusShell/$version " . $ua->agent);
 my $username;
 my $password;
 my $exitstatus = 0; # Used to provide a return code to calling processes. 
@@ -58,14 +59,20 @@ my $interactive = 0;
 my $execute = "";
 my $silent = 0;
 my $usage = 0;
+my $versionreq = "";
 GetOptions  ("i|interactive"  => \$interactive,
             "e|execute=s" => \$execute,
             "s|silent" => \$silent,
-            "u|usage" => \$usage
+            "u|usage" => \$usage,
+            "v|version=s" => \$versionreq
             ) or die ("ERROR: Command line options could not be parsed");
 
 if ($usage) {
-    exec ("perldoc $0") or &usage;
+    exec ("perldoc $0") or usage();
+}
+
+if ($versionreq) {
+    reportVersion();
 }
 
 my $OUT = *STDOUT;
@@ -136,6 +143,8 @@ sub processCmd {
     my $command = shift(@_);
     warn $@ if $@;
     
+    # TODONEXT: mkdir not working when using proxy.
+    # TODONEXT: rmdir not working in root dir.
     # TODONEXT: Use parseFolderPath() in deleteFile(), etc.
     # TODONEXT: Refactor chDir() and parseDirPath(). Should they be the same method??
     # TODONEXT: Delete files in the active folder (rm --files).
@@ -176,6 +185,7 @@ sub processCmd {
         when (/^rmdir/i) { $command =~ m/^rmdir\s+(.*)$/i; deleteFolder($1) unless $@; }
         when (/^server/i) { $command =~ m/^server\s+(.*)\s*$/i; server($1) unless $@; }
         when (/^set/i) { $command =~ m/^set\s+(.*?)\s+(.*)\s*$/i; setOptions($1, $2) unless $@; }
+        when (/^ver/i) { reportVersion() unless $@; }
         when (/^\s*(exit|quit)/i) { exit(0); }
         default { print $OUT "Command not found.  Try 'help' for suggestions.\n" unless $@; }
     }
@@ -280,6 +290,7 @@ sub commandhelp {
         when (/^rmdir/) { say $OUT "rmdir <folder title>: Deletes the designated folder and its contents from the active folder.  The folder title must be exactly as it appears in a folder listing, including spaces.  This action requires authorization (see 'help login')." }
         when (/^server/) { say $OUT "server <url> or server -p <proxy> <url>: Sets the Callimachus server authority.  For example, 'server http://localhost:8080/' creates a server object with that base HTTP authority.  The server URL must refer to a Callimachus instance.  Further commands will relate to the last set server authority.  Optionally set an HTTP proxy with -p to allow connection to a Callimachus server behind a proxy or running a DNS name different from its HTTP authority.  The <proxy> field must contain a URL and may contain an optional port number (e.g. http://www.example.com:8080).  The <proxy> field must contain 'http://'." }
         when (/^set/) { say $OUT "set <option> <value>:  Set a shell option to the specified value.  Current options are 'debug', which may be set to a non-negative integer value to cause an increasing level of additional information to be displayed, and 'autols', which may be set to 1 to cause an 'ls' command to be issued after every 'cd' command."}
+        when (/^ver/) { say $OUT "version: Report the version number of this shell." }
         default { say $OUT "No help for term \"$helpterm\"." };   
     }
 }
@@ -656,6 +667,7 @@ rm <filename>               Delete a file from the active folder.
 rmdir <folder name>         Delete a folder and its contents from the active folder.
 server <url>                Set the Callimachus server authority. Optionally set an HTTP proxy (-p <proxy>).
 set <option> <value>        Set a shell option.
+version                     Report the version of this shell.
 ENDOFHELP
 }
 
@@ -761,7 +773,6 @@ ENDOFMKDIRTTL
     # Create request headers.
     my $headers = HTTP::Headers->new;
     $headers->header( "Content-Type" => "application/sparql-update" );
-    $headers->header( "Host" => $host );
     
     # Get the parent folder's 'describedby' URL.
     my $links = getFolderLinks($server->folder);
@@ -1105,6 +1116,10 @@ sub reportState {
     say Dumper(%$serverfiles);
 }
 
+sub reportVersion {
+    say $OUT "$version";
+}
+
 # Download a file from the active folder.  Dispose of it via saving to a file or cat to STDOUT.
 sub retrieveFile {
     unless ( serverSet() ) { return; }
@@ -1347,6 +1362,7 @@ shell commands.
 Usage: cash.pl -i
        cash.pl [-s] -e '<command>; <command>; ...'
        cash.pl -u
+       cash.pl -v
        cash.pl < script-file
 
 -e | --execute      Execute the following commands.  Commands are
@@ -1360,3 +1376,4 @@ Usage: cash.pl -i
 
 -u | --usage        Show usage directions and exit.
 
+-v | --version      Report the version number of this shell.

@@ -237,14 +237,14 @@
 </xsl:template>
 
 <xsl:template match="d:table[not(d:caption)]">
-    <table class="table-bordered">
+    <table class="table table-bordered">
         <caption><xsl:apply-templates select="d:title/node()" /></caption>
         <xsl:apply-templates />
     </table>
 </xsl:template>
 
 <xsl:template match="d:table[d:caption] | d:informaltable[d:caption]">
-    <table class="table-bordered">
+    <table class="table table-bordered">
         <xsl:apply-templates />
     </table>
 </xsl:template>

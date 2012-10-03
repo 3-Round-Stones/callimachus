@@ -78,13 +78,13 @@
             beforeSend: withCredentials,
             complete: function(xhr) {
                 var doc = xhr.responseXML;
-                if (doc && !doc.childNodes.length && window.ActiveXObject) {
+                if (window.ActiveXObject && (!doc || !doc.childNodes.length)) {
                     var doc = new ActiveXObject("Microsoft.XMLDOM");
                     doc.async = false;
                     doc.loadXML(xhr.responseText);
                 }
                 if (doc) jQuery(function() {
-                    var feed = $(doc).children('feed');
+                    var feed = $(doc.documentElement);
                     var totalResults = feed.children().filter(function(){return this.tagName=='openSearch:totalResults'}).text();
                     $('#totalResults').text(totalResults);
                     var tbody = $('<tbody/>');

@@ -194,8 +194,9 @@
     calli:query "daypass";
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
     calli:script """
-        if (!userEmail)
+        if (!userEmailForm.get("email") || !userEmailForm.get("email")[0])
             throw new BadRequest("Missing Email");
+        var userEmail = userEmailForm.get("email")[0];
         var iter = this.FindUsersByEmail(userEmail).iterator();
         if (!iter.hasNext()) {
             println("No users with email " + userEmail + " found");
@@ -210,10 +211,10 @@
         java.lang.Thread.sleep(new java.util.Random().nextInt() % 2000 + 2000);
     """.
 
-:userEmail a owl:DatatypeProperty, owl:FunctionalProperty;
+:userEmailForm a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :PostDaypassRequestForm;
-    rdfs:range xsd:string;
-    calli:type "text/plain".
+    rdfs:range <java:java.util.Map>;
+    calli:type "application/x-www-form-urlencoded".
 
 :mail_digest_daypass_xhtml a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :PostDaypassRequestForm.

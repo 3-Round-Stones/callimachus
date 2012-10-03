@@ -49,14 +49,14 @@
                         <p:pipe step="load-stylesheet" port="result" />
                     </p:input>
                     <p:input port="source">
-                        <p:pipe step="xinclude" port="result" />
+                        <p:pipe step="pipeline" port="source" />
                     </p:input>
                 </p:xslt>
             </p:when>
             <p:otherwise>
                 <p:identity>
                     <p:input port="source">
-                        <p:pipe step="xinclude" port="result" />
+                        <p:pipe step="pipeline" port="source" />
                     </p:input>
                 </p:identity>
             </p:otherwise>

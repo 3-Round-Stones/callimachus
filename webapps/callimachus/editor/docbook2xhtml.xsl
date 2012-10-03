@@ -231,20 +231,20 @@
 
 <!-- tables -->
 <xsl:template match="d:informaltable[not(d:caption)]">
-    <table>
+    <table class="table">
         <xsl:apply-templates select="*" />
     </table>
 </xsl:template>
 
 <xsl:template match="d:table[not(d:caption)]">
-    <table>
+    <table class="table-bordered">
         <caption><xsl:apply-templates select="d:title/node()" /></caption>
         <xsl:apply-templates />
     </table>
 </xsl:template>
 
 <xsl:template match="d:table[d:caption] | d:informaltable[d:caption]">
-    <table>
+    <table class="table-bordered">
         <xsl:apply-templates />
     </table>
 </xsl:template>

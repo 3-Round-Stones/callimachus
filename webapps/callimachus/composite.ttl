@@ -120,7 +120,7 @@
                 if (cls instanceof Creatable) {
                     creatable = true;
                     if (!authorization.isAuthorized(user.toString(), cls, ["http://callimachusproject.org/rdf/2009/framework#author"]))
-                        throw new Forbidden("You are not permitted to create " + cls + " resources");
+                        throw new Forbidden(user + " is not permitted to create " + cls + " resources");
                 }
             });
             if (!creatable)
@@ -259,7 +259,7 @@
         while (iter.hasNext()) {
             var user = iter.next();
             if (!authorization.isAuthorized(user.toString(), construct, ["http://callimachusproject.org/rdf/2009/framework#author"]))
-                throw new Forbidden("You are not permitted to create " + construct + " resources");
+                throw new Forbidden(user + " is not permitted to create " + construct + " resources");
         }
         newCopy.calliEditor.addAll(this.FindContributor(newCopy));
         newCopy.calliReader.addAll(this.SelectAllReaders());

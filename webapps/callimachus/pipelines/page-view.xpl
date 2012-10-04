@@ -9,11 +9,12 @@
 
     <p:serialization port="result" media-type="text/html" method="html" doctype-system="about:legacy-compat" />
 
+    <p:import href="page-template.xpl" />
+
     <p:variable name="systemId" select="p:base-uri()" />
     <p:variable name="find-realm-uri" select="concat('../queries/find-realm.rq?results&amp;target=', encode-for-uri($systemId))" />
     <p:variable name="realm" select="doc($find-realm-uri)//sparql:uri" />
 
-    <p:import href="page-template.xpl" />
     <calli:page-template>
         <p:with-option name="systemId" select="$systemId" />
         <p:with-option name="realm" select="$realm" />

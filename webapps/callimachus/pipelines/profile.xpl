@@ -9,13 +9,14 @@
 
     <p:option name="target" required="true"  />
 
+    <p:import href = "transform-layout.xpl" />
+
     <p:xslt>
         <p:input port="stylesheet">
             <p:document href="../transforms/profile.xhtml" />
         </p:input>
     </p:xslt>
 
-    <p:import href = "transform-layout.xpl" />
     <calli:transform-layout>
         <p:with-option name="target"     select="$target" />
         <p:with-option name="query"    select="''" />

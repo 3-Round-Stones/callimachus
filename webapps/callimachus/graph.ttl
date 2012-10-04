@@ -108,6 +108,7 @@
     calli:method "PUT";
     calli:requires calli:editor;
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <java:org.callimachusproject.server.util.ProducerStream>;
     calli:imports <java:org.openrdf.rio.RDFFormat>;
     calli:script """
         if (!reader)
@@ -115,7 +116,7 @@
         var con = this.objectConnection;
         con.clear([this.resource]); //# clear graph
         var object = this;
-        var inputStream = new org.callimachusproject.server.util.ProducerStream(function(outputStream) {
+        var inputStream = new ProducerStream(function(outputStream) {
             var pipe = new java.io.OutputStreamWriter(outputStream, "UTF-8");
             var read;
             var buf = java.lang.reflect.Array.newInstance(java.lang.Character.TYPE, 1024);
@@ -200,6 +201,7 @@
     calli:method "PUT";
     calli:requires calli:editor;
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <java:org.callimachusproject.server.util.ProducerStream>;
     calli:imports <java:org.openrdf.rio.RDFFormat>;
     calli:script """
         if (!graphStream)
@@ -207,12 +209,25 @@
         var con = this.objectConnection;
         con.clear([this.resource]); //# clear graph
         var object = this;
+        var inputStream = new ProducerStream(function(pipe) {
+            var read;
+            var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
+            var out = object.openOutputStream();
+            try {
+                while ((read = graphStream.read(buf)) >= 0) {
+                    out.write(buf, 0, read); //# save to blob
+                    pipe.write(buf, 0, read); //# pipe to RDF store
+                }
+            } finally {
+                out.close();
+                pipe.close();
+            }
+        });
         
         java.lang.System.err.println("Parsing " + this);
-        con.add(graphStream, this.toString(), RDFFormat.RDFXML, [this.resource]);
+        con.add(inputStream, this.toString(), RDFFormat.RDFXML, [this.resource]);
 
         this.touchRevision();
-        java.lang.System.err.println("Imported " + this);
         con.recompileSchemaOnClose();
     """.
 

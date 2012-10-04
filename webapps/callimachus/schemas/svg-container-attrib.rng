@@ -30,7 +30,7 @@ Yutaka Furubayashi (Poka-Poka Dream Factory) <info@yupotan.sppd.ne.jp>
 </define>
 
 <define name="SVG.Container.attrib" combine="interleave">
- <ref name="%SVG.enable-background.attrib"/>
+ <ref name="SVG.enable-background.attrib"/>
  <ref name="SVG.Container.extra.attrib"/>
 </define>
 

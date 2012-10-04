@@ -2,7 +2,7 @@ Callimachus Project Release Notes
 
 http://callimachusproject.org/
 
-5 June 2012
+5 October 2012
 
 = REQUIREMENTS OF 0.18 =
 
@@ -22,8 +22,36 @@ server to run.
 
 = NEW IN VERSION 0.18 =
 
-Named queries can have view templates. Pipelines are new. User groups can now
-auth/auth by client domain.
+Named Queries can now have a custom view page. Using an annotation comment both
+the response Cache-Control header and the view page can be assigned on each
+Named Query. In addition the view page can be a template for the resources in
+the query result. Variables in the query results (one bound variable per
+result/row) can be used as an anchor in the view template. This is done in a
+similar way to how the variable '?this' is used in view templates. However, in a
+query template there many be multiple values and the multiple variables used in
+different sections of the page. The primary use case for this would be to create
+a query view to list resources that match some criteria. For more information see
+http://code.google.com/p/callimachus/wiki/NamedQueries
+
+Pipelines allow complex XML transformations to be performed on the server.
+Pipelines can be used to take the sparql-results of a Named Query and reformat
+it into another XML or text format. The result of a pipeline can be retrived
+by requsting the URL of the pipeline with '?results' appended. Pipelines are
+written using the XProc XML format. More information about them can be seen here
+http://code.google.com/p/callimachus/wiki/XProcExamples
+
+To set a cache control for a pipeline (or other resource) a Copy (200) PURL can
+be created pointing to the result of the pipeline. In this case the PURL will
+cache the results of the pipeline. For more details about creating PURL see
+http://code.google.com/p/callimachus/wiki/PURLs
+
+Authorization can now be performed based on the DNS domain of the client. This
+allows the administrator to make resources public or private simply by changing
+its permissions. Three new groups have been added to simply this process. They
+include "public", "everyone", and "system". The public group represents all
+client agents, everyone group represents all authenticated agents, and the
+system group represents all agents connecting directly from the local machine.
+http://code.google.com/p/callimachus/wiki/Security has more details.
 
 = KNOWN ISSUES IN 0.18 =
 

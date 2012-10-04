@@ -10,10 +10,10 @@
     <link rel="group" href="/group/users" />
     <link rel="group" href="/group/staff" />
     <link rel="group" href="/group/admin" />
-    <link rel="super" href="/callimachus/Serviceable" />
-    <link rel="viewable" href="/callimachus/Viewable" />
-    <link rel="editable" href="/callimachus/Editable" />
-    <link rel="composite" href="/callimachus/Composite" />
+    <link rel="super" href="../Serviceable" />
+    <link rel="viewable" href="../Viewable" />
+    <link rel="editable" href="../Editable" />
+    <link rel="composite" href="../Composite" />
     <script type="text/javascript"> // <![CDATA[
     jQuery(function($){
         $('link[rel="super"]').each(function(){
@@ -136,8 +136,8 @@
             </div>
             <div id="subClassOf" dropzone="link s:text/uri-list" class="control-group"
                     ondrop="return calli.insertResource(event)">
-                <label class="control-label">Super <a href="/callimachus/Class" title="Create"
-                        onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
+                <label class="control-label">Super <a href="/?view" title="Create"
+                        onclick="return calli.selectResource(event)" class="ui-icon ui-icon-newwin" /></label>
                 <div rel="rdfs:subClassOf" class="vbox controls">
                     <span resource="?subClassOf" typeof="owl:Class" class="ui-state-highlight ui-corner-all">
                         <span property="rdfs:label" />
@@ -147,8 +147,7 @@
             </div>
             <div id="equivalentClass" dropzone="link s:text/uri-list" class="control-group"
                     ondrop="return calli.insertResource(event)">
-                <label class="control-label">Equivalent <a href="/callimachus/NamedGraph" title="Create"
-                        onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
+                <label class="control-label">Equivalent</label>
                 <div rel="owl:equivalentClass" class="vbox controls">
                     <span resource="?equivalentClass" typeof="owl:Class" class="ui-state-highlight ui-corner-all">
                         <span class="equivalentLabel" property="rdfs:label" />

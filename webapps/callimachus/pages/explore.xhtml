@@ -38,7 +38,7 @@
                     classcreate.attr('class', 'describe');
                     classcreate.text(' (');
                     var classcreateanchor = $('<a/>');
-                    classcreateanchor.attr('href', folderURL + "?create=" + calli.getCallimachusUrl("Class#!" + escape(data.getValue(i, 0))));
+                    classcreateanchor.attr('href', calli.getCallimachusUrl("Class?create#!" + escape(data.getValue(i, 0))));
                     classcreateanchor.attr('title', "create templates for this class");
                     classcreateanchor.text("assign templates");
                     classcreate.append(classcreateanchor);

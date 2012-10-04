@@ -1,9 +1,8 @@
 package org.callimachusproject.engine.helpers;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.callimachusproject.engine.RDFEventReader;
 import org.callimachusproject.engine.RDFParseException;
@@ -19,7 +18,6 @@ public class OrderedSparqlReader extends AbstractRDFEventReader {
 	private List<List<Var>> parent_nested = new ArrayList<List<Var>>();
 	private List<Var> nested = new ArrayList<Var>();
 	private List<Var> vars = new ArrayList<Var>();
-	private Set<String> observed = new HashSet<String>();
 
 	public OrderedSparqlReader(RDFEventReader delegate) {
 		this.delegate = delegate;
@@ -71,12 +69,12 @@ public class OrderedSparqlReader extends AbstractRDFEventReader {
 			addIfVar(taken.asTriplePattern().getPartner());
 		}
 		if (taken.isEndWhere() && !nested.isEmpty()) {
-			next = new OrderBy(nested, taken.getLocation());
+			next = new OrderBy(new LinkedHashSet<Var>(nested), taken.getLocation());
 		}
 	}
 
 	private void addIfVar(VarOrTerm subj) {
-		if (subj.isVar() && observed.add(subj.stringValue())) {
+		if (subj.isVar()) {
 			vars.add(subj.asVar());
 		}
 	}

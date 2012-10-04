@@ -98,7 +98,7 @@ public class Template {
 					}
 				}
 				writer.write(next);
-				if (next.isStartWhere() && end < subQuery.length()) {
+				if (next.isStartWhere() && !reader.peek().isEndWhere() && end < subQuery.length()) {
 					String select = subQuery.substring(end);
 					end = subQuery.length();
 					writer.flush();

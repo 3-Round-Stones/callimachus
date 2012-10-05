@@ -103,7 +103,19 @@ public class AuthenticationHandler implements Handler {
 		if (!rb.containsHeader(ALLOW_ORIGIN)) {
 			String origins = manager.allowOrigin(request);
 			if (origins != null) {
-				rb.setHeader(ALLOW_ORIGIN, origins);
+				for (String o : origins.split("[\\s,]+")) {
+					if (o.length() > 0) {
+						if ("*".equals(o)) {
+							rb.setHeader(ALLOW_ORIGIN, o);
+							break;
+						} else if (o.equals(request.getVaryHeader("Origin"))) {
+							rb.setHeader(ALLOW_ORIGIN, o);
+							break;
+						} else {
+							rb.addHeader(ALLOW_ORIGIN, o);
+						}
+					}
+				}
 			}
 		}
 		if (!rb.containsHeader(ALLOW_CREDENTIALS)) {

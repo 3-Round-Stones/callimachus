@@ -785,9 +785,9 @@ sub makeDir {
     my $serverfolders = $server->folders;
     foreach my $key (sort keys %$serverfolders) {
         if ( $key eq $foldername ) {
-            say $OUT "Error: $foldername already exists.";
-            $exitstatus++;
-            return 0;
+            say $OUT "$foldername already exists.";
+            #$exitstatus++;
+            return 1;
         }
     }
     
@@ -1043,6 +1043,7 @@ sub parseFolderUrl {
         parseDirPath($path);
         $parenturl = $server->authority . $path;
         $parenturl =~ s/\/\//\//g;
+        $parenturl =~ s/(http:\/)(\w)/http:\/\/$2/;
     } else {
         # Only a leaf name was provided.
         $leaf = $folderpath;
@@ -1096,10 +1097,10 @@ sub putFile {
     
     # POST file to server.
     my $headers = HTTP::Headers->new;
+    $headers->header( "Host" => $host );
     $headers->header( "Slug" => $slug );
     $headers->header( "Content-Type" => getContentType($filename) );
     my $req = HTTP::Request->new("POST", $url, $headers, $content);
-    $req->header( "Host" => $host );
     say $OUT "REQUEST:" if ($debug > 1);
     say $OUT $req->as_string if ($debug > 1);
     

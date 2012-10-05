@@ -29,7 +29,7 @@ window.calli.slugify = function(label) {
         // IE file input
         label = label.substring(label.lastIndexOf('\\') + 1);
     }
-    return removeDiacritics(label).toLowerCase().replace(/\s+/g, '+').replace(/[^\w\-\_\.\!\~\*\'\(\);\,\&\=\$\[\]]+/g,'_');
+    return removeDiacritics(label).toLowerCase().replace(/\s+/g, '+').replace(/[^\w\+\-\_\.\!\~\*\'\(\);\,\&\=\$\[\]]+/g,'_');
 };
 window.calli.saveFormAs = function(event, fileName, create) {
     return calli.saveResourceAs(event, fileName, create);

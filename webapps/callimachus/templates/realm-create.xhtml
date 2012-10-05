@@ -46,7 +46,7 @@
                 </div>
             </div>
         </fieldset>
-        <fieldset class="hbox">
+        <fieldset>
             <div class="control-group">
                 <label for="realm-menu" class="control-label">Menu</label>
                 <div class="controls">
@@ -55,11 +55,13 @@
                     </select>
                 </div>
             </div>
+        </fieldset>
+        <fieldset>
             <div class="control-group">
                 <label for="authentication" class="control-label">Authentication</label>
                 <div class="controls">
                     <select id="authentication" rel="calli:authentication">
-                        <option selected="selected" about="?authentication" typeof="calli:AuthenticationManager" property="rdfs:label" />
+                        <option selected="selected" about="?authentication" typeof="calli:AuthenticationManager">{?authentication}</option>
                     </select>
                 </div>
             </div>

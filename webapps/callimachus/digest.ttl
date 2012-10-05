@@ -9,7 +9,7 @@
 <> a <SchemaGraph>.
 
 ################################
-# Realm
+# Digest
 ################################
 
 <DigestManager> a <Creatable>, owl:Class;
@@ -19,6 +19,22 @@
     calli:view <templates/digest-view.xhtml>;
     calli:edit <templates/digest-edit.xhtml>;
     calli:create <templates/digest-create.xhtml>.
+
+:PostEditDigest owl:intersectionOf (<editable.ttl#PostEdit>
+        [owl:onProperty msg:target; owl:allValuesFrom <DigestManager>]);
+    calli:method "POST";
+    calli:query "edit";
+    calli:requires calli:editor;
+    calli:expect "201-modified";
+    calli:type "text/uri-list";
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:script """
+        var ret = proceed();
+        if (!this.calliAuthName)
+            throw new BadRequest("authName is required");
+        org.callimachusproject.server.auth.RealmManager.reset();
+        return ret;
+    """.
 
 ################################
 # login

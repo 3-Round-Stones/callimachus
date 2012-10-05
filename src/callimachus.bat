@@ -193,6 +193,11 @@ if not "%PRIMARY_ORIGIN%" == "" goto gotPrimaryOrigin
 set "PRIMARY_ORIGIN=%ORIGIN%"
 :gotPrimaryOrigin
 
+set "ALL_SERVICEABLE_OPT=-l"
+if not "%ALL_SERVICEABLE%" == "false" goto gotAllServiceable
+set "ALL_SERVICEABLE_OPT="
+:gotAllServiceable
+
 if not "%OPTS%" == "" goto gotOpts
 if not "%SECURITY_MANAGER%" == "true" goto gotOpts
 set "OPTS=--trust"
@@ -302,7 +307,7 @@ goto setStartArgs
 
 rem Execute Java with the applicable properties
 FOR /F "tokens=1 delims=" %%A in ('dir /b lib\%NAME%*.car') do SET "CAR_FILE=%%A"
-"%JAVA_HOME%\bin\java" -server "-Duser.home=%BASEDIR%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" "-Djava.mail.properties=%MAIL%" -classpath "%CLASSPATH%" -XX:OnOutOfMemoryError="taskkill /F /PID %%p" %JAVA_OPTS% %SSL_OPTS% %SETUPCLASS% -o %PRIMARY_ORIGIN: = -o % -c "%REPOSITORY_CONFIG%" -f "/callimachus/=lib\%CAR_FILE%" -l -u "%USERNAME%" -e "%EMAIL%" -n "%FULLNAME%" %CMD_LINE_ARGS%
+"%JAVA_HOME%\bin\java" -server "-Duser.home=%BASEDIR%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" "-Djava.mail.properties=%MAIL%" -classpath "%CLASSPATH%" -XX:OnOutOfMemoryError="taskkill /F /PID %%p" %JAVA_OPTS% %SSL_OPTS% %SETUPCLASS% -o %PRIMARY_ORIGIN: = -o % -c "%REPOSITORY_CONFIG%" -f "/callimachus/=lib\%CAR_FILE%" %ALL_SERVICEABLE_OPT% -u "%USERNAME%" -e "%EMAIL%" -n "%FULLNAME%" %CMD_LINE_ARGS%
 goto end
 
 :doDump

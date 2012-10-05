@@ -112,8 +112,8 @@ public class Setup {
 	private static final String ACTIVITY_TYPE = CALLIMACHUS + "Activity";
 	private static final String FOLDER_TYPE = CALLIMACHUS + "Folder";
 	private static final String GRAPH_DOCUMENT = CALLIMACHUS + "GraphDocument";
-	private static final String SERVE_ALL = CALLIMACHUS + "serve-all.ttl";
-	private static final String SERVE_ALL_TTL = "META-INF/templates/callimachus-serve-all.ttl";
+	private static final String SERVE_ALL = "/everything-else-public.ttl";
+	private static final String SERVE_ALL_TTL = "META-INF/templates/callimachus-all-serviceable.ttl";
 	private static final String INITIAL_GRAPH = "META-INF/templates/callimachus-initial-data.ttl";
 	private static final String MAIN_ARTICLE = "META-INF/templates/main-article.docbook";
 
@@ -1048,7 +1048,7 @@ public class Setup {
 					Statement st = stmts.next();
 					Resource serve = st.getSubject();
 					if (serve.stringValue().endsWith(SERVE_ALL) && !serve.equals(file)) {
-						logger.info("All resources are no longer served as {}", st.getSubject());
+						logger.info("Other resources are no longer served publicly through {}", st.getSubject());
 						con.clear(serve);
 						con.remove((Resource) null, hasComponent, serve);
 						modified = true;
@@ -1061,7 +1061,7 @@ public class Setup {
 			InputStream in = cl.getResourceAsStream(SERVE_ALL_TTL);
 			try {
 				if (file != null && in != null && !con.hasStatement((Resource) null, hasComponent, file)) {
-					logger.info("All resources are now served as {}", origin);
+					logger.info("All other resources are now served publicly through {}", origin);
 					OutputStream out = con.getBlobObject(file).openOutputStream();
 					try {
 						int read;
@@ -1075,14 +1075,14 @@ public class Setup {
 						in = con.getBlobObject(file).openInputStream();
 					}
 					con.add(in, file.stringValue(), RDFFormat.TURTLE, file);
-					con.add(file, RDFS.LABEL, vf.createLiteral("serve all"));
+					con.add(file, RDFS.LABEL, vf.createLiteral("everything else public"));
 					con.add(file, RDF.TYPE, NamedGraph);
 					con.add(file, RDF.TYPE, vf.createURI(origin + GRAPH_DOCUMENT));
 					con.add(file, RDF.TYPE, vf.createURI("http://xmlns.com/foaf/0.1/Document"));
 					con.add(file, vf.createURI(CALLI_READER), vf.createURI(origin + "/group/public"));
 					con.add(file, vf.createURI(CALLI_SUBSCRIBER), vf.createURI(origin + "/group/staff"));
 					con.add(file, vf.createURI(CALLI_ADMINISTRATOR), vf.createURI(origin + "/group/admin"));
-					con.add(vf.createURI(origin + CALLIMACHUS), hasComponent, file);
+					con.add(vf.createURI(origin + "/"), hasComponent, file);
 					modified = true;
 				}
 			} finally {

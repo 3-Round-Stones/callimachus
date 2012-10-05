@@ -301,6 +301,11 @@ if [ -z "$PRIMARY_ORIGIN" ] ; then
   PRIMARY_ORIGIN="$ORIGIN"
 fi
 
+ALL_SERVICEABLE_OPT=""
+if [ "$ALL_SERVICEABLE" != "false" ] ; then
+  ALL_SERVICEABLE_OPT="-l"
+fi
+
 PORT_OPTS="$(echo $PORT |perl -pe 's/(^|\s)(\S)/ -p $2/g' 2>/dev/null) $(echo $SSLPORT |perl -pe 's/(^|\s)(\S)/ -s $2/g' 2>/dev/null)"
 ORIGIN_OPTS="-o $(echo $ORIGIN |perl -pe 's/(\s)(\S)/ -o $2/g' 2>/dev/null)"
 PRIMARY_ORIGIN_OPTS="-o $(echo $PRIMARY_ORIGIN |perl -pe 's/(\s)(\S)/ -o $2/g' 2>/dev/null)"
@@ -507,8 +512,8 @@ do_setup() {
     -classpath "$CLASSPATH" \
     -XX:OnOutOfMemoryError="kill -9 %p" \
     $JAVA_OPTS $SSL_OPTS "$SETUPCLASS" \
-    $PRIMARY_ORIGIN_OPTS -c "$REPOSITORY_CONFIG" -f "/callimachus/=$(ls lib/$NAME*.car)" -l \
-    -e "$EMAIL" -n "$FULLNAME" "$@"
+    $PRIMARY_ORIGIN_OPTS -c "$REPOSITORY_CONFIG" -f "/callimachus/=$(ls lib/$NAME*.car)" \
+    -e "$EMAIL" -n "$FULLNAME" $ALL_SERVICEABLE_OPT "$@"
   return $?
 }
 

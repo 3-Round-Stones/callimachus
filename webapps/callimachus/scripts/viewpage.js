@@ -13,7 +13,7 @@ function select(node, selector) {
 
 function handle(event) {
     select(event.target, "a.view,a.diverted,a[data-diverted]").each(function() {
-        var href = window.calli.viewpage(this.href, $(this).attr("data-query"));
+        var href = window.calli.viewpage(this.href);
         var link = $(this);
         if (this.href != href) {
             var resource = link.attr("href");
@@ -45,7 +45,7 @@ if (!window.calli) {
 }
 
 window.calli.viewpage = function(uri) {
-    var url = uri;
+    var url = calli.listResourceIRIs(uri)[0];
     if (url.indexOf(':') < 0) {
         if (document.baseURIObject && document.baseURIObject.resolve) {
             url = document.baseURIObject.resolve(url);
@@ -57,14 +57,11 @@ window.calli.viewpage = function(uri) {
             }
         }
     }
-    var prefix = calli.getCallimachusUrl('/');
+    var prefix = location.protocol + '//' + location.host + '/';
     if (url.indexOf(prefix) == 0) {
         url = url.substring(prefix.length - 1);
     }
-    if (url.indexOf('/diverted;') == 0) {
-        url = decodeURIComponent(url.substring('/diverted;'.length));
-    }
-    return calli.getCallimachusUrl('/?go=' + encodeURIComponent(url).replace(/%2F/g, '/').replace(/%3A/g, ':'));
+    return prefix + '?go=' + encodeURIComponent(url).replace(/%2F/g, '/').replace(/%3A/g, ':');
 }
 
 window.calli.diverted = function(uri, query) {

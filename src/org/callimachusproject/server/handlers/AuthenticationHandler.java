@@ -61,7 +61,8 @@ public class AuthenticationHandler implements Handler {
 			"Content-Length", "Content-Encoding", "Date", "Server" };
 	private static final Set<String> PRIVATE_HEADERS = new HashSet<String>(
 			Arrays.asList("set-cookie", "set-cookie2"));
-	private final AuthorizationManager manager = AuthorizationManager.getInstance();
+	private final AuthorizationManager manager = AuthorizationManager
+			.getInstance();
 	private final Handler delegate;
 
 	public AuthenticationHandler(Handler delegate) {
@@ -79,44 +80,53 @@ public class AuthenticationHandler implements Handler {
 		} else {
 			RDFObject target = request.getRequestedResource();
 			Set<Group> groups = manager.getAuthorizedParties(target, requires);
-			if (manager.isPublic(groups) || groups.isEmpty() && request.getJavaMethod() == null) {
+			if (manager.isPublic(groups) || groups.isEmpty()
+					&& request.getJavaMethod() == null) {
 				request.setPublic(true);
 			} else {
 				HttpResponse unauthorized = manager.authorize(request, groups);
 				if (unauthorized != null) {
-					return new Response(allow(request, unauthorized),
-							request.getObjectConnection());
+					String allowed = getAllowedOrigin(request);
+					HttpResponse rb = allow(request, unauthorized, allowed);
+					return new Response(rb, request.getObjectConnection());
 				}
 			}
 		}
-		return allow(request, delegate.verify(request));
+		String allowed = getAllowedOrigin(request);
+		return allow(request, delegate.verify(request), allowed);
 	}
 
 	public Response handle(ResourceOperation request) throws Exception {
-		return allow(request, delegate.handle(request));
+		String allowedOrigin = getAllowedOrigin(request);
+		return allow(request, delegate.handle(request), allowedOrigin);
 	}
 
-	private <R extends HttpMessage> R allow(ResourceOperation request, R rb)
-			throws OpenRDFException, IOException {
+	private String getAllowedOrigin(ResourceOperation request)
+			throws OpenRDFException {
+		Set<String> origins = manager.allowOrigin(request);
+		if (origins == null || origins.isEmpty())
+			return null;
+		if (origins.contains("*"))
+			return "*";
+		String origin = request.getVaryHeader("Origin");
+		if (origins.contains(origin))
+			return origin;
+		StringBuilder sb = new StringBuilder();
+		for (String o : origins) {
+			if (sb.length() > 0) {
+				sb.append(" ");
+			}
+			sb.append(o);
+		}
+		return sb.toString();
+	}
+
+	private <R extends HttpMessage> R allow(ResourceOperation request, R rb,
+			String allowedOrigin) throws OpenRDFException, IOException {
 		if (rb == null)
 			return null;
-		if (!rb.containsHeader(ALLOW_ORIGIN)) {
-			String origins = manager.allowOrigin(request);
-			if (origins != null) {
-				for (String o : origins.split("[\\s,]+")) {
-					if (o.length() > 0) {
-						if ("*".equals(o)) {
-							rb.setHeader(ALLOW_ORIGIN, o);
-							break;
-						} else if (o.equals(request.getVaryHeader("Origin"))) {
-							rb.setHeader(ALLOW_ORIGIN, o);
-							break;
-						} else {
-							rb.addHeader(ALLOW_ORIGIN, o);
-						}
-					}
-				}
-			}
+		if (allowedOrigin != null && !rb.containsHeader(ALLOW_ORIGIN)) {
+			rb.setHeader(ALLOW_ORIGIN, allowedOrigin);
 		}
 		if (!rb.containsHeader(ALLOW_CREDENTIALS)) {
 			String origin = request.getVaryHeader("Origin");
@@ -146,7 +156,7 @@ public class AuthenticationHandler implements Handler {
 	}
 
 	private String exposeHeaders(HttpMessage rb) {
-		Map<String,String> map = new LinkedHashMap<String,String>();
+		Map<String, String> map = new LinkedHashMap<String, String>();
 		for (Header hd : rb.getAllHeaders()) {
 			String lc = hd.getName().toLowerCase();
 			if (!PRIVATE_HEADERS.contains(lc)) {

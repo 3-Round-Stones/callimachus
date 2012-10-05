@@ -18,30 +18,31 @@
     rdf:_7 <accounts.js>;
     rdf:_8 <node-inserted.js>;
     rdf:_9 <breadcrumb.js>;
-    rdf:_10 <viewpage.js>;
-    rdf:_11 <optional.js>;
-    rdf:_12 <time.js>;
-    rdf:_13 <auto-expand.js>;
-    rdf:_14 <hbox.js>;
-    rdf:_15 <vbox.js>;
-    rdf:_16 <sorted.js>;
-    rdf:_17 <creole.js>;
-    rdf:_18 <wiki.js>;
-    rdf:_19 <placeholder.js>;
-    rdf:_20 <details.js>;
-    rdf:_21 <bootstrap-affix.js>;
-    rdf:_22 <bootstrap-alert.js>;
-    rdf:_23 <bootstrap-button.js>;
-    rdf:_24 <bootstrap-carousel.js>;
-    rdf:_25 <bootstrap-collapse.js>;
-    rdf:_26 <bootstrap-dropdown.js>;
-    rdf:_27 <bootstrap-modal.js>;
-    rdf:_28 <bootstrap-tooltip.js>;
-    rdf:_29 <bootstrap-scrollspy.js>;
-    rdf:_30 <bootstrap-tab.js>;
-    rdf:_31 <bootstrap-popover.js>;
-    rdf:_32 <bootstrap-transition.js>;
-    rdf:_33 <bootstrap-typeahead.js>.
+    rdf:_10 <resource-iri.js>;
+    rdf:_11 <viewpage.js>;
+    rdf:_12 <optional.js>;
+    rdf:_13 <time.js>;
+    rdf:_14 <auto-expand.js>;
+    rdf:_15 <hbox.js>;
+    rdf:_16 <vbox.js>;
+    rdf:_17 <sorted.js>;
+    rdf:_18 <creole.js>;
+    rdf:_19 <wiki.js>;
+    rdf:_20 <placeholder.js>;
+    rdf:_21 <details.js>;
+    rdf:_22 <bootstrap-affix.js>;
+    rdf:_23 <bootstrap-alert.js>;
+    rdf:_24 <bootstrap-button.js>;
+    rdf:_25 <bootstrap-carousel.js>;
+    rdf:_26 <bootstrap-collapse.js>;
+    rdf:_27 <bootstrap-dropdown.js>;
+    rdf:_28 <bootstrap-modal.js>;
+    rdf:_29 <bootstrap-tooltip.js>;
+    rdf:_30 <bootstrap-scrollspy.js>;
+    rdf:_31 <bootstrap-tab.js>;
+    rdf:_32 <bootstrap-popover.js>;
+    rdf:_33 <bootstrap-transition.js>;
+    rdf:_34 <bootstrap-typeahead.js>.
 
 # IE8 can't handle any more than minification of 1 on jquery.rdfquery.rdfa.js
 <form_bundle> a calli:ScriptBundle; calli:minified 1 ;
@@ -52,20 +53,19 @@
     rdf:_4 <fix-event.js>;
     rdf:_5 <data-options.js>;
     rdf:_6 <input-expression.js>;
-    rdf:_7 <resource-iri.js>;
-    rdf:_8 <add-resource.js>;
-    rdf:_9 <remove-resource.js>;
-    rdf:_10 <dropzone.js>;
-    rdf:_11 <dialog.js>;
-    rdf:_12 <create-resource.js>;
-    rdf:_13 <document-ready.js>;
-    rdf:_14 <input-date.js>;
-    rdf:_15 <disable-button.js>;
-    rdf:_16 <save-resource-as.js>;
-    rdf:_17 <select-resource.js>;
-    rdf:_18 <submit-rdfxml.js>;
-    rdf:_19 <submit-form-data.js>;
-    rdf:_20 <submit-update.js>;
-    rdf:_21 <delete-resource.js>;
-    rdf:_22 <insert-resource.js>.
+    rdf:_7 <add-resource.js>;
+    rdf:_8 <remove-resource.js>;
+    rdf:_9 <dropzone.js>;
+    rdf:_10 <dialog.js>;
+    rdf:_11 <create-resource.js>;
+    rdf:_12 <document-ready.js>;
+    rdf:_13 <input-date.js>;
+    rdf:_14 <disable-button.js>;
+    rdf:_15 <save-resource-as.js>;
+    rdf:_16 <select-resource.js>;
+    rdf:_17 <submit-rdfxml.js>;
+    rdf:_18 <submit-form-data.js>;
+    rdf:_19 <submit-update.js>;
+    rdf:_20 <delete-resource.js>;
+    rdf:_21 <insert-resource.js>.
 

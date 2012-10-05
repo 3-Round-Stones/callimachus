@@ -95,14 +95,14 @@ function findLabel(form) {
 function openSaveAsDialog(form, label, create, callback) {
     var src = calli.getCallimachusUrl("pages/location-prompt.html#") + encodeURIComponent(label.replace(/!/g,''));
     if (location.search.search(/\?\w+=/) == 0) {
-        src += '!' + calli.listResourceIRIs(calli.getPageUrl())[0];
+        src += '!' + calli.viewpage(calli.getPageUrl());
     } else if (window.sessionStorage) {
         try {
             var url = sessionStorage.getItem("LastFolder");
             if (url) {
-                src += '!' + calli.listResourceIRIs(url)[0];
+                src += '!' + calli.viewpage(url);
             } else if (url = localStorage.setItem("LastFolder")) {
-                src += '!' + calli.listResourceIRIs(url)[0];
+                src += '!' + calli.viewpage(url);
             }
         } catch (e) {
             // ignore

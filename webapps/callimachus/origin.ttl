@@ -73,11 +73,12 @@
     calli:script """
         var con = this.objectConnection;
         var vf = con.valueFactory;
+        var tf = TermFactory.newInstance(this.toString());
 
         function resolveAbsoluteURI(string) {
             try {
                 if (string.indexOf("/") == 0 || java.net.URI.create(string).isAbsolute())
-                    return TermFactory.newInstance(diverted.toString()).resolve(string);
+                    return tf.resolve(string);
                 return null;
             } catch (e) {
                 throw new BadRequest(e);

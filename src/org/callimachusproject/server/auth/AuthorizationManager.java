@@ -179,25 +179,16 @@ public class AuthorizationManager {
 		return realm != null && realm.withAgentCredentials(origin);
 	}
 
-	public String allowOrigin(ResourceOperation request)
+	public Set<String> allowOrigin(ResourceOperation request)
 			throws OpenRDFException {
 		Set<String> set = new LinkedHashSet<String>();
 		Realm realm = getRealm(request);
 		if (realm == null && request.isPublic()) {
-			return "*";
+			return Collections.singleton("*");
 		} else if (realm != null) {
 			set.addAll(realm.allowOrigin());
 		}
-		if (set.isEmpty())
-			return null;
-		StringBuilder sb = new StringBuilder();
-		for (String s : set) {
-			if (sb.length() > 0) {
-				sb.append(" ");
-			}
-			sb.append(s);
-		}
-		return sb.toString();
+		return set;
 	}
 
 	private Set<String> getAnnotationValuesOf(RDFObject target, Set<String> roles) throws OpenRDFException {

@@ -29,15 +29,6 @@ use strict;
 require 5.10.0;
 use feature qw(switch say);
 
-#use Term::ReadLine;
-#use LWP::UserAgent;
-#use LWP::Authen::Digest;
-#use File::HomeDir;
-#use Getopt::Long qw(:config gnu_getopt);
-#use XML::Simple qw(:strict);
-#use Data::Dumper;
-
-
 # Load modules. Exit with a better error message if some can't be found.
 BEGIN {
       my($found, $error, @DBs, @badmodules, $mod, $badmod);
@@ -173,8 +164,7 @@ sub processCmd {
     my $command = shift(@_);
     warn $@ if $@;
     
-    # TODONEXT: mkdir not working when using proxy.
-    # TODONEXT: rmdir not working in root dir.
+    # TODONEXT: rmdir not working consistently.
     # TODONEXT: Use parseFolderPath() in deleteFile(), etc.
     # TODONEXT: Refactor chDir() and parseDirPath(). Should they be the same method??
     # TODONEXT: Delete files in the active folder (rm --files).

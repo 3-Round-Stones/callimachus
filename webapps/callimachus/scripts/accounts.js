@@ -2,6 +2,43 @@
 
 (function($,jQuery){
 
+$(document).ready(function(){
+    $('a#login-link,a#profile-link').mousedown(function(event) {
+        this.href = divertIfForeign(this.href);
+        return true;
+    });
+    $('a#logout-link').click(function(event) {
+        logout(divertIfForeign(this.href));
+        event.preventDefault();
+        return false;
+    });
+});
+
+function divertIfForeign(url) {
+    var same = location.protocol + '//' + location.host + '/';
+    if (url.indexOf(same) != 0 && url.indexOf('?') >= 0) {
+        return calli.diverted(url.substring(0, url.indexOf('?')), url.substring(url.indexOf('?') + 1));
+    } else if (url.indexOf(same) != 0) {
+        return calli.diverted(url);
+    }
+    return url;
+}
+
+function logout(url) {
+    jQuery.ajax({ type: 'POST', url: url,
+        username: 'logout', password: 'please',
+        success: function(data) {
+            if (window.localStorage) {
+                localStorage.removeItem('username');
+                localStorage.removeItem('userIri');
+                localStorage.removeItem("digestPassword");
+            }
+            $(document).trigger("calliLoggedOut");
+            window.location = "/";
+        }
+    });
+}
+
 if (!window.calli) {
     window.calli = {};
 }
@@ -52,44 +89,6 @@ $(document).bind("calliLogout", function(event) {
     logout("/?logout");
     event.preventDefault();
 });
-
-$(document).ready(function(){
-    $('a[rel="logout"]').click(function(event) {
-        logout(this.href);
-        event.preventDefault();
-        return false;
-    });
-});
-
-$(document).bind("DOMNodeInserted",function handle(event) {
-    $('a[rel="logout"]', event.target).click(function(event) {
-        logout(this.href);
-        event.preventDefault();
-        return false;
-    });
-    if ($(event.target).is('a[rel="logout"]')) {
-        $(event.target).click(function(event) {
-            logout(this.href);
-            event.preventDefault();
-            return false;
-        });
-    }
-});
-
-function logout(url) {
-    jQuery.ajax({ type: 'POST', url: url,
-        username: 'logout', password: 'please',
-        success: function(data) {
-            if (window.localStorage) {
-                localStorage.removeItem('username');
-                localStorage.removeItem('userIri');
-                localStorage.removeItem("digestPassword");
-            }
-            $(document).trigger("calliLoggedOut");
-            window.location = "/";
-        }
-    });
-}
 
 $(document).bind("calliLoggedOut", function(event) {
     document.documentElement.className += ' logout';

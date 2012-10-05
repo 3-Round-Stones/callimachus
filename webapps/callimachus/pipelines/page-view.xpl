@@ -21,6 +21,7 @@
     </calli:page-template>
 
     <p:xslt>
+        <p:with-param name="realm" select="$realm" />
         <p:with-param name="target" select="$systemId"/>
         <p:with-param name="query" select="'view'"/>
         <p:input port="stylesheet">

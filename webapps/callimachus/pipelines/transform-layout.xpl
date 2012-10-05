@@ -25,6 +25,7 @@
     </p:xslt>
 
     <p:xslt>
+        <p:with-param name="realm" select="$realm" />
         <p:with-param name="target" select="$target"/>
         <p:with-param name="query" select="$query"/>
         <p:input port="stylesheet">

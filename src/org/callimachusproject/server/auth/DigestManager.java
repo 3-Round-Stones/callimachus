@@ -69,34 +69,46 @@ public class DigestManager implements AuthenticationManager {
 	private final Resource self;
 	private final String authName;
 	private final String protectedDomains;
+	private final String protectedPath;
 	private final DigestHelper helper = new DigestHelper();
-
-	public DigestManager(Resource self) {
-		this(self, null, null);
-	}
 
 	public DigestManager(Resource self, String authName, String protectedDomains) {
 		assert self != null;
+		assert authName != null;
+		assert protectedDomains != null;
+		assert protectedDomains.length() > 0;
 		this.self = self;
 		this.authName = authName;
 		this.protectedDomains = protectedDomains;
+		if (protectedDomains.contains(" ")) {
+			String pre = null;
+			for (String url : protectedDomains.split("\\s+")) {
+				if (url.length() > 0) {
+					String path = new ParsedURI(url).getPath();
+					if (path != null && path.startsWith("/")) {
+						if (pre == null || pre.startsWith(path)) {
+							pre = path;
+						}
+						while (!path.startsWith(pre)) {
+							int slash = pre.lastIndexOf('/', pre.length() - 2);
+							pre = pre.substring(0, slash);
+						}
+					}
+				}
+			}
+			protectedPath = pre == null ? "/" : pre;
+		} else {
+			protectedPath = new ParsedURI(protectedDomains).getPath();
+		}
 	}
 
 	@Override
 	public HttpResponse unauthorized(String method, Object resource,
 			Map<String, String[]> request) {
-		if (authName == null)
-			return null;
-		String domain = protectedDomains;
-		if (domain == null) {
-			domain = "";
-		} else if (domain.length() != 0) {
-			domain = ", domain=\"" + domain + "\"";
-		}
 		String nonce = nextNonce(resource, request.get("via"));
-		String authenticate = "Digest realm=\"" + authName + "\"" + domain
-				+ ", nonce=\"" + nonce
-				+ "\", algorithm=\"MD5\", qop=\"auth\"";
+		String authenticate = "Digest realm=\"" + authName + "\""
+				+ (", domain=\"" + protectedDomains + "\"") + ", nonce=\""
+				+ nonce + "\", algorithm=\"MD5\", qop=\"auth\"";
 		Map<String, String> options = parseDigestAuthorization(request);
 		if (options != null) {
 			if (!isRecentDigest(resource, request, options)) {
@@ -143,11 +155,12 @@ public class DigestManager implements AuthenticationManager {
 		String ha2 = helper.md5(":" + uri);
 		String rspauth = helper.md5(ha1 + ":" + nonce + ":" + nc + ":" + cnonce
 				+ ":auth:" + ha2);
-		BasicHttpResponse resp = new BasicHttpResponse(_204);
 		String authenticate = "qop=auth,cnonce=\"" + cnonce + "\",nc=" + nc
 				+ ",rspauth=\"" + rspauth + "\"";
+		String cookie = USERNAME + encode(username) + ";Path=" + protectedPath;
+		BasicHttpResponse resp = new BasicHttpResponse(_204);
 		resp.addHeader("Authentication-Info", authenticate);
-		resp.addHeader("Set-Cookie", USERNAME + encode(username) + ";Path=/");
+		resp.addHeader("Set-Cookie", cookie);
 		return resp;
 	}
 
@@ -185,14 +198,13 @@ public class DigestManager implements AuthenticationManager {
 
 	@Override
 	public HttpResponse logout(Collection<String> tokens) {
-		if (authName == null)
-			return null;
 		for (String token : tokens) {
 			if (token.indexOf("username=\"logout\"") > 0) {
 				// # bogus credentials received
 				BasicHttpResponse resp = new BasicHttpResponse(_204);
 				resp.addHeader("Set-Cookie", helper.clearCookie());
-				resp.addHeader("Set-Cookie", USERNAME + ";Max-Age=0;Path=/");
+				resp.addHeader("Set-Cookie", USERNAME + ";Max-Age=0;Path="
+						+ protectedPath);
 				return resp;
 			}
 		}

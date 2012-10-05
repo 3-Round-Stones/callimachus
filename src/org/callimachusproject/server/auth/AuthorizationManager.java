@@ -5,7 +5,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -30,6 +29,7 @@ import org.apache.http.message.BasicStatusLine;
 import org.apache.http.util.EntityUtils;
 import org.callimachusproject.server.handlers.AuthenticationHandler;
 import org.callimachusproject.server.model.ResourceOperation;
+import org.callimachusproject.util.DomainNameSystemResolver;
 import org.openrdf.OpenRDFException;
 import org.openrdf.annotations.Iri;
 import org.openrdf.model.Value;
@@ -60,6 +60,7 @@ public class AuthorizationManager {
 			HttpVersion.HTTP_1_1, 403, "Forbidden");
 	private final Logger logger = LoggerFactory
 			.getLogger(AuthenticationHandler.class);
+	private final DomainNameSystemResolver dnsResolver = DomainNameSystemResolver.getInstance();
 	private final AnnotationPropertyInferencer properties = new AnnotationPropertyInferencer();
 	private final GroupManager groupManager = new GroupManager();
 	private final RealmManager realmManager = new RealmManager();
@@ -400,7 +401,7 @@ public class AuthorizationManager {
 				if (via.length() > 0) {
 					via.append(",");
 				}
-				via.append("1.1 ").append(getCanonicalHostName(ip));
+				via.append("1.1 ").append(dnsResolver.reverse(ip));
 			}
 		}
 		for (String hd : request.getVaryHeaders("Via")) {
@@ -413,45 +414,8 @@ public class AuthorizationManager {
 		if (via.length() > 0) {
 			via.append(",");
 		}
-		via.append("1.1 ").append(getCanonicalHostName(remoteAddr));
+		via.append("1.1 ").append(dnsResolver.reverse(remoteAddr));
 		return via.toString();
-	}
-
-	private Object getCanonicalHostName(String ip) {
-		try {
-			return getCanonicalHostName(InetAddress.getByName(ip));
-		} catch (UnknownHostException e) {
-			return ip;
-		}
-	}
-
-	private String getCanonicalHostName(InetAddress netAddr) {
-		String name = netAddr.getCanonicalHostName();
-		try {
-			if (!name.equals(netAddr.getHostAddress())
-					&& netAddr.equals(InetAddress.getByName(name)))
-				return name;
-		} catch (UnknownHostException e) {
-			// use reverse name
-		}
-		byte[] addr = netAddr.getAddress();
-		if (addr.length == 4) { // IPv4 Address
-			StringBuilder sb = new StringBuilder();
-			for (int i = addr.length - 1; i >= 0; i--) {
-				sb.append((addr[i] & 0xff) + ".");
-			}
-			return sb.append("in-addr.arpa").toString();
-		} else if (addr.length == 16) { // IPv6 Address
-			StringBuilder sb = new StringBuilder();
-			for (int i = addr.length - 1; i >= 0; i--) {
-				sb.append(Integer.toHexString((addr[i] & 0x0f)));
-				sb.append(".");
-				sb.append(Integer.toHexString((addr[i] & 0xf0) >> 4));
-				sb.append(".");
-			}
-			return sb.append("ip6.arpa").toString();
-		}
-		return name;
 	}
 
 	private boolean isOriginAllowed(Collection<String> allowed, String o) {

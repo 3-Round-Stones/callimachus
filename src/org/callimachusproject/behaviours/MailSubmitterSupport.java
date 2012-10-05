@@ -22,8 +22,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.Date;
-import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -36,14 +34,11 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
 
 import org.callimachusproject.concepts.User;
 import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.server.exceptions.NotImplemented;
+import org.callimachusproject.util.DomainNameSystemResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,6 +50,7 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public abstract class MailSubmitterSupport implements User {
+	private static final DomainNameSystemResolver resolver = DomainNameSystemResolver.getInstance();
 	private static final Pattern HTML_TITLE = Pattern
 			.compile("<title>\\s*([^<]*)\\s*<.title>");
 	private final Logger logger = LoggerFactory
@@ -179,22 +175,9 @@ public abstract class MailSubmitterSupport implements User {
 	}
 
 	private String findMailServer(String domain) throws NamingException {
-		Hashtable<String, String> env = new Hashtable<String, String>();
-		env.put("java.naming.factory.initial",
-				"com.sun.jndi.dns.DnsContextFactory");
-		DirContext ictx = new InitialDirContext(env);
-		Attributes attrs = ictx.getAttributes(domain, new String[] { "MX" });
-		Enumeration e = attrs.getAll();
-		if (e.hasMoreElements()) {
-			Attribute a = (Attribute) e.nextElement();
-			int size = a.size();
-			if (size > 0) {
-				String value = (String) a.get(0);
-				if (value.indexOf(' ') >= 0)
-					return value.substring(value.indexOf(' ') + 1);
-				return value;
-			}
-		}
-		return null;
+		String value = resolver.lookup(domain, "MX");
+		if (value.indexOf(' ') >= 0)
+			return value.substring(value.indexOf(' ') + 1);
+		return value;
 	}
 }

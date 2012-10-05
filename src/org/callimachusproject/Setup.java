@@ -32,14 +32,11 @@ import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
-import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.net.UnknownHostException;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Collection;
@@ -64,6 +61,7 @@ import org.callimachusproject.server.CallimachusServer;
 import org.callimachusproject.server.client.HTTPObjectClient;
 import org.callimachusproject.server.client.HTTPServiceUnavailable;
 import org.callimachusproject.server.util.ChannelUtil;
+import org.callimachusproject.util.DomainNameSystemResolver;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Graph;
 import org.openrdf.model.Literal;
@@ -207,6 +205,7 @@ public class Setup {
 	}
 
 	private final Logger logger = LoggerFactory.getLogger(Setup.class);
+	private final DomainNameSystemResolver dnsResolver = DomainNameSystemResolver.getInstance();
 	private CallimachusRepository repository;
 	private boolean silent;
 	private String serveAllAs;
@@ -727,7 +726,7 @@ public class Setup {
 			URI subj = vf.createURI(group);
 			URI pred = vf.createURI(CALLI_ANONYMOUSFROM);
 			boolean modified = false;
-			for (String host : getAllCanonicalHostNames()) {
+			for (String host : dnsResolver.reverseAllLocalHosts()) {
 				Literal obj = vf.createLiteral(host);
 				if (!con.hasStatement(subj, pred, obj)) {
 					con.add(subj, pred, obj);
@@ -739,66 +738,6 @@ public class Setup {
 		} finally {
 			con.close();
 		}
-	}
-
-	private Collection<String> getAllCanonicalHostNames() throws SocketException {
-		Collection<String> set = new TreeSet<String>();
-		Enumeration<NetworkInterface> ifaces = NetworkInterface
-				.getNetworkInterfaces();
-		while (ifaces.hasMoreElements()) {
-			NetworkInterface iface = ifaces.nextElement();
-			Enumeration<InetAddress> raddrs = iface.getInetAddresses();
-			while (raddrs.hasMoreElements()) {
-				InetAddress raddr = raddrs.nextElement();
-				set.add(getCanonicalHostName(raddr));
-			}
-			Enumeration<NetworkInterface> virtualIfaces = iface
-					.getSubInterfaces();
-			while (virtualIfaces.hasMoreElements()) {
-				NetworkInterface viface = virtualIfaces.nextElement();
-				Enumeration<InetAddress> vaddrs = viface.getInetAddresses();
-				while (vaddrs.hasMoreElements()) {
-					InetAddress vaddr = vaddrs.nextElement();
-					set.add(getCanonicalHostName(vaddr));
-				}
-			}
-		}
-		try {
-			InetAddress local = InetAddress.getLocalHost();
-			set.add(getCanonicalHostName(local));
-		} catch (UnknownHostException e) {
-			throw new AssertionError(e);
-		}
-		return set;
-	}
-
-	private String getCanonicalHostName(InetAddress netAddr) {
-		String name = netAddr.getCanonicalHostName();
-		try {
-			if (!name.equals(netAddr.getHostAddress())
-					&& netAddr.equals(InetAddress.getByName(name)))
-				return name;
-		} catch (UnknownHostException e) {
-			// use reverse name
-		}
-		byte[] addr = netAddr.getAddress();
-		if (addr.length == 4) { // IPv4 Address
-			StringBuilder sb = new StringBuilder();
-			for (int i = addr.length - 1; i >= 0; i--) {
-				sb.append((addr[i] & 0xff) + ".");
-			}
-			return sb.append("in-addr.arpa").toString();
-		} else if (addr.length == 16) { // IPv6 Address
-			StringBuilder sb = new StringBuilder();
-			for (int i = addr.length - 1; i >= 0; i--) {
-				sb.append(Integer.toHexString((addr[i] & 0x0f)));
-				sb.append(".");
-				sb.append(Integer.toHexString((addr[i] & 0xf0) >> 4));
-				sb.append(".");
-			}
-			return sb.append("ip6.arpa").toString();
-		}
-		return name;
 	}
 
 	private boolean importCar(URL car, String folder, String origin,

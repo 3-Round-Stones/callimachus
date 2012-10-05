@@ -160,7 +160,7 @@ public class Setup {
 				"Additional scheme, hostname and port ( http://localhost:8080 ) that resolves to this server");
 		commands.option("r", "realm").arg("http").desc(
 				"The scheme, hostname, port, and path ( http://example.com:8080/ ) that does not resolve to this server");
-		commands.option("l", "serve-all").desc("Serve all resources");
+		commands.option("l", "serve-all").desc("Serve all other resources publicly");
 		commands.option("u", "user").optional("name").desc(
 				"Create the given user and prompt for a password, or append the password separated by a colon");
 		commands.option("n", "name").arg("name").desc(
@@ -275,7 +275,9 @@ public class Setup {
 							realms.put(r, origin);
 						}
 					}
-					if (line.has("serve-all") && line.getAll("origin").length == 1) {
+					if (line.has("serve-all")
+							&& line.getAll("origin").length == 1
+							&& !line.has("virtual") && !line.has("realm")) {
 						serveAllAs = origin;
 					}
 					if (line.has("user") || line.has("email")) {

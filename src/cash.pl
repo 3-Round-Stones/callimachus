@@ -28,22 +28,52 @@
 use strict;
 require 5.10.0;
 use feature qw(switch say);
-# TODO: Use 'eval' to trap exceptions and produce nice error messages with help.
-#       Maybe try auto-installing via 'CPAN::Shell->install("Acme::Meta");'
-#       See cpanm: https://www.metacpan.org/module/App::cpanminus
-#                  curl -L http://cpanmin.us | perl - --sudo App::cpanminus
-#                  to install it.
-#
-use Term::ReadLine;
-use LWP::UserAgent;
-use LWP::Authen::Digest;
-use File::HomeDir;
-use Getopt::Long qw(:config gnu_getopt);
-use XML::Simple qw(:strict);
-use Data::Dumper;
+
+#use Term::ReadLine;
+#use LWP::UserAgent;
+#use LWP::Authen::Digest;
+#use File::HomeDir;
+#use Getopt::Long qw(:config gnu_getopt);
+#use XML::Simple qw(:strict);
+#use Data::Dumper;
+
+
+# Load modules. Exit with a better error message if some can't be found.
+BEGIN {
+      my($found, $error, @DBs, @badmodules, $mod, $badmod);
+      $found = 0;
+      $error = 0;
+      @DBs = ('Term::ReadLine', 'LWP::UserAgent', 'LWP::Authen::Digest', 'File::HomeDir', 'Getopt::Long', 'XML::Simple', 'Data::Dumper');
+      for $mod (@DBs) {
+        if (eval "require $mod") {
+          $mod-> import();
+          $found += 1;
+          #print "$mod loaded\n";
+        } else {
+          push @badmodules, $mod;
+          $error += 1;
+          #print "$mod failed to load\n";
+        }
+      }
+      #print "$found Modules loaded: @DBs\n" unless $error;
+      if ($error) {
+        my $plural = ''; $plural = 's' if $error > 1;
+        print "The following module$plural failed to load:\n";
+        foreach $badmod (@badmodules) {
+          print "  $badmod\n";
+        }
+        print "Please install them before running $0.  Exiting.\n";
+        exit 1;
+      }
+}
+
+# Module configuration.
+Getopt::Long::Configure( qw(gnu_getopt) );
 
 # Globals
 my $version = "0.12";
+my $authority;
+my $host;
 my $debug = 0;
 my $autols = 0;
 my $term;
@@ -288,7 +318,7 @@ sub commandhelp {
         when (/^pwd/) { say $OUT "pwd: Returns the path of the active folder." }
         when (/^rm\s+/) { say $OUT "rm <file title>: Deletes the designated file from the active folder.  The file title must be exactly as it appears in a folder listing, including spaces.  This action requires authorization (see 'help login')." }
         when (/^rmdir/) { say $OUT "rmdir <folder title>: Deletes the designated folder and its contents from the active folder.  The folder title must be exactly as it appears in a folder listing, including spaces.  This action requires authorization (see 'help login')." }
-        when (/^server/) { say $OUT "server <url> or server -p <proxy> <url>: Sets the Callimachus server authority.  For example, 'server http://localhost:8080/' creates a server object with that base HTTP authority.  The server URL must refer to a Callimachus instance.  Further commands will relate to the last set server authority.  Optionally set an HTTP proxy with -p to allow connection to a Callimachus server behind a proxy or running a DNS name different from its HTTP authority.  The <proxy> field must contain a URL and may contain an optional port number (e.g. http://www.example.com:8080).  The <proxy> field must contain 'http://'." }
+        when (/^server/) { say $OUT "server <url> or server -p <proxy> <url>: Sets the Callimachus server authority.  For example, 'server http://localhost:8080/' creates a server object with that base HTTP authority.  The server URL must refer to a Callimachus instance.  Further commands will relate to the last set server authority.  Optionally set an HTTP proxy with -p to allow connection to a Callimachus server behind a proxy or running a DNS name different from its HTTP authority.  The <proxy> field must contain a URL and may contain an optional port number (e.g. http://www.example.com:8080).  The proxy port defaults to 1080 if not provided.  The <proxy> field must contain 'http://'." }
         when (/^set/) { say $OUT "set <option> <value>:  Set a shell option to the specified value.  Current options are 'debug', which may be set to a non-negative integer value to cause an increasing level of additional information to be displayed, and 'autols', which may be set to 1 to cause an 'ls' command to be issued after every 'cd' command."}
         when (/^ver/) { say $OUT "version: Report the version number of this shell." }
         default { say $OUT "No help for term \"$helpterm\"." };   
@@ -314,6 +344,7 @@ sub deleteFile {
         return 0;
     }
     my $req = new HTTP::Request DELETE => $url;
+    $req->header( "Host" => $host );
     say $OUT "REQUEST:" if $debug;
     say $OUT $req->as_string if $debug;
     
@@ -360,6 +391,7 @@ sub deleteFolder {
         return 0;
     }
     my $req = new HTTP::Request DELETE => $url;
+    $req->header( "Host" => $host );
     say $OUT "REQUEST:" if $debug;
     say $OUT $req->as_string if $debug;
     
@@ -433,6 +465,7 @@ sub exportCar {
         return 0;
     }
     my $req = new HTTP::Request GET => $url;
+    $req->header( "Host" => $host );
     $req->header( "Accept" => "application/zip" );
     $req->header( "Accept-Encoding" => "*;q=0" );
     say $OUT "REQUEST:" if $debug;
@@ -501,6 +534,7 @@ sub getFolderContents {
     my $url = $server->folder;
     say $OUT "In getFolderContents()\n   URL: $url" if $debug > 1;
     my $req = new HTTP::Request GET => $url;
+    $req->header( "Host" => $host );
     $req->header( "Accept" => "application/xml" );
     # Pass request to the user agent and get a response back
     my $res = $ua->request($req);
@@ -580,12 +614,22 @@ sub getFolderLinks {
     
     # Create a request
     my $req = new HTTP::Request OPTIONS => $url;
+    $req->header( "Host" => $host );
     # Pass request to the user agent and get a response back
     my $res = $ua->request($req);
+    if ($debug) {
+        say $OUT "Request:";
+        say $OUT $req->as_string;
+        say $OUT "Response:";
+        say $OUT $res->as_string;
+    }
+    
     # Check the outcome of the response
     if ($res->is_success) {
-        print $res->as_string if $debug;
         my %links = ();
+        # TODO: Should this also check $res->header("link") for a non-empty contents link?
+        #       Note that content links won't show up on a Callimachus server when hit via
+        #       the wrong authority.
         unless ( $res->header("link") ) {
             say $OUT "Received an unexpected response from the server: " . $res->status_line;
             say $OUT "Tried to reach folder URL: " . $url if $debug;
@@ -693,6 +737,7 @@ sub login {
     # Get realm from server.
     my $realmurl = $server->authority . "accounts?describe";
     my $realmreq = new HTTP::Request GET => $realmurl;
+    $realmreq->header( "Host" => $host );
     $realmreq->header( "Accept" => "application/rdf+xml" );
     # Pass request to the user agent and get a response back
     my $realmres = $ua->request($realmreq);
@@ -785,6 +830,7 @@ ENDOFMKDIRTTL
     
     # Create request.
     my $req = HTTP::Request->new("POST", $parentcreateurl, $headers, $content);
+    $req->header( "Host" => $host );
     $req->protocol('HTTP/1.1');
     say $OUT "REQUEST:" if ($debug > 1);
     say $OUT $req->as_string if ($debug > 1);
@@ -1063,6 +1109,7 @@ sub putFile {
     $headers->header( "Slug" => $slug );
     $headers->header( "Content-Type" => getContentType($filename) );
     my $req = HTTP::Request->new("POST", $url, $headers, $content);
+    $req->header( "Host" => $host );
     say $OUT "REQUEST:" if ($debug > 1);
     say $OUT $req->as_string if ($debug > 1);
     
@@ -1143,6 +1190,7 @@ sub retrieveFile {
     say $OUT "Attempting to resolve URL: $url" if $debug;
 
     my $req = new HTTP::Request GET => $url;
+    $req->header( "Host" => $host );
     say $OUT "REQUEST:" if $debug;
     say $OUT $req->as_string if $debug;
     
@@ -1214,24 +1262,34 @@ sub server {
     my $proxy = "";
     $ua->no_proxy(); # Unset the user agent's proxy.
     
-    my $authority = "uninitialized";
+    $authority = "uninitialized";
     if ( $args_length == 3 and $args[0] eq '-p' ) {
         $proxy = $args[1];
         $authority = $args[2];
     } elsif ( $args_length == 1 ) {
         $authority = $args[0] if $args[0];
-        $authority .= '/' unless ($authority =~ /\/$/);
     } else {
         say $OUT "ERROR: No server authority provided.";
         $exitstatus++;
         commandhelp('server');
         return;
     }
+    $authority .= "/" unless ($authority =~ m/\/$/);
+    $host = $authority;
+    $host =~ s/^http:\/\/(.*)[:\/].*$/$1/;
+    
+    if ($debug) {
+        say $OUT "Proxy: $proxy";
+        say $OUT "Authority: $authority";
+        say $OUT "Host: $host";
+    }
     
     if ( $authority ne "unitialized" and checkAuthority($authority) ) {
         $server->authority($authority);
         $server->proxy($proxy); # Store the HTTP proxy in the server object.
         $ua->proxy('http', $proxy); # Set the user agent's proxy.
+        
+        say $OUT "Proxy set in user agent: " . $ua->proxy('http') if $debug;
         
         my $links = getFolderLinks($server->authority); # A hash reference.
         if ( $links ) {
@@ -1241,6 +1299,12 @@ sub server {
             $server->folder($server->links->{contents}->{url});
             $server->homeFolder($server->links->{contents}->{url});
             $server->loggedIn(0);
+            
+            if ($debug) {
+                say $OUT "Links for this server:";
+                my $serverlinks = $server->links;
+                say Dumper(%$serverlinks);
+            }
             
             chHomeDir();
         }

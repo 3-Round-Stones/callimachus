@@ -750,8 +750,7 @@ public class Setup {
 			Enumeration<InetAddress> raddrs = iface.getInetAddresses();
 			while (raddrs.hasMoreElements()) {
 				InetAddress raddr = raddrs.nextElement();
-				set.add(raddr.getCanonicalHostName());
-				set.remove(raddr.getHostAddress());
+				set.add(getCanonicalHostName(raddr));
 			}
 			Enumeration<NetworkInterface> virtualIfaces = iface
 					.getSubInterfaces();
@@ -760,19 +759,46 @@ public class Setup {
 				Enumeration<InetAddress> vaddrs = viface.getInetAddresses();
 				while (vaddrs.hasMoreElements()) {
 					InetAddress vaddr = vaddrs.nextElement();
-					set.add(vaddr.getCanonicalHostName());
-					set.remove(vaddr.getHostAddress());
+					set.add(getCanonicalHostName(vaddr));
 				}
 			}
 		}
 		try {
 			InetAddress local = InetAddress.getLocalHost();
-			set.add(local.getCanonicalHostName());
-			set.remove(local.getHostAddress());
+			set.add(getCanonicalHostName(local));
 		} catch (UnknownHostException e) {
 			throw new AssertionError(e);
 		}
 		return set;
+	}
+
+	private String getCanonicalHostName(InetAddress netAddr) {
+		String name = netAddr.getCanonicalHostName();
+		try {
+			if (!name.equals(netAddr.getHostAddress())
+					&& netAddr.equals(InetAddress.getByName(name)))
+				return name;
+		} catch (UnknownHostException e) {
+			// use reverse name
+		}
+		byte[] addr = netAddr.getAddress();
+		if (addr.length == 4) { // IPv4 Address
+			StringBuilder sb = new StringBuilder();
+			for (int i = addr.length - 1; i >= 0; i--) {
+				sb.append((addr[i] & 0xff) + ".");
+			}
+			return sb.append("in-addr.arpa").toString();
+		} else if (addr.length == 16) { // IPv6 Address
+			StringBuilder sb = new StringBuilder();
+			for (int i = addr.length - 1; i >= 0; i--) {
+				sb.append(Integer.toHexString((addr[i] & 0x0f)));
+				sb.append(".");
+				sb.append(Integer.toHexString((addr[i] & 0xf0) >> 4));
+				sb.append(".");
+			}
+			return sb.append("ip6.arpa").toString();
+		}
+		return name;
 	}
 
 	private boolean importCar(URL car, String folder, String origin,

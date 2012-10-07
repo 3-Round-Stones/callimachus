@@ -164,7 +164,7 @@ sub processCmd {
     my $command = shift(@_);
     warn $@ if $@;
     
-    # TODONEXT: rmdir not working consistently.
+    # TODONEXT: Review all commands requiring authentication to ensure checks are made (consistently).
     # TODONEXT: Use parseFolderPath() in deleteFile(), etc.
     # TODONEXT: Refactor chDir() and parseDirPath(). Should they be the same method??
     # TODONEXT: Delete files in the active folder (rm --files).
@@ -318,6 +318,12 @@ sub commandhelp {
 # Delete a file from the active folder.
 sub deleteFile {
     unless ( serverSet() ) { return 0; }
+    unless ( $server->loggedIn ) {
+        say $OUT "Deleting a file may only be performed by an authenticated user.  Please log in first.";
+        commandhelp("login");
+        return;
+    }
+    
     my $title = shift(@_);
     unless ($title) {
         say $OUT "Error: The rm command requires a filename to delete.";
@@ -364,8 +370,16 @@ sub deleteFile {
 
 # Delete a subfolder (and its contents) from the active folder.
 sub deleteFolder {
+
     unless ( serverSet() ) { return 0; }
+    unless ( $server->loggedIn ) {
+        say $OUT "Deleting a folder may only be performed by an authenticated user.  Please log in first.";
+        commandhelp("login");
+        return;
+    }
+    
     my $title = shift(@_);
+    #$title .= '/' unless ($title =~ m/\/$/);
     unless ($title) {
         say $OUT "Error: The rmdir command requires a folder name to delete.";
         &commandhelp("rmdir");
@@ -394,7 +408,7 @@ sub deleteFolder {
         say $OUT "Deleted folder and its contents." if $debug;
         return 1;
     } elsif ( $res->status_line =~ m/401/ ) {
-        unless ( deleteFile($title) ) {
+        unless ( deleteFolder($title) ) {
             say $OUT "Error: Failed to delete folder after two tries.";
             $exitstatus++;
             return 0;
@@ -496,22 +510,22 @@ sub getContentType {
         return 0;
     }
     given ($ext) {
-        when (/docbook/) { return "application/docbook+xml"; }
-        when (/fnt/) { return "application/font-woff"; }
-        when (/rdf/) { return "application/rdf+xml"; }
-        when (/rq/) { return "application/sparql-query"; }
-        when (/xhtml/) { return "application/xhtml+xml"; }
-        when (/gif/) { return "image/gif"; }
-        when (/jpg|jpeg/) { return "image/jpeg"; }
-        when (/png/) { return "image/png"; }
-        when (/svg/) { return "image/svg+xml"; }
-        when (/ico/) { return "image/vnd.microsoft.icon"; }
-        when (/css/) { return "text/css"; }
-        when (/html/) { return "text/html"; }
-        when (/js/) { return "text/javascript"; }
-        when (/txt/) { return "text/plain"; }
-        when (/ttl/) { return "text/turtle"; }
-        when (/xsl/) { return "text/xsl"; }
+        when (/docbook$/) { return "application/docbook+xml"; }
+        when (/fnt$/) { return "application/font-woff"; }
+        when (/rdf$/) { return "application/rdf+xml"; }
+        when (/rq$/) { return "application/sparql-query"; }
+        when (/xhtml$/) { return "application/xhtml+xml"; }
+        when (/gif$/) { return "image/gif"; }
+        when (/jpg$|jpeg$/) { return "image/jpeg"; }
+        when (/png$/) { return "image/png"; }
+        when (/svg$/) { return "image/svg+xml"; }
+        when (/ico$/) { return "image/vnd.microsoft.icon"; }
+        when (/css$/) { return "text/css"; }
+        when (/html$/) { return "text/html"; }
+        when (/js$/) { return "text/javascript"; }
+        when (/txt$/) { return "text/plain"; }
+        when (/ttl$/) { return "text/turtle"; }
+        when (/xsl$/) { return "text/xsl"; }
     }    
     $exitstatus++;
     return 0;
@@ -765,7 +779,7 @@ sub ls {
     # Display the folder and file titles.
     my $serverfolders = $server->folders;
     foreach my $key (sort keys %$serverfolders) {
-        say $OUT "$key/";
+        say $OUT "$key";
     }
     my $serverfiles = $server->files;
     foreach my $key (sort keys %$serverfiles) {
@@ -775,9 +789,18 @@ sub ls {
 
 # Make a new folder.
 sub makeDir {
+    unless ( serverSet() ) { return 0; }
+    unless ( $server->loggedIn ) {
+        say $OUT "Making a folder may only be performed by an authenticated user.  Please log in first.";
+        commandhelp("login");
+        return;
+    }
+
     my $folderpath = shift(@_);
+    $folderpath =~ s/\/$// if ($folderpath =~ m/\/$/); # Temporarily remove ending slash to allow use of parseFolderUrl.
     my $localpath;
     my($parenturl, $foldername) = parseFolderUrl($folderpath);
+    $foldername .= '/'; # Folders must end with a slash.
     my $host = $server->authority;
     $host =~ s/http:\/\/(.*)\/$/$1/;
     
@@ -1101,6 +1124,7 @@ sub putFile {
     $headers->header( "Slug" => $slug );
     $headers->header( "Content-Type" => getContentType($filename) );
     my $req = HTTP::Request->new("POST", $url, $headers, $content);
+    $req->protocol('HTTP/1.1');
     say $OUT "REQUEST:" if ($debug > 1);
     say $OUT $req->as_string if ($debug > 1);
     

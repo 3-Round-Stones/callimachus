@@ -66,6 +66,22 @@ function RDFaParser() {
 		"schema": "http://schema.org/"
 	};
 	
+	if (!window.Node) {// IE
+		window.Node = {
+			ELEMENT_NODE: 1,
+			ATTRIBUTE_NODE: 2,
+			TEXT_NODE: 3,
+			CDATA_SECTION_NODE: 4,
+			ENTITY_REFERENCE_NODE: 5,
+			ENTITY_NODE: 6,
+			PROCESSING_INSTRUCTION_NODE: 7,
+			COMMENT_NODE: 8,
+			DOCUMENT_NODE: 9,
+			DOCUMENT_TYPE_NODE: 10,
+			DOCUMENT_FRAGMENT_NODE: 11,
+			NOTATION_NODE: 12
+		};
+	}
 
 	this.parseURI = function(uri) {
 		var SCHEME = new RegExp("^[A-Za-z][A-Za-z0-9\+\-\.]*\:");
@@ -73,7 +89,7 @@ function RDFaParser() {
 		if (!match) {
 			throw "Bad URI value, no scheme: '" + uri + "'";
 		}
-		var parsed = { spec: uri };
+		var parsed = {spec: uri};
 		parsed.scheme = match[0].substring(0,match[0].length-1);
 		parsed.schemeSpecificPart = parsed.spec.substring(match[0].length);
 		if (parsed.schemeSpecificPart.charAt(0)=='/' && parsed.schemeSpecificPart.charAt(1)=='/') {
@@ -440,7 +456,7 @@ function RDFaParser() {
 			predicate,
 			list
 		;
-		queue.push({ current: node, context: this.push(null,this.getNodeBase(node))});
+		queue.push({current: node, context: this.push(null,this.getNodeBase(node))});
 		while (queue.length>0) {
 		  var item = queue.shift();
 		  if (item.parent) {
@@ -453,7 +469,7 @@ function RDFaParser() {
 			 for (predicate in item.listMapping) {
 				list = item.listMapping[predicate];
 				if (list.length==0) {
-				   this.addTriple(item.parent,item.subject,predicate,{ type: this.objectURI, value: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil" });
+				   this.addTriple(item.parent,item.subject,predicate,{type: this.objectURI, value: "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"});
 				   continue;
 				}
 				var bnodes = [];
@@ -462,9 +478,9 @@ function RDFaParser() {
 				}
 				for (i=0; i<bnodes.length; i++) {
 				   this.addTriple(item.parent,bnodes[i],"http://www.w3.org/1999/02/22-rdf-syntax-ns#first",list[i]);
-				   this.addTriple(item.parent,bnodes[i],"http://www.w3.org/1999/02/22-rdf-syntax-ns#rest",{ type: this.objectURI , value: (i+1)<bnodes.length ? bnodes[i+1] : "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil" });
+				   this.addTriple(item.parent,bnodes[i],"http://www.w3.org/1999/02/22-rdf-syntax-ns#rest",{type: this.objectURI , value: (i+1)<bnodes.length ? bnodes[i+1] : "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"});
 				}
-				this.addTriple(item.parent,item.subject,predicate,{ type: this.objectURI, value: bnodes[0] });
+				this.addTriple(item.parent,item.subject,predicate,{type: this.objectURI, value: bnodes[0]});
 			 }
 			 continue;
 		  }
@@ -497,7 +513,7 @@ function RDFaParser() {
 			 if (value.length>0) {
 				vocabulary = value;
 				var baseSubject = base.spec;
-				this.addTriple(current,baseSubject,"http://www.w3.org/ns/rdfa#usesVocabulary",{ type: this.objectURI , value: vocabulary});
+				this.addTriple(current,baseSubject,"http://www.w3.org/ns/rdfa#usesVocabulary",{type: this.objectURI , value: vocabulary});
 			 } else {
 				vocabulary = this.vocabulary;
 			 }
@@ -530,15 +546,18 @@ function RDFaParser() {
 
 
 		  // Sequence Step 4: language
-		  var xmlLangAtt = null;
-		  for (i=0; !xmlLangAtt && i<this.langAttributes.length; i++) {
-			 xmlLangAtt = current.getAttributeNodeNS(this.langAttributes[i].namespaceURI,this.langAttributes[i].localName);
-		  }
-		  if (xmlLangAtt) {
-			 value = this.trim(xmlLangAtt.value);
-			 if (value.length>0) {
-				language = value;
-			 }
+		  var langAtt = null, curie;
+		  for (i=0; i<this.langAttributes.length; i++) {
+			if (!langAtt && current.getAttributeNS) {
+				langAtt = current.getAttributeNS(this.langAttributes[i].namespaceURI, this.langAttributes[i].localName);
+			}
+			if (!langAtt && current.getAttribute) {
+				curie = this.getCURIE((this.langAttributes[i].namespaceURI || '') + this.langAttributes[i].localName);
+				langAtt = current.getAttribute(curie);
+			}
+			if (langAtt && this.trim(langAtt).length) {
+				language = this.trim(langAtt);
+			}
 		  }
 
 		  var relAtt = current.getAttributeNode("rel");
@@ -690,7 +709,7 @@ function RDFaParser() {
 						 list = [];
 						 listMapping[predicate] = list;
 					  }
-					  list.push({ type: this.objectURI, value: currentObjectResource });
+					  list.push({type: this.objectURI, value: currentObjectResource});
 				   }
 				}
 			 } else if (relAtt) {
@@ -699,7 +718,7 @@ function RDFaParser() {
 				for (i=0; i<values.length; i++) {
 				   predicate = this.parsePredicate(values[i],vocabulary,context.terms,prefixes,base);
 				   if (predicate) {
-					  this.addTriple(current,newSubject,predicate,{ type: this.objectURI, value: currentObjectResource});
+					  this.addTriple(current,newSubject,predicate,{type: this.objectURI, value: currentObjectResource});
 				   }
 				}
 			 }
@@ -708,7 +727,7 @@ function RDFaParser() {
 				for (i=0; i<values.length; i++) {
 				   predicate = this.parsePredicate(values[i],vocabulary,context.terms,prefixes,base);
 				   if (predicate) {
-					  this.addTriple(current,currentObjectResource, predicate, { type: this.objectURI, value: newSubject});
+					  this.addTriple(current,currentObjectResource, predicate, {type: this.objectURI, value: newSubject});
 				   }
 				}
 			 }
@@ -729,7 +748,7 @@ function RDFaParser() {
 						 listMapping[predicate] = list;
 					  }
 					  //console.log("Adding incomplete list for "+predicate);
-					  incomplete.push({ predicate: predicate, list: list });
+					  incomplete.push({predicate: predicate, list: list});
 				   }
 				}
 			 } else if (relAtt) {
@@ -737,7 +756,7 @@ function RDFaParser() {
 				for (i=0; i<values.length; i++) {
 				   predicate = this.parsePredicate(values[i],vocabulary,context.terms,prefixes,base);
 				   if (predicate) {
-					  incomplete.push({ predicate: predicate, forward: true });
+					  incomplete.push({predicate: predicate, forward: true});
 				   }
 
 				}
@@ -747,7 +766,7 @@ function RDFaParser() {
 				for (i=0; i<values.length; i++) {
 				   predicate = this.parsePredicate(values[i],vocabulary,context.terms,prefixes,base);
 				   if (predicate) {
-					  incomplete.push({ predicate: predicate, forward: false });
+					  incomplete.push({predicate: predicate, forward: false});
 				   }
 				}
 			 }
@@ -759,13 +778,13 @@ function RDFaParser() {
 				if (context.incomplete[i].list) {
 				   //console.log("Adding subject "+newSubject+" to list for "+context.incomplete[i].predicate);
 				   // TODO: it is unclear what to do here
-				   context.incomplete[i].list.push({ type: this.objectURI, value: newSubject });
+				   context.incomplete[i].list.push({type: this.objectURI, value: newSubject});
 				} else if (context.incomplete[i].forward) {
 				   //console.log(current.tagName+": completing forward triple "+context.incomplete[i].predicate+" with object="+newSubject);
-				   this.addTriple(current,context.subject,context.incomplete[i].predicate, { type: this.objectURI, value: newSubject});
+				   this.addTriple(current,context.subject,context.incomplete[i].predicate, {type: this.objectURI, value: newSubject});
 				} else {
 				   //console.log(current.tagName+": completing reverse triple with object="+context.subject);
-				   this.addTriple(current,newSubject,context.incomplete[i].predicate,{ type: this.objectURI, value: context.subject});
+				   this.addTriple(current,newSubject,context.incomplete[i].predicate,{type: this.objectURI, value: context.subject});
 				}
 			 }
 		  }
@@ -776,7 +795,7 @@ function RDFaParser() {
 			 for (i=0; i<values.length; i++) {
 				var object = this.parseTermOrCURIEOrAbsURI(values[i],vocabulary,context.terms,prefixes,base);
 				if (object) {
-				   this.addTriple(current,typedResource,this.typeURI,{ type: this.objectURI , value: object});
+				   this.addTriple(current,typedResource,this.typeURI,{type: this.objectURI , value: object});
 				}
 			 }
 		  }
@@ -789,7 +808,12 @@ function RDFaParser() {
 			 var content = null; 
 			 if (datatypeAtt) {
 				datatype = datatypeAtt.value=="" ? this.PlainLiteralURI : this.parseTermOrCURIEOrAbsURI(datatypeAtt.value,vocabulary,context.terms,prefixes,base);
-				content = datatype==this.XMLLiteralURI ? null : (contentAtt ? contentAtt.value : current.textContent);
+				if (contentAtt) {
+					content = (datatype == this.XMLLiteralURI) ? this.fixXMLLiteral(contentAtt.value) : contentAtt.value;
+				}
+				else {
+					content = (datatype == this.XMLLiteralURI) ? this.toXMLLiteral(current.childNodes) : current.textContent;
+				}
 			 } else if (contentAtt) {
 				datatype = this.PlainLiteralURI;
 				content = contentAtt.value;
@@ -825,12 +849,12 @@ function RDFaParser() {
 						 list = [];
 						 listMapping[predicate] = list;
 					  }
-					  list.push(datatype==this.XMLLiteralURI ? { type: this.XMLLiteralURI, value: current.childNodes} : { type: datatype ? datatype : this.PlainLiteralURI, value: content, language: language});
+					  list.push(datatype==this.XMLLiteralURI ? {type: this.XMLLiteralURI, value: content} : {type: datatype ? datatype : this.PlainLiteralURI, value: content, language: language});
 				   } else {
 					  if (datatype==this.XMLLiteralURI) {
-						 this.addTriple(current,newSubject,predicate,{ type: this.XMLLiteralURI, value: current.childNodes});
+						 this.addTriple(current,newSubject,predicate,{type: this.XMLLiteralURI, value: content});
 					  } else {
-						 this.addTriple(current,newSubject,predicate,{ type: datatype ? datatype : this.PlainLiteralURI, value: content, language: language});
+						 this.addTriple(current,newSubject,predicate,{type: datatype ? datatype : this.PlainLiteralURI, value: content, language: language});
 						 //console.log(newSubject+" "+predicate+"="+content);
 					  }
 				   }
@@ -867,12 +891,12 @@ function RDFaParser() {
 		  }
 		  if (listMappingDifferent) {
 			 //console.log("Pushing list parent "+current.localName);
-			 queue.unshift({ parent: current, context: context, subject: listSubject, listMapping: listMapping});
+			 queue.unshift({parent: current, context: context, subject: listSubject, listMapping: listMapping});
 		  }
 		  for (var child = current.lastChild; child; child = child.previousSibling) {
 			 if (child.nodeType==Node.ELEMENT_NODE) {
 				//console.log("Pushing child "+child.localName);
-				queue.unshift({ current: child, context: childContext});
+				queue.unshift({current: child, context: childContext});
 			 }
 		  }
 	   }
@@ -892,6 +916,20 @@ function RDFaParser() {
 	 */
 	this.getMappings = function() {
 		return this.prefixes;
+	};
+	
+	/**
+	 * Returns the CURIE for a given URI
+	 */
+	this.getCURIE = function(uri) {
+		var prefix, namespace;
+		for (prefix in this.prefixes) {
+			namespace = this.prefixes[prefix];
+			if (uri.indexOf(namespace) === 0) {
+				return (prefix.length ? prefix + ':' : '') + uri.substr(namespace.length);
+			}
+		}
+		return uri;
 	};
 	
 	/**
@@ -949,14 +987,14 @@ function RDFaParser() {
 		this.inXHTMLMode = false;// handle node as HTML/HTML5
 		
 		this.langAttributes = [
-			{ namespaceURI: "http://www.w3.org/XML/1998/namespace", localName: "lang" },
-			{ namespaceURI: null, localName: "lang" }
+			{namespaceURI: "http://www.w3.org/XML/1998/namespace", localName: "lang"},
+			{namespaceURI: null, localName: "lang"}
 		];
 		this.contentAttributes = [ "value", "datetime", "content" ];
 
+		this.setInitialPrefixes(node);
 		this.language = this.getInitialLanguage(node);
 		this.vocabulary = this.getInitialVocabulary(node);
-		this.setInitialPrefixes(node);
 
 		this.terms = {
 			"describedby": "http://www.w3.org/2007/05/powder-s#describedby",
@@ -969,10 +1007,16 @@ function RDFaParser() {
 	 * Retrieves the language context for the given node.
 	 */
 	this.getInitialLanguage = function(node) {
-		var result, doc;
+		var result, doc, curie;
 		// try current
 		for (var i = 0, imax = this.langAttributes.length; i < imax; i++) {
-			result = node.getAttributeNS(this.langAttributes[i].namespaceURI, this.langAttributes[i].localName);
+			if (!result && node.getAttributeNS) {
+				result = node.getAttributeNS(this.langAttributes[i].namespaceURI, this.langAttributes[i].localName);
+			}
+			if (!result && node.getAttribute) {
+				curie = this.getCURIE((this.langAttributes[i].namespaceURI || '') + this.langAttributes[i].localName);
+				result = node.getAttribute(curie);
+			}
 			if (result) {
 				return result;
 			}
@@ -992,12 +1036,12 @@ function RDFaParser() {
 	 * Sets the prefix/namespace context for the given node.
 	 */
 	this.setInitialPrefixes = function(node) {
-		var doc, i, imax, j;
+		var doc, i, imax, j, prefix;
 		// set current's
 		for (i = 0, imax = node.attributes.length; i < imax; i++) {
 			var attr = node.attributes[i];
 			if (attr.nodeName && attr.nodeName.match(/^xmlns\:/)) {
-				var prefix = attr.nodeName.substring(6);
+				prefix = attr.nodeName.substring(6);
 				if (!this.prefixes[prefix]) {
 					this.prefixes[prefix] = this.trim(attr.value);
 				}
@@ -1009,6 +1053,15 @@ function RDFaParser() {
 					if (!this.prefixes[j]) {
 						this.prefixes[j] = defs[j];
 					}
+				}
+			}
+		}
+		// ie8 and older can't read xmlns:prefix declarations on the html tag
+		if (document.namespaces && node.tagName.toLowerCase() == 'html') {
+			for (i = 0, imax = document.namespaces.length; i < imax; i++) {
+				prefix = document.namespaces[i].name;
+				if (!this.prefixes[prefix]) {
+					this.prefixes[prefix] = this.trim(document.namespaces[i].urn);
 				}
 			}
 		}
@@ -1063,7 +1116,7 @@ function RDFaParser() {
 		}
 		// try via base tags in doc
 		var els;
-		if (doc && (els = doc.getElementsByTagName("base"))) {
+		if (doc && (els = doc.getElementsByTagName("base")) && els.length) {
 			return els[0].getAttribute("href");
 		}
 		// try window
@@ -1089,6 +1142,80 @@ function RDFaParser() {
 			datatype = object.type;
 		}
 		this.callback.call(origin, subject, predicate, object.value, datatype, language);
-	};	
+	};
+	
+	/**
+	 * Builds an Internet Explorer XML DOM node from the given HTML DOM node
+	 */
+	this.toIEXMLNode = function(node) {
+		var 
+			xmlDoc = new ActiveXObject("Microsoft.XMLDOM"),
+			xmlNode = xmlDoc.createElement(node.tagName.toLowerCase()),
+			i, imax
+		;
+		// attrs
+		for (i = 0, imax = node.attributes.length; i < imax; i++) {
+			if (!node.attributes[i].nodeType || node.attributes[i].nodeType != Node.ATTRIBUTE_NODE) continue;
+			xmlNode.setAttribute(node.attributes[i].nodeName.toLowerCase(), node.attributes[i].nodeValue);
+		}
+		// child nodes
+		if (node.childNodes) {
+			for (i = 0, imax = node.childNodes.length; i < imax; i++) {
+				// element
+				if (node.childNodes[i].nodeType == Node.ELEMENT_NODE) {
+					xmlNode.appendChild(this.toIEXMLNode(node.childNodes[i]));
+				}
+				// text
+				else if (node.childNodes[i].nodeType == Node.TEXT_NODE) {
+					xmlNode.appendChild(xmlDoc.createTextNode(node.childNodes[i].nodeValue));
+				}
+				// comment
+				else if (node.childNodes[i].nodeType == Node.COMMENT_NODE) {
+					xmlNode.appendChild(xmlDoc.createComment(node.childNodes[i].nodeValue));
+				}
+			}
+		}
+		return xmlNode;
+	};
+	
+	/**
+	 * Serializes the given HTML DOM node or node array to well-formed XML.
+	 */
+	this.toXMLLiteral = function(nodeOrNodeList) {
+		// node list
+		if (!nodeOrNodeList.nodeType && nodeOrNodeList.length) {
+			var result = '';
+			for (var i = 0, imax = nodeOrNodeList.length; i < imax; i++) {
+				result += this.toXMLLiteral(nodeOrNodeList[i]);
+			}
+			return result;
+		}
+		// single node
+		var node = nodeOrNodeList;
+		if (!node || !node.nodeType) return '';// IE bug
+		if (window.XMLSerializer) {
+			return this.fixXMLLiteral((new XMLSerializer()).serializeToString(node));
+		}
+		else if (window.ActiveXObject) {// ie8 or older
+			if (node.nodeType == Node.ELEMENT_NODE) {
+				return this.toIEXMLNode(node).xml;
+			}
+			else if (node.nodeType == Node.TEXT_NODE) {
+				return this.fixXMLLiteral(node.nodeValue);
+			}
+			else {
+				return '';
+			}
+		}
+		else {
+			throw('Could not turn argument into XML Literal');
+		}
+	};
+	
+	this.fixXMLLiteral = function(value) {
+		return value
+			.replace(/<(area|base|br|button|hr|img|input|link|meta)([^>]*)(|[^\/])>/g, '<$1$2$3/>')
+		;
+	};
 
 }

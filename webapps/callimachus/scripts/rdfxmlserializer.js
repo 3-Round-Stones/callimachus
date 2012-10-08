@@ -3,7 +3,7 @@
  */
 
 function RDFXMLSerializer() {
-	
+    
 	this.XMLLiteralURI = "http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral"; 
 	this.StringURI = "http://www.w3.org/2001/XMLSchema#string";
 	this.LangStringURI = "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString"; 
@@ -112,7 +112,7 @@ function RDFXMLSerializer() {
 	};
 	
 	this.buildUri = function(uri, pname) {
-		return pname + '="' + encodeURI(uri).replace(/\&/gm, '&amp;') + '"';
+		return pname + '="' + uri.replace(/\&/gm, '&amp;') + '"';
 	},
 	
 	this.buildObject = function(predicate, object, datatype, language) {

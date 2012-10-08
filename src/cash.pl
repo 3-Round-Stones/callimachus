@@ -164,23 +164,24 @@ sub processCmd {
     my $command = shift(@_);
     warn $@ if $@;
     
-    # TODONEXT: Review all commands requiring authentication to ensure checks are made (consistently).
-    # TODONEXT: Use parseFolderPath() in deleteFile(), etc.
-    # TODONEXT: Refactor chDir() and parseDirPath(). Should they be the same method??
-    # TODONEXT: Delete files in the active folder (rm --files).
-    # TODONEXT: Delete folders in the active folder (rm --folders).
-    # TODO: Survey all action methods for consistency of var checks, state checks, login checks...
+    # FEATURE REQUESTS:
+    # TODONEXT: Allow full-text searches of labels.
+    # TODONEXT: Allow SPARQL queries.
+    # TODO: Tweak get/put/modify functionality for RDF content (BLOBs done first).
+    # TODO: Delete files in the active folder (rm --files).
+    # TODO: Delete folders in the active folder (rm --folders).
     # TODO: Handle mv for folders.  Check to ensure the input is a folder.
     # TODO: Allow the 'ls' command to take an optional (server/)folder path.
     # TODO: Modify a file (Need to use PUT if filename already exists).
     # TODO: Allow a get/upload/delete/etc to operate on a full URL.
-    # TODO: Export a CAR: Complete exportCar().
-    # TODO: Import a CAR.
-    # TODO: Allow full-text searches of labels.
-    # TODO: Allow SPARQL queries.
-    # MAYBE: Refactor to have a single 'when' clause per command prefix. Maybe use parser-generator.
+    
+    # REFACTORING:
+    # TODO: Survey all action methods for consistency of var checks, state checks, login checks...
+    # TODO: Review all commands requiring authentication to ensure checks are made (consistently).
+    # TODO: Use parseFolderPath() in deleteFile(), etc.
+    # TODO: Refactor chDir() and parseDirPath(). Should they be the same method??
+    # MAYBE: Have a single 'when' clause per command prefix. Maybe use parser-generator.
     # MAYBE: Refactor login to provide just username and ask for password (won't work without a better libreadline on Macs).  See http://www.perlmonks.org/?node_id=352298 and http://www.trinitycore.info/How-to:Mac#Installing_new_libraries.
-    # TODO: Tweak get/put/modify functionality for RDF content (BLOBs done first).
     given ($command) {
         when (/^\s*$/) { }
         when (/^\#/) { }
@@ -190,10 +191,11 @@ sub processCmd {
         when (/^debug/i) { reportState() unless $@; }
         when (/^echo/i) { $command =~ m/^echo\s+(.*)$/i; echo($1) unless $@; }
         when (/^exec/i) { $command =~ m/exec\s+(.*)\s*$/i; execCommand($1) unless $@; }
-        when (/^export/i) { $command =~ m/^(export|export\s+car)\s+(.*)\s*$/i; exportCar($1) unless $@; }
+        when (/^export/i) { $command =~ m/^(export\s+car|export)\s+(.*)\s*$/i; exportCar($2) unless $@; }
         when (/^get/i) { $command =~ m/^get\s+(.*)$/i; retrieveFile("get", $1) unless $@; }
         when (/^help\s+(.*)$/i)  { $command =~ m/^help\s+(.*)\s*$/i; commandhelp($1) unless $@; }
         when (/^help/i)  { help() unless $@; }
+        when (/^import/i) { $command =~ m/^(import\s+car|import)\s+(.*)\s*$/i; importCar($2) unless $@; }
         when (/^login/i) { $command =~ /^login\s+(.*?)\s+(.*)\s*$/i; login($1, $2) unless $@; }
         when (/^logout/i) { logout() unless $@; }
         when (/^ls$/i) { ls() unless $@; }
@@ -295,10 +297,10 @@ sub commandhelp {
         when (/^echo/) { say $OUT "echo <string>: Echo a string to STDOUT.  This command may be used (e.g.) to mark up output when run with -e or a script file."; }
         when (/^exec/) { say $OUT "exec <command>: Issues a command to the calling shell.  The exec command allows users to run external commands without exiting the Callimachus Shell." }
         when (/^exit/) { say $OUT "exit: Exits the shell." }
-        when (/^export/) { say $OUT "export CAR <filename>: Exports the contents of the active folder into a Callimachus Archive (CAR) file.  May also be called via 'export <filename>.'  This action requires authorization (see 'help login')." }
+        when (/^export/) { say $OUT "export [CAR] [<filename>]: Exports the contents of the active folder into a Callimachus Archive (CAR) file.  If a filename is not provided, the server's suggested filename (consisting of path-to-folder-servername.car) will be used.  This action requires authorization (see 'help login')." }
         when (/^get/) { say $OUT "get <file title>: Retrieves the designated file and saves it to the local file system.  The file title must be exactly as it appears in a folder listing, including spaces.  This action may require authorization (see 'help login')." }
         when (/^help/) { say $OUT "help: Provides a list of built-in commands." }
-        when (/^quit/) { say $OUT "quit: Exits the shell." }
+        when (/^import/) { say $OUT "import [CAR] <filename>: Imports the contents of the filename into the active folder.  The file must be a Callimachus Archive (CAR).  This action replaces the contents of the active folder(!). This action requires authorization (see 'help login')." }
         when (/^login/) { say $OUT "login <username> <password>: Logs into the active server so actions requiring authentication may proceed, such as changing the server state." }
         when (/^logout/) { say $OUT "logout: Logs out of the active server.  Actions requiring authentication will no longer work." }
         when (/^ls/) { say $OUT "ls: Lists the contents of the active folder.  Subfolder names are followed by a / character, e.g. 'rdf/'.  Files are followed by their type in parentheses, e.g. 'helloworld (graph)'." }
@@ -306,8 +308,9 @@ sub commandhelp {
         when (/^mv/) { say $OUT "mv <filename1> <filename2>: Move filename1 to filename2.  Filenames may be  simple names, which will rename a file in the active folder, paths relative to the active server or fully-qualified URLs." }
         when (/^put/) { say $OUT "put <filename>: Puts the designated file onto the server in the active folder.  The filename will become the filename on the server, but will be changed to lower case.  This action requires authorization (see 'help login')." }
         when (/^pwd/) { say $OUT "pwd: Returns the path of the active folder." }
+        when (/^quit/) { say $OUT "quit: Exits the shell." }
         when (/^rm\s+/) { say $OUT "rm <file title>: Deletes the designated file from the active folder.  The file title must be exactly as it appears in a folder listing, including spaces.  This action requires authorization (see 'help login')." }
-        when (/^rmdir/) { say $OUT "rmdir <folder title>: Deletes the designated folder and its contents from the active folder.  The folder title must be exactly as it appears in a folder listing, including spaces.  This action requires authorization (see 'help login')." }
+        when (/^rmdir/) { say $OUT "rmdir <folder title>: Deletes the designated folder from the active folder.  The folder title must be exactly as it appears in a folder listing, including spaces.  This action requires authorization (see 'help login')." }
         when (/^server/) { say $OUT "server <url> or server -p <proxy> <url>: Sets the Callimachus server authority.  For example, 'server http://localhost:8080/' creates a server object with that base HTTP authority.  The server URL must refer to a Callimachus instance.  Further commands will relate to the last set server authority.  Optionally set an HTTP proxy with -p to allow connection to a Callimachus server behind a proxy or running a DNS name different from its HTTP authority.  The <proxy> field must contain a URL and may contain an optional port number (e.g. http://www.example.com:8080).  The proxy port defaults to 1080 if not provided.  The <proxy> field must contain 'http://'." }
         when (/^set/) { say $OUT "set <option> <value>:  Set a shell option to the specified value.  Current options are 'debug', which may be set to a non-negative integer value to cause an increasing level of additional information to be displayed, and 'autols', which may be set to 1 to cause an 'ls' command to be issued after every 'cd' command."}
         when (/^ver/) { say $OUT "version: Report the version number of this shell." }
@@ -379,7 +382,7 @@ sub deleteFolder {
     }
     
     my $title = shift(@_);
-    #$title .= '/' unless ($title =~ m/\/$/);
+    $title =~ s/\/$// if ($title =~ m/\/$/);
     unless ($title) {
         say $OUT "Error: The rmdir command requires a folder name to delete.";
         &commandhelp("rmdir");
@@ -459,8 +462,6 @@ sub exportCar {
         return 0;
     }
     
-    # TODO - Resolve problem with downloading the CAR.  See email re Transfer-Encoding header 19 April.
-    
     my $url = $links->{'http://callimachusproject.org/rdf/2009/framework#archive'}->{url};
     say $OUT "Attempting to resolve URL: $url" if $debug;
     unless ($url) {
@@ -472,6 +473,7 @@ sub exportCar {
     $req->header( "Host" => $host );
     $req->header( "Accept" => "application/zip" );
     $req->header( "Accept-Encoding" => "*;q=0" );
+    $req->protocol('HTTP/1.1');
     say $OUT "REQUEST:" if $debug;
     say $OUT $req->as_string if $debug;
     
@@ -487,8 +489,18 @@ sub exportCar {
         say $OUT $res->as_string if ($debug>2) and ($size < 1000);
         say $OUT "Export successful" unless $silent;
         
-        # TODONEXT: Save the content to a filehandle.
-        say $OUT "TODO: Save the results to a file!  Not implemented yet...";
+        # Save the content to a filehandle.
+        my $fh;
+        $filename = $res->filename unless ($filename);
+        say "Exporting CAR for folder " . $server->folder . " into $filename" if $debug;
+        open($fh, ">", "$filename");
+        unless ($fh) {
+            say $OUT "Error: Cannot open $filename for writing: $!";
+            $exitstatus++;
+            return 0;
+        }
+        print $fh $content;
+        close($fh);
         return 1;
         
     } else {
@@ -540,10 +552,22 @@ sub getFolderContents {
     my $req = new HTTP::Request GET => $url;
     $req->header( "Host" => $host );
     $req->header( "Accept" => "application/xml" );
+    say $OUT "Request:\n" . $req->as_string . "\n" if $debug >2;
+    
     # Pass request to the user agent and get a response back
     my $res = $ua->request($req);
     # Check the outcome of the response
     if ($res->is_success) {
+        
+        # Check and hack to tell when Callimachus is (incorrectly) sending
+        # multiple Client-Transfer-Encoding headers.
+        unless ($res->content) {
+            say $OUT "Error: Cannot process folder due to multiple Client-Transfer-Encoding headers in response.";
+            say $OUT "       Folder set to home.";
+            chHomeDir();
+            return 0;
+        }
+        
         my $xs = XML::Simple->new(ForceArray => 1, KeyAttr => []);
         my $xml = $xs->parse_string($res->content);
         my %folders;
@@ -686,7 +710,6 @@ sub getPwd {
 
 # Report general help.
 sub help {
-    # TODO: Simplify as list gets longer?
     # TODO: Include a hyperlink to online docs
     print $OUT <<'ENDOFHELP';
 Callish is a shell for the Callimachus Project (http://callimachusproject.org).
@@ -700,9 +723,10 @@ debug                       Report the state of the shell's server object.
 echo <string>               Echo a string to STDOUT.
 exec <command>              Execute a command on the calling shell.
 exit                        Exit the shell.
-export CAR <filename>       Exports the contents of the active folder into a CAR file.
+export [CAR] [<filename>]   Exports the contents of the active folder into a CAR file.
 get <file title>            Retreive a file from the active folder and save it.
 help                        Get this help message.
+import [CAR] <filename>     Imports the contents of the filename (a CAR file) into the active folder.
 login <user> <pass>         Login to the active server.
 logout                      Log out of the active server.
 ls                          List the contents of the active folder.
@@ -712,11 +736,89 @@ put <filename>              Store a file in the active folder.
 pwd                         Return the path of the active folder.
 quit                        Exit the shell.
 rm <filename>               Delete a file from the active folder.
-rmdir <folder name>         Delete a folder and its contents from the active folder.
+rmdir <folder name>         Delete a folder from the active folder.
 server <url>                Set the Callimachus server authority. Optionally set an HTTP proxy (-p <proxy>).
 set <option> <value>        Set a shell option.
 version                     Report the version of this shell.
 ENDOFHELP
+}
+
+# Upload a Callimachus Archive File (CAR) into the active folder.
+sub importCar {
+    unless ( serverSet() ) { return 0; }
+    unless ( $server->loggedIn ) {
+        say $OUT "Importing a CAR file may only be performed by an authenticated user.  Please log in first.";
+        commandhelp("login");
+        return;
+    }
+    my $filename = shift(@_);
+    my $contentRef = shift(@_);
+    my $content;
+    unless ($filename) {
+        say $OUT "Importing a CAR file requires a filename to import from.  Please provide a filename of a CAR archive.";
+        commandhelp("import");
+        return;
+    }
+    
+    # Read file from the local file system.
+    if ( $contentRef ) {
+            $content = $$contentRef;
+    } else {
+        unless ( open (CARIN, "<", $filename) ) {
+            say $OUT "Error:  Cannot read file $filename from filesystem: $!";
+            $exitstatus++;
+            return 0;
+        }
+        while (<CARIN>) {
+            $content .= $_;
+        }
+        close (CARIN) or
+            warn "Warning: Could not close the filehandle: $!";
+    }
+    
+    my $links = getFolderLinks($server->folder);
+    unless ($links) {
+        say $OUT "Error: Failed to get links from the active folder.";
+        $exitstatus++;
+        return 0;
+    }
+    
+    my $url = $links->{'http://callimachusproject.org/rdf/2009/framework#archive'}->{url};
+    say $OUT "Attempting to resolve URL: $url" if $debug;
+    unless ($url) {
+        say $OUT "Error: Could not determine archive URL for the active folder.";
+        $exitstatus++;
+        return 0;
+    }
+    my $headers = HTTP::Headers->new;
+    $headers->header( "Host" => $host );
+    $headers->header( "Content-Type" => "application/zip" );
+    my $req = HTTP::Request->new("PUT", $url, $headers, $content);
+    $req->protocol('HTTP/1.1');
+    say $OUT "REQUEST:" if $debug;
+    say $OUT $req->as_string if $debug;
+    
+    # Pass request to the user agent and get a response back
+    my $res = $ua->request($req);
+    # Check the outcome of the response
+    if ($res->is_success) {
+        say $OUT "CAR file import request resulted in:  " . $res->status_line if $debug;
+        say $OUT "Import successful" unless $silent;
+        parseDirPath( ".", "suppress display" );
+        return 1;
+    } elsif ( $res->status_line =~ m/401/ ) {
+        unless ( importCar($filename, $contentRef) ) {
+            say $OUT "Error: Failed to import CAR file after responding to Digest request.  Authentication credentials may be invalid.  Trying logging in again.";
+            $exitstatus++;
+            return 0;
+        }
+        return 1;
+    } else {
+        say $OUT "Error: Failed to import CAR file.  The server reported: " . $res->status_line;
+        print $OUT $res->as_string if $debug;
+        $exitstatus++;
+        return 0;
+    }
 }
 
 # Perform an HTTP Digest authentication against the active server.
@@ -779,6 +881,7 @@ sub ls {
     # Display the folder and file titles.
     my $serverfolders = $server->folders;
     foreach my $key (sort keys %$serverfolders) {
+        $key .= '/' unless ($key =~ m/\/$/);
         say $OUT "$key";
     }
     my $serverfiles = $server->files;
@@ -800,7 +903,8 @@ sub makeDir {
     $folderpath =~ s/\/$// if ($folderpath =~ m/\/$/); # Temporarily remove ending slash to allow use of parseFolderUrl.
     my $localpath;
     my($parenturl, $foldername) = parseFolderUrl($folderpath);
-    $foldername .= '/'; # Folders must end with a slash.
+    my $folderslug = $foldername;
+    $foldername .= '/'; # Folders must end with a slash, slugs must not.
     my $host = $server->authority;
     $host =~ s/http:\/\/(.*)\/$/$1/;
     
@@ -824,7 +928,7 @@ prefix calli: <http://callimachusproject.org/rdf/2009/framework#>
 
 INSERT DATA {
     <$localpath$foldername> a calli:Folder, </callimachus/Folder> ;
-        rdfs:label "$foldername" .
+        rdfs:label "$folderslug" .
 }
 ENDOFMKDIRTTL
 

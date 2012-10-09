@@ -37,6 +37,7 @@
         } finally {
             out.close();
         }
+        this.objectConnection.commit();
         org.callimachusproject.server.auth.RealmManager.reset();
         return realm;
     """.
@@ -51,6 +52,7 @@
     calli:imports <java:org.callimachusproject.server.HTTPObjectServer>;
     calli:script """
         var ret = proceed();
+        this.objectConnection.commit();
         HTTPObjectServer.resetAllCache();
         org.callimachusproject.server.auth.RealmManager.reset();
         return ret;

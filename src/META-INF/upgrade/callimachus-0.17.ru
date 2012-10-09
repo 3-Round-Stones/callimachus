@@ -225,3 +225,13 @@ INSERT {
     FILTER NOT EXISTS { </callimachus> a </callimachus/Serviceable> }
 };
 
+DELETE {
+    ?digest calli:authName ?iri
+} INSERT {
+    ?digest calli:authName ?authName
+} WHERE {
+    ?digest a </callimachus/DigestManager>; calli:authName ?iri
+    BIND (str(?iri) AS ?authName)
+    FILTER (?iri != ?authName)
+};
+

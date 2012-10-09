@@ -19,7 +19,7 @@ public abstract class RealmSupport implements RDFObject {
 			String logoutContinue) throws IOException,
 			OpenRDFException {
 		String uri = this.getResource().stringValue();
-		Realm realm = manager.getRealm(uri, this.getObjectConnection());
+		Realm realm = manager.getRealm(uri, this.getObjectConnection().getRepository());
 		return realm.logout(tokens, logoutContinue);
 	}
 

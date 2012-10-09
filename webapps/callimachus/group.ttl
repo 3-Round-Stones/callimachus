@@ -28,6 +28,7 @@
     calli:type "text/uri-list";
     calli:script """
         var ret = proceed();
+        this.objectConnection.commit();
         org.callimachusproject.server.auth.GroupManager.reset();
         return ret;
     """.

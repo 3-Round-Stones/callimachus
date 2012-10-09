@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 
@@ -22,24 +23,29 @@ public class GroupManager {
 		groups.clear();
 	}
 
-	public synchronized Set<Group> getGroups(Set<String> uris, RepositoryConnection con) throws RepositoryException {
+	public synchronized Set<Group> getGroups(Set<String> uris, Repository repo) throws RepositoryException {
 		if (revision != cache) {
 			resetCache();
 			revision = cache;
 		}
 		Set<Group> groups = new HashSet<Group>(uris.size());
 		for (String uri : uris) {
-			groups.add(getGroup(uri, con));
+			groups.add(getGroup(uri, repo));
 		}
 		return groups;
 	}
 
-	private synchronized Group getGroup(String uri, RepositoryConnection con) throws RepositoryException {
+	private synchronized Group getGroup(String uri, Repository repo) throws RepositoryException {
 		if (groups.containsKey(uri))
 			return groups.get(uri);
-		Group group = new Group(uri, con);
-		groups.put(uri, group);
-		return group;
+		RepositoryConnection con = repo.getConnection();
+		try {
+			Group group = new Group(uri, con);
+			groups.put(uri, group);
+			return group;
+		} finally {
+			con.close();
+		}
 	}
 
 }

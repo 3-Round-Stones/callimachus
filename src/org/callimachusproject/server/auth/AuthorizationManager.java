@@ -36,6 +36,7 @@ import org.openrdf.model.Value;
 import org.openrdf.query.QueryLanguage;
 import org.openrdf.query.TupleQuery;
 import org.openrdf.query.TupleQueryResult;
+import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.RDFObject;
@@ -80,17 +81,17 @@ public class AuthorizationManager {
 		return isPublic(groups) || isMember(user, groups);
 	}
 
-	public Realm getRealm(String target, ObjectConnection con)
+	public Realm getRealm(String target, Repository repo)
 			throws OpenRDFException {
-		return realmManager.getRealm(target, con);
+		return realmManager.getRealm(target, repo);
 	}
 
 	public Set<Group> getAuthorizedParties(RDFObject target, String[] requires) throws OpenRDFException,
 			RepositoryException {
-		ObjectConnection con = target.getObjectConnection();
-		Set<String> roles = properties.expand(requires, con);
+		Repository repo = target.getObjectConnection().getRepository();
+		Set<String> roles = properties.expand(requires, repo);
 		Set<String> parties = getAnnotationValuesOf(target, roles);
-		return groupManager.getGroups(parties, con);
+		return groupManager.getGroups(parties, repo);
 	}
 
 	public boolean isPublic(Set<Group> groups) {
@@ -259,10 +260,10 @@ public class AuthorizationManager {
 	}
 
 	private Realm getRealm(ResourceOperation request) throws OpenRDFException {
-		ObjectConnection con = request.getObjectConnection();
-		Realm realm = getRealm(request.getIRI(), con);
+		Repository repo = request.getObjectConnection().getRepository();
+		Realm realm = getRealm(request.getIRI(), repo);
 		if (realm == null)
-			return getRealm(request.getRequestURI(), con);
+			return getRealm(request.getRequestURI(), repo);
 		return realm;
 	}
 

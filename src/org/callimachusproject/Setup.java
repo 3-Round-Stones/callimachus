@@ -77,7 +77,7 @@ import org.openrdf.model.util.ModelUtil;
 import org.openrdf.model.vocabulary.OWL;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.model.vocabulary.RDFS;
-import org.openrdf.query.Update;
+import org.openrdf.query.MalformedQueryException;
 import org.openrdf.query.algebra.evaluation.util.ValueComparator;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
@@ -114,7 +114,7 @@ public class Setup {
 	private static final String GRAPH_DOCUMENT = CALLIMACHUS + "GraphDocument";
 	private static final String SERVE_ALL = "/everything-else-public.ttl";
 	private static final String SERVE_ALL_TTL = "META-INF/templates/callimachus-all-serviceable.ttl";
-	private static final String INITIAL_GRAPH = "META-INF/templates/callimachus-initial-data.ttl";
+	private static final String INITIAL_RU = "META-INF/upgrade/callimachus-initial.ru";
 	private static final String MAIN_ARTICLE = "META-INF/templates/main-article.docbook";
 
 	private static final String CALLI = "http://callimachusproject.org/rdf/2009/framework#";
@@ -613,7 +613,7 @@ public class Setup {
 	}
 
 	private void initializeStore(String origin, CallimachusRepository repository)
-			throws RepositoryException {
+			throws OpenRDFException {
 		try {
 			ClassLoader cl = CallimachusServer.class.getClassLoader();
 			loadDefaultGraphs(origin, repository, cl);
@@ -624,23 +624,25 @@ public class Setup {
 	}
 
 	private void loadDefaultGraphs(String origin, Repository repository,
-			ClassLoader cl) throws IOException, RepositoryException {
-		RDFFormat format = RDFFormat.forFileName(INITIAL_GRAPH,
-				RDFFormat.RDFXML);
-		Enumeration<URL> resources = cl.getResources(INITIAL_GRAPH);
+			ClassLoader cl) throws IOException, OpenRDFException {
+		Enumeration<URL> resources = cl.getResources(INITIAL_RU);
 		if (!resources.hasMoreElements())
-			logger.warn("Missing {}", INITIAL_GRAPH);
+			logger.warn("Missing {}", INITIAL_RU);
 		while (resources.hasMoreElements()) {
 			InputStream in = resources.nextElement().openStream();
 			try {
+				logger.info("Initializing {} Store", origin);
+				Reader reader = new InputStreamReader(in, "UTF-8");
+				String ru = IOUtil.readString(reader);
 				RepositoryConnection con = repository.getConnection();
 				try {
-					logger.info("Initializing {} Store", origin);
-					con.add(in, origin + "/", format);
+					con.setAutoCommit(false);
+					con.prepareUpdate(SPARQL, ru, origin + "/").execute();
+					con.setAutoCommit(true);
 				} finally {
 					con.close();
 				}
-			} catch (RDFParseException exc) {
+			} catch (MalformedQueryException exc) {
 				logger.warn(exc.toString(), exc);
 			}
 		}
@@ -704,8 +706,7 @@ public class Setup {
 			ObjectConnection con = repository.getConnection();
 			try {
 				con.setAutoCommit(false);
-				Update u = con.prepareUpdate(SPARQL, ru, origin);
-				u.execute();
+				con.prepareUpdate(SPARQL, ru, origin).execute();
 				con.setAutoCommit(true);
 			} finally {
 				con.close();

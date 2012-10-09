@@ -1,14 +1,14 @@
-@prefix xsd:<http://www.w3.org/2001/XMLSchema#>.
-@prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
-@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
-@prefix owl:<http://www.w3.org/2002/07/owl#>.
-@prefix skos:<http://www.w3.org/2004/02/skos/core#>.
-@prefix sd:<http://www.w3.org/ns/sparql-service-description#>.
-@prefix void:<http://rdfs.org/ns/void#>.
-@prefix foaf:<http://xmlns.com/foaf/0.1/>.
-@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
-@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
-@prefix :<#>.
+PREFIX xsd:<http://www.w3.org/2001/XMLSchema#>
+PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl:<http://www.w3.org/2002/07/owl#>
+PREFIX skos:<http://www.w3.org/2004/02/skos/core#>
+PREFIX sd:<http://www.w3.org/ns/sparql-service-description#>
+PREFIX void:<http://rdfs.org/ns/void#>
+PREFIX foaf:<http://xmlns.com/foaf/0.1/>
+PREFIX msg:<http://www.openrdf.org/rdf/2011/messaging#>
+PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
+PREFIX :<#>
 
 ################################################################
 # Data to initialize an Callimachus store, but may be removed.
@@ -18,17 +18,20 @@
 # Version Info
 ################################
 
+INSERT DATA {
 </> calli:hasComponent </callimachus>.
 </callimachus> a </callimachus/Serviceable>, owl:Ontology;
     rdfs:label "Callimachus";
     rdfs:comment "Vocabulary used to create local Callimachus applications";
     owl:versionInfo "0.17";
     calli:administrator </group/admin>.
+};
 
 ################################
 # Default Folders
 ################################
 
+INSERT DATA {
 </> calli:hasComponent </activity/>.
 </activity/> a </callimachus/Folder>, calli:Folder;
     rdfs:label "activity";
@@ -51,20 +54,26 @@
     rdfs:label "callimachus";
     calli:reader </group/public>;
     calli:administrator </group/admin>.
+};
 
 ################################
 # Authorization and Groups
 ################################
 
+INSERT {
 </> calli:hasComponent </accounts>.
 </accounts> a </callimachus/DigestManager>, calli:DigestManager, calli:AuthenticationManager;
     rdfs:label "accounts";
     calli:reader </group/public>;
     calli:subscriber </group/users>, </group/staff>;
     calli:administrator </group/admin>;
-    calli:authName </>;
+    calli:authName ?authName;
     calli:authNamespace </user/>.
+} WHERE {
+    BIND (replace(replace(replace(str(</>), "^.+://", ""), "/$", ""), ":[0-9]+$", "") AS ?authName)
+};
 
+INSERT DATA {
 </group/> calli:hasComponent </group/admin>.
 </group/admin> a calli:Party, calli:Group, </callimachus/Group>;
     rdfs:label "admin";
@@ -111,11 +120,12 @@
     calli:subscriber </group/staff>;
     calli:administrator </group/admin>;
     calli:anonymousFrom ".".
-
+};
 ################################
 # Services
 ################################
 
+INSERT DATA {
 </> calli:hasComponent </.well-known/>.
 </.well-known/> a </callimachus/Folder>, calli:Folder;
     rdfs:label ".well known";
@@ -145,11 +155,13 @@
     sd:feature sd:UnionDefaultGraph, sd:BasicFederatedQuery;
     sd:inputFormat <http://www.w3.org/ns/formats/RDF_XML>, <http://www.w3.org/ns/formats/Turtle>;
     sd:resultFormat <http://www.w3.org/ns/formats/RDF_XML>, <http://www.w3.org/ns/formats/SPARQL_Results_XML>.
+};
 
 ################################
 # Menu
 ################################
 
+INSERT DATA {
 </> calli:hasComponent </main+menu>.
 </main+menu> a </callimachus/Menu>, calli:Menu;
     rdfs:label "main menu";
@@ -183,4 +195,4 @@
 </main+menu#introspectresource>	calli:position 3; rdfs:label "Introspect resource"; calli:link <javascript:location='?introspect'>.
 </main+menu#permissions>	calli:position 3; rdfs:label "Permissions"; calli:link <javascript:location='?permissions'>.
 </main+menu#printthispage>	calli:position 4; rdfs:label "Print this page"; calli:link <javascript:print()>.
-
+};

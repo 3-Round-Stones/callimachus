@@ -12,6 +12,7 @@ import org.openrdf.model.Value;
 import org.openrdf.query.QueryLanguage;
 import org.openrdf.query.TupleQuery;
 import org.openrdf.query.TupleQueryResult;
+import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 
 public class AnnotationPropertyInferencer {
@@ -31,7 +32,7 @@ public class AnnotationPropertyInferencer {
 	}
 
 	public synchronized Set<String> expand(String[] property,
-			RepositoryConnection con) throws OpenRDFException {
+			Repository repo) throws OpenRDFException {
 		if (revision != cache) {
 			resetCache();
 			revision = cache;
@@ -39,25 +40,30 @@ public class AnnotationPropertyInferencer {
 		if (property == null || property.length == 0)
 			return Collections.emptySet();
 		if (property.length == 1)
-			return expand(property[0], con);
+			return expand(property[0], repo);
 		Set<String> set = new HashSet<String>();
 		for (String p : property) {
-			set.addAll(expand(p, con));
+			set.addAll(expand(p, repo));
 		}
 		return set;
 	}
 
 	private synchronized Set<String> expand(String property,
-			RepositoryConnection con) throws OpenRDFException {
+			Repository repo) throws OpenRDFException {
 		if (expanded.containsKey(property))
 			return expanded.get(property);
-		URI uri = con.getValueFactory().createURI(property);
-		Set<String> subProperties = findSubPropertiesOf(uri, con);
-		expanded.put(property, subProperties);
-		return subProperties;
+		RepositoryConnection con = repo.getConnection();
+		try {
+			URI uri = con.getValueFactory().createURI(property);
+			Set<String> subProperties = findSubPropertiesOf(uri, con);
+			expanded.put(property, subProperties);
+			return subProperties;
+		} finally {
+			con.close();
+		}
 	}
 
-	public Set<String> findSubPropertiesOf(URI property, RepositoryConnection con)
+	private Set<String> findSubPropertiesOf(URI property, RepositoryConnection con)
 			throws OpenRDFException {
 		Set<String> set = new HashSet<String>();
 		set.add(property.stringValue());

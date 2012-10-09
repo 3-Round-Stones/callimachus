@@ -25,6 +25,7 @@ import org.openrdf.model.Resource;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.TupleQuery;
 import org.openrdf.query.TupleQueryResult;
+import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.ObjectConnection;
 import org.slf4j.Logger;
@@ -58,7 +59,7 @@ public class Realm {
 	private String forbidden;
 	private String unauthorized;
 
-	Realm(Resource self, ObjectConnection con) throws OpenRDFException {
+	Realm(Resource self, RepositoryConnection con) throws OpenRDFException {
 		TupleQuery query = con.prepareTupleQuery(SPARQL, SELECT_REALM);
 		query.setBinding("this", self);
 		TupleQueryResult results = query.evaluate();

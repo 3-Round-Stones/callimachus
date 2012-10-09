@@ -59,6 +59,7 @@
     calli:header "cache-control:no-store"; # TODO use cache-control from query string
     calli:imports <java:org.callimachusproject.engine.ParameterizedQueryParser>;
     calli:imports <java:org.callimachusproject.engine.TemplateEngine>;
+    calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
     calli:imports <java:org.openrdf.query.QueryLanguage>;
     calli:script """
         var parser = ParameterizedQueryParser.newInstance();
@@ -68,6 +69,8 @@
             return proceed();
         var con = this.objectConnection;
         var page = con.getObject(uri);
+        if (!page.FindRealmOf)
+            throw new InternalServerError("Missing view template: " + page);
         var realm = page.FindRealmOf(this);
         var engine = TemplateEngine.getInstance();
         var temp = engine.getTemplate(uri + "?template&realm=" + realm);

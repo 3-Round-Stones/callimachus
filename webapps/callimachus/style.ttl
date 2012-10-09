@@ -69,7 +69,7 @@
         var created = location;
 
         var filename = created.resource.localName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
-        var label = vf.createLiteral(URLDecoder.decode(filename, "UTF-8").replace(/-/g, " "));
+        var label = vf.createLiteral(URLDecoder.decode(filename, "UTF-8").replace(/[_\\-\\+\\s]+/g, " "));
         con.add(created.resource, RDFS.LABEL, label, []);
 
         created = con.addDesignation(created, this.toString());

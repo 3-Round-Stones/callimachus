@@ -13,31 +13,7 @@
 
     <p:option name="output-base-uri" select="''" />
 
-
-    <p:import href="page-template.xpl" />
-
-    <p:declare-step type="calli:render-sparql-query">
-        <p:input port="source" sequence="true" primary="true" />
-        <p:input port="template" />
-        <p:option name="output-base-uri" />
-        <p:output port="result" sequence="true" />
-    </p:declare-step>
-
-    <p:declare-step type="calli:sparql">
-        <p:input port="source" sequence="true" primary="true" />
-        <p:input port="query" sequence="true" />
-        <p:input port="parameters" kind="parameter" primary="true"/>
-        <p:option name="output-base-uri" />
-        <p:output port="result" sequence="true" />
-    </p:declare-step>
-
-    <p:declare-step type="calli:render">
-        <p:input port="source" sequence="true" primary="true" />
-        <p:input port="template" />
-        <p:option name="output-base-uri" />
-        <p:output port="result" sequence="true" />
-    </p:declare-step>
-
+    <p:import href="../library.xpl" />
 
     <p:variable name="resultId" select="if (string-length($output-base-uri) &gt; 0) then p:resolve-uri($output-base-uri) else p:base-uri()">
         <p:pipe step="render-html" port="query" />

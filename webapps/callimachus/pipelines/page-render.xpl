@@ -15,12 +15,7 @@
     <p:option name="target" required="true" />
     <p:option name="query" required="true" />
 
-    <p:declare-step type="calli:render">
-        <p:input port="source" sequence="true" primary="true" />
-        <p:input port="template" />
-        <p:option name="output-base-uri" />
-        <p:output port="result" sequence="true" />
-    </p:declare-step>
+    <p:import href="../library.xpl" />
 
     <p:load name="template-load">
         <p:with-option name="href" select="$template" />

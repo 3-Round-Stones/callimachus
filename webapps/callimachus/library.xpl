@@ -103,12 +103,18 @@
                 <p:input port="stylesheet">
                     <p:document href="transforms/page-info.xsl" />
                 </p:input>
+                <p:input port="parameters">
+                    <p:empty />
+                </p:input>
             </p:xslt>
 
             <p:xslt>
                 <p:with-option name="output-base-uri" select="$resultId" />
                 <p:input port="stylesheet">
                     <p:document href="transforms/xhtml-to-html.xsl" />
+                </p:input>
+                <p:input port="parameters">
+                    <p:empty />
                 </p:input>
             </p:xslt>
         </p:group>

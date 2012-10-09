@@ -11,6 +11,7 @@ import net.sf.saxon.s9api.XdmNode;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidException;
 import org.callimachusproject.fluid.FluidFactory;
+import org.callimachusproject.server.exceptions.InternalServerError;
 import org.callimachusproject.xml.CloseableEntityResolver;
 import org.callimachusproject.xml.CloseableURIResolver;
 import org.callimachusproject.xml.XdmNodeFactory;
@@ -86,7 +87,10 @@ public class Pipeline {
 			CloseableEntityResolver entityResolver = new CloseableEntityResolver(resolver);
 			runtime.setURIResolver(uriResolver);
 			runtime.setEntityResolver(entityResolver);
-			XPipeline xpipeline = runtime.use(resolvePipeline());
+			XdmNode doc = resolvePipeline();
+			if (doc == null)
+				throw new InternalServerError("Missing pipeline: " + systemId);
+			XPipeline xpipeline = runtime.use(doc);
 			if (source != null) {
 				xpipeline.writeTo("source", source);
 			}

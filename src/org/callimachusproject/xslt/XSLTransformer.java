@@ -48,6 +48,7 @@ import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidException;
 import org.callimachusproject.fluid.FluidFactory;
 import org.callimachusproject.fluid.FluidType;
+import org.callimachusproject.server.exceptions.InternalServerError;
 import org.callimachusproject.xml.AggressiveCachedURIResolver;
 import org.callimachusproject.xml.DOMSourceFactory;
 import org.callimachusproject.xml.DocumentFactory;
@@ -209,6 +210,8 @@ public class XSLTransformer {
 		if (systemId == null)
 			return tfactory.newTransformer();
 		Source xsl = tfactory.getURIResolver().resolve(systemId, null);
+		if (xsl == null)
+			throw new InternalServerError("Missing transform: " + systemId);
 		systemSourceId = xsl.getSystemId();
 		Templates templates = tfactory.newTemplates(xsl);
 		if (templates == null)

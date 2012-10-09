@@ -55,6 +55,8 @@ public class XdmNodeFactory implements EntityResolver, URIResolver {
 
 	public XdmNode parse(String systemId) throws SAXException, IOException {
 		InputSource isource = resolveEntity(null, systemId);
+		if (isource == null)
+			return null;
 		try {
 			return parse(isource);
 		} finally {
@@ -94,21 +96,28 @@ public class XdmNodeFactory implements EntityResolver, URIResolver {
 	}
 
 	private XdmNode parse(InputSource isource) throws SAXException {
-        try {
-            // Make sure the builder uses our entity resolver
-            XMLReader reader = XMLReaderFactory.createXMLReader();
-            reader.setEntityResolver(resolver);
-            SAXSource source = new SAXSource(reader, isource);
+        // Make sure the builder uses our entity resolver
+        XMLReader reader = XMLReaderFactory.createXMLReader();
+        reader.setEntityResolver(resolver);
+        SAXSource source = new SAXSource(reader, isource);
+        if (isource.getSystemId() != null) {
+        	source.setSystemId(isource.getSystemId());
+        }
+        return parse(source);
+	}
+
+	private XdmNode parse(Source source)
+			throws SAXException {
+		try {
             DocumentBuilder builder = processor.newDocumentBuilder();
             builder.setLineNumbering(true);
             builder.setDTDValidation(false);
-            if (isource.getSystemId() != null) {
-            	builder.setBaseURI(URI.create(isource.getSystemId()));
+            if (source.getSystemId() != null) {
+            	builder.setBaseURI(URI.create(source.getSystemId()));
             }
             return builder.build(source);
         } catch (SaxonApiException e) {
         	throw new SAXException(e);
         }
-    
 	}
 }

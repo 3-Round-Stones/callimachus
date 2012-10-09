@@ -35,7 +35,7 @@
     calli:edit <templates/pipeline-edit.xhtml>;
     calli:create <templates/pipeline-create.xhtml>;
     calli:mediaType "application/xproc+xml";
-    calli:documentTag <http://www.w3.org/ns/xproc#pipeline>.
+    calli:documentTag <http://www.w3.org/ns/xproc#pipeline>, <http://www.w3.org/ns/xproc#declare-step>, <http://www.w3.org/ns/xproc#library>.
 
 # GET /pipeline/pipe.xpl
 :GetPipelineSource rdfs:subClassOf msg:Message;

@@ -31,8 +31,8 @@
 
     <!-- Subpipelines -->
 
-    <p:import href="page-template.xpl" />
+    <p:import href="pipelines/page-template.xpl" />
 
-    <p:import href="render-html.xpl" />
+    <p:import href="pipelines/render-html.xpl" />
 
 </p:library>

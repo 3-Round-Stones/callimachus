@@ -62,9 +62,4 @@ public class Forbidden extends ResponseException {
 		return 403;
 	}
 
-	@Override
-	public boolean isCommon() {
-		return true;
-	}
-
 }

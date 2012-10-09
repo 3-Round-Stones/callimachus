@@ -514,7 +514,7 @@ public abstract class Task implements Runnable {
 		writer.append("<h1>");
 		writer.append(html(exc.getLongMessage()));
 		writer.append("</h1>\n");
-		if (code == 500) {
+		if (exc.getCause() != null) {
 			writer.append("<pre>");
 			Writer sw = new StringWriter();
 			PrintWriter print = new PrintWriter(sw);

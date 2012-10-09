@@ -62,9 +62,4 @@ public class UnsupportedMediaType extends ResponseException {
 		return 415;
 	}
 
-	@Override
-	public boolean isCommon() {
-		return true;
-	}
-
 }

@@ -28,7 +28,6 @@
  */
 package org.callimachusproject.server.exceptions;
 
-import java.io.PrintWriter;
 
 /**
  * The server encountered an unexpected condition which prevented it from
@@ -60,26 +59,6 @@ public class InternalServerError extends ResponseException {
 	@Override
 	public int getStatusCode() {
 		return 500;
-	}
-
-	@Override
-	public boolean isCommon() {
-		return false;
-	}
-
-	@Override
-	public void printTo(PrintWriter writer) {
-		Throwable cause = getCause();
-		if (cause == null) {
-			writer.write(getDetailMessage());
-		} else {
-			cause.printStackTrace(writer);
-		}
-	}
-
-	@Override
-	public String toString() {
-		return getDetailMessage();
 	}
 
 }

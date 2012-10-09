@@ -62,9 +62,4 @@ public class ServiceUnavailable extends ResponseException {
 		return 503;
 	}
 
-	@Override
-	public boolean isCommon() {
-		return false;
-	}
-
 }

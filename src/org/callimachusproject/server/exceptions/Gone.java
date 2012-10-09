@@ -66,9 +66,4 @@ public class Gone extends ResponseException {
 		return 410;
 	}
 
-	@Override
-	public boolean isCommon() {
-		return true;
-	}
-
 }

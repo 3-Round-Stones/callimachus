@@ -66,9 +66,4 @@ public class NotFound extends ResponseException {
 		return 404;
 	}
 
-	@Override
-	public boolean isCommon() {
-		return true;
-	}
-
 }

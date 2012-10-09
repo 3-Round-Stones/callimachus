@@ -62,9 +62,4 @@ public class NotAcceptable extends ResponseException {
 		return 406;
 	}
 
-	@Override
-	public boolean isCommon() {
-		return true;
-	}
-
 }

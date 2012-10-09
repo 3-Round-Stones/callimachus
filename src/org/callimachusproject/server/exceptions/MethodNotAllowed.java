@@ -62,9 +62,4 @@ public class MethodNotAllowed extends ResponseException {
 		return 405;
 	}
 
-	@Override
-	public boolean isCommon() {
-		return false;
-	}
-
 }

@@ -63,9 +63,4 @@ public class GatewayTimeout extends ResponseException {
 		return 504;
 	}
 
-	@Override
-	public boolean isCommon() {
-		return false;
-	}
-
 }

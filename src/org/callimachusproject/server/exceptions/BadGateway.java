@@ -61,9 +61,4 @@ public class BadGateway extends ResponseException {
 		return 502;
 	}
 
-	@Override
-	public boolean isCommon() {
-		return false;
-	}
-
 }

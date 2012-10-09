@@ -61,9 +61,4 @@ public class BadRequest extends ResponseException {
 		return 400;
 	}
 
-	@Override
-	public boolean isCommon() {
-		return true;
-	}
-
 }

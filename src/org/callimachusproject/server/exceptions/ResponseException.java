@@ -32,7 +32,6 @@ package org.callimachusproject.server.exceptions;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.zip.GZIPInputStream;
@@ -195,14 +194,9 @@ public abstract class ResponseException extends RuntimeException {
 
 	public abstract int getStatusCode();
 
-	public abstract boolean isCommon();
-
-	public void printTo(PrintWriter writer) {
-		if (isCommon()) {
-			writer.write(getLongMessage());
-		} else {
-			writer.write(getDetailMessage());
-		}
+	@Override
+	public String toString() {
+		return getDetailMessage();
 	}
 
 	public String getShortMessage() {

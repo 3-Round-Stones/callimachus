@@ -62,9 +62,4 @@ public class NotImplemented extends ResponseException {
 		return 501;
 	}
 
-	@Override
-	public boolean isCommon() {
-		return false;
-	}
-
 }

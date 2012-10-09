@@ -66,9 +66,4 @@ public class Conflict extends ResponseException {
 		return 409;
 	}
 
-	@Override
-	public boolean isCommon() {
-		return true;
-	}
-
 }

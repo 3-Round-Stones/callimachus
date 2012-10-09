@@ -124,7 +124,7 @@ public class OrderByTest {
 						" @origin _label /1/2/2/1/1/1 !", null), new Comment(
 						" @origin _comment /1/2/3/1 !", null), new Document(
 						false, null));
-		assertOrderBy(list, "ORDER BY ?_comment ?_label ?this ?type");
+		assertOrderBy(list, "ORDER BY ?this ?_comment ?_label ?type");
 	}
 
 	@Test
@@ -275,7 +275,7 @@ public class OrderByTest {
 				new Document(false, null));
 		assertOrderBy(
 				list,
-				"ORDER BY ?top ?_top_prefLabel ?_comment ?image ?_image_comment ?_label1 ?this ?_label");
+				"ORDER BY ?this ?top ?_top_prefLabel ?_comment ?image ?_image_comment ?_label1 ?_label");
 	}
 
 	@Test
@@ -438,7 +438,7 @@ public class OrderByTest {
 						new Comment(" @origin _top_prefLabel /1/2/2/4/1/1 !",
 								null), new Document(false, null));
 		assertOrderBy(list,
-				"ORDER BY ?top ?_top_prefLabel ?_label2 ?_label1 ?this ?_label");
+				"ORDER BY ?this ?top ?_top_prefLabel ?_label2 ?_label1 ?_label");
 	}
 
 	@Test

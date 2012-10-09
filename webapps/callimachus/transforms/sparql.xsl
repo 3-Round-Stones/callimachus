@@ -76,7 +76,7 @@
         <xsl:apply-templates select="*" />
     </xsl:template>
     <xsl:template match="sparql:uri">
-        <a href="{text()}" class="view uri">
+        <a href="{text()}" class="uri">
             <xsl:call-template name="resource">
                 <xsl:with-param name="iri" select="text()"/>
             </xsl:call-template>

@@ -106,7 +106,7 @@
                 </xsl:call-template>
             </span>
             <xsl:text> </xsl:text>
-            <a href="{@rdf:resource}" class="view uri">
+            <a href="{@rdf:resource}" class="uri">
                 <xsl:attribute name="rel">
                     <xsl:call-template name="iriref">
                         <xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
@@ -226,7 +226,7 @@
     </xsl:template>
     <xsl:template match="/rdf:RDF/rdf:Description[@rdf:about]">
         <div resource="{@rdf:about}">
-            <a href="{@rdf:about}" class="view uri">
+            <a href="{@rdf:about}" class="uri">
                 <xsl:if test="substring-before(@rdf:about, '#')=$systemId">
                     <xsl:attribute name="name"><xsl:value-of select="substring-after(@rdf:about, '#')" /></xsl:attribute>
                 </xsl:if>
@@ -241,7 +241,7 @@
     </xsl:template>
     <xsl:template match="/rdf:RDF/rdf:Description[@rdf:ID]">
         <div resource="#{@rdf:ID}">
-            <a href="#{@rdf:ID}" class="view uri" name="{@rdf:ID}">
+            <a href="#{@rdf:ID}" class="uri" name="{@rdf:ID}">
                 <xsl:value-of select="@rdf:ID"/>
             </a>
             <ul class="properties sorted">

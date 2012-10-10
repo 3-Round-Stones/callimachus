@@ -8,14 +8,17 @@
 
 jQuery(function($){
 
-$('form[enctype="application/rdf+xml"]').submit(function(event) {
+$('form').submit(function(event) {
+    if (this.getAttribute("enctype") != "application/rdf+xml")
+        return true;
     var form = $(this);
     form.find("input").change(); // IE may not have called onchange before onsubmit
-    var resource = form.attr('about') || form.attr('resource');
-    if (!resource || resource.indexOf(':') < 0 && resource.indexOf('/') != 0 && resource.indexOf('?') != 0)
-        return true; // resource attribute not set yet
-    event.preventDefault();
-    setTimeout(function(){submitRDFForm(form[0], form.attr('about') || form.attr('resource'));}, 0);
+    setTimeout(function(){
+        var resource = form.attr('about') || form.attr('resource');
+        if (resource) {
+            submitRDFForm(form[0], resource);
+        }
+    }, 0);
     return false;
 });
 

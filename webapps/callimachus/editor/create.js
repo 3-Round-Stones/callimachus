@@ -82,26 +82,28 @@
 jQuery(function($){
     $('form[enctype]').submit(function(event) {
         var form = this;
-        var resource = $(form).attr('about') || $(form).attr('resource');
-        if (!resource || resource.indexOf(':') < 0 && resource.indexOf('/') != 0 && resource.indexOf('?') != 0)
-            return true; // resource attribute not set yet
+        setTimeout(function(){
+            var resource = $(form).attr('about') || $(form).attr('resource');
+            if (resource) {
+                getSource(function(text) {
+                    saveFile(form, text, function(xhr) {
+                        var url = xhr.getResponseHeader('Location');
+                        if (url) {
+                            if (window.parent != window && parent.postMessage) {
+                                parent.postMessage('PUT src\n\n' + url + '?view', '*');
+                            }
+                            window.location.replace(url + '?view');
+                        } else if (resource) {
+                            if (window.parent != window && parent.postMessage) {
+                                parent.postMessage('PUT src\n\n' + resource + '?view', '*');
+                            }
+                            window.location.replace(resource + '?view');
+                        }
+                    });
+                });
+            }
+        }, 0);
         event.preventDefault();
-        getSource(function(text) {
-            saveFile(form, text, function(xhr) {
-                var url = xhr.getResponseHeader('Location');
-                if (url) {
-                    if (window.parent != window && parent.postMessage) {
-                        parent.postMessage('PUT src\n\n' + url + '?view', '*');
-                    }
-                    window.location.replace(url + '?view');
-                } else if (resource) {
-                    if (window.parent != window && parent.postMessage) {
-                        parent.postMessage('PUT src\n\n' + resource + '?view', '*');
-                    }
-                    window.location.replace(resource + '?view');
-                }
-            });
-        });
         return false;
     });
 });

@@ -9,13 +9,12 @@
     <style type="text/css">
         #iframe { border:0; }
     </style>
-    <script type="text/javascript" src="/callimachus/editor/create.js"> </script>
+    <script type="text/javascript" src="../editor/create.js"> </script>
 </head>
 <body>
-    <form id="form" method="POST" action="" enctype="application/docbook+xml"
-            onsubmit="return calli.saveResourceAs(event, 'untitled article.docbook', calli.getCallimachusUrl('Article'))">
-        <iframe id="iframe" class="flex" src="/callimachus/editor/docbook-editor.html"> </iframe>
-        <button type="submit" class="btn btn-success">Create</button>
+    <form id="form" method="POST" action="" enctype="application/docbook+xml">
+        <iframe id="iframe" class="flex" src="../editor/docbook-editor.html"> </iframe>
+        <button type="submit" onclick="return calli.saveResourceAs(event, 'untitled article.docbook')" class="btn btn-success">Create</button>
     </form>
 </body>
 </html>

@@ -6,18 +6,6 @@
 
 (function($){
 
-var nestedSubmit = false;
-function resubmit(form) {
-    var previously = nestedSubmit;
-    nestedSubmit = true;
-    try {
-        overrideLocation(form, $(form).attr('about') || $(form).attr('resource'));
-        $(form).submit(); // this time with a resource attribute
-    } finally {
-        nestedSubmit = previously;
-    }
-}
-
 if (!window.calli) {
     window.calli = {};
 }
@@ -31,9 +19,11 @@ window.calli.slugify = function(label) {
     }
     return removeDiacritics(label).toLowerCase().replace(/\s+/g, '+').replace(/[^\w\+\-\_\.\!\~\*\'\(\);\,\&\=\$\[\]]+/g,'_');
 };
+
 window.calli.saveFormAs = function(event, fileName, create) {
     return calli.saveResourceAs(event, fileName, create);
 };
+var nestedSubmit = false;
 window.calli.saveResourceAs = function(event, fileName, create) {
     event = calli.fixEvent(event);
     var form = event.target;
@@ -41,33 +31,55 @@ window.calli.saveResourceAs = function(event, fileName, create) {
 
     $(form).find("input").change(); // IE may not have called onchange before onsubmit
     var resource = $(form).attr('about') || $(form).attr('resource');
-    if (resource && (!fileName || nestedSubmit)) {
-        // resource attribute ready, let's go
-        overrideLocation(form, $(form).attr('about') || $(form).attr('resource'));
-        return true;
-    } else if (fileName && !create && window.location.search != '?create') {
-        // set resource and submit
-        var ns = calli.listResourceIRIs(calli.getPageUrl())[0];
-        if (ns.lastIndexOf('/') != ns.length - 1) {
-            ns += '/';
-        }
-        var local = encodeURI(fileName).replace(/%25(\w\w)/g, '%$1').replace(/%20/g, '+');
-        $(form).attr('resource', ns + local);
-        overrideLocation(form, $(form).attr('about') || $(form).attr('resource'));
-        return true;
-    } else {
-        // prompt for a new resource URI
-        var label = fileName || findLabel(form);
-        openSaveAsDialog(form, label, create, function(ns, local) {
-            if (fileName) {
-                local = local.replace(/\+/g,'-');
+    if (event.type == 'submit') {
+        if (fileName && !nestedSubmit) {
+            // set resource attribute and go
+            var ns = calli.listResourceIRIs(calli.getPageUrl())[0];
+            if (resource) {
+                ns = resource.replace(/[^\/]*\/?$/, ''); // get parent folder
+            } else if (ns.lastIndexOf('/') != ns.length - 1
+                    && window.location.search.indexOf('?create=') == 0) {
+                ns += '/';
+            } else if (window.location.search != '?create') {
+                ns = ns.replace(/[^\/]*$/, ''); // get folder
             }
-            $(form).removeAttr('about');
-            $(form).attr('resource', ns + local.toLowerCase());
-            resubmit(form); // this time with an resource attribute
-        });
-        return false;
+            if (ns) {
+                var local = encodeURI(fileName).replace(/%25(\w\w)/g, '%$1').replace(/%20/g, '+');
+                resource = ns + local;
+                $(form).removeAttr('about');
+                $(form).attr('resource', resource);
+            }
+        }
+        if (resource) {
+            // resource attribute ready set, let's go
+            overrideLocation(form, resource);
+            return true;
+        }
     }
+    // prompt for a new resource URI
+    var label = fileName || findLabel(form) || localPart(resource);
+    openSaveAsDialog(form, label, create, function(ns, local) {
+        if (fileName) {
+            local = local.replace(/\+/g,'-');
+        }
+        var resource = ns + local.toLowerCase();
+        $(form).removeAttr('about');
+        $(form).attr('resource', resource);
+        if (form.getAttribute("enctype") == "application/sparql-update") {
+            form.setAttribute("enctype", "application/rdf+xml");
+        }
+        overrideLocation(form, resource);
+        try {
+            nestedSubmit = true;
+            $(form).submit(); // this time with a resource attribute
+        } finally {
+            nestedSubmit = false;
+        }
+    });
+    $(form).removeAttr('about');
+    $(form).removeAttr('resource');
+    event.preventDefault();
+    return false;
 };
 
 function findLabel(form) {
@@ -92,9 +104,15 @@ function findLabel(form) {
     return calli.slugify(input);
 }
 
+function localPart(resource) {
+    if (resource)
+        return resource.replace(/.*\/(.+)/, '$1');
+    return null;
+}
+
 function openSaveAsDialog(form, label, create, callback) {
     var src = calli.getCallimachusUrl("pages/location-prompt.html#") + encodeURIComponent(label.replace(/!/g,''));
-    if (location.search.search(/\?\w+=/) == 0) {
+    if (location.search.search(/\?create=/) == 0) {
         src += '!' + calli.viewpage(calli.getPageUrl());
     } else if (window.sessionStorage) {
         try {

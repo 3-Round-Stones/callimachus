@@ -16,12 +16,15 @@ $('form[enctype="application/sparql-update"]').each(function() {
             stored = readRDF(form[0]);
         });
         form.submit(function(event) {
+            if (this.getAttribute("enctype") != "application/sparql-update")
+                return true;
             form.find("input").change(); // IE may not have called onchange before onsubmit
-            var resource = form.attr('about') || form.attr('resource');
-            if (!resource || resource.indexOf(':') < 0 && resource.indexOf('/') != 0 && resource.indexOf('?') != 0)
-                return true; // resource attribute not set
-            event.preventDefault();
-            setTimeout(function(){submitRDFForm(form[0], stored);}, 0);
+            setTimeout(function(){
+                var resource = form.attr('about') || form.attr('resource');
+                if (resource) {
+                    submitRDFForm(form[0], stored);
+                }
+            }, 0);
             return false;
         });
     } catch (e) {

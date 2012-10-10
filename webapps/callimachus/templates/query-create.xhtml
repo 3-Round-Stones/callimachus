@@ -6,7 +6,7 @@
     xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
     <title>New Named Query</title>
-    <script type="text/javascript" src="/callimachus/editor/create.js"> </script>
+    <script type="text/javascript" src="../editor/create.js"> </script>
     <script id="template" type="application/xhtml+xml"><![CDATA[#
 # @Cache-Control: 
 # @view 
@@ -20,10 +20,9 @@ SELECT * {
 ]]></script>
 </head>
 <body>
-    <form id="form" method="POST" action="" enctype="application/sparql-query"
-            onsubmit="return calli.saveResourceAs(event, 'untitled query.rq', calli.getCallimachusUrl('NamedQuery'))">
-        <iframe id="iframe" class="flex" src="/callimachus/editor/text-editor.html#sparql"> </iframe>
-        <button type="submit" class="btn btn-success">Create</button>
+    <form id="form" method="POST" action="" enctype="application/sparql-query">
+        <iframe id="iframe" class="flex" src="../editor/text-editor.html#sparql"> </iframe>
+        <button type="submit" onclick="return calli.saveResourceAs(event, 'untitled query.rq')" class="btn btn-success">Create</button>
     </form>
 </body>
 </html>

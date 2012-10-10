@@ -333,11 +333,12 @@ public class DigestManager implements AuthenticationManager {
 		if (parsed.getQuery() != null) {
 			path = path + "?" + parsed.getQuery();
 		}
-		if (realm == null || !realm.equals(authName)
-				|| !url.equals(uri) && !path.equals(uri)) {
+		if (realm == null || !url.equals(uri) && !path.equals(uri)) {
 			logger.info("Bad authorization on {} using {}", url, authorization);
 			throw new BadRequest("Bad Authorization");
 		}
+		if (!realm.equals(authName))
+			return false;
 		try {
 			long now = DateUtil.parseDate(date).getTime();
 			String nonce = authorization.get("nonce");

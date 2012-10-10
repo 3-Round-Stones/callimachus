@@ -53,7 +53,7 @@ public class GUnzipFilter extends Filter {
 		try {
 			hostname = InetAddress.getLocalHost().getHostName();
 		} catch (UnknownHostException e) {
-			hostname = "AliBaba";
+			hostname = "localhost";
 		}
 	}
 	private static String WARN_214 = "214 " + hostname
@@ -70,7 +70,7 @@ public class GUnzipFilter extends Filter {
 				// Keep original MD5 (if present) for digest auth
 				req.removeHeaders("Content-Length");
 				req.setHeader("Content-Encoding", "identity");
-				req.addHeader("Transfer-Encoding", "chunked");
+				req.setHeader("Transfer-Encoding", "chunked");
 				req.addHeader("Warning", WARN_214);
 				if (entity instanceof GZipEntity) {
 					req.setEntity(((GZipEntity) entity).getEntityDelegate());
@@ -114,7 +114,7 @@ public class GUnzipFilter extends Filter {
 				resp.removeHeaders("Content-MD5");
 				resp.removeHeaders("Content-Length");
 				resp.setHeader("Content-Encoding", "identity");
-				resp.addHeader("Transfer-Encoding", "chunked");
+				resp.setHeader("Transfer-Encoding", "chunked");
 				if (resp.getStatusLine().getStatusCode() == 200) {
 					resp.setStatusLine(STATUS_203);
 				} else {

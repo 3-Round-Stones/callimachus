@@ -336,7 +336,7 @@
         var name;
         var carStream = new org.callimachusproject.io.CarInputStream(payload);
         while (name = carStream.readEntryName()) {
-            var uri = baseURI + name;
+            var uri = baseURI + name.replace(/\\s+/g, '+');
             var location = con.getObject(uri);
             var folder = null;
             var container = this.FindExistingContainer(location);

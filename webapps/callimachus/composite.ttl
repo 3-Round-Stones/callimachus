@@ -198,7 +198,7 @@
         if (creatorUri != dest && creatorUri != dest.substring(0, dest.length - 1))
             throw new BadRequest("Location URI must be nested");
         if (createdUri.search(/[\\s\\#\\?]/) >= 0 || createdUri.search(/^\\w+:\\/\\/\\S+/) != 0)
-            throw new BadRequest("Fragement or name resources are not supported");
+            throw new BadRequest("Fragement or name resources are not supported: " + createdUri);
         var ftype = type;
         var documentTag = null;
         var bio = new org.callimachusproject.io.LatencyInputStream(body);

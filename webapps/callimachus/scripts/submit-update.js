@@ -36,8 +36,8 @@ function submitRDFForm(form, stored) {
         try {
             var revised = readRDF(form);
             var diff = diffTriples(stored, revised);
-            var removed = diff.removed;
-            var added = diff.added;
+            var removed = cleanSelfReferences(diff.removed);
+            var added = cleanSelfReferences(diff.added);
             for (hash in removed) {
                 addBoundedDescription(removed[hash], stored, removed, added);
             }
@@ -135,6 +135,31 @@ function diffTriples(oldTriples, newTriples) {
         }
     }
     return {added: added, removed: removed};
+}
+
+/**
+ * Resources linking to themselves don't need any triples beyond the reference. 
+ */ 
+function cleanSelfReferences(triples) {
+    var 
+        cleaned = {},
+        selfRefs = {},
+        hash
+    ;
+    // 1st iteration: keep (just) the self-references and flag the resource
+    for (hash in triples) {
+        if (triples[hash].subject == triples[hash].object) {
+            selfRefs[triples[hash].subject] = true;
+            cleaned[hash] = triples[hash];
+        }
+    }
+    // 2nd iteration: add all triples not related to self-referring resources
+    for (hash in triples) {
+        if (triples[hash].subject == triples[hash].object) continue; // got them already
+        if (selfRefs[triples[hash].subject]) continue // skip these
+        cleaned[hash] = triples[hash];
+    }
+    return cleaned;
 }
 
 /**

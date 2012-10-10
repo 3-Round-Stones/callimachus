@@ -8,7 +8,7 @@
     exclude-result-prefixes="xsl xhtml">
 <xsl:output method="xml" indent="yes" omit-xml-declaration="yes"/>
 
-<xsl:key name="section" match="*[not(name()='h1' or name()='h2' or name()='h3' or name()='h4' or name()='h5' or name()='h6')]"
+<xsl:key name="section" match="node()[not(name()='h1' or name()='h2' or name()='h3' or name()='h4' or name()='h5' or name()='h6')]"
 use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' or name()='h4' or name()='h5' or name()='h6'][1])"/>
 
 <xsl:key name="h1" match="xhtml:h1" use="generate-id(preceding::xhtml:head[1])"/>

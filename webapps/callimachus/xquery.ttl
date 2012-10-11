@@ -101,7 +101,6 @@
         var config = net.sf.saxon.Configuration.newConfiguration();
         config.setHostLanguage(net.sf.saxon.Configuration.XQUERY);
         var staticEnv = config.newStaticQueryContext();
-        staticEnv.setUpdatingEnabled(true);
         staticEnv.setBaseURI(this.toString());
         var queryStream = this.openInputStream();
         try {

@@ -4,14 +4,14 @@
 <head>
     <title>New XQuery File</title>
     <script type="text/javascript" src="../editor/create.js"> </script>
-    <script id="template" type="application/xhtml+xml"><![CDATA[xquery version "1.0" encoding "utf-8";
+    <script id="template" type="application/xquery"><![CDATA[xquery version "1.0" encoding "utf-8";
 
 /
 ]]></script>
 </head>
 <body>
-    <form id="form" method="POST" action="" enctype="text/plain">
-        <iframe id="iframe" class="flex" src="../editor/text-editor.html"> </iframe>
+    <form id="form" method="POST" action="" enctype="application/xquery">
+        <iframe id="iframe" class="flex" src="../editor/text-editor.html#xml"> </iframe>
         <button type="submit" onclick="return calli.saveResourceAs(event, 'untitled query.xq')" class="btn btn-success">Create</button>
     </form>
 </body>

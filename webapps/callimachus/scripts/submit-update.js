@@ -109,7 +109,7 @@ function readRDF(form) {
         // keep subjects matching the form's subject and blank subjects if already introduced as objects
         if (s == formSubject || s.indexOf(formSubject + "#") === 0 || (isBlankS && usedBlanks[s])) {
             hash = writer.reset().triple(s, p, o, dt, lang).toString();
-            triples[hash] = {subject: s, predicate: p, object: o, datatype: dt, language: lang};
+            triples[hash] = {subject: s, predicate: p, object: o, datatype: dt, language: lang, node: this};
             // log blank objects, they may be used as subjects in later triples
             if (!dt && o.indexOf('_:') === 0) {
                 usedBlanks[o] = true;
@@ -147,7 +147,8 @@ function cleanSelfReferences(triples) {
     var 
         cleaned = {},
         selfRefs = {},
-        hash
+        hash,
+        isInputNode
     ;
     // 1st iteration: keep (just) the self-references and flag the resource
     for (hash in triples) {
@@ -156,10 +157,14 @@ function cleanSelfReferences(triples) {
             cleaned[hash] = triples[hash];
         }
     }
-    // 2nd iteration: add all triples not related to self-referring resources
+    // 2nd iteration: add all triples not related to self-referring resources, or those coming directly from form fields
     for (hash in triples) {
-        if (triples[hash].subject == triples[hash].object) continue; // got them already
-        if (selfRefs[triples[hash].subject]) continue // skip these
+        // skip the references, we've got them already
+        if (triples[hash].subject == triples[hash].object) continue;
+        // skip non-editable triples related to self-ref resources
+        isInputNode = triples[hash].node.nodeName.match(/^(input|optgroup|option|select|textarea)$/i);
+        if (selfRefs[triples[hash].subject] && !isInputNode) continue;
+        // keep all other triples
         cleaned[hash] = triples[hash];
     }
     return cleaned;

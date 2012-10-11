@@ -163,7 +163,7 @@
                 var title = manager.findCredentialLabel(cookies);
                 return '<html><head><title>' + title + '</title>'
                     + '<meta http-equiv="REFRESH" content="0; url=' + credential + '"/></head>'
-                    + '<body resource="' + credential + '">' + title  + '</body></html>';
+                    + '<body resource="' + credential + '"></body></html>';
             }
         }
         return null;

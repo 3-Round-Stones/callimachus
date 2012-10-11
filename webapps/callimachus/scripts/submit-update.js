@@ -39,8 +39,8 @@ function submitRDFForm(form, stored) {
         try {
             var revised = readRDF(form);
             var diff = diffTriples(stored, revised);
-            var removed = cleanSelfReferences(diff.removed);
-            var added = cleanSelfReferences(diff.added);
+            var removed = diff.removed;
+            var added = diff.added;
             for (hash in removed) {
                 addBoundedDescription(removed[hash], stored, removed, added);
             }
@@ -99,17 +99,21 @@ function readRDF(form) {
         resource = $(form).attr("about") || $(form).attr("resource"),
         base = parser.getNodeBase(form),
         formSubject = resource ? parser.parseURI(base).resolve(resource) : base,
+        formHash = formSubject + "#",
         triples = {},
         usedBlanks = {},
-        isBlankS,
+        selfRefs = {},
         hash
     ;
     parser.parse(form, function(s, p, o, dt, lang) {
-        isBlankS = s.indexOf('_:') === 0;
         // keep subjects matching the form's subject and blank subjects if already introduced as objects
-        if (s == formSubject || s.indexOf(formSubject + "#") === 0 || (isBlankS && usedBlanks[s])) {
+        if ((s == formSubject || s.indexOf(formHash) === 0 || usedBlanks[s]) && !isDecendent(this, selfRefs)) {
+            // Resources linking to themselves don't need any triples under the reference.
+            if (!dt && s == o) {
+                selfRefs[this] = true;
+            }
             hash = writer.reset().triple(s, p, o, dt, lang).toString();
-            triples[hash] = {subject: s, predicate: p, object: o, datatype: dt, language: lang, node: this};
+            triples[hash] = {subject: s, predicate: p, object: o, datatype: dt, language: lang};
             // log blank objects, they may be used as subjects in later triples
             if (!dt && o.indexOf('_:') === 0) {
                 usedBlanks[o] = true;
@@ -117,6 +121,16 @@ function readRDF(form) {
         }
     });
     return triples;
+}
+
+function isDecendent(child, parents) {
+    var node = child;
+    while (node) {
+        if (parents[node])
+            return true;
+        node = node.parentNode;
+    }
+    return false;
 }
 
 function diffTriples(oldTriples, newTriples) {
@@ -138,36 +152,6 @@ function diffTriples(oldTriples, newTriples) {
         }
     }
     return {added: added, removed: removed};
-}
-
-/**
- * Resources linking to themselves don't need any triples beyond the reference. 
- */ 
-function cleanSelfReferences(triples) {
-    var 
-        cleaned = {},
-        selfRefs = {},
-        hash,
-        isInputNode
-    ;
-    // 1st iteration: keep (just) the self-references and flag the resource
-    for (hash in triples) {
-        if (triples[hash].subject == triples[hash].object) {
-            selfRefs[triples[hash].subject] = true;
-            cleaned[hash] = triples[hash];
-        }
-    }
-    // 2nd iteration: add all triples not related to self-referring resources, or those coming directly from form fields
-    for (hash in triples) {
-        // skip the references, we've got them already
-        if (triples[hash].subject == triples[hash].object) continue;
-        // skip non-editable triples related to self-ref resources
-        isInputNode = triples[hash].node.nodeName.match(/^(input|optgroup|option|select|textarea)$/i);
-        if (selfRefs[triples[hash].subject] && !isInputNode) continue;
-        // keep all other triples
-        cleaned[hash] = triples[hash];
-    }
-    return cleaned;
 }
 
 /**

@@ -79,6 +79,8 @@ application/xml sch
 application/xml xsd
 application/xml-external-parsed-entity ent
 application/xproc+xml xpl
+application/xquery xq
+application/xquery xquery
 audio/basic au
 audio/basic snd
 audio/mpeg mp1 mp2 mp3 mpg

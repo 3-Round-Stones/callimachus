@@ -1,462 +1,444 @@
 <project name="project" default="help" basedir=".">
-	<!-- set global properties for this build -->
-	<property name="src" location="src" />
-	<property name="build" location="build" />
-	<property name="build.tests" location="build" />
-	<property name="launch4j.dir" location="launch4j" />
-	<property name="dist" location="dist" />
-	<property name="lib" location="lib" />
-	<property name="bin" location="bin" />
-	<property name="etc" location="etc" />
-	<property name="log" location="log" />
-	<property name="tmp" location="tmp" />
-	<property name="downloads" location="downloads" />
-	<property name="reports.tests" location="tmp" />
-	<property name="src.tests" location="test" />
-	<property name="lib.tests" location="test/lib" />
-	<property name="webapps" location="webapps" />
-	<property name="home" location="." />
-	<property name="pid" location="run/callimachus.pid" />
-	<property name="logging" location="etc/logging.properties" />
-	<property name="mail" location="etc/mail.properties" />
-	<property name="tools.jar" location="${java.home}/../lib/tools.jar" />
-	<property name="triples.file" location="repositories/callimachus/triples-spoc.dat" />
-	<property file="src/META-INF/callimachusproject.properties" />
-	<property name="m2.repository" value="http://repo.aduna-software.org/maven2/snapshots" />
-	<property name="alibaba.url" value="http://downloads.sourceforge.net/project/sesame/AliBabaElmo/2.0-rc5/openrdf-alibaba-2.0-rc5.zip" />
-	<property name="mail.jar" value="mail-1.4.1.jar" />
-	<property name="mail.url" value="http://download.java.net/maven/1/javax.mail/jars/mail-1.4.jar" />
-	<property name="jchardet.url" value="http://downloads.sourceforge.net/project/jchardet/jchardet/1.1/jchardet-1.1.zip" />
-	<property name="closure.url" value="http://closure-compiler.googlecode.com/files/compiler-20120710.zip" />
-	<property name="daemon.url" value="http://archive.apache.org/dist/commons/daemon/binaries/1.0.2/commons-daemon-1.0.2-bin.zip" />
-	<property name="daemon-linux-i686.url" value="http://archive.apache.org/dist/commons/daemon/binaries/1.0.2/linux/commons-daemon-1.0.2-bin-linux-i386.tar.gz" />
-	<property name="download-lunix-x86_64.url" value="http://archive.apache.org/dist/commons/daemon/binaries/1.0.2/linux/commons-daemon-1.0.2-bin-linux-x86_64.tar.gz" />
-	<property name="daemon-darwin.url" value="http://archive.apache.org/dist/commons/daemon/binaries/1.0.2/darwin/commons-daemon-1.0.2-bin-darwin-universal.tar.gz" />
-	<property name="compress.url" value="http://archive.apache.org/dist/commons/compress/binaries/commons-compress-1.3-bin.tar.gz" />
-	<property name="httpcore.url" value="http://www.apache.org/dist/httpcomponents/httpcore/binary/httpcomponents-core-4.2.1-bin.zip" />
-	<property name="calabash.url" value="http://xmlcalabash.com/download/calabash-1.0.3-94.zip" />
-	<property name="jing.url" value="http://jing-trang.googlecode.com/files/jing-20091111.zip" />
-	<property name="tagsoup.jar" value="tagsoup-1.2.1.jar" />
-	<property name="tagsoup.url" value="http://home.ccil.org/~cowan/XML/tagsoup/tagsoup-1.2.1.jar" />
-	<property name="fop.url" value="http://www.apache.org/dist/xmlgraphics/fop/binaries/fop-1.0-bin.zip" />
-	<property name="junit.url" value="http://repo1.maven.org/maven2/junit/junit/4.10/junit-4.10.jar" />
-	<property name="jersey-client.url" value="http://download.java.net/maven/2/com/sun/jersey/jersey-client/1.0.3/jersey-client-1.0.3.jar" />
-	<property name="jersey-core.url" value="http://download.java.net/maven/2/com/sun/jersey/jersey-core/1.0.3/jersey-core-1.0.3.jar" />
-	<property name="jsr311-api.url" value="http://download.java.net/maven/2/javax/ws/rs/jsr311-api/1.0/jsr311-api-1.0.jar" />
-	<property name="alibaba.snapshot" value="2.0-SNAPSHOT" />
-	<property name="setup" value="org.callimachusproject.Setup" />
-	<property name="main" value="org.callimachusproject.Server" />
-	<property name="main-monitor" value="org.callimachusproject.ServerMonitor" />
-	<property name="jvmargs" value="-ea -server -mx512m -Dfile.encoding=UTF-8 -Djava.library.path=${lib} -Duser.home=${home} -Djava.mail.properties=${mail} -Djava.awt.headless=true -Dcom.sun.management.jmxremote" />
-	<property name="curl" value="curl" />
-	<property name="curl.args" value="-fSs --digest http://localhost:8080/callimachus/?archive" />
-	<property name="setup.args" value="-s -o http://localhost:8080 -c etc/callimachus-repository.ttl -f /callimachus/=${dist}/callimachus-webapp-${Version}.car -l" />
-	<property name="args" value="--pid ${pid} -p 8080 -o http://localhost:8080 -r repositories/callimachus" />
+    <!-- set global properties for this build -->
+    <property name="src" location="src" />
+    <property name="build" location="build" />
+    <property name="build.tests" location="build" />
+    <property name="launch4j.dir" location="launch4j" />
+    <property name="dist" location="dist" />
+    <property name="lib" location="lib" />
+    <property name="bin" location="bin" />
+    <property name="etc" location="etc" />
+    <property name="log" location="log" />
+    <property name="tmp" location="tmp" />
+    <property name="downloads" location="downloads" />
+    <property name="reports.tests" location="tmp" />
+    <property name="src.tests" location="test" />
+    <property name="lib.tests" location="test/lib" />
+    <property name="webapps" location="webapps" />
+    <property name="home" location="." />
+    <property name="pid" location="run/callimachus.pid" />
+    <property name="logging" location="etc/logging.properties" />
+    <property name="mail" location="etc/mail.properties" />
+    <property name="tools.jar" location="${java.home}/../lib/tools.jar" />
+    <property name="triples.file" location="repositories/callimachus/triples-spoc.dat" />
+    <property file="src/META-INF/callimachusproject.properties" />
+    <property file="dependencies.properties" />
+    <property name="m2.repository" value="http://repo.aduna-software.org/maven2/snapshots" />
+    <property name="alibaba.snapshot" value="2.0-SNAPSHOT" />
+    <property name="setup" value="org.callimachusproject.Setup" />
+    <property name="main" value="org.callimachusproject.Server" />
+    <property name="main-monitor" value="org.callimachusproject.ServerMonitor" />
+    <property name="jvmargs" value="-ea -server -mx512m -Dfile.encoding=UTF-8 -Djava.library.path=${lib} -Duser.home=${home} -Djava.mail.properties=${mail} -Djava.awt.headless=true -Dcom.sun.management.jmxremote" />
+    <property name="curl" value="curl" />
+    <property name="curl.args" value="-fSs --digest http://localhost:8080/callimachus/?archive" />
+    <property name="setup.args" value="-s -o http://localhost:8080 -c etc/callimachus-repository.ttl -f /callimachus/=${dist}/callimachus-webapp-${Version}.car -l" />
+    <property name="args" value="--pid ${pid} -p 8080 -o http://localhost:8080 -r repositories/callimachus" />
 
-	<target name="help" description="Usage information">
-		<echo message="Callimachus Builder" />
-		<echo message="========================" />
-		<echo message="The purpose of this Ant build file is to build and package Callimachus." />
-		<echo message=" " />
-		<echo message="Available targets: " />
-		<echo message=" " />
-		<echo message="  clean                          : cleans targets" />
-		<echo message="  dist-clean                     : cleans targets and dependencies" />
-		<echo message="  dist                           : compiles classes and creates artifacts" />
-		<echo message="  test                           : runs test suites" />
-		<echo message="  package                        : cleans and packages for release" />
-		<echo message="  start                          : starts server" />
-		<echo message="  stop                           : stops server" />
-	</target>
+    <target name="help" description="Usage information">
+        <echo message="Callimachus Builder" />
+        <echo message="========================" />
+        <echo message="The purpose of this Ant build file is to build and package Callimachus." />
+        <echo message=" " />
+        <echo message="Available targets: " />
+        <echo message=" " />
+        <echo message="  clean                          : cleans targets" />
+        <echo message="  dist-clean                     : cleans targets and dependencies" />
+        <echo message="  dist                           : compiles classes and creates artifacts" />
+        <echo message="  test                           : runs test suites" />
+        <echo message="  package                        : cleans and packages for release" />
+        <echo message="  start                          : starts server" />
+        <echo message="  stop                           : stops server" />
+    </target>
 
-	<target name="clean" description="clean up">
-		<!-- Delete the directory trees -->
-		<delete dir="${reports.tests}" />
-		<delete dir="${build.tests}" />
-		<delete dir="${lib.tests}" />
-		<delete dir="${build}" />
-		<delete dir="${dist}" />
-		<delete dir="${lib}" />
-		<delete dir="${bin}" />
-	</target>
+    <target name="clean" description="clean up">
+        <!-- Delete the directory trees -->
+        <delete dir="${reports.tests}" />
+        <delete dir="${build.tests}" />
+        <delete dir="${lib.tests}" />
+        <delete dir="${build}" />
+        <delete dir="${dist}" />
+        <delete dir="${lib}" />
+        <delete dir="${bin}" />
+    </target>
 
-	<target name="dist-clean" description="clean up everything for a new version" depends="clean">
-		<delete dir="${downloads}" />
-	</target>
+    <target name="dist-clean" description="clean up everything for a new version" depends="clean">
+        <delete dir="${downloads}" />
+    </target>
 
-	<target name="init">
-		<!-- Create the time stamp and build directory -->
-		<tstamp />
-		<mkdir dir="${build}" />
-		<available file="${lib}" property="lib.present" />
-		<available file="${lib.tests}" property="lib.tests.present" />
-		<available file="${launch4j.dir}" property="launch4j.dir.present" />
-		<property file="build.properties" />
-		<condition property="os.mac">
-			<os family="mac"/>
-		</condition>
-		<condition property="os.windows">
-			<os family="windows"/>
-		</condition>
-		<condition property="os.linux">
-			<and>
-				<os family="unix"/>
-				<not>
-					<os family="mac"/>
-				</not>
-			</and>
-		</condition>
-	</target>
+    <target name="init">
+        <!-- Create the time stamp and build directory -->
+        <tstamp />
+        <mkdir dir="${build}" />
+        <available file="${lib}" property="lib.present" />
+        <available file="${lib.tests}" property="lib.tests.present" />
+        <available file="${launch4j.dir}" property="launch4j.dir.present" />
+        <property file="build.properties" />
+        <condition property="os.mac">
+            <os family="mac"/>
+        </condition>
+        <condition property="os.windows">
+            <os family="windows"/>
+        </condition>
+        <condition property="os.linux">
+            <and>
+                <os family="unix"/>
+                <not>
+                    <os family="mac"/>
+                </not>
+            </and>
+        </condition>
+    </target>
 
-	<target name="dependencies" depends="dist-dependencies,test-dependencies" />
+    <target name="dependencies" depends="dist-dependencies,test-dependencies" />
 
-	<target name="dist-dependencies" depends="init" unless="lib.present">
-		<mkdir dir="${downloads}" />
-		<parallel>
-			<get usetimestamp="true" src="${alibaba.url}" dest="${downloads}/openrdf-alibaba.zip" />
-			<get usetimestamp="true" src="${jchardet.url}" dest="${downloads}/jchardet.zip" />
-			<get usetimestamp="true" src="${daemon.url}" dest="${downloads}/daemon.zip" />
-		</parallel>
-		<parallel>
-			<get usetimestamp="true" src="${daemon-linux-i686.url}" dest="${downloads}/daemon-linux-i686.tar.gz" />
-			<get usetimestamp="true" src="${calabash.url}" dest="${downloads}/calabash.zip" />
-			<get usetimestamp="true" src="${closure.url}" dest="${downloads}/closure.zip" />
-		</parallel>
-		<parallel>
-			<get usetimestamp="true" src="${download-lunix-x86_64.url}" dest="${downloads}/daemon-linux-x86_64.tar.gz" />
-			<get usetimestamp="true" src="${mail.url}" dest="${downloads}/${mail.jar}" />
-			<get usetimestamp="true" src="${compress.url}" dest="${downloads}/compress.tar.gz" />
-			<get usetimestamp="true" src="${jing.url}" dest="${downloads}/jing.zip" />
-		</parallel>
-		<parallel>
-			<get usetimestamp="true" src="${daemon-darwin.url}" dest="${downloads}/daemon-darwin.tar.gz" />
-			<get usetimestamp="true" src="${fop.url}" dest="${downloads}/fop.zip" />
-			<get usetimestamp="true" src="${tagsoup.url}" dest="${downloads}/${tagsoup.jar}" />
-			<get usetimestamp="true" src="${httpcore.url}" dest="${downloads}/httpcore.zip" />
-		</parallel>
-		<mkdir dir="${lib}" />
-		<copy file="${downloads}/${mail.jar}" tofile="${lib}/${mail.jar}" />
-		<copy file="${downloads}/${tagsoup.jar}" tofile="${lib}/${tagsoup.jar}" />
-		<unzip src="${downloads}/openrdf-alibaba.zip" dest="${lib}">
-			<patternset>
-				<include name="lib/*.jar" />
-				<include name="dist/*.jar" />
-				<exclude name="lib/commons-codec-*.jar" />
-			</patternset>
-			<mapper type="flatten" />
-		</unzip>
-		<unzip src="${downloads}/httpcore.zip" dest="${lib}">
-			<patternset>
-				<include name="**/lib/*.jar" />
-			</patternset>
-			<mapper type="flatten" />
-		</unzip>
-		<unzip src="${downloads}/jchardet.zip" dest="${lib}">
-			<patternset>
-				<include name="*/dist/lib/*.jar" />
-			</patternset>
-			<mapper type="flatten" />
-		</unzip>
-		<unzip src="${downloads}/closure.zip" dest="${lib}">
-			<patternset>
-				<include name="*.jar" />
-			</patternset>
-			<mapper type="flatten" />
-		</unzip>
-		<unzip src="${downloads}/daemon.zip" dest="${lib}">
-			<patternset>
-				<include name="commons-daemon-*/commons-daemon-*.jar" />
-				<exclude name="commons-daemon-*/commons-daemon-*-sources.jar" />
-				<exclude name="commons-daemon-*/commons-daemon-*-javadoc.jar" />
-			</patternset>
-			<mapper type="flatten" />
-		</unzip>
-		<untar compression="gzip" src="${downloads}/daemon-linux-i686.tar.gz" dest="${bin}">
-			<patternset>
-				<include name="jsvc" />
-			</patternset>
-			<mapper type="glob" from="jsvc" to="callimachus-linux-i686" />
-		</untar>
-		<untar compression="gzip" src="${downloads}/daemon-linux-x86_64.tar.gz" dest="${bin}">
-			<patternset>
-				<include name="jsvc" />
-			</patternset>
-			<mapper type="glob" from="jsvc" to="callimachus-linux-x86_64" />
-		</untar>
-		<untar compression="gzip" src="${downloads}/daemon-darwin.tar.gz" dest="${bin}">
-			<patternset>
-				<include name="jsvc" />
-			</patternset>
-			<mapper type="glob" from="jsvc" to="callimachus-darwin" />
-		</untar>
-		<untar compression="gzip" src="${downloads}/compress.tar.gz" dest="${lib}">
-			<patternset>
-				<include name="commons-compress-*/commons-compress-*.jar" />
-				<exclude name="commons-compress-*/commons-compress-*-sources.jar" />
-				<exclude name="commons-compress-*/commons-compress-*-javadoc.jar" />
-			</patternset>
-			<mapper type="flatten" />
-		</untar>
-		<unzip src="${downloads}/calabash.zip" dest="${lib}">
-			<patternset>
-				<include name="*/lib/saxon*.jar" />
-				<include name="*/lib/commons-codec-*.jar" />
-				<include name="*/lib/commons-io-*.jar" />
-				<include name="*/calabash*.jar" />
-			</patternset>
-			<mapper type="flatten" />
-		</unzip>
-		<unzip src="${downloads}/jing.zip" dest="${lib}">
-			<patternset>
-				<include name="jing*/bin/jing*.jar" />
-			</patternset>
-			<mapper type="flatten" />
-		</unzip>
-		<unzip src="${downloads}/fop.zip" dest="${lib}">
-			<patternset>
-				<include name="fop*/build/fop*.jar" />
-				<include name="fop*/lib/*.jar" />
-				<exclude name="fop*/lib/commons-io-*.jar" />
-				<exclude name="fop*/lib/commons-logging-*.jar" />
-			</patternset>
-			<mapper type="flatten" />
-		</unzip>
-		<antcall target="alibaba-snapshot" />
-	</target>
+    <target name="dist-dependencies" depends="init">
+        <mkdir dir="${downloads}" />
+        <parallel>
+            <get usetimestamp="true" skipexisting="${lib.present}" src="${alibaba.url}" dest="${downloads}/openrdf-alibaba.zip" />
+            <get usetimestamp="true" skipexisting="${lib.present}" src="${jchardet.url}" dest="${downloads}/jchardet.zip" />
+            <get usetimestamp="true" skipexisting="${lib.present}" src="${daemon.url}" dest="${downloads}/daemon.zip" />
+        </parallel>
+        <parallel>
+            <get usetimestamp="true" skipexisting="${lib.present}" src="${daemon-linux-i686.url}" dest="${downloads}/daemon-linux-i686.tar.gz" />
+            <get usetimestamp="true" skipexisting="${lib.present}" src="${calabash.url}" dest="${downloads}/calabash.zip" />
+            <get usetimestamp="true" skipexisting="${lib.present}" src="${closure.url}" dest="${downloads}/closure.zip" />
+        </parallel>
+        <parallel>
+            <get usetimestamp="true" skipexisting="${lib.present}" src="${download-lunix-x86_64.url}" dest="${downloads}/daemon-linux-x86_64.tar.gz" />
+            <get usetimestamp="true" skipexisting="${lib.present}" src="${mail.url}" dest="${downloads}/${mail.jar}" />
+            <get usetimestamp="true" skipexisting="${lib.present}" src="${compress.url}" dest="${downloads}/compress.tar.gz" />
+            <get usetimestamp="true" skipexisting="${lib.present}" src="${jing.url}" dest="${downloads}/jing.zip" />
+        </parallel>
+        <parallel>
+            <get usetimestamp="true" skipexisting="${lib.present}" src="${daemon-darwin.url}" dest="${downloads}/daemon-darwin.tar.gz" />
+            <get usetimestamp="true" skipexisting="${lib.present}" src="${fop.url}" dest="${downloads}/fop.zip" />
+            <get usetimestamp="true" skipexisting="${lib.present}" src="${tagsoup.url}" dest="${downloads}/${tagsoup.jar}" />
+            <get usetimestamp="true" skipexisting="${lib.present}" src="${httpcore.url}" dest="${downloads}/httpcore.zip" />
+        </parallel>
+        <mkdir dir="${lib}" />
+        <copy file="${downloads}/${mail.jar}" tofile="${lib}/${mail.jar}" />
+        <copy file="${downloads}/${tagsoup.jar}" tofile="${lib}/${tagsoup.jar}" />
+        <unzip overwrite="false" src="${downloads}/openrdf-alibaba.zip" dest="${lib}">
+            <patternset>
+                <include name="lib/*.jar" />
+                <include name="dist/*.jar" />
+                <exclude name="lib/commons-codec-*.jar" />
+            </patternset>
+            <mapper type="flatten" />
+        </unzip>
+        <unzip overwrite="false" src="${downloads}/httpcore.zip" dest="${lib}">
+            <patternset>
+                <include name="**/lib/*.jar" />
+            </patternset>
+            <mapper type="flatten" />
+        </unzip>
+        <unzip overwrite="false" src="${downloads}/jchardet.zip" dest="${lib}">
+            <patternset>
+                <include name="*/dist/lib/*.jar" />
+            </patternset>
+            <mapper type="flatten" />
+        </unzip>
+        <unzip overwrite="false" src="${downloads}/closure.zip" dest="${lib}">
+            <patternset>
+                <include name="*.jar" />
+            </patternset>
+            <mapper type="flatten" />
+        </unzip>
+        <unzip overwrite="false" src="${downloads}/daemon.zip" dest="${lib}">
+            <patternset>
+                <include name="commons-daemon-*/commons-daemon-*.jar" />
+                <exclude name="commons-daemon-*/commons-daemon-*-sources.jar" />
+                <exclude name="commons-daemon-*/commons-daemon-*-javadoc.jar" />
+            </patternset>
+            <mapper type="flatten" />
+        </unzip>
+        <untar compression="gzip" overwrite="false" src="${downloads}/daemon-linux-i686.tar.gz" dest="${bin}">
+            <patternset>
+                <include name="jsvc" />
+            </patternset>
+            <mapper type="glob" from="jsvc" to="callimachus-linux-i686" />
+        </untar>
+        <untar compression="gzip" overwrite="false" src="${downloads}/daemon-linux-x86_64.tar.gz" dest="${bin}">
+            <patternset>
+                <include name="jsvc" />
+            </patternset>
+            <mapper type="glob" from="jsvc" to="callimachus-linux-x86_64" />
+        </untar>
+        <untar compression="gzip" overwrite="false" src="${downloads}/daemon-darwin.tar.gz" dest="${bin}">
+            <patternset>
+                <include name="jsvc" />
+            </patternset>
+            <mapper type="glob" from="jsvc" to="callimachus-darwin" />
+        </untar>
+        <untar compression="gzip" overwrite="false" src="${downloads}/compress.tar.gz" dest="${lib}">
+            <patternset>
+                <include name="commons-compress-*/commons-compress-*.jar" />
+                <exclude name="commons-compress-*/commons-compress-*-sources.jar" />
+                <exclude name="commons-compress-*/commons-compress-*-javadoc.jar" />
+            </patternset>
+            <mapper type="flatten" />
+        </untar>
+        <unzip overwrite="false" src="${downloads}/calabash.zip" dest="${lib}">
+            <patternset>
+                <include name="*/lib/saxon*.jar" />
+                <include name="*/lib/commons-codec-*.jar" />
+                <include name="*/lib/commons-io-*.jar" />
+                <include name="*/calabash*.jar" />
+            </patternset>
+            <mapper type="flatten" />
+        </unzip>
+        <unzip overwrite="false" src="${downloads}/jing.zip" dest="${lib}">
+            <patternset>
+                <include name="jing*/bin/jing*.jar" />
+            </patternset>
+            <mapper type="flatten" />
+        </unzip>
+        <unzip overwrite="false" src="${downloads}/fop.zip" dest="${lib}">
+            <patternset>
+                <include name="fop*/build/fop*.jar" />
+                <include name="fop*/lib/*.jar" />
+                <exclude name="fop*/lib/commons-io-*.jar" />
+                <exclude name="fop*/lib/commons-logging-*.jar" />
+            </patternset>
+            <mapper type="flatten" />
+        </unzip>
+        <antcall target="alibaba-snapshot" />
+    </target>
 
-	<target name="alibaba-snapshot" if="alibaba.snapshot">
-		<property name="openrdf" value="${m2.repository}/org/openrdf/alibaba" />
-		<get usetimestamp="true" src="${openrdf}/alibaba-composition-object/${alibaba.snapshot}/alibaba-composition-object-${alibaba.snapshot}.jar" dest="${lib}/alibaba-composition-object-${alibaba.snapshot}.jar" />
-		<get usetimestamp="true" src="${openrdf}/alibaba-model/${alibaba.snapshot}/alibaba-model-${alibaba.snapshot}.jar" dest="${lib}/alibaba-model-${alibaba.snapshot}.jar" />
-		<get usetimestamp="true" src="${openrdf}/alibaba-repository-object/${alibaba.snapshot}/alibaba-repository-object-${alibaba.snapshot}.jar" dest="${lib}/alibaba-repository-object-${alibaba.snapshot}.jar" />
-		<get usetimestamp="true" src="${openrdf}/alibaba-repository-optimistic/${alibaba.snapshot}/alibaba-repository-optimistic-${alibaba.snapshot}.jar" dest="${lib}/alibaba-repository-optimistic-${alibaba.snapshot}.jar" />
-		<get usetimestamp="true" src="${openrdf}/alibaba-runtime/${alibaba.snapshot}/alibaba-runtime-${alibaba.snapshot}.jar" dest="${lib}/alibaba-runtime-${alibaba.snapshot}.jar" />
-		<get usetimestamp="true" src="${openrdf}/alibaba-repository-auditing/${alibaba.snapshot}/alibaba-repository-auditing-${alibaba.snapshot}.jar" dest="${lib}/alibaba-repository-auditing-${alibaba.snapshot}.jar" />
-		<get usetimestamp="true" src="${openrdf}/alibaba-sail-auditing/${alibaba.snapshot}/alibaba-sail-auditing-${alibaba.snapshot}.jar" dest="${lib}/alibaba-sail-auditing-${alibaba.snapshot}.jar" />
-		<get usetimestamp="true" src="${openrdf}/alibaba-store-blob/${alibaba.snapshot}/alibaba-store-blob-${alibaba.snapshot}.jar" dest="${lib}/alibaba-store-blob-${alibaba.snapshot}.jar" />
-		<get usetimestamp="true" src="${openrdf}/alibaba-sail-keyword/${alibaba.snapshot}/alibaba-sail-keyword-${alibaba.snapshot}.jar" dest="${lib}/alibaba-sail-keyword-${alibaba.snapshot}.jar" />
-		<get usetimestamp="true" src="${openrdf}/alibaba-repository-query/${alibaba.snapshot}/alibaba-repository-query-${alibaba.snapshot}.jar" dest="${lib}/alibaba-repository-query-${alibaba.snapshot}.jar" />
-	</target>
+    <target name="alibaba-snapshot" if="alibaba.snapshot">
+        <delete dir="${lib}" includes="openrdf-alibaba-*.jar" />
+        <property name="openrdf" value="${m2.repository}/org/openrdf/alibaba" />
+        <get skipexisting="true" src="${openrdf}/alibaba-composition-object/${alibaba.snapshot}/alibaba-composition-object-${alibaba.snapshot}.jar" dest="${lib}/alibaba-composition-object-${alibaba.snapshot}.jar" />
+        <get skipexisting="true" src="${openrdf}/alibaba-model/${alibaba.snapshot}/alibaba-model-${alibaba.snapshot}.jar" dest="${lib}/alibaba-model-${alibaba.snapshot}.jar" />
+        <get skipexisting="true" src="${openrdf}/alibaba-repository-object/${alibaba.snapshot}/alibaba-repository-object-${alibaba.snapshot}.jar" dest="${lib}/alibaba-repository-object-${alibaba.snapshot}.jar" />
+        <get skipexisting="true" src="${openrdf}/alibaba-repository-optimistic/${alibaba.snapshot}/alibaba-repository-optimistic-${alibaba.snapshot}.jar" dest="${lib}/alibaba-repository-optimistic-${alibaba.snapshot}.jar" />
+        <get skipexisting="true" src="${openrdf}/alibaba-runtime/${alibaba.snapshot}/alibaba-runtime-${alibaba.snapshot}.jar" dest="${lib}/alibaba-runtime-${alibaba.snapshot}.jar" />
+        <get skipexisting="true" src="${openrdf}/alibaba-repository-auditing/${alibaba.snapshot}/alibaba-repository-auditing-${alibaba.snapshot}.jar" dest="${lib}/alibaba-repository-auditing-${alibaba.snapshot}.jar" />
+        <get skipexisting="true" src="${openrdf}/alibaba-sail-auditing/${alibaba.snapshot}/alibaba-sail-auditing-${alibaba.snapshot}.jar" dest="${lib}/alibaba-sail-auditing-${alibaba.snapshot}.jar" />
+        <get skipexisting="true" src="${openrdf}/alibaba-store-blob/${alibaba.snapshot}/alibaba-store-blob-${alibaba.snapshot}.jar" dest="${lib}/alibaba-store-blob-${alibaba.snapshot}.jar" />
+        <get skipexisting="true" src="${openrdf}/alibaba-sail-keyword/${alibaba.snapshot}/alibaba-sail-keyword-${alibaba.snapshot}.jar" dest="${lib}/alibaba-sail-keyword-${alibaba.snapshot}.jar" />
+        <get skipexisting="true" src="${openrdf}/alibaba-repository-query/${alibaba.snapshot}/alibaba-repository-query-${alibaba.snapshot}.jar" dest="${lib}/alibaba-repository-query-${alibaba.snapshot}.jar" />
+    </target>
 
-	<target name="compile" depends="init,dist-dependencies" description="compile the source">
-		<!-- Compile the java code from ${src} into ${build} -->
-		<javac srcdir="${src}" destdir="${build}" debug="true" debuglevel="lines,source">
-			<classpath>
-				<fileset dir="${lib}">
-					<include name="**/*.jar" />
-				</fileset>
-			</classpath>
-		</javac>
-		<copy todir="${build}">
-			<fileset dir="${src}" excludes="**/*.java *.run *.sh *.bat *.pl *.conf *.properties *.ttl"/>
-		</copy>
-		<copy todir="${etc}">
-			<fileset dir="${src}" includes="*.conf *.properties *.ttl"/>
-		</copy>
-		<copy todir="${bin}">
-			<fileset dir="${src}" includes="*.sh *.bat *.pl"/>
-		</copy>
-		<fixcrlf srcdir="${bin}" includes="*.bat" eol="crlf" />
-		<chmod dir="${bin}" includes="*.sh,*.pl,callimachus-linux*,callimachus-darwin*" perm="ugo+rx"/>
-	</target>
+    <target name="compile" depends="init,dist-dependencies" description="compile the source">
+        <!-- Compile the java code from ${src} into ${build} -->
+        <javac srcdir="${src}" destdir="${build}" debug="true" debuglevel="lines,source">
+            <classpath>
+                <fileset dir="${lib}">
+                    <include name="**/*.jar" />
+                </fileset>
+            </classpath>
+        </javac>
+        <copy todir="${build}">
+            <fileset dir="${src}" excludes="**/*.java *.run *.sh *.bat *.pl *.conf *.properties *.ttl"/>
+        </copy>
+        <copy todir="${etc}">
+            <fileset dir="${src}" includes="*.conf *.properties *.ttl"/>
+        </copy>
+        <copy todir="${bin}">
+            <fileset dir="${src}" includes="*.sh *.bat *.pl"/>
+        </copy>
+        <fixcrlf srcdir="${bin}" includes="*.bat" eol="crlf" />
+        <chmod dir="${bin}" includes="*.sh,*.pl,callimachus-linux*,callimachus-darwin*" perm="ugo+rx"/>
+    </target>
 
-	<target name="dist" depends="compile,car" description="generate the distribution">
-		<!-- Create the distribution directory and create the jar -->
-		<mkdir dir="${dist}" />
-		<property name="jar.file" value="${dist}/callimachus-${Version}.jar" />
-		<manifestclasspath property="jar.classpath" jarfile="${jar.file}">
-			<classpath>
-				<fileset dir="${lib}">
-					<include name="**/*.jar" />
-				</fileset>
-			</classpath>
-		</manifestclasspath>
-		<jar jarfile="${jar.file}">
-			<fileset dir="${build}" />
-			<manifest>
-				<attribute name="Main-Class" value="${main}" />
-				<attribute name="Class-Path" value="${jar.classpath}" />
-			</manifest>
-		</jar>
-		<zip destfile="${dist}/callimachus-${Version}.zip">
-			<zipfileset dir="." includes="*.txt" />
-			<zipfileset dir="${src}" prefix="src" />
-			<zipfileset dir="${webapps}/callimachus" prefix="src/callimachus-webapp" />
-			<zipfileset dir="${bin}" prefix="bin" includes="*.sh,*.pl,callimachus-linux*,callimachus-darwin*" filemode="755" />
-			<zipfileset dir="${bin}" prefix="bin" excludes="*.sh,*.pl,callimachus-linux*,callimachus-darwin*" />
-			<zipfileset dir="${etc}" prefix="etc" excludes="mail.properties ssl.properties" />
-			<zipfileset dir="${lib}" prefix="lib" />
-			<zipfileset file="${jar.file}" prefix="lib" />
-			<zipfileset file="${dist}/callimachus-webapp-${Version}.car" prefix="lib" />
-		</zip>
-		<uptodate srcfile="${dist}/callimachus-webapp-${Version}.car" targetfile="${triples.file}" property="repositories.uptodate" />
-	</target>
+    <target name="dist" depends="compile,car" description="generate the distribution">
+        <!-- Create the distribution directory and create the jar -->
+        <mkdir dir="${dist}" />
+        <property name="jar.file" value="${dist}/callimachus-${Version}.jar" />
+        <manifestclasspath property="jar.classpath" jarfile="${jar.file}">
+            <classpath>
+                <fileset dir="${lib}">
+                    <include name="**/*.jar" />
+                </fileset>
+            </classpath>
+        </manifestclasspath>
+        <jar jarfile="${jar.file}">
+            <fileset dir="${build}" />
+            <manifest>
+                <attribute name="Main-Class" value="${main}" />
+                <attribute name="Class-Path" value="${jar.classpath}" />
+            </manifest>
+        </jar>
+        <zip destfile="${dist}/callimachus-${Version}.zip">
+            <zipfileset dir="." includes="*.txt" />
+            <zipfileset dir="${src}" prefix="src" />
+            <zipfileset dir="${webapps}/callimachus" prefix="src/callimachus-webapp" />
+            <zipfileset dir="${bin}" prefix="bin" includes="*.sh,*.pl,callimachus-linux*,callimachus-darwin*" filemode="755" />
+            <zipfileset dir="${bin}" prefix="bin" excludes="*.sh,*.pl,callimachus-linux*,callimachus-darwin*" />
+            <zipfileset dir="${etc}" prefix="etc" excludes="mail.properties ssl.properties" />
+            <zipfileset dir="${lib}" prefix="lib" />
+            <zipfileset file="${jar.file}" prefix="lib" />
+            <zipfileset file="${dist}/callimachus-webapp-${Version}.car" prefix="lib" />
+        </zip>
+        <uptodate srcfile="${dist}/callimachus-webapp-${Version}.car" targetfile="${triples.file}" property="repositories.uptodate" />
+    </target>
 
-	<target name="car">
-		<!-- Create the distribution directory and create the jar -->
-		<mkdir dir="${dist}" />
-		<zip destfile="${dist}/callimachus-webapp-${Version}.car">
-			<zipfileset dir="${webapps}/callimachus" prefix="" includes="**/*.ttl" />
-			<zipfileset dir="${webapps}/callimachus" prefix="" excludes="**/*.ttl" />
-		</zip>
-		<uptodate srcfile="${dist}/callimachus-webapp-${Version}.car" targetfile="${triples.file}" property="repositories.uptodate" />
-	</target>
+    <target name="car">
+        <!-- Create the distribution directory and create the jar -->
+        <mkdir dir="${dist}" />
+        <zip destfile="${dist}/callimachus-webapp-${Version}.car">
+            <zipfileset dir="${webapps}/callimachus" prefix="" includes="**/*.ttl" />
+            <zipfileset dir="${webapps}/callimachus" prefix="" excludes="**/*.ttl" />
+        </zip>
+        <uptodate srcfile="${dist}/callimachus-webapp-${Version}.car" targetfile="${triples.file}" property="repositories.uptodate" />
+    </target>
 
-	<target name="test-dependencies" depends="init" unless="lib.tests.present">
-		<parallel>
-			<get usetimestamp="true" src="${junit.url}" dest="${downloads}/junit.jar" />
-			<get usetimestamp="true" src="${jersey-client.url}" dest="${downloads}/jersey-client.jar" />
-		</parallel>
-		<parallel>
-			<get usetimestamp="true" src="${jersey-core.url}" dest="${downloads}/jersey-core.jar" />
-			<get usetimestamp="true" src="${jsr311-api.url}" dest="${downloads}/jsr311-api.jar" />
-		</parallel>
-		<mkdir dir="${lib.tests}" />
-		<copy file="${junit.url}" tofile="${lib.tests}/junit.jar" />
-		<copy file="${jersey-client.url}" tofile="${lib.tests}/jersey-client.jar" />
-		<copy file="${jersey-core.url}" tofile="${lib.tests}/jersey-core.jar" />
-		<copy file="${jsr311-api.url}" tofile="${lib.tests}/jsr311-api.jar" />
-	</target>
+    <target name="test-dependencies" depends="init">
+        <parallel>
+            <get usetimestamp="true" skipexisting="${lib.tests.present}" src="${junit.url}" dest="${downloads}/junit.jar" />
+            <get usetimestamp="true" skipexisting="${lib.tests.present}" src="${jersey-client.url}" dest="${downloads}/jersey-client.jar" />
+        </parallel>
+        <parallel>
+            <get usetimestamp="true" skipexisting="${lib.tests.present}" src="${jersey-core.url}" dest="${downloads}/jersey-core.jar" />
+            <get usetimestamp="true" skipexisting="${lib.tests.present}" src="${jsr311-api.url}" dest="${downloads}/jsr311-api.jar" />
+        </parallel>
+        <mkdir dir="${lib.tests}" />
+        <copy file="${junit.url}" tofile="${lib.tests}/junit.jar" />
+        <copy file="${jersey-client.url}" tofile="${lib.tests}/jersey-client.jar" />
+        <copy file="${jersey-core.url}" tofile="${lib.tests}/jersey-core.jar" />
+        <copy file="${jsr311-api.url}" tofile="${lib.tests}/jsr311-api.jar" />
+    </target>
 
-	<target name="test-compile" depends="compile,test-dependencies">
-		<mkdir dir="${build.tests}" />
-		<!-- Compile the java code from ${src} into ${build} -->
-		<javac srcdir="${src.tests}" destdir="${build.tests}" debug="true" debuglevel="lines,source">
-			<classpath>
-				<pathelement location="${build}/" />
-				<fileset dir="${lib.tests}">
-					<include name="**/*.jar" />
-				</fileset>
-				<fileset dir="${lib}">
-					<include name="**/*.jar" />
-				</fileset>
-			</classpath>
-		</javac>
-		<copy todir="${build.tests}">
-			<fileset dir="${src.tests}" excludes="**/*.java"/>
-		</copy>
-	</target>
+    <target name="test-compile" depends="compile,test-dependencies">
+        <mkdir dir="${build.tests}" />
+        <!-- Compile the java code from ${src} into ${build} -->
+        <javac srcdir="${src.tests}" destdir="${build.tests}" debug="true" debuglevel="lines,source">
+            <classpath>
+                <pathelement location="${build}/" />
+                <fileset dir="${lib.tests}">
+                    <include name="**/*.jar" />
+                </fileset>
+                <fileset dir="${lib}">
+                    <include name="**/*.jar" />
+                </fileset>
+            </classpath>
+        </javac>
+        <copy todir="${build.tests}">
+            <fileset dir="${src.tests}" excludes="**/*.java"/>
+        </copy>
+    </target>
 
-	<target name="test" depends="dist,test-compile" description="run the tests">
-		<mkdir dir="${reports.tests}" />
-		<junit printsummary="on" haltonfailure="on" tempdir="${tmp}">
-			<classpath>
-				<pathelement location="${build.tests}/" />
-				<pathelement location="${build}/" />
-				<fileset dir="${lib.tests}">
-					<include name="**/*.jar" />
-				</fileset>
-				<fileset dir="${lib}">
-					<include name="**/*.jar" />
-				</fileset>
-			</classpath>
+    <target name="test" depends="dist,test-compile" description="run the tests">
+        <mkdir dir="${reports.tests}" />
+        <junit printsummary="on" haltonfailure="on" tempdir="${tmp}">
+            <classpath>
+                <pathelement location="${build.tests}/" />
+                <pathelement location="${build}/" />
+                <fileset dir="${lib.tests}">
+                    <include name="**/*.jar" />
+                </fileset>
+                <fileset dir="${lib}">
+                    <include name="**/*.jar" />
+                </fileset>
+            </classpath>
 
-			<formatter type="brief"/>
+            <formatter type="brief"/>
 
-			<batchtest fork="yes" todir="${reports.tests}">
-			<fileset dir="${src.tests}">
-				<include name="**/*Test*.java"/>
-				<exclude name="**/*TestCase.java"/>
-				<exclude name="**/AllTests.java"/>
-			</fileset>
-			</batchtest>
-		</junit>
-	</target>
+            <batchtest fork="yes" todir="${reports.tests}">
+            <fileset dir="${src.tests}">
+                <include name="**/*Test*.java"/>
+                <exclude name="**/*TestCase.java"/>
+                <exclude name="**/AllTests.java"/>
+            </fileset>
+            </batchtest>
+        </junit>
+    </target>
 
-	<target name="package" depends="dist-clean,dist,test" description="Create a package ready for release">
-		<echo>Artifact ready: ${dist}/Callimachus-${Version}.zip</echo>
-	</target>
+    <target name="package" depends="dist-clean,dist,test" description="Create a package ready for release">
+        <echo>Artifact ready: ${dist}/Callimachus-${Version}.zip</echo>
+    </target>
 
-	<target name="setup" depends="dist" unless="repositories.uptodate">
-		<fail message="build.properties is not setup properly, please read README.txt" unless="callimachus.username" />
-		<fail message="build.properties is missing email, please read README.txt" unless="callimachus.email" />
-		<fail message="build.properties is missing password, please read README.txt" unless="callimachus.password" />
-		<java classname="${setup}" fork="true" failonerror="true" inputstring="${callimachus.password}">
-			<jvmarg line="${jvmargs}" />
-			<arg line="${setup.args} -u ${callimachus.username} -e ${callimachus.email}" />
-			<classpath>
-				<pathelement location="${jar.file}" />
-				<fileset dir="${lib}">
-					<include name="**/*.jar" />
-				</fileset>
-			</classpath>
-		</java>
-	</target>
+    <target name="setup" depends="dist" unless="repositories.uptodate">
+        <fail message="build.properties is not setup properly, please read README.txt" unless="callimachus.username" />
+        <fail message="build.properties is missing email, please read README.txt" unless="callimachus.email" />
+        <fail message="build.properties is missing password, please read README.txt" unless="callimachus.password" />
+        <java classname="${setup}" fork="true" failonerror="true" inputstring="${callimachus.password}">
+            <jvmarg line="${jvmargs}" />
+            <arg line="${setup.args} -u ${callimachus.username} -e ${callimachus.email}" />
+            <classpath>
+                <pathelement location="${jar.file}" />
+                <fileset dir="${lib}">
+                    <include name="**/*.jar" />
+                </fileset>
+            </classpath>
+        </java>
+    </target>
 
-	<target name="start" depends="dist,setup">
-		<mkdir dir="${log}" />
-		<java classname="${main}" fork="true" spawn="true">
-			<jvmarg line="${jvmargs} -Djava.util.logging.config.file=${logging}" />
-			<arg line="${args} -q" />
-			<classpath>
-				<pathelement location="${jar.file}" />
-				<fileset dir="${lib}">
-					<include name="**/*.jar" />
-				</fileset>
-			</classpath>
-		</java>
-	</target>
+    <target name="start" depends="dist,setup">
+        <mkdir dir="${log}" />
+        <java classname="${main}" fork="true" spawn="true">
+            <jvmarg line="${jvmargs} -Djava.util.logging.config.file=${logging}" />
+            <arg line="${args} -q" />
+            <classpath>
+                <pathelement location="${jar.file}" />
+                <fileset dir="${lib}">
+                    <include name="**/*.jar" />
+                </fileset>
+            </classpath>
+        </java>
+    </target>
 
-	<target name="pull" depends="init">
-		<mkdir dir="${downloads}" />
-		<exec executable="${curl}" output="${downloads}/callimachus.car" logError="true" failonerror="true">
-			<arg line="--user ${callimachus.email}:${callimachus.password} ${curl.args}" />
-		</exec>
-		<unzip src="${downloads}/callimachus.car" dest="${webapps}/callimachus" />
-		<delete file="${downloads}/callimachus.car" />
-		<antcall target="car" />
-		<touch file="${triples.file}" />
-	</target>
+    <target name="pull" depends="init">
+        <mkdir dir="${downloads}" />
+        <exec executable="${curl}" output="${downloads}/callimachus.car" logError="true" failonerror="true">
+            <arg line="--user ${callimachus.email}:${callimachus.password} ${curl.args}" />
+        </exec>
+        <unzip src="${downloads}/callimachus.car" dest="${webapps}/callimachus" />
+        <delete file="${downloads}/callimachus.car" />
+        <antcall target="car" />
+        <touch file="${triples.file}" />
+    </target>
 
-	<target name="stop" depends="pull">
-		<java classname="${main-monitor}" fork="true" resultproperty="ret">
-			<jvmarg line="${jvmargs}" />
-			<arg line="--stop --pid ${pid}" />
-			<classpath>
-				<pathelement location="${jar.file}" />
-				<pathelement location="${tools.jar}" />
-				<fileset dir="${lib}">
-					<include name="**/*.jar" />
-				</fileset>
-			</classpath>
-		</java>
-		<condition property="stopped">
-			<equals arg1="${ret}" arg2="0"/>
-	    </condition>
-		<antcall target="kill" />
-	</target>
+    <target name="stop" depends="pull">
+        <java classname="${main-monitor}" fork="true" resultproperty="ret">
+            <jvmarg line="${jvmargs}" />
+            <arg line="--stop --pid ${pid}" />
+            <classpath>
+                <pathelement location="${jar.file}" />
+                <pathelement location="${tools.jar}" />
+                <fileset dir="${lib}">
+                    <include name="**/*.jar" />
+                </fileset>
+            </classpath>
+        </java>
+        <condition property="stopped">
+            <equals arg1="${ret}" arg2="0"/>
+        </condition>
+        <antcall target="kill" />
+    </target>
 
-	<target name="kill" unless="stopped">
-		<echo>The stop target may not be supported on your platform. You must </echo>
-		<echo>kill the process manually listed in ${pid}. </echo>
-		<echo>Use the run target next time to avoid this message.</echo>
-	</target>
+    <target name="kill" unless="stopped">
+        <echo>The stop target may not be supported on your platform. You must </echo>
+        <echo>kill the process manually listed in ${pid}. </echo>
+        <echo>Use the run target next time to avoid this message.</echo>
+    </target>
 
-	<target name="run" depends="dist,setup">
-		<java classname="${main}" fork="true" failonerror="true">
-			<jvmarg line="${jvmargs}" />
-			<arg line="${args}" />
-			<classpath>
-				<pathelement location="${jar.file}" />
-				<fileset dir="${lib}">
-					<include name="**/*.jar" />
-				</fileset>
-			</classpath>
-		</java>
-	</target>
+    <target name="run" depends="dist,setup">
+        <java classname="${main}" fork="true" failonerror="true">
+            <jvmarg line="${jvmargs}" />
+            <arg line="${args}" />
+            <classpath>
+                <pathelement location="${jar.file}" />
+                <fileset dir="${lib}">
+                    <include name="**/*.jar" />
+                </fileset>
+            </classpath>
+        </java>
+    </target>
 
-	<target name="reset">
-		<java classname="${main-monitor}" fork="true" resultproperty="ret">
-			<jvmarg line="${jvmargs}" />
-			<arg line="--pid ${pid} --reset" />
-			<classpath>
-				<pathelement location="${dist}/callimachus-${Version}.jar" />
-				<pathelement location="${tools.jar}" />
-				<fileset dir="${lib}">
-					<include name="**/*.jar" />
-				</fileset>
-			</classpath>
-		</java>
-	</target>
+    <target name="reset">
+        <java classname="${main-monitor}" fork="true" resultproperty="ret">
+            <jvmarg line="${jvmargs}" />
+            <arg line="--pid ${pid} --reset" />
+            <classpath>
+                <pathelement location="${dist}/callimachus-${Version}.jar" />
+                <pathelement location="${tools.jar}" />
+                <fileset dir="${lib}">
+                    <include name="**/*.jar" />
+                </fileset>
+            </classpath>
+        </java>
+    </target>
 
 </project>

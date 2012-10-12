@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.lang.reflect.Type;
+import java.net.URL;
+import java.util.Enumeration;
 
 import net.sf.saxon.s9api.SaxonApiException;
 import net.sf.saxon.s9api.XdmNode;
@@ -29,25 +31,27 @@ public class Pipeline {
 	private final String systemId;
 	private final XdmNode pipeline;
 
-	Pipeline(String systemId, XdmNodeFactory resolver, XProcConfiguration config) {
+	Pipeline(String systemId) {
 		assert systemId != null;
 		this.systemId = systemId;
-		this.config = config;
-		this.resolver = resolver;
+		this.config = null;
+		this.resolver = null;
 		this.pipeline = null;
 	}
 
-	Pipeline(InputStream in, String systemId, XdmNodeFactory resolver, XProcConfiguration config) throws SAXException, IOException {
+	Pipeline(InputStream in, String systemId) throws SAXException, IOException {
 		this.systemId = systemId;
-		this.config = config;
-		this.resolver = resolver;
+		this.config = new XProcConfiguration("he", false);
+		this.resolver = new XdmNodeFactory(config.getProcessor());
+		loadConfig(resolver, config);
 		this.pipeline = resolver.parse(systemId, in);
 	}
 
-	Pipeline(Reader in, String systemId, XdmNodeFactory resolver, XProcConfiguration config) throws SAXException, IOException {
+	Pipeline(Reader in, String systemId) throws SAXException, IOException {
 		this.systemId = systemId;
-		this.config = config;
-		this.resolver = resolver;
+		this.config = new XProcConfiguration("he", false);
+		this.resolver = new XdmNodeFactory(config.getProcessor());
+		loadConfig(resolver, config);
 		this.pipeline = resolver.parse(systemId, in);
 	}
 
@@ -55,55 +59,87 @@ public class Pipeline {
 	public String toString() {
 		if (systemId != null)
 			return systemId;
-		return pipeline.toString();
+		return super.toString();
 	}
 
 	public String getSystemId() {
 		return systemId;
 	}
 
-	public PipelineBuilder pipe() throws SAXException, IOException {
-		return pipeSource(null);
+	public Pipe pipe() throws SAXException, IOException {
+		XProcConfiguration config = this.config;
+		XdmNodeFactory resolver = this.resolver;
+		if (config == null) {
+			config = new XProcConfiguration("he", false);
+			resolver = new XdmNodeFactory(config.getProcessor());
+			loadConfig(resolver, config);
+		}
+		return pipeSource(null, resolver, config);
 	}
 
-	public PipelineBuilder pipe(Object source, String systemId, Type type, String... media)
+	public Pipe pipe(Object source, String systemId, Type type, String... media)
 			throws SAXException, IOException, XProcException {
 		return pipeReader(asReader(source, systemId, type, media), systemId);
 	}
 
-	public PipelineBuilder pipeStream(InputStream source, String systemId)
+	public Pipe pipeStream(InputStream source, String systemId)
 			throws SAXException, IOException, XProcException {
-		return pipeSource(resolver.parse(systemId, source));
+		XProcConfiguration config = this.config;
+		XdmNodeFactory resolver = this.resolver;
+		if (config == null) {
+			config = new XProcConfiguration("he", false);
+			resolver = new XdmNodeFactory(config.getProcessor());
+			loadConfig(resolver, config);
+		}
+		return pipeSource(resolver.parse(systemId, source), resolver, config);
 	}
 
-	public PipelineBuilder pipeReader(Reader reader, String systemId) throws SAXException, IOException, XProcException {
-		return pipeSource(resolver.parse(systemId, reader));
+	public Pipe pipeReader(Reader reader, String systemId) throws SAXException, IOException, XProcException {
+		XProcConfiguration config = this.config;
+		XdmNodeFactory resolver = this.resolver;
+		if (config == null) {
+			config = new XProcConfiguration("he", false);
+			resolver = new XdmNodeFactory(config.getProcessor());
+			loadConfig(resolver, config);
+		}
+		return pipeSource(resolver.parse(systemId, reader), resolver, config);
 	}
 
-	private PipelineBuilder pipeSource(XdmNode source) throws SAXException, XProcException, IOException {
+	private Pipe pipeSource(XdmNode source, XdmNodeFactory resolver, XProcConfiguration config) throws SAXException, XProcException, IOException {
 		XProcRuntime runtime = new XProcRuntime(config);
 		try {
 			CloseableURIResolver uriResolver = new CloseableURIResolver(resolver);
 			CloseableEntityResolver entityResolver = new CloseableEntityResolver(resolver);
 			runtime.setURIResolver(uriResolver);
 			runtime.setEntityResolver(entityResolver);
-			XdmNode doc = resolvePipeline();
+			XdmNode doc = this.pipeline;
+			if (doc == null) {
+				doc = resolver.parse(systemId);
+			}
 			if (doc == null)
 				throw new InternalServerError("Missing pipeline: " + systemId);
 			XPipeline xpipeline = runtime.use(doc);
 			if (source != null) {
 				xpipeline.writeTo("source", source);
 			}
-			return new PipelineBuilder(runtime, uriResolver, entityResolver, xpipeline, systemId);
+			return new Pipe(runtime, uriResolver, entityResolver, xpipeline, systemId);
 		} catch (SaxonApiException e) {
 			throw new SAXException(e);
 		}
 	}
 
-	private XdmNode resolvePipeline() throws IOException, SAXException {
-		if (pipeline != null)
-			return pipeline;
-		return resolver.parse(systemId);
+	private void loadConfig(XdmNodeFactory resolver, XProcConfiguration config) throws IOException {
+    	ClassLoader cl = getClass().getClassLoader();
+		Enumeration<URL> resources = cl.getResources("META-INF/xmlcalabash.xml");
+		while (resources.hasMoreElements()) {
+	        try {
+	            URL puri = resources.nextElement();
+				InputStream in = puri.openStream();
+	            config.parse(resolver.parse(puri.toExternalForm(), in));
+	        } catch (SAXException sae) {
+	            throw new XProcException(sae);
+	        }
+		}
 	}
 
 	private Reader asReader(Object source, String systemId, Type type, String... media)

@@ -42,9 +42,9 @@ import com.xmlcalabash.model.Serialization;
 import com.xmlcalabash.model.Step;
 import com.xmlcalabash.runtime.XPipeline;
 
-public class PipelineBuilder implements XProcMessageListener {
+public class Pipe implements XProcMessageListener {
 	private final Logger logger = LoggerFactory
-			.getLogger(PipelineBuilder.class);
+			.getLogger(Pipe.class);
 	private final FluidBuilder fb = FluidFactory.getInstance().builder();
 	private final XProcRuntime runtime;
 	private final CloseableURIResolver uriResolver;
@@ -53,7 +53,7 @@ public class PipelineBuilder implements XProcMessageListener {
 	private final Serialization serial;
 	private final StringBuilder errors = new StringBuilder();
 
-	PipelineBuilder(XProcRuntime runtime, CloseableURIResolver uriResolver, CloseableEntityResolver entityResolver,
+	Pipe(XProcRuntime runtime, CloseableURIResolver uriResolver, CloseableEntityResolver entityResolver,
 			XPipeline pipeline, String systemId) {
 		this.runtime = runtime;
 		this.pipeline = pipeline;

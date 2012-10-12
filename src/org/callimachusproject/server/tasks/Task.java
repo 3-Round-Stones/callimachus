@@ -65,7 +65,7 @@ import org.callimachusproject.server.model.ResourceOperation;
 import org.callimachusproject.server.model.Response;
 import org.callimachusproject.server.util.ChannelUtil;
 import org.callimachusproject.xproc.Pipeline;
-import org.callimachusproject.xproc.PipelineBuilder;
+import org.callimachusproject.xproc.Pipe;
 import org.openrdf.OpenRDFException;
 import org.openrdf.sail.optimistic.exceptions.ConcurrencyException;
 import org.slf4j.Logger;
@@ -487,7 +487,7 @@ public abstract class Task implements Runnable {
 			if (id == null || !req.getRequestURL().startsWith(id)) {
 				try {
 					inError.set(true);
-					PipelineBuilder pb = pipeline.pipeReader(new StringReader(body), null);
+					Pipe pb = pipeline.pipeReader(new StringReader(body), null);
 					pb.passOption("target", req.getIRI());
 					pb.passOption("query", req.getQueryString());
 					body = pb.asString();

@@ -174,11 +174,11 @@ function updateFormAction(form, target, create) {
     } else if (m = action.match(/^([^\?]*)\?create(&.*)?$/)) {
         action = target + '?create=';
         if (create) {
-            action += create;
+            action += encodeURIComponent(create);
         } else if (m[1]) {
-            action += calli.listResourceIRIs(m[1])[0];
+            action += encodeURIComponent(calli.listResourceIRIs(m[1])[0]);
         } else {
-            action += calli.listResourceIRIs(location.pathname)[0];
+            action += encodeURIComponent(calli.listResourceIRIs(location.pathname)[0]);
         }
         if (m[2]) {
             action += m[2];

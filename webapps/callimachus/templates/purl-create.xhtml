@@ -44,7 +44,7 @@
             <div class="control-group">
                 <label for="local" class="control-label">Local name</label>
                 <div class="controls">
-                    <input id="local" value="{rdfs:label}" class="auto-expand" required="required" autofocus="autofocus" />
+                    <input type="text" id="local" value="{rdfs:label}" class="auto-expand" required="required" autofocus="autofocus" />
                 </div>
             </div>
             <div class="control-group">
@@ -71,7 +71,7 @@
             <div class="control-group">
                 <label for="pattern" class="control-label">Content location</label>
                 <div class="controls">
-        			<input id="pattern" size="40" value="" />
+        			<input type="text" id="pattern" size="40" value="" />
     				<span class="pattern" property="calli:copy" content="?copy" />
 					<span class="pattern" property="calli:canonical" content="?canonical" />
 					<span class="pattern" property="calli:alternate" content="?alternate" />
@@ -85,7 +85,7 @@
             <div class="control-group">
                 <label for="cache" class="control-label">Cache Control</label>
                 <div class="controls">
-                	<input  id="cache" value="{calli:cacheControl}" placeholder="max-age=3600" />
+                	<input type="text"  id="cache" value="{calli:cacheControl}" placeholder="max-age=3600" />
                 </div>
             </div>
             <div class="form-actions">

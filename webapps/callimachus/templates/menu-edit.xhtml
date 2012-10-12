@@ -54,10 +54,10 @@
                 <ol id="items" class="items sorted">
                     <li rel="calli:item" resource="?item1">
                         <span class="asc" property="calli:position" style="display:none"/>
-                        <input value="{rdfs:label}" title="Label" required="required"
+                        <input type="text" value="{rdfs:label}" title="Label" required="required"
                             onchange="setResource(this, value);if(value)loadLinkInput(event,this)" />
                         <span class="link-container">
-                            <input rel="calli:link" resource="?menu" value="{?menu}" size="32" title="URL (optional)" placeholder="http://" />
+                            <input type="text" rel="calli:link" resource="?menu" value="{?menu}" size="32" title="URL (optional)" placeholder="http://" />
                         </span>
                         <input value="{calli:position}" datatype="xsd:integer" type="number" title="Relative Position" size="1" placeholder="9" style="max-width:2em"
                             onchange="$(this).parent().children('.asc').text(value)" />
@@ -65,10 +65,10 @@
                         <ol class="items sorted">
                             <li rel="calli:item" resource="?item2">
                                 <span class="asc" property="calli:position" style="display:none" />
-                                <input value="{rdfs:label}" title="Label" required="required"
+                                <input type="text" value="{rdfs:label}" title="Label" required="required"
                                     onchange="setResource(this, value);if(value)loadLinkInput(event,this)" />
                                 <span class="link-container">
-                                    <input rel="calli:link" resource="?link" value="{?link}" size="32" title="URL" placeholder="http://" />
+                                    <input type="text" rel="calli:link" resource="?link" value="{?link}" size="32" title="URL" placeholder="http://" />
                                 </span>
                                 <input value="{calli:position}" datatype="xsd:integer" type="number" title="Relative Position" size="1" placeholder="9" style="max-width:2em"
                                     onchange="$(this).parent().children('.asc').text(value)" />

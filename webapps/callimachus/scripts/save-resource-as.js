@@ -40,7 +40,9 @@ window.calli.saveResourceAs = function(event, fileName, create) {
             } else if (ns.lastIndexOf('/') != ns.length - 1
                     && window.location.search.indexOf('?create=') == 0) {
                 ns += '/';
-            } else if (window.location.search != '?create') {
+            } else if (window.location.search == '?create') {
+                ns = null; // no location available
+            } else {
                 ns = ns.replace(/[^\/]*$/, ''); // get folder
             }
             if (ns) {

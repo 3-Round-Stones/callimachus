@@ -10,7 +10,7 @@
 	<property name="etc" location="etc" />
 	<property name="log" location="log" />
 	<property name="tmp" location="tmp" />
-	<property name="downloads" location="tmp" />
+	<property name="downloads" location="downloads" />
 	<property name="reports.tests" location="tmp" />
 	<property name="src.tests" location="test" />
 	<property name="lib.tests" location="test/lib" />
@@ -73,14 +73,15 @@
 		<!-- Delete the directory trees -->
 		<delete dir="${reports.tests}" />
 		<delete dir="${build.tests}" />
+		<delete dir="${lib.tests}" />
 		<delete dir="${build}" />
 		<delete dir="${dist}" />
+		<delete dir="${lib}" />
+		<delete dir="${bin}" />
 	</target>
 
 	<target name="dist-clean" description="clean up everything for a new version" depends="clean">
-		<delete dir="${lib.tests}" />
-		<delete dir="${lib}" />
-		<delete dir="${bin}" />
+		<delete dir="${downloads}" />
 	</target>
 
 	<target name="init">
@@ -110,24 +111,32 @@
 	<target name="dependencies" depends="dist-dependencies,test-dependencies" />
 
 	<target name="dist-dependencies" depends="init" unless="lib.present">
-		<mkdir dir="${lib}" />
 		<mkdir dir="${downloads}" />
 		<parallel>
-			<get src="${alibaba.url}" dest="${downloads}/openrdf-alibaba.zip" />
-			<get src="${jchardet.url}" dest="${downloads}/jchardet.zip" />
-			<get src="${closure.url}" dest="${downloads}/closure.zip" />
-			<get src="${daemon.url}" dest="${downloads}/daemon.zip" />
-			<get src="${daemon-linux-i686.url}" dest="${downloads}/daemon-linux-i686.tar.gz" />
-			<get src="${download-lunix-x86_64.url}" dest="${downloads}/daemon-linux-x86_64.tar.gz" />
-			<get src="${daemon-darwin.url}" dest="${downloads}/daemon-darwin.tar.gz" />
-			<get src="${mail.url}" dest="${lib}/${mail.jar}" />
-			<get src="${compress.url}" dest="${downloads}/compress.tar.gz" />
-			<get src="${calabash.url}" dest="${downloads}/calabash.zip" />
-			<get src="${jing.url}" dest="${downloads}/jing.zip" />
-			<get src="${fop.url}" dest="${downloads}/fop.zip" />
-			<get src="${tagsoup.url}" dest="${lib}/${tagsoup.jar}" />
-			<get src="${httpcore.url}" dest="${downloads}/httpcore.zip" />
+			<get usetimestamp="true" src="${alibaba.url}" dest="${downloads}/openrdf-alibaba.zip" />
+			<get usetimestamp="true" src="${jchardet.url}" dest="${downloads}/jchardet.zip" />
+			<get usetimestamp="true" src="${daemon.url}" dest="${downloads}/daemon.zip" />
 		</parallel>
+		<parallel>
+			<get usetimestamp="true" src="${daemon-linux-i686.url}" dest="${downloads}/daemon-linux-i686.tar.gz" />
+			<get usetimestamp="true" src="${calabash.url}" dest="${downloads}/calabash.zip" />
+			<get usetimestamp="true" src="${closure.url}" dest="${downloads}/closure.zip" />
+		</parallel>
+		<parallel>
+			<get usetimestamp="true" src="${download-lunix-x86_64.url}" dest="${downloads}/daemon-linux-x86_64.tar.gz" />
+			<get usetimestamp="true" src="${mail.url}" dest="${downloads}/${mail.jar}" />
+			<get usetimestamp="true" src="${compress.url}" dest="${downloads}/compress.tar.gz" />
+			<get usetimestamp="true" src="${jing.url}" dest="${downloads}/jing.zip" />
+		</parallel>
+		<parallel>
+			<get usetimestamp="true" src="${daemon-darwin.url}" dest="${downloads}/daemon-darwin.tar.gz" />
+			<get usetimestamp="true" src="${fop.url}" dest="${downloads}/fop.zip" />
+			<get usetimestamp="true" src="${tagsoup.url}" dest="${downloads}/${tagsoup.jar}" />
+			<get usetimestamp="true" src="${httpcore.url}" dest="${downloads}/httpcore.zip" />
+		</parallel>
+		<mkdir dir="${lib}" />
+		<copy file="${downloads}/${mail.jar}" tofile="${lib}/${mail.jar}" />
+		<copy file="${downloads}/${tagsoup.jar}" tofile="${lib}/${tagsoup.jar}" />
 		<unzip src="${downloads}/openrdf-alibaba.zip" dest="${lib}">
 			<patternset>
 				<include name="lib/*.jar" />
@@ -136,28 +145,24 @@
 			</patternset>
 			<mapper type="flatten" />
 		</unzip>
-		<delete file="${downloads}/openrdf-alibaba.zip" />
 		<unzip src="${downloads}/httpcore.zip" dest="${lib}">
 			<patternset>
 				<include name="**/lib/*.jar" />
 			</patternset>
 			<mapper type="flatten" />
 		</unzip>
-		<delete file="${downloads}/httpcore.zip" />
 		<unzip src="${downloads}/jchardet.zip" dest="${lib}">
 			<patternset>
 				<include name="*/dist/lib/*.jar" />
 			</patternset>
 			<mapper type="flatten" />
 		</unzip>
-		<delete file="${downloads}/jchardet.zip" />
 		<unzip src="${downloads}/closure.zip" dest="${lib}">
 			<patternset>
 				<include name="*.jar" />
 			</patternset>
 			<mapper type="flatten" />
 		</unzip>
-		<delete file="${downloads}/closure.zip" />
 		<unzip src="${downloads}/daemon.zip" dest="${lib}">
 			<patternset>
 				<include name="commons-daemon-*/commons-daemon-*.jar" />
@@ -166,28 +171,24 @@
 			</patternset>
 			<mapper type="flatten" />
 		</unzip>
-		<delete file="${downloads}/daemon.zip" />
 		<untar compression="gzip" src="${downloads}/daemon-linux-i686.tar.gz" dest="${bin}">
 			<patternset>
 				<include name="jsvc" />
 			</patternset>
 			<mapper type="glob" from="jsvc" to="callimachus-linux-i686" />
 		</untar>
-		<delete file="${downloads}/daemon-linux-i686.tar.gz" />
 		<untar compression="gzip" src="${downloads}/daemon-linux-x86_64.tar.gz" dest="${bin}">
 			<patternset>
 				<include name="jsvc" />
 			</patternset>
 			<mapper type="glob" from="jsvc" to="callimachus-linux-x86_64" />
 		</untar>
-		<delete file="${downloads}/daemon-linux-x86_64.tar.gz" />
 		<untar compression="gzip" src="${downloads}/daemon-darwin.tar.gz" dest="${bin}">
 			<patternset>
 				<include name="jsvc" />
 			</patternset>
 			<mapper type="glob" from="jsvc" to="callimachus-darwin" />
 		</untar>
-		<delete file="${downloads}/daemon-darwin.tar.gz" />
 		<untar compression="gzip" src="${downloads}/compress.tar.gz" dest="${lib}">
 			<patternset>
 				<include name="commons-compress-*/commons-compress-*.jar" />
@@ -196,7 +197,6 @@
 			</patternset>
 			<mapper type="flatten" />
 		</untar>
-		<delete file="${downloads}/compress.tar.gz" />
 		<unzip src="${downloads}/calabash.zip" dest="${lib}">
 			<patternset>
 				<include name="*/lib/saxon*.jar" />
@@ -206,14 +206,12 @@
 			</patternset>
 			<mapper type="flatten" />
 		</unzip>
-		<delete file="${downloads}/calabash.zip" />
 		<unzip src="${downloads}/jing.zip" dest="${lib}">
 			<patternset>
 				<include name="jing*/bin/jing*.jar" />
 			</patternset>
 			<mapper type="flatten" />
 		</unzip>
-		<delete file="${downloads}/jing.zip" />
 		<unzip src="${downloads}/fop.zip" dest="${lib}">
 			<patternset>
 				<include name="fop*/build/fop*.jar" />
@@ -223,25 +221,21 @@
 			</patternset>
 			<mapper type="flatten" />
 		</unzip>
-		<delete file="${downloads}/fop.zip" />
 		<antcall target="alibaba-snapshot" />
 	</target>
 
 	<target name="alibaba-snapshot" if="alibaba.snapshot">
-		<delete dir="${lib}" includes="openrdf-alibaba-*.jar alibaba-*.jar" />
 		<property name="openrdf" value="${m2.repository}/org/openrdf/alibaba" />
-		<parallel>
-			<get src="${openrdf}/alibaba-composition-object/${alibaba.snapshot}/alibaba-composition-object-${alibaba.snapshot}.jar" dest="${lib}/alibaba-composition-object-${alibaba.snapshot}.jar" />
-			<get src="${openrdf}/alibaba-model/${alibaba.snapshot}/alibaba-model-${alibaba.snapshot}.jar" dest="${lib}/alibaba-model-${alibaba.snapshot}.jar" />
-			<get src="${openrdf}/alibaba-repository-object/${alibaba.snapshot}/alibaba-repository-object-${alibaba.snapshot}.jar" dest="${lib}/alibaba-repository-object-${alibaba.snapshot}.jar" />
-			<get src="${openrdf}/alibaba-repository-optimistic/${alibaba.snapshot}/alibaba-repository-optimistic-${alibaba.snapshot}.jar" dest="${lib}/alibaba-repository-optimistic-${alibaba.snapshot}.jar" />
-			<get src="${openrdf}/alibaba-runtime/${alibaba.snapshot}/alibaba-runtime-${alibaba.snapshot}.jar" dest="${lib}/alibaba-runtime-${alibaba.snapshot}.jar" />
-			<get src="${openrdf}/alibaba-repository-auditing/${alibaba.snapshot}/alibaba-repository-auditing-${alibaba.snapshot}.jar" dest="${lib}/alibaba-repository-auditing-${alibaba.snapshot}.jar" />
-			<get src="${openrdf}/alibaba-sail-auditing/${alibaba.snapshot}/alibaba-sail-auditing-${alibaba.snapshot}.jar" dest="${lib}/alibaba-sail-auditing-${alibaba.snapshot}.jar" />
-			<get src="${openrdf}/alibaba-store-blob/${alibaba.snapshot}/alibaba-store-blob-${alibaba.snapshot}.jar" dest="${lib}/alibaba-store-blob-${alibaba.snapshot}.jar" />
-			<get src="${openrdf}/alibaba-sail-keyword/${alibaba.snapshot}/alibaba-sail-keyword-${alibaba.snapshot}.jar" dest="${lib}/alibaba-sail-keyword-${alibaba.snapshot}.jar" />
-			<get src="${openrdf}/alibaba-repository-query/${alibaba.snapshot}/alibaba-repository-query-${alibaba.snapshot}.jar" dest="${lib}/alibaba-repository-query-${alibaba.snapshot}.jar" />
-		</parallel>
+		<get usetimestamp="true" src="${openrdf}/alibaba-composition-object/${alibaba.snapshot}/alibaba-composition-object-${alibaba.snapshot}.jar" dest="${lib}/alibaba-composition-object-${alibaba.snapshot}.jar" />
+		<get usetimestamp="true" src="${openrdf}/alibaba-model/${alibaba.snapshot}/alibaba-model-${alibaba.snapshot}.jar" dest="${lib}/alibaba-model-${alibaba.snapshot}.jar" />
+		<get usetimestamp="true" src="${openrdf}/alibaba-repository-object/${alibaba.snapshot}/alibaba-repository-object-${alibaba.snapshot}.jar" dest="${lib}/alibaba-repository-object-${alibaba.snapshot}.jar" />
+		<get usetimestamp="true" src="${openrdf}/alibaba-repository-optimistic/${alibaba.snapshot}/alibaba-repository-optimistic-${alibaba.snapshot}.jar" dest="${lib}/alibaba-repository-optimistic-${alibaba.snapshot}.jar" />
+		<get usetimestamp="true" src="${openrdf}/alibaba-runtime/${alibaba.snapshot}/alibaba-runtime-${alibaba.snapshot}.jar" dest="${lib}/alibaba-runtime-${alibaba.snapshot}.jar" />
+		<get usetimestamp="true" src="${openrdf}/alibaba-repository-auditing/${alibaba.snapshot}/alibaba-repository-auditing-${alibaba.snapshot}.jar" dest="${lib}/alibaba-repository-auditing-${alibaba.snapshot}.jar" />
+		<get usetimestamp="true" src="${openrdf}/alibaba-sail-auditing/${alibaba.snapshot}/alibaba-sail-auditing-${alibaba.snapshot}.jar" dest="${lib}/alibaba-sail-auditing-${alibaba.snapshot}.jar" />
+		<get usetimestamp="true" src="${openrdf}/alibaba-store-blob/${alibaba.snapshot}/alibaba-store-blob-${alibaba.snapshot}.jar" dest="${lib}/alibaba-store-blob-${alibaba.snapshot}.jar" />
+		<get usetimestamp="true" src="${openrdf}/alibaba-sail-keyword/${alibaba.snapshot}/alibaba-sail-keyword-${alibaba.snapshot}.jar" dest="${lib}/alibaba-sail-keyword-${alibaba.snapshot}.jar" />
+		<get usetimestamp="true" src="${openrdf}/alibaba-repository-query/${alibaba.snapshot}/alibaba-repository-query-${alibaba.snapshot}.jar" dest="${lib}/alibaba-repository-query-${alibaba.snapshot}.jar" />
 	</target>
 
 	<target name="compile" depends="init,dist-dependencies" description="compile the source">
@@ -309,13 +303,19 @@
 	</target>
 
 	<target name="test-dependencies" depends="init" unless="lib.tests.present">
-		<mkdir dir="${lib.tests}" />
 		<parallel>
-			<get src="${junit.url}" dest="${lib.tests}/junit.jar" />
-			<get src="${jersey-client.url}" dest="${lib.tests}/jersey-client.jar" />
-			<get src="${jersey-core.url}" dest="${lib.tests}/jersey-core.jar" />
-			<get src="${jsr311-api.url}" dest="${lib.tests}/jsr311-api.jar" />
+			<get usetimestamp="true" src="${junit.url}" dest="${downloads}/junit.jar" />
+			<get usetimestamp="true" src="${jersey-client.url}" dest="${downloads}/jersey-client.jar" />
 		</parallel>
+		<parallel>
+			<get usetimestamp="true" src="${jersey-core.url}" dest="${downloads}/jersey-core.jar" />
+			<get usetimestamp="true" src="${jsr311-api.url}" dest="${downloads}/jsr311-api.jar" />
+		</parallel>
+		<mkdir dir="${lib.tests}" />
+		<copy file="${junit.url}" tofile="${lib.tests}/junit.jar" />
+		<copy file="${jersey-client.url}" tofile="${lib.tests}/jersey-client.jar" />
+		<copy file="${jersey-core.url}" tofile="${lib.tests}/jersey-core.jar" />
+		<copy file="${jsr311-api.url}" tofile="${lib.tests}/jsr311-api.jar" />
 	</target>
 
 	<target name="test-compile" depends="compile,test-dependencies">

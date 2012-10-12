@@ -34,23 +34,13 @@
     <property name="setup.args" value="-s -o http://localhost:8080 -c etc/callimachus-repository.ttl -f /callimachus/=${dist}/callimachus-webapp-${Version}.car -l" />
     <property name="args" value="--pid ${pid} -p 8080 -o http://localhost:8080 -r repositories/callimachus" />
 
-    <target name="help" description="Usage information">
-        <echo message="Callimachus Builder" />
-        <echo message="========================" />
-        <echo message="The purpose of this Ant build file is to build and package Callimachus." />
-        <echo message=" " />
-        <echo message="Available targets: " />
-        <echo message=" " />
-        <echo message="  clean                          : cleans targets" />
-        <echo message="  dist-clean                     : cleans targets and dependencies" />
-        <echo message="  dist                           : compiles classes and creates artifacts" />
-        <echo message="  test                           : runs test suites" />
-        <echo message="  package                        : cleans and packages for release" />
-        <echo message="  start                          : starts server" />
-        <echo message="  stop                           : stops server" />
+    <target name="help">
+        <exec executable="ant">
+            <arg value="-p"/>
+        </exec>
     </target>
 
-    <target name="clean" description="clean up">
+    <target name="clean" description="clean up temporary files">
         <!-- Delete the directory trees -->
         <delete dir="${reports.tests}" />
         <delete dir="${build.tests}" />
@@ -61,7 +51,7 @@
         <delete dir="${bin}" />
     </target>
 
-    <target name="dist-clean" description="clean up everything for a new version" depends="clean">
+    <target name="dist-clean" depends="clean">
         <delete dir="${downloads}" />
     </target>
 
@@ -89,7 +79,7 @@
         </condition>
     </target>
 
-    <target name="dependencies" depends="dist-dependencies,test-dependencies" />
+    <target name="dependencies" depends="dist-dependencies,test-dependencies" description="Download all dependencies for build and test" />
 
     <target name="dist-dependencies" depends="init">
         <mkdir dir="${downloads}" />
@@ -294,10 +284,10 @@
             <get usetimestamp="true" skipexisting="${lib.tests.present}" src="${jsr311-api.url}" dest="${downloads}/jsr311-api.jar" />
         </parallel>
         <mkdir dir="${lib.tests}" />
-        <copy file="${junit.url}" tofile="${lib.tests}/junit.jar" />
-        <copy file="${jersey-client.url}" tofile="${lib.tests}/jersey-client.jar" />
-        <copy file="${jersey-core.url}" tofile="${lib.tests}/jersey-core.jar" />
-        <copy file="${jsr311-api.url}" tofile="${lib.tests}/jsr311-api.jar" />
+        <copy file="${downloads}/junit.jar" tofile="${lib.tests}/junit.jar" />
+        <copy file="${downloads}/jersey-client.jar" tofile="${lib.tests}/jersey-client.jar" />
+        <copy file="${downloads}/jersey-core.jar" tofile="${lib.tests}/jersey-core.jar" />
+        <copy file="${downloads}/jsr311-api.jar" tofile="${lib.tests}/jsr311-api.jar" />
     </target>
 
     <target name="test-compile" depends="compile,test-dependencies">
@@ -345,7 +335,7 @@
         </junit>
     </target>
 
-    <target name="package" depends="dist-clean,dist,test" description="Create a package ready for release">
+    <target name="package" depends="clean,dist,test" description="Create a package ready for release">
         <echo>Artifact ready: ${dist}/Callimachus-${Version}.zip</echo>
     </target>
 
@@ -365,7 +355,7 @@
         </java>
     </target>
 
-    <target name="start" depends="dist,setup">
+    <target name="start" depends="dist,setup" description="Start the server in the background">
         <mkdir dir="${log}" />
         <java classname="${main}" fork="true" spawn="true">
             <jvmarg line="${jvmargs} -Djava.util.logging.config.file=${logging}" />
@@ -379,7 +369,7 @@
         </java>
     </target>
 
-    <target name="pull" depends="init">
+    <target name="pull" depends="init" description="Pull down the callimachus folder from the running server">
         <mkdir dir="${downloads}" />
         <exec executable="${curl}" output="${downloads}/callimachus.car" logError="true" failonerror="true">
             <arg line="--user ${callimachus.email}:${callimachus.password} ${curl.args}" />
@@ -390,7 +380,7 @@
         <touch file="${triples.file}" />
     </target>
 
-    <target name="stop" depends="pull">
+    <target name="stop" depends="pull" description="Stop the server">
         <java classname="${main-monitor}" fork="true" resultproperty="ret">
             <jvmarg line="${jvmargs}" />
             <arg line="--stop --pid ${pid}" />
@@ -414,7 +404,7 @@
         <echo>Use the run target next time to avoid this message.</echo>
     </target>
 
-    <target name="run" depends="dist,setup">
+    <target name="run" depends="dist,setup" description="Run the server in the foreground">
         <java classname="${main}" fork="true" failonerror="true">
             <jvmarg line="${jvmargs}" />
             <arg line="${args}" />
@@ -427,7 +417,7 @@
         </java>
     </target>
 
-    <target name="reset">
+    <target name="reset" description="Reset the running server's internal cache">
         <java classname="${main-monitor}" fork="true" resultproperty="ret">
             <jvmarg line="${jvmargs}" />
             <arg line="--pid ${pid} --reset" />

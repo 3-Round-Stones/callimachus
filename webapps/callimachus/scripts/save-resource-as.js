@@ -117,7 +117,10 @@ function localPart(resource) {
 }
 
 function openSaveAsDialog(form, label, create, callback) {
-    var src = calli.getCallimachusUrl("pages/location-prompt.html#") + encodeURIComponent(label.replace(/!/g,''));
+    var src = calli.getCallimachusUrl("pages/location-prompt.html#");
+    if (label) {
+        src += encodeURIComponent(label.replace(/!/g,''));
+    }
     if (location.search.search(/\?create=/) == 0) {
         src += '!' + calli.viewpage(calli.getPageUrl());
     } else if (window.sessionStorage) {

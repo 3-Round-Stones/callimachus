@@ -34,7 +34,7 @@
     <html>
         <head>
             <title>
-                <xsl:value-of select="//d:title[1]" />
+                <xsl:value-of select="/*/d:title|/*/d:info/d:title" />
             </title>
         </head>
         <body>

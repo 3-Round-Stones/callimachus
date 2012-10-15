@@ -712,12 +712,11 @@ sub getPwd {
 sub help {
     # TODO: Include a hyperlink to online docs
     print $OUT <<'ENDOFHELP';
-Callish is a shell for the Callimachus Project (http://callimachusproject.org).
+Cash is a shell for the Callimachus Project (http://callimachusproject.org).
 
 Valid shell commands (use 'help <command>' to get details for a particular command):
 
 #                           Comment
-get <file title>            Retreive a file from the active folder and send it to STDOUT.
 cd <folder>                 Change the active folder.
 debug                       Report the state of the shell's server object.
 echo <string>               Echo a string to STDOUT.
@@ -1237,7 +1236,7 @@ sub putFile {
     # Check the outcome of the response
     if ($res->is_success) {
         say $OUT "File request resulted in:  " . $res->status_line if $debug;
-        say $OUT "File uploaded." if $debug;
+        say $OUT "File uploaded.";
         parseDirPath( ".", "suppress display" );
         return 1;
     } elsif ( $res->status_line =~ m/401/ ) {

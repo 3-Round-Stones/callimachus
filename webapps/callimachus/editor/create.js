@@ -8,14 +8,20 @@
             editor = $('#iframe')[0].contentWindow;
             var template = $('#template').text() || $('#template').html();
             if (window.location.hash.indexOf('#!') == 0) {
-                jQuery.ajax({type: 'GET', url: window.location.hash.substring(2), beforeSend: withCredentials, complete: function(xhr) {
+                var url = window.location.hash.substring(2);
+                jQuery.ajax({type: 'GET', url: url, beforeSend: withCredentials, complete: function(xhr) {
                     if (xhr.status == 200 || xhr.status == 304) {
                         var text = xhr.responseText;
-                        editor.postMessage('PUT src\nIf-None-Match: *\n\n' + text, '*');
+                        editor.postMessage('PUT text\nIf-None-Match: *\nContent-Location: '
+                            + url + '\n\n' + text, '*');
                     }
                 }});
             } else if (template) {
-                editor.postMessage('PUT src\nIf-None-Match: *\n\n' + template, '*');
+                editor.postMessage('PUT text\nIf-None-Match: *\nContent-Location: '
+                            + window.location.href + '\n\n' + template, '*');
+            } else {
+                editor.postMessage('PUT text\nIf-None-Match: *\nContent-Location: '
+                            + window.location.href + '\n\n', '*');
             }
         }
     });
@@ -33,14 +39,14 @@
     function getSource(callback) {
         sourceCallbacks.push(callback);
         if (sourceCallbacks.length == 1) {
-            editor.postMessage('GET src', '*');
+            editor.postMessage('GET text', '*');
         }
     }
     $(window).bind('message', function(event) {
         if (event.originalEvent.source == editor) {
             var msg = event.originalEvent.data;
-            if (msg.indexOf('OK\n\nGET src\n\n') == 0) {
-                var text = msg.substring('OK\n\nGET src\n\n'.length);
+            if (msg.indexOf('OK\n\nGET text\n\n') == 0) {
+                var text = msg.substring('OK\n\nGET text\n\n'.length);
                 var callbacks = sourceCallbacks;
                 sourceCallbacks = [];
                 for (var i=0; i<callbacks.length; i++) {

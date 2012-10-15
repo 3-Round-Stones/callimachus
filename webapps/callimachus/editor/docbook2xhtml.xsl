@@ -30,11 +30,6 @@
     </xsl:comment>
 </xsl:template>
 
-<xsl:template match="d:info" />
-<xsl:template match="d:title" />
-<xsl:template match="d:titleabbrev" />
-<xsl:template match="d:subtitle" />
-
 <xsl:template match="/">
     <html>
         <head>
@@ -55,6 +50,13 @@
 <xsl:template match="d:section">
     <xsl:apply-templates />
 </xsl:template>
+
+<xsl:template match="d:info">
+    <xsl:apply-templates select="d:title" />
+</xsl:template>
+
+<xsl:template match="d:titleabbrev" />
+<xsl:template match="d:subtitle" />
 
 <xsl:template match="d:title">
     <xsl:choose>
@@ -81,10 +83,6 @@
 
 <xsl:template mode="heading" match="node()">
     <xsl:value-of select="." />
-</xsl:template>
-
-<xsl:template match="d:info">
-    <xsl:apply-templates select="d:title" />
 </xsl:template>
 
 <xsl:template match="d:para">

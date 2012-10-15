@@ -15,6 +15,8 @@
 
     <p:xinclude fixup-xml-base="true" fixup-xml-lang="true" />
 
+    <p:make-absolute-uris match="@fileref" />
+
     <p:xslt>
         <p:input port="stylesheet">
             <p:document href="../transforms/book-view.xsl" />

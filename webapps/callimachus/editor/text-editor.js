@@ -62,32 +62,34 @@ jQuery(function($) {
         },
         exec: function(env, args, request) {
             saved = editor.getSession().getValue();
-            parent.postMessage('PUT src\n\n' + saved, '*');
+            parent.postMessage('PUT text\n\n' + saved, '*');
         }
     });
 
     // messaging
     function handleMessage(header, body) {
-        if (header == 'PUT src\nIf-None-Match: *' && body) {
-            if (!editor.getSession().getValue()) {
-                editor.insert(body);
-                saved = editor.getSession().getValue();
-                onresize();
+        if (header.match(/^PUT text(\n|$)/) && body) {
+            if (header.match(/\nIf-None-Match: */)) {
+                if (!editor.getSession().getValue()) {
+                    editor.insert(body);
+                    saved = editor.getSession().getValue();
+                    onresize();
+                }
+                return true;
+            } else {
+                var row = editor.getSelectionRange().start.row;
+                var col = editor.getSelectionRange().start.column;
+                if (body != editor.getSession().getValue()) {
+                    editor.getSession().setValue(body);
+                    saved = editor.getSession().getValue();
+                    onresize();
+                }
+                if (row != editor.getSelectionRange().start.row) {
+                    editor.gotoLine(row + 1, col);
+                }
+                return true;
             }
-            return true;
-        } else if (header == 'PUT src' && body) {
-            var row = editor.getSelectionRange().start.row;
-            var col = editor.getSelectionRange().start.column;
-            if (body != editor.getSession().getValue()) {
-                editor.getSession().setValue(body);
-                saved = editor.getSession().getValue();
-                onresize();
-            }
-            if (row != editor.getSelectionRange().start.row) {
-                editor.gotoLine(row + 1, col);
-            }
-            return true;
-        } else if (header == 'GET src') {
+        } else if (header == 'GET text') {
             saved = editor.getSession().getValue();
             return saved;
         } else if (header == 'PUT line.column' && body) {

@@ -69,12 +69,20 @@ function withCredentials(req) {
     } catch (e) {}
 }
 
-WYMeditor.editor.prototype.docbook = function(xml) {
+WYMeditor.editor.prototype.docbook = function(xml, systemId) {
     if (xml && typeof xml == 'string') {
         var xhtml = xslt(calli.getCallimachusUrl("editor/docbook2xhtml.xsl"), xml);
         xhtml = xhtml.match(/<body[^>]*>([\s\S]*)<\/body>/)[1];
+        if (systemId) {
+            jQuery('head', this._doc).remove('base');
+            jQuery('head', this._doc).append('<base href="' + systemId + '"/>');
+        }
         this.html(xhtml);
     } else if (typeof xml == 'string') {
+        if (systemId) {
+            jQuery('head', this._doc).remove('base');
+            jQuery('head', this._doc).append('<base href="' + systemId + '"/>');
+        }
         this.html(xml);
     } else {
         var xhtml = this.xhtml();

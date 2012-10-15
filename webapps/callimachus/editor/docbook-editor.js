@@ -53,17 +53,21 @@ jQuery(function($) {
 
         // messaging
         function handleMessage(header, body) {
-            if (header == 'PUT src\nIf-None-Match: *' && body) {
-                if (!editor.html()) {
-                    editor.docbook(body);
+            if (header.match(/^PUT text(\n|$)/)) {
+                var m = header.match(/\nContent-Location:\s*(.*)(\n|$)/i);
+                var systemId = m ? m[1] : null;
+                if (header.match(/\nIf-None-Match: */) || !body) {
+                    if (!editor.html()) {
+                        editor.docbook(body, systemId);
+                        saved = editor.docbook();
+                    }
+                    return true;
+                } else {
+                    editor.docbook(body, systemId);
                     saved = editor.docbook();
+                    return true;
                 }
-                return true;
-            } else if (header == 'PUT src' && body) {
-                editor.docbook(body);
-                saved = editor.docbook();
-                return true;
-            } else if (header == 'GET src') {
+            } else if (header == 'GET text') {
                 saved = editor.docbook();
                 return saved;
             } else if (header == 'PUT line.column') {

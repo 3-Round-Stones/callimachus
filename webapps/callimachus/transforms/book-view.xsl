@@ -12,7 +12,7 @@ xmlns="http://www.w3.org/1999/xhtml" xmlns:xhtml="http://www.w3.org/1999/xhtml" 
         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
         xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
     <head>
-        <title><xsl:value-of select="//d:title[1]" /></title>
+        <title><xsl:value-of select="/*/d:title[1]" /></title>
         <link rel="edit" href="?edit" />
         <link rel="describedby" href="?describe" />
         <link rel="version-history" href="?history" />

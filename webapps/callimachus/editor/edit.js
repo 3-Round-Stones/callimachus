@@ -17,15 +17,16 @@
 
 (function($){
     var editor = null;
+    var url = location.protocol + "//" + location.host + location.pathname;
     var etag;
     var original;
-    $.ajax({type: 'GET', dataType: "text", url: location.pathname, beforeSend: withCredentials, complete: function(xhr) {
+    $.ajax({type: 'GET', dataType: "text", url: url, beforeSend: withCredentials, complete: function(xhr) {
     
         if (xhr.status == 200 || xhr.status == 304) {
             etag = xhr.getResponseHeader('ETag');
             original = xhr.responseText;
             if (editor) {
-                editor.postMessage('PUT src\n\n' + original, '*');
+                editor.postMessage('PUT text\nContent-Location: '+ url +'\n\n' + original, '*');
             }
         }
     }});
@@ -33,7 +34,7 @@
         if (event.originalEvent.source == $('#iframe')[0].contentWindow && event.originalEvent.data == 'CONNECT calliEditorLoaded') {
             editor = $('#iframe')[0].contentWindow;
             if (original) {
-                editor.postMessage('PUT src\n\n' + original, '*');
+                editor.postMessage('PUT text\nContent-Location: '+ url +'\n\n' + original, '*');
             }
             $(window).bind('hashchange', onhashchange);
             onhashchange();
@@ -55,8 +56,8 @@
         }
     });
     $(window).bind('message', function(event) {
-        if (event.originalEvent.source == editor && event.originalEvent.data.indexOf('PUT src\n\n') == 0) {
-            var text = event.originalEvent.data.substring('PUT src\n\n'.length);
+        if (event.originalEvent.source == editor && event.originalEvent.data.indexOf('PUT text\n\n') == 0) {
+            var text = event.originalEvent.data.substring('PUT text\n\n'.length);
             $('form[enctype][method="PUT"]').each(function() {
                 var form = this;
                 saveFile(form, text);
@@ -67,14 +68,14 @@
     function getSource(callback) {
         sourceCallbacks.push(callback);
         if (sourceCallbacks.length == 1) {
-            editor.postMessage('GET src', '*');
+            editor.postMessage('GET text', '*');
         }
     }
     $(window).bind('message', function(event) {
         if (event.originalEvent.source == editor) {
             var msg = event.originalEvent.data;
-            if (msg.indexOf('OK\n\nGET src\n\n') == 0) {
-                var text = msg.substring('OK\n\nGET src\n\n'.length);
+            if (msg.indexOf('OK\n\nGET text\n\n') == 0) {
+                var text = msg.substring('OK\n\nGET text\n\n'.length);
                 var callbacks = sourceCallbacks;
                 sourceCallbacks = [];
                 for (var i=0; i<callbacks.length; i++) {

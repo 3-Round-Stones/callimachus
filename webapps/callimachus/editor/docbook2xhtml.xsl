@@ -35,34 +35,12 @@
 <xsl:template match="d:titleabbrev" />
 <xsl:template match="d:subtitle" />
 
-<xsl:template match="d:article[d:title]">
+<xsl:template match="/">
     <html>
         <head>
-            <xsl:apply-templates select="d:title/preceding-sibling::node()" />
-            <title><xsl:value-of select="d:title[1]" /></title>
-        </head>
-        <body>
-            <xsl:apply-templates select="d:title/following-sibling::node()" />
-        </body>
-    </html>
-</xsl:template>
-
-<xsl:template match="d:article[d:info]">
-    <html>
-        <head>
-            <xsl:apply-templates select="d:info[1]/preceding-sibling::node()" />
-            <title><xsl:value-of select="d:info[1]/d:title[1]" /></title>
-        </head>
-        <body>
-            <xsl:apply-templates select="d:title/following-sibling::node()" />
-        </body>
-    </html>
-</xsl:template>
-
-<xsl:template match="d:article[not(d:title) and not(d:info)]">
-    <html>
-        <head>
-            <title />
+            <title>
+                <xsl:value-of select="//d:title[1]" />
+            </title>
         </head>
         <body>
             <xsl:apply-templates />
@@ -70,29 +48,30 @@
     </html>
 </xsl:template>
 
+<xsl:template match="d:article">
+    <xsl:apply-templates />
+</xsl:template>
+
 <xsl:template match="d:section">
     <xsl:apply-templates />
 </xsl:template>
 
-<xsl:template match="d:section/d:title">
+<xsl:template match="d:title">
     <xsl:choose>
-        <xsl:when test="ancestor::d:section[6]">
+        <xsl:when test="ancestor::*[6]">
             <h6><xsl:apply-templates /></h6>
         </xsl:when>
-        <xsl:when test="ancestor::d:section[5]">
+        <xsl:when test="ancestor::*[5]">
             <h5><xsl:apply-templates /></h5>
         </xsl:when>
-        <xsl:when test="ancestor::d:section[4]">
+        <xsl:when test="ancestor::*[4]">
             <h4><xsl:apply-templates /></h4>
         </xsl:when>
-        <xsl:when test="ancestor::d:section[3]">
+        <xsl:when test="ancestor::*[3]">
             <h3><xsl:apply-templates /></h3>
         </xsl:when>
-        <xsl:when test="ancestor::d:section[2]">
+        <xsl:when test="ancestor::*[2]">
             <h2><xsl:apply-templates /></h2>
-        </xsl:when>
-        <xsl:when test="ancestor::d:section[1]">
-            <h1><xsl:apply-templates /></h1>
         </xsl:when>
         <xsl:otherwise>
             <h1><xsl:apply-templates /></h1>
@@ -100,34 +79,8 @@
     </xsl:choose>
 </xsl:template>
 
-<xsl:template match="d:section/d:info">
+<xsl:template match="d:info">
     <xsl:apply-templates select="d:title" />
-</xsl:template>
-
-<xsl:template match="d:section/d:info/d:title">
-    <xsl:choose>
-        <xsl:when test="ancestor::d:section[6]">
-            <h6><xsl:apply-templates /></h6>
-        </xsl:when>
-        <xsl:when test="ancestor::d:section[5]">
-            <h5><xsl:apply-templates /></h5>
-        </xsl:when>
-        <xsl:when test="ancestor::d:section[4]">
-            <h4><xsl:apply-templates /></h4>
-        </xsl:when>
-        <xsl:when test="ancestor::d:section[3]">
-            <h3><xsl:apply-templates /></h3>
-        </xsl:when>
-        <xsl:when test="ancestor::d:section[2]">
-            <h2><xsl:apply-templates /></h2>
-        </xsl:when>
-        <xsl:when test="ancestor::d:section[1]">
-            <h1><xsl:apply-templates /></h1>
-        </xsl:when>
-        <xsl:otherwise>
-            <h1><xsl:apply-templates /></h1>
-        </xsl:otherwise>
-    </xsl:choose>
 </xsl:template>
 
 <xsl:template match="d:para">

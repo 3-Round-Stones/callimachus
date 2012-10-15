@@ -48,27 +48,18 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
 
 <xsl:template match="xhtml:html">
     <article version="5.0">
-        <xsl:apply-templates select="xhtml:head"/>
         <xsl:apply-templates select="xhtml:body"/>
     </article>
 </xsl:template>
 
-<xsl:template match="xhtml:head">
-    <xsl:apply-templates />
-</xsl:template>
-
-<xsl:template match="xhtml:title">
-    <title><xsl:value-of select="."/></title>
-</xsl:template>
-
 <xsl:template match="xhtml:body">
+    <xsl:apply-templates select="@*" />
     <xsl:choose>
         <xsl:when test="not(*[name()='h1' or name()='h2' or name()='h3' or name()='h4' or name()='h5' or name()='h6'])">
-            <!-- No sections if there are no heading elements (articles with titles and no sections)-->
+            <!-- No sections if there are no heading elements (article without title nor sections)-->
             <xsl:apply-templates />
         </xsl:when>
         <xsl:otherwise>
-            <xsl:apply-templates select="@*" />
             <xsl:apply-templates select="*[name()='h1' or name()='h2' or name()='h3' or name()='h4' or name()='h5' or name()='h6'][1]/preceding-sibling::node()" />
             <xsl:apply-templates select="key('h6', generate-id(/xhtml:html/xhtml:head))" />
             <xsl:apply-templates select="key('h5', generate-id(/xhtml:html/xhtml:head))" />
@@ -81,15 +72,13 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
 </xsl:template>
 
 <xsl:template match="xhtml:h1">
-    <section>
-        <title><xsl:apply-templates select="@*|node()" /></title>
-        <xsl:apply-templates select="key('section', generate-id())" />
-        <xsl:apply-templates select="key('h6', generate-id())" />
-        <xsl:apply-templates select="key('h5', generate-id())" />
-        <xsl:apply-templates select="key('h4', generate-id())" />
-        <xsl:apply-templates select="key('h3', generate-id())" />
-        <xsl:apply-templates select="key('h2', generate-id())" />
-    </section>
+    <title><xsl:apply-templates select="@*|node()" /></title>
+    <xsl:apply-templates select="key('section', generate-id())" />
+    <xsl:apply-templates select="key('h6', generate-id())" />
+    <xsl:apply-templates select="key('h5', generate-id())" />
+    <xsl:apply-templates select="key('h4', generate-id())" />
+    <xsl:apply-templates select="key('h3', generate-id())" />
+    <xsl:apply-templates select="key('h2', generate-id())" />
 </xsl:template>
 
 <xsl:template match="xhtml:h2">

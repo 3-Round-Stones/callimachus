@@ -23,19 +23,7 @@ xmlns="http://www.w3.org/1999/xhtml" xmlns:xhtml="http://www.w3.org/1999/xhtml" 
     </html>
 </xsl:template>
 
-<xsl:template match="d:article[d:title]">
-    <article>
-        <xsl:apply-templates select="d:title/following-sibling::node()" />
-    </article>
-</xsl:template>
-
-<xsl:template match="d:article[d:info]">
-    <article>
-        <xsl:apply-templates select="d:title/following-sibling::node()" />
-    </article>
-</xsl:template>
-
-<xsl:template match="d:article[not(d:title) and not(d:info)]">
+<xsl:template match="d:article">
     <article>
         <xsl:apply-templates />
     </article>

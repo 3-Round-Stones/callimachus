@@ -17,7 +17,11 @@ window.calli.slugify = function(label) {
         // IE file input
         label = label.substring(label.lastIndexOf('\\') + 1);
     }
-    return removeDiacritics(label).toLowerCase().replace(/\s+/g, '+').replace(/[^\w\+\-\_\.\!\~\*\'\(\);\,\&\=\$\[\]]+/g,'_');
+    var name = removeDiacritics(label);
+    if (!name.match(/[a-z][A-Z]/)) {
+        name = name.toLowerCase();
+    }
+    return name.replace(/\s+/g, '+').replace(/[^\w\+\-\_\.\!\~\*\'\(\);\,\&\=\$\[\]]+/g,'_');
 };
 
 window.calli.saveFormAs = function(event, fileName, create) {

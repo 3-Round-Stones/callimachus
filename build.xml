@@ -1,9 +1,8 @@
-<project name="project" default="help" basedir=".">
+<project name="callimachus" default="help" basedir=".">
     <!-- set global properties for this build -->
     <property name="src" location="src" />
     <property name="build" location="build" />
     <property name="build.tests" location="build" />
-    <property name="launch4j.dir" location="launch4j" />
     <property name="dist" location="dist" />
     <property name="lib" location="lib" />
     <property name="bin" location="bin" />
@@ -49,6 +48,7 @@
         <delete dir="${dist}" />
         <delete dir="${lib}" />
         <delete dir="${bin}" />
+        <delete dir="${tmp}" />
     </target>
 
     <target name="dist-clean" depends="clean">
@@ -61,7 +61,6 @@
         <mkdir dir="${build}" />
         <available file="${lib}" property="lib.present" />
         <available file="${lib.tests}" property="lib.tests.present" />
-        <available file="${launch4j.dir}" property="launch4j.dir.present" />
         <property file="build.properties" />
         <condition property="os.mac">
             <os family="mac"/>
@@ -79,7 +78,7 @@
         </condition>
     </target>
 
-    <target name="dependencies" depends="dist-dependencies,test-dependencies" description="Download all dependencies for build and test" />
+    <target name="dependencies" depends="dist-dependencies,test-dependencies" description="Download all dependencies" />
 
     <target name="dist-dependencies" depends="init">
         <mkdir dir="${downloads}" />
@@ -106,6 +105,7 @@
             <get usetimestamp="true" skipexisting="${lib.present}" src="${httpcore.url}" dest="${downloads}/httpcore.zip" />
         </parallel>
         <mkdir dir="${lib}" />
+        <mkdir dir="${bin}" />
         <copy file="${downloads}/${mail.jar}" tofile="${lib}/${mail.jar}" />
         <copy file="${downloads}/${tagsoup.jar}" tofile="${lib}/${tagsoup.jar}" />
         <unzip overwrite="false" src="${downloads}/openrdf-alibaba.zip" dest="${lib}">

@@ -59,24 +59,28 @@
 <xsl:template match="d:title">
     <xsl:choose>
         <xsl:when test="ancestor::*[6]">
-            <h6><xsl:apply-templates /></h6>
+            <h6><xsl:apply-templates mode="heading" select="." /></h6>
         </xsl:when>
         <xsl:when test="ancestor::*[5]">
-            <h5><xsl:apply-templates /></h5>
+            <h5><xsl:apply-templates mode="heading" select="." /></h5>
         </xsl:when>
         <xsl:when test="ancestor::*[4]">
-            <h4><xsl:apply-templates /></h4>
+            <h4><xsl:apply-templates mode="heading" select="." /></h4>
         </xsl:when>
         <xsl:when test="ancestor::*[3]">
-            <h3><xsl:apply-templates /></h3>
+            <h3><xsl:apply-templates mode="heading" select="." /></h3>
         </xsl:when>
         <xsl:when test="ancestor::*[2]">
-            <h2><xsl:apply-templates /></h2>
+            <h2><xsl:apply-templates mode="heading" select="." /></h2>
         </xsl:when>
         <xsl:otherwise>
-            <h1><xsl:apply-templates /></h1>
+            <h1><xsl:apply-templates mode="heading" select="." /></h1>
         </xsl:otherwise>
     </xsl:choose>
+</xsl:template>
+
+<xsl:template mode="heading" match="node()">
+    <xsl:value-of select="." />
 </xsl:template>
 
 <xsl:template match="d:info">

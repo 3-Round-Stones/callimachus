@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+<xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 xmlns="http://www.w3.org/1999/xhtml" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:d="http://docbook.org/ns/docbook" exclude-result-prefixes="xsl d xhtml">
 
 <xsl:import href="../editor/docbook2xhtml.xsl" />
@@ -27,6 +27,15 @@ xmlns="http://www.w3.org/1999/xhtml" xmlns:xhtml="http://www.w3.org/1999/xhtml" 
     <article>
         <xsl:apply-templates />
     </article>
+</xsl:template>
+
+<xsl:template mode="heading" match="d:title">
+    <a name="{replace(text(),'\W','_')}" />
+    <xsl:value-of select="." />
+    <xsl:if test="ancestor::*[2]">
+        <xsl:text> </xsl:text>
+        <a href="{concat(base-uri(),'?view#', replace(text(),'\W','_'))}" class="anchor">#</a>
+    </xsl:if>
 </xsl:template>
 
 </xsl:stylesheet>

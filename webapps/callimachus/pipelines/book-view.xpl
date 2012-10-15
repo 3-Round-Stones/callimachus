@@ -15,7 +15,7 @@
 
     <p:xslt>
         <p:input port="stylesheet">
-            <p:document href="../transforms/article-view.xsl" />
+            <p:document href="../transforms/book-view.xsl" />
         </p:input>
     </p:xslt>
 

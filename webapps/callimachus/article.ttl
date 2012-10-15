@@ -25,40 +25,16 @@
 <> a <SchemaGraph>.
 
 <Article> a <Creatable>, owl:Class;
-    rdfs:subClassOf <File>;
+    rdfs:subClassOf <Book>;
     rdfs:label "Article";
     rdfs:comment "New articles can be created from a folder";
     rdfs:isDefinedBy </callimachus>;
     calli:author </group/users>,</group/staff>,</group/admin>;
     calli:icon <images/article.png>;
-    calli:view <templates/article-view.xhtml>;
     calli:edit <templates/article-edit.xhtml>;
     calli:create <templates/article-create.xhtml>;
     calli:mediaType "application/docbook+xml";
     calli:documentTag <http://docbook.org/ns/docbook#article>.
-
-# GET /article/main-article.docbook
-:GetArticleSource rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Article>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-    calli:method "GET";
-    calli:rel "edit-media";
-    calli:requires calli:reader;
-    calli:type "application/docbook+xml";
-    calli:header "cache-control:no-cache";
-    calli:header "cache-control:cache-range";
-    calli:script "return this.openInputStream()".
-
-# GET /article/main-article.docbook?view
-:GetPage owl:intersectionOf (<viewable.ttl#GetViewPage>
-        [owl:onProperty msg:target; owl:allValuesFrom <Article>]);
-    calli:rel "alternate";
-    calli:method "GET";
-    calli:query "view";
-    calli:requires calli:reader;
-    calli:type "text/html";
-    calli:header "cache-control:no-cache";
-    calli:post "pipelines/article-view.xpl?results\nContent-Location: $0\nContent-Type: application/docbook+xml".
 
 # POST ?create=/callimachus/Article
 :CreateArticle owl:intersectionOf (<creatable.ttl#PostCreate>
@@ -98,8 +74,8 @@
             out.close();
         }
         try {
-            created.ValidateArticle();
-            created.CheckArticle();
+            created.ValidateBook();
+            created.CheckBook();
         } catch (e if e.javaException instanceof ServiceUnavailable) {
             java.lang.System.err.println("Storing " + this);
         } catch (e if e.javaException instanceof BadRequest) {
@@ -107,47 +83,4 @@
         }
         return created;
     """.
-
-# PUT /article/main-article.docbook
-:UploadArticle rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Article>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-    calli:method "PUT";
-    calli:requires calli:editor;
-    calli:imports <java:org.callimachusproject.server.exceptions.ServiceUnavailable>;
-    calli:imports foaf:Document;
-    calli:script """
-        var read;
-        var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
-        var out = this.openOutputStream();
-        try {
-            while ((read = docbookStream.read(buf)) >= 0) {
-                out.write(buf, 0, read);
-            }
-        } finally {
-            out.close();
-        }
-        try {
-            this.ValidateArticle();
-            this.CheckArticle();
-        } catch (e if e.javaException instanceof ServiceUnavailable) {
-            java.lang.System.err.println("Storing " + this);
-        }
-        this.touchRevision();
-    """.
-
-:docbookStream a owl:ObjectProperty; a owl:FunctionalProperty;
-    rdfs:domain :UploadArticle;
-    rdfs:range <java:java.io.InputStream>;
-    calli:type "application/docbook+xml".
-
-:ValidateArticle rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Article>];
-    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-    calli:post "schemas/docbookxi.rng?validate\nContent-Location:$0\nContent-Type: application/docbook+xml".
-
-:CheckArticle rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Article>];
-    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-    calli:post "schemas/docbook.sch?validate\nContent-Location:$0\nContent-Type: application/docbook+xml".
 

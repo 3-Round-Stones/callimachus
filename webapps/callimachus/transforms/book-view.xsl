@@ -18,11 +18,27 @@ xmlns="http://www.w3.org/1999/xhtml" xmlns:xhtml="http://www.w3.org/1999/xhtml" 
         <link rel="version-history" href="?history" />
     </head>
     <body>
-        <article>
-            <xsl:apply-templates select="d:article/*" />
-        </article>
+        <xsl:apply-templates />
     </body>
     </html>
+</xsl:template>
+
+<xsl:template match="d:article[d:title]">
+    <article>
+        <xsl:apply-templates select="d:title/following-sibling::node()" />
+    </article>
+</xsl:template>
+
+<xsl:template match="d:article[d:info]">
+    <article>
+        <xsl:apply-templates select="d:title/following-sibling::node()" />
+    </article>
+</xsl:template>
+
+<xsl:template match="d:article[not(d:title) and not(d:info)]">
+    <article>
+        <xsl:apply-templates />
+    </article>
 </xsl:template>
 
 </xsl:stylesheet>

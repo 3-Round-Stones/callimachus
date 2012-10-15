@@ -8,7 +8,7 @@
     <title>New Book</title>
     <script type="text/javascript" src="../editor/create.js"> </script>
     <script id="template" type="application/docbook+xml"><![CDATA[<?xml version="1.0" encoding="UTF-8" ?>
-<book xmlns="http://docbook.org/ns/docbook" version="5.0">
+<book xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude" version="5.0">
 
 <title>Untitled Book</title>
 
@@ -17,7 +17,7 @@
 <body>
     <form id="form" method="POST" action="" enctype="application/docbook+xml">
         <iframe id="iframe" class="flex" src="../editor/text-editor.html#xml"> </iframe>
-        <button type="submit" onclick="return calli.saveResourceAs(event, 'untitled book.xpl')" class="btn btn-success">Create</button>
+        <button type="submit" onclick="return calli.saveResourceAs(event, 'untitled book.docbook')" class="btn btn-success">Create</button>
     </form>
 </body>
 </html>

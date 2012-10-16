@@ -48,12 +48,6 @@ INSERT DATA {
     rdfs:label "group";
     calli:subscriber </group/staff>;
     calli:administrator </group/admin>.
-
-</> calli:hasComponent </callimachus/>.
-</callimachus/> a </callimachus/Folder>, calli:Folder;
-    rdfs:label "callimachus";
-    calli:reader </group/public>;
-    calli:administrator </group/admin>.
 };
 
 ################################

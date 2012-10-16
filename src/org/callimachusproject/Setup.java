@@ -875,7 +875,7 @@ public class Setup {
 			if ("UploadFolderComponents".equals(method.getName()))
 				return method;
 		}
-		throw new AbstractMethodError("UploadFolderComponents");
+		throw new NoSuchMethodException("UploadFolderComponents");
 	}
 
 	private boolean createFolder(String folder, String origin,
@@ -899,11 +899,17 @@ public class Setup {
 				return modified;
 			if (con.hasStatement(uri, RDF.TYPE, vf.createURI(origin + CALLIMACHUS + "Folder")))
 				return modified;
-			if (con.hasStatement(vf.createURI(parent), vf.createURI(CALLI_HASCOMPONENT), uri))
-				return modified;
 			if (parent == null)
 				throw new IllegalStateException("Can only import a CAR within a previously defined origin or realm");
+			if (con.hasStatement(vf.createURI(parent), vf.createURI(CALLI_HASCOMPONENT), uri))
+				return modified;
 			con.add(vf.createURI(parent), vf.createURI(CALLI_HASCOMPONENT), uri);
+			String label = folder.substring(parent.length()).replace("/", "").replace('-', ' ');
+			con.add(uri, RDF.TYPE, vf.createURI(CALLI_FOLDER));
+			con.add(uri, RDF.TYPE, vf.createURI(origin + CALLIMACHUS + "Folder"));
+			con.add(uri, RDFS.LABEL, vf.createLiteral(label));
+			add(con, uri, CALLI_READER, origin + "/group/public");
+			add(con, uri, CALLI_ADMINISTRATOR, origin + "/group/admin");
 			con.setAutoCommit(true);
 			return true;
 		} finally {

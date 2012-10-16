@@ -9,9 +9,9 @@ import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.vocabulary.RDF;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryResult;
+import org.openrdf.repository.object.ObjectConnection;
+import org.openrdf.repository.object.ObjectRepository;
 
 public class RealmManager {
 	private static final String CALLI = "http://callimachusproject.org/rdf/2009/framework#";
@@ -30,13 +30,23 @@ public class RealmManager {
 		realms = null;
 	}
 
-	public Realm getRealm(String target, Repository repo)
+	public Realm getRealm(String target, ObjectRepository repo)
 			throws OpenRDFException {
 		TreeMap<String, Realm> realms = getRealms(repo);
 		return get(target, realms);
 	}
 
-	private synchronized TreeMap<String, Realm> getRealms(Repository repo)
+	public AuthenticationManager getAuthenticationManager(Resource uri,
+			ObjectRepository repo) throws OpenRDFException {
+		for (Realm realm : getRealms(repo).values()) {
+			AuthenticationManager auth = realm.getAuthenticationManager(uri);
+			if (auth != null)
+				return auth;
+		}
+		return null;
+	}
+
+	private synchronized TreeMap<String, Realm> getRealms(ObjectRepository repo)
 			throws OpenRDFException {
 		if (realms != null && revision == cache)
 			return realms;
@@ -44,9 +54,9 @@ public class RealmManager {
 		return realms = loadRealms(repo);
 	}
 
-	private TreeMap<String, Realm> loadRealms(Repository repo)
+	private TreeMap<String, Realm> loadRealms(ObjectRepository repo)
 			throws OpenRDFException {
-		RepositoryConnection con = repo.getConnection();
+		ObjectConnection con = repo.getConnection();
 		try {
 			TreeMap<String, Realm> realms = new TreeMap<String, Realm>();
 			ValueFactory vf = con.getValueFactory();
@@ -59,7 +69,7 @@ public class RealmManager {
 	}
 
 	private void addRealmsOfType(URI type, TreeMap<String, Realm> realms,
-			RepositoryConnection con) throws OpenRDFException {
+			ObjectConnection con) throws OpenRDFException {
 		RepositoryResult<Statement> stmts;
 		stmts = con.getStatements(null, RDF.TYPE, type, true);
 		try {
@@ -67,7 +77,7 @@ public class RealmManager {
 				Resource subj = stmts.next().getSubject();
 				if (subj instanceof URI
 						&& !realms.containsKey(subj.stringValue())) {
-					realms.put(subj.stringValue(), new Realm(subj, con));
+					realms.put(subj.stringValue(), new Realm(subj, con, this));
 				}
 			}
 		} finally {

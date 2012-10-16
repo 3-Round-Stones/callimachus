@@ -3,12 +3,17 @@ package org.callimachusproject.server.auth;
 import static org.openrdf.query.QueryLanguage.SPARQL;
 
 import java.io.IOException;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
+
+import javax.tools.FileObject;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -22,10 +27,10 @@ import org.apache.http.util.EntityUtils;
 import org.callimachusproject.server.client.HTTPObjectClient;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Resource;
+import org.openrdf.model.URI;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.TupleQuery;
 import org.openrdf.query.TupleQueryResult;
-import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.ObjectConnection;
 import org.slf4j.Logger;
@@ -35,14 +40,15 @@ public class Realm {
 	private static final String PREFIX = "PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>\n"
 			+ "PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>\n";
 	private static final String SELECT_REALM = PREFIX
-			+ "SELECT ?forbidden ?unauthorized ?domain ?authentication ?authName (group_concat(?protected;separator=' ') as ?protected) {\n"
+			+ "SELECT ?secret ?forbidden ?unauthorized ?domain ?authentication ?authName (group_concat(?protected;separator=' ') as ?protected) {\n"
 			+ "{ $this calli:authentication ?authentication . ?protected calli:authentication ?authentication\n"
-			+ "OPTIONAL { ?authentication calli:authName ?authName } }"
+			+ "OPTIONAL { ?authentication calli:authName ?authName } }\n"
+			+ "UNION { $this calli:secret ?secret }\n"
 			+ "UNION { $this calli:forbidden ?forbidden }\n"
 			+ "UNION { $this calli:unauthorized ?unauthorized }\n"
 			+ "UNION { $this a ?realm . ?realm calli:icon ?icon . ?domain a calli:Origin\n"
 			+ "{ ?domain a ?realm } UNION { ?domain a [rdfs:subClassOf ?realm] }}\n"
-			+ "} GROUP BY ?forbidden ?unauthorized ?domain ?authentication ?authName ORDER BY desc(?authName)";
+			+ "} GROUP BY ?secret ?forbidden ?unauthorized ?domain ?authentication ?authName ORDER BY desc(?authName)";
 	private static final BasicStatusLine _204;
 	private static final BasicStatusLine _401;
 	private static final BasicStatusLine _403;
@@ -54,18 +60,23 @@ public class Realm {
 	}
 
 	private Logger logger = LoggerFactory.getLogger(Realm.class);
-	private final List<AuthenticationManager> authentication = new ArrayList<AuthenticationManager>();
+	private final Map<Resource, AuthenticationManager> authentication = new HashMap<Resource, AuthenticationManager>();
 	private final Collection<String> allowOrigin = new LinkedHashSet<String>();
+	private String secret;
 	private String forbidden;
 	private String unauthorized;
 
-	Realm(Resource self, RepositoryConnection con) throws OpenRDFException {
+	Realm(Resource self, ObjectConnection con, RealmManager manager) throws OpenRDFException {
 		TupleQuery query = con.prepareTupleQuery(SPARQL, SELECT_REALM);
 		query.setBinding("this", self);
 		TupleQueryResult results = query.evaluate();
 		try {
 			while (results.hasNext()) {
 				BindingSet result = results.next();
+				if (result.hasBinding("secret")) {
+					URI uri = (URI) result.getValue("secret");
+					secret = readString(con.getBlobObject(uri));
+				}
 				if (result.hasBinding("forbidden")) {
 					forbidden = result.getValue("forbidden").stringValue();
 				}
@@ -76,7 +87,7 @@ public class Realm {
 					String authName = result.getValue("authName").stringValue();
 					Resource resource = (Resource) result.getValue("authentication");
 					String domains = result.getValue("protected").stringValue();
-					authentication.add(new DigestManager(resource, authName, domains));
+					authentication.put(resource, new DigestManager(resource, authName, domains, manager));
 				}
 				if (result.hasBinding("domain")) {
 					String uri = result.getValue("domain").stringValue();
@@ -95,6 +106,14 @@ public class Realm {
 
 	public String toString() {
 		return allowOrigin.toString();
+	}
+
+	public AuthenticationManager getAuthenticationManager(Resource uri) {
+		return authentication.get(uri);
+	}
+
+	public String getSecret() {
+		return secret;
 	}
 
 	public Collection<String> allowOrigin() {
@@ -189,7 +208,7 @@ public class Realm {
 	public HttpResponse logout(Collection<String> tokens, String logoutContinue) throws IOException {
 		BasicHttpResponse resp = new BasicHttpResponse(HttpVersion.HTTP_1_1,
 				303, "See Other");
-		Iterator<AuthenticationManager> iter = authentication.iterator();
+		Iterator<AuthenticationManager> iter = authentication.values().iterator();
 		while (iter.hasNext()) {
 			AuthenticationManager manager = iter.next();
 			HttpResponse logout = manager.logout(tokens);
@@ -214,9 +233,23 @@ public class Realm {
 		return resp;
 	}
 
+	private String readString(FileObject file) {
+		try {
+			Reader reader = file.openReader(true);
+			try {
+				return new Scanner(reader).next();
+			} finally {
+				reader.close();
+			}
+		} catch (IOException e) {
+			logger.error(e.toString(), e);
+			return null;
+		}
+	}
+
 	private Iterable<AuthenticationManager> getAuthenticationManagers() {
 		List<AuthenticationManager> result = new ArrayList<AuthenticationManager>();
-		Iterator<?> iter = authentication.iterator();
+		Iterator<?> iter = authentication.values().iterator();
 		while (iter.hasNext()) {
 			Object next = iter.next();
 			if (next instanceof AuthenticationManager) {

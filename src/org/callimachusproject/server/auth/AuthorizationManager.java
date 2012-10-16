@@ -32,6 +32,7 @@ import org.callimachusproject.server.model.ResourceOperation;
 import org.callimachusproject.util.DomainNameSystemResolver;
 import org.openrdf.OpenRDFException;
 import org.openrdf.annotations.Iri;
+import org.openrdf.model.Resource;
 import org.openrdf.model.Value;
 import org.openrdf.query.QueryLanguage;
 import org.openrdf.query.TupleQuery;
@@ -39,6 +40,7 @@ import org.openrdf.query.TupleQueryResult;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.ObjectConnection;
+import org.openrdf.repository.object.ObjectRepository;
 import org.openrdf.repository.object.RDFObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,9 +83,14 @@ public class AuthorizationManager {
 		return isPublic(groups) || isMember(user, groups);
 	}
 
-	public Realm getRealm(String target, Repository repo)
+	public Realm getRealm(String target, ObjectRepository repo)
 			throws OpenRDFException {
 		return realmManager.getRealm(target, repo);
+	}
+
+	public AuthenticationManager getAuthenticationManager(Resource uri,
+			ObjectRepository repo) throws OpenRDFException {
+		return realmManager.getAuthenticationManager(uri, repo);
 	}
 
 	public Set<Group> getAuthorizedParties(RDFObject target, String[] requires) throws OpenRDFException,
@@ -260,7 +267,7 @@ public class AuthorizationManager {
 	}
 
 	private Realm getRealm(ResourceOperation request) throws OpenRDFException {
-		Repository repo = request.getObjectConnection().getRepository();
+		ObjectRepository repo = request.getObjectConnection().getRepository();
 		Realm realm = getRealm(request.getIRI(), repo);
 		if (realm == null)
 			return getRealm(request.getRequestURI(), repo);

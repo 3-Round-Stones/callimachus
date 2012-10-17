@@ -55,28 +55,84 @@
     <xsl:apply-templates select="d:title" />
 </xsl:template>
 
-<xsl:template match="d:titleabbrev" />
-<xsl:template match="d:subtitle" />
+<xsl:template match="d:info/d:title">
+    <xsl:choose>
+        <xsl:when test="ancestor::*[7]">
+            <h6>
+                <xsl:apply-templates select="../../@xml:id" />
+                <xsl:apply-templates mode="heading" select="." />
+            </h6>
+        </xsl:when>
+        <xsl:when test="ancestor::*[6]">
+            <h5>
+                <xsl:apply-templates select="../../@xml:id" />
+                <xsl:apply-templates mode="heading" select="." />
+            </h5>
+        </xsl:when>
+        <xsl:when test="ancestor::*[5]">
+            <h4>
+                <xsl:apply-templates select="../../@xml:id" />
+                <xsl:apply-templates mode="heading" select="." />
+            </h4>
+        </xsl:when>
+        <xsl:when test="ancestor::*[4]">
+            <h3>
+                <xsl:apply-templates select="../../@xml:id" />
+                <xsl:apply-templates mode="heading" select="." />
+            </h3>
+        </xsl:when>
+        <xsl:when test="ancestor::*[3]">
+            <h2>
+                <xsl:apply-templates select="../../@xml:id" />
+                <xsl:apply-templates mode="heading" select="." />
+            </h2>
+        </xsl:when>
+        <xsl:otherwise>
+            <h1>
+                <xsl:apply-templates select="../../@xml:id" />
+                <xsl:apply-templates mode="heading" select="." />
+            </h1>
+        </xsl:otherwise>
+    </xsl:choose>
+</xsl:template>
 
 <xsl:template match="d:title">
     <xsl:choose>
         <xsl:when test="ancestor::*[6]">
-            <h6><xsl:apply-templates mode="heading" select="." /></h6>
+            <h6>
+                <xsl:apply-templates select="../@xml:id" />
+                <xsl:apply-templates mode="heading" select="." />
+            </h6>
         </xsl:when>
         <xsl:when test="ancestor::*[5]">
-            <h5><xsl:apply-templates mode="heading" select="." /></h5>
+            <h5>
+                <xsl:apply-templates select="../@xml:id" />
+                <xsl:apply-templates mode="heading" select="." />
+            </h5>
         </xsl:when>
         <xsl:when test="ancestor::*[4]">
-            <h4><xsl:apply-templates mode="heading" select="." /></h4>
+            <h4>
+                <xsl:apply-templates select="../@xml:id" />
+                <xsl:apply-templates mode="heading" select="." />
+            </h4>
         </xsl:when>
         <xsl:when test="ancestor::*[3]">
-            <h3><xsl:apply-templates mode="heading" select="." /></h3>
+            <h3>
+                <xsl:apply-templates select="../@xml:id" />
+                <xsl:apply-templates mode="heading" select="." />
+            </h3>
         </xsl:when>
         <xsl:when test="ancestor::*[2]">
-            <h2><xsl:apply-templates mode="heading" select="." /></h2>
+            <h2>
+                <xsl:apply-templates select="../@xml:id" />
+                <xsl:apply-templates mode="heading" select="." />
+            </h2>
         </xsl:when>
         <xsl:otherwise>
-            <h1><xsl:apply-templates mode="heading" select="." /></h1>
+            <h1>
+                <xsl:apply-templates select="../@xml:id" />
+                <xsl:apply-templates mode="heading" select="." />
+            </h1>
         </xsl:otherwise>
     </xsl:choose>
 </xsl:template>
@@ -102,6 +158,12 @@
 </xsl:template>
 
 <xsl:template match="d:programlisting">
+    <pre class="programlisting">
+        <xsl:apply-templates />
+    </pre>
+</xsl:template>
+
+<xsl:template match="d:screen">
     <pre>
         <xsl:apply-templates />
     </pre>
@@ -115,13 +177,32 @@
                 <xsl:value-of select="d:remark | @xl:title" />
             </xsl:attribute>
         </xsl:if>
-        <xsl:apply-templates select="node()" />
+        <xsl:apply-templates />
     </a>
 </xsl:template>
 
-<xsl:template match="d:link">
-    <a href="#{linkend}">
-        <xsl:if test="d:remark and not(@xl:title)">
+<xsl:template match="d:uri[@xl:href]">
+    <a href="{@xl:href}">
+        <xsl:if test="@xl:title">
+            <xsl:attribute name="title">
+                <xsl:value-of select="d:remark | @xl:title" />
+            </xsl:attribute>
+        </xsl:if>
+        <code class="uri">
+            <xsl:apply-templates />
+        </code>
+    </a>
+</xsl:template>
+
+<xsl:template match="d:uri[not(@xl:href)]">
+    <code class="uri">
+        <xsl:apply-templates />
+    </code>
+</xsl:template>
+
+<xsl:template match="d:link[@linkend]">
+    <a href="#{@linkend}">
+        <xsl:if test="d:remark">
             <xsl:attribute name="title">
                 <xsl:value-of select="d:remark" />
             </xsl:attribute>
@@ -130,17 +211,78 @@
     </a>
 </xsl:template>
 
-<!-- Images -->
-<xsl:template match="d:inlinemediaobject">
-    <xsl:apply-templates select="d:imageobject" />
+<xsl:template match="d:xref[@linkend]">
+    <xsl:variable name="linkend">
+        <xsl:value-of select="@linkend" />
+    </xsl:variable>
+    <xsl:variable name="target" select="//*[@xml:id=$linkend]" />
+    <xsl:variable name="label">
+        <xsl:choose>
+            <xsl:when test="$target/d:title">
+                <xsl:value-of select="$target/d:title" />
+            </xsl:when>
+            <xsl:when test="$target/d:info/d:title">
+                <xsl:value-of select="$target/d:info/d:title" />
+            </xsl:when>
+            <xsl:when test="$target/d:caption/d:para">
+                <xsl:value-of select="$target/d:caption/d:para" />
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:value-of select="$linkend" />
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:variable>
+    <a href="#{$linkend}">
+        <xsl:if test="d:remark">
+            <xsl:attribute name="title">
+                <xsl:value-of select="d:remark" />
+            </xsl:attribute>
+        </xsl:if>
+        <xsl:value-of select="$label" />
+    </a>
 </xsl:template>
 
+<!-- Images -->
 <xsl:template match="d:figure">
-    <xsl:apply-templates select="d:mediaobject" />
+    <p class="figure">
+        <xsl:apply-templates select="xml:id" />
+        <xsl:apply-templates select="d:mediaobject|d:caption" />
+        <xsl:if test="not(d:caption)">
+            <span class="caption">
+                <xsl:apply-templates select="d:info/d:title/node()|d:title/node()" />
+            </span>
+        </xsl:if>
+    </p>
+</xsl:template>
+
+<xsl:template match="d:informalfigure">
+    <p class="figure">
+        <xsl:apply-templates select="d:mediaobject|d:caption" />
+    </p>
+</xsl:template>
+
+<xsl:template match="d:figure/d:caption[d:para]|d:informalfigure/d:caption[d:para]">
+    <xsl:apply-templates />
+</xsl:template>
+
+<xsl:template match="d:figure/d:caption/d:para|d:informalfigure/d:caption/d:para">
+    <span class="caption">
+        <xsl:apply-templates />
+    </span>
+</xsl:template>
+
+<xsl:template match="d:figure/d:caption[not(d:para)]|d:informalfigure/d:caption[not(d:para)]">
+    <span class="caption">
+        <xsl:apply-templates />
+    </span>
 </xsl:template>
 
 <xsl:template match="d:mediaobject">
-    <xsl:apply-templates select="d:imageobject" />
+    <xsl:apply-templates select="d:imageobject[1]" />
+</xsl:template>
+
+<xsl:template match="d:inlinemediaobject">
+    <xsl:apply-templates select="d:imageobject[1]" />
 </xsl:template>
 
 <xsl:template match="d:imageobject">
@@ -229,19 +371,22 @@
 <!-- tables -->
 <xsl:template match="d:informaltable[not(d:caption)]">
     <table class="table">
+        <xsl:apply-templates select="@xml:id" />
         <xsl:apply-templates select="*" />
     </table>
 </xsl:template>
 
 <xsl:template match="d:table[not(d:caption)]">
     <table class="table table-bordered">
-        <caption><xsl:apply-templates select="d:title/node()" /></caption>
-        <xsl:apply-templates />
+        <xsl:apply-templates select="@xml:id" />
+        <caption><xsl:apply-templates select="d:title/node()|d:info/d:title/node()" /></caption>
+        <xsl:apply-templates select="d:tgroup" />
     </table>
 </xsl:template>
 
 <xsl:template match="d:table[d:caption] | d:informaltable[d:caption]">
     <table class="table table-bordered">
+        <xsl:apply-templates select="@xml:id" />
         <xsl:apply-templates />
     </table>
 </xsl:template>
@@ -273,15 +418,34 @@
 </xsl:template>
 
 <!-- inline formatting -->
+
+<xsl:template match="d:literal">
+    <code class="literal">
+        <xsl:apply-templates />
+    </code>
+</xsl:template>
+
+<xsl:template match="d:code">
+    <code>
+        <xsl:apply-templates />
+    </code>
+</xsl:template>
+
+<xsl:template match="d:classname">
+    <code class="classname">
+        <xsl:apply-templates />
+    </code>
+</xsl:template>
+
 <xsl:template match="d:emphasis[@role='bold' or @role='strong']">
     <b>
-        <xsl:apply-templates select="node()" />
+        <xsl:apply-templates />
     </b>
 </xsl:template>
 
 <xsl:template match="d:emphasis">
     <i>
-        <xsl:apply-templates select="node()" />
+        <xsl:apply-templates />
     </i>
 </xsl:template>
 
@@ -301,12 +465,6 @@
     <sub>
         <xsl:value-of select="."/>
     </sub>
-</xsl:template>
-
-<xsl:template match="d:literal">
-    <code>
-        <xsl:apply-templates />
-    </code>
 </xsl:template>
 
 </xsl:stylesheet>

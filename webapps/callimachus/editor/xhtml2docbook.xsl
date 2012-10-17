@@ -28,6 +28,12 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
     </xsl:attribute>
 </xsl:template>
 
+<xsl:template match="@id|@xml:id">
+    <xsl:attribute name="xml:id">
+        <xsl:value-of select="." />
+    </xsl:attribute>
+</xsl:template>
+
 <xsl:template match="@lang|@xml:lang">
     <xsl:attribute name="xml:lang">
         <xsl:value-of select="." />
@@ -48,7 +54,14 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
 
 <xsl:template match="xhtml:html">
     <article version="5.0">
+        <xsl:apply-templates select="xhtml:body/xhtml:h1/@id" />
+        <xsl:if test="not(xhtml:body/xhtml:h1)">
+            <title />
+        </xsl:if>
         <xsl:apply-templates select="xhtml:body"/>
+        <xsl:if test="not(xhtml:body/*[name()!='h1'])">
+            <para />
+        </xsl:if>
     </article>
 </xsl:template>
 
@@ -72,7 +85,7 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
 </xsl:template>
 
 <xsl:template match="xhtml:h1">
-    <title><xsl:apply-templates select="@*|node()" /></title>
+    <title><xsl:apply-templates /></title>
     <xsl:apply-templates select="key('section', generate-id())" />
     <xsl:apply-templates select="key('h6', generate-id())" />
     <xsl:apply-templates select="key('h5', generate-id())" />
@@ -83,7 +96,8 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
 
 <xsl:template match="xhtml:h2">
     <section>
-        <title><xsl:apply-templates select="@*|node()" /></title>
+        <xsl:apply-templates select="@id" />
+        <title><xsl:apply-templates /></title>
         <xsl:apply-templates select="key('section', generate-id())" />
         <xsl:apply-templates select="key('h6', generate-id())" />
         <xsl:apply-templates select="key('h5', generate-id())" />
@@ -94,7 +108,8 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
 
 <xsl:template match="xhtml:h3">
     <section>
-        <title><xsl:apply-templates select="@*|node()" /></title>
+        <xsl:apply-templates select="@id" />
+        <title><xsl:apply-templates /></title>
         <xsl:apply-templates select="key('section', generate-id())" />
         <xsl:apply-templates select="key('h6', generate-id())" />
         <xsl:apply-templates select="key('h5', generate-id())" />
@@ -104,7 +119,8 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
 
 <xsl:template match="xhtml:h4">
     <section>
-        <title><xsl:apply-templates select="@*|node()" /></title>
+        <xsl:apply-templates select="@id" />
+        <title><xsl:apply-templates /></title>
         <xsl:apply-templates select="key('section', generate-id())" />
         <xsl:apply-templates select="key('h6', generate-id())" />
         <xsl:apply-templates select="key('h5', generate-id())" />
@@ -113,7 +129,8 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
 
 <xsl:template match="xhtml:h5">
     <section>
-        <title><xsl:apply-templates select="@*|node()" /></title>
+        <xsl:apply-templates select="@id" />
+        <title><xsl:apply-templates /></title>
         <xsl:apply-templates select="key('section', generate-id())" />
         <xsl:apply-templates select="key('h6', generate-id())" />
     </section>
@@ -121,7 +138,8 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
 
 <xsl:template match="xhtml:h6">
     <section>
-        <title><xsl:apply-templates select="@*|node()" /></title>
+        <xsl:apply-templates select="@id" />
+        <title><xsl:apply-templates /></title>
         <xsl:apply-templates select="key('section', generate-id())" />
     </section>
 </xsl:template>
@@ -129,6 +147,7 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
 <!-- para elements -->
 <xsl:template match="xhtml:p">
     <para>
+        <xsl:apply-templates select="@id" />
         <xsl:apply-templates />
     </para>
 </xsl:template>
@@ -141,16 +160,18 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
     </blockquote>
 </xsl:template>
 
-<xsl:template match="xhtml:pre">
+<xsl:template match="xhtml:pre[@class='programlisting']">
     <programlisting>
+        <xsl:apply-templates select="@id" />
         <xsl:apply-templates />
     </programlisting>
 </xsl:template>
 
-<xsl:template match="xhtml:code">
-    <programlisting>
+<xsl:template match="xhtml:pre[not(@class='programlisting')]">
+    <screen>
+        <xsl:apply-templates select="@id" />
         <xsl:apply-templates />
-    </programlisting>
+    </screen>
 </xsl:template>
 
 <!-- Hyperlinks -->
@@ -181,8 +202,32 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
 </xsl:template>
 
 <!-- Images -->
+<xsl:template match="xhtml:figure | xhtml:p[@class='figure']">
+    <informalfigure>
+        <xsl:apply-templates select="@id" />
+        <xsl:apply-templates />
+    </informalfigure>
+</xsl:template>
+
+<xsl:template match="xhtml:figcaption |xhtml:span[@class='caption']">
+    <caption>
+        <para>
+            <xsl:apply-templates />
+        </para>
+    </caption>
+</xsl:template>
+
+<xsl:template match="xhtml:figcaption/xhtml:p">
+    <xsl:apply-templates />
+</xsl:template>
+
 <xsl:template match="xhtml:img">
     <xsl:choose>
+        <xsl:when test="boolean(parent::xhtml:figure | parent::xhtml:p[@class='figure'])">
+            <mediaobject>
+                <xsl:call-template name="imageobject" />
+            </mediaobject>
+        </xsl:when>
         <xsl:when test="boolean(parent::xhtml:p)">
             <inlinemediaobject>
                 <xsl:call-template name="imageobject" />
@@ -279,17 +324,44 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
 <!-- tables -->
 <xsl:template match="xhtml:table[not(xhtml:caption)]">
     <informaltable>
+        <xsl:apply-templates select="@id" />
         <xsl:apply-templates />
     </informaltable>
 </xsl:template>
 
 <xsl:template match="xhtml:table[xhtml:caption]">
     <table>
+        <xsl:apply-templates select="@id" />
         <xsl:apply-templates />
     </table>
 </xsl:template>
 
 <!-- inline formatting -->
+
+<xsl:template match="xhtml:code[@class='classname']">
+    <classname>
+        <xsl:apply-templates />
+    </classname>
+</xsl:template>
+
+<xsl:template match="xhtml:code[@class='uri']">
+    <uri>
+        <xsl:apply-templates />
+    </uri>
+</xsl:template>
+
+<xsl:template match="xhtml:code[@class='literal']">
+    <literal>
+        <xsl:apply-templates />
+    </literal>
+</xsl:template>
+
+<xsl:template match="xhtml:code[not(@class='classname' or @class='uri' or @class='literal')]">
+    <code>
+        <xsl:apply-templates />
+    </code>
+</xsl:template>
+
 <xsl:template match="xhtml:b | xhtml:strong">
     <emphasis role="bold">
         <xsl:apply-templates />
@@ -318,12 +390,6 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
     <subscript>
         <xsl:apply-templates />
     </subscript>
-</xsl:template>
-
-<xsl:template match="xhtml:p/xhtml:code | xhtml:a/xhtml:code | xhtml:li/xhtml:code">
-    <literal>
-        <xsl:apply-templates />
-    </literal>
 </xsl:template>
 
 </xsl:stylesheet>

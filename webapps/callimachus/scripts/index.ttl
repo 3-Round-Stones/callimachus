@@ -42,7 +42,8 @@
     rdf:_31 <bootstrap-tab.js>;
     rdf:_32 <bootstrap-popover.js>;
     rdf:_33 <bootstrap-transition.js>;
-    rdf:_34 <bootstrap-typeahead.js>.
+    rdf:_34 <bootstrap-typeahead.js>;
+    rdf:_35 <slugify.js>.
 
 # IE8 can't handle any more than minification of 1 on jquery.rdfquery.rdfa.js
 <form_bundle> a calli:ScriptBundle; calli:minified 1 ;

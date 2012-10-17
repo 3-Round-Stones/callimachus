@@ -154,7 +154,7 @@
         var classFile = $('#file-class-link').attr('href');
         var formData = new FormData();
         formData.append(file.name, file);
-        var slug = calli.slugify(file.name.replace(/[-\\s]+/g, '-'));
+        var slug = calli.slugify(file.name.replace(/[-\s]+/g, '-'));
         jQuery.ajax({
             type:'POST',
             url:'?create=' + classFile + '&location=' + encodeURIComponent(slug),

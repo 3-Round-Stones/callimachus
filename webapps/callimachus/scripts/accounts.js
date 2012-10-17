@@ -151,9 +151,14 @@ function nowLoggedIn() {
 }
 
 function nowLoggedOut() {
-    $(document).ready(function() {
-        $(document).trigger("calliLoggedOut");
-    });
+    if (!isLoggedIn()) {
+        if (window.localStorage) {
+            localStorage.removeItem("username");
+        }
+        $(document).ready(function() {
+            $(document).trigger("calliLoggedOut");
+        });
+    }
 }
 
 function isLoggedIn() {

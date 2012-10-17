@@ -82,16 +82,17 @@ function getAvailableHeight(area) {
     var innerHeight = $(area).height();
     var clientHeight = window.innerHeight || document.documentElement.clientHeight;
 
-    var body = bottom($(area).parents('body>*')) - innerHeight;
-    if (body > 0 && body <= clientHeight / 3)
-        return clientHeight - body;
-    var content = bottom($(area).parents('#content')) - innerHeight;
-    if (content > 0 && content <= clientHeight / 3)
-        return clientHeight - content;
-    var form = bottom($(area).parents('form')) - innerHeight;
+    var container = $(area).parents('form');
+    if (!container.length) {
+        container = $(area).parents('#content');
+        if (!container.length) {
+            container = $(area).parents('body>*');
+        }
+    }
+    var form = bottom(container) - innerHeight;
     if (form > 0 && form <= clientHeight / 3)
         return clientHeight - form;
-    var formHeight = $(area).parents('form').outerHeight(true) - innerHeight;
+    var formHeight = container.outerHeight(true) - innerHeight;
     if (formHeight > 0 && formHeight <= clientHeight / 3)
         return clientHeight - formHeight;
     return clientHeight;

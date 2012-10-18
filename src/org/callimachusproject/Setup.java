@@ -38,8 +38,10 @@ import java.net.SocketException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -980,9 +982,17 @@ public class Setup {
 		add(con, subj, CALLI_SUBSCRIBER, origin + "/group/users");
 		add(con, subj, CALLI_SUBSCRIBER, origin + "/group/staff");
 		add(con, subj, CALLI_ADMINISTRATOR, origin + "/group/admin");
-		String host = java.net.URI.create(origin + '/').getHost();
-		con.add(subj, vf.createURI(CALLI_AUTH_NAME), vf.createLiteral(host));
-		add(con, subj, CALLI_AUTH_NAMESPACE, origin + "/user/");
+		List<String[]> list = getAuthNamesAndNamespaces(origin, con);
+		if (list == null || list.isEmpty()) {
+			String host = java.net.URI.create(origin + '/').getHost();
+			list = Collections.singletonList(new String[]{host, origin + "/user/"});
+		}
+		for (String[] row : list) {
+			String authName = row[0];
+			String user = row[1];
+			con.add(subj, vf.createURI(CALLI_AUTH_NAME), vf.createLiteral(authName));
+			add(con, subj, CALLI_AUTH_NAMESPACE, user);
+		}
 	}
 
 	private boolean createRealm(String realm, String origin,
@@ -1140,28 +1150,40 @@ public class Setup {
 			con.setAutoCommit(false);
 			ValueFactory vf = con.getValueFactory();
 			boolean modified = false;
-			for (Statement st1 : con.getStatements(vf.createURI(origin + "/"),
-					vf.createURI(CALLI_AUTHENTICATION), null).asList()) {
-				Resource accounts = (Resource) st1.getObject();
-				for (Statement st2 : con.getStatements(accounts,
-						vf.createURI(CALLI_AUTHNAME), null).asList()) {
-					String authName = st2.getObject().stringValue();
-					String[] encoded = encodePassword(username, email,
-							authName, password);
-					for (Statement st3 : con.getStatements(accounts,
-							vf.createURI(CALLI_AUTHNAMESPACE), null).asList()) {
-						Resource user = (Resource) st3.getObject();
-						URI subj = vf.createURI(user.stringValue() + username);
-						modified |= changeAdminPassword(origin, user, subj,
-								name, email, username, encoded, con);
-					}
-				}
+			for (String[] row : getAuthNamesAndNamespaces(origin, con)) {
+				String authName = row[0];
+				String user = row[1];
+				String[] encoded = encodePassword(username, email, authName,
+						password);
+				URI subj = vf.createURI(user + username);
+				modified |= changeAdminPassword(origin, vf.createURI(user),
+						subj, name, email, username, encoded, con);
 			}
 			con.setAutoCommit(true);
 			return modified;
 		} finally {
 			con.close();
 		}
+	}
+
+	private List<String[]> getAuthNamesAndNamespaces(String origin,
+			ObjectConnection con) throws RepositoryException {
+		List<String[]> list = new ArrayList<String[]>();
+		ValueFactory vf = con.getValueFactory();
+		for (Statement st1 : con.getStatements(vf.createURI(origin + "/"),
+				vf.createURI(CALLI_AUTHENTICATION), null).asList()) {
+			Resource accounts = (Resource) st1.getObject();
+			for (Statement st2 : con.getStatements(accounts,
+					vf.createURI(CALLI_AUTHNAME), null).asList()) {
+				String authName = st2.getObject().stringValue();
+				for (Statement st3 : con.getStatements(accounts,
+						vf.createURI(CALLI_AUTHNAMESPACE), null).asList()) {
+					String ns = st3.getObject().stringValue();
+					list.add(new String[] { authName, ns });
+				}
+			}
+		}
+		return list;
 	}
 
 	private String[] encodePassword(String username, String email,

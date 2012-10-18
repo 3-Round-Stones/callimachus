@@ -253,7 +253,7 @@
         <zip destfile="${dist}/callimachus-${Version}.zip">
             <zipfileset dir="." includes="*.txt" />
             <zipfileset dir="${src}" prefix="src" />
-            <zipfileset dir="${webapps}/callimachus" prefix="src/callimachus-webapp" />
+            <zipfileset dir="${webapps}/callimachus" prefix="src/callimachus" />
             <zipfileset dir="${bin}" prefix="bin" includes="*.sh,*.pl,callimachus-linux*,callimachus-darwin*" filemode="755" />
             <zipfileset dir="${bin}" prefix="bin" excludes="*.sh,*.pl,callimachus-linux*,callimachus-darwin*" />
             <zipfileset dir="${etc}" prefix="etc" excludes="mail.properties ssl.properties" />

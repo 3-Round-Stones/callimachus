@@ -7,6 +7,10 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
+################################
+# Public Folders               #
+################################
+
 </callimachus/> calli:hasComponent </callimachus/editor/>.
 </callimachus/editor/> a </callimachus/Folder>, calli:Folder;
     rdfs:label "editor";
@@ -25,6 +29,34 @@
     calli:reader </group/public>;
     calli:administrator </group/admin>.
 
+</callimachus/> calli:hasComponent </callimachus/scripts/>.
+</callimachus/scripts/> a </callimachus/Folder>, calli:Folder;
+    rdfs:label "scripts";
+    calli:reader </group/public>;
+    calli:administrator </group/admin>.
+
+</callimachus/> calli:hasComponent </callimachus/styles/>.
+</callimachus/styles/> a </callimachus/Folder>, calli:Folder;
+    rdfs:label "styles";
+    calli:reader </group/public>;
+    calli:administrator </group/admin>.
+
+</callimachus/> calli:hasComponent </callimachus/templates/>.
+</callimachus/templates/> a </callimachus/Folder>, calli:Folder;
+    rdfs:label "templates";
+    calli:reader </group/public>;
+    calli:administrator </group/admin>.
+
+</callimachus/> calli:hasComponent </callimachus/theme/>.
+</callimachus/theme/> a </callimachus/Folder>, calli:Folder;
+    rdfs:label "theme";
+    calli:reader </group/public>;
+    calli:administrator </group/admin>.
+
+################################
+# Protected Folders            #
+################################
+
 </callimachus/> calli:hasComponent </callimachus/pipelines/>.
 </callimachus/pipelines/> a </callimachus/Folder>, calli:Folder;
     rdfs:label "pipelines";
@@ -41,30 +73,6 @@
 </callimachus/schemas/> a </callimachus/Folder>, calli:Folder;
     rdfs:label "schemas";
     calli:reader </group/system>;
-    calli:administrator </group/admin>.
-
-</callimachus/> calli:hasComponent </callimachus/scripts/>.
-</callimachus/scripts/> a </callimachus/Folder>, calli:Folder;
-    rdfs:label "scripts";
-    calli:reader </group/public>;
-    calli:administrator </group/admin>.
-
-</callimachus/> calli:hasComponent </callimachus/styles/>.
-</callimachus/styles/> a </callimachus/Folder>, calli:Folder;
-    rdfs:label "styles";
-    calli:reader </group/public>;
-    calli:administrator </group/admin>.
-
-</callimachus/> calli:hasComponent </callimachus/templates/>.
-</callimachus/templates/> a </callimachus/Folder>, calli:Folder;
-    rdfs:label "templates";
-    calli:reader </group/system>;
-    calli:administrator </group/admin>.
-
-</callimachus/> calli:hasComponent </callimachus/theme/>.
-</callimachus/theme/> a </callimachus/Folder>, calli:Folder;
-    rdfs:label "theme";
-    calli:reader </group/public>;
     calli:administrator </group/admin>.
 
 </callimachus/> calli:hasComponent </callimachus/transforms/>.

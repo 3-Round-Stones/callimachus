@@ -238,6 +238,7 @@ aside ul,
 .ie .iframe #content {min-height: 0px; }
 .ie hgroup ~ #sidebar { position:relative; top:-6em; }
 .ie h1 ~ #sidebar { position:relative; top:-3.5em; }
+.ie.iframe h1 ~ #sidebar { position:static; top:0; }
 .ie #sidebar { float:right; padding-left:1em; }
 .ie.iframe #sidebar { float:none; }
 .ie aside, .ie .aside { float:right; }

@@ -54,19 +54,6 @@ INSERT DATA {
 # Authorization and Groups
 ################################
 
-INSERT {
-</> calli:hasComponent </accounts>.
-</accounts> a </callimachus/DigestManager>, calli:DigestManager, calli:AuthenticationManager;
-    rdfs:label "accounts";
-    calli:reader </group/public>;
-    calli:subscriber </group/users>, </group/staff>;
-    calli:administrator </group/admin>;
-    calli:authName ?authName;
-    calli:authNamespace </user/>.
-} WHERE {
-    BIND (replace(replace(replace(str(</>), "^.+://", ""), "/$", ""), ":[0-9]+$", "") AS ?authName)
-};
-
 INSERT DATA {
 </group/> calli:hasComponent </group/admin>.
 </group/admin> a calli:Party, calli:Group, </callimachus/Group>;

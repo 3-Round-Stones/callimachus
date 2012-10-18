@@ -131,6 +131,10 @@ public class Setup {
 	private static final String CALLI_UNAUTHORIZED = CALLI + "unauthorized";
 	private static final String CALLI_FORBIDDEN = CALLI + "forbidden";
 	private static final String CALLI_AUTHENTICATION = CALLI + "authentication";
+	private static final String CALLI_DIGEST_MANAGER = CALLI + "DigestManager";
+	private static final String CALLI_AUTHENTICATION_MANAGER = CALLI + "AuthenticationManager";
+	private static final String CALLI_AUTH_NAME = CALLI + "authName";
+	private static final String CALLI_AUTH_NAMESPACE = CALLI + "authNamespace";
 	private static final String CALLI_MENU = CALLI + "menu";
 	private static final String CALLI_FAVICON = CALLI + "favicon";
 	private static final String CALLI_THEME = CALLI + "theme";
@@ -951,14 +955,34 @@ public class Setup {
 				logger.info("Adding origin: {} for {}", vhost, origin);
 				add(con, subj, RDF.TYPE, origin + CALLIMACHUS + "Origin");
 				add(con, subj, RDF.TYPE, CALLI_ORIGIN);
-				con.add(subj, RDFS.LABEL, vf.createLiteral(getLabel(vhost)));
-				addRealm(subj, origin, con);
+				con.add(subj, RDFS.LABEL, vf.createLiteral(getHost(vhost)));
+				createDigestManager(subj, origin, vhost + "/accounts", con);
+				addRealm(subj, origin, vhost + "/accounts", con);
 			}
 			con.setAutoCommit(true);
 			return true;
 		} finally {
 			con.close();
 		}
+	}
+
+	private void createDigestManager(URI home, String origin, String accounts,
+			ObjectConnection con) throws RepositoryException {
+		ValueFactory vf = con.getValueFactory();
+		URI subj = vf.createURI(accounts);
+		add(con, home, CALLI_HASCOMPONENT, accounts);
+		add(con, subj, RDF.TYPE, origin + CALLIMACHUS + "DigestManager");
+		add(con, subj, RDF.TYPE, CALLI_DIGEST_MANAGER);
+		add(con, subj, RDF.TYPE, CALLI_AUTHENTICATION_MANAGER);
+		String label = accounts.substring(accounts.lastIndexOf('/') + 1);
+		con.add(subj, RDFS.LABEL, vf.createLiteral(label));
+		add(con, subj, CALLI_READER, origin + "/group/public");
+		add(con, subj, CALLI_SUBSCRIBER, origin + "/group/users");
+		add(con, subj, CALLI_SUBSCRIBER, origin + "/group/staff");
+		add(con, subj, CALLI_ADMINISTRATOR, origin + "/group/admin");
+		String host = java.net.URI.create(origin + '/').getHost();
+		con.add(subj, vf.createURI(CALLI_AUTH_NAME), vf.createLiteral(host));
+		add(con, subj, CALLI_AUTH_NAMESPACE, origin + "/user/");
 	}
 
 	private boolean createRealm(String realm, String origin,
@@ -976,8 +1000,8 @@ public class Setup {
 			} else {
 				logger.info("Adding realm: {} for {}", realm, origin);
 				con.add(subj, RDF.TYPE, vf.createURI(origin + CALLIMACHUS + "Realm"));
-				con.add(subj, RDFS.LABEL, vf.createLiteral(getLabel(realm)));
-				addRealm(subj, origin, con);
+				con.add(subj, RDFS.LABEL, vf.createLiteral(getHost(realm)));
+				addRealm(subj, origin, origin + "/accounts", con);
 			}
 			con.setAutoCommit(true);
 			return true;
@@ -1000,7 +1024,7 @@ public class Setup {
 		return false;
 	}
 
-	private String getLabel(String origin) {
+	private String getHost(String origin) {
 		String label = origin;
 		if (label.endsWith("/")) {
 			label = label.substring(0, label.length() - 1);
@@ -1011,7 +1035,7 @@ public class Setup {
 		return label;
 	}
 
-	private void addRealm(URI subj, String origin, ObjectConnection con)
+	private void addRealm(URI subj, String origin, String authentication, ObjectConnection con)
 			throws RepositoryException {
 		String c = origin + CALLIMACHUS;
 		add(con, subj, RDF.TYPE, CALLI_REALM);
@@ -1023,7 +1047,7 @@ public class Setup {
 		add(con, subj, CALLI_ADMINISTRATOR, origin + "/group/admin");
 		add(con, subj, CALLI_UNAUTHORIZED, c + "pages/unauthorized.xhtml?element=/1&realm=/");
 		add(con, subj, CALLI_FORBIDDEN, c + "pages/forbidden.xhtml?element=/1&realm=/");
-		add(con, subj, CALLI_AUTHENTICATION, origin + "/accounts");
+		add(con, subj, CALLI_AUTHENTICATION, authentication);
 		add(con, subj, CALLI_MENU, origin + "/main+menu");
 		add(con, subj, CALLI_FAVICON, c + "images/callimachus-icon.ico");
 		add(con, subj, CALLI_THEME, c + "theme/default");

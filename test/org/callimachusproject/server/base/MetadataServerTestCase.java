@@ -133,6 +133,7 @@ public abstract class MetadataServerTestCase extends TestCase {
 		repository.shutDown();
 		FileUtil.deltree(dataDir);
 		Thread.sleep(100);
+		port = 0;
 	}
 
 	@Override

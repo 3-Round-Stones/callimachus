@@ -419,6 +419,7 @@ public class DigestManager implements AuthenticationManager {
 			ObjectConnection con) throws OpenRDFException {
 		TupleQuery query = con.prepareTupleQuery(SPARQL, SELECT_PASSWORD);
 		query.setBinding("this", self);
+		query.setBinding("name", con.getValueFactory().createLiteral(username));
 		return query.evaluate();
 	}
 

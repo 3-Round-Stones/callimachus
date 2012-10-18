@@ -235,3 +235,11 @@ DELETE {
     FILTER (?iri != ?authName)
 };
 
+INSERT {
+    ?resource calli:administrator </group/admin>
+} WHERE {
+    </callimachus/> calli:hasComponent* ?resource
+    FILTER NOT EXISTS { ?resource calli:administrator ?admin }
+};
+
+

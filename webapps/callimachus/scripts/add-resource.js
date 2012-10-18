@@ -14,7 +14,7 @@ calli.addTemplate = calli.addResource = function(event, container) {
     var add = rel.attr("data-add");
     if (!add)
         return true;
-    jQuery.get(add, function(data) {
+    calli.getText(add, function(data) {
         var clone = $(data).clone();
         var child = clone.children("[about],[typeof],[typeof=''],[resource],[property]");
         if (!child.length) return; // child may be empty
@@ -24,7 +24,7 @@ calli.addTemplate = calli.addResource = function(event, container) {
             node.before(child);
         }
         child.find(':input').andSelf().filter(':input:first').focus();
-    }, 'text');
+    });
     return false;
 };
 

@@ -51,7 +51,7 @@ window.calli.getUserIri = function() {
     }
     if (isLoggedIn()) {
         jQuery.ajax({ url: "/?profile", async: false,
-            beforeSend: withCredentials,
+            beforeSend: calli.withCredentials,
             success: function(doc) {
                 iri = /resource="([^" >]*)"/i.exec(doc)[1];
                 loadProfile(doc);
@@ -179,12 +179,6 @@ function loadProfile(doc) {
             localStorage.setItem("userIri", iri[1]);
         }
     }
-}
-
-function withCredentials(req) {
-    try {
-        req.withCredentials = true;
-    } catch (e) {}
 }
 
 })(jQuery,jQuery);

@@ -37,7 +37,7 @@ function select(node, selector) {
 function addSetItem(uri, script, errorMessage) {
     var position = 0;
     var url = script.attr("data-construct").replace("{resource}", encodeURIComponent(uri));
-    jQuery.get(url, function(data) {
+    calli.getText(url, function(data) {
         var input = data ? $(data).children("[data-var-about],[data-var-resource]") : data;
         if (input && input.length) {
             if (position > 0 && script.children().length >= position) {

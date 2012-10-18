@@ -75,7 +75,7 @@
         jQuery.ajax({
             url: url,
             processData: false,
-            beforeSend: withCredentials,
+            beforeSend: calli.withCredentials,
             complete: function(xhr) {
                 var doc = xhr.responseXML;
                 if (window.ActiveXObject && (!doc || !doc.childNodes.length)) {
@@ -167,18 +167,13 @@
                         uploadProgress(event.loaded);
                     }, false);
                 }
-                withCredentials(xhr);
+                calli.withCredentials(xhr);
             },
             success:function(data, textStatus) {
                 reload();
             },
             complete:callback
         });
-    }
-    function withCredentials(req) {
-        try {
-            req.withCredentials = true;
-        } catch (e) {}
     }
     var uploadedSize = 0;
     function uploadProgress(complete, estimated) {

@@ -20,7 +20,7 @@ function loadOptions(selects) {
         var select = $(this);
         var url = select.attr("data-options");
         select.removeAttr("data-options");
-        jQuery.get(url, function(data) {
+        calli.getText(url, function(data) {
             var options = $(data);
             var selected = select.children('option,label');
             var selectedOptions = [];

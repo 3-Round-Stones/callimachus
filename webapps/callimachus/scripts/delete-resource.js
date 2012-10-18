@@ -36,7 +36,7 @@ window.calli.deleteResource = function(event, redirect) {
                 if (lastmod) {
                     xhr.setRequestHeader("If-Unmodified-Since", lastmod);
                 }
-                withCredentials(xhr);
+                calli.withCredentials(xhr);
             }, success: function(data, textStatus) {
                 try {
                     var event = jQuery.Event("calliRedirect");
@@ -71,12 +71,6 @@ function getLastModified() {
     } catch (e) {
         return null;
     }
-}
-
-function withCredentials(req) {
-    try {
-        req.withCredentials = true;
-    } catch (e) {}
 }
 
 })(jQuery, jQuery);

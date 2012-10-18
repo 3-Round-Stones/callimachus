@@ -16,7 +16,7 @@
             var tab = $(this);
             var url = this.href;
             jQuery.ajax({ type: 'GET', url: url,
-                beforeSend: withCredentials,
+                beforeSend: calli.withCredentials,
                 success: function(doc) { handleDiscussion(tab, url, doc); }
             });
         });
@@ -43,11 +43,6 @@
         }
     }
     $(document).bind('calliLoggedIn', function(){setTimeout(checkTab,0)});
-    
-    function withCredentials(req) {
-        try {
-            req.withCredentials = true;
-        } catch (e) {}
-    }
+
 })(jQuery, jQuery);
 

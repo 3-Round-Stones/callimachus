@@ -98,17 +98,11 @@ function postData(form, data, callback) {
         contentType: type,
         data: data,
 		dataType: "text", 
-        beforeSend: withCredentials,
+        beforeSend: calli.withCredentials,
         success: function(data, textStatus) {
             callback(data, textStatus, xhr);
         }
     });
-}
-
-function withCredentials(req) {
-    try {
-        req.withCredentials = true;
-    } catch (e) {}
 }
 
 });

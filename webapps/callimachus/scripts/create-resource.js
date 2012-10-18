@@ -61,7 +61,7 @@ calli.createResource = function(event, href) {
 };
 
 function listSearchResults(url, win, button) {
-    jQuery.get(url, function(data) {
+    calli.getText(url, function(data) {
         if (data) {
             var result = $(data).children("[data-var-about],[data-var-resource]");
             result.find(':input').remove();

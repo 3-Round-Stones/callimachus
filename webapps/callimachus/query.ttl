@@ -264,11 +264,13 @@
             if (!control && nq) {
                 control = "no-cache";
             } else if (!control) {
-                control = "no-store";
+                control = "no-validate"; //# server side directive
             } else if (!nq) {
                 control += ",no-validate"; //# server side directive
             }
-            resp.setHeader("Cache-Control", control);
+            if (control) {
+                resp.setHeader("Cache-Control", control);
+            }
             if (nq && match == etag)
                 return resp;
             var rs = query.evaluate(queryParameters, con);

@@ -149,7 +149,7 @@ public class RenderSparqlQueryStep implements XProcStep {
 		return root.getStringValue();
 	}
 
-	public XdmNode render(XdmNode t, String queryString, String queryBaseURI)
+	private XdmNode render(XdmNode t, String queryString, String queryBaseURI)
 			throws SaxonApiException, IOException, FluidException,
 			TemplateException, ParserConfigurationException {
 		String tempId = t.getBaseURI().toASCIIString();
@@ -161,7 +161,7 @@ public class RenderSparqlQueryStep implements XProcStep {
 		return xdmBuilder.build(new DOMSource(doc, queryBaseURI));
 	}
 
-	public XdmNode render(XdmNode t, String baseURI)
+	private XdmNode render(XdmNode t, String baseURI)
 			throws SaxonApiException, IOException, FluidException,
 			TemplateException, ParserConfigurationException {
 		String tempId = t.getBaseURI().toASCIIString();

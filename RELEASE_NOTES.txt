@@ -62,6 +62,9 @@ http://code.google.com/p/callimachus/wiki/Security has more details.
    label until they are modified as well or the callimachus-reset script is run.
  * Safari browser cannot view Turtle or RDF/XML output in describe tab.
  * Safari does not retain the login state in all cases.
+ * Safari does not support dragging files in the folder view.
+ * IE does not work with the article editor.
+ * The server may block on server side requests to external HTTP servers.
 
 In some environments, Callimachus may log "An exception has occurred in the
 compiler...FilePermission" exceptions. This is often due to an issue in the
@@ -86,4 +89,8 @@ Every create template, that has a onsubmit="return calli.saveResourceAs(event)",
 will need to be replaced with onsubmit="return calli.saveResourceAs(event,
 calli.slugify($('#label').val()))" where "label" is the id of the
 first input field in the form.
+
+Every dropzone in a create or edit template requires a
+ondrop="return calli.insertResource(event)" as shown here:
+http://code.google.com/p/callimachus/wiki/FormPatterns#Range_Relationships
 

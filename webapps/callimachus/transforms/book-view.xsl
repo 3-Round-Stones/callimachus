@@ -58,7 +58,7 @@ xmlns="http://www.w3.org/1999/xhtml" xmlns:xhtml="http://www.w3.org/1999/xhtml" 
                 <xsl:value-of select="@xml:id" />
             </xsl:when>
             <xsl:otherwise>
-                <xsl:value-of select="replace($text, '\W','_')" />
+                <xsl:value-of select="replace(normalize-space($text), '\W','_')" />
             </xsl:otherwise>
         </xsl:choose>
     </xsl:variable>
@@ -116,11 +116,11 @@ xmlns="http://www.w3.org/1999/xhtml" xmlns:xhtml="http://www.w3.org/1999/xhtml" 
                 <xsl:value-of select="../@xml:id" />
             </xsl:when>
             <xsl:otherwise>
-                <xsl:value-of select="replace(text(), '\W','_')" />
+                <xsl:value-of select="replace(normalize-space(), '\W','_')" />
             </xsl:otherwise>
         </xsl:choose>
     </xsl:variable>
-    <xsl:if test="$id=replace(text(),'\W','_')">
+    <xsl:if test="$id=replace(normalize-space(),'\W','_')">
         <a name="{$id}" />
     </xsl:if>
     <xsl:if test="parent::d:article/parent::* or parent::d:info/parent::d:article/parent::*">

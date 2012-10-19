@@ -102,23 +102,14 @@ public class RenderSparqlQueryStep implements XProcStep {
 			throw XProcException.dynamicError(6, step.getNode(),
 					"No template provided.");
 		}
-		if (sourcePipe == null) {
-			throw XProcException.dynamicError(6, step.getNode(),
-					"No source provided.");
-		}
 		try {
 			XdmNode template = templatePipe.read();
-			while (sourcePipe != null && sourcePipe.moreDocuments()) {
-				XdmNode query = sourcePipe.read();
-				String queryBaseURI = query.getBaseURI().toASCIIString();
-				String queryString = getQueryString(query);
-				XdmNode xml = render(template, queryString, queryBaseURI);
-				if (resultPipe != null && xml != null) {
-					if (outputBase != null) {
-						xml.getUnderlyingNode().setSystemId(resolve(outputBase));
-					}
-					resultPipe.write(xml);
+			XdmNode xml = render(template, sourcePipe);
+			if (resultPipe != null && xml != null) {
+				if (outputBase != null) {
+					xml.getUnderlyingNode().setSystemId(resolve(outputBase));
 				}
+				resultPipe.write(xml);
 			}
 		} catch (SaxonApiException sae) {
 			throw new XProcException(sae);
@@ -130,6 +121,19 @@ public class RenderSparqlQueryStep implements XProcStep {
 			throw new XProcException(e);
 		} catch (ParserConfigurationException e) {
 			throw new XProcException(e);
+		}
+	}
+
+	private XdmNode render(XdmNode template, ReadablePipe sourcePipe) throws SaxonApiException,
+			IOException, FluidException, TemplateException,
+			ParserConfigurationException {
+		if (sourcePipe != null && sourcePipe.moreDocuments()) {
+			XdmNode query = sourcePipe.read();
+			String queryBaseURI = query.getBaseURI().toASCIIString();
+			String queryString = getQueryString(query);
+			return render(template, queryString, queryBaseURI);
+		} else {
+			return render(template, template.getBaseURI().toASCIIString());
 		}
 	}
 
@@ -155,6 +159,18 @@ public class RenderSparqlQueryStep implements XProcStep {
 
 		DocumentBuilder xdmBuilder = newDocumentBuilder();
 		return xdmBuilder.build(new DOMSource(doc, queryBaseURI));
+	}
+
+	public XdmNode render(XdmNode t, String baseURI)
+			throws SaxonApiException, IOException, FluidException,
+			TemplateException, ParserConfigurationException {
+		String tempId = t.getBaseURI().toASCIIString();
+		Reader template = asReader(t);
+		Template tem = ENGINE.getTemplate(template, tempId);
+		Document doc = toDocument(tem.getQueryString());
+
+		DocumentBuilder xdmBuilder = newDocumentBuilder();
+		return xdmBuilder.build(new DOMSource(doc, baseURI));
 	}
 
 	private Document toDocument(String result)

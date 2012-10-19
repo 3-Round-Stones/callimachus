@@ -41,11 +41,11 @@ import org.openrdf.rio.turtle.TurtleUtil;
 public class ParameterizedQuery {
 	private static final Pattern CACHE_CONTROL = Pattern
 			.compile(
-					"(?:^|\n).*#[ \\t]*@Cache-Control[ \\t]*(?::[ \\t]*)?([\\w ,=\\-\"]+)[ \\t]*(?:$|\n)",
+					"(?:^|\n|\r).*#[ \t]*@Cache-Control[ \t]*(?::[ \t]*)?([\\w ,=\\-\"]+)[ \t]*(?:$|\n|\r)",
 					Pattern.CASE_INSENSITIVE);
 	private static final Pattern VIEW_TEMPLATE = Pattern
 			.compile(
-					"(?:^|\n).*#[ \\t]*@view[ \\t]*(?::[ \\t]*)?([^\\s'\"<>]+)[ \\t]*(?:$|\n)",
+					"(?:^|\n|\r).*#[ \t]*@view[ \t]*(?::[ \t]*)?([^\\s'\"<>]+)[ \t]*(?:$|\n|\r)",
 					Pattern.CASE_INSENSITIVE);
 	private static final Pattern PARAM_EXPRESSION = Pattern
 			.compile("(?<!\\\\)\\$\\{([^}]*)\\}");

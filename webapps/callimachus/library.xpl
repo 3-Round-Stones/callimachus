@@ -45,15 +45,15 @@
         <p:option name="output-base-uri" select="''" />
 
         <p:variable name="resultId" select="if (string-length($output-base-uri) &gt; 0) then p:resolve-uri($output-base-uri) else p:base-uri()">
-            <p:pipe step="render-html" port="query" />
+            <p:pipe step="render-html" port="template" />
         </p:variable>
         <p:variable name="folder" select="p:resolve-uri('./', $resultId)">
-            <p:pipe step="render-html" port="query" />
+            <p:pipe step="render-html" port="template" />
         </p:variable>
 
         <p:load name="realm">
             <p:with-option name="href" select="concat('queries/find-realm.rq?results&amp;target=', encode-for-uri($folder))">
-                <p:pipe step="render-html" port="query" />
+                <p:pipe step="render-html" port="template" />
             </p:with-option>
         </p:load>
 

@@ -39,6 +39,7 @@ import org.openrdf.repository.RepositoryException;
 
 public class Template {
 	private static final Pattern PROLOGUE = Pattern.compile("#.*$|BASE\\s*<([^>\\s]*)>|PREFIX\\s+([^:\\s]*)\\s*:\\s*<([^>\\s]*)>", Pattern.CASE_INSENSITIVE);
+	private static final Pattern SELECT = Pattern.compile("\\s*(?:#.*(?:$|\n|\r)\\s*)*SELECT\\s+\\?([^\\{\\s]*)\\s*(?:WHERE\\s*)?\\{", Pattern.CASE_INSENSITIVE);
 	private final TermFactory systemId;
 	private final XMLEventList source;
 
@@ -68,6 +69,7 @@ public class Template {
 	public String getQueryString(String subQuery) throws TemplateException {
 		try {
 			int end = 0;
+			String projectedVariable = null;
 			ClusterCounter reader = new ClusterCounter(openQuery());
 			StringWriter str = new StringWriter();
 			SPARQLWriter writer = new SPARQLWriter(str);
@@ -100,6 +102,12 @@ public class Template {
 				writer.write(next);
 				if (next.isStartWhere() && !reader.peek().isEndWhere() && end < subQuery.length()) {
 					String select = subQuery.substring(end);
+					Matcher m = SELECT.matcher(select);
+					if (m.find()) {
+						projectedVariable = m.group(1);
+					} else {
+						throw new InternalServerError("Query must have exactly one projected variable");
+					}
 					end = subQuery.length();
 					writer.flush();
 					str.write("{");
@@ -110,7 +118,7 @@ public class Template {
 			for (Set<String> cluster : reader.getClusters()) {
 				boolean found = false;
 				for (String variable : cluster) {
-					if (subQuery.contains(variable)) {
+					if (variable.equals(projectedVariable)) {
 						found = true;
 						break;
 					}

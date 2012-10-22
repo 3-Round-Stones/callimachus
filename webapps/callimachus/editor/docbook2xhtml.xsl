@@ -437,6 +437,30 @@
     </code>
 </xsl:template>
 
+<xsl:template match="d:filename">
+    <code class="filename">
+        <xsl:apply-templates />
+    </code>
+</xsl:template>
+
+<xsl:template match="d:parameter">
+    <code class="parameter">
+        <xsl:apply-templates />
+    </code>
+</xsl:template>
+
+<xsl:template match="d:function">
+    <code class="function">
+        <xsl:apply-templates />
+    </code>
+</xsl:template>
+
+<xsl:template match="d:varname">
+    <code class="varname">
+        <xsl:apply-templates />
+    </code>
+</xsl:template>
+
 <xsl:template match="d:emphasis[@role='bold' or @role='strong']">
     <b>
         <xsl:apply-templates />

@@ -362,6 +362,30 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
     </classname>
 </xsl:template>
 
+<xsl:template match="xhtml:code[@class='parameter']">
+    <parameter>
+        <xsl:apply-templates />
+    </parameter>
+</xsl:template>
+
+<xsl:template match="xhtml:code[@class='filename']">
+    <filename>
+        <xsl:apply-templates />
+    </filename>
+</xsl:template>
+
+<xsl:template match="xhtml:code[@class='function']">
+    <function>
+        <xsl:apply-templates />
+    </function>
+</xsl:template>
+
+<xsl:template match="xhtml:code[@class='varname']">
+    <varname>
+        <xsl:apply-templates />
+    </varname>
+</xsl:template>
+
 <xsl:template match="xhtml:code[@class='uri']">
     <uri>
         <xsl:apply-templates />
@@ -374,7 +398,7 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
     </literal>
 </xsl:template>
 
-<xsl:template match="xhtml:code[not(@class='classname' or @class='uri' or @class='literal')]">
+<xsl:template match="xhtml:code[not(@class='function' or @class='varname' or @class='parameter' or @class='filename' or @class='classname' or @class='uri' or @class='literal')]">
     <code>
         <xsl:apply-templates />
     </code>

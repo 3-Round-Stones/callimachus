@@ -79,7 +79,7 @@
         } catch (e if e.javaException instanceof ServiceUnavailable) {
             java.lang.System.err.println("Storing " + this);
         } catch (e if e.javaException instanceof BadRequest) {
-            println(this + e.javaException.message);
+            println(this + ' ' + e.javaException.message);
         }
         return created;
     """.

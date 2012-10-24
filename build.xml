@@ -97,6 +97,7 @@
             <get usetimestamp="true" skipexisting="${lib.present}" src="${mail.url}" dest="${downloads}/${mail.jar}" />
             <get usetimestamp="true" skipexisting="${lib.present}" src="${compress.url}" dest="${downloads}/compress.tar.gz" />
             <get usetimestamp="true" skipexisting="${lib.present}" src="${jing.url}" dest="${downloads}/jing.zip" />
+            <get usetimestamp="true" skipexisting="${lib.present}" src="${httpclient.url}" dest="${downloads}/httpclient.zip" />
         </parallel>
         <parallel>
             <get usetimestamp="true" skipexisting="${lib.present}" src="${daemon-darwin.url}" dest="${downloads}/daemon-darwin.tar.gz" />
@@ -117,6 +118,12 @@
             <mapper type="flatten" />
         </unzip>
         <unzip overwrite="false" src="${downloads}/httpcore.zip" dest="${lib}">
+            <patternset>
+                <include name="**/lib/*.jar" />
+            </patternset>
+            <mapper type="flatten" />
+        </unzip>
+        <unzip overwrite="false" src="${downloads}/httpclient.zip" dest="${lib}">
             <patternset>
                 <include name="**/lib/*.jar" />
             </patternset>

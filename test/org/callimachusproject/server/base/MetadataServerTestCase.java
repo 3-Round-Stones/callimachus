@@ -104,6 +104,7 @@ public abstract class MetadataServerTestCase extends TestCase {
 		server = createServer();
 		server.listen(new int[] { getPort() }, new int[0]);
 		server.start();
+		server.resetCache();
 		client = Client.create().resource(getOrigin());
 		addContentEncoding(client);
 		base = client.getURI().toASCIIString();

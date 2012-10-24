@@ -24,21 +24,25 @@ public class RealmManager {
 	}
 
 	private int revision = cache;
+	private final ObjectRepository repo;
 	private TreeMap<String, Realm> realms;
+
+	public RealmManager(ObjectRepository repository) {
+		this.repo = repository;
+	}
 
 	public synchronized void resetCache() {
 		realms = null;
 	}
 
-	public Realm getRealm(String target, ObjectRepository repo)
-			throws OpenRDFException {
-		TreeMap<String, Realm> realms = getRealms(repo);
+	public Realm getRealm(String target) throws OpenRDFException {
+		TreeMap<String, Realm> realms = getRealms();
 		return get(target, realms);
 	}
 
-	public AuthenticationManager getAuthenticationManager(Resource uri,
-			ObjectRepository repo) throws OpenRDFException {
-		for (Realm realm : getRealms(repo).values()) {
+	public AuthenticationManager getAuthenticationManager(Resource uri)
+			throws OpenRDFException {
+		for (Realm realm : getRealms().values()) {
 			AuthenticationManager auth = realm.getAuthenticationManager(uri);
 			if (auth != null)
 				return auth;
@@ -46,7 +50,7 @@ public class RealmManager {
 		return null;
 	}
 
-	private synchronized TreeMap<String, Realm> getRealms(ObjectRepository repo)
+	private synchronized TreeMap<String, Realm> getRealms()
 			throws OpenRDFException {
 		if (realms != null && revision == cache)
 			return realms;

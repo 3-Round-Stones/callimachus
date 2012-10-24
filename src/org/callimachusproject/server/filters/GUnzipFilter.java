@@ -38,6 +38,8 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.message.BasicStatusLine;
+import org.callimachusproject.client.GUnzipEntity;
+import org.callimachusproject.client.GZipEntity;
 import org.callimachusproject.server.model.Filter;
 import org.callimachusproject.server.model.Request;
 

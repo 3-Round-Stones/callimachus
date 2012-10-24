@@ -25,14 +25,19 @@ public class AnnotationPropertyInferencer {
 	}
 
 	private int revision = cache;
+	private final Repository repo;
 	private final Map<String, Set<String>> expanded = new HashMap<String, Set<String>>();
+
+	public AnnotationPropertyInferencer(Repository repo) {
+		this.repo = repo;
+	}
 
 	public synchronized void resetCache() {
 		expanded.clear();
 	}
 
-	public synchronized Set<String> expand(String[] property,
-			Repository repo) throws OpenRDFException {
+	public synchronized Set<String> expand(String[] property)
+			throws OpenRDFException {
 		if (revision != cache) {
 			resetCache();
 			revision = cache;
@@ -40,16 +45,16 @@ public class AnnotationPropertyInferencer {
 		if (property == null || property.length == 0)
 			return Collections.emptySet();
 		if (property.length == 1)
-			return expand(property[0], repo);
+			return expand(property[0]);
 		Set<String> set = new HashSet<String>();
 		for (String p : property) {
-			set.addAll(expand(p, repo));
+			set.addAll(expand(p));
 		}
 		return set;
 	}
 
-	private synchronized Set<String> expand(String property,
-			Repository repo) throws OpenRDFException {
+	private synchronized Set<String> expand(String property)
+			throws OpenRDFException {
 		if (expanded.containsKey(property))
 			return expanded.get(property);
 		RepositoryConnection con = repo.getConnection();
@@ -63,8 +68,8 @@ public class AnnotationPropertyInferencer {
 		}
 	}
 
-	private Set<String> findSubPropertiesOf(URI property, RepositoryConnection con)
-			throws OpenRDFException {
+	private Set<String> findSubPropertiesOf(URI property,
+			RepositoryConnection con) throws OpenRDFException {
 		Set<String> set = new HashSet<String>();
 		set.add(property.stringValue());
 		TupleQuery qry = con.prepareTupleQuery(QueryLanguage.SPARQL,

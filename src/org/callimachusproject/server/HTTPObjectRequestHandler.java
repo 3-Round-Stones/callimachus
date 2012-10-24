@@ -40,20 +40,24 @@ import java.util.concurrent.TimeUnit;
 import org.apache.http.Header;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
+import org.apache.http.HttpHost;
 import org.apache.http.HttpInetConnection;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.entity.ConsumingNHttpEntity;
 import org.apache.http.nio.entity.ConsumingNHttpEntityTemplate;
 import org.apache.http.nio.protocol.EventListener;
 import org.apache.http.nio.protocol.NHttpRequestHandler;
 import org.apache.http.nio.protocol.NHttpResponseTrigger;
+import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpExpectationVerifier;
 import org.apache.http.util.EntityUtils;
-import org.callimachusproject.server.client.HTTPService;
+import org.callimachusproject.client.AbstractHttpClient;
 import org.callimachusproject.server.model.ConsumingHttpEntity;
 import org.callimachusproject.server.model.Filter;
 import org.callimachusproject.server.model.Handler;
@@ -71,8 +75,8 @@ import org.slf4j.LoggerFactory;
  * @author James Leigh
  * 
  */
-public class HTTPObjectRequestHandler implements NHttpRequestHandler,
-		HttpExpectationVerifier, EventListener, HTTPService {
+public class HTTPObjectRequestHandler extends AbstractHttpClient implements NHttpRequestHandler,
+		HttpExpectationVerifier, EventListener {
 	private static final String SELF = HTTPObjectRequestHandler.class.getName();
 	public static final String HANDLER_ATTR = Task.class.getName();
 	public static final String CONSUMING_ATTR = SELF + "#consuming";
@@ -142,6 +146,24 @@ public class HTTPObjectRequestHandler implements NHttpRequestHandler,
 			}
 			throw io;
 		}
+	}
+
+	@Override
+	public HttpResponse execute(HttpHost host, HttpRequest request,
+			HttpContext context) throws IOException, ClientProtocolException {
+		return service(request);
+	}
+
+	@Override
+	public ClientConnectionManager getConnectionManager() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public HttpParams getParams() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	public void verify(HttpRequest request, HttpResponse response,

@@ -15,7 +15,6 @@ import org.callimachusproject.annotations.header;
 import org.callimachusproject.annotations.method;
 import org.callimachusproject.annotations.type;
 import org.callimachusproject.server.base.MetadataServerTestCase;
-import org.callimachusproject.server.client.HTTPObjectClient;
 import org.openrdf.annotations.Matching;
 import org.openrdf.repository.object.ObjectConnection;
 
@@ -44,7 +43,6 @@ public class HttpResponseTest extends MetadataServerTestCase {
 		config.addConcept(Echo.class);
 		super.setUp();
 		server.setEnvelopeType("message/x-response");
-		HTTPObjectClient.getInstance().setEnvelopeType("message/x-response");
 		con = repository.getConnection();
 	}
 

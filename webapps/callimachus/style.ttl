@@ -121,7 +121,7 @@
     calli:requires calli:reader;
     calli:type "text/css";
     calli:imports <java:org.apache.http.message.BasicHttpRequest>;
-    calli:imports <java:org.callimachusproject.server.client.HTTPObjectClient>;
+    calli:imports <java:org.callimachusproject.client.HTTPObjectClient>;
     calli:imports <java:org.callimachusproject.server.exceptions.ResponseException>;
     calli:script ("""
         var window = {};

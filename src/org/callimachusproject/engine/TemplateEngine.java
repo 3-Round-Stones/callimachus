@@ -19,10 +19,10 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerException;
 
 import org.apache.http.HttpResponse;
+import org.callimachusproject.client.HTTPObjectClient;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidException;
 import org.callimachusproject.fluid.FluidFactory;
-import org.callimachusproject.server.client.HTTPObjectClient;
 import org.callimachusproject.xslt.TransformBuilder;
 import org.callimachusproject.xslt.XSLTransformer;
 import org.callimachusproject.xslt.XSLTransformerFactory;

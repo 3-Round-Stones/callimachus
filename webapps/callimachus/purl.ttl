@@ -44,7 +44,7 @@
     calli:type "message/x-response";
     calli:imports <java:org.apache.http.message.BasicHttpRequest>;
     calli:imports <java:org.callimachusproject.rewrite.Substitution>;
-    calli:imports <java:org.callimachusproject.server.client.HTTPObjectClient>;
+    calli:imports <java:org.callimachusproject.client.HTTPObjectClient>;
     calli:imports <java:org.callimachusproject.server.exceptions.ResponseException>;
     calli:script """
         var cacheControl = this.calliCacheControl.toArray();

@@ -32,8 +32,7 @@
         var ret = proceed();
         if (!this.calliAuthName)
             throw new BadRequest("authName is required");
-        this.objectConnection.commit();
-        org.callimachusproject.server.auth.RealmManager.reset();
+        this.resetCache();
         return ret;
     """.
 

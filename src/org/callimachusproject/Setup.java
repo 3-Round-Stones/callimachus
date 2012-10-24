@@ -32,7 +32,6 @@ import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.SocketException;
 import java.net.URL;
@@ -55,13 +54,14 @@ import java.util.UUID;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.http.HttpHost;
 import org.callimachusproject.cli.Command;
 import org.callimachusproject.cli.CommandSet;
+import org.callimachusproject.client.HTTPObjectClient;
+import org.callimachusproject.client.UnavailableHttpClient;
 import org.callimachusproject.io.CarInputStream;
 import org.callimachusproject.server.CallimachusRepository;
 import org.callimachusproject.server.CallimachusServer;
-import org.callimachusproject.server.client.HTTPObjectClient;
-import org.callimachusproject.server.client.HTTPServiceUnavailable;
 import org.callimachusproject.server.util.ChannelUtil;
 import org.callimachusproject.util.DomainNameSystemResolver;
 import org.openrdf.OpenRDFException;
@@ -831,9 +831,9 @@ public class Setup {
 	private void importArchive(URI[] schemaGraphs, URL car,
 			String folderUri, String origin, CallimachusRepository repository)
 			throws Exception {
-		InetSocketAddress host = getAuthorityAddress(origin);
+		HttpHost host = getAuthorityAddress(origin);
 		HTTPObjectClient client = HTTPObjectClient.getInstance();
-		HTTPServiceUnavailable service = new HTTPServiceUnavailable();
+		UnavailableHttpClient service = new UnavailableHttpClient();
 		client.setProxy(host, service);
 		for (URI schemaGraph : schemaGraphs) {
 			repository.addSchemaGraph(schemaGraph);
@@ -923,20 +923,24 @@ public class Setup {
 		}
 	}
 
-	private InetSocketAddress getAuthorityAddress(String origin) {
-		InetSocketAddress host;
+	private HttpHost getAuthorityAddress(String origin) {
+		HttpHost host;
+		String scheme = "http";
+		if (origin.startsWith("https:")) {
+			scheme = "https";
+		}
 		if (origin.indexOf(':') != origin.lastIndexOf(':')) {
 			int slash = origin.lastIndexOf('/');
 			int colon = origin.lastIndexOf(':');
 			int port = Integer.parseInt(origin.substring(colon + 1));
-			host = new InetSocketAddress(origin.substring(slash + 1, colon),
-					port);
+			host = new HttpHost(origin.substring(slash + 1, colon), port,
+					scheme);
 		} else if (origin.startsWith("https:")) {
 			int slash = origin.lastIndexOf('/');
-			host = new InetSocketAddress(origin.substring(slash + 1), 443);
+			host = new HttpHost(origin.substring(slash + 1), 443, scheme);
 		} else {
 			int slash = origin.lastIndexOf('/');
-			host = new InetSocketAddress(origin.substring(slash + 1), 80);
+			host = new HttpHost(origin.substring(slash + 1), 80, scheme);
 		}
 		return host;
 	}

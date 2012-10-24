@@ -21,7 +21,6 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
@@ -29,7 +28,8 @@ import java.util.Set;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 
-import org.callimachusproject.server.client.HTTPObjectClient;
+import org.apache.http.HttpHost;
+import org.callimachusproject.client.HTTPObjectClient;
 import org.callimachusproject.server.util.FileUtil;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.repository.Repository;
@@ -181,7 +181,7 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 	public void start() throws Exception {
 		logger.info("Callimachus is binding to {}", toString());
 		for (String origin : origins) {
-			InetSocketAddress host = getAuthorityAddress(origin);
+			HttpHost host = getAuthorityAddress(origin);
 			HTTPObjectClient.getInstance().setProxy(host, server);
 		}
 		repository.setCompileRepository(true);
@@ -212,7 +212,7 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 
 	public void stop() throws Exception {
 		for (String origin : origins) {
-			InetSocketAddress host = getAuthorityAddress(origin);
+			HttpHost host = getAuthorityAddress(origin);
 			HTTPObjectClient.getInstance().removeProxy(host, server);
 		}
 		server.stop();
@@ -222,20 +222,24 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 		server.destroy();
 	}
 
-	private InetSocketAddress getAuthorityAddress(String origin) {
-		InetSocketAddress host;
+	private HttpHost getAuthorityAddress(String origin) {
+		HttpHost host;
+		String scheme = "http";
+		if (origin.startsWith("https:")) {
+			scheme = "https";
+		}
 		if (origin.indexOf(':') != origin.lastIndexOf(':')) {
 			int slash = origin.lastIndexOf('/');
 			int colon = origin.lastIndexOf(':');
 			int port = Integer.parseInt(origin.substring(colon + 1));
-			host = new InetSocketAddress(origin.substring(slash + 1, colon),
-					port);
+			host = new HttpHost(origin.substring(slash + 1, colon), port,
+					scheme);
 		} else if (origin.startsWith("https:")) {
 			int slash = origin.lastIndexOf('/');
-			host = new InetSocketAddress(origin.substring(slash + 1), 443);
+			host = new HttpHost(origin.substring(slash + 1), 443, scheme);
 		} else {
 			int slash = origin.lastIndexOf('/');
-			host = new InetSocketAddress(origin.substring(slash + 1), 80);
+			host = new HttpHost(origin.substring(slash + 1), 80, scheme);
 		}
 		return host;
 	}
@@ -266,7 +270,6 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 		File out = new File(cacheDir, "server");
 		HTTPObjectServer server = new HTTPObjectServer(or, out);
 		server.setEnvelopeType(ENVELOPE_TYPE);
-		HTTPObjectClient.getInstance().setEnvelopeType(ENVELOPE_TYPE);
 		return server;
 	}
 

@@ -32,6 +32,7 @@ public class KeywordSearchTest extends TestCase {
 	public void tearDown() throws Exception {
 		super.tearDown();
 		temporaryServer.pause();
+		Authenticator.setDefault(null);
 	}
 
 	private String getSearchURL() throws MalformedURLException, IOException,

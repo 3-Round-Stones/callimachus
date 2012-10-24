@@ -8,13 +8,24 @@ import javax.tools.FileObject;
 
 import org.apache.http.HttpResponse;
 import org.callimachusproject.server.auth.AuthorizationManager;
+import org.callimachusproject.server.auth.AuthorizationService;
 import org.callimachusproject.server.auth.DigestManager;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Resource;
+import org.openrdf.repository.RepositoryException;
+import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.ObjectRepository;
 import org.openrdf.repository.object.RDFObject;
 
 public abstract class DigestManagerSupport implements RDFObject {
+	private final AuthorizationService service = AuthorizationService.getInstance();
+
+	public void resetCache() throws RepositoryException {
+		ObjectConnection conn = this.getObjectConnection();
+        conn.commit();
+		ObjectRepository repo = conn.getRepository();
+		service.get(repo).resetCache();
+	}
 
 	/**
 	 * Called from realm.ttl and user.ttl
@@ -86,8 +97,8 @@ public abstract class DigestManagerSupport implements RDFObject {
 	private DigestManager getDigest() throws OpenRDFException {
 		Resource self = this.getResource();
 		ObjectRepository repo = this.getObjectConnection().getRepository();
-		AuthorizationManager manager = AuthorizationManager.getInstance();
-		return (DigestManager) manager.getAuthenticationManager(self, repo);
+		AuthorizationManager manager = service.get(repo);
+		return (DigestManager) manager.getAuthenticationManager(self);
 	}
 
 }

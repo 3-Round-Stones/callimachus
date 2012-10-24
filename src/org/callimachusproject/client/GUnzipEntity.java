@@ -26,7 +26,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-package org.callimachusproject.server.filters;
+package org.callimachusproject.client;
 
 import java.io.IOException;
 import java.io.InputStream;

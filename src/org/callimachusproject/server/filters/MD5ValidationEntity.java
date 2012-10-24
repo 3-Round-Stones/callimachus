@@ -34,6 +34,7 @@ import java.nio.channels.ReadableByteChannel;
 import java.security.NoSuchAlgorithmException;
 
 import org.apache.http.HttpEntity;
+import org.callimachusproject.client.HttpEntityWrapper;
 import org.callimachusproject.server.util.ChannelUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

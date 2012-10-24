@@ -44,12 +44,12 @@ import javax.management.ObjectName;
 
 import org.callimachusproject.cli.Command;
 import org.callimachusproject.cli.CommandSet;
+import org.callimachusproject.client.HTTPObjectClient;
 import org.callimachusproject.logging.LoggerBean;
 import org.callimachusproject.server.CallimachusServer;
 import org.callimachusproject.server.ConnectionBean;
 import org.callimachusproject.server.HTTPObjectAgentMXBean;
 import org.callimachusproject.server.HTTPObjectPolicy;
-import org.callimachusproject.server.client.HTTPObjectClient;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.config.RepositoryConfigException;
@@ -88,8 +88,6 @@ public class Server implements HTTPObjectAgentMXBean {
 		commands.option("trust").desc(
 				"Allow all server code to read, write, and execute all files and directories "
 						+ "according to the file system's ACL");
-		commands.option("from").optional("email").desc(
-				"Email address for the human user who controls this server");
 		commands.option("pid").arg("file").desc(
 				"File to store current process id");
 		commands.option("q", "quiet").desc(
@@ -371,11 +369,7 @@ public class Server implements HTTPObjectAgentMXBean {
 		}
 		File cacheDir = new File(dataDir, "cache");
 		File in = new File(cacheDir, "client");
-		HTTPObjectClient.setInstance(in, 1024);
-		if (line.has("from")) {
-			String from = line.get("from");
-			HTTPObjectClient.getInstance().setFrom(from == null ? "" : from);
-		}
+		HTTPObjectClient.setCacheDirectory(in);
 		server = new CallimachusServer(repository, dataDir);
 		if (line.has("port")) {
 			String[] values = line.getAll("port");

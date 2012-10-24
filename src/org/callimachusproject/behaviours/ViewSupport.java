@@ -27,10 +27,10 @@ import java.net.URLEncoder;
 import javax.tools.FileObject;
 import javax.xml.stream.XMLEventReader;
 
+import org.callimachusproject.client.HTTPObjectClient;
 import org.callimachusproject.concepts.Page;
 import org.callimachusproject.engine.Template;
 import org.callimachusproject.engine.TemplateEngine;
-import org.callimachusproject.server.client.HTTPObjectClient;
 import org.callimachusproject.traits.VersionedObject;
 import org.openrdf.annotations.Bind;
 import org.openrdf.annotations.Sparql;

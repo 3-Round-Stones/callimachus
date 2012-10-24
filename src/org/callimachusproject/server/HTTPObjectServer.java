@@ -44,24 +44,21 @@ import java.io.PrintWriter;
 import java.net.BindException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Queue;
-import java.util.Set;
 
 import javax.net.ssl.SSLContext;
 
 import org.apache.http.HttpException;
+import org.apache.http.HttpHost;
 import org.apache.http.HttpInetConnection;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.impl.nio.reactor.DefaultListeningIOReactor;
@@ -77,9 +74,9 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpProcessor;
 import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.Version;
+import org.callimachusproject.client.AbstractHttpClient;
+import org.callimachusproject.client.HTTPObjectClient;
 import org.callimachusproject.server.cache.CachingFilter;
-import org.callimachusproject.server.client.HTTPObjectClient;
-import org.callimachusproject.server.client.HTTPService;
 import org.callimachusproject.server.filters.DateHeaderFilter;
 import org.callimachusproject.server.filters.GUnzipFilter;
 import org.callimachusproject.server.filters.GZipFilter;
@@ -114,7 +111,7 @@ import org.slf4j.LoggerFactory;
  * @param <a>
  * 
  */
-public class HTTPObjectServer implements HTTPService, HTTPObjectAgentMXBean {
+public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAgentMXBean {
 	protected static final String DEFAULT_NAME = Version.getInstance().getVersion();
 	private static NamedThreadFactory executor = new NamedThreadFactory("HttpObjectServer", false);
 	private static final List<HTTPObjectServer> instances = new ArrayList<HTTPObjectServer>();
@@ -173,7 +170,7 @@ public class HTTPObjectServer implements HTTPService, HTTPObjectAgentMXBean {
 		handler = remoteCache = new ModifiedSinceHandler(handler);
 		handler = new UnmodifiedSinceHandler(handler);
 		handler = new ContentHeadersHandler(handler);
-		handler = authCache = new AuthenticationHandler(handler);
+		handler = authCache = new AuthenticationHandler(handler, repository.getDelegate());
 		Filter filter = env = new HttpResponseFilter(null);
 		filter = new DateHeaderFilter(filter);
 		filter = new GZipFilter(filter);
@@ -316,7 +313,7 @@ public class HTTPObjectServer implements HTTPService, HTTPObjectAgentMXBean {
 
 	public void invalidateCache() throws IOException, InterruptedException {
 		cache.invalidate();
-		HTTPObjectClient.getInstance().invalidateCache();
+		HTTPObjectClient.invalidateCache();
 		remoteCache.invalidate();
 	}
 
@@ -329,7 +326,7 @@ public class HTTPObjectServer implements HTTPService, HTTPObjectAgentMXBean {
 			public void run() {
 				try {
 					cache.reset();
-					HTTPObjectClient.getInstance().resetCache();
+					HTTPObjectClient.resetCache();
 					remoteCache.invalidate();
 					authCache.resetCache();
 				} catch (Error e) {
@@ -435,15 +432,9 @@ public class HTTPObjectServer implements HTTPService, HTTPObjectAgentMXBean {
 
 	public synchronized void start() throws Exception {
 		if (ports.length > 0) {
-			for (int port : ports) {
-				registerService(HTTPObjectClient.getInstance(), port);
-			}
 			server.resume();
 		}
 		if (sslserver != null && sslports.length > 0) {
-			for (int port : sslports) {
-				registerService(HTTPObjectClient.getInstance(), port);
-			}
 			sslserver.resume();
 		}
 	}
@@ -461,15 +452,9 @@ public class HTTPObjectServer implements HTTPService, HTTPObjectAgentMXBean {
 
 	public synchronized void stop() throws Exception {
 		if (ports.length > 0) {
-			for (int port : ports) {
-				deregisterService(HTTPObjectClient.getInstance(), port);
-			}
 			server.pause();
 		}
 		if (sslserver != null && sslports.length > 0) {
-			for (int port : sslports) {
-				deregisterService(HTTPObjectClient.getInstance(), port);
-			}
 			sslserver.pause();
 		}
 	}
@@ -528,6 +513,22 @@ public class HTTPObjectServer implements HTTPService, HTTPObjectAgentMXBean {
 
 	public HttpResponse service(HttpRequest request) throws IOException {
 		return service.service(request);
+	}
+
+	@Override
+	public HttpResponse execute(HttpHost host, HttpRequest request,
+			HttpContext context) throws IOException, ClientProtocolException {
+		return service.execute(host, request, context);
+	}
+
+	@Override
+	public ClientConnectionManager getConnectionManager() {
+		return service.getConnectionManager();
+	}
+
+	@Override
+	public HttpParams getParams() {
+		return service.getParams();
 	}
 
 	public ConnectionBean[] getConnections() {
@@ -632,53 +633,6 @@ public class HTTPObjectServer implements HTTPService, HTTPObjectAgentMXBean {
 		if (string == null)
 			return "";
 		return string;
-	}
-
-	private void registerService(HTTPObjectClient client, int port) {
-		for (InetAddress addr : getAllLocalAddresses()) {
-			client.setProxy(new InetSocketAddress(addr, port), service);
-		}
-	}
-
-	private void deregisterService(HTTPObjectClient client, int port) {
-		for (InetAddress addr : getAllLocalAddresses()) {
-			client.removeProxy(new InetSocketAddress(addr, port), service);
-		}
-	}
-
-	private Set<InetAddress> getAllLocalAddresses() {
-		Set<InetAddress> result = new HashSet<InetAddress>();
-		try {
-			result.addAll(Arrays.asList(InetAddress.getAllByName(null)));
-		} catch (UnknownHostException e) {
-			// no loop back device
-		}
-		try {
-			InetAddress local = InetAddress.getLocalHost();
-			result.add(local);
-			try {
-				result.addAll(Arrays.asList(InetAddress.getAllByName(local
-						.getCanonicalHostName())));
-			} catch (UnknownHostException e) {
-				// no canonical name
-			}
-		} catch (UnknownHostException e) {
-			// no network
-		}
-		try {
-			Enumeration<NetworkInterface> interfaces;
-			interfaces = NetworkInterface.getNetworkInterfaces();
-			while (interfaces != null && interfaces.hasMoreElements()) {
-				NetworkInterface iface = interfaces.nextElement();
-				Enumeration<InetAddress> addrs = iface.getInetAddresses();
-				while (addrs != null && addrs.hasMoreElements()) {
-					result.add(addrs.nextElement());
-				}
-			}
-		} catch (SocketException e) {
-			// broken network configuration
-		}
-		return result;
 	}
 
 }

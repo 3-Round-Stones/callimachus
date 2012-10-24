@@ -24,7 +24,7 @@ import org.apache.http.ProtocolVersion;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
 import org.apache.http.util.EntityUtils;
-import org.callimachusproject.server.client.HTTPObjectClient;
+import org.callimachusproject.client.HTTPObjectClient;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;

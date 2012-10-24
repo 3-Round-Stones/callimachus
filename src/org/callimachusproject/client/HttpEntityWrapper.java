@@ -27,7 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-package org.callimachusproject.server.filters;
+package org.callimachusproject.client;
 
 import java.io.FilterInputStream;
 import java.io.IOException;
@@ -40,7 +40,7 @@ import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
-import org.apache.http.nio.entity.ProducingNHttpEntity;
+import org.apache.http.nio.entity.HttpAsyncContentProducer;
 import org.apache.http.util.EntityUtils;
 import org.callimachusproject.server.util.ChannelUtil;
 
@@ -50,7 +50,7 @@ import org.callimachusproject.server.util.ChannelUtil;
  * @author James Leigh
  * 
  */
-public class HttpEntityWrapper implements ProducingNHttpEntity {
+public class HttpEntityWrapper implements HttpAsyncContentProducer, HttpEntity {
 	private HttpEntity entity;
 	private InputStream in;
 	private ReadableByteChannel cin;
@@ -107,7 +107,7 @@ public class HttpEntityWrapper implements ProducingNHttpEntity {
 	}
 
 	public final void consumeContent() throws IOException {
-		finish();
+		close();
 	}
 
 	public final synchronized InputStream getContent() throws IOException, IllegalStateException {
@@ -160,7 +160,8 @@ public class HttpEntityWrapper implements ProducingNHttpEntity {
 		}
 	}
 
-	public final void finish() throws IOException {
+	@Override
+	public final void close() throws IOException {
 		try {
 			closeEntity();
 		} finally {
@@ -172,6 +173,7 @@ public class HttpEntityWrapper implements ProducingNHttpEntity {
 		}
 	}
 
+	@Override
 	public final synchronized void produceContent(ContentEncoder encoder, IOControl ioctrl)
 			throws IOException {
 		if (cin == null) {
@@ -192,10 +194,10 @@ public class HttpEntityWrapper implements ProducingNHttpEntity {
 		return getEntityDelegate().getContent();
 	}
 
-	private final void closeEntity() throws IOException {
+	final void closeEntity() throws IOException {
 		try {
-			if (entity instanceof ProducingNHttpEntity) {
-				((ProducingNHttpEntity) entity).finish();
+			if (entity instanceof HttpAsyncContentProducer) {
+				((HttpAsyncContentProducer) entity).close();
 			} else if (entity != null) {
 				EntityUtils.consume(entity);
 			}

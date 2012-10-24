@@ -23,7 +23,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.message.BasicHttpRequest;
-import org.callimachusproject.server.client.HTTPObjectClient;
+import org.callimachusproject.client.HTTPObjectClient;
 import org.callimachusproject.server.exceptions.ResponseException;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;

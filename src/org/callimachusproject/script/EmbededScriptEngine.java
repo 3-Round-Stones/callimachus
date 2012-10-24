@@ -46,7 +46,7 @@ import javax.script.ScriptException;
 import javax.script.SimpleBindings;
 
 import org.apache.http.HttpResponse;
-import org.callimachusproject.server.client.HTTPObjectClient;
+import org.callimachusproject.client.HTTPObjectClient;
 import org.openrdf.repository.object.exceptions.BehaviourException;
 import org.openrdf.repository.object.traits.ObjectMessage;
 import org.slf4j.Logger;

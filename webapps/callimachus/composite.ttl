@@ -49,7 +49,6 @@
     calli:imports <java:org.callimachusproject.server.exceptions.Forbidden>;
     calli:imports <java:org.callimachusproject.server.exceptions.Conflict>;
     calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
-    calli:imports <java:org.callimachusproject.server.auth.AuthorizationManager>;
     calli:imports <Creatable>;
     calli:imports <Editable>;
     calli:script """
@@ -94,7 +93,7 @@
         var iter = this.FindCreator(newCopy).iterator();
         if (!iter.hasNext())
             throw new InternalServerError("Could not find user");
-        var authorization = AuthorizationManager.getInstance();
+        var authorization = this;
         while (iter.hasNext()) {
             var user = iter.next();
             function findConcepts(klass, visited, callback) {
@@ -186,7 +185,6 @@
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
     calli:imports <java:org.callimachusproject.server.exceptions.Forbidden>;
     calli:imports <java:org.callimachusproject.xml.XMLEventReaderFactory>;
-    calli:imports <java:org.callimachusproject.server.auth.AuthorizationManager>;
     calli:script """
         if (!location)
             throw new BadRequest("No location provided");
@@ -254,11 +252,10 @@
         }
         var construct = create.LookupConstructor(documentTag, ftype);
         var newCopy = construct.PostCreate(bio, location, ftype);
-        var authorization = AuthorizationManager.getInstance();
         var iter = this.FindCreator(newCopy).iterator();
         while (iter.hasNext()) {
             var user = iter.next();
-            if (!authorization.isAuthorized(user.toString(), construct, ["http://callimachusproject.org/rdf/2009/framework#author"]))
+            if (!this.isAuthorized(user.toString(), construct, ["http://callimachusproject.org/rdf/2009/framework#author"]))
                 throw new Forbidden(user + " is not permitted to create " + construct + " resources");
         }
         newCopy.calliEditor.addAll(this.FindContributor(newCopy));

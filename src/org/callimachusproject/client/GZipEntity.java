@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, Zepheira LLC Some rights reserved.
+ * Copyright 2010, Zepheira LLC Some rights reserved.
  * Copyright (c) 2011 Talis Inc., Some rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -27,39 +27,57 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-package org.callimachusproject.server.client;
+package org.callimachusproject.client;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.zip.GZIPOutputStream;
+
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
-import org.callimachusproject.server.filters.HttpEntityWrapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.http.message.BasicHeader;
+import org.callimachusproject.server.util.ProducerStream;
+import org.callimachusproject.server.util.ProducerStream.OutputProducer;
 
 /**
- * Ensures this entity's stream is closed after garbage collection.
- * 
- * @author James Leigh
- * 
+ * Compresses the message body.
  */
-public class TrackedHttpEntity extends HttpEntityWrapper {
-	private static Logger logger = LoggerFactory
-			.getLogger(TrackedHttpEntity.class);
-	private Throwable source;
+public class GZipEntity extends HttpEntityWrapper {
 
-	public TrackedHttpEntity(HttpEntity entity, Throwable source) {
+	public GZipEntity(HttpEntity entity) {
 		super(entity);
-		this.source = source;
 	}
 
 	@Override
-	protected void finalize() throws Throwable {
-		if (isStreaming()) {
-			finish();
-			if (source == null) {
-				logger.error("HttpEntity#consumeContent() must be called");
-			} else {
-				logger.error("HttpEntity#consumeContent() was not called", source);
+	protected InputStream getDelegateContent() throws IOException {
+		final InputStream in = GZipEntity.super.getDelegateContent();
+		return new ProducerStream(new OutputProducer() {
+			public void produce(OutputStream pipe) throws IOException {
+				OutputStream out = new GZIPOutputStream(pipe);
+				try {
+					int read;
+					byte[] buf = new byte[512];
+					while ((read = in.read(buf)) >= 0) {
+						out.write(buf, 0, read);
+					}
+				} finally {
+					out.close();
+				}
 			}
-		}
-		super.finalize();
+		});
 	}
+
+	public Header getContentEncoding() {
+		return new BasicHeader("Content-Encoding", "gzip");
+	}
+
+	public long getContentLength() {
+		return -1;
+	}
+
+	public boolean isChunked() {
+		return true;
+	}
+
 }

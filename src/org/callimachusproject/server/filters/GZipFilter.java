@@ -34,6 +34,8 @@ import java.io.IOException;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.callimachusproject.client.GUnzipEntity;
+import org.callimachusproject.client.GZipEntity;
 import org.callimachusproject.server.model.Filter;
 import org.callimachusproject.server.model.Request;
 

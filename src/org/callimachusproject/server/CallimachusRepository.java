@@ -36,6 +36,11 @@ public class CallimachusRepository extends RepositoryWrapper {
 		setDelegate(object);
 	}
 
+	@Override
+	public ObjectRepository getDelegate() {
+		return object;
+	}
+
 	public void setActivityFolderAndType(String uriSpace, String activityType,
 			String folderType) throws DatatypeConfigurationException {
 		if (auditing != null) {

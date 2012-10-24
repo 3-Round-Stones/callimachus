@@ -101,6 +101,7 @@ public class RDFDeleteTest extends TestCase {
 	public void tearDown() throws Exception {
 		super.tearDown();
 		temporaryServer.pause();
+		Authenticator.setDefault(null);
 	}
 	
 	private String getRDFContents() throws MalformedURLException, IOException,

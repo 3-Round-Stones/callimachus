@@ -40,11 +40,13 @@ import org.apache.http.Header;
 import org.apache.http.HttpMessage;
 import org.apache.http.HttpResponse;
 import org.callimachusproject.server.auth.AuthorizationManager;
+import org.callimachusproject.server.auth.AuthorizationService;
 import org.callimachusproject.server.auth.Group;
 import org.callimachusproject.server.model.Handler;
 import org.callimachusproject.server.model.ResourceOperation;
 import org.callimachusproject.server.model.Response;
 import org.openrdf.OpenRDFException;
+import org.openrdf.repository.object.ObjectRepository;
 import org.openrdf.repository.object.RDFObject;
 
 /**
@@ -61,12 +63,12 @@ public class AuthenticationHandler implements Handler {
 			"Content-Length", "Content-Encoding", "Date", "Server" };
 	private static final Set<String> PRIVATE_HEADERS = new HashSet<String>(
 			Arrays.asList("set-cookie", "set-cookie2"));
-	private final AuthorizationManager manager = AuthorizationManager
-			.getInstance();
+	private final AuthorizationManager manager;
 	private final Handler delegate;
 
-	public AuthenticationHandler(Handler delegate) {
+	public AuthenticationHandler(Handler delegate, ObjectRepository repository) {
 		this.delegate = delegate;
+		this.manager = AuthorizationService.getInstance().get(repository);
 	}
 
 	public void resetCache() {

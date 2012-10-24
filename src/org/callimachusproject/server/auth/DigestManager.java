@@ -256,7 +256,7 @@ public class DigestManager implements AuthenticationManager {
 			try {
 				while (results.hasNext()) {
 					String iri = results.next().getValue("id").stringValue();
-					Realm realm = realms.getRealm(iri, con.getRepository());
+					Realm realm = realms.getRealm(iri);
 					if (realm != null) {
 						String secret = realm.getSecret();
 						return login(secret);
@@ -394,7 +394,7 @@ public class DigestManager implements AuthenticationManager {
 					hash = readString((FileObject) file);
 					map.put(hash, iri);
 				}
-				Realm r = realms.getRealm(iri, con.getRepository());
+				Realm r = realms.getRealm(iri);
 				if (r == null || r.getSecret() == null)
 					continue;
 				String secret = r.getSecret();

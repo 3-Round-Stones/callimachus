@@ -754,7 +754,7 @@ public class CachingFilter extends Filter {
 			} else {
 				final Lock inUse = cached.open();
 				final File file = cached.getBody();
-				res.setEntity(new NFileEntity(file, ContentType.create(type), true) {
+				NFileEntity entity = new NFileEntity(file, ContentType.create(type), true) {
 					
 					public String toString() {
 						return file.toString();
@@ -785,7 +785,9 @@ public class CachingFilter extends Filter {
 							inUse.release();
 						}
 					}
-				});
+				};
+				entity.setContentEncoding(res.getLastHeader("Content-Encoding"));
+				res.setEntity(entity);
 			}
 		}
 	}

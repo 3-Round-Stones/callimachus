@@ -199,6 +199,7 @@ public class BLOBUpdateTest extends TestCase {
 	public void tearDown() throws Exception {
 		super.tearDown();
 		temporaryServer.pause();
+		Authenticator.setDefault(null);
 	}
 	
 	private String getCollection() throws Exception {

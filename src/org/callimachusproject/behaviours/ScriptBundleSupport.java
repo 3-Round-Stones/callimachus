@@ -8,8 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.http.HttpResponse;
+import org.callimachusproject.client.HTTPObjectClient;
 import org.callimachusproject.concepts.ScriptBundle;
-import org.callimachusproject.server.client.HTTPObjectClient;
 import org.callimachusproject.server.exceptions.GatewayTimeout;
 import org.callimachusproject.server.exceptions.InternalServerError;
 import org.openrdf.annotations.Sparql;

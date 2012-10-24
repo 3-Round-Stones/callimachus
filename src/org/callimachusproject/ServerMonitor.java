@@ -47,7 +47,6 @@ import org.callimachusproject.cli.Command;
 import org.callimachusproject.cli.CommandSet;
 import org.callimachusproject.logging.LoggerMXBean;
 import org.callimachusproject.server.HTTPObjectAgentMXBean;
-import org.callimachusproject.server.client.HTTPObjectClient;
 import org.callimachusproject.server.util.ChannelUtil;
 import org.callimachusproject.server.util.ManagedThreadPool;
 import org.callimachusproject.server.util.ThreadPoolMXBean;
@@ -272,7 +271,6 @@ public class ServerMonitor {
 		executeVMCommand(vm, "heapHisto", dir + "heap-" + stamp + ".histo");
 		// dump callimachus info
 		connectionDump(mbsc, dir + "server-" + stamp + ".csv");
-		clientDump(mbsc, dir + "client-" + stamp + ".csv");
 		poolDump(mbsc, dir + "pool-" + stamp + ".tdump");
 		traceDump(mbsc, dir + "trace-" + stamp + ".txt");
 		summaryDump(mbsc, dir + "summary-" + stamp + ".txt");
@@ -336,19 +334,6 @@ public class ServerMonitor {
 			ThreadPoolMXBean pool = JMX.newMXBeanProxy(mbsc, mons[i],
 					ThreadPoolMXBean.class);
 			pool.threadDumpToFile(filename);
-		}
-		info(filename);
-	}
-
-	private void clientDump(MBeanServerConnection mbsc, String filename)
-			throws MalformedObjectNameException, IOException {
-		ObjectName conp = HTTPObjectClient.getObjectNamePattern();
-		ObjectName[] cons = mbsc.queryNames(conp, null).toArray(
-				new ObjectName[0]);
-		for (int i = 0; i < cons.length; i++) {
-			HTTPObjectAgentMXBean client = JMX.newMXBeanProxy(mbsc, cons[i],
-					HTTPObjectAgentMXBean.class);
-			client.connectionDumpToFile(filename);
 		}
 		info(filename);
 	}

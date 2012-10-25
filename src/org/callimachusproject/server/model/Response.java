@@ -98,10 +98,6 @@ public class Response extends AbstractHttpMessage {
 		return this;
 	}
 
-	public List<Runnable> getOnClose() {
-		return onclose;
-	}
-
 	public Response exception(ResponseException e) {
 		status(e.getStatusCode(), e.getShortMessage());
 		this.exception = e;
@@ -151,7 +147,21 @@ public class Response extends AbstractHttpMessage {
 		}
 		return new ReadableHttpEntityChannel(contentType,
 				http.getContentLength(), ChannelUtil.newChannel(http
-						.getContent()), getOnClose());
+						.getContent()), onclose);
+	}
+
+	public void asVoid() {
+		if (onclose != null) {
+			for (Runnable task : onclose) {
+				try {
+					task.run();
+				} catch (RuntimeException e) {
+					e.printStackTrace();
+				} catch (Error e) {
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 
 	public Response header(String header, String value) {

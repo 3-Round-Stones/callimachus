@@ -29,8 +29,10 @@
  */
 package org.callimachusproject.server.util;
 
+import java.util.List;
+import java.util.concurrent.AbstractExecutorService;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -44,7 +46,7 @@ import java.util.concurrent.TimeUnit;
  * @author James Leigh
  * 
  */
-public class AntiDeadlockThreadPool implements Executor {
+public class AntiDeadlockThreadPool extends AbstractExecutorService implements ExecutorService {
 	private static ScheduledExecutorService scheduler = ManagedExecutors
 			.getTimeoutThreadPool();
 	private int corePoolSize;
@@ -91,6 +93,32 @@ public class AntiDeadlockThreadPool implements Executor {
 				}
 			}, 5, 5, TimeUnit.SECONDS);
 		}
+	}
+
+	@Override
+	public void shutdown() {
+		executor.shutdown();
+	}
+
+	@Override
+	public List<Runnable> shutdownNow() {
+		return executor.shutdownNow();
+	}
+
+	@Override
+	public boolean isShutdown() {
+		return executor.isShutdown();
+	}
+
+	@Override
+	public boolean isTerminated() {
+		return executor.isTerminated();
+	}
+
+	@Override
+	public boolean awaitTermination(long timeout, TimeUnit unit)
+			throws InterruptedException {
+		return executor.awaitTermination(timeout, unit);
 	}
 
 }

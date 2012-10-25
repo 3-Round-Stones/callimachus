@@ -55,9 +55,6 @@ public class EditableHttpEntityEnclosingRequest implements
 		this.request = request;
 		this.requestLine = request.getRequestLine();
 		this.params = request.getParams();
-		if (request instanceof HttpEntityEnclosingRequest) {
-			this.entity = ((HttpEntityEnclosingRequest) request).getEntity();
-		}
 	}
 
 	public HttpRequest getEnclosingRequest() {
@@ -75,7 +72,7 @@ public class EditableHttpEntityEnclosingRequest implements
 		cloned.request = new BasicHttpEntityEnclosingRequest(requestLine);
 		cloned.request.setHeaders(request.getAllHeaders());
 		cloned.request.setParams(params);
-		cloned.setEntity(entity);
+		cloned.setEntity(getEntity());
 		return cloned;
 	}
 
@@ -98,13 +95,19 @@ public class EditableHttpEntityEnclosingRequest implements
 	}
 
 	public HttpEntity getEntity() {
-		return entity;
+		if (entity != null)
+			return entity;
+		if (request instanceof HttpEntityEnclosingRequest)
+			return ((HttpEntityEnclosingRequest) request).getEntity();
+		return null;
 	}
 
 	public void setEntity(HttpEntity entity) {
-		if (request instanceof HttpEntityEnclosingRequest)
+		if (entity == null && request instanceof HttpEntityEnclosingRequest) {
 			((HttpEntityEnclosingRequest) request).setEntity(entity);
-		this.entity = entity;
+		} else {
+			this.entity = entity;
+		}
 	}
 
 	public void addHeader(Header header) {

@@ -30,7 +30,6 @@ package org.callimachusproject.server.util;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
-import java.lang.reflect.UndeclaredThrowableException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.Pipe;

@@ -170,14 +170,23 @@ public class ResourceRequest extends Request {
 		}
 	}
 
-	public void cleanup() throws RepositoryException, IOException {
+	/**
+	 * Request has been fully read and response has been fully written.
+	 */
+	public void endExchange() {
 		if (!closed) {
 			closed = true;
 			ObjectConnection con = getObjectConnection();
-			con.rollback();
-			con.close();
+			try {
+				con.rollback();
+				con.close();
+			} catch (RepositoryException e) {
+				logger.error(e.toString(), e);
+			}
 		}
-		super.cleanup();
+		if (getEnclosingRequest() instanceof ResourceRequest) {
+			((ResourceRequest) getEnclosingRequest()).endExchange();
+		}
 	}
 
 	public Fluid getBody() {

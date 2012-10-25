@@ -31,82 +31,160 @@ package org.callimachusproject.server.model;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.InterruptedIOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.ClosedChannelException;
+import java.nio.channels.Pipe;
+import java.nio.channels.Pipe.SourceChannel;
 import java.nio.channels.ReadableByteChannel;
 
 import org.apache.http.HttpEntity;
-import org.apache.http.nio.ContentEncoder;
+import org.apache.http.HttpEntityEnclosingRequest;
+import org.apache.http.HttpRequest;
+import org.apache.http.entity.ContentType;
+import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.IOControl;
-import org.apache.http.nio.entity.ConsumingNHttpEntityTemplate;
-import org.apache.http.nio.entity.ProducingNHttpEntity;
+import org.apache.http.nio.protocol.AbstractAsyncRequestConsumer;
+import org.apache.http.protocol.HttpContext;
+import org.callimachusproject.client.HttpEntityWrapper;
 import org.callimachusproject.server.util.ChannelUtil;
-import org.callimachusproject.server.util.ReadableContentListener;
 
 /**
- * Redirects read operations to a {@link ReadableContentListener} objects.
+ * Pipes incoming request body to HttpEntity content source
  * 
  * @author James Leigh
  * 
  */
-public class ConsumingHttpEntity extends ConsumingNHttpEntityTemplate implements
-		ProducingNHttpEntity {
-	private ReadableContentListener in;
-	private ByteBuffer buf;
+public class ConsumingHttpEntity extends
+		AbstractAsyncRequestConsumer<Request> {
+	private class ReadableSource implements ReadableByteChannel {
+		private ReadableByteChannel ch;
 
-	public ConsumingHttpEntity(HttpEntity httpEntity, ReadableContentListener in) {
-		super(httpEntity, in);
-		this.in = in;
-	}
+		public ReadableSource(ReadableByteChannel ch) {
+			this.ch = ch;
+		}
 
-	@Override
-	public String toString() {
-		return in.toString();
-	}
+		public boolean isOpen() {
+			return ch.isOpen();
+		}
 
-	@Override
-	public InputStream getContent() throws IOException,
-			UnsupportedOperationException {
-		return ChannelUtil.newInputStream(in);
-	}
-
-	@Override
-	public void writeTo(OutputStream out) throws IOException,
-			UnsupportedOperationException {
-		InputStream in = getContent();
-		try {
-			int l;
-			byte[] buf = new byte[2048];
-			while ((l = in.read(buf)) != -1) {
-				out.write(buf, 0, l);
+		public void close() throws IOException {
+			try {
+				verify();
+			} finally {
+				ch.close();
 			}
-		} finally {
-			in.close();
+			verify();
+		}
+
+		public int read(ByteBuffer dst) throws IOException {
+			verify();
+			return ch.read(dst);
+		}
+	}
+
+	private Request request;
+	private Pipe pipe;
+	private ByteBuffer buf;
+	private Throwable throwable;
+
+	public ConsumingHttpEntity(Request request) throws IOException {
+		this.request = request;
+		if (request instanceof HttpEntityEnclosingRequest) {
+			HttpEntityEnclosingRequest ereq = (HttpEntityEnclosingRequest) request;
+			HttpEntity entity = ereq.getEntity();
+			if (entity == null)
+				return;
+			pipe = Pipe.open();
+			buf = ByteBuffer.allocate(4096);
+			final SourceChannel source = pipe.source();
+			request.setEntity(new HttpEntityWrapper(entity) {
+				protected InputStream getDelegateContent() throws IOException {
+					return ChannelUtil
+							.newInputStream(new ReadableSource(source));
+				}
+			});
 		}
 	}
 
 	@Override
-	public boolean isStreaming() {
-		return super.isStreaming() && in.isOpen();
-	}
-
-	public ReadableByteChannel getReadableByteChannel() throws IOException {
-		return in;
-	}
-
-	public void produceContent(ContentEncoder encoder, IOControl ioctrl)
+	protected synchronized void onRequestReceived(final HttpRequest req)
 			throws IOException {
-		if (buf == null) {
-			buf = ByteBuffer.allocate(1024);
-		}
-		if (in.read(buf) < 0 && buf.position() == 0) {
-			encoder.complete();
-		} else {
-			buf.flip();
-			encoder.write(buf);
-			buf.compact();
-		}
+	}
 
+	@Override
+	protected synchronized void onEntityEnclosed(final HttpEntity entity,
+			final ContentType contentType) {
+	}
+
+	@Override
+	protected synchronized void onContentReceived(final ContentDecoder in,
+			final IOControl ioctrl) throws IOException {
+		assert pipe != null;
+		while (in.read(buf) >= 0 || buf.position() != 0) {
+			try {
+				if (pipe.source().isOpen()) {
+					buf.flip();
+					pipe.sink().write(buf);
+					buf.compact();
+				} else {
+					buf.clear();
+				}
+			} catch (InterruptedIOException e) {
+				Thread.currentThread().interrupt();
+				return;
+			} catch (ClosedChannelException e) {
+				// exit
+			} catch (IOException e) {
+				throwable = e;
+			} catch (RuntimeException e) {
+				throwable = e;
+			} catch (Error e) {
+				throwable = e;
+			}
+		}
+	}
+
+	@Override
+	protected Request buildResult(final HttpContext context) {
+		try {
+			if (pipe != null) {
+				pipe.sink().close();
+			}
+		} catch (InterruptedIOException e) {
+			Thread.currentThread().interrupt();
+		} catch (ClosedChannelException e) {
+			// exit
+		} catch (IOException e) {
+			throwable = throwable == null ? e : throwable;
+		} catch (RuntimeException e) {
+			throwable = throwable == null ? e : throwable;
+		} catch (Error e) {
+			throwable = throwable == null ? e : throwable;
+		}
+		return this.request;
+	}
+
+	@Override
+	protected void releaseResources() {
+		this.request = null;
+		this.buf = null;
+		this.pipe = null;
+		this.throwable = null;
+	}
+
+	void verify() throws IOException {
+		Exception exception = super.getException();
+		if (exception != null)
+			throw new IOException(exception);
+		try {
+			if (throwable instanceof Error)
+				throw (Error) throwable;
+			if (throwable != null)
+				throw new IOException(throwable);
+		} finally {
+			throwable = null;
+		}
 	}
 
 }

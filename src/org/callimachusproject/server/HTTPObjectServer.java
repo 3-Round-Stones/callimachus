@@ -34,8 +34,6 @@ import static org.apache.http.params.CoreConnectionPNames.SO_KEEPALIVE;
 import static org.apache.http.params.CoreConnectionPNames.SO_TIMEOUT;
 import static org.apache.http.params.CoreConnectionPNames.STALE_CONNECTION_CHECK;
 import static org.apache.http.params.CoreConnectionPNames.TCP_NODELAY;
-import static org.callimachusproject.server.HTTPObjectRequestHandler.HANDLER_ATTR;
-import static org.callimachusproject.server.HTTPObjectRequestHandler.PENDING_ATTR;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -47,8 +45,9 @@ import java.net.InetSocketAddress;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Queue;
+import java.util.Set;
 
 import javax.net.ssl.SSLContext;
 
@@ -57,27 +56,33 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpInetConnection;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
-import org.apache.http.impl.DefaultHttpResponseFactory;
+import org.apache.http.impl.nio.DefaultHttpServerIODispatch;
+import org.apache.http.impl.nio.DefaultNHttpServerConnectionFactory;
+import org.apache.http.impl.nio.SSLNHttpServerConnectionFactory;
 import org.apache.http.impl.nio.reactor.DefaultListeningIOReactor;
 import org.apache.http.nio.NHttpConnection;
-import org.apache.http.nio.protocol.AsyncNHttpServiceHandler;
-import org.apache.http.nio.protocol.NHttpRequestHandler;
-import org.apache.http.nio.protocol.NHttpRequestHandlerResolver;
+import org.apache.http.nio.NHttpServerConnection;
+import org.apache.http.nio.protocol.HttpAsyncRequestHandlerRegistry;
+import org.apache.http.nio.protocol.HttpAsyncService;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.ListeningIOReactor;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
-import org.apache.http.protocol.BasicHttpProcessor;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HttpProcessor;
+import org.apache.http.protocol.ImmutableHttpProcessor;
+import org.apache.http.protocol.ResponseConnControl;
+import org.apache.http.protocol.ResponseContent;
+import org.apache.http.protocol.ResponseDate;
 import org.callimachusproject.Version;
 import org.callimachusproject.client.AbstractHttpClient;
 import org.callimachusproject.client.HTTPObjectClient;
 import org.callimachusproject.server.cache.CachingFilter;
-import org.callimachusproject.server.filters.DateHeaderFilter;
 import org.callimachusproject.server.filters.GUnzipFilter;
 import org.callimachusproject.server.filters.GZipFilter;
 import org.callimachusproject.server.filters.HttpResponseFilter;
@@ -97,7 +102,8 @@ import org.callimachusproject.server.handlers.ResponseExceptionHandler;
 import org.callimachusproject.server.handlers.UnmodifiedSinceHandler;
 import org.callimachusproject.server.model.Filter;
 import org.callimachusproject.server.model.Handler;
-import org.callimachusproject.server.tasks.Task;
+import org.callimachusproject.server.process.Exchange;
+import org.callimachusproject.server.process.HTTPObjectRequestHandler;
 import org.callimachusproject.server.util.ManagedExecutors;
 import org.callimachusproject.server.util.NamedThreadFactory;
 import org.openrdf.repository.Repository;
@@ -129,6 +135,7 @@ public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAg
 	}
 
 	private final Logger logger = LoggerFactory.getLogger(HTTPObjectServer.class);
+	private final Set<NHttpConnection> connections = new HashSet<NHttpConnection>();
 	private final ListeningIOReactor server;
 	private final IOEventDispatch dispatch;
 	private ListeningIOReactor sslserver;
@@ -148,19 +155,10 @@ public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAg
 	private final CachingFilter cache;
 	private int timeout = 0;
 
-	/**
-	 * @param basic
-	 *            username:password
-	 */
-	public HTTPObjectServer(CallimachusRepository repository, File cacheDir) throws IOException, NoSuchAlgorithmException {
+	public HTTPObjectServer(CallimachusRepository repository, File cacheDir)
+			throws IOException, NoSuchAlgorithmException {
 		this.repository = repository;
-		HttpParams params = new BasicHttpParams();
-		params.setIntParameter(SO_TIMEOUT, timeout);
-		params.setBooleanParameter(SO_KEEPALIVE, true);
-		params.setIntParameter(SOCKET_BUFFER_SIZE, 8 * 1024);
-		params.setBooleanParameter(STALE_CONNECTION_CHECK, false);
-		params.setBooleanParameter(TCP_NODELAY, false);
-		int n = Runtime.getRuntime().availableProcessors();
+		HttpParams params = getDefaultHttpParams();
 		Handler handler = new InvokeHandler();
 		handler = new NotFoundHandler(handler);
 		handler = new AlternativeHandler(handler);
@@ -172,7 +170,6 @@ public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAg
 		handler = new ContentHeadersHandler(handler);
 		handler = authCache = new AuthenticationHandler(handler, repository.getDelegate());
 		Filter filter = env = new HttpResponseFilter(null);
-		filter = new DateHeaderFilter(filter);
 		filter = new GZipFilter(filter);
 		filter = cache = new CachingFilter(filter, cacheDir, 1024);
 		filter = new GUnzipFilter(filter);
@@ -181,23 +178,21 @@ public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAg
 		filter = new TraceFilter(filter);
 		filter = name = new ServerNameFilter(DEFAULT_NAME, filter);
 		service = new HTTPObjectRequestHandler(filter, handler, repository);
-		AsyncNHttpServiceHandler async = new AsyncNHttpServiceHandler(
-				new BasicHttpProcessor(), new DefaultHttpResponseFactory(),
-				new DefaultConnectionReuseStrategy(), params);
-		async.setExpectationVerifier(service);
-		async.setEventListener(service);
-		async.setHandlerResolver(new NHttpRequestHandlerResolver() {
-			public NHttpRequestHandler lookup(String requestURI) {
-				return service;
-			}
-		});
-		dispatch = new HTTPServerIOEventDispatch(async, params);
-		server = new DefaultListeningIOReactor(n, params);
+		HttpAsyncService protocolHandler = createProtocolHandler(params, service);
+		// Create server-side I/O event dispatch
+		dispatch = new DefaultHttpServerIODispatch(protocolHandler,
+				new DefaultNHttpServerConnectionFactory(params));
+		// Create server-side I/O reactor
+		server = new DefaultListeningIOReactor();
 		if (System.getProperty("javax.net.ssl.keyStore") != null) {
 			try {
-				SSLContext ssl = SSLContext.getDefault();
-				ssldispatch = new HTTPSServerIOEventDispatch(async, ssl, params);
-				sslserver = new DefaultListeningIOReactor(n, params);
+				SSLContext sslcontext = SSLContext.getDefault();
+				// Create server-side I/O event dispatch
+				ssldispatch = new DefaultHttpServerIODispatch(protocolHandler,
+						new SSLNHttpServerConnectionFactory(sslcontext, null,
+								params));
+				// Create server-side I/O reactor
+				sslserver = new DefaultListeningIOReactor();
 			} catch (NoSuchAlgorithmException e) {
 				logger.warn(e.toString(), e);
 			}
@@ -206,10 +201,56 @@ public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAg
 			public String toString() {
 				return "reset cache";
 			}
+
 			public void run() {
 				resetCache();
 			}
 		});
+	}
+
+	private HttpParams getDefaultHttpParams() {
+		HttpParams params = new BasicHttpParams();
+		params.setIntParameter(SO_TIMEOUT, timeout);
+		params.setBooleanParameter(SO_KEEPALIVE, true);
+		params.setIntParameter(SOCKET_BUFFER_SIZE, 8 * 1024);
+		params.setBooleanParameter(STALE_CONNECTION_CHECK, false);
+		params.setBooleanParameter(TCP_NODELAY, false);
+		return params;
+	}
+
+	private HttpAsyncService createProtocolHandler(HttpParams params, HTTPObjectRequestHandler service) {
+		// Create HTTP protocol processing chain
+        HttpProcessor httpproc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
+                new ResponseDate(),
+                new ResponseContent(true),
+                new ResponseConnControl()
+        });
+        // Create request handler registry
+        HttpAsyncRequestHandlerRegistry reqistry = new HttpAsyncRequestHandlerRegistry();
+        // Register the default handler for all URIs
+        reqistry.register("*", service);
+        // Create server-side HTTP protocol handler
+        HttpAsyncService protocolHandler = new HttpAsyncService(
+                httpproc, new DefaultConnectionReuseStrategy(), reqistry, params) {
+
+            @Override
+            public void connected(final NHttpServerConnection conn) {
+                super.connected(conn);
+                synchronized (connections) {
+                	connections.add(conn);
+                }
+            }
+
+            @Override
+            public void closed(final NHttpServerConnection conn) {
+            	synchronized (connections) {
+            		connections.remove(conn);
+            	}
+                super.closed(conn);
+            }
+
+        };
+		return protocolHandler;
 	}
 
 	public String getErrorPipe() {
@@ -343,7 +384,7 @@ public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAg
 	}
 
 	public void resetConnections() throws IOException {
-		NHttpConnection[] connections = service.getConnections();
+		NHttpConnection[] connections = getOpenConnections();
 		for (int i = 0; i < connections.length; i++) {
 			connections[i].shutdown();
 		}
@@ -431,6 +472,7 @@ public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAg
 	}
 
 	public synchronized void start() throws Exception {
+		service.start();
 		if (ports.length > 0) {
 			server.resume();
 		}
@@ -451,6 +493,7 @@ public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAg
 	}
 
 	public synchronized void stop() throws Exception {
+		service.stop();
 		if (ports.length > 0) {
 			server.pause();
 		}
@@ -491,7 +534,7 @@ public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAg
 
 	public void poke() {
 		System.gc();
-		for (NHttpConnection conn : service.getConnections()) {
+		for (NHttpConnection conn : getOpenConnections()) {
 			conn.requestInput();
 			conn.requestOutput();
 		}
@@ -511,10 +554,6 @@ public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAg
 		return sb.toString();
 	}
 
-	public HttpResponse service(HttpRequest request) throws IOException {
-		return service.service(request);
-	}
-
 	@Override
 	public HttpResponse execute(HttpHost host, HttpRequest request,
 			HttpContext context) throws IOException, ClientProtocolException {
@@ -532,7 +571,7 @@ public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAg
 	}
 
 	public ConnectionBean[] getConnections() {
-		NHttpConnection[] connections = service.getConnections();
+		NHttpConnection[] connections = getOpenConnections();
 		ConnectionBean[] beans = new ConnectionBean[connections.length];
 		for (int i = 0; i < beans.length; i++) {
 			ConnectionBean bean = new ConnectionBean();
@@ -575,25 +614,16 @@ public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAg
 						+ resp.getEntity());
 			}
 			HttpContext ctx = conn.getContext();
-			Object handler = ctx.getAttribute(HANDLER_ATTR);
-			if (handler != null) {
-				bean.setConsuming(handler.toString());
-			}
-			Queue queue = (Queue) ctx.getAttribute(PENDING_ATTR);
-			if (queue != null) {
-				Object[] array = null;
-				synchronized (queue) {
-					if (!queue.isEmpty()) {
-						array = queue.toArray(new Task[queue.size()]);
+			Exchange[] array = service.getPendingExchange(ctx);
+			if (array != null) {
+				String[] pending = new String[array.length];
+				for (int j=0;j<pending.length;j++) {
+					pending[j] = array[j].toString();
+					if (array[j].isReadingRequest()) {
+						bean.setConsuming(array[j].toString());
 					}
 				}
-				if (array != null) {
-					String[] pending = new String[queue.size()];
-					for (int j=0;j<pending.length;j++) {
-						pending[j] = array[j].toString();
-					}
-					bean.setPending(pending);
-				}
+				bean.setPending(pending);
 			}
 		}
 		return beans;
@@ -627,6 +657,12 @@ public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAg
 			writer.close();
 		}
 		logger.info("Connection dump: {}", outputFile);
+	}
+
+	private NHttpConnection[] getOpenConnections() {
+		synchronized (connections) {
+			return connections.toArray(new NHttpConnection[connections.size()]);
+		}
 	}
 
 	private String toString(String string) {

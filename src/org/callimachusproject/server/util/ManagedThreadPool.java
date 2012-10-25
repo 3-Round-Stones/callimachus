@@ -78,9 +78,16 @@ public class ManagedThreadPool implements ExecutorService, ThreadPoolMXBean {
 	private ThreadPoolExecutor delegate;
 	private final String oname;
 	private final NamedThreadFactory threads;
+	private boolean registered;
 
 	public ManagedThreadPool(String name, boolean daemon) {
 		this(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS,
+				new SynchronousQueue<Runnable>(), name, daemon,
+				new ThreadPoolExecutor.AbortPolicy());
+	}
+
+	public ManagedThreadPool(int nThreads, String name, boolean daemon) {
+		this(nThreads, nThreads, 0L, TimeUnit.MILLISECONDS,
 				new SynchronousQueue<Runnable>(), name, daemon,
 				new ThreadPoolExecutor.AbortPolicy());
 	}
@@ -482,17 +489,21 @@ public class ManagedThreadPool implements ExecutorService, ThreadPoolMXBean {
 		try {
 			MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
 			mbs.registerMBean(this, new ObjectName(oname));
+			registered = true;
 		} catch (Exception e) {
-			logger.info(e.toString(), e);
+			logger.debug(e.toString(), e);
 		}
 	}
 
 	private void unregisterMBean() {
 		try {
-			MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
-			mbs.unregisterMBean(new ObjectName(oname));
+			if (registered) {
+				MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+				mbs.unregisterMBean(new ObjectName(oname));
+				registered = false;
+			}
 		} catch (Exception e) {
-			logger.info(e.toString(), e);
+			logger.debug(e.toString(), e);
 		}
 	}
 

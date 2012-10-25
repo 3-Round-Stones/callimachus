@@ -15,7 +15,7 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
 
 public class UnavailableHttpClient extends AbstractHttpClient {
-	private static final BasicHttpResponse _503 = new BasicHttpResponse(HttpVersion.HTTP_1_1, 503, "Service Unavailable");
+	private static final BasicHttpResponse _503 = new BasicHttpResponse(HttpVersion.HTTP_1_1, 503, "Service Disconnected");
 	private static final ClientConnectionManager manager = new BasicClientConnectionManager();
 	static {
 		manager.shutdown();

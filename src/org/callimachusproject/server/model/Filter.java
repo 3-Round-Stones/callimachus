@@ -31,7 +31,6 @@ package org.callimachusproject.server.model;
 import java.io.IOException;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.nio.entity.ConsumingNHttpEntity;
 
 /**
  * Interface used to stack HTTP filters.
@@ -59,13 +58,6 @@ public class Filter {
 		if (delegate == null)
 			return null;
 		return delegate.intercept(request);
-	}
-
-	public ConsumingNHttpEntity consume(Request request, HttpResponse resp)
-			throws IOException {
-		if (delegate == null)
-			return null;
-		return delegate.consume(request, resp);
 	}
 
 	public HttpResponse filter(Request request, HttpResponse response)

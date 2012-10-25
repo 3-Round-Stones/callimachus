@@ -38,10 +38,11 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.http.Header;
+import org.apache.http.HttpEntity;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
-import org.apache.http.nio.entity.ProducingNHttpEntity;
+import org.apache.http.nio.entity.HttpAsyncContentProducer;
 import org.callimachusproject.server.util.AutoCloseChannel;
 import org.callimachusproject.server.util.ChannelUtil;
 
@@ -51,7 +52,7 @@ import org.callimachusproject.server.util.ChannelUtil;
  * @author James Leigh
  * 
  */
-public class ReadableHttpEntityChannel implements ProducingNHttpEntity {
+public class ReadableHttpEntityChannel implements HttpEntity, HttpAsyncContentProducer {
 	private String contentType;
 	private long contentLength;
 	private ByteBuffer buf = ByteBuffer.allocate(1024 * 8);
@@ -172,5 +173,10 @@ public class ReadableHttpEntityChannel implements ProducingNHttpEntity {
 			encoder.write(buf);
 			buf.compact();
 		}
+	}
+
+	@Override
+	public void close() throws IOException {
+		cin.close();
 	}
 }

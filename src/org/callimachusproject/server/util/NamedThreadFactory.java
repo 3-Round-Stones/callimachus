@@ -41,9 +41,9 @@ import java.util.concurrent.ThreadFactory;
  *
  */
 public class NamedThreadFactory implements ThreadFactory {
+	private static volatile int COUNT = 0;
 	private String name;
 	private boolean daemon;
-	private volatile int COUNT = 0;
 	private final List<Thread> threads = new ArrayList<Thread>();
 
 	public NamedThreadFactory(String name, boolean daemon) {

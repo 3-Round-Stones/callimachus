@@ -126,6 +126,7 @@
         <unzip overwrite="false" src="${downloads}/httpclient.zip" dest="${lib}">
             <patternset>
                 <include name="**/lib/*.jar" />
+                <exclude name="**/lib/httpcore-*.jar" />
             </patternset>
             <mapper type="flatten" />
         </unzip>

@@ -66,6 +66,10 @@ public class FormSupportTest {
 			return self;
 		}
 
+		public String toString() {
+			return self.stringValue();
+		}
+
 		@Override
 		protected XMLEventReader xslt(String element)
 				throws IOException, XMLStreamException {

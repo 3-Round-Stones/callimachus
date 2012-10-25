@@ -30,7 +30,6 @@
 package org.callimachusproject.server.util;
 
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -65,14 +64,14 @@ public class ManagedExecutors {
 		return new ManagedScheduledThreadPool(name, true);
 	}
 
-	public static Executor newAntiDeadlockThreadPool(
+	public static ExecutorService newAntiDeadlockThreadPool(
 			BlockingQueue<Runnable> queue, String name) {
 		return newAntiDeadlockThreadPool(Runtime.getRuntime()
 				.availableProcessors() * 2 + 1, Runtime.getRuntime()
 				.availableProcessors() * 100, queue, name);
 	}
 
-	public static Executor newAntiDeadlockThreadPool(int corePoolSize,
+	public static ExecutorService newAntiDeadlockThreadPool(int corePoolSize,
 			int maximumPoolSize, BlockingQueue<Runnable> queue, String name) {
 		return new AntiDeadlockThreadPool(corePoolSize, maximumPoolSize, queue,
 				name);

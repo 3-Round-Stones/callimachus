@@ -91,7 +91,6 @@ public class TemporaryServerFactory {
 
 				private final Server server = new Server();
 				private boolean stopped;
-				private boolean paused;
 
 				public synchronized void start() throws InterruptedException, Exception {
 					File dataDir = new File(new File(dir, "repositories"), "callimachus");
@@ -103,16 +102,14 @@ public class TemporaryServerFactory {
 				}
 
 				public synchronized void pause() throws Exception {
-					paused = true;
 				}
 
 				public synchronized void resume() throws Exception {
-					if (paused) {
-						paused = false;
-					} else {
-						synchronized (running) {
-							if (running.containsKey(port)) {
-								running.get(port).stop();
+					synchronized (running) {
+						TemporaryServer other = running.get(port);
+						if (stopped || !this.equals(other)) {
+							if (other != null) {
+								other.stop();
 							}
 							start();
 							running.put(port, this);
@@ -123,15 +120,14 @@ public class TemporaryServerFactory {
 				public synchronized void stop() throws Exception {
 					if (!stopped) {
 						server.stop();
+						server.destroy();
 						stopped = true;
-						paused = false;
 						Thread.sleep(100);
 					}
 				}
 
 				public synchronized void destroy() throws Exception {
 					stop();
-					server.destroy();
 					FileUtil.deltree(dir);
 				}
 

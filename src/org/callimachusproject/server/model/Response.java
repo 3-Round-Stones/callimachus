@@ -31,13 +31,7 @@ package org.callimachusproject.server.model;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.transform.TransformerException;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -51,12 +45,9 @@ import org.callimachusproject.server.exceptions.Conflict;
 import org.callimachusproject.server.exceptions.InternalServerError;
 import org.callimachusproject.server.exceptions.NotFound;
 import org.callimachusproject.server.exceptions.ResponseException;
-import org.callimachusproject.server.util.ChannelUtil;
-import org.openrdf.OpenRDFException;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.exceptions.BehaviourException;
 import org.openrdf.sail.optimistic.exceptions.ConcurrencyException;
-import org.xml.sax.SAXException;
 
 /**
  * Builds an HTTP response.
@@ -69,7 +60,6 @@ public class Response extends AbstractHttpMessage {
 	private long lastModified;
 	private int status = 204;
 	private String phrase = "No Content";
-	private List<Runnable> onclose = new LinkedList<Runnable>();
 
 	public Response() {
 		this.entity = null;
@@ -91,11 +81,6 @@ public class Response extends AbstractHttpMessage {
 			addHeader(hd);
 		}
 		this.entity = message.getEntity();
-	}
-
-	public Response onClose(Runnable task) {
-		onclose.add(task);
-		return this;
 	}
 
 	public Response exception(ResponseException e) {
@@ -136,32 +121,8 @@ public class Response extends AbstractHttpMessage {
 		return phrase;
 	}
 
-	public HttpEntity asHttpEntity() throws IOException, OpenRDFException,
-			XMLStreamException, TransformerException,
-			ParserConfigurationException, SAXException {
-		HttpEntity http = entity;
-		String contentType = null;
-		Header hd = http.getContentType();
-		if (hd != null) {
-			contentType = hd.getValue();
-		}
-		return new ReadableHttpEntityChannel(contentType,
-				http.getContentLength(), ChannelUtil.newChannel(http
-						.getContent()), onclose);
-	}
-
-	public void asVoid() {
-		if (onclose != null) {
-			for (Runnable task : onclose) {
-				try {
-					task.run();
-				} catch (RuntimeException e) {
-					e.printStackTrace();
-				} catch (Error e) {
-					e.printStackTrace();
-				}
-			}
-		}
+	public HttpEntity asHttpEntity() {
+		return entity;
 	}
 
 	public Response header(String header, String value) {

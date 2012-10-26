@@ -68,12 +68,19 @@ public class GZipHttpRequestClient extends AbstractHttpClient {
 			req.removeHeaders("Content-Length");
 			req.setHeader("Content-Encoding", "gzip");
 			req.addHeader("Warning", WARN_214);
-			if (entity instanceof GUnzipEntity) {
-				req.setEntity(((GUnzipEntity) entity).getEntityDelegate());
-			} else {
-				req.setEntity(new GZipEntity(entity));
-			}
+			req.setEntity(gzip(entity));
 		}
+	}
+
+	private HttpEntity gzip(HttpEntity entity) {
+		if (entity instanceof GUnzipEntity)
+			return ((GUnzipEntity) entity).getEntityDelegate();
+		if (entity instanceof CloseableEntity) {
+			CloseableEntity centity = (CloseableEntity) entity;
+			centity.setEntityDelegate(gzip(centity.getEntityDelegate()));
+			return centity;
+		}
+		return new GZipEntity(entity);
 	}
 
 	private long getLength(Header hd, int length) {

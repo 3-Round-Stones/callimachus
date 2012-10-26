@@ -234,6 +234,8 @@ public class HTTPObjectRequestHandler extends AbstractHttpClient implements
 			return LOCALHOST;
 		HttpInetConnection con = (HttpInetConnection) context
 				.getAttribute(ExecutionContext.HTTP_CONNECTION);
+		if (con == null)
+			return LOCALHOST;
 		return con.getRemoteAddress();
 	}
 

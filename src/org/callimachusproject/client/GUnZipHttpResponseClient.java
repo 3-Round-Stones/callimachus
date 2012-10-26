@@ -71,13 +71,19 @@ public class GUnZipHttpResponseClient extends AbstractHttpClient {
 			resp.removeHeaders("Content-Length");
 			resp.setHeader("Content-Encoding", "identity");
 			resp.addHeader("Warning", WARN_214);
-			if (entity instanceof GZipEntity) {
-				resp.setEntity(((GZipEntity) entity).getEntityDelegate());
-			} else {
-				resp.setEntity(new GUnzipEntity(entity));
-			}
+			resp.setEntity(gunzip(entity));
 		}
 		return resp;
+	}
+
+	private HttpEntity gunzip(HttpEntity entity) {
+		if (entity instanceof GZipEntity)
+			return ((GZipEntity) entity).getEntityDelegate();
+		if (entity instanceof CloseableEntity) {
+			CloseableEntity centity = (CloseableEntity) entity;
+			centity.setEntityDelegate(gunzip(centity.getEntityDelegate()));
+		}
+		return new GUnzipEntity(entity);
 	}
 
 }

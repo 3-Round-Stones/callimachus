@@ -29,6 +29,7 @@
  */
 package org.callimachusproject.server.cache;
 
+import info.aduna.concurrent.locks.Lock;
 import info.aduna.net.ParsedURI;
 
 import java.io.File;
@@ -47,23 +48,36 @@ import org.callimachusproject.server.util.LockCleanupManager;
 /**
  * Manages multiple cache instances by URL.
  */
-public class CacheIndex extends
-		LinkedHashMap<String, Reference<CachedRequest>> {
-	private static final long serialVersionUID = -833236420826697261L;
+public class CacheIndex {
+	private final LinkedHashMap<String, Reference<CachedRequest>> map;
 	private final LockCleanupManager locker;
 	private File dir;
 	private int maxCapacity;
 	private boolean aggressive;
 
-	public CacheIndex(File dir, int maxCapacity, LockCleanupManager locker) {
-		super(maxCapacity, 0.75f, true);
+	public CacheIndex(File dir, int mc, LockCleanupManager locker) {
 		this.dir = dir;
-		this.maxCapacity = maxCapacity;
+		this.maxCapacity = mc;
 		this.locker = locker;
+		map = new LinkedHashMap<String, Reference<CachedRequest>>(maxCapacity,
+				0.75f, true) {
+			private static final long serialVersionUID = -6021199011081177233L;
+
+			@Override
+			protected boolean removeEldestEntry(
+					Map.Entry<String, Reference<CachedRequest>> eldest) {
+				if (aggressive || size() <= maxCapacity)
+					return false;
+				CachedRequest index = eldest.getValue().get();
+				if (index != null && index.inUse())
+					return false;
+				return removeEntry(eldest);
+			}
+		};
 	}
 
-	public LockCleanupManager getLockManager() {
-		return locker;
+	public Lock getReadLock(String ref) throws InterruptedException {
+		return locker.getReadLock(ref);
 	}
 
 	public int getMaxCapacity() {
@@ -82,9 +96,13 @@ public class CacheIndex extends
 		this.aggressive = aggressive;
 	}
 
+	public int size() {
+		return map.size();
+	}
+
 	public void invalidate(String... locations) throws IOException,
 			InterruptedException {
-		List<String> urls = new ArrayList(locations.length);
+		List<String> urls = new ArrayList<String>(locations.length);
 		if (locations.length == 0) {
 			File[] files = dir.listFiles();
 			if (files == null)
@@ -128,43 +146,36 @@ public class CacheIndex extends
 	public synchronized CachedRequest findCachedRequest(String url)
 			throws IOException {
 		CachedRequest index;
-		Reference<CachedRequest> ref = get(url);
+		Reference<CachedRequest> ref = map.get(url);
 		if (ref == null) {
 			index = new CachedRequest(getFile(url), locker);
-			put(url, new SoftReference<CachedRequest>(index));
+			map.put(url, new SoftReference<CachedRequest>(index));
 		} else {
 			index = ref.get();
 			if (index == null) {
 				index = new CachedRequest(getFile(url), locker);
-				put(url, new SoftReference<CachedRequest>(index));
+				map.put(url, new SoftReference<CachedRequest>(index));
 			}
 		}
 		return index;
 	}
 
-	@Override
-	public void clear() {
-		Collection<Entry<String, Reference<CachedRequest>>> entrySet;
-		synchronized (this) {
-			entrySet = new ArrayList(entrySet());
-		}
-		for (Map.Entry<String, Reference<CachedRequest>> e : entrySet) {
-			remove(e);
+	public void clear() throws InterruptedException {
+		Lock lock = locker.getWriteLock("reset cache");
+		try {
+			Collection<Entry<String, Reference<CachedRequest>>> entrySet;
+			synchronized (this) {
+				entrySet = new ArrayList<Map.Entry<String,Reference<CachedRequest>>>(map.entrySet());
+			}
+			for (Map.Entry<String, Reference<CachedRequest>> e : entrySet) {
+				removeEntry(e);
+			}
+		} finally {
+			lock.release();
 		}
 	}
 
-	@Override
-	protected boolean removeEldestEntry(
-			Map.Entry<String, Reference<CachedRequest>> eldest) {
-		if (aggressive || size() <= maxCapacity)
-			return false;
-		CachedRequest index = eldest.getValue().get();
-		if (index != null && index.inUse())
-			return false;
-		return remove(eldest);
-	}
-
-	private boolean remove(Map.Entry<String, Reference<CachedRequest>> entry) {
+	boolean removeEntry(Map.Entry<String, Reference<CachedRequest>> entry) {
 		CachedRequest index;
 		synchronized (this) {
 			index = entry.getValue().get();
@@ -172,7 +183,7 @@ public class CacheIndex extends
 				File file = getFile(entry.getKey());
 				CachedRequest.delete(file);
 				deldirs(file.getParentFile());
-				super.remove(entry.getKey());
+				map.remove(entry.getKey());
 				return true;
 			}
 		}
@@ -180,7 +191,7 @@ public class CacheIndex extends
 			index.delete();
 			deldirs(index.getDirectory().getParentFile());
 			synchronized (this) {
-				super.remove(entry.getKey());
+				map.remove(entry.getKey());
 			}
 		}
 		return true;

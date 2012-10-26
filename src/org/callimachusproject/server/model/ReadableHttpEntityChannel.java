@@ -68,7 +68,7 @@ public class ReadableHttpEntityChannel implements HttpEntity, HttpAsyncContentPr
 		this(type, length, in, Arrays.asList(onClose));
 	}
 
-	public ReadableHttpEntityChannel(String type, long length,
+	private ReadableHttpEntityChannel(String type, long length,
 			ReadableByteChannel in, final List<Runnable> onClose) {
 		this.contentType = type;
 		this.contentLength = length;

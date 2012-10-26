@@ -128,7 +128,7 @@
     calli:query "results";
     calli:requires calli:reader;
     calli:type "message/x-response";
-    calli:header "cache-control:no-store";
+    calli:header "cache-control:no-store,no-transform";
     calli:script """
         return this.PostResult(queryGetParameters, null, null);
     """.
@@ -147,7 +147,7 @@
     calli:query "results";
     calli:requires calli:reader;
     calli:type "message/x-response";
-    calli:header "cache-control:no-store";
+    calli:header "cache-control:no-store,no-transform";
     calli:imports <java:org.callimachusproject.xproc.PipelineFactory>;
     calli:imports <java:org.apache.http.ProtocolVersion>;
     calli:imports <java:org.apache.http.message.BasicHttpResponse>;

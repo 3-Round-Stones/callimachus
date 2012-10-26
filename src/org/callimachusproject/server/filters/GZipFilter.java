@@ -34,6 +34,7 @@ import java.io.IOException;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.callimachusproject.client.CloseableEntity;
 import org.callimachusproject.client.GUnzipEntity;
 import org.callimachusproject.client.GZipEntity;
 import org.callimachusproject.server.model.Filter;
@@ -53,28 +54,47 @@ public class GZipFilter extends Filter {
 		String method = req.getMethod();
 		int code = resp.getStatusLine().getStatusCode();
 		boolean safe = method.equals("HEAD") || method.equals("GET") || method.equals("PROFIND");
-		if (code < 500 && safe &&  isCompressable(resp)) {
+		boolean compressed = isAlreadyCompressed(resp.getEntity());
+		if (code < 500 && safe && isCompressable(resp) || compressed) {
 			Header length = resp.getFirstHeader("Content-Length");
-			if (length == null || Integer.parseInt(length.getValue()) > 500) {
+			if (compressed || length == null || Integer.parseInt(length.getValue()) > 500) {
 				resp.removeHeaders("Content-MD5");
 				resp.removeHeaders("Content-Length");
 				resp.setHeader("Transfer-Encoding", "chunked");
 				resp.setHeader("Content-Encoding", "gzip");
-				HttpEntity entity = resp.getEntity();
-				if (entity instanceof GUnzipEntity) {
-					resp.setEntity(((GUnzipEntity) entity).getEntityDelegate());
-				} else {
-					resp.setEntity(new GZipEntity(entity));
-				}
+				resp.setEntity(gzip(resp.getEntity()));
 			}
 		}
 		return resp;
+	}
+
+	private boolean isAlreadyCompressed(HttpEntity entity) {
+		if (entity instanceof GUnzipEntity)
+			return true;
+		if (entity instanceof CloseableEntity)
+			return isAlreadyCompressed(((CloseableEntity) entity).getEntityDelegate());
+		return false;
+	}
+
+	private HttpEntity gzip(HttpEntity entity) {
+		if (entity instanceof GUnzipEntity)
+			return ((GUnzipEntity) entity).getEntityDelegate();
+		if (entity instanceof CloseableEntity) {
+			CloseableEntity centity = (CloseableEntity) entity;
+			centity.setEntityDelegate(gzip(centity.getEntityDelegate()));
+			return centity;
+		}
+		return new GZipEntity(entity);
 	}
 
 	private boolean isCompressable(HttpResponse msg) {
 		Header contentType = msg.getFirstHeader("Content-Type");
 		if (contentType == null || msg.getEntity() == null)
 			return false;
+		for (Header hd : msg.getHeaders("Cache-Control")) {
+			if (hd.getValue().contains("no-transform"))
+				return false;
+		}
 		Header encoding = msg.getFirstHeader("Content-Encoding");
 		boolean identity = encoding == null || "identity".equals(encoding.getValue());
 		String type = contentType.getValue();

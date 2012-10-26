@@ -38,6 +38,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.message.BasicStatusLine;
+import org.callimachusproject.client.CloseableEntity;
 import org.callimachusproject.client.GUnzipEntity;
 import org.callimachusproject.client.GZipEntity;
 import org.callimachusproject.server.model.Filter;
@@ -74,11 +75,7 @@ public class GUnzipFilter extends Filter {
 				req.setHeader("Content-Encoding", "identity");
 				req.setHeader("Transfer-Encoding", "chunked");
 				req.addHeader("Warning", WARN_214);
-				if (entity instanceof GZipEntity) {
-					req.setEntity(((GZipEntity) entity).getEntityDelegate());
-				} else {
-					req.setEntity(new GUnzipEntity(entity));
-				}
+				req.setEntity(gunzip(entity));
 			}
 		}
 		return super.filter(req);
@@ -130,5 +127,15 @@ public class GUnzipFilter extends Filter {
 			}
 		}
 		return resp;
+	}
+
+	private HttpEntity gunzip(HttpEntity entity) {
+		if (entity instanceof GZipEntity)
+			return ((GZipEntity) entity).getEntityDelegate();
+		if (entity instanceof CloseableEntity) {
+			CloseableEntity centity = (CloseableEntity) entity;
+			centity.setEntityDelegate(gunzip(centity.getEntityDelegate()));
+		}
+		return new GUnzipEntity(entity);
 	}
 }

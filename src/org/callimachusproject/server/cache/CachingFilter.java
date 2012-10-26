@@ -107,7 +107,6 @@ public class CachingFilter extends Filter {
 	private CacheIndex cache;
 	private boolean enabled = true;
 	private boolean disconnected;
-	private final LockCleanupManager cacheLocker;
 
 	public CachingFilter(Filter delegate, File dataDir, int maxCapacity) {
 		this(delegate, new CacheIndex(dataDir, maxCapacity, new LockCleanupManager(false)));
@@ -116,7 +115,6 @@ public class CachingFilter extends Filter {
 	private CachingFilter(Filter delegate, CacheIndex cache) {
 		super(delegate);
 		this.cache = cache;
-		this.cacheLocker = cache.getLockManager();
 	}
 
 	public int getMaxCapacity() {
@@ -160,12 +158,7 @@ public class CachingFilter extends Filter {
 	}
 
 	public void reset() throws IOException, InterruptedException {
-		Lock lock = cacheLocker.getWriteLock("reset cache");
-		try {
-			cache.clear();
-		} finally {
-			lock.release();
-		}
+		cache.clear();
 	}
 
 	@Override
@@ -173,7 +166,7 @@ public class CachingFilter extends Filter {
 		if (enabled && headers.isStorable()) {
 			try {
 				String url = headers.getRequestURL();
-				Lock reset = cacheLocker.getReadLock(url);
+				Lock reset = cache.getReadLock(url);
 				try {
 					long now = headers.getReceivedOn();
 					CachedEntity cached = null;
@@ -208,7 +201,7 @@ public class CachingFilter extends Filter {
 		try {
 			if (enabled && request.isStorable() && !(request instanceof CachableRequest)) {
 				String url = request.getRequestURL();
-				Lock lock = cacheLocker.getReadLock(url);
+				Lock lock = cache.getReadLock(url);
 				try {
 					long now = request.getReceivedOn();
 					CachedEntity cached = null;
@@ -295,7 +288,7 @@ public class CachingFilter extends Filter {
 			CachedEntity cached, List<CachedEntity> match) throws IOException,
 			InterruptedException {
 		String uri = request.getRequestLine().toString();
-		Lock lock = cacheLocker.getReadLock(uri);
+		Lock lock = cache.getReadLock(uri);
 		return new CachableRequest(request, cached, match, lock);
 	}
 

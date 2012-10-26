@@ -61,18 +61,22 @@ public class HttpEntityWrapper implements HttpAsyncContentProducer, HttpEntity {
 	private Header contentEncoding;
 
 	public HttpEntityWrapper(HttpEntity entity) {
+		setEntityDelegate(entity);
+	}
+
+	public final HttpEntity getEntityDelegate() {
+		if (entity == null)
+			throw new IllegalStateException("Entity has already been consumed");
+		return entity;
+	}
+
+	public final void setEntityDelegate(HttpEntity entity) {
 		assert entity != null;
 		this.entity = entity;
 		chunked = entity.isChunked();
 		contentType = entity.getContentType();
 		contentLength = entity.getContentLength();
 		contentEncoding = entity.getContentEncoding();
-	}
-
-	public HttpEntity getEntityDelegate() {
-		if (entity == null)
-			throw new IllegalStateException("Entity has already been consumed");
-		return entity;
 	}
 
 	@Override
@@ -194,6 +198,10 @@ public class HttpEntityWrapper implements HttpAsyncContentProducer, HttpEntity {
 		return getEntityDelegate().getContent();
 	}
 
+	protected void finish() throws IOException {
+		// allow subclass to override
+	}
+
 	final void closeEntity() throws IOException {
 		try {
 			if (entity instanceof HttpAsyncContentProducer) {
@@ -203,6 +211,7 @@ public class HttpEntityWrapper implements HttpAsyncContentProducer, HttpEntity {
 			}
 		} finally {
 			entity = null;
+			finish();
 		}
 	}
 

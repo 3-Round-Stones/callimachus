@@ -73,6 +73,7 @@ import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.ListeningIOReactor;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
+import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.ImmutableHttpProcessor;
@@ -154,6 +155,7 @@ public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAg
 	private final ModifiedSinceHandler remoteCache;
 	private final CachingFilter cache;
 	private int timeout = 0;
+	private final HttpProcessor httpproc;
 
 	public HTTPObjectServer(CallimachusRepository repository, File cacheDir)
 			throws IOException, NoSuchAlgorithmException {
@@ -178,7 +180,12 @@ public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAg
 		filter = new TraceFilter(filter);
 		filter = name = new ServerNameFilter(DEFAULT_NAME, filter);
 		service = new HTTPObjectRequestHandler(filter, handler, repository);
-		HttpAsyncService protocolHandler = createProtocolHandler(params, service);
+		httpproc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
+		        new ResponseDate(),
+		        new ResponseContent(true),
+		        new ResponseConnControl()
+		});
+		HttpAsyncService protocolHandler = createProtocolHandler(httpproc, service, params);
 		// Create server-side I/O event dispatch
 		dispatch = new DefaultHttpServerIODispatch(protocolHandler,
 				new DefaultNHttpServerConnectionFactory(params));
@@ -218,14 +225,9 @@ public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAg
 		return params;
 	}
 
-	private HttpAsyncService createProtocolHandler(HttpParams params, HTTPObjectRequestHandler service) {
-		// Create HTTP protocol processing chain
-        HttpProcessor httpproc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
-                new ResponseDate(),
-                new ResponseContent(true),
-                new ResponseConnControl()
-        });
-        // Create request handler registry
+	private HttpAsyncService createProtocolHandler(HttpProcessor httpproc,
+			HTTPObjectRequestHandler service, HttpParams params) {
+		// Create request handler registry
         HttpAsyncRequestHandlerRegistry reqistry = new HttpAsyncRequestHandlerRegistry();
         // Register the default handler for all URIs
         reqistry.register("*", service);
@@ -557,7 +559,16 @@ public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAg
 	@Override
 	public HttpResponse execute(HttpHost host, HttpRequest request,
 			HttpContext context) throws IOException, ClientProtocolException {
-		return service.execute(host, request, context);
+		try {
+			if (context == null)
+				context = new BasicHttpContext();
+			httpproc.process(request, context);
+			HttpResponse response = service.execute(host, request, context);
+			httpproc.process(response, context);
+			return response;
+		} catch (HttpException e) {
+			throw new ClientProtocolException(e);
+		}
 	}
 
 	@Override

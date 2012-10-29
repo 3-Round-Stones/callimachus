@@ -40,9 +40,6 @@ import org.callimachusproject.concepts.Page;
 import org.callimachusproject.engine.RDFEventReader;
 import org.callimachusproject.engine.RDFParseException;
 import org.callimachusproject.engine.RDFaReader;
-import org.callimachusproject.engine.Template;
-import org.callimachusproject.engine.TemplateEngine;
-import org.callimachusproject.engine.events.TriplePattern;
 import org.callimachusproject.engine.helpers.ClusterCounter;
 import org.callimachusproject.engine.helpers.DeDupedResultSet;
 import org.callimachusproject.engine.helpers.OrderedSparqlReader;
@@ -50,17 +47,12 @@ import org.callimachusproject.engine.helpers.RDFaProducer;
 import org.callimachusproject.engine.helpers.SPARQLPosteditor;
 import org.callimachusproject.engine.helpers.SPARQLProducer;
 import org.callimachusproject.engine.helpers.XMLEventList;
-import org.callimachusproject.engine.model.VarOrTerm;
-import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.server.exceptions.InternalServerError;
 import org.callimachusproject.xml.XMLEventReaderFactory;
 import org.callimachusproject.xslt.XSLTransformer;
 import org.callimachusproject.xslt.XSLTransformerFactory;
-import org.openrdf.model.URI;
-import org.openrdf.model.ValueFactory;
 import org.openrdf.query.TupleQuery;
 import org.openrdf.query.TupleQueryResult;
-import org.openrdf.query.impl.MapBindingSet;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.object.RDFObject;
 
@@ -73,9 +65,6 @@ import org.openrdf.repository.object.RDFObject;
  * 
  */
 public abstract class FormSupport implements Page, RDFObject {
-	private static final TemplateEngine ENGINE = TemplateEngine.newInstance();
-	
-	
 	static final XSLTransformer HTML_XSLT;
 
 
@@ -91,30 +80,6 @@ public abstract class FormSupport implements Page, RDFObject {
 	@Override
 	public String calliConstructHTML(Object target) throws Exception {
 		return asHtmlString(calliConstruct(target));
-	}
-
-	/**
-	 * Extracts an element from the template (without variables) and populates
-	 * the element with the properties of the about resource.
-	 */
-	@method("GET")
-	@query("construct")
-	@requires("http://callimachusproject.org/rdf/2009/framework#reader")
-	@type("text/html")
-	@header("cache-control:no-store")
-	public InputStream construct(
-			@query("resource") @type("text/uri-list") URI about,
-			@query("element") String element) throws Exception {
-		if (about != null && (element == null || element.equals("/1")))
-			throw new BadRequest("Missing element parameter");
-		if (about != null && element != null)
-			return dataConstruct(about, element);
-		if (about == null && element == null) {
-			ValueFactory vf = getObjectConnection().getValueFactory();
-			about = vf.createURI(this.toString());
-		}
-		XMLEventReader xhtml = calliConstructXhtml(about, element);
-		return HTML_XSLT.transform(xhtml, this.toString()).asInputStream();
 	}
 
 	/**
@@ -190,45 +155,6 @@ public abstract class FormSupport implements Page, RDFObject {
 
 	private String asHtmlString(XMLEventReader xhtml) throws Exception {
 		return HTML_XSLT.transform(xhtml, this.toString()).asString();
-	}
-	
-	private XMLEventReader calliConstructXhtml(URI about, String element) 
-	throws Exception {
-		String url = url("xslt", element);
-		InputStream in = openRequest(url);
-		try {
-			Template temp = ENGINE.getTemplate(in, url);
-			MapBindingSet bindings = new MapBindingSet();
-			bindings.addBinding("this", about);
-			return temp.openResult(bindings, getObjectConnection());
-		} finally {
-			in.close();
-		}
-	}
-	
-	private InputStream dataConstruct(URI about, String element) throws Exception {
-		String base = getResource().stringValue();
-		XMLEventList template = new XMLEventList(xslt(element));
-		SPARQLProducer rq = new SPARQLProducer(new RDFaReader(base, template.iterator(), toString()));
-		SPARQLPosteditor ed = new SPARQLPosteditor(rq);
-		
-		// only pass object vars (excluding prop-exps and content) beyond a certain depth: 
-		// ^(/\d+){3,}$|^(/\d+)*\s.*$
-		ed.addEditor(ed.new TriplePatternCutter());
-		
-		// find top-level new subjects to bind
-		SPARQLPosteditor.TriplePatternRecorder rec;
-		ed.addEditor(rec = ed.new TriplePatternRecorder());
-		
-		RepositoryConnection con = getObjectConnection();
-		TupleQuery qry = con.prepareTupleQuery(SPARQL, toSafeOrderedSparql(ed), base);
-		for (TriplePattern t: rec.getTriplePatterns()) {
-			VarOrTerm vt = t.getSubject();
-			if (vt.isVar())
-				qry.setBinding(vt.asVar().stringValue(), about);
-		}
-		RDFaProducer xhtml = new RDFaProducer(template.iterator(), qry.evaluate(), rq.getOrigins());
-		return HTML_XSLT.transform(xhtml, this.toString()).asInputStream();		
 	}
 
 	protected XMLEventReader xslt(String element)

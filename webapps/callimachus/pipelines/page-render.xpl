@@ -14,16 +14,24 @@
     <p:option name="template" required="true" />
     <p:option name="target" required="true" />
     <p:option name="query" required="true" />
+    <p:option name="element" select="'/1'" />
 
     <p:import href="../library.xpl" />
 
-    <p:load name="template-load">
+    <p:load>
         <p:with-option name="href" select="$template" />
     </p:load>
 
+    <p:xslt name="template-element">
+        <p:with-param name="element" select="$element" />
+        <p:input port="stylesheet">
+            <p:document href="../transforms/element.xsl" />
+        </p:input>
+    </p:xslt>
+
     <calli:render>
         <p:input port="template">
-            <p:pipe step="template-load" port="result" />
+            <p:pipe step="template-element" port="result" />
         </p:input>
         <p:input port="source">
             <p:pipe step="pipeline" port="source" />

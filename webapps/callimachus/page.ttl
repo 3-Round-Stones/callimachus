@@ -174,13 +174,13 @@
     calli:type "text/html";
     calli:script """
         var realm = this.FindRealmOf(resource);
-        var template = this + "?template&realm=" + realm;
+        var template = this + "?template&realm=" + encodeURIComponent(realm);
         var con = this.objectConnection;
         var bindings = new org.openrdf.query.impl.MapBindingSet();
         bindings.addBinding("this", resource.resource);
         var engine = org.callimachusproject.engine.TemplateEngine.getInstance();
         var results = engine.getTemplate(template).evaluate(bindings, con);
-        return this.Render(realm, resource, resourceQuery, results);
+        return this.Render(realm, resource, resourceQuery, '/1', results);
     """.
 
 :resource a owl:FunctionalProperty, owl:ObjectProperty;
@@ -189,6 +189,34 @@
 :resourceQuery a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :Construct;
     rdfs:range xsd:string.
+
+# Called by client when resource is dropped in a form field dropzone
+:ConstructElement rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Page>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    calli:method "GET";
+    calli:query "construct";
+    calli:requires calli:reader;
+    calli:type "text/html";
+    calli:script """
+        var realm = this.FindRealmOf(constructResource);
+        var url = this + "?template&realm=" + encodeURIComponent(realm);
+        var con = this.objectConnection;
+        var engine = org.callimachusproject.engine.TemplateEngine.getInstance();
+        var template = engine.getTemplate(url).getElement(constructElement);
+        var results = template.evaluatePartner(constructResource.resource, con);
+        return this.Render(realm, constructResource, null, constructElement, results);
+    """.
+
+:constructElement a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:domain :ConstructElement;
+    rdfs:range xsd:string;
+    calli:query "element".
+
+:constructResource a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :ConstructElement;
+    calli:type "text/uri-list";
+    calli:query "resource".
 
 :FindRealmOf rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Page>];
@@ -215,7 +243,7 @@
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Page>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
     calli:type "text/html";
-    calli:post <pipelines/page-render.xpl?results&template=$0%3Ftemplate%26realm%3D{realm}&realm={realm}&target={renderResource}&query={renderResourceQuery}>.
+    calli:post <pipelines/page-render.xpl?results&template=$0%3Ftemplate%26realm%3D{realm}&realm={realm}&target={renderResource}&query={renderResourceQuery}&element={renderXpointerElement}>.
 
 :realm a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :Render;
@@ -225,6 +253,10 @@
     rdfs:domain :Render.
 
 :renderResourceQuery a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:domain :Render;
+    rdfs:range xsd:string.
+
+:renderXpointerElement a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :Render;
     rdfs:range xsd:string.
 

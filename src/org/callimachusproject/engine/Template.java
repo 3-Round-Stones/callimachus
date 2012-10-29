@@ -17,16 +17,20 @@ import javax.xml.stream.XMLStreamException;
 import org.callimachusproject.engine.events.Base;
 import org.callimachusproject.engine.events.Namespace;
 import org.callimachusproject.engine.events.RDFEvent;
+import org.callimachusproject.engine.events.TriplePattern;
 import org.callimachusproject.engine.helpers.ClusterCounter;
 import org.callimachusproject.engine.helpers.OrderedSparqlReader;
 import org.callimachusproject.engine.helpers.RDFaProducer;
+import org.callimachusproject.engine.helpers.SPARQLPosteditor;
 import org.callimachusproject.engine.helpers.SPARQLProducer;
 import org.callimachusproject.engine.helpers.SPARQLWriter;
 import org.callimachusproject.engine.helpers.XMLElementReader;
 import org.callimachusproject.engine.helpers.XMLEventList;
 import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.engine.model.TermOrigin;
+import org.callimachusproject.engine.model.VarOrTerm;
 import org.callimachusproject.server.exceptions.InternalServerError;
+import org.openrdf.model.Resource;
 import org.openrdf.query.Binding;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.MalformedQueryException;
@@ -166,6 +170,53 @@ public class Template {
 				q.setBinding(bind.getName(), bind.getValue());
 			}
 			return q.evaluate();
+		} catch (MalformedQueryException e) {
+			throw new TemplateException(e);
+		} catch (RepositoryException e) {
+			throw new TemplateException(e);
+		} catch (QueryEvaluationException e) {
+			throw new TemplateException(e);
+		} catch (RDFParseException e) {
+			throw new TemplateException(e);
+		} catch (IOException e) {
+			throw new TemplateException(e);
+		}
+	}
+
+	/**
+	 * Remove top triple and evaluate.
+	 * 
+	 * @param partner bound to the object variable of the removed top triple
+	 * @param con
+	 * @return
+	 * @throws TemplateException
+	 */
+	public TupleQueryResult evaluatePartner(Resource partner,
+			RepositoryConnection con) throws TemplateException {
+		try {
+			RDFEventReader reader = new RDFaReader(getSystemId(), openSource(),
+					getSystemId());
+			SPARQLProducer rq = new SPARQLProducer(reader);
+			SPARQLPosteditor ed = new SPARQLPosteditor(rq);
+
+			// only pass object vars (excluding prop-exps and content) beyond a
+			// certain depth:
+			// ^(/\d+){3,}$|^(/\d+)*\s.*$
+			ed.addEditor(ed.new TriplePatternCutter());
+
+			// find top-level new subjects to bind
+			SPARQLPosteditor.TriplePatternRecorder rec;
+			ed.addEditor(rec = ed.new TriplePatternRecorder());
+
+			String sparql = toSafeSparql(new OrderedSparqlReader(ed));
+			TupleQuery qry = con.prepareTupleQuery(SPARQL, sparql,
+					getSystemId());
+			for (TriplePattern t : rec.getTriplePatterns()) {
+				VarOrTerm vt = t.getSubject();
+				if (vt.isVar())
+					qry.setBinding(vt.asVar().stringValue(), partner);
+			}
+			return qry.evaluate();
 		} catch (MalformedQueryException e) {
 			throw new TemplateException(e);
 		} catch (RepositoryException e) {

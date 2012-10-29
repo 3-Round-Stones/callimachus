@@ -40,10 +40,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
-import java.nio.channels.WritableByteChannel;
-import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -61,11 +58,6 @@ import org.apache.http.ProtocolVersion;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHttpResponse;
-import org.apache.http.nio.ContentDecoder;
-import org.apache.http.nio.IOControl;
-import org.apache.http.nio.entity.ConsumingNHttpEntity;
-import org.apache.http.nio.entity.ConsumingNHttpEntityTemplate;
-import org.apache.http.nio.entity.ContentListener;
 import org.apache.http.nio.entity.NFileEntity;
 import org.apache.http.protocol.HttpDateGenerator;
 import org.apache.http.util.EntityUtils;
@@ -227,22 +219,6 @@ public class CachingFilter extends Filter {
 		return request;
 	}
 
-	public ConsumingNHttpEntity consume(Request request, HttpResponse resp)
-			throws IOException {
-		try {
-			if (request instanceof CachableRequest && isCachable(resp)) {
-				String url = request.getRequestURL();
-				CachedRequest dx = cache.findCachedRequest(url);
-				return consumeMessageBody(resp, dx.getDirectory(), url);
-			} else if (!request.isSafe()) {
-				invalidate(request);
-			}
-		} catch (InterruptedException e) {
-			logger.warn(e.getMessage(), e);
-		}
-		return null;
-	}
-
 	@Override
 	public HttpResponse filter(Request request, HttpResponse resp)
 			throws IOException {
@@ -298,57 +274,6 @@ public class CachingFilter extends Filter {
 		resp.setHeader("Date", DATE_GENERATOR.getCurrentDate());
 		resp.setHeader("Content-Length", "0");
 		return resp;
-	}
-
-	private ConsumingNHttpEntity consumeMessageBody(final HttpResponse res,
-			File dir, String url) throws FileNotFoundException, IOException {
-		long id = seq.incrementAndGet();
-		String hex = Integer.toHexString(url.hashCode());
-		final MessageDigest digest = getDigest("MD5");
-		final Header type = res.getFirstHeader("Content-Type");
-		final File file = new File(dir, "$" + hex + '-' + id + ".part");
-		dir.mkdirs();
-		final WritableByteChannel out = new FileOutputStream(file).getChannel();
-		ContentListener content = new ContentListener() {
-			private boolean finished;
-			private ByteBuffer buf = ByteBuffer.allocate(1024 * 8);
-
-			public void contentAvailable(ContentDecoder decoder,
-					IOControl ioctrl) throws IOException {
-				int read = decoder.read(buf);
-				if (read > 0) {
-					digest.update(buf.array(), buf.arrayOffset(), read);
-					while (buf.position() > 0) {
-						buf.flip();
-						out.write(buf);
-						buf.compact();
-					}
-				}
-				if (decoder.isCompleted()) {
-					finished();
-				}
-			}
-
-			public void finished() {
-				if (finished)
-					return;
-				finished = true;
-				try {
-					out.close();
-				} catch (IOException e) {
-					logger.error(e.toString(), e);
-				}
-				if (type == null) {
-					res.setEntity(new FileHttpEntity(file, null));
-				} else {
-					res.setEntity(new FileHttpEntity(file, type.getValue()));
-				}
-				byte[] hash = Base64.encodeBase64(digest.digest());
-				String contentMD5 = new String(hash, Charset.forName("UTF-8"));
-				res.setHeader("Content-MD5", contentMD5);
-			}
-		};
-		return new ConsumingNHttpEntityTemplate(res.getEntity(), content);
 	}
 
 	private File saveMessageBody(HttpResponse res, File dir, String url)

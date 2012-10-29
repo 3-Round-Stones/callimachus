@@ -166,7 +166,7 @@
                 <!-- Lookup possible members by label -->
                 <xsl:attribute name="data-search">
                     <xsl:value-of select="$callback" />
-                    <xsl:text>?search&amp;element=</xsl:text>
+                    <xsl:text>?options&amp;element=</xsl:text>
                     <xsl:apply-templates mode="xptr-element" select="." />
                     <xsl:text>&amp;q={searchTerms}</xsl:text>
                 </xsl:attribute>

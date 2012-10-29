@@ -207,7 +207,7 @@
         var con = this.objectConnection;
         var engine = org.callimachusproject.engine.TemplateEngine.getInstance();
         var template = engine.getTemplate(url).getElement(optionsElement);
-        var results = template.evaluatePartner(partner, null, con);
+        var results = template.evaluatePartner(partner, optionsKeyword, con);
         return this.Render(realm, null, null, optionsElement, results);
     """.
 
@@ -216,40 +216,15 @@
     rdfs:range xsd:string;
     calli:query "element".
 
+:optionsKeyword a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:domain :GetElementOptions;
+    rdfs:range xsd:string;
+    calli:query "q".
+
 :optionsResource a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :GetElementOptions;
     calli:type "text/uri-list";
     calli:query "resource".
-
-# Called by client to search for posible resources
-:SearchOptions rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Page>];
-    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-    calli:method "GET";
-    calli:query "search";
-    calli:requires calli:reader;
-    calli:type "text/html";
-    calli:script """
-        if (!searchElement)
-            throw new BadRequest("Missing element parameter");
-        var realm = this.FindRealmOf(this);
-        var url = this + "?template&realm=" + encodeURIComponent(realm);
-        var con = this.objectConnection;
-        var engine = org.callimachusproject.engine.TemplateEngine.getInstance();
-        var template = engine.getTemplate(url).getElement(searchElement);
-        var results = template.evaluatePartner(null, searchKeyword, con);
-        return this.Render(realm, null, null, searchElement, results);
-    """.
-
-:searchElement a owl:FunctionalProperty, owl:DatatypeProperty;
-    rdfs:domain :SearchOptions;
-    rdfs:range xsd:string;
-    calli:query "element".
-
-:searchKeyword a owl:FunctionalProperty, owl:DatatypeProperty;
-    rdfs:domain :SearchOptions;
-    rdfs:range xsd:string;
-    calli:query "q".
 
 :FindRealmOf rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Page>];

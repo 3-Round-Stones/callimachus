@@ -58,13 +58,14 @@ import org.slf4j.LoggerFactory;
  */
 public class HTTPObjectClient extends AbstractHttpClient {
 	protected static final String DEFAULT_NAME = Version.getInstance().getVersion();
+	private static int COUNT;
 	private static HTTPObjectClient instance;
 	static {
 		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
 			public void run() {
 				synchronized (HTTPObjectClient.class) {
 					if (instance != null) {
-						instance.storage.shutdown();
+						instance.shutdown();
 						instance.internal.getConnectionManager().shutdown();
 						instance = null;
 					}
@@ -80,6 +81,8 @@ public class HTTPObjectClient extends AbstractHttpClient {
 			dir.delete();
 			FileUtil.deleteOnExit(dir);
 			setCacheDirectory(dir);
+		} else if (++COUNT % 100 == 0) {
+			instance.cleanResources();
 		}
 		return instance;
 	}
@@ -87,7 +90,7 @@ public class HTTPObjectClient extends AbstractHttpClient {
 	public static synchronized void setCacheDirectory(File dir) {
 		if (instance != null) {
 			instance.internal.getConnectionManager().shutdown();
-			instance.storage.shutdown();
+			instance.shutdown();
 		}
 		dir.mkdirs();
 		HttpParams params = getDefaultHttpParams();
@@ -166,6 +169,20 @@ public class HTTPObjectClient extends AbstractHttpClient {
 		storage = new ManagedHttpCacheStorage(config);
 		cache = new CachingHttpClient(internal, entryFactory, storage, config);
 		client = new GUnZipHttpResponseClient(cache);
+	}
+
+	/**
+	 * Deletes the (no longer used) temporary cache files from disk.
+	 */
+	private void cleanResources() {
+		storage.cleanResources();
+	}
+
+	/**
+	 * Deletes all the temporary cache files from the disk.
+	 */
+	private void shutdown() {
+		storage.shutdown();
 	}
 
 	public HttpClient setProxy(HttpHost destination, HttpClient proxy) {

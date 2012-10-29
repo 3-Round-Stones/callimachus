@@ -46,6 +46,10 @@ public class Exchange implements Cancellable {
 		}
 	}
 
+	public String toString() {
+		return getRequest().toString();
+	}
+
 	public synchronized Request getRequest() {
 		return request;
 	}

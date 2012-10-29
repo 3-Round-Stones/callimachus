@@ -20,6 +20,10 @@ public class ForegroundAsyncExchange implements HttpAsyncExchange {
 		this.request = request;
 	}
 
+	public String toString() {
+		return getRequest().toString();
+	}
+
 	@Override
 	public HttpRequest getRequest() {
 		return request;

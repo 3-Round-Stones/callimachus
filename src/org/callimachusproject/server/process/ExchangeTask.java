@@ -10,6 +10,10 @@ public abstract class ExchangeTask implements Comparable<ExchangeTask>,
 		this.exchange = exchange;
 	}
 
+	public String toString() {
+		return exchange.toString();
+	}
+
 	public Exchange getExchange() {
 		return exchange;
 	}

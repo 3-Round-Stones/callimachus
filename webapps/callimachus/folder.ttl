@@ -62,7 +62,6 @@
     calli:requires calli:administrator;
     calli:type "message/x-response";
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    calli:imports <java:org.callimachusproject.engine.model.TermFactory>;
     calli:script """
         if (!slug)
             throw new BadRequest("Missing Slug HTTP header");
@@ -78,7 +77,7 @@
             name = name.toLowerCase();
         }
         name = name.replace(/[^\\w\\+\\-\\_\\.\\!\\~\\*\\'\\(\\);\\,\\&\\=\\$\\[\\]]+/g,'_');
-        var uri = TermFactory.newInstance(this.toString()).resolve(name);
+        var uri = this.resolve(name);
         return this.PostFactoryCreate(content, fileClass, false, con.getObject(uri), contentType);
     """.
 

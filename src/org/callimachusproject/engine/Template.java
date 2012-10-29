@@ -5,7 +5,10 @@ import static org.openrdf.query.QueryLanguage.SPARQL;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -13,6 +16,8 @@ import java.util.regex.Pattern;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.events.Attribute;
+import javax.xml.stream.events.XMLEvent;
 
 import org.callimachusproject.engine.events.Base;
 import org.callimachusproject.engine.events.Namespace;
@@ -134,6 +139,32 @@ public class Template {
 		} catch (RDFParseException e) {
 			throw new TemplateException(e);
 		} catch (IOException e) {
+			throw new TemplateException(e);
+		}
+	}
+
+	public Map<String, String> getAttributes() throws TemplateException {
+		try {
+			XMLEventReader iter = openSource();
+			try {
+				while (iter.hasNext()) {
+					XMLEvent event = iter.nextEvent();
+					if (event.isStartElement()) {
+						Map<String, String> map = new LinkedHashMap<String, String>();
+						Iterator ater = event.asStartElement().getAttributes();
+						while (ater.hasNext()) {
+							Attribute attr = (Attribute) ater.next();
+							map.put(attr.getName().getLocalPart(),
+									attr.getValue());
+						}
+						return map;
+					}
+				}
+				return Collections.emptyMap();
+			} finally {
+				iter.close();
+			}
+		} catch (XMLStreamException e) {
 			throw new TemplateException(e);
 		}
 	}

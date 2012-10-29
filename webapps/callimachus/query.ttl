@@ -58,7 +58,6 @@
     calli:type "text/html";
     calli:header "cache-control:no-store"; # TODO use cache-control from query string
     calli:imports <java:org.callimachusproject.engine.ParameterizedQueryParser>;
-    calli:imports <java:org.callimachusproject.engine.TemplateEngine>;
     calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
     calli:imports <java:org.openrdf.query.QueryLanguage>;
     calli:script """
@@ -72,8 +71,7 @@
         if (!page.FindRealmOf)
             throw new InternalServerError("Missing view template: " + page);
         var realm = page.FindRealmOf(this);
-        var engine = TemplateEngine.getInstance();
-        var temp = engine.getTemplate(uri + "?template&realm=" + realm);
+        var temp = page.getTemplate(uri + "?template&realm=" + realm);
         var sparql = temp.getQueryString(query.prepare(viewParameters));
         var qry = con.prepareTupleQuery(QueryLanguage.SPARQL, sparql, this.toString());
         var results = query.evaluate(viewParameters, qry);
@@ -96,7 +94,6 @@
     calli:type "application/sparql-query";
     calli:header "cache-control:no-cache";
     calli:imports <java:org.callimachusproject.engine.ParameterizedQueryParser>;
-    calli:imports <java:org.callimachusproject.engine.TemplateEngine>;
     calli:imports <java:org.openrdf.query.QueryLanguage>;
     calli:script """
         var parser = ParameterizedQueryParser.newInstance();
@@ -107,8 +104,7 @@
             var con = this.objectConnection;
             var page = con.getObject(uri);
             var realm = page.FindRealmOf(this);
-            var engine = TemplateEngine.getInstance();
-            var temp = engine.getTemplate(uri + "?template&realm=" + realm);
+            var temp = page.getTemplate(uri + "?template&realm=" + realm);
             sparql = temp.getQueryString(sparql);
         }
         return new java.lang.String(sparql).getBytes(java.nio.charset.Charset.forName("UTF-8"));

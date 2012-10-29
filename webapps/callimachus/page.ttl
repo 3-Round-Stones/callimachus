@@ -103,6 +103,7 @@
     calli:imports <java:java.net.URLDecoder>;
     calli:imports <java:org.callimachusproject.server.HTTPObjectServer>;
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <java:org.callimachusproject.server.exceptions.ServiceUnavailable>;
     calli:script """
         var read;
         var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
@@ -114,13 +115,10 @@
         } finally {
             out.close();
         }
-        var input = this.openInputStream();
         try {
-            // verify we can parse it as XML
-            var xslt = org.callimachusproject.xslt.XSLTransformerFactory.getInstance().createTransformer();
-            xslt.transform(input, this.toString()).asDocument();
-        } finally {
-            input.close();
+            this.ValidatePage();
+        } catch (e if e.javaException instanceof ServiceUnavailable) {
+            java.lang.System.err.println("Storing " + this);
         }
         this.touchRevision();
         HTTPObjectServer.resetAllCache();
@@ -130,6 +128,11 @@
     rdfs:domain :UploadPage;
     rdfs:range <java:java.io.InputStream>;
     calli:type "application/xhtml+xml".
+
+:ValidatePage rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Page>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+    calli:post "schemas/xhtml.rng?validate\nContent-Location:$0\nContent-Type: application/xhtml+xml".
 
 # GET /page/MainPage.xhtml?element=content/1&realm=/
 :GetElement rdfs:subClassOf msg:Message;
@@ -178,8 +181,7 @@
         var con = this.objectConnection;
         var bindings = new org.openrdf.query.impl.MapBindingSet();
         bindings.addBinding("this", resource.resource);
-        var engine = org.callimachusproject.engine.TemplateEngine.getInstance();
-        var results = engine.getTemplate(template).evaluate(bindings, con);
+        var results = this.getTemplate(template).evaluate(bindings, con);
         return this.Render(realm, resource, resourceQuery, '/1', results);
     """.
 
@@ -198,6 +200,7 @@
     calli:query "options";
     calli:requires calli:reader;
     calli:type "text/html";
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
     calli:script """
         if (!optionsElement)
             throw new BadRequest("Missing element parameter");
@@ -205,8 +208,12 @@
         var realm = this.FindRealmOf(this);
         var url = this + "?template&realm=" + encodeURIComponent(realm);
         var con = this.objectConnection;
-        var engine = org.callimachusproject.engine.TemplateEngine.getInstance();
-        var template = engine.getTemplate(url).getElement(optionsElement);
+        var template = this.getTemplate(url).getElement(optionsElement);
+        var attrs = template.getAttributes();
+        if (!attrs.containsKey("data-options")
+                && !attrs.containsKey("data-construct")
+                && !attrs.containsKey("data-search"))
+            throw new BadRequest("Wrong element parameter");
         var results = template.evaluatePartner(partner, optionsKeyword, con);
         return this.Render(realm, null, null, optionsElement, results);
     """.

@@ -1,4 +1,3 @@
-org.callimachusproject.xslt.XsltAdviceFactory
 org.callimachusproject.script.ScriptAdviceFactory
 org.callimachusproject.rewrite.ProxyAdviceFactory
 org.callimachusproject.rewrite.MissingAdviceFactory

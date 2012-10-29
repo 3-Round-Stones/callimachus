@@ -4,7 +4,6 @@ import junit.framework.TestCase;
 
 import org.apache.http.HttpResponse;
 import org.callimachusproject.annotations.alternate;
-import org.callimachusproject.xslt.XSLTransformTest.XMLFile;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -69,7 +68,6 @@ public class RedirectTest extends TestCase {
 	@Before
 	public void setUp() throws Exception {
 		config.addConcept(Concept.class);
-		config.addConcept(XMLFile.class);
 		repository = getRepository();
 		con = (ObjectConnection) repository.getConnection();
 		con.setAutoCommit(false);

@@ -57,14 +57,12 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Comment;
 import javax.xml.stream.events.XMLEvent;
 
-import org.callimachusproject.xslt.XSLTransformer;
-
 /**
  * An XMLEvent queue that can be read using an XMLEventReader.
  */
 public class XMLEventQueue implements XMLEventWriter, NamespaceContext {
 	private static XMLEvent CLOSED = (XMLEvent) Proxy.newProxyInstance(
-			XSLTransformer.class.getClassLoader(),
+			XMLEventQueue.class.getClassLoader(),
 			new Class<?>[] { XMLEvent.class }, new InvocationHandler() {
 				public Object invoke(Object proxy, Method method, Object[] args)
 						throws Throwable {

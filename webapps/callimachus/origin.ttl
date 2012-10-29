@@ -68,12 +68,11 @@
     calli:imports <java:org.openrdf.model.vocabulary.RDF>;
     calli:imports <java:java.net.URLEncoder>;
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    calli:imports <java:org.callimachusproject.engine.model.TermFactory>;
     calli:imports <Viewable>;
     calli:script """
         var con = this.objectConnection;
         var vf = con.valueFactory;
-        var tf = TermFactory.newInstance(this.toString());
+        var tf = this;
 
         function resolveAbsoluteURI(string) {
             try {

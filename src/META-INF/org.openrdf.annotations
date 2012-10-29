@@ -19,4 +19,3 @@ org.callimachusproject.annotations.title = http://www.openrdf.org/rdf/2011/messa
 org.callimachusproject.annotations.transform = http://www.openrdf.org/rdf/2011/messaging#transform
 org.callimachusproject.annotations.type = http://www.openrdf.org/rdf/2011/messaging#type
 org.callimachusproject.annotations.xproc
-org.callimachusproject.annotations.xslt = http://www.openrdf.org/rdf/2011/messaging#xslt

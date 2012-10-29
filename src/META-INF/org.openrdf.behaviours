@@ -1,10 +1,7 @@
 # Copyright (c) 2009-2010 Zepheira LLC, 2010-2011 Talis Inc, Some Rights Reserved.
-org.callimachusproject.behaviours.CreateSupport
-org.callimachusproject.behaviours.EditSupport
-org.callimachusproject.behaviours.ViewSupport
+org.callimachusproject.behaviours.PageSupport	=	http://callimachusproject.org/rdf/2009/framework#Page
+org.callimachusproject.behaviours.FolderSupport	=	http://callimachusproject.org/rdf/2009/framework#Folder
 org.callimachusproject.behaviours.IntrospectSupport = http://www.w3.org/2000/01/rdf-schema#Resource
-org.callimachusproject.behaviours.RDFaSupport
-org.callimachusproject.behaviours.FormSupport
 org.callimachusproject.behaviours.MailSubmitterSupport
 org.callimachusproject.behaviours.ScriptBundleSupport
 org.callimachusproject.behaviours.FileObjectSupport = http://www.w3.org/2000/01/rdf-schema#Resource

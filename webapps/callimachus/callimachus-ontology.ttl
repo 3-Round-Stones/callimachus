@@ -111,9 +111,9 @@ calli:ScriptBundle a owl:Class;
     rdfs:comment "A collection of JavaScript files that are downloaded and compressed together";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
-calli:Page a owl:DeprecatedClass;
+calli:Page a owl:Class;
     rdfs:label "Page";
-    rdfs:comment "Use </callimachus/Page> instead";
+    rdfs:comment "A Callimachus XHTML page";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 ################################

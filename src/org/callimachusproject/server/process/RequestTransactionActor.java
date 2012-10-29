@@ -2,9 +2,7 @@ package org.callimachusproject.server.process;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.PriorityBlockingQueue;
 
 import org.apache.http.Header;
@@ -15,7 +13,6 @@ import org.apache.http.ProtocolVersion;
 import org.apache.http.util.EntityUtils;
 import org.callimachusproject.client.CloseableEntity;
 import org.callimachusproject.server.CallimachusRepository;
-import org.callimachusproject.server.exceptions.InternalServerError;
 import org.callimachusproject.server.exceptions.NotAcceptable;
 import org.callimachusproject.server.exceptions.ResponseException;
 import org.callimachusproject.server.model.EntityRemovedHttpResponse;
@@ -25,7 +22,6 @@ import org.callimachusproject.server.model.Request;
 import org.callimachusproject.server.model.ResourceOperation;
 import org.callimachusproject.server.model.Response;
 import org.callimachusproject.server.util.ManagedExecutors;
-import org.openrdf.repository.object.exceptions.BehaviourException;
 
 public class RequestTransactionActor extends ExchangeActor {
 	private static final ProtocolVersion HTTP11 = HttpVersion.HTTP_1_1;
@@ -109,24 +105,12 @@ public class RequestTransactionActor extends ExchangeActor {
 		return response;
 	}
 
-	private HttpResponse createErrorResponse(final ResourceOperation req,
-			Exception e) {
-		while (e instanceof BehaviourException
-				|| e instanceof InvocationTargetException
-				|| e instanceof ExecutionException
-				&& e.getCause() instanceof Exception) {
-			e = (Exception) e.getCause();
-		}
-		return super.createErrorResponse(req, asResponseException(e));
-	}
-
-	private ResponseException asResponseException(Exception e) {
-		if (e instanceof ResponseException)
-			return (ResponseException) e;
+	@Override
+	protected ResponseException asResponseException(Request req, Exception e) {
 		// FIXME is this to general?
 		if (e instanceof IllegalArgumentException)
 			return new NotAcceptable(e);
-		return new InternalServerError(e);
+		return super.asResponseException(req, e);
 	}
 
 	private HttpResponse filter(Request request, HttpResponse response)

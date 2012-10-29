@@ -7,9 +7,11 @@ import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.channels.ReadableByteChannel;
 import java.util.Arrays;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.regex.Matcher;
@@ -33,6 +35,7 @@ import org.callimachusproject.server.util.ChannelUtil;
 import org.callimachusproject.xproc.Pipe;
 import org.callimachusproject.xproc.Pipeline;
 import org.openrdf.OpenRDFException;
+import org.openrdf.repository.object.exceptions.BehaviourException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -124,7 +127,13 @@ public abstract class ExchangeActor {
 	}
 
 	protected HttpResponse createErrorResponse(Request req, Exception e) {
-		ResponseException re = asResponseException(e);
+		while (e instanceof BehaviourException
+				|| e instanceof InvocationTargetException
+				|| e instanceof ExecutionException
+				&& e.getCause() instanceof Exception) {
+			e = (Exception) e.getCause();
+		}
+		ResponseException re = asResponseException(req, e);
 		try {
 			return createHttpResponse(req, re);
 		} catch (Exception e1) {
@@ -133,9 +142,10 @@ public abstract class ExchangeActor {
 		}
 	}
 
-	private ResponseException asResponseException(Exception e) {
+	protected ResponseException asResponseException(Request req, Exception e) {
 		if (e instanceof ResponseException)
 			return (ResponseException) e;
+		logger.error("Internal Server Error while responding to " + req.getRequestLine().getUri(), e);
 		return new InternalServerError(e);
 	}
 

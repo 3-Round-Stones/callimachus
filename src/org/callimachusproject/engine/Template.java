@@ -186,12 +186,13 @@ public class Template {
 	/**
 	 * Remove top triple and evaluate.
 	 * 
-	 * @param partner bound to the object variable of the removed top triple
+	 * @param partner bound to the object variable of the removed top triple (if non-null)
+	 * @param keyword keyword that must be present in the object resource's label
 	 * @param con
 	 * @return
 	 * @throws TemplateException
 	 */
-	public TupleQueryResult evaluatePartner(Resource partner,
+	public TupleQueryResult evaluatePartner(Resource partner, String keyword,
 			RepositoryConnection con) throws TemplateException {
 		try {
 			RDFEventReader reader = new RDFaReader(getSystemId(), openSource(),
@@ -208,7 +209,19 @@ public class Template {
 			SPARQLPosteditor.TriplePatternRecorder rec;
 			ed.addEditor(rec = ed.new TriplePatternRecorder());
 
+			if (keyword != null && keyword.length() > 0) {
+				// add soundex conditions to @about siblings on the next level only
+				// The regex should not match properties and property-expressions with info following the xptr
+				ed.addEditor(ed.new PhoneMatchInsert(keyword));
+				
+				// add filters to soundex labels at the next level (only direct properties of the top-level subject)
+				//ed.addEditor(ed.new FilterInsert("^(/\\d+){2}$",LABELS,regexStartsWith(q)));
+				ed.addEditor(ed.new FilterKeywordExists(keyword));
+			}
+
 			String sparql = toSafeSparql(new OrderedSparqlReader(ed)) + "\nLIMIT 1000";
+			assert sparql.contains("SELECT REDUCED");
+			sparql.replaceFirst("\bSELECT REDUCED\b", "SELECT DISTINCT");
 			TupleQuery qry = con.prepareTupleQuery(SPARQL, sparql,
 					getSystemId());
 			if (partner != null) {
@@ -218,6 +231,7 @@ public class Template {
 						qry.setBinding(vt.asVar().stringValue(), partner);
 				}
 			}
+			// The edited query may return multiple and/or empty solutions
 			return qry.evaluate();
 		} catch (MalformedQueryException e) {
 			throw new TemplateException(e);

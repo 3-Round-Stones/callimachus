@@ -18,9 +18,6 @@
  */
 package org.callimachusproject.behaviours;
 
-import static org.callimachusproject.engine.helpers.SPARQLWriter.toSPARQL;
-import static org.openrdf.query.QueryLanguage.SPARQL;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -30,30 +27,11 @@ import java.net.URLEncoder;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 
-import org.callimachusproject.annotations.header;
-import org.callimachusproject.annotations.method;
-import org.callimachusproject.annotations.query;
-import org.callimachusproject.annotations.requires;
-import org.callimachusproject.annotations.type;
 import org.callimachusproject.client.HTTPObjectClient;
 import org.callimachusproject.concepts.Page;
-import org.callimachusproject.engine.RDFEventReader;
-import org.callimachusproject.engine.RDFParseException;
-import org.callimachusproject.engine.RDFaReader;
-import org.callimachusproject.engine.helpers.ClusterCounter;
-import org.callimachusproject.engine.helpers.DeDupedResultSet;
-import org.callimachusproject.engine.helpers.OrderedSparqlReader;
-import org.callimachusproject.engine.helpers.RDFaProducer;
-import org.callimachusproject.engine.helpers.SPARQLPosteditor;
-import org.callimachusproject.engine.helpers.SPARQLProducer;
-import org.callimachusproject.engine.helpers.XMLEventList;
-import org.callimachusproject.server.exceptions.InternalServerError;
 import org.callimachusproject.xml.XMLEventReaderFactory;
 import org.callimachusproject.xslt.XSLTransformer;
 import org.callimachusproject.xslt.XSLTransformerFactory;
-import org.openrdf.query.TupleQuery;
-import org.openrdf.query.TupleQueryResult;
-import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.object.RDFObject;
 
 /**
@@ -80,51 +58,6 @@ public abstract class FormSupport implements Page, RDFObject {
 	@Override
 	public String calliConstructHTML(Object target) throws Exception {
 		return asHtmlString(calliConstruct(target));
-	}
-
-	/**
-	 * Returns an HTML page listing suggested resources for the given element.
-	 * See data-search
-	 */
-	@method("GET")
-	@query("search")
-	@requires("http://callimachusproject.org/rdf/2009/framework#reader")
-	@type("text/html")
-	@header("cache-control:no-validate,max-age=60")
-	public InputStream constructSearch(@query("element") String element,
-			@query("q") String q) throws Exception {
-		String base = getResource().stringValue();
-		XMLEventList template = new XMLEventList(xslt(element));
-		SPARQLProducer rq = new SPARQLProducer(new RDFaReader(base, template.iterator(), toString()));
-		SPARQLPosteditor ed = new SPARQLPosteditor(rq);
-		
-		// filter out the outer rel (the button may add additional bnodes that need to be cut out)
-		ed.addEditor(ed.new TriplePatternCutter());
-		
-		// add soundex conditions to @about siblings on the next level only
-		// The regex should not match properties and property-expressions with info following the xptr
-		ed.addEditor(ed.new PhoneMatchInsert(q));
-		
-		// add filters to soundex labels at the next level (only direct properties of the top-level subject)
-		//ed.addEditor(ed.new FilterInsert("^(/\\d+){2}$",LABELS,regexStartsWith(q)));
-		ed.addEditor(ed.new FilterKeywordExists(q));
-	
-		RepositoryConnection con = getObjectConnection();
-		String sparql = toSafeOrderedSparql(ed);
-		TupleQuery qry = con.prepareTupleQuery(SPARQL, sparql, base);
-		// The edited query may return multiple and/or empty solutions
-		TupleQueryResult results = new DeDupedResultSet(qry.evaluate(),true);
-		RDFaProducer xhtml = new RDFaProducer(template.iterator(), results, rq.getOrigins());
-		return HTML_XSLT.transform(xhtml, this.toString()).asInputStream();
-	}
-
-	private String toSafeOrderedSparql(RDFEventReader ed) throws RDFParseException,
-			IOException {
-		ClusterCounter counter = new ClusterCounter(new OrderedSparqlReader(ed));
-		String sparql = toSPARQL(counter);
-		if (counter.getNumberOfVariableClusters() > 1)
-			throw new InternalServerError("Variables not connected: " + counter.getSmallestCluster());
-		return sparql;
 	}
 
 	private String asHtmlString(XMLEventReader xhtml) throws Exception {

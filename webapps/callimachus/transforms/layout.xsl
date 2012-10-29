@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet version="1.0"
+<xsl:stylesheet version="2.0"
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns="http://www.w3.org/1999/xhtml"
     xmlns:xhtml="http://www.w3.org/1999/xhtml">
     <xsl:output indent="no" method="xml" />
 
     <!-- Variables -->
-    <!-- $systemId and $xsltId is present only if transforming a template, not for dynamically generated XHTML -->
+    <!-- $xsltId is present only if transforming a template, not for dynamically generated XHTML -->
     <!-- realm styles scripts layout favicon menu variation rights -->
+    <xsl:variable name="systemId" select="base-uri()" />
     <xsl:variable name="layout_xhtml" select="document($layout)" />
     <xsl:variable name="layout_html" select="$layout_xhtml/xhtml:html|$layout_xhtml/html" />
     <xsl:variable name="layout_head" select="$layout_xhtml/xhtml:html/xhtml:head|$layout_xhtml/html/head" />
@@ -50,7 +51,7 @@
         <xsl:attribute name="{name()}">
             <xsl:call-template name="resolve-path">
                 <xsl:with-param name="relative" select="." />
-                <xsl:with-param name="base" select="$systemId" />
+                <xsl:with-param name="base" select="base-uri(.)" />
             </xsl:call-template>
         </xsl:attribute>
     </xsl:template>
@@ -127,7 +128,7 @@
         <xsl:attribute name="{name()}">
             <xsl:call-template name="resolve-path">
                 <xsl:with-param name="relative" select="." />
-                <xsl:with-param name="base" select="$systemId" />
+                <xsl:with-param name="base" select="base-uri(.)" />
             </xsl:call-template>
         </xsl:attribute>
     </xsl:template>

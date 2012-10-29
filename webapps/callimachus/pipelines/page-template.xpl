@@ -7,10 +7,9 @@
         xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
         xmlns:sparql="http://www.w3.org/2005/sparql-results#">
 
-    <p:option name="systemId" select="''" />
     <p:option name="realm" required="true" />
 
-    <p:variable name="systemIdOrBaseUri" select="if (string-length($systemId) &gt; 0) then $systemId else base-uri()" />
+    <p:variable name="systemId" select="p:base-uri()" />
 
     <p:xslt name="xml-stylesheet">
         <p:input port="stylesheet">
@@ -36,29 +35,31 @@
         </p:variable>
         <p:variable name="xsltId" select="substring-before(substring-after($xml-stylesheet, 'href=&quot;'), '&quot;')" />
         <p:sink />
+
+        <p:xinclude name="xinclude" fixup-xml-base="true" fixup-xml-lang="true">
+            <p:input port="source">
+                <p:pipe step="pipeline" port="source" />
+            </p:input>
+        </p:xinclude>
         <p:choose>
             <p:when test="contains($xml-stylesheet, 'type=&quot;text/xsl&quot;') and string-length($xsltId) &gt; 0">
                 <p:load name="load-stylesheet">
-                    <p:with-option name="href" select="p:resolve-uri($xsltId, $systemIdOrBaseUri)" />
+                    <p:with-option name="href" select="p:resolve-uri($xsltId, $systemId)" />
                 </p:load>
                 <p:xslt>
-                    <p:with-param name="systemId" select="$systemIdOrBaseUri" />
+                    <p:with-param name="systemId" select="$systemId" />
                     <p:with-param name="xsltId" select="$xsltId" />
                     <p:with-param name="realm" select="$realm" />
                     <p:input port="stylesheet">
                         <p:pipe step="load-stylesheet" port="result" />
                     </p:input>
                     <p:input port="source">
-                        <p:pipe step="pipeline" port="source" />
+                        <p:pipe step="xinclude" port="result" />
                     </p:input>
                 </p:xslt>
             </p:when>
             <p:otherwise>
-                <p:identity>
-                    <p:input port="source">
-                        <p:pipe step="pipeline" port="source" />
-                    </p:input>
-                </p:identity>
+                <p:identity/>
             </p:otherwise>
         </p:choose>
     </p:group>

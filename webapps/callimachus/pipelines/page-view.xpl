@@ -16,7 +16,6 @@
     <p:variable name="realm" select="doc($find-realm-uri)//sparql:uri" />
 
     <calli:page-template>
-        <p:with-option name="systemId" select="$systemId" />
         <p:with-option name="realm" select="$realm" />
     </calli:page-template>
 

@@ -15,7 +15,6 @@
     <p:import href="page-template.xpl" />
 
     <calli:page-template>
-        <p:with-option name="systemId" select="p:base-uri()" />
         <p:with-option name="realm" select="$realm" />
     </calli:page-template>
 

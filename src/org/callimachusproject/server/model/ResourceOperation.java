@@ -56,7 +56,6 @@ import org.callimachusproject.annotations.method;
 import org.callimachusproject.annotations.query;
 import org.callimachusproject.annotations.rel;
 import org.callimachusproject.annotations.requires;
-import org.callimachusproject.annotations.transform;
 import org.callimachusproject.annotations.type;
 import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidType;
@@ -85,7 +84,6 @@ public class ResourceOperation extends ResourceRequest {
 	private Logger logger = LoggerFactory.getLogger(ResourceOperation.class);
 
 	private Method method;
-	private Method transformMethod;
 	private MethodNotAllowed notAllowed;
 	private BadRequest badRequest;
 	private NotAcceptable notAcceptable;
@@ -110,7 +108,6 @@ public class ResourceOperation extends ResourceRequest {
 				} else {
 					method = findMethod();
 				}
-				transformMethod = getTransformMethodOf(method);
 			} catch (MethodNotAllowed e) {
 				notAllowed = e;
 			} catch (BadRequest e) {
@@ -124,10 +121,9 @@ public class ResourceOperation extends ResourceRequest {
 	}
 
 	public String getResponseContentType() {
-		Method m = getTransformMethod();
-		if (m == null || m.getReturnType().equals(Void.TYPE))
+		if (method == null || method.getReturnType().equals(Void.TYPE))
 			return null;
-		return getContentType(m);
+		return getContentType(method);
 	}
 
 	public String getEntityTag(String revision, String cache, String contentType)
@@ -145,11 +141,11 @@ public class ResourceOperation extends ResourceRequest {
 				return variantTag(revision, strong, contentType, headers);
 			Method operation;
 			if ((operation = getAlternativeMethod("alternate")) != null) {
-				String type = getContentType(getTransformMethodOf(operation));
+				String type = getContentType(operation);
 				headers = getHeaderCodeFor(operation);
 				return variantTag(revision, strong, type, headers);
 			} else if ((operation = getAlternativeMethod("describedby")) != null) {
-				String type = getContentType(getTransformMethodOf(operation));
+				String type = getContentType(operation);
 				headers = getHeaderCodeFor(operation);
 				return variantTag(revision,strong,  type, headers);
 			}
@@ -164,7 +160,6 @@ public class ResourceOperation extends ResourceRequest {
 				get = findMethodIfPresent("GET", false, true);
 				if (get != null) {
 					headers = getHeaderCodeFor(get);
-					get = getTransformMethodOf(get);
 				}
 			} catch (MethodNotAllowed e) {
 				get = null;
@@ -449,7 +444,7 @@ public class ResourceOperation extends ResourceRequest {
 		return map;
 	}
 
-	public boolean isRequestBody(Method method) {
+	private boolean isRequestBody(Method method) {
 		for (Annotation[] anns : method.getParameterAnnotations()) {
 			if (getParameterNames(anns) == null && getHeaderNames(anns) == null)
 				return true;
@@ -468,12 +463,6 @@ public class ResourceOperation extends ResourceRequest {
 							return true;
 					}
 				}
-			}
-		}
-		if (method.isAnnotationPresent(transform.class)) {
-			for (String uri : method.getAnnotation(transform.class).value()) {
-				if (isPrivate(getTransform(uri)))
-					return true;
 			}
 		}
 		return false;
@@ -624,11 +613,6 @@ public class ResourceOperation extends ResourceRequest {
 		if (m == null)
 			return null;
 		Collection<String> result = new LinkedHashSet<String>();
-		if (m.isAnnotationPresent(transform.class)) {
-			for (String uri : m.getAnnotation(transform.class).value()) {
-				result.addAll(getAllMimeTypesOf(getTransform(uri)));
-			}
-		}
 		if (m.isAnnotationPresent(type.class)) {
 			for (String media : m.getAnnotation(type.class).value()) {
 				result.add(media);
@@ -745,53 +729,6 @@ public class ResourceOperation extends ResourceRequest {
 		return map;
 	}
 
-	public Method getTransform(String uri) {
-		for (Method m : getRequestedResource().getClass().getMethods()) {
-			Iri iri = m.getAnnotation(Iri.class);
-			if (iri != null && uri.equals(iri.value())) {
-				return m;
-			}
-		}
-		logger.warn("Method not found: {}", uri);
-		return null;
-	}
-
-	private Method getTransformMethod() {
-		return transformMethod;
-	}
-
-	private Method getTransformMethodOf(Method method) {
-		Method transform = getBestTransformMethod(method);
-		if (transform == null || transform.equals(method))
-			return method;
-		return getTransformMethodOf(transform);
-	}
-
-	public Method getBestTransformMethod(Method method) {
-		if (method == null)
-			return method;
-		if (method.isAnnotationPresent(transform.class)) {
-			List<Method> transforms = new ArrayList<Method>();
-			for (String uri : method.getAnnotation(transform.class).value()) {
-				transforms.add(getTransform(uri));
-			}
-			Method tm = findBestMethod(transforms);
-			if (tm == null)
-				return method;
-			return tm;
-		}
-		return method;
-	}
-
-	public String[] getTransforms(Annotation[] anns) {
-		for (Annotation ann : anns) {
-			if (ann.annotationType().equals(transform.class)) {
-				return ((transform) ann).value();
-			}
-		}
-		return new String[0];
-	}
-
 	private int getHeaderCodeFor(Method method) {
 		if (method == null)
 			return 0;
@@ -822,11 +759,6 @@ public class ResourceOperation extends ResourceRequest {
 				names.addAll(Arrays.asList(ar));
 			}
 		}
-		if (method.isAnnotationPresent(transform.class)) {
-			for (String uri : method.getAnnotation(transform.class).value()) {
-				getHeaderNamesFor(getTransform(uri), names);
-			}
-		}
 		return names;
 	}
 
@@ -849,12 +781,6 @@ public class ResourceOperation extends ResourceRequest {
 			logger.error("Max transform depth exceeded: {}", method.getName());
 			return false;
 		}
-		if (method.isAnnotationPresent(transform.class)) {
-			for (String uri : method.getAnnotation(transform.class).value()) {
-				if (isAcceptable(getTransform(uri), ++depth))
-					return true;
-			}
-		}
 		return isAcceptable(method.getGenericReturnType(), getTypes(method));
 	}
 
@@ -868,9 +794,6 @@ public class ResourceOperation extends ResourceRequest {
 		String[] types = getParameterMediaTypes(anns);
 		if (types.length == 0 && typeRequired)
 			return Collections.emptySet();
-		for (String uri : getTransforms(anns)) {
-			readable.addAll(getReadableTypes(input, getTransform(uri), ++depth, false));
-		}
 		String media = input.toMedia(new FluidType(gtype, types));
 		if (media != null) {
 			readable.add(media);
@@ -878,7 +801,7 @@ public class ResourceOperation extends ResourceRequest {
 		return readable;
 	}
 
-	public Collection<String> getReadableTypes(Fluid input,
+	private Collection<String> getReadableTypes(Fluid input,
 			Method method, int depth, boolean typeRequired) {
 		if (method == null)
 			return Collections.emptySet();

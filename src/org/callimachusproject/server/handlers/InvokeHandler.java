@@ -104,8 +104,7 @@ public class InvokeHandler implements Handler {
 				return new Response().badRequest(e);
 			}
 			try {
-				ResponseFluid entity = invoke(req, method, args, true,
-						getResponseTypes(req, method));
+				ResponseFluid entity = invoke(req, method, args, getResponseTypes(req, method));
 				if (!safe) {
 					req.flush();
 				}
@@ -133,7 +132,7 @@ public class InvokeHandler implements Handler {
 	}
 
 	private ResponseFluid invoke(ResourceOperation req, Method method,
-			Object[] args, boolean follow, String... responseTypes)
+			Object[] args, String... responseTypes)
 			throws Exception {
 		Object result = method.invoke(req.getRequestedResource(), args);
 		ResponseFluid input = createResultEntity(req, result,
@@ -152,17 +151,6 @@ public class InvokeHandler implements Handler {
 		if (method.isAnnotationPresent(expect.class)) {
 			input.addExpects(method.getAnnotation(expect.class).value());
 		}
-		if (follow) {
-			Method transform = req.getBestTransformMethod(method);
-			if (transform != null && !transform.equals(method)) {
-				ResponseFluid ret = invoke(req, transform,
-						getParameters(req, transform, input), follow,
-						getResponseTypes(req, transform));
-				ret.addHeaders(input.getOtherHeaders());
-				ret.addExpects(input.getExpects());
-				return ret;
-			}
-		}
 		return input;
 	}
 
@@ -177,39 +165,23 @@ public class InvokeHandler implements Handler {
 		return result;
 	}
 
-	private Fluid getValue(ResourceOperation req, Annotation[] anns,
-			Fluid input, boolean typeRequired) throws Exception {
-		for (String uri : req.getTransforms(anns)) {
-			Method transform = req.getTransform(uri);
-			if (!req.getReadableTypes(input, transform, 0, typeRequired)
-					.isEmpty()) {
-				Object[] args = getParameters(req, transform, input);
-				return invoke(req, transform, args, false,
-						req.getTypes(transform));
-			}
-		}
-		return input;
-	}
-
 	private Fluid getParameter(ResourceOperation req, Annotation[] anns,
 			Class<?> ptype, Fluid input) throws Exception {
 		String[] names = req.getParameterNames(anns);
 		String[] headers = req.getHeaderNames(anns);
 		String[] types = req.getParameterMediaTypes(anns);
 		if (names == null && headers == null && types.length == 0) {
-			return getValue(req, anns, req.getFluidBuilder().media("*/*"),
-					false);
+			return req.getFluidBuilder().media("*/*");
 		} else if (names == null && headers == null) {
-			return getValue(req, anns, input, true);
+			return input;
 		} else if (headers != null && names != null) {
-			return getValue(req, anns, getHeaderAndQuery(req, headers, names),
-					true);
+			return getHeaderAndQuery(req, headers, names);
 		} else if (headers != null) {
-			return getValue(req, anns, req.getHeader(headers), true);
+			return req.getHeader(headers);
 		} else if (names.length == 1 && names[0].equals("*")) {
-			return getValue(req, anns, req.getQueryStringParameter(), true);
+			return req.getQueryStringParameter();
 		} else {
-			return getValue(req, anns, getParameter(req, names), true);
+			return getParameter(req, names);
 		}
 	}
 

@@ -16,6 +16,5 @@ org.callimachusproject.annotations.rel = http://www.openrdf.org/rdf/2011/messagi
 org.callimachusproject.annotations.resides
 org.callimachusproject.annotations.script = http://www.openrdf.org/rdf/2011/messaging#script
 org.callimachusproject.annotations.title = http://www.openrdf.org/rdf/2011/messaging#title
-org.callimachusproject.annotations.transform = http://www.openrdf.org/rdf/2011/messaging#transform
 org.callimachusproject.annotations.type = http://www.openrdf.org/rdf/2011/messaging#type
 org.callimachusproject.annotations.xproc

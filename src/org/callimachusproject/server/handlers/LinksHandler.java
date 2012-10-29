@@ -41,12 +41,10 @@ import java.util.Set;
 
 import org.callimachusproject.annotations.rel;
 import org.callimachusproject.annotations.title;
-import org.callimachusproject.annotations.transform;
 import org.callimachusproject.annotations.type;
 import org.callimachusproject.server.model.Handler;
 import org.callimachusproject.server.model.ResourceOperation;
 import org.callimachusproject.server.model.Response;
-import org.openrdf.annotations.Iri;
 import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.repository.RepositoryException;
 
@@ -179,33 +177,9 @@ public class LinksHandler implements Handler {
 	private Collection<String> getResponseType(ResourceOperation request,
 			Method m) {
 		Collection<String> set = new LinkedHashSet<String>();
-		ArrayList<Method> l = new ArrayList<Method>();
-		for (Method transform : getTransformMethodOf(request, m, l)) {
-			type ann = transform.getAnnotation(type.class);
-			if (ann != null) {
-				set.addAll(Arrays.asList(ann.value()));
-			}
-		}
-		return set;
-	}
-
-	private Collection<Method> getTransformMethodOf(ResourceOperation request,
-			Method method, Collection<Method> set) {
-		if (method == null)
-			return null;
-		if (method.isAnnotationPresent(transform.class)) {
-			Method[] allMethods = request.getRequestedResource().getClass().getMethods();
-			for (String uri : method.getAnnotation(transform.class).value()) {
-				for (Method m : allMethods) {
-					if (m.isAnnotationPresent(Iri.class)) {
-						if (uri.equals(m.getAnnotation(Iri.class).value())) {
-							set = getTransformMethodOf(request, m, set);
-						}
-					}
-				}
-			}
-		} else {
-			set.add(method);
+		type ann = m.getAnnotation(type.class);
+		if (ann != null) {
+			set.addAll(Arrays.asList(ann.value()));
 		}
 		return set;
 	}

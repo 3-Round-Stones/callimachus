@@ -157,7 +157,7 @@
                 <!-- Called when a resource URI is dropped to construct its label -->
                 <xsl:attribute name="data-construct">
                     <xsl:value-of select="$callback" />
-                    <xsl:text>?construct&amp;element=</xsl:text>
+                    <xsl:text>?options&amp;element=</xsl:text>
                     <xsl:apply-templates mode="xptr-element" select="." />
                     <xsl:text>&amp;resource={resource}</xsl:text>
                 </xsl:attribute>

@@ -83,32 +83,6 @@ public abstract class FormSupport implements Page, RDFObject {
 	}
 
 	/**
-	 * See data-options, defining an HTML select/option fragment
-	 */
-	@method("GET")
-	@query("options")
-	@requires("http://callimachusproject.org/rdf/2009/framework#reader")
-	@type("text/html")
-	@header("cache-control:no-store")
-	public InputStream options(@query("element") String element)
-			throws Exception {
-		String base = getResource().stringValue();
-		XMLEventList template = new XMLEventList(xslt(element));
-		SPARQLProducer rq = new SPARQLProducer(new RDFaReader(base, template.iterator(), toString()));
-		SPARQLPosteditor ed = new SPARQLPosteditor(rq);
-		
-		// only pass object vars (excluding prop-exps and content) beyond a certain depth: 
-		// ^(/\d+){3,}$|^(/\d+)*\s.*$
-		ed.addEditor(ed.new TriplePatternCutter());
-		
-		RepositoryConnection con = getObjectConnection();
-		String sparql = toSafeOrderedSparql(ed) + "\nLIMIT 1000";
-		TupleQuery qry = con.prepareTupleQuery(SPARQL, sparql, base);
-		RDFaProducer xhtml = new RDFaProducer(template.iterator(), qry.evaluate(), rq.getOrigins());
-		return HTML_XSLT.transform(xhtml, this.toString()).asInputStream();
-	}
-
-	/**
 	 * Returns an HTML page listing suggested resources for the given element.
 	 * See data-search
 	 */

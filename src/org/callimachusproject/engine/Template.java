@@ -208,13 +208,15 @@ public class Template {
 			SPARQLPosteditor.TriplePatternRecorder rec;
 			ed.addEditor(rec = ed.new TriplePatternRecorder());
 
-			String sparql = toSafeSparql(new OrderedSparqlReader(ed));
+			String sparql = toSafeSparql(new OrderedSparqlReader(ed)) + "\nLIMIT 1000";
 			TupleQuery qry = con.prepareTupleQuery(SPARQL, sparql,
 					getSystemId());
-			for (TriplePattern t : rec.getTriplePatterns()) {
-				VarOrTerm vt = t.getSubject();
-				if (vt.isVar())
-					qry.setBinding(vt.asVar().stringValue(), partner);
+			if (partner != null) {
+				for (TriplePattern t : rec.getTriplePatterns()) {
+					VarOrTerm vt = t.getSubject();
+					if (vt.isVar())
+						qry.setBinding(vt.asVar().stringValue(), partner);
+				}
 			}
 			return qry.evaluate();
 		} catch (MalformedQueryException e) {

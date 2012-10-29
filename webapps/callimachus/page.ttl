@@ -190,31 +190,34 @@
     rdfs:domain :Construct;
     rdfs:range xsd:string.
 
-# Called by client when resource is dropped in a form field dropzone
-:ConstructElement rdfs:subClassOf msg:Message;
+# Called by client to populate dropdown, radio, checkbox or dropzone
+:GetElementOptions rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Page>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
     calli:method "GET";
-    calli:query "construct";
+    calli:query "options";
     calli:requires calli:reader;
     calli:type "text/html";
     calli:script """
-        var realm = this.FindRealmOf(constructResource);
+        if (!optionsElement)
+            throw new BadRequest("Missing element parameter");
+        var partner = optionsResource  ? optionsResource.resource : null;
+        var realm = this.FindRealmOf(this);
         var url = this + "?template&realm=" + encodeURIComponent(realm);
         var con = this.objectConnection;
         var engine = org.callimachusproject.engine.TemplateEngine.getInstance();
-        var template = engine.getTemplate(url).getElement(constructElement);
-        var results = template.evaluatePartner(constructResource.resource, con);
-        return this.Render(realm, constructResource, null, constructElement, results);
+        var template = engine.getTemplate(url).getElement(optionsElement);
+        var results = template.evaluatePartner(partner, con);
+        return this.Render(realm, null, null, optionsElement, results);
     """.
 
-:constructElement a owl:FunctionalProperty, owl:DatatypeProperty;
-    rdfs:domain :ConstructElement;
+:optionsElement a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:domain :GetElementOptions;
     rdfs:range xsd:string;
     calli:query "element".
 
-:constructResource a owl:FunctionalProperty, owl:ObjectProperty;
-    rdfs:domain :ConstructElement;
+:optionsResource a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :GetElementOptions;
     calli:type "text/uri-list";
     calli:query "resource".
 

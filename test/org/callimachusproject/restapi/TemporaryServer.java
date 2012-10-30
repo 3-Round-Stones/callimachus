@@ -1,4 +1,6 @@
-package org.callimachusproject.server.api;
+package org.callimachusproject.restapi;
+
+import org.callimachusproject.server.CallimachusRepository;
 
 public interface TemporaryServer {
 
@@ -17,5 +19,7 @@ public interface TemporaryServer {
 	String getUsername();
 
 	char[] getPassword();
+
+	CallimachusRepository getRepository();
 
 }

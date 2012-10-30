@@ -1,4 +1,4 @@
-package org.callimachusproject.server.api;
+package org.callimachusproject.restapi;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -82,7 +82,7 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 		server.setErrorPipe(url);
 	}
 
-	public Repository getRepository() {
+	public CallimachusRepository getRepository() {
 		return repository;
 	}
 

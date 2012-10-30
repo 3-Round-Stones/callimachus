@@ -1,4 +1,4 @@
-package org.callimachusproject.server.api;
+package org.callimachusproject.restapi;
 
 import java.net.HttpURLConnection;
 import java.net.URL;

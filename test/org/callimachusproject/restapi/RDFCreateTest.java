@@ -1,4 +1,4 @@
-package org.callimachusproject.server.api;
+package org.callimachusproject.restapi;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -14,8 +14,8 @@ import java.util.Map;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-public class RDFDeleteTest extends TestCase {
-
+public class RDFCreateTest extends TestCase {
+	
 	private static Map<String, String[]> parameters = new LinkedHashMap<String, String[]>() {
         private static final long serialVersionUID = -4308917786147773821L;
 
@@ -25,7 +25,7 @@ public class RDFDeleteTest extends TestCase {
         		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
         		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
         		    " prefix skos: <http://www.w3.org/2004/02/skos/core#> \n " + 
-        			" INSERT DATA {  \n <deleted-concept> a skos:Concept, </callimachus/Concept> ;  \n" +
+        			" INSERT DATA {  \n <created-concept> a skos:Concept, </callimachus/Concept> ;  \n" +
         			" skos:prefLabel \"concept\" . }"
         	});
         	
@@ -33,7 +33,7 @@ public class RDFDeleteTest extends TestCase {
         			"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n" +
         		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
         		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
-        			" INSERT DATA {  \n <deleted-test/> a calli:Folder, </callimachus/Folder> ;  \n" +
+        			" INSERT DATA {  \n <created-test/> a calli:Folder, </callimachus/Folder> ;  \n" +
         			" rdfs:label \"test\" . }"
         	});
         	
@@ -41,7 +41,7 @@ public class RDFDeleteTest extends TestCase {
         			"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n" +
         		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
         		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
-        			" INSERT DATA {  \n <deleted-testGroup/> a calli:Party, calli:Group, </callimachus/Group> ;  \n" +
+        			" INSERT DATA {  \n <created-testGroup/> a calli:Party, calli:Group, </callimachus/Group> ;  \n" +
         			" rdfs:label \"testGroup\" . }"
         	});
         	
@@ -49,7 +49,7 @@ public class RDFDeleteTest extends TestCase {
         			"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n" +
         		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
         		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
-        			" INSERT DATA {  \n <deleted-menu/> a calli:Menu, </callimachus/Menu> ;  \n" +
+        			" INSERT DATA {  \n <created-menu/> a calli:Menu, </callimachus/Menu> ;  \n" +
         			" rdfs:label \"menu\" . }"
         	});
         	
@@ -57,7 +57,7 @@ public class RDFDeleteTest extends TestCase {
         			"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n" +
         		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
         		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
-        			" INSERT DATA {  \n <deleted-theme/> a calli:Theme, </callimachus/Theme> ;  \n" +
+        			" INSERT DATA {  \n <created-theme/> a calli:Theme, </callimachus/Theme> ;  \n" +
         			" rdfs:label \"theme\" . }"
         	});
         	
@@ -65,24 +65,24 @@ public class RDFDeleteTest extends TestCase {
         			"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n" +
         		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
         		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
-        			" INSERT DATA {  \n <deleted-user> a calli:Party, calli:User, </callimachus/User> ;  \n" +
+        			" INSERT DATA {  \n <created-user> a calli:Party, calli:User, </callimachus/User> ;  \n" +
         			" rdfs:label \"user\" . }"
         	});
         }
     };
-    
+
 	public static TestSuite suite() throws Exception{
-        TestSuite suite = new TestSuite(RDFDeleteTest.class.getName());
+        TestSuite suite = new TestSuite(RDFCreateTest.class.getName());
         for (String name : parameters.keySet()) {
-            suite.addTest(new RDFDeleteTest(name));
+            suite.addTest(new RDFCreateTest(name));
         }
         return suite;
     }
 	
 	private static TemporaryServer temporaryServer = TemporaryServerFactory.getInstance().createServer();
 	private String query;
-	
-	public RDFDeleteTest(String name) throws Exception {
+
+	public RDFCreateTest(String name) throws Exception {
 		super(name);
 		String [] args = parameters.get(name);
 		query = args[0];
@@ -118,7 +118,7 @@ public class RDFDeleteTest extends TestCase {
 		return contents;
 	}
 	
-	private String getLocation() throws Exception {
+	public void runTest() throws MalformedURLException, Exception {
 		URL url = new java.net.URL(getRDFContents());
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 		connection.setRequestMethod("POST");
@@ -128,27 +128,6 @@ public class RDFDeleteTest extends TestCase {
 		output.write(("BASE <" + temporaryServer.getOrigin() + "/> \n" + query).getBytes());
 		output.close();
 		assertEquals(connection.getResponseMessage(), 201, connection.getResponseCode());
-		String header = connection.getHeaderField("Location");
-		return header;
 	}
-	
-	private String getDescribedBy() throws Exception {
-		URL url = new java.net.URL(getLocation());
-		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-		connection.setRequestMethod("OPTIONS");
-		assertEquals(connection.getResponseMessage(), 204, connection.getResponseCode());
-		String header = connection.getHeaderField("LINK");
-		int rel = header.indexOf("rel=\"describedby\"");
-		int end = header.lastIndexOf(">", rel);
-		int start = header.lastIndexOf("<", rel);
-		String contents = header.substring(start + 1, end);
-		return contents;
-	}
-	
-	public void runTest() throws Exception {
-		URL url = new java.net.URL(getDescribedBy());
-		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-		connection.setRequestMethod("DELETE");
-		assertEquals(connection.getResponseMessage(), 204, connection.getResponseCode());
-	}
+
 }

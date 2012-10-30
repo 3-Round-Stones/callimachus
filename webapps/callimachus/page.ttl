@@ -210,12 +210,13 @@
         var con = this.objectConnection;
         var template = this.getTemplate(url).getElement(optionsElement);
         var attrs = template.getAttributes();
-        if (!attrs.containsKey("data-options")
-                && !attrs.containsKey("data-construct")
-                && !attrs.containsKey("data-search"))
-            throw new BadRequest("Wrong element parameter");
-        var results = template.evaluatePartner(partner, optionsKeyword, con);
-        return this.Render(realm, null, null, optionsElement, results);
+        if (attrs.containsKey("data-options")
+                || optionsResource && attrs.containsKey("data-construct")
+                || optionsKeyword && attrs.containsKey("data-search")) {
+            var results = template.evaluatePartner(partner, optionsKeyword, con);
+            return this.Render(realm, null, null, optionsElement, results);
+        }
+        throw new BadRequest("Bad element parameter");
     """.
 
 :optionsElement a owl:FunctionalProperty, owl:DatatypeProperty;

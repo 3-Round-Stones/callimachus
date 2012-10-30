@@ -1,4 +1,4 @@
-package org.callimachusproject.server.api;
+package org.callimachusproject.restapi;
 
 import info.aduna.io.FileUtil;
 
@@ -11,6 +11,7 @@ import java.util.Scanner;
 
 import org.callimachusproject.Server;
 import org.callimachusproject.Setup;
+import org.callimachusproject.server.CallimachusRepository;
 
 public class TemporaryServerFactory {
 	private static final TemporaryServerFactory instance = new TemporaryServerFactory("http://localhost:49151", 49151, "test@example.com", "test".toCharArray());
@@ -81,6 +82,11 @@ public class TemporaryServerFactory {
 			public char[] getPassword() {
 				return getDelegate().getPassword();
 			}
+
+			@Override
+			public CallimachusRepository getRepository() {
+				return getDelegate().getRepository();
+			}
 		};
 	}
 
@@ -146,6 +152,10 @@ public class TemporaryServerFactory {
 
 				public char[] getPassword() {
 					return password;
+				}
+
+				public CallimachusRepository getRepository() {
+					return server.getRepository();
 				}
 			};
 		} catch (Exception e) {

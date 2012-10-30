@@ -46,6 +46,7 @@ import org.callimachusproject.cli.Command;
 import org.callimachusproject.cli.CommandSet;
 import org.callimachusproject.client.HTTPObjectClient;
 import org.callimachusproject.logging.LoggerBean;
+import org.callimachusproject.server.CallimachusRepository;
 import org.callimachusproject.server.CallimachusServer;
 import org.callimachusproject.server.ConnectionBean;
 import org.callimachusproject.server.HTTPObjectAgentMXBean;
@@ -174,7 +175,7 @@ public class Server implements HTTPObjectAgentMXBean {
 		return null;
 	}
 
-	public Repository getRepository() {
+	public CallimachusRepository getRepository() {
 		if (server == null)
 			return null;
 		return server.getRepository();

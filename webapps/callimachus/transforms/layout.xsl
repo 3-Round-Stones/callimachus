@@ -143,7 +143,7 @@
                 </xsl:call-template>
             </xsl:if>
             <xsl:if test="xhtml:option[@selected='selected'][@about or @resource] or xhtml:label[@about or @resource]/xhtml:input[@checked='checked']">
-                <xsl:if test=".//@typeof or .//*[@rel and @resource and not(starts-with(@resource,'?'))] or .//*[@rev and @resource and not(starts-with(@resource,'?'))]">
+                <xsl:if test=".//*[@typeof or @rel and @resource and not(starts-with(@resource,'?')) or @rev and @resource and not(starts-with(@resource,'?'))]">
                     <xsl:if test="not(@data-options)">
                         <!-- Called to populate select/radio/checkbox -->
                         <xsl:attribute name="data-options">

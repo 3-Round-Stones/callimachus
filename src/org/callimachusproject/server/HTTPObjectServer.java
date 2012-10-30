@@ -69,8 +69,8 @@ import org.apache.http.nio.NHttpServerConnection;
 import org.apache.http.nio.protocol.HttpAsyncRequestHandlerRegistry;
 import org.apache.http.nio.protocol.HttpAsyncService;
 import org.apache.http.nio.reactor.IOEventDispatch;
+import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 import org.apache.http.nio.reactor.IOReactorStatus;
-import org.apache.http.nio.reactor.ListeningIOReactor;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpContext;
@@ -118,7 +118,7 @@ import org.slf4j.LoggerFactory;
  * @param <a>
  * 
  */
-public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAgentMXBean {
+public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAgentMXBean, IOReactorExceptionHandler {
 	protected static final String DEFAULT_NAME = Version.getInstance().getVersion();
 	private static NamedThreadFactory executor = new NamedThreadFactory("HttpObjectServer", false);
 	private static final List<HTTPObjectServer> instances = new ArrayList<HTTPObjectServer>();
@@ -137,9 +137,9 @@ public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAg
 
 	private final Logger logger = LoggerFactory.getLogger(HTTPObjectServer.class);
 	private final Set<NHttpConnection> connections = new HashSet<NHttpConnection>();
-	private final ListeningIOReactor server;
+	private final DefaultListeningIOReactor server;
 	private final IOEventDispatch dispatch;
-	private ListeningIOReactor sslserver;
+	private DefaultListeningIOReactor sslserver;
 	private IOEventDispatch ssldispatch;
 	private final CallimachusRepository repository;
 	private int[] ports;
@@ -191,6 +191,7 @@ public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAg
 				new DefaultNHttpServerConnectionFactory(params));
 		// Create server-side I/O reactor
 		server = new DefaultListeningIOReactor();
+		server.setExceptionHandler(this);
 		if (System.getProperty("javax.net.ssl.keyStore") != null) {
 			try {
 				SSLContext sslcontext = SSLContext.getDefault();
@@ -200,6 +201,7 @@ public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAg
 								params));
 				// Create server-side I/O reactor
 				sslserver = new DefaultListeningIOReactor();
+				sslserver.setExceptionHandler(this);
 			} catch (NoSuchAlgorithmException e) {
 				logger.warn(e.toString(), e);
 			}
@@ -532,6 +534,18 @@ public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAg
 		synchronized (instances) {
 			instances.remove(this);
 		}
+	}
+
+	@Override
+	public boolean handle(IOException ex) {
+		logger.error(ex.toString(), ex);
+		return true;
+	}
+
+	@Override
+	public boolean handle(RuntimeException ex) {
+		logger.error(ex.toString(), ex);
+		return true;
 	}
 
 	public void poke() {

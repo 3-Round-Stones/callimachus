@@ -60,19 +60,6 @@ public class HTTPObjectClient extends AbstractHttpClient {
 	protected static final String DEFAULT_NAME = Version.getInstance().getVersion();
 	private static int COUNT;
 	private static HTTPObjectClient instance;
-	static {
-		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-			public void run() {
-				synchronized (HTTPObjectClient.class) {
-					if (instance != null) {
-						instance.shutdown();
-						instance.internal.getConnectionManager().shutdown();
-						instance = null;
-					}
-				}
-			}
-		}));
-	}
 
 	public static synchronized HTTPObjectClient getInstance()
 			throws IOException {
@@ -90,7 +77,6 @@ public class HTTPObjectClient extends AbstractHttpClient {
 	public static synchronized void setCacheDirectory(File dir) {
 		if (instance != null) {
 			instance.internal.getConnectionManager().shutdown();
-			instance.shutdown();
 		}
 		dir.mkdirs();
 		HttpParams params = getDefaultHttpParams();
@@ -114,7 +100,6 @@ public class HTTPObjectClient extends AbstractHttpClient {
 			CacheConfig config = getDefaultCacheConfig();
 			ResourceFactory entryFactory = instance.entryFactory;
 			InternalHttpClient internal = instance.internal;
-			instance.storage.shutdown();
 			instance = new HTTPObjectClient(internal, config, entryFactory);
 		}
 		ReusableDocumentResolver.invalidateCache();
@@ -169,6 +154,11 @@ public class HTTPObjectClient extends AbstractHttpClient {
 		storage = new ManagedHttpCacheStorage(config);
 		cache = new CachingHttpClient(internal, entryFactory, storage, config);
 		client = new GUnZipHttpResponseClient(cache);
+	}
+
+	@Override
+	protected void finalize() throws Throwable {
+		shutdown();
 	}
 
 	/**

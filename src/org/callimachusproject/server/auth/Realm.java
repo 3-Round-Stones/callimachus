@@ -236,6 +236,8 @@ public class Realm {
 	private String readString(FileObject file) {
 		try {
 			Reader reader = file.openReader(true);
+			if (reader == null)
+				return null;
 			try {
 				return new Scanner(reader).next();
 			} finally {

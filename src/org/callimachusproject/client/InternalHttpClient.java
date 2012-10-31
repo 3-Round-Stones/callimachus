@@ -31,9 +31,11 @@ public class InternalHttpClient extends AbstractHttpClient {
 
 	public HttpResponse execute(HttpHost host, HttpRequest request,
 			HttpContext context) throws IOException, ClientProtocolException {
-		HttpClient proxy = proxies.get(host);
-		if (proxy != null)
-			return proxy.execute(host, request, context);
+		if (host != null) {
+			HttpClient proxy = proxies.get(host);
+			if (proxy != null)
+				return proxy.execute(host, request, context);
+		}
 		return client.execute(host, request, context);
 	}
 

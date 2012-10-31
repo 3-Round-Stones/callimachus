@@ -76,7 +76,7 @@ import org.openrdf.rio.rdfxml.RDFXMLParser;
  * @author James Leigh
  * 
  */
-public class PageSupport {
+public abstract class PageSupport {
 
 	private static class Remover extends RDFHandlerBase {
 		private final ObjectConnection con;

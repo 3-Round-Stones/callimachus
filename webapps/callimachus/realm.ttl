@@ -37,7 +37,7 @@
         } finally {
             out.close();
         }
-        this.resetCache();
+        realm.resetCache();
         return realm;
     """.
 

@@ -64,7 +64,6 @@ http://code.google.com/p/callimachus/wiki/Security has more details.
  * Safari does not retain the login state in all cases.
  * Safari does not support dragging files in the folder view.
  * IE does not work with the article editor.
- * The server may block on server side requests to external HTTP servers.
 
 In some environments, Callimachus may log "An exception has occurred in the
 compiler...FilePermission" exceptions. This is often due to an issue in the

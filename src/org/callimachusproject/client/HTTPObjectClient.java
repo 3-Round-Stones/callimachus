@@ -90,9 +90,7 @@ public class HTTPObjectClient extends AbstractHttpClient {
 	}
 
 	public static synchronized void invalidateCache() {
-		if (instance != null) {
-			instance.storage.cleanResources();
-		}
+		resetCache();
 	}
 
 	public static synchronized void resetCache() {
@@ -158,6 +156,7 @@ public class HTTPObjectClient extends AbstractHttpClient {
 
 	@Override
 	protected void finalize() throws Throwable {
+		client.getConnectionManager().shutdown();
 		shutdown();
 	}
 

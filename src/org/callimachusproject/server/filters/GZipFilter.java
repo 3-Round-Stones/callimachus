@@ -57,7 +57,7 @@ public class GZipFilter extends Filter {
 		boolean compressed = isAlreadyCompressed(resp.getEntity());
 		if (code < 500 && safe && isCompressable(resp) || compressed) {
 			Header length = resp.getFirstHeader("Content-Length");
-			if (compressed || length == null || Integer.parseInt(length.getValue()) > 500) {
+			if (compressed || length == null || Long.parseLong(length.getValue()) > 500) {
 				resp.removeHeaders("Content-MD5");
 				resp.removeHeaders("Content-Length");
 				resp.setHeader("Transfer-Encoding", "chunked");

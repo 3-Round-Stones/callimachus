@@ -43,6 +43,8 @@ import org.callimachusproject.client.GUnzipEntity;
 import org.callimachusproject.client.GZipEntity;
 import org.callimachusproject.server.model.Filter;
 import org.callimachusproject.server.model.Request;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Uncompresses the response if the requesting client does not explicitly say it
@@ -61,6 +63,7 @@ public class GUnzipFilter extends Filter {
 	}
 	private static String WARN_214 = "214 " + hostname
 			+ " \"Transformation applied\"";
+	private final Logger logger = LoggerFactory.getLogger(GUnzipFilter.class);
 
 	public GUnzipFilter(Filter delegate) {
 		super(delegate);
@@ -91,11 +94,15 @@ public class GUnzipFilter extends Filter {
 		for (Header header : req.getHeaders("Accept-Encoding")) {
 			for (String value : header.getValue().split("\\s*,\\s*")) {
 				String[] items = value.split("\\s*;\\s*");
-				int q = 1;
-				for (int i = 1; i < items.length; i++) {
-					if (items[i].startsWith("q=")) {
-						q = Integer.parseInt(items[i].substring(2));
+				double q = 1;
+				try {
+					for (int i = 1; i < items.length; i++) {
+						if (items[i].startsWith("q=")) {
+							q = Double.parseDouble(items[i].substring(2));
+						}
 					}
+				} catch(NumberFormatException e) {
+					logger.warn(e.toString(), e);
 				}
 				if ("gzip".equals(items[0])) {
 					gzip = q > 0;

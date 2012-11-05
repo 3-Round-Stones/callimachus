@@ -57,9 +57,22 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class HTTPObjectClient extends AbstractHttpClient {
-	protected static final String DEFAULT_NAME = Version.getInstance().getVersion();
-	private static int COUNT;
+	private static final String DEFAULT_NAME = Version.getInstance().getVersion();
+	private static int COUNT = 0;
 	private static HTTPObjectClient instance;
+	static {
+		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+			public void run() {
+				synchronized (HTTPObjectClient.class) {
+					if (instance != null) {
+						instance.internal.getConnectionManager().shutdown();
+						instance.storage.shutdown();
+						instance = null;
+					}
+				}
+			}
+		}));
+	}
 
 	public static synchronized HTTPObjectClient getInstance()
 			throws IOException {
@@ -77,6 +90,7 @@ public class HTTPObjectClient extends AbstractHttpClient {
 	public static synchronized void setCacheDirectory(File dir) {
 		if (instance != null) {
 			instance.internal.getConnectionManager().shutdown();
+			instance.storage.shutdown();
 		}
 		dir.mkdirs();
 		HttpParams params = getDefaultHttpParams();
@@ -156,8 +170,7 @@ public class HTTPObjectClient extends AbstractHttpClient {
 
 	@Override
 	protected void finalize() throws Throwable {
-		client.getConnectionManager().shutdown();
-		shutdown();
+		storage.shutdown();
 	}
 
 	/**
@@ -165,13 +178,6 @@ public class HTTPObjectClient extends AbstractHttpClient {
 	 */
 	private void cleanResources() {
 		storage.cleanResources();
-	}
-
-	/**
-	 * Deletes all the temporary cache files from the disk.
-	 */
-	private void shutdown() {
-		storage.shutdown();
 	}
 
 	public HttpClient setProxy(HttpHost destination, HttpClient proxy) {

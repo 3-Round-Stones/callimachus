@@ -55,6 +55,7 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpInetConnection;
 import org.apache.http.HttpRequest;
+import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.client.ClientProtocolException;
@@ -180,11 +181,12 @@ public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAg
 		filter = new TraceFilter(filter);
 		filter = name = new ServerNameFilter(DEFAULT_NAME, filter);
 		service = new HTTPObjectRequestHandler(filter, handler, repository);
-		httpproc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
-		        new ResponseDate(),
-		        new ResponseContent(true),
-		        new ResponseConnControl()
-		});
+		AccessLog accessLog = new AccessLog();
+		httpproc = new ImmutableHttpProcessor(
+				new HttpRequestInterceptor[] { accessLog },
+				new HttpResponseInterceptor[] { new ResponseDate(),
+						new ResponseContent(true), new ResponseConnControl(),
+						accessLog });
 		HttpAsyncService protocolHandler = createProtocolHandler(httpproc, service, params);
 		// Create server-side I/O event dispatch
 		dispatch = new DefaultHttpServerIODispatch(protocolHandler,

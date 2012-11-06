@@ -321,7 +321,7 @@ public class Setup {
 								Reader reader = new InputStreamReader(System.in);
 								password = new BufferedReader(reader).readLine().toCharArray();
 							} else  {
-								password = console.readPassword("Enter a new password for %s: ", email);
+								password = console.readPassword("Enter a new password for %s: ", username);
 							}
 						}
 					}

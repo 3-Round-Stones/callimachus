@@ -142,6 +142,7 @@ public class GUnzipFilter extends Filter {
 		if (entity instanceof CloseableEntity) {
 			CloseableEntity centity = (CloseableEntity) entity;
 			centity.setEntityDelegate(gunzip(centity.getEntityDelegate()));
+			return centity;
 		}
 		return new GUnzipEntity(entity);
 	}

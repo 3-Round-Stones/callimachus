@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.net.InetAddress;
 import java.net.URLDecoder;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -89,6 +90,7 @@ public class ResourceRequest extends Request {
 	private final Set<String> vary = new LinkedHashSet<String>();
 	private Result<VersionedObject> result;
 	private boolean closed;
+	private String credential;
 
 	public ResourceRequest(Request request, CallimachusRepository repository)
 			throws QueryEvaluationException, RepositoryException {
@@ -115,6 +117,41 @@ public class ResourceRequest extends Request {
 		} catch (IllegalArgumentException e) {
 			throw new BadRequest(e);
 		}
+	}
+
+	public String getCredential() {
+		return credential;
+	}
+
+	public void setCredential(String cred) {
+		this.credential = cred;
+	}
+
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		InetAddress addr = getRemoteAddr();
+		if (addr == null) {
+			sb.append('-');
+		} else {
+			sb.append(addr.getHostAddress());
+		}
+		sb.append('\t');
+		Object credential = getCredential();
+		if (credential == null) {
+			sb.append('-');
+		} else {
+			String relative = credential.toString();
+			if (relative.startsWith(getScheme())) {
+				String origin = getScheme() + "://" + getAuthority() + "/";
+				if (relative.startsWith(origin)) {
+					relative = relative.substring(origin.length() - 1);
+				}
+			}
+			sb.append(relative);
+		}
+		sb.append('\t');
+		sb.append('"').append(getRequestLine().toString()).append('"');
+		return sb.toString();
 	}
 
 	public void begin() throws RepositoryException, QueryEvaluationException,

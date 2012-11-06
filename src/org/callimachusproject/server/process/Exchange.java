@@ -66,7 +66,7 @@ public class Exchange implements Cancellable {
 		latch.await(timeout, unit);
 	}
 
-	public synchronized void verified() {
+	public synchronized void verified(String credential) {
 		latch.countDown();
 		String expect = request.getHeader("Expect");
 		submitContinue = expect != null && expect.contains("100-continue");

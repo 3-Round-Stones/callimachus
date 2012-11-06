@@ -52,7 +52,7 @@ public class RequestTransactionActor extends ExchangeActor {
 			op.begin();
 			Response resp = handler.verify(op);
 			if (resp == null) {
-				exchange.verified();
+				exchange.verified(op.getCredential());
 				resp = handler.handle(op);
 				if (resp.getStatusCode() >= 400) {
 					op.rollback();

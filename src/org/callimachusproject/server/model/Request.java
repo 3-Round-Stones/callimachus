@@ -59,7 +59,6 @@ public class Request extends EditableHttpEntityEnclosingRequest {
 	private final boolean storable;
 	private InetAddress remoteAddr;
 	private String iri;
-	private String credential;
 
 	public Request(Request request) {
 		this(request, request.getRemoteAddr());
@@ -78,20 +77,6 @@ public class Request extends EditableHttpEntityEnclosingRequest {
 			iri = ((Request) request).getIRI();
 		} else {
 			iri = getURIFromRequestTarget(getRequestLine().getUri());
-		}
-	}
-
-	public String getCredential() {
-		if (credential == null && getEnclosingRequest() instanceof Request) {
-			return ((Request) getEnclosingRequest()).getCredential();
-		}
-		return credential;
-	}
-
-	public void setCredential(String cred) {
-		this.credential = cred;
-		if (getEnclosingRequest() instanceof Request) {
-			((Request) getEnclosingRequest()).setCredential(cred);
 		}
 	}
 
@@ -293,21 +278,7 @@ public class Request extends EditableHttpEntityEnclosingRequest {
 		} else {
 			sb.append(addr.getHostAddress());
 		}
-		sb.append('\t');
-		Object credential = getCredential();
-		if (credential == null) {
-			sb.append('-');
-		} else {
-			String relative = credential.toString();
-			if (relative.startsWith(getScheme())) {
-				String origin = getScheme() + "://" + getAuthority() + "/";
-				if (relative.startsWith(origin)) {
-					relative = relative.substring(origin.length() - 1);
-				}
-			}
-			sb.append(relative);
-		}
-		sb.append('\t');
+		sb.append("\t?\t");
 		sb.append('"').append(getRequestLine().toString()).append('"');
 		return sb.toString();
 	}

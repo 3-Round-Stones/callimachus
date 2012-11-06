@@ -34,7 +34,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import org.openrdf.annotations.Iri;
 
 /**
- * Exposes the auditing SAIL's committed on property of an activity.
+ * Exposes some properties of a prov:Activity.
  */
 @Iri("http://www.w3.org/ns/prov#Activity")
 public interface Activity {

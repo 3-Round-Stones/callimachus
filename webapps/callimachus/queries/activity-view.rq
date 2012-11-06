@@ -7,46 +7,41 @@ PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
 SELECT REDUCED ?modified ?user ?name ?previous ?subsequent ?removed ?added ?subject ?predicate ?object
 WHERE {
     {
-        <$target> prov:endedAtTime ?modified
+        <$target> prov:wasGeneratedBy ?provenance .
+        ?provenance prov:endedAtTime ?modified
         OPTIONAL {
-            <$target> prov:wasAssociatedWith ?user
+            ?provenance prov:wasAssociatedWith ?user
             OPTIONAL { ?user skos:prefLabel ?name }
             OPTIONAL { ?user rdfs:label ?name }
         }
     } UNION {
-        <$target> prov:wasInformedBy ?previous . ?previous prov:endedAtTime ?asof
+        <$target> prov:wasInfluencedBy ?previous . ?previous prov:wasGeneratedBy [prov:endedAtTime ?asof]
     } UNION {
-        ?subsequent prov:wasInformedBy <$target> . ?subsequent prov:endedAtTime ?asof
+        ?subsequent prov:wasInfluencedBy <$target> . ?subsequent prov:wasGeneratedBy [prov:endedAtTime ?asof]
     } UNION {
         GRAPH ?added {
             ?subject ?predicate ?object
-            FILTER (?subject != <$target>)
+            FILTER (!strstarts(str(?subject),str(?added)))
             FILTER (!strstarts(str(?predicate),str(prov:)))
             FILTER (!strstarts(str(?predicate),str(audit:)))
             FILTER (?predicate != rdf:subject)
             FILTER (?predicate != rdf:predicate)
             FILTER (?predicate != rdf:object)
         }
-        ?added prov:endedAtTime ?asof
+        ?added prov:wasGeneratedBy [prov:endedAtTime ?asof]
         FILTER (?added = <$target>)
     } UNION {
-        GRAPH ?removed {
-            ?removed prov:wasInformedBy ?added .
-            ?removed prov:qualifiedUsage ?operation .
-            ?added prov:qualifiedUsage ?operation .
-            ?operation audit:changed [
-                rdf:subject ?subject;
-                rdf:predicate ?predicate;
-                rdf:object ?object
-            ]
-            FILTER (?subject != <$target>)
-            FILTER (!strstarts(str(?predicate),str(prov:)))
-            FILTER (!strstarts(str(?predicate),str(audit:)))
-            FILTER (?predicate != rdf:subject)
-            FILTER (?predicate != rdf:predicate)
-            FILTER (?predicate != rdf:object)
+        GRAPH ?added {
+            ?entity audit:with ?triple
         }
-        OPTIONAL { ?added prov:endedAtTime ?asof }
+        GRAPH ?removed {
+            ?removed prov:wasInfluencedBy ?added .
+            [audit:without ?triple] .
+            ?triple rdf:subject ?subject;
+                    rdf:predicate ?predicate;
+                    rdf:object ?object .
+        }
+        OPTIONAL { ?activity prov:generated ?entity ; prov:endedAtTime ?asof }
         FILTER (?added = <$target> || ?removed = <$target>)
     }
 }

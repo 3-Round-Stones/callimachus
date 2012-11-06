@@ -75,7 +75,9 @@ public class CallimachusRepository extends RepositoryWrapper {
 		if (auditing != null && con.getActivityURI() == null) {
 			ActivityFactory factory = auditing.getActivityFactory();
 			URI activity = factory.createActivityURI(auditing.getValueFactory());
-			con.setActivityURI(activity); // use the same URI for blob version
+			String uri = activity.stringValue();
+			URI graph = con.getValueFactory().createURI(uri.substring(0, uri.indexOf('#')));
+			con.setActivityURI(graph); // use the same URI for blob version
 		}
 		return con;
 	}

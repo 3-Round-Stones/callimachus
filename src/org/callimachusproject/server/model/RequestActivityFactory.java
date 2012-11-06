@@ -35,23 +35,23 @@ public class RequestActivityFactory implements ActivityFactory {
 	}
 
 	@Override
-	public void activityStarted(URI act, RepositoryConnection con)
+	public void activityStarted(URI prov, URI graph, RepositoryConnection con)
 			throws RepositoryException {
-		delegate.activityStarted(act, con);
+		delegate.activityStarted(prov, graph, con);
 		ValueFactory vf = con.getValueFactory();
 		GregorianCalendar cal = new GregorianCalendar(1970, 0, 1);
 		cal.setTimeZone(UTC);
 		cal.setTimeInMillis(req.getReceivedOn());
 		XMLGregorianCalendar now = df.newXMLGregorianCalendar(cal);
-		con.add(act, vf.createURI(STARTED_AT), vf.createLiteral(now), act);
+		con.add(prov, vf.createURI(STARTED_AT), vf.createLiteral(now), graph);
 		String cred = req.getCredential();
 		if (cred != null) {
-			con.add(act, vf.createURI(ASSOC_WITH), vf.createURI(cred), act);
+			con.add(prov, vf.createURI(ASSOC_WITH), vf.createURI(cred), graph);
 		}
 	}
 
-	public void activityEnded(URI act, RepositoryConnection con)
+	public void activityEnded(URI prov, URI graph, RepositoryConnection con)
 			throws RepositoryException {
-		delegate.activityEnded(act, con);
+		delegate.activityEnded(prov, graph, con);
 	}
 }

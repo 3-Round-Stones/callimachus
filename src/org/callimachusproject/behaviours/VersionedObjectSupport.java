@@ -32,7 +32,9 @@ package org.callimachusproject.behaviours;
 import static java.lang.Integer.toHexString;
 
 import org.callimachusproject.concepts.Activity;
+import org.callimachusproject.server.CallimachusActivityFactory;
 import org.callimachusproject.traits.VersionedObject;
+import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
 import org.openrdf.repository.object.ObjectFactory;
 import org.openrdf.repository.object.RDFObject;
@@ -43,21 +45,35 @@ import org.openrdf.repository.object.RDFObject;
 public abstract class VersionedObjectSupport implements VersionedObject, RDFObject {
 
 	public void touchRevision() {
-		ObjectFactory of = getObjectConnection().getObjectFactory();
-		URI activityURI = getObjectConnection().getActivityURI();
-		if (activityURI == null) {
-			setProvWasGeneratedBy(null);
-		} else {
-			setProvWasGeneratedBy(of.createObject(activityURI, Activity.class));
+		Resource resource = getResource();
+		if (resource instanceof URI) {
+			String self = resource.stringValue();
+			ObjectFactory of = getObjectConnection().getObjectFactory();
+			if (self.contains("#")) {
+				VersionedObject parent = (VersionedObject) of.createObject(self.substring(0, self.indexOf('#')));
+				parent.touchRevision();
+			} else {
+				URI activityURI = getObjectConnection().getActivityURI();
+				if (activityURI == null) {
+					setProvWasGeneratedBy(null);
+				} else {
+					String uri = activityURI.stringValue() + CallimachusActivityFactory.PROV_SUFFIX;
+					setProvWasGeneratedBy(of.createObject(uri, Activity.class));
+				}
+			}
 		}
 	}
 
 	public String revision() {
-		Activity activity = getProvWasGeneratedBy();
-		if (activity == null)
+		try {
+			Activity activity = getProvWasGeneratedBy();
+			if (activity == null)
+				return null;
+			String uri = ((RDFObject) activity).getResource().stringValue();
+			return toHexString(uri.hashCode());
+		} catch (ClassCastException e) {
 			return null;
-		String uri = ((RDFObject) activity).getResource().stringValue();
-		return toHexString(uri.hashCode());
+		}
 	}
 
 }

@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class CallimachusActivityFactory implements ActivityFactory {
+	public static final String PROV_SUFFIX = "#provenance";
 	private static final Executor executor = ManagedExecutors.newSingleScheduler(CallimachusActivityFactory.class.getSimpleName());
 	private static final TimeZone UTC = TimeZone.getTimeZone("UTC");
 	private static final String ACTIVITY = "http://www.w3.org/ns/prov#Activity";
@@ -35,12 +36,12 @@ public final class CallimachusActivityFactory implements ActivityFactory {
 			+ "PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>\n";
 	private static final String END_ACTIVITY = PREFIX
 			+ "INSERT {\n"
-			+ "    GRAPH $activity {\n"
-			+ "          $activity prov:endedAtTime ?endedAtTime; calli:reader ?reader\n"
+			+ "    GRAPH $graph {\n"
+			+ "          $activity prov:endedAtTime ?endedAtTime . $graph calli:reader ?reader\n"
 			+ "      }\n"
 			+ "} WHERE {{ BIND ( $now AS ?endedAtTime) } UNION {\n"
 			+ "        {SELECT DISTINCT ?reader {\n"
-			+ "            $activity prov:used ?entity\n"
+			+ "            ?entity prov:wasGeneratedBy $activity\n"
 			+ "            {\n"
 			+ "                ?entity calli:subscriber ?reader\n"
 			+ "            } UNION {\n"
@@ -50,7 +51,7 @@ public final class CallimachusActivityFactory implements ActivityFactory {
 			+ "        }}  }\n"
 			+ "    } UNION {\n"
 			+ "        {SELECT DISTINCT ?type {\n"
-			+ "            $activity prov:used [rdf:type ?type]\n"
+			+ "            [rdf:type ?type] prov:wasGeneratedBy $activity\n"
 			+ "        }} {\n"
 			+ "            ?type calli:subscriber ?reader\n"
 			+ "        } UNION {\n"
@@ -99,19 +100,19 @@ public final class CallimachusActivityFactory implements ActivityFactory {
 
 	public URI createActivityURI(ValueFactory vf) {
 		String local = uid + seq.getAndIncrement();
-		return vf.createURI(getNamespace(), local);
+		return vf.createURI(getNamespace() + local + PROV_SUFFIX);
 	}
 
-	public void activityStarted(URI activity, RepositoryConnection con)
+	public void activityStarted(URI activity, URI graph, RepositoryConnection con)
 			throws RepositoryException {
 		ValueFactory vf = con.getValueFactory();
 		con.add(vf.createURI(activity.getNamespace()),
-				vf.createURI(CALLI_HASCOMPONENT), activity, activity);
-		con.add(activity, RDF.TYPE, vf.createURI(activityType), activity);
-		con.add(activity, RDF.TYPE, vf.createURI(ACTIVITY), activity);
+				vf.createURI(CALLI_HASCOMPONENT), activity, graph);
+		con.add(graph, RDF.TYPE, vf.createURI(activityType), graph);
+		con.add(activity, RDF.TYPE, vf.createURI(ACTIVITY), graph);
 	}
 
-	public void activityEnded(final URI act, RepositoryConnection con)
+	public void activityEnded(URI act, URI graph, RepositoryConnection con)
 			throws RepositoryException {
 		ValueFactory vf = con.getValueFactory();
 		XMLGregorianCalendar now = df
@@ -119,6 +120,7 @@ public final class CallimachusActivityFactory implements ActivityFactory {
 		try {
 			Update up = con.prepareUpdate(QueryLanguage.SPARQL, END_ACTIVITY);
 			up.setBinding("activity", act);
+			up.setBinding("graph", graph);
 			up.setBinding("now", vf.createLiteral(now));
 			up.execute();
 		} catch (UpdateExecutionException e) {

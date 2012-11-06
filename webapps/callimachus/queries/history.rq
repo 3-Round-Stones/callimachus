@@ -23,7 +23,7 @@ SELECT * {
                     (max(?contributor_uri) as ?contributor_uri) (max(?contributor_name) as ?contributor_name)  {
                 {
                     SELECT ?id ?updated {
-                        ?id prov:used <$target>; prov:endedAtTime ?updated
+                        ?id prov:generated [prov:specializationOf <$target>]; prov:endedAtTime ?updated
                     }  ORDER BY desc(?updated) LIMIT 50
                 } OPTIONAL {
                     ?id prov:wasAssociatedWith ?contributor_uri
@@ -41,7 +41,7 @@ SELECT * {
                 } OPTIONAL {
                     <$target> dcterms:title ?title
                 } OPTIONAL {
-                    GRAPH ?id { <$target> skos:changeNote ?summary }
+                    GRAPH ?graph { ?graph prov:wasGeneratedBy ?id . <$target> skos:changeNote ?summary }
                 } OPTIONAL {
                     <$target> a [calli:icon ?icon]
                 }

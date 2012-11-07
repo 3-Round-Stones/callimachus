@@ -28,6 +28,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
+import javax.xml.xpath.XPathFactoryConfigurationException;
 
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
@@ -45,7 +46,14 @@ public class XPathIterator implements Iterator<Object> {
 	List<NamespaceContext> contexts = new LinkedList<NamespaceContext>();
 	String base;
 	boolean useDataAttributes = false;
-	static XPathFactory xPathFactory = XPathFactory.newInstance();
+	static XPathFactory xPathFactory;
+	static {
+		try {
+			xPathFactory = XPathFactory.newInstance(javax.xml.xpath.XPathFactory.DEFAULT_OBJECT_MODEL_URI, "com.sun.org.apache.xpath.internal.jaxp.XPathFactoryImpl", XPathIterator.class.getClassLoader());
+		} catch (XPathFactoryConfigurationException e) {
+			xPathFactory = XPathFactory.newInstance();
+		}
+	}
 	
 	final String[] DISTINGUISHING_VALUE_ATTRIBUTES = { "id", "name", "class", "content", "for", "lang", "value" };
 	List<String> distinguishingValueAttributes = Arrays.asList(DISTINGUISHING_VALUE_ATTRIBUTES);

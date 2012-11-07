@@ -221,8 +221,9 @@ print $OUT <<"ENDOFPREFIXES";
 <http://callimachusproject.org/log/Log> a owl:Class .
 
 <$date> a <http://callimachusproject.org/log/Log>
-  ; callilog:uniqueIPs "$unique_ip_addresses"
-  ; callilog:uniqueURLs "$unique_urls"
+  ; rdfs:label "$date"
+  ; callilog:uniqueIPs $unique_ip_addresses
+  ; callilog:uniqueURLs $unique_urls
 ENDOFPREFIXES
 
 say $OUT "  ; callilog:total200 $num_200" if $num_200;
@@ -252,7 +253,7 @@ if ($num_gets) {
         if ($num) {
             say "<$date> callilog:hour <$date/hour$hour> .";
             say "<$date/hour$hour> rdfs:label \"Hour $hour\"";
-            say "  ; callilog:gets \"$num\" .\n";
+            say "  ; callilog:gets $num .\n";
         }
         $hour++;
     }
@@ -266,7 +267,7 @@ if ($num_puts) {
         if ($num) {
             say "<$date> callilog:hour <$date/hour$hour> .";
             say "<$date/hour$hour> rdfs:label \"Hour $hour\"";
-            say "  ; callilog:puts \"$num\" .\n";
+            say "  ; callilog:puts $num .\n";
         }
         $hour++;
     }
@@ -280,7 +281,7 @@ if ($num_posts) {
         if ($num){
             say "<$date> callilog:hour <$date/hour$hour> .";
             say "<$date/hour$hour> rdfs:label \"Hour $hour\"";
-            say "  ; callilog:posts \"$num\" .\n";
+            say "  ; callilog:posts $num .\n";
         }
         $hour++;
     }
@@ -294,7 +295,7 @@ if ($num_deletes) {
         if ($num){
             say "<$date> callilog:hour <$date/hour$hour> .";
             say "<$date/hour$hour> rdfs:label \"Hour $hour\"";
-            say "  ; callilog:deletes \"$num\" .\n";
+            say "  ; callilog:deletes $num .\n";
         }
         $hour++;
     }

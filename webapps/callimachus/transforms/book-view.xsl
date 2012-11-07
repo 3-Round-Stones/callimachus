@@ -126,19 +126,19 @@ xmlns="http://www.w3.org/1999/xhtml" xmlns:xhtml="http://www.w3.org/1999/xhtml" 
     <xsl:if test="parent::d:article/parent::* or parent::d:info/parent::d:article/parent::*">
         <xsl:text>Article </xsl:text>
         <xsl:if test="ancestor::d:part/parent::*">
-            <xsl:value-of select="count(ancestor::d:part/preceding-sibling::*)" />
+            <xsl:value-of select="count(ancestor::d:part/preceding-sibling::*[self::d:part or self::d:article]) + 1" />
             <xsl:text>.</xsl:text>
         </xsl:if>
-        <xsl:value-of select="count(ancestor::d:article/preceding-sibling::*)" />
+        <xsl:value-of select="count(ancestor::d:article/preceding-sibling::d:article) + 1" />
         <xsl:text>. </xsl:text>
     </xsl:if>
     <xsl:if test="parent::d:part/parent::* or parent::d:info/parent::d:part/parent::*">
         <xsl:text>Part </xsl:text>
-        <xsl:value-of select="count(ancestor::d:part/preceding-sibling::*)" />
+        <xsl:value-of select="count(ancestor::d:part/preceding-sibling::*[self::d:part or self::d:article]) + 1" />
         <xsl:text>. </xsl:text>
     </xsl:if>
     <xsl:value-of select="." />
-    <xsl:if test="ancestor::*[3] or parent::d:info/ancestor::*[2]">
+    <xsl:if test="ancestor::d:article">
         <xsl:text> </xsl:text>
         <a href="{concat(base-uri(),'?view#', $id)}" class="anchor">#</a>
     </xsl:if>

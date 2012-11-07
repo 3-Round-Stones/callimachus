@@ -26,12 +26,15 @@ SELECT * {
                     (max(?contributor_uri) as ?contributor_uri) (max(?contributor_name) as ?contributor_name)  {
                 {
                     SELECT * {
-                        ?revision a audit:RecentActivity; prov:endedAtTime ?updated .
-                        ?id prov:wasGeneratedBy ?revision .
+                        ?revision a audit:RecentBundle .
+                        ?revision prov:wasGeneratedBy ?activity .
+                        ?activity prov:endedAtTime ?updated .
+                        ?id prov:wasGeneratedBy ?activity .
                         FILTER strstarts(str(?id), str(<$target>))
+                        FILTER (?revision != ?id)
                     } ORDER BY desc(?updated) LIMIT 100
                 } OPTIONAL {
-                    ?revision prov:wasAssociatedWith ?contributor_uri
+                    ?activity prov:wasAssociatedWith ?contributor_uri
                     OPTIONAL {
                         ?contributor_uri rdfs:label ?contributor_name
                     }

@@ -26,11 +26,13 @@ SELECT * {
                 {
                     SELECT * {
                         <$target> ?rel ?id .
-                        ?id prov:wasGeneratedBy ?revision .
-                        ?revision prov:endedAtTime ?updated .
+                        GRAPH ?revision {
+                            ?id prov:wasGeneratedBy ?activity .
+                            ?activity prov:endedAtTime ?updated .
+                        }
                     } ORDER BY desc(?updated) LIMIT 50
                 } OPTIONAL {
-                    ?revision prov:wasAssociatedWith ?contributor_uri
+                    ?activity prov:wasAssociatedWith ?contributor_uri
                     OPTIONAL {
                         ?contributor_uri rdfs:label ?contributor_name
                     }

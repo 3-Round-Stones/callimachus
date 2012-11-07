@@ -130,13 +130,13 @@ public final class CallimachusActivityFactory implements ActivityFactory {
 		} catch (MalformedQueryException e) {
 			throw new RepositoryException(e);
 		}
-		createFolder(act);
+		createFolder(graph);
 	}
 
-	private synchronized void createFolder(URI activity)
+	private synchronized void createFolder(URI bundle)
 			throws RepositoryException {
-		if (folder == null || !folder.equals(activity.getNamespace())) {
-			folder = activity.getNamespace();
+		if (folder == null || !folder.equals(bundle.getNamespace())) {
+			folder = bundle.getNamespace();
 			executor.execute(new Runnable() {
 				public void run() {
 					try {
@@ -147,7 +147,7 @@ public final class CallimachusActivityFactory implements ActivityFactory {
 						} finally {
 							con.close();
 						}
-					} catch (RepositoryException e) {
+					} catch (Throwable e) {
 						logger.error(e.toString(), e);
 					}
 				}

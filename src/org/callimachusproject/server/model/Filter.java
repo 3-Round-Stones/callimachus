@@ -45,14 +45,9 @@ public class Filter {
 		this.delegate = delegate;
 	}
 
-	public Request filter(Request request) throws IOException {
-		if (delegate == null)
-			return request;
-		return delegate.filter(request);
-	}
-
 	/**
-	 * Filter is *not* called on this request or response. 
+	 * Validate request and possible issue an error condition or a cached
+	 * response.
 	 */
 	public HttpResponse intercept(Request request) throws IOException {
 		if (delegate == null)
@@ -60,6 +55,19 @@ public class Filter {
 		return delegate.intercept(request);
 	}
 
+	/**
+	 * If {@link #intercept(Request)} returned null, process the request using
+	 * the returned request.
+	 */
+	public Request filter(Request request) throws IOException {
+		if (delegate == null)
+			return request;
+		return delegate.filter(request);
+	}
+
+	/**
+	 * Pass the returned response to the client.
+	 */
 	public HttpResponse filter(Request request, HttpResponse response)
 			throws IOException {
 		if (delegate == null)

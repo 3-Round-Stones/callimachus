@@ -107,7 +107,7 @@ public class HttpEntityWrapper implements HttpAsyncContentProducer, HttpEntity {
 	}
 
 	public final boolean isStreaming() {
-		return entity != null && entity.isStreaming();
+		return in != null || entity != null && entity.isStreaming();
 	}
 
 	public final void consumeContent() throws IOException {
@@ -165,19 +165,6 @@ public class HttpEntityWrapper implements HttpAsyncContentProducer, HttpEntity {
 	}
 
 	@Override
-	public final void close() throws IOException {
-		try {
-			closeEntity();
-		} finally {
-			if (cin != null) {
-				cin.close();
-				cin = null;
-				buf = null;
-			}
-		}
-	}
-
-	@Override
 	public final synchronized void produceContent(ContentEncoder encoder, IOControl ioctrl)
 			throws IOException {
 		if (cin == null) {
@@ -191,7 +178,19 @@ public class HttpEntityWrapper implements HttpAsyncContentProducer, HttpEntity {
 			encoder.write(buf);
 			buf.compact();
 		}
+	}
 
+	@Override
+	public final void close() throws IOException {
+		try {
+			closeEntity();
+		} finally {
+			if (cin != null) {
+				cin.close();
+				cin = null;
+				buf = null;
+			}
+		}
 	}
 
 	protected InputStream getDelegateContent() throws IOException {

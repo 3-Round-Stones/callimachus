@@ -57,17 +57,19 @@ public class Request extends EditableHttpEntityEnclosingRequest {
 	private long received = System.currentTimeMillis();
 	private final boolean safe;
 	private final boolean storable;
-	private InetAddress remoteAddr;
+	private final InetAddress remoteAddr;
+	private final boolean internal;
 	private String iri;
 
 	public Request(Request request) {
-		this(request, request.getRemoteAddr());
+		this(request, request.getRemoteAddr(), request.isInternal());
 	}
 
-	public Request(HttpRequest request, InetAddress remoteAddr) {
+	public Request(HttpRequest request, InetAddress remoteAddr, boolean internal) {
 		super(request);
 		assert remoteAddr != null;
 		this.remoteAddr = remoteAddr;
+		this.internal = internal;
 		String method = getMethod();
 		safe = method.equals("HEAD") || method.equals("GET")
 				|| method.equals("OPTIONS") || method.equals("PROFIND");
@@ -78,6 +80,10 @@ public class Request extends EditableHttpEntityEnclosingRequest {
 		} else {
 			iri = getURIFromRequestTarget(getRequestLine().getUri());
 		}
+	}
+
+	public boolean isInternal() {
+		return internal;
 	}
 
 	/**

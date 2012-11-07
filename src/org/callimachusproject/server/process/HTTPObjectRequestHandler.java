@@ -142,7 +142,7 @@ public class HTTPObjectRequestHandler extends AbstractHttpClient implements
 			IOException {
 		logger.debug("Request received {}", request.getRequestLine());
 		InetAddress remoteAddress = getRemoteAddress(ctx);
-		Request req = new Request(request, remoteAddress);
+		Request req = new Request(request, remoteAddress, false);
 		// consumer overrides HttpEntity
 		ConsumingHttpEntity consumer = new ConsumingHttpEntity(req);
 		final Queue<Exchange> queue = getOrCreateProcessingQueue(ctx);
@@ -172,7 +172,7 @@ public class HTTPObjectRequestHandler extends AbstractHttpClient implements
 			HttpContext ctx) throws IOException {
 		logger.debug("Request received {}", request.getRequestLine());
 		InetAddress remoteAddress = getRemoteAddress(ctx);
-		Request req = new Request(request, remoteAddress);
+		Request req = new Request(request, remoteAddress, true);
 		Exchange exchange = new Exchange(req, ctx);
 		HttpAsyncExchange trigger = new ForegroundAsyncExchange(request);
 		exchange.setHttpAsyncExchange(trigger);

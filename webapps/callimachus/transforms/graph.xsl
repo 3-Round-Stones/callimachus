@@ -28,6 +28,18 @@
                         .datatype, .language { color: gray; }
                         .predicate { color: darkgreen; }
                     </style>
+                    <script type="text/javascript">
+                    // <![CDATA[
+                    function describe(resource) {
+                        var hash = resource.indexOf('#');
+                        if (hash < 0)
+                            return window.calli.diverted(resource, 'describe');
+                        var uri = resource.substring(0, hash);
+                        var frag = resource.substring(hash);
+                        return window.calli.diverted(uri, 'describe') + frag;
+                    }
+                    // ]]>
+                    </script>
                 </head>
                 <body>
                     <h1>
@@ -118,7 +130,8 @@
             </a>
             <span class="describe">
                 <xsl:text> (</xsl:text>
-                <a resource="{@rdf:resource}" href="{@rdf:resource}?describe" onmousedown="href=window.calli.diverted(getAttribute('resource'), 'describe')">describe</a>
+                <a resource="{@rdf:resource}" href="{@rdf:resource}?describe"
+                    onmousedown="href=describe(getAttribute('resource'))">describe</a>
                 <xsl:text>) </xsl:text>
             </span>
         </li>

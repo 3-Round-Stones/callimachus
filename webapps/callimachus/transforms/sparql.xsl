@@ -22,6 +22,18 @@
                         .datatype, .language { color: gray; }
                         .predicate { color: darkgreen; }
                     </style>
+                    <script type="text/javascript">
+                    // <![CDATA[
+                    function describe(resource) {
+                        var hash = resource.indexOf('#');
+                        if (hash < 0)
+                            return window.calli.diverted(resource, 'describe');
+                        var uri = resource.substring(0, hash);
+                        var frag = resource.substring(hash);
+                        return window.calli.diverted(uri, 'describe') + frag;
+                    }
+                    // ]]>
+                    </script>
                 </head>
                 <body>
                     <h1>SPARQL Results</h1>

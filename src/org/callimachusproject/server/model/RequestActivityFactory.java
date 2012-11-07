@@ -30,7 +30,7 @@ public class RequestActivityFactory implements ActivityFactory {
 		this.df = DatatypeFactory.newInstance();
 	}
 
-	public URI createActivityURI(ValueFactory vf) {
+	public URI createActivityURI(URI bundle, ValueFactory vf) {
 		return activity;
 	}
 

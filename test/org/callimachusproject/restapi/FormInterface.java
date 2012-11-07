@@ -45,7 +45,7 @@ public class FormInterface extends TestCase {
 	}
 
 	public void tearDown() throws Exception {
-		con.clear(con.getActivityURI());
+		con.clear(con.getVersionBundle());
 		con.close();
 		super.tearDown();
 		temporaryServer.pause();

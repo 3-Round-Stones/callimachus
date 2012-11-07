@@ -54,7 +54,6 @@ import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidFactory;
 import org.callimachusproject.fluid.FluidType;
-import org.callimachusproject.server.CallimachusActivityFactory;
 import org.callimachusproject.server.CallimachusRepository;
 import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.traits.VersionedObject;
@@ -343,17 +342,14 @@ public class ResourceRequest extends Request {
 		AuditingRepositoryConnection audit = findAuditing(con);
 		if (audit != null) {
 			ActivityFactory delegate = audit.getActivityFactory();
-			URI activity = con.getActivityURI();
+			URI bundle = con.getVersionBundle();
 			ValueFactory vf = audit.getValueFactory();
-			if (activity == null) {
-				activity = delegate.createActivityURI(vf);
-				String uri = activity.stringValue();
-				URI graph = vf.createURI(uri.substring(0, uri.indexOf('#')));
-				con.setActivityURI(graph); // use the same URI for blob version
-			} else {
-				String uri = activity.stringValue();
-				activity = vf.createURI(uri + CallimachusActivityFactory.PROV_SUFFIX);
+			if (bundle == null) {
+				bundle = con.getInsertContext();
+				assert bundle != null;
 			}
+			URI activity = delegate.createActivityURI(bundle, vf);
+			con.setVersionBundle(bundle); // use the same URI for blob version
 			audit.setActivityFactory(new RequestActivityFactory(activity, delegate, this));
 		}
 	}

@@ -30,6 +30,7 @@ package org.callimachusproject.traits;
 
 import org.callimachusproject.concepts.Activity;
 import org.openrdf.annotations.Iri;
+import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.RDFObject;
 
 /**
@@ -43,7 +44,7 @@ public interface VersionedObject extends RDFObject {
 	@Iri("http://www.w3.org/ns/prov#wasGeneratedBy")
 	void setProvWasGeneratedBy(Activity activity);
 
-	void touchRevision();
+	void touchRevision() throws RepositoryException;
 
 	String revision();
 

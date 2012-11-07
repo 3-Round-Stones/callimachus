@@ -26,7 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class CallimachusActivityFactory implements ActivityFactory {
-	public static final String PROV_SUFFIX = "#provenance";
+	private static final String PROV_SUFFIX = "#provenance";
 	private static final Executor executor = ManagedExecutors.newSingleScheduler(CallimachusActivityFactory.class.getSimpleName());
 	private static final TimeZone UTC = TimeZone.getTimeZone("UTC");
 	private static final String ACTIVITY = "http://www.w3.org/ns/prov#Activity";
@@ -98,7 +98,9 @@ public final class CallimachusActivityFactory implements ActivityFactory {
 		assert uriSpace.endsWith("/");
 	}
 
-	public URI createActivityURI(ValueFactory vf) {
+	public URI createActivityURI(URI bundle, ValueFactory vf) {
+		if (bundle != null)
+			return vf.createURI(bundle.stringValue() + PROV_SUFFIX);
 		String local = uid + seq.getAndIncrement();
 		return vf.createURI(getNamespace() + local + PROV_SUFFIX);
 	}

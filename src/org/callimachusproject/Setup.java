@@ -798,7 +798,7 @@ public class Setup {
 		InputStream in = carin.getEntryStream();
 		try {
 			if (carin.isSchemaEntry()) {
-				URI graph = con.getActivityURI();
+				URI graph = con.getVersionBundle();
 				con.add(in, target, RDFFormat.RDFXML, graph);
 				return graph;
 			} else if (carin.isFileEntry()) {

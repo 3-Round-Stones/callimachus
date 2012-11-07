@@ -9,8 +9,10 @@ import javax.xml.datatype.DatatypeConfigurationException;
 
 import org.callimachusproject.logging.trace.TracerService;
 import org.openrdf.model.URI;
+import org.openrdf.model.ValueFactory;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryException;
+import org.openrdf.repository.auditing.ActivityFactory;
 import org.openrdf.repository.auditing.AuditingRepository;
 import org.openrdf.repository.auditing.config.AuditingRepositoryFactory;
 import org.openrdf.repository.base.RepositoryWrapper;
@@ -73,7 +75,18 @@ public class CallimachusRepository extends RepositoryWrapper {
 		ObjectConnection con = object.getConnection();
 		if (auditing != null && con.getVersionBundle() == null) {
 			URI bundle = con.getInsertContext();
-			assert bundle != null;
+			ActivityFactory activityFactory = auditing.getActivityFactory();
+			if (bundle == null && activityFactory != null) {
+				ValueFactory vf = getValueFactory();
+				URI activityURI = activityFactory.createActivityURI(bundle, vf);
+				String str = activityURI.stringValue();
+				int h = str.indexOf('#');
+				if (h > 0) {
+					bundle = vf.createURI(str.substring(0, h));
+				} else {
+					bundle = activityURI;
+				}
+			}
 			con.setVersionBundle(bundle); // use the same URI for blob version
 		}
 		return con;

@@ -343,11 +343,7 @@ public class ResourceRequest extends Request {
 		if (audit != null) {
 			ActivityFactory delegate = audit.getActivityFactory();
 			URI bundle = con.getVersionBundle();
-			ValueFactory vf = audit.getValueFactory();
-			if (bundle == null) {
-				bundle = con.getInsertContext();
-				assert bundle != null;
-			}
+			assert bundle != null;
 			URI activity = delegate.createActivityURI(bundle, vf);
 			con.setVersionBundle(bundle); // use the same URI for blob version
 			audit.setActivityFactory(new RequestActivityFactory(activity, delegate, this));

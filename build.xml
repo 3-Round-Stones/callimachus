@@ -93,7 +93,6 @@
         <basename file="${jing.url}" property="jing.zip" />
         <basename file="${httpclient.url}" property="httpclient.zip" />
         <basename file="${daemon-darwin.url}" property="daemon-darwin.tar.gz" />
-        <basename file="${fop.url}" property="fop.zip" />
         <basename file="${tagsoup.url}" property="tagsoup.jar" />
         <basename file="${httpcore.url}" property="httpcore.zip" />
         <mkdir dir="${downloads}" />
@@ -110,7 +109,6 @@
             <url url="${jing.url}" />
             <url url="${httpclient.url}" />
             <url url="${daemon-darwin.url}" />
-            <url url="${fop.url}" />
             <url url="${tagsoup.url}" />
             <url url="${httpcore.url}" />
         </get>
@@ -197,15 +195,6 @@
         <unzip overwrite="false" src="${downloads}/${jing.zip}" dest="${lib}">
             <patternset>
                 <include name="jing*/bin/jing*.jar" />
-            </patternset>
-            <mapper type="flatten" />
-        </unzip>
-        <unzip overwrite="false" src="${downloads}/${fop.zip}" dest="${lib}">
-            <patternset>
-                <include name="fop*/build/fop*.jar" />
-                <include name="fop*/lib/*.jar" />
-                <exclude name="fop*/lib/commons-io-*.jar" />
-                <exclude name="fop*/lib/commons-logging-*.jar" />
             </patternset>
             <mapper type="flatten" />
         </unzip>

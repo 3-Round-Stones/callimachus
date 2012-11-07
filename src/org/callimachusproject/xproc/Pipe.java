@@ -1,9 +1,12 @@
 package org.callimachusproject.xproc;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.reflect.Type;
@@ -19,7 +22,6 @@ import net.sf.saxon.s9api.SaxonApiException;
 import net.sf.saxon.s9api.XdmNode;
 import net.sf.saxon.trans.XPathException;
 
-import org.apache.xmlgraphics.util.WriterOutputStream;
 import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidException;
@@ -128,7 +130,19 @@ public class Pipe implements XProcMessageListener {
 	}
 
 	public void writeTo(Writer out) throws XProcException, IOException {
-		streamTo(new WriterOutputStream(out, getEncoding()));
+		ByteArrayOutputStream baos = new ByteArrayOutputStream(8192);
+		streamTo(baos);
+		ByteArrayInputStream in = new ByteArrayInputStream(baos.toByteArray());
+		Reader reader = new InputStreamReader(in, getEncoding());
+		try {
+			int read;
+			char[] cbuf = new char[1024];
+			while ((read = reader.read(cbuf)) >= 0) {
+				out.write(cbuf, 0, read);
+			}
+		} finally {
+			reader.close();
+		}
 	}
 
 	public InputStream asStream() throws XProcException, IOException {

@@ -225,22 +225,22 @@ print $OUT <<"ENDOFPREFIXES";
   ; callilog:uniqueURLs "$unique_urls"
 ENDOFPREFIXES
 
-say $OUT "  ; callilog:total200 \"$num_200\"" if $num_200;
-say $OUT "  ; callilog:total201 \"$num_201\"" if $num_201;
-say $OUT "  ; callilog:total204 \"$num_204\"" if $num_204;
-say $OUT "  ; callilog:total206 \"$num_206\"" if $num_206;
-say $OUT "  ; callilog:total302 \"$num_302\"" if $num_302;
-say $OUT "  ; callilog:total303 \"$num_303\"" if $num_303;
-say $OUT "  ; callilog:total304 \"$num_304\"" if $num_304;
-say $OUT "  ; callilog:total400 \"$num_400\"" if $num_400;
-say $OUT "  ; callilog:total401 \"$num_401\"" if $num_401;
-say $OUT "  ; callilog:total403 \"$num_403\"" if $num_403;
-say $OUT "  ; callilog:total404 \"$num_404\"" if $num_404;
-say $OUT "  ; callilog:total405 \"$num_405\"" if $num_405;
-say $OUT "  ; callilog:total406 \"$num_406\"" if $num_406;
-say $OUT "  ; callilog:total409 \"$num_409\"" if $num_409;
-say $OUT "  ; callilog:total500 \"$num_500\"" if $num_500;
-say $OUT "  ; callilog:total504 \"$num_504\"" if $num_504;
+say $OUT "  ; callilog:total200 $num_200" if $num_200;
+say $OUT "  ; callilog:total201 $num_201" if $num_201;
+say $OUT "  ; callilog:total204 $num_204" if $num_204;
+say $OUT "  ; callilog:total206 $num_206" if $num_206;
+say $OUT "  ; callilog:total302 $num_302" if $num_302;
+say $OUT "  ; callilog:total303 $num_303" if $num_303;
+say $OUT "  ; callilog:total304 $num_304" if $num_304;
+say $OUT "  ; callilog:total400 $num_400" if $num_400;
+say $OUT "  ; callilog:total401 $num_401" if $num_401;
+say $OUT "  ; callilog:total403 $num_403" if $num_403;
+say $OUT "  ; callilog:total404 $num_404" if $num_404;
+say $OUT "  ; callilog:total405 $num_405" if $num_405;
+say $OUT "  ; callilog:total406 $num_406" if $num_406;
+say $OUT "  ; callilog:total409 $num_409" if $num_409;
+say $OUT "  ; callilog:total500 $num_500" if $num_500;
+say $OUT "  ; callilog:total504 $num_504" if $num_504;
 
 say $OUT ".\n"; # Close <$date> block
 
@@ -304,7 +304,7 @@ if ($num_deletes) {
 if ( scalar(keys %top_ten_not_found_urls) ) {
     say "<$date> callilog:topTenNotFound <$date/topTenNotFound> .";
     foreach my $url (keys %top_ten_not_found_urls) {
-        say "<$date/topTenNotFound> callilog:notFoundDescription <$date/topTenNotFound$url>";
+        say "<$date/topTenNotFound> callilog:notFoundDescription <$date/topTenNotFound$url> .";
         say "<$date/topTenNotFound$url> callilog:url \"$url\"";
         say "  ; callilog:hits \"$top_ten_not_found_urls{$url}\" .\n";
     }

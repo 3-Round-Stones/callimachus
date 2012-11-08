@@ -10,6 +10,10 @@
     <script type="text/javascript"><![CDATA[
     jQuery(function($) {
         $('#message').val($('#message').val().replace(/@@REGISTRATION_URL@@/g, window.location.protocol + '//' + window.location.host + '/?register'));
+        $('#label').on('change keyup blur', function() {
+            var salutation = $(this).val() ? 'Hello ' + $(this).val() : 'Hello';
+            $('#message').val($('#message').val().replace(/(^|[\r\n])Hello[^\r\n]*/, '$1' + salutation + ','));
+        });
     }); // ]]>
     </script>
 </head>
@@ -43,8 +47,7 @@
             <div class="control-group">
                 <label for="label" class="control-label">Full name</label>
                 <div class="controls">
-                    <input id="label" name="label" type="text" class="auto-expand" required="required"
-                        onchange="$('#message').val($('#message').val().replace(/Hello,/, 'Hello ' + value + ','))" />
+                    <input id="label" name="label" type="text" class="auto-expand" required="required" />
                 </div>
             </div>
             <div class="control-group">

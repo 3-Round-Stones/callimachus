@@ -138,7 +138,7 @@ xmlns="http://www.w3.org/1999/xhtml" xmlns:xhtml="http://www.w3.org/1999/xhtml" 
         <xsl:text>. </xsl:text>
     </xsl:if>
     <xsl:value-of select="." />
-    <xsl:if test="ancestor::d:article">
+    <xsl:if test="ancestor::*[3] or ancestor::d:article/parent::* or parent::d:info/ancestor::*[2]">
         <xsl:text> </xsl:text>
         <a href="{concat(base-uri(),'?view#', $id)}" class="anchor">#</a>
     </xsl:if>

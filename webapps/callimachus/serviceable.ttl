@@ -140,6 +140,8 @@ skos:editorialNote a owl:AnnotationProperty.
     calli:requires calli:reader;
     calli:type "application/rdf+xml;q=0.4", "text/turtle;q=0.5";
     calli:script """
+        var seen = {};
+        seen[this.resource] = true;
         var queue = [];
         queue.push(this.resource);
         var con = this.objectConnection;
@@ -191,12 +193,16 @@ skos:editorialNote a owl:AnnotationProperty.
                 if (st.object instanceof org.openrdf.model.URI) {
                     if (uri.length > base.length && uri.indexOf(base) == 0) {
                         var chr = uri.charAt(base.length);
-                        if (baseIsHash || chr == '#') {
+                        if (baseIsHash || chr == '#' && !seen[st.object]) {
+                            seen[st.object] = true;
                             queue.push(st.object);
                         }
                     }
                 } else if (st.object instanceof org.openrdf.model.Resource) {
-                    queue.push(st.object);
+                    if (!seen[st.object]) {
+                        seen[st.object] = true;
+                        queue.push(st.object);
+                    }
                 }
                 return st;
             },

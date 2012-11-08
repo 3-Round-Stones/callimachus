@@ -33,7 +33,6 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
@@ -52,7 +51,6 @@ import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.client.AbstractHttpClient;
 import org.callimachusproject.client.UnavailableHttpClient;
 import org.callimachusproject.server.CallimachusRepository;
-import org.callimachusproject.server.model.ConsumingHttpEntity;
 import org.callimachusproject.server.model.Filter;
 import org.callimachusproject.server.model.Handler;
 import org.callimachusproject.server.model.Request;
@@ -143,18 +141,11 @@ public class HTTPObjectRequestHandler extends AbstractHttpClient implements
 		logger.debug("Request received {}", request.getRequestLine());
 		InetAddress remoteAddress = getRemoteAddress(ctx);
 		Request req = new Request(request, remoteAddress, false);
-		// consumer overrides HttpEntity
-		ConsumingHttpEntity consumer = new ConsumingHttpEntity(req);
 		final Queue<Exchange> queue = getOrCreateProcessingQueue(ctx);
 		Exchange exchange = new Exchange(req, ctx, queue);
 		ctx.setAttribute(EXCHANGE_ATTR, exchange);
 		submit(exchange);
-		try {
-			exchange.awaitVerification(1, TimeUnit.SECONDS); // block TCP stream
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-		}
-		return consumer;
+		return exchange.getConsumer();
 	}
 
 	@Override

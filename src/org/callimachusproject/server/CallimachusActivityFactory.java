@@ -76,7 +76,7 @@ public final class CallimachusActivityFactory implements ActivityFactory {
 	private final AtomicLong seq = new AtomicLong(0);
 	private final Repository repository;
 	private final String uriSpace;
-	private final String activityType;
+	private final String activityBundleType;
 	private final String folderType;
 	private final DatatypeFactory df;
 	private String namespace;
@@ -84,15 +84,15 @@ public final class CallimachusActivityFactory implements ActivityFactory {
 	private String folder;
 
 	public CallimachusActivityFactory(Repository repository, String uriSpace,
-			String activityType, String folderType)
+			String activityBundleType, String folderType)
 			throws DatatypeConfigurationException {
 		assert repository != null;
 		assert uriSpace != null;
-		assert activityType != null;
+		assert activityBundleType != null;
 		assert folderType != null;
 		this.repository = repository;
 		this.uriSpace = uriSpace;
-		this.activityType = activityType;
+		this.activityBundleType = activityBundleType;
 		this.folderType = folderType;
 		this.df = DatatypeFactory.newInstance();
 		assert uriSpace.endsWith("/");
@@ -108,9 +108,9 @@ public final class CallimachusActivityFactory implements ActivityFactory {
 	public void activityStarted(URI activity, URI graph, RepositoryConnection con)
 			throws RepositoryException {
 		ValueFactory vf = con.getValueFactory();
-		con.add(vf.createURI(activity.getNamespace()),
-				vf.createURI(CALLI_HASCOMPONENT), activity, graph);
-		con.add(graph, RDF.TYPE, vf.createURI(activityType), graph);
+		con.add(vf.createURI(graph.getNamespace()),
+				vf.createURI(CALLI_HASCOMPONENT), graph, graph);
+		con.add(graph, RDF.TYPE, vf.createURI(activityBundleType), graph);
 		con.add(activity, RDF.TYPE, vf.createURI(ACTIVITY), graph);
 	}
 

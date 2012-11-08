@@ -363,11 +363,11 @@
                     }
                     dependency.remove(location);
                 } else if (carStream.isSchemaEntry()) {
-                    var graphURI = vf.createURI(con.getActivityURI().stringValue() + "#schema");
+                    var graphURI = vf.createURI(con.getVersionBundle().stringValue() + "#schema");
                     con.add(graphURI, RDF.TYPE, SchemaGraph, []);
                     readFrom(type, entryStream, uri, [graphURI]);
                     //# copy rdf:type to activity graph
-                    con.add(con.getStatements(vf.createURI(uri), RDF.TYPE, null, false, [graphURI]), [con.getActivityURI()]);
+                    con.add(con.getStatements(vf.createURI(uri), RDF.TYPE, null, false, [graphURI]), [con.getVersionBundle()]);
                     if (folder) {
                         folder.calliHasComponent.add(location);
                     }

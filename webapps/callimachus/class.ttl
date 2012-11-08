@@ -54,7 +54,7 @@
         var ret = proceed();
         var con = this.objectConnection;
         var of = con.objectFactory;
-        con.addDesignation(of.createObject(con.getActivityURI()), SchemaGraph);
+        con.addDesignation(of.createObject(con.getVersionBundle()), SchemaGraph);
         con.recompileSchemaOnClose();
         return ret;
     """.
@@ -72,7 +72,7 @@
         var ret = proceed();
         var con = this.objectConnection;
         var of = con.objectFactory;
-        con.addDesignation(of.createObject(con.getActivityURI()), SchemaGraph);
+        con.addDesignation(of.createObject(con.getVersionBundle()), SchemaGraph);
         con.recompileSchemaOnClose();
         return ret;
     """.

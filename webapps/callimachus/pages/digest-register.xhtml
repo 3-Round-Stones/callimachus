@@ -8,6 +8,10 @@
 <head>
     <title resource="?this">{rdfs:label} Sign Up</title>
     <style type="text/css">
+    #email,
+    #username {
+        font-weight: bold;
+    }
     .password-meter {
         position:relative;
         width: 180px;
@@ -69,6 +73,8 @@
                 var m = regex.exec(window.location.search);
                 return m ? decodeURIComponent(m[1]) : null;
             }
+            $("#email").text(parameter("email"));
+            $("#username").text(parameter("username"));
             $("#form").validate({submitHandler: function(form) {
                 var username = parameter("username");
                 var email = parameter("email");
@@ -99,6 +105,8 @@
         <h1>{rdfs:label} Sign Up</h1>
         <h2 id="authName">{calli:authName}</h2>
     </hgroup>
+    <p>The email address <span id="email"/> has been assigned the username "<span id="username"/>".
+        Please provide a password to complete the registration.</p>
     <form id="form" method="POST" action="?register">
         <div class="control-group">
         	<label for="password" class="control-label">New password</label>

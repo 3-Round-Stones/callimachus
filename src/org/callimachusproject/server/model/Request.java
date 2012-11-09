@@ -59,6 +59,7 @@ public class Request extends EditableHttpEntityEnclosingRequest {
 	private final boolean storable;
 	private final InetAddress remoteAddr;
 	private final boolean internal;
+	private String forensicId;
 	private String iri;
 
 	public Request(Request request) {
@@ -84,6 +85,23 @@ public class Request extends EditableHttpEntityEnclosingRequest {
 
 	public boolean isInternal() {
 		return internal;
+	}
+
+	public String getForensicId() {
+		if (forensicId != null)
+			return forensicId;
+		if (getEnclosingRequest() instanceof Request) {
+			return ((Request) getEnclosingRequest()).getForensicId();
+		}
+		return null;
+	}
+
+	public void setForensicId(String forensicId) {
+		assert this.forensicId == null;
+		if (getEnclosingRequest() instanceof Request) {
+			((Request) getEnclosingRequest()).setForensicId(forensicId);
+		}
+		this.forensicId = forensicId;
 	}
 
 	/**

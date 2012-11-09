@@ -202,6 +202,7 @@ public class FileHandler extends StreamHandler {
                     }
                 } else {
                 	files[0].getParentFile().mkdirs();
+                	setPermissions(files[0]);
                 }
                 FileOutputStream fileStream = new FileOutputStream(fileName
                         + LCK_EXT);
@@ -229,7 +230,7 @@ public class FileHandler extends StreamHandler {
         setOutputStream(output);
     }
 
-    private void initProperties() {
+	private void initProperties() {
         String className = this.getClass().getName();
         pattern = getStringProperty(className + ".pattern", DEFAULT_PATTERN);
         if (null == pattern || "".equals(pattern)) { //$NON-NLS-1$
@@ -254,6 +255,7 @@ public class FileHandler extends StreamHandler {
     			}
     			renameTo(files[i - 1], files[i]);
     		}
+    		setPermissions(files[0]);
     		output = new MeasureOutputStream(new BufferedOutputStream(
     				new FileOutputStream(files[0])));
     	} catch (FileNotFoundException e1) {
@@ -266,6 +268,14 @@ public class FileHandler extends StreamHandler {
     	}
     	setOutputStream(output);
     }
+
+	private void setPermissions(File file) throws IOException {
+		file.createNewFile();
+		file.setReadable(false, false);
+		file.setReadable(true, true);
+		file.setWritable(false, false);
+		file.setWritable(true, true);
+	}
 
 	private void renameTo(File file1, File file2) throws IOException {
 		if (!file1.getName().endsWith(".gz") && file2.getName().endsWith(".gz")) {

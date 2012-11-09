@@ -144,34 +144,29 @@
 
 :DownloadFolderComponents rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
     calli:method "GET";
     calli:query "archive";
     calli:rel calli:archive;
     calli:requires calli:administrator;
     calli:type "message/x-response";
     calli:header "cache-control:no-store";
-    calli:imports <java:org.apache.http.ProtocolVersion>;
-    calli:imports <java:org.apache.http.message.BasicHttpResponse>;
-    calli:imports <java:org.apache.http.entity.InputStreamEntity>;
     calli:script """
-        var http11 = new ProtocolVersion("HTTP", 1, 1);
-        var resp = new BasicHttpResponse(http11, 200, "OK");
-        var name = this.resource.localName;
-        var filename = this.toUri().path.substring(1).replace(/\\//g, '-') + this.toUri().authority.replace(/:.*/,'') + '.car';
-        resp.setHeader("Content-Disposition", 'attachment;filename="' + filename + '"');
         var baseURI = this.toString();
         if (this.calliHasComponent.isEmpty() || baseURI.charAt(baseURI.length - 1) != '/')
             return null;
         var component = this;
-        var entity = new InputStreamEntity(new org.callimachusproject.server.util.ProducerStream(function(outputStream) {
-            var carStream = new org.callimachusproject.io.CarOutputStream(outputStream);
-            component.ExportComponents(baseURI, carStream);
-            carStream.finish();
-        }), -1);
-        entity.contentType = "application/zip";
-        resp.setEntity(entity);
-        return resp;
+        var name = this.resource.localName;
+        var filename = this.toUri().path.substring(1).replace(/\\//g, '-') + this.toUri().authority.replace(/:.*/,'') + '.car';
+        return {
+            status: 200, message: "OK",
+            headers:{"Content-Disposition":'attachment;filename="' + filename + '"', "content-type":"application/zip"},
+            body: new org.callimachusproject.server.util.ProducerStream(function(outputStream) {
+                var carStream = new org.callimachusproject.io.CarOutputStream(outputStream);
+                component.ExportComponents(baseURI, carStream);
+                carStream.finish();
+            })
+        };
     """.
 
 :GetRdfFolderDescription rdfs:subClassOf msg:Message;

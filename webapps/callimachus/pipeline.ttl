@@ -123,7 +123,7 @@
 # GET /pipeline.xpl?results
 :GetResult rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Pipeline>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
     calli:method "GET";
     calli:query "results";
     calli:requires calli:reader;
@@ -142,16 +142,13 @@
 # POST /pipeline.xpl?results
 :PostResult rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Pipeline>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
     calli:method "POST";
     calli:query "results";
     calli:requires calli:reader;
     calli:type "message/x-response";
     calli:header "cache-control:no-store,no-transform";
     calli:imports <java:org.callimachusproject.xproc.PipelineFactory>;
-    calli:imports <java:org.apache.http.ProtocolVersion>;
-    calli:imports <java:org.apache.http.message.BasicHttpResponse>;
-    calli:imports <java:org.apache.http.entity.InputStreamEntity>;
     calli:script """
         var factory = PipelineFactory.newInstance();
         var pipeline = factory.createPipeline(this.openInputStream(), this.toString());
@@ -166,12 +163,11 @@
                 pipe.passOption(key, value[1]);
             }
         }
-        var http11 = new ProtocolVersion("HTTP", 1, 1);
-        var resp = new BasicHttpResponse(http11, 200, "OK");
-        var entity = new InputStreamEntity(pipe.asStream(), -1);
-        entity.contentType = pipe.getMediaType();
-        resp.setEntity(entity);
-        return resp;
+        return {
+            status: 200, message: "OK",
+            headers: {"content-type": pipe.getMediaType()},
+            body: pipe.asStream()
+        };
 """.
 
 :queryPostParameters a owl:FunctionalProperty, owl:ObjectProperty;

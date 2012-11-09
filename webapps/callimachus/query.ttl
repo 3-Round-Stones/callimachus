@@ -207,7 +207,7 @@
 
 :GetResult rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <NamedQuery>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
     calli:method "GET";
     calli:query "results", "tqx", "eval";
     calli:requires calli:reader;
@@ -215,10 +215,6 @@
     calli:imports <java:org.callimachusproject.engine.ParameterizedQueryParser>;
     calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
     calli:imports <java:org.openrdf.query.QueryLanguage>;
-    calli:imports <java:org.apache.http.ProtocolVersion>;
-    calli:imports <java:org.apache.http.message.BasicHttpResponse>;
-    calli:imports <java:org.apache.http.entity.InputStreamEntity>;
-    calli:imports <java:org.apache.http.entity.StringEntity>;
     calli:imports <java:java.lang.IllegalArgumentException>;
     calli:imports <java:org.openrdf.query.MalformedQueryException>;
     calli:script """
@@ -239,20 +235,18 @@
         var con = this.objectConnection;
         var nq = con.repository.getNamedQuery(this.resource);
         var etag = "";
-        var http11 = new ProtocolVersion("HTTP", 1, 1);
-        var resp = new BasicHttpResponse(http11, 200, "OK");
+        var resp = {status:200, message:"OK", headers:{}};
         if (nq) {
             etag = 'W/"' + nq.getResultTag() + '"';
             if (match == etag) {
-                resp = new BasicHttpResponse(http11, 304, "Not Modified");
+                resp = {status:304, message:"Not Modified", headers:{}};
             }
-            resp.setHeader("Last-Modified", nq.getResultLastModifiedString());
-            resp.setHeader("ETag", etag);
+            resp.headers["last-modified"] = nq.getResultLastModifiedString();
+            resp.headers["etag"] = etag;
         }
         if (map.outFileName) {
-            resp.setHeader("Content-Disposition", 'inline;filename="' + map.outFileName + '"');
+            resp.headers["content-disposition"] = 'inline;filename="' + map.outFileName + '"';
         }
-        var entity = null;
         try {
             var parser = ParameterizedQueryParser.newInstance();
             var query = parser.parseQuery(this.openInputStream(), this.toString());
@@ -265,28 +259,26 @@
                 control += ",no-validate"; //# server side directive
             }
             if (control) {
-                resp.setHeader("Cache-Control", control);
+                resp.headers["cache-control"] = control;
             }
             if (nq && match == etag)
                 return resp;
             var rs = query.evaluate(queryParameters, con);
             if (map.out == "html") {
-                entity = new InputStreamEntity(this.TransformIntoHtml(rs), -1);
-                entity.contentType = "text/html;charset=UTF-8";
+                resp.body = this.TransformIntoHtml(rs);
+                resp.headers["content-type"] = "text/html;charset=UTF-8";
             } else if (map.out == "csv") {
-                entity = new InputStreamEntity(this.TransformIntoCSV(rs), -1);
-                entity.contentType = "text/csv;charset=UTF-8";
+                resp.body = this.TransformIntoCSV(rs);
+                resp.headers["content-type"] = "text/csv;charset=UTF-8";
             } else if (map.out == "tsv-excel") {
-                entity = new InputStreamEntity(this.TransformIntoTSV(rs), -1);
-                entity.contentType = "text/tab-separated-values;charset=UTF-16LE";
+                resp.body = this.TransformIntoTSV(rs);
+                resp.headers["content-type"] = "text/tab-separated-values;charset=UTF-16LE";
             } else if (tqx) {
-                var out = this.TransformIntoWire(map.responseHandler, map.reqId, rs);
-                entity = new InputStreamEntity(out, -1);
-                entity.contentType = "text/javascript;charset=UTF-8";
+                resp.body = this.TransformIntoWire(map.responseHandler, map.reqId, rs);
+                resp.headers["content-type"] = "text/javascript;charset=UTF-8";
             } else {
-                var type = "application/sparql-results+xml";
-                var factory = org.callimachusproject.fluid.FluidFactory.getInstance();
-                entity = factory.builder(con).consume(rs, this.toString(), rs.getClass(), [type]).asHttpEntity([type]);
+                resp.body = rs;
+                resp.headers["content-type"] = "application/sparql-results+xml";
             }
         } catch(e) {
             if (e.javaException) {
@@ -312,16 +304,14 @@
                 print.close();
                 var trace = sw.toString().replace(/\\n/g, '\\\\n').replace(/'/g, '"');
                 reason = reason + ",detailed_message:'" + trace + "'";
-                var json = map.responseHandler + "({reqId:'" + map.reqId + "',status:'error',errors:[{" + reason + "}]})";
-                var resp = new BasicHttpResponse(http11, 200, "Internal Server Error");
-                entity = new StringEntity(json);
-                entity.contentType = "text/javascript;charset=UTF-8";
+                var resp = {status:200, message:"Internal Server Error", headers:{}};
+                resp.body = map.responseHandler + "({reqId:'" + map.reqId + "',status:'error',errors:[{" + reason + "}]})";
+                resp.headers["content-type"] = "text/javascript;charset=UTF-8";
                 e.printStackTrace(); // log the error
             } else {
                 throw new InternalServerError(e.toString(), e);
             }
         }
-        resp.setEntity(entity);
         return resp;
     """.
 

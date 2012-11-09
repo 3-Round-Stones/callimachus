@@ -12,10 +12,10 @@ import javax.tools.FileObject;
 
 import org.apache.http.Header;
 import org.apache.http.HttpRequest;
-import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
 import org.callimachusproject.annotations.type;
+import org.callimachusproject.client.StreamEntity;
 import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidException;
@@ -69,7 +69,7 @@ public class ProxyPostAdvice extends ProxyGetAdvice {
 					String uri = file.toUri().toASCIIString();
 					req.setHeader("Content-Location", uri);
 				}
-				req.setEntity(new InputStreamEntity(in, -1));
+				req.setEntity(new StreamEntity(in));
 				return req;
 			}
 		}

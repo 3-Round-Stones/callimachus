@@ -39,6 +39,7 @@ import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
+import org.callimachusproject.client.HttpEntityWrapper;
 import org.callimachusproject.fluid.MediaType;
 import org.callimachusproject.fluid.producers.HttpMessageReader;
 import org.callimachusproject.server.model.Filter;
@@ -147,12 +148,20 @@ public class HttpResponseFilter extends Filter {
 		}
 		HttpEntity body = response.getEntity();
 		if (body == null && !response.containsHeader("Content-Length")
-				 && !response.containsHeader("Transfer-Encoding")) {
+				&& !response.containsHeader("Transfer-Encoding")) {
 			response.setHeader("Content-Length", "0");
 		} else if (response.containsHeader("Transfer-Encoding")
 				&& response.getFirstHeader("Transfer-Encoding").getValue()
 						.equals("identity")) {
 			response.setHeader("Transfer-Encoding", "chunked");
+			if (!body.isChunked()) {
+				response.setEntity(new HttpEntityWrapper(body) {
+					@Override
+					public boolean isChunked() {
+						return true;
+					}
+				});
+			}
 		}
 		return response;
 	}

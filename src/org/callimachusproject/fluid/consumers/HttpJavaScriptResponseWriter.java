@@ -19,7 +19,7 @@ import org.callimachusproject.fluid.Vapor;
 
 public class HttpJavaScriptResponseWriter implements Consumer<Object> {
 	private static final String BUILD_HTTP_RESPONSE = "buildHttpResponse";
-	private static final String SCRIPT = "function "+BUILD_HTTP_RESPONSE+"(resp){\n" +
+	private static final String SCRIPT = "function "+BUILD_HTTP_RESPONSE+"(resp, systemId){\n" +
 			"var contentType = null;\n" +
 			"var charset = 'UTF-8';\n" +
 			"var status = resp.status;\n" +
@@ -48,10 +48,12 @@ public class HttpJavaScriptResponseWriter implements Consumer<Object> {
 			"}\n" +
 			"if (typeof resp.body == 'string') {" +
 			"	response.setEntity(new org.apache.http.entity.StringEntity(resp.body, contentType, charset));\n" +
-			"} else if (resp.body instanceof org.apache.http.HttpEntity) {\n" +
-			"	response.setEntity(resp.body);\n" +
 			"} else if (resp.body && resp.body.length && resp.body.join) {\n" +
 			"	response.setEntity(new org.apache.http.entity.StringEntity(resp.body.join(''), contentType, charset));\n" +
+			"} else if (typeof resp.body.getClass == 'function' && resp.body.getClass() instanceof java.lang.Class) {\n" +
+			"	var factory = org.callimachusproject.fluid.FluidFactory.getInstance();\n" +
+			"	var fluid = factory.builder().consume(resp.body, systemId, resp.body.getClass(), [contentType]);\n" +
+            "	response.setEntity(fluid.asHttpEntity([contentType]));\n" +
 			"}\n" +
 			"return response;\n" +
 			"}\n";
@@ -102,7 +104,7 @@ public class HttpJavaScriptResponseWriter implements Consumer<Object> {
 			protected HttpResponse asHttpResponse(FluidType media)
 					throws Exception {
 				return (HttpResponse) engine.invokeFunction(
-						BUILD_HTTP_RESPONSE, result);
+						BUILD_HTTP_RESPONSE, result, base);
 			}
 
 			@Override

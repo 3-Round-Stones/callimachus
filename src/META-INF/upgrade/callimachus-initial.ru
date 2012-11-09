@@ -115,7 +115,7 @@ INSERT DATA {
     calli:administrator </group/admin>;
     calli:hasComponent </.well-known/void>.
 
-</.well-known/void> a </callimachus/Servicable>, void:DatasetDescription;
+</.well-known/void> a </callimachus/Serviceable>, void:DatasetDescription;
     rdfs:label "void";
     foaf:primaryTopic </.well-known/void#dataset>;
     calli:reader </group/public>.

@@ -93,9 +93,17 @@ INSERT {
 
 INSERT {
     </.well-known/> calli:reader </group/public> .
-    </.well-known/void> a </callimachus/Servicable>; calli:reader </group/public> .
+    </.well-known/void> a </callimachus/Serviceable>; calli:reader </group/public> .
 } WHERE {
     FILTER NOT EXISTS { </.well-known/> calli:reader ?group }
+};
+
+DELETE {
+    </.well-known/void> a </callimachus/Servicable>
+} INSERT {
+    </.well-known/void> a </callimachus/Serviceable>
+} WHERE {
+    </.well-known/void> a </callimachus/Servicable>
 };
 
 INSERT {

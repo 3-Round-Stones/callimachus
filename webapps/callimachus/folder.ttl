@@ -420,7 +420,7 @@
             $this calli:hasComponent+ ?component .
             ?external ?dependent ?component
             FILTER (!isIRI(?external) || !strstarts(str(?external), str($this)))
-            FILTER (?dependent != prov:used && ?dependent != prov:wasInformedBy)
+            FILTER (?dependent != prov:specializationOf && ?dependent != prov:wasInfluencedBy)
             FILTER (?dependent != rdf:subject && ?dependent != rdf:object)
         }
     """.

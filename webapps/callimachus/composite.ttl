@@ -501,7 +501,7 @@
         PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
         SELECT DISTINCT ?contributor
         WHERE {
-            ?activity prov:used $thing; prov:wasAssociatedWith ?contributor
+            $thing prov:wasGeneratedBy [prov:wasAssociatedWith ?contributor]
             FILTER NOT EXISTS {
                 {
                     $this ?editor ?contributor

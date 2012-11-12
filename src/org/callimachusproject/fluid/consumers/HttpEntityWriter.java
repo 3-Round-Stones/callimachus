@@ -10,18 +10,18 @@ import javax.xml.transform.TransformerException;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.util.EntityUtils;
-import org.callimachusproject.fluid.Vapor;
 import org.callimachusproject.fluid.Consumer;
 import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
+import org.callimachusproject.fluid.Vapor;
 import org.callimachusproject.server.util.ChannelUtil;
 import org.openrdf.OpenRDFException;
 
 public class HttpEntityWriter implements Consumer<HttpEntity> {
 
 	public boolean isConsumable(FluidType mtype, FluidBuilder builder) {
-		return mtype.is(HttpEntity.class);
+		return HttpEntity.class.isAssignableFrom(mtype.asClass());
 	}
 
 	public Fluid consume(final HttpEntity result, final String base,

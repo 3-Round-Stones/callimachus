@@ -50,10 +50,11 @@ public class HttpJavaScriptResponseWriter implements Consumer<Object> {
 			"	response.setEntity(new org.apache.http.entity.StringEntity(resp.body, contentType, charset));\n" +
 			"} else if (resp.body && resp.body.length && resp.body.join) {\n" +
 			"	response.setEntity(new org.apache.http.entity.StringEntity(resp.body.join(''), contentType, charset));\n" +
-			"} else if (typeof resp.body.getClass == 'function' && resp.body.getClass() instanceof java.lang.Class) {\n" +
+			"} else if (resp.body && typeof resp.body.getClass == 'function' && resp.body.getClass() instanceof java.lang.Class) {\n" +
 			"	var factory = org.callimachusproject.fluid.FluidFactory.getInstance();\n" +
-			"	var fluid = factory.builder().consume(resp.body, systemId, resp.body.getClass(), [contentType]);\n" +
-            "	response.setEntity(fluid.asHttpEntity([contentType]));\n" +
+			"	var media = contentType ? [contentType] : [];\n" +
+			"	var fluid = factory.builder().consume(resp.body, systemId, resp.body.getClass(), media);\n" +
+            "	response.setEntity(fluid.asHttpEntity(media));\n" +
 			"}\n" +
 			"return response;\n" +
 			"}\n";
@@ -72,7 +73,7 @@ public class HttpJavaScriptResponseWriter implements Consumer<Object> {
 
 	@Override
 	public boolean isConsumable(FluidType ftype, FluidBuilder builder) {
-		return ftype.is(Object.class) && ftype.is("message/http") || ftype.is("message/x-response");
+		return ftype.is(Object.class) && (ftype.is("message/http") || ftype.is("message/x-response"));
 	}
 
 	@Override

@@ -165,28 +165,32 @@ function addBoundedDescription(triple, store, dest, copy) {
 }
 
 function asSparqlUpdate(removed, added) {
-    var sparqlDelete = new UpdateWriter();
-    sparqlDelete.openDelete();
-    for (triple in removed) {
-        sparqlDelete.pattern(removed[triple]);
-    }
-    sparqlDelete.closeDelete();
-    sparqlDelete.openWhere();
-    for (triple in removed) {
-        writer.pattern(removed[triple]);
-    }
-    sparqlDelete.closeWhere();
+    var writer = new UpdateWriter();
 
-    var sparqlInsert = new UpdateWriter();
-    sparqlInsert.openInsert();
-    for (triple in added) {
-        sparqlInsert.triple(added[triple]);
+    if (removed && !$.isEmptyObject(removed)) {
+        writer.openDelete();
+        for (triple in removed) {
+            writer.pattern(removed[triple]);
+        }
+        writer.closeDelete();
+        writer.openWhere();
+        for (triple in removed) {
+            writer.pattern(removed[triple]);
+        }
+        writer.closeWhere();
     }
-    sparqlInsert.closeInsert();
-    sparqlInsert.openWhere();
-    sparqlInsert.closeWhere();
 
-    return sparqlDelete.toString() + sparqlInsert.toString();
+    if (added && !$.isEmptyObject(added)) {
+        writer.openInsert();
+        for (triple in added) {
+            writer.triple(added[triple]);
+        }
+        writer.closeInsert();
+        writer.openWhere();
+        writer.closeWhere();
+    }
+
+    return writer.toString();
 }
 
 function patchData(form, data, callback) {
@@ -294,8 +298,8 @@ function UpdateWriter() {
         this.push(' ');
         this.term(triple.predicate, null, null);
         this.push(' ');
-        if (triple.object.match(/^_:/) && !datatype) {
-            this.push("?var" + triple.subject.substring(2));
+        if (triple.object.match(/^_:/) && !triple.datatype) {
+            this.push("?var" + triple.object.substring(2));
         } else {
             this.term(triple.object, triple.datatype, triple.language);
         }
@@ -599,4 +603,3 @@ function removeHtmlEntities(html) {
 }
 
 });
-

@@ -41,27 +41,14 @@ function submitRDFForm(form, stored) {
             var diff = diffTriples(stored, revised);
             var removed = diff.removed;
             var added = diff.added;
+            var hash, triple;
             for (hash in removed) {
                 addBoundedDescription(removed[hash], stored, removed, added);
             }
             for (hash in added) {
                 addBoundedDescription(added[hash], revised, added, removed);
             }
-            
-            var writer = new UpdateWriter();
-            writer.openDelete();
-            for (triple in removed) {
-                writer.push(triple);
-            }
-            writer.closeDelete();
-            writer.openInsert();
-            for (triple in added) {
-                writer.push(triple);
-            }
-            writer.closeInsert();
-            writer.openWhere();
-            writer.closeWhere();
-            var data = writer.toString();
+            var data = asSparqlUpdate(removed, added);
             patchData(form[0], data, function(data, textStatus, xhr) {
                 try {
                     var redirect = xhr.getResponseHeader("Location");
@@ -112,7 +99,7 @@ function readRDF(form) {
             if (!dt && s == o) {
                 selfRefs[this] = true;
             }
-            hash = writer.reset().triple(s, p, o, dt, lang).toString();
+            hash = writer.hash(s, p, o, dt, lang);
             triples[hash] = {subject: s, predicate: p, object: o, datatype: dt, language: lang};
             // log blank objects, they may be used as subjects in later triples
             if (!dt && o.indexOf('_:') === 0) {
@@ -158,6 +145,7 @@ function diffTriples(oldTriples, newTriples) {
  * Makes sure blank subjects and objects get complemented with incoming and outgoing triples (transitive closure).
  */
 function addBoundedDescription(triple, store, dest, copy) {
+    var hash;
     if (triple.subject.match(/^_:/)) {
         for (hash in store) {
             if (store[hash].object == triple.subject && !store[hash].datatype && !dest[hash]) {
@@ -174,7 +162,32 @@ function addBoundedDescription(triple, store, dest, copy) {
             }
         }
     }
-}   
+}
+
+function asSparqlUpdate(removed, added) {
+    var sparqlDelete = new UpdateWriter();
+    sparqlDelete.openDelete();
+    for (triple in removed) {
+        sparqlDelete.pattern(removed[triple]);
+    }
+    sparqlDelete.closeDelete();
+    sparqlDelete.openWhere();
+    for (triple in removed) {
+        writer.pattern(removed[triple]);
+    }
+    sparqlDelete.closeWhere();
+
+    var sparqlInsert = new UpdateWriter();
+    sparqlInsert.openInsert();
+    for (triple in added) {
+        sparqlInsert.triple(added[triple]);
+    }
+    sparqlInsert.closeInsert();
+    sparqlInsert.openWhere();
+    sparqlInsert.closeWhere();
+
+    return sparqlDelete.toString() + sparqlInsert.toString();
+}
 
 function patchData(form, data, callback) {
     var method = form.getAttribute('method');
@@ -246,19 +259,49 @@ function UpdateWriter() {
     };
     
     this.closeWhere = function() {
-        this.push('}\n');
+        this.push('};\n');
     };
     
-    this.triple = function(subject, predicate, object, datatype, language) {
+    this.triple = function(triple) {
         this.push('\t');
-        this.term(subject, null, null);
+        this.term(triple.subject, null, null);
         this.push(' ');
-        this.term(predicate, null, null);
+        this.term(triple.predicate, null, null);
         this.push(' ');
-        this.term(object, datatype, language);
+        this.term(triple.object, triple.datatype, triple.language);
         this.push(' .\n');
         return this;
     };
+    
+    this.hash = function(subject, predicate, object, datatype, language) {
+        var tempWriter = new UpdateWriter();
+        return tempWriter.triple({
+            subject:subject, predicate:predicate, object:object,
+            datatype:datatype, language:language
+        }).toString();
+    };
+    
+    /**
+     * Serializes a triple for the DELETE/WHERE section, with bnodes replaced by vars.
+     */ 
+    this.pattern = function(triple) {
+        this.push('\t');
+        if (triple.subject.match(/^_:/)) {
+            this.push("?var" + triple.subject.substring(2));
+        } else {
+            this.term(triple.subject, null, null);
+        }
+        this.push(' ');
+        this.term(triple.predicate, null, null);
+        this.push(' ');
+        if (triple.object.match(/^_:/) && !datatype) {
+            this.push("?var" + triple.subject.substring(2));
+        } else {
+            this.term(triple.object, triple.datatype, triple.language);
+        }
+        this.push(' .\n');
+        return this;
+    };   
     
     this.term = function(term, datatype, language) {
         // bnode

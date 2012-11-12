@@ -247,7 +247,7 @@ skos:editorialNote a owl:AnnotationProperty.
     calli:query "describe";
     calli:requires calli:administrator;
     calli:imports <java:org.openrdf.query.QueryLanguage>;
-    calli:imports <java:org.callimachusproject.form.helpers.TripleAnalyzer>;
+    calli:imports <java:org.callimachusproject.form.helpers.EntityUpdater>;
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
     calli:imports <java:org.callimachusproject.server.exceptions.Forbidden>;
     calli:imports <java:org.callimachusproject.server.exceptions.Conflict>;
@@ -256,24 +256,8 @@ skos:editorialNote a owl:AnnotationProperty.
         var con = this.objectConnection;
 
         //# Parse DELETE INSERT
-        var analyzer = new TripleAnalyzer();
-        var string = analyzer.parseUpdate(deleteInsert, this.toString());
-        
-        //# Verify input
-        if (analyzer.isEmpty())
-            throw new BadRequest("Missing data");
-        if (!analyzer.isAbout(this.resource))
-            throw new BadRequest("Can only delete or insert triples of the entity: " + this.toString());
-        if (!analyzer.getTypes(this.resource).isEmpty())
-            throw new BadRequest("Cannot change entity type");
-        if (analyzer.isDisconnectedNodePresent())
-            throw new BadRequest("Blank nodes must be connected");
-        //# FIXME possible security hole if hash or blank resources are added with a restricted type
-
-        //# Evaluate input
-        var update = con.prepareUpdate(QueryLanguage.SPARQL, string, this.toString());
-        update.setBinding("this", this.resource);
-        update.execute();
+        var updater = new EntityUpdater(this.resource);
+        updater.executeUpdate(deleteInsert, con);
 
         this.touchRevision();
         //# FIXME we shouldn't need to touch anything

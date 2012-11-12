@@ -237,7 +237,7 @@ public abstract class ExchangeActor {
 				sb.append(enc(string.substring(end, m.start())));
 				sb.append("<a href='").append(enc(url)).append("'>");
 				int path = url.indexOf('/', url.indexOf("://") + 3);
-				String label = url.substring(path);
+				String label = path > 0 ? url.substring(path) : url;
 				sb.append(enc(label));
 				sb.append("</a>");
 				end = m.end();

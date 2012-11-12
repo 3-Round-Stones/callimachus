@@ -25,7 +25,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -42,11 +46,15 @@ import org.openrdf.query.BindingSet;
 import org.openrdf.query.MalformedQueryException;
 import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.algebra.DeleteData;
+import org.openrdf.query.algebra.Distinct;
+import org.openrdf.query.algebra.EmptySet;
 import org.openrdf.query.algebra.Extension;
 import org.openrdf.query.algebra.InsertData;
+import org.openrdf.query.algebra.Join;
 import org.openrdf.query.algebra.Modify;
 import org.openrdf.query.algebra.MultiProjection;
 import org.openrdf.query.algebra.Projection;
+import org.openrdf.query.algebra.QueryModelNode;
 import org.openrdf.query.algebra.Reduced;
 import org.openrdf.query.algebra.SingletonSet;
 import org.openrdf.query.algebra.StatementPattern;
@@ -62,9 +70,12 @@ import org.openrdf.query.parser.sparql.SPARQLParser;
 import org.openrdf.rio.RDFHandlerException;
 
 public class TripleAnalyzer extends QueryModelVisitorBase<RDFHandlerException> {
-	private final TripleVerifier verifier = new TripleVerifier();
+	private final List<TripleVerifier> verifiers = new ArrayList<TripleVerifier>();
 	private final ValueFactory vf = new ValueFactoryImpl();
 	private final Map<String, Resource> anonymous = new HashMap<String, Resource>();
+	private final Set<Statement> connections = new HashSet<Statement>();
+	private TripleVerifier verifier = new TripleVerifier();
+	private boolean complicated;
 
 	public String parseInsertData(InputStream in, String systemId)
 			throws RDFHandlerException, IOException, MalformedQueryException {
@@ -124,45 +135,125 @@ public class TripleAnalyzer extends QueryModelVisitorBase<RDFHandlerException> {
 		verifier.accept(pattern);
 	}
 
-	public boolean isDisconnectedNodePresent() {
-		return verifier.isDisconnectedNodePresent();
-	}
-
-	public boolean isAbout(Resource about) {
-		return verifier.isAbout(about);
-	}
-
-	public boolean isEmpty() {
-		return verifier.isEmpty();
-	}
-
-	public boolean isSingleton() {
-		return verifier.isSingleton();
-	}
-
-	public URI getSubject() {
-		return verifier.getSubject();
-	}
-
-	public void addSubject(URI subj) throws RDFHandlerException {
+	public void addSubject(URI subj) {
 		verifier.addSubject(subj);
 	}
 
-	public Set<URI> getAllTypes() {
-		return verifier.getAllTypes();
+	public boolean isComplicated() {
+		return complicated;
+	}
+
+	public boolean isDisconnectedNodePresent() {
+		for (TripleVerifier verifier : verifiers) {
+			if (verifier.isDisconnectedNodePresent())
+				return true;
+		}
+		return false;
+	}
+
+	public boolean isAbout(Resource about) {
+		boolean ret = false;
+		for (TripleVerifier verifier : verifiers) {
+			if (verifier.isAbout(about)) {
+				ret = true;
+			} else if (!verifier.isEmpty()) {
+				return false;
+			}
+		}
+		return ret;
+	}
+
+	public boolean isEmpty() {
+		for (TripleVerifier verifier : verifiers) {
+			if (!verifier.isEmpty())
+				return false;
+		}
+		return true;
+	}
+
+	public boolean isSingleton() {
+		boolean ret = false;
+		for (TripleVerifier verifier : verifiers) {
+			if (verifier.isSingleton()) {
+				ret = true;
+			} else if (!verifier.isEmpty()) {
+				return false;
+			}
+		}
+		return ret;
+	}
+
+	public URI getSubject() {
+		for (TripleVerifier verifier : verifiers) {
+			URI subj = verifier.getSubject();
+			if (subj != null)
+				return subj;
+		}
+		return null;
 	}
 
 	public Set<URI> getTypes(URI subject) {
-		return verifier.getTypes(subject);
+		Set<URI> set = new LinkedHashSet<URI>();
+		for (TripleVerifier verifier : verifiers) {
+			set.addAll(verifier.getTypes(subject));
+		}
+		return set;
 	}
 
-	public Set<URI> getResources() {
-		return verifier.getResources();
+	public Set<URI> getPartners() {
+		Set<URI> set = new LinkedHashSet<URI>();
+		for (TripleVerifier verifier : verifiers) {
+			set.addAll(verifier.getPartners());
+		}
+		return set;
+	}
+
+	public Set<Statement> getConnections() {
+		return connections;
+	}
+
+	@Override
+	public void meet(DeleteData node) throws RDFHandlerException {
+		TripleVerifier previous = verifier;
+		verifier = new TripleVerifier(previous);
+		node.getDeleteExpr().visit(this);
+		verifiers.add(verifier);
+		verifier = previous;
+	}
+
+	@Override
+	public void meet(InsertData node) throws RDFHandlerException {
+		TripleVerifier previous = verifier;
+		verifier = new TripleVerifier(previous);
+		node.getInsertExpr().visit(this);
+		verifiers.add(verifier);
+		verifier = previous;
+	}
+
+	@Override
+	public void meet(Modify node) throws RDFHandlerException {
+		TripleVerifier previous = verifier;
+		if (node.getDeleteExpr() != null) {
+			verifier = new TripleVerifier(previous);
+			node.getDeleteExpr().visit(this);
+			verifiers.add(verifier);
+		}
+		if (node.getInsertExpr() != null) {
+			verifier = new TripleVerifier(previous);
+			node.getInsertExpr().visit(this);
+			verifiers.add(verifier);
+		}
+		if (node.getWhereExpr() != null) {
+			verifier = new TripleVerifier(previous);
+			node.getWhereExpr().visit(this);
+			verifiers.add(verifier);
+			connections.addAll(verifier.getConnections());
+		}
+		verifier = previous;
 	}
 
 	@Override
 	public void meet(StatementPattern node) throws RDFHandlerException {
-		super.meet(node);
 		Value subj = node.getSubjectVar().getValue();
 		Value pred = node.getPredicateVar().getValue();
 		Value obj = node.getObjectVar().getValue();
@@ -171,15 +262,12 @@ public class TripleAnalyzer extends QueryModelVisitorBase<RDFHandlerException> {
 		if (!(pred instanceof URI))
 			throw new RDFHandlerException("Missing predicate: "
 					+ node.getPredicateVar());
-		if (subj == null && node.getSubjectVar().isAnonymous()) {
+		if (subj == null) {
 			subj = bind(node.getSubjectVar());
 		}
 		if (obj == null) {
 			obj = bind(node.getObjectVar());
 		}
-		if (subj == null && !node.getSubjectVar().isAnonymous())
-			throw new RDFHandlerException("Unknown subject: "
-					+ node.getSubjectVar());
 		if (ctx instanceof Resource) {
 			throw new RDFHandlerException("Only the default graph can be used");
 		} else if (ctx == null) {
@@ -211,6 +299,38 @@ public class TripleAnalyzer extends QueryModelVisitorBase<RDFHandlerException> {
 				evaluate(node);
 			}
 		}
+	}
+
+	@Override
+	public void meet(Join node) throws RDFHandlerException {
+		node.getLeftArg().visit(this);
+		node.getRightArg().visit(this);
+	}
+
+	@Override
+	public void meet(Distinct node) throws RDFHandlerException {
+		node.getArg().visit(this);
+	}
+
+	@Override
+	public void meet(Reduced node) throws RDFHandlerException {
+		node.getArg().visit(this);
+	}
+
+	@Override
+	public void meet(SingletonSet node) throws RDFHandlerException {
+		// not complicated
+	}
+
+	@Override
+	public void meet(EmptySet node) throws RDFHandlerException {
+		// not complicated
+	}
+
+	@Override
+	protected void meetNode(QueryModelNode node) throws RDFHandlerException {
+		complicated = true;
+		super.meetNode(node);
 	}
 
 	private void evaluate(TupleExpr node) throws RDFHandlerException {

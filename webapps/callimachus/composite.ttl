@@ -44,7 +44,7 @@
     calli:type "text/uri-list";
     calli:imports <java:org.openrdf.annotations.Iri>;
     calli:imports <java:org.openrdf.query.QueryLanguage>;
-    calli:imports <java:org.callimachusproject.form.helpers.TripleAnalyzer>;
+    calli:imports <java:org.callimachusproject.form.helpers.EntityUpdater>;
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
     calli:imports <java:org.callimachusproject.server.exceptions.Forbidden>;
     calli:imports <java:org.callimachusproject.server.exceptions.Conflict>;
@@ -57,38 +57,19 @@
         var of = con.objectFactory;
 
         //# Parse INSERT DATA
-        var analyzer = new TripleAnalyzer();
-        var string = analyzer.parseInsertData(insertData, this.toString());
+        var updater = new EntityUpdater(this.resource, true);
+        var string = updater.parseInsertData(insertData);
         
         //# Verify input
-        if (analyzer.isEmpty())
-            throw new BadRequest("Missing data");
-        if (!analyzer.isSingleton())
-            throw new BadRequest("Only one entity can be inserted per request");
-        if (analyzer.isDisconnectedNodePresent())
-            throw new BadRequest("Blank nodes must be connected");
-        var location = analyzer.subject;
-        if (location.toString().indexOf(this.toString()) != 0)
-            throw new BadRequest("Resource URI must start with: " + this);
-        var local = location.toString().substring(this.toString().length);
-        if (local.indexOf('/') == 0 && this.toString().lastIndexOf('/') != this.toString().length - 1) {
-            local = local.substring(1);
-        }
-        if (local.lastIndexOf('/') == local.length - 1) {
-            local = local.substring(0, local.length -1);
-        }
-        if (local.indexOf('/') >= 0)
-            throw new BadRequest("Can only created nested components here");
-        var newCopy = of.createObject(location, analyzer.getTypes(location));
+        var location = updater.subject;
+        var newCopy = of.createObject(location, updater.getTypes(location));
         if (this.calliHasComponent.contains(newCopy))
             throw new Conflict("Resource already exists");
         if (!(newCopy instanceof Editable))
             throw new BadRequest("Resource is not Editable");
 
         //# Execute input
-        var update = con.prepareUpdate(QueryLanguage.SPARQL, string, this.toString());
-        update.setBinding("this", this.resource);
-        update.execute();
+        updater.executeUpdate(string, con);
 
         var iter = this.FindCreator(newCopy).iterator();
         if (!iter.hasNext())
@@ -133,7 +114,7 @@
         newCopy.calliEditor.addAll(this.SelectAllEditors());
         newCopy.calliAdministrator.addAll(this.SelectAllAdministrators());
         this.calliHasComponent.add(newCopy);
-        var iter = analyzer.getResources().iterator();
+        var iter = updater.partners.iterator();
         while (iter.hasNext()) {
             var partner = iter.next();
             if (!partner.toString().equals(this.toString())) {

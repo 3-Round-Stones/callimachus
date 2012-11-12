@@ -98,8 +98,8 @@ public class TripleInserter implements RDFHandler {
 		return verifier.getTypes(subject);
 	}
 
-	public Set<URI> getResources() {
-		return verifier.getResources();
+	public Set<URI> getPartners() {
+		return verifier.getPartners();
 	}
 
 	public String toString() {

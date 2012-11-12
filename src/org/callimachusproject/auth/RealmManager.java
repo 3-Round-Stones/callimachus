@@ -13,6 +13,8 @@ import org.openrdf.model.ValueFactory;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.ObjectQuery;
 import org.openrdf.repository.object.ObjectRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RealmManager {
 	private static final String SELECT_BY_TYPE = "SELECT ?object { ?object a $type }";
@@ -25,6 +27,7 @@ public class RealmManager {
 		cache++;
 	}
 
+	private final Logger logger = LoggerFactory.getLogger(RealmManager.class);
 	private int revision = cache;
 	private final ObjectRepository repo;
 	private TreeMap<String, Realm> realms;
@@ -78,10 +81,14 @@ public class RealmManager {
 			ObjectConnection con) throws OpenRDFException {
 		ObjectQuery qry = con.prepareObjectQuery(SPARQL, SELECT_BY_TYPE);
 		qry.setBinding("type", type);
-		for (DetachableRealm o : qry.evaluate(DetachableRealm.class).asList()) {
+		for (Object o : qry.evaluate(Object.class).asList()) {
 			String key = o.toString();
-			if (!realms.containsKey(key)) {
-				realms.put(key, ((DetachableRealm) o).detachRealm(this));
+			try {
+				if (!realms.containsKey(key)) {
+					realms.put(key, ((DetachableRealm) o).detachRealm(this));
+				}
+			} catch (ClassCastException e) {
+				logger.error(o.toString() + " cannot be detached", e);
 			}
 		}
 	}

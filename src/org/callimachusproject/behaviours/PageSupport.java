@@ -26,7 +26,6 @@ import java.net.URISyntaxException;
 import java.util.Set;
 
 import org.callimachusproject.engine.RDFEventReader;
-import org.callimachusproject.engine.RDFParseException;
 import org.callimachusproject.engine.Template;
 import org.callimachusproject.engine.TemplateEngine;
 import org.callimachusproject.engine.TemplateException;
@@ -43,30 +42,18 @@ import org.callimachusproject.engine.model.AbsoluteTermFactory;
 import org.callimachusproject.engine.model.IRI;
 import org.callimachusproject.engine.model.Var;
 import org.callimachusproject.engine.model.VarOrTerm;
-import org.callimachusproject.form.helpers.GraphPatternBuilder;
-import org.callimachusproject.form.helpers.StatementExtractor;
-import org.callimachusproject.form.helpers.TripleAnalyzer;
+import org.callimachusproject.form.helpers.EntityUpdater;
 import org.callimachusproject.form.helpers.TripleInserter;
 import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.server.exceptions.Conflict;
 import org.callimachusproject.traits.VersionedObject;
-import org.openrdf.OpenRDFException;
-import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.query.BooleanQuery;
-import org.openrdf.query.MalformedQueryException;
-import org.openrdf.query.algebra.Modify;
-import org.openrdf.query.algebra.UpdateExpr;
-import org.openrdf.query.parser.ParsedUpdate;
-import org.openrdf.query.parser.sparql.SPARQLParser;
-import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.ObjectFactory;
 import org.openrdf.repository.object.RDFObject;
-import org.openrdf.repository.util.RDFInserter;
 import org.openrdf.rio.RDFHandlerException;
-import org.openrdf.rio.helpers.RDFHandlerBase;
 import org.openrdf.rio.rdfxml.RDFXMLParser;
 
 /**
@@ -77,23 +64,6 @@ import org.openrdf.rio.rdfxml.RDFXMLParser;
  * 
  */
 public abstract class PageSupport {
-
-	private static class Remover extends RDFHandlerBase {
-		private final ObjectConnection con;
-
-		private Remover(ObjectConnection con) {
-			this.con = con;
-		}
-
-		public void handleStatement(Statement st) throws RDFHandlerException {
-			try {
-				con.remove(st.getSubject(), st.getPredicate(), st.getObject());
-			} catch (RepositoryException e) {
-				throw new RDFHandlerException(e);
-			}
-		}
-	}
-
 	private static final String CHANGE_NOTE = "http://www.w3.org/2004/02/skos/core#changeNote";
 	private static final String HAS_COMPONENT = "http://callimachusproject.org/rdf/2009/framework#" + "hasComponent";
 
@@ -127,7 +97,7 @@ public abstract class PageSupport {
 			if (tracker.isDisconnectedNodePresent())
 				throw new BadRequest("Blank nodes must be connected");
 			ObjectFactory of = con.getObjectFactory();
-			for (URI partner : tracker.getResources()) {
+			for (URI partner : tracker.getPartners()) {
 				if (!partner.toString().equals(base)) {
 					of.createObject(partner, VersionedObject.class).touchRevision();
 				}
@@ -147,13 +117,14 @@ public abstract class PageSupport {
 			throws Exception {
 		try {
 			ObjectConnection con = target.getObjectConnection();
-			TripleAnalyzer analyzer = new TripleAnalyzer();
-			String input = parseUpdate(in, target, analyzer);
-
-			executeUpdate(input, target.toString(), con);
+			URI resource = (URI) target.getResource();
+			EntityUpdater update = new EntityUpdater(resource);
+			update.accept(openPatternReader(resource.stringValue()));
+			update.accept(changeNoteOf(resource));
+			update.executeUpdate(in, con);
 
 			ObjectFactory of = con.getObjectFactory();
-			for (URI partner : analyzer.getResources()) {
+			for (URI partner : update.getPartners()) {
 				of.createObject(partner, VersionedObject.class).touchRevision();
 			}
 			if (target instanceof VersionedObject) {
@@ -226,59 +197,6 @@ public abstract class PageSupport {
 			reader = new OverrideBaseReader(resolver, new Base(uri), reader);
 		}
 		return reader;
-	}
-
-	private void executeUpdate(String input, String base, ObjectConnection con)
-			throws OpenRDFException {
-		SPARQLParser parser = new SPARQLParser();
-		ParsedUpdate parsed = parser.parseUpdate(input, base);
-		if (parsed.getUpdateExprs().isEmpty())
-			throw new BadRequest("No input");
-		if (parsed.getUpdateExprs().size() > 1)
-			throw new BadRequest("Multiple update statements");
-		UpdateExpr updateExpr = parsed.getUpdateExprs().get(0);
-		if (!(updateExpr instanceof Modify))
-			throw new BadRequest("Not a DELETE/INSERT statement");
-		Modify modify = (Modify) updateExpr;
-		ValueFactory vf = con.getValueFactory();
-		modify.getWhereExpr().visit(
-				new StatementExtractor(new RDFHandlerBase() {
-					public void handleStatement(Statement st)
-							throws RDFHandlerException {
-						throw new RDFHandlerException(
-								"Where clause must be empty");
-					}
-				}, vf));
-		Remover remover = new Remover(con);
-		GraphPatternBuilder pattern = new GraphPatternBuilder();
-		pattern.startRDF();
-		modify.getDeleteExpr().visit(new StatementExtractor(pattern, vf));
-		pattern.endRDF();
-		if (!pattern.isEmpty()) {
-			String sparql = pattern.toSPARQLQuery();
-			con.prepareGraphQuery(SPARQL, sparql).evaluate(remover);
-		}
-		RDFInserter inserter = new RDFInserter(con);
-		inserter.startRDF();
-		modify.getInsertExpr().visit(new StatementExtractor(inserter, vf));
-		inserter.endRDF();
-	}
-
-	private String parseUpdate(InputStream in, RDFObject target,
-			TripleAnalyzer analyzer) throws RDFParseException, IOException,
-			TemplateException, RDFHandlerException, MalformedQueryException {
-		URI resource = (URI) target.getResource();
-		analyzer.accept(openPatternReader(resource.stringValue()));
-		analyzer.addSubject(resource);
-		analyzer.accept(changeNoteOf(resource));
-		String input = analyzer.parseUpdate(in, target.toString());
-		if (!analyzer.isAbout(resource))
-			throw new BadRequest("Wrong Subject");
-		if (!analyzer.getTypes(resource).isEmpty())
-			throw new BadRequest("Cannot change resource type");
-		if (analyzer.isDisconnectedNodePresent())
-			throw new BadRequest("Blank nodes must be connected");
-		return input;
 	}
 
 	private TriplePattern changeNoteOf(URI resource) {

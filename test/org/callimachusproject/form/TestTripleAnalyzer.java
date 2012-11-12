@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ValueFactoryImpl;
+import org.openrdf.rio.RDFHandlerException;
 
 public class TestTripleAnalyzer {
 	private static final String PREFIX = "PREFIX foaf:<http://xmlns.com/foaf/0.1/>\n";
@@ -21,12 +22,87 @@ public class TestTripleAnalyzer {
 	}
 
 	@Test
+	public void testOptionalVariables() throws Exception {
+		String input = PREFIX + "DELETE { <#you> foaf:knows ?me . ?me foaf:name 'me' } WHERE { ?me foaf:name 'me' OPTIONAL { <#you> foaf:knows ?me } };";
+		TripleAnalyzer analyzer = new TripleAnalyzer();
+		analyzer.analyzeUpdate(input, "http://example.com/");
+		Assert.assertFalse(analyzer.isEmpty());
+		Assert.assertTrue(analyzer.isAbout(vf.createURI("http://example.com/")));
+		Assert.assertFalse(analyzer.isDisconnectedNodePresent());
+		Assert.assertTrue(analyzer.isSingleton());
+		Assert.assertTrue(analyzer.isComplicated());
+	}
+
+	@Test
+	public void testVariables() throws Exception {
+		String input = PREFIX + "DELETE { <#you> foaf:knows ?me . ?me foaf:name 'me' } WHERE { <#you> foaf:knows ?me . ?me foaf:name 'me' };";
+		TripleAnalyzer analyzer = new TripleAnalyzer();
+		analyzer.analyzeUpdate(input, "http://example.com/");
+		Assert.assertFalse(analyzer.isEmpty());
+		Assert.assertTrue(analyzer.isAbout(vf.createURI("http://example.com/")));
+		Assert.assertFalse(analyzer.isDisconnectedNodePresent());
+		Assert.assertTrue(analyzer.isSingleton());
+		Assert.assertFalse(analyzer.isComplicated());
+	}
+
+	@Test
+	public void testDeleteWhereInsertWhere() throws Exception {
+		String input = PREFIX + "DELETE { <#you> a foaf:Person } WHERE { <#you> a foaf:Person }; INSERT { <#me> a foaf:Person } WHERE {}";
+		TripleAnalyzer analyzer = new TripleAnalyzer();
+		analyzer.analyzeUpdate(input, "http://example.com/");
+		Assert.assertFalse(analyzer.isEmpty());
+		Assert.assertTrue(analyzer.isAbout(vf.createURI("http://example.com/")));
+		Assert.assertFalse(analyzer.isDisconnectedNodePresent());
+		Assert.assertTrue(analyzer.isSingleton());
+		Assert.assertFalse(analyzer.isComplicated());
+	}
+
+	@Test
+	public void testInsertWhereVariable() throws Exception {
+		String input = PREFIX + "INSERT { <#you> foaf:knows ?me } WHERE { ?me foaf:name 'me' }";
+		TripleAnalyzer analyzer = new TripleAnalyzer();
+		analyzer.analyzeUpdate(input, "http://example.com/");
+		Assert.assertFalse(analyzer.isEmpty());
+		Assert.assertFalse(analyzer.isAbout(vf.createURI("http://example.com/")));
+		Assert.assertFalse(analyzer.isSingleton());
+		Assert.assertTrue(analyzer.isDisconnectedNodePresent());
+		Assert.assertFalse(analyzer.isComplicated());
+	}
+
+	@Test
+	public void testDisconnectedInsertWhere() throws Exception {
+		String input = PREFIX + "INSERT { <#you> foaf:knows ?me } WHERE { <#you> a foaf:Person . ?me foaf:name 'me' }";
+		TripleAnalyzer analyzer = new TripleAnalyzer();
+		analyzer.analyzeUpdate(input, "http://example.com/");
+		Assert.assertFalse(analyzer.isEmpty());
+		Assert.assertTrue(analyzer.isAbout(vf.createURI("http://example.com/")));
+		Assert.assertTrue(analyzer.isSingleton());
+		Assert.assertTrue(analyzer.isDisconnectedNodePresent());
+		Assert.assertFalse(analyzer.isComplicated());
+	}
+
+	@Test
+	public void testDeleteStar() throws Exception {
+		String input = PREFIX + "DELETE { ?s ?p ?o } WHERE { ?s ?p ?o}";
+		TripleAnalyzer analyzer = new TripleAnalyzer();
+		try {
+			analyzer.analyzeUpdate(input, "http://example.com/");
+			Assert.fail();
+		} catch (RDFHandlerException e) {
+			
+		}
+	}
+
+	@Test
 	public void testDeleteInsertWhere() throws Exception {
 		String input = PREFIX + "DELETE { <#you> a foaf:Person } INSERT { <#me> a foaf:Person } WHERE {}";
 		TripleAnalyzer analyzer = new TripleAnalyzer();
 		analyzer.analyzeUpdate(input, "http://example.com/");
 		Assert.assertFalse(analyzer.isEmpty());
 		Assert.assertTrue(analyzer.isAbout(vf.createURI("http://example.com/")));
+		Assert.assertFalse(analyzer.isDisconnectedNodePresent());
+		Assert.assertTrue(analyzer.isSingleton());
+		Assert.assertFalse(analyzer.isComplicated());
 	}
 
 	@Test
@@ -36,6 +112,9 @@ public class TestTripleAnalyzer {
 		analyzer.analyzeInsertData(input, "http://example.com/");
 		Assert.assertFalse(analyzer.isEmpty());
 		Assert.assertTrue(analyzer.isAbout(vf.createURI("http://example.com/")));
+		Assert.assertFalse(analyzer.isDisconnectedNodePresent());
+		Assert.assertTrue(analyzer.isSingleton());
+		Assert.assertFalse(analyzer.isComplicated());
 	}
 
 	@Test
@@ -45,6 +124,9 @@ public class TestTripleAnalyzer {
 		analyzer.analyzeInsertData(input, "http://example.com/");
 		Assert.assertFalse(analyzer.isEmpty());
 		Assert.assertTrue(analyzer.isAbout(vf.createURI("http://example.com/")));
+		Assert.assertFalse(analyzer.isDisconnectedNodePresent());
+		Assert.assertTrue(analyzer.isSingleton());
+		Assert.assertFalse(analyzer.isComplicated());
 	}
 
 	@Test
@@ -54,6 +136,9 @@ public class TestTripleAnalyzer {
 		analyzer.analyzeInsertData(input, "http://example.com/");
 		Assert.assertFalse(analyzer.isEmpty());
 		Assert.assertTrue(analyzer.isAbout(vf.createURI("http://example.com/")));
+		Assert.assertFalse(analyzer.isDisconnectedNodePresent());
+		Assert.assertTrue(analyzer.isSingleton());
+		Assert.assertFalse(analyzer.isComplicated());
 	}
 
 }

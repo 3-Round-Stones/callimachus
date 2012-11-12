@@ -96,7 +96,9 @@ public class AuthenticationTest extends MetadataServerTestCase {
 			con.add(vf.createURI("urn:test:my-group"), vf.createURI("http://callimachusproject.org/rdf/2009/framework#member"), vf.createURI("urn:test:user:bob"));
 			con.add(vf.createURI("urn:test:my-group"), vf.createURI("http://callimachusproject.org/rdf/2009/framework#member"), vf.createURI("urn:test:user:jim"));
 			con.add(vf.createURI(ORIGIN), RDF.TYPE, vf.createURI("http://callimachusproject.org/rdf/2009/framework#Origin"));
+			con.add(vf.createURI(ORIGIN), RDF.TYPE, vf.createURI("http://callimachusproject.org/rdf/2009/framework#Realm"));
 			con.add(vf.createURI(ORIGIN), vf.createURI("http://callimachusproject.org/rdf/2009/framework#authentication"), vf.createURI("urn:test:auth"));
+			con.add(vf.createURI("urn:test:auth"), RDF.TYPE, vf.createURI("http://callimachusproject.org/rdf/2009/framework#DigestManager"));
 			con.add(vf.createURI("urn:test:auth"), vf.createURI("http://callimachusproject.org/rdf/2009/framework#authName"), vf.createLiteral("test"));
 			con.add(vf.createURI("urn:test:auth"), vf.createURI("http://callimachusproject.org/rdf/2009/framework#authNamespace"), vf.createURI("urn:test:user:"));
 			con.add(vf.createURI("urn:test:user:"), vf.createURI("http://callimachusproject.org/rdf/2009/framework#hasComponent"), vf.createURI("urn:test:user:bob"));

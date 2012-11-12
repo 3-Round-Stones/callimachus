@@ -35,8 +35,10 @@ import org.callimachusproject.engine.model.Term;
 import org.callimachusproject.engine.model.VarOrIRI;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Resource;
+import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
+import org.openrdf.model.impl.StatementImpl;
 import org.openrdf.model.impl.URIImpl;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.rio.RDFHandlerException;
@@ -50,14 +52,39 @@ import org.openrdf.rio.RDFHandlerException;
  */
 public class TripleVerifier {
 	private final AbsoluteTermFactory tf = AbsoluteTermFactory.newInstance();
-	private final Set<URI> subjects = new HashSet<URI>();
-	private final Set<URI> resources = new HashSet<URI>();
-	private final Set<Resource> connected = new HashSet<Resource>();
-	private final Map<Resource, Set<Resource>> disconnected = new HashMap<Resource, Set<Resource>>();
-	private final Set<URI> allTypes = new LinkedHashSet<URI>();
-	private final Map<Resource, Set<URI>> types = new HashMap<Resource, Set<URI>>();
+	private final Set<URI> subjects;
+	private final Set<URI> partners;
+	private final Map<Resource, Set<Statement>> connected;
+	private final Map<Resource, Set<Statement>> disconnected;
+	private final Set<URI> allTypes;
+	private final Map<Resource, Set<URI>> types;
 	private boolean empty = true;
 	private Set<TriplePattern> patterns;
+
+	public TripleVerifier() {
+		subjects = new HashSet<URI>();
+		partners = new HashSet<URI>();
+		connected = new HashMap<Resource, Set<Statement>>();
+		disconnected = new HashMap<Resource, Set<Statement>>();
+		allTypes = new LinkedHashSet<URI>();
+		types = new HashMap<Resource, Set<URI>>();
+		empty = true;
+	}
+
+	public TripleVerifier(TripleVerifier cloned) {
+		subjects = new HashSet<URI>(cloned.subjects);
+		partners = new HashSet<URI>(cloned.partners);
+		connected = new HashMap<Resource, Set<Statement>>(cloned.connected);
+		disconnected = new HashMap<Resource, Set<Statement>>(cloned.disconnected);
+		allTypes = new LinkedHashSet<URI>(cloned.allTypes);
+		types = new HashMap<Resource, Set<URI>>(cloned.types);
+		empty = cloned.empty;
+		patterns = cloned.patterns;
+	}
+
+	public String toString() {
+		return subjects.toString();
+	}
 
 	public void accept(RDFEventReader reader) throws RDFParseException {
 		if (patterns == null) {
@@ -90,6 +117,14 @@ public class TripleVerifier {
 
 	public boolean isDisconnectedNodePresent() {
 		return !disconnected.isEmpty();
+	}
+
+	public Set<Statement> getConnections() {
+		Set<Statement> set = new HashSet<Statement>();
+		for (Set<Statement> nodes : connected.values()) {
+			set.addAll(nodes);
+		}
+		return set;
 	}
 
 	public boolean isAbout(Resource about) {
@@ -141,7 +176,7 @@ public class TripleVerifier {
 		return about;
 	}
 
-	public void addSubject(URI subj) throws RDFHandlerException {
+	public void addSubject(URI subj) {
 		subjects.add(subj);
 	}
 
@@ -155,40 +190,32 @@ public class TripleVerifier {
 		return Collections.emptySet();
 	}
 
-	public Set<URI> getResources() {
-		return resources;
+	public Set<URI> getPartners() {
+		return partners;
 	}
 
 	public void verify(Resource subj, URI pred, Value obj)
 			throws RDFHandlerException {
-		Boolean rev = accept(subj, pred, obj);
-		if (rev == null)
+		if (!accept(subj, pred, obj))
 			throw new RDFHandlerException("Invalid triple: " + subj + " "
 					+ pred + " " + obj);
-		if (rev && obj instanceof URI) {
-			addSubject((URI) obj);
-		} else if (!rev && subj instanceof URI) {
+		if (subj instanceof URI) {
 			addSubject((URI) subj);
 		}
-		if (!rev && RDF.TYPE.equals(pred) && obj instanceof URI) {
+		if (RDF.TYPE.equals(pred) && obj instanceof URI) {
 			if (!types.containsKey(subj)) {
 				types.put(subj, new HashSet<URI>());
 			}
 			types.get(subj).add((URI) obj);
 			allTypes.add((URI) obj);
 		}
-		if (rev) {
-			link((Resource) obj, subj);
-		} else if (!rev && obj instanceof Resource) {
-			link(subj, (Resource) obj);
-		}
+		link(subj, pred, obj);
 		empty = false;
 	}
 
-	private Boolean accept(Resource subj, URI pred, Value obj) {
+	private boolean accept(Resource subj, URI pred, Value obj) throws RDFHandlerException {
 		if (patterns == null)
-			return false;
-		Boolean result = null;
+			return true;
 		Term sterm = asTerm(subj);
 		Term pterm = asTerm(pred);
 		Term oterm = asTerm(obj);
@@ -205,12 +232,11 @@ public class TripleVerifier {
 				if (!tp.getObject().equals(oterm))
 					continue;
 			}
-			result = tp.isInverse();
-			if (!tp.isInverse() && subjects.contains(subj) || tp.isInverse()
-					&& subjects.contains(obj))
-				return result;
+			if (tp.isInverse())
+				throw new RDFHandlerException("Inverse relationships cannot be used here");
+			return true;
 		}
-		return result;
+		return false;
 	}
 
 	private Term asTerm(Value obj) {
@@ -231,29 +257,36 @@ public class TripleVerifier {
 		}
 	}
 
-	private void link(Resource subj, Resource obj) {
-		boolean subjConnected = subj instanceof URI || connected.contains(subj);
+	private void link(Resource subj, URI pred, Value obj) {
+		boolean subjConnected = subj instanceof URI || connected.containsKey(subj);
 		if (!subjConnected && !disconnected.containsKey(subj)) {
-			disconnected.put(subj, new HashSet<Resource>());
+			disconnected.put(subj, new HashSet<Statement>());
 		}
 		if (obj instanceof URI) {
-			resources.add((URI) obj);
-		} else if (!connected.contains(obj)) {
-			if (subjConnected) {
-				if (connected.add(obj)) {
-					connect(obj);
-				}
+			URI uri = (URI) obj;
+			String ns = uri.getNamespace();
+			if (ns.endsWith("#")) {
+				partners.add(new URIImpl(ns.substring(0, ns.length() - 1)));
 			} else {
-				disconnected.get(subj).add(obj);
+				partners.add(uri);
+			}
+		} else if (obj instanceof Resource && !connected.containsKey(obj)) {
+			if (subjConnected) {
+				connect(new StatementImpl(subj, pred, obj));
+			} else {
+				disconnected.get(subj).add(new StatementImpl(subj, pred, obj));
 			}
 		}
 	}
 
-	private void connect(Resource obj) {
-		Set<Resource> removed = disconnected.remove(obj);
-		if (removed != null) {
-			for (Resource connecting : removed) {
-				if (connected.add(connecting)) {
+	private void connect(Statement st) {
+		Set<Statement> set = connected.get(st.getObject());
+		if (set == null) {
+			connected.put((Resource) st.getObject(), set = new HashSet<Statement>());
+			set.add(st);
+			Set<Statement> removed = disconnected.remove(st.getObject());
+			if (removed != null) {
+				for (Statement connecting : removed) {
 					connect(connecting);
 				}
 			}

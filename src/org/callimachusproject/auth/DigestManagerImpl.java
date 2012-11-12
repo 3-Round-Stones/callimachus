@@ -15,7 +15,7 @@
  * limitations under the License.
  *
  */
-package org.callimachusproject.server.auth;
+package org.callimachusproject.auth;
 
 import static org.openrdf.query.QueryLanguage.SPARQL;
 import info.aduna.net.ParsedURI;
@@ -24,22 +24,27 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.tools.FileObject;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.httpclient.util.DateParseException;
 import org.apache.commons.httpclient.util.DateUtil;
 import org.apache.http.HttpMessage;
@@ -48,6 +53,7 @@ import org.apache.http.HttpVersion;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
+import org.callimachusproject.concepts.DigestManager;
 import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.server.exceptions.InternalServerError;
 import org.callimachusproject.traits.VersionedObject;
@@ -72,7 +78,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Validates HTTP digest authorization.
  */
-public class DigestManager implements AuthenticationManager {
+public class DigestManagerImpl implements AuthenticationManager, DigestManager {
 	private static final String PREFIX = "PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>\n";
 	private static final String SELECT_PASSWORD = PREFIX
 			+ "SELECT (str(?user) AS ?id) ?encoded ?passwordDigest {{\n"
@@ -87,6 +93,8 @@ public class DigestManager implements AuthenticationManager {
 			+ "?folder calli:hasComponent ?user .\n"
 			+ "OPTIONAL { ?user calli:passwordDigest ?passwordDigest }\n"
 			+ "}}";
+	private static final Pattern TOKENS_REGEX = Pattern
+			.compile("\\s*([\\w\\!\\#\\$\\%\\&\\'\\*\\+\\-\\.\\^\\_\\`\\~]+)(?:\\s*=\\s*(?:\"([^\"]*)\"|([^,\"]*)))?\\s*,?");
 	private static final String DIGEST_NONCE = "digestNonce=";
 	private static final long THREE_MONTHS = 3 * 30 * 24 * 60 * 60;
 	private static final int MAX_NONCE_AGE = 300000; // nonce timeout of 5min
@@ -97,44 +105,50 @@ public class DigestManager implements AuthenticationManager {
 			HttpVersion.HTTP_1_1, 204, "No Content");
 	private static final BasicStatusLine _200 = new BasicStatusLine(
 			HttpVersion.HTTP_1_1, 200, "OK");
-	private final Logger logger = LoggerFactory.getLogger(DigestManager.class);
+	private static final Map<String, String> DIGEST_OPTS = new HashMap<String, String>();
+	static {
+		DIGEST_OPTS.put("realm", null);
+		DIGEST_OPTS.put("nonce", null);
+		DIGEST_OPTS.put("username", null);
+		DIGEST_OPTS.put("uri", null);
+		DIGEST_OPTS.put("qop", null);
+		DIGEST_OPTS.put("cnonce", null);
+		DIGEST_OPTS.put("nc", null);
+		DIGEST_OPTS.put("response", null);
+	}
+	private final Logger logger = LoggerFactory.getLogger(DigestManagerImpl.class);
 	private final Resource self;
 	private final String authName;
 	private final String protectedDomains;
 	private final String protectedPath;
 	private final RealmManager realms;
-	private final DigestHelper helper = new DigestHelper();
+	private final FailManager fail = new FailManager();
 
-	DigestManager(Resource self, String authName, String protectedDomains, RealmManager realms) {
+	public DigestManagerImpl(Resource self, String authName, String path, List<String> domains, RealmManager realms) {
 		assert self != null;
 		assert authName != null;
-		assert protectedDomains != null;
-		assert protectedDomains.length() > 0;
 		assert realms != null;
 		this.realms = realms;
 		this.self = self;
 		this.authName = authName;
-		this.protectedDomains = protectedDomains;
-		if (protectedDomains.contains(" ")) {
-			String pre = null;
-			for (String url : protectedDomains.split("\\s+")) {
-				if (url.length() > 0) {
-					String path = new ParsedURI(url).getPath();
-					if (path != null && path.startsWith("/")) {
-						if (pre == null || pre.startsWith(path)) {
-							pre = path;
-						}
-						while (!path.startsWith(pre)) {
-							int slash = pre.lastIndexOf('/', pre.length() - 2);
-							pre = pre.substring(0, slash);
-						}
-					}
-				}
-			}
-			protectedPath = pre == null ? "/" : pre;
-		} else {
-			protectedPath = new ParsedURI(protectedDomains).getPath();
+		assert domains != null;
+		assert domains.size() > 0;
+		StringBuilder sb = new StringBuilder();
+		for (String domain : domains) {
+			sb.append(' ').append(domain);
 		}
+		this.protectedDomains = sb.substring(1);
+		this.protectedPath = path;
+	}
+
+	@Override
+	public String getAuthName() {
+		return authName;
+	}
+
+	@Override
+	public void setAuthName(String authName) {
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -177,6 +191,8 @@ public class DigestManager implements AuthenticationManager {
 			Map<String, String[]> request, ObjectConnection con)
 			throws OpenRDFException {
 		Map<String, String> auth = parseDigestAuthorization(request);
+		if (auth == null)
+			return null;
 		Map.Entry<String, String> password = findAuthUser(method, resource,
 				request, auth, con);
 		if (password == null)
@@ -187,12 +203,12 @@ public class DigestManager implements AuthenticationManager {
 		String uri = auth.get("uri");
 		String nonce = auth.get("nonce");
 		String ha1 = password.getKey();
-		String ha2 = helper.md5(":" + uri);
-		String rspauth = helper.md5(ha1 + ":" + nonce + ":" + nc + ":" + cnonce
+		String ha2 = md5(":" + uri);
+		String rspauth = md5(ha1 + ":" + nonce + ":" + nc + ":" + cnonce
 				+ ":auth:" + ha2);
 		String authenticate = "qop=auth,cnonce=\"" + cnonce + "\",nc=" + nc
 				+ ",rspauth=\"" + rspauth + "\"";
-		String cookie = USERNAME + helper.encode(username) + ";Path=" + protectedPath;
+		String cookie = USERNAME + encode(username) + ";Path=" + protectedPath;
 		BasicHttpResponse resp = new BasicHttpResponse(_204);
 		resp.addHeader("Authentication-Info", authenticate);
 		resp.addHeader("Set-Cookie", cookie);
@@ -204,15 +220,20 @@ public class DigestManager implements AuthenticationManager {
 			Map<String, String[]> request, ObjectConnection con) {
 		try {
 			Map<String, String> options = parseDigestAuthorization(request);
-			Map.Entry<String, String> password = findAuthUser(method, resource, request, options, con);
+			if (options == null)
+				return null;
+			Map.Entry<String, String> password = findAuthUser(method, resource,
+					request, options, con);
+			String username = options.get("username");
 			if (password == null) {
 				if (isRecentDigest(resource, request, options)) {
-					helper.failedAttempt(options.get("username"));
+					fail.failedAttempt(username);
 				}
 				return null;
 			}
 			if (options.containsKey("qop")) {
-				if (helper.isReplayed(options)) {
+				if (fail.isReplayed(options)) {
+					fail.failedAttempt(username);
 					logger.info("Request replayed {}", options);
 					return null;
 				}
@@ -271,7 +292,7 @@ public class DigestManager implements AuthenticationManager {
 
 	public String findCredential(Collection<String> tokens,
 			ObjectConnection con) throws OpenRDFException {
-		Map<String, String> options = helper.parseDigestAuthorization(tokens);
+		Map<String, String> options = parseDigestAuthorization(tokens);
 		if (options == null)
 			return null;
 		String username = options.get("username");
@@ -285,7 +306,7 @@ public class DigestManager implements AuthenticationManager {
 	}
 
 	public String findCredentialLabel(Collection<String> tokens, ObjectConnection con) {
-		Map<String, String> options = helper.parseDigestAuthorization(tokens);
+		Map<String, String> options = parseDigestAuthorization(tokens);
 		if (options == null)
 			return null;
 		String username = options.get("username");
@@ -296,7 +317,7 @@ public class DigestManager implements AuthenticationManager {
 
 	public boolean isDigestPassword(Collection<String> tokens, String[] hash,
 			ObjectConnection con) throws OpenRDFException {
-		Map<String, String> auth = helper.parseDigestAuthorization(tokens);
+		Map<String, String> auth = parseDigestAuthorization(tokens);
 		String username = auth.get("username");
 		String realm = auth.get("realm");
 		Map<String, String> passwords = findDigestUser(username, realm, tokens, con);
@@ -342,7 +363,7 @@ public class DigestManager implements AuthenticationManager {
 		String username = auth.get("username");
 		String realm = auth.get("realm");
 		String response = auth.get("response");
-		String ha2 = helper.md5(method + ":" + uri);
+		String ha2 = md5(method + ":" + uri);
 		assert username != null;
 		Map<String, String> passwords = findDigestUser(username, realm,
 				asList(request.get("cookie")), con);
@@ -353,11 +374,11 @@ public class DigestManager implements AuthenticationManager {
 		for (Map.Entry<String, String> e : passwords.entrySet()) {
 			String ha1 = e.getKey();
 			String legacy = ha1 + ":" + nonce + ":" + ha2;
-			if (qop == null && helper.md5(legacy).equals(response))
+			if (qop == null && md5(legacy).equals(response))
 				return e;
 			String expected = ha1 + ":" + nonce + ":" + auth.get("nc") + ":"
 					+ auth.get("cnonce") + ":" + qop + ":" + ha2;
-			if (helper.md5(expected).equals(response))
+			if (md5(expected).equals(response))
 				return e;
 		}
 		if (passwords.isEmpty()) {
@@ -399,14 +420,14 @@ public class DigestManager implements AuthenticationManager {
 					continue;
 				String secret = r.getSecret();
 				if (nonce != null && hash != null) {
-					String password = helper.md5(hash + ":" + helper.md5(nonce + ":" + secret));
-					map.put(helper.md5(username + ':' + realm + ':' + password), iri);
+					String password = md5(hash + ":" + md5(nonce + ":" + secret));
+					map.put(md5(username + ':' + realm + ':' + password), iri);
 				}
 				long now = System.currentTimeMillis();
 				short halfDay = getHalfDay(now);
 				for (short d = halfDay; d >= halfDay - 1; d--) {
 					String daypass = getDaypass(d, secret);
-					map.put(helper.md5(username + ':' + realm + ':' + daypass), iri);
+					map.put(md5(username + ':' + realm + ':' + daypass), iri);
 				}
 			}
 			return map;
@@ -457,13 +478,13 @@ public class DigestManager implements AuthenticationManager {
 		resp.addHeader("Set-Cookie", DIGEST_NONCE + nonce + ";Max-Age="
 				+ THREE_MONTHS + ";Path=/;HttpOnly");
 		resp.setHeader("Content-Type", "text/plain;charset=UTF-8");
-		String hash = helper.md5(nonce + ":" + secret);
+		String hash = md5(nonce + ":" + secret);
 		resp.setEntity(new StringEntity(hash, Charset.forName("UTF-8")));
 		return resp;
 	}
 
 	private String nextNonce(Object resource, String[] via) {
-		String ip = helper.hash(via);
+		String ip = hash(via);
 		String revision = getRevisionOf(resource);
 		long now = System.currentTimeMillis();
 		String time = Long.toString(now, Character.MAX_RADIX);
@@ -484,7 +505,7 @@ public class DigestManager implements AuthenticationManager {
 		String[] authorization = request.get("authorization");
 		if (authorization == null)
 			return null;
-		return helper.parseDigestAuthorization(asList(authorization));
+		return parseDigestAuthorization(asList(authorization));
 	}
 
 	private Collection<String> asList(String[] array) {
@@ -525,7 +546,7 @@ public class DigestManager implements AuthenticationManager {
 			int last = nonce.lastIndexOf(':');
 			if (first < 0 || last < 0)
 				return false;
-			if (!helper.hash(via).equals(nonce.substring(last + 1)))
+			if (!hash(via).equals(nonce.substring(last + 1)))
 				return false;
 			String revision = nonce.substring(first + 1, last);
 			if (!revision.equals(getRevisionOf(target)))
@@ -603,6 +624,52 @@ public class DigestManager implements AuthenticationManager {
 		} catch (IOException e) {
 			logger.error(e.toString(), e);
 			return null;
+		}
+	}
+
+	private Map<String, String> parseDigestAuthorization(
+			Collection<String> authorization) {
+		for (String digest : authorization) {
+			if (digest == null || !digest.startsWith("Digest "))
+				continue;
+			String options = digest.substring("Digest ".length());
+			Map<String, String> result = new HashMap<String, String>(
+					DIGEST_OPTS);
+			Matcher m = TOKENS_REGEX.matcher(options);
+			while (m.find()) {
+				String key = m.group(1);
+				if (result.containsKey(key)) {
+					if (m.group(2) != null) {
+						result.put(key, m.group(2));
+					} else if (m.group(3) != null) {
+						result.put(key, m.group(3));
+					}
+				}
+			}
+			return result;
+		}
+		return null;
+	}
+
+	private String md5(String text) {
+		return new String(Hex.encodeHex(DigestUtils.md5(text)));
+	}
+
+	private String hash(String... values) {
+		long code = 0;
+		if (values != null) {
+			for (String str : values) {
+				code = code * 31 + str.hashCode();
+			}
+		}
+		return Long.toString(code, Character.MAX_RADIX);
+	}
+
+	private String encode(String username) {
+		try {
+			return URLEncoder.encode(username, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			throw new AssertionError(e);
 		}
 	}
 

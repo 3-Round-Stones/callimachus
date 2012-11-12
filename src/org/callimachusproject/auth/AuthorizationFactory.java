@@ -1,4 +1,4 @@
-package org.callimachusproject.server.auth;
+package org.callimachusproject.auth;
 
 import org.openrdf.repository.object.ObjectRepository;
 

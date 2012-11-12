@@ -1,4 +1,4 @@
-package org.callimachusproject.server.auth;
+package org.callimachusproject.auth;
 
 import java.lang.ref.WeakReference;
 import java.util.WeakHashMap;

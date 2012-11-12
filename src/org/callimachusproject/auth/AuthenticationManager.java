@@ -27,7 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-package org.callimachusproject.server.auth;
+package org.callimachusproject.auth;
 
 import java.util.Collection;
 import java.util.Map;

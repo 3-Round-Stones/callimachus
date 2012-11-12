@@ -4,16 +4,18 @@ import java.io.IOException;
 import java.util.Collection;
 
 import org.apache.http.HttpResponse;
+import org.callimachusproject.auth.AuthorizationService;
+import org.callimachusproject.auth.Realm;
+import org.callimachusproject.auth.RealmManager;
 import org.callimachusproject.server.HTTPObjectServer;
-import org.callimachusproject.server.auth.AuthorizationService;
-import org.callimachusproject.server.auth.Realm;
+import org.callimachusproject.traits.DetachableRealm;
 import org.openrdf.OpenRDFException;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.ObjectRepository;
 import org.openrdf.repository.object.RDFObject;
 
-public abstract class RealmSupport implements RDFObject {
+public abstract class RealmSupport implements RDFObject, DetachableRealm {
 	private final AuthorizationService service = AuthorizationService.getInstance();
 
 	/**
@@ -34,6 +36,16 @@ public abstract class RealmSupport implements RDFObject {
 		ObjectRepository repo = conn.getRepository();
 		service.get(repo).resetCache();
 		HTTPObjectServer.resetAllCache();
+	}
+
+	public String getPreferredManagerCookie(String manager) {
+		String uri = getResource().stringValue();
+		return Realm.getPreferredManagerCookie(uri, manager);
+	}
+
+	@Override
+	public Realm detachRealm(RealmManager manager) throws OpenRDFException {
+		return new Realm(this.getResource(), this.getObjectConnection(), manager);
 	}
 
 }

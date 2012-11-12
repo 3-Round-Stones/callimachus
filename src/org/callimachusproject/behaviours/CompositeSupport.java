@@ -1,6 +1,6 @@
 package org.callimachusproject.behaviours;
 
-import org.callimachusproject.server.auth.AuthorizationService;
+import org.callimachusproject.auth.AuthorizationService;
 import org.openrdf.OpenRDFException;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.ObjectConnection;

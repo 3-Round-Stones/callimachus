@@ -68,19 +68,39 @@
     calli:requires calli:reader;
     calli:type "message/x-response";
     calli:script """
-        var resp = {
+        if (this.calliAuthentication.size() == 1) {
+            var auth = this.calliAuthentication.iterator().next();
+            var target = auth + '?' + registerQuery;
+            return {
+                status:302,message:"Found",
+                headers:{'content-type':"text/plain",'location':target},
+                body:[target]
+            };
+        } else if (registerChoice) {
+            var target = registerChoice + '?' + registerQuery;
+            var cookie = this.getPreferredManagerCookie(registerChoice);
+            return {
+                status:302,message:"Found",
+                headers:{
+                    'content-type':"text/plain",
+                    'location':target,
+                    'set-cookie':cookie
+                },
+                body:[target]
+            };
+        }
+        return {
             status:200,message:"OK",
             headers:{'content-type':"text/html"},
             body:[register_xhtml.Construct(this, 'register')]
         };
-        if (this.calliAuthentication.size() == 1) {
-            var auth = this.calliAuthentication.iterator().next();
-            resp.status = 302;
-            resp.message = "Found";
-            resp.headers.location = auth + '?' + registerQuery;
-        }
-        return resp;
     """.
+
+:registerChoice a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :GetRegisterUserPage;
+    rdfs:range calli:AuthenticationManager;
+    calli:query "choice";
+    calli:type "text/uri-list".
 
 :registerQuery a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :GetRegisterUserPage;
@@ -103,11 +123,6 @@
     calli:requires calli:reader;
     calli:type "message/x-response";
     calli:script """
-        var resp = {
-            status:200,message:"OK",
-            headers:{'content-type':"text/html"},
-            body:[login_xhtml.Construct(this, 'login')]
-        };
         var query = loginQuery;
         if (query.indexOf('&return_to=') < 0) {
             if (loginReferer && loginReferer.indexOf(this.toString()) == 0) {
@@ -118,15 +133,37 @@
         }
         if (this.calliAuthentication.size() == 1) {
             var auth = this.calliAuthentication.iterator().next();
-            resp.status = 302;
-            resp.message = "Found";
-            resp.headers.location = auth + '?' + query;
+            var target = auth + '?' + query;
+            return {
+                status:302,message:"Found",
+                headers:{'content-type':"text/plain",'location':target},
+                body:[target]
+            };
         } else if (query != loginQuery) {
-            resp.status = 302;
-            resp.message = "Found";
-            resp.headers.location = this.toString() + '?' + query;
+            var target = this.toString() + '?' + query;
+            return {
+                status:302,message:"Found",
+                headers:{'content-type':"text/plain",'location':target},
+                body:[target]
+            };
+        } else if (loginChoice) {
+            var target = loginChoice + '?' + query;
+            var cookie = this.getPreferredManagerCookie(registerChoice);
+            return {
+                status:302,message:"Found",
+                headers:{
+                    'content-type':"text/plain",
+                    'location':target,
+                    'set-cookie':cookie
+                },
+                body:[target]
+            };
         }
-        return resp;
+        return {
+            status:200,message:"OK",
+            headers:{'content-type':"text/html"},
+            body:[login_xhtml.Construct(this, 'login')]
+        };
     """.
 
 :loginQuery a owl:FunctionalProperty, owl:DatatypeProperty;
@@ -138,6 +175,12 @@
     rdfs:domain :GetLogin;
     rdfs:range xsd:string;
     calli:header "Referer".
+
+:loginChoice a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :GetLogin;
+    rdfs:range calli:AuthenticationManager;
+    calli:query "choice";
+    calli:type "text/uri-list".
 
 :login_xhtml a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :GetLogin.

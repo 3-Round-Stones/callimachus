@@ -148,7 +148,7 @@
 :digest_register_xhtml a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :GetRegisterDigestUserPage.
 
-# subitted from the user-register.xhtml page
+# subitted from the digest-register.xhtml page
 :PostDigestUserRegistration rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <DigestManager>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];

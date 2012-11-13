@@ -148,7 +148,7 @@
             };
         } else if (loginChoice) {
             var target = loginChoice + '?' + query;
-            var cookie = this.getPreferredManagerCookie(registerChoice);
+            var cookie = this.getPreferredManagerCookie(loginChoice);
             return {
                 status:302,message:"Found",
                 headers:{

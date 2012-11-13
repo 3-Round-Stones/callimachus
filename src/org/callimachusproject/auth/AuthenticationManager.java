@@ -47,6 +47,8 @@ import org.openrdf.repository.object.ObjectConnection;
 @Iri("http://callimachusproject.org/rdf/2009/framework#AuthenticationManager")
 public interface AuthenticationManager {
 
+	String getIdentifier();
+
 	/**
 	 * Authenticates a request to determine the authenticated credential.
 	 * <DL>

@@ -64,7 +64,7 @@ public class Realm {
 	}
 
 	public static String getPreferredManagerCookie(String realm, String manager) {
-        String path = new ParsedURI(realm).getPath();
+		String path = new ParsedURI(realm).getPath();
 		return PREF_AUTH + manager + ";Path=" + path + ";HttpOnly";
 	}
 
@@ -75,7 +75,8 @@ public class Realm {
 	private String forbidden;
 	private String unauthorized;
 
-	public Realm(Resource self, ObjectConnection con, RealmManager manager) throws OpenRDFException {
+	public Realm(Resource self, ObjectConnection con, RealmManager manager)
+			throws OpenRDFException {
 		TupleQuery query = con.prepareTupleQuery(SPARQL, SELECT_REALM);
 		query.setBinding("this", self);
 		TupleQueryResult results = query.evaluate();
@@ -90,14 +91,20 @@ public class Realm {
 					forbidden = result.getValue("forbidden").stringValue();
 				}
 				if (result.hasBinding("unauthorized")) {
-					unauthorized = result.getValue("unauthorized").stringValue();
+					unauthorized = result.getValue("unauthorized")
+							.stringValue();
 				}
 				if (result.hasBinding("authentication")) {
-					Resource resource = (Resource) result.getValue("authentication");
-					List<String> domains = getDistinctRealm(result.getValue("protected").stringValue());
+					Resource resource = (Resource) result
+							.getValue("authentication");
+					List<String> domains = getDistinctRealm(result.getValue(
+							"protected").stringValue());
 					String path = getCommonPath(domains);
-					DetachableAuthenticationManager am = (DetachableAuthenticationManager) con.getObject(resource);
-					authentication.put(resource, am.detachAuthenticationManager(path, domains, manager));
+					DetachableAuthenticationManager am = (DetachableAuthenticationManager) con
+							.getObject(resource);
+					authentication.put(resource,
+							am.detachAuthenticationManager(path, domains,
+									manager));
 				}
 				if (result.hasBinding("domain")) {
 					String uri = result.getValue("domain").stringValue();
@@ -156,12 +163,7 @@ public class Realm {
 
 	public HttpResponse unauthorized(String method, Object resource,
 			Map<String, String[]> request) throws Exception {
-		HttpResponse unauth = null;
-		for (AuthenticationManager realm : getAuthenticationManagers(request.get("cookie"))) {
-			unauth = realm.unauthorized(method, resource, request);
-			if (unauth != null)
-				break;
-		}
+		HttpResponse unauth = unauthorizedHeaders(method, resource, request);
 		if (unauthorized == null)
 			return unauth;
 		try {
@@ -192,9 +194,11 @@ public class Realm {
 	}
 
 	public String authenticateRequest(String method, Object resource,
-			Map<String, String[]> request, ObjectConnection con) throws RepositoryException {
-		for (AuthenticationManager realm : getAuthenticationManagers(request.get("cookie"))) {
-			String ret = realm.authenticateRequest(method, resource, request, con);
+			Map<String, String[]> request, ObjectConnection con)
+			throws RepositoryException {
+		for (AuthenticationManager realm : getManagers(request.get("cookie"))) {
+			String ret = realm.authenticateRequest(method, resource, request,
+					con);
 			if (ret != null)
 				return ret;
 		}
@@ -202,10 +206,12 @@ public class Realm {
 	}
 
 	public HttpMessage authenticationInfo(String method, Object resource,
-			Map<String, String[]> request, ObjectConnection con) throws OpenRDFException {
+			Map<String, String[]> request, ObjectConnection con)
+			throws OpenRDFException {
 		HttpMessage msg = new BasicHttpResponse(_204);
-		for (AuthenticationManager realm : getAuthenticationManagers(request.get("cookie"))) {
-			HttpMessage resp = realm.authenticationInfo(method, resource, request, con);
+		for (AuthenticationManager realm : getManagers(request.get("cookie"))) {
+			HttpMessage resp = realm.authenticationInfo(method, resource,
+					request, con);
 			if (resp != null) {
 				for (Header hd : resp.getAllHeaders()) {
 					msg.addHeader(hd);
@@ -215,10 +221,12 @@ public class Realm {
 		return msg;
 	}
 
-	public HttpResponse logout(Collection<String> tokens, String logoutContinue) throws IOException {
+	public HttpResponse logout(Collection<String> tokens, String logoutContinue)
+			throws IOException {
 		BasicHttpResponse resp = new BasicHttpResponse(HttpVersion.HTTP_1_1,
 				303, "See Other");
-		Iterator<AuthenticationManager> iter = authentication.values().iterator();
+		Iterator<AuthenticationManager> iter = authentication.values()
+				.iterator();
 		while (iter.hasNext()) {
 			AuthenticationManager manager = iter.next();
 			HttpResponse logout = manager.logout(tokens);
@@ -259,7 +267,44 @@ public class Realm {
 		}
 	}
 
-	private Iterable<AuthenticationManager> getAuthenticationManagers(String[] cookies) {
+	private HttpResponse unauthorizedHeaders(String method, Object resource,
+			Map<String, String[]> request) throws IOException {
+		HttpResponse unauth = null;
+		for (AuthenticationManager realm : getPrefManagers(request.get("cookie"))) {
+			HttpResponse resp = realm.unauthorized(method, resource, request);
+			if (resp == null)
+				continue;
+			if (unauth == null) {
+				unauth = resp;
+			} else {
+				int code = resp.getStatusLine().getStatusCode();
+				int unauthCode = unauth.getStatusLine().getStatusCode();
+				if (code == 401 && unauthCode != 401) {
+					unauth = copyAuthHeaders(unauth, resp);
+				} else {
+					unauth = copyAuthHeaders(resp, unauth);
+				}
+			}
+		}
+		return unauth;
+	}
+
+	private HttpResponse copyAuthHeaders(HttpResponse source,
+			HttpResponse destination) throws IOException {
+		try {
+			for (Header hd : source.getHeaders("WWW-Authenticate")) {
+				destination.addHeader(hd);
+			}
+			for (Header hd : source.getHeaders("Set-Cookie")) {
+				destination.addHeader(hd);
+			}
+			return destination;
+		} finally {
+			EntityUtils.consume(source.getEntity());
+		}
+	}
+
+	private Iterable<AuthenticationManager> getManagers(String[] cookies) {
 		String preferred = getPreferredManager(cookies);
 		List<AuthenticationManager> result = new ArrayList<AuthenticationManager>();
 		Iterator<?> iter = authentication.values().iterator();
@@ -268,6 +313,25 @@ public class Realm {
 			if (next instanceof AuthenticationManager) {
 				if (next.toString().equals(preferred)) {
 					result.add(0, (AuthenticationManager) next);
+				} else {
+					result.add((AuthenticationManager) next);
+				}
+			} else {
+				logger.error("{} is not an AuthenticationManager", next);
+			}
+		}
+		return result;
+	}
+
+	private Iterable<AuthenticationManager> getPrefManagers(String[] cookies) {
+		String preferred = getPreferredManager(cookies);
+		List<AuthenticationManager> result = new ArrayList<AuthenticationManager>();
+		Iterator<?> iter = authentication.values().iterator();
+		while (iter.hasNext()) {
+			Object next = iter.next();
+			if (next instanceof AuthenticationManager) {
+				if (((AuthenticationManager) next).getIdentifier().equals(preferred)) {
+					return Collections.singleton((AuthenticationManager) next);
 				} else {
 					result.add((AuthenticationManager) next);
 				}
@@ -299,7 +363,7 @@ public class Realm {
 		if (domains.contains(" ")) {
 			loop: for (String url : domains.split("\\s+")) {
 				if (url.length() > 0) {
-					for (int i=0,n=realms.size(); i<n; i++) {
+					for (int i = 0, n = realms.size(); i < n; i++) {
 						String pre = realms.get(i);
 						if (pre == null || pre.startsWith(url)) {
 							realms.set(i, url);

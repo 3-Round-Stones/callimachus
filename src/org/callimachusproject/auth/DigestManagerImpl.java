@@ -142,6 +142,11 @@ public class DigestManagerImpl implements AuthenticationManager, DigestManager {
 	}
 
 	@Override
+	public String getIdentifier() {
+		return self.stringValue();
+	}
+
+	@Override
 	public String getAuthName() {
 		return authName;
 	}

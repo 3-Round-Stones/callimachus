@@ -19,29 +19,33 @@ function handle(event) {
 function hbox(element) {
     element.css("overflow", "hidden");
     var children = element.children();
-    children.css("float", "left").css("clear", "none").css("margin-bottom", "0.5ex");
-    var siblings = children.filter(':not(:first-child)');
-    siblings.css("margin-left", "1em");
-    setTimeout(function() { // reposition children first
-        siblings.css("clear", function() {
-            var prev = prevElement(this);
-            if (prev.length && $(this).position().top > prev.position().top) {
-                $(this).css("margin-left", "0px");
-                return "left";
-            } else {
-                $(this).css("margin-left", "1em");
-                return "none";
-            }
-        });
-    }, 0);
-}
-
-function prevElement(element) {
-    var prev = $(element).prev();
-    while (prev.length && !prev.is(':visible')) {
-        prev = prev.prev();
-    }
-    return prev;
+    children.css({"float": "left", "margin-bottom": "0.5ex"});
+    
+    var wSum, maxW, wMargin;
+    children.each(function() {
+        if ($(this).is(':first-child')) { // start of an hbox
+            $(this).css({"margin-right": "1em"}); // 1st one always gets a margin, simplifies calculation
+            wSum = 0;
+            maxW = $(this.parentNode).width() - 2; // -2 just to be on the safe side
+            wMargin = $(this).outerWidth(true) - $(this).outerWidth(false);
+        }
+        var 
+            wElem = $(this).outerWidth(),
+            wAvail = maxW - wSum
+        ;
+        if (wAvail >= wElem + wMargin) { // enough space for element with full margin
+            $(this).css({"clear": "none", "margin-right": "1em"});
+            wSum = wSum + wElem + wMargin;
+        }
+        else if (wAvail >= wElem) { // enough space for element without margin
+            $(this).css({"clear": "none", "margin-right": 0});
+            wSum = maxW; // force next element on new line
+        }
+        else { // no space left on this row
+            $(this).css({"clear": "left", "margin-right": "1em"});
+            wSum = 0;
+        }
+    });
 }
 
 })(window.jQuery);

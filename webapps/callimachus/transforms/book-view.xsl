@@ -28,20 +28,20 @@ xmlns="http://www.w3.org/1999/xhtml" xmlns:xhtml="http://www.w3.org/1999/xhtml" 
         <xsl:apply-templates select="@xml:id" />
         <xsl:apply-templates select="d:info|d:title" />
         <ol class="toc">
-            <xsl:apply-templates mode="toc" select="d:info/following-sibling::node()|d:title/following-sibling::node()" />
+            <xsl:apply-templates mode="toc" select="*[not(self::d:info|self::d:title)]" />
         </ol>
-        <xsl:apply-templates select="d:info/following-sibling::node()|d:title/following-sibling::node()" />
+        <xsl:apply-templates select="*[not(self::d:info|self::d:title)]" />
     </div>
 </xsl:template>
 
 <xsl:template match="d:part">
     <div class="part">
         <xsl:apply-templates select="@xml:id" />
-        <xsl:apply-templates select="d:info|d:title" />
+        <xsl:apply-templates select="d:info|d:title|d:partintro" />
         <ol class="toc">
-            <xsl:apply-templates mode="toc" select="d:info/following-sibling::node()|d:title/following-sibling::node()" />
+            <xsl:apply-templates mode="toc" select="*[not(self::d:info|self::d:title|self::d:partintro)]" />
         </ol>
-        <xsl:apply-templates select="d:info/following-sibling::node()|d:title/following-sibling::node()" />
+        <xsl:apply-templates select="*[not(self::d:info|self::d:title|self::d:partintro)]" />
     </div>
     <xsl:if test="following-sibling::*">
         <hr />
@@ -122,20 +122,6 @@ xmlns="http://www.w3.org/1999/xhtml" xmlns:xhtml="http://www.w3.org/1999/xhtml" 
     </xsl:variable>
     <xsl:if test="$id=replace(normalize-space(),'\W','_')">
         <a name="{$id}" />
-    </xsl:if>
-    <xsl:if test="parent::d:article/parent::* or parent::d:info/parent::d:article/parent::*">
-        <xsl:text>Article </xsl:text>
-        <xsl:if test="ancestor::d:part/parent::*">
-            <xsl:value-of select="count(ancestor::d:part/preceding-sibling::*[self::d:part or self::d:article]) + 1" />
-            <xsl:text>.</xsl:text>
-        </xsl:if>
-        <xsl:value-of select="count(ancestor::d:article/preceding-sibling::d:article) + 1" />
-        <xsl:text>. </xsl:text>
-    </xsl:if>
-    <xsl:if test="parent::d:part/parent::* or parent::d:info/parent::d:part/parent::*">
-        <xsl:text>Part </xsl:text>
-        <xsl:value-of select="count(ancestor::d:part/preceding-sibling::*[self::d:part or self::d:article]) + 1" />
-        <xsl:text>. </xsl:text>
     </xsl:if>
     <xsl:value-of select="." />
     <xsl:if test="not(parent::d:info) and ancestor::*[2] or parent::d:info/ancestor::*[2]">

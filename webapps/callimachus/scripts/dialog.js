@@ -10,11 +10,6 @@ if (!window.calli) {
     window.calli = {};
 }
 
-window.calli.closeDialog = function(iframe) {
-    var frameElement = findFrameElement(iframe);
-    $(frameElement).dialog('close');
-}
-
 function findFrameElement(iframe) {
     var elements = $('iframe').filter(function() {
         return iframe == this.contentWindow;
@@ -41,26 +36,36 @@ function asUniqueName(title) {
     return name + i;
 }
 
+window.calli.closeDialog = function(iframe) {
+    var frameElement = findFrameElement(iframe);
+    $(frameElement).dialog('close');
+}
+
+$(window).on('resize', function(e) {
+    resizeDialog(this);
+});
+
+/**
+ * Resizes the given window's dialog DIV and associated IFRAME.
+ */ 
+function resizeDialog(win) {
+    $(win.document).find('.ui-dialog').each(function() {
+        var 
+            oldDialogHeight = $(this).height(),
+            oldIframeHeight = $(this).find('iframe').height(),
+            newDialogHeight = $(this).height(0.9 * $(win).height()).height(),
+            diff = newDialogHeight - oldDialogHeight,
+            newIframeHeight = oldIframeHeight + diff
+        ;
+        $(this).find('iframe')
+            .height(newIframeHeight)
+            .dialog("option", "position", ['center', 'center']);
+        ;
+    });
+}
+
 window.calli.openDialog = function(url, title, options) {
-    var width = 450;
-    var height = 500;
-    height += 50; // title bar
-    if (options.buttons) {
-        height += 50; // button bar
-    }
-    var innerHeight = window.innerHeight || document.documentElement.clientHeight;
-    if (window.parent != window && parent.postMessage) {
-        if (height > innerHeight) {
-            parent.postMessage('PUT height\n\n' + height, '*');
-        }
-        if (width > document.documentElement.clientWidth) {
-            parent.postMessage('PUT width\n\n' + width, '*');
-        }
-    }
-    while (height > 200 && width > 200 && (height > innerHeight || width > document.documentElement.clientWidth)) {
-        height -= 100;
-        width -= 100;
-    }
+    // init the dialog
     var settings = jQuery.extend({
         title: title,
         autoOpen: false,
@@ -69,118 +74,18 @@ window.calli.openDialog = function(url, title, options) {
         resizable: false,
         autoResize: true,
         position: ['center', 'center'],
-        width: width,
-        height: height
+        width: '80%',
+        height: 0.9 * $(window).height()
     }, options);
     var iframe = $("<iframe></iframe>");
     iframe.attr('src', 'about:blank');
     iframe.attr('name', asUniqueName(title));
     iframe.addClass('dialog');
     iframe.dialog(settings);
-    var requestedHeight = height;
-    var requestedWidth = width;
-    var setDialogOuterHeight = function(outerHeight) {
-        outerHeight = Math.min(outerHeight, window.innerHeight || document.documentElement.clientHeight);
-        var height = outerHeight - iframe.parent().outerHeight(true) + iframe.parent().height();
-        var fheight = height - iframe.outerHeight(true) + iframe.height();
-        iframe.siblings().each(function(){
-            if ($(this).css('position') != 'absolute') {
-                fheight -= $(this).outerHeight(true);
-            }
-        });
-        var previously = iframe.dialog("option", "height");
-        iframe.dialog("option", "height", height);
-        iframe.height(fheight);
-        iframe.css('width', '100%');
-        if (outerHeight - 50 > iframe.parent().outerWidth(true) && previously < height) {
-            setDialogOuterWidth(outerHeight - 50);
-        }
-        iframe.dialog("option", "position", "center");
-    };
-    var setDialogOuterWidth = function(outerWidth) {
-        outerWidth = Math.min(outerWidth, document.documentElement.clientWidth);
-        var width = outerWidth - iframe.parent().outerWidth(true) + iframe.parent().width();
-        var previously = iframe.dialog("option", "width");
-        iframe.dialog("option", "width", width);
-        iframe.css('width', '100%');
-        if (outerWidth - 50 > iframe.parent().outerHeight(true) && previously < width) {
-            setDialogOuterHeight(outerWidth - 50);
-        }
-        iframe.dialog("option", "position", "center");
-    };
-    var handle = function(event) {
-        if (event.originalEvent.source == iframe[0].contentWindow) {
-            var data = event.originalEvent.data;
-            if (data.indexOf('PUT height\n\n') == 0) {
-                var height = parseInt(data.substring(data.indexOf('\n\n') + 2));
-                requestedHeight = height + iframe.parent().outerHeight(true) - iframe.height();
-                var innerHeight = window.innerHeight || document.documentElement.clientHeight;
-                if (requestedHeight <= innerHeight) {
-                    setDialogOuterHeight(requestedHeight);
-                } else {
-                    setDialogOuterHeight(innerHeight);
-                    if (window.parent != window) {
-                        parent.postMessage('PUT height\n\n' + requestedHeight, '*');
-                    }
-                }
-                iframe[0].contentWindow.postMessage('OK\n\PUT height', '*');
-            } else if (data.indexOf('PUT width\n\n') == 0) {
-                var width = parseInt(data.substring(data.indexOf('\n\n') + 2));
-                requestedWidth = width + iframe.parent().outerWidth(true) - iframe.width();
-                if (requestedWidth <= document.documentElement.clientWidth) {
-                    setDialogOuterWidth(requestedWidth);
-                } else {
-                    setDialogOuterWidth(document.documentElement.clientWidth);
-                    if (window.parent != window) {
-                        parent.postMessage('PUT width\n\n' + requestedWidth, '*');
-                    }
-                }
-                iframe[0].contentWindow.postMessage('OK\n\nPUT width', '*');
-            } else if (typeof options.onmessage == 'function') {
-                if (!event.source) {
-                    event.source = event.originalEvent.source;
-                }
-                if (!event.data) {
-                    event.data = event.originalEvent.data;
-                }
-                options.onmessage(event);
-            }
-        }
-    };
-    var onresize = function(){
-        var clientWidth = document.documentElement.clientWidth;
-        setDialogOuterWidth(Math.min(Math.max(450, requestedWidth), clientWidth));
-        var innerHeight = window.innerHeight || document.documentElement.clientHeight;
-        if (requestedWidth > clientWidth || requestedHeight > innerHeight) {
-            iframe.dialog("option", "position", "center");
-        }
-        setDialogOuterHeight(Math.min(Math.max(500, requestedHeight), innerHeight));
-    };
-    $(window).bind('message', handle);
-    $(window).bind('resize', onresize);
-    iframe.one('load', function(){
-        setTimeout(function() {
-            iframe.dialog("option", "position", ['center', 'center']);
-        }, 0);
-    });
-    iframe.bind("dialogbeforeclose", function(event, ui) {
-        var e = jQuery.Event("calliCloseDialog");
-        var frameElement = findFrameElement(iframe[0].contentWindow);
-        $(frameElement).trigger(e);
-        return !e.isDefaultPrevented();
-    });
-    iframe.bind("dialogclose", function(event, ui) {
-        $(window).unbind('message', handle);
-        $(window).unbind('resize', onresize);
-        iframe.remove();
-        iframe.parent().remove();
-        if (typeof options.onclose == 'function') {
-            options.onclose();
-        }
-    });
+    // event
     var e = jQuery.Event("calliOpenDialog");
     iframe.trigger(e);
-    if (e.isDefaultPrevented()) {
+    if (e.isDefaultPrevented()) { // not sure when this is used
         iframe.dialog('close');
         return null;
     } else {
@@ -207,7 +112,7 @@ window.calli.openDialog = function(url, title, options) {
         }
         var win = iframe[0].contentWindow;
         try {
-            win.close = function() {
+            win.close = function() { // not sure when this is called
                 window.setTimeout(function() {
                     calli.closeDialog(win);
                 }, 0);
@@ -217,6 +122,38 @@ window.calli.openDialog = function(url, title, options) {
         }
         return win;
     }
+    // inter-window message processor
+    var handle = function(event) {
+        if (event.originalEvent.source == iframe[0].contentWindow) {
+            var data = event.originalEvent.data;
+            if (typeof options.onmessage == 'function') {
+                if (!event.source) {
+                    event.source = event.originalEvent.source;
+                }
+                if (!event.data) {
+                    event.data = event.originalEvent.data;
+                }
+                options.onmessage(event);
+            }
+        }
+    };
+    $(window).bind('message', handle);
+    // not sure this is really bound, at least not in chrome?
+    iframe.bind("dialogbeforeclose", function(event, ui) {
+        var e = jQuery.Event("calliCloseDialog");
+        var frameElement = findFrameElement(iframe[0].contentWindow);
+        $(frameElement).trigger(e);
+        return !e.isDefaultPrevented();
+    });
+    // not sure this is really bound, at least not in chrome?
+    iframe.bind("dialogclose", function(event, ui) {
+        $(window).unbind('message', handle);
+        iframe.remove();
+        iframe.parent().remove();
+        if (typeof options.onclose == 'function') {
+            options.onclose();
+        }
+    });
 }
 
 })(jQuery, jQuery);

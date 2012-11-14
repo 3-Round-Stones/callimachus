@@ -34,7 +34,7 @@
     calli:edit <templates/book-edit.xhtml>;
     calli:create <templates/book-create.xhtml>;
     calli:mediaType "application/docbook+xml";
-    calli:documentTag <http://docbook.org/ns/docbook#book>, <http://docbook.org/ns/docbook#part>.
+    calli:documentTag <http://docbook.org/ns/docbook#book>.
 
 # GET /books/main-article.docbook
 :GetBookSource rdfs:subClassOf msg:Message;

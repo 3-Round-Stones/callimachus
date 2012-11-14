@@ -143,9 +143,7 @@ public class AuthenticationHandler implements Handler {
 		HttpMessage msg = manager.authenticationInfo(request);
 		if (msg != null) {
 			for (Header hd : msg.getAllHeaders()) {
-				if (!rb.containsHeader(hd.getName())) {
-					rb.setHeader(hd);
-				}
+				rb.addHeader(hd);
 			}
 		}
 		if (!rb.containsHeader(EXPOSE_HEADERS)) {

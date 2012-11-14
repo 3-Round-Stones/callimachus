@@ -132,8 +132,43 @@ if (isLoggedIn()) {
         error: nowLoggedOut
     });
 } else {
-    // not logged in yet
-    nowLoggedOut();
+    // hasn't logged in using the login form; is this page protected?
+    var xhr = jQuery.ajax({type: 'GET', url: calli.getPageUrl(),
+        beforeSend: calli.withCredentials,
+        success: function() {
+            if (!xhr.getAllResponseHeaders()) { // Opera sends empty response; try again w/o cache
+                xhr = jQuery.ajax({type: 'GET', url: calli.getPageUrl(),
+                    beforeSend: function(xhr) {
+                        xhr.setRequestHeader('Cache-Control', 'no-cache');
+                        calli.withCredentials(xhr);
+                    },
+                    success: function() {
+                        var cc = xhr.getResponseHeader("Cache-Control");
+                        if (cc && cc.indexOf("public") < 0) { 
+                            activelyLogin();
+                        }
+                    }
+                });
+            } else {
+                var cc = xhr.getResponseHeader("Cache-Control");
+                if (cc && cc.indexOf("public") >= 0) { 
+                    nowLoggedOut();
+                } else {
+                    activelyLogin();
+                }
+            }
+        }
+    });
+}
+
+function activelyLogin() {
+    jQuery.ajax({ url: "/?profile",
+        success: function(doc) {
+            loadProfile(doc);
+            nowLoggedIn();
+        },
+        error: nowLoggedOut
+    });
 }
 
 function nowLoggedIn() {

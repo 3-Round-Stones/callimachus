@@ -53,7 +53,6 @@ import org.apache.http.HttpVersion;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
-import org.callimachusproject.concepts.DigestManager;
 import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.server.exceptions.InternalServerError;
 import org.callimachusproject.traits.VersionedObject;
@@ -66,6 +65,7 @@ import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.vocabulary.XMLSchema;
 import org.openrdf.query.BindingSet;
+import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.TupleQuery;
 import org.openrdf.query.TupleQueryResult;
 import org.openrdf.query.algebra.evaluation.util.ValueComparator;
@@ -78,7 +78,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Validates HTTP digest authorization.
  */
-public class DigestManagerImpl implements AuthenticationManager, DigestManager {
+public class DetachedDigestManager implements DetachedAuthenticationManager {
 	private static final String PREFIX = "PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>\n";
 	private static final String SELECT_PASSWORD = PREFIX
 			+ "SELECT (str(?user) AS ?id) ?encoded ?passwordDigest {{\n"
@@ -116,7 +116,7 @@ public class DigestManagerImpl implements AuthenticationManager, DigestManager {
 		DIGEST_OPTS.put("nc", null);
 		DIGEST_OPTS.put("response", null);
 	}
-	private final Logger logger = LoggerFactory.getLogger(DigestManagerImpl.class);
+	private final Logger logger = LoggerFactory.getLogger(DetachedDigestManager.class);
 	private final Resource self;
 	private final String authName;
 	private final String protectedDomains;
@@ -124,7 +124,7 @@ public class DigestManagerImpl implements AuthenticationManager, DigestManager {
 	private final RealmManager realms;
 	private final FailManager fail = new FailManager();
 
-	public DigestManagerImpl(Resource self, String authName, String path, List<String> domains, RealmManager realms) {
+	public DetachedDigestManager(Resource self, String authName, String path, List<String> domains, RealmManager realms) {
 		assert self != null;
 		assert authName != null;
 		assert realms != null;
@@ -142,18 +142,13 @@ public class DigestManagerImpl implements AuthenticationManager, DigestManager {
 	}
 
 	@Override
+	public String toString() {
+		return getIdentifier();
+	}
+
+	@Override
 	public String getIdentifier() {
 		return self.stringValue();
-	}
-
-	@Override
-	public String getAuthName() {
-		return authName;
-	}
-
-	@Override
-	public void setAuthName(String authName) {
-		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -202,7 +197,6 @@ public class DigestManagerImpl implements AuthenticationManager, DigestManager {
 				request, auth, con);
 		if (password == null)
 			return null;
-		String username = auth.get("username");
 		String cnonce = auth.get("cnonce");
 		String nc = auth.get("nc");
 		String uri = auth.get("uri");
@@ -213,10 +207,8 @@ public class DigestManagerImpl implements AuthenticationManager, DigestManager {
 				+ ":auth:" + ha2);
 		String authenticate = "qop=auth,cnonce=\"" + cnonce + "\",nc=" + nc
 				+ ",rspauth=\"" + rspauth + "\"";
-		String cookie = USERNAME + encode(username) + ";Path=" + protectedPath;
 		BasicHttpResponse resp = new BasicHttpResponse(_204);
 		resp.addHeader("Authentication-Info", authenticate);
-		resp.addHeader("Set-Cookie", cookie);
 		return resp;
 	}
 
@@ -276,23 +268,23 @@ public class DigestManagerImpl implements AuthenticationManager, DigestManager {
 
 	public HttpResponse login(Collection<String> tokens, boolean persistent,
 			ObjectConnection con) throws OpenRDFException {
+		HttpResponse resp = null;
+		String username = findCredentialLabel(tokens, con);
 		if (persistent) {
-			String username = findCredentialLabel(tokens, con);
-			TupleQueryResult results = findPasswordDigest(username, con);
-			try {
-				while (results.hasNext()) {
-					String iri = results.next().getValue("id").stringValue();
-					Realm realm = realms.getRealm(iri);
-					if (realm != null) {
-						String secret = realm.getSecret();
-						return login(secret);
-					}
-				}
-			} finally {
-				results.close();
-			}
+			resp = getPersistentLogin(username, con);
 		}
-		return new BasicHttpResponse(_204);
+		if (resp == null) {
+			resp = new BasicHttpResponse(_204);
+		}
+		String cookie = getUsernameSetCookie(tokens, con);
+		resp.addHeader("Set-Cookie", cookie);
+		return resp;
+	}
+
+	public String getUsernameSetCookie(Collection<String> tokens,
+			ObjectConnection con) {
+		String username = findCredentialLabel(tokens, con);
+		return USERNAME + encode(username) + ";Path=" + protectedPath;
 	}
 
 	public String findCredential(Collection<String> tokens,
@@ -420,7 +412,7 @@ public class DigestManagerImpl implements AuthenticationManager, DigestManager {
 					hash = readString((FileObject) file);
 					map.put(hash, iri);
 				}
-				Realm r = realms.getRealm(iri);
+				DetachedRealm r = realms.getRealm(iri);
 				if (r == null || r.getSecret() == null)
 					continue;
 				String secret = r.getSecret();
@@ -476,12 +468,32 @@ public class DigestManagerImpl implements AuthenticationManager, DigestManager {
 		return null;
 	}
 
-	private HttpResponse login(String secret) {
+	private HttpResponse getPersistentLogin(String username,
+			ObjectConnection con) throws OpenRDFException,
+			QueryEvaluationException {
+		TupleQueryResult results = findPasswordDigest(username, con);
+		try {
+			while (results.hasNext()) {
+				String iri = results.next().getValue("id").stringValue();
+				DetachedRealm realm = realms.getRealm(iri);
+				if (realm != null) {
+					String secret = realm.getSecret();
+					return getPersistentLogin(secret);
+				}
+			}
+		} finally {
+			results.close();
+		}
+		return null;
+	}
+
+	private HttpResponse getPersistentLogin(String secret) {
 		String nonce = Long.toString(Math.abs(new SecureRandom().nextLong()),
 				Character.MAX_RADIX);
 		BasicHttpResponse resp = new BasicHttpResponse(_200);
 		resp.addHeader("Set-Cookie", DIGEST_NONCE + nonce + ";Max-Age="
 				+ THREE_MONTHS + ";Path=/;HttpOnly");
+		resp.addHeader("Cache-Control", "private");
 		resp.setHeader("Content-Type", "text/plain;charset=UTF-8");
 		String hash = md5(nonce + ":" + secret);
 		resp.setEntity(new StringEntity(hash, Charset.forName("UTF-8")));

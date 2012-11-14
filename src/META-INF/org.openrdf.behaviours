@@ -6,7 +6,7 @@ org.callimachusproject.behaviours.MailSubmitterSupport
 org.callimachusproject.behaviours.ScriptBundleSupport
 org.callimachusproject.behaviours.FileObjectSupport = http://www.w3.org/2000/01/rdf-schema#Resource
 org.callimachusproject.behaviours.VersionedObjectSupport = http://www.w3.org/2000/01/rdf-schema#Resource
-org.callimachusproject.behaviours.DigestManagerSupport = http://callimachusproject.org/rdf/2009/framework#DigestManager
-org.callimachusproject.behaviours.RealmSupport = http://callimachusproject.org/rdf/2009/framework#Realm
+org.callimachusproject.behaviours.DigestManagerSupport
+org.callimachusproject.behaviours.RealmSupport
 org.callimachusproject.behaviours.GroupSupport = http://callimachusproject.org/rdf/2009/framework#Group
 org.callimachusproject.behaviours.CompositeSupport = http://callimachusproject.org/rdf/2009/framework#Composite

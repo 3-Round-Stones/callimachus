@@ -5,7 +5,7 @@ import static org.openrdf.query.QueryLanguage.SPARQL;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
-import org.callimachusproject.traits.DetachableRealm;
+import org.callimachusproject.concepts.Realm;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
@@ -30,7 +30,7 @@ public class RealmManager {
 	private final Logger logger = LoggerFactory.getLogger(RealmManager.class);
 	private int revision = cache;
 	private final ObjectRepository repo;
-	private TreeMap<String, Realm> realms;
+	private TreeMap<String, DetachedRealm> realms;
 
 	public RealmManager(ObjectRepository repository) {
 		this.repo = repository;
@@ -40,22 +40,22 @@ public class RealmManager {
 		realms = null;
 	}
 
-	public Realm getRealm(String target) throws OpenRDFException {
-		TreeMap<String, Realm> realms = getRealms();
+	public DetachedRealm getRealm(String target) throws OpenRDFException {
+		TreeMap<String, DetachedRealm> realms = getRealms();
 		return get(target, realms);
 	}
 
-	public AuthenticationManager getAuthenticationManager(Resource uri)
+	public DetachedAuthenticationManager getAuthenticationManager(Resource uri)
 			throws OpenRDFException {
-		for (Realm realm : getRealms().values()) {
-			AuthenticationManager auth = realm.getAuthenticationManager(uri);
+		for (DetachedRealm realm : getRealms().values()) {
+			DetachedAuthenticationManager auth = realm.getAuthenticationManager(uri);
 			if (auth != null)
 				return auth;
 		}
 		return null;
 	}
 
-	private synchronized TreeMap<String, Realm> getRealms()
+	private synchronized TreeMap<String, DetachedRealm> getRealms()
 			throws OpenRDFException {
 		if (realms != null && revision == cache)
 			return realms;
@@ -63,11 +63,11 @@ public class RealmManager {
 		return realms = loadRealms(repo);
 	}
 
-	private TreeMap<String, Realm> loadRealms(ObjectRepository repo)
+	private TreeMap<String, DetachedRealm> loadRealms(ObjectRepository repo)
 			throws OpenRDFException {
 		ObjectConnection con = repo.getConnection();
 		try {
-			TreeMap<String, Realm> realms = new TreeMap<String, Realm>();
+			TreeMap<String, DetachedRealm> realms = new TreeMap<String, DetachedRealm>();
 			ValueFactory vf = con.getValueFactory();
 			addRealmsOfType(vf.createURI(CALLI_REALM), realms, con);
 			addRealmsOfType(vf.createURI(CALLI_ORIGIN), realms, con);
@@ -77,7 +77,7 @@ public class RealmManager {
 		}
 	}
 
-	private void addRealmsOfType(URI type, TreeMap<String, Realm> realms,
+	private void addRealmsOfType(URI type, TreeMap<String, DetachedRealm> realms,
 			ObjectConnection con) throws OpenRDFException {
 		ObjectQuery qry = con.prepareObjectQuery(SPARQL, SELECT_BY_TYPE);
 		qry.setBinding("type", type);
@@ -85,7 +85,7 @@ public class RealmManager {
 			String key = o.toString();
 			try {
 				if (!realms.containsKey(key)) {
-					realms.put(key, ((DetachableRealm) o).detachRealm(this));
+					realms.put(key, ((Realm) o).detachRealm(this));
 				}
 			} catch (ClassCastException e) {
 				logger.error(o.toString() + " cannot be detached", e);
@@ -93,8 +93,8 @@ public class RealmManager {
 		}
 	}
 
-	private Realm get(String target, TreeMap<String, Realm> realms) {
-		Entry<String, Realm> entry = realms.floorEntry(target);
+	private DetachedRealm get(String target, TreeMap<String, DetachedRealm> realms) {
+		Entry<String, DetachedRealm> entry = realms.floorEntry(target);
 		if (entry == null)
 			return null;
 		String key = entry.getKey();

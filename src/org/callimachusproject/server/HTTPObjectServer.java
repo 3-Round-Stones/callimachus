@@ -86,6 +86,7 @@ import org.callimachusproject.client.HTTPObjectClient;
 import org.callimachusproject.server.cache.CachingFilter;
 import org.callimachusproject.server.filters.GUnzipFilter;
 import org.callimachusproject.server.filters.GZipFilter;
+import org.callimachusproject.server.filters.HeadRequestFilter;
 import org.callimachusproject.server.filters.HttpResponseFilter;
 import org.callimachusproject.server.filters.IdentityPrefix;
 import org.callimachusproject.server.filters.MD5ValidationFilter;
@@ -179,6 +180,7 @@ public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAg
 		filter = abs = new IdentityPrefix(filter);
 		filter = new TraceFilter(filter);
 		filter = name = new ServerNameFilter(DEFAULT_NAME, filter);
+		filter = new HeadRequestFilter(filter);
 		filter = new AccessLog(filter);
 		service = new HTTPObjectRequestHandler(filter, handler, repository);
 		httpproc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {

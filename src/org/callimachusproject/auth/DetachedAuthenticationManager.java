@@ -35,7 +35,6 @@ import java.util.Map;
 import org.apache.http.HttpMessage;
 import org.apache.http.HttpResponse;
 import org.openrdf.OpenRDFException;
-import org.openrdf.annotations.Iri;
 import org.openrdf.repository.object.ObjectConnection;
 
 /**
@@ -44,8 +43,7 @@ import org.openrdf.repository.object.ObjectConnection;
  * @author James Leigh
  * 
  */
-@Iri("http://callimachusproject.org/rdf/2009/framework#AuthenticationManager")
-public interface AuthenticationManager {
+public interface DetachedAuthenticationManager {
 
 	String getIdentifier();
 

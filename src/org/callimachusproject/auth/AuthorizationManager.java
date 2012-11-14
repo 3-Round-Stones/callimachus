@@ -77,12 +77,12 @@ public class AuthorizationManager {
 		return isPublic(groups) || isMember(user, groups);
 	}
 
-	public Realm getRealm(String target)
+	public DetachedRealm getRealm(String target)
 			throws OpenRDFException {
 		return realmManager.getRealm(target);
 	}
 
-	public AuthenticationManager getAuthenticationManager(Resource uri) throws OpenRDFException {
+	public DetachedAuthenticationManager getAuthenticationManager(Resource uri) throws OpenRDFException {
 		return realmManager.getAuthenticationManager(uri);
 	}
 
@@ -111,7 +111,7 @@ public class AuthorizationManager {
 		if (isAnonymousAllowed(from, groups))
 			return null;
 		// loop through first to see if further authorisation is needed
-		Realm realm = getRealm(request);
+		DetachedRealm realm = getRealm(request);
 		HttpResponse unauth = null;
 		boolean wrongOrigin = true;
 		boolean noRealm = true;
@@ -164,7 +164,7 @@ public class AuthorizationManager {
 
 	public HttpMessage authenticationInfo(ResourceOperation request)
 			throws IOException, OpenRDFException {
-		Realm realm = getRealm(request);
+		DetachedRealm realm = getRealm(request);
 		if (realm == null)
 			return null;
 		String m = request.getMethod();
@@ -175,14 +175,14 @@ public class AuthorizationManager {
 
 	public boolean withAgentCredentials(ResourceOperation request,
 			String origin) throws OpenRDFException {
-		Realm realm = getRealm(request);
+		DetachedRealm realm = getRealm(request);
 		return realm != null && realm.withAgentCredentials(origin);
 	}
 
 	public Set<String> allowOrigin(ResourceOperation request)
 			throws OpenRDFException {
 		Set<String> set = new LinkedHashSet<String>();
-		Realm realm = getRealm(request);
+		DetachedRealm realm = getRealm(request);
 		if (realm == null && request.isPublic()) {
 			return Collections.singleton("*");
 		} else if (realm != null) {
@@ -258,8 +258,8 @@ public class AuthorizationManager {
 		}
 	}
 
-	private Realm getRealm(ResourceOperation request) throws OpenRDFException {
-		Realm realm = getRealm(request.getIRI());
+	private DetachedRealm getRealm(ResourceOperation request) throws OpenRDFException {
+		DetachedRealm realm = getRealm(request.getIRI());
 		if (realm == null)
 			return getRealm(request.getRequestURI());
 		return realm;

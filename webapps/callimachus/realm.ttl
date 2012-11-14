@@ -187,12 +187,11 @@
 
 :GetProfile rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Realm>];
-    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
     calli:method "GET";
     calli:query "profile";
     calli:requires calli:subscriber;
-    calli:header "cache-control:no-store";
-    calli:type "text/html";
+    calli:type "message/x-response";
     calli:script """
         var iter = this.calliAuthentication.iterator();
         while (iter.hasNext()) {
@@ -200,9 +199,16 @@
             var credential = manager.findCredential(cookies);
             if (credential) {
                 var title = manager.findCredentialLabel(cookies);
-                return '<html><head><title>' + title + '</title>'
-                    + '<meta http-equiv="REFRESH" content="0; url=' + credential + '"/></head>'
-                    + '<body resource="' + credential + '"></body></html>';
+                var cookie = manager.getUsernameSetCookie(cookies);
+                return {
+                    status:200,message:"OK",
+                    headers:{'cache-control':"no-store",'content-type':"text/html",'set-cookie':cookie},
+                    body:[
+                        '<html><head><title>', title, '</title>',
+                        '<meta http-equiv="REFRESH" content="0; url=', credential, '"/></head>',
+                        '<body resource="', credential, '"></body></html>'
+                    ]
+                };
             }
         }
         return null;
@@ -233,7 +239,7 @@
 :authorization a owl:DatatypeProperty;
     rdfs:domain :GetLogout;
     rdfs:range xsd:string;
-    calli:header "Authorization", "Set-Cookie".
+    calli:header "Authorization", "Cookie".
 
 :logoutContinue a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :GetLogout;

@@ -1,11 +1,13 @@
 package org.callimachusproject.auth;
 
 import static org.openrdf.query.QueryLanguage.SPARQL;
-
 import info.aduna.net.ParsedURI;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -28,10 +30,11 @@ import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
 import org.apache.http.util.EntityUtils;
 import org.callimachusproject.client.HTTPObjectClient;
-import org.callimachusproject.traits.DetachableAuthenticationManager;
+import org.callimachusproject.concepts.AuthenticationManager;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
+import org.openrdf.model.Value;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.TupleQuery;
 import org.openrdf.query.TupleQueryResult;
@@ -40,7 +43,7 @@ import org.openrdf.repository.object.ObjectConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Realm {
+public class DetachedRealm {
 	private static final String PREF_AUTH = "prefAuth=";
 	private static final String PREFIX = "PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>\n"
 			+ "PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>\n";
@@ -65,17 +68,22 @@ public class Realm {
 
 	public static String getPreferredManagerCookie(String realm, String manager) {
 		String path = new ParsedURI(realm).getPath();
-		return PREF_AUTH + manager + ";Path=" + path + ";HttpOnly";
+		try {
+			String value = URLEncoder.encode(manager, "UTF-8");
+			return PREF_AUTH + value + ";Path=" + path + ";HttpOnly";
+		} catch (UnsupportedEncodingException e) {
+			throw new AssertionError(e);
+		}
 	}
 
-	private Logger logger = LoggerFactory.getLogger(Realm.class);
-	private final Map<Resource, AuthenticationManager> authentication = new HashMap<Resource, AuthenticationManager>();
+	private Logger logger = LoggerFactory.getLogger(DetachedRealm.class);
+	private final Map<Resource, DetachedAuthenticationManager> authentication = new HashMap<Resource, DetachedAuthenticationManager>();
 	private final Collection<String> allowOrigin = new LinkedHashSet<String>();
 	private String secret;
 	private String forbidden;
 	private String unauthorized;
 
-	public Realm(Resource self, ObjectConnection con, RealmManager manager)
+	public DetachedRealm(Resource self, ObjectConnection con, RealmManager manager)
 			throws OpenRDFException {
 		TupleQuery query = con.prepareTupleQuery(SPARQL, SELECT_REALM);
 		query.setBinding("this", self);
@@ -95,16 +103,13 @@ public class Realm {
 							.stringValue();
 				}
 				if (result.hasBinding("authentication")) {
-					Resource resource = (Resource) result
-							.getValue("authentication");
-					List<String> domains = getDistinctRealm(result.getValue(
-							"protected").stringValue());
-					String path = getCommonPath(domains);
-					DetachableAuthenticationManager am = (DetachableAuthenticationManager) con
-							.getObject(resource);
-					authentication.put(resource,
-							am.detachAuthenticationManager(path, domains,
-									manager));
+					Value protects = result.getValue("protected");
+					Value uri = result.getValue("authentication");
+					DetachedAuthenticationManager dam = detach((Resource) uri,
+							protects.stringValue(), manager, con);
+					if (dam != null) {
+						authentication.put((Resource) uri, dam);
+					}
 				}
 				if (result.hasBinding("domain")) {
 					String uri = result.getValue("domain").stringValue();
@@ -125,7 +130,7 @@ public class Realm {
 		return allowOrigin.toString();
 	}
 
-	public AuthenticationManager getAuthenticationManager(Resource uri) {
+	public DetachedAuthenticationManager getAuthenticationManager(Resource uri) {
 		return authentication.get(uri);
 	}
 
@@ -196,7 +201,7 @@ public class Realm {
 	public String authenticateRequest(String method, Object resource,
 			Map<String, String[]> request, ObjectConnection con)
 			throws RepositoryException {
-		for (AuthenticationManager realm : getManagers(request.get("cookie"))) {
+		for (DetachedAuthenticationManager realm : getManagers(request.get("cookie"))) {
 			String ret = realm.authenticateRequest(method, resource, request,
 					con);
 			if (ret != null)
@@ -209,7 +214,7 @@ public class Realm {
 			Map<String, String[]> request, ObjectConnection con)
 			throws OpenRDFException {
 		HttpMessage msg = new BasicHttpResponse(_204);
-		for (AuthenticationManager realm : getManagers(request.get("cookie"))) {
+		for (DetachedAuthenticationManager realm : getManagers(request.get("cookie"))) {
 			HttpMessage resp = realm.authenticationInfo(method, resource,
 					request, con);
 			if (resp != null) {
@@ -225,10 +230,10 @@ public class Realm {
 			throws IOException {
 		BasicHttpResponse resp = new BasicHttpResponse(HttpVersion.HTTP_1_1,
 				303, "See Other");
-		Iterator<AuthenticationManager> iter = authentication.values()
+		Iterator<DetachedAuthenticationManager> iter = authentication.values()
 				.iterator();
 		while (iter.hasNext()) {
-			AuthenticationManager manager = iter.next();
+			DetachedAuthenticationManager manager = iter.next();
 			HttpResponse logout = manager.logout(tokens);
 			if (logout != null) {
 				if (logout.getStatusLine().getStatusCode() >= 400) {
@@ -270,7 +275,7 @@ public class Realm {
 	private HttpResponse unauthorizedHeaders(String method, Object resource,
 			Map<String, String[]> request) throws IOException {
 		HttpResponse unauth = null;
-		for (AuthenticationManager realm : getPrefManagers(request.get("cookie"))) {
+		for (DetachedAuthenticationManager realm : getPrefManagers(request.get("cookie"))) {
 			HttpResponse resp = realm.unauthorized(method, resource, request);
 			if (resp == null)
 				continue;
@@ -304,17 +309,17 @@ public class Realm {
 		}
 	}
 
-	private Iterable<AuthenticationManager> getManagers(String[] cookies) {
+	private Iterable<DetachedAuthenticationManager> getManagers(String[] cookies) {
 		String preferred = getPreferredManager(cookies);
-		List<AuthenticationManager> result = new ArrayList<AuthenticationManager>();
+		List<DetachedAuthenticationManager> result = new ArrayList<DetachedAuthenticationManager>();
 		Iterator<?> iter = authentication.values().iterator();
 		while (iter.hasNext()) {
 			Object next = iter.next();
-			if (next instanceof AuthenticationManager) {
+			if (next instanceof DetachedAuthenticationManager) {
 				if (next.toString().equals(preferred)) {
-					result.add(0, (AuthenticationManager) next);
+					result.add(0, (DetachedAuthenticationManager) next);
 				} else {
-					result.add((AuthenticationManager) next);
+					result.add((DetachedAuthenticationManager) next);
 				}
 			} else {
 				logger.error("{} is not an AuthenticationManager", next);
@@ -323,17 +328,17 @@ public class Realm {
 		return result;
 	}
 
-	private Iterable<AuthenticationManager> getPrefManagers(String[] cookies) {
+	private Iterable<DetachedAuthenticationManager> getPrefManagers(String[] cookies) {
 		String preferred = getPreferredManager(cookies);
-		List<AuthenticationManager> result = new ArrayList<AuthenticationManager>();
+		List<DetachedAuthenticationManager> result = new ArrayList<DetachedAuthenticationManager>();
 		Iterator<?> iter = authentication.values().iterator();
 		while (iter.hasNext()) {
 			Object next = iter.next();
-			if (next instanceof AuthenticationManager) {
-				if (((AuthenticationManager) next).getIdentifier().equals(preferred)) {
-					return Collections.singleton((AuthenticationManager) next);
+			if (next instanceof DetachedAuthenticationManager) {
+				if (((DetachedAuthenticationManager) next).getIdentifier().equals(preferred)) {
+					return Collections.singleton((DetachedAuthenticationManager) next);
 				} else {
-					result.add((AuthenticationManager) next);
+					result.add((DetachedAuthenticationManager) next);
 				}
 			} else {
 				logger.error("{} is not an AuthenticationManager", next);
@@ -351,11 +356,34 @@ public class Realm {
 			String[] pair = cookie.split("\\s*;\\s*");
 			for (String p : pair) {
 				if (p.startsWith(PREF_AUTH)) {
-					return p.substring(PREF_AUTH.length());
+					String encoded = p.substring(PREF_AUTH.length());
+					try {
+						return URLDecoder.decode(encoded, "UTF-8");
+					} catch (UnsupportedEncodingException e) {
+						throw new AssertionError(e);
+					}
 				}
 			}
 		}
 		return null;
+	}
+
+	private DetachedAuthenticationManager detach(Resource resource,
+			String protects, RealmManager manager, ObjectConnection con)
+			throws RepositoryException, OpenRDFException {
+		List<String> domains = getDistinctRealm(protects);
+		String path = getCommonPath(domains);
+		Object am = con.getObject(resource);
+		try {
+			return ((AuthenticationManager) am).detachAuthenticationManager(
+					path, domains, manager);
+		} catch (ClassCastException e) {
+			logger.error(e.toString() + " on " + resource);
+			return null;
+		} catch (AbstractMethodError e) {
+			logger.error(e.toString() + " on " + resource);
+			return null;
+		}
 	}
 
 	private List<String> getDistinctRealm(String domains) {

@@ -8,13 +8,12 @@ import java.util.Set;
 import javax.tools.FileObject;
 
 import org.apache.http.HttpResponse;
-import org.callimachusproject.auth.AuthenticationManager;
 import org.callimachusproject.auth.AuthorizationManager;
 import org.callimachusproject.auth.AuthorizationService;
-import org.callimachusproject.auth.DigestManagerImpl;
+import org.callimachusproject.auth.DetachedAuthenticationManager;
+import org.callimachusproject.auth.DetachedDigestManager;
 import org.callimachusproject.auth.RealmManager;
 import org.callimachusproject.concepts.DigestManager;
-import org.callimachusproject.traits.DetachableAuthenticationManager;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Resource;
 import org.openrdf.repository.RepositoryException;
@@ -22,15 +21,15 @@ import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.ObjectRepository;
 import org.openrdf.repository.object.RDFObject;
 
-public abstract class DigestManagerSupport implements RDFObject, DigestManager, DetachableAuthenticationManager {
+public abstract class DigestManagerSupport implements RDFObject, DigestManager {
 	private final AuthorizationService service = AuthorizationService.getInstance();
 
 	@Override
-	public AuthenticationManager detachAuthenticationManager(
+	public DetachedAuthenticationManager detachAuthenticationManager(
 			String path, List<String> domains, RealmManager manager)
 			throws OpenRDFException {
 		Resource subj = this.getResource();
-		return new DigestManagerImpl(subj, getAuthName(), path, domains, manager);
+		return new DetachedDigestManager(subj, getAuthName(), path, domains, manager);
 	}
 
 	public void resetCache() throws RepositoryException {
@@ -45,7 +44,7 @@ public abstract class DigestManagerSupport implements RDFObject, DigestManager, 
 	 */
 	public String findCredential(Collection<String> tokens)
 			throws OpenRDFException {
-		DigestManagerImpl digest = getDigest();
+		DetachedDigestManager digest = getManager();
 		if (digest == null)
 			return null;
 		return digest.findCredential(tokens, this.getObjectConnection());
@@ -56,10 +55,22 @@ public abstract class DigestManagerSupport implements RDFObject, DigestManager, 
 	 */
 	public String findCredentialLabel(Collection<String> tokens)
 			throws OpenRDFException {
-		DigestManagerImpl digest = getDigest();
+		DetachedDigestManager digest = getManager();
 		if (digest == null)
 			return null;
 		return digest.findCredentialLabel(tokens, this.getObjectConnection());
+	}
+
+	/**
+	 * called from realm.ttl
+	 */
+	@Override
+	public String getUsernameSetCookie(Collection<String> tokens)
+			throws OpenRDFException {
+		DetachedDigestManager digest = getManager();
+		if (digest == null)
+			return null;
+		return digest.getUsernameSetCookie(tokens, this.getObjectConnection());
 	}
 
 	/**
@@ -67,7 +78,7 @@ public abstract class DigestManagerSupport implements RDFObject, DigestManager, 
 	 */
 	public boolean isDigestPassword(Collection<String> tokens, String[] hash)
 			throws OpenRDFException {
-		DigestManagerImpl digest = getDigest();
+		DetachedDigestManager digest = getManager();
 		if (digest == null)
 			return false;
 		return digest
@@ -79,7 +90,7 @@ public abstract class DigestManagerSupport implements RDFObject, DigestManager, 
 	 */
 	public Set<?> changeDigestPassword(Set<RDFObject> files, String[] passwords)
 			throws OpenRDFException, IOException {
-		DigestManagerImpl digest = getDigest();
+		DetachedDigestManager digest = getManager();
 		if (digest == null)
 			return null;
 		return digest.changeDigestPassword(files, passwords,
@@ -91,7 +102,7 @@ public abstract class DigestManagerSupport implements RDFObject, DigestManager, 
 	 */
 	public HttpResponse login(Collection<String> tokens, boolean persistent)
 			throws OpenRDFException {
-		DigestManagerImpl digest = getDigest();
+		DetachedDigestManager digest = getManager();
 		if (digest == null)
 			return null;
 		return digest.login(tokens, persistent, this.getObjectConnection());
@@ -101,17 +112,17 @@ public abstract class DigestManagerSupport implements RDFObject, DigestManager, 
 	 * Called from digest.ttl
 	 */
 	public String getDaypass(FileObject secret) throws OpenRDFException {
-		DigestManagerImpl digest = getDigest();
+		DetachedDigestManager digest = getManager();
 		if (digest == null)
 			return null;
 		return digest.getDaypass(secret);
 	}
 
-	private DigestManagerImpl getDigest() throws OpenRDFException {
+	private DetachedDigestManager getManager() throws OpenRDFException {
 		Resource self = this.getResource();
 		ObjectRepository repo = this.getObjectConnection().getRepository();
 		AuthorizationManager manager = service.get(repo);
-		return (DigestManagerImpl) manager.getAuthenticationManager(self);
+		return (DetachedDigestManager) manager.getAuthenticationManager(self);
 	}
 
 }

@@ -52,6 +52,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolVersion;
@@ -224,7 +225,7 @@ public class CachingFilter extends Filter {
 			throws IOException {
 		resp = super.filter(request, resp);
 		try {
-			if (request instanceof CachableRequest && isCachable(resp)) {
+			if (request instanceof CachableRequest && isCachable(request, resp)) {
 				// CachableRequest has a read lock on cacheLocker
 				long now = request.getReceivedOn();
 				String url = request.getRequestURL();
@@ -314,14 +315,52 @@ public class CachingFilter extends Filter {
 		}
 	}
 
-	private boolean isCachable(HttpResponse res) {
+	private boolean isCachable(HttpRequest req, HttpResponse res) {
+		int code = res.getStatusLine().getStatusCode();
+		switch (code) {
+		case 200:
+			break; // OK
+		case 203:
+			break; // Non-Authoritative Information
+		case 300:
+			break; // Multiple Choices
+		case 301:
+			break; // Moved Permanently
+		case 302:
+			break; // Found
+		case 303:
+			break; // See Other
+		case 304:
+			break; // Not Modified
+		case 307:
+			break; // Temporary Redirect
+		case 308:
+			break; // Permanent Redirect
+		case 404:
+			break; // Not Found
+		case 405:
+			break; // Method Not Allowed
+		case 410:
+			break; // Gone
+		default:
+			return false;
+		}
+		boolean priv = req.containsHeader("Authorization")
+				|| req.containsHeader("Cookie");
 		for (Header hd : res.getHeaders("Cache-Control")) {
 			if (hd.getValue().contains("no-store"))
 				return false;
 			if (hd.getValue().contains("private"))
 				return false;
+			if (hd.getValue().contains("s-maxage=0")) {
+				priv = false;
+			} else if (hd.getValue().contains("public")) {
+				priv = false;
+			} else if (hd.getValue().contains("must-revalidate")) {
+				priv = false;
+			}
 		}
-		return res.containsHeader("ETag");
+		return !priv && res.containsHeader("ETag");
 	}
 
 	private boolean isStale(long now, Request headers, CachedEntity cached)
@@ -565,9 +604,6 @@ public class CachingFilter extends Filter {
 	private void setAuthorizationHeader(HttpResponse upstream, BasicHttpResponse response) {
 		if (upstream != null && upstream.containsHeader("Authentication-Info")) {
 			response.addHeader(upstream.getFirstHeader("Authentication-Info"));
-		}
-		if (upstream != null && upstream.containsHeader("Set-Cookie")) {
-			response.addHeader(upstream.getFirstHeader("Set-Cookie"));
 		}
 	}
 

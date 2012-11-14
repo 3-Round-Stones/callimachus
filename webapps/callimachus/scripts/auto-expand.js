@@ -175,11 +175,14 @@ $(window).load(function(event){
     fillOutFlex();
 });
 
-function fillOutFlex(){
-    var areas = $(".flex");
-    areas.each(function() {
-        flex(this);
-    });
+function fillOutFlex(e){
+    var el = e ? e.target : window;
+    // use timeout to reduce cpu stress during resize and eternal loops
+    try {clearTimeout(window.flexTO)} catch (e) { }
+    window.flexTO = window.setTimeout(function() {
+        $('.flex').each(function() { flex(this); });
+    }, 50);
+    return;
 }
 
 function flex(area) {

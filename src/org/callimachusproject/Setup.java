@@ -1059,7 +1059,7 @@ public class Setup {
 		add(con, subj, CALLI_CONTRIBUTOR, origin + "/group/users");
 		add(con, subj, CALLI_EDITOR, origin + "/group/staff");
 		add(con, subj, CALLI_ADMINISTRATOR, origin + "/group/admin");
-		add(con, subj, CALLI_UNAUTHORIZED, c + "pages/unauthorized.xhtml?element=/1&realm=/");
+		add(con, subj, CALLI_UNAUTHORIZED, c + "pages/unauthorized.xhtml?element=/1");
 		add(con, subj, CALLI_FORBIDDEN, c + "pages/forbidden.xhtml?element=/1&realm=/");
 		add(con, subj, CALLI_AUTHENTICATION, authentication);
 		add(con, subj, CALLI_MENU, origin + "/main+menu");

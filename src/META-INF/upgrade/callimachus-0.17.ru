@@ -195,14 +195,26 @@ INSERT {
     FILTER NOT EXISTS { ?class calli:realm ?realm }
 };
 
-INSERT {
+DELETE {
+    ?realm calli:forbidden </callimachus/pages/forbidden.xhtml>
+} INSERT {
     ?realm calli:forbidden </callimachus/pages/forbidden.xhtml?element=/1&realm=/>
 } WHERE {
     ?realm calli:forbidden </callimachus/pages/forbidden.xhtml>
 };
 
-INSERT {
+DELETE {
     ?realm calli:unauthorized </callimachus/pages/unauthorized.xhtml?element=/1&realm=/>
+} INSERT {
+    ?realm calli:unauthorized </callimachus/pages/unauthorized.xhtml?element=/1>
+} WHERE {
+    ?realm calli:unauthorized </callimachus/pages/unauthorized.xhtml?element=/1&realm=/>
+};
+
+DELETE {
+    ?realm calli:unauthorized </callimachus/pages/unauthorized.xhtml>
+} INSERT {
+    ?realm calli:unauthorized </callimachus/pages/unauthorized.xhtml?element=/1>
 } WHERE {
     ?realm calli:unauthorized </callimachus/pages/unauthorized.xhtml>
 };

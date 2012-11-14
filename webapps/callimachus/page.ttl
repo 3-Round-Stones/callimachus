@@ -192,6 +192,23 @@
     rdfs:domain :Construct;
     rdfs:range xsd:string.
 
+# Called by digest.ttl
+:RawConstruct rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Page>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    calli:type "text/html";
+    calli:script """
+        var template = this.toString();
+        var con = this.objectConnection;
+        var bindings = new org.openrdf.query.impl.MapBindingSet();
+        bindings.addBinding("this", resource.resource);
+        var results = this.getTemplate(template).evaluate(bindings, con);
+        return this.Render('/', rawConstructTarget, '', '/1', results);
+    """.
+
+:rawConstructTarget a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :RawConstruct.
+
 # Called by client to populate dropdown, radio, checkbox or dropzone
 :GetElementOptions rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Page>];

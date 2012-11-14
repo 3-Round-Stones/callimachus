@@ -9,14 +9,21 @@
 
     <p:serialization port="result" media-type="text/html" method="html" doctype-system="about:legacy-compat" />
 
-    <p:option name="realm" required="true" />
+    <p:option name="realm" select="''" />
     <p:option name="element" select="'/1'" />
 
     <p:import href="page-template.xpl" />
 
-    <calli:page-template>
-        <p:with-option name="realm" select="$realm" />
-    </calli:page-template>
+    <p:choose>
+        <p:when test="string-length($realm) &gt; 0">
+            <calli:page-template>
+                <p:with-option name="realm" select="$realm" />
+            </calli:page-template>
+        </p:when>
+        <p:otherwise>
+            <p:xinclude fixup-xml-base="true" fixup-xml-lang="true" />
+        </p:otherwise>
+    </p:choose>
 
     <p:xslt>
         <p:with-param name="element" select="$element" />

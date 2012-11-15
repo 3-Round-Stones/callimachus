@@ -82,10 +82,42 @@ window.calli.openDialog = function(url, title, options) {
     iframe.attr('name', asUniqueName(title));
     iframe.addClass('dialog');
     iframe.dialog(settings);
-    // event
+    // inter-window message processor
+    var handle = function(event) {
+        if (event.originalEvent.source == iframe[0].contentWindow) {
+            var data = event.originalEvent.data;
+            if (typeof options.onmessage == 'function') {
+                if (!event.source) {
+                    event.source = event.originalEvent.source;
+                }
+                if (!event.data) {
+                    event.data = event.originalEvent.data;
+                }
+                options.onmessage(event);
+            }
+        }
+    };
+    $(window).bind('message', handle);
+    // before close
+    iframe.bind("dialogbeforeclose", function(event, ui) {
+        var e = jQuery.Event("calliCloseDialog");
+        var frameElement = findFrameElement(iframe[0].contentWindow);
+        $(frameElement).trigger(e);
+        return !e.isDefaultPrevented();
+    });
+    // close
+    iframe.bind("dialogclose", function(event, ui) {
+        $(window).unbind('message', handle);
+        iframe.remove();
+        iframe.parent().remove();
+        if (typeof options.onclose == 'function') {
+            options.onclose();
+        }
+    });
+    // trigger open
     var e = jQuery.Event("calliOpenDialog");
     iframe.trigger(e);
-    if (e.isDefaultPrevented()) { // not sure when this is used
+    if (e.isDefaultPrevented()) {
         iframe.dialog('close');
         return null;
     } else {
@@ -122,38 +154,6 @@ window.calli.openDialog = function(url, title, options) {
         }
         return win;
     }
-    // inter-window message processor
-    var handle = function(event) {
-        if (event.originalEvent.source == iframe[0].contentWindow) {
-            var data = event.originalEvent.data;
-            if (typeof options.onmessage == 'function') {
-                if (!event.source) {
-                    event.source = event.originalEvent.source;
-                }
-                if (!event.data) {
-                    event.data = event.originalEvent.data;
-                }
-                options.onmessage(event);
-            }
-        }
-    };
-    $(window).bind('message', handle);
-    // not sure this is really bound, at least not in chrome?
-    iframe.bind("dialogbeforeclose", function(event, ui) {
-        var e = jQuery.Event("calliCloseDialog");
-        var frameElement = findFrameElement(iframe[0].contentWindow);
-        $(frameElement).trigger(e);
-        return !e.isDefaultPrevented();
-    });
-    // not sure this is really bound, at least not in chrome?
-    iframe.bind("dialogclose", function(event, ui) {
-        $(window).unbind('message', handle);
-        iframe.remove();
-        iframe.parent().remove();
-        if (typeof options.onclose == 'function') {
-            options.onclose();
-        }
-    });
 }
 
 })(jQuery, jQuery);

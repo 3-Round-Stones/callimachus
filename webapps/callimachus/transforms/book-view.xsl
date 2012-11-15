@@ -16,6 +16,10 @@ xmlns="http://www.w3.org/1999/xhtml" xmlns:xhtml="http://www.w3.org/1999/xhtml" 
         <link rel="edit" href="?edit" />
         <link rel="describedby" href="?describe" />
         <link rel="version-history" href="?history" />
+        <style type="text/css">
+            .anchor { font-size: smaller; }
+            ul.toc { list-style: none; }
+        </style>
     </head>
     <body>
         <xsl:apply-templates />
@@ -26,29 +30,50 @@ xmlns="http://www.w3.org/1999/xhtml" xmlns:xhtml="http://www.w3.org/1999/xhtml" 
 <xsl:template match="d:book">
     <div class="book">
         <xsl:apply-templates select="@xml:id" />
-        <xsl:apply-templates select="d:info|d:title" />
-        <ol class="toc">
-            <xsl:apply-templates mode="toc" select="*[not(self::d:info|self::d:title)]" />
-        </ol>
-        <xsl:apply-templates select="*[not(self::d:info|self::d:title)]" />
+        <xsl:apply-templates select="d:info|d:title|d:preface" />
+        <ul class="toc">
+            <xsl:apply-templates mode="toc" />
+        </ul>
+        <xsl:apply-templates select="*[not(self::d:info|self::d:title|self::d:preface)]" />
     </div>
 </xsl:template>
 
 <xsl:template match="d:part">
     <div class="part">
         <xsl:apply-templates select="@xml:id" />
-        <xsl:apply-templates select="d:info|d:title|d:partintro" />
-        <ol class="toc">
-            <xsl:apply-templates mode="toc" select="*[not(self::d:info|self::d:title|self::d:partintro)]" />
-        </ol>
-        <xsl:apply-templates select="*[not(self::d:info|self::d:title|self::d:partintro)]" />
+        <xsl:apply-templates select="d:info|d:title|d:preface|d:partintro" />
+        <ul class="toc">
+            <xsl:apply-templates mode="toc" />
+        </ul>
+        <xsl:apply-templates select="*[not(self::d:info|self::d:title|self::d:preface|self::d:partintro)]" />
     </div>
     <xsl:if test="following-sibling::*">
         <hr />
     </xsl:if>
 </xsl:template>
 
-<xsl:template mode="toc" match="d:chapter|d:part|d:article|d:section|d:appendix">
+<xsl:template match="d:chapter">
+    <div class="chapter">
+        <xsl:apply-templates select="@xml:id" />
+        <xsl:apply-templates select="d:info|d:title" />
+        <ul class="unstyled toc">
+            <xsl:apply-templates mode="toc" />
+        </ul>
+        <xsl:apply-templates select="*[not(self::d:info|self::d:title)]" />
+    </div>
+    <xsl:if test="following-sibling::*">
+        <hr />
+    </xsl:if>
+</xsl:template>
+
+<xsl:template match="d:info">
+    <xsl:apply-templates select="d:title" />
+    <xsl:apply-templates select="d:abstract" />
+</xsl:template>
+
+<xsl:template mode="toc" match="node()" />
+
+<xsl:template mode="toc" match="d:chapter|d:part|d:article|d:appendix|d:chapter/d:section">
     <xsl:variable name="text">
         <xsl:value-of select="d:info/d:title|d:title" />
     </xsl:variable>
@@ -62,12 +87,17 @@ xmlns="http://www.w3.org/1999/xhtml" xmlns:xhtml="http://www.w3.org/1999/xhtml" 
             </xsl:otherwise>
         </xsl:choose>
     </xsl:variable>
-    <li><a href="#{$id}"><xsl:value-of select="$text" /></a></li>
-    <xsl:if test="d:chapter|d:part|d:article|d:section|d:appendix">
-        <ol>
-            <xsl:apply-templates mode="toc" select="d:chapter|d:part|d:article|d:section|d:appendix" />
-        </ol>
-    </xsl:if>
+    <li>
+        <xsl:apply-templates mode="heading-prefix" select="d:info/d:title|d:title" />
+        <a href="#{$id}">
+            <xsl:value-of select="$text" />
+        </a>
+        <xsl:if test="d:chapter|d:part|d:article|d:appendix or self::d:chapter/d:section">
+            <ul class="toc">
+                <xsl:apply-templates mode="toc" />
+            </ul>
+        </xsl:if>
+    </li>
 </xsl:template>
 
 <xsl:template match="d:article">
@@ -123,10 +153,38 @@ xmlns="http://www.w3.org/1999/xhtml" xmlns:xhtml="http://www.w3.org/1999/xhtml" 
     <xsl:if test="$id=replace(normalize-space(),'\W','_')">
         <a name="{$id}" />
     </xsl:if>
+    <xsl:apply-templates mode="heading-prefix" select="." />
     <xsl:value-of select="." />
-    <xsl:if test="not(parent::d:info) and ancestor::*[2] or parent::d:info/ancestor::*[2]">
+    <xsl:if test="../.. and base-uri(.)!=base-uri(../..) or parent::d:info and base-uri(.)!=base-uri(parent::d:info/../..)">
         <xsl:text> </xsl:text>
         <a href="{concat(base-uri(),'?view#', $id)}" class="anchor">#</a>
+    </xsl:if>
+</xsl:template>
+
+<xsl:template mode="heading-prefix" match="node()" />
+
+<xsl:template mode="heading-prefix" match="d:title">
+    <xsl:if test="parent::d:section/parent::d:chapter or parent::d:info/parent::d:section/parent::d:chapter">
+        <xsl:if test="ancestor::d:chapter/parent::*">
+            <xsl:value-of select="count(ancestor::d:chapter/preceding-sibling::*[self::d:part or self::d:article or self::d:chapter or self::d:section]) + 1" />
+            <xsl:text>.</xsl:text>
+        </xsl:if>
+        <xsl:value-of select="count(ancestor::d:section/preceding-sibling::*[self::d:part or self::d:article or self::d:chapter or self::d:section]) + 1" />
+        <xsl:text>. </xsl:text>
+    </xsl:if>
+    <xsl:if test="parent::d:chapter/parent::* or parent::d:info/parent::d:chapter/parent::*">
+        <xsl:text>Chapter </xsl:text>
+        <xsl:value-of select="count(ancestor::d:chapter/preceding-sibling::*[self::d:part or self::d:article or self::d:chapter or self::d:section]) + 1" />
+        <xsl:text>. </xsl:text>
+    </xsl:if>
+    <xsl:if test="parent::d:article/parent::* or parent::d:info/parent::d:article/parent::*">
+        <xsl:value-of select="count(ancestor::d:article/preceding-sibling::*[self::d:part or self::d:article or self::d:chapter or self::d:section]) + 1" />
+        <xsl:text>. </xsl:text>
+    </xsl:if>
+    <xsl:if test="parent::d:part/parent::* or parent::d:info/parent::d:part/parent::*">
+        <xsl:text>Part </xsl:text>
+        <xsl:value-of select="count(ancestor::d:part/preceding-sibling::*[self::d:part or self::d:article or self::d:chapter or self::d:section]) + 1" />
+        <xsl:text>. </xsl:text>
     </xsl:if>
 </xsl:template>
 

@@ -48,6 +48,17 @@
     calli:header "cache-control:cache-range";
     calli:script "return this.openInputStream()".
 
+# GET /books/main-article.docbook?docbook
+:GetBookTransclusion rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Book>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+    calli:method "GET";
+    calli:query "docbook";
+    calli:requires calli:reader;
+    calli:type "application/docbook+xml";
+    calli:header "cache-control:no-cache";
+    calli:post "pipelines/docbook.xpl?results\nContent-Location: $0\nContent-Type: application/docbook+xml".
+
 # GET /books/main-article.docbook?view
 :GetPage owl:intersectionOf (<viewable.ttl#GetViewPage>
         [owl:onProperty msg:target; owl:allValuesFrom <Book>]);

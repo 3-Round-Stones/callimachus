@@ -185,7 +185,7 @@ public class DetachedRealm {
 						continue;
 					if (hd.getName().toLowerCase().startsWith("content-"))
 						continue;
-					resp.setHeader(hd);
+					resp.addHeader(hd);
 				}
 			}
 			resp.setHeader("Cache-Control", "no-store");

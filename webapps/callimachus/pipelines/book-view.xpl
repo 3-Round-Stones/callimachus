@@ -9,13 +9,13 @@
 
     <p:serialization port="result" media-type="text/html" method="html" doctype-system="about:legacy-compat" />
 
+    <p:import href="docbook.xpl" />
+
     <p:variable name="systemId" select="p:base-uri()" />
     <p:variable name="find-realm-uri" select="concat('../queries/find-realm.rq?results&amp;target=', encode-for-uri($systemId))" />
     <p:variable name="realm" select="doc($find-realm-uri)//sparql:uri" />
 
-    <p:xinclude fixup-xml-base="true" fixup-xml-lang="true" />
-
-    <p:make-absolute-uris match="@fileref" />
+    <calli:docbook />
 
     <p:xslt>
         <p:input port="stylesheet">

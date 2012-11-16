@@ -9,7 +9,10 @@ PREFIX foaf:<http://xmlns.com/foaf/0.1/>
 PREFIX msg:<http://www.openrdf.org/rdf/2011/messaging#>
 PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
 
-INSERT {
+DELETE {
+	?resource a ?previous .
+	?subclass rdfs:subClassOf ?previous .
+} INSERT {
 	?resource a ?current .
 	?subclass rdfs:subClassOf ?current .
 } WHERE {

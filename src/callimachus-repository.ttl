@@ -15,7 +15,7 @@
    rdfs:label "Callimachus Repository" ;
    rep:repositoryImpl [
       rep:repositoryType "openrdf:AuditingRepository" ;
-      audit:purgeObsoleteActivitiesAfter "P30D"^^xsd:dayTimeDuration ;
+      audit:purgeObsoleteActivitiesAfter "P7D"^^xsd:dayTimeDuration ;
       audit:minimumRecentActivities 100 ;
       audit:maximumRecentActivities 1000 ;
       rep:delegate [

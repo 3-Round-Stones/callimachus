@@ -32,13 +32,13 @@ SELECT * {
                             <$target> = </> && (
                                 EXISTS {
                                     {
-                                        ?realm a <../Origin>
+                                        ?realm a <../types/Origin>
                                         FILTER strstarts(str(?url), str(?realm))
                                     } UNION {
-                                        ?realm a <../Realm>
+                                        ?realm a <../types/Realm>
                                         FILTER strstarts(str(?url), str(?realm))
                                     } UNION {
-                                        <../Serviceable> owl:equivalentClass rdfs:Resource
+                                        <../types/Serviceable> owl:equivalentClass rdfs:Resource
                                     }
                                 }
                             )

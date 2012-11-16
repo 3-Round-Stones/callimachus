@@ -1,0 +1,87 @@
+# 
+#    Copyright (c) 2011 3 Round Stones Inc., Some rights reserved
+# 
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+# 
+#        http://www.apache.org/licenses/LICENSE-2.0
+# 
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+
+@prefix xsd:<http://www.w3.org/2001/XMLSchema#>.
+@prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
+@prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix foaf:<http://xmlns.com/foaf/0.1/>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
+@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+@prefix :<#>.
+
+<> a <SchemaGraph>.
+
+<Article> a <Creatable>, owl:Class;
+    rdfs:subClassOf <Book>;
+    rdfs:label "Article";
+    rdfs:comment "New articles can be created from a folder";
+    owl:equivalentClass </callimachus/Article>;
+    rdfs:isDefinedBy </callimachus>;
+    calli:author </group/users>,</group/staff>,</group/admin>;
+    calli:icon <../images/article.png>;
+    calli:edit <../templates/article-edit.xhtml>;
+    calli:create <../templates/article-create.xhtml>;
+    calli:mediaType "application/docbook+xml";
+    calli:documentTag <http://docbook.org/ns/docbook#article>.
+
+# POST ?create=/callimachus/Article
+:CreateArticle owl:intersectionOf (<creatable.ttl#PostCreate>
+        [owl:onProperty msg:target; owl:hasValue <Article> ]);
+    calli:imports <java:org.openrdf.model.vocabulary.RDFS>;
+    calli:imports <java:java.net.URLDecoder>;
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
+    calli:imports <java:org.callimachusproject.server.exceptions.ServiceUnavailable>;
+    calli:imports <File>;
+    calli:imports foaf:Document;
+    calli:script """
+        var con = this.objectConnection;
+        var vf = con.valueFactory;
+        if (!location)
+            throw new BadRequest("Missing location request header");
+        if (location instanceof File) {
+            location = location.RemoveFile();
+        }
+        var created = location;
+
+        var filename = created.resource.localName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
+        var label = vf.createLiteral(URLDecoder.decode(filename, "UTF-8").replace(/[_\\-\\+\\s]+/g, " "));
+        con.add(created.resource, RDFS.LABEL, label, []);
+
+        created = con.addDesignation(created, this.toString());
+        created = con.addDesignation(created, Document);
+
+        var read;
+        var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
+        var out = created.openOutputStream();
+        try {
+            while ((read = body.read(buf)) >= 0) {
+                out.write(buf, 0, read);
+            }
+        } finally {
+            out.close();
+        }
+        try {
+            created.ValidateBook();
+            created.CheckBook();
+        } catch (e if e.javaException instanceof ServiceUnavailable) {
+            java.lang.System.err.println("Storing " + this);
+        } catch (e if e.javaException instanceof BadRequest) {
+            println(created + ' ' + e.javaException.message);
+        }
+        return created;
+    """.
+

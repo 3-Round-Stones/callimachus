@@ -1,0 +1,107 @@
+# 
+#    Copyright (c) 2011 Talis Inc., Steve Battle and James Leigh, Some rights reserved
+# 
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+# 
+#        http://www.apache.org/licenses/LICENSE-2.0
+# 
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+
+@prefix xsd:<http://www.w3.org/2001/XMLSchema#>.
+@prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
+@prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix skos:<http://www.w3.org/2004/02/skos/core#>.
+@prefix foaf:<http://xmlns.com/foaf/0.1/>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
+@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+@prefix :<#>.
+
+<> a <SchemaGraph>.
+
+<Font> a <Creatable>, owl:Class;
+    rdfs:subClassOf <File>;
+    rdfs:label "Font" ;
+    owl:equivalentClass </callimachus/Font>;
+    rdfs:isDefinedBy </callimachus>;
+    calli:author </group/users>,</group/staff>,</group/admin>;
+    calli:icon <../images/font.png>;
+    calli:create <../templates/file-create.xhtml>;
+    calli:mediaType "application/font-woff".
+
+# GET /font.woff
+:GetFont rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Font>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+    calli:method "GET";
+    calli:rel "edit-media";
+    calli:requires calli:reader;
+    calli:type "application/font-woff";
+    calli:header "cache-control:cache-range";
+    calli:script "return this.openInputStream()".
+
+# POST ?create=/callimachus/Font
+:PostFontCreate owl:intersectionOf (<creatable.ttl#PostCreate>
+        [owl:onProperty msg:target; owl:hasValue <Font> ]);
+    calli:imports <java:java.net.URLEncoder>;
+    calli:imports <java:javax.mail.util.ByteArrayDataSource>;
+    calli:imports <java:javax.mail.internet.MimeMultipart>;
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <java:org.callimachusproject.server.exceptions.Conflict>;
+    calli:imports <java:org.openrdf.model.vocabulary.RDFS>;
+    calli:imports <File>;
+    calli:script """
+        var con = this.objectConnection;
+        var vf = con.getValueFactory();
+
+        //# font resource
+        if (location instanceof File) {
+            location = location.RemoveFile();
+        }
+        var obj = location;
+        if (!obj)
+            throw new BadRequest("Missing location");
+
+        obj = con.addDesignation(obj, this.toString()) ;
+
+        //# add the font label
+        var fileName = location.resource.localName;
+        var label = fileName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
+        con.add(obj.resource, RDFS.LABEL, vf.createLiteral(label), []);
+
+        //# load font data
+        var out = obj.PutFont(body) ;
+
+        return obj;
+    """.
+
+:PutFont rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Font> ];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+    calli:method "PUT";
+    calli:requires calli:editor;
+    calli:script """
+        var out = this.openOutputStream() ;
+        var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
+        var read;
+        try {
+            while ((read = stream.read(buf)) >= 0) {
+                out.write(buf, 0, read);
+            }
+        } finally {
+            out.close();
+        }
+        this.touchRevision();
+    """.
+
+:stream a owl:DatatypeProperty, owl:FunctionalProperty ;
+    rdfs:domain :PutFont ;
+    rdfs:range <java:java.io.InputStream> ;
+    calli:type "application/font-woff" .
+

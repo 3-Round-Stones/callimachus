@@ -10,9 +10,9 @@
     <link rel="group" href="/group/users" />
     <link rel="group" href="/group/staff" />
     <link rel="group" href="/group/admin" />
-    <link rel="viewable" href="../Viewable" />
-    <link rel="editable" href="../Editable" />
-    <link rel="composite" href="../Composite" />
+    <link rel="viewable" href="../types/Viewable" />
+    <link rel="editable" href="../types/Editable" />
+    <link rel="composite" href="../types/Composite" />
     <script type="text/javascript"> // <![CDATA[
     jQuery(function($){
         $('#create').bind('calliLinked', function() {
@@ -132,7 +132,7 @@
             <div class="hbox">
                 <div id="create" dropzone="link s:text/uri-list" class="control-group"
                         ondrop="return calli.insertResource(event)">
-                    <label class="control-label">Create template <a href="/callimachus/Page?create#!/callimachus/pages/sample-create.xhtml" title="Create"
+                    <label class="control-label">Create template <a href="/callimachus/types/Page?create#!/callimachus/pages/sample-create.xhtml" title="Create"
                             onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
                     <div rel="calli:create" class="controls">
                         <span resource="?create" typeof="calli:Page" class="ui-state-highlight ui-corner-all">
@@ -143,7 +143,7 @@
                 </div>
                 <div id="view" dropzone="link s:text/uri-list" class="control-group"
                         ondrop="return calli.insertResource(event)">
-                    <label class="control-label">View template <a href="/callimachus/Page?create#!/callimachus/pages/sample-view.xhtml" title="Create"
+                    <label class="control-label">View template <a href="/callimachus/types/Page?create#!/callimachus/pages/sample-view.xhtml" title="Create"
                             onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
                     <div rel="calli:view" class="controls">
                         <span resource="?view" typeof="calli:Page" class="ui-state-highlight ui-corner-all">
@@ -154,7 +154,7 @@
                 </div>
                 <div id="edit" dropzone="link s:text/uri-list" class="control-group"
                         ondrop="return calli.insertResource(event)">
-                    <label class="control-label">Edit template <a href="/callimachus/Page?create#!/callimachus/pages/sample-edit.xhtml" title="Create"
+                    <label class="control-label">Edit template <a href="/callimachus/types/Page?create#!/callimachus/pages/sample-edit.xhtml" title="Create"
                             onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
                     <div rel="calli:edit" class="controls">
                         <span resource="?edit" typeof="calli:Page" class="ui-state-highlight ui-corner-all">

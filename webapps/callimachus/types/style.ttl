@@ -1,0 +1,226 @@
+# 
+#    Copyright (c) 2011 3 Round Stones Inc, Some Rights Reserved
+# 
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+# 
+#        http://www.apache.org/licenses/LICENSE-2.0
+# 
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+
+@prefix xsd:<http://www.w3.org/2001/XMLSchema#>.
+@prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
+@prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix foaf:<http://xmlns.com/foaf/0.1/>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
+@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+@prefix :<#>.
+
+<> a <SchemaGraph>.
+
+<Style> a <Creatable>, owl:Class;
+    rdfs:subClassOf <File>;
+    rdfs:label "Style";
+    rdfs:comment "Style files";
+    owl:equivalentClass </callimachus/Style>;
+    rdfs:isDefinedBy </callimachus>;
+    calli:author </group/staff>,</group/admin>;
+    calli:icon <../images/style.png>;
+    calli:view <../templates/text-view.xhtml>;
+    calli:edit <../templates/style-edit.xhtml>;
+    calli:create <../templates/style-create.xhtml>;
+    calli:mediaType "text/css".
+
+# GET /style.css
+:GetStyleSheet rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Style>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
+    calli:method "GET";
+    calli:rel "edit-media";
+    calli:requires calli:reader;
+    calli:type "text/css";
+    calli:header "cache-control:no-cache";
+    calli:header "cache-control:cache-range";
+    calli:script "return this.openReader(true)".
+
+# POST ?create=/callimachus/Style
+:CreateStyle owl:intersectionOf (<creatable.ttl#PostCreate>
+        [owl:onProperty msg:target; owl:hasValue <Style> ]);
+    calli:imports <java:org.openrdf.model.vocabulary.RDFS>;
+    calli:imports <java:java.net.URLDecoder>;
+    calli:imports <java:org.callimachusproject.server.HTTPObjectServer>;
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
+    calli:imports <File>;
+    calli:imports foaf:Document;
+    calli:script """
+        var con = this.objectConnection;
+        var vf = con.valueFactory;
+        if (!location)
+            throw new BadRequest("Missing location request header");
+        if (location instanceof File) {
+            location = location.RemoveFile();
+        }
+        var created = location;
+
+        var filename = created.resource.localName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
+        var label = vf.createLiteral(URLDecoder.decode(filename, "UTF-8").replace(/[_\\-\\+\\s]+/g, " "));
+        con.add(created.resource, RDFS.LABEL, label, []);
+
+        created = con.addDesignation(created, this.toString());
+        created = con.addDesignation(created, Document);
+
+        created.UploadStyle(new org.callimachusproject.io.TextReader(body, "UTF-8"));
+        return created;
+    """.
+
+# PUT /style.css
+:UploadStyle rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Style>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+    calli:method "PUT";
+    calli:requires calli:editor;
+    calli:imports <java:org.openrdf.model.vocabulary.RDFS>;
+    calli:imports <java:java.net.URLDecoder>;
+    calli:imports <java:org.callimachusproject.server.HTTPObjectServer>;
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <Style>;
+    calli:imports <java:org.openrdf.query.QueryLanguage>;
+    calli:script """
+        if (!reader)
+            throw new BadRequest("Missing PUT request payload");
+        var read;
+        var buf = java.lang.reflect.Array.newInstance(java.lang.Character.TYPE, 1024);
+        var out = this.openWriter();
+        try {
+            while ((read = reader.read(buf)) >= 0) {
+                out.write(buf, 0, read);
+            }
+        } finally {
+            out.close();
+        }
+        this.touchRevision();
+    """.
+
+:reader a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :UploadStyle;
+    rdfs:range <java:java.io.Reader>;
+    calli:type "text/css".
+
+# GET /style.css?less
+:CompressLess rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Style>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    calli:method "GET";
+    calli:query "less";
+    calli:requires calli:reader;
+    calli:type "text/css";
+    calli:imports <java:org.apache.http.message.BasicHttpRequest>;
+    calli:imports <java:org.callimachusproject.client.HTTPObjectClient>;
+    calli:imports <java:org.callimachusproject.server.exceptions.ResponseException>;
+    calli:script ("""
+        var window = {};
+        var location = {port:0};
+        var document = {
+            getElementsByTagName: function(){return []},
+            getElementById: function(){return null}
+        };
+        var require = function(arg) {
+            return window.less[arg.split('/')[1]];
+        };
+    """
+    <../scripts/less/parser.js>
+    <../scripts/less/functions.js>
+    <../scripts/less/colors.js>
+    <../scripts/less/tree/alpha.js>
+    <../scripts/less/tree/anonymous.js>
+    <../scripts/less/tree/assignment.js>
+    <../scripts/less/tree/call.js>
+    <../scripts/less/tree/color.js>
+    <../scripts/less/tree/comment.js>
+    <../scripts/less/tree/condition.js>
+    <../scripts/less/tree/dimension.js>
+    <../scripts/less/tree/directive.js>
+    <../scripts/less/tree/element.js>
+    <../scripts/less/tree/expression.js>
+    <../scripts/less/tree/import.js>
+    <../scripts/less/tree/javascript.js>
+    <../scripts/less/tree/keyword.js>
+    <../scripts/less/tree/media.js>
+    <../scripts/less/tree/mixin.js>
+    <../scripts/less/tree/operation.js>
+    <../scripts/less/tree/paren.js>
+    <../scripts/less/tree/quoted.js>
+    <../scripts/less/tree/rule.js>
+    <../scripts/less/tree/ruleset.js>
+    <../scripts/less/tree/selector.js>
+    <../scripts/less/tree/url.js>
+    <../scripts/less/tree/value.js>
+    <../scripts/less/tree/variable.js>
+    <../scripts/less/tree.js>
+    <../scripts/less/browser.js>
+    """
+        var contents = {};
+        window.less.Parser.importer = function(path, paths, callback, env) {
+            if (path != null) {
+                var systemId = new java.net.URI(paths[0]).resolve(path).normalize().toASCIIString();
+                var redirect = systemId;
+                var resp = null;
+                var client = HTTPObjectClient.getInstance();
+                for (var i = 0; i < 20 && redirect != null; i++) {
+                    systemId = redirect;
+                    var req = new BasicHttpRequest("GET", redirect);
+                    req.setHeader("Accept", "text/css");
+                    req.setHeader("Accept-Charset", "UTF-8");
+                    resp = client.service(req);
+                    redirect = client.redirectLocation(redirect, resp);
+                }
+                var code = resp.statusLine.statusCode;
+                if (code < 200 || 300 <= code && code < 400 || 500 <= code)
+                    throw ResponseException.create(resp, systemId);
+                var content = '';
+                if (400 <= code) {
+                    var exception = ResponseException.create(resp, systemId);
+                    println(exception.longMessage);
+                    content = "/*\\n" + exception.longMessage.replace(/\\*/g,'_') + "\\n*/";
+                } else if (resp.entity && resp.entity.content) {
+                    try {
+                        var scanner = new java.util.Scanner(resp.entity.content, "UTF-8");
+                        scanner = scanner.useDelimiter("\\\\A");
+                        if (scanner.hasNext()) {
+                            content = scanner.next().replace(/\\r/g, '');
+                        }
+                    } finally {
+                        resp.entity.content.close();
+                    }
+                }
+                var dir = new java.net.URI(systemId).resolve(".").normalize();
+                var file = dir.relativize(new java.net.URI(systemId)).toASCIIString();
+                contents[file] = content;
+                var parser = new(window.less.Parser)({
+                    optimization: 3,
+                    filename: file,
+                    opaque: true,
+                    paths: [dir.toASCIIString()]
+                });
+                parser.imports.contents = contents;
+                parser.parse(content, function (e, root) {
+                    if (e) throw e;
+                    callback(e, root, content);
+                });
+            }
+        };
+        var result = '';
+        window.less.Parser.importer(this.toString(), [this.toString()], function (e, root, content) {
+            if (e) throw e;
+            result = root.toCSS();
+        });
+        return result;
+    """).
+

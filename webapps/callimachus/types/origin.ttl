@@ -1,0 +1,120 @@
+# 
+#    Copyright (c) 2011 3 Round Stones Inc, Some Rights Reserved
+# 
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+# 
+#        http://www.apache.org/licenses/LICENSE-2.0
+# 
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+
+@prefix xsd:<http://www.w3.org/2001/XMLSchema#>.
+@prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
+@prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix dcterms:<http://purl.org/dc/terms/>.
+@prefix skosxl:<http://www.w3.org/2008/05/skos-xl#>.
+@prefix foaf:<http://xmlns.com/foaf/0.1/>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
+@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+@prefix prov:<http://www.w3.org/ns/prov#>.
+@prefix :<#>.
+
+<> a <SchemaGraph>.
+
+<Origin> a owl:Class;
+    rdfs:subClassOf <Realm>, calli:Origin;
+    rdfs:label "Origin";
+    rdfs:comment "Root path of an http or https authority";
+    owl:equivalentClass </callimachus/Origin>;
+    rdfs:isDefinedBy </callimachus>;
+    calli:icon <../images/realm.png>;
+    calli:view <../templates/folder-view.xhtml>.
+
+################################
+# List realms defined by <Realm>
+################################
+
+:GetListOfRealms rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Origin>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+    calli:method "GET";
+    calli:query "realms";
+    calli:rel calli:realms;
+    calli:requires calli:subscriber;
+    calli:type "application/atom+xml;q=0.9";
+    calli:header "cache-control:no-cache";
+    calli:copy <../pipelines/origin-realms-atom.xpl?results&target=$0>.
+
+################################
+# View resource
+################################
+
+:ResolveView rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Origin>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    rdfs:subClassOf [owl:onProperty :diverted; owl:hasValue </diverted>];
+    calli:method "GET";
+    calli:query "go";
+    calli:requires calli:reader;
+    calli:expect "302-found";
+    calli:type "text/uri-list";
+    calli:header "cache-control:no-store";
+    calli:imports <java:org.openrdf.model.vocabulary.RDFS>;
+    calli:imports <java:org.openrdf.model.vocabulary.RDF>;
+    calli:imports <java:java.net.URLEncoder>;
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <Viewable>;
+    calli:script """
+        var con = this.objectConnection;
+        var vf = con.valueFactory;
+        var tf = this;
+
+        function resolveAbsoluteURI(string) {
+            try {
+                if (string.indexOf("/") == 0 || java.net.URI.create(string).isAbsolute())
+                    return tf.resolve(string);
+                return null;
+            } catch (e) {
+                throw new BadRequest(e);
+            }
+        }
+
+        function redirectURL(iri) {
+            var uri = java.net.URI.create(iri);
+            var origin = uri.authority ? new java.net.URI(uri.scheme, uri.authority, "/", null, null).toASCIIString() : null;
+            var viewable = con.getObject(iri) instanceof Viewable;
+            var Origin = vf.createURI("http://callimachusproject.org/rdf/2009/framework#Origin");
+            var authority = origin && con.hasStatement(vf.createURI(origin), RDF.TYPE, Origin, []);
+            if (viewable && authority && (uri.query || uri.fragment)) { //# complex resource URI
+                return origin + "diverted;" + URLEncoder.encode(iri) + '?view';
+            } else if (viewable && authority) { //# Self resolving URL
+                return iri + '?view';
+            } else if (viewable) { //# Foreign IRI, but can be presented here
+                return diverted.toString() + ";" + URLEncoder.encode(iri) + '?view';
+            } else { //# Unknown resource
+                return iri;
+            }
+        }
+
+        if (viewResource) {
+            var resolved = resolveAbsoluteURI(viewResource);
+            if (resolved) //# absolute URI redirect
+                return redirectURL(resolved);
+        }
+        return null; //# 404
+    """.
+
+:viewResource a owl:DatatypeProperty, owl:FunctionalProperty;
+    rdfs:domain :ResolveView;
+    rdfs:range xsd:string;
+    calli:query "go".
+
+:diverted a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :ResolveView.
+

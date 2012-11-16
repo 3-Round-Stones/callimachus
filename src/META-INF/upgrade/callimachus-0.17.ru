@@ -262,4 +262,11 @@ INSERT {
     FILTER NOT EXISTS { ?resource calli:administrator ?admin }
 };
 
+DELETE {
+	</callimachus> owl:versionInfo "0.17"
+} INSERT {
+	</callimachus> owl:versionInfo "0.18"
+} WHERE {
+	</callimachus> owl:versionInfo "0.17"
+};
 

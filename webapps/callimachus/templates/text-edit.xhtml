@@ -12,7 +12,7 @@
     <form id="form" method="PUT" action="?" enctype="text/plain">
         <iframe id="iframe" class="flex" src="/callimachus/editor/text-editor.html"> </iframe>
         <button type="submit" class="btn btn-primary">Save</button>
-        <button type="button" onclick="calli.saveResourceAs(event, 'untitled text.txt', calli.getCallimachusUrl('TextFile'))" class="btn btn-info">Save as...</button>
+        <button type="button" onclick="calli.saveResourceAs(event, 'untitled text.txt', calli.getCallimachusUrl('types/TextFile'))" class="btn btn-info">Save as...</button>
         <button type="button" onclick="window.location.replace('?view')" class="btn">Cancel</button>
         <button type="button" onclick="calli.deleteResource(event)" class="btn btn-danger">Delete</button>
     </form>

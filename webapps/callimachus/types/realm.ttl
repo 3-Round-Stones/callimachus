@@ -1,0 +1,302 @@
+@prefix xsd:<http://www.w3.org/2001/XMLSchema#>.
+@prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
+@prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix skos:<http://www.w3.org/2004/02/skos/core#>.
+@prefix dc:<http://purl.org/dc/elements/1.1/>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
+@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+@prefix :<#>.
+
+<> a <SchemaGraph>.
+
+<Realm> a <Creatable>, owl:Class;
+    rdfs:subClassOf <Folder>, calli:Realm;
+    owl:equivalentClass </callimachus/Realm>;
+    rdfs:isDefinedBy </callimachus>;
+    calli:author </group/admin>;
+    calli:icon <../images/realm.png>;
+    calli:edit <../templates/realm-edit.xhtml>;
+    calli:create <../templates/realm-create.xhtml>.
+
+# when a Realm is created
+:CreateRealm owl:intersectionOf (<creatable.ttl#PostCreate>
+        [owl:onProperty msg:target; owl:hasValue <Realm> ]);
+    calli:script """
+        var realm = proceed();
+        var uuid = java.util.UUID.randomUUID().toString();
+        realm.calliSecret = this.objectConnection.getObject("urn:uuid:" + uuid);
+        //# generate random bits
+        var random = java.security.SecureRandom.getInstance("SHA1PRNG");
+        var bytes = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
+        random.nextBytes(bytes);
+        var text = org.apache.commons.codec.binary.Base64.encodeBase64String(bytes);
+        //# write to blob identified by the uuid
+        var out = realm.calliSecret.openWriter();
+        try {
+            out.write(text);
+        } finally {
+            out.close();
+        }
+        realm.resetCache();
+        return realm;
+    """.
+
+:PostEditRealm owl:intersectionOf (<editable.ttl#PostEdit>
+        [owl:onProperty msg:target; owl:allValuesFrom <Realm>]);
+    calli:method "POST";
+    calli:query "edit";
+    calli:requires calli:editor;
+    calli:expect "201-modified";
+    calli:type "text/uri-list";
+    calli:script """
+        var ret = proceed();
+        this.resetCache();
+        return ret;
+    """.
+
+################################
+# Registration
+################################
+
+# link from invite email
+:GetRegisterUserPage rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Realm>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
+    rdfs:subClassOf [owl:onProperty :register_xhtml; owl:hasValue <../pages/register.xhtml>];
+    calli:method "GET";
+    calli:query "register";
+    calli:requires calli:reader;
+    calli:type "message/x-response";
+    calli:script """
+        if (this.calliAuthentication.size() == 1) {
+            var auth = this.calliAuthentication.iterator().next();
+            var target = auth + '?' + registerQuery;
+            return {
+                status:302,message:"Found",
+                headers:{'content-type':"text/plain",'location':target},
+                body:[target]
+            };
+        } else if (registerChoice) {
+            var target = registerChoice + '?' + registerQuery;
+            var cookie = this.getPreferredManagerCookie(registerChoice);
+            return {
+                status:302,message:"Found",
+                headers:{
+                    'content-type':"text/plain",
+                    'location':target,
+                    'set-cookie':cookie
+                },
+                body:[target]
+            };
+        }
+        return {
+            status:200,message:"OK",
+            headers:{'content-type':"text/html"},
+            body:[register_xhtml.Construct(this, 'register')]
+        };
+    """.
+
+:registerChoice a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :GetRegisterUserPage;
+    rdfs:range calli:AuthenticationManager;
+    calli:query "choice";
+    calli:type "text/uri-list".
+
+:registerQuery a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:domain :GetRegisterUserPage;
+    rdfs:range xsd:string;
+    calli:query "*".
+
+:register_xhtml a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :GetRegisterUserPage.
+
+################################
+# login
+################################
+
+:GetLogin rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Realm>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
+    rdfs:subClassOf [owl:onProperty :login_xhtml; owl:hasValue <../pages/login.xhtml>];
+    calli:method "GET";
+    calli:query "login";
+    calli:requires calli:reader;
+    calli:type "message/x-response";
+    calli:script """
+        var query = loginQuery;
+        if (query.indexOf('&return_to=') < 0) {
+            if (loginReferer && loginReferer.indexOf(this.toString()) == 0) {
+                query = query + '&return_to=' + encodeURIComponent(loginReferer);
+            } else {
+                query = query + '&return_to=' + encodeURIComponent(this.toString());
+            }
+        }
+        if (this.calliAuthentication.size() == 1) {
+            var auth = this.calliAuthentication.iterator().next();
+            var target = auth + '?' + query;
+            return {
+                status:302,message:"Found",
+                headers:{'content-type':"text/plain",'location':target},
+                body:[target]
+            };
+        } else if (query != loginQuery) {
+            var target = this.toString() + '?' + query;
+            return {
+                status:302,message:"Found",
+                headers:{'content-type':"text/plain",'location':target},
+                body:[target]
+            };
+        } else if (loginChoice) {
+            var target = loginChoice + '?' + query;
+            var cookie = this.getPreferredManagerCookie(loginChoice);
+            return {
+                status:302,message:"Found",
+                headers:{
+                    'content-type':"text/plain",
+                    'location':target,
+                    'set-cookie':cookie
+                },
+                body:[target]
+            };
+        }
+        return {
+            status:200,message:"OK",
+            headers:{'content-type':"text/html"},
+            body:[login_xhtml.Construct(this, 'login')]
+        };
+    """.
+
+:loginQuery a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:domain :GetLogin;
+    rdfs:range xsd:string;
+    calli:query "*".
+
+:loginReferer a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:domain :GetLogin;
+    rdfs:range xsd:string;
+    calli:header "Referer".
+
+:loginChoice a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :GetLogin;
+    rdfs:range calli:AuthenticationManager;
+    calli:query "choice";
+    calli:type "text/uri-list".
+
+:login_xhtml a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :GetLogin.
+
+:GetProfile rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Realm>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
+    calli:method "GET";
+    calli:query "profile";
+    calli:requires calli:subscriber;
+    calli:type "message/x-response";
+    calli:script """
+        var iter = this.calliAuthentication.iterator();
+        while (iter.hasNext()) {
+            var manager = iter.next();
+            var credential = manager.getUserIdentifier(cookies);
+            if (credential) {
+                var title = manager.getUserLogin(cookies);
+                var cookie = manager.getUsernameSetCookie(cookies);
+                return {
+                    status:200,message:"OK",
+                    headers:{'cache-control':"no-store",'content-type':"text/html",'set-cookie':cookie},
+                    body:[
+                        '<html><head><title>', title, '</title>',
+                        '<meta http-equiv="REFRESH" content="0; url=', credential, '"/></head>',
+                        '<body resource="', credential, '"></body></html>'
+                    ]
+                };
+            }
+        }
+        return null;
+    """.
+
+:cookies a owl:DatatypeProperty;
+    rdfs:domain :GetProfile;
+    rdfs:range xsd:string;
+    calli:header "Authorization", "Cookie".
+
+################################
+# logout
+################################
+
+# Prompts the browser to login using bogus credentials (to forget legitimate onces)
+# Available to user when logged in
+:GetLogout  rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Realm>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
+    calli:method "GET", "POST";
+    calli:query "logout";
+    calli:requires calli:reader;
+    calli:type "message/x-response";
+    calli:script """
+        return this.logout(authorization, logoutContinue);
+    """.
+
+:authorization a owl:DatatypeProperty;
+    rdfs:domain :GetLogout;
+    rdfs:range xsd:string;
+    calli:header "Authorization", "Cookie".
+
+:logoutContinue a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:domain :GetLogout;
+    rdfs:range xsd:string;
+    calli:query "continue".
+
+################################
+# Search
+################################
+
+:SearchDescription rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Realm>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+    calli:method "GET";
+    calli:query "search";
+    calli:rel "search";
+    calli:requires calli:subscriber;
+    calli:type "application/opensearchdescription+xml";
+    calli:script """
+        var sb = [];
+        sb.push('<?xml version="1.0" encoding="UTF-8"?>');
+        sb.push('<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/">');
+        sb.push('<ShortName>' + this.rdfsLabel + '</ShortName>');
+        sb.push('<Url type="application/atom+xml" template="' + this + '?q={searchTerms}"/>');
+        sb.push('</OpenSearchDescription>');
+        var xml = sb.join('\\n');
+        return new java.io.ByteArrayInputStream(new java.lang.String(xml).getBytes("UTF-8"));
+    """.
+
+:SearchFolder rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Realm>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
+    calli:method "GET";
+    calli:query "q";
+    calli:requires calli:subscriber;
+    calli:type "text/html";
+    calli:header "cache-control:no-store";
+    calli:copy <../pipelines/realm-search-html.xpl?results&target=$0&q={qhtml}>.
+
+:qhtml a owl:DatatypeProperty, owl:FunctionalProperty;
+    rdfs:domain :SearchFolder;
+    rdfs:range xsd:string;
+    calli:query "q".
+
+:SearchFolderAtom rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Realm>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+    calli:method "GET";
+    calli:query "q";
+    calli:requires calli:subscriber;
+    calli:type "application/atom+xml;q=0.1";
+    calli:header "cache-control:no-store";
+    calli:copy <../pipelines/realm-search-atom.xpl?results&target=$0&q={qatom}>.
+
+:qatom a owl:DatatypeProperty, owl:FunctionalProperty;
+    rdfs:domain :SearchFolderAtom;
+    rdfs:range xsd:string;
+    calli:query "q".
+

@@ -111,9 +111,14 @@ public class Setup {
 	private static final String CALLIMACHUS = "/callimachus/";
 	private static final String SYSTEM_GROUP = "/group/system";
 	private static final String ACTIVITY_PATH = "/activity/";
-	private static final String ACTIVITY_TYPE = CALLIMACHUS + "Activity";
-	private static final String FOLDER_TYPE = CALLIMACHUS + "Folder";
-	private static final String GRAPH_DOCUMENT = CALLIMACHUS + "GraphDocument";
+	private static final String ARTICLE_TYPE = CALLIMACHUS + "types/Article";
+	private static final String DIGEST_MANAGER_TYPE = CALLIMACHUS + "types/DigestManager";
+	private static final String REALM_TYPE = CALLIMACHUS + "types/Realm";
+	private static final String ORIGIN_TYPE = CALLIMACHUS + "types/Origin";
+	private static final String USER_TYPE = CALLIMACHUS + "types/User";
+	private static final String ACTIVITY_TYPE = CALLIMACHUS + "types/Activity";
+	private static final String FOLDER_TYPE = CALLIMACHUS + "types/Folder";
+	private static final String GRAPH_DOCUMENT = CALLIMACHUS + "types/GraphDocument";
 	private static final String SERVE_ALL = "/everything-else-public.ttl";
 	private static final String SERVE_ALL_TTL = "META-INF/templates/callimachus-all-serviceable.ttl";
 	private static final String INITIAL_RU = "META-INF/upgrade/callimachus-initial.ru";
@@ -664,8 +669,7 @@ public class Setup {
 			URI folder = vf.createURI(origin + "/");
 			URI article = vf.createURI(origin + "/main-article.docbook");
 			logger.info("Uploading main article: {}", article);
-			con.add(article, RDF.TYPE,
-					vf.createURI(origin + CALLIMACHUS + "Article"));
+			con.add(article, RDF.TYPE, vf.createURI(origin + ARTICLE_TYPE));
 			con.add(article, RDF.TYPE,
 					vf.createURI("http://xmlns.com/foaf/0.1/Document"));
 			con.add(article, RDFS.LABEL, vf.createLiteral("main article"));
@@ -899,11 +903,11 @@ public class Setup {
 		try {
 			con.setAutoCommit(false);
 			URI uri = vf.createURI(folder);
-			if (con.hasStatement(uri, RDF.TYPE, vf.createURI(origin + CALLIMACHUS + "Origin")))
+			if (con.hasStatement(uri, RDF.TYPE, vf.createURI(origin + ORIGIN_TYPE)))
 				return modified;
-			if (con.hasStatement(uri, RDF.TYPE, vf.createURI(origin + CALLIMACHUS + "Realm")))
+			if (con.hasStatement(uri, RDF.TYPE, vf.createURI(origin + REALM_TYPE)))
 				return modified;
-			if (con.hasStatement(uri, RDF.TYPE, vf.createURI(origin + CALLIMACHUS + "Folder")))
+			if (con.hasStatement(uri, RDF.TYPE, vf.createURI(origin + FOLDER_TYPE)))
 				return modified;
 			if (parent == null)
 				throw new IllegalStateException("Can only import a CAR within a previously defined origin or realm");
@@ -912,7 +916,7 @@ public class Setup {
 			con.add(vf.createURI(parent), vf.createURI(CALLI_HASCOMPONENT), uri);
 			String label = folder.substring(parent.length()).replace("/", "").replace('-', ' ');
 			con.add(uri, RDF.TYPE, vf.createURI(CALLI_FOLDER));
-			con.add(uri, RDF.TYPE, vf.createURI(origin + CALLIMACHUS + "Folder"));
+			con.add(uri, RDF.TYPE, vf.createURI(origin + FOLDER_TYPE));
 			con.add(uri, RDFS.LABEL, vf.createLiteral(label));
 			add(con, uri, CALLI_READER, origin + "/group/public");
 			add(con, uri, CALLI_ADMINISTRATOR, origin + "/group/admin");
@@ -959,7 +963,7 @@ public class Setup {
 				logger.info("Updating origin: {} for {}", vhost, origin);
 			} else {
 				logger.info("Adding origin: {} for {}", vhost, origin);
-				add(con, subj, RDF.TYPE, origin + CALLIMACHUS + "Origin");
+				add(con, subj, RDF.TYPE, origin + ORIGIN_TYPE);
 				add(con, subj, RDF.TYPE, CALLI_ORIGIN);
 				con.add(subj, RDFS.LABEL, vf.createLiteral(getHost(vhost)));
 				createDigestManager(subj, origin, vhost + "/accounts", con);
@@ -977,7 +981,7 @@ public class Setup {
 		ValueFactory vf = con.getValueFactory();
 		URI subj = vf.createURI(accounts);
 		add(con, home, CALLI_HASCOMPONENT, accounts);
-		add(con, subj, RDF.TYPE, origin + CALLIMACHUS + "DigestManager");
+		add(con, subj, RDF.TYPE, origin + DIGEST_MANAGER_TYPE);
 		add(con, subj, RDF.TYPE, CALLI_DIGEST_MANAGER);
 		add(con, subj, RDF.TYPE, CALLI_AUTHENTICATION_MANAGER);
 		String label = accounts.substring(accounts.lastIndexOf('/') + 1);
@@ -1013,7 +1017,7 @@ public class Setup {
 				logger.info("Updating realm: {} for {}", realm, origin);
 			} else {
 				logger.info("Adding realm: {} for {}", realm, origin);
-				con.add(subj, RDF.TYPE, vf.createURI(origin + CALLIMACHUS + "Realm"));
+				con.add(subj, RDF.TYPE, vf.createURI(origin + REALM_TYPE));
 				con.add(subj, RDFS.LABEL, vf.createLiteral(getHost(realm)));
 				addRealm(subj, origin, origin + "/accounts", con);
 			}
@@ -1241,7 +1245,7 @@ public class Setup {
 			logger.info("Creating user {}", username);
 			URI staff = vf.createURI(origin + "/group/staff");
 			URI admin = vf.createURI(origin + "/group/admin");
-			con.add(subj, RDF.TYPE, vf.createURI(origin + CALLIMACHUS + "User"));
+			con.add(subj, RDF.TYPE, vf.createURI(origin + USER_TYPE));
 			con.add(subj, RDF.TYPE, vf.createURI(CALLI_PARTY));
 			con.add(subj, RDF.TYPE, vf.createURI(CALLI_USER));
 			con.add(subj, vf.createURI(CALLI_NAME), vf.createLiteral(username));

@@ -78,7 +78,7 @@
         <fieldset class="hbox">
             <div id="related" dropzone="link s:text/uri-list" class="control-group"
                     ondrop="return calli.insertResource(event)">
-                <label class="control-label">Related <a href="/callimachus/Concept?create" title="Create"
+                <label class="control-label">Related <a href="/callimachus/types/Concept?create" title="Create"
                         onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
                 <div rel="skos:related" class="controls vbox">
                     <span resource="?related" typeof="skos:Concept" class="ui-state-highlight ui-corner-all">
@@ -89,7 +89,7 @@
             </div>
             <div id="narrower" dropzone="link s:text/uri-list" class="control-group"
                     ondrop="return calli.insertResource(event)">
-                <label class="control-label">Narrower <a href="/callimachus/Concept?create" title="Create"
+                <label class="control-label">Narrower <a href="/callimachus/types/Concept?create" title="Create"
                         onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
                 <div rel="skos:narrower" class="controls vbox">
                     <span resource="?narrower" typeof="skos:Concept" class="ui-state-highlight ui-corner-all">
@@ -121,7 +121,7 @@
             <div class="form-actions">
                 <button id="save" type="submit" class="btn btn-primary">Save</button>
                 <button id="saveas" type="button" class="btn btn-info"
-                    onclick="calli.saveResourceAs(event, calli.slugify($('#label').val()), calli.getCallimachusUrl('Concept'))">Save as...</button>
+                    onclick="calli.saveResourceAs(event, calli.slugify($('#label').val()), calli.getCallimachusUrl('types/Concept'))">Save as...</button>
                 <button id="cancel" type="button" onclick="window.location.replace('?view')" class="btn">Cancel</button>
                 <button id="delete" type="button" onclick="calli.deleteResource(event)" class="btn btn-danger">Delete</button>
             </div>

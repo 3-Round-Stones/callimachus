@@ -20,10 +20,10 @@ PREFIX :<#>
 
 INSERT DATA {
 </> calli:hasComponent </callimachus>.
-</callimachus> a </callimachus/Serviceable>, owl:Ontology;
+</callimachus> a </callimachus/types/Serviceable>, owl:Ontology;
     rdfs:label "Callimachus";
     rdfs:comment "Vocabulary used to create local Callimachus applications";
-    owl:versionInfo "0.17";
+    owl:versionInfo "0.18";
     calli:administrator </group/admin>.
 };
 
@@ -33,18 +33,18 @@ INSERT DATA {
 
 INSERT DATA {
 </> calli:hasComponent </activity/>.
-</activity/> a </callimachus/Folder>, calli:Folder;
+</activity/> a </callimachus/types/Folder>, calli:Folder;
     rdfs:label "activity";
     calli:subscriber </group/admin>.
 
 </> calli:hasComponent </user/>.
-</user/> a </callimachus/Folder>, calli:Folder;
+</user/> a </callimachus/types/Folder>, calli:Folder;
     rdfs:label "user";
     calli:subscriber </group/staff>;
     calli:administrator </group/admin>.
 
 </> calli:hasComponent </group/>.
-</group/> a </callimachus/Folder>, calli:Folder;
+</group/> a </callimachus/types/Folder>, calli:Folder;
     rdfs:label "group";
     calli:subscriber </group/staff>;
     calli:administrator </group/admin>.
@@ -56,7 +56,7 @@ INSERT DATA {
 
 INSERT DATA {
 </group/> calli:hasComponent </group/admin>.
-</group/admin> a calli:Party, calli:Group, </callimachus/Group>;
+</group/admin> a calli:Party, calli:Group, </callimachus/types/Group>;
     rdfs:label "admin";
     rdfs:comment "The user accounts in this group have heightened privileges, including the ability to edit other user accounts and access the underlying data store";
     calli:subscriber </group/staff>;
@@ -64,7 +64,7 @@ INSERT DATA {
     calli:membersFrom ".".
 
 </group/> calli:hasComponent </group/staff>.
-</group/staff> a calli:Party, calli:Group, </callimachus/Group>;
+</group/staff> a calli:Party, calli:Group, </callimachus/types/Group>;
     rdfs:label "staff";
     rdfs:comment "Members of this group can design and edit resources within the system";
     calli:subscriber </group/staff>;
@@ -72,7 +72,7 @@ INSERT DATA {
     calli:membersFrom ".".
 
 </group/> calli:hasComponent </group/users>.
-</group/users> a calli:Party, calli:Group, </callimachus/Group>;
+</group/users> a calli:Party, calli:Group, </callimachus/types/Group>;
     rdfs:label "users";
     rdfs:comment "Members of this group can view and discuss resources within the system";
     calli:subscriber </group/staff>;
@@ -80,7 +80,7 @@ INSERT DATA {
     calli:membersFrom ".".
 
 </group/> calli:hasComponent </group/everyone>.
-</group/everyone> a calli:Party, calli:Group, </callimachus/Group>;
+</group/everyone> a calli:Party, calli:Group, </callimachus/types/Group>;
     rdfs:label "everyone";
     rdfs:comment "A virtual group of all authorized users";
     calli:subscriber </group/staff>;
@@ -88,14 +88,14 @@ INSERT DATA {
     calli:everyoneFrom ".".
 
 </group/> calli:hasComponent </group/system>.
-</group/system> a calli:Party, calli:Group, </callimachus/Group>;
+</group/system> a calli:Party, calli:Group, </callimachus/types/Group>;
     rdfs:label "system";
     rdfs:comment "The local computer or computer systems is the member of this group";
     calli:subscriber </group/staff>;
     calli:administrator </group/admin>.
 
 </group/> calli:hasComponent </group/public>.
-</group/public> a calli:Party, calli:Group, </callimachus/Group>;
+</group/public> a calli:Party, calli:Group, </callimachus/types/Group>;
     rdfs:label "public";
     rdfs:comment "A virtual group of all agents";
     calli:subscriber </group/staff>;
@@ -108,14 +108,14 @@ INSERT DATA {
 
 INSERT DATA {
 </> calli:hasComponent </.well-known/>.
-</.well-known/> a </callimachus/Folder>, calli:Folder;
+</.well-known/> a </callimachus/types/Folder>, calli:Folder;
     rdfs:label ".well known";
     calli:reader </group/public>;
     calli:subscriber </group/staff>;
     calli:administrator </group/admin>;
     calli:hasComponent </.well-known/void>.
 
-</.well-known/void> a </callimachus/Serviceable>, void:DatasetDescription;
+</.well-known/void> a </callimachus/types/Serviceable>, void:DatasetDescription;
     rdfs:label "void";
     foaf:primaryTopic </.well-known/void#dataset>;
     calli:reader </group/public>.
@@ -128,7 +128,7 @@ INSERT DATA {
     void:uriSpace </>.
 
 </> calli:hasComponent </sparql>.
-</sparql> a </callimachus/SparqlService>, sd:Service;
+</sparql> a </callimachus/types/SparqlService>, sd:Service;
     rdfs:label "sparql";
     calli:administrator </group/admin>;
     sd:endpoint </sparql>;
@@ -144,7 +144,7 @@ INSERT DATA {
 
 INSERT DATA {
 </> calli:hasComponent </main+menu>.
-</main+menu> a </callimachus/Menu>, calli:Menu;
+</main+menu> a </callimachus/types/Menu>, calli:Menu;
     rdfs:label "main menu";
     calli:reader </group/public>;
     calli:subscriber </group/users>;

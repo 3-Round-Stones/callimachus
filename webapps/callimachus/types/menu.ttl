@@ -1,0 +1,39 @@
+@prefix xsd:<http://www.w3.org/2001/XMLSchema#>.
+@prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
+@prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix skos:<http://www.w3.org/2004/02/skos/core#>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
+@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+@prefix :<#>.
+
+<> a <SchemaGraph>.
+
+<Menu> a <Creatable>, owl:Class;
+    rdfs:subClassOf <Viewable>, <Editable>, calli:Menu;
+    owl:equivalentClass </callimachus/Menu>;
+    rdfs:isDefinedBy </callimachus>;
+    calli:author </group/staff>,</group/admin>;
+    calli:view <../templates/menu-view.xhtml>;
+    calli:edit <../templates/menu-edit.xhtml>;
+    calli:create <../templates/menu-create.xhtml>.
+
+:GetMenuItems rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Menu>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+    calli:method "GET";
+    calli:query "items";
+    calli:requires calli:reader;
+    calli:type "application/xhtml+xml";
+    calli:copy <../pipelines/menu-items.xpl?results&target=$0>.
+
+:PostEditMenu owl:intersectionOf (<editable.ttl#PostEdit>
+        [owl:onProperty msg:target; owl:allValuesFrom <Menu>]);
+    calli:method "POST";
+    calli:query "edit";
+    calli:requires calli:editor;
+    calli:expect "201-modified";
+    calli:type "text/uri-list";
+    calli:imports <java:org.callimachusproject.server.HTTPObjectServer>;
+    calli:script "HTTPObjectServer.resetAllCache(); return proceed();".
+

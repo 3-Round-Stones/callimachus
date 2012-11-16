@@ -10,7 +10,7 @@
 # Other Resources are Public
 ################################
 
-<> a </callimachus/SchemaGraph>.
+<> a </callimachus/types/SchemaGraph>.
 
 :LocalResource a owl:Class;
     rdfs:label "Local Resource";
@@ -20,7 +20,7 @@
 :ForeignResource a owl:Class;
     rdfs:label "Foreign Resource";
     owl:complementOf :LocalResource;
-    rdfs:subClassOf </callimachus/Serviceable>;
+    rdfs:subClassOf </callimachus/types/Serviceable>;
     calli:reader </group/public>;
     calli:subscriber </group/everyone>.
 

@@ -68,8 +68,8 @@ import org.slf4j.LoggerFactory;
  */
 public class Server implements HTTPObjectAgentMXBean {
 	private static final String ACTIVITY_PATH = "/activity/";
-	private static final String ACTIVITY_TYPE = "/callimachus/Activity";
-	private static final String FOLDER_TYPE = "/callimachus/Folder";
+	private static final String ACTIVITY_TYPE = "/callimachus/types/Activity";
+	private static final String FOLDER_TYPE = "/callimachus/types/Folder";
 	private static final String ERROR_XPL_PATH = "/callimachus/pipelines/error.xpl";
 	public static final String NAME = Version.getInstance().getVersion();
 

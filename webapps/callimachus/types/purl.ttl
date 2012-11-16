@@ -1,0 +1,167 @@
+# 
+#    Copyright (c) 2010 James Leigh, Some rights reserved
+#    Copyright (c) 2011 Talis Inc., Some rights reserved
+# 
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+# 
+#        http://www.apache.org/licenses/LICENSE-2.0
+# 
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+
+@prefix xsd:<http://www.w3.org/2001/XMLSchema#>.
+@prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
+@prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix skos:<http://www.w3.org/2004/02/skos/core#>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
+@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+@prefix :<#>.
+
+<> a <SchemaGraph>.
+
+<PURL> a <Creatable>, owl:Class;
+    rdfs:subClassOf <Viewable>, <Editable>, calli:PURL;
+    rdfs:label "PURL";
+    rdfs:comment "Persistent Uniform Resource Location of a Web resource.";
+    owl:equivalentClass </callimachus/PURL>;
+    rdfs:isDefinedBy </callimachus>;
+    calli:author </group/users>,</group/staff>,</group/admin>;
+    calli:icon <../images/purl.png>;
+    calli:view <../templates/purl-view.xhtml>;
+    calli:edit <../templates/purl-edit.xhtml>;
+    calli:create <../templates/purl-create.xhtml>.
+
+:Redirect rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <PURL>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
+    calli:method "GET";
+    calli:requires calli:reader;
+    calli:type "message/x-response";
+    calli:imports <java:org.apache.http.message.BasicHttpRequest>;
+    calli:imports <java:org.callimachusproject.rewrite.Substitution>;
+    calli:imports <java:org.callimachusproject.client.HTTPObjectClient>;
+    calli:imports <java:org.callimachusproject.server.exceptions.ResponseException>;
+    calli:script """
+        var cacheControl = this.calliCacheControl.toArray();
+        var iter = this.FindPurlPattern().iterator();
+        while (iter.hasNext()) {
+            var row = iter.next();
+            var status = row[0];
+            var phrase = row[1];
+            var pattern = row[2];
+            var substitution = Substitution.compile(pattern);
+            var result = substitution.replace(this.toString(), query);
+            if (result) {
+                if (300 <= status && status < 400 ) {
+                    // 301, 302, 303, 307, or 308 responses
+                    return {
+                        status:status,
+                        message:phrase,
+                        headers:{'location':result,'cache-control':cacheControl,'content-type':"text/plain"},
+                        body:[phrase]
+                    };
+                }
+                // 200, 203, 404, or 410 responses
+                var split = result.split("\\n");
+                var location = split[0];
+                var client = HTTPObjectClient.getInstance();
+                var systemId = new java.net.URI(this.toString()).resolve(location).normalize().toASCIIString();
+                var redirect = systemId;
+                var resp = null;
+                for (var i = 0; i < 20 && redirect != null; i++) {
+                    systemId = redirect;
+                    var req = new BasicHttpRequest("GET", systemId);
+                    for (var i=1; i<split.length; i++) {
+                        var header = split[i].split(':');
+                        req.addHeader(header[0], header[1]);
+                    }
+                    resp = client.service(req);
+                    redirect = client.redirectLocation(redirect, resp);
+                }
+                var code = resp.statusLine.statusCode;
+                if (code != 200 && code != 203)
+                    throw ResponseException.create(resp, systemId);
+                var headers = {'content-location': systemId,'cache-control':cacheControl};
+                if (resp.getFirstHeader('last-modified')) {
+                    headers['last-modified'] = resp.getFirstHeader('last-modified').value;
+                }
+                if (resp.getFirstHeader('etag')) {
+                    headers['etag'] = resp.getFirstHeader('etag').value;
+                }
+                if (resp.getFirstHeader('content-version')) {
+                    headers['content-version'] = resp.getFirstHeader('content-version').value;
+                }
+                return {
+                    status:status,
+                    message:phrase,
+                    headers:headers,
+                    body:resp.entity
+                };
+            }
+        }
+        if (query.empty) {
+            // default response
+            return {
+                status:303,
+                message:'See Other',
+                headers:{'location':this.toString() + "?view",'content-type':"text/plain"},
+                body:[this.toString() + "?view"]
+            };
+        } else {
+            throw new org.callimachusproject.server.exceptions.MethodNotAllowed();
+        }
+    """.
+
+:query a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :Redirect;
+    rdfs:range <java:java.util.Map>;
+    calli:type "application/x-www-form-urlencoded";
+    calli:query "*".
+
+:FindPurlPattern rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <PURL>];
+    rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom rdfs:Resource];
+    msg:sparql """
+        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
+        SELECT ?status ?phrase (str(?resource) AS ?pattern) {
+            {
+                $this calli:copy ?resource
+                BIND (200 AS ?status)
+                BIND ("Copy" AS ?phrase)
+            } UNION {
+                $this calli:canonical ?resource
+                BIND (301 AS ?status)
+                BIND ("Canonical" AS ?phrase)
+            } UNION {
+                $this calli:alternate ?resource
+                BIND (302 AS ?status)
+                BIND ("Alternate" AS ?phrase)
+            } UNION {
+                $this calli:describedby ?resource
+                BIND (303 AS ?status)
+                BIND ("Described by" AS ?phrase)
+            } UNION {
+                $this calli:resides ?resource
+                BIND (307 AS ?status)
+                BIND ("Resides" AS ?phrase)
+            } UNION {
+                $this calli:moved ?resource
+                BIND (308 AS ?status)
+                BIND ("Moved" AS ?phrase)
+            } UNION {
+                $this calli:missing ?resource
+                BIND (404 AS ?status)
+                BIND ("Not found" AS ?phrase)
+            } UNION {
+                $this calli:gone ?resource
+                BIND (410 AS ?status)
+                BIND ("Gone" AS ?phrase)
+            }
+        }
+    """.

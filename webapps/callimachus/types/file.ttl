@@ -1,0 +1,59 @@
+# 
+#    Copyright (c) 2011 3 Round Stones Inc., Some rights reserved
+# 
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+# 
+#        http://www.apache.org/licenses/LICENSE-2.0
+# 
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+
+@prefix xsd:<http://www.w3.org/2001/XMLSchema#>.
+@prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
+@prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix foaf:<http://xmlns.com/foaf/0.1/>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
+@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+@prefix :<#>.
+
+<> a <SchemaGraph>.
+
+<File> a <Creatable>, owl:Class;
+    rdfs:label "File";
+    rdfs:subClassOf <Viewable>, <Editable>, foaf:Document;
+    owl:equivalentClass </callimachus/File>;
+    rdfs:isDefinedBy </callimachus>;
+    calli:author </group/users>,</group/staff>,</group/admin>;
+    calli:create <../templates/file-create.xhtml>;
+    calli:view <../templates/file-view.xhtml>;
+    calli:edit <../templates/file-edit.xhtml>.
+
+:GetContentMediaType rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <File>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    msg:sparql """
+        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
+        SELECT DISTINCT ?type { $this a [calli:mediaType ?type] }
+    """.
+
+:RemoveFile rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <File>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
+    calli:script """
+        var con = this.objectConnection;
+        var vf = con.getValueFactory();
+        var hasComponent = vf.createURI("http://callimachusproject.org/rdf/2009/framework#hasComponent");
+
+        con.clear([this.resource]); //# clear graph
+        con.remove(this.resource, null, null, []); //# delete out bound triples
+        con.remove(null, hasComponent, this.resource, []); //# remove from parent folder
+        //#TODO this['delete'](); //# remove document
+        return con.getObjectFactory().createObject(this.resource);
+    """.
+

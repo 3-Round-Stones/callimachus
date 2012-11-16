@@ -1,0 +1,126 @@
+# 
+#    Copyright (c) 2011 3 Round Stones Inc, Some Rights Reserved
+# 
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+# 
+#        http://www.apache.org/licenses/LICENSE-2.0
+# 
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+
+@prefix xsd:<http://www.w3.org/2001/XMLSchema#>.
+@prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
+@prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix foaf:<http://xmlns.com/foaf/0.1/>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
+@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+@prefix :<#>.
+
+<> a <SchemaGraph>.
+
+<Script> a <Creatable>, owl:Class;
+    rdfs:subClassOf <File>;
+    rdfs:label "Script";
+    rdfs:comment "Script files";
+    owl:equivalentClass </callimachus/Script>;
+    rdfs:isDefinedBy </callimachus>;
+    calli:author </group/staff>,</group/admin>;
+    calli:icon <../images/script.png>;
+    calli:view <../templates/text-view.xhtml>;
+    calli:edit <../templates/script-edit.xhtml>;
+    calli:create <../templates/script-create.xhtml>;
+    calli:mediaType "text/javascript".
+
+# GET /script.js
+:GetJavaScript rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Script>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
+    calli:method "GET";
+    calli:rel "edit-media";
+    calli:requires calli:reader;
+    calli:type "text/javascript";
+    calli:header "cache-control:no-cache";
+    calli:header "cache-control:cache-range";
+    calli:script "return this.openReader(true)".
+
+# POST ?create=/callimachus/Script
+:CreateScript owl:intersectionOf (<creatable.ttl#PostCreate>
+        [owl:onProperty msg:target; owl:hasValue <Script> ]);
+    calli:imports <java:org.openrdf.model.vocabulary.RDFS>;
+    calli:imports <java:java.net.URLDecoder>;
+    calli:imports <java:org.callimachusproject.server.HTTPObjectServer>;
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
+    calli:imports <File>;
+    calli:imports foaf:Document;
+    calli:script """
+        var con = this.objectConnection;
+        var vf = con.valueFactory;
+        if (!location)
+            throw new BadRequest("Missing location request header");
+        if (location instanceof File) {
+            location = location.RemoveFile();
+        }
+        var created = location;
+
+        var filename = created.resource.localName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
+        var label = vf.createLiteral(URLDecoder.decode(filename, "UTF-8").replace(/[_\\-\\+\\s]+/g, " "));
+        con.add(created.resource, RDFS.LABEL, label, []);
+
+        created = con.addDesignation(created, this.toString());
+        created = con.addDesignation(created, Document);
+
+        created.UploadScript(new org.callimachusproject.io.TextReader(body, "UTF-8"));
+        return created;
+    """.
+
+# PUT /script.js
+:UploadScript rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Script>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+    calli:method "PUT";
+    calli:requires calli:editor;
+    calli:imports <java:org.openrdf.model.vocabulary.RDFS>;
+    calli:imports <java:java.net.URLDecoder>;
+    calli:imports <java:org.callimachusproject.server.HTTPObjectServer>;
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <java:org.openrdf.query.QueryLanguage>;
+    calli:script """
+        if (!reader)
+            throw new BadRequest("Missing PUT request payload");
+        var read;
+        var buf = java.lang.reflect.Array.newInstance(java.lang.Character.TYPE, 1024);
+        var out = this.openWriter();
+        try {
+            while ((read = reader.read(buf)) >= 0) {
+                out.write(buf, 0, read);
+            }
+        } finally {
+            out.close();
+        }
+        var con = this.objectConnection;
+        var bundles = con.getStatements(null, null, this.resource, true, []);
+        try {
+            while (bundles.hasNext()) {
+                var st = bundles.next();
+                if (st.predicate.stringValue().indexOf("http://www.w3.org/1999/02/22-rdf-syntax-ns#_") == 0) {
+                    con.getObject(st.subject).touchRevision();
+                }
+            }
+        } finally {
+            bundles.close();
+        }
+        this.touchRevision();
+    """.
+
+:reader a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :UploadScript;
+    rdfs:range <java:java.io.Reader>;
+    calli:type "text/javascript".
+

@@ -1,0 +1,22 @@
+@prefix xsd:<http://www.w3.org/2001/XMLSchema#>.
+@prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
+@prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix skos:<http://www.w3.org/2004/02/skos/core#>.
+@prefix dc:<http://purl.org/dc/elements/1.1/>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
+@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+@prefix :<#>.
+
+<> a <SchemaGraph>.
+
+<Theme> a <Creatable>, owl:Class;
+    rdfs:subClassOf <Viewable>, <Editable>, calli:Theme;
+    owl:equivalentClass </callimachus/Theme>;
+    rdfs:isDefinedBy </callimachus>;
+    calli:author </group/staff>, </group/admin>;
+    calli:icon <../images/theme.png>;
+    calli:view <../templates/theme-view.xhtml>;
+    calli:edit <../templates/theme-edit.xhtml>;
+    calli:create <../templates/theme-create.xhtml>.
+

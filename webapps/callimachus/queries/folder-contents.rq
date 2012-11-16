@@ -18,7 +18,7 @@ SELECT REDUCED * {
         BIND ("describedby" as ?link_rel)
     } UNION {
         BIND ("feed" as ?type)
-        { <$target> a <../Realm> } UNION { <$target> a <../Origin> }
+        { <$target> a <../types/Realm> } UNION { <$target> a <../types/Origin> }
         BIND (concat(str(<$target>),"?contents") as ?id)
         BIND (concat(str(<$target>),"?search") as ?link_href)
         BIND ("search" as ?link_rel)
@@ -33,7 +33,7 @@ SELECT REDUCED * {
     } UNION {
         BIND ("feed" as ?type)
         BIND (concat(str(<$target>),"?contents") as ?id)
-        [a <../Creatable>] calli:mediaType ?collection_accept
+        [a <../types/Creatable>] calli:mediaType ?collection_accept
     } UNION {
         BIND ("feed" as ?type)
         BIND (concat(str(<$target>),"?contents") as ?id)
@@ -106,12 +106,12 @@ SELECT REDUCED * {
                     BIND (?id as ?link_edit_media_href)
                 }
             } UNION {
-                { ?id a <../Folder> } UNION { ?id a <../Realm> }
+                { ?id a <../types/Folder> } UNION { ?id a <../types/Realm> }
                 BIND (concat(str(?id),"?contents") as ?link_href)
                 BIND ("contents" as ?link_rel)
                 BIND ("application/atom+xml" as ?link_type)
             } UNION {
-                { ?id a <../Folder> } UNION { ?id a <../Realm> }
+                { ?id a <../types/Folder> } UNION { ?id a <../types/Realm> }
                 BIND (concat(str(?id),"?archive") as ?link_href)
                 BIND (calli:archive as ?link_rel)
                 BIND ("application/zip" as ?link_type)

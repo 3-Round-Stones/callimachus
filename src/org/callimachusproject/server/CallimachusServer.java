@@ -37,7 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class CallimachusServer implements HTTPObjectAgentMXBean {
-	private static final String SCHEMA_GRAPH = "/callimachus/SchemaGraph";
+	private static final String SCHEMA_GRAPH = "/callimachus/types/SchemaGraph";
 	private static final String ENVELOPE_TYPE = "message/x-response";
 	private static final String IDENTITY_PATH = "/diverted;";
 	Logger logger = LoggerFactory.getLogger(CallimachusServer.class);

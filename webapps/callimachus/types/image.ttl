@@ -1,0 +1,218 @@
+# 
+#    Copyright (c) 2011 Talis Inc., Steve Battle and James Leigh, Some rights reserved
+# 
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+# 
+#        http://www.apache.org/licenses/LICENSE-2.0
+# 
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+
+@prefix xsd:<http://www.w3.org/2001/XMLSchema#>.
+@prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
+@prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix skos:<http://www.w3.org/2004/02/skos/core#>.
+@prefix foaf:<http://xmlns.com/foaf/0.1/>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
+@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+@prefix :<#>.
+
+<> a <SchemaGraph>.
+
+<Image> a <Creatable>, owl:Class;
+    rdfs:subClassOf foaf:Image, <File>;
+    rdfs:label "Image" ;
+    owl:equivalentClass </callimachus/Image>;
+    rdfs:isDefinedBy </callimachus>;
+    calli:author </group/users>,</group/staff>,</group/admin>;
+    calli:icon <../images/image.png>;
+    calli:view <../templates/image-view.xhtml> ;
+    calli:edit <../templates/image-edit.xhtml> ;
+    calli:create <../templates/file-create.xhtml>.
+
+<AnimatedGraphic> a <Creatable>, owl:Class;
+    rdfs:subClassOf <Image>;
+    rdfs:label "Animated Graphic" ;
+    owl:equivalentClass </callimachus/AnimatedGraphic>;
+    rdfs:isDefinedBy </callimachus>;
+    calli:author </group/users>,</group/staff>,</group/admin>;
+    calli:icon <../images/image.png>;
+    calli:create <../templates/file-create.xhtml>;
+    calli:mediaType "image/gif".
+
+<IconGraphic> a <Creatable>, owl:Class;
+    rdfs:subClassOf <Image>;
+    rdfs:label "Icon Graphic" ;
+    owl:equivalentClass </callimachus/IconGraphic>;
+    rdfs:isDefinedBy </callimachus>;
+    calli:author </group/users>,</group/staff>,</group/admin>;
+    calli:icon <../images/image.png>;
+    calli:create <../templates/file-create.xhtml>;
+    calli:mediaType "image/vnd.microsoft.icon".
+
+<NetworkGraphic> a <Creatable>, owl:Class;
+    rdfs:subClassOf <Image>;
+    rdfs:label "Network Graphic" ;
+    owl:equivalentClass </callimachus/NetworkGraphic>;
+    rdfs:isDefinedBy </callimachus>;
+    calli:author </group/users>,</group/staff>,</group/admin>;
+    calli:icon <../images/image.png>;
+    calli:create <../templates/file-create.xhtml>;
+    calli:mediaType "image/png".
+
+<VectorGraphic> a <Creatable>, owl:Class;
+    rdfs:subClassOf <Image>;
+    rdfs:label "Vector Graphic" ;
+    owl:equivalentClass </callimachus/VectorGraphic>;
+    rdfs:isDefinedBy </callimachus>;
+    calli:author </group/users>,</group/staff>,</group/admin>;
+    calli:icon <../images/image.png>;
+    calli:create <../templates/file-create.xhtml>;
+    calli:mediaType "image/svg+xml";
+    calli:documentTag <http://www.w3.org/2000/svg#svg>.
+
+# GET /image.gif
+:GetAnimatedGraphic rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <AnimatedGraphic>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+    calli:method "GET";
+    calli:rel "edit-media";
+    calli:requires calli:reader;
+    calli:type "image/gif";
+    calli:header "cache-control:cache-range";
+    calli:script "return this.openInputStream()".
+
+# GET /image.ico
+:GetIconGraphic rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <IconGraphic>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+    calli:method "GET";
+    calli:rel "edit-media";
+    calli:requires calli:reader;
+    calli:type "image/vnd.microsoft.icon";
+    calli:header "cache-control:cache-range";
+    calli:script "return this.openInputStream()".
+
+# GET /image.png
+:GetNetworkGraphic rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <NetworkGraphic>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+    calli:method "GET";
+    calli:rel "edit-media";
+    calli:requires calli:reader;
+    calli:type "image/png";
+    calli:header "cache-control:cache-range";
+    calli:script "return this.openInputStream()".
+
+# GET /image.svg
+:GetVectorGraphic rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <VectorGraphic>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+    calli:method "GET";
+    calli:rel "edit-media";
+    calli:requires calli:reader;
+    calli:type "image/svg+xml";
+    calli:header "cache-control:cache-range";
+    calli:script "return this.openInputStream()".
+
+# POST ?create=/callimachus/ImageGraphic
+:PostImageCreate owl:intersectionOf (<creatable.ttl#PostCreate>
+        [owl:onProperty msg:target; owl:allValuesFrom [owl:oneOf (<NetworkGraphic> <VectorGraphic> <IconGraphic> <AnimatedGraphic>)] ]);
+    calli:imports <java:java.net.URLEncoder>;
+    calli:imports <java:javax.mail.util.ByteArrayDataSource>;
+    calli:imports <java:javax.mail.internet.MimeMultipart>;
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <java:org.callimachusproject.server.exceptions.Conflict>;
+    calli:imports <java:org.openrdf.model.vocabulary.RDFS>;
+    calli:imports <File>;
+    calli:imports foaf:Image ;
+    calli:script """
+        var con = this.objectConnection;
+        var vf = con.getValueFactory();
+
+        //# image resource
+        if (location instanceof File) {
+            location = location.RemoveFile();
+        }
+        var obj = location;
+        if (!obj)
+            throw new BadRequest("Missing location");
+
+        //# designate as foaf:Image
+        obj = con.addDesignation(obj, this.toString()) ;
+        obj = con.addDesignation(obj, Image);
+
+        //# add the image label
+        var fileName = location.resource.localName;
+        var label = fileName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
+        con.add(obj.resource, RDFS.LABEL, vf.createLiteral(label), []);
+
+        //# load image data
+        var out = obj.PutImage(body) ;
+
+        return obj;
+    """.
+
+:PutImage rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Image> ];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+    calli:method "PUT";
+    calli:requires calli:editor;
+    calli:script """
+        var out = this.openOutputStream() ;
+        var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
+        var read;
+        try {
+            while ((read = imageStream.read(buf)) >= 0) {
+                out.write(buf, 0, read);
+            }
+        } finally {
+            out.close();
+        }
+        this.touchRevision();
+    """.
+
+:imageStream a owl:DatatypeProperty, owl:FunctionalProperty ;
+    rdfs:domain :PutImage ;
+    rdfs:range <java:java.io.InputStream> ;
+    calli:type "image/*" .
+
+:PutVectorGraphic owl:intersectionOf (:PutImage
+        [owl:onProperty msg:target; owl:allValuesFrom <VectorGraphic>]);
+    calli:method "PUT";
+    calli:requires calli:editor;
+    calli:imports <java:org.callimachusproject.server.exceptions.ServiceUnavailable>;
+    calli:script """
+        var out = this.openOutputStream() ;
+        var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
+        var read;
+        try {
+            while ((read = vectorGraphicStream.read(buf)) >= 0) {
+                out.write(buf, 0, read);
+            }
+        } finally {
+            out.close();
+        }
+        try {
+            this.ValidateVectorGraphic();
+        } catch (e if e.javaException instanceof ServiceUnavailable) {
+            java.lang.System.err.println("Storing " + this);
+        }
+        this.touchRevision();
+    """.
+
+:vectorGraphicStream a owl:DatatypeProperty, owl:FunctionalProperty ;
+    rdfs:domain :PutVectorGraphic ;
+    rdfs:range <java:java.io.InputStream> ;
+    calli:type "image/svg+xml" .
+
+:ValidateVectorGraphic rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <VectorGraphic>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+    calli:post "../schemas/svg11.rng?validate\nContent-Location:$0\nContent-Type: application/xml".

@@ -1,0 +1,35 @@
+@prefix xsd:<http://www.w3.org/2001/XMLSchema#>.
+@prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
+@prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
+@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+@prefix :<#>.
+
+<> a <SchemaGraph>.
+
+<Group> a <Creatable>, owl:Class;
+    rdfs:subClassOf <Viewable>, <Editable>, calli:Group;
+    rdfs:label "Group";
+    rdfs:comment "Groups provide a way to assign permissions to a named set of users";
+    owl:equivalentClass </callimachus/Group>;
+    rdfs:isDefinedBy </callimachus>;
+    calli:author </group/admin>;
+    calli:icon <../images/group.png>;
+    calli:view <../templates/group-view.xhtml>;
+    calli:edit <../templates/group-edit.xhtml>;
+    calli:create <../templates/group-create.xhtml>.
+
+:PostGroupEdit owl:intersectionOf (<editable.ttl#PostEdit>
+        [owl:onProperty msg:target; owl:allValuesFrom <Group>]);
+    calli:method "POST";
+    calli:query "edit";
+    calli:requires calli:editor;
+    calli:expect "201-modified";
+    calli:type "text/uri-list";
+    calli:script """
+        var ret = proceed();
+        this.resetCache();
+        return ret;
+    """.
+

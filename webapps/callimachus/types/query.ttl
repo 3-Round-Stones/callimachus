@@ -1,0 +1,371 @@
+# 
+#    Copyright (c) 2011 3 Round Stones Inc, Some Rights Reserved
+# 
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+# 
+#        http://www.apache.org/licenses/LICENSE-2.0
+# 
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+
+@prefix xsd:<http://www.w3.org/2001/XMLSchema#>.
+@prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
+@prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix foaf:<http://xmlns.com/foaf/0.1/>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
+@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+@prefix :<#>.
+
+<> a <SchemaGraph>.
+
+<NamedQuery> a <Creatable>, owl:Class;
+    rdfs:subClassOf <File>;
+    rdfs:label "Query";
+    rdfs:comment "Saved SPARQL queries";
+    owl:equivalentClass </callimachus/NamedQuery>;
+    rdfs:isDefinedBy </callimachus>;
+    calli:author </group/admin>;
+    calli:icon <../images/query.png>;
+    calli:view <../templates/query-view.xhtml>;
+    calli:edit <../templates/query-edit.xhtml>;
+    calli:create <../templates/query-create.xhtml>;
+    calli:mediaType "application/sparql-query".
+
+# GET /query/my-query.rq
+:GetNamedQuery rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <NamedQuery>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+    calli:method "GET";
+    calli:rel "edit-media";
+    calli:requires calli:reader;
+    calli:type "application/sparql-query";
+    calli:header "cache-control:no-cache";
+    calli:header "cache-control:cache-range";
+    calli:script "return this.openInputStream()".
+
+# GET /queries/my-query.rq?view
+:GetViewPage owl:intersectionOf (<viewable.ttl#GetViewPage>
+        [owl:onProperty msg:target; owl:allValuesFrom <NamedQuery>]);
+    calli:rel "alternate";
+    calli:method "GET";
+    calli:query "view";
+    calli:requires calli:reader;
+    calli:type "text/html";
+    calli:header "cache-control:no-store"; # TODO use cache-control from query string
+    calli:imports <java:org.callimachusproject.engine.ParameterizedQueryParser>;
+    calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
+    calli:imports <java:org.openrdf.query.QueryLanguage>;
+    calli:script """
+        var parser = ParameterizedQueryParser.newInstance();
+        var query = parser.parseQuery(this.openInputStream(), this.toString());
+        var uri = query.viewTemplate;
+        if (!uri)
+            return proceed();
+        var con = this.objectConnection;
+        var page = con.getObject(uri);
+        if (!page.FindRealmOf)
+            throw new InternalServerError("Missing view template: " + page);
+        var realm = page.FindRealmOf(this);
+        var temp = page.getTemplate(uri + "?template&realm=" + realm);
+        var sparql = temp.getQueryString(query.prepare(viewParameters));
+        var qry = con.prepareTupleQuery(QueryLanguage.SPARQL, sparql, this.toString());
+        var results = query.evaluate(viewParameters, qry);
+        return page.Render(realm, this, 'view', '/1', results);
+    """.
+
+:viewParameters a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :GetViewPage;
+    rdfs:range <java:java.util.Map>;
+    calli:query "*";
+    calli:type "application/x-www-form-urlencoded".
+
+# GET /queries/my-query.rq?sparql
+:GetSparql rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <NamedQuery>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:hexBinary];
+    calli:method "GET";
+    calli:query "sparql";
+    calli:requires calli:reader;
+    calli:type "application/sparql-query";
+    calli:header "cache-control:no-cache";
+    calli:imports <java:org.callimachusproject.engine.ParameterizedQueryParser>;
+    calli:imports <java:org.openrdf.query.QueryLanguage>;
+    calli:script """
+        var parser = ParameterizedQueryParser.newInstance();
+        var query = parser.parseQuery(this.openInputStream(), this.toString());
+        var sparql = query.prepare(sparqlParameters);
+        var uri = query.viewTemplate;
+        if (uri) {
+            var con = this.objectConnection;
+            var page = con.getObject(uri);
+            var realm = page.FindRealmOf(this);
+            var temp = page.getTemplate(uri + "?template&realm=" + realm);
+            sparql = temp.getQueryString(sparql);
+        }
+        return new java.lang.String(sparql).getBytes(java.nio.charset.Charset.forName("UTF-8"));
+    """.
+
+:sparqlParameters a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :GetSparql;
+    rdfs:range <java:java.util.Map>;
+    calli:query "*";
+    calli:type "application/x-www-form-urlencoded".
+
+# POST ?create=/callimachus/NamedQuery
+:CreateNamedQuery owl:intersectionOf (<creatable.ttl#PostCreate>
+        [owl:onProperty msg:target; owl:hasValue <NamedQuery> ]);
+    calli:imports <java:org.openrdf.model.vocabulary.RDFS>;
+    calli:imports <java:java.net.URLDecoder>;
+    calli:imports <java:org.callimachusproject.server.HTTPObjectServer>;
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
+    calli:imports <File>;
+    calli:imports foaf:Document;
+    calli:script """
+        var con = this.objectConnection;
+        var vf = con.valueFactory;
+        if (!location)
+            throw new BadRequest("Missing location request header");
+        if (location instanceof File) {
+            location = location.RemoveFile();
+        }
+        var created = location;
+
+        var filename = created.resource.localName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
+        var label = vf.createLiteral(URLDecoder.decode(filename, "UTF-8").replace(/[_\\-\\+\\s]+/g, " "));
+        con.add(created.resource, RDFS.LABEL, label, []);
+
+        created = con.addDesignation(created, this.toString());
+        created = con.addDesignation(created, Document);
+
+        created.UploadNamedQuery(body);
+        return created;
+    """.
+
+# PUT /query/my-query.rq
+:UploadNamedQuery rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <NamedQuery>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+    calli:method "PUT";
+    calli:requires calli:editor;
+    calli:imports <java:org.openrdf.model.vocabulary.RDFS>;
+    calli:imports <java:java.net.URLDecoder>;
+    calli:imports <java:org.callimachusproject.engine.ParameterizedQueryParser>;
+    calli:imports <java:org.callimachusproject.server.HTTPObjectServer>;
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <NamedQuery>;
+    calli:imports <java:org.openrdf.query.QueryLanguage>;
+    calli:script """
+        if (!stream)
+            throw new BadRequest("Missing PUT request payload");
+        var read;
+        var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
+        var out = this.openOutputStream();
+        try {
+            while ((read = stream.read(buf)) >= 0) {
+                out.write(buf, 0, read);
+            }
+        } finally {
+            out.close();
+        }
+        this.touchRevision();
+
+        var con = this.objectConnection;
+        var parser = ParameterizedQueryParser.newInstance();
+        var query = parser.parseQuery(this.openInputStream(), this.toString());
+        if (query.isParameterPresent()) {
+            con.repository.removeNamedQuery(this.resource);
+        } else {
+            con.repository.createNamedQuery(this.resource, QueryLanguage.SPARQL, query.prepare(), this.toString());
+        }
+    """.
+
+:stream a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :UploadNamedQuery;
+    rdfs:range <java:java.io.InputStream>;
+    calli:type "application/sparql-query".
+
+:DeleteNamedQuery owl:intersectionOf ( <editable.ttl#Delete>
+        [owl:onProperty msg:target; owl:allValuesFrom <NamedQuery>]);
+    calli:method "DELETE";
+    calli:requires calli:editor;
+    calli:script """
+        var con = this.objectConnection;
+        con.repository.removeNamedQuery(this.resource);
+        return proceed();
+    """.
+
+
+################################
+# Google Chart Wire Protocol 0.6
+################################
+
+:GetResult rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <NamedQuery>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
+    calli:method "GET";
+    calli:query "results", "tqx", "eval";
+    calli:requires calli:reader;
+    calli:type "message/x-response";
+    calli:imports <java:org.callimachusproject.engine.ParameterizedQueryParser>;
+    calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
+    calli:imports <java:org.openrdf.query.QueryLanguage>;
+    calli:imports <java:java.lang.IllegalArgumentException>;
+    calli:imports <java:org.openrdf.query.MalformedQueryException>;
+    calli:script """
+        var map = {};
+        if (tqx) {
+            var pairs = tqx.split(';');
+            for (var i = 0; i < pairs.length; i++) {
+                var pair = pairs[i].split(':', 2);
+                map[pair[0]] = pair[1];
+            }
+        }
+        if (!map.responseHandler) {
+            map.responseHandler = 'google.visualization.Query.setResponse';
+        }
+        if (!map.reqId) {
+            map.reqId = '0';
+        }
+        var con = this.objectConnection;
+        var nq = con.repository.getNamedQuery(this.resource);
+        var etag = "";
+        var resp = {status:200, message:"OK", headers:{}};
+        if (nq) {
+            etag = 'W/"' + nq.getResultTag() + '"';
+            if (match == etag) {
+                resp = {status:304, message:"Not Modified", headers:{}};
+            }
+            resp.headers["last-modified"] = nq.getResultLastModifiedString();
+            resp.headers["etag"] = etag;
+        }
+        if (map.outFileName) {
+            resp.headers["content-disposition"] = 'inline;filename="' + map.outFileName + '"';
+        }
+        try {
+            var parser = ParameterizedQueryParser.newInstance();
+            var query = parser.parseQuery(this.openInputStream(), this.toString());
+            var control = query.getCacheControl();
+            if (!control && nq) {
+                control = "no-cache";
+            } else if (!control) {
+                control = "no-validate"; //# server side directive
+            } else if (!nq) {
+                control += ",no-validate"; //# server side directive
+            }
+            if (control) {
+                resp.headers["cache-control"] = control;
+            }
+            if (nq && match == etag)
+                return resp;
+            var rs = query.evaluate(queryParameters, con);
+            if (map.out == "html") {
+                resp.body = this.TransformIntoHtml(rs);
+                resp.headers["content-type"] = "text/html;charset=UTF-8";
+            } else if (map.out == "csv") {
+                resp.body = this.TransformIntoCSV(rs);
+                resp.headers["content-type"] = "text/csv;charset=UTF-8";
+            } else if (map.out == "tsv-excel") {
+                resp.body = this.TransformIntoTSV(rs);
+                resp.headers["content-type"] = "text/tab-separated-values;charset=UTF-16LE";
+            } else if (tqx) {
+                resp.body = this.TransformIntoWire(map.responseHandler, map.reqId, rs);
+                resp.headers["content-type"] = "text/javascript;charset=UTF-8";
+            } else {
+                resp.body = rs;
+                resp.headers["content-type"] = "application/sparql-results+xml";
+            }
+        } catch(e) {
+            if (e.javaException) {
+                e = e.javaException;
+            }
+            if (tqx && (!map.out || map.out == "json")) {
+                var reason = null;
+                var msg = e.message;
+                if (!msg) {
+                    msg = e.toString();
+                }
+                msg = msg.replace(/\\n[\\s\\S]*/, '').replace(/'/g, '"');
+                if (e instanceof MalformedQueryException) {
+                    reason = "reason:'invalid_query',message:'" + msg + "'";
+                } else if (e instanceof IllegalArgumentException) {
+                    reason = "reason:'not_supported',message:'" + msg + "'";
+                } else {
+                    reason = "reason:'internal_error',message:'" + msg + "'";
+                }
+                var sw = new java.io.StringWriter();
+                var print = new java.io.PrintWriter(sw);
+                e.printStackTrace(print);
+                print.close();
+                var trace = sw.toString().replace(/\\n/g, '\\\\n').replace(/'/g, '"');
+                reason = reason + ",detailed_message:'" + trace + "'";
+                var resp = {status:200, message:"Internal Server Error", headers:{}};
+                resp.body = map.responseHandler + "({reqId:'" + map.reqId + "',status:'error',errors:[{" + reason + "}]})";
+                resp.headers["content-type"] = "text/javascript;charset=UTF-8";
+                e.printStackTrace(); // log the error
+            } else {
+                throw new InternalServerError(e.toString(), e);
+            }
+        }
+        return resp;
+    """.
+
+:tqx a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:domain :GetResult;
+    rdfs:range xsd:string;
+    calli:query "tqx".
+
+:queryParameters a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :GetResult;
+    rdfs:range <java:java.util.Map>;
+    calli:query "*";
+    calli:type "application/x-www-form-urlencoded".
+
+:match a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:domain :GetResult;
+    rdfs:range xsd:string;
+    calli:header "If-None-Match".
+
+################################
+# XSL Transformation methods
+################################
+
+:TransformSparqlResult rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <NamedQuery>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>].
+
+:xml a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :TransformSparqlResult;
+    rdfs:range <java:org.openrdf.query.TupleQueryResult>;
+    calli:type "application/sparql-results+xml".
+
+:TransformIntoHtml rdfs:subClassOf :TransformSparqlResult;
+    calli:type "text/html;charset=UTF-8";
+    calli:post <../pipelines/sparql-results-html.xpl?results>.
+
+:TransformIntoCSV rdfs:subClassOf :TransformSparqlResult;
+    calli:type "text/csv;charset=UTF-8";
+    calli:post <../pipelines/sparql-results-csv.xpl?results>.
+
+:TransformIntoTSV rdfs:subClassOf :TransformSparqlResult;
+    calli:type "text/tab-separated-values;charset=UTF-16LE";
+    calli:post <../pipelines/sparql-results-tsv.xpl?results>.
+
+:TransformIntoWire rdfs:subClassOf :TransformSparqlResult;
+    calli:type "text/javascript;charset=UTF-8";
+    calli:post <../pipelines/sparql-results-wire.xpl?results&handler={handler}&reqId={reqId}>.
+
+:handler a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:domain :TransformIntoWire;
+    rdfs:range xsd:string.
+
+:reqId a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:domain :TransformIntoWire;
+    rdfs:range xsd:string.
+

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<?xml-stylesheet type="text/xsl" href="/callimachus/template.xsl"?>
+<?xml-stylesheet type="text/xsl" href="../template.xsl"?>
 <html xmlns="http://www.w3.org/1999/xhtml"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
@@ -78,7 +78,7 @@
         <fieldset class="hbox">
             <div id="related" dropzone="link s:text/uri-list" class="control-group"
                     ondrop="return calli.insertResource(event)">
-                <label class="control-label">Related <a href="/callimachus/types/Concept?create" title="Create"
+                <label class="control-label">Related <a href="../types/Concept?create" title="Create"
                         onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
                 <div rel="skos:related" class="controls vbox">
                     <span resource="?related" typeof="skos:Concept" class="ui-state-highlight ui-corner-all">
@@ -89,7 +89,7 @@
             </div>
             <div id="narrower" dropzone="link s:text/uri-list" class="control-group"
                     ondrop="return calli.insertResource(event)">
-                <label class="control-label">Narrower <a href="/callimachus/types/Concept?create" title="Create"
+                <label class="control-label">Narrower <a href="../types/Concept?create" title="Create"
                         onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
                 <div rel="skos:narrower" class="controls vbox">
                     <span resource="?narrower" typeof="skos:Concept" class="ui-state-highlight ui-corner-all">

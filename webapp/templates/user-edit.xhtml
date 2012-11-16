@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<?xml-stylesheet type="text/xsl" href="/callimachus/template.xsl"?>
+<?xml-stylesheet type="text/xsl" href="../template.xsl"?>
 <html xmlns="http://www.w3.org/1999/xhtml"
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
@@ -64,7 +64,7 @@
                 </div>
              </div>
              <div dropzone="link s:text/uri-list" class="control-group" ondrop="return calli.insertResource(event)">
-                <label class="control-label">Photo <a href="?create=/callimachus/Photo" title="Upload"
+                <label class="control-label">Photo <a href="../types/Photo?create" title="Upload"
                         onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
                 <div rel="foaf:depiction" class="controls">
                     <span resource="?img" typeof="foaf:Image" class="ui-state-highlight ui-corner-all">

@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<?xml-stylesheet type="text/xsl" href="/callimachus/template.xsl"?>
+<?xml-stylesheet type="text/xsl" href="../template.xsl"?>
 <html xmlns="http://www.w3.org/1999/xhtml"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
     xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
     <title resource="?this">{rdfs:label}</title>
-    <script type="text/javascript" src="/callimachus/editor/edit.js"> </script>
+    <script type="text/javascript" src="../editor/edit.js"> </script>
 </head>
 <body>
     <form id="form" method="PUT" action="?" enctype="text/plain">
-        <iframe id="iframe" class="flex" src="/callimachus/editor/text-editor.html"> </iframe>
+        <iframe id="iframe" class="flex" src="../editor/text-editor.html"> </iframe>
         <button type="submit" class="btn btn-primary">Save</button>
         <button type="button" onclick="calli.saveResourceAs(event, 'untitled text.txt', calli.getCallimachusUrl('types/TextFile'))" class="btn btn-info">Save as...</button>
         <button type="button" onclick="window.location.replace('?view')" class="btn">Cancel</button>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<?xml-stylesheet type="text/xsl" href="/callimachus/template.xsl"?>
+<?xml-stylesheet type="text/xsl" href="../template.xsl"?>
 <html xmlns="http://www.w3.org/1999/xhtml"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
@@ -16,7 +16,7 @@
                     var text = xhr.responseText;
                     var list = text.split('\r\n');
                     var calli = "http://callimachusproject.org/rdf/2009/framework#";
-                    if (text.indexOf('/callimachus/types/Creatable') < 0) {
+                    if (text.indexOf('types/Creatable') < 0) {
                         $('.creatable').hide();
                     }
                     if (jQuery.inArray('http://www.w3.org/2002/07/owl#Class', list) >= 0) {

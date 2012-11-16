@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<?xml-stylesheet type="text/xsl" href="/callimachus/template.xsl"?>
+<?xml-stylesheet type="text/xsl" href="../template.xsl"?>
 <html xmlns="http://www.w3.org/1999/xhtml"
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
@@ -32,7 +32,7 @@
             </div>
             <div id="layout" dropzone="link s:text/uri-list" class="control-group"
                     ondrop="return calli.insertResource(event)">
-                <label class="control-label">Layout <a href="../types/Page?create#!/callimachus/pages/sample-layout.xhtml" title="Create Page"
+                <label class="control-label">Layout <a href="../types/Page?create#!../pages/sample-layout.xhtml" title="Create Page"
                     onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
                 <div rel="calli:layout" class="controls">
                     <span resource="?layout" typeof="calli:Page" class="ui-state-highlight ui-corner-all">

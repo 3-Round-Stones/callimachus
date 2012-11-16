@@ -39,7 +39,7 @@
                 <img src="{sparql:binding[@name='icon']/*}" class="icon" />
             </xsl:if>
             <xsl:if test="not(sparql:binding[@name='icon']/*)">
-                <img src="/callimachus/images/rdf-icon.png" class="icon" />
+                <img src="{resolve-uri('../images/rdf-icon.png')}" class="icon" />
             </xsl:if>
             <a href="{$target}" class="view">
                 <xsl:apply-templates select="sparql:binding[@name='title']/*" />

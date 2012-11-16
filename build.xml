@@ -13,7 +13,7 @@
     <property name="reports.tests" location="tmp" />
     <property name="src.tests" location="test" />
     <property name="lib.tests" location="test/lib" />
-    <property name="webapps" location="webapps" />
+    <property name="webapp" location="webapp" />
     <property name="home" location="." />
     <property name="pid" location="run/callimachus.pid" />
     <property name="logging" location="etc/logging.properties" />
@@ -262,7 +262,7 @@
         <zip destfile="${dist}/callimachus-${Version}.zip">
             <zipfileset dir="." includes="*.txt" />
             <zipfileset dir="${src}" prefix="src" />
-            <zipfileset dir="${webapps}/callimachus" prefix="src/callimachus" />
+            <zipfileset dir="${webapp}" prefix="src/webapp" />
             <zipfileset dir="${bin}" prefix="bin" includes="*.sh,*.pl,callimachus-linux*,callimachus-darwin*" filemode="755" />
             <zipfileset dir="${bin}" prefix="bin" excludes="*.sh,*.pl,callimachus-linux*,callimachus-darwin*" />
             <zipfileset dir="${etc}" prefix="etc" excludes="mail.properties ssl.properties" />
@@ -277,8 +277,8 @@
         <!-- Create the distribution directory and create the jar -->
         <mkdir dir="${dist}" />
         <zip destfile="${dist}/callimachus-webapp-${Version}.car">
-            <zipfileset dir="${webapps}/callimachus" prefix="" includes="**/*.ttl" />
-            <zipfileset dir="${webapps}/callimachus" prefix="" excludes="**/*.ttl" />
+            <zipfileset dir="${webapp}" prefix="" includes="**/*.ttl" />
+            <zipfileset dir="${webapp}" prefix="" excludes="**/*.ttl" />
         </zip>
         <uptodate srcfile="${dist}/callimachus-webapp-${Version}.car" targetfile="${triples.file}" property="repositories.uptodate" />
     </target>
@@ -386,7 +386,7 @@
         <exec executable="${curl}" output="${downloads}/callimachus.car" logError="true" failonerror="true">
             <arg line="--user ${callimachus.email}:${callimachus.password} ${curl.args}" />
         </exec>
-        <unzip src="${downloads}/callimachus.car" dest="${webapps}/callimachus" />
+        <unzip src="${downloads}/callimachus.car" dest="${webapp}" />
         <delete file="${downloads}/callimachus.car" />
         <antcall target="car" />
         <touch file="${triples.file}" />

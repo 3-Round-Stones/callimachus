@@ -93,7 +93,7 @@ calli:Party a owl:Class;
 calli:User a owl:Class;
     rdfs:subClassOf calli:Party;
     rdfs:label "Agent";
-    rdfs:comment "A digest credential with a MD5 algorithm";
+    rdfs:comment "A user account";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:Group a owl:Class;

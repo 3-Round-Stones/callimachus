@@ -182,7 +182,7 @@ rdfs:comment a rdf:Property.
     calli:imports <java:org.apache.commons.codec.binary.Hex>;
     calli:script """
         var accounts = this.FindAuthenticationManager();
-        var credential = accounts.findCredential(authorization);
+        var credential = accounts.getUserIdentifier(authorization);
         //# read form
         var email = form.get("email") ? form.get("email")[0] : null;
         var current = form.get("current");

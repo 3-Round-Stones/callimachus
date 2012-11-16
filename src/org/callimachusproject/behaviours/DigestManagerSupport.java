@@ -42,23 +42,23 @@ public abstract class DigestManagerSupport implements RDFObject, DigestManager {
 	/**
 	 * Called from realm.ttl and user.ttl
 	 */
-	public String findCredential(Collection<String> tokens)
+	public String getUserIdentifier(Collection<String> tokens)
 			throws OpenRDFException {
 		DetachedDigestManager digest = getManager();
 		if (digest == null)
 			return null;
-		return digest.findCredential(tokens, this.getObjectConnection());
+		return digest.getUserIdentifier(tokens, this.getObjectConnection());
 	}
 
 	/**
 	 * Called from realm.ttl
 	 */
-	public String findCredentialLabel(Collection<String> tokens)
+	public String getUserLogin(Collection<String> tokens)
 			throws OpenRDFException {
 		DetachedDigestManager digest = getManager();
 		if (digest == null)
 			return null;
-		return digest.findCredentialLabel(tokens, this.getObjectConnection());
+		return digest.getUserLogin(tokens, this.getObjectConnection());
 	}
 
 	/**

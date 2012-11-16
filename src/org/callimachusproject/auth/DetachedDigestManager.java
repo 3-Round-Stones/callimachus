@@ -269,7 +269,7 @@ public class DetachedDigestManager implements DetachedAuthenticationManager {
 	public HttpResponse login(Collection<String> tokens, boolean persistent,
 			ObjectConnection con) throws OpenRDFException {
 		HttpResponse resp = null;
-		String username = findCredentialLabel(tokens, con);
+		String username = getUserLogin(tokens, con);
 		if (persistent) {
 			resp = getPersistentLogin(username, con);
 		}
@@ -283,11 +283,11 @@ public class DetachedDigestManager implements DetachedAuthenticationManager {
 
 	public String getUsernameSetCookie(Collection<String> tokens,
 			ObjectConnection con) {
-		String username = findCredentialLabel(tokens, con);
+		String username = getUserLogin(tokens, con);
 		return USERNAME + encode(username) + ";Path=" + protectedPath;
 	}
 
-	public String findCredential(Collection<String> tokens,
+	public String getUserIdentifier(Collection<String> tokens,
 			ObjectConnection con) throws OpenRDFException {
 		Map<String, String> options = parseDigestAuthorization(tokens);
 		if (options == null)
@@ -302,7 +302,7 @@ public class DetachedDigestManager implements DetachedAuthenticationManager {
 		return passwords.values().iterator().next();
 	}
 
-	public String findCredentialLabel(Collection<String> tokens, ObjectConnection con) {
+	public String getUserLogin(Collection<String> tokens, ObjectConnection con) {
 		Map<String, String> options = parseDigestAuthorization(tokens);
 		if (options == null)
 			return null;

@@ -11,9 +11,9 @@ import org.openrdf.annotations.Iri;
 @Iri("http://callimachusproject.org/rdf/2009/framework#AuthenticationManager")
 public interface AuthenticationManager {
 
-	String findCredential(Collection<String> tokens) throws OpenRDFException;
+	String getUserIdentifier(Collection<String> tokens) throws OpenRDFException;
 
-	String findCredentialLabel(Collection<String> tokens)
+	String getUserLogin(Collection<String> tokens)
 			throws OpenRDFException;
 
 	String getUsernameSetCookie(Collection<String> tokens) throws OpenRDFException;

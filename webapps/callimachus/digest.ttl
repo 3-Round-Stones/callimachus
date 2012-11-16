@@ -86,9 +86,9 @@
     calli:header "cache-control:max-age:3600";
     calli:type "text/html";
     calli:script """
-        var credential = this.findCredential(cookies);
+        var credential = this.getUserIdentifier(cookies);
         if (credential) {
-            var title = this.findCredentialLabel(cookies);
+            var title = this.getUserLogin(cookies);
             return '<html><head><title>' + title + '</title>'
                 + '<meta http-equiv="REFRESH" content="0; url=' + credential + '"/></head>'
                 + '<body resource="' + credential + '">' + title  + '</body></html>';

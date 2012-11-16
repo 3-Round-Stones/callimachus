@@ -243,9 +243,7 @@ public class DetachedRealm {
 				for (Header hd : headers) {
 					resp.addHeader(hd);
 				}
-				if (logout.getEntity() != null) {
-					EntityUtils.consume(logout.getEntity());
-				}
+				EntityUtils.consume(logout.getEntity());
 			}
 		}
 		if (logoutContinue != null && logoutContinue.length() > 0) {

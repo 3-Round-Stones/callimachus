@@ -128,7 +128,7 @@ rdfs:comment a rdf:Property.
     rdfs:range xsd:string.
 
 :FindSecret rdfs:subClassOf msg:Message;
-    rdfs:subClassof [owl:onProperty msg:target; owl:allValuesFrom <User>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <User>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
     msg:sparql """
         PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>

@@ -54,7 +54,7 @@ public class VersionTest {
 	public void test() throws Exception {
 		Version version = Version.getInstance();
 		assertTrue(version.getMajorVersionNum() >= 0);
-		assertTrue(version.getReleaseVersionNum() > 0);
+		assertTrue(version.getReleaseVersionNum() >= 0);
 		assertTrue(version.getMaintenanceVersionNum() >= 0);
 		version.getQualifierVersion();
 		assertTrue(version.getDevelopmentVersionNum() >= 0);

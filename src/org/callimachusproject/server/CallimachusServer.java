@@ -26,18 +26,18 @@ import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.xml.datatype.DatatypeConfigurationException;
-
 import org.apache.http.HttpHost;
 import org.callimachusproject.client.HTTPObjectClient;
+import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.server.util.FileUtil;
+import org.openrdf.OpenRDFException;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class CallimachusServer implements HTTPObjectAgentMXBean {
-	private static final String SCHEMA_GRAPH = "/callimachus/types/SchemaGraph";
+	private static final String SCHEMA_GRAPH = "types/SchemaGraph";
 	private static final String ENVELOPE_TYPE = "message/x-response";
 	private static final String IDENTITY_PATH = "/diverted;";
 	Logger logger = LoggerFactory.getLogger(CallimachusServer.class);
@@ -47,12 +47,15 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 
 	public CallimachusServer(Repository repository, File dataDir) throws Exception {
 		this.repository = new CallimachusRepository(repository, dataDir);
-		server = createServer(dataDir, this.repository);
+		this.server = createServer(dataDir, this.repository);
 	}
 
 	public void addOrigin(String origin) throws Exception {
 		ValueFactory vf = this.repository.getValueFactory();
-		repository.addSchemaGraphType(vf.createURI(origin + SCHEMA_GRAPH));
+		String webapp = repository.getCallimachusWebapp(origin + "/");
+		if (webapp != null) {
+			repository.addSchemaGraphType(vf.createURI(webapp + SCHEMA_GRAPH));
+		}
 		origins.add(origin);
 		String[] identities = origins.toArray(new String[origins.size()]);
 		for (int i = 0; i < identities.length; i++) {
@@ -69,17 +72,26 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 		server.setName(serverName);
 	}
 
-	public void setActivityFolderAndType(String uriSpace, String activityType, String folderType)
-			throws DatatypeConfigurationException {
-		repository.setActivityFolderAndType(uriSpace, activityType, folderType);
+	public void setActivityFolder(String uriSpace) throws OpenRDFException {
+		String o = TermFactory.newInstance(uriSpace).resolve("/");
+		String webapp = repository.getCallimachusWebapp(o);
+		if (webapp == null)
+			throw new IllegalArgumentException("Callimachus webapp not setup on: " + o);
+		repository.setActivityFolder(uriSpace, webapp);
 	}
 
 	public String getErrorPipe() {
 		return server.getErrorPipe();
 	}
 
-	public void setErrorPipe(String url) throws IOException {
-		server.setErrorPipe(url);
+	public void setErrorPipe(String origin, String path) throws IOException,
+			OpenRDFException {
+		String o = origin + "/";
+		String webapp = repository.getCallimachusWebapp(o);
+		if (webapp == null)
+			throw new IllegalArgumentException(
+					"Callimachus webapp not setup on: " + o);
+		server.setErrorPipe(webapp + path);
 	}
 
 	public CallimachusRepository getRepository() {

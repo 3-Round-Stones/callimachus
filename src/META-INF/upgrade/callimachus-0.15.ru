@@ -19,17 +19,17 @@ DELETE {
 };
 
 DELETE {
-	GRAPH ?g { ?resource ?rel </callimachus/Local> }
+	GRAPH ?g { ?resource ?rel <Local> }
 } INSERT {
-	GRAPH ?g { ?resource ?rel </callimachus/Serviceable> }
+	GRAPH ?g { ?resource ?rel <Serviceable> }
 } WHERE {
-	GRAPH ?g { ?resource ?rel </callimachus/Local> }
+	GRAPH ?g { ?resource ?rel <Local> }
 };
 
 DELETE {
 	GRAPH ?g { ?cls rdfs:subClassOf calli:Viewable }
 } INSERT {
-	GRAPH ?g { ?cls rdfs:subClassOf </callimachus/Viewable> }
+	GRAPH ?g { ?cls rdfs:subClassOf <Viewable> }
 } WHERE {
 	GRAPH ?g { ?cls rdfs:subClassOf calli:Viewable }
 	FILTER strstarts(str(?cls),str(</>))
@@ -38,7 +38,7 @@ DELETE {
 DELETE {
 	GRAPH ?g { ?cls rdfs:subClassOf calli:Editable }
 } INSERT {
-	GRAPH ?g { ?cls rdfs:subClassOf </callimachus/Editable> }
+	GRAPH ?g { ?cls rdfs:subClassOf <Editable> }
 } WHERE {
 	GRAPH ?g { ?cls rdfs:subClassOf calli:Editable }
 	FILTER strstarts(str(?cls),str(</>))
@@ -47,7 +47,7 @@ DELETE {
 DELETE {
 	GRAPH ?g { ?cls rdfs:subClassOf calli:Composite }
 } INSERT {
-	GRAPH ?g { ?cls rdfs:subClassOf </callimachus/Composite> }
+	GRAPH ?g { ?cls rdfs:subClassOf <Composite> }
 } WHERE {
 	GRAPH ?g { ?cls rdfs:subClassOf calli:Composite }
 	FILTER strstarts(str(?cls),str(</>))
@@ -56,7 +56,7 @@ DELETE {
 DELETE {
 	GRAPH ?g { ?cls a calli:SchemaGraph }
 } INSERT {
-	GRAPH ?g { ?cls a </callimachus/SchemaGraph> }
+	GRAPH ?g { ?cls a <SchemaGraph> }
 } WHERE {
 	GRAPH ?g { ?cls a calli:SchemaGraph }
 	FILTER strstarts(str(?cls),str(</>))

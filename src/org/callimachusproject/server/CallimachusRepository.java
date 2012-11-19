@@ -5,13 +5,16 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.xml.datatype.DatatypeConfigurationException;
-
 import org.callimachusproject.logging.trace.TracerService;
+import org.openrdf.OpenRDFException;
+import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
+import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.repository.Repository;
+import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
+import org.openrdf.repository.RepositoryResult;
 import org.openrdf.repository.auditing.ActivityFactory;
 import org.openrdf.repository.auditing.AuditingRepository;
 import org.openrdf.repository.auditing.config.AuditingRepositoryFactory;
@@ -25,6 +28,9 @@ import org.openrdf.repository.object.exceptions.ObjectStoreConfigException;
 import org.openrdf.store.blob.file.FileBlobStoreProvider;
 
 public class CallimachusRepository extends RepositoryWrapper {
+	private static final String SLASH_ORIGIN = "/types/Origin";
+	private static final String ACTIVITY_TYPE = "types/Activity";
+	private static final String FOLDER_TYPE = "types/Folder";
 	private final AuditingRepository auditing;
 	private final ObjectRepository object;
 
@@ -42,11 +48,14 @@ public class CallimachusRepository extends RepositoryWrapper {
 		return object;
 	}
 
-	public void setActivityFolderAndType(String uriSpace, String activityType,
-			String folderType) throws DatatypeConfigurationException {
+	public void setActivityFolder(String uriSpace, String webapp)
+			throws OpenRDFException {
+		assert webapp.endsWith("/");
 		if (auditing != null) {
+			String bundle = webapp + ACTIVITY_TYPE;
+			String folder = webapp + FOLDER_TYPE;
 			auditing.setActivityFactory(new CallimachusActivityFactory(object,
-					uriSpace, activityType, folderType));
+					uriSpace, bundle, folder));
 		}
 	}
 
@@ -69,6 +78,40 @@ public class CallimachusRepository extends RepositoryWrapper {
 
 	public boolean addSchemaListener(Runnable action) {
 		return object.addSchemaListener(action);
+	}
+
+	/**
+	 * Locates the location of the Callimachus webapp folder if present in same
+	 * origin, given the root folder.
+	 * 
+	 * @param root
+	 *            home folder, absolute URL with '/' as the path
+	 * @return folder of the Callimachus webapp (or null)
+	 * @throws OpenRDFException
+	 */
+	public String getCallimachusWebapp(String root) throws OpenRDFException {
+		assert root.endsWith("/");
+		RepositoryConnection con = this.getConnection();
+		try {
+			ValueFactory vf = con.getValueFactory();
+			RepositoryResult<Statement> stmts;
+			stmts = con
+					.getStatements(vf.createURI(root), RDF.TYPE, null, false);
+			try {
+				while (stmts.hasNext()) {
+					String type = stmts.next().getObject().stringValue();
+					if (type.startsWith(root) && type.endsWith(SLASH_ORIGIN)) {
+						int end = type.length() - SLASH_ORIGIN.length();
+						return type.substring(0, end + 1);
+					}
+				}
+			} finally {
+				stmts.close();
+			}
+		} finally {
+			con.close();
+		}
+		return null;
 	}
 
 	public ObjectConnection getConnection() throws RepositoryException {

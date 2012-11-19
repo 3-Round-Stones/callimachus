@@ -45,7 +45,7 @@
                             <p:pipe step="test-file" port="result"/>
                         </p:input>      
                         <p:input port="schema">
-                            <p:document href="../../webapps/callimachus/schemas/docbookxi.rng" />
+                            <p:document href="../../webapp/schemas/docbookxi.rng" />
                         </p:input>                
                     </p:validate-with-relax-ng>            
                     <p:xslt name="stripped-original">
@@ -58,12 +58,12 @@
                             <p:pipe step="test-file" port="result"/>
                         </p:input>                
                         <p:input port="stylesheet">
-                            <p:document href="../../webapps/callimachus/editor/docbook2xhtml.xsl" />
+                            <p:document href="../../webapp/editor/docbook2xhtml.xsl" />
                         </p:input>
                     </p:xslt>                        
                     <p:xslt name="roundtrip">
                         <p:input port="stylesheet">
-                            <p:document href="../../webapps/callimachus/editor/xhtml2docbook.xsl" />
+                            <p:document href="../../webapp/editor/xhtml2docbook.xsl" />
                         </p:input>
                     </p:xslt>    
                     <p:xslt name="stripped-roundtrip">

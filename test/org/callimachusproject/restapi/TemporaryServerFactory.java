@@ -176,7 +176,7 @@ public class TemporaryServerFactory {
 			Setup setup = new Setup();
 			setup.connect(dir, config);
 			setup.createOrigin(origin);
-			setup.importCar(car.toURI().toURL(), origin + "/callimachus/", origin);
+			setup.importCallimachusWebapp(car.toURI().toURL(), origin);
 			setup.setServeAllResourcesAs(origin);
 			String username = email.substring(0, email.indexOf('@'));
 			setup.createAdmin(email, email, username, password, origin);

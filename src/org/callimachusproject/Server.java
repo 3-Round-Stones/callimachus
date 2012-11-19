@@ -68,9 +68,7 @@ import org.slf4j.LoggerFactory;
  */
 public class Server implements HTTPObjectAgentMXBean {
 	private static final String ACTIVITY_PATH = "/activity/";
-	private static final String ACTIVITY_TYPE = "/callimachus/types/Activity";
-	private static final String FOLDER_TYPE = "/callimachus/types/Folder";
-	private static final String ERROR_XPL_PATH = "/callimachus/pipelines/error.xpl";
+	private static final String ERROR_XPL_PATH = "pipelines/error.xpl";
 	public static final String NAME = Version.getInstance().getVersion();
 
 	private static final CommandSet commands = new CommandSet(NAME);
@@ -393,8 +391,9 @@ public class Server implements HTTPObjectAgentMXBean {
 		if (line.has("origin")) {
 			for (String o : line.getAll("origin")) {
 				if (primary) {
-					server.setActivityFolderAndType(o + ACTIVITY_PATH, o + ACTIVITY_TYPE, o + FOLDER_TYPE);
-					server.setErrorPipe(o + ERROR_XPL_PATH);
+					String activity = o + ACTIVITY_PATH;
+					server.setActivityFolder(activity);
+					server.setErrorPipe(o, ERROR_XPL_PATH);
 					primary = false;
 				}
 				server.addOrigin(o);

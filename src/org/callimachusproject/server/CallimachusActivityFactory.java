@@ -69,6 +69,14 @@ public final class CallimachusActivityFactory implements ActivityFactory {
 			+ "OPTIONAL {$parent calli:editor ?editor}\n"
 			+ "OPTIONAL {$parent calli:subscriber ?subscriber}\n"
 			+ "OPTIONAL {$parent calli:reader ?reader}\n" + "}";
+	private static final DatatypeFactory df;
+	static {
+		try {
+			df = DatatypeFactory.newInstance();
+		} catch (DatatypeConfigurationException e) {
+			throw new AssertionError(e);
+		}
+	}
 	private static final String CALLI_HASCOMPONENT = "http://callimachusproject.org/rdf/2009/framework#hasComponent";
 	private final Logger logger = LoggerFactory.getLogger(CallimachusActivityFactory.class);
 	private final String uid = "t"
@@ -78,14 +86,12 @@ public final class CallimachusActivityFactory implements ActivityFactory {
 	private final String uriSpace;
 	private final String activityBundleType;
 	private final String folderType;
-	private final DatatypeFactory df;
 	private String namespace;
 	private GregorianCalendar date;
 	private String folder;
 
 	public CallimachusActivityFactory(Repository repository, String uriSpace,
-			String activityBundleType, String folderType)
-			throws DatatypeConfigurationException {
+			String activityBundleType, String folderType) {
 		assert repository != null;
 		assert uriSpace != null;
 		assert activityBundleType != null;
@@ -94,7 +100,6 @@ public final class CallimachusActivityFactory implements ActivityFactory {
 		this.uriSpace = uriSpace;
 		this.activityBundleType = activityBundleType;
 		this.folderType = folderType;
-		this.df = DatatypeFactory.newInstance();
 		assert uriSpace.endsWith("/");
 	}
 

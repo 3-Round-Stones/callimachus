@@ -512,7 +512,7 @@ do_setup() {
     -classpath "$CLASSPATH" \
     -XX:OnOutOfMemoryError="kill -9 %p" \
     $JAVA_OPTS $SSL_OPTS "$SETUPCLASS" \
-    $PRIMARY_ORIGIN_OPTS -c "$REPOSITORY_CONFIG" -f "/callimachus/=$(ls lib/$NAME*.car)" \
+    $PRIMARY_ORIGIN_OPTS -c "$REPOSITORY_CONFIG" -w "$(ls lib/$NAME*.car)" \
     -e "$EMAIL" -n "$FULLNAME" $ALL_SERVICEABLE_OPT "$@"
   return $?
 }

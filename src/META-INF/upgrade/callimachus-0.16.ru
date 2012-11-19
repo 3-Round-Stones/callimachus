@@ -24,18 +24,18 @@ DELETE {
 };
 
 INSERT {
-	?manager a </callimachus/DigestManager>, calli:DigestManager
+	?manager a <DigestManager>, calli:DigestManager
 } WHERE {
-	?manager a </callimachus/AccountManager>, calli:AccountManager
-	FILTER NOT EXISTS { ?manager a </callimachus/DigestManager> }
+	?manager a <AccountManager>, calli:AccountManager
+	FILTER NOT EXISTS { ?manager a <DigestManager> }
 };
 
 DELETE {
-	</callimachus/> rdfs:label "callimachus/"
+	<> rdfs:label "callimachus/"
 } INSERT {
-	</callimachus/> rdfs:label "callimachus"
+	<> rdfs:label "callimachus"
 } WHERE {
-	</callimachus/> rdfs:label "callimachus/"
+	<> rdfs:label "callimachus/"
 };
 
 DELETE {

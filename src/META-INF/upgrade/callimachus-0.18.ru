@@ -60,8 +60,8 @@ DELETE {
     { BIND ("User" AS ?name) } UNION
     { BIND ("Viewable" AS ?name) } UNION
     { BIND ("XQuery" AS ?name) }
-	BIND (iri(concat(str(</callimachus/>),?name)) AS ?previous)
-	BIND (iri(concat(str(</callimachus/types/>),?name)) AS ?current)
+	BIND (iri(concat(str(<>),?name)) AS ?previous)
+	BIND (iri(concat(str(<types/>),?name)) AS ?current)
 	{
 		?resource a ?previous
 	} UNION {

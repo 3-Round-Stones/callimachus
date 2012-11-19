@@ -57,7 +57,8 @@ public class TermFactoryImpl extends TermFactory {
 		assert systemId != null;
 		this.systemId = canonicalize(systemId);
 		base = new ParsedURI(this.systemId);
-		assert base.isAbsolute() : base;
+		if (!base.isAbsolute())
+			throw new IllegalArgumentException("Not an absolute URI: " + base);
 	}
 
 	@Override

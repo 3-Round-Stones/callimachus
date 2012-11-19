@@ -74,7 +74,7 @@ window.calli.openDialog = function(url, title, options) {
         resizable: false,
         autoResize: true,
         position: ['center', 'center'],
-        width: '80%',
+        width: '90%',
         height: 0.9 * $(window).height()
     }, options);
     var iframe = $("<iframe></iframe>");

@@ -247,7 +247,7 @@ public class DetachedDigestManager implements DetachedAuthenticationManager {
 	@Override
 	public HttpResponse logout(Collection<String> tokens) {
 		for (String token : tokens) {
-			if (token.indexOf("username=\"logout\"") > 0) {
+			if (token.indexOf("username=\"-\"") > 0) {
 				// # bogus credentials received
 				BasicHttpResponse resp = new BasicHttpResponse(_204);
 				resp.addHeader("Set-Cookie", DIGEST_NONCE + ";Max-Age=0;Path=/;HttpOnly");

@@ -26,7 +26,7 @@ function divertIfForeign(url) {
 
 function logout(url) {
     jQuery.ajax({ type: 'POST', url: url,
-        username: 'logout', password: 'please',
+        username: '-', password: 'logout',
         success: function(data) {
             if (window.localStorage) {
                 localStorage.removeItem('username');

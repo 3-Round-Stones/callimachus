@@ -31,9 +31,12 @@ xmlns="http://www.w3.org/1999/xhtml" xmlns:xhtml="http://www.w3.org/1999/xhtml" 
     <div class="book">
         <xsl:apply-templates select="@xml:id" />
         <xsl:apply-templates select="d:info|d:title|d:preface" />
-        <ul class="toc">
-            <xsl:apply-templates mode="toc" />
-        </ul>
+        <nav>
+            <h3>Table of Contents</h3>
+            <ul class="toc">
+                <xsl:apply-templates mode="toc" />
+            </ul>
+        </nav>
         <xsl:apply-templates select="*[not(self::d:info|self::d:title|self::d:preface)]" />
     </div>
 </xsl:template>
@@ -42,9 +45,12 @@ xmlns="http://www.w3.org/1999/xhtml" xmlns:xhtml="http://www.w3.org/1999/xhtml" 
     <div class="part">
         <xsl:apply-templates select="@xml:id" />
         <xsl:apply-templates select="d:info|d:title|d:preface|d:partintro" />
-        <ul class="toc">
-            <xsl:apply-templates mode="toc" />
-        </ul>
+        <nav>
+            <h3>Contents</h3>
+            <ul class="toc">
+                <xsl:apply-templates mode="toc" />
+            </ul>
+        </nav>
         <xsl:apply-templates select="*[not(self::d:info|self::d:title|self::d:preface|self::d:partintro)]" />
     </div>
     <xsl:if test="following-sibling::*">
@@ -56,9 +62,12 @@ xmlns="http://www.w3.org/1999/xhtml" xmlns:xhtml="http://www.w3.org/1999/xhtml" 
     <div class="chapter">
         <xsl:apply-templates select="@xml:id" />
         <xsl:apply-templates select="d:info|d:title" />
-        <ul class="unstyled toc">
-            <xsl:apply-templates mode="toc" />
-        </ul>
+        <nav>
+            <h3>Contents</h3>
+            <ul class="toc">
+                <xsl:apply-templates mode="toc" />
+            </ul>
+        </nav>
         <xsl:apply-templates select="*[not(self::d:info|self::d:title)]" />
     </div>
     <xsl:if test="following-sibling::*">
@@ -163,29 +172,22 @@ xmlns="http://www.w3.org/1999/xhtml" xmlns:xhtml="http://www.w3.org/1999/xhtml" 
 
 <xsl:template mode="heading-prefix" match="node()" />
 
-<xsl:template mode="heading-prefix" match="d:title">
-    <xsl:if test="parent::d:section/parent::d:chapter or parent::d:info/parent::d:section/parent::d:chapter">
-        <xsl:if test="ancestor::d:chapter/parent::*">
-            <xsl:value-of select="count(ancestor::d:chapter/preceding-sibling::*[self::d:part or self::d:article or self::d:chapter or self::d:section]) + 1" />
-            <xsl:text>.</xsl:text>
-        </xsl:if>
-        <xsl:value-of select="count(ancestor::d:section/preceding-sibling::*[self::d:part or self::d:article or self::d:chapter or self::d:section]) + 1" />
-        <xsl:text>. </xsl:text>
-    </xsl:if>
-    <xsl:if test="parent::d:chapter/parent::* or parent::d:info/parent::d:chapter/parent::*">
-        <xsl:text>Chapter </xsl:text>
-        <xsl:value-of select="count(ancestor::d:chapter/preceding-sibling::*[self::d:part or self::d:article or self::d:chapter or self::d:section]) + 1" />
-        <xsl:text>. </xsl:text>
-    </xsl:if>
-    <xsl:if test="parent::d:article/parent::* or parent::d:info/parent::d:article/parent::*">
-        <xsl:value-of select="count(ancestor::d:article/preceding-sibling::*[self::d:part or self::d:article or self::d:chapter or self::d:section]) + 1" />
-        <xsl:text>. </xsl:text>
-    </xsl:if>
-    <xsl:if test="parent::d:part/parent::* or parent::d:info/parent::d:part/parent::*">
-        <xsl:text>Part </xsl:text>
-        <xsl:value-of select="count(ancestor::d:part/preceding-sibling::*[self::d:part or self::d:article or self::d:chapter or self::d:section]) + 1" />
-        <xsl:text>. </xsl:text>
-    </xsl:if>
+<xsl:template mode="heading-prefix" match="d:chapter/d:section/d:title|d:chapter/d:section/d:info/d:title">
+    <xsl:number format="1. " level="multiple" count="d:chapter|d:section" />
+</xsl:template>
+
+<xsl:template mode="heading-prefix" match="d:chapter/d:title|d:chapter/d:info/d:title">
+    <xsl:text>Chapter </xsl:text>
+    <xsl:number format="1. " level="single" count="d:part|d:article|d:chapter|d:section" />
+</xsl:template>
+
+<xsl:template mode="heading-prefix" match="d:article/d:title|d:article/d:info/d:title|d:appendix/d:title|d:appendix/d:info/d:title">
+    <xsl:number format="A. " level="single" count="d:part|d:article|d:chapter|d:section" />
+</xsl:template>
+
+<xsl:template mode="heading-prefix" match="d:part/d:title|d:part/d:info/d:title">
+    <xsl:text>Part </xsl:text>
+    <xsl:number format="I. " level="single" count="d:part|d:article|d:chapter|d:section" />
 </xsl:template>
 
 </xsl:stylesheet>

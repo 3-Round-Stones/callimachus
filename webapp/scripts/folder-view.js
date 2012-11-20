@@ -226,10 +226,15 @@
     jQuery(function(){
         if (window.FileReader && (window.BlobBuilder || window.MozBlobBuilder || window.WebKitBlobBuilder)) {
             $('#folder-box').bind('dragenter dragexit dragover', function(event) {
+                $(this).addClass(event.type);
                 event.stopPropagation();
                 event.preventDefault();
             });
+            $('#folder-box').bind('dragleave', function(event) {
+                $(this).removeClass('dragenter dragover');
+            });
             $('#folder-box').bind('drop', function(event) {
+                $(this).removeClass('dragenter dragover');
                 event.stopPropagation();
                 event.preventDefault();
                 var files = event.originalEvent.dataTransfer.files;

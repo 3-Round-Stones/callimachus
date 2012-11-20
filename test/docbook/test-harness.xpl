@@ -58,12 +58,12 @@
                             <p:pipe step="test-file" port="result"/>
                         </p:input>                
                         <p:input port="stylesheet">
-                            <p:document href="../../webapp/editor/docbook2xhtml.xsl" />
+                            <p:document href="../../webapp/transforms/article-edit-xhtml.xsl" />
                         </p:input>
                     </p:xslt>                        
                     <p:xslt name="roundtrip">
                         <p:input port="stylesheet">
-                            <p:document href="../../webapp/editor/xhtml2docbook.xsl" />
+                            <p:document href="../../webapp/transforms/article-save-xhtml.xsl" />
                         </p:input>
                     </p:xslt>    
                     <p:xslt name="stripped-roundtrip">

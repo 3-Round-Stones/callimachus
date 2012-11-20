@@ -65,14 +65,22 @@
         created = con.addDesignation(created, Document);
 
         var read;
-        var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
-        var out = created.openOutputStream();
+        var stream = body;
+        if (type.indexOf("application/xhtml+xml") == 0) {
+            stream = created.ConvertXhtmlDocbook(body);
+        }
         try {
-            while ((read = body.read(buf)) >= 0) {
-                out.write(buf, 0, read);
+            var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
+            var out = created.openOutputStream();
+            try {
+                while ((read = stream.read(buf)) >= 0) {
+                    out.write(buf, 0, read);
+                }
+            } finally {
+                out.close();
             }
         } finally {
-            out.close();
+            stream.close();
         }
         try {
             created.ValidateBook();
@@ -84,4 +92,61 @@
         }
         return created;
     """.
+
+# PUT /books/main-article.docbook?xhtml
+:UploadXhtmlArticle rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Book>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+    calli:method "PUT";
+    calli:query "xhtml";
+    calli:requires calli:editor;
+    calli:imports foaf:Document;
+    calli:script """
+        var read;
+        var docbookStream = this.ConvertXhtmlDocbook(xhtmlStream);
+        try {
+            var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
+            var out = this.openOutputStream();
+            try {
+                while ((read = docbookStream.read(buf)) >= 0) {
+                    out.write(buf, 0, read);
+                }
+            } finally {
+                out.close();
+            }
+        } finally {
+            docbookStream.close();
+        }
+        this.ValidateBook();
+        this.CheckBook();
+        this.touchRevision();
+    """.
+
+:xhtmlStream a owl:ObjectProperty; a owl:FunctionalProperty;
+    rdfs:domain :UploadXhtmlArticle;
+    rdfs:range <java:java.io.InputStream>;
+    calli:type "application/xhtml+xml".
+
+# GET /books/main-article.docbook?xhtml
+:GetArticleXhtml rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Article>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+    calli:method "GET";
+    calli:query "xhtml";
+    calli:rel "edit-media";
+    calli:requires calli:reader;
+    calli:type "application/xhtml+xml";
+    calli:header "cache-control:no-cache";
+    calli:post "../pipelines/article-edit-xhtml.xpl?results\nContent-Location: $0\nContent-Type: application/docbook+xml".
+
+:ConvertXhtmlDocbook rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Article>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+    calli:type "application/docbook+xml";
+    calli:post "../pipelines/article-save-xhtml.xpl?results".
+
+:xhtmlInput a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :ConvertXhtmlDocbook;
+    rdfs:range <java:java.io.InputStream>;
+    calli:type "application/xhtml+xml".
 

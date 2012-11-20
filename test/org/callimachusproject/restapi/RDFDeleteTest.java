@@ -1,20 +1,13 @@
 package org.callimachusproject.restapi;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.Authenticator;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.PasswordAuthentication;
-import java.net.ProtocolException;
-import java.net.URL;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-public class RDFDeleteTest extends TestCase {
+import org.callimachusproject.test.TemporaryServerTestCase;
+
+public class RDFDeleteTest extends TemporaryServerTestCase {
 
 	private static Map<String, String[]> parameters = new LinkedHashMap<String, String[]>() {
         private static final long serialVersionUID = -4308917786147773821L;
@@ -79,7 +72,6 @@ public class RDFDeleteTest extends TestCase {
         return suite;
     }
 	
-	private static TemporaryServer temporaryServer = TemporaryServerFactory.getInstance().createServer();
 	private String query;
 	
 	public RDFDeleteTest(String name) throws Exception {
@@ -87,68 +79,11 @@ public class RDFDeleteTest extends TestCase {
 		String [] args = parameters.get(name);
 		query = args[0];
 	}
-
-	public void setUp() throws Exception {
-		super.setUp();
-		temporaryServer.resume();
-		Authenticator.setDefault(new Authenticator() {
-		     protected PasswordAuthentication getPasswordAuthentication() {
-		       return new PasswordAuthentication(temporaryServer.getUsername(), temporaryServer.getPassword()); 
-		     }
-		 });
-	}
-
-	public void tearDown() throws Exception {
-		super.tearDown();
-		temporaryServer.pause();
-		Authenticator.setDefault(null);
-	}
-	
-	private String getRDFContents() throws MalformedURLException, IOException,
-			ProtocolException {
-		URL url = new java.net.URL(temporaryServer.getOrigin() + "/");
-		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-		connection.setRequestMethod("OPTIONS");
-		assertEquals(connection.getResponseMessage(), 204, connection.getResponseCode());
-		String header = connection.getHeaderField("LINK");
-		int rel = header.indexOf("rel=\"describedby\"");
-		int start = header.lastIndexOf("<", rel);
-		int end = header.lastIndexOf(">", rel);
-		String contents = header.substring(start + 1, end);
-		return contents;
-	}
-	
-	private String getLocation() throws Exception {
-		URL url = new java.net.URL(getRDFContents());
-		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-		connection.setRequestMethod("POST");
-		connection.setRequestProperty("Content-Type", "application/sparql-update");
-		connection.setDoOutput(true);
-		OutputStream output = connection.getOutputStream();
-		output.write(("BASE <" + temporaryServer.getOrigin() + "/> \n" + query).getBytes());
-		output.close();
-		assertEquals(connection.getResponseMessage(), 201, connection.getResponseCode());
-		String header = connection.getHeaderField("Location");
-		return header;
-	}
-	
-	private String getDescribedBy() throws Exception {
-		URL url = new java.net.URL(getLocation());
-		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-		connection.setRequestMethod("OPTIONS");
-		assertEquals(connection.getResponseMessage(), 204, connection.getResponseCode());
-		String header = connection.getHeaderField("LINK");
-		int rel = header.indexOf("rel=\"describedby\"");
-		int end = header.lastIndexOf(">", rel);
-		int start = header.lastIndexOf("<", rel);
-		String contents = header.substring(start + 1, end);
-		return contents;
-	}
 	
 	public void runTest() throws Exception {
-		URL url = new java.net.URL(getDescribedBy());
-		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-		connection.setRequestMethod("DELETE");
-		assertEquals(connection.getResponseMessage(), 204, connection.getResponseCode());
+		String text = "BASE <" + getHomeFolder() + "> \n" + query;
+		getHomeFolder().link("describedby")
+				.create("application/sparql-update", text.getBytes())
+				.link("describedby").delete();
 	}
 }

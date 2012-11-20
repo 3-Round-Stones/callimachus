@@ -1,4 +1,4 @@
-package org.callimachusproject.restapi;
+package org.callimachusproject.test;
 
 import org.callimachusproject.server.CallimachusRepository;
 

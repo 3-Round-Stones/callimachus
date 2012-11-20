@@ -1,19 +1,11 @@
 package org.callimachusproject.restapi;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.Authenticator;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.PasswordAuthentication;
-import java.net.ProtocolException;
-import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import junit.framework.TestCase;
-
+import org.callimachusproject.test.TemporaryServerTestCase;
+import org.callimachusproject.test.WebResource;
 import org.junit.ComparisonFailure;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -21,9 +13,8 @@ import org.openrdf.model.ValueFactory;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.repository.object.ObjectConnection;
 
-public class FormInterface extends TestCase {
+public class FormInterface extends TemporaryServerTestCase {
 	private static final String SKOS = "http://www.w3.org/2004/02/skos/core#";
-    private static final TemporaryServer temporaryServer = TemporaryServerFactory.getInstance().createServer();
 	private final String requestSlug = "form-page.xhtml";
 	private final String requestContentType = "application/xhtml+xml";
 	private final String xhtml = "<?xml-stylesheet type=\"text/xsl\" href=\"/callimachus/template.xsl\"?>\n" +
@@ -35,21 +26,13 @@ public class FormInterface extends TestCase {
 
 	public void setUp() throws Exception {
 		super.setUp();
-		temporaryServer.resume();
-		Authenticator.setDefault(new Authenticator() {
-		     protected PasswordAuthentication getPasswordAuthentication() {
-		       return new PasswordAuthentication(temporaryServer.getUsername(), temporaryServer.getPassword()); 
-		     }
-		 });
-		con = temporaryServer.getRepository().getConnection();
+		con = getRepository().getConnection();
 	}
 
 	public void tearDown() throws Exception {
 		con.clear(con.getVersionBundle());
 		con.close();
 		super.tearDown();
-		temporaryServer.pause();
-		Authenticator.setDefault(null);
 	}
 
 	@Test
@@ -59,7 +42,7 @@ public class FormInterface extends TestCase {
 		con.add(vf.createURI("urn:test:concept"), vf.createURI(SKOS, "prefLabel"), vf.createLiteral("label-option-1"));
 		String xml = "<select id='status' rel='skos:topConcept' xmlns:skos='http://www.w3.org/2004/02/skos/core#'><option about='?status' typeof='skos:Concept' property='skos:prefLabel' selected='selected' /></select>";
 		String xhtml = this.xhtml.replace("<select/>", xml);
-		String uri = createPage(xhtml, requestSlug);
+		WebResource uri = createPage(xhtml, requestSlug);
 		String options = getOptions(uri);
 		assertContains("<select", options);
 		assertOccurance(1, "<option", options);
@@ -75,7 +58,7 @@ public class FormInterface extends TestCase {
 		con.add(vf.createURI("urn:test:concept2"), vf.createURI(SKOS, "prefLabel"), vf.createLiteral("label-option-2"));
 		String xml = "<select id='status' rel='skos:topConcept' xmlns:skos='http://www.w3.org/2004/02/skos/core#'><option about='?status' typeof='skos:Concept' property='skos:prefLabel' selected='selected' /></select>";
 		String xhtml = this.xhtml.replace("<select/>", xml);
-		String uri = createPage(xhtml, requestSlug);
+		WebResource uri = createPage(xhtml, requestSlug);
 		String options = getOptions(uri);
 		assertContains("<select", options);
 		assertOccurance(2, "<option", options);
@@ -93,7 +76,7 @@ public class FormInterface extends TestCase {
 		con.add(vf.createURI("urn:test:concept3"), RDF.TYPE, vf.createURI(SKOS, "Concept"));
 		String xml = "<select id='status' rel='skos:topConcept' xmlns:skos='http://www.w3.org/2004/02/skos/core#'><option about='?status' typeof='skos:Concept' property='skos:prefLabel' selected='selected' /></select>";
 		String xhtml = this.xhtml.replace("<select/>", xml);
-		String uri = createPage(xhtml, requestSlug);
+		WebResource uri = createPage(xhtml, requestSlug);
 		String options = getOptions(uri);
 		assertContains("<select", options);
 		assertOccurance(2, "<option", options);
@@ -112,7 +95,7 @@ public class FormInterface extends TestCase {
 		con.add(vf.createURI("urn:test:concept3"), vf.createURI(SKOS, "prefLabel"), vf.createLiteral("label-option-3"));
 		String xml = "<select id='status' rel='skos:topConcept' xmlns:skos='http://www.w3.org/2004/02/skos/core#'><option about='?status' typeof='skos:Concept' property='skos:prefLabel' selected='selected' /></select>";
 		String xhtml = this.xhtml.replace("<select/>", xml);
-		String uri = createPage(xhtml, requestSlug);
+		WebResource uri = createPage(xhtml, requestSlug);
 		String options = getOptions(uri);
 		assertContains("<select", options);
 		assertOccurance(2, "<option", options);
@@ -120,64 +103,25 @@ public class FormInterface extends TestCase {
 		assertContains("label-option-3", options);
 	}
 
-	private String createPage(String xhtml, String identifier) throws Exception {
-		URL url = new java.net.URL(getCollection());
-		HttpURLConnection urlcon = (HttpURLConnection) url.openConnection();
-		urlcon.setRequestMethod("POST");
-		urlcon.setRequestProperty("Slug", identifier);
-		urlcon.setRequestProperty("Content-Type", requestContentType);
-		urlcon.setDoOutput(true);
-		OutputStream output = urlcon.getOutputStream();
-		output.write(xhtml.getBytes());
-		output.close();
-		assertEquals(urlcon.getResponseMessage(), 201, urlcon.getResponseCode());
-		String header = urlcon.getHeaderField("Location");
-		return header;
+	private WebResource createPage(String xhtml, String identifier) throws Exception {
+		return getCollection().create(identifier, requestContentType, xhtml.getBytes());
 	}
 	
-	private String getCollection() throws Exception {
-		String contents = getRelContents();
-		
-		URL contentsURL = new java.net.URL(contents);
-		HttpURLConnection urlcon = (HttpURLConnection) contentsURL.openConnection();
-		urlcon.setRequestMethod("GET");
-		urlcon.setRequestProperty("ACCEPT", "application/atom+xml");
-		assertEquals(urlcon.getResponseMessage(), 203, urlcon.getResponseCode());
-		InputStream stream = urlcon.getInputStream();
-		String text = new java.util.Scanner(stream).useDelimiter("\\A").next();
-		return getQuoteAfter("<app:collection", text);
+	private WebResource getCollection() throws Exception {
+		return getRelContents().getAppCollection();
 	}
 
-	private String getRelContents() throws MalformedURLException, IOException,
-			ProtocolException {
-		URL url = new java.net.URL(temporaryServer.getOrigin() + "/");
-		HttpURLConnection urlcon = (HttpURLConnection) url.openConnection();
-		urlcon.setRequestMethod("OPTIONS");
-		assertEquals(urlcon.getResponseMessage(), 204, urlcon.getResponseCode());
-		String header = urlcon.getHeaderField("LINK");
-		int rel = header.indexOf("rel=\"contents\"");
-		int end = header.lastIndexOf(">", rel);
-		int start = header.lastIndexOf("<", rel);
-		String contents = header.substring(start + 1, end);
-		return contents;
+	private WebResource getRelContents() throws IOException {
+		return getHomeFolder().link("contents", "application/atom+xml");
 	}
 
-	private String getOptions(String uri) throws Exception {
-		String view = getHtml(uri + "?view");
+	private String getOptions(WebResource uri) throws Exception {
+		String view = new String(uri.link("alternate", "text/html").get("text/html"));
 		assertContains("<select", view);
 		assertContains("data-options=", view);
 		String url = getQuoteAfter("data-options=", view);
-		assertContains(uri, url);
-		return getHtml(url);
-	}
-	
-	private String getHtml(String url) throws Exception {
-		HttpURLConnection urlcon = (HttpURLConnection) new java.net.URL(url).openConnection();
-		urlcon.setRequestMethod("GET");
-		urlcon.setRequestProperty("ACCEPT", "text/html");
-		assertEquals(urlcon.getResponseMessage(), 203, urlcon.getResponseCode());
-		InputStream stream = urlcon.getInputStream();
-		return new java.util.Scanner(stream).useDelimiter("\\A").next();
+		assertContains(uri.toString(), url);
+		return new String(new WebResource(url).get("text/html"));
 	}
 
 	private String getQuoteAfter(String token, String text) {

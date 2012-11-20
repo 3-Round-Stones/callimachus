@@ -1,21 +1,13 @@
 package org.callimachusproject.restapi;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.Authenticator;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.PasswordAuthentication;
-import java.net.ProtocolException;
-import java.net.URL;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-public class BLOBDeleteTest extends TestCase {
+import org.callimachusproject.test.TemporaryServerTestCase;
+
+public class BLOBDeleteTest extends TemporaryServerTestCase {
 
 	private static Map<String, String[]> parameters = new LinkedHashMap<String, String[]>() {
         private static final long serialVersionUID = -4308917786147773821L; {
@@ -127,7 +119,6 @@ public class BLOBDeleteTest extends TestCase {
         return suite;
     }
 	
-	private static TemporaryServer temporaryServer = TemporaryServerFactory.getInstance().createServer();
 	private String requestSlug;
 	private String requestContentType;
 	private String outputString;
@@ -139,86 +130,13 @@ public class BLOBDeleteTest extends TestCase {
 		requestContentType = args[1];
 		outputString = args[2];
 	}
-
-	public void setUp() throws Exception {
-		super.setUp();
-		temporaryServer.resume();
-		Authenticator.setDefault(new Authenticator() {
-		     protected PasswordAuthentication getPasswordAuthentication() {
-		       return new PasswordAuthentication(temporaryServer.getUsername(), temporaryServer.getPassword()); 
-		     }
-		 });
-	}
-
-	public void tearDown() throws Exception {
-		super.tearDown();
-		temporaryServer.pause();
-		Authenticator.setDefault(null);
-	}
-	
-	private String getCollection() throws Exception {
-		String contents = getRelContents();
-		
-		URL contentsURL = new java.net.URL(contents);
-		HttpURLConnection contentsConnection = (HttpURLConnection) contentsURL.openConnection();
-		contentsConnection.setRequestMethod("GET");
-		contentsConnection.setRequestProperty("ACCEPT", "application/atom+xml");
-		assertEquals(contentsConnection.getResponseMessage(), 203, contentsConnection.getResponseCode());
-		InputStream stream = contentsConnection.getInputStream();
-		String text = new java.util.Scanner(stream).useDelimiter("\\A").next();
-		int app = text.indexOf("<app:collection");
-		int start = text.indexOf("\"", app);
-		int stop = text.indexOf("\"", start + 1);
-		String result = text.substring(start + 1, stop);
-		return result;
-	}
-
-	private String getRelContents() throws MalformedURLException, IOException,
-			ProtocolException {
-		URL url = new java.net.URL(temporaryServer.getOrigin() + "/");
-		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-		connection.setRequestMethod("OPTIONS");
-		assertEquals(connection.getResponseMessage(), 204, connection.getResponseCode());
-		String header = connection.getHeaderField("LINK");
-		int rel = header.indexOf("rel=\"contents\"");
-		int end = header.lastIndexOf(">", rel);
-		int start = header.lastIndexOf("<", rel);
-		String contents = header.substring(start + 1, end);
-		return contents;
-	}
-	
-	private String getLocation() throws Exception {
-		URL url = new java.net.URL(getCollection());
-		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-		connection.setRequestMethod("POST");
-		connection.setRequestProperty("Slug", requestSlug);
-		connection.setRequestProperty("Content-Type", requestContentType);
-		connection.setDoOutput(true);
-		OutputStream output = connection.getOutputStream();
-		output.write(outputString.getBytes());
-		output.close();
-		assertEquals(connection.getResponseMessage(), 201, connection.getResponseCode());
-		String header = connection.getHeaderField("Location");
-		return header;
-	}
-	
-	private String getEditMedia() throws Exception {
-		URL url = new java.net.URL(getLocation());
-		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-		connection.setRequestMethod("OPTIONS");
-		assertEquals(connection.getResponseMessage(), 204, connection.getResponseCode());
-		String header = connection.getHeaderField("LINK");
-		int rel = header.indexOf("rel=\"edit-media\"");
-		int end = header.lastIndexOf(">", rel);
-		int start = header.lastIndexOf("<", rel);
-		String contents = header.substring(start + 1, end);
-		return contents;
-	}
 	
 	public void runTest() throws Exception {
-		URL url = new java.net.URL(getEditMedia());
-		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-		connection.setRequestMethod("DELETE");
-		assertEquals(connection.getResponseMessage(), 204, connection.getResponseCode());
+		getHomeFolder()
+				.link("contents", "application/atom+xml")
+				.getAppCollection()
+				.create(requestSlug, requestContentType,
+						outputString.getBytes())
+				.link("edit-media", requestContentType).delete();
 	}
 }

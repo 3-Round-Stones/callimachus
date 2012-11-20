@@ -1,4 +1,4 @@
-package org.callimachusproject.restapi;
+package org.callimachusproject.test;
 
 import info.aduna.io.FileUtil;
 

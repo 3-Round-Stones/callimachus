@@ -181,7 +181,12 @@ xmlns="http://www.w3.org/1999/xhtml" xmlns:xhtml="http://www.w3.org/1999/xhtml" 
     <xsl:number format="1. " level="single" count="d:part|d:article|d:chapter|d:section" />
 </xsl:template>
 
-<xsl:template mode="heading-prefix" match="d:article/d:title|d:article/d:info/d:title|d:appendix/d:title|d:appendix/d:info/d:title">
+<xsl:template mode="heading-prefix" match="*/d:article/d:title|*/d:article/d:info/d:title">
+    <xsl:number format="A. " level="single" count="d:part|d:article|d:chapter|d:section" />
+</xsl:template>
+
+<xsl:template mode="heading-prefix" match="d:appendix/d:title|d:appendix/d:info/d:title">
+    <xsl:text>Appendix </xsl:text>
     <xsl:number format="A. " level="single" count="d:part|d:article|d:chapter|d:section" />
 </xsl:template>
 

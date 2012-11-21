@@ -42,6 +42,9 @@ public class Exchange implements Cancellable {
 	private Request request;
 	private final HttpContext context;
 	private final Queue<Exchange> queue;
+	private final Consumer consumer;
+	private final Pipe pipe;
+	private final ByteBuffer buf;
 	private HttpAsyncExchange exchange;
 	private HttpResponse response;
 	private HttpAsyncContentProducer producer;
@@ -50,40 +53,40 @@ public class Exchange implements Cancellable {
 	private boolean submitContinue;
 	private boolean ready;
 	private boolean cancelled;
-	private Consumer consumer;
-	private Pipe pipe;
-	private ByteBuffer buf;
 	private Throwable throwable;
 
 	public Exchange(Request request, HttpContext context) throws IOException {
-		this(request, context, null);
+		assert request != null;
+		this.request = request;
+		this.context = context;
+		this.queue = null;
+		this.consumer = null;
+		this.pipe = null;
+		this.buf = null;
+		setExpectContinue(false);
 	}
 
 	public Exchange(Request request, HttpContext context, Queue<Exchange> queue)
 			throws IOException {
 		assert request != null;
+		assert queue != null;
 		this.request = request;
 		this.context = context;
 		this.queue = queue;
 		String expect = request.getHeader("Expect");
 		setExpectContinue(expect != null
 				&& expect.equalsIgnoreCase("100-continue"));
-		if (queue != null) {
-			synchronized (queue) {
-				queue.add(this);
-			}
+		synchronized (queue) {
+			queue.add(this);
 		}
-	}
-
-	public synchronized HttpAsyncRequestConsumer<Request> getConsumer()
-			throws IOException {
-		if (consumer == null) {
-			consumer = new Consumer();
-			if (request instanceof HttpEntityEnclosingRequest) {
-				HttpEntityEnclosingRequest ereq = (HttpEntityEnclosingRequest) request;
-				HttpEntity entity = ereq.getEntity();
-				if (entity == null)
-					return consumer;
+		consumer = new Consumer();
+		if (request instanceof HttpEntityEnclosingRequest) {
+			HttpEntityEnclosingRequest ereq = (HttpEntityEnclosingRequest) request;
+			HttpEntity entity = ereq.getEntity();
+			if (entity == null) {
+				pipe = null;
+				buf = null;
+			} else {
 				pipe = Pipe.open();
 				buf = ByteBuffer.allocate(4096);
 				final SourceChannel source = pipe.source();
@@ -95,7 +98,13 @@ public class Exchange implements Cancellable {
 					}
 				});
 			}
+		} else {
+			pipe = null;
+			buf = null;
 		}
+	}
+
+	public HttpAsyncRequestConsumer<Request> getConsumer() {
 		return consumer;
 	}
 
@@ -116,9 +125,7 @@ public class Exchange implements Cancellable {
 	}
 
 	public synchronized void verified(String credential) {
-		String expect = request.getHeader("Expect");
-		submitContinue = expect != null
-				&& expect.equalsIgnoreCase("100-continue");
+		setSubmitContinue(true);
 		if (isSubmitContinue() && exchange != null) {
 			exchange.submitResponse(new Producer());
 			ready = true;
@@ -204,11 +211,21 @@ public class Exchange implements Cancellable {
 	public synchronized boolean cancel() {
 		cancelled = true;
 		closeRequest();
+		if (producer != null) {
+			try {
+				producer.close();
+			} catch (IOException e) {
+				logger.debug(e.toString(), e);
+			}
+		}
 		return false;
 	}
 
 	synchronized void closeRequest() {
 		request.closeRequest();
+		if (consumer != null) {
+			consumer.releaseResources();
+		}
 		if (queue != null) {
 			synchronized (queue) {
 				queue.remove(this);
@@ -236,6 +253,10 @@ public class Exchange implements Cancellable {
 
 	private synchronized boolean isSubmitContinue() {
 		return submitContinue && expectContinue;
+	}
+
+	private synchronized void setSubmitContinue(boolean submitContinue) {
+		this.submitContinue = submitContinue;
 	}
 
 	private void consume(HttpResponse response) {
@@ -290,7 +311,7 @@ public class Exchange implements Cancellable {
 			assert pipe != null;
 			while (in.read(buf) >= 0 || buf.position() != 0) {
 				try {
-					if (pipe.source().isOpen()) {
+					if (pipe.source().isOpen() && pipe.sink().isOpen()) {
 						buf.flip();
 						pipe.sink().write(buf);
 						buf.compact();
@@ -375,7 +396,7 @@ public class Exchange implements Cancellable {
 		}
 
 		@Override
-		public synchronized void close() throws IOException {
+		public void close() throws IOException {
 			if (producer != null) {
 				producer.close();
 			}

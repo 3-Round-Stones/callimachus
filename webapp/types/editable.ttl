@@ -36,6 +36,7 @@
 :GetEditPage rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Editable>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    calli:rel "edit";
     calli:method "GET";
     calli:query "edit";
     calli:requires calli:editor;

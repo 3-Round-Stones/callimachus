@@ -10,16 +10,22 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
+import junit.framework.Assert;
+
 import org.callimachusproject.engine.impl.TermFactoryImpl;
+import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.server.util.ChannelUtil;
-import org.junit.Assert;
 
 public class WebResource {
 	private static final Pattern LINK = Pattern.compile("<([^>]*)>(?:\\s*;\\s*anchor=\"([^\"]*)\"|\\s*;\\s*rel=\"([^\"]*)\"|\\s*;\\s*rel=([a-z0-9\\.\\-]*)|\\s*;\\s*type=\"([^\"]*)\"|\\s*;\\s*type=([a-zA-z0-9\\.\\-\\+]*))*");
 	private final String uri;
 
-	public WebResource(String uri) {
+	protected WebResource(String uri) {
 		this.uri = uri;
+	}
+
+	public WebResource ref(String reference) throws IOException {
+		return new WebResource(TermFactory.newInstance(uri).resolve(reference));
 	}
 
 	public WebResource link(String rel, String... types) throws IOException {
@@ -42,13 +48,24 @@ public class WebResource {
 			if (!rel.equals(r))
 				continue;
 			if (types.length == 0 || t == null)
-				return new WebResource(href);
+				return ref(href);
 			for (String type : types) {
-				if (t.startsWith(type)) {
-					return new WebResource(href);
+				for (String t1 : t.split("\\s+")) {
+					if (t1.length() > 0 && t1.startsWith(type)) {
+						return ref(href);
+					}
 				}
 			}
 		}
+		StringBuilder sb = new StringBuilder();
+		sb.append("<").append(uri).append("?").append(rel);
+		sb.append(">; rel=\"").append(rel).append("\"; type=\"");
+		for (String type : types) {
+			sb.append(type).append(' ');
+		}
+		sb.setLength(sb.length() - 1);
+		sb.append("\"");
+		Assert.assertEquals(sb.toString(), header);
 		return null;
 	}
 
@@ -60,7 +77,7 @@ public class WebResource {
 		InputStream stream = con.getInputStream();
 		String text = new java.util.Scanner(stream).useDelimiter("\\A").next();
 		String result = getQuoteAfter("<app:collection", text);
-		return new WebResource(result);
+		return ref(result);
 	}
 
 	public WebResource create(String type, byte[] body) throws IOException {
@@ -84,7 +101,7 @@ public class WebResource {
 		Assert.assertEquals(con.getResponseMessage(), 201, con.getResponseCode());
 		String header = con.getHeaderField("Location");
 		Assert.assertNotNull(header);
-		return new WebResource(header);
+		return ref(header);
 	}
 
 	public byte[] get(String type) throws IOException {
@@ -94,7 +111,7 @@ public class WebResource {
 		con.setRequestProperty("Accept-Encoding", "gzip");
 		Assert.assertEquals(con.getResponseMessage(), 200, con.getResponseCode());
 		InputStream in = con.getInputStream();
-		if ("gzip".equals(con.getRequestProperty("Content-Encoding"))) {
+		if ("gzip".equals(con.getHeaderField("Content-Encoding"))) {
 			in = new GZIPInputStream(in);
 		}
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -134,7 +151,7 @@ public class WebResource {
 		String firstPart = templateURL.substring(0, before);
 		String secondPart = templateURL.substring(after+1);
 		String fullURL = firstPart + searchTerm + secondPart;
-		return new WebResource(fullURL);
+		return ref(fullURL);
 	}
 
 	@Override

@@ -117,6 +117,7 @@
 :CompressLess rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Style>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    calli:rel "alternate";
     calli:method "GET";
     calli:query "less";
     calli:requires calli:reader;

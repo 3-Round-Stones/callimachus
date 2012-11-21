@@ -55,6 +55,7 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
     calli:method "GET";
     calli:query "docbook";
+    calli:rel "alternate";
     calli:requires calli:reader;
     calli:type "application/docbook+xml";
     calli:header "cache-control:no-cache";

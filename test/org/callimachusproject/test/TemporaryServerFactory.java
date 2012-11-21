@@ -14,10 +14,32 @@ import org.callimachusproject.Setup;
 import org.callimachusproject.server.CallimachusRepository;
 
 public class TemporaryServerFactory {
-	private static final TemporaryServerFactory instance = new TemporaryServerFactory("http://localhost:49151", 49151, "test@example.com", "test".toCharArray());
+	private static int MIN_PORT = 49152;
+	private static int MAX_PORT = 65535;
+	private static final File WEBAPP_CAR = findCallimachusWebappCar();
+	private static final int PORT = findPort(WEBAPP_CAR.getAbsolutePath().hashCode());
+	private static final TemporaryServerFactory instance = new TemporaryServerFactory("http://localhost:" + PORT, PORT, "test@example.com", "test".toCharArray());
 
 	public static TemporaryServerFactory getInstance() {
 		return instance;
+	}
+
+	private static File findCallimachusWebappCar() {
+		File dist = new File("dist");
+		if (dist.list() != null) {
+			for (String file : dist.list()) {
+				if (file.startsWith("callimachus-webapp")
+						&& file.endsWith(".car"))
+					return new File(dist, file);
+			}
+		}
+		throw new AssertionError("Could not find callimachus-webapp.car in "
+				+ dist.getAbsolutePath());
+	}
+
+	private static int findPort(int seed) {
+		int range = (MAX_PORT - MIN_PORT) / 2;
+		return (seed % range) + range + MIN_PORT;
 	}
 
 	private final String origin;
@@ -164,10 +186,9 @@ public class TemporaryServerFactory {
 	}
 
 	private File createCallimachus(String origin) throws Exception {
-		String name = TemporaryServer.class.getSimpleName();
+		String name = TemporaryServer.class.getSimpleName() + Integer.toHexString(WEBAPP_CAR.getAbsolutePath().hashCode());
 		File dir = createDirectory(name);
-		File car = findCallimachusWebappCar();
-		if (!dir.isDirectory() || car.lastModified() > dir.lastModified()) {
+		if (!dir.isDirectory() || WEBAPP_CAR.lastModified() > dir.lastModified()) {
 			if (dir.isDirectory()) {
 				FileUtil.deleteDir(dir);
 			}
@@ -176,7 +197,7 @@ public class TemporaryServerFactory {
 			Setup setup = new Setup();
 			setup.connect(dir, config);
 			setup.createOrigin(origin);
-			setup.importCallimachusWebapp(car.toURI().toURL(), origin);
+			setup.importCallimachusWebapp(WEBAPP_CAR.toURI().toURL(), origin);
 			setup.setServeAllResourcesAs(origin);
 			String username = email.substring(0, email.indexOf('@'));
 			setup.createAdmin(email, email, username, password, origin);
@@ -196,19 +217,6 @@ public class TemporaryServerFactory {
 		} else {
 			FileUtil.copyFile(src, dest);
 		}
-	}
-
-	private File findCallimachusWebappCar() throws IOException {
-		File dist = new File("dist");
-		if (dist.list() != null) {
-			for (String file : dist.list()) {
-				if (file.startsWith("callimachus-webapp")
-						&& file.endsWith(".car"))
-					return new File(dist, file);
-			}
-		}
-		throw new IOException("Could not find callimachus-webapp.car in "
-				+ dist.getAbsolutePath());
 	}
 
 	private File createDirectory(String name) throws IOException {

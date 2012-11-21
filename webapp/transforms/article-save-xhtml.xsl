@@ -24,7 +24,7 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
 
 <xsl:template match="@*">
     <xsl:attribute name="{local-name()}">
-        <xsl:apply-templates />
+        <xsl:value-of select="." />
     </xsl:attribute>
 </xsl:template>
 

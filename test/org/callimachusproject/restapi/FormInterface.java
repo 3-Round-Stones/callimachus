@@ -116,12 +116,13 @@ public class FormInterface extends TemporaryServerTestCase {
 	}
 
 	private String getOptions(WebResource uri) throws Exception {
-		String view = new String(uri.link("alternate", "text/html").get("text/html"));
+		WebResource page = uri.link("alternate", "text/html");
+		String view = new String(page.get("text/html"));
 		assertContains("<select", view);
 		assertContains("data-options=", view);
 		String url = getQuoteAfter("data-options=", view);
 		assertContains(uri.toString(), url);
-		return new String(new WebResource(url).get("text/html"));
+		return new String(page.ref(url).get("text/html"));
 	}
 
 	private String getQuoteAfter(String token, String text) {

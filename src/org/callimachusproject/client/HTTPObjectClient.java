@@ -199,7 +199,7 @@ public class HTTPObjectClient extends AbstractHttpClient {
 		HTTPObjectClient client = HTTPObjectClient.getInstance();
 		for (int i = 0; i < 20 && redirect != null; i++) {
 			systemId = redirect;
-			HttpRequest req = new BasicHttpRequest("GET", url);
+			HttpRequest req = new BasicHttpRequest("GET", systemId);
 			if (accept != null && accept.length > 0) {
 				for (String media : accept) {
 					req.addHeader("Accept", media);

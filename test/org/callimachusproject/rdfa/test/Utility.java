@@ -21,6 +21,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Iterator;
 
@@ -48,11 +49,11 @@ import org.callimachusproject.engine.RDFEventReader;
 import org.callimachusproject.engine.RDFaReader;
 import org.callimachusproject.engine.events.RDFEvent;
 import org.callimachusproject.engine.events.Triple;
+import org.callimachusproject.engine.model.Literal;
 import org.callimachusproject.engine.model.Node;
 import org.callimachusproject.engine.model.PlainLiteral;
 import org.callimachusproject.engine.model.Term;
-import org.callimachusproject.engine.model.Literal;
-import org.callimachusproject.xml.DOMSourceFactory;
+import org.callimachusproject.xml.DocumentFactory;
 import org.openrdf.model.Graph;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
@@ -219,8 +220,30 @@ public class Utility {
 
 	private static Source newSource(XMLEventReader xml) throws IOException,
 			SAXException, ParserConfigurationException, TransformerException {
-		return DOMSourceFactory.newInstance().createSource(
-				toByteArrayInputStream(xml), null);
+		return createSource(toByteArrayInputStream(xml), null);
+	}
+
+	private static DOMSource createSource(InputStream in, String systemId)
+			throws IOException, SAXException, ParserConfigurationException {
+		try {
+			DocumentFactory factory = DocumentFactory.newInstance();
+			if (systemId == null)
+				return createSource(factory.parse(in), null);
+			return createSource(factory.parse(in, systemId), systemId);
+		} finally {
+			in.close();
+		}
+	}
+
+	private static DOMSource createSource(Document node, String systemId) {
+		if (systemId == null) {
+			String documentURI = ((Document) node).getDocumentURI();
+			if (documentURI != null)
+				return createSource(node, documentURI);
+		}
+		if (systemId == null)
+			return new DOMSource(node);
+		return new DOMSource(node, systemId);
 	}
 
 	private static ByteArrayInputStream toByteArrayInputStream(XMLEventReader reader)

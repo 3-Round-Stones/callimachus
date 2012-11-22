@@ -17,7 +17,7 @@ public class ArticleTest extends TemporaryServerTestCase {
 
 	@Test
 	public void testDocbookCreate() throws Exception {
-		WebResource create = getHomeFolder().ref("?create=/callimachus/types/Article&location=test-article.docbook");
+		WebResource create = getHomeFolder().ref("?create=/callimachus/0.18/types/Article&location=test-article.docbook");
 		WebResource article = create.create("application/docbook+xml", DOCBOOK.getBytes());
 		WebResource edit = article.link("edit-media", "application/docbook+xml");
 		edit.get("application/docbook+xml");
@@ -26,7 +26,7 @@ public class ArticleTest extends TemporaryServerTestCase {
 
 	@Test
 	public void testXhtmlCreate() throws Exception {
-		WebResource create = getHomeFolder().ref("?create=/callimachus/types/Article&location=test-article.docbook");
+		WebResource create = getHomeFolder().ref("?create=/callimachus/0.18/types/Article&location=test-article.docbook");
 		WebResource article = create.create("application/xhtml+xml", XHTML.getBytes());
 		WebResource edit = article.link("edit-media", "application/xhtml+xml");
 		edit.get("application/xhtml+xml");

@@ -11,7 +11,7 @@ public class PageTest extends TemporaryServerTestCase {
 
 	@Test
 	public void testLess() throws Exception {
-		WebResource create = getHomeFolder().ref("?create=/callimachus/types/Page&location=test-page.xhtml");
+		WebResource create = getHomeFolder().ref("?create=/callimachus/0.18/types/Page&location=test-page.xhtml");
 		WebResource page = create.create("application/xhtml+xml", XHTML.getBytes());
 		page.ref("?element=/1&realm=/").get("text/html");
 		page.ref("?template&realm=/").get("application/xhtml+xml");

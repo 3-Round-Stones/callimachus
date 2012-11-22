@@ -1,7 +1,7 @@
 # callimachus-initial.ru
 #
 # read by Setup.java to determine initial Callimachus webapp path
-# @webapp </callimachus/>
+# @webapp </callimachus/0.18/>
 #
 PREFIX xsd:<http://www.w3.org/2001/XMLSchema#>
 PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -32,7 +32,7 @@ INSERT DATA {
 };
 
 ################################
-# Default Folders
+# Activity Folder
 ################################
 
 INSERT DATA {
@@ -40,7 +40,55 @@ INSERT DATA {
 </activity/> a <types/Folder>, calli:Folder;
     rdfs:label "activity";
     calli:subscriber </group/admin>.
+};
 
+################################
+# Persistent URLs
+################################
+
+INSERT DATA {
+</> calli:hasComponent </callimachus/>.
+</callimachus/> a <types/Folder>, calli:Folder;
+    rdfs:label "callimachus";
+    calli:reader </group/public>;
+    calli:subscriber </group/staff>;
+    calli:administrator </group/admin>;
+    calli:hasComponent
+        </callimachus/template.xsl>,
+        </callimachus/library.xpl>,
+        </callimachus/forbidden>,
+        </callimachus/unauthorized> .
+
+</callimachus/template.xsl> a <types/PURL>, calli:PURL ;
+	rdfs:label "template.xsl";
+	calli:alternate <template.xsl>;
+	calli:reader </group/public> ;
+	calli:administrator </group/admin> .
+
+</callimachus/library.xpl> a </callimachus/0.18/types/PURL>, calli:PURL ;
+	rdfs:label "library.xpl";
+	calli:alternate </callimachus/0.18/library.xpl>;
+	calli:administrator </group/admin>;
+	calli:reader </group/public> .
+
+</callimachus/forbidden> a </callimachus/0.18/types/PURL>, calli:PURL ;
+	rdfs:label "forbidden";
+	calli:alternate </callimachus/0.18/pages/forbidden.xhtml?element=/1&realm=/>;
+	calli:administrator </group/admin>;
+	calli:reader </group/public> .
+
+</callimachus/unauthorized> a </callimachus/0.18/types/PURL>, calli:PURL ;
+	rdfs:label "unauthorized";
+	calli:alternate </callimachus/0.18/pages/unauthorized.xhtml?element=/1>;
+	calli:administrator </group/admin>;
+	calli:reader </group/public> .
+};
+
+################################
+# Authorization and Groups
+################################
+
+INSERT DATA {
 </> calli:hasComponent </user/>.
 </user/> a <types/Folder>, calli:Folder;
     rdfs:label "user";
@@ -51,15 +99,15 @@ INSERT DATA {
 </group/> a <types/Folder>, calli:Folder;
     rdfs:label "group";
     calli:subscriber </group/staff>;
-    calli:administrator </group/admin>.
-};
+    calli:administrator </group/admin>;
+    calli:hasComponent
+        </group/admin>,
+        </group/staff>,
+        </group/users>,
+        </group/everyone>,
+        </group/system>,
+        </group/public>.
 
-################################
-# Authorization and Groups
-################################
-
-INSERT DATA {
-</group/> calli:hasComponent </group/admin>.
 </group/admin> a calli:Party, calli:Group, <types/Group>;
     rdfs:label "admin";
     rdfs:comment "The user accounts in this group have heightened privileges, including the ability to edit other user accounts and access the underlying data store";
@@ -67,7 +115,6 @@ INSERT DATA {
     calli:administrator </group/admin>;
     calli:membersFrom ".".
 
-</group/> calli:hasComponent </group/staff>.
 </group/staff> a calli:Party, calli:Group, <types/Group>;
     rdfs:label "staff";
     rdfs:comment "Members of this group can design and edit resources within the system";
@@ -75,7 +122,6 @@ INSERT DATA {
     calli:administrator </group/admin>;
     calli:membersFrom ".".
 
-</group/> calli:hasComponent </group/users>.
 </group/users> a calli:Party, calli:Group, <types/Group>;
     rdfs:label "users";
     rdfs:comment "Members of this group can view and discuss resources within the system";
@@ -83,7 +129,6 @@ INSERT DATA {
     calli:administrator </group/admin>;
     calli:membersFrom ".".
 
-</group/> calli:hasComponent </group/everyone>.
 </group/everyone> a calli:Party, calli:Group, <types/Group>;
     rdfs:label "everyone";
     rdfs:comment "A virtual group of all authorized users";
@@ -91,14 +136,12 @@ INSERT DATA {
     calli:administrator </group/admin>;
     calli:everyoneFrom ".".
 
-</group/> calli:hasComponent </group/system>.
 </group/system> a calli:Party, calli:Group, <types/Group>;
     rdfs:label "system";
     rdfs:comment "The local computer or computer systems is the member of this group";
     calli:subscriber </group/staff>;
     calli:administrator </group/admin>.
 
-</group/> calli:hasComponent </group/public>.
 </group/public> a calli:Party, calli:Group, <types/Group>;
     rdfs:label "public";
     rdfs:comment "A virtual group of all agents";

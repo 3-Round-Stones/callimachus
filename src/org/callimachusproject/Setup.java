@@ -16,8 +16,6 @@
  */
 package org.callimachusproject;
 
-import static org.openrdf.query.QueryLanguage.SPARQL;
-import info.aduna.io.IOUtil;
 import info.aduna.net.ParsedURI;
 
 import java.io.BufferedReader;
@@ -34,7 +32,6 @@ import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
-import java.net.SocketException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.security.SecureRandom;
@@ -42,18 +39,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -62,14 +58,12 @@ import org.callimachusproject.cli.Command;
 import org.callimachusproject.cli.CommandSet;
 import org.callimachusproject.client.HTTPObjectClient;
 import org.callimachusproject.client.UnavailableHttpClient;
-import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.io.CarInputStream;
 import org.callimachusproject.server.CallimachusRepository;
-import org.callimachusproject.server.util.ChannelUtil;
-import org.callimachusproject.util.DomainNameSystemResolver;
+import org.callimachusproject.setup.UpdateProvider;
+import org.callimachusproject.setup.Updater;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Graph;
-import org.openrdf.model.Literal;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
@@ -82,7 +76,6 @@ import org.openrdf.model.util.ModelUtil;
 import org.openrdf.model.vocabulary.OWL;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.model.vocabulary.RDFS;
-import org.openrdf.query.MalformedQueryException;
 import org.openrdf.query.algebra.evaluation.util.ValueComparator;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
@@ -110,12 +103,19 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class Setup {
-	private static final Pattern DEFAULT_WEBAPP = Pattern.compile("(?:^|\n)\\s*#\\s*@webapp\\s*<([^>]*)>\\s*(?:\n|$)");
+	private static final String MAIN_MENU = "/main+menu";
+	private static final String GROUP_ADMIN = "/group/admin";
+	private static final String GROUP_STAFF = "/group/staff";
+	private static final String GROUP_USERS = "/group/users";
+	private static final String GROUP_EVERYONE = "/group/everyone";
+	private static final String GROUP_PUBLIC = "/group/public";
+	private static final String DEFAULT_THEME = "theme/default";
+	private static final String ICON_IMAGE = "images/callimachus-icon.ico";
+	private static final String FORBIDDEN_PAGE = "pages/forbidden.xhtml?element=/1&realm=/";
+	private static final String UNAUTHORIZED_PAGE = "pages/unauthorized.xhtml?element=/1";
 	public static final String NAME = Version.getInstance().getVersion();
 	private static final String DIGEST_ACCOUNTS = "/accounts";
-	private static final String SYSTEM_GROUP = "/group/system";
 	private static final String ACTIVITY_PATH = "/activity/";
-	private static final String ARTICLE_TYPE = "types/Article";
 	private static final String DIGEST_MANAGER_TYPE = "types/DigestManager";
 	private static final String REALM_TYPE = "types/Realm";
 	private static final String ORIGIN_TYPE = "types/Origin";
@@ -124,11 +124,8 @@ public class Setup {
 	private static final String GRAPH_DOCUMENT = "types/GraphDocument";
 	private static final String SERVE_ALL = "/everything-else-public.ttl";
 	private static final String SERVE_ALL_TTL = "META-INF/templates/callimachus-all-serviceable.ttl";
-	private static final String INITIAL_RU = "META-INF/upgrade/callimachus-initial.ru";
-	private static final String MAIN_ARTICLE = "META-INF/templates/main-article.docbook";
 
 	private static final String CALLI = "http://callimachusproject.org/rdf/2009/framework#";
-	private static final String CALLI_DESCRIBEDBY = CALLI + "describedby";
 	private static final String CALLI_HASCOMPONENT = CALLI + "hasComponent";
 	private static final String CALLI_ADMINISTRATOR = CALLI + "administrator";
 	private static final String CALLI_EDITOR = CALLI + "editor";
@@ -159,7 +156,6 @@ public class Setup {
 	private static final String CALLI_SECRET = CALLI + "secret";
 	private static final String CALLI_PASSWORD = CALLI + "passwordDigest";
 	private static final String CALLI_MEMBER = CALLI + "member";
-	private static final String CALLI_ANONYMOUSFROM = CALLI + "anonymousFrom";
 
 	private static final CommandSet commands = new CommandSet(NAME);
 	static {
@@ -221,7 +217,8 @@ public class Setup {
 	}
 
 	private final Logger logger = LoggerFactory.getLogger(Setup.class);
-	private final DomainNameSystemResolver dnsResolver = DomainNameSystemResolver.getInstance();
+	private final ServiceLoader<UpdateProvider> updateProviders = ServiceLoader
+			.load(UpdateProvider.class, getClass().getClassLoader());
 	private CallimachusRepository repository;
 	private boolean silent;
 	private String serveAllAs;
@@ -606,18 +603,16 @@ public class Setup {
 
 	private boolean createOrigin(String o, CallimachusRepository repository)
 			throws Exception {
-		ClassLoader cl = getClass().getClassLoader();
 		String webapp = webappIfPresent(o);
 		boolean barren = webapp == null;
 		if (barren) {
 			// (new) origin does not (yet) have a Callimachus webapp folder
-			webapp = createWebappUrl(o, cl);
+			webapp = createWebappUrl(o);
 		}
 		repository.setActivityFolder(o + ACTIVITY_PATH, webapp);
 		boolean modified = createVirtualHost(o, o, webapp, repository);
 		if (barren) {
-			loadDefaultGraphs(o, repository, cl);
-			uploadMainArticle(o, repository, cl);
+			initializeStore(o, repository);
 			upgradeStore(repository, o);
 			modified = true;
 		} else {
@@ -625,32 +620,18 @@ public class Setup {
 			String newVersion = upgradeStore(repository, o);
 			modified |= !newVersion.equals(version);
 		}
-		modified |= addSystemGroupMembers(o + SYSTEM_GROUP, repository);
+		modified |= updateStore(o, repository);
 		return modified;
 	}
 
-	private String createWebappUrl(String origin, ClassLoader cl) throws IOException {
-		Enumeration<URL> resources = cl.getResources(INITIAL_RU);
-		if (!resources.hasMoreElements())
-			logger.warn("Missing {}", INITIAL_RU);
-		String root = origin + "/";
-		TermFactory tf = TermFactory.newInstance(root);
-		while (resources.hasMoreElements()) {
-			InputStream in = resources.nextElement().openStream();
-			Reader reader = new InputStreamReader(in, "UTF-8");
-			String ru = IOUtil.readString(reader);
-			Matcher m = DEFAULT_WEBAPP.matcher(ru);
-			while (m.find()) {
-				try {
-					String resolved = tf.resolve(m.group(1));
-					if (resolved.startsWith(root))
-						return resolved;
-				} catch (IllegalArgumentException e) {
-					logger.warn(e.toString(), e);
-				}
-			}
+	private String createWebappUrl(String origin) throws IOException {
+		Iterator<UpdateProvider> iter = updateProviders.iterator();
+		while (iter.hasNext()) {
+			String webapp = iter.next().getDefaultCallimachusWebappLocation(origin);
+			if (webapp != null)
+				return webapp;
 		}
-		throw new AssertionError("Cannot determine Callimachus webapp folder in: " + INITIAL_RU);
+		throw new AssertionError("Cannot determine Callimachus webapp folder");
 	}
 
 	private String getStoreVersion(CallimachusRepository repository,
@@ -664,7 +645,7 @@ public class Setup {
 			try {
 				if (stmts.hasNext()) {
 					String value = stmts.next().getObject().stringValue();
-					return "callimachus-" + value;
+					return value;
 				}
 			} finally {
 				stmts.close();
@@ -672,105 +653,50 @@ public class Setup {
 		} finally {
 			con.close();
 		}
-		String webapp = repository.getCallimachusWebapp(origin + "/");
-		if (webapp == null)
-			return null;
-		String path = new ParsedURI(webapp).getPath();
-		assert path.startsWith("/") && path.endsWith("/");
-		return path.substring(1, path.length() - 1).replace('/', '-');
+		return null;
 	}
 
-	private void loadDefaultGraphs(String origin, Repository repository,
-			ClassLoader cl) throws IOException, OpenRDFException {
-		Enumeration<URL> resources = cl.getResources(INITIAL_RU);
-		if (!resources.hasMoreElements())
-			logger.warn("Missing {}", INITIAL_RU);
-		while (resources.hasMoreElements()) {
-			InputStream in = resources.nextElement().openStream();
-			try {
-				logger.info("Initializing {} Store", origin);
-				Reader reader = new InputStreamReader(in, "UTF-8");
-				String ru = IOUtil.readString(reader);
+	private void initializeStore(String origin, CallimachusRepository repository)
+			throws IOException, OpenRDFException {
+		Iterator<UpdateProvider> iter = updateProviders.iterator();
+		while (iter.hasNext()) {
+			Updater updater = iter.next().initialize(origin);
+			if (updater != null) {
 				String webapp = webapp(origin);
-				RepositoryConnection con = repository.getConnection();
-				try {
-					con.setAutoCommit(false);
-					con.prepareUpdate(SPARQL, ru, webapp).execute();
-					con.setAutoCommit(true);
-				} finally {
-					con.close();
-				}
-			} catch (MalformedQueryException exc) {
-				logger.warn(exc.toString(), exc);
+				updater.update(webapp, repository);
+				repository.setActivityFolder(origin + ACTIVITY_PATH,
+						webapp(origin));
 			}
 		}
 	}
 
-	private void uploadMainArticle(String origin,
-			CallimachusRepository repository, ClassLoader cl)
-			throws OpenRDFException, IOException {
-		String webapp = webapp(origin);
-		ObjectConnection con = repository.getConnection();
-		try {
-			con.setAutoCommit(false);
-			ValueFactory vf = con.getValueFactory();
-			URI folder = vf.createURI(origin + "/");
-			URI article = vf.createURI(origin + "/main-article.docbook");
-			logger.info("Uploading main article: {}", article);
-			con.add(article, RDF.TYPE, vf.createURI(webapp + ARTICLE_TYPE));
-			con.add(article, RDF.TYPE,
-					vf.createURI("http://xmlns.com/foaf/0.1/Document"));
-			con.add(article, RDFS.LABEL, vf.createLiteral("main article"));
-			con.add(article, vf.createURI(CALLI_READER),
-					vf.createURI(origin + "/group/public"));
-			con.add(article, vf.createURI(CALLI_SUBSCRIBER),
-					vf.createURI(origin + "/group/users"));
-			con.add(article, vf.createURI(CALLI_EDITOR),
-					vf.createURI(origin + "/group/staff"));
-			con.add(article, vf.createURI(CALLI_ADMINISTRATOR),
-					vf.createURI(origin + "/group/admin"));
-			con.add(folder, vf.createURI(CALLI_HASCOMPONENT), article);
-			con.add(folder, vf.createURI(CALLI_DESCRIBEDBY),
-					vf.createLiteral("main-article.docbook?view"));
-			InputStream in = cl.getResourceAsStream(MAIN_ARTICLE);
-			try {
-				OutputStream out = con.getBlobObject(article)
-						.openOutputStream();
-				try {
-					ChannelUtil.transfer(in, out);
-				} finally {
-					out.close();
-				}
-			} finally {
-				in.close();
+	private boolean updateStore(String origin, CallimachusRepository repository)
+			throws IOException, OpenRDFException {
+		boolean modified = false;
+		Iterator<UpdateProvider> iter = updateProviders.iterator();
+		while (iter.hasNext()) {
+			Updater updater = iter.next().update(origin);
+			if (updater != null) {
+				String webapp = webapp(origin);
+				modified |= updater.update(webapp, repository);
+				repository.setActivityFolder(origin + ACTIVITY_PATH,
+						webapp(origin));
 			}
-			con.setAutoCommit(true);
-		} finally {
-			con.close();
 		}
+		return modified;
 	}
 
 	private String upgradeStore(CallimachusRepository repository, String origin)
 			throws IOException, OpenRDFException {
 		String version = getStoreVersion(repository, origin);
-		ClassLoader cl = getClass().getClassLoader();
-		String name = "META-INF/upgrade/" + version + ".ru";
-		Enumeration<URL> resources = cl.getResources(name);
-		while (resources.hasMoreElements()) {
-			InputStream in = resources.nextElement().openStream();
-			logger.info("Upgrading store from {}", version);
-			Reader reader = new InputStreamReader(in, "UTF-8");
-			String ru = IOUtil.readString(reader);
-			String webapp = webapp(origin);
-			ObjectConnection con = repository.getConnection();
-			try {
-				con.setAutoCommit(false);
-				con.prepareUpdate(SPARQL, ru, webapp).execute();
-				con.setAutoCommit(true);
-			} finally {
-				con.close();
+		Iterator<UpdateProvider> iter = updateProviders.iterator();
+		while (iter.hasNext()) {
+			Updater updater = iter.next().updateFrom(origin, version);
+			if (updater != null) {
+				String webapp = webapp(origin);
+				updater.update(webapp, repository);
+				repository.setActivityFolder(origin + ACTIVITY_PATH, webapp(origin));
 			}
-			repository.setActivityFolder(origin + ACTIVITY_PATH, webapp(origin));
 		}
 		String newVersion = getStoreVersion(repository, origin);
 		if (version != null && !version.equals(newVersion)) {
@@ -778,29 +704,6 @@ public class Setup {
 			return upgradeStore(repository, origin);
 		}
 		return newVersion;
-	}
-
-	private boolean addSystemGroupMembers(String group,
-			CallimachusRepository repository) throws SocketException, OpenRDFException {
-		ObjectConnection con = repository.getConnection();
-		try {
-			con.setAutoCommit(false);
-			ValueFactory vf = con.getValueFactory();
-			URI subj = vf.createURI(group);
-			URI pred = vf.createURI(CALLI_ANONYMOUSFROM);
-			boolean modified = false;
-			for (String host : dnsResolver.reverseAllLocalHosts()) {
-				Literal obj = vf.createLiteral(host);
-				if (!con.hasStatement(subj, pred, obj)) {
-					con.add(subj, pred, obj);
-					modified = true;
-				}
-			}
-			con.setAutoCommit(true);
-			return modified;
-		} finally {
-			con.close();
-		}
 	}
 
 	private boolean importCar(URL car, String folder, String origin,
@@ -969,8 +872,8 @@ public class Setup {
 			con.add(uri, RDF.TYPE, vf.createURI(CALLI_FOLDER));
 			con.add(uri, RDF.TYPE, vf.createURI(ctx + FOLDER_TYPE));
 			con.add(uri, RDFS.LABEL, vf.createLiteral(label));
-			add(con, uri, CALLI_READER, origin + "/group/public");
-			add(con, uri, CALLI_ADMINISTRATOR, origin + "/group/admin");
+			add(con, uri, CALLI_READER, origin + GROUP_PUBLIC);
+			add(con, uri, CALLI_ADMINISTRATOR, origin + GROUP_ADMIN);
 			con.setAutoCommit(true);
 			return true;
 		} finally {
@@ -1038,10 +941,10 @@ public class Setup {
 		add(con, subj, RDF.TYPE, CALLI_AUTHENTICATION_MANAGER);
 		String label = accounts.substring(accounts.lastIndexOf('/') + 1);
 		con.add(subj, RDFS.LABEL, vf.createLiteral(label));
-		add(con, subj, CALLI_READER, origin + "/group/public");
-		add(con, subj, CALLI_SUBSCRIBER, origin + "/group/users");
-		add(con, subj, CALLI_SUBSCRIBER, origin + "/group/staff");
-		add(con, subj, CALLI_ADMINISTRATOR, origin + "/group/admin");
+		add(con, subj, CALLI_READER, origin + GROUP_PUBLIC);
+		add(con, subj, CALLI_SUBSCRIBER, origin + GROUP_USERS);
+		add(con, subj, CALLI_SUBSCRIBER, origin + GROUP_STAFF);
+		add(con, subj, CALLI_ADMINISTRATOR, origin + GROUP_ADMIN);
 		List<String[]> list = getAuthNamesAndNamespaces(origin, con);
 		if (list == null || list.isEmpty()) {
 			String host = java.net.URI.create(origin + '/').getHost();
@@ -1111,17 +1014,17 @@ public class Setup {
 			throws OpenRDFException {
 		add(con, subj, RDF.TYPE, CALLI_REALM);
 		add(con, subj, RDF.TYPE, CALLI_FOLDER);
-		add(con, subj, CALLI_READER, origin + "/group/public");
-		add(con, subj, CALLI_SUBSCRIBER, origin + "/group/everyone");
-		add(con, subj, CALLI_CONTRIBUTOR, origin + "/group/users");
-		add(con, subj, CALLI_EDITOR, origin + "/group/staff");
-		add(con, subj, CALLI_ADMINISTRATOR, origin + "/group/admin");
-		add(con, subj, CALLI_UNAUTHORIZED, w + "pages/unauthorized.xhtml?element=/1");
-		add(con, subj, CALLI_FORBIDDEN, w + "pages/forbidden.xhtml?element=/1&realm=/");
+		add(con, subj, CALLI_READER, origin + GROUP_PUBLIC);
+		add(con, subj, CALLI_SUBSCRIBER, origin + GROUP_EVERYONE);
+		add(con, subj, CALLI_CONTRIBUTOR, origin + GROUP_USERS);
+		add(con, subj, CALLI_EDITOR, origin + GROUP_STAFF);
+		add(con, subj, CALLI_ADMINISTRATOR, origin + GROUP_ADMIN);
+		add(con, subj, CALLI_UNAUTHORIZED, w + UNAUTHORIZED_PAGE);
+		add(con, subj, CALLI_FORBIDDEN, w + FORBIDDEN_PAGE);
 		add(con, subj, CALLI_AUTHENTICATION, authentication);
-		add(con, subj, CALLI_MENU, origin + "/main+menu");
-		add(con, subj, CALLI_FAVICON, w + "images/callimachus-icon.ico");
-		add(con, subj, CALLI_THEME, w + "theme/default");
+		add(con, subj, CALLI_MENU, origin + MAIN_MENU);
+		add(con, subj, CALLI_FAVICON, w + ICON_IMAGE);
+		add(con, subj, CALLI_THEME, w + DEFAULT_THEME);
 	}
 
 	private void add(ObjectConnection con, URI subj, URI pred, String resource)
@@ -1184,9 +1087,9 @@ public class Setup {
 					con.add(file, RDF.TYPE, NamedGraph);
 					con.add(file, RDF.TYPE, vf.createURI(webapp + GRAPH_DOCUMENT));
 					con.add(file, RDF.TYPE, vf.createURI("http://xmlns.com/foaf/0.1/Document"));
-					con.add(file, vf.createURI(CALLI_READER), vf.createURI(origin + "/group/public"));
-					con.add(file, vf.createURI(CALLI_SUBSCRIBER), vf.createURI(origin + "/group/staff"));
-					con.add(file, vf.createURI(CALLI_ADMINISTRATOR), vf.createURI(origin + "/group/admin"));
+					con.add(file, vf.createURI(CALLI_READER), vf.createURI(origin + GROUP_PUBLIC));
+					con.add(file, vf.createURI(CALLI_SUBSCRIBER), vf.createURI(origin + GROUP_STAFF));
+					con.add(file, vf.createURI(CALLI_ADMINISTRATOR), vf.createURI(origin + GROUP_ADMIN));
 					con.add(vf.createURI(origin + "/"), hasComponent, file);
 					modified = true;
 				}
@@ -1297,8 +1200,8 @@ public class Setup {
 			}
 		} else {
 			logger.info("Creating user {}", username);
-			URI staff = vf.createURI(origin + "/group/staff");
-			URI admin = vf.createURI(origin + "/group/admin");
+			URI staff = vf.createURI(origin + GROUP_STAFF);
+			URI admin = vf.createURI(origin + GROUP_ADMIN);
 			con.add(subj, RDF.TYPE, vf.createURI(webapp(origin) + USER_TYPE));
 			con.add(subj, RDF.TYPE, vf.createURI(CALLI_PARTY));
 			con.add(subj, RDF.TYPE, vf.createURI(CALLI_USER));
@@ -1322,14 +1225,14 @@ public class Setup {
 		return true;
 	}
 
-	public String webapp(String origin) throws OpenRDFException {
+	private String webapp(String origin) throws OpenRDFException {
 		String webapp = webappIfPresent(origin);
 		if (webapp == null)
 			throw new IllegalStateException("Origin has not yet been created: " + origin);
 		return webapp;
 	}
 
-	public String webappIfPresent(String origin) throws OpenRDFException {
+	private String webappIfPresent(String origin) throws OpenRDFException {
 		String root = origin + "/";
 		// check >=1.0 webapp context
 		String webapp = repository.getCallimachusWebapp(root);

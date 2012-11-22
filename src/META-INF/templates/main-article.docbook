@@ -3,9 +3,11 @@
   <title>Welcome to Callimachus</title>
   <para>If you're seeing this page via a web browser, it means you've installed Callimachus successfully. Congratulations!</para>
   <para>Using the username and password entered during the installation, login using the button at the top.</para>
-  <para>As you may have guessed by now, this is the default Callimachus home page. It can be change using the edit tab above once you are logged in. Once you are logged in, try <link xl:href="/callimachus/types/Concept?create">creating a new Concept</link> to see how easy Callimachus makes create RDF data.</para>
+  <para>As you may have guessed by now, this is the default Callimachus home page. It can be change using the edit tab above once you are logged in. Once you are logged in, try 
+  <link xl:href="/callimachus/0.18/types/Concept?create">creating a new Concept</link> to see how easy Callimachus makes create RDF data.</para>
   <para>If you're seeing this page, and you don't think you should be, then you're either a user who has arrived at new installation of Callimachus, or you're an administrator who hasn't got his/her setup quite right. Providing the latter is the case, please refer to the <link xl:href="http://callimachusproject.org/">Callimachus Website</link> or the README.txt file provided in the install directory.</para>
-  <para>You can download sample applications following the <link xl:href="http://code.google.com/p/callimachus/wiki/GettingStarted">Getting Started page</link>.</para>
+  <para>You can download sample applications following the 
+  <link xl:href="http://code.google.com/p/callimachus/wiki/GettingStarted">Getting Started page</link>.</para>
   <para>Callimachus mailing lists are available at the <link xl:href="http://callimachusproject.org/">Callimachus Website</link>.</para>
   <para>Thanks for using Callimachus!</para>
   <para>

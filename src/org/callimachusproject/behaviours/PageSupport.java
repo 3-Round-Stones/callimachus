@@ -30,13 +30,11 @@ import org.callimachusproject.engine.Template;
 import org.callimachusproject.engine.TemplateEngine;
 import org.callimachusproject.engine.TemplateException;
 import org.callimachusproject.engine.events.Ask;
-import org.callimachusproject.engine.events.Base;
 import org.callimachusproject.engine.events.Group;
 import org.callimachusproject.engine.events.RDFEvent;
 import org.callimachusproject.engine.events.TriplePattern;
 import org.callimachusproject.engine.events.Union;
 import org.callimachusproject.engine.events.Where;
-import org.callimachusproject.engine.helpers.OverrideBaseReader;
 import org.callimachusproject.engine.helpers.SPARQLWriter;
 import org.callimachusproject.engine.model.AbsoluteTermFactory;
 import org.callimachusproject.engine.model.IRI;
@@ -187,16 +185,7 @@ public abstract class PageSupport {
 	private RDFEventReader openPatternReader(String about)
 			throws IOException, TemplateException {
 		String base = toString();
-		Template temp = ENGINE.getTemplate(base);
-		RDFEventReader reader = temp.openQuery();
-		Base resolver = new Base(base);
-		if (about == null) {
-			reader = new OverrideBaseReader(resolver, null, reader);
-		} else {
-			String uri = resolver.resolve(about);
-			reader = new OverrideBaseReader(resolver, new Base(uri), reader);
-		}
-		return reader;
+		return ENGINE.getTemplate(base).openQuery();
 	}
 
 	private TriplePattern changeNoteOf(URI resource) {

@@ -1,4 +1,4 @@
-package org.callimachusproject.restapi;
+package org.callimachusproject.types;
 
 import java.io.IOException;
 import java.util.regex.Matcher;

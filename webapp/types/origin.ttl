@@ -70,6 +70,7 @@
     calli:imports <java:java.net.URLEncoder>;
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
     calli:imports <Viewable>;
+    calli:imports <Serviceable>;
     calli:script """
         var con = this.objectConnection;
         var vf = con.valueFactory;
@@ -89,6 +90,7 @@
             var uri = java.net.URI.create(iri);
             var origin = uri.authority ? new java.net.URI(uri.scheme, uri.authority, "/", null, null).toASCIIString() : null;
             var viewable = con.getObject(iri) instanceof Viewable;
+            var serviceable = con.getObject(iri) instanceof Serviceable;
             var Origin = vf.createURI("http://callimachusproject.org/rdf/2009/framework#Origin");
             var authority = origin && con.hasStatement(vf.createURI(origin), RDF.TYPE, Origin, []);
             if (viewable && authority && (uri.query || uri.fragment)) { //# complex resource URI
@@ -97,8 +99,12 @@
                 return iri + '?view';
             } else if (viewable) { //# Foreign IRI, but can be presented here
                 return diverted.toString() + ";" + URLEncoder.encode(iri) + '?view';
-            } else { //# Unknown resource
+            } else if (authority) { //# Self resolving IRI w/o view template
                 return iri;
+            } else if (serviceable) { //# Foreign IRI, but can be served here
+                return diverted.toString() + ";" + URLEncoder.encode(iri);
+            } else { //# Unknown resource
+                return null;
             }
         }
 

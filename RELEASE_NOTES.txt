@@ -56,7 +56,6 @@ http://code.google.com/p/callimachus/wiki/Security has more details.
 = KNOWN ISSUES IN 0.18 =
 
  * All possible options in check boxes must have a label.
- * Trailing whitespace in @typeof attribute causes unexpected behaviour.
  * rdf:XMLLiteral on form create auto adds xmlns to elements.
  * When resource labels are updated, referencing resource may not display new
    label until they are modified as well or the callimachus-reset script is run.
@@ -64,6 +63,7 @@ http://code.google.com/p/callimachus/wiki/Security has more details.
  * Safari does not retain the login state in all cases.
  * Safari does not support dragging files in the folder view.
  * IE does not work with the article editor.
+ * Later versions of Chrome do not work with the article editor.
 
 In some environments, Callimachus may log "An exception has occurred in the
 compiler...FilePermission" exceptions. This is often due to an issue in the
@@ -83,6 +83,9 @@ Download and unzip the callimachus-0.18.zip file in the install directory of
 the Callimachus 0.17 instance. Run the bin/callimachus-setup.sh/.bat script to
 upgrade the repositories directory. Run the bin/callimachus-start.sh/.bat script
 to start Callimachus.
+
+Every create template where the form element has no typeof attribute, will need
+to have a typeof="" attribute added (empty attribute value is permitted).
 
 Every create template, that has a onsubmit="return calli.saveResourceAs(event)",
 will need to be replaced with onsubmit="return calli.saveResourceAs(event,

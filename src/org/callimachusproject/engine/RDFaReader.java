@@ -433,7 +433,7 @@ public class RDFaReader extends AbstractRDFEventReader {
 			
 			// typeof (including empty typeof) introduces a blank node
 			String typeof = attr("typeof");
-			if ((typeof!=null && typeof.isEmpty()) || curies(typeof) != null)
+			if (typeof!=null && curies(typeof) == null)
 				return getBlankNode();
 			
 			if (parent != null && parent.isHanging()) {
@@ -774,9 +774,11 @@ public class RDFaReader extends AbstractRDFEventReader {
 				return null;
 			List<Node> list = new ArrayList<Node>();
 			for (String v : value.split("\\s+")) {
-				Node node = curie(v);
-				if (node != null) {
-					list.add(node);
+				if (v.length() > 0) {
+					Node node = curie(v);
+					if (node != null) {
+						list.add(node);
+					}
 				}
 			}
 			if (list.isEmpty())

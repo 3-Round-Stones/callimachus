@@ -37,6 +37,9 @@ public class RedirectTest extends TestCase {
 
 		@alternate("$0?param={value}")
 		HttpResponse param(@Iri("urn:test:value") String value);
+
+		@alternate("$0?param=http%3A%2F%2Fexample.com%2Fq%3D{value}")
+		HttpResponse doubleParam(@Iri("urn:test:value") String value);
 	}
 
 	private Repository repository;
@@ -120,6 +123,13 @@ public class RedirectTest extends TestCase {
 		concept = con.addDesignation(con.getObject("http://www.example.com/pathinfo"),
 				Concept.class);
 		assertEquals("http://www.example.com/pathinfo?param=foo+bar", concept.param("foo bar").getFirstHeader("Location").getValue());
+	}
+
+	@Test
+	public void testDoubleQueryParameter() throws Exception {
+		concept = con.addDesignation(con.getObject("http://www.example.com/pathinfo"),
+				Concept.class);
+		assertEquals("http://www.example.com/pathinfo?param=http%3A%2F%2Fexample.com%2Fq%3Dfoo%2Bbar", concept.doubleParam("foo bar").getFirstHeader("Location").getValue());
 	}
 
 }

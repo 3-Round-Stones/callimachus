@@ -2,6 +2,7 @@ package org.callimachusproject.rewrite;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -116,7 +117,7 @@ public class Substitution {
 					sb.append(next);
 				} else if (next >= '0' && next <= '9' && m != null) {
 					int idx = next - '0';
-					appendGroup(m, idx, encode != null && encode, sb);
+					appendGroup(m, idx, count(encode, sb), sb);
 				} else {
 					sb.append(chr);
 					--i;
@@ -128,7 +129,7 @@ public class Substitution {
 					if (name.startsWith("{")) {
 						sb.append(name);
 					} else {
-						boolean e = encode != null && encode;
+						int e = count(encode, sb);
 						appendVariable(name, m, variables, e, sb);
 					}
 					i = j;
@@ -141,14 +142,27 @@ public class Substitution {
 		}
 	}
 
-	private void appendGroup(Matcher m, int idx, boolean encode, StringBuilder sb) {
+	private int count(Boolean encode, StringBuilder sb) {
+		if (encode == null || !encode)
+			return 0;
+		int q = sb.lastIndexOf("?");
+		int e = sb.lastIndexOf("=");
+		int a = sb.lastIndexOf("&");
+		if (e <= q && e <= a)
+			return 0;
+		if (e == sb.length() - 1)
+			return 1;
+		return 1 + count(true, new StringBuilder(decode(sb.substring(e + 1))));
+	}
+
+	private void appendGroup(Matcher m, int idx, int encode, StringBuilder sb) {
 		if (idx <= m.groupCount()) {
 			sb.append(inline(m.group(idx), encode));
 		}
 	}
 
 	private void appendVariable(String name, Matcher m, Map<String, ?> variables,
-			boolean encode, StringBuilder sb) {
+			int encode, StringBuilder sb) {
 		String value;
 		int g = groupNames.indexOf(name) + 1;
 		if (g > 0) {
@@ -172,15 +186,28 @@ public class Substitution {
 		}
 	}
 
-	private CharSequence inline(String value, boolean encode) {
-		if (encode) {
-			try {
-				return URLEncoder.encode(value, "UTF-8");
-			} catch (UnsupportedEncodingException e) {
-				throw new AssertionError(e);
+	private CharSequence inline(String value, int encode) {
+		if (encode > 0) {
+			for (int i = 0; i < encode; i++) {
+				value = encode(value);
 			}
-		} else {
-			return value;
+		}
+		return value;
+	}
+
+	private String encode(String value) {
+		try {
+			return URLEncoder.encode(value, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			throw new AssertionError(e);
+		}
+	}
+
+	private String decode(String value) {
+		try {
+			return URLDecoder.decode(value, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			throw new AssertionError(e);
 		}
 	}
 

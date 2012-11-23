@@ -433,7 +433,7 @@ public class RDFaReader extends AbstractRDFEventReader {
 			
 			// typeof (including empty typeof) introduces a blank node
 			String typeof = attr("typeof");
-			if (typeof!=null && curies(typeof) == null)
+			if (typeof!=null)
 				return getBlankNode();
 			
 			if (parent != null && parent.isHanging()) {

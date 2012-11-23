@@ -11,7 +11,7 @@ import org.callimachusproject.server.CallimachusRepository;
 import org.junit.After;
 import org.junit.Before;
 
-public class TemporaryServerTestCase extends TestCase {
+public abstract class TemporaryServerTestCase extends TestCase {
     private static final TemporaryServerFactory factory = TemporaryServerFactory.getInstance();
     private static final Map<Class<?>, TemporaryServer> servers = new HashMap<Class<?>, TemporaryServer>();
 	private final TemporaryServer server;

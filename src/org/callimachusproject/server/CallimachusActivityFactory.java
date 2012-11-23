@@ -35,11 +35,15 @@ public final class CallimachusActivityFactory implements ActivityFactory {
 			+ "PREFIX prov:<http://www.w3.org/ns/prov#>\n"
 			+ "PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>\n";
 	private static final String END_ACTIVITY = PREFIX
-			+ "INSERT {\n"
+			+ "DELETE {\n"
+			+ "    GRAPH $graph {\n"
+			+ "          $activity prov:endedAtTime ?earlier\n"
+			+ "      }\n"
+			+ "} INSERT {\n"
 			+ "    GRAPH $graph {\n"
 			+ "          $activity prov:endedAtTime ?endedAtTime . $graph calli:reader ?reader\n"
 			+ "      }\n"
-			+ "} WHERE {{ BIND ( $now AS ?endedAtTime) } UNION {\n"
+			+ "} WHERE {{ BIND ( $now AS ?endedAtTime) } UNION { GRAPH $graph { $activity prov:endedAtTime ?earlier } } UNION {\n"
 			+ "        {SELECT DISTINCT ?reader {\n"
 			+ "            ?entity prov:wasGeneratedBy $activity\n"
 			+ "            {\n"

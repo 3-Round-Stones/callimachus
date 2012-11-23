@@ -16,8 +16,6 @@
  */
 package org.callimachusproject;
 
-import info.aduna.net.ParsedURI;
-
 import java.io.BufferedReader;
 import java.io.Console;
 import java.io.File;
@@ -1041,7 +1039,6 @@ public class Setup {
 
 	private boolean setServeAllResourcesAs(String origin,
 			CallimachusRepository repository) throws OpenRDFException, IOException {
-		String webapp = webapp(origin);
 		ObjectConnection con = repository.getConnection();
 		try {
 			con.setAutoCommit(false);
@@ -1069,6 +1066,7 @@ public class Setup {
 			InputStream in = cl.getResourceAsStream(SERVE_ALL_TTL);
 			try {
 				if (file != null && in != null && !con.hasStatement((Resource) null, hasComponent, file)) {
+					String webapp = webapp(origin);
 					logger.info("All other resources are now served publicly through {}", origin);
 					OutputStream out = con.getBlobObject(file).openOutputStream();
 					try {
@@ -1226,6 +1224,7 @@ public class Setup {
 	}
 
 	private String webapp(String origin) throws OpenRDFException {
+		assert origin != null;
 		String webapp = webappIfPresent(origin);
 		if (webapp == null)
 			throw new IllegalStateException("Origin has not yet been created: " + origin);

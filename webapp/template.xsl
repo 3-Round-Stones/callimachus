@@ -8,7 +8,7 @@
     <xsl:variable name="url">
         <xsl:choose>
             <xsl:when test="string-length($realm) &gt; 0">
-                <xsl:value-of select="concat('queries/realm-info.rq?results&amp;realm=',$realm)" />
+                <xsl:value-of select="concat('queries/realm-info.rq?results&amp;realm=',encode-for-uri($realm))" />
             </xsl:when>
             <xsl:otherwise>
                 <xsl:value-of select="'queries/realm-info.rq?results&amp;realm=/'" />

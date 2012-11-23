@@ -179,7 +179,7 @@
                     <xsl:text>?element=</xsl:text>
                     <xsl:apply-templates mode="xptr-element" select="." />
                     <xsl:text>&amp;realm=</xsl:text>
-                    <xsl:value-of select="$realm" />
+                    <xsl:value-of select="encode-for-uri($realm)" />
                 </xsl:attribute>
             </xsl:if>
         </xsl:if>

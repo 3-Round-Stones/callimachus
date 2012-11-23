@@ -72,7 +72,7 @@
         if (!page.FindRealmOf)
             throw new InternalServerError("Missing view template: " + page);
         var realm = page.FindRealmOf(this);
-        var temp = page.getTemplate(uri + "?template&realm=" + realm);
+        var temp = page.getTemplate(uri + "?template&realm=" + encodeURIComponent(realm));
         var sparql = temp.getQueryString(query.prepare(viewParameters));
         var qry = con.prepareTupleQuery(QueryLanguage.SPARQL, sparql, this.toString());
         var results = query.evaluate(viewParameters, qry);
@@ -105,7 +105,7 @@
             var con = this.objectConnection;
             var page = con.getObject(uri);
             var realm = page.FindRealmOf(this);
-            var temp = page.getTemplate(uri + "?template&realm=" + realm);
+            var temp = page.getTemplate(uri + "?template&realm=" + encodeURIComponent(realm));
             sparql = temp.getQueryString(sparql);
         }
         return new java.lang.String(sparql).getBytes(java.nio.charset.Charset.forName("UTF-8"));

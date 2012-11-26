@@ -26,7 +26,7 @@ window.calli.getCallimachusUrl = function(suffix) {
             home = home.substring(0, home.length - 1);
         }
     }
-    var base = home + '/callimachus/';
+    var base = home + '/callimachus/0.18/';
     if (bundle && bundle.indexOf('/scripts/') > 0) {
         base = bundle.substring(0, bundle.indexOf('/scripts/') + 1);
         home = base.substring(0, base.length - 1);

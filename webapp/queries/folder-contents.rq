@@ -75,21 +75,25 @@ SELECT REDUCED * {
                 ?id a [calli:icon ?icon]
             } UNION {
                 ?id calli:reader ?link_reader_href
+                FILTER NOT EXISTS { ?id calli:subscriber ?link_reader_href }
                 OPTIONAL {
                     ?link_reader_href rdfs:label ?link_reader_title
                 }
             } UNION {
                 ?id calli:subscriber ?link_subscriber_href
+                FILTER NOT EXISTS { ?id calli:contributor ?link_subscriber_href }
                 OPTIONAL {
                     ?link_subscriber_href rdfs:label ?link_subscriber_title
                 }
             } UNION {
                 ?id calli:contributor ?link_contributor_href
+                FILTER NOT EXISTS { ?id calli:editor ?link_contributor_href }
                 OPTIONAL {
                     ?link_contributor_href rdfs:label ?link_contributor_title
                 }
             } UNION {
                 ?id calli:editor ?link_editor_href
+                FILTER NOT EXISTS { ?id calli:administrator ?link_editor_href }
                 OPTIONAL {
                     ?link_editor_href rdfs:label ?link_editor_title
                 }

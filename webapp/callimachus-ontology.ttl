@@ -143,13 +143,13 @@ calli:author a owl:AnnotationProperty;
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:contributor a owl:AnnotationProperty;
-    rdfs:subPropertyOf calli:reader;
+    rdfs:subPropertyOf calli:subscriber;
     rdfs:label "contributor";
     rdfs:comment "User or group that can create a resource in this namespace";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:editor a owl:AnnotationProperty;
-    rdfs:subPropertyOf calli:subscriber, calli:contributor, calli:author;
+    rdfs:subPropertyOf calli:contributor, calli:author;
     rdfs:label "editor";
     rdfs:comment "User or group that can create resources in this namespace, can edit this resource, and edit members of this class";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.

@@ -14,9 +14,6 @@
             links.each(function(){
                 this.href = window.location.href + '&choice=' + encodeURIComponent(this.href);
             });
-            if (links.length == 1 && links[0].href.indexOf('}') < 0) {
-                window.location.replace(links[0].href);
-            }
         });
     // ]]>
     </script>
@@ -26,6 +23,7 @@
     <ul>
         <li rel="calli:authentication" resource="?auth">
             <a href="{?auth}" class="add-query">{rdfs:label}</a>
+            <p>{rdfs:comment}</p>
         </li>
     </ul>
 </body>

@@ -17,7 +17,7 @@
 
 (function($){
     var editor = null;
-    var url = location.protocol + "//" + location.host + location.pathname;
+    var url = $('link[rel="edit-media"]').attr("href");
     var etag;
     var original;
     $.ajax({type: 'GET', dataType: "text", url: url, beforeSend: withCredentials, complete: function(xhr) {

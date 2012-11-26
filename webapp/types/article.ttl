@@ -95,7 +95,7 @@
 
 # PUT /books/main-article.docbook?xhtml
 :UploadXhtmlArticle rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Book>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Article>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     calli:method "PUT";
     calli:query "xhtml";

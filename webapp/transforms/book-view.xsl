@@ -172,25 +172,26 @@ xmlns="http://www.w3.org/1999/xhtml" xmlns:xhtml="http://www.w3.org/1999/xhtml" 
 
 <xsl:template mode="heading-prefix" match="node()" />
 
-<xsl:template mode="heading-prefix" match="d:chapter/d:section/d:title|d:chapter/d:section/d:info/d:title">
-    <xsl:number format="1. " level="multiple" count="d:chapter|d:section" />
+<xsl:template mode="heading-prefix" match="*/d:chapter/d:section/d:title|*/d:chapter/d:section/d:info/d:title">
+    <xsl:number format="1." level="any" count="d:chapter" />
+    <xsl:number format="1. " level="multiple" count="d:section" />
 </xsl:template>
 
-<xsl:template mode="heading-prefix" match="d:chapter/d:title|d:chapter/d:info/d:title">
+<xsl:template mode="heading-prefix" match="*/d:chapter/d:title|*/d:chapter/d:info/d:title">
     <xsl:text>Chapter </xsl:text>
-    <xsl:number format="1. " level="single" count="d:part|d:article|d:chapter|d:section" />
+    <xsl:number format="1. " level="any" count="d:chapter" />
 </xsl:template>
 
 <xsl:template mode="heading-prefix" match="*/d:article/d:title|*/d:article/d:info/d:title">
     <xsl:number format="A. " level="single" count="d:part|d:article|d:chapter|d:section" />
 </xsl:template>
 
-<xsl:template mode="heading-prefix" match="d:appendix/d:title|d:appendix/d:info/d:title">
+<xsl:template mode="heading-prefix" match="*/d:appendix/d:title|*/d:appendix/d:info/d:title">
     <xsl:text>Appendix </xsl:text>
     <xsl:number format="A. " level="single" count="d:part|d:article|d:chapter|d:section" />
 </xsl:template>
 
-<xsl:template mode="heading-prefix" match="d:part/d:title|d:part/d:info/d:title">
+<xsl:template mode="heading-prefix" match="*/d:part/d:title|*/d:part/d:info/d:title">
     <xsl:text>Part </xsl:text>
     <xsl:number format="I. " level="single" count="d:part|d:article|d:chapter|d:section" />
 </xsl:template>

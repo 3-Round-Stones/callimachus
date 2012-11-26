@@ -282,7 +282,7 @@ public class DetachedRealm {
 			} else {
 				int code = resp.getStatusLine().getStatusCode();
 				int unauthCode = unauth.getStatusLine().getStatusCode();
-				if (code == 401 && unauthCode != 401) {
+				if (code >= 400 && unauthCode < 400) {
 					unauth = copyAuthHeaders(unauth, resp);
 				} else {
 					unauth = copyAuthHeaders(resp, unauth);

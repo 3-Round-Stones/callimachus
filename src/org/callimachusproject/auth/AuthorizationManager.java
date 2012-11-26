@@ -27,6 +27,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
 import org.apache.http.util.EntityUtils;
+import org.callimachusproject.server.exceptions.ResponseException;
 import org.callimachusproject.server.handlers.AuthenticationHandler;
 import org.callimachusproject.server.model.ResourceOperation;
 import org.callimachusproject.util.DomainNameSystemResolver;
@@ -130,6 +131,11 @@ public class AuthorizationManager {
 			if (or != null && !isOriginAllowed(allowed, or)) {
 				try {
 					unauth = choose(unauth, realm.forbidden(m, target, map));
+				} catch (ResponseException exc) {
+					if (unauth != null) {
+						EntityUtils.consume(unauth.getEntity());
+					}
+					throw exc;
 				} catch (Exception exc) {
 					logger.error(exc.toString(), exc);
 				}
@@ -142,6 +148,11 @@ public class AuthorizationManager {
 					} else {
 						unauth = choose(unauth, realm.forbidden(m, target, map));
 					}
+				} catch (ResponseException exc) {
+					if (unauth != null) {
+						EntityUtils.consume(unauth.getEntity());
+					}
+					throw exc;
 				} catch (Exception exc) {
 					logger.error(exc.toString(), exc);
 				}

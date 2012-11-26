@@ -38,8 +38,8 @@ window.calli.getCallimachusUrl = function(suffix) {
             }
         }
     }
-    if (bundle && bundle.match(/^.*\/[0-9][\w\.\-]*\//)) {
-        base = bundle.match(/^.*\/[0-9][\w\.\-]*\//)[0];
+    if (bundle && bundle.match(/^.*\/[0-9][\w\.\-\+]*\//)) {
+        base = bundle.match(/^.*\/[0-9][\w\.\-\+]*\//)[0];
         home = base.substring(0, base.length - 1);
         while (home.lastIndexOf('/') == 0 || home.lastIndexOf('/') > home.indexOf('//') + 1) {
             home = home.substring(0, home.lastIndexOf('/'));

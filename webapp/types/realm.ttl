@@ -123,10 +123,20 @@
     calli:query "login";
     calli:requires calli:reader;
     calli:type "message/x-response";
+    calli:imports <java:org.openrdf.model.vocabulary.RDF>;
     calli:script """
+        var con = this.objectConnection;
+        var vf = con.valueFactory;
         var query = loginQuery;
         if (query.indexOf('&return_to=') < 0) {
-            if (loginReferer && loginReferer.indexOf(this.toString()) == 0) {
+            var authority = false;
+            if (loginReferer) {
+                var uri = java.net.URI.create(loginReferer);
+                var origin = uri.authority ? new java.net.URI(uri.scheme, uri.authority, "/", null, null).toASCIIString() : null;
+                var Origin = vf.createURI("http://callimachusproject.org/rdf/2009/framework#Origin");
+                authority = origin && con.hasStatement(vf.createURI(origin), RDF.TYPE, Origin, []);
+            }
+            if (authority) {
                 query = query + '&return_to=' + encodeURIComponent(loginReferer);
             } else {
                 query = query + '&return_to=' + encodeURIComponent(this.toString());

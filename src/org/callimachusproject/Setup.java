@@ -113,6 +113,7 @@ public class Setup {
 	private static final String UNAUTHORIZED_PAGE = "pages/unauthorized.xhtml?element=/1";
 	public static final String NAME = Version.getInstance().getVersion();
 	private static final String DIGEST_ACCOUNTS = "/accounts";
+	private static final String DIGEST_COMMENT = "Sign in with a username and password";
 	private static final String ACTIVITY_PATH = "/activity/";
 	private static final String DIGEST_MANAGER_TYPE = "types/DigestManager";
 	private static final String REALM_TYPE = "types/Realm";
@@ -939,6 +940,7 @@ public class Setup {
 		add(con, subj, RDF.TYPE, CALLI_AUTHENTICATION_MANAGER);
 		String label = accounts.substring(accounts.lastIndexOf('/') + 1);
 		con.add(subj, RDFS.LABEL, vf.createLiteral(label));
+		con.add(subj, RDFS.COMMENT, vf.createLiteral(DIGEST_COMMENT));
 		add(con, subj, CALLI_READER, origin + GROUP_PUBLIC);
 		add(con, subj, CALLI_SUBSCRIBER, origin + GROUP_USERS);
 		add(con, subj, CALLI_SUBSCRIBER, origin + GROUP_STAFF);

@@ -26,9 +26,20 @@ window.calli.getCallimachusUrl = function(suffix) {
             home = home.substring(0, home.length - 1);
         }
     }
-    var base = home + '/callimachus/0.18/';
-    if (bundle && bundle.indexOf('/scripts/') > 0) {
-        base = bundle.substring(0, bundle.indexOf('/scripts/') + 1);
+    var base = home + '/callimachus/';
+    if (bundle && bundle.indexOf('://') < 0) {
+        if (document.baseURIObject && document.baseURIObject.resolve) {
+            bundle = document.baseURIObject.resolve(bundle);
+        } else {
+            var a = document.createElement('a');
+            a.setAttribute('href', bundle);
+            if (a.href) {
+                bundle = a.href;
+            }
+        }
+    }
+    if (bundle && bundle.match(/^.*\/[0-9][\w\.\-]*\//)) {
+        base = bundle.match(/^.*\/[0-9][\w\.\-]*\//)[0];
         home = base.substring(0, base.length - 1);
         while (home.lastIndexOf('/') == 0 || home.lastIndexOf('/') > home.indexOf('//') + 1) {
             home = home.substring(0, home.lastIndexOf('/'));

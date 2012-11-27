@@ -3,5 +3,6 @@ org.callimachusproject.concepts.ScriptBundle
 org.callimachusproject.concepts.User
 org.callimachusproject.concepts.Activity
 org.callimachusproject.concepts.DigestManager
+org.callimachusproject.concepts.FacebookManager
 org.callimachusproject.concepts.Realm
 org.callimachusproject.concepts.AuthenticationManager

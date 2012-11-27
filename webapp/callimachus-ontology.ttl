@@ -318,9 +318,9 @@ calli:facebookAppId a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain calli:FacebookManager;
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
-calli:facebookSecret a owl:FunctionalProperty, owl:DatatypeProperty;
+calli:facebookSecret a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:label "facebook secret";
-    rdfs:comment "The app secret as provided by facebook";
+    rdfs:comment "The URI of an app secret as provided by facebook";
     rdfs:domain calli:FacebookManager;
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 

@@ -65,7 +65,6 @@ import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.vocabulary.XMLSchema;
 import org.openrdf.query.BindingSet;
-import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.TupleQuery;
 import org.openrdf.query.TupleQueryResult;
 import org.openrdf.query.algebra.evaluation.util.ValueComparator;
@@ -189,7 +188,7 @@ public class DetachedDigestManager implements DetachedAuthenticationManager {
 	@Override
 	public HttpMessage authenticationInfo(String method, Object resource,
 			Map<String, String[]> request, ObjectConnection con)
-			throws OpenRDFException {
+			throws OpenRDFException, IOException {
 		Map<String, String> auth = parseDigestAuthorization(request);
 		if (auth == null)
 			return null;
@@ -267,7 +266,7 @@ public class DetachedDigestManager implements DetachedAuthenticationManager {
 	}
 
 	public HttpResponse login(Collection<String> tokens, boolean persistent,
-			ObjectConnection con) throws OpenRDFException {
+			ObjectConnection con) throws OpenRDFException, IOException {
 		HttpResponse resp = null;
 		String username = getUserLogin(tokens, con);
 		if (persistent) {
@@ -288,7 +287,7 @@ public class DetachedDigestManager implements DetachedAuthenticationManager {
 	}
 
 	public String getUserIdentifier(Collection<String> tokens,
-			ObjectConnection con) throws OpenRDFException {
+			ObjectConnection con) throws OpenRDFException, IOException {
 		Map<String, String> options = parseDigestAuthorization(tokens);
 		if (options == null)
 			return null;
@@ -313,7 +312,7 @@ public class DetachedDigestManager implements DetachedAuthenticationManager {
 	}
 
 	public boolean isDigestPassword(Collection<String> tokens, String[] hash,
-			ObjectConnection con) throws OpenRDFException {
+			ObjectConnection con) throws OpenRDFException, IOException {
 		Map<String, String> auth = parseDigestAuthorization(tokens);
 		String username = auth.get("username");
 		String realm = auth.get("realm");
@@ -351,7 +350,7 @@ public class DetachedDigestManager implements DetachedAuthenticationManager {
 	private Map.Entry<String, String> findAuthUser(String method,
 			Object resource, Map<String, String[]> request,
 			Map<String, String> auth, ObjectConnection con)
-			throws OpenRDFException {
+			throws OpenRDFException, IOException {
 		if (!isRecentDigest(resource, request, auth))
 			return null;
 		String qop = auth.get("qop");
@@ -389,7 +388,7 @@ public class DetachedDigestManager implements DetachedAuthenticationManager {
 
 	private Map<String, String> findDigestUser(String username, String realm,
 			Collection<String> cookies,
-			ObjectConnection con) throws OpenRDFException {
+			ObjectConnection con) throws OpenRDFException, IOException {
 		if (username == null)
 			throw new NullPointerException();
 		TupleQueryResult results = findPasswordDigest(username, con);
@@ -469,8 +468,7 @@ public class DetachedDigestManager implements DetachedAuthenticationManager {
 	}
 
 	private HttpResponse getPersistentLogin(String username,
-			ObjectConnection con) throws OpenRDFException,
-			QueryEvaluationException {
+			ObjectConnection con) throws OpenRDFException, IOException {
 		TupleQueryResult results = findPasswordDigest(username, con);
 		try {
 			while (results.hasNext()) {

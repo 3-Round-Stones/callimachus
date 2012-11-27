@@ -2,6 +2,7 @@ package org.callimachusproject.auth;
 
 import static org.openrdf.query.QueryLanguage.SPARQL;
 
+import java.io.IOException;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
@@ -40,13 +41,13 @@ public class RealmManager {
 		realms = null;
 	}
 
-	public DetachedRealm getRealm(String target) throws OpenRDFException {
+	public DetachedRealm getRealm(String target) throws OpenRDFException, IOException {
 		TreeMap<String, DetachedRealm> realms = getRealms();
 		return get(target, realms);
 	}
 
 	public DetachedAuthenticationManager getAuthenticationManager(Resource uri)
-			throws OpenRDFException {
+			throws OpenRDFException, IOException {
 		for (DetachedRealm realm : getRealms().values()) {
 			DetachedAuthenticationManager auth = realm.getAuthenticationManager(uri);
 			if (auth != null)
@@ -56,7 +57,7 @@ public class RealmManager {
 	}
 
 	private synchronized TreeMap<String, DetachedRealm> getRealms()
-			throws OpenRDFException {
+			throws OpenRDFException, IOException {
 		if (realms != null && revision == cache)
 			return realms;
 		revision = cache;
@@ -64,7 +65,7 @@ public class RealmManager {
 	}
 
 	private TreeMap<String, DetachedRealm> loadRealms(ObjectRepository repo)
-			throws OpenRDFException {
+			throws OpenRDFException, IOException {
 		ObjectConnection con = repo.getConnection();
 		try {
 			TreeMap<String, DetachedRealm> realms = new TreeMap<String, DetachedRealm>();
@@ -78,7 +79,7 @@ public class RealmManager {
 	}
 
 	private void addRealmsOfType(URI type, TreeMap<String, DetachedRealm> realms,
-			ObjectConnection con) throws OpenRDFException {
+			ObjectConnection con) throws OpenRDFException, IOException {
 		ObjectQuery qry = con.prepareObjectQuery(SPARQL, SELECT_BY_TYPE);
 		qry.setBinding("type", type);
 		for (Object o : qry.evaluate(Object.class).asList()) {

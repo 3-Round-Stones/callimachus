@@ -73,17 +73,18 @@ public class AuthorizationManager {
 	 * Called from composite.ttl when creating a new resource
 	 */
 	public boolean isAuthorized(String user, RDFObject target, String[] roles)
-			throws RepositoryException, OpenRDFException {
+			throws OpenRDFException {
 		Set<Group> groups = getAuthorizedParties(target, roles);
 		return isPublic(groups) || isMember(user, groups);
 	}
 
-	public DetachedRealm getRealm(String target)
-			throws OpenRDFException {
+	public DetachedRealm getRealm(String target) throws OpenRDFException,
+			IOException {
 		return realmManager.getRealm(target);
 	}
 
-	public DetachedAuthenticationManager getAuthenticationManager(Resource uri) throws OpenRDFException {
+	public DetachedAuthenticationManager getAuthenticationManager(Resource uri)
+			throws OpenRDFException, IOException {
 		return realmManager.getAuthenticationManager(uri);
 	}
 
@@ -185,13 +186,13 @@ public class AuthorizationManager {
 	}
 
 	public boolean withAgentCredentials(ResourceOperation request,
-			String origin) throws OpenRDFException {
+			String origin) throws OpenRDFException, IOException {
 		DetachedRealm realm = getRealm(request);
 		return realm != null && realm.withAgentCredentials(origin);
 	}
 
 	public Set<String> allowOrigin(ResourceOperation request)
-			throws OpenRDFException {
+			throws OpenRDFException, IOException {
 		Set<String> set = new LinkedHashSet<String>();
 		DetachedRealm realm = getRealm(request);
 		if (realm == null && request.isPublic()) {
@@ -269,7 +270,8 @@ public class AuthorizationManager {
 		}
 	}
 
-	private DetachedRealm getRealm(ResourceOperation request) throws OpenRDFException {
+	private DetachedRealm getRealm(ResourceOperation request)
+			throws OpenRDFException, IOException {
 		DetachedRealm realm = getRealm(request.getIRI());
 		if (realm == null)
 			return getRealm(request.getRequestURI());

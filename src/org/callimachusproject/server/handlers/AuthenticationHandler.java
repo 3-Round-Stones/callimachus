@@ -104,7 +104,7 @@ public class AuthenticationHandler implements Handler {
 	}
 
 	private String getAllowedOrigin(ResourceOperation request)
-			throws OpenRDFException {
+			throws OpenRDFException, IOException {
 		Set<String> origins = manager.allowOrigin(request);
 		if (origins == null || origins.isEmpty())
 			return null;

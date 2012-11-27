@@ -44,7 +44,7 @@ public abstract class RealmSupport implements RDFObject, Realm {
 	}
 
 	@Override
-	public DetachedRealm detachRealm(RealmManager manager) throws OpenRDFException {
+	public DetachedRealm detachRealm(RealmManager manager) throws OpenRDFException, IOException {
 		return new DetachedRealm(this.getResource(), this.getObjectConnection(), manager);
 	}
 

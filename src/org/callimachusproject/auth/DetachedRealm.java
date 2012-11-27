@@ -84,7 +84,7 @@ public class DetachedRealm {
 	private String unauthorized;
 
 	public DetachedRealm(Resource self, ObjectConnection con, RealmManager manager)
-			throws OpenRDFException {
+			throws OpenRDFException, IOException {
 		TupleQuery query = con.prepareTupleQuery(SPARQL, SELECT_REALM);
 		query.setBinding("this", self);
 		TupleQueryResult results = query.evaluate();
@@ -212,7 +212,7 @@ public class DetachedRealm {
 
 	public HttpMessage authenticationInfo(String method, Object resource,
 			Map<String, String[]> request, ObjectConnection con)
-			throws OpenRDFException {
+			throws OpenRDFException, IOException {
 		HttpMessage msg = new BasicHttpResponse(_204);
 		for (DetachedAuthenticationManager realm : getManagers(request.get("cookie"))) {
 			HttpMessage resp = realm.authenticationInfo(method, resource,
@@ -368,7 +368,7 @@ public class DetachedRealm {
 
 	private DetachedAuthenticationManager detach(Resource resource,
 			String protects, RealmManager manager, ObjectConnection con)
-			throws RepositoryException, OpenRDFException {
+			throws OpenRDFException, IOException {
 		List<String> domains = getDistinctRealm(protects);
 		String path = getCommonPath(domains);
 		Object am = con.getObject(resource);

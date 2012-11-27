@@ -29,6 +29,7 @@
  */
 package org.callimachusproject.auth;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
 
@@ -141,10 +142,11 @@ public interface DetachedAuthenticationManager {
 	 * 
 	 * @return Set of HTTP headers
 	 * @throws OpenRDFException
+	 * @throws IOException 
 	 */
 	HttpMessage authenticationInfo(String method, Object resource,
 			Map<String, String[]> request, ObjectConnection con)
-			throws OpenRDFException;
+			throws OpenRDFException, IOException;
 
 	/**
 	 * Include any Set-Cookie header to clear the session

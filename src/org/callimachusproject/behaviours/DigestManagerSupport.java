@@ -43,7 +43,7 @@ public abstract class DigestManagerSupport implements RDFObject, DigestManager {
 	 * Called from realm.ttl and user.ttl
 	 */
 	public String getUserIdentifier(Collection<String> tokens)
-			throws OpenRDFException {
+			throws OpenRDFException, IOException {
 		DetachedDigestManager digest = getManager();
 		if (digest == null)
 			return null;
@@ -54,7 +54,7 @@ public abstract class DigestManagerSupport implements RDFObject, DigestManager {
 	 * Called from realm.ttl
 	 */
 	public String getUserLogin(Collection<String> tokens)
-			throws OpenRDFException {
+			throws OpenRDFException, IOException {
 		DetachedDigestManager digest = getManager();
 		if (digest == null)
 			return null;
@@ -66,7 +66,7 @@ public abstract class DigestManagerSupport implements RDFObject, DigestManager {
 	 */
 	@Override
 	public String getUsernameSetCookie(Collection<String> tokens)
-			throws OpenRDFException {
+			throws OpenRDFException, IOException {
 		DetachedDigestManager digest = getManager();
 		if (digest == null)
 			return null;
@@ -77,7 +77,7 @@ public abstract class DigestManagerSupport implements RDFObject, DigestManager {
 	 * Called from user.ttl
 	 */
 	public boolean isDigestPassword(Collection<String> tokens, String[] hash)
-			throws OpenRDFException {
+			throws OpenRDFException, IOException {
 		DetachedDigestManager digest = getManager();
 		if (digest == null)
 			return false;
@@ -101,7 +101,7 @@ public abstract class DigestManagerSupport implements RDFObject, DigestManager {
 	 * Called from digest.ttl
 	 */
 	public HttpResponse login(Collection<String> tokens, boolean persistent)
-			throws OpenRDFException {
+			throws OpenRDFException, IOException {
 		DetachedDigestManager digest = getManager();
 		if (digest == null)
 			return null;
@@ -111,14 +111,14 @@ public abstract class DigestManagerSupport implements RDFObject, DigestManager {
 	/**
 	 * Called from digest.ttl
 	 */
-	public String getDaypass(FileObject secret) throws OpenRDFException {
+	public String getDaypass(FileObject secret) throws OpenRDFException, IOException {
 		DetachedDigestManager digest = getManager();
 		if (digest == null)
 			return null;
 		return digest.getDaypass(secret);
 	}
 
-	private DetachedDigestManager getManager() throws OpenRDFException {
+	private DetachedDigestManager getManager() throws OpenRDFException, IOException {
 		Resource self = this.getResource();
 		ObjectRepository repo = this.getObjectConnection().getRepository();
 		AuthorizationManager manager = service.get(repo);

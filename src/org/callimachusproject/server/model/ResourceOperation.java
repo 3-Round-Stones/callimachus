@@ -104,7 +104,7 @@ public class ResourceOperation extends ResourceRequest {
 				if ("GET".equals(m) || "HEAD".equals(m)) {
 					method = findMethod("GET", true);
 				} else if ("PUT".equals(m) || "DELETE".equals(m)) {
-					method = findMethod(m, false);
+					method = findMethod(m, null);
 				} else {
 					method = findMethod();
 				}

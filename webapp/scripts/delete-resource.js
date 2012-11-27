@@ -37,27 +37,29 @@ window.calli.deleteResource = function(event, redirect) {
                     xhr.setRequestHeader("If-Unmodified-Since", lastmod);
                 }
                 calli.withCredentials(xhr);
-            }, success: function(data, textStatus) {
+            }, complete: function(xhr) {
                 try {
-                    var event = jQuery.Event("calliRedirect");
-                    event.location = redirect ? redirect : form.attr("data-redirect");
-                    if (!event.location && location.pathname.match(/\/$/)) {
-                        event.location = '../';
-                    } else if (!event.location) {
-                        event.location = './';
-                    }
-                    form.trigger(event)
-                    if (!event.isDefaultPrevented()) {
-                        if (event.location) {
-                            window.location.replace(event.location);
-                        } else {
-                            window.location.replace('/');
+                    if (xhr.status >= 200) {
+                        var event = jQuery.Event("calliRedirect");
+                        event.location = redirect ? redirect : xhr.getResponseHeader('Location');
+                        if (!event.location && location.pathname.match(/\/$/)) {
+                            event.location = '../';
+                        } else if (!event.location) {
+                            event.location = './';
+                        }
+                        form.trigger(event)
+                        if (!event.isDefaultPrevented()) {
+                            if (event.location) {
+                                window.location.replace(event.location);
+                            } else {
+                                window.location.replace('/');
+                            }
                         }
                     }
                 } catch(e) {
                     throw calli.error(e);
                 }
-            }})
+            }});
         }
     } catch(e) {
         calli.error(e);

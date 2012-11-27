@@ -110,12 +110,12 @@ SELECT REDUCED * {
                     BIND (?id as ?link_edit_media_href)
                 }
             } UNION {
-                { ?id a <../types/Folder> } UNION { ?id a <../types/Realm> }
+                ?id a calli:Folder
                 BIND (concat(str(?id),"?contents") as ?link_href)
                 BIND ("contents" as ?link_rel)
                 BIND ("application/atom+xml" as ?link_type)
             } UNION {
-                { ?id a <../types/Folder> } UNION { ?id a <../types/Realm> }
+                ?id a calli:Folder
                 BIND (concat(str(?id),"?archive") as ?link_href)
                 BIND (calli:archive as ?link_rel)
                 BIND ("application/zip" as ?link_type)

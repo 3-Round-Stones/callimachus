@@ -151,9 +151,10 @@
 
 :Delete rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Editable>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
     calli:method "DELETE";
     calli:requires calli:editor;
+    calli:type "message/x-response";
     calli:imports <java:org.openrdf.model.BNode>;
     calli:imports <java:org.openrdf.model.URI>;
     calli:imports <java:javax.tools.FileObject>;
@@ -161,6 +162,7 @@
     calli:script """
         var con = this.objectConnection;
         var stmts = con.getStatements(null, null, this.resource, []);
+        var redirect = "/";
         try {
             while (stmts.hasNext()) {
                 var st = stmts.next();
@@ -174,6 +176,9 @@
                         throw new Conflict("This resource is currently is use and cannot be removed");
                     if (subj.stringValue().indexOf('#') >= 0)
                         throw new Conflict("This resource is currently referenced: " + subj);
+                    if (pred == "http://callimachusproject.org/rdf/2009/framework#hasComponent") {
+                        redirect = subj.stringValue();
+                    }
                     con.remove(st, []);
                 }
             }
@@ -207,12 +212,18 @@
         if (this instanceof FileObject) {
             this['delete'](); //# remove document
         }
+        return {
+            status:201,message:"Modified",
+            headers:{location:redirect,'content-type':"text/plain"},
+            body:[redirect]
+        };
     """.
 
 :DeleteComposite owl:intersectionOf ( :Delete
         [owl:onProperty msg:target; owl:allValuesFrom [owl:intersectionOf (<Editable> <Composite>)]]);
     calli:method "DELETE";
     calli:requires calli:editor;
+    calli:type "message/x-response";
     calli:imports <java:org.callimachusproject.server.exceptions.Conflict>;
     calli:script """
         if (this.HasComponents())
@@ -235,6 +246,7 @@
         [owl:onProperty msg:target; owl:allValuesFrom [owl:intersectionOf (<Editable> <Creatable>)]]);
     calli:method "DELETE";
     calli:requires calli:editor;
+    calli:type "message/x-response";
     calli:imports <java:org.callimachusproject.server.exceptions.Conflict>;
     calli:script """
         if (this.HasInstanceChildren())

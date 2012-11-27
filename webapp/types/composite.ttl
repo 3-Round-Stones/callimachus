@@ -98,6 +98,9 @@
             var creatable = false;
             findConcepts(newCopy.getClass(), new java.util.HashSet(), function(type) {
                 var cls = con.getObject(type);
+                if (!(cls instanceof Creatable)) {
+                    cls = this.FindCreatableVersion(cls);
+                }
                 if (cls instanceof Creatable) {
                     creatable = true;
                     if (!authorization.isAuthorized(user.toString(), cls, ["http://callimachusproject.org/rdf/2009/framework#author"]))
@@ -145,8 +148,12 @@
     calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
     calli:script """
-        if (!(create instanceof Creatable))
-            throw new BadRequest("Cannot create this class here: " + create);
+        if (!(create instanceof Creatable)) {
+            var createAlternate = this.FindCreatableVersion(create);
+            if (!(createAlternate instanceof Creatable))
+                throw new BadRequest("Cannot create: " + create);
+            create = createAlternate;
+        }
         if (!create.calliCreate || create.calliCreate.isEmpty())
             throw new InternalServerError("No create template");
         if (create.calliCreate.size() != 1)
@@ -170,8 +177,12 @@
     calli:script """
         if (!location)
             throw new BadRequest("No location provided");
-        if (!(create instanceof Creatable))
-            throw new BadRequest("Cannot create: " + create);
+        if (!(create instanceof Creatable)) {
+            var createAlternate = this.FindCreatableVersion(create);
+            if (!(createAlternate instanceof Creatable))
+                throw new BadRequest("Cannot create: " + create);
+            create = createAlternate;
+        }
         var creatorUri = this.toString();
         var createdUri = location.toString();
         var dest = createdUri.substring(0, createdUri.lastIndexOf('/', createdUri.length - 2) + 1);
@@ -261,8 +272,7 @@
     calli:type "*/*".
 
 :create a owl:FunctionalProperty, owl:ObjectProperty;
-    rdfs:domain [owl:unionOf (:GetCreatorPage :PostFactoryCreate)];
-    rdfs:range <Creatable>;
+    rdfs:domain [owl:unionOf (:GetCreatorPage :PostFactoryCreate :FindCreatableVersion)];
     calli:query "create";
     calli:type "text/uri-list".
 
@@ -457,6 +467,17 @@
 # Helper Messages
 ################################
 
+:FindCreatableVersion rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Composite>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <Creatable>];
+    msg:sparql """
+        PREFIX owl:<http://www.w3.org/2002/07/owl#>
+        SELECT ?creatable {
+            ?creatable owl:equivalentClass* $create .
+            ?creatable a <Creatable>
+        }
+    """.
+
 # find the user that will create $thing
 :FindCreator rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Composite>];
@@ -566,4 +587,5 @@
             }
         }
     """.
+
 

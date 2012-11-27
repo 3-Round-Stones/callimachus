@@ -8,6 +8,33 @@ PREFIX void:<http://rdfs.org/ns/void#>
 PREFIX foaf:<http://xmlns.com/foaf/0.1/>
 PREFIX msg:<http://www.openrdf.org/rdf/2011/messaging#>
 PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
+PREFIX prov:<http://www.w3.org/ns/prov#>
+PREFIX audit:<http://www.openrdf.org/rdf/2012/auditing#>
+
+INSERT {
+	GRAPH ?obsolete { ?obsolete a audit:ObsoleteBundle }
+} WHERE {
+	{
+	    ?obsolete a <http://www.openrdf.org/rdf/2009/auditing#Transaction>
+	} UNION {
+	    ?obsolete a </callimachus/Activity>
+	} UNION {
+	    ?obsolete a </callimachus/types/Activity>
+	} UNION {
+	    ?obsolete a </callimachus/0.18/types/Activity>
+	}
+	FILTER NOT EXISTS {
+		GRAPH ?obsolete {
+			?s ?p ?o
+			FILTER ( !strstarts(str(?s),str(?obsolete)) )
+			FILTER ( !strstarts(str(?p),str(rdf:)) || sameTerm(?p,rdf:type) && !strstarts(str(?o),"http://www.openrdf.org/rdf/2009/auditing#") )
+			FILTER ( !strstarts(str(?p),str(audit:)) )
+			FILTER ( !strstarts(str(?p),"http://www.openrdf.org/rdf/2009/auditing#") )
+			FILTER ( !strstarts(str(?p),str(prov:)) || sameTerm(?p,prov:wasGeneratedBy) )
+		}
+	}
+	FILTER EXISTS { GRAPH ?obsolete { ?s ?p ?o } }
+};
 
 INSERT {
 	</callimachus/> calli:hasComponent </callimachus/template.xsl>.

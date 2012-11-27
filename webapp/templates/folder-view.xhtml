@@ -74,7 +74,7 @@
     <script type="text/javascript">
         jQuery(function($) {
             $('#create-menu').find('a').click(function() {
-                window.location.href = '?create=' + this.href;
+                window.location.href = '?create=' + encodeURIComponent(this.href);
                 return false;
             }).hover(
                 function(){ 

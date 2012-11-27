@@ -36,6 +36,7 @@
 :GetCreatePage rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Creatable>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
+    calli:rel "create-form";
     calli:method "GET";
     calli:query "create";
     calli:requires calli:author;

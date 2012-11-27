@@ -13,9 +13,10 @@ xmlns="http://www.w3.org/1999/xhtml" xmlns:xhtml="http://www.w3.org/1999/xhtml" 
         xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
     <head>
         <title><xsl:value-of select="/*/d:title|/*/d:info/d:title" /></title>
-        <link rel="edit" href="?edit" />
+        <link rel="edit-form" href="?edit" />
         <link rel="describedby" href="?describe" />
         <link rel="version-history" href="?history" />
+        <xsl:apply-templates mode="rel" />
         <style type="text/css">
             .anchor { font-size: smaller; }
             ul.toc { list-style: none; }
@@ -25,6 +26,15 @@ xmlns="http://www.w3.org/1999/xhtml" xmlns:xhtml="http://www.w3.org/1999/xhtml" 
         <xsl:apply-templates />
     </body>
     </html>
+</xsl:template>
+
+<xsl:template mode="rel" match="node()" />
+
+<xsl:template mode="rel" match="d:actknowledgements|d:appendix|d:article|d:bibliography|d:book|d:chapter|d:colophon|d:dedication|d:glossary|d:index|d:para|d:part|d:preface|d:refentry|d:reference|d:section|d:toc|d:set|d:setindex">
+    <xsl:if test="base-uri()!=base-uri(..)">
+        <link rel="section" href="{base-uri()}" type="application/docbook+xml" />
+    </xsl:if>
+    <xsl:apply-templates mode="rel" />
 </xsl:template>
 
 <xsl:template match="d:book">

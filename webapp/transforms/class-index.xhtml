@@ -10,6 +10,7 @@
     xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
     <title><xsl:value-of select="//sparql:result[1]/sparql:binding[@name='title']/*" /></title>
+    <link rel="create-form" href="?create" />
     <script type="text/javascript">//<![CDATA[
         jQuery(function($){
             $('#_').children('div').each(function() {

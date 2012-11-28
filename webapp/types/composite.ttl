@@ -99,7 +99,7 @@
             findConcepts(newCopy.getClass(), new java.util.HashSet(), function(type) {
                 var cls = con.getObject(type);
                 if (!(cls instanceof Creatable)) {
-                    cls = this.FindCreatableVersion(cls);
+                    cls = authorization.FindCreatableVersion(cls);
                 }
                 if (cls instanceof Creatable) {
                     creatable = true;

@@ -6,15 +6,15 @@
     xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
     <title resource="?this">{rdfs:label}</title>
-    <link rel="edit-media" href="?" type="application/docbook+xml" />
+    <link rel="edit-media" href="?xhtml" type="application/xhtml+xml" />
     <style type="text/css">
         #iframe { border:0; }
     </style>
     <script type="text/javascript" src="../editor/edit.js"> </script>
 </head>
 <body>
-    <form id="form" method="PUT" action="?" enctype="application/docbook+xml">
-        <iframe id="iframe" class="flex" src="../editor/docbook-editor.html"> </iframe>
+    <form id="form" method="PUT" action="?xhtml" enctype="application/xhtml+xml">
+        <iframe id="iframe" class="flex" src="../editor/ckeditor.html"> </iframe>
         <button type="submit" class="btn btn-primary">Save</button>
         <button type="button" onclick="calli.saveResourceAs(event, 'untitled article.docbook', calli.getCallimachusUrl('types/Article'))" class="btn btn-info">Save as...</button>
         <button type="button" onclick="window.location.replace('?view')" class="btn">Cancel</button>

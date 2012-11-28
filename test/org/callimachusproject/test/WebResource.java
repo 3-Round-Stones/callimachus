@@ -105,6 +105,48 @@ public class WebResource {
 		return ref(header);
 	}
 
+	public WebResource createPURL(String slug, String property, String target) throws IOException {
+		StringBuilder sb = new StringBuilder();
+		sb.append("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n");
+		sb.append("PREFIX calli: <http://callimachusproject.org/rdf/2009/framework#>\n");
+		sb.append("INSERT DATA {\n");
+		sb.append("<").append(slug).append(">");
+		sb.append(" a calli:PURL, </callimachus/PURL>;\n");
+		sb.append("rdfs:label \"").append(slug).append("\" ;\n");
+		sb.append("calli:").append(property).append(" \"\"\"").append(target).append("\"\"\"\n");
+		sb.append("}");
+		return link("describedby").create("application/sparql-update", sb.toString().getBytes("UTF-8"));
+	}
+
+	public WebResource createFolder(String slug) throws IOException {
+		StringBuilder sb = new StringBuilder();
+		sb.append("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n");
+		sb.append("PREFIX calli: <http://callimachusproject.org/rdf/2009/framework#>\n");
+		sb.append("INSERT DATA {\n");
+		sb.append("<").append(slug).append(">");
+		sb.append(" a calli:Folder, </callimachus/Folder>;\n");
+		sb.append("rdfs:label \"").append(slug).append("\"\n");
+		sb.append("}");
+		return link("describedby").create("application/sparql-update", sb.toString().getBytes("UTF-8"));
+	}
+
+	public String getRedirectLocation() throws IOException {
+		HttpURLConnection con = (HttpURLConnection) new URL(uri).openConnection();
+		con.setInstanceFollowRedirects(false);
+		con.setRequestMethod("HEAD");
+		int code = con.getResponseCode();
+		if (!(code == 301 || code == 303 || code == 302 || code == 307 || code == 308))
+			Assert.assertEquals(con.getResponseMessage(), 302, code);
+		return con.getHeaderField("Location");
+	}
+
+	public int headCode() throws IOException {
+		HttpURLConnection con = (HttpURLConnection) new URL(uri).openConnection();
+		con.setInstanceFollowRedirects(false);
+		con.setRequestMethod("HEAD");
+		return con.getResponseCode();
+	}
+
 	public byte[] get(String type) throws IOException {
 		HttpURLConnection con = (HttpURLConnection) new URL(uri).openConnection();
 		con.setRequestMethod("GET");

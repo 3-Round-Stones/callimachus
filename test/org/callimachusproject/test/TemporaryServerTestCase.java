@@ -1,5 +1,6 @@
 package org.callimachusproject.test;
 
+import java.io.IOException;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 import java.util.HashMap;
@@ -10,6 +11,7 @@ import junit.framework.TestCase;
 import org.callimachusproject.server.CallimachusRepository;
 import org.junit.After;
 import org.junit.Before;
+import org.openrdf.OpenRDFException;
 
 public abstract class TemporaryServerTestCase extends TestCase {
     private static final TemporaryServerFactory factory = TemporaryServerFactory.getInstance();
@@ -51,6 +53,13 @@ public abstract class TemporaryServerTestCase extends TestCase {
 
 	public WebResource getHomeFolder() {
 		return new WebResource(server.getOrigin() + "/");
+	}
+
+	public WebResource getCallimachusWebapp() throws IOException,
+			OpenRDFException {
+		String root = server.getOrigin() + "/";
+		String url = getRepository().getCallimachusWebapp(root);
+		return getHomeFolder().ref(url);
 	}
 
 	public String getUsername() {

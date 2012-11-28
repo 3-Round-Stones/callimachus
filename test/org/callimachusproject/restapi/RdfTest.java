@@ -14,7 +14,7 @@ public class RdfTest extends TemporaryServerTestCase {
         private static final long serialVersionUID = -4308917786147773821L;
 
         {
-        	put("SKOSConcept", new String[] {
+        	put("Concept", new String[] {
         			"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n" +
         		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
         		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
@@ -62,6 +62,14 @@ public class RdfTest extends TemporaryServerTestCase {
         			" INSERT DATA {  \n <created-user> a calli:Party, calli:User, </callimachus/User> ;  \n" +
         			" rdfs:label \"user\" . }"
         	});
+        	
+        	put("PURL", new String[] {
+        			"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n" +
+        		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
+        		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
+        			" INSERT DATA {  \n <created-purl> a calli:PURL, </callimachus/PURL> ;  \n" +
+        			" rdfs:label \"purl\" ; calli:alternate \"http://purl.org/\" . }"
+        	});
         }
     };
 
@@ -86,8 +94,8 @@ public class RdfTest extends TemporaryServerTestCase {
 		WebResource resource = getHomeFolder().link("describedby")
 				.create("application/sparql-update", update.getBytes());
 		resource.link("alternate", "text/html").get("text/html");
-		resource.link("edit", "text/html").get("text/html");
-		resource.ref("?discussion").get("text/html");
+		resource.link("edit-form", "text/html").get("text/html");
+		resource.link("comments").get("text/html");
 		resource.link("describedby", "text/turtle").get("text/turtle");
 		resource.link("describedby", "application/rdf+xml").get("application/rdf+xml");
 		resource.link("describedby", "text/html").get("text/html");

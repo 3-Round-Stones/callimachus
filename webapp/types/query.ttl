@@ -195,6 +195,7 @@
         [owl:onProperty msg:target; owl:allValuesFrom <NamedQuery>]);
     calli:method "DELETE";
     calli:requires calli:editor;
+    calli:type "message/x-response";
     calli:script """
         var con = this.objectConnection;
         con.repository.removeNamedQuery(this.resource);

@@ -195,8 +195,8 @@ public class BlobTest extends TemporaryServerTestCase {
 		WebResource edit = blob.link("edit-media", requestContentType);
 		edit.get(requestContentType);
 		blob.link("alternate", "text/html").get("text/html");
-		blob.link("edit", "text/html").get("text/html");
-		blob.ref("?discussion").get("text/html");
+		blob.link("edit-form", "text/html").get("text/html");
+		blob.link("comments").get("text/html");
 		blob.link("describedby", "text/turtle").get("text/turtle");
 		blob.link("describedby", "application/rdf+xml").get("application/rdf+xml");
 		blob.link("describedby", "text/html").get("text/html");

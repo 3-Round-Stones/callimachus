@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
@@ -119,6 +120,43 @@ public class WebResource {
 		return out.toByteArray();
 	}
 
+	public byte[] post(String type, byte[] body, String accept) throws IOException {
+		HttpURLConnection con = (HttpURLConnection) new URL(uri).openConnection();
+		con.setRequestMethod("POST");
+		con.setRequestProperty("Accept", accept);
+		con.setRequestProperty("Accept-Encoding", "gzip");
+		con.setRequestProperty("Content-Type", type);
+		con.setDoOutput(true);
+		OutputStream req = con.getOutputStream();
+		try {
+			req.write(body);
+		} finally {
+			req.close();
+		}
+		Assert.assertEquals(con.getResponseMessage(), 200, con.getResponseCode());
+		InputStream in = con.getInputStream();
+		if ("gzip".equals(con.getHeaderField("Content-Encoding"))) {
+			in = new GZIPInputStream(in);
+		}
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		ChannelUtil.transfer(in, out);
+		return out.toByteArray();
+	}
+
+	public void post(String type, byte[] body) throws IOException {
+		HttpURLConnection con = (HttpURLConnection) new URL(uri).openConnection();
+		con.setRequestMethod("POST");
+		con.setRequestProperty("Content-Type", type);
+		con.setDoOutput(true);
+		OutputStream req = con.getOutputStream();
+		try {
+			req.write(body);
+		} finally {
+			req.close();
+		}
+		Assert.assertEquals(con.getResponseMessage(), 204, con.getResponseCode());
+	}
+
 	public void put(String type, byte[] body) throws IOException {
 		HttpURLConnection con = (HttpURLConnection) new URL(uri).openConnection();
 		con.setRequestMethod("PUT");
@@ -136,7 +174,10 @@ public class WebResource {
 	public void delete() throws IOException {
 		HttpURLConnection con = (HttpURLConnection) new URL(uri).openConnection();
 		con.setRequestMethod("DELETE");
-		Assert.assertEquals(con.getResponseMessage(), 204, con.getResponseCode());
+		int code = con.getResponseCode();
+		if (code != 201 && code != 204) {
+			Assert.assertEquals(con.getResponseMessage(), 204, code);
+		}
 	}
 
 	public WebResource search(String searchTerm) throws Exception {
@@ -152,6 +193,33 @@ public class WebResource {
 		String secondPart = templateURL.substring(after+1);
 		String fullURL = firstPart + searchTerm + secondPart;
 		return ref(fullURL);
+	}
+
+	public WebResource sparqlEndpoint() throws Exception {
+		String _void = new String(ref("/.well-known/void").get("application/rdf+xml"));
+		Pattern regex = Pattern.compile("\\bsparqlEndpoint\\b[^>]*\\brdf:resource=\"([^\"]*)\"\\s*/>");
+		Matcher m = regex.matcher(_void);
+		Assert.assertTrue(m.find());
+		return ref(m.group(1));
+	}
+
+	public WebResource query(String sparql) throws Exception {
+		String encoded = URLEncoder.encode(sparql, "UTF-8");
+		return ref("?query=" + encoded);
+	}
+
+	public void update(String sparql) throws Exception {
+		HttpURLConnection con = (HttpURLConnection) new URL(uri).openConnection();
+		con.setRequestMethod("POST");
+		con.setRequestProperty("Content-Type", "application/sparql-update");
+		con.setDoOutput(true);
+		OutputStream out = con.getOutputStream();
+		try {
+			out.write(sparql.getBytes("UTF-8"));
+		} finally {
+			out.close();
+		}
+		Assert.assertEquals(con.getResponseMessage(), 204, con.getResponseCode());
 	}
 
 	@Override

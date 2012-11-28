@@ -80,6 +80,15 @@ INSERT {
     FILTER NOT EXISTS { </callimachus/unauthorized> a calli:PURL }
 };
 
+INSERT {
+</callimachus/> calli:hasComponent </callimachus/changes/> .
+</callimachus/changes/> a <types/Folder>, calli:Folder;
+    rdfs:label "changes";
+    calli:subscriber </group/admin>.
+} WHERE {
+	FILTER NOT EXISTS { </callimachus/> calli:hasComponent </callimachus/changes/> }
+};
+
 DELETE {
 	?realm calli:theme </callimachus/theme/default>
 } INSERT {

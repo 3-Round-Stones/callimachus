@@ -32,13 +32,12 @@ INSERT DATA {
 };
 
 ################################
-# Activity Folder
+# Changes Folder
 ################################
 
 INSERT DATA {
-</> calli:hasComponent </activity/>.
-</activity/> a <types/Folder>, calli:Folder;
-    rdfs:label "activity";
+</callimachus/changes/> a <types/Folder>, calli:Folder;
+    rdfs:label "changes";
     calli:subscriber </group/admin>.
 };
 
@@ -54,6 +53,7 @@ INSERT DATA {
     calli:subscriber </group/staff>;
     calli:administrator </group/admin>;
     calli:hasComponent
+        </callimachus/changes/>,
         </callimachus/template.xsl>,
         </callimachus/library.xpl>,
         </callimachus/forbidden>,

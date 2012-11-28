@@ -71,8 +71,8 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 		server.setName(serverName);
 	}
 
-	public void setActivityFolder(String uriSpace) throws OpenRDFException {
-		repository.setActivityFolder(uriSpace);
+	public void setChangesPath(String origin, String path) throws OpenRDFException {
+		repository.setActivityFolder(repository.getCallimachusUrl(origin, path));
 	}
 
 	public String getErrorPipe() {

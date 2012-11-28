@@ -67,7 +67,7 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class Server implements HTTPObjectAgentMXBean {
-	private static final String ACTIVITY_PATH = "/activity/";
+	private static final String CHANGES_PATH = "../changes/";
 	private static final String ERROR_XPL_PATH = "pipelines/error.xpl";
 	public static final String NAME = Version.getInstance().getVersion();
 
@@ -391,8 +391,7 @@ public class Server implements HTTPObjectAgentMXBean {
 		if (line.has("origin")) {
 			for (String o : line.getAll("origin")) {
 				if (primary) {
-					String activity = o + ACTIVITY_PATH;
-					server.setActivityFolder(activity);
+					server.setChangesPath(o, CHANGES_PATH);
 					server.setErrorPipe(o, ERROR_XPL_PATH);
 					primary = false;
 				}

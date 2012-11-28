@@ -56,6 +56,7 @@ import org.callimachusproject.cli.Command;
 import org.callimachusproject.cli.CommandSet;
 import org.callimachusproject.client.HTTPObjectClient;
 import org.callimachusproject.client.UnavailableHttpClient;
+import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.io.CarInputStream;
 import org.callimachusproject.server.CallimachusRepository;
 import org.callimachusproject.setup.UpdateProvider;
@@ -114,7 +115,7 @@ public class Setup {
 	public static final String NAME = Version.getInstance().getVersion();
 	private static final String DIGEST_ACCOUNTS = "/accounts";
 	private static final String DIGEST_COMMENT = "Sign in with a username and password";
-	private static final String ACTIVITY_PATH = "/activity/";
+	private static final String CHANGES_PATH = "../changes/";
 	private static final String DIGEST_MANAGER_TYPE = "types/DigestManager";
 	private static final String REALM_TYPE = "types/Realm";
 	private static final String ORIGIN_TYPE = "types/Origin";
@@ -218,7 +219,7 @@ public class Setup {
 	private final Logger logger = LoggerFactory.getLogger(Setup.class);
 	private final ServiceLoader<UpdateProvider> updateProviders = ServiceLoader
 			.load(UpdateProvider.class, getClass().getClassLoader());
-	private final Map<String,String> webapps = new HashMap<String, String>();
+	private final Map<String,TermFactory> webapps = new HashMap<String, TermFactory>();
 	private CallimachusRepository repository;
 	private ValueFactory vf;
 	private boolean silent;
@@ -432,10 +433,11 @@ public class Setup {
 		if (barren) {
 			// (new) origin does not (yet) have a Callimachus webapp folder
 			synchronized (webapps) {
-				webapps.put(origin, createWebappUrl(origin));
+				webapps.put(origin, TermFactory.newInstance(createWebappUrl(origin)));
 			}
 		}
-		repository.setActivityFolder(origin + ACTIVITY_PATH);
+		String changes = webapp(origin, CHANGES_PATH).stringValue();
+		repository.setActivityFolder(changes);
 		boolean modified = createVirtualHost(origin, origin);
 		if (barren) {
 			initializeStore(origin);
@@ -785,7 +787,7 @@ public class Setup {
 			if (updater != null) {
 				String webapp = webapp(origin, "").stringValue();
 				updater.update(webapp, repository);
-				repository.setActivityFolder(origin + ACTIVITY_PATH);
+				updateWebappContext(origin);
 			}
 		}
 	}
@@ -799,7 +801,7 @@ public class Setup {
 			if (updater != null) {
 				String webapp = webapp(origin, "").stringValue();
 				modified |= updater.update(webapp, repository);
-				repository.setActivityFolder(origin + ACTIVITY_PATH);
+				updateWebappContext(origin);
 			}
 		}
 		return modified;
@@ -814,7 +816,7 @@ public class Setup {
 			if (updater != null) {
 				String webapp = webapp(origin, "").stringValue();
 				updater.update(webapp, repository);
-				repository.setActivityFolder(origin + ACTIVITY_PATH);
+				updateWebappContext(origin);
 			}
 		}
 		String newVersion = getStoreVersion(origin);
@@ -823,6 +825,14 @@ public class Setup {
 			return upgradeStore(origin);
 		}
 		return newVersion;
+	}
+
+	private void updateWebappContext(String origin) throws OpenRDFException {
+		synchronized (webapps) {
+			webapps.clear();
+		}
+		String changes = webapp(origin, CHANGES_PATH).stringValue();
+		repository.setActivityFolder(changes);
 	}
 
 	private URI[] importSchema(URL car, String folder, String origin) throws RepositoryException,
@@ -1194,18 +1204,19 @@ public class Setup {
 	}
 
 	private URI webapp(String origin, String path) throws OpenRDFException {
-		String uri = repository.getCallimachusUrl(origin, path);
-		if (uri != null)
-			return vf.createURI(uri);
 		synchronized (webapps) {
 			if (webapps.containsKey(origin))
-				return vf.createURI(webapps.get(origin) + path);
+				return vf.createURI(webapps.get(origin).resolve(path));
+			String webapp = repository.getCallimachusUrl(origin, "");
+			if (webapp == null) {
+				webapp = webappIfPresent(origin);
+				if (webapp == null)
+					throw new IllegalStateException("Origin has not yet been created: " + origin);
+			}
+			TermFactory tf = TermFactory.newInstance(webapp);
+			webapps.put(origin, tf);
+			return vf.createURI(tf.resolve(path));
 		}
-		assert origin != null;
-		String webapp = webappIfPresent(origin);
-		if (webapp == null)
-			throw new IllegalStateException("Origin has not yet been created: " + origin);
-		return vf.createURI(webapp + path);
 	}
 
 	private String webappIfPresent(String origin) throws OpenRDFException {

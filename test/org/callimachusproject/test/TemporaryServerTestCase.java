@@ -51,15 +51,15 @@ public abstract class TemporaryServerTestCase extends TestCase {
 		Authenticator.setDefault(null);
 	}
 
-	public WebResource getHomeFolder() {
-		return new WebResource(server.getOrigin() + "/");
+	public WebResource getHomeFolder() throws IOException, OpenRDFException {
+		return getCallimachusUrl("/");
 	}
 
-	public WebResource getCallimachusWebapp() throws IOException,
+	public WebResource getCallimachusUrl(String path) throws IOException,
 			OpenRDFException {
-		String root = server.getOrigin() + "/";
-		String url = getRepository().getCallimachusWebapp(root);
-		return getHomeFolder().ref(url);
+		String origin = server.getOrigin();
+		String url = getRepository().getCallimachusUrl(origin, path);
+		return new WebResource(url);
 	}
 
 	public String getUsername() {

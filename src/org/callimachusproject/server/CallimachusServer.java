@@ -28,7 +28,6 @@ import java.util.Set;
 
 import org.apache.http.HttpHost;
 import org.callimachusproject.client.HTTPObjectClient;
-import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.server.util.FileUtil;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.ValueFactory;
@@ -52,9 +51,9 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 
 	public void addOrigin(String origin) throws Exception {
 		ValueFactory vf = this.repository.getValueFactory();
-		String webapp = repository.getCallimachusWebapp(origin + "/");
-		if (webapp != null) {
-			repository.addSchemaGraphType(vf.createURI(webapp + SCHEMA_GRAPH));
+		String schema = repository.getCallimachusUrl(origin, SCHEMA_GRAPH);
+		if (schema != null) {
+			repository.addSchemaGraphType(vf.createURI(schema));
 		}
 		origins.add(origin);
 		String[] identities = origins.toArray(new String[origins.size()]);
@@ -73,11 +72,7 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 	}
 
 	public void setActivityFolder(String uriSpace) throws OpenRDFException {
-		String o = TermFactory.newInstance(uriSpace).resolve("/");
-		String webapp = repository.getCallimachusWebapp(o);
-		if (webapp == null)
-			throw new IllegalArgumentException("Callimachus webapp not setup on: " + o);
-		repository.setActivityFolder(uriSpace, webapp);
+		repository.setActivityFolder(uriSpace);
 	}
 
 	public String getErrorPipe() {
@@ -86,12 +81,11 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 
 	public void setErrorPipe(String origin, String path) throws IOException,
 			OpenRDFException {
-		String o = origin + "/";
-		String webapp = repository.getCallimachusWebapp(o);
-		if (webapp == null)
+		String pipe = repository.getCallimachusUrl(origin, path);
+		if (pipe == null)
 			throw new IllegalArgumentException(
-					"Callimachus webapp not setup on: " + o);
-		server.setErrorPipe(webapp + path);
+					"Callimachus webapp not setup on: " + origin);
+		server.setErrorPipe(pipe);
 	}
 
 	public CallimachusRepository getRepository() {

@@ -1,10 +1,13 @@
 package org.callimachusproject.server;
 
+import info.aduna.net.ParsedURI;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.logging.trace.TracerService;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Statement;
@@ -48,12 +51,10 @@ public class CallimachusRepository extends RepositoryWrapper {
 		return object;
 	}
 
-	public void setActivityFolder(String uriSpace, String webapp)
-			throws OpenRDFException {
-		assert webapp.endsWith("/");
+	public void setActivityFolder(String uriSpace) throws OpenRDFException {
 		if (auditing != null) {
-			String bundle = webapp + ACTIVITY_TYPE;
-			String folder = webapp + FOLDER_TYPE;
+			String bundle = getCallimachusUrl(uriSpace, ACTIVITY_TYPE);
+			String folder = getCallimachusUrl(uriSpace, FOLDER_TYPE);
 			auditing.setActivityFactory(new CallimachusActivityFactory(object,
 					uriSpace, bundle, folder));
 		}
@@ -80,6 +81,47 @@ public class CallimachusRepository extends RepositoryWrapper {
 		return object.addSchemaListener(action);
 	}
 
+	public ObjectConnection getConnection() throws RepositoryException {
+		ObjectConnection con = object.getConnection();
+		if (auditing != null && con.getVersionBundle() == null) {
+			URI bundle = con.getInsertContext();
+			ActivityFactory activityFactory = auditing.getActivityFactory();
+			if (bundle == null && activityFactory != null) {
+				ValueFactory vf = getValueFactory();
+				URI activityURI = activityFactory.createActivityURI(bundle, vf);
+				String str = activityURI.stringValue();
+				int h = str.indexOf('#');
+				if (h > 0) {
+					bundle = vf.createURI(str.substring(0, h));
+				} else {
+					bundle = activityURI;
+				}
+			}
+			con.setVersionBundle(bundle); // use the same URI for blob version
+		}
+		return con;
+	}
+
+	/**
+	 * Resolves the relative path to the callimachus webapp context installed at
+	 * the origin.
+	 * 
+	 * @param origin
+	 *            scheme and authority
+	 * @param path
+	 *            relative path from the Callimachus webapp context
+	 * @return absolute URL of the root + webapp context + path (or null)
+	 */
+	public String getCallimachusUrl(String origin, String path)
+			throws OpenRDFException {
+		ParsedURI parsed = new ParsedURI(origin + "/");
+		String root = parsed.getScheme() + "://" + parsed.getAuthority() + "/";
+		String webapp = getCallimachusWebapp(root);
+		if (webapp == null)
+			return null;
+		return TermFactory.newInstance(webapp).resolve(path);
+	}
+
 	/**
 	 * Locates the location of the Callimachus webapp folder if present in same
 	 * origin, given the root folder.
@@ -89,7 +131,7 @@ public class CallimachusRepository extends RepositoryWrapper {
 	 * @return folder of the Callimachus webapp (or null)
 	 * @throws OpenRDFException
 	 */
-	public String getCallimachusWebapp(String root) throws OpenRDFException {
+	private String getCallimachusWebapp(String root) throws OpenRDFException {
 		assert root.endsWith("/");
 		RepositoryConnection con = this.getConnection();
 		try {
@@ -112,27 +154,6 @@ public class CallimachusRepository extends RepositoryWrapper {
 			con.close();
 		}
 		return null;
-	}
-
-	public ObjectConnection getConnection() throws RepositoryException {
-		ObjectConnection con = object.getConnection();
-		if (auditing != null && con.getVersionBundle() == null) {
-			URI bundle = con.getInsertContext();
-			ActivityFactory activityFactory = auditing.getActivityFactory();
-			if (bundle == null && activityFactory != null) {
-				ValueFactory vf = getValueFactory();
-				URI activityURI = activityFactory.createActivityURI(bundle, vf);
-				String str = activityURI.stringValue();
-				int h = str.indexOf('#');
-				if (h > 0) {
-					bundle = vf.createURI(str.substring(0, h));
-				} else {
-					bundle = activityURI;
-				}
-			}
-			con.setVersionBundle(bundle); // use the same URI for blob version
-		}
-		return con;
 	}
 
 	private AuditingRepository findAuditingRepository(Repository repository,

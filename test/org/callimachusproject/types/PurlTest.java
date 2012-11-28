@@ -25,7 +25,7 @@ public class PurlTest extends TemporaryServerTestCase {
 	}
 
 	public void testStaticCopy() throws Exception {
-		WebResource purl = getHomeFolder().createPURL("robots.txt", "copy", file.toString());
+		WebResource purl = getHomeFolder().createPURL("humans.txt", "copy", file.toString());
 		try {
 			assertEquals(new String(file.get("text/plain")), new String(purl.get("text/plain")));
 		} finally {

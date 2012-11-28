@@ -21,7 +21,6 @@ import org.callimachusproject.server.concepts.AnyThing;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.config.ObjectRepositoryConfig;
 import org.openrdf.repository.object.config.ObjectRepositoryFactory;
@@ -205,7 +204,7 @@ public abstract class MetadataServerTestCase extends TestCase {
 	}
 
 	private void initDataset(CallimachusRepository repository) throws Exception {
-		repository.setActivityFolder("http://example.com/activity/", "http://example.com/callimachus/");
+		repository.setActivityFolder("http://example.com/activity/");
 		ObjectConnection con = repository.getConnection();
 		try {
 			ValueFactory vf = con.getValueFactory();

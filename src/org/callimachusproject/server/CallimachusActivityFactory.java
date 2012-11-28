@@ -98,8 +98,6 @@ public final class CallimachusActivityFactory implements ActivityFactory {
 			String activityBundleType, String folderType) {
 		assert repository != null;
 		assert uriSpace != null;
-		assert activityBundleType != null;
-		assert folderType != null;
 		this.repository = repository;
 		this.uriSpace = uriSpace;
 		this.activityBundleType = activityBundleType;
@@ -119,7 +117,9 @@ public final class CallimachusActivityFactory implements ActivityFactory {
 		ValueFactory vf = con.getValueFactory();
 		con.add(vf.createURI(graph.getNamespace()),
 				vf.createURI(CALLI_HASCOMPONENT), graph, graph);
-		con.add(graph, RDF.TYPE, vf.createURI(activityBundleType), graph);
+		if (activityBundleType != null) {
+			con.add(graph, RDF.TYPE, vf.createURI(activityBundleType), graph);
+		}
 		con.add(activity, RDF.TYPE, vf.createURI(ACTIVITY), graph);
 	}
 
@@ -185,7 +185,9 @@ public final class CallimachusActivityFactory implements ActivityFactory {
 					INSERT_FOLDER);
 			update.setBinding("folder", folder);
 			update.setBinding("parent", parent);
-			update.setBinding("folderType", vf.createURI(folderType));
+			if (folderType != null) {
+				update.setBinding("folderType", vf.createURI(folderType));
+			}
 			update.setBinding("label", vf.createLiteral(label));
 			update.execute();
 			return true;

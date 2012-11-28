@@ -9,6 +9,7 @@ import org.callimachusproject.test.WebResource;
 import org.junit.ComparisonFailure;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.openrdf.OpenRDFException;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.repository.object.ObjectConnection;
@@ -111,7 +112,7 @@ public class FormInterface extends TemporaryServerTestCase {
 		return getRelContents().getAppCollection();
 	}
 
-	private WebResource getRelContents() throws IOException {
+	private WebResource getRelContents() throws IOException, OpenRDFException {
 		return getHomeFolder().link("contents", "application/atom+xml");
 	}
 

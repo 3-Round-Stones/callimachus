@@ -60,6 +60,9 @@
             if (result) {
                 if (300 <= status && status < 400 ) {
                     // 301, 302, 303, 307, or 308 responses
+                    if (queryString && result.indexOf('?') < 0) {
+                        result = result + '?' + queryString;
+                    }
                     return {
                         status:status,
                         message:phrase,
@@ -70,6 +73,9 @@
                 // 200, 203, 404, or 410 responses
                 var split = result.split("\\n");
                 var location = split[0];
+                if (queryString && location.indexOf('?') < 0) {
+                    location = location + '?' + queryString;
+                }   
                 var client = HTTPObjectClient.getInstance();
                 var systemId = new java.net.URI(this.toString()).resolve(location).normalize().toASCIIString();
                 var redirect = systemId;
@@ -105,7 +111,9 @@
                 };
             }
         }
-        if (query.empty) {
+        if (queryString) {
+            throw new org.callimachusproject.server.exceptions.MethodNotAllowed();
+        } else {
             // default response
             return {
                 status:303,
@@ -113,14 +121,18 @@
                 headers:{'location':this.toString() + "?view",'content-type':"text/plain"},
                 body:[this.toString() + "?view"]
             };
-        } else {
-            throw new org.callimachusproject.server.exceptions.MethodNotAllowed();
         }
     """.
 
 :query a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :Redirect;
     rdfs:range <java:java.util.Map>;
+    calli:type "application/x-www-form-urlencoded";
+    calli:query "*".
+
+:queryString a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:domain :Redirect;
+    rdfs:range xsd:string;
     calli:type "application/x-www-form-urlencoded";
     calli:query "*".
 

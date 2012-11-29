@@ -33,5 +33,6 @@
 <ckeditor_bundle> a calli:ScriptBundle ;
     calli:reader </group/public>;
     rdf:_1 <../scripts/jquery.js>;
-    rdf:_2 <ckeditor.js> ;
-    rdf:_3 <ckeditor/ckeditor.js> . # include after ../ckeditor.js!
+    rdf:_2 <../scripts/error.js>;
+    rdf:_3 <ckeditor.js> ;
+    rdf:_4 <ckeditor/ckeditor.js> . # include after ../ckeditor.js!

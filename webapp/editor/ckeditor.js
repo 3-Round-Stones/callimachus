@@ -6,65 +6,69 @@ jQuery(function($) {
     var jQuery = $;
     
     CKEDITOR.replace('editor', {
-        
-        skin: 'moono',
-        resize_enabled: false,
-        fullPage: true, // full html vs just body
-        entities: false,
-        startupOutlineBlocks: true,
-
-        removeDialogTabs: 'dialog1:tab1;dialog2:tab1',
-
-        coreStyles_bold: {
-    		element: 'strong'
-    	},
-        
-    	coreStyles_italic: {
-    		element: 'em'
-    	},
+        resize_enabled: false,                  // disable resize handle
+        fullPage: true,                         // enable editing of complete documents
+        basicEntities: false,                   // disable basic entities
+        entities: false,                        // disable extended entities
+        startupOutlineBlocks: true,             // activate visual blocks
+        removeDialogTabs:                       // disable non-basic dialog tabs
+            'link:target;link:advanced;' +
+            'image:Link;image:advanced;' +
+            'table:advanced;'
+        ,
+        coreStyles_bold: { element: 'strong' }, // convert bold to <strong>
+    	coreStyles_italic: { element: 'em' },   // convert italic to <em>
                 
         toolbar: [
-            { name: 'styles', items: [ '!Styles', 'Format', '!Font', '!FontSize' ] },
-            { name: 'clipboard', items: [ 'Undo', 'Redo', '-', '!Cut', '!Copy', '!Paste'] },
-        	{ name: 'editing', items: [ '!Find', '!Replace', '-', '!SelectAll' ] },
-        	{ name: 'basicstyles', items: [ 'Bold', 'Italic', '!Underline', '!Strike', 'Subscript', 'Superscript', '-', '!RemoveFormat' ] },
-        	{ name: 'paragraph', items: [ 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', '!CreateDiv', '-', '!JustifyLeft', '!JustifyCenter', '!JustifyRight', '!JustifyBlock', '-', '!BidiLtr', '!BidiRtl' ] },
-        	{ name: 'links', items: [ 'Link', 'Unlink', '?Anchor' ] },
-        	{ name: 'insert', items: [ 'Image', '!Flash', 'Table', '!HorizontalRule', '!Smiley', '!SpecialChar', '!PageBreak', '!Iframe' ] },
-            { name: 'tools', items: [ '!Maximize', '!ShowBlocks' ] },
-            { name: 'paste', items: [ 'PasteText', 'PasteFromWord'] },
-            
-            { name: 'document', items: [ '!Source', '-', '!Save', '!NewPage', '!Preview', '!Print', '-', '!Templates' ] },
-        	{ name: 'colors', items: [ '!TextColor', '!BGColor' ] },
-        	{ name: 'others', items: [ '-' ] },
-        	{ name: 'about', items: [ '!About' ] }
+            { name: 'styles', items: [ '!Styles', 'Format' ] },
+            { name: 'clipboard', items: [ 'Undo', 'Redo'] },
+        	{ name: 'basicstyles', items: [ 'Bold', 'Italic', '!Strike', 'Subscript', 'Superscript' ] },
+        	{ name: 'paragraph', items: [ 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', '-', '!JustifyLeft', '!JustifyCenter', '!JustifyRight' ] },
+        	{ name: 'links', items: [ 'Link', 'Unlink', 'Anchor' ] },
+        	{ name: 'insert', items: [ 'Image', 'Table' ] },
+            { name: 'paste', items: [ 'PasteText', 'PasteFromWord'] }
         ]
 
     });
     
     var editor = CKEDITOR.instances.editor;
-    editor.xhtml = function() {
-        var xhtml = this
-            .getData()
-            .replace(/>[\s]*</g, ">\n<")
-        ;
-        return xhtml;
-    }    
-    
-    if (window.parent != window) {
-        parent.postMessage('CONNECT calliEditorLoaded', '*');
-    }
-        
     var saved = null;
+    
+    /**
+     * Normalizes the output for stable comparisons.
+     */ 
+    editor.xhtml = function() {
+        return this
+            .getData()
+            .replace(/^\s*/, '')    // no leading WS
+            .replace(/\s*$/, '')    // no trailing WS
+            .replace(/<style[\s\S]+<\/style>/, '') // no <style>
+            .replace(/>\s*</g, ">\n<")    // put tags on a new line
+        ;
+    }
+    
+    /**
+     * Adds some custom css to the editing interface, even when in fullPage mode.
+     */ 
+    function injectCss(html) {
+        var styles = [
+            'body { background-color: #f5f5f5; }',
+            'body.cke_editable.cke_show_blocks > * { background-color: #fff; padding-bottom: 5px;}'
+        ];
+        return html.replace('</head>', '<style type="text/css">' + styles.join("\n") + "\n" + '</style></head>');
+    }
+    
+    // warn the user before leaving a changed but unsaved article
     window.onbeforeunload = function(event){
         event = event || window.event;
         if (!editor) return;
         var was = saved.split("\n");
         var is = editor.xhtml().split("\n");
         var diff = [];
-        for (var i = 0, imax = was.length; i < imax; i++) {
-            if (!is[i] || was[i] != is[i]) {
-                diff.push(was[i]);
+        for (var i = 0, imax = is.length; i < imax; i++) {
+            if (!was[i] || was[i] != is[i]) {
+                diff.push(is[i]);
+                break;
             }
         }
         if (diff.length) { // changed
@@ -75,36 +79,38 @@ jQuery(function($) {
         }
     };
     
+    /**
+     * Maximizes the editor height.to fully fill the iframe.
+     */ 
     function resizeEditor() {
         try {clearTimeout(window.ckeditorTO)} catch (e) { }
         window.ckeditorTO = window.setTimeout(function() {
             try {
-                var h = $(window).outerHeight();
-                if (h != prevHeight) {
-                    prevHeight = h;
-                    editor.resize('100%', h, false);
-                }
+                editor.resize('100%', $(window).outerHeight(), false);
             } catch (e) {} 
         }, 20);    
     }
-    var prevHeight = 0;
     $(window).on('resize', resizeEditor);
-    resizeEditor();
     
-    // messaging
+    /**
+     * Processes inter-window messages.
+     */ 
     function handleMessage(header, body) {
         if (header.match(/^PUT text(\n|$)/)) {
+            body = injectCss(body);
             var m = header.match(/\nContent-Location:\s*(.*)(\n|$)/i);
             var systemId = m ? m[1] : null;
             if (header.match(/\nIf-None-Match: */) || !body) {
                 if (!editor.getData()) {
                     editor.setData(body);
                     saved = editor.xhtml();
+                    setTimeout(resizeEditor, 50);
                 }
                 return true;
             } else {
                 editor.setData(body);
                 saved = editor.xhtml();
+                setTimeout(resizeEditor, 50);
                 return true;
             }
         } else if (header == 'GET text') {
@@ -120,6 +126,7 @@ jQuery(function($) {
         return false; // Not Found
     };    
     
+    // catch inter-window messages
     $(window).bind('message', function(event) {
         if (event.originalEvent.source == parent) {
             var msg = event.originalEvent.data;
@@ -143,5 +150,10 @@ jQuery(function($) {
             }
         }
     });
+    
+    // Tell the parent window we are ready
+    if (window.parent != window) {
+        parent.postMessage('CONNECT calliEditorLoaded', '*');
+    }
     
 });

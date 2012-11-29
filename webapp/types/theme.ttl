@@ -12,8 +12,9 @@
 
 <Theme> a <Creatable>, owl:Class;
     rdfs:subClassOf <Viewable>, <Editable>, calli:Theme;
+    rdfs:label "Theme";
     owl:equivalentClass </callimachus/Theme>;
-    rdfs:isDefinedBy </callimachus>;
+    rdfs:isDefinedBy <../../ontology>;
     calli:author </group/staff>, </group/admin>;
     calli:icon <../images/theme.png>;
     calli:view <../templates/theme-view.xhtml>;

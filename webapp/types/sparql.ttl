@@ -28,7 +28,8 @@
 <SparqlService> a <Serviceable>, owl:Class;
     rdfs:subClassOf <Viewable>, sd:Service;
     owl:equivalentClass </callimachus/SparqlService>;
-    rdfs:isDefinedBy </callimachus>;
+    rdfs:label "Sparql Service";
+    rdfs:isDefinedBy <../../ontology>;
     calli:view <../templates/sparql-view.xhtml>.
 
 :EvaluateSparql rdfs:subClassOf msg:Message;

@@ -29,7 +29,7 @@
     rdfs:label "Script";
     rdfs:comment "Script files";
     owl:equivalentClass </callimachus/Script>;
-    rdfs:isDefinedBy </callimachus>;
+    rdfs:isDefinedBy <../../ontology>;
     calli:author </group/staff>,</group/admin>;
     calli:icon <../images/script.png>;
     calli:view <../templates/text-view.xhtml>;

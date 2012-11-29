@@ -33,7 +33,8 @@
 
 <Change> rdfs:subClassOf <Viewable>, prov:Bundle;
     owl:equivalentClass </callimachus/Activity>;
-    rdfs:isDefinedBy </callimachus>.
+    rdfs:label "Change";
+    rdfs:isDefinedBy <../../ontology>.
 
 # GET /callimachus/changes/t001?view
 :GetChangeView owl:intersectionOf (<viewable.ttl#GetViewPage>

@@ -29,7 +29,7 @@
     rdfs:subClassOf <File>;
     rdfs:label "Font" ;
     owl:equivalentClass </callimachus/Font>;
-    rdfs:isDefinedBy </callimachus>;
+    rdfs:isDefinedBy <../../ontology>;
     calli:author </group/users>,</group/staff>,</group/admin>;
     calli:icon <../images/font.png>;
     calli:create <../templates/file-create.xhtml>;

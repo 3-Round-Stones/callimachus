@@ -32,7 +32,7 @@
     rdfs:label "Folder";
     rdfs:comment "A folder of resources";
     owl:equivalentClass </callimachus/Folder>;
-    rdfs:isDefinedBy </callimachus>;
+    rdfs:isDefinedBy <../../ontology>;
     calli:author </group/users>,</group/staff>,</group/admin>;
     calli:icon <../images/folder.png>;
     calli:view <../templates/folder-view.xhtml>;

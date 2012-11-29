@@ -27,7 +27,8 @@
 <Profile> a owl:Class;
     rdfs:subClassOf <Viewable>;
     owl:equivalentClass </callimachus/Profile>;
-    rdfs:isDefinedBy </callimachus>.
+    rdfs:label "Profile";
+    rdfs:isDefinedBy <../../ontology>.
 
 :GetRdfProfile rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Profile>];

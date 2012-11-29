@@ -30,12 +30,12 @@
     rdfs:subClassOf <Serviceable>;
     rdfs:label "Schema Graph";
     owl:equivalentClass </callimachus/SchemaGraph>;
-    rdfs:isDefinedBy </callimachus>.
+    rdfs:isDefinedBy <../../ontology>.
 
 <NamedGraph> a <Creatable>, owl:Class;
     rdfs:subClassOf <File>, sd:NamedGraph;
     rdfs:label "Named Graph";
-    rdfs:isDefinedBy </callimachus>;
+    rdfs:isDefinedBy <../../ontology>;
     calli:author </group/admin>;
     calli:icon <../images/graph.png>;
     calli:create <../templates/file-create.xhtml>;
@@ -46,7 +46,7 @@
     rdfs:subClassOf <File>, sd:NamedGraph;
     rdfs:label "Graph Document";
     rdfs:comment "Terse RDF Triple documents";
-    rdfs:isDefinedBy </callimachus>;
+    rdfs:isDefinedBy <../../ontology>;
     calli:author </group/admin>;
     calli:icon <../images/graph.png>;
     calli:edit <../templates/graph-edit.xhtml>;

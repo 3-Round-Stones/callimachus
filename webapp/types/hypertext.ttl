@@ -29,7 +29,7 @@
     rdfs:label "Hypertext File";
     rdfs:comment "Hypertext files";
     owl:equivalentClass </callimachus/HypertextFile>;
-    rdfs:isDefinedBy </callimachus>;
+    rdfs:isDefinedBy <../../ontology>;
     calli:author </group/staff>,</group/admin>;
     calli:icon <../images/hypertext.png>;
     calli:view <../templates/hypertext-view.xhtml>;

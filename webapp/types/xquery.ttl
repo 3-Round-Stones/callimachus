@@ -29,7 +29,7 @@
     rdfs:label "XQuery";
     rdfs:comment "Saved XQueries";
     owl:equivalentClass </callimachus/XQuery>;
-    rdfs:isDefinedBy </callimachus>;
+    rdfs:isDefinedBy <../../ontology>;
     calli:author </group/admin>;
     calli:icon <../images/xquery.png>;
     calli:view <../templates/xquery-view.xhtml>;

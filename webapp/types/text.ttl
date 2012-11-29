@@ -29,7 +29,7 @@
     rdfs:label "Text File";
     rdfs:comment "Text files";
     owl:equivalentClass </callimachus/TextFile>;
-    rdfs:isDefinedBy </callimachus>;
+    rdfs:isDefinedBy <../../ontology>;
     calli:author </group/staff>,</group/admin>;
     calli:icon <../images/text.png>;
     calli:view <../templates/text-view.xhtml>;

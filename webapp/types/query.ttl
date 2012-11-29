@@ -29,7 +29,7 @@
     rdfs:label "Query";
     rdfs:comment "Saved SPARQL queries";
     owl:equivalentClass </callimachus/NamedQuery>;
-    rdfs:isDefinedBy </callimachus>;
+    rdfs:isDefinedBy <../../ontology>;
     calli:author </group/admin>;
     calli:icon <../images/query.png>;
     calli:view <../templates/query-view.xhtml>;

@@ -31,7 +31,7 @@
     rdfs:label "Editable";
     rdfs:subClassOf <Serviceable>;
     owl:equivalentClass </callimachus/Editable>;
-    rdfs:isDefinedBy </callimachus>.
+    rdfs:isDefinedBy <../../ontology>.
 
 :GetEditPage rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Editable>];

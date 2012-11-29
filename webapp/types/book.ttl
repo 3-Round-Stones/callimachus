@@ -29,7 +29,7 @@
     rdfs:label "Book";
     rdfs:comment "New books can be created from a folder";
     owl:equivalentClass </callimachus/Book>;
-    rdfs:isDefinedBy </callimachus>;
+    rdfs:isDefinedBy <../../ontology>;
     calli:author </group/users>,</group/staff>,</group/admin>;
     calli:icon <../images/book.png>;
     calli:edit <../templates/book-edit.xhtml>;

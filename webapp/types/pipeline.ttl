@@ -29,7 +29,7 @@
     rdfs:label "Pipeline";
     rdfs:comment "New pipelines can be created from a folder";
     owl:equivalentClass </callimachus/Pipeline>;
-    rdfs:isDefinedBy </callimachus>;
+    rdfs:isDefinedBy <../../ontology>;
     calli:author </group/users>,</group/staff>,</group/admin>;
     calli:icon <../images/pipeline.png>;
     calli:view <../templates/pipeline-view.xhtml>;

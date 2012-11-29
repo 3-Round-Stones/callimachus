@@ -12,7 +12,8 @@
 <Menu> a <Creatable>, owl:Class;
     rdfs:subClassOf <Viewable>, <Editable>, calli:Menu;
     owl:equivalentClass </callimachus/Menu>;
-    rdfs:isDefinedBy </callimachus>;
+    rdfs:label "Menu";
+    rdfs:isDefinedBy <../../ontology>;
     calli:author </group/staff>,</group/admin>;
     calli:view <../templates/menu-view.xhtml>;
     calli:edit <../templates/menu-edit.xhtml>;

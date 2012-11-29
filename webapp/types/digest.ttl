@@ -15,7 +15,8 @@
 <DigestManager> a <Creatable>, owl:Class;
     rdfs:subClassOf <Viewable>, <Editable>, calli:DigestManager;
     owl:equivalentClass </callimachus/DigestManager>;
-    rdfs:isDefinedBy </callimachus>;
+    rdfs:label "Digest Manager";
+    rdfs:isDefinedBy <../../ontology>;
     calli:author </group/admin>;
     calli:view <../templates/digest-view.xhtml>;
     calli:edit <../templates/digest-edit.xhtml>;

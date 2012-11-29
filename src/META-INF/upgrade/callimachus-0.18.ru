@@ -11,6 +11,29 @@ PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
 PREFIX prov:<http://www.w3.org/ns/prov#>
 PREFIX audit:<http://www.openrdf.org/rdf/2012/auditing#>
 
+DELETE {
+</> calli:hasComponent </callimachus>.
+</callimachus> a ?ontology;
+    rdfs:label ?label;
+    rdfs:comment ?comment;
+    owl:versionInfo ?version;
+    calli:administrator ?group
+} INSERT {
+</callimachus/> calli:hasComponent </callimachus/ontology>.
+</callimachus/ontology> a </callimachus/0.18/types/Serviceable>, owl:Ontology;
+    rdfs:label "ontology";
+    rdfs:comment "Vocabulary used to create local Callimachus applications";
+    owl:versionInfo "0.18";
+    calli:administrator </group/admin>.
+} WHERE {
+</> calli:hasComponent </callimachus>.
+</callimachus> a ?ontology;
+    rdfs:label ?label;
+    rdfs:comment ?comment;
+    owl:versionInfo ?version;
+    calli:administrator ?group
+};
+
 INSERT {
 	GRAPH ?obsolete { ?obsolete a audit:ObsoleteBundle }
 } WHERE {
@@ -80,6 +103,17 @@ INSERT {
 		calli:reader </group/public> .
 } WHERE {
     FILTER NOT EXISTS { </callimachus/unauthorized> a calli:PURL }
+};
+
+INSERT {
+	</callimachus/> calli:hasComponent </callimachus/Concept>.
+	</callimachus/Concept> a </callimachus/0.18/types/PURL>, calli:PURL ;
+		rdfs:label "Concept";
+		calli:canonical </callimachus/0.18/types/Concept>;
+		calli:administrator </group/admin>;
+		calli:reader </group/public> .
+} WHERE {
+    FILTER NOT EXISTS { </callimachus/Concept> a calli:PURL }
 };
 
 INSERT {
@@ -327,3 +361,4 @@ DELETE {
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/types/XQuery> } BIND (</callimachus/types/XQuery> AS ?previous) BIND (</callimachus/0.18/types/XQuery> AS ?current) }
 
 };
+

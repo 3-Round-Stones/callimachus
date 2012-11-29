@@ -29,7 +29,7 @@
     rdfs:label "Serviceable";
     rdfs:comment "All resources served by this host";
     owl:equivalentClass </callimachus/Serviceable>;
-    rdfs:isDefinedBy </callimachus>.
+    rdfs:isDefinedBy <../../ontology>.
 
 :GetHistory rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Serviceable>];
@@ -150,10 +150,27 @@ skos:editorialNote a owl:AnnotationProperty.
         var con = this.objectConnection;
         var base = this.resource.stringValue();
         var baseIsHash = base.charAt(base.length - 1) == '#';
+        var pushIfHash = function(object) {
+            var uri = object.stringValue();
+            if (object instanceof org.openrdf.model.URI) {
+                if (uri.length > base.length && uri.indexOf(base) == 0) {
+                    var chr = uri.charAt(base.length);
+                    if (baseIsHash || chr == '#' && !seen[object]) {
+                        seen[object] = true;
+                        queue.push(object);
+                    }
+                }
+            } else if (object instanceof org.openrdf.model.Resource) {
+                if (!seen[object]) {
+                    seen[object] = true;
+                    queue.push(object);
+                }
+            }
+        }
         var stmts = con.getStatements(null, org.openrdf.model.vocabulary.RDFS.ISDEFINEDBY, this.resource, false, []);
         try {
             while (stmts.hasNext()) {
-                queue.push(stmts.next().subject);
+                pushIfHash(stmts.next().subject);
             }
         } finally {
             stmts.close();
@@ -191,22 +208,8 @@ skos:editorialNote a owl:AnnotationProperty.
                         && st.object == last.object) {
                     st = stmts.next();
                 }
+                pushIfHash(st.object);
                 last = st;
-                var uri = st.object.stringValue()
-                if (st.object instanceof org.openrdf.model.URI) {
-                    if (uri.length > base.length && uri.indexOf(base) == 0) {
-                        var chr = uri.charAt(base.length);
-                        if (baseIsHash || chr == '#' && !seen[st.object]) {
-                            seen[st.object] = true;
-                            queue.push(st.object);
-                        }
-                    }
-                } else if (st.object instanceof org.openrdf.model.Resource) {
-                    if (!seen[st.object]) {
-                        seen[st.object] = true;
-                        queue.push(st.object);
-                    }
-                }
                 return st;
             },
             remove: function() {

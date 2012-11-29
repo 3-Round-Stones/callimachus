@@ -23,9 +23,9 @@ PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
 ################################
 
 INSERT DATA {
-</> calli:hasComponent </callimachus>.
-</callimachus> a <types/Serviceable>, owl:Ontology;
-    rdfs:label "Callimachus";
+<../> calli:hasComponent <ontology>.
+<ontology> a <types/Serviceable>, owl:Ontology;
+    rdfs:label "ontology";
     rdfs:comment "Vocabulary used to create local Callimachus applications";
     owl:versionInfo "0.18";
     calli:administrator </group/admin>.
@@ -35,9 +35,14 @@ INSERT DATA {
 # Stable URLs
 ################################
 
+INSERT {
+<../../> calli:hasComponent <../>.
+} WHERE {
+	FILTER (<../../> != <../>)
+};
+
 INSERT DATA {
-</> calli:hasComponent </callimachus/>.
-</callimachus/> a <types/Folder>, calli:Folder;
+<../> a <types/Folder>, calli:Folder;
     rdfs:label "callimachus";
     calli:reader </group/public>;
     calli:subscriber </group/staff>;
@@ -49,31 +54,37 @@ INSERT DATA {
         </callimachus/forbidden>,
         </callimachus/unauthorized> .
 
-</callimachus/changes/> a <types/Folder>, calli:Folder;
+<../changes/> a <types/Folder>, calli:Folder;
     rdfs:label "changes";
     calli:subscriber </group/admin>.
 
-</callimachus/template.xsl> a <types/PURL>, calli:PURL ;
+<../template.xsl> a <types/PURL>, calli:PURL ;
 	rdfs:label "template.xsl";
 	calli:alternate <template.xsl>;
 	calli:reader </group/public> ;
 	calli:administrator </group/admin> .
 
-</callimachus/library.xpl> a </callimachus/0.18/types/PURL>, calli:PURL ;
+<../library.xpl> a <types/PURL>, calli:PURL ;
 	rdfs:label "library.xpl";
-	calli:alternate </callimachus/0.18/library.xpl>;
+	calli:alternate <library.xpl>;
 	calli:administrator </group/admin>;
 	calli:reader </group/public> .
 
-</callimachus/forbidden> a </callimachus/0.18/types/PURL>, calli:PURL ;
+<../forbidden> a <types/PURL>, calli:PURL ;
 	rdfs:label "forbidden";
-	calli:alternate </callimachus/0.18/pages/forbidden.xhtml?element=/1&realm=/>;
+	calli:alternate <pages/forbidden.xhtml?element=/1&realm=/>;
 	calli:administrator </group/admin>;
 	calli:reader </group/public> .
 
-</callimachus/unauthorized> a </callimachus/0.18/types/PURL>, calli:PURL ;
+<../unauthorized> a <types/PURL>, calli:PURL ;
 	rdfs:label "unauthorized";
-	calli:alternate </callimachus/0.18/pages/unauthorized.xhtml?element=/1>;
+	calli:alternate <pages/unauthorized.xhtml?element=/1>;
+	calli:administrator </group/admin>;
+	calli:reader </group/public> .
+
+<../Concept> a <types/PURL>, calli:PURL ;
+	rdfs:label "Concept";
+	calli:canonical <types/Concept>;
 	calli:administrator </group/admin>;
 	calli:reader </group/public> .
 };

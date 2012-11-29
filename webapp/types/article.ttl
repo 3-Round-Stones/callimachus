@@ -29,7 +29,7 @@
     rdfs:label "Article";
     rdfs:comment "New articles can be created from a folder";
     owl:equivalentClass </callimachus/Article>;
-    rdfs:isDefinedBy </callimachus>;
+    rdfs:isDefinedBy <../../ontology>;
     calli:author </group/users>,</group/staff>,</group/admin>;
     calli:icon <../images/article.png>;
     calli:edit <../templates/article-edit.xhtml>;

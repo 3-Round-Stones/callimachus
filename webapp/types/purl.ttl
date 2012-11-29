@@ -30,7 +30,7 @@
     rdfs:label "PURL";
     rdfs:comment "Persistent Uniform Resource Location of a Web resource.";
     owl:equivalentClass </callimachus/PURL>;
-    rdfs:isDefinedBy </callimachus>;
+    rdfs:isDefinedBy <../../ontology>;
     calli:author </group/users>,</group/staff>,</group/admin>;
     calli:icon <../images/purl.png>;
     calli:view <../templates/purl-view.xhtml>;

@@ -29,7 +29,7 @@
     rdfs:label "Composite";
     rdfs:subClassOf <Serviceable>, calli:Composite;
     owl:equivalentClass </callimachus/Composite>;
-    rdfs:isDefinedBy </callimachus>.
+    rdfs:isDefinedBy <../../ontology>.
 
 ################################
 # POST INSERT DATA

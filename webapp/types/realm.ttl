@@ -13,7 +13,7 @@
 <Realm> a <Creatable>, owl:Class;
     rdfs:subClassOf <Folder>, calli:Realm;
     owl:equivalentClass </callimachus/Realm>;
-    rdfs:isDefinedBy </callimachus>;
+    rdfs:isDefinedBy <../../ontology>;
     calli:author </group/admin>;
     calli:icon <../images/realm.png>;
     calli:edit <../templates/realm-edit.xhtml>;

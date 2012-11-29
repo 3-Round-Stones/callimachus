@@ -30,7 +30,7 @@
     rdfs:subClassOf <Image>;
     rdfs:label "Photo" ;
     owl:equivalentClass </callimachus/Photo>;
-    rdfs:isDefinedBy </callimachus>;
+    rdfs:isDefinedBy <../../ontology>;
     calli:author </group/users>,</group/staff>,</group/admin>;
     calli:icon <../images/photo.png>;
     calli:view <../templates/photo-view.xhtml> ;

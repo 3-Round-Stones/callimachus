@@ -32,7 +32,7 @@
     rdfs:label "Origin";
     rdfs:comment "Root path of an http or https authority";
     owl:equivalentClass </callimachus/Origin>;
-    rdfs:isDefinedBy </callimachus>;
+    rdfs:isDefinedBy <../../ontology>;
     calli:icon <../images/realm.png>;
     calli:view <../templates/folder-view.xhtml>.
 

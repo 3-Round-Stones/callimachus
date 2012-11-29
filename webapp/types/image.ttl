@@ -29,7 +29,7 @@
     rdfs:subClassOf foaf:Image, <File>;
     rdfs:label "Image" ;
     owl:equivalentClass </callimachus/Image>;
-    rdfs:isDefinedBy </callimachus>;
+    rdfs:isDefinedBy <../../ontology>;
     calli:author </group/users>,</group/staff>,</group/admin>;
     calli:icon <../images/image.png>;
     calli:view <../templates/image-view.xhtml> ;
@@ -40,7 +40,7 @@
     rdfs:subClassOf <Image>;
     rdfs:label "Animated Graphic" ;
     owl:equivalentClass </callimachus/AnimatedGraphic>;
-    rdfs:isDefinedBy </callimachus>;
+    rdfs:isDefinedBy <../../ontology>;
     calli:author </group/users>,</group/staff>,</group/admin>;
     calli:icon <../images/image.png>;
     calli:create <../templates/file-create.xhtml>;
@@ -50,7 +50,7 @@
     rdfs:subClassOf <Image>;
     rdfs:label "Icon Graphic" ;
     owl:equivalentClass </callimachus/IconGraphic>;
-    rdfs:isDefinedBy </callimachus>;
+    rdfs:isDefinedBy <../../ontology>;
     calli:author </group/users>,</group/staff>,</group/admin>;
     calli:icon <../images/image.png>;
     calli:create <../templates/file-create.xhtml>;
@@ -60,7 +60,7 @@
     rdfs:subClassOf <Image>;
     rdfs:label "Network Graphic" ;
     owl:equivalentClass </callimachus/NetworkGraphic>;
-    rdfs:isDefinedBy </callimachus>;
+    rdfs:isDefinedBy <../../ontology>;
     calli:author </group/users>,</group/staff>,</group/admin>;
     calli:icon <../images/image.png>;
     calli:create <../templates/file-create.xhtml>;
@@ -70,7 +70,7 @@
     rdfs:subClassOf <Image>;
     rdfs:label "Vector Graphic" ;
     owl:equivalentClass </callimachus/VectorGraphic>;
-    rdfs:isDefinedBy </callimachus>;
+    rdfs:isDefinedBy <../../ontology>;
     calli:author </group/users>,</group/staff>,</group/admin>;
     calli:icon <../images/image.png>;
     calli:create <../templates/file-create.xhtml>;

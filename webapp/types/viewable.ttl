@@ -31,7 +31,7 @@
     rdfs:label "Viewable";
     rdfs:subClassOf <Serviceable>;
     owl:equivalentClass </callimachus/Viewable>;
-    rdfs:isDefinedBy </callimachus>.
+    rdfs:isDefinedBy <../../ontology>.
 
 :GetViewPage rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Viewable>];

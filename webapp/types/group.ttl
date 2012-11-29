@@ -13,7 +13,7 @@
     rdfs:label "Group";
     rdfs:comment "Groups provide a way to assign permissions to a named set of users";
     owl:equivalentClass </callimachus/Group>;
-    rdfs:isDefinedBy </callimachus>;
+    rdfs:isDefinedBy <../../ontology>;
     calli:author </group/admin>;
     calli:icon <../images/group.png>;
     calli:view <../templates/group-view.xhtml>;

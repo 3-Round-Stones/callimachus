@@ -28,7 +28,7 @@
     rdfs:label "File";
     rdfs:subClassOf <Viewable>, <Editable>, foaf:Document;
     owl:equivalentClass </callimachus/File>;
-    rdfs:isDefinedBy </callimachus>;
+    rdfs:isDefinedBy <../../ontology>;
     calli:author </group/users>,</group/staff>,</group/admin>;
     calli:create <../templates/file-create.xhtml>;
     calli:view <../templates/file-view.xhtml>;

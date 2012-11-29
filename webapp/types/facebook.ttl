@@ -29,7 +29,8 @@
 
 <FacebookManager> a <Creatable>, owl:Class;
     rdfs:subClassOf <Viewable>, <Editable>, calli:FacebookManager;
-    rdfs:isDefinedBy </callimachus>;
+    rdfs:label "Facebook Manager";
+    rdfs:isDefinedBy <../../ontology>;
     calli:author </group/admin>;
     calli:view <../templates/facebook-view.xhtml>;
     calli:edit <../templates/facebook-edit.xhtml>;

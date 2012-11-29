@@ -29,7 +29,7 @@
     rdfs:subClassOf <File>;
     rdfs:label "RELAX" ;
     owl:equivalentClass </callimachus/Relax>;
-    rdfs:isDefinedBy </callimachus>;
+    rdfs:isDefinedBy <../../ontology>;
     calli:author </group/users>,</group/staff>,</group/admin>;
     calli:icon <../images/relax.png>;
     calli:create <../templates/file-create.xhtml>;

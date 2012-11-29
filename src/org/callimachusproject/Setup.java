@@ -22,7 +22,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
@@ -102,6 +101,8 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class Setup {
+	private static final String SERVICEABLE = "types/Serviceable";
+	private static final String SCHEMA_GRAPH = "types/SchemaGraph";
 	private static final String FAVICON_ICO = "/favicon.ico";
 	private static final String MAIN_MENU = "/main+menu";
 	private static final String GROUP_ADMIN = "/group/admin";
@@ -122,7 +123,7 @@ public class Setup {
 	private static final String USER_TYPE = "types/User";
 	private static final String FOLDER_TYPE = "types/Folder";
 	private static final String GRAPH_DOCUMENT = "types/GraphDocument";
-	private static final String SERVE_ALL = "/everything-else-public.ttl";
+	private static final String SERVE_ALL = "../everything-else-public.ttl";
 	private static final String SERVE_ALL_TTL = "META-INF/templates/callimachus-all-serviceable.ttl";
 
 	private static final String CALLI = "http://callimachusproject.org/rdf/2009/framework#";
@@ -540,7 +541,7 @@ public class Setup {
 			con.setAutoCommit(false);
 			ValueFactory vf = con.getValueFactory();
 			boolean modified = false;
-			URI file = origin == null ? null : vf.createURI(origin + SERVE_ALL);
+			URI file = origin == null ? null : webapp(origin, SERVE_ALL);
 			URI hasComponent = vf.createURI(CALLI_HASCOMPONENT);
 			URI NamedGraph = vf.createURI("http://www.w3.org/ns/sparql-service-description#NamedGraph");
 			RepositoryResult<Statement> stmts = con.getStatements(null, RDF.TYPE, NamedGraph);
@@ -548,7 +549,7 @@ public class Setup {
 				while (stmts.hasNext()) {
 					Statement st = stmts.next();
 					Resource serve = st.getSubject();
-					if (serve.stringValue().endsWith(SERVE_ALL) && !serve.equals(file)) {
+					if (serve.stringValue().matches(".*" + SERVE_ALL) && !serve.equals(file)) {
 						logger.info("Other resources are no longer served publicly through {}", st.getSubject());
 						con.clear(serve);
 						con.remove((Resource) null, hasComponent, serve);
@@ -561,29 +562,33 @@ public class Setup {
 			ClassLoader cl = getClass().getClassLoader();
 			InputStream in = cl.getResourceAsStream(SERVE_ALL_TTL);
 			try {
-				if (file != null && in != null && !con.hasStatement((Resource) null, hasComponent, file)) {
+				if (file != null && in != null) {
+					String content = new Scanner(in).useDelimiter("\\A").next();
+					String SchemaGraph = webapp(origin, SCHEMA_GRAPH).stringValue();
+					String Serviceable = webapp(origin, SERVICEABLE).stringValue();
+					content = content.replace("$SchemaGraph", SchemaGraph);
+					content = content.replace("$Serviceable", Serviceable);
 					logger.info("All other resources are now served publicly through {}", origin);
-					OutputStream out = con.getBlobObject(file).openOutputStream();
+					Writer out = con.getBlobObject(file).openWriter();
 					try {
-						int read;
-						byte[] buf = new byte[1024];
-						while ((read = in.read(buf)) >= 0) {
-							out.write(buf, 0, read);
-						}
+						out.write(content);
 					} finally {
 						out.close();
 						in.close();
 						in = con.getBlobObject(file).openInputStream();
 					}
+					con.clear(file);
 					con.add(in, file.stringValue(), RDFFormat.TURTLE, file);
-					con.add(file, RDFS.LABEL, vf.createLiteral("everything else public"));
-					con.add(file, RDF.TYPE, NamedGraph);
-					con.add(file, RDF.TYPE, webapp(origin, GRAPH_DOCUMENT));
-					con.add(file, RDF.TYPE, vf.createURI("http://xmlns.com/foaf/0.1/Document"));
-					con.add(file, vf.createURI(CALLI_READER), vf.createURI(origin + GROUP_PUBLIC));
-					con.add(file, vf.createURI(CALLI_SUBSCRIBER), vf.createURI(origin + GROUP_STAFF));
-					con.add(file, vf.createURI(CALLI_ADMINISTRATOR), vf.createURI(origin + GROUP_ADMIN));
-					con.add(vf.createURI(origin + "/"), hasComponent, file);
+					if (!con.hasStatement(vf.createURI(origin + "/"), hasComponent, file)) {
+						con.add(file, RDFS.LABEL, vf.createLiteral("everything else public"));
+						con.add(file, RDF.TYPE, NamedGraph);
+						con.add(file, RDF.TYPE, webapp(origin, GRAPH_DOCUMENT));
+						con.add(file, RDF.TYPE, vf.createURI("http://xmlns.com/foaf/0.1/Document"));
+						con.add(file, vf.createURI(CALLI_READER), vf.createURI(origin + GROUP_PUBLIC));
+						con.add(file, vf.createURI(CALLI_SUBSCRIBER), vf.createURI(origin + GROUP_STAFF));
+						con.add(file, vf.createURI(CALLI_ADMINISTRATOR), vf.createURI(origin + GROUP_ADMIN));
+						con.add(vf.createURI(origin + "/"), hasComponent, file);
+					}
 					modified = true;
 				}
 			} finally {
@@ -760,10 +765,19 @@ public class Setup {
 	private String getStoreVersion(String origin) throws OpenRDFException {
 		ObjectConnection con = repository.getConnection();
 		try {
-			ValueFactory vf = con.getValueFactory();
 			RepositoryResult<Statement> stmts;
-			URI s = vf.createURI(origin + "/callimachus");
-			stmts = con.getStatements(s, OWL.VERSIONINFO, null);
+			stmts = con.getStatements(webapp(origin, "../ontology"),
+					OWL.VERSIONINFO, null);
+			try {
+				if (stmts.hasNext()) {
+					String value = stmts.next().getObject().stringValue();
+					return value;
+				}
+			} finally {
+				stmts.close();
+			}
+			stmts = con.getStatements(webapp(origin, "/callimachus"),
+					OWL.VERSIONINFO, null);
 			try {
 				if (stmts.hasNext()) {
 					String value = stmts.next().getObject().stringValue();

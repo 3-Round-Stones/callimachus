@@ -88,19 +88,19 @@ public final class CallimachusActivityFactory implements ActivityFactory {
 	private final AtomicLong seq = new AtomicLong(0);
 	private final Repository repository;
 	private final String uriSpace;
-	private final String activityBundleType;
+	private final String changeType;
 	private final String folderType;
 	private String namespace;
 	private GregorianCalendar date;
 	private String folder;
 
 	public CallimachusActivityFactory(Repository repository, String uriSpace,
-			String activityBundleType, String folderType) {
+			String changeType, String folderType) {
 		assert repository != null;
 		assert uriSpace != null;
 		this.repository = repository;
 		this.uriSpace = uriSpace;
-		this.activityBundleType = activityBundleType;
+		this.changeType = changeType;
 		this.folderType = folderType;
 		assert uriSpace.endsWith("/");
 	}
@@ -117,8 +117,8 @@ public final class CallimachusActivityFactory implements ActivityFactory {
 		ValueFactory vf = con.getValueFactory();
 		con.add(vf.createURI(graph.getNamespace()),
 				vf.createURI(CALLI_HASCOMPONENT), graph, graph);
-		if (activityBundleType != null) {
-			con.add(graph, RDF.TYPE, vf.createURI(activityBundleType), graph);
+		if (changeType != null) {
+			con.add(graph, RDF.TYPE, vf.createURI(changeType), graph);
 		}
 		con.add(activity, RDF.TYPE, vf.createURI(ACTIVITY), graph);
 	}

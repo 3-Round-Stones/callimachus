@@ -204,7 +204,7 @@ public abstract class MetadataServerTestCase extends TestCase {
 	}
 
 	private void initDataset(CallimachusRepository repository) throws Exception {
-		repository.setActivityFolder("http://example.com/activity/");
+		repository.setChangeFolder("http://example.com/changes/");
 		ObjectConnection con = repository.getConnection();
 		try {
 			ValueFactory vf = con.getValueFactory();

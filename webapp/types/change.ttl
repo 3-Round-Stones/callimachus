@@ -2,6 +2,7 @@
 #    Copyright (c) 2009-10 Zepheira LLC, Some Rights Reserved
 #    Copyright (c) 2010 James Leigh, Some rights reserved
 #    Copyright (c) 2010-11 Talis Inc, Some Rights Reserved
+#    Copyright (c) 2012 3 Round Stones Inc, Some Rights Reserved
 # 
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -30,21 +31,17 @@
 
 <> a <SchemaGraph>.
 
-################################
-# Authorize Transaction
-################################
-
-<Activity> rdfs:subClassOf <Viewable>, prov:Bundle;
+<Change> rdfs:subClassOf <Viewable>, prov:Bundle;
     owl:equivalentClass </callimachus/Activity>;
     rdfs:isDefinedBy </callimachus>.
 
-# GET /activity/t001?view
-:GetActivityView owl:intersectionOf (<viewable.ttl#GetViewPage>
-        [owl:onProperty msg:target; owl:allValuesFrom <Activity>]);
+# GET /callimachus/changes/t001?view
+:GetChangeView owl:intersectionOf (<viewable.ttl#GetViewPage>
+        [owl:onProperty msg:target; owl:allValuesFrom <Change>]);
     calli:rel "alternate";
     calli:method "GET";
     calli:query "view";
     calli:requires calli:reader;
     calli:type "text/html";
-    calli:copy <../pipelines/activity-view.xpl?results&target=$0>.
+    calli:copy <../pipelines/change-view.xpl?results&target=$0>.
 

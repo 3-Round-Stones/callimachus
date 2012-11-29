@@ -22,6 +22,8 @@ INSERT {
 	    ?obsolete a </callimachus/types/Activity>
 	} UNION {
 	    ?obsolete a </callimachus/0.18/types/Activity>
+	} UNION {
+	    ?obsolete a </callimachus/0.18/types/Change>
 	}
 	FILTER NOT EXISTS {
 		GRAPH ?obsolete {
@@ -136,6 +138,7 @@ DELETE {
 	?resource a ?current .
 	GRAPH ?graph { ?subclass rdfs:subClassOf ?current }
 } WHERE {
+{ ?resource a </callimachus/Activity> BIND (</callimachus/Activity> AS ?previous) BIND (</callimachus/0.18/types/Change> AS ?current) } UNION
 { ?resource a </callimachus/Article> BIND (</callimachus/Article> AS ?previous) BIND (</callimachus/0.18/types/Article> AS ?current) } UNION
 { ?resource a </callimachus/Book> BIND (</callimachus/Book> AS ?previous) BIND (</callimachus/0.18/types/Book> AS ?current) } UNION
 { ?resource a </callimachus/Class> BIND (</callimachus/Class> AS ?previous) BIND (</callimachus/0.18/types/Class> AS ?current) } UNION
@@ -233,6 +236,7 @@ DELETE {
 	?resource a ?current .
 	GRAPH ?graph { ?subclass rdfs:subClassOf ?current }
 } WHERE {
+{ ?resource a </callimachus/types/Activity> BIND (</callimachus/types/Activity> AS ?previous) BIND (</callimachus/0.18/types/Change> AS ?current) } UNION
 { ?resource a </callimachus/types/Article> BIND (</callimachus/types/Article> AS ?previous) BIND (</callimachus/0.18/types/Article> AS ?current) } UNION
 { ?resource a </callimachus/types/Book> BIND (</callimachus/types/Book> AS ?previous) BIND (</callimachus/0.18/types/Book> AS ?current) } UNION
 { ?resource a </callimachus/types/Class> BIND (</callimachus/types/Class> AS ?previous) BIND (</callimachus/0.18/types/Class> AS ?current) } UNION

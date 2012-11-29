@@ -436,8 +436,7 @@ public class Setup {
 				webapps.put(origin, TermFactory.newInstance(createWebappUrl(origin)));
 			}
 		}
-		String changes = webapp(origin, CHANGES_PATH).stringValue();
-		repository.setActivityFolder(changes);
+		repository.setChangeFolder(webapp(origin, CHANGES_PATH).stringValue());
 		boolean modified = createVirtualHost(origin, origin);
 		if (barren) {
 			initializeStore(origin);
@@ -831,8 +830,7 @@ public class Setup {
 		synchronized (webapps) {
 			webapps.clear();
 		}
-		String changes = webapp(origin, CHANGES_PATH).stringValue();
-		repository.setActivityFolder(changes);
+		repository.setChangeFolder(webapp(origin, CHANGES_PATH).stringValue());
 	}
 
 	private URI[] importSchema(URL car, String folder, String origin) throws RepositoryException,

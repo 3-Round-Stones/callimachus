@@ -32,17 +32,7 @@ INSERT DATA {
 };
 
 ################################
-# Changes Folder
-################################
-
-INSERT DATA {
-</callimachus/changes/> a <types/Folder>, calli:Folder;
-    rdfs:label "changes";
-    calli:subscriber </group/admin>.
-};
-
-################################
-# Persistent URLs
+# Stable URLs
 ################################
 
 INSERT DATA {
@@ -58,6 +48,10 @@ INSERT DATA {
         </callimachus/library.xpl>,
         </callimachus/forbidden>,
         </callimachus/unauthorized> .
+
+</callimachus/changes/> a <types/Folder>, calli:Folder;
+    rdfs:label "changes";
+    calli:subscriber </group/admin>.
 
 </callimachus/template.xsl> a <types/PURL>, calli:PURL ;
 	rdfs:label "template.xsl";

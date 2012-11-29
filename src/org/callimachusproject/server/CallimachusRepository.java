@@ -32,7 +32,7 @@ import org.openrdf.store.blob.file.FileBlobStoreProvider;
 
 public class CallimachusRepository extends RepositoryWrapper {
 	private static final String SLASH_ORIGIN = "/types/Origin";
-	private static final String ACTIVITY_TYPE = "types/Activity";
+	private static final String CHANGE_TYPE = "types/Change";
 	private static final String FOLDER_TYPE = "types/Folder";
 	private final AuditingRepository auditing;
 	private final ObjectRepository object;
@@ -51,9 +51,9 @@ public class CallimachusRepository extends RepositoryWrapper {
 		return object;
 	}
 
-	public void setActivityFolder(String uriSpace) throws OpenRDFException {
+	public void setChangeFolder(String uriSpace) throws OpenRDFException {
 		if (auditing != null) {
-			String bundle = getCallimachusUrl(uriSpace, ACTIVITY_TYPE);
+			String bundle = getCallimachusUrl(uriSpace, CHANGE_TYPE);
 			String folder = getCallimachusUrl(uriSpace, FOLDER_TYPE);
 			auditing.setActivityFactory(new CallimachusActivityFactory(object,
 					uriSpace, bundle, folder));

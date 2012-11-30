@@ -30,7 +30,7 @@
     <property name="jvmargs" value="-ea -server -mx512m -Dfile.encoding=UTF-8 -Djava.library.path=${lib} -Duser.home=${home} -Djava.mail.properties=${mail} -Djava.awt.headless=true -Dcom.sun.management.jmxremote" />
     <property name="curl" value="curl" />
     <property name="curl.args" value="-fSs --digest http://localhost:8080/callimachus/0.18/?archive" />
-    <property name="setup.args" value="-s -o http://localhost:8080 -c etc/callimachus-repository.ttl -w ${dist}/callimachus-webapp-${Version}.car -l" />
+    <property name="setup.args" value="-s -o http://localhost:8080 -c etc/callimachus-repository.ttl -w ${dist}/callimachus-webapp-${Version}.car" />
     <property name="args" value="--pid ${pid} -p 8080 -o http://localhost:8080 -r repositories/callimachus" />
 
     <target name="help">

@@ -30,7 +30,7 @@
     rdfs:comment "Script files";
     owl:equivalentClass </callimachus/Script>;
     rdfs:isDefinedBy <../../ontology>;
-    calli:author </group/staff>,</group/admin>;
+    calli:author </auth/groups/staff>,</auth/groups/admin>;
     calli:icon <../images/script.png>;
     calli:view <../templates/text-view.xhtml>;
     calli:edit <../templates/script-edit.xhtml>;

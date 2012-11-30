@@ -26,6 +26,7 @@ import org.apache.http.HttpMessage;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolVersion;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
 import org.apache.http.util.EntityUtils;
@@ -56,6 +57,8 @@ public class DetachedRealm {
 			+ "UNION { $this a ?realm . ?realm calli:icon ?icon . ?domain a calli:Origin\n"
 			+ "{ ?domain a ?realm } UNION { ?domain a [rdfs:subClassOf ?realm] }}\n"
 			+ "} GROUP BY ?secret ?forbidden ?unauthorized ?domain ?authentication";
+	private static final ThreadLocal<Boolean> inForbidden = new ThreadLocal<Boolean>();
+	private static final ThreadLocal<Boolean> inUnauthorized = new ThreadLocal<Boolean>();
 	private static final BasicStatusLine _204;
 	private static final BasicStatusLine _401;
 	private static final BasicStatusLine _403;
@@ -157,13 +160,22 @@ public class DetachedRealm {
 			Map<String, String[]> request) throws Exception {
 		if (forbidden == null)
 			return null;
-		HTTPObjectClient client = HTTPObjectClient.getInstance();
-		HttpEntity entity = client.get(forbidden, "text/html;charset=UTF-8")
-				.getEntity();
 		HttpResponse resp = new BasicHttpResponse(_403);
 		resp.setHeader("Cache-Control", "no-store");
-		resp.setEntity(entity);
-		return resp;
+		try {
+			if (inForbidden.get() == null) {
+				inForbidden.set(true);
+				HTTPObjectClient client = HTTPObjectClient.getInstance();
+				HttpEntity entity = client.get(forbidden, "text/html;charset=UTF-8")
+						.getEntity();
+				resp.setEntity(entity);
+			} else {
+				resp.setEntity(new StringEntity("Forbidden"));
+			}
+			return resp;
+		} finally {
+			inForbidden.remove();
+		}
 	}
 
 	public HttpResponse unauthorized(String method, Object resource,
@@ -172,9 +184,6 @@ public class DetachedRealm {
 		if (unauthorized == null)
 			return unauth;
 		try {
-			HTTPObjectClient client = HTTPObjectClient.getInstance();
-			HttpEntity entity = client.get(unauthorized,
-					"text/html;charset=UTF-8").getEntity();
 			BasicHttpResponse resp;
 			if (unauth == null) {
 				resp = new BasicHttpResponse(_401);
@@ -189,9 +198,18 @@ public class DetachedRealm {
 				}
 			}
 			resp.setHeader("Cache-Control", "no-store");
-			resp.setEntity(entity);
+			if (inUnauthorized.get() == null) {
+				inUnauthorized.set(true);
+				HTTPObjectClient client = HTTPObjectClient.getInstance();
+				HttpEntity entity = client.get(unauthorized,
+						"text/html;charset=UTF-8").getEntity();
+				resp.setEntity(entity);
+			} else {
+				resp.setEntity(new StringEntity("Unauthorized"));
+			}
 			return resp;
 		} finally {
+			inUnauthorized.remove();
 			if (unauth != null) {
 				EntityUtils.consume(unauth.getEntity());
 			}

@@ -30,7 +30,7 @@
     rdfs:comment "Saved SPARQL queries";
     owl:equivalentClass </callimachus/NamedQuery>;
     rdfs:isDefinedBy <../../ontology>;
-    calli:author </group/admin>;
+    calli:author </auth/groups/admin>;
     calli:icon <../images/query.png>;
     calli:view <../templates/query-view.xhtml>;
     calli:edit <../templates/query-edit.xhtml>;

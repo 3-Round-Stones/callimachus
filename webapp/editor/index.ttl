@@ -8,7 +8,7 @@
 @prefix :<#>.
 
 <text_bundle> a calli:ScriptBundle;
-    calli:reader </group/public>;
+    calli:reader </auth/groups/public>;
     rdf:_1 <ace/ace-uncompressed.js>;
     rdf:_2 <ace/css_highlight_rules.js>;
     rdf:_3 <ace/css.js>;
@@ -31,7 +31,7 @@
     rdf:_20 <text-editor.js>.
 
 <ckeditor_bundle> a calli:ScriptBundle ;
-    calli:reader </group/public>;
+    calli:reader </auth/groups/public>;
     rdf:_1 <../scripts/jquery.js>;
     rdf:_2 <../scripts/error.js>;
     rdf:_3 <ckeditor.js> ;

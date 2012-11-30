@@ -24,7 +24,7 @@ DELETE {
     rdfs:label "ontology";
     rdfs:comment "Vocabulary used to create local Callimachus applications";
     owl:versionInfo "0.18";
-    calli:administrator </group/admin>.
+    calli:administrator </auth/groups/admin>.
 } WHERE {
 </> calli:hasComponent </callimachus>.
 </callimachus> a ?ontology;
@@ -32,6 +32,191 @@ DELETE {
     rdfs:comment ?comment;
     owl:versionInfo ?version;
     calli:administrator ?group
+};
+
+DELETE {
+	?realm calli:authentication </accounts> .
+	</> calli:hasComponent </accounts> .
+	</auth/digest+account> calli:authNamespace </user/> .
+	</accounts>
+		calli:administrator ?admin;
+		calli:authName ?authName ;
+		calli:authNamespace </user/>;
+		calli:reader ?reader;
+		calli:subscriber ?subscriber;
+		prov:wasGeneratedBy ?provenance;
+		rdf:type ?type;
+		rdfs:label ?label .
+} INSERT {
+	?realm calli:authentication </auth/digest+account> .
+	</auth/> calli:hasComponent </auth/digest+account> .
+	</auth/digest+account>
+		calli:administrator </auth/groups/admin>;
+		calli:authName ?authName ;
+		calli:authNamespace </auth/passwords/>;
+		calli:reader </auth/groups/public>;
+		calli:subscriber </auth/groups/staff>;
+		calli:subscriber </auth/groups/users>;
+		rdf:type calli:AuthenticationManager;
+		rdf:type <types/DigestManager>;
+		rdf:type calli:DigestManager;
+		rdfs:label "Digest account" .
+} WHERE {
+	?realm calli:authentication </accounts> .
+	</> calli:hasComponent </accounts> .
+	</accounts>
+		calli:administrator ?admin;
+		calli:authName ?authName ;
+		calli:authNamespace </user/>;
+		calli:reader ?reader;
+		calli:subscriber ?subscriber;
+		prov:wasGeneratedBy ?provenance;
+		rdf:type ?type;
+		rdfs:label ?label .
+};
+
+INSERT {
+</> calli:hasComponent </auth/>.
+</auth/> a <types/Folder>, calli:Folder;
+    rdfs:label "auth";
+	calli:reader </auth/groups/public>;
+	calli:subscriber </auth/groups/users>, </auth/groups/staff>;
+    calli:administrator </auth/groups/admin>;
+    calli:hasComponent </auth/groups/>, </auth/passwords/>.
+} WHERE {
+	FILTER NOT EXISTS { </auth/> a calli:Folder }
+};
+
+DELETE {
+	?reader calli:reader ?group .
+	?author calli:author ?group .
+	?editor calli:editor ?group .
+	?administrator calli:administrator ?group .
+	?subscriber calli:subscriber ?group .
+	?contributor calli:contributor ?group .
+} INSERT {
+	?reader calli:reader ?auth .
+	?author calli:author ?auth .
+	?editor calli:editor ?auth .
+	?administrator calli:administrator ?auth .
+	?subscriber calli:subscriber ?auth .
+	?contributor calli:contributor ?auth .
+} WHERE {
+	</group/> calli:hasComponent ?group .
+	{
+		?reader calli:reader ?group
+	} UNION {
+		?author calli:author ?group
+	} UNION {
+		?editor calli:editor ?group
+	} UNION {
+		?administrator calli:administrator ?group
+	} UNION {
+		?subscriber calli:subscriber ?group
+	} UNION {
+		?contributor calli:contributor ?group
+	}
+	BIND (iri(concat(str(</auth/groups/>),strafter(str(?group),str(</group/>)))) AS ?auth)
+};
+
+DELETE {
+	</> calli:hasComponent </group/>.
+	</group/> a ?type;
+	    rdfs:label ?label;
+	    calli:subscriber ?subscriber;
+	    calli:administrator ?admin;
+} INSERT {
+	</auth/> calli:hasComponent </auth/groups/>.
+	</auth/groups/> a <types/Folder>, calli:Folder;
+	    rdfs:label "groups";
+	    calli:subscriber ?subscriber;
+	    calli:administrator ?admin;
+} WHERE {
+	</> calli:hasComponent </group/>.
+	</group/> a ?type;
+	    rdfs:label ?label;
+	    calli:subscriber ?subscriber;
+	    calli:administrator ?admin;
+};
+
+DELETE {
+	</group/> calli:hasComponent ?group .
+	?group ?pred ?obj .
+} INSERT {
+	</auth/groups/> calli:hasComponent ?auth .
+	?auth ?pred ?obj .
+} WHERE {
+	</group/> calli:hasComponent ?group .
+	?group ?pred ?obj .
+	BIND (iri(concat(str(</auth/groups/>),strafter(str(?group),str(</group/>)))) AS ?auth)
+};
+
+DELETE {
+	?reader calli:reader ?user .
+	?author calli:author ?user .
+	?editor calli:editor ?user .
+	?administrator calli:administrator ?user .
+	?subscriber calli:subscriber ?user .
+	?contributor calli:contributor ?user .
+	?member calli:member ?user .
+} INSERT {
+	?reader calli:reader ?auth .
+	?author calli:author ?auth .
+	?editor calli:editor ?auth .
+	?administrator calli:administrator ?auth .
+	?subscriber calli:subscriber ?auth .
+	?contributor calli:contributor ?auth .
+	?member calli:member ?auth .
+} WHERE {
+	</user/> calli:hasComponent ?user .
+	{
+		?reader calli:reader ?user
+	} UNION {
+		?author calli:author ?user
+	} UNION {
+		?editor calli:editor ?user
+	} UNION {
+		?administrator calli:administrator ?user
+	} UNION {
+		?subscriber calli:subscriber ?user
+	} UNION {
+		?contributor calli:contributor ?user
+	} UNION {
+		?member calli:member ?user .
+	}
+	BIND (iri(concat(str(</auth/passwords/>),strafter(str(?user),str(</user/>)))) AS ?auth)
+};
+
+DELETE {
+	</> calli:hasComponent </user/>.
+	</user/> a ?type;
+	    rdfs:label ?label;
+	    calli:subscriber ?subscriber;
+	    calli:administrator ?admin;
+} INSERT {
+	</auth/> calli:hasComponent </auth/passwords/>.
+	</auth/passwords/> a <types/Folder>, calli:Folder;
+	    rdfs:label "passwords";
+	    calli:subscriber ?subscriber;
+	    calli:administrator ?admin;
+} WHERE {
+	</> calli:hasComponent </user/>.
+	</user/> a ?type;
+	    rdfs:label ?label;
+	    calli:subscriber ?subscriber;
+	    calli:administrator ?admin;
+};
+
+DELETE {
+	</user/> calli:hasComponent ?user .
+	?user ?pred ?obj .
+} INSERT {
+	</auth/passwords/> calli:hasComponent ?auth .
+	?auth ?pred ?obj .
+} WHERE {
+	</user/> calli:hasComponent ?user .
+	?user ?pred ?obj .
+	BIND (iri(concat(str(</auth/passwords/>),strafter(str(?user),str(</user/>)))) AS ?auth)
 };
 
 INSERT {
@@ -66,8 +251,8 @@ INSERT {
 	</callimachus/template.xsl> a </callimachus/0.18/types/PURL>, calli:PURL ;
 		rdfs:label "template.xsl";
 		calli:alternate </callimachus/0.18/template.xsl>;
-		calli:administrator </group/admin>;
-		calli:reader </group/public> .
+		calli:administrator </auth/groups/admin>;
+		calli:reader </auth/groups/public> .
 } WHERE {
     FILTER NOT EXISTS { </callimachus/template.xsl> a calli:PURL }
 };
@@ -77,8 +262,8 @@ INSERT {
 	</callimachus/library.xpl> a </callimachus/0.18/types/PURL>, calli:PURL ;
 		rdfs:label "library.xpl";
 		calli:alternate </callimachus/0.18/library.xpl>;
-		calli:administrator </group/admin>;
-		calli:reader </group/public> .
+		calli:administrator </auth/groups/admin>;
+		calli:reader </auth/groups/public> .
 } WHERE {
     FILTER NOT EXISTS { </callimachus/library.xpl> a calli:PURL }
 };
@@ -88,8 +273,8 @@ INSERT {
 	</callimachus/forbidden> a </callimachus/0.18/types/PURL>, calli:PURL ;
 		rdfs:label "forbidden";
 		calli:alternate </callimachus/0.18/pages/forbidden.xhtml?element=/1&realm=/>;
-		calli:administrator </group/admin>;
-		calli:reader </group/public> .
+		calli:administrator </auth/groups/admin>;
+		calli:reader </auth/groups/public> .
 } WHERE {
     FILTER NOT EXISTS { </callimachus/forbidden> a calli:PURL }
 };
@@ -99,8 +284,8 @@ INSERT {
 	</callimachus/unauthorized> a </callimachus/0.18/types/PURL>, calli:PURL ;
 		rdfs:label "unauthorized";
 		calli:alternate </callimachus/0.18/pages/unauthorized.xhtml?element=/1>;
-		calli:administrator </group/admin>;
-		calli:reader </group/public> .
+		calli:administrator </auth/groups/admin>;
+		calli:reader </auth/groups/public> .
 } WHERE {
     FILTER NOT EXISTS { </callimachus/unauthorized> a calli:PURL }
 };
@@ -110,8 +295,8 @@ INSERT {
 	</callimachus/Concept> a </callimachus/0.18/types/PURL>, calli:PURL ;
 		rdfs:label "Concept";
 		calli:canonical </callimachus/0.18/types/Concept>;
-		calli:administrator </group/admin>;
-		calli:reader </group/public> .
+		calli:administrator </auth/groups/admin>;
+		calli:reader </auth/groups/public> .
 } WHERE {
     FILTER NOT EXISTS { </callimachus/Concept> a calli:PURL }
 };
@@ -120,7 +305,7 @@ INSERT {
 </callimachus/> calli:hasComponent </callimachus/changes/> .
 </callimachus/changes/> a <types/Folder>, calli:Folder;
     rdfs:label "changes";
-    calli:subscriber </group/admin>.
+    calli:subscriber </auth/groups/admin>.
 } WHERE {
 	FILTER NOT EXISTS { </callimachus/> calli:hasComponent </callimachus/changes/> }
 };

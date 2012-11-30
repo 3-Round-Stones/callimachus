@@ -31,11 +31,9 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -48,7 +46,6 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.http.HttpHost;
 import org.callimachusproject.cli.Command;
@@ -101,51 +98,23 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class Setup {
-	private static final String SERVICEABLE = "types/Serviceable";
-	private static final String SCHEMA_GRAPH = "types/SchemaGraph";
-	private static final String FAVICON_ICO = "/favicon.ico";
-	private static final String MAIN_MENU = "/main+menu";
-	private static final String GROUP_ADMIN = "/group/admin";
-	private static final String GROUP_STAFF = "/group/staff";
-	private static final String GROUP_USERS = "/group/users";
-	private static final String GROUP_EVERYONE = "/group/everyone";
-	private static final String GROUP_PUBLIC = "/group/public";
-	private static final String DEFAULT_THEME = "theme/default";
-	private static final String FORBIDDEN_PAGE = "pages/forbidden.xhtml?element=/1&realm=/";
-	private static final String UNAUTHORIZED_PAGE = "pages/unauthorized.xhtml?element=/1";
+	private static final String GROUP_ADMIN = "/auth/groups/admin";
+	private static final String GROUP_STAFF = "/auth/groups/staff";
+	private static final String GROUP_PUBLIC = "/auth/groups/public";
 	public static final String NAME = Version.getInstance().getVersion();
-	private static final String DIGEST_ACCOUNTS = "/accounts";
-	private static final String DIGEST_COMMENT = "Sign in with a username and password";
 	private static final String CHANGES_PATH = "../changes/";
-	private static final String DIGEST_MANAGER_TYPE = "types/DigestManager";
 	private static final String REALM_TYPE = "types/Realm";
 	private static final String ORIGIN_TYPE = "types/Origin";
 	private static final String USER_TYPE = "types/User";
 	private static final String FOLDER_TYPE = "types/Folder";
-	private static final String GRAPH_DOCUMENT = "types/GraphDocument";
-	private static final String SERVE_ALL = "../everything-else-public.ttl";
-	private static final String SERVE_ALL_TTL = "META-INF/templates/callimachus-all-serviceable.ttl";
 
 	private static final String CALLI = "http://callimachusproject.org/rdf/2009/framework#";
 	private static final String CALLI_HASCOMPONENT = CALLI + "hasComponent";
 	private static final String CALLI_ADMINISTRATOR = CALLI + "administrator";
-	private static final String CALLI_EDITOR = CALLI + "editor";
-	private static final String CALLI_CONTRIBUTOR = CALLI + "contributor";
 	private static final String CALLI_SUBSCRIBER = CALLI + "subscriber";
 	private static final String CALLI_READER = CALLI + "reader";
-	private static final String CALLI_ORIGIN = CALLI + "Origin";
-	private static final String CALLI_REALM = CALLI + "Realm";
 	private static final String CALLI_FOLDER = CALLI + "Folder";
-	private static final String CALLI_UNAUTHORIZED = CALLI + "unauthorized";
-	private static final String CALLI_FORBIDDEN = CALLI + "forbidden";
 	private static final String CALLI_AUTHENTICATION = CALLI + "authentication";
-	private static final String CALLI_DIGEST_MANAGER = CALLI + "DigestManager";
-	private static final String CALLI_AUTHENTICATION_MANAGER = CALLI + "AuthenticationManager";
-	private static final String CALLI_AUTH_NAME = CALLI + "authName";
-	private static final String CALLI_AUTH_NAMESPACE = CALLI + "authNamespace";
-	private static final String CALLI_MENU = CALLI + "menu";
-	private static final String CALLI_FAVICON = CALLI + "favicon";
-	private static final String CALLI_THEME = CALLI + "theme";
 	private static final String CALLI_ENCODED = CALLI + "encoded";
 	private static final String CALLI_AUTHNAME = CALLI + "authName";
 	private static final String CALLI_AUTHNAMESPACE = CALLI + "authNamespace";
@@ -154,7 +123,6 @@ public class Setup {
 	private static final String CALLI_NAME = CALLI + "name";
 	private static final String CALLI_EMAIL = CALLI + "email";
 	private static final String CALLI_ALGORITHM = CALLI + "algorithm";
-	private static final String CALLI_SECRET = CALLI + "secret";
 	private static final String CALLI_PASSWORD = CALLI + "passwordDigest";
 	private static final String CALLI_MEMBER = CALLI + "member";
 
@@ -173,7 +141,6 @@ public class Setup {
 				"Additional scheme, hostname and port ( http://localhost:8080 ) that resolves to this server");
 		commands.option("r", "realm").arg("http").desc(
 				"The scheme, hostname, port, and path ( http://example.com:8080/ ) that does not resolve to this server");
-		commands.option("l", "serve-all").desc("Serve all other resources publicly");
 		commands.option("u", "user").optional("name").desc(
 				"Create the given user and prompt for a password, or append the password separated by a colon");
 		commands.option("n", "name").arg("name").desc(
@@ -224,7 +191,6 @@ public class Setup {
 	private CallimachusRepository repository;
 	private ValueFactory vf;
 	private boolean silent;
-	private String serveAllAs;
 	private File dir;
 	private URL config;
 	private URL webappCar;
@@ -294,11 +260,6 @@ public class Setup {
 							validateRealm(r);
 							realms.put(r, origin);
 						}
-					}
-					if (line.has("serve-all")
-							&& line.getAll("origin").length == 1
-							&& !line.has("virtual") && !line.has("realm")) {
-						serveAllAs = origin;
 					}
 					if (line.has("user") || line.has("email")) {
 						this.name = line.get("name");
@@ -378,7 +339,6 @@ public class Setup {
 			}
 			changed |= importCar(e.getValue(), e.getKey(), origin);
 		}
-		changed |= setServeAllResourcesAs(serveAllAs);
 		if (email != null && email.length() > 0) {
 			for (String origin : origins) {
 				changed |= createAdmin(name, email, username, password, origin);
@@ -439,16 +399,20 @@ public class Setup {
 		}
 		repository.setChangeFolder(webapp(origin, CHANGES_PATH).stringValue());
 		boolean modified = createVirtualHost(origin, origin);
-		if (barren) {
-			initializeStore(origin);
-			upgradeStore(origin);
-			modified = true;
-		} else {
+		if (!barren) {
 			String version = getStoreVersion(origin);
 			String newVersion = upgradeStore(origin);
 			modified |= !newVersion.equals(version);
 		}
-		modified |= updateStore(origin);
+		Iterator<UpdateProvider> iter = updateProviders.iterator();
+		while (iter.hasNext()) {
+			Updater updater = iter.next().updateCallimachusWebapp(origin);
+			if (updater != null) {
+				String webapp1 = webapp(origin, "").stringValue();
+				modified |= updater.update(webapp1, repository);
+				updateWebappContext(origin);
+			}
+		}
 		return modified;
 	}
 
@@ -478,29 +442,16 @@ public class Setup {
 		validateOrigin(origin);
 		if (repository == null)
 			throw new IllegalStateException("Not connected");
-		assert !virtual.endsWith("/");
-		ObjectConnection con = repository.getConnection();
-		try {
-			con.setAutoCommit(false);
-			ValueFactory vf = con.getValueFactory();
-			URI subj = vf.createURI(virtual + '/');
-			if (!checkSecret(subj, con))
-				return false;
-			if (con.hasStatement(subj, RDF.TYPE, vf.createURI(CALLI_ORIGIN))) {
-				logger.info("Updating origin: {} for {}", virtual, origin);
-			} else {
-				logger.info("Adding origin: {} for {}", virtual, origin);
-				con.add(subj, RDF.TYPE, webapp(origin, ORIGIN_TYPE));
-				add(con, subj, RDF.TYPE, CALLI_ORIGIN);
-				con.add(subj, RDFS.LABEL, vf.createLiteral(getHost(virtual)));
-				createDigestManager(subj, origin, virtual + DIGEST_ACCOUNTS, con);
-				addRealm(subj, origin, virtual + DIGEST_ACCOUNTS, con);
+		boolean modified = false;
+		Iterator<UpdateProvider> iter = updateProviders.iterator();
+		while (iter.hasNext()) {
+			Updater updater = iter.next().updateOrigin(virtual);
+			if (updater != null) {
+				String webapp = webapp(origin, "").stringValue();
+				modified |= updater.update(webapp, repository);
 			}
-			con.setAutoCommit(true);
-			return true;
-		} finally {
-			con.close();
 		}
+		return modified | createRealm(virtual + "/", origin);
 	}
 
 	public boolean createRealm(String realm, String origin)
@@ -509,98 +460,16 @@ public class Setup {
 		validateOrigin(origin);
 		if (repository == null)
 			throw new IllegalStateException("Not connected");
-		assert realm.endsWith("/");
-		ObjectConnection con = repository.getConnection();
-		try {
-			con.setAutoCommit(false);
-			ValueFactory vf = con.getValueFactory();
-			URI subj = vf.createURI(realm);
-			if (!checkSecret(subj, con))
-				return false;
-			if (con.hasStatement(subj, RDF.TYPE, vf.createURI(CALLI_REALM))) {
-				logger.info("Updating realm: {} for {}", realm, origin);
-			} else {
-				logger.info("Adding realm: {} for {}", realm, origin);
-				con.add(subj, RDF.TYPE, webapp(origin, REALM_TYPE));
-				con.add(subj, RDFS.LABEL, vf.createLiteral(getHost(realm)));
-				addRealm(subj, origin, origin + DIGEST_ACCOUNTS, con);
+		boolean modified = false;
+		Iterator<UpdateProvider> iter = updateProviders.iterator();
+		while (iter.hasNext()) {
+			Updater updater = iter.next().updateRealm(realm);
+			if (updater != null) {
+				String webapp = webapp(origin, "").stringValue();
+				modified |= updater.update(webapp, repository);
 			}
-			con.setAutoCommit(true);
-			return true;
-		} finally {
-			con.close();
 		}
-	}
-
-	public boolean setServeAllResourcesAs(String origin)
-			throws OpenRDFException, IOException {
-		if (repository == null)
-			throw new IllegalStateException("Not connected");
-		ObjectConnection con = repository.getConnection();
-		try {
-			con.setAutoCommit(false);
-			ValueFactory vf = con.getValueFactory();
-			boolean modified = false;
-			URI file = origin == null ? null : webapp(origin, SERVE_ALL);
-			URI hasComponent = vf.createURI(CALLI_HASCOMPONENT);
-			URI NamedGraph = vf.createURI("http://www.w3.org/ns/sparql-service-description#NamedGraph");
-			RepositoryResult<Statement> stmts = con.getStatements(null, RDF.TYPE, NamedGraph);
-			try {
-				while (stmts.hasNext()) {
-					Statement st = stmts.next();
-					Resource serve = st.getSubject();
-					if (serve.stringValue().matches(".*" + SERVE_ALL) && !serve.equals(file)) {
-						logger.info("Other resources are no longer served publicly through {}", st.getSubject());
-						con.clear(serve);
-						con.remove((Resource) null, hasComponent, serve);
-						modified = true;
-					}
-				}
-			} finally {
-				stmts.close();
-			}
-			ClassLoader cl = getClass().getClassLoader();
-			InputStream in = cl.getResourceAsStream(SERVE_ALL_TTL);
-			try {
-				if (file != null && in != null) {
-					String content = new Scanner(in).useDelimiter("\\A").next();
-					String SchemaGraph = webapp(origin, SCHEMA_GRAPH).stringValue();
-					String Serviceable = webapp(origin, SERVICEABLE).stringValue();
-					content = content.replace("$SchemaGraph", SchemaGraph);
-					content = content.replace("$Serviceable", Serviceable);
-					logger.info("All other resources are now served publicly through {}", origin);
-					Writer out = con.getBlobObject(file).openWriter();
-					try {
-						out.write(content);
-					} finally {
-						out.close();
-						in.close();
-						in = con.getBlobObject(file).openInputStream();
-					}
-					con.clear(file);
-					con.add(in, file.stringValue(), RDFFormat.TURTLE, file);
-					if (!con.hasStatement(vf.createURI(origin + "/"), hasComponent, file)) {
-						con.add(file, RDFS.LABEL, vf.createLiteral("everything else public"));
-						con.add(file, RDF.TYPE, NamedGraph);
-						con.add(file, RDF.TYPE, webapp(origin, GRAPH_DOCUMENT));
-						con.add(file, RDF.TYPE, vf.createURI("http://xmlns.com/foaf/0.1/Document"));
-						con.add(file, vf.createURI(CALLI_READER), vf.createURI(origin + GROUP_PUBLIC));
-						con.add(file, vf.createURI(CALLI_SUBSCRIBER), vf.createURI(origin + GROUP_STAFF));
-						con.add(file, vf.createURI(CALLI_ADMINISTRATOR), vf.createURI(origin + GROUP_ADMIN));
-						con.add(vf.createURI(origin + "/"), hasComponent, file);
-					}
-					modified = true;
-				}
-			} finally {
-				if (in != null) {
-					in.close();
-				}
-			}
-			con.setAutoCommit(true);
-			return modified;
-		} finally {
-			con.close();
-		}
+		return modified;
 	}
 
 	public boolean createAdmin(String name, String email, String username,
@@ -790,34 +659,6 @@ public class Setup {
 			con.close();
 		}
 		return null;
-	}
-
-	private void initializeStore(String origin)
-			throws IOException, OpenRDFException {
-		Iterator<UpdateProvider> iter = updateProviders.iterator();
-		while (iter.hasNext()) {
-			Updater updater = iter.next().initialize(origin);
-			if (updater != null) {
-				String webapp = webapp(origin, "").stringValue();
-				updater.update(webapp, repository);
-				updateWebappContext(origin);
-			}
-		}
-	}
-
-	private boolean updateStore(String origin)
-			throws IOException, OpenRDFException {
-		boolean modified = false;
-		Iterator<UpdateProvider> iter = updateProviders.iterator();
-		while (iter.hasNext()) {
-			Updater updater = iter.next().update(origin);
-			if (updater != null) {
-				String webapp = webapp(origin, "").stringValue();
-				modified |= updater.update(webapp, repository);
-				updateWebappContext(origin);
-			}
-		}
-		return modified;
 	}
 
 	private String upgradeStore(String origin)
@@ -1031,88 +872,6 @@ public class Setup {
 			host = new HttpHost(origin.substring(slash + 1), 80, scheme);
 		}
 		return host;
-	}
-
-	private void createDigestManager(URI home, String origin, String accounts,
-			ObjectConnection con) throws OpenRDFException {
-		ValueFactory vf = con.getValueFactory();
-		URI subj = vf.createURI(accounts);
-		add(con, home, CALLI_HASCOMPONENT, accounts);
-		con.add(subj, RDF.TYPE, webapp(origin, DIGEST_MANAGER_TYPE));
-		add(con, subj, RDF.TYPE, CALLI_DIGEST_MANAGER);
-		add(con, subj, RDF.TYPE, CALLI_AUTHENTICATION_MANAGER);
-		String label = accounts.substring(accounts.lastIndexOf('/') + 1);
-		con.add(subj, RDFS.LABEL, vf.createLiteral(label));
-		con.add(subj, RDFS.COMMENT, vf.createLiteral(DIGEST_COMMENT));
-		add(con, subj, CALLI_READER, origin + GROUP_PUBLIC);
-		add(con, subj, CALLI_SUBSCRIBER, origin + GROUP_USERS);
-		add(con, subj, CALLI_SUBSCRIBER, origin + GROUP_STAFF);
-		add(con, subj, CALLI_ADMINISTRATOR, origin + GROUP_ADMIN);
-		List<String[]> list = getAuthNamesAndNamespaces(origin, con);
-		if (list == null || list.isEmpty()) {
-			String host = java.net.URI.create(origin + '/').getHost();
-			list = Collections.singletonList(new String[]{host, origin + "/user/"});
-		}
-		for (String[] row : list) {
-			String authName = row[0];
-			String user = row[1];
-			con.add(subj, vf.createURI(CALLI_AUTH_NAME), vf.createLiteral(authName));
-			add(con, subj, CALLI_AUTH_NAMESPACE, user);
-		}
-	}
-
-	private boolean checkSecret(URI subj, ObjectConnection con)
-			throws RepositoryException, IOException {
-		ValueFactory vf = con.getValueFactory();
-		if (!con.hasStatement(subj, vf.createURI(CALLI_SECRET), null)) {
-			URI secret = vf.createURI("urn:uuid:" + UUID.randomUUID());
-			con.add(subj, vf.createURI(CALLI_SECRET), secret);
-			byte[] bytes = new byte[1024];
-			new SecureRandom().nextBytes(bytes);
-			storeTextBlob(secret, Base64.encodeBase64String(bytes), con);
-			return true;
-		}
-		return false;
-	}
-
-	private String getHost(String origin) {
-		String label = origin;
-		if (label.endsWith("/")) {
-			label = label.substring(0, label.length() - 1);
-		}
-		if (label.contains("://")) {
-			label = label.substring(label.indexOf("://") + 3);
-		}
-		return label;
-	}
-
-	private void addRealm(URI subj, String origin, String authentication,
-			ObjectConnection con) throws OpenRDFException {
-		add(con, subj, RDF.TYPE, CALLI_REALM);
-		add(con, subj, RDF.TYPE, CALLI_FOLDER);
-		add(con, subj, CALLI_READER, origin + GROUP_PUBLIC);
-		add(con, subj, CALLI_SUBSCRIBER, origin + GROUP_EVERYONE);
-		add(con, subj, CALLI_CONTRIBUTOR, origin + GROUP_USERS);
-		add(con, subj, CALLI_EDITOR, origin + GROUP_STAFF);
-		add(con, subj, CALLI_ADMINISTRATOR, origin + GROUP_ADMIN);
-		add(con, subj, CALLI_UNAUTHORIZED, webapp(origin, UNAUTHORIZED_PAGE));
-		add(con, subj, CALLI_FORBIDDEN, webapp(origin, FORBIDDEN_PAGE));
-		add(con, subj, CALLI_AUTHENTICATION, authentication);
-		add(con, subj, CALLI_MENU, origin + MAIN_MENU);
-		add(con, subj, CALLI_FAVICON, origin + FAVICON_ICO);
-		add(con, subj, CALLI_THEME, webapp(origin, DEFAULT_THEME));
-	}
-
-	private void add(ObjectConnection con, URI subj, URI pred, String resource)
-			throws RepositoryException {
-		ValueFactory vf = con.getValueFactory();
-		con.add(subj, pred, vf.createURI(resource));
-	}
-
-	private void add(ObjectConnection con, URI subj, String pred,
-			URI resource) throws RepositoryException {
-		ValueFactory vf = con.getValueFactory();
-		con.add(subj, vf.createURI(pred), resource);
 	}
 
 	private void add(ObjectConnection con, URI subj, String pred,

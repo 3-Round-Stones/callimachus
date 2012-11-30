@@ -1,101 +1,26 @@
 package org.callimachusproject.setup;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 
-import org.callimachusproject.server.CallimachusRepository;
-import org.callimachusproject.server.util.ChannelUtil;
-import org.openrdf.OpenRDFException;
-import org.openrdf.model.URI;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.model.vocabulary.RDF;
-import org.openrdf.model.vocabulary.RDFS;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.object.ObjectConnection;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-public class RobotsProvider implements UpdateProvider {
-	private static final String ROBOTS_TXT = "/robots.txt";
+public class RobotsProvider extends FileProvider {
 	private static final String TEMPLATE = "META-INF/templates/robots.txt";
 	private static final String TEXT_TYPE = "types/TextFile";
-	private static final String CALLI = "http://callimachusproject.org/rdf/2009/framework#";
-	private static final String CALLI_ADMINISTRATOR = CALLI + "administrator";
-	private static final String CALLI_EDITOR = CALLI + "editor";
-	private static final String CALLI_SUBSCRIBER = CALLI + "subscriber";
-	private static final String CALLI_READER = CALLI + "reader";
-	private static final String CALLI_HASCOMPONENT = CALLI + "hasComponent";
-	private final Logger logger = LoggerFactory
-			.getLogger(RobotsProvider.class);
+	private static final String ROBOTS_TXT = "/robots.txt";
 
 	@Override
-	public String getDefaultCallimachusWebappLocation(String origin)
-			throws IOException {
-		return null;
+	protected InputStream getFileResourceAsStream() {
+		ClassLoader cl = getClass().getClassLoader();
+		return cl.getResourceAsStream(TEMPLATE);
 	}
 
 	@Override
-	public Updater initialize(final String origin) throws IOException {
-		return new Updater() {
-			public boolean update(String webapp, CallimachusRepository repository)
-					throws IOException, OpenRDFException {
-				ClassLoader cl = getClass().getClassLoader();
-				ObjectConnection con = repository.getConnection();
-				try {
-					con.setAutoCommit(false);
-					URI article = createArticleData(origin, webapp, con);
-					InputStream in = cl.getResourceAsStream(TEMPLATE);
-					try {
-						OutputStream out = con.getBlobObject(article)
-								.openOutputStream();
-						try {
-							ChannelUtil.transfer(in, out);
-						} finally {
-							out.close();
-						}
-					} finally {
-						in.close();
-					}
-					con.setAutoCommit(true);
-				} finally {
-					con.close();
-				}
-				return true;
-			}
-
-			private URI createArticleData(final String origin, String webapp,
-					ObjectConnection con) throws RepositoryException {
-				ValueFactory vf = con.getValueFactory();
-				URI folder = vf.createURI(origin + "/");
-				URI robots = vf.createURI(origin + ROBOTS_TXT);
-				logger.info("Uploading main article: {}", robots);
-				con.add(robots, RDF.TYPE, vf.createURI(webapp + TEXT_TYPE));
-				con.add(robots, RDF.TYPE,
-						vf.createURI("http://xmlns.com/foaf/0.1/Document"));
-				con.add(robots, RDFS.LABEL, vf.createLiteral("robots"));
-				con.add(robots, vf.createURI(CALLI_READER),
-						vf.createURI(origin + "/group/public"));
-				con.add(robots, vf.createURI(CALLI_SUBSCRIBER),
-						vf.createURI(origin + "/group/users"));
-				con.add(robots, vf.createURI(CALLI_EDITOR),
-						vf.createURI(origin + "/group/staff"));
-				con.add(robots, vf.createURI(CALLI_ADMINISTRATOR),
-						vf.createURI(origin + "/group/admin"));
-				con.add(folder, vf.createURI(CALLI_HASCOMPONENT), robots);
-				return robots;
-			}
-		};
+	protected String getFileUrl(String virtual) {
+		return virtual + ROBOTS_TXT;
 	}
 
 	@Override
-	public Updater updateFrom(String origin, String version) throws IOException {
-		return null;
-	}
-
-	@Override
-	public Updater update(String origin) throws IOException {
-		return null;
+	protected String getFileType(String webapps) {
+		return webapps + TEXT_TYPE;
 	}
 
 }

@@ -31,7 +31,7 @@
     rdfs:label "Photo" ;
     owl:equivalentClass </callimachus/Photo>;
     rdfs:isDefinedBy <../../ontology>;
-    calli:author </group/users>,</group/staff>,</group/admin>;
+    calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/admin>;
     calli:icon <../images/photo.png>;
     calli:view <../templates/photo-view.xhtml> ;
     calli:edit <../templates/photo-edit.xhtml> ;

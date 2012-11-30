@@ -7,6 +7,6 @@
 
 <default> a calli:Theme;
     rdfs:label "Default Theme";
-    calli:reader </group/public>;
+    calli:reader </auth/groups/public>;
     calli:layout <layout.xhtml>.
 

@@ -31,7 +31,7 @@
     rdfs:subClassOf <Viewable>, <Editable>, calli:FacebookManager;
     rdfs:label "Facebook Manager";
     rdfs:isDefinedBy <../../ontology>;
-    calli:author </group/admin>;
+    calli:author </auth/groups/admin>;
     calli:view <../templates/facebook-view.xhtml>;
     calli:edit <../templates/facebook-edit.xhtml>;
     calli:create <../templates/facebook-create.xhtml>.

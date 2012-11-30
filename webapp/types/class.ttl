@@ -31,7 +31,7 @@
     rdfs:comment "A class is a construct that is used as a blueprint (or template) to create and edit resources of that class";
     owl:equivalentClass </callimachus/Class>;
     rdfs:isDefinedBy <../../ontology>;
-    calli:author </group/staff>,</group/admin>;
+    calli:author </auth/groups/staff>,</auth/groups/admin>;
     calli:icon <../images/class.png>;
     calli:view <../templates/class-view.xhtml>;
     calli:edit <../templates/class-edit.xhtml>;

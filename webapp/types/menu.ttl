@@ -14,7 +14,7 @@
     owl:equivalentClass </callimachus/Menu>;
     rdfs:label "Menu";
     rdfs:isDefinedBy <../../ontology>;
-    calli:author </group/staff>,</group/admin>;
+    calli:author </auth/groups/staff>,</auth/groups/admin>;
     calli:view <../templates/menu-view.xhtml>;
     calli:edit <../templates/menu-edit.xhtml>;
     calli:create <../templates/menu-create.xhtml>.

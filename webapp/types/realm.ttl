@@ -14,7 +14,7 @@
     rdfs:subClassOf <Folder>, calli:Realm;
     owl:equivalentClass </callimachus/Realm>;
     rdfs:isDefinedBy <../../ontology>;
-    calli:author </group/admin>;
+    calli:author </auth/groups/admin>;
     calli:icon <../images/realm.png>;
     calli:edit <../templates/realm-edit.xhtml>;
     calli:create <../templates/realm-create.xhtml>.

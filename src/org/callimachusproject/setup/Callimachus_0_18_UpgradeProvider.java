@@ -30,7 +30,17 @@ public class Callimachus_0_18_UpgradeProvider implements UpdateProvider {
 		return null;
 	}
 
-	public Updater initialize(String origin) throws IOException {
+	public Updater updateCallimachusWebapp(String origin) throws IOException {
+		return null;
+	}
+
+	public Updater updateOrigin(String virtual)
+			throws IOException {
+		return null;
+	}
+
+	public Updater updateRealm(String realm)
+			throws IOException {
 		return null;
 	}
 
@@ -66,10 +76,6 @@ public class Callimachus_0_18_UpgradeProvider implements UpdateProvider {
 				return modified;
 			}
 		};
-	}
-
-	public Updater update(String origin) throws IOException {
-		return null;
 	}
 
 	boolean deleteFiles(String origin, String webapp, CallimachusRepository repository)

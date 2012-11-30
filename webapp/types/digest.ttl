@@ -17,7 +17,7 @@
     owl:equivalentClass </callimachus/DigestManager>;
     rdfs:label "Digest Manager";
     rdfs:isDefinedBy <../../ontology>;
-    calli:author </group/admin>;
+    calli:author </auth/groups/admin>;
     calli:view <../templates/digest-view.xhtml>;
     calli:edit <../templates/digest-edit.xhtml>;
     calli:create <../templates/digest-create.xhtml>.

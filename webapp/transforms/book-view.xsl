@@ -173,7 +173,7 @@ xmlns="http://www.w3.org/1999/xhtml" xmlns:xhtml="http://www.w3.org/1999/xhtml" 
         <a name="{$id}" />
     </xsl:if>
     <xsl:apply-templates mode="heading-prefix" select="." />
-    <xsl:value-of select="." />
+    <xsl:apply-templates />
     <xsl:if test="../.. and base-uri(.)!=base-uri(../..) or parent::d:info and base-uri(.)!=base-uri(parent::d:info/../..)">
         <xsl:text> </xsl:text>
         <a href="{concat(base-uri(),'?view#', $id)}" class="anchor">#</a>

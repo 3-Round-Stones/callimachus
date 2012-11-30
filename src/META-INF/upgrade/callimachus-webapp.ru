@@ -23,14 +23,14 @@ PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
 ################################
 
 INSERT {
-<../> calli:hasComponent <ontology>.
-<ontology> a <types/Serviceable>, owl:Ontology;
+<../> calli:hasComponent <../ontology>.
+<../ontology> a <types/Serviceable>, owl:Ontology;
     rdfs:label "ontology";
     rdfs:comment "Vocabulary used to create local Callimachus applications";
     owl:versionInfo "0.18";
     calli:administrator </auth/groups/admin>.
 } WHERE {
-	FILTER NOT EXISTS { <ontology> a owl:Ontology }
+	FILTER NOT EXISTS { <../ontology> a owl:Ontology }
 };
 
 ################################

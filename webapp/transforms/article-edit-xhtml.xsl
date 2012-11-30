@@ -138,7 +138,7 @@
 </xsl:template>
 
 <xsl:template mode="heading" match="node()">
-    <xsl:value-of select="." />
+    <xsl:apply-templates />
 </xsl:template>
 
 <xsl:template match="d:para">
@@ -148,10 +148,6 @@
 </xsl:template>
 
 <xsl:template match="d:blockquote">
-    <xsl:apply-templates select="d:para" />
-</xsl:template>
-
-<xsl:template match="d:blockquote/d:para">
     <blockquote>
         <xsl:apply-templates />
     </blockquote>
@@ -464,16 +460,22 @@
     </code>
 </xsl:template>
 
-<xsl:template match="d:emphasis[@role='bold' or @role='strong']">
+<xsl:template match="d:emphasis[@role='bold']">
     <b>
         <xsl:apply-templates />
     </b>
 </xsl:template>
 
-<xsl:template match="d:emphasis">
-    <i>
+<xsl:template match="d:emphasis[@role='strong']">
+    <strong>
         <xsl:apply-templates />
-    </i>
+    </strong>
+</xsl:template>
+
+<xsl:template match="d:emphasis">
+    <em>
+        <xsl:apply-templates />
+    </em>
 </xsl:template>
 
 <xsl:template match="d:citetitle">

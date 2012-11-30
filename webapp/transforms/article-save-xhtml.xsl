@@ -172,9 +172,7 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
 
 <xsl:template match="xhtml:blockquote">
     <blockquote>
-        <para>
-            <xsl:apply-templates />
-        </para>
+        <xsl:apply-templates />
     </blockquote>
 </xsl:template>
 
@@ -406,8 +404,14 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
     </code>
 </xsl:template>
 
-<xsl:template match="xhtml:b | xhtml:strong">
+<xsl:template match="xhtml:b">
     <emphasis role="bold">
+        <xsl:apply-templates />
+    </emphasis>
+</xsl:template>
+
+<xsl:template match="xhtml:strong">
+    <emphasis role="strong">
         <xsl:apply-templates />
     </emphasis>
 </xsl:template>

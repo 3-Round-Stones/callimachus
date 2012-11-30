@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge;chrome=1" />
     <title><!-- title gets replaced with page/resource title --></title>
     <link rel="home" href="/" />
+    <link rel="icon" href="/favicon.ico" />
     <!--[if gt IE 6]><!-->
     <link rel="stylesheet" href="theme.less?less" />
     <script type="text/javascript" src="../scripts/discussion.js">&#160;</script>
@@ -36,12 +37,25 @@
                         </li>
                         <li class="hidden-logout dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                Account
-                                <b class="caret"></b>
+                                <i class="icon-cog"></i>
+                                <i class="caret"></i>
                             </a>
                             <menu type="context" class="dropdown-menu">
-                                <li><a id="profile-link" href="/?profile">Profile</a></li>
-                                <li><a id="logout-link" href="/?logout">Logout</a></li>
+                                <li><a href="/?view">Home folder</a></li>
+                                <li><a href="/?changes">Recent changes</a></li>
+                                <li class="divider"></li>
+                                <li><a href="javascript:location='?whatlinkshere'">What links here</a></li>
+                                <li><a href="javascript:location='?relatedchanges'">Related changes</a></li>
+                                <li><a href="javascript:location='?permissions'">Permissions</a></li>
+                                <li><a href="javascript:location='?introspect'">Introspect resource</a></li>
+                                <li><a href="javascript:print()">Print this page</a></li>
+                                <li class="divider"></li>
+                                <li><a href="http://callimachusproject.org/">About Callimachus</a></li>
+                                <li><a href="http://code.google.com/p/callimachus/wiki/GettingStarted">Getting started</a></li>
+                                <li><a href="http://groups.google.com/group/callimachus-discuss">Send feedback</a></li>
+                                <li class="divider"></li>
+                                <li><a id="profile-link" href="/?profile">Account</a></li>
+                                <li><a id="logout-link" href="/?logout">Sign out</a></li>
                             </menu>
                         </li>
                     </menu>
@@ -73,7 +87,7 @@
 
     <footer id="footer" class="hidden-iframe">
         <div id="colophon" class="container">
-            <div id="menu"><!-- #menu is replaced with the menu for the realm --></div>
+            <div id="menu"><!-- put menu here --></div>
             <p id="site-generator">
                 <a href="http://callimachusproject.org/" title="Callimachus">
                     <img src="../images/callimachus-powered.png" alt="Callimachus" width="98" height="35" />
@@ -82,7 +96,7 @@
 
             <!-- #resource-lastmod>time is replaced with the time this resource was modified or omitted entirely -->
             <p id="resource-lastmod">This resource was last modified at <time class="abbreviated"/></p>
-            <p id="rights"><!-- #rights is replaced with the rights from the realm --></p>
+            <p id="rights"><!-- put copyright info here --></p>
         </div>
     </footer>
 </body>

@@ -20,10 +20,6 @@
     <xsl:variable name="styles" select="$bindings[@name='styles']/*/text()" />
     <xsl:variable name="scripts" select="$bindings[@name='scripts']/*/text()" />
     <xsl:variable name="layout" select="$bindings[@name='layout']/*/text()" />
-    <xsl:variable name="favicon" select="$bindings[@name='favicon']/*/text()" />
-    <xsl:variable name="menu" select="$bindings[@name='menu']/*/text()" />
-    <xsl:variable name="variation" select="$bindings[@name='variation']/*/text()" />
-    <xsl:variable name="rights" select="$bindings[@name='rights']/*/text()" />
 
     <xsl:include href="transforms/layout.xsl" />
 

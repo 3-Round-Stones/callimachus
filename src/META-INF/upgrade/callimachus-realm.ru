@@ -21,13 +21,10 @@ INSERT {
 		calli:administrator </auth/groups/admin>;
 		calli:unauthorized <../unauthorized>;
 		calli:forbidden <../forbidden>;
-		calli:menu </main+menu>;
-		calli:favicon ?favicon;
 		calli:theme <theme/default>.
 } WHERE {
 	FILTER NOT EXISTS { $realm a calli:Realm }
 	BIND (replace(replace(str($realm), "^[a-z]*://", ""), "/$", "") AS ?label)
-	BIND (iri(concat(str($realm),"favicon.ico")) AS ?favicon)
 };
 
 INSERT {

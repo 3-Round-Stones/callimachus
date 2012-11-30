@@ -102,11 +102,6 @@ calli:Group a owl:Class;
     rdfs:comment "A collection of users";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
-calli:Menu a owl:Class;
-    rdfs:label "Menu";
-    rdfs:comment "A hierarchical menu of human-readable links";
-    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
-
 calli:Theme a owl:Class;
     rdfs:label "Theme";
     rdfs:comment "A Callimachus Web theme of HTML templates, CSS, and JavaScript";
@@ -351,32 +346,6 @@ calli:authentication a owl:ObjectProperty;
     rdfs:range calli:AuthenticationManager;
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
-calli:variation a owl:FunctionalProperty, owl:ObjectProperty;
-    rdfs:label "variation";
-    rdfs:comment "An CSS file that overrides the style of the theme";
-    rdfs:domain calli:Realm;
-    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
-
-calli:menu a owl:FunctionalProperty, owl:ObjectProperty;
-    rdfs:label "menu";
-    rdfs:comment "The menu used in this realm";
-    rdfs:domain calli:Realm;
-    rdfs:range calli:Menu;
-    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
-
-calli:favicon a owl:ObjectProperty, owl:FunctionalProperty;
-    rdfs:label "favicon";
-    rdfs:comment "A small logo image that should be shown on pages using the configured theme";
-    rdfs:domain calli:Realm;
-    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
-
-calli:rights a owl:DatatypeProperty, owl:FunctionalProperty;
-    rdfs:label "rights";
-    rdfs:comment "Rights statement for the data in this Web application server";
-    rdfs:domain calli:Realm;
-    rdfs:range rdf:XMLLiteral;
-    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
-
 calli:anonymousFrom a owl:DatatypeProperty;
     rdfs:label "anonymous from";
     rdfs:comment "Domain Name System suffix of agents that are permitted anonymous access to the resources associated with this group";
@@ -423,26 +392,6 @@ calli:hasComponent a owl:ObjectProperty;
     rdfs:label "has component";
     rdfs:comment "A nested resource with a URI that starts with this resource URI with one additional path, fragement, or component segment";
     rdfs:domain calli:Composite;
-    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
-
-calli:item a owl:ObjectProperty;
-    rdfs:label "item";
-    rdfs:comment "A menu item that is part of this menu";
-    rdfs:domain calli:Menu;
-    rdfs:range calli:Menu;
-    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
-
-calli:position a owl:DatatypeProperty, owl:FunctionalProperty;
-    rdfs:label "position";
-    rdfs:comment "The position this menu item should be placed";
-    rdfs:domain calli:Menu;
-    rdfs:range xsd:integer;
-    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
-
-calli:link a owl:ObjectProperty, owl:FunctionalProperty;
-    rdfs:label "link";
-    rdfs:comment "The target of this menu entry";
-    rdfs:domain calli:Menu;
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:minified a owl:DatatypeProperty;

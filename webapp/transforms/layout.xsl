@@ -7,7 +7,7 @@
 
     <!-- Variables -->
     <!-- $xsltId is present only if transforming a template, not for dynamically generated XHTML -->
-    <!-- realm styles scripts layout favicon menu variation rights -->
+    <!-- realm styles scripts layout -->
     <xsl:variable name="systemId" select="base-uri()" />
     <xsl:variable name="layout_xhtml" select="document($layout)" />
     <xsl:variable name="layout_html" select="$layout_xhtml/xhtml:html|$layout_xhtml/html" />
@@ -64,14 +64,8 @@
                 <xsl:with-param name="two" select="$layout_head" />
             </xsl:call-template>
             <xsl:apply-templates mode="layout" select="$layout_head/*[local-name()='meta']" />
-            <xsl:if test="$favicon">
-            <link rel="icon" href="{$favicon}" />
-            </xsl:if>
             <xsl:apply-templates mode="layout" select="$layout_head/*[local-name()!='script' and local-name()!='title' and local-name()!='meta']|$layout_head/comment()|$layout_head/text()" />
             <xsl:apply-templates select="*[local-name()!='script']|comment()|text()" />
-            <xsl:if test="$variation">
-            <link rel="stylesheet" href="{$variation}" media="all" />
-            </xsl:if>
 
             <script type="text/javascript" src="{$scripts}/web_bundle?source">&#160;</script>
             <xsl:if test="//form|//xhtml:form">
@@ -238,20 +232,6 @@
         <xsl:copy>
             <xsl:apply-templates mode="layout" select="@*" />
             <xsl:apply-templates select="$template_body/*|$template_body/comment()|$template_body/text()" />
-        </xsl:copy>
-    </xsl:template>
-
-    <xsl:template mode="layout" match="*[@id='menu']">
-        <xsl:copy>
-            <xsl:apply-templates mode="layout" select="@*" />
-            <xsl:copy-of select="document($menu)/xhtml:html/xhtml:body/node()" />
-        </xsl:copy>
-    </xsl:template>
-
-    <xsl:template mode="layout" match="*[@id='rights']">
-        <xsl:copy>
-            <xsl:apply-templates mode="layout" select="@*" />
-            <xsl:copy-of select="$rights" />
         </xsl:copy>
     </xsl:template>
 

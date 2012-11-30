@@ -12,6 +12,70 @@ PREFIX prov:<http://www.w3.org/ns/prov#>
 PREFIX audit:<http://www.openrdf.org/rdf/2012/auditing#>
 
 DELETE {
+    ?realm calli:menu ?menu .
+	?realm calli:favicon ?favicon .
+	?realm calli:variation ?variation .
+	?realm calli:rights ?rights .
+} WHERE {
+    {
+        ?realm calli:menu ?menu .
+    } UNION {
+	    ?realm calli:favicon ?favicon .
+    } UNION {
+	    ?realm calli:variation ?variation .
+	} UNION {
+	    ?realm calli:rights ?rights .
+	}
+};
+
+DELETE {
+    ?composite calli:hasComponent ?menu .
+    ?menu a calli:Menu .
+    ?menu a </callimachus/Menu> .
+    ?menu a </callimachus/types/Menu> .
+    ?menu a </callimachus/0.18/types/Menu> .
+    ?menu rdfs:label ?label .
+    ?menu calli:reader ?reader .
+    ?menu calli:subscriber ?subscriber .
+    ?menu calli:editor ?editor .
+    ?menu calli:administrator ?administrator .
+    ?menu calli:link ?link .
+    ?menu calli:item ?item .
+    ?menu calli:position ?position .
+} WHERE {
+    {
+        ?menu a calli:Menu .
+    } UNION {
+        ?parent calli:item ?menu .
+    }
+    {
+        ?composite calli:hasComponent ?menu .
+    } UNION {
+        ?menu a </callimachus/Menu> .
+    } UNION {
+        ?menu a </callimachus/types/Menu> .
+    } UNION {
+        ?menu a </callimachus/0.18/types/Menu> .
+    } UNION {
+        ?menu rdfs:label ?label .
+    } UNION {
+        ?menu calli:reader ?reader .
+    } UNION {
+        ?menu calli:subscriber ?subscriber .
+    } UNION {
+        ?menu calli:editor ?editor .
+    } UNION {
+        ?menu calli:administrator ?administrator .
+    } UNION {
+        ?menu calli:link ?link .
+    } UNION {
+        ?menu calli:item ?item .
+    } UNION {
+        ?menu calli:position ?position .
+    }
+};
+
+DELETE {
 </> calli:hasComponent </callimachus>.
 </callimachus> a ?ontology;
     rdfs:label ?label;

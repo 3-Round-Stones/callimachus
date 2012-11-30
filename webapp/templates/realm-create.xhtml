@@ -12,11 +12,6 @@
 </head>
 <body>
     <h1>New Realm</h1>
-    <div id="sidebar">
-        <aside>
-            <p>The icon should be of type PNG, GIF, or ICO and should be 16×16 or 32×32 pixels in size</p>
-        </aside>
-    </div>
     <form id="form" method="POST" action="" enctype="application/rdf+xml" typeof="calli:Realm calli:Folder"
             onsubmit="return calli.saveResourceAs(event,calli.slugify($('#label').val().replace(/\s+/g,'-'))+'/')">
         <fieldset class="control-group">
@@ -35,26 +30,6 @@
                     </select>
                 </div>
             </div>
-            <div id="favicon-image" dropzone="link s:text/uri-list" class="control-group"
-                    ondrop="return calli.insertResource(event)">
-                <label class="control-label">Icon <a href="/?view" title="Browse" onclick="return calli.selectResource(event)" class="ui-icon ui-icon-folder-open" /></label>
-                <div rel="calli:favicon" class="controls">
-                    <span resource="?favicon" typeof="foaf:Image" class="ui-state-highlight ui-corner-all">
-                        <img src="{?favicon}" />
-                        <a href="{?favicon}" title="Don't use this icon" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
-                    </span>
-                </div>
-            </div>
-        </fieldset>
-        <fieldset>
-            <div class="control-group">
-                <label for="realm-menu" class="control-label">Menu</label>
-                <div class="controls">
-                    <select id="realm-menu" rel="calli:menu">
-                        <option selected="selected" about="?menu" typeof="calli:Menu" property="rdfs:label" title="{?menu}" />
-                    </select>
-                </div>
-            </div>
         </fieldset>
         <fieldset>
             <div class="control-group">
@@ -64,12 +39,6 @@
                         <option selected="selected" about="?authentication" typeof="calli:AuthenticationManager">{?authentication}</option>
                     </select>
                 </div>
-            </div>
-        </fieldset>
-        <fieldset class="control-group">
-            <label for="rights-field" class="control-label">Rights Statement</label>
-            <div class="controls">
-                <textarea id="rights-field" class="auto-expand" datatype="rdf:XMLLiteral">{calli:rights}</textarea>
             </div>
         </fieldset>
         <fieldset class="form-actions">

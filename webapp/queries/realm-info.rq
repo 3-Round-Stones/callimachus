@@ -11,22 +11,10 @@ SELECT
     (<../styles> AS ?styles)
     (<../scripts> AS ?scripts)
     (if(bound(?layout),?layout,<../theme/layout.xhtml>) AS ?layout)
-    (if(bound(?favicon),?favicon,<../images/callimachus-icon.ico>) AS ?favicon)
-    (if (bound(?menu),concat(str(?menu),'?items'),?menu) AS ?menu)
-    ?variation
-    ?rights
 WHERE {
     {
         <$realm> a calli:Realm
     } OPTIONAL {
         <$realm> calli:theme [calli:layout ?layout]
-    } OPTIONAL {
-        <$realm> calli:favicon ?favicon
-    } OPTIONAL {
-        <$realm> calli:menu ?menu
-    } OPTIONAL {
-        <$realm> calli:variation ?variation
-    } OPTIONAL {
-        <$realm> calli:rights ?rights
     }
 }

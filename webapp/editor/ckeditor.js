@@ -27,12 +27,40 @@ jQuery(function($) {
         	{ name: 'links', items: [ 'Link', 'Unlink', 'Anchor' ] },
         	{ name: 'insert', items: [ 'Image', 'Table' ] },
             { name: 'paste', items: [ 'PasteText', 'PasteFromWord'] }
-        ]
+        ],
+        
+        format_tags: 'p;h1;h2;h3;h4;h5;h6;pre;address'
 
     });
     
     var editor = CKEDITOR.instances.editor;
     var saved = null;
+    
+    // hide selected dialog UI elements
+    editor.on('dialogShow', function(e) {
+        var el = $(e.data._.element.$);
+        
+        // remove the advanced tab in table dialogs, in case of ignored config option
+        el.find('a.cke_dialog_tab[title*="Table"]').siblings('a.cke_dialog_tab[title="Advanced"]').remove();
+        
+        // remove unsupported fields from "Table Properties" dialogs
+        if (el.find('.cke_dialog_title').html().match(/Table Properties/)) {
+            el.find('label').each(function() {
+                if ($(this).html().match(/^(border size|cell spacing|cell padding|)$/i)) {
+                    $(this).parents('tr').first().hide();// only the immediate parent
+                }
+            });
+        }
+        
+        // remove unsupported fields from "Cell Properties" dialogs
+        if (el.find('.cke_dialog_title').html().match(/Cell Properties/)) {
+            el.find('label').each(function() {
+                if ($(this).html().match(/^(width|height|word wrap|border color|background color)$/i)) {
+                    $(this).parents('tr').first().hide();// only the immediate parent
+                }
+            });
+        }
+    });
     
     /**
      * Normalizes the output for stable comparisons.
@@ -83,12 +111,11 @@ jQuery(function($) {
      * Maximizes the editor height.to fully fill the iframe.
      */ 
     function resizeEditor() {
-        try {clearTimeout(window.ckeditorTO)} catch (e) { }
-        window.ckeditorTO = window.setTimeout(function() {
-            try {
-                editor.resize('100%', $(window).outerHeight(), false);
-            } catch (e) {} 
-        }, 20);    
+        try {
+            editor.resize('100%', $(window).outerHeight(), false);
+        } catch (e) {
+            setTimeout(resizeEditor, 250);
+        } 
     }
     $(window).on('resize', resizeEditor);
     
@@ -104,13 +131,13 @@ jQuery(function($) {
                 if (!editor.getData()) {
                     editor.setData(body);
                     saved = editor.xhtml();
-                    setTimeout(resizeEditor, 50);
+                    setTimeout(resizeEditor, 100);
                 }
                 return true;
             } else {
                 editor.setData(body);
                 saved = editor.xhtml();
-                setTimeout(resizeEditor, 50);
+                setTimeout(resizeEditor, 100);
                 return true;
             }
         } else if (header == 'GET text') {

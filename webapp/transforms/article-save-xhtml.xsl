@@ -47,9 +47,9 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
 </xsl:template>
 
 <xsl:template match="*">
-    <xsl:comment><xsl:text>&lt;</xsl:text><xsl:value-of select="name()"/><xsl:text>&gt;</xsl:text></xsl:comment>
-    <xsl:apply-templates select="*|text()|comment()" />
-    <xsl:comment><xsl:text>&lt;/</xsl:text><xsl:value-of select="name()"/><xsl:text>&gt;</xsl:text></xsl:comment>
+    <xsl:element name="{local-name()}">
+        <xsl:apply-templates select="@*|node()" />
+    </xsl:element>
 </xsl:template>
 
 <xsl:template match="xhtml:html">
@@ -262,6 +262,11 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
 </xsl:template>
 
 <xsl:template name="imageobject">
+    <xsl:if test="@alt">
+        <alt>
+            <xsl:value-of select="@alt" />
+        </alt>
+    </xsl:if>
     <imageobject>
         <imagedata fileref="{@src}">
             <xsl:if test="@height != ''">
@@ -276,11 +281,6 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
             </xsl:if>
         </imagedata>
     </imageobject>
-    <xsl:if test="@alt">
-        <alt>
-            <xsl:value-of select="@alt" />
-        </alt>
-    </xsl:if>
     <xsl:if test="@title">
         <caption>
             <para><xsl:value-of select="@title" /></para>
@@ -342,14 +342,16 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
 <!-- tables -->
 <xsl:template match="xhtml:table[not(xhtml:caption)]">
     <informaltable>
-        <xsl:apply-templates select="@id" />
+        <xsl:apply-templates select="@id|@lang" />
+        <xsl:apply-templates select="@summary|@width|@border|@cellspacing|@cellpadding|@frame|@rules" />
         <xsl:apply-templates />
     </informaltable>
 </xsl:template>
 
 <xsl:template match="xhtml:table[xhtml:caption]">
     <table>
-        <xsl:apply-templates select="@id" />
+        <xsl:apply-templates select="@id|@lang" />
+        <xsl:apply-templates select="@summary|@width|@border|@cellspacing|@cellpadding|@frame|@rules" />
         <xsl:apply-templates />
     </table>
 </xsl:template>

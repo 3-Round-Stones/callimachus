@@ -3,7 +3,7 @@
     xmlns:xl    ="http://www.w3.org/1999/xlink"
     version="5.0">
     <title>A formal (captioned) HTML table in a document</title>
-    <table>
+    <table summary="table summary" border="1" cellpadding="10" cellspacing="10">
         <caption>Sample HTML Table</caption>
         <colgroup>
             <col />

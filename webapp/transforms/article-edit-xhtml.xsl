@@ -371,14 +371,16 @@
 <!-- tables -->
 <xsl:template match="d:informaltable[not(d:caption)]">
     <table class="table">
-        <xsl:apply-templates select="@xml:id" />
+        <xsl:apply-templates select="@xml:id|@xml:lang" />
+        <xsl:apply-templates select="@summary|@width|@border|@cellspacing|@cellpadding|@frame|@rules" />
         <xsl:apply-templates select="*" />
     </table>
 </xsl:template>
 
 <xsl:template match="d:table[not(d:caption)]">
     <table class="table table-bordered">
-        <xsl:apply-templates select="@xml:id" />
+        <xsl:apply-templates select="@xml:id|@xml:lang" />
+        <xsl:apply-templates select="@summary|@width|@border|@cellspacing|@cellpadding|@frame|@rules" />
         <caption><xsl:apply-templates select="d:title/node()|d:info/d:title/node()" /></caption>
         <xsl:apply-templates select="d:tgroup" />
     </table>
@@ -386,7 +388,8 @@
 
 <xsl:template match="d:table[d:caption] | d:informaltable[d:caption]">
     <table class="table table-bordered">
-        <xsl:apply-templates select="@xml:id" />
+        <xsl:apply-templates select="@xml:id|@xml:lang" />
+        <xsl:apply-templates select="@summary|@width|@border|@cellspacing|@cellpadding|@frame|@rules" />
         <xsl:apply-templates />
     </table>
 </xsl:template>

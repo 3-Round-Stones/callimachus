@@ -1,0 +1,17 @@
+<article 
+    xmlns      ="http://docbook.org/ns/docbook" 
+    xmlns:xl   ="http://www.w3.org/1999/xlink"
+    version="5.0">
+    <title>test for inlinemediaobject docbook element</title>
+    <para>
+        <inlinemediaobject>
+            <alt>alternate text here</alt>
+            <imageobject>
+                <imagedata 
+                    depth="100px"
+                    width="100px"
+                    fileref="figs/print/db5d_refeqn03.pdf"/>
+            </imageobject>
+        </inlinemediaobject>
+    </para>
+</article>

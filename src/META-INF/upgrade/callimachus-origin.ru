@@ -19,7 +19,7 @@ INSERT {
 	} UNION {
 		FILTER NOT EXISTS { </> calli:authentication [calli:authName ?n; calli:authNamespace ?s] }
 		BIND (replace(replace(str(</>), "^[a-z]*://", ""), "[:/].*", "") AS ?name)
-		BIND (</auth/passwords/> AS ?space)
+		BIND (</auth/digest-users/> AS ?space)
 	}
 	FILTER NOT EXISTS { $origin a calli:Origin }
 	BIND (iri(concat(str($origin),"auth/digest+account")) AS ?digest)

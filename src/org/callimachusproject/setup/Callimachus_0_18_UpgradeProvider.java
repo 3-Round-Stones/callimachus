@@ -59,7 +59,7 @@ public class Callimachus_0_18_UpgradeProvider implements UpdateProvider {
 				repository.addSchemaGraphType(vf.createURI(origin
 						+ "/callimachus/types/SchemaGraph"));
 				repository.addSchemaGraphType(vf.createURI(origin
-						+ "/callimachus/0.18/types/SchemaGraph"));
+						+ "/callimachus/1.0/types/SchemaGraph"));
 				repository.setCompileRepository(true);
 				try {
 					modified |= deleteFolders(origin, webapp, repository);

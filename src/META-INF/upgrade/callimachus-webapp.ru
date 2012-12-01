@@ -1,7 +1,7 @@
 # callimachus-webapp.ru
 #
 # read by Setup.java to determine initial Callimachus webapp path
-# @webapp </callimachus/0.18/>
+# @webapp </callimachus/1.0/>
 #
 PREFIX xsd:<http://www.w3.org/2001/XMLSchema#>
 PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -99,9 +99,9 @@ INSERT {
 ################################
 
 INSERT {
-</auth/> calli:hasComponent </auth/passwords/>.
-</auth/passwords/> a <types/Folder>, calli:Folder;
-    rdfs:label "passwords";
+</auth/> calli:hasComponent </auth/digest-users/>.
+</auth/digest-users/> a <types/Folder>, calli:Folder;
+    rdfs:label "digest users";
     calli:subscriber </auth/groups/staff>;
     calli:administrator </auth/groups/admin>.
 

@@ -62,6 +62,11 @@ public class TermFactoryImpl extends TermFactory {
 	}
 
 	@Override
+	public String toString() {
+		return systemId;
+	}
+
+	@Override
 	public String getSystemId() {
 		return systemId;
 	}

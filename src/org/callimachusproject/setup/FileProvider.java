@@ -53,6 +53,8 @@ public abstract class FileProvider implements UpdateProvider {
 				try {
 					con.setAutoCommit(false);
 					URI article = createArticleData(virtual, webapp, con);
+					if (article == null)
+						return false;
 					InputStream in = getFileResourceAsStream();
 					try {
 						OutputStream out = con.getBlobObject(article)
@@ -78,8 +80,11 @@ public abstract class FileProvider implements UpdateProvider {
 				ValueFactory vf = con.getValueFactory();
 				URI folder = vf.createURI(virtual + "/");
 				URI file = vf.createURI(getFileUrl(virtual));
+				URI type = vf.createURI(getFileType(webapp));
+				if (con.hasStatement(file, RDF.TYPE, type))
+					return null;
 				logger.info("Uploading: {}", file);
-				con.add(file, RDF.TYPE, vf.createURI(getFileType(webapp)));
+				con.add(file, RDF.TYPE, type);
 				con.add(file, RDF.TYPE,
 						vf.createURI("http://xmlns.com/foaf/0.1/Document"));
 				con.add(file, RDFS.LABEL, vf.createLiteral(getFileLabel(file.getLocalName())));

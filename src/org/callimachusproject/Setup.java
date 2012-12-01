@@ -98,6 +98,7 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class Setup {
+	private static final String SCHEMA_GRAPH = "types/SchemaGraph";
 	private static final String GROUP_ADMIN = "/auth/groups/admin";
 	private static final String GROUP_STAFF = "/auth/groups/staff";
 	private static final String GROUP_PUBLIC = "/auth/groups/public";
@@ -316,6 +317,11 @@ public class Setup {
 		String configString = readContent(config);
 		System.err.println(connect(dir, configString).toURI().toASCIIString());
 		boolean changed = false;
+		if (webappCar != null) {
+			for (String origin : origins) {
+				changed |= clearCallimachusWebapp(origin);
+			}
+		}
 		for (String origin : origins) {
 			changed |= createOrigin(origin);
 		}
@@ -383,6 +389,44 @@ public class Setup {
 		if (manager != null) {
 			manager.shutDown();
 			manager = null;
+		}
+	}
+
+	public boolean clearCallimachusWebapp(String origin) throws Exception {
+		if (webappIfPresent(origin) == null)
+			return false;
+		repository.addSchemaGraphType(webapp(origin, SCHEMA_GRAPH));
+		repository.setCompileRepository(true);
+		ObjectConnection con = repository.getConnection();
+		try {
+			con.setAutoCommit(false);
+			Object folder = con.getObject(webapp(origin, ""));
+			Method DeleteComponents = findDeleteComponents(folder);
+			try {
+				logger.info("Removing {}", folder);
+				int argc = DeleteComponents.getParameterTypes().length;
+				DeleteComponents.invoke(folder, new Object[argc]);
+				URI target = webapp(origin, "");
+				con.remove(webapp(origin, "../"), null, target);
+				con.remove(target, null, null);
+				con.remove((Resource)null, null, null, target);
+				con.commit();
+			} catch (InvocationTargetException e) {
+				try {
+					throw e.getCause();
+				} catch (Exception cause) {
+					throw cause;
+				} catch (Error cause) {
+					throw cause;
+				} catch (Throwable cause) {
+					throw e;
+				}
+			}
+			repository.setCompileRepository(false);
+			con.setAutoCommit(true);
+			return true;
+		} finally {
+			con.close();
 		}
 	}
 
@@ -661,8 +705,7 @@ public class Setup {
 		return null;
 	}
 
-	private String upgradeStore(String origin)
-			throws IOException, OpenRDFException {
+	private String upgradeStore(String origin) throws Exception {
 		String version = getStoreVersion(origin);
 		Iterator<UpdateProvider> iter = updateProviders.iterator();
 		while (iter.hasNext()) {
@@ -681,11 +724,20 @@ public class Setup {
 		return newVersion;
 	}
 
-	private void updateWebappContext(String origin) throws OpenRDFException {
+	private void updateWebappContext(String origin) throws Exception {
 		synchronized (webapps) {
 			webapps.clear();
 		}
 		repository.setChangeFolder(webapp(origin, CHANGES_PATH).stringValue());
+	}
+
+	private Method findDeleteComponents(Object folder)
+			throws NoSuchMethodException {
+		for (Method method : folder.getClass().getMethods()) {
+			if ("DeleteComponents".equals(method.getName()))
+				return method;
+		}
+		throw new NoSuchMethodException("DeleteComponents in " + folder);
 	}
 
 	private URI[] importSchema(URL car, String folder, String origin) throws RepositoryException,

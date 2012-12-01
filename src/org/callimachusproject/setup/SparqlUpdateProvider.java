@@ -64,7 +64,7 @@ public class SparqlUpdateProvider implements UpdateProvider {
 				Enumeration<URL> resources = cl.getResources(WEBAPP_RU);
 				while (resources.hasMoreElements()) {
 					InputStream in = resources.nextElement().openStream();
-					logger.info("Initializing {} Store", origin);
+					logger.info("Updating {} Store", origin);
 					Reader reader = new InputStreamReader(in, "UTF-8");
 					String ru = IOUtil.readString(reader);
 					ObjectConnection con = repository.getConnection();

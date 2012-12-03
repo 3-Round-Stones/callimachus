@@ -160,33 +160,39 @@ INSERT {
 };
 
 DELETE {
-	?reader calli:reader ?group .
-	?author calli:author ?group .
-	?editor calli:editor ?group .
-	?administrator calli:administrator ?group .
-	?subscriber calli:subscriber ?group .
-	?contributor calli:contributor ?group .
+    GRAPH ?graph {
+	    ?reader calli:reader ?group .
+	    ?author calli:author ?group .
+	    ?editor calli:editor ?group .
+	    ?administrator calli:administrator ?group .
+	    ?subscriber calli:subscriber ?group .
+	    ?contributor calli:contributor ?group .
+	}
 } INSERT {
-	?reader calli:reader ?auth .
-	?author calli:author ?auth .
-	?editor calli:editor ?auth .
-	?administrator calli:administrator ?auth .
-	?subscriber calli:subscriber ?auth .
-	?contributor calli:contributor ?auth .
+    GRAPH ?graph {
+	    ?reader calli:reader ?auth .
+	    ?author calli:author ?auth .
+	    ?editor calli:editor ?auth .
+	    ?administrator calli:administrator ?auth .
+	    ?subscriber calli:subscriber ?auth .
+	    ?contributor calli:contributor ?auth .
+	}
 } WHERE {
 	</group/> calli:hasComponent ?group .
-	{
-		?reader calli:reader ?group
-	} UNION {
-		?author calli:author ?group
-	} UNION {
-		?editor calli:editor ?group
-	} UNION {
-		?administrator calli:administrator ?group
-	} UNION {
-		?subscriber calli:subscriber ?group
-	} UNION {
-		?contributor calli:contributor ?group
+	GRAPH ?graph {
+	    {
+		    ?reader calli:reader ?group
+	    } UNION {
+		    ?author calli:author ?group
+	    } UNION {
+		    ?editor calli:editor ?group
+	    } UNION {
+		    ?administrator calli:administrator ?group
+	    } UNION {
+		    ?subscriber calli:subscriber ?group
+	    } UNION {
+		    ?contributor calli:contributor ?group
+	    }
 	}
 	BIND (iri(concat(str(</auth/groups/>),strafter(str(?group),str(</group/>)))) AS ?auth)
 };
@@ -224,73 +230,85 @@ DELETE {
 };
 
 DELETE {
-	?reader calli:reader ?user .
-	?author calli:author ?user .
-	?editor calli:editor ?user .
-	?administrator calli:administrator ?user .
-	?subscriber calli:subscriber ?user .
-	?contributor calli:contributor ?user .
-	?member calli:member ?user .
+    GRAPH ?graph {
+	    ?reader calli:reader ?user .
+	    ?author calli:author ?user .
+	    ?editor calli:editor ?user .
+	    ?administrator calli:administrator ?user .
+	    ?subscriber calli:subscriber ?user .
+	    ?contributor calli:contributor ?user .
+	    ?member calli:member ?user .
+	}
 } INSERT {
-	?reader calli:reader ?auth .
-	?author calli:author ?auth .
-	?editor calli:editor ?auth .
-	?administrator calli:administrator ?auth .
-	?subscriber calli:subscriber ?auth .
-	?contributor calli:contributor ?auth .
-	?member calli:member ?auth .
+    GRAPH ?graph {
+	    ?reader calli:reader ?auth .
+	    ?author calli:author ?auth .
+	    ?editor calli:editor ?auth .
+	    ?administrator calli:administrator ?auth .
+	    ?subscriber calli:subscriber ?auth .
+	    ?contributor calli:contributor ?auth .
+	    ?member calli:member ?auth .
+	}
 } WHERE {
 	</auth/passwords/> calli:hasComponent ?user .
-	{
-		?reader calli:reader ?user
-	} UNION {
-		?author calli:author ?user
-	} UNION {
-		?editor calli:editor ?user
-	} UNION {
-		?administrator calli:administrator ?user
-	} UNION {
-		?subscriber calli:subscriber ?user
-	} UNION {
-		?contributor calli:contributor ?user
-	} UNION {
-		?member calli:member ?user .
+    GRAPH ?graph {
+	    {
+		    ?reader calli:reader ?user
+	    } UNION {
+		    ?author calli:author ?user
+	    } UNION {
+		    ?editor calli:editor ?user
+	    } UNION {
+		    ?administrator calli:administrator ?user
+	    } UNION {
+		    ?subscriber calli:subscriber ?user
+	    } UNION {
+		    ?contributor calli:contributor ?user
+	    } UNION {
+		    ?member calli:member ?user .
+	    }
 	}
 	BIND (iri(concat(str(</auth/digest-users/>),strafter(str(?user),str(</auth/passwords/>)))) AS ?auth)
 };
 
 DELETE {
-	?reader calli:reader ?user .
-	?author calli:author ?user .
-	?editor calli:editor ?user .
-	?administrator calli:administrator ?user .
-	?subscriber calli:subscriber ?user .
-	?contributor calli:contributor ?user .
-	?member calli:member ?user .
+    GRAPH ?graph {
+	    ?reader calli:reader ?user .
+	    ?author calli:author ?user .
+	    ?editor calli:editor ?user .
+	    ?administrator calli:administrator ?user .
+	    ?subscriber calli:subscriber ?user .
+	    ?contributor calli:contributor ?user .
+	    ?member calli:member ?user .
+	}
 } INSERT {
-	?reader calli:reader ?auth .
-	?author calli:author ?auth .
-	?editor calli:editor ?auth .
-	?administrator calli:administrator ?auth .
-	?subscriber calli:subscriber ?auth .
-	?contributor calli:contributor ?auth .
-	?member calli:member ?auth .
+    GRAPH ?graph {
+	    ?reader calli:reader ?auth .
+	    ?author calli:author ?auth .
+	    ?editor calli:editor ?auth .
+	    ?administrator calli:administrator ?auth .
+	    ?subscriber calli:subscriber ?auth .
+	    ?contributor calli:contributor ?auth .
+	    ?member calli:member ?auth .
+	}
 } WHERE {
 	</user/> calli:hasComponent ?user .
-	{
-		?reader calli:reader ?user
-	} UNION {
-		?author calli:author ?user
-	} UNION {
-		?editor calli:editor ?user
-	} UNION {
-		?administrator calli:administrator ?user
-	} UNION {
-		?subscriber calli:subscriber ?user
-	} UNION {
-		?contributor calli:contributor ?user
-	} UNION {
-		?member calli:member ?user .
+    GRAPH ?graph {
+	    {
+		    ?reader calli:reader ?user
+	    } UNION {
+		    ?author calli:author ?user
+	    } UNION {
+		    ?editor calli:editor ?user
+	    } UNION {
+		    ?administrator calli:administrator ?user
+	    } UNION {
+		    ?subscriber calli:subscriber ?user
+	    } UNION {
+		    ?contributor calli:contributor ?user
+	    } UNION {
+		    ?member calli:member ?user .
+	    }
 	}
 	BIND (iri(concat(str(</auth/digest-users/>),strafter(str(?user),str(</user/>)))) AS ?auth)
 };

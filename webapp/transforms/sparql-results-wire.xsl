@@ -24,7 +24,7 @@
     </xsl:template>
     <xsl:template match="sparql:variable">
         <xsl:variable name="name" select="@name"/>
-        <xsl:variable name="datatype" select="/sparql:sparql/sparql:results/sparql:result[1]/sparql:binding[@name=$name]/sparql:literal/@datatype" />
+        <xsl:variable name="datatype" select="(/sparql:sparql/sparql:results/sparql:result/sparql:binding[@name=$name])[1]/sparql:literal/@datatype" />
         <xsl:variable name="local" select="substring-after($datatype, '#')" />
         <xsl:text>{id:'</xsl:text>
         <xsl:value-of select="$name" />

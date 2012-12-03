@@ -3,7 +3,6 @@ package org.callimachusproject.setup;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.UndeclaredThrowableException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,7 +13,12 @@ import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.query.QueryLanguage;
 import org.openrdf.query.TupleQueryResult;
+import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.ObjectConnection;
+import org.openrdf.repository.object.exceptions.ObjectStoreConfigException;
+import org.openrdf.repository.object.exceptions.RDFObjectException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Callimachus_0_18_UpgradeProvider implements UpdateProvider {
 	private static final String MOVED_FILE = "PREFIX foaf:<http://xmlns.com/foaf/0.1/>\n"
@@ -24,6 +28,8 @@ public class Callimachus_0_18_UpgradeProvider implements UpdateProvider {
 			+ "PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>\n"
 			+ "SELECT DISTINCT ?folder { </callimachus/> calli:hasComponent ?folder . ?folder a calli:Folder\n"
 			+ "FILTER(?folder IN (</callimachus/types/>, </callimachus/editor/>, </callimachus/images/>, </callimachus/pages/>, </callimachus/pipelines/>, </callimachus/queries/>, </callimachus/schemas/>, </callimachus/scripts/>, </callimachus/styles/>, </callimachus/templates/>, </callimachus/theme/>, </callimachus/transforms/>)) }";
+
+	private final Logger logger = LoggerFactory.getLogger(Callimachus_0_18_UpgradeProvider.class);
 
 	public String getDefaultCallimachusWebappLocation(String origin)
 			throws IOException {
@@ -52,27 +58,8 @@ public class Callimachus_0_18_UpgradeProvider implements UpdateProvider {
 			public boolean update(String webapp,
 					CallimachusRepository repository) throws IOException,
 					OpenRDFException {
-				boolean modified = false;
-				ValueFactory vf = repository.getValueFactory();
-				repository.addSchemaGraphType(vf.createURI(origin
-						+ "/callimachus/SchemaGraph"));
-				repository.addSchemaGraphType(vf.createURI(origin
-						+ "/callimachus/types/SchemaGraph"));
-				repository.addSchemaGraphType(vf.createURI(origin
-						+ "/callimachus/1.0/types/SchemaGraph"));
-				repository.setCompileRepository(true);
-				try {
-					modified |= deleteFolders(origin, webapp, repository);
-					modified |= deleteFiles(origin, webapp, repository);
-				} catch (IOException e) {
-					throw e;
-				} catch (OpenRDFException e) {
-					throw e;
-				} catch (Exception e) {
-					throw new UndeclaredThrowableException(e);
-				} finally {
-					repository.setCompileRepository(false);
-				}
+				boolean modified = deleteFiles(origin, webapp, repository);
+				modified |= deleteFolders(origin, webapp, repository);
 				return modified;
 			}
 		};
@@ -107,13 +94,31 @@ public class Callimachus_0_18_UpgradeProvider implements UpdateProvider {
 		return true;
 	}
 
-	boolean deleteFolders(String origin, String webapp,
-			CallimachusRepository repository) throws Exception {
-		List<String> folders = getFolders(webapp, repository);
-		if (folders.isEmpty())
-			return false;
-		deleteFolders(folders, origin, repository);
-		return true;
+	boolean deleteFolders(final String origin, String webapp,
+			CallimachusRepository repository) throws RepositoryException,
+			ObjectStoreConfigException {
+		ValueFactory vf = repository.getValueFactory();
+		repository.setSchemaGraphType(vf.createURI(origin
+				+ "/callimachus/SchemaGraph"));
+		repository.addSchemaGraphType(vf.createURI(origin
+				+ "/callimachus/types/SchemaGraph"));
+		repository.addSchemaGraphType(vf.createURI(origin
+				+ "/callimachus/1.0/types/SchemaGraph"));
+		try {
+			repository.setCompileRepository(true);
+			List<String> folders = getFolders(webapp, repository);
+			if (!folders.isEmpty()) {
+				deleteFolders(folders, origin, repository);
+				return true;
+			}
+		} catch (OpenRDFException e) {
+			logger.warn(e.toString());
+		} catch (RDFObjectException e) {
+			logger.warn(e.toString());
+		} finally {
+			repository.setCompileRepository(false);
+		}
+		return false;
 	}
 
 	private List<String> getFolders(String webapp,
@@ -137,7 +142,7 @@ public class Callimachus_0_18_UpgradeProvider implements UpdateProvider {
 	}
 
 	private void deleteFolders(List<String> folders, String origin,
-			CallimachusRepository repository) throws Exception {
+			CallimachusRepository repository) throws OpenRDFException {
 		ObjectConnection con = repository.getConnection();
 		try {
 			con.setAutoCommit(false);
@@ -157,16 +162,23 @@ public class Callimachus_0_18_UpgradeProvider implements UpdateProvider {
 					try {
 						throw e.getCause();
 					} catch (Exception cause) {
-						throw cause;
+						logger.warn(cause.toString());
 					} catch (Error cause) {
-						throw cause;
+						logger.warn(cause.toString());
 					} catch (Throwable cause) {
-						throw e;
+						logger.warn(cause.toString());
 					}
+					con.rollback();
+					return;
 				}
 			}
 			con.setAutoCommit(true);
+		} catch (IllegalAccessException e) {
+			logger.warn(e.toString());
+		} catch (NoSuchMethodException e) {
+			logger.warn(e.toString());
 		} finally {
+			con.rollback();
 			con.close();
 		}
 	}

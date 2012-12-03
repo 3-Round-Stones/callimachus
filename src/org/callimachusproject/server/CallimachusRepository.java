@@ -68,6 +68,10 @@ public class CallimachusRepository extends RepositoryWrapper {
 		object.addSchemaGraphType(rdfType);
 	}
 
+	public void setSchemaGraphType(URI rdfType) throws RepositoryException {
+		object.setSchemaGraphType(rdfType);
+	}
+
 	public boolean isCompileRepository() {
 		return object.isCompileRepository();
 	}

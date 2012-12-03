@@ -21,12 +21,12 @@ public class InternalHttpClient extends AbstractHttpClient {
 		this.client = client;
 	}
 
-	public HttpClient setProxy(HttpHost destination, HttpClient proxy) {
-		return proxies.put(destination, proxy);
+	public HttpClient setProxy(HttpHost host, HttpClient proxy) {
+		return proxies.put(host, proxy);
 	}
 
-	public boolean removeProxy(HttpHost destination, HttpClient proxy) {
-		return proxies.remove(destination, proxy);
+	public boolean removeProxy(HttpHost host, HttpClient proxy) {
+		return proxies.remove(host, proxy);
 	}
 
 	public HttpResponse execute(HttpHost host, HttpRequest request,

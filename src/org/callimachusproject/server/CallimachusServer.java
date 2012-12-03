@@ -72,7 +72,12 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 	}
 
 	public void setChangesPath(String origin, String path) throws OpenRDFException {
-		repository.setChangeFolder(repository.getCallimachusUrl(origin, path));
+		String changes = repository.getCallimachusUrl(origin, path);
+		if (changes == null) {
+			logger.error("Callimachus webapp not installed in {}", origin);
+		} else {
+			repository.setChangeFolder(changes);
+		}
 	}
 
 	public String getErrorPipe() {

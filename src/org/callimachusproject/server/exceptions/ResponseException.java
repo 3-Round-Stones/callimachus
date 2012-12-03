@@ -56,14 +56,15 @@ public abstract class ResponseException extends RuntimeException {
 		int code = line.getStatusCode();
 		String[] titleBody = readMessage(resp, line.getReasonPhrase());
 		String msg = titleBody[0];
+		String stack = titleBody[1];
 		if (from != null && from.length() > 0) {
-			if (msg.contains("\n")) {
-				msg = msg.replaceFirst("\n", " from " + from + "\n");
+			if (stack.contains("\n")) {
+				stack = stack.replaceFirst("\n", " from " + from + "\n");
 			} else {
-				msg += " from " + from;
+				stack += " from " + from;
 			}
 		}
-		return create(code, msg, titleBody[1]);
+		return create(code, msg, stack);
 	}
 
 	private static ResponseException create(int status, String msg, String stack) {
@@ -100,7 +101,7 @@ public abstract class ResponseException extends RuntimeException {
 	private static String[] readMessage(HttpResponse resp, String defaultTitle) throws IOException {
 		HttpEntity entity = resp.getEntity();
 		if (entity == null)
-			return new String[]{defaultTitle, null}; // no response
+			return new String[]{defaultTitle, defaultTitle}; // no response
 		try {
 			StringWriter string = new StringWriter();
 			InputStream in = entity.getContent();

@@ -48,6 +48,7 @@ import java.util.UUID;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.http.HttpHost;
+import org.apache.http.client.utils.URIUtils;
 import org.callimachusproject.cli.Command;
 import org.callimachusproject.cli.CommandSet;
 import org.callimachusproject.client.HTTPObjectClient;
@@ -82,6 +83,7 @@ import org.openrdf.repository.config.RepositoryConfigSchema;
 import org.openrdf.repository.manager.LocalRepositoryManager;
 import org.openrdf.repository.manager.RepositoryProvider;
 import org.openrdf.repository.object.ObjectConnection;
+import org.openrdf.repository.object.exceptions.RDFObjectException;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParseException;
@@ -392,42 +394,54 @@ public class Setup {
 		}
 	}
 
-	public boolean clearCallimachusWebapp(String origin) throws Exception {
+	public boolean clearCallimachusWebapp(String origin) throws OpenRDFException {
 		if (webappIfPresent(origin) == null)
 			return false;
-		repository.addSchemaGraphType(webapp(origin, SCHEMA_GRAPH));
-		repository.setCompileRepository(true);
-		ObjectConnection con = repository.getConnection();
 		try {
-			con.setAutoCommit(false);
-			Object folder = con.getObject(webapp(origin, ""));
-			Method DeleteComponents = findDeleteComponents(folder);
+			repository.setSchemaGraphType(webapp(origin, SCHEMA_GRAPH));
+			repository.setCompileRepository(true);
+			ObjectConnection con = repository.getConnection();
 			try {
-				logger.info("Removing {}", folder);
-				int argc = DeleteComponents.getParameterTypes().length;
-				DeleteComponents.invoke(folder, new Object[argc]);
-				URI target = webapp(origin, "");
-				con.remove(webapp(origin, "../"), null, target);
-				con.remove(target, null, null);
-				con.remove((Resource)null, null, null, target);
-				con.commit();
-			} catch (InvocationTargetException e) {
+				con.setAutoCommit(false);
+				Object folder = con.getObject(webapp(origin, ""));
+				Method DeleteComponents = findDeleteComponents(folder);
 				try {
-					throw e.getCause();
-				} catch (Exception cause) {
-					throw cause;
-				} catch (Error cause) {
-					throw cause;
-				} catch (Throwable cause) {
-					throw e;
+					logger.info("Removing {}", folder);
+					int argc = DeleteComponents.getParameterTypes().length;
+					DeleteComponents.invoke(folder, new Object[argc]);
+					URI target = webapp(origin, "");
+					con.remove(webapp(origin, "../"), null, target);
+					con.remove(target, null, null);
+					con.remove((Resource)null, null, null, target);
+					con.setAutoCommit(true);
+					return true;
+				} catch (InvocationTargetException e) {
+					try {
+						throw e.getCause();
+					} catch (Exception cause) {
+						logger.warn(cause.toString());
+					} catch (Error cause) {
+						logger.warn(cause.toString());
+					} catch (Throwable cause) {
+						logger.warn(cause.toString());
+					}
+					con.rollback();
 				}
+			} catch (IllegalAccessException e) {
+				logger.debug(e.toString());
+			} catch (NoSuchMethodException e) {
+				logger.debug(e.toString());
+			} finally {
+				con.rollback();
+				repository.setCompileRepository(false);
+				con.close();
 			}
-			repository.setCompileRepository(false);
-			con.setAutoCommit(true);
-			return true;
-		} finally {
-			con.close();
+		} catch (RDFObjectException e) {
+			logger.warn(e.toString());
+		} catch (OpenRDFException e) {
+			logger.warn(e.toString());
 		}
+		return false;
 	}
 
 	public boolean createOrigin(String origin) throws Exception {
@@ -905,25 +919,7 @@ public class Setup {
 	}
 
 	private HttpHost getAuthorityAddress(String origin) {
-		HttpHost host;
-		String scheme = "http";
-		if (origin.startsWith("https:")) {
-			scheme = "https";
-		}
-		if (origin.indexOf(':') != origin.lastIndexOf(':')) {
-			int slash = origin.lastIndexOf('/');
-			int colon = origin.lastIndexOf(':');
-			int port = Integer.parseInt(origin.substring(colon + 1));
-			host = new HttpHost(origin.substring(slash + 1, colon), port,
-					scheme);
-		} else if (origin.startsWith("https:")) {
-			int slash = origin.lastIndexOf('/');
-			host = new HttpHost(origin.substring(slash + 1), 443, scheme);
-		} else {
-			int slash = origin.lastIndexOf('/');
-			host = new HttpHost(origin.substring(slash + 1), 80, scheme);
-		}
-		return host;
+		return URIUtils.extractHost(java.net.URI.create(origin + "/"));
 	}
 
 	private void add(ObjectConnection con, URI subj, String pred,

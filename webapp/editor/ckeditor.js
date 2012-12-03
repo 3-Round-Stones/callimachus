@@ -11,6 +11,7 @@ jQuery(function($) {
         basicEntities: false,                   // disable basic entities
         entities: false,                        // disable extended entities
         startupOutlineBlocks: true,             // activate visual blocks
+        forcePasteAsPlainText: true,            // avoid paste mess
         removeDialogTabs:                       // disable non-basic dialog tabs
             'link:target;link:advanced;' +
             'image:Link;image:advanced;' +
@@ -26,10 +27,10 @@ jQuery(function($) {
         	{ name: 'paragraph', items: [ 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', '-', '!JustifyLeft', '!JustifyCenter', '!JustifyRight' ] },
         	{ name: 'links', items: [ 'Link', 'Unlink', 'Anchor' ] },
         	{ name: 'insert', items: [ 'Image', 'Table' ] },
-            { name: 'paste', items: [ 'PasteText', 'PasteFromWord'] }
+            { name: 'paste', items: [ '!PasteText', '!PasteFromWord'] }
         ],
         
-        format_tags: 'p;h1;h2;h3;h4;h5;h6;pre;address'
+        format_tags: 'p;h1;h2;h3;h4;h5;h6;pre'
 
     });
     
@@ -46,7 +47,7 @@ jQuery(function($) {
         // remove unsupported fields from "Table Properties" dialogs
         if (el.find('.cke_dialog_title').html().match(/Table Properties/)) {
             el.find('label').each(function() {
-                if ($(this).html().match(/^(border size|cell spacing|cell padding|)$/i)) {
+                if ($(this).html().match(/^(border size)$/i)) {
                     $(this).parents('tr').first().hide();// only the immediate parent
                 }
             });
@@ -63,20 +64,20 @@ jQuery(function($) {
     });
     
     /**
-     * Normalizes the output for stable comparisons.
-     */ 
-    editor.xhtml = function() {
-        return this
-            .getData()
+     * Normalizes html for stable comparisons.
+     */
+     function normalize(html) {
+        return html
             .replace(/^\s*/, '')    // no leading WS
             .replace(/\s*$/, '')    // no trailing WS
             .replace(/<style[\s\S]+<\/style>/, '') // no <style>
-            .replace(/>\s*</g, ">\n<")    // put tags on a new line
+            .replace(/>\s*(<)/g, ">\n<")    // put tags on a new line
+            .replace(/(.)\s*(<[^\/])/g, "$1\n$2")    // put opening tags on a new line
         ;
-    }
-    
+     }
+     
     /**
-     * Adds some custom css to the editing interface, even when in fullPage mode.
+     * Adds custom css to the editing interface, even when in fullPage mode.
      */ 
     function injectCss(html) {
         var styles = [
@@ -86,12 +87,33 @@ jQuery(function($) {
         return html.replace('</head>', '<style type="text/css">' + styles.join("\n") + "\n" + '</style></head>');
     }
     
+    /**
+     * Preprocesses input and sends it to the editor
+     */ 
+    editor.setXhtml = function(html, updateSavedVar) {
+        html = injectCss(normalize(html));
+        editor.setData(html);
+        setTimeout(function() {
+            if (updateSavedVar) {
+                saved = editor.getXhtml();
+            }
+            resizeEditor();
+        }, 100);
+    }
+    
+    /**
+     * Normalizes the output for stable comparisons.
+     */ 
+    editor.getXhtml = function() {
+        return normalize(this.getData());
+    }
+    
     // warn the user before leaving a changed but unsaved article
     window.onbeforeunload = function(event){
         event = event || window.event;
         if (!editor) return;
         var was = saved.split("\n");
-        var is = editor.xhtml().split("\n");
+        var is = editor.getXhtml().split("\n");
         var diff = [];
         for (var i = 0, imax = is.length; i < imax; i++) {
             if (!was[i] || was[i] != is[i]) {
@@ -124,24 +146,19 @@ jQuery(function($) {
      */ 
     function handleMessage(header, body) {
         if (header.match(/^PUT text(\n|$)/)) {
-            body = injectCss(body);
             var m = header.match(/\nContent-Location:\s*(.*)(\n|$)/i);
             var systemId = m ? m[1] : null;
             if (header.match(/\nIf-None-Match: */) || !body) {
                 if (!editor.getData()) {
-                    editor.setData(body);
-                    saved = editor.xhtml();
-                    setTimeout(resizeEditor, 100);
+                    editor.setXhtml(body, true);
                 }
                 return true;
             } else {
-                editor.setData(body);
-                saved = editor.xhtml();
-                setTimeout(resizeEditor, 100);
+                editor.setXhtml(body, true);
                 return true;
             }
         } else if (header == 'GET text') {
-            saved = editor.xhtml();
+            saved = editor.getXhtml();
             return saved;
         } else if (header == 'PUT line.column') {
             return true;

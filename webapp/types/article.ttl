@@ -87,8 +87,6 @@
             created.CheckBook();
         } catch (e if e.javaException instanceof ServiceUnavailable) {
             java.lang.System.err.println("Storing " + this);
-        } catch (e if e.javaException instanceof BadRequest) {
-            println(created + ' ' + e.javaException.message);
         }
         return created;
     """.

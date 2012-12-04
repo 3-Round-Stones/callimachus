@@ -170,7 +170,8 @@
                 var pred = st.predicate.stringValue();
                 if (pred != "http://www.w3.org/1999/02/22-rdf-syntax-ns#subject"
                         && pred != "http://www.w3.org/1999/02/22-rdf-syntax-ns#object"
-                        && pred != "http://www.w3.org/ns/prov#specializationOf") {
+                        && pred != "http://www.w3.org/ns/prov#specializationOf"
+                        && pred != "http://www.w3.org/ns/prov#wasAssociatedWith") {
                     //# Don't allow removal if used in a complex structure (like an rdf:List)
                     if (subj instanceof BNode)
                         throw new Conflict("This resource is currently is use and cannot be removed");

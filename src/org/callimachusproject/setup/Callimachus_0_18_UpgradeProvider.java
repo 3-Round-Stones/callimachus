@@ -58,8 +58,9 @@ public class Callimachus_0_18_UpgradeProvider implements UpdateProvider {
 			public boolean update(String webapp,
 					CallimachusRepository repository) throws IOException,
 					OpenRDFException {
-				boolean modified = deleteFiles(origin, webapp, repository);
+				boolean modified = false;
 				modified |= deleteFolders(origin, webapp, repository);
+				modified |= deleteFiles(origin, webapp, repository);
 				return modified;
 			}
 		};

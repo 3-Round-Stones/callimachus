@@ -415,6 +415,7 @@ INSERT {
 			FILTER ( !strstarts(str(?p),str(rdf:)) || sameTerm(?p,rdf:type) && !strstarts(str(?o),"http://www.openrdf.org/rdf/2009/auditing#") )
 			FILTER ( !strstarts(str(?p),str(audit:)) )
 			FILTER ( !strstarts(str(?p),"http://www.openrdf.org/rdf/2009/auditing#") )
+			FILTER ( !strstarts(str(?p),"http://www.openrdf.org/rdf/2011/keyword#") )
 			FILTER ( !strstarts(str(?p),str(prov:)) || sameTerm(?p,prov:wasGeneratedBy) )
 		}
 	}

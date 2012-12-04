@@ -164,7 +164,8 @@
         var iter = this.FindUsersByEmail(registeringUserEmail).iterator();
         while (iter.hasNext()) {
             var registeringUser = iter.next();
-            if (token == registeringUser.GetSecretToken(nonce))
+            if (registeringUser.calliPasswordDigest.empty &&
+                    token == registeringUser.GetSecretToken(nonce))
                 return facebook_register_xhtml.Construct(this, 'register');
         }
         throw new BadRequest("Invitation is No Longer Valid");
@@ -204,7 +205,8 @@
         var iter = this.FindUsersByEmail(email).iterator();
         while (iter.hasNext()) {
             var user = iter.next();
-            if (token == user.GetSecretToken(nonce)) {
+            if (registeringUser.calliPasswordDigest.empty &&
+                    token == user.GetSecretToken(nonce)) {
                 this.registerUser(user.resource, regCookies);
                 return;
             }

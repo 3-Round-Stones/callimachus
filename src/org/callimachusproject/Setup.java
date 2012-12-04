@@ -258,7 +258,9 @@ public class Setup {
 					if (password == null || password.length < 1) {
 						for (String url : setup.getUserRegistrationLinks(username, email, origin)) {
 							System.err.println("Use this URL to assign a password");
+							System.err.println();
 							System.out.println(url);
+							System.err.println();
 						}
 					} else {
 						changed |= setup.changeUserPassword(email, username, password, origin);

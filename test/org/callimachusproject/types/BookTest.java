@@ -12,7 +12,7 @@ public class BookTest extends TemporaryServerTestCase {
 
 	@Test
 	public void testDocbookCreate() throws Exception {
-		WebResource create = getHomeFolder().ref("?create=/callimachus/0.18/types/Book&location=test-book.docbook");
+		WebResource create = getHomeFolder().ref("?create="+ getCallimachusUrl("types/Book") + "&location=test-book.docbook");
 		WebResource book = create.create("application/docbook+xml", DOCBOOK.getBytes());
 		WebResource edit = book.link("edit-media", "application/docbook+xml");
 		edit.get("application/docbook+xml");

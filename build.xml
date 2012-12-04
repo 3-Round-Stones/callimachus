@@ -355,9 +355,9 @@
         <fail message="build.properties is not setup properly, please read README.txt" unless="callimachus.username" />
         <fail message="build.properties is missing email, please read README.txt" unless="callimachus.email" />
         <fail message="build.properties is missing password, please read README.txt" unless="callimachus.password" />
-        <java classname="${setup}" fork="true" failonerror="true" inputstring="${callimachus.password}">
+        <java classname="${setup}" fork="true" failonerror="true">
             <jvmarg line="${jvmargs}" />
-            <arg line="${setup.args} -u ${callimachus.username} -e ${callimachus.email}" />
+            <arg line="${setup.args} -u ${callimachus.username}:${callimachus.password} -e ${callimachus.email}" />
             <classpath>
                 <pathelement location="${jar.file}" />
                 <fileset dir="${lib}">
@@ -382,9 +382,11 @@
     </target>
 
     <target name="pull" depends="init" description="Pull down the callimachus folder from the running server">
+        <fail message="build.properties is not setup properly, please read README.txt" unless="callimachus.username" />
+        <fail message="build.properties is missing password, please read README.txt" unless="callimachus.password" />
         <mkdir dir="${downloads}" />
         <exec executable="${curl}" output="${downloads}/callimachus.car" logError="true" failonerror="true">
-            <arg line="--user ${callimachus.email}:${callimachus.password} ${curl.args}" />
+            <arg line="--user ${callimachus.username}:${callimachus.password} ${curl.args}" />
         </exec>
         <unzip src="${downloads}/callimachus.car" dest="${webapp}" />
         <delete file="${downloads}/callimachus.car" />

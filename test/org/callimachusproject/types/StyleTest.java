@@ -11,7 +11,7 @@ public class StyleTest extends TemporaryServerTestCase {
 
 	@Test
 	public void testLess() throws Exception {
-		WebResource create = getHomeFolder().ref("?create=/callimachus/0.18/types/Style&location=test-style.css");
+		WebResource create = getHomeFolder().ref("?create="+ getCallimachusUrl("types/Style") + "&location=test-style.css");
 		WebResource resource = create.create("text/css", CSS.getBytes());
 		WebResource less = resource.link("alternate", "text/css");
 		less.get("text/css");

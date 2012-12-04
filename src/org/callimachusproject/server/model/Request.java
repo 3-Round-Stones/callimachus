@@ -79,9 +79,32 @@ public class Request extends EditableHttpEntityEnclosingRequest {
 		if (request instanceof Request) {
 			iri = ((Request) request).getIRI();
 		} else {
-			iri = getURIFromRequestTarget(getRequestLine().getUri());
+		try {
+			String path = request.getRequestLine().getUri();
+			int qx = path.indexOf('?');
+			if (qx > 0) {
+				path = path.substring(0, qx);
+			}
+			if (path.startsWith("/")) {
+				String scheme = getScheme().toLowerCase();
+				String host = getAuthority().toLowerCase();
+				String uri = new ParsedURI(scheme, host, path, null, null).toString();
+				iri = TermFactory.newInstance(uri).getSystemId();
+			} else {
+				String uri = canonicalize(path);
+				String scheme = new ParsedURI(uri).getScheme();
+				if ("https".equals(scheme)
+						&& !scheme.equals(getParams().getParameter(
+								"http.protocol.scheme"))) {
+					throw new BadRequest(
+							"Cannot request secure resource over unencryped channel");
+				}
+				iri = uri;
+			}
+		} catch (IllegalArgumentException e) {
+			throw new BadRequest(e);
 		}
-	}
+	}}
 
 	public boolean isInternal() {
 		return internal;
@@ -255,23 +278,6 @@ public class Request extends EditableHttpEntityEnclosingRequest {
 			String scheme = getScheme().toLowerCase();
 			String host = getAuthority().toLowerCase();
 			return new ParsedURI(scheme, host, path, null, null).toString();
-		} catch (IllegalArgumentException e) {
-			throw new BadRequest(e);
-		}
-	}
-
-	public String getURIFromRequestTarget(String path) {
-		try {
-			int qx = path.indexOf('?');
-			if (qx > 0) {
-				path = path.substring(0, qx);
-			}
-			if (!path.startsWith("/"))
-				return TermFactory.newInstance(path).getSystemId();
-			String scheme = getScheme().toLowerCase();
-			String host = getAuthority().toLowerCase();
-			String uri = new ParsedURI(scheme, host, path, null, null).toString();
-			return TermFactory.newInstance(uri).getSystemId();
 		} catch (IllegalArgumentException e) {
 			throw new BadRequest(e);
 		}

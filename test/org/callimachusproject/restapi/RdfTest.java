@@ -39,14 +39,6 @@ public class RdfTest extends TemporaryServerTestCase {
         			" rdfs:label \"testGroup\" . }"
         	});
         	
-        	put("Menu", new String[] {
-        			"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n" +
-        		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
-        		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
-        			" INSERT DATA {  \n <created-menu/> a calli:Menu, </callimachus/Menu> ;  \n" +
-        			" rdfs:label \"menu\" . }"
-        	});
-        	
         	put("Theme", new String[] {
         			"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n" +
         		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +

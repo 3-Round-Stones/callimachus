@@ -10,8 +10,8 @@ import java.util.Map;
 import java.util.Scanner;
 
 import org.callimachusproject.Server;
-import org.callimachusproject.Setup;
 import org.callimachusproject.server.CallimachusRepository;
+import org.callimachusproject.setup.CallimachusSetup;
 
 public class TemporaryServerFactory {
 	private static int MIN_PORT = 49152;
@@ -194,13 +194,13 @@ public class TemporaryServerFactory {
 			}
 			dir.delete();
 			String config = new Scanner(new File("etc", "callimachus-repository.ttl")).useDelimiter("\\A").next();
-			Setup setup = new Setup();
-			setup.connect(dir, config);
-			setup.createOrigin(origin);
+			CallimachusSetup setup = new CallimachusSetup(dir, config);
+			setup.createWebappOrigin(origin);
 			setup.importCallimachusWebapp(WEBAPP_CAR.toURI().toURL(), origin);
 			String username = email.substring(0, email.indexOf('@'));
-			setup.createAdmin(email, email, username, password, origin);
-			setup.disconnect();
+			setup.createAdmin(email, email, username, origin);
+			setup.changeUserPassword(email, username, password, origin);
+			setup.shutDown();
 		}
 		File temp = FileUtil.createTempDir(name);
 		copyDir(dir, temp);

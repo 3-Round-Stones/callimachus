@@ -134,7 +134,7 @@ INSERT {
 
 </auth/groups/users> a calli:Party, calli:Group, <types/Group>;
     rdfs:label "users";
-    rdfs:comment "Members of this group can view and discuss resources within the system";
+    rdfs:comment "Members of this group can view, discuss, and document resources";
     calli:subscriber </auth/groups/staff>;
     calli:administrator </auth/groups/admin>;
     calli:membersFrom ".".

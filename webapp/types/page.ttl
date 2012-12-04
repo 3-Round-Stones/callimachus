@@ -171,6 +171,20 @@
     calli:type "text/uri-list";
     calli:query "realm".
 
+# Used for debugging
+:GetSparqlQuery rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Page>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:hexBinary];
+    calli:type "application/sparql-query";
+    calli:method "GET";
+    calli:query "sparql";
+    calli:requires calli:administrator;
+    calli:script """
+        var template = this + "?template&realm=/";
+        var query = this.getTemplate(template).getQueryString();
+        return new java.lang.String(query).getBytes("UTF-8");
+    """.
+
 # Called by view.ttl, edit.ttl, and many others
 :Construct rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Page>];

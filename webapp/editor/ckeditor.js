@@ -8,10 +8,12 @@ jQuery(function($) {
     CKEDITOR.replace('editor', {
         resize_enabled: false,                  // disable resize handle
         fullPage: true,                         // enable editing of complete documents
-        basicEntities: false,                   // disable basic entities
+        basicEntities: true,                    // enable basic entities
         entities: false,                        // disable extended entities
         startupOutlineBlocks: true,             // activate visual blocks
         forcePasteAsPlainText: true,            // avoid paste mess
+        fillEmptyBlocks: false,                 // avoid &nbsp; in empty table cells
+        tabSpaces: false,                       // avoid &nbsp; when tab-key is pressed
         removeDialogTabs:                       // disable non-basic dialog tabs
             'link:target;link:advanced;' +
             'image:Link;image:advanced;' +
@@ -70,6 +72,7 @@ jQuery(function($) {
         return html
             .replace(/^\s*/, '')    // no leading WS
             .replace(/\s*$/, '')    // no trailing WS
+            .replace(/&nbsp;/g, '&#160;') // no &nbsp; entities
             .replace(/<title\/>/, '<title></title>') // fix empty title tag
             .replace(/<style[\s\S]+<\/style>/, '') // no <style>
             .replace(/>\s*(<)/g, ">\n<")    // put tags on a new line

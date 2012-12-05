@@ -72,21 +72,45 @@ jQuery(function($) {
         return html
             .replace(/^\s*/, '')    // no leading WS
             .replace(/\s*$/, '')    // no trailing WS
-            .replace(/&nbsp;/g, '&#160;') // no &nbsp; entities
+            .replace(/&nbsp;/g, '&#160;') // replace &nbsp; entities with xml equivalent
+            .replace(new RegExp(unescape('%A0'), "g"), '&#160;') // replace unicode nbsp entities with xml equivalent
             .replace(/<title\/>/, '<title></title>') // fix empty title tag
-            .replace(/<style[\s\S]+<\/style>/, '') // no <style>
+            .replace(/<style[\s\S]+<\/style>/g, '') // no <style> tags
             .replace(/>\s*(<)/g, ">\n<")    // put tags on a new line
             .replace(/(.)\s*(<[^\/])/g, "$1\n$2")    // put opening tags on a new line
-            .replace(/<([a-z0-9]+) ([^>]+)>/g, function(m, m1, m2) {
+            .replace(/<([a-z0-9]+) ([^>]+)>/g, function(m, m1, m2) { // sorted attributes
                 var attrs = (" " + m2).match(/\s+([a-z\:\_]+\=\"[^\"]*\")/g);
                 if (!attrs || attrs.length == 1) return m; // no need to sort a single attribute
                 attrs = attrs.sort(function(a, b) {
                     return (a == b ? 0 : (a < b ? -1 : 1));
                 }) 
                 return '<' + m1 + attrs.join('') + '>';
-            }) // sort attributes
+            })
         ;
      }
+     
+     /**
+      * Creates a diff of two html snippets.
+      */
+     function getDiff(was, is) {
+        was = was.split("\n");
+        is = is.split("\n");
+        for (var i = 0, imax = Math.max(was.length, is.length); i < imax; i++) {
+            if (!was[i] && is[i]) {
+                return { was: null, is: is[i] };
+            }
+            else if (!is[i] && was[i]) {
+                return { was: was[i], is: null };
+            }
+            else if (was[i] == is[i]) {
+                continue;
+            }
+            else {
+                return { was: was[i], is: is[i] };
+            }
+        }
+        return false;
+     }     
      
     /**
      * Adds custom css to the editing interface, even when in fullPage mode.
@@ -124,16 +148,9 @@ jQuery(function($) {
     window.onbeforeunload = function(event){
         event = event || window.event;
         if (!editor) return;
-        var was = saved.split("\n");
-        var is = editor.getXhtml().split("\n");
-        var diff = [];
-        for (var i = 0, imax = is.length; i < imax; i++) {
-            if (!was[i] || was[i] != is[i]) {
-                diff.push(is[i]);
-                break;
-            }
-        }
-        if (diff.length) { // changed
+        if (!editor.checkDirty()) return; // ckeditor didn't register changes at all
+        var diff = getDiff(saved, editor.getXhtml()); // make sure the content has really changed
+        if (diff) {
             if (event) {
                 event.returnValue = 'There are unsaved changes';
             }

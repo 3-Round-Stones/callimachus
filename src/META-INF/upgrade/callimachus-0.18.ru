@@ -377,7 +377,7 @@ DELETE {
 	</auth/digest-users/> calli:hasComponent ?auth .
 	?auth ?pred ?obj .
 } WHERE {
-	</user/> calli:hasComponent ?user .
+	</auth/passwords/> calli:hasComponent ?user .
 	?user ?pred ?obj .
 	BIND (iri(concat(str(</auth/digest-users/>),strafter(str(?user),str(</auth/passwords/>)))) AS ?auth)
 };

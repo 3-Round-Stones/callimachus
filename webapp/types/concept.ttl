@@ -31,6 +31,7 @@
     rdfs:comment "Concepts are ideas, meanings, or categories of objects and events";
     owl:equivalentClass </callimachus/Concept>;
     rdfs:isDefinedBy <../../ontology>;
+    calli:administrator </auth/groups/admin>;
     calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/admin>;
     calli:icon <../images/concept.png>;
     calli:view <../templates/concept-view.xhtml>;

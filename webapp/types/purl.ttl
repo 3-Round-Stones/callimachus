@@ -31,6 +31,7 @@
     rdfs:comment "Persistent Uniform Resource Location of a Web resource.";
     owl:equivalentClass </callimachus/PURL>;
     rdfs:isDefinedBy <../../ontology>;
+    calli:administrator </auth/groups/admin>;
     calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/admin>;
     calli:icon <../images/purl.png>;
     calli:view <../templates/purl-view.xhtml>;

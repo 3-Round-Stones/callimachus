@@ -30,6 +30,7 @@
     rdfs:comment "New pipelines can be created from a folder";
     owl:equivalentClass </callimachus/Pipeline>;
     rdfs:isDefinedBy <../../ontology>;
+    calli:administrator </auth/groups/admin>;
     calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/admin>;
     calli:icon <../images/pipeline.png>;
     calli:view <../templates/pipeline-view.xhtml>;

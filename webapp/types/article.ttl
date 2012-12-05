@@ -30,6 +30,7 @@
     rdfs:comment "New articles can be created from a folder";
     owl:equivalentClass </callimachus/Article>;
     rdfs:isDefinedBy <../../ontology>;
+    calli:administrator </auth/groups/admin>;
     calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/admin>;
     calli:icon <../images/article.png>;
     calli:edit <../templates/article-edit.xhtml>;

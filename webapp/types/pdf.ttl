@@ -30,6 +30,7 @@
     rdfs:label "PDF" ;
     owl:equivalentClass </callimachus/Pdf>;
     rdfs:isDefinedBy <../../ontology>;
+    calli:administrator </auth/groups/admin>;
     calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/admin>;
     calli:icon <../images/pdf.png>;
     calli:create <../templates/file-create.xhtml>;

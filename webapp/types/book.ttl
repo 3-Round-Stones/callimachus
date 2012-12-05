@@ -30,6 +30,7 @@
     rdfs:comment "New books can be created from a folder";
     owl:equivalentClass </callimachus/Book>;
     rdfs:isDefinedBy <../../ontology>;
+    calli:administrator </auth/groups/admin>;
     calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/admin>;
     calli:icon <../images/book.png>;
     calli:edit <../templates/book-edit.xhtml>;

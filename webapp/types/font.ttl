@@ -30,6 +30,7 @@
     rdfs:label "Font" ;
     owl:equivalentClass </callimachus/Font>;
     rdfs:isDefinedBy <../../ontology>;
+    calli:administrator </auth/groups/admin>;
     calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/admin>;
     calli:icon <../images/font.png>;
     calli:create <../templates/file-create.xhtml>;

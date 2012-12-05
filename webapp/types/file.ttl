@@ -29,6 +29,7 @@
     rdfs:subClassOf <Viewable>, <Editable>, foaf:Document;
     owl:equivalentClass </callimachus/File>;
     rdfs:isDefinedBy <../../ontology>;
+    calli:administrator </auth/groups/admin>;
     calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/admin>;
     calli:create <../templates/file-create.xhtml>;
     calli:view <../templates/file-view.xhtml>;

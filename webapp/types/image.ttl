@@ -30,6 +30,7 @@
     rdfs:label "Image" ;
     owl:equivalentClass </callimachus/Image>;
     rdfs:isDefinedBy <../../ontology>;
+    calli:administrator </auth/groups/admin>;
     calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/admin>;
     calli:icon <../images/image.png>;
     calli:view <../templates/image-view.xhtml> ;
@@ -41,6 +42,7 @@
     rdfs:label "Animated Graphic" ;
     owl:equivalentClass </callimachus/AnimatedGraphic>;
     rdfs:isDefinedBy <../../ontology>;
+    calli:administrator </auth/groups/admin>;
     calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/admin>;
     calli:icon <../images/image.png>;
     calli:create <../templates/file-create.xhtml>;
@@ -51,6 +53,7 @@
     rdfs:label "Icon Graphic" ;
     owl:equivalentClass </callimachus/IconGraphic>;
     rdfs:isDefinedBy <../../ontology>;
+    calli:administrator </auth/groups/admin>;
     calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/admin>;
     calli:icon <../images/image.png>;
     calli:create <../templates/file-create.xhtml>;
@@ -61,6 +64,7 @@
     rdfs:label "Network Graphic" ;
     owl:equivalentClass </callimachus/NetworkGraphic>;
     rdfs:isDefinedBy <../../ontology>;
+    calli:administrator </auth/groups/admin>;
     calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/admin>;
     calli:icon <../images/image.png>;
     calli:create <../templates/file-create.xhtml>;
@@ -71,6 +75,7 @@
     rdfs:label "Vector Graphic" ;
     owl:equivalentClass </callimachus/VectorGraphic>;
     rdfs:isDefinedBy <../../ontology>;
+    calli:administrator </auth/groups/admin>;
     calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/admin>;
     calli:icon <../images/image.png>;
     calli:create <../templates/file-create.xhtml>;

@@ -14,6 +14,7 @@
     rdfs:comment "Groups provide a way to assign permissions to a named set of users";
     owl:equivalentClass </callimachus/Group>;
     rdfs:isDefinedBy <../../ontology>;
+    calli:administrator </auth/groups/admin>;
     calli:author </auth/groups/admin>;
     calli:icon <../images/group.png>;
     calli:view <../templates/group-view.xhtml>;

@@ -15,6 +15,7 @@
     rdfs:label "Theme";
     owl:equivalentClass </callimachus/Theme>;
     rdfs:isDefinedBy <../../ontology>;
+    calli:administrator </auth/groups/admin>;
     calli:author </auth/groups/staff>, </auth/groups/admin>;
     calli:icon <../images/theme.png>;
     calli:view <../templates/theme-view.xhtml>;

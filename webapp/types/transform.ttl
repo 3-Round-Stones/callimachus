@@ -30,6 +30,7 @@
     rdfs:comment "Transform files";
     owl:equivalentClass </callimachus/Transform>;
     rdfs:isDefinedBy <../../ontology>;
+    calli:administrator </auth/groups/admin>;
     calli:author </auth/groups/staff>,</auth/groups/admin>;
     calli:icon <../images/transform.png>;
     calli:view <../templates/text-view.xhtml>;

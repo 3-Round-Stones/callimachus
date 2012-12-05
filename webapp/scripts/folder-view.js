@@ -253,8 +253,8 @@ jQuery(function($){
     var tooSmall = 500;
     var resized = function() {
         setTimeout(function(){
-            var clientWidth = $('#folder-box').width();
-            if (clientWidth < $('#table').width()) {
+            var clientWidth = Math.round($('#folder-box').width());
+            if (clientWidth < Math.round($('#table').outerWidth(true))) {
                 tooSmall = clientWidth;
                 $('#table').addClass('small');
             } else if (clientWidth > tooSmall) {

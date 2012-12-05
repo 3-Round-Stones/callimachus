@@ -47,7 +47,6 @@ import org.openrdf.model.Literal;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
-import org.openrdf.model.impl.URIImpl;
 import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.query.Binding;
 import org.openrdf.query.BindingSet;
@@ -613,43 +612,33 @@ public class RDFaProducer extends XMLEventReaderBase {
 	}
 	
 	String getPrefix(String namespace, NamespaceContext ctx) {
-		if (namespace==null) return null;
+		if (namespace==null || ctx == null)
+			return null;
 		String prefix = ctx.getPrefix(namespace);
 		// deal with problematic namespaces without trailing symbol
 		if (prefix==null && namespace.endsWith("#")) 
 			prefix = ctx.getPrefix(namespace.substring(0,namespace.length()-1));
 		return prefix;
 	}
-		
-	// ^"[^\"]*"\^\^<(.*)>$
-	private static final String DATATYPE_REGEX = "^\"[^\\\"]*\"\\^\\^<(.*)>$";
-	private static final Pattern DATATYPE_PATTERN = Pattern.compile(DATATYPE_REGEX);
 	
-	private String getDatatype(Value content) {
-		if (content!=null) {
-			// use toString() to include the datatype
-			Matcher m = DATATYPE_PATTERN.matcher(content.toString());
-			if (m.matches()) return m.group(1);
+	private URI getDatatype(Value content) {
+		if (content instanceof Literal) {
+			return ((Literal) content).getDatatype();
 		}
 		return null;
 	}
 
 	private String getDatatypeCurie(Value content, NamespaceContext ctx) {
-		String namespaceURI = getDatatype(content);
+		URI uri = getDatatype(content);
 		String datatype = null;
-		if (namespaceURI!=null) {
+		if (uri!=null) {
 			// convert datatype URI into a curie
-			try {
-				URI uri = new URIImpl(namespaceURI);
-				String prefix = getPrefix(uri.getNamespace(), ctx);
-				// otherwise use the repository connection to resolve the prefix
-				if (prefix==null) {
-					datatype = uri.stringValue();
-				} else {
-					datatype = prefix+":"+uri.getLocalName();
-				}
+			String prefix = getPrefix(uri.getNamespace(), ctx);
+			if (prefix==null) {
+				datatype = uri.stringValue();
+			} else {
+				datatype = prefix+":"+uri.getLocalName();
 			}
-			catch (Exception e) {}
 		}
 		return datatype;
 	}
@@ -667,13 +656,13 @@ public class RDFaProducer extends XMLEventReaderBase {
 	 */
 	
 	class AttributeIterator implements Iterator<Object> {
-		Iterator<?> attributes;
-		Value content;
-		String datatype, lang;
-		String path, tag;
-		Attribute nextAttribute;
-		boolean hasBody;
-		NamespaceContext ctx;
+		private final Iterator<?> attributes;
+		private final Value content;
+		private String datatype, lang;
+		private final String path, tag;
+		private Attribute nextAttribute;
+		private final boolean hasBody;
+		private final NamespaceContext ctx;
 		
 		public AttributeIterator
 		(String tag,Iterator<?> attributes, Value content, String path, boolean hasBody, NamespaceContext ctx) {
@@ -682,10 +671,10 @@ public class RDFaProducer extends XMLEventReaderBase {
 			this.content = content;
 			this.path = path;
 			this.hasBody = hasBody;
+			this.ctx = ctx;
 			datatype = getDatatypeCurie(content,ctx);
 			lang = getLang(content);
 			nextAttribute = more();
-			this.ctx = ctx;
 		}
 		@Override
 		public boolean hasNext() {
@@ -764,9 +753,9 @@ public class RDFaProducer extends XMLEventReaderBase {
 		Namespace nextNamespace;
 		public NamespaceIterator(Iterator<?> namespaces, Value content, NamespaceContext ctx) {
 			this.namespaces = namespaces;
-			String datatype = getDatatype(content);
+			URI datatype = getDatatype(content);
 			if (datatype!=null) {
-				namespaceURI = new URIImpl(datatype).getNamespace();
+				namespaceURI = datatype.getNamespace();
 				String p = getPrefix(namespaceURI,ctx);
 				// if the namespace is already defined clear it
 				if (p!=null) namespaceURI = null;

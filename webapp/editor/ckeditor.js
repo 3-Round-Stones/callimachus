@@ -70,9 +70,18 @@ jQuery(function($) {
         return html
             .replace(/^\s*/, '')    // no leading WS
             .replace(/\s*$/, '')    // no trailing WS
+            .replace(/<title\/>/, '<title></title>') // fix empty title tag
             .replace(/<style[\s\S]+<\/style>/, '') // no <style>
             .replace(/>\s*(<)/g, ">\n<")    // put tags on a new line
             .replace(/(.)\s*(<[^\/])/g, "$1\n$2")    // put opening tags on a new line
+            .replace(/<([a-z0-9]+) ([^>]+)>/g, function(m, m1, m2) {
+                var attrs = (" " + m2).match(/\s+([a-z\:\_]+\=\"[^\"]*\")/g);
+                if (!attrs || attrs.length == 1) return m; // no need to sort a single attribute
+                attrs = attrs.sort(function(a, b) {
+                    return (a == b ? 0 : (a < b ? -1 : 1));
+                }) 
+                return '<' + m1 + attrs.join('') + '>';
+            }) // sort attributes
         ;
      }
      

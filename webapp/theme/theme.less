@@ -5,6 +5,12 @@
 
 /* theme rules */
 
+div, footer, iframe { 
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box; 
+}
+
 #branding:before {
     content: 'Callimachus';
 }
@@ -165,7 +171,7 @@ aside h3 {
 }
 
 #footer p#site-generator {
-    margin: 1rem 0;
+    margin: 0.9rem 0 0;
     float: right;
     text-align: right;
 }

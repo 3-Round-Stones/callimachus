@@ -2,6 +2,7 @@ package org.callimachusproject.rewrite;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 
 import org.apache.http.HttpVersion;
 import org.apache.http.StatusLine;
@@ -11,6 +12,8 @@ import org.callimachusproject.annotations.canonical;
 import org.callimachusproject.annotations.describedby;
 import org.callimachusproject.annotations.moved;
 import org.callimachusproject.annotations.resides;
+import org.callimachusproject.annotations.type;
+import org.callimachusproject.fluid.FluidType;
 import org.openrdf.annotations.Iri;
 import org.openrdf.repository.object.advice.Advice;
 import org.openrdf.repository.object.advice.AdviceFactory;
@@ -35,23 +38,74 @@ public class RedirectAdviceFactory implements AdviceProvider, AdviceFactory {
 
 	@Override
 	public Advice createAdvice(Method method) {
-		String[] bindingNames = getBindingNames(method);
 		Substitution[] replacers = createSubstitution(getCommands(method));
+		String[] bindingNames = getBindingNames(method, replacers);
+		FluidType[] bindingTypes = getBindingTypes(method, bindingNames);
 		StatusLine status = getStatusLine(method);
-		return new RedirectAdvice(bindingNames, replacers, status, method);
+		return new RedirectAdvice(bindingNames, bindingTypes, replacers, status, method);
 	}
 
-	private String[] getBindingNames(Method method) {
+	String[] getBindingNames(Method method, Substitution[] substitutions) {
 		Annotation[][] anns = method.getParameterAnnotations();
 		String[] bindingNames = new String[anns.length];
 		for (int i = 0; i < bindingNames.length; i++) {
 			for (Annotation ann : anns[i]) {
 				if (Iri.class.equals(ann.annotationType())) {
-					bindingNames[i] = local(((Iri) ann).value());
+					String local = local(((Iri) ann).value());
+					for (Substitution substitution : substitutions) {
+						if (substitution.containsVariableName(local)) {
+							bindingNames[i] = local;
+						}
+					}
 				}
 			}
 		}
 		return bindingNames;
+	}
+
+	FluidType[] getBindingTypes(Method method, String[] bindingNames) {
+		Type[] types = method.getGenericParameterTypes();
+		Annotation[][] anns = method.getParameterAnnotations();
+		FluidType[] bindingTypes = new FluidType[anns.length];
+		loop: for (int i = 0; i < bindingTypes.length; i++) {
+			if (bindingNames[i] == null)
+				continue;
+			for (Annotation ann : anns[i]) {
+				if (type.class.equals(ann.annotationType())) {
+					bindingTypes[i] = new FluidType(types[i], ((type) ann).value());
+					continue loop;
+				}
+			}
+			bindingTypes[i] = new FluidType(types[i]);
+		}
+		return bindingTypes;
+	}
+
+	Substitution[] createSubstitution(String[] commands) {
+		if (commands == null)
+			return null;
+		Substitution[] result = new Substitution[commands.length];
+		for (int i=0; i<result.length; i++) {
+			result[i] = Substitution.compile(commands[i]);
+		}
+		return result;
+	}
+
+	String local(String iri) {
+		String string = iri;
+		if (string.lastIndexOf('#') >= 0) {
+			string = string.substring(string.lastIndexOf('#') + 1);
+		}
+		if (string.lastIndexOf('?') >= 0) {
+			string = string.substring(string.lastIndexOf('?') + 1);
+		}
+		if (string.lastIndexOf('/') >= 0) {
+			string = string.substring(string.lastIndexOf('/') + 1);
+		}
+		if (string.lastIndexOf(':') >= 0) {
+			string = string.substring(string.lastIndexOf(':') + 1);
+		}
+		return string;
 	}
 
 	private String[] getCommands(Method method) {
@@ -68,16 +122,6 @@ public class RedirectAdviceFactory implements AdviceProvider, AdviceFactory {
 		return null;
 	}
 
-	private Substitution[] createSubstitution(String[] commands) {
-		if (commands == null)
-			return null;
-		Substitution[] result = new Substitution[commands.length];
-		for (int i=0; i<result.length; i++) {
-			result[i] = Substitution.compile(commands[i]);
-		}
-		return result;
-	}
-
 	private StatusLine getStatusLine(Method method) {
 		if (method.isAnnotationPresent(alternate.class))
 			return new BasicStatusLine(HttpVersion.HTTP_1_1, 302, "Alternate");
@@ -88,23 +132,6 @@ public class RedirectAdviceFactory implements AdviceProvider, AdviceFactory {
 		if (method.isAnnotationPresent(moved.class))
 			return new BasicStatusLine(HttpVersion.HTTP_1_1, 308, "Moved");
 		throw new AssertionError();
-	}
-
-	private String local(String iri) {
-		String string = iri;
-		if (string.lastIndexOf('#') >= 0) {
-			string = string.substring(string.lastIndexOf('#') + 1);
-		}
-		if (string.lastIndexOf('?') >= 0) {
-			string = string.substring(string.lastIndexOf('?') + 1);
-		}
-		if (string.lastIndexOf('/') >= 0) {
-			string = string.substring(string.lastIndexOf('/') + 1);
-		}
-		if (string.lastIndexOf(':') >= 0) {
-			string = string.substring(string.lastIndexOf(':') + 1);
-		}
-		return string;
 	}
 
 }

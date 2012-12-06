@@ -8,14 +8,15 @@ import org.apache.http.StatusLine;
 import org.apache.http.message.BasicHttpResponse;
 import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
+import org.callimachusproject.fluid.FluidType;
 import org.openrdf.repository.object.traits.ObjectMessage;
 
 public class RedirectAdvice extends RewriteAdvice {
 	private final StatusLine status;
 
-	public RedirectAdvice(String[] bindingNames, Substitution[] replacers,
-			StatusLine status, Method method) {
-		super(bindingNames, replacers, method);
+	public RedirectAdvice(String[] bindingNames, FluidType[] bindingTypes,
+			Substitution[] replacers, StatusLine status, Method method) {
+		super(bindingNames, bindingTypes, replacers, method);
 		this.status = status;
 	}
 

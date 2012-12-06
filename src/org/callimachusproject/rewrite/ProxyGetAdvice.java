@@ -12,15 +12,16 @@ import org.callimachusproject.client.HTTPObjectClient;
 import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidException;
+import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.server.exceptions.GatewayTimeout;
 import org.callimachusproject.server.exceptions.ResponseException;
 import org.openrdf.repository.object.traits.ObjectMessage;
 
 public class ProxyGetAdvice extends RewriteAdvice {
 
-	public ProxyGetAdvice(String[] bindingNames, Substitution[] replacers,
-			Method method) {
-		super(bindingNames, replacers, method);
+	public ProxyGetAdvice(String[] bindingNames, FluidType[] bindingTypes,
+			Substitution[] replacers, Method method) {
+		super(bindingNames, bindingTypes, replacers, method);
 	}
 
 	protected Fluid service(String location, Header[] headers,

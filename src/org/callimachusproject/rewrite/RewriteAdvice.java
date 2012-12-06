@@ -18,6 +18,7 @@ import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidException;
 import org.callimachusproject.fluid.FluidFactory;
+import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.server.exceptions.GatewayTimeout;
 import org.openrdf.annotations.Iri;
 import org.openrdf.repository.object.ObjectConnection;
@@ -28,14 +29,16 @@ import org.openrdf.repository.object.traits.ObjectMessage;
 public abstract class RewriteAdvice implements Advice {
 	private final Substitution[] replacers;
 	private final String[] bindingNames;
+	private final FluidType[] bindingTypes;
 	private final Type returnType;
 	private final String[] returnMedia;
 	private final TermFactory systemId;
 
-	public RewriteAdvice(String[] bindingNames, Substitution[] replacers,
-			Method method) {
+	public RewriteAdvice(String[] bindingNames, FluidType[] bindingTypes,
+			Substitution[] replacers, Method method) {
 		this.replacers = replacers;
 		this.bindingNames = bindingNames;
+		this.bindingTypes = bindingTypes;
 		this.returnType = method.getGenericReturnType();
 		this.returnMedia = getMediaType(method);
 		this.systemId = TermFactory.newInstance(getSystemId(method));
@@ -44,17 +47,20 @@ public abstract class RewriteAdvice implements Advice {
 	public Object intercept(ObjectMessage message) throws GatewayTimeout,
 			IOException, FluidException {
 		Object target = message.getTarget();
-		String uri = target.toString();
-		Object[] parameters = message.getParameters();
-		String substitute = substitute(uri, getVariables(parameters));
-		String[] lines = substitute.split("\\s*\n\\s*");
-		String location = resolve(lines[0]);
-		Header[] headers = readHeaders(lines);
+		String uri;
 		ObjectConnection con = null;
 		if (target instanceof RDFObject) {
 			con = ((RDFObject) target).getObjectConnection();
+			uri = ((RDFObject) target).getResource().stringValue();
+		} else {
+			uri = target.toString();
 		}
 		FluidBuilder fb = FluidFactory.getInstance().builder(con);
+		Object[] parameters = message.getParameters();
+		String substitute = substitute(uri, getVariables(parameters, uri, fb));
+		String[] lines = substitute.split("\\s*\n\\s*");
+		String location = resolve(lines[0]);
+		Header[] headers = readHeaders(lines);
 		return service(location, headers, message, fb).as(returnType,
 				returnMedia);
 	}
@@ -95,7 +101,8 @@ public abstract class RewriteAdvice implements Advice {
 		return new String[0];
 	}
 
-	private Map<String, String> getVariables(Object[] parameters) {
+	private Map<String, String> getVariables(Object[] parameters, String uri,
+			FluidBuilder fb) throws IOException, FluidException {
 		if (bindingNames == null || bindingNames.length == 0)
 			return Collections.emptyMap();
 		Map<String, String> map = new HashMap<String, String>(
@@ -103,13 +110,19 @@ public abstract class RewriteAdvice implements Advice {
 		for (int i = 0; i < bindingNames.length; i++) {
 			String key = bindingNames[i];
 			if (key != null) {
+				FluidType type = bindingTypes[i];
 				Object param = parameters[i];
 				if (param != null) {
-					map.put(key, param.toString());
+					map.put(key, asString(param, type, uri, fb));
 				}
 			}
 		}
 		return map;
+	}
+
+	private String asString(Object param, FluidType type, String uri,
+			FluidBuilder fb) throws IOException, FluidException {
+		return (String) fb.consume(param, uri, type).as(String.class);
 	}
 
 	private String substitute(String uri, Map<String, String> variables) {

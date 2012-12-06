@@ -21,12 +21,14 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
+import java.net.URI;
 import java.net.UnknownHostException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.http.HttpHost;
+import org.apache.http.client.utils.URIUtils;
 import org.callimachusproject.client.HTTPObjectClient;
 import org.callimachusproject.server.util.FileUtil;
 import org.openrdf.OpenRDFException;
@@ -58,7 +60,10 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 		origins.add(origin);
 		String[] identities = origins.toArray(new String[origins.size()]);
 		for (int i = 0; i < identities.length; i++) {
-			identities[i] = identities[i] + IDENTITY_PATH;
+			URI uri = new URI(identities[i] + "/");
+			String sch = uri.getScheme();
+			String auth = uri.getAuthority();
+			identities[i] = new URI(sch, auth, IDENTITY_PATH).toASCIIString();
 		}
 		server.setIdentityPrefix(identities);
 	}
@@ -234,25 +239,7 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 	}
 
 	private HttpHost getAuthorityAddress(String origin) {
-		HttpHost host;
-		String scheme = "http";
-		if (origin.startsWith("https:")) {
-			scheme = "https";
-		}
-		if (origin.indexOf(':') != origin.lastIndexOf(':')) {
-			int slash = origin.lastIndexOf('/');
-			int colon = origin.lastIndexOf(':');
-			int port = Integer.parseInt(origin.substring(colon + 1));
-			host = new HttpHost(origin.substring(slash + 1, colon), port,
-					scheme);
-		} else if (origin.startsWith("https:")) {
-			int slash = origin.lastIndexOf('/');
-			host = new HttpHost(origin.substring(slash + 1), 443, scheme);
-		} else {
-			int slash = origin.lastIndexOf('/');
-			host = new HttpHost(origin.substring(slash + 1), 80, scheme);
-		}
-		return host;
+		return URIUtils.extractHost(java.net.URI.create(origin + "/"));
 	}
 
 	private String getAuthority(int port) throws IOException {

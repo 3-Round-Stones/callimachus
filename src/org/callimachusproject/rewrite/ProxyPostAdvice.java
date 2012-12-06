@@ -29,9 +29,9 @@ public class ProxyPostAdvice extends ProxyGetAdvice {
 	private String bodyIri;
 	private FluidType bodyFluidType;
 
-	public ProxyPostAdvice(String[] bindingNames, Substitution[] replacers,
-			Method method) {
-		super(bindingNames, replacers, method);
+	public ProxyPostAdvice(String[] bindingNames, FluidType[] bindingTypes,
+			Substitution[] replacers, Method method) {
+		super(bindingNames, bindingTypes, replacers, method);
 		Annotation[][] panns = method.getParameterAnnotations();
 		Type[] gtypes = method.getGenericParameterTypes();
 		for (int i = 0; i < panns.length; i++) {

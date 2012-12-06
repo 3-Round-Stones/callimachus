@@ -1,5 +1,7 @@
 package org.callimachusproject.rewrite;
 
+import java.net.URI;
+
 import junit.framework.TestCase;
 
 import org.apache.http.HttpResponse;
@@ -40,6 +42,9 @@ public class RedirectTest extends TestCase {
 
 		@alternate("$0?param=http%3A%2F%2Fexample.com%2Fq%3D{value}")
 		HttpResponse doubleParam(@Iri("urn:test:value") String value);
+
+		@alternate("{value}")
+		HttpResponse resolve(@Iri("urn:test:value") java.net.URI value);
 	}
 
 	private Repository repository;
@@ -130,6 +135,13 @@ public class RedirectTest extends TestCase {
 		concept = con.addDesignation(con.getObject("http://www.example.com/pathinfo"),
 				Concept.class);
 		assertEquals("http://www.example.com/pathinfo?param=http%3A%2F%2Fexample.com%2Fq%3Dfoo%2Bbar", concept.doubleParam("foo bar").getFirstHeader("Location").getValue());
+	}
+
+	@Test
+	public void testQueryParameterURIEncoding() throws Exception {
+		concept = con.addDesignation(con.getObject("http://www.example.com/pathinfo"),
+				Concept.class);
+		assertEquals("http://example.com/%E2%9C%93", concept.resolve(URI.create("http://example.com/✓")).getFirstHeader("Location").getValue());
 	}
 
 }

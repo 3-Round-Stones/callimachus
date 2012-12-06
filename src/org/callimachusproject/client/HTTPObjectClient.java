@@ -193,11 +193,17 @@ public class HTTPObjectClient extends AbstractHttpClient {
 	 * final request URL represented as the response header Content-Location
 	 */
 	public HttpResponse get(String url, String... accept)  throws IOException, ResponseException {
-		String systemId = url;
-		String redirect = systemId;
+		String frag = null;
+		String redirect = url;
+		String systemId = redirect;
 		HttpResponse resp = null;
 		HTTPObjectClient client = HTTPObjectClient.getInstance();
 		for (int i = 0; i < 20 && redirect != null; i++) {
+			int hash = redirect.indexOf('#');
+			if (hash > 0) {
+				frag = redirect.substring(hash);
+				redirect = redirect.substring(0, hash);
+			}
 			systemId = redirect;
 			HttpRequest req = new BasicHttpRequest("GET", systemId);
 			if (accept != null && accept.length > 0) {
@@ -207,6 +213,9 @@ public class HTTPObjectClient extends AbstractHttpClient {
 			}
 			resp = client.service(req);
 			redirect = client.redirectLocation(redirect, resp);
+		}
+		if (frag != null) {
+			systemId = systemId + frag;
 		}
 		int code = resp.getStatusLine().getStatusCode();
 		if (code != 200 && code != 203)

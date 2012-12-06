@@ -14,15 +14,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
-import javax.xml.transform.Source;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.URIResolver;
 import javax.xml.transform.stream.StreamSource;
 
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
-import org.apache.http.message.BasicHttpRequest;
 import org.callimachusproject.client.HTTPObjectClient;
 import org.callimachusproject.server.exceptions.ResponseException;
 import org.xml.sax.EntityResolver;
@@ -31,9 +28,18 @@ import org.xml.sax.InputSource;
 public class InputSourceResolver implements EntityResolver, URIResolver {
 	private static final Pattern CHARSET = Pattern
 			.compile("\\bcharset\\s*=\\s*([\\w-:]+)");
+	private final String accept;
+
+	public InputSourceResolver() {
+		this("application/xml, application/xslt+xml, text/xml, text/xsl");
+	}
+
+	public InputSourceResolver(String accept) {
+		this.accept = accept;
+	}
 
 	@Override
-	public Source resolve(String href, String base) throws TransformerException {
+	public StreamSource resolve(String href, String base) throws TransformerException {
 		try {
 			InputSource input = resolve(resolveURI(href, base));
 			if (input == null)
@@ -95,22 +101,16 @@ public class InputSourceResolver implements EntityResolver, URIResolver {
 	 * returns null for 404 resources.
 	 */
 	private InputSource resolveHttp(String systemId) throws IOException {
-		String redirect = systemId;
-		HttpResponse resp = null;
 		HTTPObjectClient client = HTTPObjectClient.getInstance();
-		String accept = getAcceptHeader();
-		for (int i = 0; i < 20 && redirect != null; i++) {
-			systemId = redirect;
-			HttpRequest req = new BasicHttpRequest("GET", redirect);
-			req.setHeader("Accept", accept);
-			resp = client.service(req);
-			redirect = client.redirectLocation(redirect, resp);
-		}
+		HttpResponse resp = client.get(systemId, getAcceptHeader());
 		HttpEntity entity = resp.getEntity();
 		InputStream in = entity == null ? null : entity.getContent();
 		String type = null;
 		if (resp.containsHeader("Content-Type")) {
 			type = resp.getFirstHeader("Content-Type").getValue();
+		}
+		if (resp.containsHeader("Content-Location")) {
+			systemId = resp.getLastHeader("Content-Location").getValue();
 		}
 		int status = resp.getStatusLine().getStatusCode();
 		if (status == 404 || status == 405 || status == 410 || status == 204) {
@@ -146,7 +146,7 @@ public class InputSourceResolver implements EntityResolver, URIResolver {
 	}
 
 	private String getAcceptHeader() {
-		return "application/xml, application/xslt+xml, text/xml, text/xsl";
+		return accept;
 	}
 
 	private InputSource create(String type, InputStream in, String systemId)

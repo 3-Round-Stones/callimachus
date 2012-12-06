@@ -66,20 +66,16 @@ public class EntityUpdater {
 
 	public String parseInsertData(InputStream in)
 			throws OpenRDFException, IOException {
-		try {
-			return analyzer.parseInsertData(in, entity.stringValue());
-		} finally {
-			verify();
-		}
+		String ret = analyzer.parseInsertData(in, entity.stringValue());
+		verify();
+		return ret;
 	}
 
 	public String parseUpdate(InputStream in) throws OpenRDFException,
 			IOException {
-		try {
-			return analyzer.parseUpdate(in, entity.stringValue());
-		} finally {
-			verify();
-		}
+		String ret = analyzer.parseUpdate(in, entity.stringValue());
+		verify();
+		return ret;
 	}
 
 	public void executeUpdate(String sparqlUpdate, ObjectConnection con)
@@ -92,7 +88,7 @@ public class EntityUpdater {
 	private void verify() throws BadRequest {
 		String ns = entity.stringValue();
 		if (!components && !analyzer.isAbout(entity))
-			throw new BadRequest("Wrong Subject");
+			throw new BadRequest("Wrong Subject: " + analyzer.getSubject());
 		if (!analyzer.isSingleton())
 			throw new BadRequest("Only one entity can be modified per request");
 		if (!analyzer.getTypes(entity).isEmpty())

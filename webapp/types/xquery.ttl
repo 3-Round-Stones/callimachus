@@ -84,7 +84,9 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     calli:method "PUT";
     calli:requires calli:editor;
+    calli:imports <java:org.callimachusproject.server.exceptions.ServiceUnavailable>;
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <java:org.callimachusproject.xml.XQueryValidator>;
     calli:script """
         if (!stream)
             throw new BadRequest("Missing PUT request payload");
@@ -100,19 +102,15 @@
         }
         this.touchRevision();
 
-        var config = net.sf.saxon.Configuration.newConfiguration();
-        config.setHostLanguage(net.sf.saxon.Configuration.XQUERY);
-        var staticEnv = config.newStaticQueryContext();
-        staticEnv.setBaseURI(this.toString());
+        var validator = new XQueryValidator(this.toString());
         var queryStream = this.openInputStream();
         try {
-            staticEnv.compileQuery(queryStream, null);
-        } catch (err if err.javaException && err.javaException.locator) {
-            var locator = err.javaException.locator;
-            throw new BadRequest("Static error at line " + locator.lineNumber
-                + " of " + locator.systemId + ':' + err.javaException.message);
-        } catch (err if err.javaException) {
-            throw new BadRequest("Static error in query: " + err.javaException.message);
+            validator.parse(queryStream);
+            var errors = validator.errorMessages;
+            if (errors && errors.length > 0)
+                throw new BadRequest(errors[0], errors.join('\\n'));
+        } catch (e if e.javaException instanceof ServiceUnavailable) {
+            java.lang.System.err.println("Storing " + this);
         } finally {
             queryStream.close();
         }

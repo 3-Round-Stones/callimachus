@@ -41,12 +41,12 @@
 
     <xsl:template match="xhtml:title|xhtml:script|xhtml:style|xhtml:iframe|xhtml:noembed|xhtml:noframes">
         <!-- Some XSLT engines may not output HTML and this can help an HTML parser parse XML. -->
-        <xsl:copy>
+        <xsl:element name="{local-name()}">
             <xsl:apply-templates select="@*|*|comment()|text()"/>
             <xsl:if test="not(text())">
                 <xsl:text>&#160;</xsl:text>
             </xsl:if>
-        </xsl:copy>
+        </xsl:element>
     </xsl:template>
 
 </xsl:transform>

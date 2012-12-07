@@ -32,12 +32,45 @@ jQuery(function($) {
             { name: 'paste', items: [ '!PasteText', '!PasteFromWord'] }
         ],
         
-        format_tags: 'p;h1;h2;h3;h4;h5;h6;pre'
+        format_tags: 'p;h1;h2;h3;h4;h5;h6;pre',
+        
+        on: {
+            instanceReady: function() {
+                this.dataProcessor.htmlFilter.addRules({
+                    elements: {
+                        'img': adjustImg
+                    }
+                });
+            }
+        }
 
     });
-    
+
     var editor = CKEDITOR.instances.editor;
     var saved = null;
+    
+    /**
+     * Turns img style rules into attributes for docbook compatibility.
+     */ 
+    function adjustImg(el) {
+        var style = el.attributes.style || '';
+        // per-attribute style regexps
+        var attrs = {
+            'width': /(^|\s)width\s*:\s*(\d+)px[^;]*(;|$)/i,
+            'height': /(^|\s)height\s*:\s*(\d+)px[^;]*(;|$)/i,
+            'border': /(^|\s)border-width\s*:\s*(\d+)px[^;]*(;|$)/i,
+            'align': /(^|\s)float\s*:\s*(left|right)[^;]*(;|$)/i,
+            'vspace': /(^|\s)margin\s*:\s*(\d+)px[^;]*(;|$)/i,
+            'hspace': /(^|\s)margin\s*:[^;]*(\d+)px\s*(;|$)/i
+        }
+        for (attr in attrs) {
+            var m = style.match(attrs[attr]);
+            if (m && m[2] && m[2].length) {
+                el.attributes[attr] = m[2];
+                el.attributes.style = el.attributes.style.replace(m[0], '');
+            }
+        }
+    }
     
     // hide selected dialog UI elements
     editor.on('dialogShow', function(e) {
@@ -78,13 +111,13 @@ jQuery(function($) {
             .replace(/<style[\s\S]+<\/style>/g, '') // no <style> tags
             .replace(/>\s*(<)/g, ">\n<")    // put tags on a new line
             .replace(/(.)\s*(<[^\/])/g, "$1\n$2")    // put opening tags on a new line
-            .replace(/<([a-z0-9]+) ([^>]+)>/g, function(m, m1, m2) { // sorted attributes
+            .replace(/<([a-z0-9]+) ([^>]+[^\/])(\/?>)/g, function(m, m1, m2, m3) { // sorted attributes
                 var attrs = (" " + m2).match(/\s+([a-z\:\_]+\=\"[^\"]*\")/g);
                 if (!attrs || attrs.length == 1) return m; // no need to sort a single attribute
                 attrs = attrs.sort(function(a, b) {
                     return (a == b ? 0 : (a < b ? -1 : 1));
                 }) 
-                return '<' + m1 + attrs.join('') + '>';
+                return '<' + m1 + attrs.join('') + m3;
             })
         ;
      }
@@ -156,7 +189,7 @@ jQuery(function($) {
             }
             return 'There are unsaved changes';
         }
-    };
+    };    
     
     /**
      * Maximizes the editor height.to fully fill the iframe.

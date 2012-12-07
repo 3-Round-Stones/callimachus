@@ -9,13 +9,10 @@
 
     <p:serialization port="result" media-type="text/html" method="html" doctype-system="about:legacy-compat" />
 
-    <p:import href="docbook.xpl" />
+    <p:import href="docbook-inclusion.xpl" />
+    <p:import href="page-layout-html.xpl" />
 
-    <p:variable name="systemId" select="p:base-uri()" />
-    <p:variable name="find-realm-uri" select="concat('../queries/find-realm.rq?results&amp;target=', encode-for-uri($systemId))" />
-    <p:variable name="realm" select="doc($find-realm-uri)//sparql:uri" />
-
-    <calli:docbook />
+    <calli:docbook-inclusion />
 
     <p:xslt>
         <p:input port="stylesheet">
@@ -23,27 +20,8 @@
         </p:input>
     </p:xslt>
 
-    <p:xslt>
-        <p:with-param name="systemId" select="$systemId"/>
-        <p:with-param name="xsltId" select="resolve-uri('../template.xsl')" />
-        <p:with-param name="realm" select="$realm" />
-        <p:input port="stylesheet">
-            <p:document href="../template.xsl" />
-        </p:input>
-    </p:xslt>
-
-    <p:xslt>
-        <p:with-param name="realm" select="$realm" />
-        <p:with-param name="target" select="$systemId"/>
-        <p:with-param name="query" select="'view'"/>
-        <p:input port="stylesheet">
-            <p:document href="../transforms/page-info.xsl" />
-        </p:input>
-    </p:xslt>
-    <p:xslt>
-        <p:input port="stylesheet">
-            <p:document href="../transforms/xhtml-to-html.xsl" />
-        </p:input>
-    </p:xslt>
+    <calli:page-layout-html query="view">
+        <p:with-option name="target" select="p:base-uri()" />
+    </calli:page-layout-html>
 
 </p:pipeline>

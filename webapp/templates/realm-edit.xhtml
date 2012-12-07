@@ -9,6 +9,15 @@
     xmlns:dc="http://purl.org/dc/elements/1.1/">
 <head>
     <title resource="?this">{rdfs:label}</title>
+    <script type="text/javascript">
+    // <![CDATA[
+    jQuery(function($){
+        $('#layout').bind('calliLinked', function(event) {
+            $(this).children(':not(:last-child)').remove();
+        });
+    });
+    // ]]>
+    </script>
 </head>
 <body resource="?this">
     <h1 property="rdfs:label" />
@@ -23,23 +32,23 @@
         </aside>
     </div>
     <form id='form' method="POST" action="" enctype="application/sparql-update" resource="?this">
-        <fieldset class="control-group">
-            <label for="describedby" class="control-label">Directory index target</label>
-            <div id="field" class="controls">
-                <input type="text" id="describedby" class="auto-expand" value="{calli:describedby}" />
-            </div>
-        </fieldset>
-        <fieldset class="hbox">
+        <fieldset>
             <div class="control-group">
-                <label for="theme" class="control-label">Theme</label>
-                <div class="controls">
-                    <select id="theme" rel="calli:theme">
-                        <option selected="selected" about="?theme" typeof="calli:Theme" property="rdfs:label" title="{?theme}" />
-                    </select>
+                <label for="describedby" class="control-label">Directory index target</label>
+                <div id="field" class="controls">
+                    <input type="text" id="describedby" class="auto-expand" value="{calli:describedby}" />
                 </div>
             </div>
-        </fieldset>
-        <fieldset>
+            <div dropzone="link s:text/uri-list" class="control-group"
+                    ondrop="return calli.insertResource(event)">
+              <label class="control-label">Layout <a href="../types/XQuery?create#!{calli:layout}" title="Customize"
+                  onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
+              <div id="layout" rel="calli:layout" class="controls vbox">
+                <span resource="?layout" class="ui-state-highlight ui-corner-all">
+                  <span property="rdfs:label" />
+                </span>
+              </div>
+            </div>
             <div class="control-group">
                 <label for="authentication" class="control-label">Authentication</label>
                 <div class="controls">
@@ -48,11 +57,11 @@
                     </select>
                 </div>
             </div>
-        </fieldset>
-        <fieldset class="form-actions">
-            <button id="save" type="submit" class="btn btn-primary">Save</button>
-            <button id="cancel" type="button" onclick="window.location.replace('?view')" class="btn">Cancel</button>
-            <button id="delete" type="button" onclick="calli.deleteResource(event)" class="btn btn-danger">Delete</button>
+            <div class="form-actions">
+                <button id="save" type="submit" class="btn btn-primary">Save</button>
+                <button id="cancel" type="button" onclick="window.location.replace('?view')" class="btn">Cancel</button>
+                <button id="delete" type="button" onclick="calli.deleteResource(event)" class="btn btn-danger">Delete</button>
+            </div>
         </fieldset>
     </form>
 </body>

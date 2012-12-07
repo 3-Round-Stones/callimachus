@@ -102,11 +102,6 @@ calli:Group a owl:Class;
     rdfs:comment "A collection of users";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
-calli:Theme a owl:Class;
-    rdfs:label "Theme";
-    rdfs:comment "A Callimachus Web theme of HTML templates, CSS, and JavaScript";
-    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
-
 calli:ScriptBundle a owl:Class;
     rdfs:label "Script Bundle";
     rdfs:comment "A collection of JavaScript files that are downloaded and compressed together";
@@ -401,16 +396,9 @@ calli:minified a owl:DatatypeProperty;
     rdfs:range xsd:integer;
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
-calli:theme a owl:FunctionalProperty, owl:ObjectProperty;
-    rdfs:label "theme";
-    rdfs:comment "The primary theme used for this realm";
-    rdfs:domain calli:Realm;
-    rdfs:range calli:Theme;
-    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
-
 calli:layout a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:label "layout";
-    rdfs:comment "The HTML template used by this theme as the primary page layout";
-    rdfs:domain calli:Theme;
+    rdfs:comment "An XQuery transform to add header/footer markup to page templates";
+    rdfs:domain calli:Realm;
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 

@@ -2,9 +2,41 @@
         version="1.0" exclude-result-prefixes="xhtml">
     <xsl:output indent="no" method="html" doctype-system="about:legacy-compat" />
 
+    <!-- normal elements -->
     <xsl:template match="*">
         <xsl:copy>
-            <xsl:apply-templates select="@*|*|comment()|text()" />
+            <xsl:apply-templates select="@*|node()"/>
+        </xsl:copy>
+    </xsl:template>
+
+    <!-- strip meta charset -->
+    <xsl:template match = 'xhtml:meta[translate(@http-equiv,"ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz") = "content-type" ]' />
+
+    <!-- strip xmlns from head -->
+    <xsl:template match="xhtml:head|xhtml:head/*">
+        <xsl:element name="{local-name()}">
+            <xsl:apply-templates select="@*|node()"/>
+        </xsl:element>
+    </xsl:template>
+
+    <!-- void elements -->
+    <xsl:template match="xhtml:area|xhtml:base|xhtml:br|xhtml:col|xhtml:command|xhtml:embed|xhtml:hr|xhtml:img|xhtml:input|xhtml:keygen|xhtml:link|xhtml:meta|xhtml:param|xhtml:source|xhtml:track|xhtml:wbr">
+        <xsl:element name="{local-name()}">
+            <xsl:apply-templates select="@*"/>
+        </xsl:element>
+    </xsl:template>
+
+    <!-- Raw text elements -->
+    <xsl:template match="xhtml:script|xhtml:style">
+        <xsl:element name="{local-name()}">
+            <xsl:apply-templates select="@*|comment()|text()"/>
+        </xsl:element>
+    </xsl:template>
+
+    <!-- End tag optional elements -->
+    <xsl:template match="xhtml:li|xhtml:dt|xhtml:dd|xhtml:p|xhtml:rt|xhtml:rp|xhtml:optgroup|xhtml:option|xhtml:colgroup|xhtml:thead|xhtml:tbody|xhtml:tfoot|xhtml:tr|xhtml:td|xhtml:th">
+        <xsl:copy>
+            <xsl:apply-templates select="@*|node()"/>
         </xsl:copy>
     </xsl:template>
 
@@ -12,6 +44,10 @@
         <xsl:copy />
     </xsl:template>
 
+    <!-- strip xml:space attributes -->
+    <xsl:template match = '@xml:space' />
+
+    <!-- convert lang attributes -->
     <xsl:template match="@xml:lang">
         <xsl:if test="not(../@lang)">
             <xsl:attribute name="lang">
@@ -20,33 +56,7 @@
         </xsl:if>
     </xsl:template>
 
-    <!-- strip xml:space attributes -->
-    <xsl:template match = '@xml:space' />
-
     <!-- strip all processing instructions -->
     <xsl:template match = 'processing-instruction()' />
-
-    <!-- strip meta charset -->
-    <xsl:template match = 'xhtml:meta[translate(@http-equiv,"ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz") = "content-type" ]' />
-
-    <xsl:template match="title|script|style|iframe|noembed|noframes">
-        <!-- Some XSLT engines may not output HTML and this can help an HTML parser parse XML. -->
-        <xsl:copy>
-            <xsl:apply-templates select="@*|*|comment()|text()"/>
-            <xsl:if test="not(text())">
-                <xsl:text>&#160;</xsl:text>
-            </xsl:if>
-        </xsl:copy>
-    </xsl:template>
-
-    <xsl:template match="xhtml:title|xhtml:script|xhtml:style|xhtml:iframe|xhtml:noembed|xhtml:noframes">
-        <!-- Some XSLT engines may not output HTML and this can help an HTML parser parse XML. -->
-        <xsl:element name="{local-name()}">
-            <xsl:apply-templates select="@*|*|comment()|text()"/>
-            <xsl:if test="not(text())">
-                <xsl:text>&#160;</xsl:text>
-            </xsl:if>
-        </xsl:element>
-    </xsl:template>
 
 </xsl:transform>

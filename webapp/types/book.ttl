@@ -60,7 +60,7 @@
     calli:requires calli:reader;
     calli:type "application/docbook+xml";
     calli:header "cache-control:no-cache";
-    calli:post "../pipelines/docbook.xpl?results\nContent-Location: $0\nContent-Type: application/docbook+xml".
+    calli:post "../pipelines/docbook-inclusion.xpl?results\nContent-Location: $0\nContent-Type: application/docbook+xml".
 
 # GET /books/main-article.docbook?view
 :GetPage owl:intersectionOf (<viewable.ttl#GetViewPage>

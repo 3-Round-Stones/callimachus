@@ -423,35 +423,11 @@ INSERT {
 };
 
 DELETE {
-    </callimachus/template.xsl> calli:alternate </callimachus/0.18/template.xsl> .
-} INSERT {
-    </callimachus/template.xsl> calli:alternate </callimachus/1.0/template.xsl> .
-} WHERE {
-    </callimachus/template.xsl> calli:alternate </callimachus/0.18/template.xsl> .
-};
-
-DELETE {
     </callimachus/library.xpl> calli:alternate </callimachus/0.18/library.xpl> .
 } INSERT {
     </callimachus/library.xpl> calli:alternate </callimachus/1.0/library.xpl> .
 } WHERE {
     </callimachus/library.xpl> calli:alternate </callimachus/0.18/library.xpl> .
-};
-
-DELETE {
-    </callimachus/forbidden> calli:alternate </callimachus/0.18/forbidden> .
-} INSERT {
-    </callimachus/forbidden> calli:alternate </callimachus/1.0/forbidden> .
-} WHERE {
-    </callimachus/forbidden> calli:alternate </callimachus/0.18/forbidden> .
-};
-
-DELETE {
-    </callimachus/unauthorized> calli:alternate </callimachus/0.18/unauthorized> .
-} INSERT {
-    </callimachus/unauthorized> calli:alternate </callimachus/1.0/unauthorized> .
-} WHERE {
-    </callimachus/unauthorized> calli:alternate </callimachus/0.18/unauthorized> .
 };
 
 DELETE {
@@ -462,15 +438,20 @@ DELETE {
     </callimachus/Concept> calli:alternate </callimachus/0.18/Concept> .
 };
 
-INSERT {
+DELETE {
 	</callimachus/> calli:hasComponent </callimachus/template.xsl>.
 	</callimachus/template.xsl> a </callimachus/1.0/types/PURL>, calli:PURL ;
-		rdfs:label "template.xsl";
-		calli:alternate </callimachus/1.0/template.xsl>;
-		calli:administrator </auth/groups/admin>;
-		calli:reader </auth/groups/public> .
+		rdfs:label ?label;
+		calli:alternate ?alternate;
+		calli:administrator ?admin;
+		calli:reader ?reader .
 } WHERE {
-    FILTER NOT EXISTS { </callimachus/template.xsl> a calli:PURL }
+	</callimachus/> calli:hasComponent </callimachus/template.xsl>.
+	</callimachus/template.xsl> a </callimachus/1.0/types/PURL>, calli:PURL ;
+		rdfs:label ?label;
+		calli:alternate ?alternate;
+		calli:administrator ?admin;
+		calli:reader ?reader .
 };
 
 INSERT {
@@ -484,26 +465,80 @@ INSERT {
     FILTER NOT EXISTS { </callimachus/library.xpl> a calli:PURL }
 };
 
-INSERT {
+DELETE {
 	</callimachus/> calli:hasComponent </callimachus/forbidden>.
 	</callimachus/forbidden> a </callimachus/1.0/types/PURL>, calli:PURL ;
-		rdfs:label "forbidden";
+		rdfs:label ?label;
+		calli:alternate ?alternate;
+		calli:administrator ?admin;
+		calli:reader ?reader .
+} WHERE {
+	</callimachus/> calli:hasComponent </callimachus/forbidden>.
+	</callimachus/forbidden> a </callimachus/1.0/types/PURL>, calli:PURL ;
+		rdfs:label ?label;
+		calli:alternate ?alternate;
+		calli:administrator ?admin;
+		calli:reader ?reader .
+};
+
+DELETE {
+	</callimachus/> calli:hasComponent </callimachus/unauthorized>.
+	</callimachus/unauthorized> a </callimachus/1.0/types/PURL>, calli:PURL ;
+		rdfs:label ?label;
+		calli:alternate ?alternate;
+		calli:administrator ?admin;
+		calli:reader ?reader .
+} WHERE {
+	</callimachus/> calli:hasComponent </callimachus/unauthorized>.
+	</callimachus/unauthorized> a </callimachus/1.0/types/PURL>, calli:PURL ;
+		rdfs:label ?label;
+		calli:alternate ?alternate;
+		calli:administrator ?admin;
+		calli:reader ?reader .
+};
+
+INSERT {
+	</callimachus/> calli:hasComponent </callimachus/forbidden.html>.
+	</callimachus/forbidden.html> a </callimachus/1.0/types/PURL>, calli:PURL ;
+		rdfs:label "forbidden.html";
 		calli:alternate </callimachus/1.0/pages/forbidden.xhtml?element=/1&realm=/>;
 		calli:administrator </auth/groups/admin>;
 		calli:reader </auth/groups/public> .
 } WHERE {
-    FILTER NOT EXISTS { </callimachus/forbidden> a calli:PURL }
+    FILTER NOT EXISTS { </callimachus/forbidden.html> a calli:PURL }
 };
 
 INSERT {
-	</callimachus/> calli:hasComponent </callimachus/unauthorized>.
-	</callimachus/unauthorized> a </callimachus/1.0/types/PURL>, calli:PURL ;
-		rdfs:label "unauthorized";
+	</callimachus/> calli:hasComponent </callimachus/unauthorized.html>.
+	</callimachus/unauthorized.html> a </callimachus/1.0/types/PURL>, calli:PURL ;
+		rdfs:label "unauthorized.html";
 		calli:alternate </callimachus/1.0/pages/unauthorized.xhtml?element=/1>;
 		calli:administrator </auth/groups/admin>;
 		calli:reader </auth/groups/public> .
 } WHERE {
-    FILTER NOT EXISTS { </callimachus/unauthorized> a calli:PURL }
+    FILTER NOT EXISTS { </callimachus/unauthorized.html> a calli:PURL }
+};
+
+INSERT {
+	</callimachus/> calli:hasComponent </callimachus/default-layout.xq>.
+    </callimachus/default-layout.xq> a </callimachus/1.0/types/PURL>, calli:PURL ;
+	    rdfs:label "default-layout.xq";
+	    calli:alternate </callimachus/1.0/pages/default-layout.xq>;
+	    calli:administrator </auth/groups/admin>;
+	    calli:reader </auth/groups/public> .
+} WHERE {
+    FILTER NOT EXISTS { </callimachus/default-layout.xq> a calli:PURL }
+};
+
+INSERT {
+	</callimachus/> calli:hasComponent </callimachus/layout-elements.xq>.
+    </callimachus/layout-elements.xq> a </callimachus/1.0/types/PURL>, calli:PURL ;
+	    rdfs:label "layout-elements.xq";
+	    calli:alternate </callimachus/1.0/pages/layout-elements.xq>;
+	    calli:administrator </auth/groups/admin>;
+	    calli:reader </auth/groups/public> .
+} WHERE {
+    FILTER NOT EXISTS { </callimachus/layout-elements.xq> a calli:PURL }
 };
 
 INSERT {
@@ -527,22 +562,6 @@ INSERT {
 };
 
 DELETE {
-	?realm calli:theme </callimachus/0.18/theme/default>
-} INSERT {
-	?realm calli:theme </callimachus/1.0/theme/default>
-} WHERE {
-	?realm calli:theme </callimachus/0.18/theme/default>
-};
-
-DELETE {
-	?realm calli:theme </callimachus/theme/default>
-} INSERT {
-	?realm calli:theme </callimachus/1.0/theme/default>
-} WHERE {
-	?realm calli:theme </callimachus/theme/default>
-};
-
-DELETE {
 	?realm calli:favicon </callimachus/images/callimachus-icon.ico>
 } INSERT {
 	?realm calli:favicon </favicon.ico>
@@ -553,7 +572,7 @@ DELETE {
 DELETE {
 	?realm calli:forbidden </callimachus/pages/forbidden.xhtml?element=/1&realm=/>
 } INSERT {
-	?realm calli:forbidden </callimachus/forbidden>
+	?realm calli:forbidden </callimachus/forbidden.html>
 } WHERE {
 	?realm calli:forbidden </callimachus/pages/forbidden.xhtml?element=/1&realm=/>
 };
@@ -561,9 +580,41 @@ DELETE {
 DELETE {
 	?realm calli:unauthorized </callimachus/pages/unauthorized.xhtml?element=/1>
 } INSERT {
-	?realm calli:unauthorized </callimachus/unauthorized>
+	?realm calli:unauthorized </callimachus/unauthorized.html>
 } WHERE {
 	?realm calli:unauthorized </callimachus/pages/unauthorized.xhtml?element=/1>
+};
+
+DELETE {
+	?realm calli:forbidden </callimachus/forbidden>
+} INSERT {
+	?realm calli:forbidden </callimachus/forbidden.html>
+} WHERE {
+	?realm calli:forbidden </callimachus/forbidden>
+};
+
+DELETE {
+	?realm calli:unauthorized </callimachus/unauthorized>
+} INSERT {
+	?realm calli:unauthorized </callimachus/unauthorized.html>
+} WHERE {
+	?realm calli:unauthorized </callimachus/unauthorized>
+};
+
+DELETE {
+	?realm calli:theme ?theme
+} INSERT {
+	?realm calli:layout </callimachus/default-layout.xq>
+} WHERE {
+	?realm calli:theme ?theme
+};
+
+DELETE {
+	?realm calli:layout </callimachus/layout.xq>
+} INSERT {
+	?realm calli:layout </callimachus/default-layout.xq>
+} WHERE {
+	?realm calli:layout </callimachus/layout.xq>
 };
 
 DELETE {
@@ -602,7 +653,6 @@ DELETE {
 { ?resource a </callimachus/IconGraphic> BIND (</callimachus/IconGraphic> AS ?previous) BIND (</callimachus/1.0/types/IconGraphic> AS ?current) } UNION
 { ?resource a </callimachus/NetworkGraphic> BIND (</callimachus/NetworkGraphic> AS ?previous) BIND (</callimachus/1.0/types/NetworkGraphic> AS ?current) } UNION
 { ?resource a </callimachus/VectorGraphic> BIND (</callimachus/VectorGraphic> AS ?previous) BIND (</callimachus/1.0/types/VectorGraphic> AS ?current) } UNION
-{ ?resource a </callimachus/Menu> BIND (</callimachus/Menu> AS ?previous) BIND (</callimachus/1.0/types/Menu> AS ?current) } UNION
 { ?resource a </callimachus/Origin> BIND (</callimachus/Origin> AS ?previous) BIND (</callimachus/1.0/types/Origin> AS ?current) } UNION
 { ?resource a </callimachus/Page> BIND (</callimachus/Page> AS ?previous) BIND (</callimachus/1.0/types/Page> AS ?current) } UNION
 { ?resource a </callimachus/Pdf> BIND (</callimachus/Pdf> AS ?previous) BIND (</callimachus/1.0/types/Pdf> AS ?current) } UNION
@@ -619,7 +669,6 @@ DELETE {
 { ?resource a </callimachus/SparqlService> BIND (</callimachus/SparqlService> AS ?previous) BIND (</callimachus/1.0/types/SparqlService> AS ?current) } UNION
 { ?resource a </callimachus/Style> BIND (</callimachus/Style> AS ?previous) BIND (</callimachus/1.0/types/Style> AS ?current) } UNION
 { ?resource a </callimachus/TextFile> BIND (</callimachus/TextFile> AS ?previous) BIND (</callimachus/1.0/types/TextFile> AS ?current) } UNION
-{ ?resource a </callimachus/Theme> BIND (</callimachus/Theme> AS ?previous) BIND (</callimachus/1.0/types/Theme> AS ?current) } UNION
 { ?resource a </callimachus/Transform> BIND (</callimachus/Transform> AS ?previous) BIND (</callimachus/1.0/types/Transform> AS ?current) } UNION
 { ?resource a </callimachus/User> BIND (</callimachus/User> AS ?previous) BIND (</callimachus/1.0/types/User> AS ?current) } UNION
 { ?resource a </callimachus/Viewable> BIND (</callimachus/Viewable> AS ?previous) BIND (</callimachus/1.0/types/Viewable> AS ?current) } UNION
@@ -654,7 +703,6 @@ DELETE {
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/IconGraphic> } BIND (</callimachus/IconGraphic> AS ?previous) BIND (</callimachus/1.0/types/IconGraphic> AS ?current) } UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/NetworkGraphic> } BIND (</callimachus/NetworkGraphic> AS ?previous) BIND (</callimachus/1.0/types/NetworkGraphic> AS ?current) } UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/VectorGraphic> } BIND (</callimachus/VectorGraphic> AS ?previous) BIND (</callimachus/1.0/types/VectorGraphic> AS ?current) } UNION
-{ GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/Menu> } BIND (</callimachus/Menu> AS ?previous) BIND (</callimachus/1.0/types/Menu> AS ?current) } UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/Origin> } BIND (</callimachus/Origin> AS ?previous) BIND (</callimachus/1.0/types/Origin> AS ?current) } UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/Page> } BIND (</callimachus/Page> AS ?previous) BIND (</callimachus/1.0/types/Page> AS ?current) } UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/Pdf> } BIND (</callimachus/Pdf> AS ?previous) BIND (</callimachus/1.0/types/Pdf> AS ?current) } UNION
@@ -671,7 +719,6 @@ DELETE {
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/SparqlService> } BIND (</callimachus/SparqlService> AS ?previous) BIND (</callimachus/1.0/types/SparqlService> AS ?current) } UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/Style> } BIND (</callimachus/Style> AS ?previous) BIND (</callimachus/1.0/types/Style> AS ?current) } UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/TextFile> } BIND (</callimachus/TextFile> AS ?previous) BIND (</callimachus/1.0/types/TextFile> AS ?current) } UNION
-{ GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/Theme> } BIND (</callimachus/Theme> AS ?previous) BIND (</callimachus/1.0/types/Theme> AS ?current) } UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/Transform> } BIND (</callimachus/Transform> AS ?previous) BIND (</callimachus/1.0/types/Transform> AS ?current) } UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/User> } BIND (</callimachus/User> AS ?previous) BIND (</callimachus/1.0/types/User> AS ?current) } UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/Viewable> } BIND (</callimachus/Viewable> AS ?previous) BIND (</callimachus/1.0/types/Viewable> AS ?current) } UNION
@@ -708,7 +755,6 @@ DELETE {
 { ?resource a </callimachus/types/IconGraphic> BIND (</callimachus/types/IconGraphic> AS ?previous) BIND (</callimachus/1.0/types/IconGraphic> AS ?current) } UNION
 { ?resource a </callimachus/types/NetworkGraphic> BIND (</callimachus/types/NetworkGraphic> AS ?previous) BIND (</callimachus/1.0/types/NetworkGraphic> AS ?current) } UNION
 { ?resource a </callimachus/types/VectorGraphic> BIND (</callimachus/types/VectorGraphic> AS ?previous) BIND (</callimachus/1.0/types/VectorGraphic> AS ?current) } UNION
-{ ?resource a </callimachus/types/Menu> BIND (</callimachus/types/Menu> AS ?previous) BIND (</callimachus/1.0/types/Menu> AS ?current) } UNION
 { ?resource a </callimachus/types/Origin> BIND (</callimachus/types/Origin> AS ?previous) BIND (</callimachus/1.0/types/Origin> AS ?current) } UNION
 { ?resource a </callimachus/types/Page> BIND (</callimachus/types/Page> AS ?previous) BIND (</callimachus/1.0/types/Page> AS ?current) } UNION
 { ?resource a </callimachus/types/Pdf> BIND (</callimachus/types/Pdf> AS ?previous) BIND (</callimachus/1.0/types/Pdf> AS ?current) } UNION
@@ -725,7 +771,6 @@ DELETE {
 { ?resource a </callimachus/types/SparqlService> BIND (</callimachus/types/SparqlService> AS ?previous) BIND (</callimachus/1.0/types/SparqlService> AS ?current) } UNION
 { ?resource a </callimachus/types/Style> BIND (</callimachus/types/Style> AS ?previous) BIND (</callimachus/1.0/types/Style> AS ?current) } UNION
 { ?resource a </callimachus/types/TextFile> BIND (</callimachus/types/TextFile> AS ?previous) BIND (</callimachus/1.0/types/TextFile> AS ?current) } UNION
-{ ?resource a </callimachus/types/Theme> BIND (</callimachus/types/Theme> AS ?previous) BIND (</callimachus/1.0/types/Theme> AS ?current) } UNION
 { ?resource a </callimachus/types/Transform> BIND (</callimachus/types/Transform> AS ?previous) BIND (</callimachus/1.0/types/Transform> AS ?current) } UNION
 { ?resource a </callimachus/types/User> BIND (</callimachus/types/User> AS ?previous) BIND (</callimachus/1.0/types/User> AS ?current) } UNION
 { ?resource a </callimachus/types/Viewable> BIND (</callimachus/types/Viewable> AS ?previous) BIND (</callimachus/1.0/types/Viewable> AS ?current) } UNION
@@ -760,7 +805,6 @@ DELETE {
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/types/IconGraphic> } BIND (</callimachus/types/IconGraphic> AS ?previous) BIND (</callimachus/1.0/types/IconGraphic> AS ?current) } UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/types/NetworkGraphic> } BIND (</callimachus/types/NetworkGraphic> AS ?previous) BIND (</callimachus/1.0/types/NetworkGraphic> AS ?current) } UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/types/VectorGraphic> } BIND (</callimachus/types/VectorGraphic> AS ?previous) BIND (</callimachus/1.0/types/VectorGraphic> AS ?current) } UNION
-{ GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/types/Menu> } BIND (</callimachus/types/Menu> AS ?previous) BIND (</callimachus/1.0/types/Menu> AS ?current) } UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/types/Origin> } BIND (</callimachus/types/Origin> AS ?previous) BIND (</callimachus/1.0/types/Origin> AS ?current) } UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/types/Page> } BIND (</callimachus/types/Page> AS ?previous) BIND (</callimachus/1.0/types/Page> AS ?current) } UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/types/Pdf> } BIND (</callimachus/types/Pdf> AS ?previous) BIND (</callimachus/1.0/types/Pdf> AS ?current) } UNION
@@ -777,7 +821,6 @@ DELETE {
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/types/SparqlService> } BIND (</callimachus/types/SparqlService> AS ?previous) BIND (</callimachus/1.0/types/SparqlService> AS ?current) } UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/types/Style> } BIND (</callimachus/types/Style> AS ?previous) BIND (</callimachus/1.0/types/Style> AS ?current) } UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/types/TextFile> } BIND (</callimachus/types/TextFile> AS ?previous) BIND (</callimachus/1.0/types/TextFile> AS ?current) } UNION
-{ GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/types/Theme> } BIND (</callimachus/types/Theme> AS ?previous) BIND (</callimachus/1.0/types/Theme> AS ?current) } UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/types/Transform> } BIND (</callimachus/types/Transform> AS ?previous) BIND (</callimachus/1.0/types/Transform> AS ?current) } UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/types/User> } BIND (</callimachus/types/User> AS ?previous) BIND (</callimachus/1.0/types/User> AS ?current) } UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/types/Viewable> } BIND (</callimachus/types/Viewable> AS ?previous) BIND (</callimachus/1.0/types/Viewable> AS ?current) } UNION
@@ -816,7 +859,6 @@ DELETE {
 { ?resource a </callimachus/0.18/types/IconGraphic> BIND (</callimachus/0.18/types/IconGraphic> AS ?previous) BIND (</callimachus/1.0/types/IconGraphic> AS ?current) } UNION
 { ?resource a </callimachus/0.18/types/NetworkGraphic> BIND (</callimachus/0.18/types/NetworkGraphic> AS ?previous) BIND (</callimachus/1.0/types/NetworkGraphic> AS ?current) } UNION
 { ?resource a </callimachus/0.18/types/VectorGraphic> BIND (</callimachus/0.18/types/VectorGraphic> AS ?previous) BIND (</callimachus/1.0/types/VectorGraphic> AS ?current) } UNION
-{ ?resource a </callimachus/0.18/types/Menu> BIND (</callimachus/0.18/types/Menu> AS ?previous) BIND (</callimachus/1.0/types/Menu> AS ?current) } UNION
 { ?resource a </callimachus/0.18/types/Origin> BIND (</callimachus/0.18/types/Origin> AS ?previous) BIND (</callimachus/1.0/types/Origin> AS ?current) } UNION
 { ?resource a </callimachus/0.18/types/Page> BIND (</callimachus/0.18/types/Page> AS ?previous) BIND (</callimachus/1.0/types/Page> AS ?current) } UNION
 { ?resource a </callimachus/0.18/types/Pdf> BIND (</callimachus/0.18/types/Pdf> AS ?previous) BIND (</callimachus/1.0/types/Pdf> AS ?current) } UNION
@@ -833,7 +875,6 @@ DELETE {
 { ?resource a </callimachus/0.18/types/SparqlService> BIND (</callimachus/0.18/types/SparqlService> AS ?previous) BIND (</callimachus/1.0/types/SparqlService> AS ?current) } UNION
 { ?resource a </callimachus/0.18/types/Style> BIND (</callimachus/0.18/types/Style> AS ?previous) BIND (</callimachus/1.0/types/Style> AS ?current) } UNION
 { ?resource a </callimachus/0.18/types/TextFile> BIND (</callimachus/0.18/types/TextFile> AS ?previous) BIND (</callimachus/1.0/types/TextFile> AS ?current) } UNION
-{ ?resource a </callimachus/0.18/types/Theme> BIND (</callimachus/0.18/types/Theme> AS ?previous) BIND (</callimachus/1.0/types/Theme> AS ?current) } UNION
 { ?resource a </callimachus/0.18/types/Transform> BIND (</callimachus/0.18/types/Transform> AS ?previous) BIND (</callimachus/1.0/types/Transform> AS ?current) } UNION
 { ?resource a </callimachus/0.18/types/User> BIND (</callimachus/0.18/types/User> AS ?previous) BIND (</callimachus/1.0/types/User> AS ?current) } UNION
 { ?resource a </callimachus/0.18/types/Viewable> BIND (</callimachus/0.18/types/Viewable> AS ?previous) BIND (</callimachus/1.0/types/Viewable> AS ?current) } UNION
@@ -868,7 +909,6 @@ DELETE {
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/0.18/types/IconGraphic> } BIND (</callimachus/0.18/types/IconGraphic> AS ?previous) BIND (</callimachus/1.0/types/IconGraphic> AS ?current) } UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/0.18/types/NetworkGraphic> } BIND (</callimachus/0.18/types/NetworkGraphic> AS ?previous) BIND (</callimachus/1.0/types/NetworkGraphic> AS ?current) } UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/0.18/types/VectorGraphic> } BIND (</callimachus/0.18/types/VectorGraphic> AS ?previous) BIND (</callimachus/1.0/types/VectorGraphic> AS ?current) } UNION
-{ GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/0.18/types/Menu> } BIND (</callimachus/0.18/types/Menu> AS ?previous) BIND (</callimachus/1.0/types/Menu> AS ?current) } UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/0.18/types/Origin> } BIND (</callimachus/0.18/types/Origin> AS ?previous) BIND (</callimachus/1.0/types/Origin> AS ?current) } UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/0.18/types/Page> } BIND (</callimachus/0.18/types/Page> AS ?previous) BIND (</callimachus/1.0/types/Page> AS ?current) } UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/0.18/types/Pdf> } BIND (</callimachus/0.18/types/Pdf> AS ?previous) BIND (</callimachus/1.0/types/Pdf> AS ?current) } UNION
@@ -885,7 +925,6 @@ DELETE {
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/0.18/types/SparqlService> } BIND (</callimachus/0.18/types/SparqlService> AS ?previous) BIND (</callimachus/1.0/types/SparqlService> AS ?current) } UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/0.18/types/Style> } BIND (</callimachus/0.18/types/Style> AS ?previous) BIND (</callimachus/1.0/types/Style> AS ?current) } UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/0.18/types/TextFile> } BIND (</callimachus/0.18/types/TextFile> AS ?previous) BIND (</callimachus/1.0/types/TextFile> AS ?current) } UNION
-{ GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/0.18/types/Theme> } BIND (</callimachus/0.18/types/Theme> AS ?previous) BIND (</callimachus/1.0/types/Theme> AS ?current) } UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/0.18/types/Transform> } BIND (</callimachus/0.18/types/Transform> AS ?previous) BIND (</callimachus/1.0/types/Transform> AS ?current) } UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/0.18/types/User> } BIND (</callimachus/0.18/types/User> AS ?previous) BIND (</callimachus/1.0/types/User> AS ?current) } UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/0.18/types/Viewable> } BIND (</callimachus/0.18/types/Viewable> AS ?previous) BIND (</callimachus/1.0/types/Viewable> AS ?current) } UNION

@@ -10,10 +10,10 @@
     <p:option name="target" select="resolve-uri('/')" />
     <p:option name="query" select="''" />
 
-    <p:import href = "transform-layout.xpl" />
-    <calli:transform-layout>
+    <p:import href="page-layout-html.xpl" />
+
+    <calli:page-layout-html>
         <p:with-option name="target"  select="$target" />
         <p:with-option name="query" select="$query" />
-        <p:with-option name="systemId" select="$target" />
-    </calli:transform-layout>
+    </calli:page-layout-html>
 </p:pipeline>

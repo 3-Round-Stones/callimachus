@@ -9,19 +9,16 @@
 
     <p:option name="target" required="true"  />
 
-    <p:import href = "transform-layout.xpl" />
+    <p:import href="page-layout-html.xpl" />
 
     <p:xslt>
         <p:with-param name="target"   select="$target" />
-        <p:with-param name="systemId" select="$target" />
         <p:input port="stylesheet">
             <p:document href="../transforms/describe.xsl" />
         </p:input>
     </p:xslt>
 
-    <calli:transform-layout>
-        <p:with-option name="target"     select="$target" />
-        <p:with-option name="query"    select="'describe'" />
-        <p:with-option name="systemId" select="resolve-uri('../transforms/describe.xsl')" />
-    </calli:transform-layout>
+    <calli:page-layout-html query="describe">
+        <p:with-option name="target" select="$target" />
+    </calli:page-layout-html>
 </p:pipeline>

@@ -1,14 +1,18 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<html xmlns="http://www.w3.org/1999/xhtml">
+xquery version "1.0" encoding "utf-8";
+
+import module namespace calli = "http://callimachusproject.org/rdf/2009/framework#" at "layout-elements.xq";
+
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
 <head>
     <meta name="viewport" content="width=device-width,height=device-height,initial-scale=1.0,target-densityDpi=device-dpi"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge;chrome=1" />
-    <title><!-- title gets replaced with page/resource title --></title>
     <link rel="home" href="/" />
     <link rel="icon" href="/favicon.ico" />
     <!--[if gt IE 6]><!-->
-    <link rel="stylesheet" href="theme.less?less" />
-    <script type="text/javascript" src="../scripts/discussion.js">&#160;</script>
+    <link rel="stylesheet" href="{resolve-uri('../theme/theme.less?less')}" />
+    {$calli:head}
+    <script type="text/javascript" src="{resolve-uri('../scripts/discussion.js')}" />
     <!--[if lt IE 9]>
         <script>document.documentElement.className+=' ie'</script>
         <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -16,7 +20,7 @@
     <![endif]-->
     <!--<![endif]-->
 </head>
-<body>
+<body>{$calli:body}
     <div id="wrapper">
         <div id="top" class="navbar hidden-iframe">
             <header id="header" class="navbar-inner">
@@ -78,7 +82,7 @@
 
                 <div id="container">                    
                     <div id="flash" /><!-- #flash is used to place error messages on the screen -->
-                    <div id="content"><!-- #content is replaced with the page content --></div>
+                    <div id="content">{$calli:hgroup}{$calli:sidebar}{$calli:content}</div>
                 </div><!-- container -->
             </div><!-- main -->
         </div><!-- page -->
@@ -89,7 +93,7 @@
             <div id="menu"><!-- put menu here --></div>
             <p id="site-generator">
                 <a href="http://callimachusproject.org/" title="Callimachus">
-                    <img src="../images/callimachus-powered.png" alt="Callimachus" width="98" height="35" />
+                    <img src="{resolve-uri('../images/callimachus-powered.png')}" alt="Callimachus" width="98" height="35" />
                 </a>
             </p>
 

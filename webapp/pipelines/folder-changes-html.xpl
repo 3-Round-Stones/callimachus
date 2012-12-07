@@ -6,8 +6,10 @@
     xmlns:calli ="http://callimachusproject.org/rdf/2009/framework#"
     xmlns:l="http://xproc.org/library">
     <p:serialization port="result" media-type="text/html" method="html" doctype-system="about:legacy-compat" />
-    <p:option name="target"  required="true"  />
-    <p:import href = "transform-layout.xpl" />
+
+    <p:option name="target" required="true"  />
+    <p:import href="page-layout-html.xpl" />
+
     <p:load>
         <p:with-option 
             name="href" 
@@ -19,9 +21,7 @@
             <p:document href="../transforms/folder-changes.xsl" />
         </p:input>
     </p:xslt>
-    <calli:transform-layout>
+    <calli:page-layout-html query="changes">
         <p:with-option name="target"  select="$target" />
-        <p:with-option name="query" select="'changes'" />
-        <p:with-option name="systemId" select="resolve-uri('../transforms/folder-changes.xsl')" />
-    </calli:transform-layout>
+    </calli:page-layout-html>
 </p:pipeline>

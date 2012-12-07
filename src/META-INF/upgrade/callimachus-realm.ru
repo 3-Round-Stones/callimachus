@@ -19,9 +19,9 @@ INSERT {
 		calli:contributor </auth/groups/users>;
 		calli:editor </auth/groups/staff>;
 		calli:administrator </auth/groups/admin>;
-		calli:unauthorized <../unauthorized>;
-		calli:forbidden <../forbidden>;
-		calli:theme <theme/default>.
+		calli:unauthorized <../unauthorized.html>;
+		calli:forbidden <../forbidden.html>;
+		calli:layout <../default-layout.xq>.
 } WHERE {
 	FILTER NOT EXISTS { $realm a calli:Realm }
 	BIND (replace(replace(str($realm), "^[a-z]*://", ""), "/$", "") AS ?label)

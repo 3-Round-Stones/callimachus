@@ -9,7 +9,7 @@
 
     <p:option name="target" required="true"  />
 
-    <p:import href = "transform-layout.xpl" />
+    <p:import href="page-layout-html.xpl" />
 
     <p:xslt>
         <p:with-param name="target"   select="$target" />
@@ -19,9 +19,7 @@
         </p:input>
     </p:xslt>
 
-    <calli:transform-layout>
-        <p:with-option name="target"     select="$target" />
-        <p:with-option name="query"    select="''" />
-        <p:with-option name="systemId" select="resolve-uri('../transforms/sparql.xsl')" />
-    </calli:transform-layout>
+    <calli:page-layout-html query="">
+        <p:with-option name="target" select="$target" />
+    </calli:page-layout-html>
 </p:pipeline>

@@ -6,22 +6,19 @@
         xmlns:calli ="http://callimachusproject.org/rdf/2009/framework#">
     <p:serialization port="result" media-type="text/html" method="html" doctype-system="about:legacy-compat" />
     <p:option name="target"  required="true"  />
-    <p:import href = "transform-layout.xpl" />
+    <p:import href="page-layout-html.xpl" />
     <p:load>
         <p:with-option 
             name="href" 
             select="concat('../queries/change-view.rq?results&amp;target=', encode-for-uri($target))"/>
     </p:load>
     <p:xslt>
-        <p:with-param name="target"   select="$target" />
-        <p:with-param name="systemId" select="$target" />
+        <p:with-param name="target" select="$target" />
         <p:input port="stylesheet">
             <p:document href="../transforms/change-view.xsl" />
         </p:input>
     </p:xslt>
-    <calli:transform-layout>
+    <calli:page-layout-html query="view">
         <p:with-option name="target"  select="$target"  />
-        <p:with-option name="query" select="'view'" />
-        <p:with-option name="systemId" select="resolve-uri('../transforms/change-view.xsl')" />
-    </calli:transform-layout>
+    </calli:page-layout-html>
 </p:pipeline>

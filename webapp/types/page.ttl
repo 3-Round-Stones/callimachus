@@ -47,7 +47,7 @@
     calli:requires calli:reader;
     calli:type "text/html";
     calli:header "cache-control:no-cache";
-    calli:post "../pipelines/page-view.xpl?results\nContent-Location: $0\nContent-Type: application/xhtml+xml".
+    calli:post "../pipelines/page-layout-html.xpl?results&target=$0&query=view\nContent-Location: $0\nContent-Type: application/xhtml+xml".
 
 # GET /page/MainPage.xhtml
 :GetPageSource rdfs:subClassOf msg:Message;
@@ -153,18 +153,19 @@
 
 :elementRealm a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :GetElement;
-    rdfs:range xsd:string;
+    rdfs:range xsd:anyURI;
+    calli:type "text/uri-list";
     calli:query "realm".
 
-# GET /page/MainPag.xhtml?template
+# GET /page/MainPag.xhtml?layout
 :GetTemplate rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Page>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
     calli:method "GET";
-    calli:query "template";
+    calli:query "layout";
     calli:requires calli:reader;
     calli:type "application/xhtml+xml";
-    calli:post "../pipelines/page-template.xpl?results&realm={realm}\nContent-Location: $0\nContent-Type: application/xhtml+xml".
+    calli:post "../pipelines/page-layout.xpl?results&realm={realm}\nContent-Location: $0\nContent-Type: application/xhtml+xml".
 
 :realm a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :GetTemplate;
@@ -181,7 +182,7 @@
     calli:query "sparql";
     calli:requires calli:administrator;
     calli:script """
-        var template = this + "?template&realm=/";
+        var template = this + "?layout&realm=/";
         var query = this.getTemplate(template).getQueryString();
         return new java.lang.String(query).getBytes("UTF-8");
     """.
@@ -193,7 +194,7 @@
     calli:type "text/html";
     calli:script """
         var realm = this.FindRealmOf(resource);
-        var template = this + "?template&realm=" + encodeURIComponent(realm);
+        var template = this + "?layout&realm=" + encodeURIComponent(realm);
         var con = this.objectConnection;
         var bindings = new org.openrdf.query.impl.MapBindingSet();
         bindings.addBinding("this", resource.resource);
@@ -239,7 +240,7 @@
             throw new BadRequest("Missing element parameter");
         var partner = optionsResource  ? optionsResource.resource : null;
         var realm = this.FindRealmOf(this);
-        var url = this + "?template&realm=" + encodeURIComponent(realm);
+        var url = this + "?layout&realm=" + encodeURIComponent(realm);
         var con = this.objectConnection;
         var template = this.getTemplate(url).getElement(optionsElement);
         var attrs = template.getAttributes();
@@ -292,7 +293,7 @@
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Page>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
     calli:type "text/html";
-    calli:post <../pipelines/page-render.xpl?results&template=$0%3Ftemplate%26realm%3D{realm}&realm={realm}&target={renderResource}&query={renderResourceQuery}&element={renderXpointerElement}>.
+    calli:post <../pipelines/page-render.xpl?results&template=$0%3Flayout%26realm%3D{realm}&realm={realm}&target={renderResource}&query={renderResourceQuery}&element={renderXpointerElement}>.
 
 :realm a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :Render;

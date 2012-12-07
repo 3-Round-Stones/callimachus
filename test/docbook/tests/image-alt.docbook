@@ -8,8 +8,8 @@
             <alt>alternate text here</alt>
             <imageobject>
                 <imagedata 
-                    depth="100px"
-                    width="100px"
+                    contentdepth="100px"
+                    contentwidth="100px"
                     fileref="figs/print/db5d_refeqn03.pdf"/>
             </imageobject>
         </inlinemediaobject>

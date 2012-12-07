@@ -122,7 +122,7 @@ skos:editorialNote a owl:AnnotationProperty.
 :TransformIntrospectLayout rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Serviceable>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-    calli:post <../pipelines/transform-layout.xpl?results&target=$0&systemId=$0&query=introspect>.
+    calli:post <../pipelines/page-layout-html.xpl?results&target=$0&query=introspect>.
 
 :xhtmlIntrospect a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :TransformIntrospectLayout;

@@ -52,20 +52,15 @@ INSERT {
     calli:administrator </auth/groups/admin>;
     calli:hasComponent
         <../changes/>,
-        <../template.xsl>,
         <../library.xpl>,
-        <../forbidden>,
-        <../unauthorized> .
+        <../forbidden.html>,
+        <../unauthorized.html>,
+        <../layout-elements.xq>,
+        <../default-layout.xq>.
 
 <../changes/> a <types/Folder>, calli:Folder;
     rdfs:label "changes";
     calli:subscriber </auth/groups/admin>.
-
-<../template.xsl> a <types/PURL>, calli:PURL ;
-	rdfs:label "template.xsl";
-	calli:alternate <template.xsl>;
-	calli:reader </auth/groups/public> ;
-	calli:administrator </auth/groups/admin> .
 
 <../library.xpl> a <types/PURL>, calli:PURL ;
 	rdfs:label "library.xpl";
@@ -73,15 +68,27 @@ INSERT {
 	calli:administrator </auth/groups/admin>;
 	calli:reader </auth/groups/public> .
 
-<../forbidden> a <types/PURL>, calli:PURL ;
-	rdfs:label "forbidden";
+<../forbidden.html> a <types/PURL>, calli:PURL ;
+	rdfs:label "forbidden.html";
 	calli:alternate <pages/forbidden.xhtml?element=/1&realm=/>;
 	calli:administrator </auth/groups/admin>;
 	calli:reader </auth/groups/public> .
 
-<../unauthorized> a <types/PURL>, calli:PURL ;
-	rdfs:label "unauthorized";
+<../unauthorized.html> a <types/PURL>, calli:PURL ;
+	rdfs:label "unauthorized.html";
 	calli:alternate <pages/unauthorized.xhtml?element=/1>;
+	calli:administrator </auth/groups/admin>;
+	calli:reader </auth/groups/public> .
+
+<../layout-elements.xq> a <types/PURL>, calli:PURL ;
+	rdfs:label "layout-elements.xq";
+	calli:alternate <pages/layout-elements.xq>;
+	calli:administrator </auth/groups/admin>;
+	calli:reader </auth/groups/public> .
+
+<../default-layout.xq> a <types/PURL>, calli:PURL ;
+	rdfs:label "default-layout.xq";
+	calli:alternate <pages/default-layout.xq>;
 	calli:administrator </auth/groups/admin>;
 	calli:reader </auth/groups/public> .
 

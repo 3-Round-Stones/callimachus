@@ -32,7 +32,7 @@
 
     <!-- Subpipelines -->
 
-    <p:import href="pipelines/page-template.xpl" />
+    <p:import href="pipelines/page-layout.xpl" />
 
     <p:declare-step name="render-html" type="calli:render-html">
         <p:serialization port="result" media-type="text/html" method="html" doctype-system="about:legacy-compat" />
@@ -62,12 +62,12 @@
                 <p:pipe step="realm" port="result" />
             </p:variable>
 
-            <calli:page-template name="template">
+            <calli:page-layout name="template">
                 <p:with-option name="realm" select="$realm" />
                 <p:input port="source">
                     <p:pipe step="render-html" port="template" />
                 </p:input>
-            </calli:page-template>
+            </calli:page-layout>
 
             <calli:render-sparql-query name="query">
                 <p:input port="template">

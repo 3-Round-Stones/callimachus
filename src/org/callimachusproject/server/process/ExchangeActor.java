@@ -202,7 +202,7 @@ public abstract class ExchangeActor {
 	}
 
 	private void printHTMLTo(int code, ResponseException exc, PrintWriter writer) {
-		writer.append("<html>\n");
+		writer.append("<html xmlns='http://www.w3.org/1999/xhtml'>\n");
 		writer.append("<head><title>");
 		writer.append(enc(exc.getLongMessage()));
 		writer.append("</title></head>\n");

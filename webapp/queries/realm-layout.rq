@@ -1,0 +1,17 @@
+#
+# @Cache-Control: no-store
+#
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX calli: <http://callimachusproject.org/rdf/2009/framework#>
+
+SELECT
+    (if(bound(?layout),?layout,<../pages/default-layout.xq>) AS ?layout)
+WHERE {
+    {
+        <$realm> a calli:Realm
+    } OPTIONAL {
+        <$realm> calli:layout ?layout
+    }
+}

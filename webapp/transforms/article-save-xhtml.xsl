@@ -238,25 +238,23 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
 </xsl:template>
 
 <xsl:template match="xhtml:img">
-    <xsl:choose>
-        <xsl:when test="boolean(parent::xhtml:figure | parent::xhtml:p[@class='figure'])">
-            <mediaobject>
-                <xsl:call-template name="imageobject" />
-            </mediaobject>
-        </xsl:when>
-        <xsl:when test="boolean(parent::xhtml:p)">
-            <inlinemediaobject>
-                <xsl:call-template name="imageobject" />
-            </inlinemediaobject>
-        </xsl:when>
-        <xsl:otherwise>
-            <figure>
-                <mediaobject>
-                    <xsl:call-template name="imageobject" />
-                </mediaobject>
-            </figure>
-        </xsl:otherwise>
-    </xsl:choose>
+    <figure>
+        <mediaobject>
+            <xsl:call-template name="imageobject" />
+        </mediaobject>
+    </figure>
+</xsl:template>
+
+<xsl:template match="xhtml:p/xhtml:img">
+    <inlinemediaobject>
+        <xsl:call-template name="imageobject" />
+    </inlinemediaobject>
+</xsl:template>
+
+<xsl:template match="xhtml:figure/xhtml:img|xhtml:p[@class='figure']/xhtml:img">
+    <mediaobject>
+        <xsl:call-template name="imageobject" />
+    </mediaobject>
 </xsl:template>
 
 <xsl:template name="imageobject">
@@ -266,23 +264,54 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
         </alt>
     </xsl:if>
     <imageobject>
-        <imagedata fileref="{@src}">
-            <xsl:if test="@height != ''">
-                <xsl:attribute name="depth">
-                    <xsl:value-of select="concat(@height,'px')"/>
-                </xsl:attribute>
-            </xsl:if>
-            <xsl:if test="@width != ''">
-                <xsl:attribute name="width">
-                    <xsl:value-of select="concat(@width,'px')"/>
-                </xsl:attribute>
-            </xsl:if>
+        <imagedata>
+            <xsl:apply-templates select="@*" />
         </imagedata>
     </imageobject>
     <xsl:if test="@title">
         <caption>
             <para><xsl:value-of select="@title" /></para>
         </caption>
+    </xsl:if>
+</xsl:template>
+
+<xsl:template match="xhtml:img/@alt|xhtml:img/@title|xhtml:img/@border|xhtml:img/@style" />
+
+<xsl:template match="xhtml:img/@src">
+    <xsl:attribute name="fileref">
+        <xsl:value-of select="." />
+    </xsl:attribute>
+</xsl:template>
+
+<xsl:template match="xhtml:img/@width">
+    <xsl:if test="string-length() &gt; 0">
+        <xsl:attribute name="contentwidth">
+            <xsl:value-of select="concat(.,'px')" />
+        </xsl:attribute>
+    </xsl:if>
+</xsl:template>
+
+<xsl:template match="xhtml:img/@height">
+    <xsl:if test="string-length() &gt; 0">
+        <xsl:attribute name="contentdepth">
+            <xsl:value-of select="concat(.,'px')" />
+        </xsl:attribute>
+    </xsl:if>
+</xsl:template>
+
+<xsl:template match="xhtml:img/@hspace">
+    <xsl:if test="string-length() &gt; 0">
+        <xsl:attribute name="width">
+            <xsl:value-of select="concat(number() + number(../@width),'px')" />
+        </xsl:attribute>
+    </xsl:if>
+</xsl:template>
+
+<xsl:template match="xhtml:img/@vspace">
+    <xsl:if test="string-length() &gt; 0">
+        <xsl:attribute name="depth">
+            <xsl:value-of select="concat(number() + number(../@height),'px')" />
+        </xsl:attribute>
     </xsl:if>
 </xsl:template>
 

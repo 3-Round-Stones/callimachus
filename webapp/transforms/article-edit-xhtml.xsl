@@ -282,15 +282,32 @@
 </xsl:template>
 
 <xsl:template match="d:imageobject">
+    <xsl:variable name="contentdepth" select="substring-before(d:imagedata/@contentdepth,'px')" />
+    <xsl:variable name="contentwidth" select="substring-before(d:imagedata/@contentwidth,'px')" />
     <img src="{d:imagedata/@fileref}">
-        <xsl:if test="contains(d:imagedata/@depth, 'px')">
+        <xsl:if test="$contentdepth">
             <xsl:attribute name="height">
-                <xsl:value-of select="substring-before(d:imagedata/@depth,'px')"/>
+                <xsl:value-of select="$contentdepth"/>
             </xsl:attribute>
+            <xsl:if test="contains(d:imagedata/@depth, 'px')">
+                <xsl:attribute name="vspace">
+                    <xsl:value-of select="number(substring-before(d:imagedata/@depth,'px')) - number($contentdepth)"/>
+                </xsl:attribute>
+            </xsl:if>
         </xsl:if>
-        <xsl:if test="contains(d:imagedata/@width,'px')">
+        <xsl:if test="$contentwidth">
             <xsl:attribute name="width">
-                <xsl:value-of select="substring-before(d:imagedata/@width,'px')"/>
+                <xsl:value-of select="$contentwidth"/>
+            </xsl:attribute>
+            <xsl:if test="contains(d:imagedata/@width,'px')">
+                <xsl:attribute name="hspace">
+                    <xsl:value-of select="number(substring-before(d:imagedata/@width,'px')) - $contentwidth"/>
+                </xsl:attribute>
+            </xsl:if>
+        </xsl:if>
+        <xsl:if test="d:imagedata/@align">
+            <xsl:attribute name="align">
+                <xsl:value-of select="d:imagedata/@align"/>
             </xsl:attribute>
         </xsl:if>
         <xsl:if test="../d:alt">

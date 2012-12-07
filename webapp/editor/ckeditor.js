@@ -110,7 +110,7 @@ jQuery(function($) {
             .replace(/<title\/>/, '<title></title>') // fix empty title tag
             .replace(/<style[\s\S]+<\/style>/g, '') // no <style> tags
             .replace(/<base [^\>]+>/, '') // remove base href
-            .replace('<head>', '<head><base href="' + window.location.href + '" />') // inject base href
+            .replace('<head>', '<head><base href="' + top.location.href + '" />') // inject base href
             .replace(/>\s*(<)/g, ">\n<")    // put tags on a new line
             .replace(/(.)\s*(<[^\/])/g, "$1\n$2")    // put opening tags on a new line
             .replace(/<([a-z0-9]+) ([^>]+[^\/])(\/?>)/g, function(m, m1, m2, m3) { // sorted attributes

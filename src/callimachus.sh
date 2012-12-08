@@ -382,7 +382,7 @@ do_start()
 {
   LSOF="$(which lsof 2>/dev/null)"
   LSOF_OPTS="$(echo $PORT |perl -pe 's/(^|\s)(\S)/ -i :$2/g' 2>/dev/null) $(echo $SSLPORT |perl -pe 's/(^|\s)(\S)/ -i :$2/g' 2>/dev/null)"
-  if [ -n "$LSOF" ] && "$LSOF" -sTCP:LISTEN $LSOF_OPTS ; then
+  if [ -n "$LSOF" ] && "$LSOF" $LSOF_OPTS ; then
     log_failure_msg "Cannot bind to port $PORT $SSLPORT please ensure nothing is already listening on this port"
     return 150
   fi
@@ -431,7 +431,7 @@ do_start()
       log_failure_msg "The server is not running, see log files for details. Start aborted."
       return 7
     fi
-    if [ -n "$LSOF" ] && "$LSOF" -sTCP:LISTEN $LSOF_OPTS |grep -qe "\b$ID\b"; then
+    if [ -n "$LSOF" ] && "$LSOF" $LSOF_OPTS |grep -qe "\b$ID\b"; then
       sleep 4
       break
     elif [ -n "$PORT" ]; then

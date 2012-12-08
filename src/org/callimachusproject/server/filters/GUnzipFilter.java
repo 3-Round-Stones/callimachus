@@ -30,8 +30,6 @@
 package org.callimachusproject.server.filters;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -43,6 +41,7 @@ import org.callimachusproject.client.GUnzipEntity;
 import org.callimachusproject.client.GZipEntity;
 import org.callimachusproject.server.model.Filter;
 import org.callimachusproject.server.model.Request;
+import org.callimachusproject.util.DomainNameSystemResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,15 +52,8 @@ import org.slf4j.LoggerFactory;
 public class GUnzipFilter extends Filter {
 	private static final BasicStatusLine STATUS_203 = new BasicStatusLine(
 			HttpVersion.HTTP_1_1, 203, "Non-Authoritative Information");
-	private static String hostname;
-	static {
-		try {
-			hostname = InetAddress.getLocalHost().getHostName();
-		} catch (UnknownHostException e) {
-			hostname = "localhost";
-		}
-	}
-	private static String WARN_214 = "214 " + hostname
+	private static final String hostname = DomainNameSystemResolver.getInstance().getLocalHostName();
+	private static final String WARN_214 = "214 " + hostname
 			+ " \"Transformation applied\"";
 	private final Logger logger = LoggerFactory.getLogger(GUnzipFilter.class);
 

@@ -30,7 +30,6 @@ package org.callimachusproject.server.process;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -54,6 +53,7 @@ import org.callimachusproject.server.CallimachusRepository;
 import org.callimachusproject.server.model.Filter;
 import org.callimachusproject.server.model.Handler;
 import org.callimachusproject.server.model.Request;
+import org.callimachusproject.util.DomainNameSystemResolver;
 import org.callimachusproject.xproc.Pipeline;
 import org.callimachusproject.xproc.PipelineFactory;
 import org.slf4j.Logger;
@@ -71,14 +71,7 @@ public class HTTPObjectRequestHandler extends AbstractHttpClient implements
 	private static final String EXCHANGE_ATTR = SELF + "#exchange";
 	private static final String PROCESSING_ATTR = SELF + "#processing";
 	private static final BasicHttpResponse _503 = new BasicHttpResponse(HttpVersion.HTTP_1_1, 503, "Invalid Service State");
-	private static final InetAddress LOCALHOST;
-	static {
-		try {
-			LOCALHOST = InetAddress.getLocalHost();
-		} catch (UnknownHostException e) {
-			throw new AssertionError(e);
-		}
-	}
+	private static final InetAddress LOCALHOST = DomainNameSystemResolver.getInstance().getLocalHost();
 
 	private final Logger logger = LoggerFactory
 			.getLogger(HTTPObjectRequestHandler.class);

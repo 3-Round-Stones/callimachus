@@ -1,8 +1,6 @@
 package org.callimachusproject.client;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -16,17 +14,11 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
+import org.callimachusproject.util.DomainNameSystemResolver;
 
 public class GZipHttpRequestClient extends AbstractHttpClient {
-	private static String hostname;
-	static {
-		try {
-			hostname = InetAddress.getLocalHost().getHostName();
-		} catch (UnknownHostException e) {
-			hostname = "AliBaba";
-		}
-	}
-	private static String WARN_214 = "214 " + hostname
+	private static final String hostname = DomainNameSystemResolver.getInstance().getLocalHostName();
+	private static final String WARN_214 = "214 " + hostname
 			+ " \"Transformation applied\"";
 	private final HttpClient client;
 

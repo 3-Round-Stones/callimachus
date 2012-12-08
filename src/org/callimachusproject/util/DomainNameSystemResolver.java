@@ -51,6 +51,37 @@ public class DomainNameSystemResolver {
 		return null;
 	}
 
+	public InetAddress getLocalHost() {
+		try {
+			return InetAddress.getByName(null);
+		} catch (UnknownHostException e) {
+			throw new AssertionError(e);
+		}
+	}
+
+	public String getLocalHostName() {
+		try {
+			return InetAddress.getLocalHost().getHostName();
+		} catch (UnknownHostException e) {
+			throw new AssertionError(e);
+		}
+	}
+
+	public String getCanonicalLocalHostName() {
+		try {
+			// attempt for the host canonical host name
+			return InetAddress.getLocalHost().getCanonicalHostName();
+		} catch (UnknownHostException uhe) {
+			try {
+				// attempt to get the loop back address
+				return InetAddress.getByName(null).getCanonicalHostName();
+			} catch (UnknownHostException uhe2) {
+				// default to a standard loop back IP
+				return "127.0.0.1";
+			}
+		}
+	}
+
 	public Collection<String> reverseAllLocalHosts() throws SocketException {
 		Collection<String> set = new TreeSet<String>();
 		Enumeration<NetworkInterface> ifaces = NetworkInterface
@@ -80,14 +111,6 @@ public class DomainNameSystemResolver {
 			throw new AssertionError(e);
 		}
 		return set;
-	}
-
-	public String reverseLocalHost() {
-		try {
-			return reverse(InetAddress.getLocalHost());
-		} catch (UnknownHostException e) {
-			throw new AssertionError(e);
-		}
 	}
 
 	public String reverse(String ip) {

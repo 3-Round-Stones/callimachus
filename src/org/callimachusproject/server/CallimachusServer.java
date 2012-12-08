@@ -20,9 +20,7 @@ package org.callimachusproject.server;
 import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
-import java.net.InetAddress;
 import java.net.URI;
-import java.net.UnknownHostException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
 import java.util.Set;
@@ -31,6 +29,7 @@ import org.apache.http.HttpHost;
 import org.apache.http.client.utils.URIUtils;
 import org.callimachusproject.client.HTTPObjectClient;
 import org.callimachusproject.server.util.FileUtil;
+import org.callimachusproject.util.DomainNameSystemResolver;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.repository.Repository;
@@ -243,19 +242,7 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 	}
 
 	private String getAuthority(int port) throws IOException {
-		String hostname;
-		try {
-			// attempt for the host canonical host name
-			hostname = InetAddress.getLocalHost().getCanonicalHostName();
-		} catch (UnknownHostException uhe) {
-			try {
-				// attempt to get the loop back address
-				hostname = InetAddress.getByName(null).getCanonicalHostName();
-			} catch (UnknownHostException uhe2) {
-				// default to a standard loop back IP
-				hostname = "127.0.0.1";
-			}
-		}
+		String hostname = DomainNameSystemResolver.getInstance().getCanonicalLocalHostName();
 		if (port == 80 || port == 443)
 			return hostname;
 		return hostname + ":" + port;

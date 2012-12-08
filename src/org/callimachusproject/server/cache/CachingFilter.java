@@ -38,8 +38,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.nio.channels.ReadableByteChannel;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -71,6 +69,7 @@ import org.callimachusproject.server.util.AutoCloseChannel;
 import org.callimachusproject.server.util.CatReadableByteChannel;
 import org.callimachusproject.server.util.ChannelUtil;
 import org.callimachusproject.server.util.LockCleanupManager;
+import org.callimachusproject.util.DomainNameSystemResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,23 +79,16 @@ import org.slf4j.LoggerFactory;
  * @author James Leigh
  */
 public class CachingFilter extends Filter {
-	private static AtomicLong seq = new AtomicLong(0);
+	private static final AtomicLong seq = new AtomicLong(0);
 	private static final HttpDateGenerator DATE_GENERATOR = new HttpDateGenerator();
-	private static String hostname;
-	static {
-		try {
-			hostname = InetAddress.getLocalHost().getHostName();
-		} catch (UnknownHostException e) {
-			hostname = "AliBaba";
-		}
-	}
-	private static String WARN_110 = "110 " + hostname
+	private static final String hostname = DomainNameSystemResolver.getInstance().getLocalHostName();
+	private static final String WARN_110 = "110 " + hostname
 			+ " \"Response is stale\"";
-	private static String WARN_111 = "111 " + hostname
+	private static final String WARN_111 = "111 " + hostname
 			+ " \"Revalidation failed\"";
-	private static String WARN_112 = "112 " + hostname
+	private static final String WARN_112 = "112 " + hostname
 			+ " \"Disconnected operation\"";
-	private Logger logger = LoggerFactory.getLogger(CachingFilter.class);
+	private final Logger logger = LoggerFactory.getLogger(CachingFilter.class);
 	private CacheIndex cache;
 	private boolean enabled = true;
 	private boolean disconnected;

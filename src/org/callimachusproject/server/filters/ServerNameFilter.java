@@ -30,18 +30,18 @@
 package org.callimachusproject.server.filters;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 
 import org.apache.http.HttpResponse;
 import org.callimachusproject.server.model.Filter;
 import org.callimachusproject.server.model.Request;
+import org.callimachusproject.util.DomainNameSystemResolver;
 
 /**
  * Add a Server header to the response.
  */
 public class ServerNameFilter extends Filter {
-	private static String PROTOCOL = "1.1";
+	private static final String PROTOCOL = "1.1";
+	private static final String HOSTNAME = DomainNameSystemResolver.getInstance().getLocalHostName();
 	private String name;
 	private String via;
 	private Integer port;
@@ -84,20 +84,12 @@ public class ServerNameFilter extends Filter {
 
 	private void setVia() {
 		StringBuilder sb = new StringBuilder();
-		sb.append(PROTOCOL).append(" ").append(getHostName());
+		sb.append(PROTOCOL).append(" ").append(HOSTNAME);
 		if (port != null && port != 80 && port != 443) {
 			sb.append(":").append(port); 
 		}
 		sb.append(" (").append(name).append(")");
 		via = sb.toString();
-	}
-
-	private String getHostName() {
-		try {
-			return InetAddress.getLocalHost().getHostName();
-		} catch (UnknownHostException e) {
-			return "locahost";
-		}
 	}
 
 }

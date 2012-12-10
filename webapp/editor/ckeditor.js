@@ -38,7 +38,10 @@ jQuery(function($) {
             instanceReady: function() {
                 this.dataProcessor.htmlFilter.addRules({
                     elements: {
-                        'img': adjustImg
+                        'img': adjustImg,
+                        'table': adjustTable,
+                        'th': adjustTd,
+                        'td': adjustTd
                     }
                 });
             }
@@ -81,23 +84,71 @@ jQuery(function($) {
         }
     }
     
-    // hide selected dialog UI elements
+    /**
+     * Turns table style rules into attributes for docbook compatibility.
+     */ 
+    function adjustTable(el) {
+        var style = el.attributes.style || '';
+        // simple per-attribute style regexps
+        var attrs = {
+            'width': /(^|\s)width\s*:\s*(\d+)px[^;]*(;|$)/i,
+            'height': /(^|\s)height\s*:\s*(\d+)px[^;]*(;|$)/i
+        }
+        for (attr in attrs) {
+            var m = style.match(attrs[attr]);
+            if (m && m[2] && m[2].length) {
+                el.attributes[attr] = m[2];
+                el.attributes.style = el.attributes.style.replace(m[0], '');
+            }
+        }
+    }
+
+    /**
+     * Turns th|td style rules into attributes for docbook compatibility.
+     */ 
+    function adjustTd(el) {
+        var style = el.attributes.style || '';
+        // simple per-attribute style regexps
+        var attrs = {
+            'align': /(^|\s)text-align\s*:\s*(left|center|right)[^;]*(;|$)/i,
+            'valign': /(^|\s)vertical-align\s*:\s*(top|middle|bottom|baseline)[^;]*(;|$)/i
+        }
+        for (attr in attrs) {
+            var m = style.match(attrs[attr]);
+            if (m && m[2] && m[2].length) {
+                el.attributes[attr] = m[2];
+                el.attributes.style = el.attributes.style.replace(m[0], '');
+            }
+        }
+    }
+    
+    // Alter selected dialog UI elements
     editor.on('dialogShow', function(e) {
         var el = $(e.data._.element.$);
+        var refEl = e.data._.selectedElement ? $(e.data._.selectedElement.$) : false;
         // remove the advanced tab in table dialogs, in case of ignored config option
         el.find('a.cke_dialog_tab[title*="Table"]').siblings('a.cke_dialog_tab[title="Advanced"]').remove();
-        // remove unsupported fields from "Table Properties" dialogs
+        // Adjust fields in "Table Properties" dialogs
         if (el.find('.cke_dialog_title').html().match(/Table Properties/)) {
             el.find('label').each(function() {
-                if ($(this).html().match(/^(border size)$/i)) {
+                // Remove unsupported fields
+                if ($(this).html().match(/^(border size|width|height)$/i)) {
                     $(this).parents('tr').first().hide();// only the immediate parent
+                }
+                // @width obsolete?? Set "width" value from @width of the referenced table (ckeditor bug)
+                else if (refEl && $(this).html().match(/^(width)$/i)) {
+                    el.find('#' + $(this).attr('for')).attr('value', refEl.attr('width'));
+                }
+                // @height obsolete?? Set "height" value from @height of the referenced table (ckeditor bug)
+                else if (refEl && $(this).html().match(/^(height)$/i)) {
+                    el.find('#' + $(this).attr('for')).attr('value', refEl.attr('height'));
                 }
             });
         }
         // remove unsupported fields from "Cell Properties" dialogs
         if (el.find('.cke_dialog_title').html().match(/Cell Properties/)) {
             el.find('label').each(function() {
-                if ($(this).html().match(/^(width|height|word wrap|border color|background color)$/i)) {
+                if ($(this).html().match(/^(width|height|word wrap|border color|background color|(horizontal|vertical) alignment)$/i)) {
                     $(this).parents('tr').first().hide();// only the immediate parent
                 }
             });

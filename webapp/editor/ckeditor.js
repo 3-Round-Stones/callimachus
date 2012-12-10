@@ -54,14 +54,12 @@ jQuery(function($) {
      */ 
     function adjustImg(el) {
         var style = el.attributes.style || '';
-        // per-attribute style regexps
+        // simple per-attribute style regexps
         var attrs = {
             'width': /(^|\s)width\s*:\s*(\d+)px[^;]*(;|$)/i,
             'height': /(^|\s)height\s*:\s*(\d+)px[^;]*(;|$)/i,
             'border': /(^|\s)border-width\s*:\s*(\d+)px[^;]*(;|$)/i,
-            'align': /(^|\s)float\s*:\s*(left|right)[^;]*(;|$)/i,
-            'vspace': /(^|\s)margin\s*:\s*(\d+)px[^;]*(;|$)/i,
-            'hspace': /(^|\s)margin\s*:[^;]*(\d+)px\s*(;|$)/i
+            'align': /(^|\s)float\s*:\s*(left|right)[^;]*(;|$)/i
         }
         for (attr in attrs) {
             var m = style.match(attrs[attr]);
@@ -70,15 +68,24 @@ jQuery(function($) {
                 el.attributes.style = el.attributes.style.replace(m[0], '');
             }
         }
+        // vspace: margin: 10px; | margin-top: 10px; | margin: 10px 20px;
+        if (m = style.match(/(^|\s)margin(-top)?\s*:\s*(\d+)px[^;]*(;|$)/i)) {
+            el.attributes['vspace'] = m[3];
+            el.attributes.style = el.attributes.style.replace(m[0], '');
+        }
+        // hspace: margin: 10px; | margin-left: 10px; | margin: 20px 10px;
+        if ((m = style.match(/(^|\s)margin(-left)?\s*:\s*(\d+)px\s*(;|$)/i)) ||
+            (m = style.match(/(^|\s)margin(-left)?\s*:\s*\d+px\s*(\d+)px[^;]*(;|$)/i))) {
+            el.attributes['hspace'] = m[3];
+            el.attributes.style = el.attributes.style.replace(m[0], '');
+        }
     }
     
     // hide selected dialog UI elements
     editor.on('dialogShow', function(e) {
         var el = $(e.data._.element.$);
-        
         // remove the advanced tab in table dialogs, in case of ignored config option
         el.find('a.cke_dialog_tab[title*="Table"]').siblings('a.cke_dialog_tab[title="Advanced"]').remove();
-        
         // remove unsupported fields from "Table Properties" dialogs
         if (el.find('.cke_dialog_title').html().match(/Table Properties/)) {
             el.find('label').each(function() {
@@ -87,11 +94,18 @@ jQuery(function($) {
                 }
             });
         }
-        
         // remove unsupported fields from "Cell Properties" dialogs
         if (el.find('.cke_dialog_title').html().match(/Cell Properties/)) {
             el.find('label').each(function() {
                 if ($(this).html().match(/^(width|height|word wrap|border color|background color)$/i)) {
+                    $(this).parents('tr').first().hide();// only the immediate parent
+                }
+            });
+        }
+        // remove unsupported fields from "Image Properties" dialogs
+        if (el.find('.cke_dialog_title').html().match(/Image Properties/)) {
+            el.find('label').each(function() {
+                if ($(this).html().match(/^(border)$/i)) {
                     $(this).parents('tr').first().hide();// only the immediate parent
                 }
             });

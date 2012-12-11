@@ -151,10 +151,10 @@ if (isLoggedIn()) {
                 });
             } else {
                 var cc = xhr.getResponseHeader("Cache-Control");
-                if (cc && cc.indexOf("public") >= 0) { 
-                    nowLoggedOut();
-                } else {
+                if (cc && cc.indexOf("public") < 0) {
                     activelyLogin();
+                } else {
+                    nowLoggedOut();
                 }
             }
         }

@@ -361,6 +361,8 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
 <xsl:template match="xhtml:caption|xhtml:tbody|xhtml:tr|xhtml:thead|xhtml:tfoot|xhtml:colgroup|xhtml:col|xhtml:td|xhtml:th">
     <xsl:element name="{local-name()}" 
                  namespace="http://docbook.org/ns/docbook">
+        <xsl:apply-templates select="@id|@lang" />
+        <xsl:apply-templates select="@align|@colspan|@rowspan|@valign" />
         <xsl:apply-templates />
     </xsl:element>
 </xsl:template>

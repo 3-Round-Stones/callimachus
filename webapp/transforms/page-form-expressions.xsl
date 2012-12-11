@@ -47,7 +47,7 @@
     </xsl:template>
 
     <xsl:template name="data-attributes">
-        <xsl:if test="$callback">
+        <xsl:if test="$callback and ancestor-or-self::*[@id and not(self::xhtml:html)]">
             <xsl:apply-templates mode="data-var" select="@*"/>
             <xsl:apply-templates mode="data-expression" select="@*"/>
             <xsl:if test="text() and not(*|comment())">
@@ -179,9 +179,6 @@
     </xsl:template>
 
     <!-- xptr-element -->
-    <xsl:template mode="xptr-element" match="/xhtml:html/xhtml:body|/html/body">
-        <xsl:text>content</xsl:text>
-    </xsl:template>
     <xsl:template mode="xptr-element" match="*[@id]">
         <xsl:value-of select="@id" />
     </xsl:template>

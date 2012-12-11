@@ -606,7 +606,7 @@ DELETE {
 } INSERT {
 	?realm calli:layout </callimachus/default-layout.xq>
 } WHERE {
-	?realm calli:theme ?theme
+	?realm a </callimachus/Realm>; calli:theme ?theme
 };
 
 DELETE {

@@ -190,7 +190,7 @@ function asSparqlUpdate(removed, added) {
         writer.closeWhere();
     }
 
-    return writer.toString();
+    return writer.toString() || 'INSERT {} WHERE {}';
 }
 
 function patchData(form, data, callback) {

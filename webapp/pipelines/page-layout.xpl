@@ -9,17 +9,10 @@
 
     <p:option name="realm" required="true" />
 
-    <p:xinclude name="xinclude" fixup-xml-base="true" fixup-xml-lang="true" />
-    <p:xslt>
-        <p:input port="stylesheet">
-            <p:document href="../transforms/make-paths-absolute.xsl" />
-        </p:input>
-    </p:xslt>
-    <p:xslt name="template-expression">
-        <p:input port="stylesheet">
-            <p:document href="../transforms/page-form-expressions.xsl" />
-        </p:input>
-    </p:xslt>
+    <p:import href="page-template.xpl" />
+
+    <calli:page-template name="page-template" />
+
     <p:load name="realm-load">
         <p:with-option name="href" select="concat('../queries/realm-layout.rq?results&amp;realm=', encode-for-uri($realm))" />
     </p:load>
@@ -38,7 +31,7 @@
     <p:http-request name="xquery-request" />
     <p:xquery>
         <p:input port="source">
-            <p:pipe step="template-expression" port="result" />
+            <p:pipe step="page-template" port="result" />
         </p:input>
         <p:input port="query">
             <p:pipe step="xquery-request" port="result" />

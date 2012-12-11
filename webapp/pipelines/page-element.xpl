@@ -13,6 +13,7 @@
     <p:option name="element" select="'/1'" />
 
     <p:import href="page-layout.xpl" />
+    <p:import href="page-template.xpl" />
 
     <p:choose>
         <p:when test="string-length($realm) &gt; 0">
@@ -21,7 +22,7 @@
             </calli:page-layout>
         </p:when>
         <p:otherwise>
-            <p:xinclude fixup-xml-base="true" fixup-xml-lang="true" />
+            <calli:page-template />
         </p:otherwise>
     </p:choose>
 

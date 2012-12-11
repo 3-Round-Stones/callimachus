@@ -98,6 +98,8 @@ public class DetachedDigestManager implements DetachedAuthenticationManager {
 	private static final long THREE_MONTHS = 3 * 30 * 24 * 60 * 60;
 	private static final int MAX_NONCE_AGE = 300000; // nonce timeout of 5min
 	private static final String USERNAME = "username=";
+	private static final BasicStatusLine _403 = new BasicStatusLine(
+			HttpVersion.HTTP_1_1, 403, "Forbidden");
 	private static final BasicStatusLine _401 = new BasicStatusLine(
 			HttpVersion.HTTP_1_1, 401, "Unauthorized");
 	private static final BasicStatusLine _204 = new BasicStatusLine(
@@ -276,6 +278,8 @@ public class DetachedDigestManager implements DetachedAuthenticationManager {
 			resp = new BasicHttpResponse(_204);
 		}
 		String cookie = getUsernameSetCookie(tokens, con);
+		if (cookie == null)
+			return new BasicHttpResponse(_403);
 		resp.addHeader("Set-Cookie", cookie);
 		return resp;
 	}
@@ -283,6 +287,8 @@ public class DetachedDigestManager implements DetachedAuthenticationManager {
 	public String getUsernameSetCookie(Collection<String> tokens,
 			ObjectConnection con) {
 		String username = getUserLogin(tokens, con);
+		if (username == null)
+			return null;
 		return USERNAME + encode(username) + ";Path=" + protectedPath;
 	}
 

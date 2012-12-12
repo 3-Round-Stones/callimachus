@@ -55,6 +55,7 @@ html, body {
 #page {
     overflow:auto;
     padding-bottom: (@footerHeight + 1);
+    position: relative;
 }
 
 html.iframe #page {
@@ -108,7 +109,7 @@ form {
 /* sidebar */
 
 #sidebar + div {
-    margin-right: 22rem;
+    margin-right: 20rem;
 }
 
 #content {
@@ -117,7 +118,8 @@ form {
 
 #sidebar {
     width: 18rem;
-    float: right;
+    right: 0;
+    position: absolute;
 }
 
 .iframe #sidebar {

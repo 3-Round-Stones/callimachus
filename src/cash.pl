@@ -62,7 +62,7 @@ BEGIN {
 Getopt::Long::Configure( qw(gnu_getopt) );
 
 # Globals
-my $version = "0.13";
+my $version = "0.14";
 my $authority;
 my $host;
 my $debug = 0;
@@ -106,7 +106,6 @@ my $OUT = *STDOUT;
 # Process commands from the command line.
 if ($execute) {
     process($execute);
-    exit unless ($interactive);
 }
 
 # Process information from the user prompt.
@@ -131,6 +130,7 @@ if ($interactive) {
     }    
 } else {
     # Process information from STDIN (presumed to be a Callimachus Shell script)
+    $OUT = *STDOUT;
     while ( <> ) {
         process($_);
     }

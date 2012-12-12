@@ -7,7 +7,7 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<web_bundle> a calli:ScriptBundle;
+<index> a calli:ScriptBundle;
     calli:reader </auth/groups/public>;
     rdf:_1 <jquery.js>;
     rdf:_2 <location.js>;

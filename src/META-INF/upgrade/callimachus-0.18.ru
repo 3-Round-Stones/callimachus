@@ -455,6 +455,16 @@ DELETE {
 };
 
 INSERT {
+</callimachus/scripts.js> a <types/PURL>, calli:PURL ;
+	rdfs:label "scripts.js";
+	calli:alternate </callimachus/1.0/scripts/index?source>;
+	calli:administrator </auth/groups/admin>;
+	calli:reader </auth/groups/public> .
+} WHERE {
+    FILTER NOT EXISTS { </callimachus/scripts.js> a calli:PURL }
+};
+
+INSERT {
 	</callimachus/> calli:hasComponent </callimachus/library.xpl>.
 	</callimachus/library.xpl> a </callimachus/1.0/types/PURL>, calli:PURL ;
 		rdfs:label "library.xpl";

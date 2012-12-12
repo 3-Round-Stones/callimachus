@@ -30,17 +30,7 @@ declare function calli:breadcrumb($divider) as element(nav) {
     <nav id="calli-breadcrumb">{$divider}</nav>
 };
 
-declare variable $calli:head :=
-    let $first_script := /html/head/script[1]
-    let $before :=
-        if ($first_script) then
-            $first_script/preceding-sibling::node()
-        else
-            /html/head/node()
-    let $after := $first_script|$first_script/following-sibling::node()
-    let $web_bundle := <script type="text/javascript" src="{resolve-uri('../scripts/web_bundle?source')}" />
-    return ($before, $web_bundle, $after)
-;
+declare variable $calli:head := /html/head/node();
 
 declare variable $calli:sidebar := /html/body/div[@id='sidebar'];
 declare variable $calli:body := /html/body/@*;

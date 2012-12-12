@@ -11,7 +11,7 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
     <link rel="icon" href="/favicon.ico" />
     <!--[if gt IE 6]><!-->
     <link rel="stylesheet" href="{resolve-uri('../theme/theme.less?less')}" />
-    {$calli:head}
+    <script type="text/javascript" src="{resolve-uri('/callimachus/scripts.js')}" />
     <script type="text/javascript" src="{resolve-uri('../scripts/discussion.js')}" />
     <!--[if lt IE 9]>
         <script>document.documentElement.className+=' ie'</script>
@@ -19,6 +19,7 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
         <script src="//cdn-delivery.commondatastorage.googleapis.com/spiders-design/theme/js/selectivizr.js"></script>
     <![endif]-->
     <!--<![endif]-->
+    {$calli:head}
 </head>
 <body>{$calli:body}
     <div id="wrapper">

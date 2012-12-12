@@ -62,6 +62,12 @@ INSERT {
     rdfs:label "changes";
     calli:subscriber </auth/groups/admin>.
 
+<../scripts.js> a <types/PURL>, calli:PURL ;
+	rdfs:label "scripts.js";
+	calli:alternate <scripts/index?source>;
+	calli:administrator </auth/groups/admin>;
+	calli:reader </auth/groups/public> .
+
 <../library.xpl> a <types/PURL>, calli:PURL ;
 	rdfs:label "library.xpl";
 	calli:alternate <library.xpl>;

@@ -12,9 +12,308 @@
 @import url("callimachus-variables.less");
 @import url("callimachus-bootstrap.less");
 
-// handle callimachus specific style rules
-@import url("../styles/callimachus.css");
-
 // disable screen only elements
 @import url("../styles/callimachus-print.css");
+
+/* callimachus.css */
+
+html {
+    overflow-y: scroll;
+}
+
+.wait,.wait * {
+    cursor:wait;
+}
+
+.drag-over {
+    cursor:copy;
+}
+
+html.logout .protected,
+html.logout .hidden-logout {
+    display: none !important;
+}
+
+html.login .hidden-login {
+    display: none !important;
+}
+
+html.iframe .hidden-iframe {
+    display: none !important;
+}
+
+html.iframe {
+    overflow-y: scroll;
+}
+
+time {
+    white-space:nowrap;
+}
+
+[dropzone] .ui-state-highlight {
+    white-space:nowrap;
+}
+
+iframe.ui-widget-content.ui-dialog-content {
+    margin:0;
+    padding:0;
+}
+
+pre {
+    white-space:pre-wrap;
+}
+
+img.icon {
+    max-height:1em;
+    padding-right:2pt;
+    vertical-align:text-top;
+}
+
+a.ui-icon {
+    display:inline-block;
+    vertical-align:text-bottom;
+}
+
+.flex {
+    display:block;
+}
+
+.summary {
+    line-height:1em;
+    max-height:3.1em;
+    overflow:hidden;
+}
+
+.summary * {
+    margin:0;
+    padding:0;
+}
+
+/* theme.less */
+
+/* imports */
+@import url("theme-imports.less");
+
+
+/* bootstrap tweaks */
+
+.container {
+    width: 100%;
+    max-width: 940px;
+}
+
+/* theme rules */
+
+div, footer, iframe { 
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box; 
+}
+
+#container {
+    background-color: @white;
+    padding: 1rem;
+}
+
+.iframe #container {
+    padding: 0;
+}
+
+html.login #access ~ #container {
+    border: 1px solid #ddd;
+    .border-radius(0 0 4px 4px);
+    border-top: none;
+}
+
+html.login.iframe #access ~ #container {
+    padding: 0;
+    border: 0;
+}
+
+html, body {
+    height: 100%;
+}
+
+#wrapper {
+    min-height: 100%;
+    overflow: hidden;
+}
+
+.iframe #wrapper {
+    padding: 0.5rem;
+}
+
+#page {
+    overflow:auto;
+    padding-bottom: (@footerHeight + 1);
+    position: relative;
+    min-height: 30rem; /* make sure the create-menu doesn't trigger scrollbars */
+}
+
+html.iframe #page {
+    padding: 0;
+    width: auto;
+}
+
+.ui-dialog {
+    padding-bottom: 0;
+    .box-shadow(0 5px 10px rgba(0,0,0,0.2));
+    max-width: 640px;
+}
+
+/* breadcrumbs */
+
+#breadcrumbs .divider {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+/* add a border to the iframe */
+form > #iframe {
+    border: 1px solid @grayLight;
+}
+
+/* add some space between iframe and buttons */
+form > #iframe ~ .btn {
+    margin-top: 0.4rem;
+}
+
+form {
+    margin-bottom: 0;
+}
+
+/* navbar */
+
+.navbar-inner {
+    .border-radius(0);
+    border: 0;
+    border-bottom: 1px solid @navbarBorder;
+}
+
+.navbar .brand {
+  padding: ((@navbarHeight - @baseLineHeight) / 2)rem 20px ((@navbarHeight - @baseLineHeight) / 2)rem;
+}
+
+.navbar-search {
+  .navbarVerticalAlign(@searchHeight); 
+}
+
+/* sidebar */
+
+#sidebar + div {
+    margin-right: 20rem;
+}
+
+#content {
+    min-height: 15rem;
+}
+
+#sidebar {
+    width: 18rem;
+    right: 0;
+    position: absolute;
+}
+
+.iframe #sidebar {
+    margin-top: 1rem;
+}
+
+aside {
+    .border-radius(3px);
+    .box-shadow(0 0 7px rgba(0, 0, 0, 0.1) inset);
+    padding: 1rem;
+    border: 1px solid #ddd;
+    margin-bottom: 1rem;
+}
+
+aside p:last-child {
+    margin-bottom: 0;
+}    
+
+aside h3 {
+    line-height: 1rem;
+    margin-top: 0;
+}
+
+/* footer */
+
+#footer {
+    position: relative;
+    clear: both;
+    color: @navbarText;
+    background-color: @navbarBackground;
+    border-top: 1px solid @navbarBorder;
+    height: @footerHeight;
+    margin-top: -@footerHeight;
+}
+
+#colophon {
+    font-size:small;
+}
+
+#footer p#site-generator {
+    margin: 0.9rem 0 0;
+    float: right;
+    text-align: right;
+}
+
+#footer p#resource-lastmod {
+    float: left;
+    text-align: left;
+    margin: 0.5rem 0 0 0;
+}
+
+/* folder-box */
+
+#folder-box .ui-grid-header,
+#folder-box .ui-grid-footer {
+    border: 0;
+    #gradient.vertical(#f9f9f9, #eee);    
+}
+
+#folder-box table {
+    border: 0;
+}
+
+#folder-box table th {
+    padding: 0.2rem 1rem;
+}
+
+#folder-box tr th:first-child,
+#folder-box tr td:first-child {
+   border-left: 0; 
+}
+
+#folder-box tr th:last-child,
+#folder-box tr td:last-child {
+   border-right: 0; 
+}
+
+/* create-menu */
+
+#create-menu {
+    padding: 0 10px 10px;
+    margin-left: -10px;
+    z-index: 1000;
+}
+
+#create-menu ul {
+    .box-shadow(0 5px 10px rgba(0, 0, 0, 0.2));
+}    
+
+#create-menu a {
+    background: @grayLighter;
+}    
+
+#create-menu li:last-child a {
+    border-bottom: 1px solid @grayLight;
+}
+
+/* drag-drop states */
+
+.dragover, .drag-over,
+.dragover td, .drag-over td {
+    cursor: copy;
+    background: #ddd !important;
+}
 

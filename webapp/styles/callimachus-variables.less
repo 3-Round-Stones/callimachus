@@ -1,3 +1,4 @@
+// callimachus-variables.less
 
 // ----------------------------------------------------------------------------
 // variables.less overrides
@@ -16,10 +17,48 @@
 @iconSpritePath:        "../images/glyphicons-halflings.png";
 @iconWhiteSpritePath:   "../images/glyphicons-halflings-white.png";
 
+@baseLineHeight: 1.25rem;
+@navbarHeight: 2.5rem;
+@searchHeight: 1.8rem;
+@footerHeight: 4rem;
+
 
 // ----------------------------------------------------------------------------
 // jquery.ui.variables.less overrides
 // ----------------------------------------------------------------------------
 
-@ffDefault: @baseFontFamily;
-@fsDefault: @baseFontSize;
+// Font Settings
+@ffDefault: @sansFontFamily;
+@fsDefault: @sansFontFamily;
+
+// Header/Toolbar
+@bgColorHeader: @grayLighter;
+@borderColorHeader: @grayLight;
+@fcHeader: @gray;
+
+// Content
+@bgColorContent: @bodyBackground;
+@borderColorContent: @grayLight;
+@fcContent: @textColor;
+
+// Clickable: default state
+@bgColorDefault: @grayLighter;
+@borderColorDefault: @grayLight;
+@fcDefault: @gray;
+
+// Clickable: hover state
+@bgColorHover: @grayLight;
+@borderColorHover: @gray;
+@fcHover: @grayDark;
+
+// Clickable: active state
+@bgColorActive: @white;
+@borderColorActive: @grayLight;
+@fcActive: @grayDark;
+
+// Error
+@borderColorError: @red;
+@fcError: @red;
+
+@bgImgUrlHeader: url("../images/ui-bg_highlight-soft_75_cccccc_1x100.png");
+

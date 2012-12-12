@@ -10,7 +10,7 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
     <link rel="home" href="/" />
     <link rel="icon" href="/favicon.ico" />
     <!--[if gt IE 6]><!-->
-    <link rel="stylesheet" href="{resolve-uri('../theme/theme.less?less')}" />
+    <link rel="stylesheet" href="{resolve-uri('/callimachus/styles.css')}" />
     <script type="text/javascript" src="{resolve-uri('/callimachus/scripts.js')}" />
     <!--[if lt IE 9]>
         <script>document.documentElement.className+=' ie'</script>

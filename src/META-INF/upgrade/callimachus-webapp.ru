@@ -52,6 +52,8 @@ INSERT {
     calli:administrator </auth/groups/admin>;
     calli:hasComponent
         <../changes/>,
+        <../styles.css>,
+        <../scripts.js>,
         <../library.xpl>,
         <../forbidden.html>,
         <../unauthorized.html>,
@@ -61,6 +63,12 @@ INSERT {
 <../changes/> a <types/Folder>, calli:Folder;
     rdfs:label "changes";
     calli:subscriber </auth/groups/admin>.
+
+<../styles.css> a <types/PURL>, calli:PURL ;
+	rdfs:label "styles.css";
+	calli:alternate <styles/callimachus.less?less>;
+	calli:administrator </auth/groups/admin>;
+	calli:reader </auth/groups/public> .
 
 <../scripts.js> a <types/PURL>, calli:PURL ;
 	rdfs:label "scripts.js";

@@ -455,11 +455,23 @@ DELETE {
 };
 
 INSERT {
-</callimachus/scripts.js> a <types/PURL>, calli:PURL ;
-	rdfs:label "scripts.js";
-	calli:alternate </callimachus/1.0/scripts/index?source>;
-	calli:administrator </auth/groups/admin>;
-	calli:reader </auth/groups/public> .
+    </callimachus/> calli:hasComponent </callimachus/styles.css>.
+    </callimachus/styles.css> a </callimachus/1.0/types/PURL>, calli:PURL ;
+	    rdfs:label "styles.css";
+	    calli:alternate </callimachus/1.0/styles/callimachus.less?less>;
+	    calli:administrator </auth/groups/admin>;
+	    calli:reader </auth/groups/public> .
+} WHERE {
+    FILTER NOT EXISTS { </callimachus/styles.css> a calli:PURL }
+};
+
+INSERT {
+    </callimachus/> calli:hasComponent </callimachus/scripts.js>.
+    </callimachus/scripts.js> a </callimachus/1.0/types/PURL>, calli:PURL ;
+	    rdfs:label "scripts.js";
+	    calli:alternate </callimachus/1.0/scripts/index?source>;
+	    calli:administrator </auth/groups/admin>;
+	    calli:reader </auth/groups/public> .
 } WHERE {
     FILTER NOT EXISTS { </callimachus/scripts.js> a calli:PURL }
 };

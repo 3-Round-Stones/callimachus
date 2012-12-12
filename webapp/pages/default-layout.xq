@@ -22,10 +22,10 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
 </head>
 <body>{$calli:body}
     <div id="wrapper">
-        <div id="top" class="navbar hidden-iframe">
-            <header id="header" class="navbar-inner">
-                <div id="masthead" class="container">
-                    <a id="branding" class="brand" href="/"></a>
+        <div class="navbar hidden-iframe">
+            <header class="navbar-inner">
+                <div class="container">
+                    <a id="branding" class="brand" href="/">Callimachus</a>
                     <!-- #breadcrumbs to replaced with breadcrumbs of the resource -->
                     <nav id="breadcrumbs" class="nav">
                         <span>...</span>
@@ -62,14 +62,14 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
                             </menu>
                         </li>
                     </menu>
-                    <form id="search" class="navbar-search pull-right hidden-logout" method="GET" action="/">
+                    <form class="navbar-search pull-right hidden-logout" method="GET" action="/">
                         <input type="text" name="q" class="search-query" placeholder="Lookup..." />
                     </form>
                 </div>
             </header>
         </div>
         <div id="page" class="container">
-            <div id="main">
+            <div>
 
                 <nav id="access" class="hidden-logout hidden-iframe nav-tabs">
                     <!-- within #access any @href that matches the query string is omitted -->
@@ -90,7 +90,6 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
 
     <footer id="footer" class="hidden-iframe">
         <div id="colophon" class="container">
-            <div id="menu"><!-- put menu here --></div>
             <p id="site-generator">
                 <a href="http://callimachusproject.org/" title="Callimachus">
                     <img src="{resolve-uri('../images/callimachus-powered.png')}" alt="Callimachus" width="98" height="35" />
@@ -99,11 +98,10 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
 
             <!-- #resource-lastmod>time is replaced with the time this resource was modified or omitted entirely -->
             <p id="resource-lastmod">This resource was last modified at <time class="abbreviated"/></p>
-            <p id="rights"><!-- put copyright info here --></p>
         </div>
     </footer>
     <!--[if lt IE 9]>
-        <script src="https://raw.github.com/chuckcarpenter/REM-unit-polyfill/master/js/rem.js"></script>
+        <script src="//raw.github.com/chuckcarpenter/REM-unit-polyfill/master/js/rem.js"></script>
     <![endif]-->
 </body>
 </html>

@@ -195,7 +195,7 @@
         var bio = new org.callimachusproject.io.LatencyInputStream(body);
         try {
             if (type && type.indexOf("multipart/form-data") == 0) {
-                bio.mark(1024);
+                bio.mark(65536);
                 var parser = new MultipartParser(bio);
                 var file = parser.next();
                 var headers = parser.getHeaders();
@@ -223,7 +223,7 @@
                 ftype = "application/octet-stream";
             } else if (ftype == "text/xml" || ftype == "application/xml" ||
                     ftype.indexOf("+xml") > 0) {
-                bio.mark(1024);
+                bio.mark(65536);
                 var xmlFactory = XMLEventReaderFactory.newInstance();
                 var xml = xmlFactory.createXMLEventReader(createdUri, bio);
                 while (!xml.peek().isStartElement()) {

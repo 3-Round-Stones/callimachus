@@ -35,7 +35,7 @@ public class ArrangedWriter implements RDFWriter {
 	private static int MAX_QUEUE_SIZE = 100;
 	private final RDFWriter delegate;
 	private int queueSize = 0;
-	private final Map<String, String> namespaces = new TreeMap<String, String>();
+	private final Map<String, String> prefixes = new TreeMap<String, String>();
 	private final Map<Resource, Set<Statement>> statements = new LinkedHashMap<Resource, Set<Statement>>();
 	private final Comparator<Statement> comparator = new Comparator<Statement>() {
 		public int compare(Statement s1, Statement s2) {
@@ -71,7 +71,9 @@ public class ArrangedWriter implements RDFWriter {
 	public void handleNamespace(String prefix, String uri)
 			throws RDFHandlerException {
 		flushStatements();
-		namespaces.put(prefix, uri);
+		if (!prefixes.containsKey(uri)) {
+			prefixes.put(uri, prefix);
+		}
 	}
 
 	public void handleComment(String comment) throws RDFHandlerException {
@@ -120,21 +122,21 @@ public class ArrangedWriter implements RDFWriter {
 	}
 
 	private synchronized void flushNamespaces() throws RDFHandlerException {
-		for (Map.Entry<String, String> e : namespaces.entrySet()) {
-			delegate.handleNamespace(e.getKey(), e.getValue());
+		for (Map.Entry<String, String> e : prefixes.entrySet()) {
+			delegate.handleNamespace(e.getValue(), e.getKey());
 		}
-		namespaces.clear();
+		prefixes.clear();
 	}
 
 	private synchronized void trimNamespaces() {
-		if (!namespaces.isEmpty()) {
-			Set<String> used = new HashSet<String>(namespaces.size());
+		if (!prefixes.isEmpty()) {
+			Set<String> used = new HashSet<String>(prefixes.size());
 			for (Set<Statement> set : statements.values()) {
 				for (Statement st : set) {
 					used.add(st.getPredicate().getNamespace());
 				}
 			}
-			namespaces.values().retainAll(used);
+			prefixes.keySet().retainAll(used);
 		}
 	}
 

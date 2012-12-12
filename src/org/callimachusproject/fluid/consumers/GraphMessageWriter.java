@@ -35,6 +35,7 @@ import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -68,7 +69,7 @@ import org.openrdf.rio.turtle.TurtleWriterFactory;
  */
 public class GraphMessageWriter extends
 		MessageWriterBase<RDFFormat, RDFWriterFactory, GraphQueryResult> {
-	private static final int SMALL = 16;
+	private static final int SMALL = 100;
 	static {
 		RDFFormat format = RDFFormat.forMIMEType("text/turtle");
 		if (format == null) {
@@ -117,7 +118,6 @@ public class GraphMessageWriter extends
 		// writer.setBaseURI(base);
 		writer.startRDF();
 
-		Set<String> firstNamespaces = null;
 		List<Statement> firstStatements = new ArrayList<Statement>(SMALL);
 
 		// Only try to trim namespace if the RDF format supports
@@ -134,7 +134,8 @@ public class GraphMessageWriter extends
 			trimNamespaces = firstStatements.size() < SMALL;
 
 			// Gather the namespaces from the first few statements
-			firstNamespaces = new HashSet<String>(SMALL);
+			Set<String> firstNamespaces = new LinkedHashSet<String>(SMALL);
+			Set<String> reportedNamespaces = new HashSet<String>(SMALL);
 
 			for (Statement st : firstStatements) {
 				addNamespace(st.getSubject(), firstNamespaces);
@@ -151,6 +152,7 @@ public class GraphMessageWriter extends
 				if (!trimNamespaces || firstNamespaces.contains(namespace)) {
 					writer.handleNamespace(prefix, namespace);
 					firstNamespaces.remove(namespace);
+					reportedNamespaces.add(namespace);
 				}
 			}
 
@@ -161,9 +163,11 @@ public class GraphMessageWriter extends
 					while (names.hasNext()) {
 						Namespace ns = names.next();
 						String name = ns.getName();
-						if (firstNamespaces.contains(name)) {
+						if ((!trimNamespaces || firstNamespaces.contains(name))
+								&& !reportedNamespaces.contains(name)) {
 							writer.handleNamespace(ns.getPrefix(), name);
 							firstNamespaces.remove(name);
+							reportedNamespaces.add(name);
 						}
 					}
 				} catch (RepositoryException e) {

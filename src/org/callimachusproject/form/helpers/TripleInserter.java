@@ -19,12 +19,14 @@
  */
 package org.callimachusproject.form.helpers;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.callimachusproject.engine.RDFEventReader;
 import org.callimachusproject.engine.RDFParseException;
 import org.callimachusproject.engine.events.TriplePattern;
 import org.callimachusproject.engine.model.TermFactory;
+import org.openrdf.model.Namespace;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
@@ -32,6 +34,8 @@ import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.StatementImpl;
 import org.openrdf.repository.RepositoryConnection;
+import org.openrdf.repository.RepositoryException;
+import org.openrdf.repository.RepositoryResult;
 import org.openrdf.repository.util.RDFInserter;
 import org.openrdf.rio.RDFHandler;
 import org.openrdf.rio.RDFHandlerException;
@@ -48,11 +52,23 @@ public class TripleInserter implements RDFHandler {
 	private final ValueFactory vf;
 	private final TripleVerifier verifier = new TripleVerifier();
 	private final RDFInserter inserter;
+	private final Set<String> prefixes = new HashSet<String>();
+	private final Set<String> namespaces = new HashSet<String>();
 
-	public TripleInserter(RepositoryConnection con) {
+	public TripleInserter(RepositoryConnection con) throws RepositoryException {
 		this.con = con;
 		this.vf = con.getValueFactory();
 		this.inserter = new RDFInserter(con);
+		RepositoryResult<Namespace> currently = con.getNamespaces();
+		try {
+			while (currently.hasNext()) {
+				Namespace ns = currently.next();
+				prefixes.add(ns.getPrefix());
+				namespaces.add(ns.getName());
+			}
+		} finally {
+			currently.close();
+		}
 	}
 
 	@Override
@@ -139,7 +155,11 @@ public class TripleInserter implements RDFHandler {
 	}
 
 	public void handleNamespace(String prefix, String name) {
-		inserter.handleNamespace(prefix, name);
+		if (!prefixes.contains(prefix) && !namespaces.contains(name)) {
+			prefixes.add(prefix);
+			namespaces.add(name);
+			inserter.handleNamespace(prefix, name);
+		}
 	}
 
 	private Statement canonicalize(Statement st) throws RDFHandlerException {

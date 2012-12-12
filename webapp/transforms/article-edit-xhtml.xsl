@@ -143,8 +143,13 @@
 
 <xsl:template match="d:para">
     <p>
+        <xsl:apply-templates select="@xml:id|@xml:lang" />
         <xsl:apply-templates />
     </p>
+</xsl:template>
+
+<xsl:template match="d:simpara">
+    <xsl:apply-templates />
 </xsl:template>
 
 <xsl:template match="d:blockquote">
@@ -220,6 +225,9 @@
             <xsl:when test="$target/d:info/d:title">
                 <xsl:value-of select="$target/d:info/d:title" />
             </xsl:when>
+            <xsl:when test="$target/d:caption/d:simpara">
+                <xsl:value-of select="$target/d:caption/d:simpara" />
+            </xsl:when>
             <xsl:when test="$target/d:caption/d:para">
                 <xsl:value-of select="$target/d:caption/d:para" />
             </xsl:when>
@@ -257,7 +265,7 @@
     </p>
 </xsl:template>
 
-<xsl:template match="d:figure/d:caption[d:para]|d:informalfigure/d:caption[d:para]">
+<xsl:template match="d:figure/d:caption[d:para or d:simpara]|d:informalfigure/d:caption[d:para or d:simpara]">
     <xsl:apply-templates />
 </xsl:template>
 
@@ -267,7 +275,13 @@
     </span>
 </xsl:template>
 
-<xsl:template match="d:figure/d:caption[not(d:para)]|d:informalfigure/d:caption[not(d:para)]">
+<xsl:template match="d:figure/d:caption/d:simpara|d:informalfigure/d:caption/d:simpara">
+    <span class="caption">
+        <xsl:apply-templates />
+    </span>
+</xsl:template>
+
+<xsl:template match="d:figure/d:caption[not(d:para or d:simpara)]|d:informalfigure/d:caption[not(d:para or d:simpara)]">
     <span class="caption">
         <xsl:apply-templates />
     </span>
@@ -284,7 +298,37 @@
 <xsl:template match="d:imageobject">
     <xsl:variable name="contentdepth" select="substring-before(d:imagedata/@contentdepth,'px')" />
     <xsl:variable name="contentwidth" select="substring-before(d:imagedata/@contentwidth,'px')" />
+    <xsl:variable name="style">
+        <xsl:if test="d:imagedata/@align='left'">
+            <xsl:text>float:left;</xsl:text>
+        </xsl:if>
+        <xsl:if test="d:imagedata/@align='right'">
+            <xsl:text>float:right;</xsl:text>
+        </xsl:if>
+        <xsl:if test="d:imagedata/@contentdepth">
+            <xsl:text>height:</xsl:text>
+            <xsl:value-of select="d:imagedata/@contentdepth" />
+            <xsl:text>;</xsl:text>
+        </xsl:if>
+        <xsl:if test="d:imagedata/@contentwidth">
+            <xsl:text>width:</xsl:text>
+            <xsl:value-of select="d:imagedata/@contentwidth" />
+            <xsl:text>;</xsl:text>
+        </xsl:if>
+        <xsl:if test="$contentdepth and contains(d:imagedata/@depth, 'px') and $contentwidth and contains(d:imagedata/@width,'px')">
+            <xsl:text>margin:</xsl:text>
+            <xsl:value-of select="number(substring-before(d:imagedata/@depth,'px')) - number($contentdepth)"/>
+            <xsl:text>px </xsl:text>
+            <xsl:value-of select="number(substring-before(d:imagedata/@width,'px')) - $contentwidth"/>
+            <xsl:text>px;</xsl:text>
+        </xsl:if>
+    </xsl:variable>
     <img src="{d:imagedata/@fileref}">
+        <xsl:if test="$style">
+            <xsl:attribute name="style">
+                <xsl:value-of select="$style" />
+            </xsl:attribute>
+        </xsl:if>
         <xsl:if test="$contentdepth">
             <xsl:attribute name="height">
                 <xsl:value-of select="$contentdepth"/>
@@ -313,6 +357,11 @@
         <xsl:if test="../d:alt">
             <xsl:attribute name="alt">
                 <xsl:value-of select="../d:alt"/>
+            </xsl:attribute>
+        </xsl:if>
+        <xsl:if test="../d:caption/d:simpara">
+            <xsl:attribute name="title">
+                <xsl:value-of select="../d:caption/d:simpara"/>
             </xsl:attribute>
         </xsl:if>
         <xsl:if test="../d:caption/d:para">
@@ -353,29 +402,13 @@
     </dt>
 </xsl:template>
 
-<xsl:template match="d:listitem[d:para]">
-    <xsl:apply-templates />
-</xsl:template>
-
-<xsl:template match="d:listitem/d:para">
+<xsl:template match="d:listitem">
     <li>
         <xsl:apply-templates />
     </li>
 </xsl:template>
 
-<xsl:template match="d:listitem[not(d:para)]">
-    <li>
-        <xsl:apply-templates />
-    </li>
-</xsl:template>
-
-<xsl:template match="d:varlistentry/d:listitem/d:para">
-    <dd>
-        <xsl:apply-templates />
-    </dd>
-</xsl:template>
-
-<xsl:template match="d:varlistentry/d:listitem[not(d:para)]">
+<xsl:template match="d:varlistentry/d:listitem">
     <dd>
         <xsl:apply-templates />
     </dd>
@@ -383,26 +416,86 @@
 
 <!-- tables -->
 <xsl:template match="d:informaltable[not(d:caption)]">
+    <xsl:variable name="style">
+        <xsl:if test="@border">
+            <xsl:text>border-style:solid;border-width:</xsl:text>
+            <xsl:value-of select="@border" />
+            <xsl:text>px;</xsl:text>
+        </xsl:if>
+        <xsl:if test="@width">
+            <xsl:text>width:</xsl:text>
+            <xsl:value-of select="@width" />
+            <xsl:if test="not(contains(@width,'%'))">
+                <xsl:text>px</xsl:text>
+            </xsl:if>
+            <xsl:text>;</xsl:text>
+        </xsl:if>
+    </xsl:variable>
     <table class="table">
         <xsl:apply-templates select="@xml:id|@xml:lang" />
         <xsl:apply-templates select="@summary|@width|@border|@cellspacing|@cellpadding|@frame|@rules" />
+        <xsl:if test="$style">
+            <xsl:attribute name="style">
+                <xsl:value-of select="$style" />
+            </xsl:attribute>
+        </xsl:if>
         <xsl:apply-templates select="*" />
     </table>
 </xsl:template>
 
 <xsl:template match="d:table[not(d:caption)]">
+    <xsl:variable name="style">
+        <xsl:if test="@border">
+            <xsl:text>border-style:solid;border-width:</xsl:text>
+            <xsl:value-of select="@border" />
+            <xsl:text>px;</xsl:text>
+        </xsl:if>
+        <xsl:if test="@width">
+            <xsl:text>width:</xsl:text>
+            <xsl:value-of select="@width" />
+            <xsl:if test="not(contains(@width,'%'))">
+                <xsl:text>px</xsl:text>
+            </xsl:if>
+            <xsl:text>;</xsl:text>
+        </xsl:if>
+    </xsl:variable>
     <table class="table table-bordered">
         <xsl:apply-templates select="@xml:id|@xml:lang" />
         <xsl:apply-templates select="@summary|@width|@border|@cellspacing|@cellpadding|@frame|@rules" />
+        <xsl:if test="$style">
+            <xsl:attribute name="style">
+                <xsl:value-of select="$style" />
+            </xsl:attribute>
+        </xsl:if>
         <caption><xsl:apply-templates select="d:title/node()|d:info/d:title/node()" /></caption>
         <xsl:apply-templates select="d:tgroup" />
     </table>
 </xsl:template>
 
 <xsl:template match="d:table[d:caption] | d:informaltable[d:caption]">
+    <xsl:variable name="style">
+        <xsl:if test="@border">
+            <xsl:text>border-style:solid;border-width:</xsl:text>
+            <xsl:value-of select="@border" />
+            <xsl:text>px;</xsl:text>
+        </xsl:if>
+        <xsl:if test="@width">
+            <xsl:text>width:</xsl:text>
+            <xsl:value-of select="@width" />
+            <xsl:if test="not(contains(@width,'%'))">
+                <xsl:text>px</xsl:text>
+            </xsl:if>
+            <xsl:text>;</xsl:text>
+        </xsl:if>
+    </xsl:variable>
     <table class="table table-bordered">
         <xsl:apply-templates select="@xml:id|@xml:lang" />
         <xsl:apply-templates select="@summary|@width|@border|@cellspacing|@cellpadding|@frame|@rules" />
+        <xsl:if test="$style">
+            <xsl:attribute name="style">
+                <xsl:value-of select="$style" />
+            </xsl:attribute>
+        </xsl:if>
         <xsl:apply-templates />
     </table>
 </xsl:template>
@@ -410,8 +503,25 @@
 <!-- For docbook table elements (which differ from HTML5 elements 
      only by namespace URI), copy them as is but change the namespace -->
 <xsl:template match="d:tbody|d:tr|d:thead|d:tfoot|d:caption|d:colgroup|d:td|d:th|d:col">
+    <xsl:variable name="style">
+        <xsl:if test="@align">
+            <xsl:text>text-align:</xsl:text>
+            <xsl:value-of select="@align" />
+            <xsl:text>;</xsl:text>
+        </xsl:if>
+        <xsl:if test="@valign">
+            <xsl:text>vertical-align:</xsl:text>
+            <xsl:value-of select="@valign" />
+            <xsl:text>;</xsl:text>
+        </xsl:if>
+    </xsl:variable>
     <xsl:element name="{local-name()}" 
                  namespace="http://www.w3.org/1999/xhtml">
+        <xsl:if test="$style and not(@style)">
+            <xsl:attribute name="style">
+                <xsl:value-of select="$style" />
+            </xsl:attribute>
+        </xsl:if>
         <xsl:apply-templates select="@*|node()" />
     </xsl:element>
 </xsl:template>

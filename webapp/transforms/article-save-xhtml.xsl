@@ -165,7 +165,7 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
 <!-- para elements -->
 <xsl:template match="xhtml:p">
     <para>
-        <xsl:apply-templates select="@id" />
+        <xsl:apply-templates select="@id|@lang" />
         <xsl:apply-templates />
     </para>
 </xsl:template>
@@ -178,14 +178,14 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
 
 <xsl:template match="xhtml:pre[@class='programlisting']">
     <programlisting>
-        <xsl:apply-templates select="@id" />
+        <xsl:apply-templates select="@id|@lang" />
         <xsl:apply-templates />
     </programlisting>
 </xsl:template>
 
 <xsl:template match="xhtml:pre[not(@class='programlisting')]">
     <screen>
-        <xsl:apply-templates select="@id" />
+        <xsl:apply-templates select="@id|@lang" />
         <xsl:apply-templates />
     </screen>
 </xsl:template>
@@ -220,16 +220,16 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
 <!-- Images -->
 <xsl:template match="xhtml:figure | xhtml:p[@class='figure']">
     <informalfigure>
-        <xsl:apply-templates select="@id" />
+        <xsl:apply-templates select="@id|@lang" />
         <xsl:apply-templates />
     </informalfigure>
 </xsl:template>
 
 <xsl:template match="xhtml:figcaption |xhtml:span[@class='caption']">
     <caption>
-        <para>
+        <simpara>
             <xsl:apply-templates />
-        </para>
+        </simpara>
     </caption>
 </xsl:template>
 
@@ -270,7 +270,7 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
     </imageobject>
     <xsl:if test="@title">
         <caption>
-            <para><xsl:value-of select="@title" /></para>
+            <simpara><xsl:value-of select="@title" /></simpara>
         </caption>
     </xsl:if>
 </xsl:template>
@@ -344,17 +344,29 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
 
 <xsl:template match="xhtml:dd">
     <listitem>
-        <para>
+        <simpara>
             <xsl:apply-templates />
-        </para>
+        </simpara>
     </listitem>
 </xsl:template>
 
 <xsl:template match="xhtml:li">
     <listitem>
-        <para>
+        <simpara>
             <xsl:apply-templates />
-        </para>
+        </simpara>
+    </listitem>
+</xsl:template>
+
+<xsl:template match="xhtml:dd[xhtml:p]">
+    <listitem>
+        <xsl:apply-templates />
+    </listitem>
+</xsl:template>
+
+<xsl:template match="xhtml:li[xhtml:p]">
+    <listitem>
+        <xsl:apply-templates />
     </listitem>
 </xsl:template>
 

@@ -12,7 +12,6 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
     <!--[if gt IE 6]><!-->
     <link rel="stylesheet" href="{resolve-uri('../theme/theme.less?less')}" />
     <script type="text/javascript" src="{resolve-uri('/callimachus/scripts.js')}" />
-    <script type="text/javascript" src="{resolve-uri('../scripts/discussion.js')}" />
     <!--[if lt IE 9]>
         <script>document.documentElement.className+=' ie'</script>
         <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>

@@ -12,7 +12,7 @@
                 }
             } catch (e) { }
         }
-        $("#access a[href='?discussion']:visible").each(function() {
+        $("a[href='?discussion']:visible").each(function() {
             var tab = $(this);
             var url = this.href;
             jQuery.ajax({ type: 'GET', url: url,

@@ -99,7 +99,6 @@
 
             <p:xslt>
                 <p:with-option name="output-base-uri" select="$resultId" />
-                <p:with-param name="realm" select="$realm" />
                 <p:input port="stylesheet">
                     <p:document href="transforms/page-info.xsl" />
                 </p:input>

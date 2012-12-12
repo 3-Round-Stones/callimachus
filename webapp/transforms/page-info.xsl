@@ -7,16 +7,8 @@
 
     <xsl:output indent="no" method="xml" />
 
-    <xsl:param name="realm" select="'/'" />
     <xsl:param name="target" />
     <xsl:param name="query" />
-
-    <xsl:variable name="realmNotEmpty">
-        <xsl:value-of select="$realm" />
-        <xsl:if test="string-length($realm) = 0">
-            <xsl:value-of select="'/'" />
-        </xsl:if>
-    </xsl:variable>
 
     <xsl:template match="*">
         <xsl:copy>
@@ -26,27 +18,6 @@
 
     <xsl:template match="@*|comment()">
         <xsl:copy />
-    </xsl:template>
-
-    <xsl:template match="*[@id='login-link']/@href">
-        <xsl:attribute name="href">
-            <xsl:value-of select="$realmNotEmpty" />
-            <xsl:text>?login</xsl:text>
-        </xsl:attribute>
-    </xsl:template>
-
-    <xsl:template match="*[@id='profile-link']/@href">
-        <xsl:attribute name="href">
-            <xsl:value-of select="$realmNotEmpty" />
-            <xsl:text>?profile</xsl:text>
-        </xsl:attribute>
-    </xsl:template>
-
-    <xsl:template match="*[@id='logout-link']/@href">
-        <xsl:attribute name="href">
-            <xsl:value-of select="$realmNotEmpty" />
-            <xsl:text>?logout</xsl:text>
-        </xsl:attribute>
     </xsl:template>
 
     <xsl:template match="*[@id='access']">
@@ -84,7 +55,7 @@
         </xsl:copy>
     </xsl:template>
 
-    <xsl:template match="xhtml:p[@id='resource-lastmod']|p[@id='resource-lastmod']">
+    <xsl:template match="xhtml:div[@id='resource-lastmod']|div[@id='resource-lastmod']">
         <xsl:if test="string-length($target) &gt; 0">
             <xsl:copy>
                 <xsl:apply-templates select="@*" />

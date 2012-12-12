@@ -40,7 +40,6 @@
     </p:xslt>
 
     <p:xslt>
-        <p:with-param name="realm" select="$realm" />
         <p:input port="stylesheet">
             <p:document href="../transforms/page-info.xsl" />
         </p:input>

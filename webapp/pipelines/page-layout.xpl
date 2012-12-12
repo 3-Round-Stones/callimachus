@@ -30,6 +30,7 @@
     </p:add-attribute>
     <p:http-request name="xquery-request" />
     <p:xquery>
+        <p:with-param name="calli:realm" select="$realm" />
         <p:input port="source">
             <p:pipe step="page-template" port="result" />
         </p:input>

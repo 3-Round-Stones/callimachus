@@ -26,17 +26,10 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
             <header class="navbar-inner">
                 <div class="container">
                     <a id="branding" class="brand" href="/">Callimachus</a>
-                    <!-- #breadcrumbs to replaced with breadcrumbs of the resource -->
-                    <nav id="breadcrumbs" class="nav">
-                        <span>...</span>
-                        <span class="divider">&#187;</span>
-                        <a href="?up">Up</a>
-                        <span class="divider">&#187;</span>
-                        <span class="active">Here</span>
-                    </nav>
+                    {$calli:breadcrumb}
                     <menu type="toolbar" class="nav pull-right">
                         <li class="hidden-login">
-                            <a id="login-link" href="/?login">Login</a>
+                            {calli:login('Login')}
                         </li>
                         <li class="hidden-logout dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
@@ -57,8 +50,8 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
                                 <li><a href="http://code.google.com/p/callimachus/wiki/GettingStarted">Getting started</a></li>
                                 <li><a href="http://groups.google.com/group/callimachus-discuss">Send feedback</a></li>
                                 <li class="divider"></li>
-                                <li><a id="profile-link" href="/?profile">Account</a></li>
-                                <li><a id="logout-link" href="/?logout">Sign out</a></li>
+                                <li>{calli:profile('Account')}</li>
+                                <li>{calli:logout('Sign out')}</li>
                             </menu>
                         </li>
                     </menu>
@@ -97,8 +90,7 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
                 </a>
             </p>
 
-            <!-- #resource-lastmod>time is replaced with the time this resource was modified or omitted entirely -->
-            <p id="resource-lastmod">This resource was last modified at <time class="abbreviated"/></p>
+            {calli:lastmod(<p>This resource was last modified at <time class="abbreviated"/></p>)}
         </div>
     </footer>
     <!--[if lt IE 9]>

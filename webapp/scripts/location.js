@@ -59,6 +59,6 @@ window.calli.getFormAction = function(form) {
     if (url.indexOf('#') > 0)
         return url.substring(0, url.indexOf('#'));
     return url;
-}
+};
 
 })(jQuery,jQuery);

@@ -26,7 +26,7 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
             <header class="navbar-inner">
                 <div class="container">
                     <a id="branding" class="brand" href="/">Callimachus</a>
-                    {$calli:breadcrumb}
+                    {calli:breadcrumb(<span class="divider">&#187;</span>)}
                     <menu type="toolbar" class="nav pull-right">
                         <li class="hidden-login">
                             {calli:login('Login')}
@@ -64,21 +64,20 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
         <div id="page" class="container">
             {$calli:sidebar}
             <div>
-                <nav id="access" class="hidden-logout hidden-iframe nav-tabs">
-                    <!-- within #access any @href that matches the query string is omitted -->
+                {calli:access(<nav id="access" class="hidden-logout hidden-iframe nav-tabs">
                     <a tabindex="1" href="?view" onclick="location.replace(href);return false">View</a>
                     <a tabindex="2" href="?edit" onclick="location.replace(href);return false">Edit</a>
                     <a tabindex="3" href="?discussion" onclick="location.replace(href);return false">Discussion</a>
                     <a tabindex="4" href="?describe" onclick="location.replace(href);return false">Describe</a>
                     <a tabindex="5" href="?history" onclick="location.replace(href);return false">History</a>
-                </nav>
+                </nav>)}
 
                 <div id="container">
                     {$calli:hgroup}
-                    <div id="flash" /><!-- #flash is used to place error messages on the screen -->
+                    <div id="flash"><!-- #flash is used to place error messages on the screen --></div>
                     <div id="content">{$calli:content}</div>
                 </div><!-- container -->
-            </div><!-- main -->
+            </div>
         </div><!-- page -->
     </div><!-- wrapper -->
 

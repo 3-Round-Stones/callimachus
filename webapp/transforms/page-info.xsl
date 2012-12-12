@@ -20,11 +20,9 @@
         <xsl:copy />
     </xsl:template>
 
-    <xsl:template match="*[@id='access']">
+    <xsl:template match="xhtml:nav[@id='calli-access']">
         <xsl:if test="*//@href[.=concat('?',$query)]">
-            <xsl:copy>
-                <xsl:apply-templates mode="access" select="@*|*|text()|comment()" />
-            </xsl:copy>
+            <xsl:apply-templates mode="access" />
         </xsl:if>
     </xsl:template>
 
@@ -51,16 +49,13 @@
             <xsl:if test="not(@href=concat('?',$query))">
                 <xsl:apply-templates mode="access" select="@*" />
             </xsl:if>
-            <xsl:apply-templates mode="access" select="*|text()|comment()" />
+            <xsl:apply-templates mode="access" />
         </xsl:copy>
     </xsl:template>
 
-    <xsl:template match="xhtml:div[@id='resource-lastmod']|div[@id='resource-lastmod']">
+    <xsl:template match="xhtml:div[@id='calli-lastmod']">
         <xsl:if test="string-length($target) &gt; 0">
-            <xsl:copy>
-                <xsl:apply-templates select="@*" />
-                <xsl:apply-templates mode="time" select="*|text()|comment()" />
-            </xsl:copy>
+            <xsl:apply-templates mode="time" />
         </xsl:if>
     </xsl:template>
 
@@ -83,31 +78,14 @@
         </xsl:copy>
     </xsl:template>
 
-    <xsl:template match="*[@id='breadcrumbs']">
-        <xsl:if test="string-length($target) &gt; 0">
-            <xsl:call-template name="breadcrumbs">
-                <xsl:with-param name="node" select="." />
-            </xsl:call-template>
-        </xsl:if>
-    </xsl:template>
-
-    <xsl:template name="breadcrumbs">
-        <xsl:param name="node" />
+    <xsl:template match="xhtml:nav[@id='calli-breadcrumb']">
+        <xsl:variable name="divider" select="node()" />
         <xsl:variable name="url" select="concat('../queries/page-info.rq?results&amp;target=',encode-for-uri($target))" />
-        <xsl:variable name="links" select="$node/xhtml:a|$node/a" />
-        <xsl:variable name="breadcrumb" select="$links[1]" />
-        <xsl:variable name="active" select="$node/*[2]|$node/*[contains(@class,'active')]" />
-        <xsl:variable name="here" select="$active[last()]" />
-        <xsl:if test="$breadcrumb and $here and count(document($url)//sparql:result[sparql:binding/@name='iri']) > 1">
-            <xsl:variable name="separator" select="$breadcrumb/following-sibling::node()[1]|$breadcrumb/following-sibling::*[contains(@class,'divider')]" />
-            <xsl:variable name="close" select="$here/following-sibling::node()" />
-            <xsl:copy>
-                <xsl:apply-templates select="@*" />
+        <xsl:if test="string-length($target) &gt; 0 and count(document($url)//sparql:result[sparql:binding/@name='iri']) > 1">
+            <nav class="nav">
                 <xsl:for-each select="document($url)//sparql:result[sparql:binding/@name='iri']">
                     <xsl:if test="$target!=sparql:binding[@name='iri']/*">
-                        <xsl:element name="{name($breadcrumb)}">
-                            <xsl:attribute name="href"><xsl:value-of select="sparql:binding[@name='iri']/*" /></xsl:attribute>
-                            <xsl:apply-templates select="$breadcrumb/@*[name()!='href']" />
+                        <a href="{sparql:binding[@name='iri']/*}">
                             <xsl:value-of select="sparql:binding[@name='label']/*" />
                             <xsl:if test="not(sparql:binding[@name='label']/*)">
                                 <xsl:call-template name="substring-after-last">
@@ -115,12 +93,11 @@
                                     <xsl:with-param name="delim" select="'/'" />
                                 </xsl:call-template>
                             </xsl:if>
-                        </xsl:element>
-                        <xsl:copy-of select="$separator" />
+                        </a>
+                        <xsl:copy-of select="$divider" />
                     </xsl:if>
                     <xsl:if test="$target=sparql:binding[@name='iri']/*">
-                        <xsl:element name="{name($here)}">
-                            <xsl:apply-templates select="$here/@*" />
+                        <span class="active">
                             <xsl:value-of select="sparql:binding[@name='label']/*" />
                             <xsl:if test="not(sparql:binding[@name='label']/*)">
                                 <xsl:call-template name="substring-after-last">
@@ -128,11 +105,10 @@
                                     <xsl:with-param name="delim" select="'/'" />
                                 </xsl:call-template>
                             </xsl:if>
-                        </xsl:element>
-                        <xsl:copy-of select="$close" />
+                        </span>
                     </xsl:if>
                 </xsl:for-each>
-            </xsl:copy>
+            </nav>
         </xsl:if>
     </xsl:template>
 

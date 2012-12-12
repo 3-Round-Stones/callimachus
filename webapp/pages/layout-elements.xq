@@ -18,18 +18,17 @@ declare function calli:logout($text) as element(a) {
     <a id="login-link" href="{$calli:realm}?logout">{$text}</a>
 };
 
-declare function calli:lastmod($time as element(p)) as element(div) {
-    <div id="resource-lastmod">{$time}</div>
+declare function calli:lastmod($time as element()) as element(div) {
+    <div id="calli-lastmod">{$time}</div>
 };
 
-declare variable $calli:breadcrumb := 
-    <nav id="breadcrumbs" class="nav">
-        <span>...</span>
-        <span class="divider">&#187;</span>
-        <a href="?up">Up</a>
-        <span class="divider">&#187;</span>
-        <span class="active">Here</span>
-    </nav>;
+declare function calli:access($nav as element()) as element(nav) {
+    <nav id="calli-access">{$nav}</nav>
+};
+
+declare function calli:breadcrumb($divider) as element(nav) {
+    <nav id="calli-breadcrumb">{$divider}</nav>
+};
 
 declare variable $calli:head :=
     let $first_script := /html/head/script[1]

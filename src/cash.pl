@@ -62,7 +62,7 @@ BEGIN {
 Getopt::Long::Configure( qw(gnu_getopt) );
 
 # Globals
-my $version = "0.12";
+my $version = "0.13";
 my $authority;
 my $host;
 my $debug = 0;
@@ -664,6 +664,23 @@ sub getFolderLinks {
             $exitstatus++;
             return 0;
         }
+        my $callimachus_version;
+        if ( $res->header("server") ) {
+            # Find and store the Callimachus version.
+            $callimachus_version = $res->header("server");
+            unless ( $callimachus_version =~ m/^Callimachus/ ) {
+                say $OUT "Error: The server does not seem to be a Callimachus.\n  The server header was: $callimachus_version";
+                $exitstatus++;
+                return 0;
+            }
+        } else {
+            say $OUT "Error: No server header found.  The server does not seem to be a Callimachus.";
+            $exitstatus++;
+            return 0;
+        }
+        $callimachus_version =~ s/^Callimachus\///; # Store just the version number.
+        $server->version($callimachus_version);
+        
         my @linkStrings = split(',', $res->header("link"));
         foreach my $linkString (@linkStrings) {
             my $url = "";
@@ -840,7 +857,21 @@ sub login {
     say $OUT "  Found authority: $authority" if $debug;
     
     # Get realm from server.
-    my $realmurl = $server->authority . "accounts?describe";
+    my $realmurl;
+    my $server_version = $server->version;
+    unless ($server_version) {
+        say $OUT "Error: Cannot find server version.";
+        $exitstatus++;
+        return 0;
+    }
+    $server_version =~ s/-.*$//; # Grab just the base version number.
+    if ( $server_version < 1 ) {
+        # Older Callimachus
+        $realmurl = $server->authority . "accounts?describe";
+    } else {
+        # For Callimachus 1.0 and above
+        $realmurl = $server->authority . 'auth/digest+account?describe';
+    }
     my $realmreq = new HTTP::Request GET => $realmurl;
     $realmreq->header( "Host" => $host );
     $realmreq->header( "Accept" => "application/rdf+xml" );
@@ -851,7 +882,13 @@ sub login {
         my $xs = XML::Simple->new(ForceArray => 1, KeyAttr => []);
         my $xml = $xs->parse_string($realmres->content);
         print $OUT Dumper($xml) if $debug > 2;
-        $realm = $xml->{'rdf:Description'}[0]->{'calli:authName'}[0]->{'rdf:resource'};
+        if ( $server_version < 1 ) {
+            # Older Callimachus
+            $realm = $xml->{'rdf:Description'}[0]->{'calli:authName'}[0]->{'rdf:resource'};
+        } else {
+            # For Callimachus 1.0 and above:
+            $realm = $xml->{'rdf:Description'}[0]->{'calli:authName'}[0];
+        }
         say $OUT "  Found realm: $realm" if $debug;
         print $OUT $realmres->as_string if $debug > 1;
     } else {
@@ -859,7 +896,7 @@ sub login {
         $exitstatus++;
         return 0;
     }
-    die ($OUT, "Error: Failed to get Digest realm from server.  Could not log in.") unless ($realm);
+    die ("Error: Failed to get Digest realm from server.  Could not log in.") unless ($realm);
     
     $ua->credentials($authority, $realm, $username, $password);
     $server->loggedIn(1);
@@ -1266,6 +1303,7 @@ sub reportState {
     unless ( serverSet() ) { say $OUT "Server object not set."; }
     say $OUT "Server object state:\n";
     say $OUT "  Authority:  " . $server->authority;
+    say $OUT "  Server version:  " . $server->version;
     say $OUT "  Logged in: " . $server->loggedIn;
     say $OUT "  Links for this server:";
     my $serverlinks = $server->links;
@@ -1522,6 +1560,11 @@ sub loggedIn {
     my $self = shift;
     if (@_) { $self->{LOGGEDIN} = shift }
     return $self->{LOGGEDIN};
+}    # Gets/sets the active folder's URL.
+sub version {
+    my $self = shift;
+    if (@_) { $self->{VERSION} = shift }
+    return $self->{VERSION};
 }
 1;
 

@@ -47,12 +47,6 @@
     calli:reader </auth/groups/public>;
     calli:administrator </auth/groups/admin>.
 
-<./> calli:hasComponent <theme/>.
-<theme/> a <types/Folder>, calli:Folder;
-    rdfs:label "theme";
-    calli:reader </auth/groups/public>;
-    calli:administrator </auth/groups/admin>.
-
 ################################
 # Protected Folders            #
 ################################

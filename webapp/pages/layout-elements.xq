@@ -31,9 +31,8 @@ declare function calli:breadcrumb($divider) as element(nav) {
 };
 
 declare variable $calli:head := /html/head/node();
-
-declare variable $calli:sidebar := /html/body/div[@id='sidebar'];
 declare variable $calli:body := /html/body/@*;
+declare variable $calli:sidebar := /html/body/div[@id='sidebar'];
 declare variable $calli:hgroup :=
     let $h1 := (/html/body/*[self::h1 or self::hgroup])[1]
     return if ($calli:sidebar) then

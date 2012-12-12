@@ -564,6 +564,17 @@ INSERT {
 };
 
 INSERT {
+	</callimachus/> calli:hasComponent </callimachus/callimachus-powered.png>.
+    </callimachus/callimachus-powered.png> a </callimachus/1.0/types/PURL>, calli:PURL ;
+	    rdfs:label "callimachus-powered.png";
+	    calli:alternate </callimachus/1.0/images/callimachus-powered.png>;
+	    calli:administrator </auth/groups/admin>;
+	    calli:reader </auth/groups/public> .
+} WHERE {
+    FILTER NOT EXISTS { </callimachus/callimachus-powered.png> a calli:PURL }
+};
+
+INSERT {
 	</callimachus/> calli:hasComponent </callimachus/Concept>.
 	</callimachus/Concept> a </callimachus/1.0/types/PURL>, calli:PURL ;
 		rdfs:label "Concept";

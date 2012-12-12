@@ -58,7 +58,9 @@ INSERT {
         <../forbidden.html>,
         <../unauthorized.html>,
         <../layout-elements.xq>,
-        <../default-layout.xq>.
+        <../default-layout.xq>,
+        <../callimachus-powered.png>,
+        <../Concept>.
 
 <../changes/> a <types/Folder>, calli:Folder;
     rdfs:label "changes";
@@ -103,6 +105,12 @@ INSERT {
 <../default-layout.xq> a <types/PURL>, calli:PURL ;
 	rdfs:label "default-layout.xq";
 	calli:alternate <pages/default-layout.xq>;
+	calli:administrator </auth/groups/admin>;
+	calli:reader </auth/groups/public> .
+
+<../callimachus-powered.png> a <types/PURL>, calli:PURL ;
+	rdfs:label "callimachus-powered.png";
+	calli:alternate <images/callimachus-powered.png>;
 	calli:administrator </auth/groups/admin>;
 	calli:reader </auth/groups/public> .
 

@@ -44,30 +44,26 @@
     rdf:_33 <bootstrap-transition.js>;
     rdf:_34 <bootstrap-typeahead.js>;
     rdf:_35 <slugify.js>;
-    rdf:_36 <ajax.js>.
-
-# IE8 can't handle any more than minification of 1 on jquery.rdfquery.rdfa.js
-<form_bundle> a calli:ScriptBundle; calli:minified 1 ;
-    calli:reader </auth/groups/public>;
-    rdf:_1 <jquery-ui.js>;
-    rdf:_2 <rdfaparser.js>;
-    rdf:_3 <rdfxmlserializer.js>;
-    rdf:_4 <fix-event.js>;
-    rdf:_5 <data-options.js>;
-    rdf:_6 <input-expression.js>;
-    rdf:_7 <add-resource.js>;
-    rdf:_8 <remove-resource.js>;
-    rdf:_9 <dropzone.js>;
-    rdf:_10 <dialog.js>;
-    rdf:_11 <create-resource.js>;
-    rdf:_12 <document-ready.js>;
-    rdf:_13 <input-date.js>;
-    rdf:_14 <disable-button.js>;
-    rdf:_15 <save-resource-as.js>;
-    rdf:_16 <select-resource.js>;
-    rdf:_17 <submit-rdfxml.js>;
-    rdf:_18 <submit-form-data.js>;
-    rdf:_19 <submit-update.js>;
-    rdf:_20 <delete-resource.js>;
-    rdf:_21 <insert-resource.js>.
+    rdf:_36 <ajax.js>;
+    rdf:_37 <jquery-ui.js>;
+    rdf:_38 <rdfaparser.js>;
+    rdf:_39 <rdfxmlserializer.js>;
+    rdf:_40 <fix-event.js>;
+    rdf:_41 <data-options.js>;
+    rdf:_42 <input-expression.js>;
+    rdf:_43 <add-resource.js>;
+    rdf:_44 <remove-resource.js>;
+    rdf:_45 <dropzone.js>;
+    rdf:_46 <dialog.js>;
+    rdf:_47 <create-resource.js>;
+    rdf:_48 <document-ready.js>;
+    rdf:_49 <input-date.js>;
+    rdf:_50 <disable-button.js>;
+    rdf:_51 <save-resource-as.js>;
+    rdf:_52 <select-resource.js>;
+    rdf:_53 <submit-rdfxml.js>;
+    rdf:_54 <submit-form-data.js>;
+    rdf:_55 <submit-update.js>;
+    rdf:_56 <delete-resource.js>;
+    rdf:_57 <insert-resource.js>.
 

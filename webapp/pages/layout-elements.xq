@@ -39,11 +39,7 @@ declare variable $calli:head :=
             /html/head/node()
     let $after := $first_script|$first_script/following-sibling::node()
     let $web_bundle := <script type="text/javascript" src="{resolve-uri('../scripts/web_bundle?source')}" />
-    let $form_bundle := <script type="text/javascript" src="{resolve-uri('../scripts/form_bundle?source')}" />
-    return if (//form) then
-        ($before, $web_bundle, $form_bundle, $after)
-    else
-        ($before, $web_bundle, $after)
+    return ($before, $web_bundle, $after)
 ;
 
 declare variable $calli:sidebar := /html/body/div[@id='sidebar'];

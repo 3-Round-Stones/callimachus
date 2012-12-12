@@ -132,7 +132,7 @@ jQuery(function($) {
         if (el.find('.cke_dialog_title').html().match(/Table Properties/)) {
             el.find('label').each(function() {
                 // Remove unsupported fields
-                if ($(this).html().match(/^(border size|width|height)$/i)) {
+                if ($(this).html().match(/^(border size|width|height|alignment)$/i)) {
                     $(this).parents('tr').first().hide();// only the immediate parent
                 }
                 // @width obsolete?? Set "width" value from @width of the referenced table (ckeditor bug)

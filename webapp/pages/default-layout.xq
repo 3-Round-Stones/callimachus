@@ -69,8 +69,8 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
             </header>
         </div>
         <div id="page" class="container">
+            {$calli:sidebar}
             <div>
-
                 <nav id="access" class="hidden-logout hidden-iframe nav-tabs">
                     <!-- within #access any @href that matches the query string is omitted -->
                     <a tabindex="1" href="?view" onclick="location.replace(href);return false">View</a>
@@ -80,9 +80,10 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
                     <a tabindex="5" href="?history" onclick="location.replace(href);return false">History</a>
                 </nav>
 
-                <div id="container">                    
+                <div id="container">
+                    {$calli:hgroup}
                     <div id="flash" /><!-- #flash is used to place error messages on the screen -->
-                    <div id="content">{$calli:hgroup}{$calli:sidebar}{$calli:content}</div>
+                    <div id="content">{$calli:content}</div>
                 </div><!-- container -->
             </div><!-- main -->
         </div><!-- page -->

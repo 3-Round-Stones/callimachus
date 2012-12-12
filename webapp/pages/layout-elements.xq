@@ -21,11 +21,7 @@ declare variable $calli:head :=
 ;
 
 declare variable $calli:sidebar := /html/body/div[@id='sidebar'];
-declare variable $calli:body :=
-    let $nosidebar := <body class="{/html/body/@class} nosidebar" />
-    return if ($calli:sidebar) then
-        /html/body/@*
-    else /html/body/@*[name()!='class']|$nosidebar/@class;
+declare variable $calli:body := /html/body/@*;
 declare variable $calli:hgroup :=
     let $h1 := (/html/body/*[self::h1 or self::hgroup])[1]
     return if ($calli:sidebar) then

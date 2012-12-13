@@ -221,7 +221,7 @@
                         <xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
                     </xsl:call-template>
                 </xsl:attribute>
-                <xsl:apply-templates select="*" />
+                <xsl:apply-templates />
             </ul>
         </li>
     </xsl:template>
@@ -233,7 +233,7 @@
                 </xsl:call-template>
             </span>
             <ol class="collection">
-                <xsl:apply-templates select="*" />
+                <xsl:apply-templates />
             </ol>
         </li>
     </xsl:template>
@@ -248,7 +248,7 @@
                 </xsl:call-template>
             </a>
             <ul class="properties sorted">
-                <xsl:apply-templates select="*" />
+                <xsl:apply-templates />
             </ul>
         </div>
     </xsl:template>
@@ -258,7 +258,7 @@
                 <xsl:value-of select="@rdf:ID"/>
             </a>
             <ul class="properties sorted">
-                <xsl:apply-templates select="*" />
+                <xsl:apply-templates />
             </ul>
         </div>
     </xsl:template>
@@ -269,7 +269,7 @@
                 <xsl:value-of select="@rdf:nodeID" />
             </a>
             <ul class="properties sorted">
-                <xsl:apply-templates select="*" />
+                <xsl:apply-templates />
             </ul>
         </div>
     </xsl:template>

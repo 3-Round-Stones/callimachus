@@ -447,6 +447,14 @@ DELETE {
 };
 
 DELETE {
+    </callimachus/forbidden.html> calli:alternate </callimachus/1.0/pages/forbidden.xhtml?element=/1&realm=/> .
+} INSERT {
+    </callimachus/forbidden.html> calli:alternate </callimachus/1.0/pages/forbidden.xhtml?html> .
+} WHERE {
+    </callimachus/forbidden.html> calli:alternate </callimachus/1.0/pages/forbidden.xhtml?element=/1&realm=/> .
+};
+
+DELETE {
 	</callimachus/> calli:hasComponent </callimachus/template.xsl>.
 	</callimachus/template.xsl> a </callimachus/1.0/types/PURL>, calli:PURL ;
 		rdfs:label ?label;
@@ -543,7 +551,7 @@ INSERT {
 	</callimachus/> calli:hasComponent </callimachus/forbidden.html>.
 	</callimachus/forbidden.html> a </callimachus/1.0/types/PURL>, calli:PURL ;
 		rdfs:label "forbidden.html";
-		calli:alternate </callimachus/1.0/pages/forbidden.xhtml?element=/1&realm=/>;
+		calli:alternate </callimachus/1.0/pages/forbidden.xhtml?html>;
 		calli:administrator </auth/groups/admin>;
 		calli:reader </auth/groups/public> .
 } WHERE {

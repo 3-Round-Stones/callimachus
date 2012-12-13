@@ -94,7 +94,7 @@ INSERT {
 
 <../forbidden.html> a <types/PURL>, calli:PURL ;
 	rdfs:label "forbidden.html";
-	calli:alternate <pages/forbidden.xhtml?element=/1&realm=/>;
+	calli:alternate <pages/forbidden.xhtml?html>;
 	calli:administrator </auth/groups/admin>;
 	calli:reader </auth/groups/public> .
 

@@ -159,6 +159,8 @@
         if (create.calliCreate.size() != 1)
             throw new InternalServerError("Multiple create templates");
         var page = create.calliCreate.iterator().next();
+        if (!page.FindRealmOf)
+            throw new InternalServerError(page + " is not a template");
         return create.GetPageTemplate(page, page.FindRealmOf(this));
     """.
 

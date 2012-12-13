@@ -23,7 +23,7 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
 <body>
     {calli:bodyAttributes()}
     <div id="wrapper">
-        <div class="navbar hidden-iframe">
+        <div class="navbar navbar-static-top hidden-iframe">
             <header class="navbar-inner">
                 <div class="container">
                     <a id="branding" class="brand" href="/">Callimachus</a>
@@ -62,9 +62,9 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
             </header>
         </div>
         <div id="page" class="container">
+            {calli:breadcrumb(<span class="divider">&#187;</span>)}
             {calli:sidebar()}
             <div>
-                {calli:breadcrumb(<span class="divider">&#187;</span>)}
                 {calli:activateLink(<nav id="access" class="hidden-logout hidden-iframe nav-tabs">
                     <a tabindex="1" href="?view" onclick="location.replace(href);return false">View</a>
                     <a tabindex="2" href="?edit" onclick="location.replace(href);return false">Edit</a>

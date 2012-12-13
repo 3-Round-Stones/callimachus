@@ -18,15 +18,15 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
         <script src="//cdn-delivery.commondatastorage.googleapis.com/spiders-design/theme/js/selectivizr.js"></script>
     <![endif]-->
     <!--<![endif]-->
-    {$calli:head}
+    {calli:head()}
 </head>
-<body>{$calli:body}
+<body>
+    {calli:bodyAttributes()}
     <div id="wrapper">
         <div class="navbar hidden-iframe">
             <header class="navbar-inner">
                 <div class="container">
                     <a id="branding" class="brand" href="/">Callimachus</a>
-                    {calli:breadcrumb(<span class="divider">&#187;</span>)}
                     <menu type="toolbar" class="nav pull-right">
                         <li class="hidden-login">
                             {calli:login('Login')}
@@ -62,9 +62,10 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
             </header>
         </div>
         <div id="page" class="container">
-            {$calli:sidebar}
+            {calli:sidebar()}
             <div>
-                {calli:access(<nav id="access" class="hidden-logout hidden-iframe nav-tabs">
+                {calli:breadcrumb(<span class="divider">&#187;</span>)}
+                {calli:activateLink(<nav id="access" class="hidden-logout hidden-iframe nav-tabs">
                     <a tabindex="1" href="?view" onclick="location.replace(href);return false">View</a>
                     <a tabindex="2" href="?edit" onclick="location.replace(href);return false">Edit</a>
                     <a tabindex="3" href="?discussion" onclick="location.replace(href);return false">Discussion</a>
@@ -73,9 +74,9 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
                 </nav>)}
 
                 <div id="container">
-                    {$calli:hgroup}
+                    {calli:hgroup()}
                     <div id="flash"><!-- #flash is used to place error messages on the screen --></div>
-                    <div id="content">{$calli:content}</div>
+                    <div id="content">{calli:content()}</div>
                 </div><!-- container -->
             </div>
         </div><!-- page -->
@@ -89,7 +90,7 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
                 </a>
             </p>
 
-            {calli:lastmod(<p>This resource was last modified at <time class="abbreviated"/></p>)}
+            {calli:lastmod(<p id="resource-lastmod">This resource was last modified at <time class="abbreviated"/></p>)}
         </div>
     </footer>
     <!--[if lt IE 9]>

@@ -82,7 +82,7 @@
         <xsl:variable name="divider" select="node()" />
         <xsl:variable name="url" select="concat('../queries/page-info.rq?results&amp;target=',encode-for-uri($target))" />
         <xsl:if test="string-length($target) &gt; 0 and count(document($url)//sparql:result[sparql:binding/@name='iri']) > 1">
-            <nav class="nav">
+            <nav class="breadcrumb">
                 <xsl:for-each select="document($url)//sparql:result[sparql:binding/@name='iri']">
                     <xsl:if test="$target!=sparql:binding[@name='iri']/*">
                         <a href="{sparql:binding[@name='iri']/*}">

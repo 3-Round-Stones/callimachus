@@ -109,7 +109,7 @@ SELECT REDUCED * {
                 <$target> calli:hasComponent ?id
                 BIND (?id as ?content_src)
                 OPTIONAL {
-                    ?id a [calli:type ?content_type]
+                    ?id a [calli:mediaType ?content_type]
                     BIND (?id as ?link_edit_media_href)
                 }
             } UNION {

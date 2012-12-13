@@ -37,6 +37,27 @@
     calli:view <../templates/folder-view.xhtml>.
 
 ################################
+# JavaScript base URI
+################################
+
+:GetBaseUri rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Origin>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    rdfs:subClassOf [owl:onProperty :baseuri; owl:hasValue <../>];
+    calli:method "GET";
+    calli:query "baseuri";
+    calli:rel calli:realms;
+    calli:requires calli:reader;
+    calli:type "text/javascript";
+    calli:script """
+        return 'if(!window.calli)window.calli={};window.calli.baseURI="' + baseuri + '";\\n';
+    """.
+
+:baseuri a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :GetBaseUri;
+    rdfs:range <Folder>.
+
+################################
 # List realms defined by <Realm>
 ################################
 

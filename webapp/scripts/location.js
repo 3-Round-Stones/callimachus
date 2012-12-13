@@ -15,35 +15,11 @@ window.calli.getPageUrl = function() {
     return location.href;
 };
 
-var bundle = $("script:last").attr("src");
-
 window.calli.getCallimachusUrl = function(suffix) {
-    var home = location.protocol + '//' + location.host;
-    var link = $('link[rel="home"]');
-    if (link[0] && link[0].href) {
-        home = link[0].href;
-        if (home.length - 1 == home.lastIndexOf('/')) {
-            home = home.substring(0, home.length - 1);
-        }
-    }
-    var base = home + '/callimachus/';
-    if (bundle && bundle.indexOf('://') < 0) {
-        if (document.baseURIObject && document.baseURIObject.resolve) {
-            bundle = document.baseURIObject.resolve(bundle);
-        } else {
-            var a = document.createElement('a');
-            a.setAttribute('href', bundle);
-            if (a.href) {
-                bundle = a.href;
-            }
-        }
-    }
-    if (bundle && bundle.match(/^.*\/[0-9][\w\.\-\+]*\//)) {
-        base = bundle.match(/^.*\/[0-9][\w\.\-\+]*\//)[0];
-        home = base.substring(0, base.length - 1);
-        while (home.lastIndexOf('/') == 0 || home.lastIndexOf('/') > home.indexOf('//') + 1) {
-            home = home.substring(0, home.lastIndexOf('/'));
-        }
+    var base = window.calli.baseURI;
+    var home = base.substring(0, base.length - 1);
+    while (home.lastIndexOf('/') == 0 || home.lastIndexOf('/') > home.indexOf('//') + 1) {
+        home = home.substring(0, home.lastIndexOf('/'));
     }
     if (typeof suffix == 'string' && suffix.indexOf('/') == 0)
         return home + suffix;
@@ -55,7 +31,7 @@ window.calli.getCallimachusUrl = function(suffix) {
 window.calli.getFormAction = function(form) {
     if (form.getAttribute("action"))
         return form.action;
-    var url = calli.getPageUrl();
+    var url = window.calli.getPageUrl();
     if (url.indexOf('#') > 0)
         return url.substring(0, url.indexOf('#'));
     return url;

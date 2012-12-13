@@ -1,7 +1,7 @@
 # 
 #    Portions Copyright (c) 2009-10 Zepheira LLC, Some Rights Reserved
 #    Portions Copyright (c) 2010-11 Talis Inc, Some Rights Reserved
-#    Portions Copyright (c) 2011 3 Round Stones Inc, Some Rights Reserved
+#    Portions Copyright (c) 2011-2012 3 Round Stones Inc, Some Rights Reserved
 # 
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -19,11 +19,7 @@
 @prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
 @prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
 @prefix owl:<http://www.w3.org/2002/07/owl#>.
-@prefix foaf:<http://xmlns.com/foaf/0.1/>.
-@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
-@prefix callimachusproject:<http://callimachusproject.org/rdf/2009/>.
-@prefix :<http://callimachusproject.org/rdf/2009/framework/IsAuthorized#>.
 
 <> a <types/SchemaGraph>.
 

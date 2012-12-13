@@ -12,6 +12,7 @@ jQuery(function($) {
         entities: false,                        // disable extended entities
         startupOutlineBlocks: true,             // activate visual blocks
         forcePasteAsPlainText: true,            // avoid paste mess
+        disableObjectResizing: true,            // no resize via drag&drop
         fillEmptyBlocks: false,                 // avoid &nbsp; in empty table cells
         tabSpaces: false,                       // avoid &nbsp; when tab-key is pressed
         removeDialogTabs:                       // disable non-basic dialog tabs

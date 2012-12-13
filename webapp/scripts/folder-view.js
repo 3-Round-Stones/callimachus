@@ -26,13 +26,17 @@
         }
         if (text) {
             a.text(text);
-        } else {
+        } else if (url) {
             a.text(url.replace(/.*\/(.)/, '$1'));
+        } else {
+            a.text('.');
         }
-        var img = $('<img/>');
-        img.addClass('icon');
-        img.attr('src', src);
-        a.prepend(img);
+        if (src) {
+            var img = $('<img/>');
+            img.addClass('icon');
+            img.attr('src', src);
+            a.prepend(img);
+        }
         td.append(a);
         return td;
     }
@@ -52,6 +56,8 @@
         var td = $('<td/>');
         td.addClass('ui-widget-content');
         td.addClass('permission');
+        if (!entry || !local)
+            return td;
         var tags = entry.children('link[rel="http://callimachusproject.org/rdf/2009/framework#' + local + '"]');
         tags.each(function() {
             var uri = $(this).attr('href');
@@ -62,8 +68,10 @@
             }
             if (name) {
                 a.text(name);
-            } else {
+            } else if (uri) {
                 a.text(uri);
+            } else {
+                a.text('.');
             }
             td.append(' ');
             td.append(a);

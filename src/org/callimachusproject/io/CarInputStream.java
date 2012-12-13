@@ -24,6 +24,7 @@ import java.io.Closeable;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InterruptedIOException;
 import java.util.regex.Pattern;
 
 import javax.activation.FileTypeMap;
@@ -105,6 +106,8 @@ public class CarInputStream implements Closeable {
 	}
 
 	private ZipArchiveEntry next() throws IOException {
+		if (Thread.interrupted())
+			throw new InterruptedIOException();
 		entry = zipStream.getNextZipEntry();
 		if (entry == null) {
 			entryStream = null;

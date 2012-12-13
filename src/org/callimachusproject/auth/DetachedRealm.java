@@ -82,12 +82,14 @@ public class DetachedRealm {
 	private Logger logger = LoggerFactory.getLogger(DetachedRealm.class);
 	private final Map<Resource, DetachedAuthenticationManager> authentication = new HashMap<Resource, DetachedAuthenticationManager>();
 	private final Collection<String> allowOrigin = new LinkedHashSet<String>();
+	private final Resource self;
 	private String secret;
 	private String forbidden;
 	private String unauthorized;
 
 	public DetachedRealm(Resource self, ObjectConnection con, RealmManager manager)
 			throws OpenRDFException, IOException {
+		this.self = self;
 		TupleQuery query = con.prepareTupleQuery(SPARQL, SELECT_REALM);
 		query.setBinding("this", self);
 		TupleQueryResult results = query.evaluate();
@@ -129,8 +131,12 @@ public class DetachedRealm {
 		}
 	}
 
+	public Resource getResource() {
+		return self;
+	}
+
 	public String toString() {
-		return allowOrigin.toString();
+		return getResource().stringValue();
 	}
 
 	public DetachedAuthenticationManager getAuthenticationManager(Resource uri) {

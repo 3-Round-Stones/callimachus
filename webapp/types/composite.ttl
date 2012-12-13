@@ -154,14 +154,7 @@
                 throw new BadRequest("Cannot create: " + create);
             create = createAlternate;
         }
-        if (!create.calliCreate || create.calliCreate.isEmpty())
-            throw new InternalServerError("No create template");
-        if (create.calliCreate.size() != 1)
-            throw new InternalServerError("Multiple create templates");
-        var page = create.calliCreate.iterator().next();
-        if (!page.FindRealmOf)
-            throw new InternalServerError(page + " is not a template");
-        return create.GetPageTemplate(page, page.FindRealmOf(this));
+        return create.GetCreatePage();
     """.
 
 :PostFactoryCreate rdfs:subClassOf msg:Message;

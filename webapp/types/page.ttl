@@ -49,6 +49,17 @@
     calli:header "cache-control:no-cache";
     calli:post "../pipelines/page-layout-html.xpl?results&target=$0&query=view\nContent-Location: $0\nContent-Type: application/xhtml+xml".
 
+# GET /page/MainPage.xhtml?html
+:GetHtml rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Page>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
+    calli:method "GET";
+    calli:query "html";
+    calli:requires calli:reader;
+    calli:type "text/html";
+    calli:header "cache-control:no-cache";
+    calli:post "../pipelines/page-layout-html.xpl?results\nContent-Location: $0\nContent-Type: application/xhtml+xml".
+
 # GET /page/MainPage.xhtml
 :GetPageSource rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Page>];
@@ -182,8 +193,7 @@
     calli:query "sparql";
     calli:requires calli:administrator;
     calli:script """
-        var template = this + "?layout&realm=/";
-        var query = this.getTemplate(template).getQueryString();
+        var query = this.getTemplateFor('/').getQueryString();
         return new java.lang.String(query).getBytes("UTF-8");
     """.
 
@@ -193,13 +203,12 @@
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
     calli:type "text/html";
     calli:script """
-        var realm = this.FindRealmOf(resource);
-        var template = this + "?layout&realm=" + encodeURIComponent(realm);
+        var template = this.getTemplateFor(resource.toString());
         var con = this.objectConnection;
         var bindings = new org.openrdf.query.impl.MapBindingSet();
         bindings.addBinding("this", resource.resource);
-        var results = this.getTemplate(template).evaluate(bindings, con);
-        return this.Render(realm, resource, resourceQuery, '/1', results);
+        var results = template.evaluate(bindings, con);
+        return this.Render(template.toString(), resource, resourceQuery, '/1', results);
     """.
 
 :resource a owl:FunctionalProperty, owl:ObjectProperty;
@@ -215,12 +224,11 @@
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
     calli:type "text/html";
     calli:script """
-        var template = this.toString();
         var con = this.objectConnection;
         var bindings = new org.openrdf.query.impl.MapBindingSet();
         bindings.addBinding("this", rawConstructTarget.resource);
-        var results = this.getTemplate(template).evaluate(bindings, con);
-        return this.Render(null, rawConstructTarget, '', '/1', results);
+        var results = this.getTemplate().evaluate(bindings, con);
+        return this.Render(this.toString(), rawConstructTarget, '', '/1', results);
     """.
 
 :rawConstructTarget a owl:FunctionalProperty, owl:ObjectProperty;
@@ -239,16 +247,14 @@
         if (!optionsElement)
             throw new BadRequest("Missing element parameter");
         var partner = optionsResource  ? optionsResource.resource : null;
-        var realm = this.FindRealmOf(this);
-        var url = this + "?layout&realm=" + encodeURIComponent(realm);
         var con = this.objectConnection;
-        var template = this.getTemplate(url).getElement(optionsElement);
+        var template = this.getTemplateFor(this.toString()).getElement(optionsElement);
         var attrs = template.getAttributes();
         if (attrs.containsKey("data-options")
                 || optionsResource && attrs.containsKey("data-construct")
                 || optionsKeyword && attrs.containsKey("data-search")) {
             var results = template.evaluatePartner(partner, optionsKeyword, con);
-            return this.Render(realm, null, null, optionsElement, results);
+            return this.Render(template.toString(), null, null, optionsElement, results);
         }
         throw new BadRequest("Bad element parameter");
     """.
@@ -268,36 +274,15 @@
     calli:type "text/uri-list";
     calli:query "resource".
 
-:FindRealmOf rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Page>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <Realm>];
-    calli:type "text/uri-list";
-    msg:sparql """
-        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
-        SELECT ?realm {
-            {
-                ?realm calli:hasComponent* $realmResource
-                FILTER EXISTS {?realm a calli:Realm}
-            } UNION {
-                BIND (</> AS ?realm)
-                BIND (true AS ?default)
-            }
-        }
-        ORDER BY ?default desc(?realm) LIMIT 1
-    """.
-
-:realmResource a owl:FunctionalProperty, owl:ObjectProperty;
-    rdfs:domain :FindRealmOf.
-
 :Render rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Page>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
     calli:type "text/html";
-    calli:post <../pipelines/page-render.xpl?results&template=$0%3Flayout%26realm%3D{realm}&target={renderResource}&query={renderResourceQuery}&element={renderXpointerElement}>.
+    calli:post <../pipelines/page-render.xpl?results&template={pageTemplate}&target={renderResource}&query={renderResourceQuery}&element={renderXpointerElement}>.
 
-:realm a owl:FunctionalProperty, owl:ObjectProperty;
+:pageTemplate a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :Render;
-    rdfs:range <Realm>.
+    rdfs:range xsd:string.
 
 :renderResource a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :Render.

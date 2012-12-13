@@ -48,23 +48,10 @@
         if (this.calliCreate.size() != 1)
             throw new InternalServerError("Multiple create templates");
         var page = this.calliCreate.iterator().next();
-        if (!page.FindRealmOf)
-            throw new InternalServerError(page + " is not a template");
-        return this.GetPageTemplate(page, page.FindRealmOf(this));
+        if (!page.GetHtml)
+            throw new InternalServerError(page + " does not exist");
+        return page.GetHtml();
     """.
-
-:GetPageTemplate rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Creatable>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
-    calli:copy "{page}?element=/1&realm={realm}".
-
-:page a owl:FunctionalProperty, owl:ObjectProperty;
-    rdfs:domain :GetPageTemplate;
-    rdfs:range <Page>.
-
-:realm a owl:FunctionalProperty, owl:ObjectProperty;
-    rdfs:domain :GetPageTemplate;
-    rdfs:range <Realm>.
 
 # POST ?create=/callimachus/File
 :LookupConstructor rdfs:subClassOf msg:Message;

@@ -6,7 +6,7 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
 <head>
     <meta name="viewport" content="width=device-width,height=device-height,initial-scale=1.0,target-densityDpi=device-dpi"/>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge;chrome=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <link rel="home" href="/" />
     <link rel="icon" href="/favicon.ico" />
     <!--[if gt IE 6]><!-->

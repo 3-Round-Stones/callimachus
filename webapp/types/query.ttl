@@ -70,14 +70,13 @@
             return proceed();
         var con = this.objectConnection;
         var page = con.getObject(uri);
-        if (!page.FindRealmOf)
+        if (!page.Render)
             throw new InternalServerError("Missing view template: " + page);
-        var realm = page.FindRealmOf(this);
-        var temp = page.getTemplate(uri + "?layout&realm=" + encodeURIComponent(realm));
+        var temp = page.getTemplateFor(this.toString());
         var sparql = temp.getQueryString(query.prepare(viewParameters));
         var qry = con.prepareTupleQuery(QueryLanguage.SPARQL, sparql, this.toString());
         var results = query.evaluate(viewParameters, qry);
-        return page.Render(realm, this, 'view', '/1', results);
+        return page.Render(temp.toString(), this, 'view', '/1', results);
     """.
 
 :viewParameters a owl:FunctionalProperty, owl:ObjectProperty;
@@ -105,8 +104,7 @@
         if (uri) {
             var con = this.objectConnection;
             var page = con.getObject(uri);
-            var realm = page.FindRealmOf(this);
-            var temp = page.getTemplate(uri + "?layout&realm=" + encodeURIComponent(realm));
+            var temp = page.getTemplateFor(this.toString());
             sparql = temp.getQueryString(sparql);
         }
         return new java.lang.String(sparql).getBytes(java.nio.charset.Charset.forName("UTF-8"));

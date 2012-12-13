@@ -23,8 +23,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.util.Set;
 
+import org.callimachusproject.auth.AuthorizationManager;
+import org.callimachusproject.auth.AuthorizationService;
 import org.callimachusproject.engine.RDFEventReader;
 import org.callimachusproject.engine.Template;
 import org.callimachusproject.engine.TemplateEngine;
@@ -38,6 +41,7 @@ import org.callimachusproject.engine.events.Where;
 import org.callimachusproject.engine.helpers.SPARQLWriter;
 import org.callimachusproject.engine.model.AbsoluteTermFactory;
 import org.callimachusproject.engine.model.IRI;
+import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.engine.model.Var;
 import org.callimachusproject.engine.model.VarOrTerm;
 import org.callimachusproject.form.helpers.EntityUpdater;
@@ -45,6 +49,7 @@ import org.callimachusproject.form.helpers.TripleInserter;
 import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.server.exceptions.Conflict;
 import org.callimachusproject.traits.VersionedObject;
+import org.openrdf.OpenRDFException;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.query.BooleanQuery;
@@ -61,16 +66,29 @@ import org.openrdf.rio.rdfxml.RDFXMLParser;
  * @author James Leigh
  * 
  */
-public abstract class PageSupport {
+public abstract class PageSupport implements RDFObject {
 	private static final String CHANGE_NOTE = "http://www.w3.org/2004/02/skos/core#changeNote";
 	private static final String HAS_COMPONENT = "http://callimachusproject.org/rdf/2009/framework#" + "hasComponent";
 
 	private static final TemplateEngine ENGINE = TemplateEngine.newInstance();
 
 	/**
+	 * Called from page.ttl
+	 */
+	public Template getTemplate() throws IOException, TemplateException {
+		return ENGINE.getTemplate(this.getResource().stringValue());
+	}
+
+	/**
 	 * Called from page.ttl and query.ttl
 	 */
-	public Template getTemplate(String url) throws IOException, TemplateException {
+	public Template getTemplateFor(String uri) throws IOException, TemplateException, OpenRDFException {
+		assert uri != null;
+		AuthorizationManager auth = AuthorizationService.getInstance().get(this.getObjectConnection().getRepository());
+		String self = this.getResource().stringValue();
+		String target = TermFactory.newInstance(self).resolve(uri);
+		String realm = auth.getRealm(target).getResource().stringValue();
+		String url = self + "?layout&realm=" + URLEncoder.encode(realm, "UTF-8");
 		return ENGINE.getTemplate(url);
 	}
 

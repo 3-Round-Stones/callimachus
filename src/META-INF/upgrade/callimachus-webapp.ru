@@ -51,6 +51,7 @@ INSERT {
     calli:subscriber </auth/groups/staff>;
     calli:administrator </auth/groups/admin>;
     calli:hasComponent
+        <../profile>,
         <../changes/>,
         <../styles.css>,
         <../scripts.js>,
@@ -61,6 +62,13 @@ INSERT {
         <../default-layout.xq>,
         <../callimachus-powered.png>,
         <../Concept>.
+
+<../profile> rdf:type <types/Profile>;
+    rdfs:label "profile";
+    calli:administrator </auth/groups/admin>;
+    calli:editor </auth/groups/staff>;
+    calli:subscriber </auth/groups/users>;
+    calli:reader </auth/groups/system>.
 
 <../changes/> a <types/Folder>, calli:Folder;
     rdfs:label "changes";

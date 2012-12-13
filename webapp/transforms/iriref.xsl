@@ -92,7 +92,7 @@
                 <xsl:text>/</xsl:text>
             </xsl:if>
         </xsl:variable>
-        <xsl:variable name="ns" select="document('../profile')//rdfa:uri[text()=$namespace]" />
+        <xsl:variable name="ns" select="document('../../profile')//rdfa:uri[text()=$namespace]" />
         <xsl:choose>
             <xsl:when test="$namespace and $ns">
                 <xsl:value-of select="$ns/../rdfa:prefix" />

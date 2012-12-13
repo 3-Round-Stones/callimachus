@@ -4,16 +4,20 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.callimachusproject.server.CallimachusRepository;
 import org.openrdf.OpenRDFException;
+import org.openrdf.model.Namespace;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.query.QueryLanguage;
 import org.openrdf.query.TupleQueryResult;
 import org.openrdf.repository.RepositoryException;
+import org.openrdf.repository.RepositoryResult;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.exceptions.ObjectStoreConfigException;
 import org.openrdf.repository.object.exceptions.RDFObjectException;
@@ -59,11 +63,36 @@ public class Callimachus_0_18_UpgradeProvider implements UpdateProvider {
 					CallimachusRepository repository) throws IOException,
 					OpenRDFException {
 				boolean modified = false;
+				modified |= trimNamespaces(repository);
 				modified |= deleteFolders(origin, webapp, repository);
 				modified |= deleteFiles(origin, webapp, repository);
 				return modified;
 			}
 		};
+	}
+
+	boolean trimNamespaces(CallimachusRepository repository)
+			throws OpenRDFException {
+		ObjectConnection con = repository.getConnection();
+		try {
+			RepositoryResult<Namespace> result = con.getNamespaces();
+			try {
+				boolean modified = false;
+				Set<String> namespaces = new HashSet<String>();
+				while (result.hasNext()) {
+					Namespace ns = result.next();
+					if (!namespaces.add(ns.getName())) {
+						con.removeNamespace(ns.getPrefix());
+						modified = true;
+					}
+				}
+				return modified;
+			} finally {
+				result.close();
+			}
+		} finally {
+			con.close();
+		}
 	}
 
 	boolean deleteFiles(String origin, String webapp, CallimachusRepository repository)

@@ -32,7 +32,7 @@
 
     <!-- Subpipelines -->
 
-    <p:import href="pipelines/page-layout.xpl" />
+    <p:import href="page-layout.xpl" />
 
     <p:declare-step name="render-html" type="calli:render-html">
         <p:serialization port="result" media-type="text/html" method="html" doctype-system="about:legacy-compat" />

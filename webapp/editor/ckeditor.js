@@ -133,14 +133,14 @@ jQuery(function($) {
         if (el.find('.cke_dialog_title').html().match(/Table Properties/)) {
             el.find('label').each(function() {
                 // Remove unsupported fields
-                if ($(this).html().match(/^(border size|width|height|alignment|cell spacing|cell padding)$/i)) {
+                if ($(this).html().match(/^(border size|height|alignment)$/i)) {
                     $(this).parents('tr').first().hide();// only the immediate parent
                 }
-                // @width obsolete?? Set "width" value from @width of the referenced table (ckeditor bug)
+                // Set "width" value from @width of the referenced table (ckeditor bug)
                 else if (refEl && $(this).html().match(/^(width)$/i)) {
                     el.find('#' + $(this).attr('for')).attr('value', refEl.attr('width'));
                 }
-                // @height obsolete?? Set "height" value from @height of the referenced table (ckeditor bug)
+                // Set "height" value from @height of the referenced table (ckeditor bug)
                 else if (refEl && $(this).html().match(/^(height)$/i)) {
                     el.find('#' + $(this).attr('for')).attr('value', refEl.attr('height'));
                 }
@@ -149,7 +149,7 @@ jQuery(function($) {
         // remove unsupported fields from "Cell Properties" dialogs
         if (el.find('.cke_dialog_title').html().match(/Cell Properties/)) {
             el.find('label').each(function() {
-                if ($(this).html().match(/^(width|height|word wrap|border color|background color|(horizontal|vertical) alignment)$/i)) {
+                if ($(this).html().match(/^(width|height|word wrap|border color|background color)$/i)) {
                     $(this).parents('tr').first().hide();// only the immediate parent
                 }
             });

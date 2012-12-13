@@ -522,21 +522,24 @@ sub getContentType {
         return 0;
     }
     given ($ext) {
+        when (/css$/) { return "text/css"; }
         when (/docbook$/) { return "application/docbook+xml"; }
         when (/fnt$/) { return "application/font-woff"; }
+        when (/gif$/) { return "image/gif"; }
+        when (/html$/) { return "text/html"; }
+        when (/ico$/) { return "image/vnd.microsoft.icon"; }
+        when (/jpg$|jpeg$/) { return "image/jpeg"; }
+        when (/js$/) { return "text/javascript"; }
+        when (/owl$/) { return "application/rdf+xml"; }
+        when (/pdf$/) { return "application/pdf"; }
+        when (/png$/) { return "image/png"; }
         when (/rdf$/) { return "application/rdf+xml"; }
         when (/rq$/) { return "application/sparql-query"; }
-        when (/xhtml$/) { return "application/xhtml+xml"; }
-        when (/gif$/) { return "image/gif"; }
-        when (/jpg$|jpeg$/) { return "image/jpeg"; }
-        when (/png$/) { return "image/png"; }
         when (/svg$/) { return "image/svg+xml"; }
-        when (/ico$/) { return "image/vnd.microsoft.icon"; }
-        when (/css$/) { return "text/css"; }
-        when (/html$/) { return "text/html"; }
-        when (/js$/) { return "text/javascript"; }
-        when (/txt$/) { return "text/plain"; }
         when (/ttl$/) { return "text/turtle"; }
+        when (/txt$/) { return "text/plain"; }
+        when (/xhtml$/) { return "application/xhtml+xml"; }
+        when (/xpl$/) { return "application/xproc+xml"; }
         when (/xsl$/) { return "text/xsl"; }
     }    
     $exitstatus++;
@@ -865,7 +868,7 @@ sub login {
         return 0;
     }
     $server_version =~ s/-.*$//; # Grab just the base version number.
-    if ( $server_version < 1 ) {
+    if ( $server_version < 1.0 ) {
         # Older Callimachus
         $realmurl = $server->authority . "accounts?describe";
     } else {
@@ -882,11 +885,11 @@ sub login {
         my $xs = XML::Simple->new(ForceArray => 1, KeyAttr => []);
         my $xml = $xs->parse_string($realmres->content);
         print $OUT Dumper($xml) if $debug > 2;
-        if ( $server_version < 1 ) {
+        if ( $server_version < 0.18 ) {
             # Older Callimachus
             $realm = $xml->{'rdf:Description'}[0]->{'calli:authName'}[0]->{'rdf:resource'};
         } else {
-            # For Callimachus 1.0 and above:
+            # For Callimachus 0.18 and above:
             $realm = $xml->{'rdf:Description'}[0]->{'calli:authName'}[0];
         }
         say $OUT "  Found realm: $realm" if $debug;

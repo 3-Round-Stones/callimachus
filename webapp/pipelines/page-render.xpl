@@ -15,7 +15,7 @@
     <p:option name="query" required="true" />
     <p:option name="element" select="'/1'" />
 
-    <p:import href="../library.xpl" />
+    <p:import href="library.xpl" />
 
     <p:load>
         <p:with-option name="href" select="$template" />

@@ -425,9 +425,17 @@ INSERT {
 DELETE {
     </callimachus/library.xpl> calli:alternate </callimachus/0.18/library.xpl> .
 } INSERT {
-    </callimachus/library.xpl> calli:alternate </callimachus/1.0/library.xpl> .
+    </callimachus/library.xpl> calli:alternate </callimachus/1.0/pipelines/library.xpl> .
 } WHERE {
     </callimachus/library.xpl> calli:alternate </callimachus/0.18/library.xpl> .
+};
+
+DELETE {
+    </callimachus/library.xpl> calli:alternate </callimachus/1.0/library.xpl> .
+} INSERT {
+    </callimachus/library.xpl> calli:alternate </callimachus/1.0/pipelines/library.xpl> .
+} WHERE {
+    </callimachus/library.xpl> calli:alternate </callimachus/1.0/library.xpl> .
 };
 
 DELETE {
@@ -480,7 +488,7 @@ INSERT {
 	</callimachus/> calli:hasComponent </callimachus/library.xpl>.
 	</callimachus/library.xpl> a </callimachus/1.0/types/PURL>, calli:PURL ;
 		rdfs:label "library.xpl";
-		calli:alternate </callimachus/1.0/library.xpl>;
+		calli:alternate </callimachus/1.0/pipelines/library.xpl>;
 		calli:administrator </auth/groups/admin>;
 		calli:reader </auth/groups/public> .
 } WHERE {

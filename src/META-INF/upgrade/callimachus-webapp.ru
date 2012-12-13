@@ -80,7 +80,7 @@ INSERT {
 
 <../library.xpl> a <types/PURL>, calli:PURL ;
 	rdfs:label "library.xpl";
-	calli:alternate <library.xpl>;
+	calli:alternate <pipelines/library.xpl>;
 	calli:administrator </auth/groups/admin>;
 	calli:reader </auth/groups/public> .
 

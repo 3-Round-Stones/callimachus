@@ -38,48 +38,42 @@ xmlns="http://www.w3.org/1999/xhtml" xmlns:xhtml="http://www.w3.org/1999/xhtml" 
 </xsl:template>
 
 <xsl:template match="d:book">
-    <div class="book">
-        <xsl:apply-templates select="@xml:id" />
-        <xsl:apply-templates select="d:info|d:title|d:preface" />
-        <nav>
-            <h3>Table of Contents</h3>
-            <ul class="toc">
-                <xsl:apply-templates mode="toc" />
-            </ul>
-        </nav>
-        <xsl:apply-templates select="*[not(self::d:info|self::d:title|self::d:preface)]" />
-    </div>
+    <xsl:apply-templates select="@xml:id" />
+    <xsl:apply-templates select="d:info|d:title|d:preface" />
+    <nav>
+        <h3>Table of Contents</h3>
+        <ul class="toc">
+            <xsl:apply-templates mode="toc" />
+        </ul>
+    </nav>
+    <xsl:apply-templates select="*[not(self::d:info|self::d:title|self::d:preface)]" />
 </xsl:template>
 
 <xsl:template match="d:part">
-    <div class="part">
-        <xsl:apply-templates select="@xml:id" />
-        <xsl:apply-templates select="d:info|d:title|d:preface|d:partintro" />
-        <nav>
-            <h3>Contents</h3>
-            <ul class="toc">
-                <xsl:apply-templates mode="toc" />
-            </ul>
-        </nav>
-        <xsl:apply-templates select="*[not(self::d:info|self::d:title|self::d:preface|self::d:partintro)]" />
-    </div>
+    <xsl:apply-templates select="@xml:id" />
+    <xsl:apply-templates select="d:info|d:title|d:preface|d:partintro" />
+    <nav>
+        <h3>Contents</h3>
+        <ul class="toc">
+            <xsl:apply-templates mode="toc" />
+        </ul>
+    </nav>
+    <xsl:apply-templates select="*[not(self::d:info|self::d:title|self::d:preface|self::d:partintro)]" />
     <xsl:if test="following-sibling::*">
         <hr />
     </xsl:if>
 </xsl:template>
 
 <xsl:template match="d:chapter">
-    <div class="chapter">
-        <xsl:apply-templates select="@xml:id" />
-        <xsl:apply-templates select="d:info|d:title" />
-        <nav>
-            <h3>Contents</h3>
-            <ul class="toc">
-                <xsl:apply-templates mode="toc" />
-            </ul>
-        </nav>
-        <xsl:apply-templates select="*[not(self::d:info|self::d:title)]" />
-    </div>
+    <xsl:apply-templates select="@xml:id" />
+    <xsl:apply-templates select="d:info|d:title" />
+    <nav>
+        <h3>Contents</h3>
+        <ul class="toc">
+            <xsl:apply-templates mode="toc" />
+        </ul>
+    </nav>
+    <xsl:apply-templates select="*[not(self::d:info|self::d:title)]" />
     <xsl:if test="following-sibling::*">
         <hr />
     </xsl:if>
@@ -120,10 +114,8 @@ xmlns="http://www.w3.org/1999/xhtml" xmlns:xhtml="http://www.w3.org/1999/xhtml" 
 </xsl:template>
 
 <xsl:template match="d:article">
-    <article>
-        <xsl:apply-templates select="@xml:id" />
-        <xsl:apply-templates />
-    </article>
+    <xsl:apply-templates select="@xml:id" />
+    <xsl:apply-templates />
     <xsl:if test="following-sibling::*">
         <hr />
     </xsl:if>

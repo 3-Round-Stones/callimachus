@@ -71,7 +71,7 @@ public class AsyncPipe {
 		if (closed || buf.hasRemaining())
 			return true;
 		try {
-			this.wait(500);
+			this.wait(100);
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 		}

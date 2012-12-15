@@ -19,8 +19,9 @@ public class RobotsProvider extends FileProvider {
 	}
 
 	@Override
-	protected String getFileType(String webapps) {
-		return webapps + TEXT_TYPE;
+	protected String[] getFileType(String webapps) {
+		return new String[] { webapps + TEXT_TYPE,
+				"http://xmlns.com/foaf/0.1/Document" };
 	}
 
 }

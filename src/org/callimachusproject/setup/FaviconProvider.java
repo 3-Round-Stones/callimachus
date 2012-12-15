@@ -18,8 +18,9 @@ public class FaviconProvider extends FileProvider {
 	}
 
 	@Override
-	protected String getFileType(String webapps) {
-		return webapps + ICO_TYPE;
+	protected String[] getFileType(String webapps) {
+		return new String[] { webapps + ICO_TYPE,
+				"http://xmlns.com/foaf/0.1/Image" };
 	}
 
 }

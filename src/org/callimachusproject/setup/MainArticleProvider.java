@@ -25,8 +25,9 @@ public class MainArticleProvider extends FileProvider {
 	}
 
 	@Override
-	protected String getFileType(String webapps) {
-		return webapps + ARTICLE_TYPE;
+	protected String[] getFileType(String webapps) {
+		return new String[] { webapps + ARTICLE_TYPE,
+				"http://xmlns.com/foaf/0.1/Document" };
 	}
 
 	@Override

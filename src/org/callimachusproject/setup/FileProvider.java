@@ -80,13 +80,13 @@ public abstract class FileProvider implements UpdateProvider {
 				ValueFactory vf = con.getValueFactory();
 				URI folder = vf.createURI(virtual + "/");
 				URI file = vf.createURI(getFileUrl(virtual));
-				URI type = vf.createURI(getFileType(webapp));
-				if (con.hasStatement(file, RDF.TYPE, type))
+				String[] types = getFileType(webapp);
+				if (con.hasStatement(file, RDF.TYPE, vf.createURI(types[0])))
 					return null;
 				logger.info("Uploading: {}", file);
-				con.add(file, RDF.TYPE, type);
-				con.add(file, RDF.TYPE,
-						vf.createURI("http://xmlns.com/foaf/0.1/Document"));
+				for (String type : types) {
+					con.add(file, RDF.TYPE, vf.createURI(type));
+				}
 				con.add(file, RDFS.LABEL, vf.createLiteral(getFileLabel(file.getLocalName())));
 				con.add(file, vf.createURI(CALLI_READER),
 						vf.createURI(origin.resolve(READER_GROUP)));
@@ -117,7 +117,7 @@ public abstract class FileProvider implements UpdateProvider {
 
 	protected abstract String getFileUrl(String virtual);
 
-	protected abstract String getFileType(String webapps);
+	protected abstract String[] getFileType(String webapps);
 
 	protected String getFileLabel(String localName) {
 		String filename = localName.replaceAll("([a-zA-Z_0-9])\\.[a-zA-Z]+$",

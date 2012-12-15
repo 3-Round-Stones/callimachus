@@ -463,6 +463,14 @@ DELETE {
 };
 
 DELETE {
+    </favicon.ico> a foaf:Document
+} INSERT {
+    </favicon.ico> a foaf:Image
+} WHERE {
+    </favicon.ico> a foaf:Document
+};
+
+DELETE {
 	</callimachus/> calli:hasComponent </callimachus/template.xsl>.
 	</callimachus/template.xsl> a </callimachus/1.0/types/PURL>, calli:PURL ;
 		rdfs:label ?label;

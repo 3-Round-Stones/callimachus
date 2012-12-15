@@ -46,6 +46,11 @@ SELECT * {
                                 }
                             )
                         )
+                        FILTER EXISTS {
+                            ?url ?p ?string
+                            FILTER isLiteral(?string)
+                            FILTER regex(?string, keyword:regex("$q"))
+                        }
                     } ORDER BY ?url LIMIT 100
                 } OPTIONAL {
                     ?url skos:prefLabel ?label
@@ -57,10 +62,6 @@ SELECT * {
                     ?url skosxl:literalForm ?label
                 } OPTIONAL {
                     ?url dcterms:title ?label
-                }
-                FILTER EXISTS {
-                    ?url ?p ?string
-                    FILTER regex(?string, keyword:regex("$q"))
                 }
                 OPTIONAL { ?url a [calli:icon ?icon] }
                 OPTIONAL { ?url rdfs:comment ?comment }

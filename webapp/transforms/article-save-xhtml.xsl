@@ -302,7 +302,7 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
 <xsl:template match="xhtml:img/@hspace">
     <xsl:if test="string-length() &gt; 0">
         <xsl:attribute name="width">
-            <xsl:value-of select="concat(number() + number(../@width),'px')" />
+            <xsl:value-of select="concat(2 * number() + number(../@width),'px')" />
         </xsl:attribute>
     </xsl:if>
 </xsl:template>
@@ -310,7 +310,7 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
 <xsl:template match="xhtml:img/@vspace">
     <xsl:if test="string-length() &gt; 0">
         <xsl:attribute name="depth">
-            <xsl:value-of select="concat(number() + number(../@height),'px')" />
+            <xsl:value-of select="concat(2 * number() + number(../@height),'px')" />
         </xsl:attribute>
     </xsl:if>
 </xsl:template>

@@ -317,9 +317,9 @@
         </xsl:if>
         <xsl:if test="$contentdepth and contains(d:imagedata/@depth, 'px') and $contentwidth and contains(d:imagedata/@width,'px')">
             <xsl:text>margin:</xsl:text>
-            <xsl:value-of select="number(substring-before(d:imagedata/@depth,'px')) - number($contentdepth)"/>
+            <xsl:value-of select="(number(substring-before(d:imagedata/@depth,'px')) - number($contentdepth)) div 2"/>
             <xsl:text>px </xsl:text>
-            <xsl:value-of select="number(substring-before(d:imagedata/@width,'px')) - $contentwidth"/>
+            <xsl:value-of select="(number(substring-before(d:imagedata/@width,'px')) - number($contentwidth)) div 2"/>
             <xsl:text>px;</xsl:text>
         </xsl:if>
     </xsl:variable>
@@ -335,7 +335,7 @@
             </xsl:attribute>
             <xsl:if test="contains(d:imagedata/@depth, 'px')">
                 <xsl:attribute name="vspace">
-                    <xsl:value-of select="number(substring-before(d:imagedata/@depth,'px')) - number($contentdepth)"/>
+                    <xsl:value-of select="(number(substring-before(d:imagedata/@depth,'px')) - number($contentdepth)) div 2"/>
                 </xsl:attribute>
             </xsl:if>
         </xsl:if>
@@ -345,7 +345,7 @@
             </xsl:attribute>
             <xsl:if test="contains(d:imagedata/@width,'px')">
                 <xsl:attribute name="hspace">
-                    <xsl:value-of select="number(substring-before(d:imagedata/@width,'px')) - $contentwidth"/>
+                    <xsl:value-of select="(number(substring-before(d:imagedata/@width,'px')) - $contentwidth) div 2"/>
                 </xsl:attribute>
             </xsl:if>
         </xsl:if>

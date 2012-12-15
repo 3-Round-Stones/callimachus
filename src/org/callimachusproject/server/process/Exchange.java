@@ -2,28 +2,22 @@ package org.callimachusproject.server.process;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InterruptedIOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.ClosedChannelException;
-import java.nio.channels.Pipe;
-import java.nio.channels.Pipe.SourceChannel;
-import java.nio.channels.ReadableByteChannel;
 import java.util.Queue;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
+import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.concurrent.Cancellable;
-import org.apache.http.entity.ContentType;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
 import org.apache.http.nio.entity.EntityAsyncContentProducer;
 import org.apache.http.nio.entity.HttpAsyncContentProducer;
-import org.apache.http.nio.protocol.AbstractAsyncRequestConsumer;
 import org.apache.http.nio.protocol.HttpAsyncExchange;
 import org.apache.http.nio.protocol.HttpAsyncRequestConsumer;
 import org.apache.http.nio.protocol.HttpAsyncResponseProducer;
@@ -31,6 +25,7 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 import org.callimachusproject.client.HttpEntityWrapper;
 import org.callimachusproject.server.model.Request;
+import org.callimachusproject.server.util.AsyncPipe;
 import org.callimachusproject.server.util.ChannelUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,8 +38,6 @@ public class Exchange implements Cancellable {
 	private final HttpContext context;
 	private final Queue<Exchange> queue;
 	private final Consumer consumer;
-	private final Pipe pipe;
-	private final ByteBuffer buf;
 	private HttpAsyncExchange exchange;
 	private HttpResponse response;
 	private HttpAsyncContentProducer producer;
@@ -53,7 +46,6 @@ public class Exchange implements Cancellable {
 	private boolean submitContinue;
 	private boolean ready;
 	private boolean cancelled;
-	private Throwable throwable;
 
 	public Exchange(Request request, HttpContext context) throws IOException {
 		assert request != null;
@@ -61,8 +53,6 @@ public class Exchange implements Cancellable {
 		this.context = context;
 		this.queue = null;
 		this.consumer = null;
-		this.pipe = null;
-		this.buf = null;
 		setExpectContinue(false);
 	}
 
@@ -80,31 +70,9 @@ public class Exchange implements Cancellable {
 			queue.add(this);
 		}
 		consumer = new Consumer();
-		if (request instanceof HttpEntityEnclosingRequest) {
-			HttpEntityEnclosingRequest ereq = (HttpEntityEnclosingRequest) request;
-			HttpEntity entity = ereq.getEntity();
-			if (entity == null) {
-				pipe = null;
-				buf = null;
-			} else {
-				pipe = Pipe.open();
-				buf = ByteBuffer.allocate(4096);
-				final SourceChannel source = pipe.source();
-				request.setEntity(new HttpEntityWrapper(entity) {
-					protected InputStream getDelegateContent()
-							throws IOException {
-						return ChannelUtil.newInputStream(new ReadableSource(
-								source));
-					}
-				});
-			}
-		} else {
-			pipe = null;
-			buf = null;
-		}
 	}
 
-	public HttpAsyncRequestConsumer<Request> getConsumer() {
+	public HttpAsyncRequestConsumer<HttpRequest> getConsumer() {
 		return consumer;
 	}
 
@@ -224,26 +192,12 @@ public class Exchange implements Cancellable {
 	synchronized void closeRequest() {
 		request.closeRequest();
 		if (consumer != null) {
-			consumer.releaseResources();
+			consumer.close();
 		}
 		if (queue != null) {
 			synchronized (queue) {
 				queue.remove(this);
 			}
-		}
-	}
-
-	void verify() throws IOException {
-		Exception exception = consumer.getException();
-		if (exception != null)
-			throw new IOException(exception);
-		try {
-			if (throwable instanceof Error)
-				throw (Error) throwable;
-			if (throwable != null)
-				throw new IOException(throwable);
-		} finally {
-			throwable = null;
 		}
 	}
 
@@ -266,95 +220,109 @@ public class Exchange implements Cancellable {
 		}
 	}
 
-	private class ReadableSource implements ReadableByteChannel {
-		private ReadableByteChannel ch;
+	private class Consumer implements HttpAsyncRequestConsumer<HttpRequest> {
+		private final int capacity;
+		private HttpRequest request;
+		private AsyncPipe pipe;
+		private Exception ex;
 
-		public ReadableSource(ReadableByteChannel ch) {
-			this.ch = ch;
+		public Consumer() {
+			this(65536);
 		}
 
-		public boolean isOpen() {
-			return ch.isOpen();
+		public Consumer(int capacity) {
+			this.capacity = capacity;
 		}
 
-		public void close() throws IOException {
-			try {
-				verify();
-			} finally {
-				ch.close();
+		@Override
+		public void requestReceived(HttpRequest request) throws HttpException,
+				IOException {
+			this.request = request;
+			if (request instanceof HttpEntityEnclosingRequest) {
+				HttpEntityEnclosingRequest ereq = (HttpEntityEnclosingRequest) request;
+				HttpEntity entity = ereq.getEntity();
+				if (entity == null) {
+					pipe = null;
+				} else {
+					pipe = new AsyncPipe(capacity);
+					entity = new HttpEntityWrapper(entity) {
+						protected InputStream getDelegateContent()
+								throws IOException {
+							return ChannelUtil.newInputStream(pipe.source());
+						}
+					};
+					((HttpEntityEnclosingRequest) request).setEntity(entity);
+				}
+			} else {
+				pipe = null;
 			}
-			verify();
-		}
-
-		public int read(ByteBuffer dst) throws IOException {
-			verify();
-			return ch.read(dst);
-		}
-	}
-
-	private class Consumer extends AbstractAsyncRequestConsumer<Request> {
-
-		@Override
-		protected synchronized void onRequestReceived(final HttpRequest req)
-				throws IOException {
 		}
 
 		@Override
-		protected synchronized void onEntityEnclosed(final HttpEntity entity,
-				final ContentType contentType) {
-		}
-
-		@Override
-		protected synchronized void onContentReceived(final ContentDecoder in,
+		public void consumeContent(final ContentDecoder decoder,
 				final IOControl ioctrl) throws IOException {
 			setExpectContinue(false);
 			assert pipe != null;
-			while (in.read(buf) >= 0 || buf.position() != 0) {
-				try {
-					if (pipe.source().isOpen() && pipe.sink().isOpen()) {
-						buf.flip();
-						pipe.sink().write(buf);
-						buf.compact();
-					} else {
-						buf.clear();
+			pipe.sink(new AsyncPipe.Sink() {
+				public int read(ByteBuffer dst) throws IOException {
+					return decoder.read(dst);
+				}
+			});
+			if (decoder.isCompleted()) {
+				pipe.close();
+			} else if (!pipe.hasAvailableCapacity()) {
+				synchronized (pipe) {
+					if (!pipe.hasAvailableCapacity()) {
+						logger.info("Suspend {}", request.getRequestLine());
+						ioctrl.suspendInput();
+						pipe.onAvailableCapacity(new Runnable() {
+							public void run() {
+								logger.info("Resume {}", request.getRequestLine());
+								ioctrl.requestInput();
+							}
+						});
 					}
-				} catch (InterruptedIOException e) {
-					Thread.currentThread().interrupt();
-					return;
-				} catch (ClosedChannelException e) {
-					// exit
-				} catch (IOException e) {
-					throwable = e;
-				} catch (RuntimeException e) {
-					throwable = e;
-				} catch (Error e) {
-					throwable = e;
 				}
 			}
 		}
 
 		@Override
-		protected Request buildResult(final HttpContext context) {
+		public void close() {
+			if (pipe != null) {
+				pipe.close();
+			}
+		}
+
+		@Override
+		public void requestCompleted(HttpContext context) {
+			close();
+		}
+
+		@Override
+		public void failed(Exception ex) {
+			this.ex = ex;
+			if (pipe != null) {
+				pipe.fail(ex);
+			}
+		}
+
+		@Override
+		public Exception getException() {
+			return ex;
+		}
+
+		@Override
+		public HttpRequest getResult() {
 			return request;
 		}
 
 		@Override
-		protected void releaseResources() {
-			try {
-				if (pipe != null) {
-					pipe.sink().close();
-				}
-			} catch (InterruptedIOException e) {
-				Thread.currentThread().interrupt();
-			} catch (ClosedChannelException e) {
-				// exit
-			} catch (IOException e) {
-				throwable = throwable == null ? e : throwable;
-			} catch (RuntimeException e) {
-				throwable = throwable == null ? e : throwable;
-			} catch (Error e) {
-				throwable = throwable == null ? e : throwable;
-			}
+		public boolean isDone() {
+			return pipe == null || !pipe.isOpen();
+		}
+
+		public String toString() {
+			return String.valueOf(request);
 		}
 	}
 
@@ -400,6 +368,10 @@ public class Exchange implements Cancellable {
 			if (producer != null) {
 				producer.close();
 			}
+		}
+
+		public String toString() {
+			return String.valueOf(response);
 		}
 	}
 

@@ -66,7 +66,7 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class HTTPObjectRequestHandler extends AbstractHttpClient implements
-		HttpAsyncRequestHandler<Request> {
+		HttpAsyncRequestHandler<HttpRequest> {
 	private static final String SELF = HTTPObjectRequestHandler.class.getName();
 	private static final String EXCHANGE_ATTR = SELF + "#exchange";
 	private static final String PROCESSING_ATTR = SELF + "#processing";
@@ -128,7 +128,7 @@ public class HTTPObjectRequestHandler extends AbstractHttpClient implements
 	}
 
 	@Override
-	public HttpAsyncRequestConsumer<Request> processRequest(
+	public HttpAsyncRequestConsumer<HttpRequest> processRequest(
 			HttpRequest request, HttpContext ctx) throws HttpException,
 			IOException {
 		logger.debug("Request received {}", request.getRequestLine());
@@ -142,7 +142,7 @@ public class HTTPObjectRequestHandler extends AbstractHttpClient implements
 	}
 
 	@Override
-	public void handle(Request request, HttpAsyncExchange trigger,
+	public void handle(HttpRequest request, HttpAsyncExchange trigger,
 			HttpContext ctx) throws HttpException, IOException {
 		logger.debug("Request consumed {}", request.getRequestLine());
 		Exchange exchange = (Exchange) ctx.getAttribute(EXCHANGE_ATTR);

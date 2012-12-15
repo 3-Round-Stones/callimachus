@@ -135,7 +135,15 @@ html, body {
     overflow:auto;
     padding-bottom: (@footerHeight + 1);
     position: relative;
-    min-height: 30rem; /* make sure the create-menu doesn't trigger scrollbars */
+    min-height: 600px; /* make sure the create-menu doesn't trigger scrollbars */
+}
+
+html.ie #wrapper {/* ie8 doesn't support min-height */
+    height: 100%;
+}
+
+html.ie #page {/* ie8 doesn't support min-height */
+    height: 80%;
 }
 
 html.iframe #page {
@@ -193,6 +201,14 @@ form {
     width: 18rem;
     right: 0;
     position: absolute;
+}
+
+html.ie #sidebar {
+    width: 35%;
+}
+
+html.ie #sidebar ~ div {
+    margin-right: 37%;
 }
 
 .iframe #sidebar {
@@ -276,6 +292,7 @@ aside h3 {
     padding: 0 10px 10px;
     margin-left: -10px;
     z-index: 1000;
+    height: auto;
 }
 
 #create-menu ul {

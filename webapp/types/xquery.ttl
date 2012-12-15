@@ -87,6 +87,7 @@
     calli:imports <java:org.callimachusproject.server.exceptions.ServiceUnavailable>;
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
     calli:imports <java:org.callimachusproject.xml.XQueryValidator>;
+    calli:imports <java:org.callimachusproject.server.HTTPObjectServer>;
     calli:script """
         if (!stream)
             throw new BadRequest("Missing PUT request payload");
@@ -109,6 +110,9 @@
             var errors = validator.errorMessages;
             if (errors && errors.length > 0)
                 throw new BadRequest(errors[0], errors.join('\\n'));
+            if (this.IsLayout()) {
+                HTTPObjectServer.resetAllCache();
+            }
         } catch (e if e.javaException instanceof ServiceUnavailable) {
             java.lang.System.err.println("Storing " + this);
         } finally {
@@ -120,3 +124,11 @@
     rdfs:domain :UploadXQuery;
     rdfs:range <java:java.io.InputStream>;
     calli:type "application/xquery".
+
+:IsLayout rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <XQuery>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:boolean];
+    msg:sparql """
+        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
+        ASK { ?realm calli:layout $this }
+    """.

@@ -62,6 +62,7 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
             </header>
         </div>
         <div id="page" class="container">
+            {calli:hgroup()}
             {calli:breadcrumb(<span class="divider">&#187;</span>)}
             {calli:sidebar()}
             <div>
@@ -74,7 +75,6 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
                 </nav>)}
 
                 <div id="container">
-                    {calli:hgroup()}
                     <div id="flash"><!-- #flash is used to place error messages on the screen --></div>
                     <div id="content">{calli:content()}</div>
                 </div><!-- container -->

@@ -441,9 +441,17 @@ DELETE {
 DELETE {
     </callimachus/Concept> calli:alternate </callimachus/0.18/Concept> .
 } INSERT {
-    </callimachus/Concept> calli:alternate </callimachus/1.0/Concept> .
+    </callimachus/Concept> calli:alternate </callimachus/1.0/types/Concept> .
 } WHERE {
     </callimachus/Concept> calli:alternate </callimachus/0.18/Concept> .
+};
+
+DELETE {
+    </callimachus/Concept> calli:alternate </callimachus/1.0/Concept> .
+} INSERT {
+    </callimachus/Concept> calli:alternate </callimachus/1.0/types/Concept> .
+} WHERE {
+    </callimachus/Concept> calli:alternate </callimachus/1.0/Concept> .
 };
 
 DELETE {

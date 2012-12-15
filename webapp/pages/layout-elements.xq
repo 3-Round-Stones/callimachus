@@ -43,5 +43,5 @@ declare function calli:hgroup() as element()? {
 };
 declare function calli:content() as node()* {
     let $hgroup := ($calli:html/body/*[self::h1 or self::hgroup])[1]
-    return $calli:html/body/node()[not(self::*=$hgroup or self::div[@id='sidebar'])]
+    return $calli:html/body/node()[not(self::div[@id='sidebar']) and (not(self::h1 or self::hgroup) or preceding-sibling::h1 or preceding-sibling::hgroup)]
 };

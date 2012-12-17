@@ -6,7 +6,6 @@
     $(window).bind('message', function(event) {
         if (event.originalEvent.source == $('#iframe')[0].contentWindow && event.originalEvent.data == 'CONNECT calliEditorLoaded') {
             editor = $('#iframe')[0].contentWindow;
-            var template = $('#template').text() || $('#template').html().replace(/^\s+/,'');
             if (window.location.hash.indexOf('#!') == 0) {
                 var url = window.location.hash.substring(2);
                 jQuery.ajax({type: 'GET', url: url, beforeSend: withCredentials, complete: function(xhr) {
@@ -16,7 +15,8 @@
                             + url + '\n\n' + text, '*');
                     }
                 }});
-            } else if (template) {
+            } else if ($('#template').length) {
+                var template = $('#template').text() || $('#template').html().replace(/^\s+/,'');
                 editor.postMessage('PUT text\nIf-None-Match: *\nContent-Location: '
                             + window.location.href + '\n\n' + template, '*');
             } else {

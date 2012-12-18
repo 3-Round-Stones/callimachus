@@ -58,7 +58,7 @@ INSERT {
         <../library.xpl>,
         <../forbidden.html>,
         <../unauthorized.html>,
-        <../layout-elements.xq>,
+        <../layout-functions.xq>,
         <../default-layout.xq>,
         <../callimachus-powered.png>,
         <../Concept>.

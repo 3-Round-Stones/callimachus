@@ -21,6 +21,7 @@ INSERT {
 		calli:administrator </auth/groups/admin>.
 } WHERE {
 	FILTER NOT EXISTS { $realm a calli:Folder }
+	BIND (replace(replace(str($realm), "^[a-z]*://", ""), "/$", "") AS ?label)
 };
 
 INSERT {

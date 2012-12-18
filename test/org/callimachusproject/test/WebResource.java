@@ -288,6 +288,8 @@ public class WebResource {
 
 	private String getQuoteAfter(String token, String text) {
 		int pos = text.indexOf(token);
+		if (pos <= 0)
+			return null;
 		int start = text.indexOf("\"", pos);
 		int stop = text.indexOf("\"", start + 1);
 		return text.substring(start + 1, stop).replace("&amp;", "&");

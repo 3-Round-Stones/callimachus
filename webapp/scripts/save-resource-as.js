@@ -103,7 +103,7 @@ function localPart(resource) {
 }
 
 function openSaveAsDialog(form, label, create, callback) {
-    var src = calli.getCallimachusUrl("pages/location-prompt.html#");
+    var src = calli.getCallimachusUrl("pages/save-resource-as.html#");
     if (label) {
         src += encodeURIComponent(label.replace(/!/g,''));
     }

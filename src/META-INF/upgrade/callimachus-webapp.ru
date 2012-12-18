@@ -104,15 +104,15 @@ INSERT {
 	calli:administrator </auth/groups/admin>;
 	calli:reader </auth/groups/public> .
 
-<../layout-elements.xq> a <types/PURL>, calli:PURL ;
-	rdfs:label "layout-elements.xq";
-	calli:alternate <pages/layout-elements.xq>;
+<../layout-functions.xq> a <types/PURL>, calli:PURL ;
+	rdfs:label "layout-functions.xq";
+	calli:alternate <transforms/layout-functions.xq>;
 	calli:administrator </auth/groups/admin>;
 	calli:reader </auth/groups/public> .
 
 <../default-layout.xq> a <types/PURL>, calli:PURL ;
 	rdfs:label "default-layout.xq";
-	calli:alternate <pages/default-layout.xq>;
+	calli:alternate <transforms/default-layout.xq>;
 	calli:administrator </auth/groups/admin>;
 	calli:reader </auth/groups/public> .
 

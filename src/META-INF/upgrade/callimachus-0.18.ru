@@ -463,6 +463,22 @@ DELETE {
 };
 
 DELETE {
+    </callimachus/default-layout.xq> calli:alternate </callimachus/1.0/pages/default-layout.xq> .
+} INSERT {
+    </callimachus/default-layout.xq> calli:alternate </callimachus/1.0/transforms/default-layout.xq> .
+} WHERE {
+    </callimachus/default-layout.xq> calli:alternate </callimachus/1.0/pages/default-layout.xq> .
+};
+
+DELETE {
+    </callimachus/layout-elements.xq> calli:alternate </callimachus/1.0/pages/layout-elements.xq> .
+} INSERT {
+    </callimachus/layout-elements.xq> calli:alternate </callimachus/1.0/transforms/layout-functions.xq>.
+} WHERE {
+    </callimachus/layout-elements.xq> calli:alternate </callimachus/1.0/pages/layout-elements.xq> .
+};
+
+DELETE {
     </favicon.ico> a foaf:Document
 } INSERT {
     </favicon.ico> a foaf:Image
@@ -597,14 +613,14 @@ INSERT {
 };
 
 INSERT {
-	</callimachus/> calli:hasComponent </callimachus/layout-elements.xq>.
-    </callimachus/layout-elements.xq> a </callimachus/1.0/types/PURL>, calli:PURL ;
-	    rdfs:label "layout-elements.xq";
-	    calli:alternate </callimachus/1.0/pages/layout-elements.xq>;
+	</callimachus/> calli:hasComponent </callimachus/layout-functions.xq>.
+    </callimachus/layout-functions.xq> a </callimachus/1.0/types/PURL>, calli:PURL ;
+	    rdfs:label "layout-functions.xq";
+	    calli:alternate </callimachus/1.0/transforms/layout-functions.xq>;
 	    calli:administrator </auth/groups/admin>;
 	    calli:reader </auth/groups/public> .
 } WHERE {
-    FILTER NOT EXISTS { </callimachus/layout-elements.xq> a calli:PURL }
+    FILTER NOT EXISTS { </callimachus/layout-functions.xq> a calli:PURL }
 };
 
 INSERT {

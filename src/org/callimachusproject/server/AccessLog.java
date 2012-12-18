@@ -2,6 +2,8 @@ package org.callimachusproject.server;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
 import java.util.concurrent.atomic.AtomicLong;
@@ -155,7 +157,7 @@ public class AccessLog extends Filter {
 				String[] pair = cookie.split("\\s*;\\s*");
 				for (String p : pair) {
 					if (p.startsWith(USERNAME)) {
-						return p.substring(USERNAME.length());
+						return decode(p.substring(USERNAME.length()));
 					}
 				}
 			}
@@ -192,6 +194,14 @@ public class AccessLog extends Filter {
 			} else {
 				logger.debug(sb.toString());
 			}
+		}
+	}
+
+	private String decode(String string) {
+		try {
+			return URLDecoder.decode(string, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			throw new AssertionError(e);
 		}
 	}
 

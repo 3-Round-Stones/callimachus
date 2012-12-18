@@ -94,7 +94,6 @@ public class DetachedDigestManager implements DetachedAuthenticationManager {
 			+ "}}";
 	private static final Pattern TOKENS_REGEX = Pattern
 			.compile("\\s*([\\w\\!\\#\\$\\%\\&\\'\\*\\+\\-\\.\\^\\_\\`\\~]+)(?:\\s*=\\s*(?:\"([^\"]*)\"|([^,\"]*)))?\\s*,?");
-	private static final String DIGEST_NONCE = "digestNonce=";
 	private static final long THREE_MONTHS = 3 * 30 * 24 * 60 * 60;
 	private static final int MAX_NONCE_AGE = 300000; // nonce timeout of 5min
 	private static final String USERNAME = "username=";
@@ -124,6 +123,8 @@ public class DetachedDigestManager implements DetachedAuthenticationManager {
 	private final String protectedPath;
 	private final RealmManager realms;
 	private final FailManager fail = new FailManager();
+	private final String secure;
+	private final String digestNonce;
 
 	public DetachedDigestManager(Resource self, String authName, String path, List<String> domains, RealmManager realms) {
 		assert self != null;
@@ -134,9 +135,20 @@ public class DetachedDigestManager implements DetachedAuthenticationManager {
 		this.authName = authName;
 		assert domains != null;
 		assert domains.size() > 0;
+		boolean secureOnly = true;
 		StringBuilder sb = new StringBuilder();
 		for (String domain : domains) {
 			sb.append(' ').append(domain);
+			if (!domain.startsWith("https")) {
+				secureOnly = false;
+			}
+		}
+		if (secureOnly) {
+			this.secure = ";Secure";
+			this.digestNonce = "digestNonceSsl=";
+		} else {
+			this.secure = "";
+			this.digestNonce = "digestNonce=";
 		}
 		this.protectedDomains = sb.substring(1);
 		this.protectedPath = path;
@@ -251,9 +263,9 @@ public class DetachedDigestManager implements DetachedAuthenticationManager {
 			if (token.indexOf("username=\"-\"") > 0) {
 				// # bogus credentials received
 				BasicHttpResponse resp = new BasicHttpResponse(_204);
-				resp.addHeader("Set-Cookie", DIGEST_NONCE + ";Max-Age=0;Path=/;HttpOnly");
+				resp.addHeader("Set-Cookie", digestNonce + ";Max-Age=0;Path=/;HttpOnly" + secure);
 				resp.addHeader("Set-Cookie", USERNAME + ";Max-Age=0;Path="
-						+ protectedPath);
+						+ protectedPath + secure);
 				return resp;
 			}
 		}
@@ -289,7 +301,7 @@ public class DetachedDigestManager implements DetachedAuthenticationManager {
 		String username = getUserLogin(tokens, con);
 		if (username == null)
 			return null;
-		return USERNAME + encode(username) + ";Path=" + protectedPath;
+		return USERNAME + encode(username) + ";Path=" + protectedPath + secure;
 	}
 
 	public String getUserIdentifier(Collection<String> tokens,
@@ -461,12 +473,12 @@ public class DetachedDigestManager implements DetachedAuthenticationManager {
 		if (cookies == null)
 			return null;
 		for (String cookie : cookies) {
-			if (!cookie.contains(DIGEST_NONCE))
+			if (!cookie.contains(digestNonce))
 				continue;
 			String[] pair = cookie.split("\\s*;\\s*");
 			for (String p : pair) {
-				if (p.startsWith(DIGEST_NONCE)) {
-					return p.substring(DIGEST_NONCE.length());
+				if (p.startsWith(digestNonce)) {
+					return p.substring(digestNonce.length());
 				}
 			}
 		}
@@ -495,8 +507,8 @@ public class DetachedDigestManager implements DetachedAuthenticationManager {
 		String nonce = Long.toString(Math.abs(new SecureRandom().nextLong()),
 				Character.MAX_RADIX);
 		BasicHttpResponse resp = new BasicHttpResponse(_200);
-		resp.addHeader("Set-Cookie", DIGEST_NONCE + nonce + ";Max-Age="
-				+ THREE_MONTHS + ";Path=/;HttpOnly");
+		resp.addHeader("Set-Cookie", digestNonce + nonce + ";Max-Age="
+				+ THREE_MONTHS + ";Path=/;HttpOnly" + secure);
 		resp.addHeader("Cache-Control", "private");
 		resp.setHeader("Content-Type", "text/plain;charset=UTF-8");
 		String hash = md5(nonce + ":" + secret);

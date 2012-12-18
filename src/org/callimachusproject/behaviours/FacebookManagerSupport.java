@@ -43,7 +43,13 @@ public abstract class FacebookManagerSupport implements RDFObject, FacebookManag
 		String url = uri + "?login";
 		String appId = getCalliFacebookAppId();
 		CharSequence secret = getCalliFacebookSecret().getCharContent(false);
-		return new DetachedFacebookManager(uri, url, appId, secret, path);
+		boolean secureOnly = true;
+		for (String domain : domains) {
+			if (!domain.endsWith("https")) {
+				secureOnly = false;
+			}
+		}
+		return new DetachedFacebookManager(uri, url, appId, secret, path, secureOnly);
 	}
 
 	public void resetCache() throws RepositoryException {

@@ -131,6 +131,8 @@ if (isLoggedIn()) {
         },
         error: nowLoggedOut
     });
+} else if (getUsername()) {
+    activelyLogin();
 } else {
     // hasn't logged in using the login form; is this page protected?
     var xhr = jQuery.ajax({type: 'GET', url: calli.getPageUrl(),
@@ -163,6 +165,7 @@ if (isLoggedIn()) {
 
 function activelyLogin() {
     jQuery.ajax({ url: "/?profile",
+        beforeSend: calli.withCredentials,
         success: function(doc) {
             loadProfile(doc);
             nowLoggedIn();
@@ -172,8 +175,8 @@ function activelyLogin() {
 }
 
 function nowLoggedIn() {
-    if (isLoggedIn()) {
-        var name = getUsername();
+    var name = getUsername();
+    if (name) {
         if (window.localStorage) {
             localStorage.setItem("username", name);
         }
@@ -182,27 +185,32 @@ function nowLoggedIn() {
         $(document).ready(function() {
             $(document).trigger(e);
         });
+    } else {
+        nowLoggedOut();
     }
 }
 
 function nowLoggedOut() {
-    if (!isLoggedIn()) {
-        if (window.localStorage) {
-            localStorage.removeItem("username");
-        }
-        $(document).ready(function() {
-            $(document).trigger("calliLoggedOut");
-        });
+    try {
+        document.cookie = 'username=;max-age=0';
+    } catch (e) {}
+    if (window.localStorage) {
+        localStorage.removeItem("username");
+        localStorage.removeItem("digestPassword");
     }
+    $(document).ready(function() {
+        $(document).trigger("calliLoggedOut");
+    });
 }
 
 function isLoggedIn() {
-    return document.cookie && /(?:^|;\s*)username\s*\=/.test(document.cookie);
+    return getUsername() && (!window.localStorage || window.localStorage.getItem("username"));
 }
 
 function getUsername() {
-    if (isLoggedIn())
-        return decodeURIComponent(document.cookie.replace(/(?:^|.*;\s*)username\s*\=\s*((?:[^;](?!;))*[^;]?).*/, "$1"));
+    var value = document.cookie.replace(/(?:^|.*;\s*)username\s*\=\s*((?:[^;](?!;))*[^;]?).*/, "$1");
+    if (value)
+        return decodeURIComponent(value);
     return null;
 }
 

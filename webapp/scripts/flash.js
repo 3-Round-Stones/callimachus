@@ -11,39 +11,23 @@ $(document).error(function(event) {
 });
 
 function flash(message, stack) {
-    var msg = $("#flash");
-    if (!msg.size())
+    var msg = $("#calli-error");
+    var template = $('#calli-error-template').children();
+    if (!msg.length || !template.length)
         return false;
-    var widget = $('<div/>');
-    widget.addClass("ui-state-error ui-corner-all error");
-    widget.css("padding", "1ex");
-    widget.css("margin", "1ex");
-    var p = $('<div/>');
-    var icon = $('<span/>');
-    icon.addClass("ui-icon ui-icon-alert");
-    icon.css("margin-right", "0.3em");
-    icon.css("float", "left");
-    var close = $('<span/>');
-    close.addClass("ui-icon ui-icon-close");
-    var button = $('<span/>');
-    button.css("display", "block");
-    button.css("float", "right");
-    button.click(function() {
-        widget.remove();
-    });
-    button.append(close);
-    p.append(icon);
-    p.append(button);
-    p.append(message);
-    widget.append(p);
+    var widget = template.clone();
+    widget.append(message);
     if (stack) {
         var pre = $("<pre/>");
         pre.append(stack);
         pre.hide();
-        widget.append(pre);
-        p.click(function() {
+        var more = $('<a/>');
+        more.text("»");
+        more.click(function() {
             pre.toggle();
         });
+        widget.append(more);
+        widget.append(pre);
     }
     msg.append(widget);
     scroll(0,0);

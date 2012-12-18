@@ -7,11 +7,10 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
 <head>
     <meta name="viewport" content="width=device-width,height=device-height,initial-scale=1.0,target-densityDpi=device-dpi"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <link rel="home" href="/" />
     <link rel="icon" href="/favicon.ico" />
     <!--[if gt IE 6]><!-->
-    <link rel="stylesheet" href="{resolve-uri('/callimachus/styles.css')}" />
-    <script type="text/javascript" src="{resolve-uri('/callimachus/scripts.js')}" />
+    {calli:styles()}
+    {calli:scripts()}
     <!--[if lt IE 9]>
         <script>document.documentElement.className+=' ie'</script>
         <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -26,10 +25,10 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
         <div class="navbar navbar-static-top hidden-iframe">
             <header class="navbar-inner">
                 <div class="container">
-                    <a id="branding" class="brand" href="/">Callimachus</a>
+                    {calli:home(<a class="brand">Callimachus</a>)}
                     <menu type="toolbar" class="nav pull-right">
                         <li class="hidden-login">
-                            {calli:login('Login')}
+                            {calli:login(<a>Sign in</a>)}
                         </li>
                         <li class="hidden-logout dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
@@ -37,36 +36,34 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
                                 <i class="caret"></i>
                             </a>
                             <menu type="list" class="dropdown-menu">
-                                <li><a href="/?view">Home folder</a></li>
-                                <li><a href="/?changes">Recent changes</a></li>
+                                <li>{calli:folder(<a>Home folder</a>)}</li>
+                                <li>{calli:changes(<a>Recent changes</a>)}</li>
                                 <li class="divider"></li>
-                                <li><a href="javascript:location='?whatlinkshere'">What links here</a></li>
-                                <li><a href="javascript:location='?relatedchanges'">Related changes</a></li>
-                                <li><a href="javascript:location='?permissions'">Permissions</a></li>
-                                <li><a href="javascript:location='?introspect'">Introspect resource</a></li>
+                                <li>{calli:whatlinkshere(<a>What links here</a>)}</li>
+                                <li>{calli:relatedchanges(<a>Related changes</a>)}</li>
+                                <li>{calli:permissions(<a>Permissions</a>)}</li>
+                                <li>{calli:introspect(<a>Introspect resource</a>)}</li>
                                 <li><a href="javascript:print()">Print this page</a></li>
                                 <li class="divider"></li>
                                 <li><a href="http://callimachusproject.org/">About Callimachus</a></li>
                                 <li><a href="http://code.google.com/p/callimachus/wiki/GettingStarted">Getting started</a></li>
                                 <li><a href="http://groups.google.com/group/callimachus-discuss">Send feedback</a></li>
                                 <li class="divider"></li>
-                                <li>{calli:profile('Account')}</li>
-                                <li>{calli:logout('Sign out')}</li>
+                                <li>{calli:profile(<a>Account</a>)}</li>
+                                <li>{calli:logout(<a>Sign out</a>)}</li>
                             </menu>
                         </li>
                     </menu>
-                    <form class="navbar-search pull-right hidden-logout" method="GET" action="/">
-                        <input type="text" name="q" class="search-query" placeholder="Lookup..." />
-                    </form>
+                    <div class="navbar-search pull-right hidden-logout">{calli:lookup('Lookup...')}</div>
                 </div>
             </header>
         </div>
         <div id="page" class="container">
             {calli:hgroup()}
-            {calli:breadcrumb(<span class="divider">&#187;</span>)}
-            {calli:sidebar()}
+            {calli:breadcrumb(<nav class="breadcrumb"><a/><span class="divider">&#187;</span><span class="active"/></nav>)}
+            {calli:sidebar(<div id="sidebar" class="pull-right" />)}
             <div>
-                {calli:activateLink(<nav id="access" class="hidden-logout hidden-iframe nav-tabs">
+                {calli:activateNav(<nav id="access" class="hidden-logout hidden-iframe nav-tabs">
                     <a tabindex="1" href="?view" onclick="location.replace(href);return false">View</a>
                     <a tabindex="2" href="?edit" onclick="location.replace(href);return false">Edit</a>
                     <a tabindex="3" href="?discussion" onclick="location.replace(href);return false">Discussion</a>
@@ -75,7 +72,12 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
                 </nav>)}
 
                 <div id="container">
-                    <div id="flash"><!-- #flash is used to place error messages on the screen --></div>
+                    {calli:error(<div class="ui-state-error ui-corner-all error" style="padding:1ex;margin:1ex">
+                        <span class="ui-icon ui-icon-alert" style="margin-right:0.3em;float:left"/>
+                        <span style="display:block;float:right" onclick="$(parentNode).remove()">
+                            <span class="ui-icon ui-icon-close" />
+                        </span>
+                    </div>)}
                     <div id="content">{calli:content()}</div>
                 </div><!-- container -->
             </div>
@@ -84,12 +86,7 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
 
     <footer id="footer" class="hidden-iframe">
         <div id="colophon" class="container">
-            <p id="site-generator">
-                <a href="http://callimachusproject.org/" title="Callimachus">
-                    <img src="{resolve-uri('/callimachus/callimachus-powered.png')}" alt="Callimachus" width="98" height="35" />
-                </a>
-            </p>
-
+            {calli:generator(<p class="pull-right" />)}
             {calli:lastmod(<p id="resource-lastmod">This resource was last modified at <time class="abbreviated"/></p>)}
         </div>
     </footer>

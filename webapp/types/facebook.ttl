@@ -154,7 +154,7 @@
     rdfs:subClassOf [owl:onProperty :facebook_register_xhtml; owl:hasValue <../pages/facebook-register.xhtml>];
     calli:method "GET";
     calli:query "register";
-    calli:requires calli:subscriber;
+    calli:requires calli:reader;
     calli:type "text/html";
     calli:header "cache-control:no-store";
     calli:imports <java:org.apache.commons.codec.digest.DigestUtils>;
@@ -196,7 +196,7 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     calli:method "POST";
     calli:query "register";
-    calli:requires calli:subscriber;
+    calli:requires calli:reader;
     calli:script """
         var nonce = regForm.get("nonce")[0];
         var token = regForm.get("token")[0];

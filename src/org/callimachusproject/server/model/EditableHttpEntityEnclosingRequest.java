@@ -103,7 +103,7 @@ public class EditableHttpEntityEnclosingRequest implements
 	}
 
 	public void setEntity(HttpEntity entity) {
-		if (entity == null && request instanceof HttpEntityEnclosingRequest) {
+		if (this.entity == null && request instanceof HttpEntityEnclosingRequest) {
 			((HttpEntityEnclosingRequest) request).setEntity(entity);
 		} else {
 			this.entity = entity;

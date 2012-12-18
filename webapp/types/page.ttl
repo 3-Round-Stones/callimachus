@@ -155,18 +155,12 @@
     calli:query "element";
     calli:requires calli:reader;
     calli:type "text/html";
-    calli:post "../pipelines/page-element.xpl?results&element={element}&realm={elementRealm}\nContent-Location: $0\nContent-Type: application/xhtml+xml".
+    calli:post "../pipelines/page-element.xpl?results&element={element}\nContent-Location: $0\nContent-Type: application/xhtml+xml".
 
 :element a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :GetElement;
     rdfs:range xsd:string;
     calli:query "element".
-
-:elementRealm a owl:FunctionalProperty, owl:DatatypeProperty;
-    rdfs:domain :GetElement;
-    rdfs:range xsd:anyURI;
-    calli:type "text/uri-list";
-    calli:query "realm".
 
 # GET /page/MainPag.xhtml?layout
 :GetTemplate rdfs:subClassOf msg:Message;

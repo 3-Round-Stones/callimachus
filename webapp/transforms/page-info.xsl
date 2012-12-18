@@ -86,9 +86,8 @@
 
     <xsl:template mode="breadcrumbs" match="*">
         <xsl:variable name="url" select="concat('../queries/page-info.rq?results&amp;target=',encode-for-uri($target))" />
-        <xsl:variable name="breadcrumb" select="*[1]" />
-        <xsl:variable name="divider" select="node()[preceding-sibling::* and following-sibling::*]" />
         <xsl:variable name="active" select="*[last()]" />
+        <xsl:variable name="breadcrumb" select="$active/preceding-sibling::node()" />
         <xsl:if test="count(document($url)//sparql:result[sparql:binding/@name='iri']) > 1">
             <xsl:copy>
                 <xsl:apply-templates select="@*" />
@@ -107,7 +106,6 @@
                                 </xsl:if>
                             </xsl:with-param>
                         </xsl:call-template>
-                        <xsl:copy-of select="$divider" />
                     </xsl:if>
                     <xsl:if test="$target=sparql:binding[@name='iri']/*">
                         <xsl:element name="{name($active)}">
@@ -130,30 +128,30 @@
         <xsl:param name="copy" />
         <xsl:param name="href" />
         <xsl:param name="label" />
-        <xsl:choose>
-            <xsl:when test="local-name($copy)='a'">
-                <xsl:element name="{name($copy)}">
-                    <xsl:attribute name="href"><xsl:value-of select="$href" /></xsl:attribute>
-                    <xsl:apply-templates select="$copy/@*[name()!='href']" />
-                    <xsl:value-of select="$label" />
-                </xsl:element>
-            </xsl:when>
-            <xsl:when test="$copy/*">
-                <xsl:element name="{name($copy)}">
-                    <xsl:apply-templates select="$copy/@*" />
-                    <xsl:for-each select="$copy/node()">
+        <xsl:for-each select="$copy">
+            <xsl:choose>
+                <xsl:when test="local-name()='a'">
+                    <xsl:element name="{name()}">
+                        <xsl:attribute name="href"><xsl:value-of select="$href" /></xsl:attribute>
+                        <xsl:apply-templates select="@*[name()!='href']" />
+                        <xsl:value-of select="$label" />
+                    </xsl:element>
+                </xsl:when>
+                <xsl:when test="*">
+                    <xsl:element name="{name()}">
+                        <xsl:apply-templates select="@*" />
                         <xsl:call-template name="breadcrumb">
-                            <xsl:with-param name="copy" select="." />
+                            <xsl:with-param name="copy" select="node()" />
                             <xsl:with-param name="href" select="$href" />
                             <xsl:with-param name="label" select="$label" />
                         </xsl:call-template>
-                    </xsl:for-each>
-                </xsl:element>
-            </xsl:when>
-            <xsl:otherwise>
-                <xsl:copy-of select="." />
-            </xsl:otherwise>
-        </xsl:choose>
+                    </xsl:element>
+                </xsl:when>
+                <xsl:otherwise>
+                    <xsl:copy-of select="." />
+                </xsl:otherwise>
+            </xsl:choose>
+        </xsl:for-each>
     </xsl:template>
 
     <xsl:template name="substring-after-last">

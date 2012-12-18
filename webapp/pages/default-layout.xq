@@ -59,8 +59,8 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
             </header>
         </div>
         <div id="page" class="container">
+            {calli:breadcrumb(<nav class="breadcrumb"><a class="muted"/><span class="divider">&#187;</span><span class="active"/></nav>)}
             {calli:hgroup()}
-            {calli:breadcrumb(<nav class="breadcrumb"><a/><span class="divider">&#187;</span><span class="active"/></nav>)}
             {calli:sidebar(<div id="sidebar" class="pull-right" />)}
             <div>
                 {calli:activateNav(<nav id="access" class="hidden-logout hidden-iframe nav-tabs">
@@ -72,11 +72,9 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
                 </nav>)}
 
                 <div id="container">
-                    {calli:error(<div class="ui-state-error ui-corner-all error" style="padding:1ex;margin:1ex">
-                        <span class="ui-icon ui-icon-alert" style="margin-right:0.3em;float:left"/>
-                        <span style="display:block;float:right" onclick="$(parentNode).remove()">
-                            <span class="ui-icon ui-icon-close" />
-                        </span>
+                    {calli:error(<div class="alert alert-error alert-block">
+                        <button type="button" class="close" data-dismiss="alert">×</button>
+                        <h4>Oops!</h4>
                     </div>)}
                     <div id="content">{calli:content()}</div>
                 </div><!-- container -->

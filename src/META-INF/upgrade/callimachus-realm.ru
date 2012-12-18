@@ -12,24 +12,30 @@ PREFIX msg:<http://www.openrdf.org/rdf/2011/messaging#>
 PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
 
 INSERT {
-	$realm a calli:Realm, calli:Folder;
+	$realm a calli:Folder;
 		rdfs:label ?label;
 		calli:reader </auth/groups/public>;
 		calli:subscriber </auth/groups/everyone>;
 		calli:contributor </auth/groups/users>;
 		calli:editor </auth/groups/staff>;
-		calli:administrator </auth/groups/admin>;
+		calli:administrator </auth/groups/admin>.
+} WHERE {
+	FILTER NOT EXISTS { $realm a calli:Folder }
+};
+
+INSERT {
+	$realm a calli:Realm;
 		calli:unauthorized <../unauthorized.html>;
 		calli:forbidden <../forbidden.html>;
 		calli:layout <../default-layout.xq>.
 } WHERE {
 	FILTER NOT EXISTS { $realm a calli:Realm }
-	BIND (replace(replace(str($realm), "^[a-z]*://", ""), "/$", "") AS ?label)
 };
 
 INSERT {
 	$realm a <types/Realm>.
 } WHERE {
+	FILTER NOT EXISTS { $realm a <types/Realm> }
 	FILTER NOT EXISTS { $realm a <types/Origin> }
 };
 

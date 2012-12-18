@@ -91,15 +91,7 @@ public class Request extends EditableHttpEntityEnclosingRequest {
 				String uri = new ParsedURI(scheme, host, path, null, null).toString();
 				iri = TermFactory.newInstance(uri).getSystemId();
 			} else {
-				String uri = canonicalize(path);
-				String scheme = new ParsedURI(uri).getScheme();
-				if ("https".equals(scheme)
-						&& !scheme.equals(getParams().getParameter(
-								"http.protocol.scheme"))) {
-					throw new BadRequest(
-							"Cannot request secure resource over unencryped channel");
-				}
-				iri = uri;
+				iri = canonicalize(path);
 			}
 		} catch (IllegalArgumentException e) {
 			throw new BadRequest(e);
@@ -341,7 +333,7 @@ public class Request extends EditableHttpEntityEnclosingRequest {
 				// try the host header
 			}
 		}
-		// Set by custom HTTP(S)ServerIOEventDispatch
+		// Set by HTTPObjectServer
 		Object scheme = getParams().getParameter("http.protocol.scheme");
 		if (scheme == null)
 			return "http";

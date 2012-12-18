@@ -218,27 +218,31 @@ public class CachingFilter extends Filter {
 		resp = super.filter(request, resp);
 		try {
 			if (request instanceof CachableRequest && isCachable(request, resp)) {
-				// CachableRequest has a read lock on cacheLocker
-				long now = request.getReceivedOn();
 				String url = request.getRequestURL();
-				CachedRequest dx = cache.findCachedRequest(url);
-				synchronized (dx) {
-					CachedEntity cached = dx.find(request);
-					if (resp.getStatusLine().getStatusCode() < 500) {
-						File f = saveMessageBody(resp, dx.getDirectory(), url);
-						CachedEntity fresh = dx.find(request, resp, f);
-						fresh.addRequest(request);
-						dx.replace(cached, fresh);
-						return respondWithCache(now, request, fresh, resp);
-					} else if (cached == null) {
-						return resp;
-					} else {
-						EntityUtils.consume(resp.getEntity());
-						HttpResponse result = respondWithCache(now, request, cached, resp);
-						result.addHeader("Warning", WARN_111);
-						logger.warn(resp.getStatusLine().getReasonPhrase());
-						return result;
+				Lock lock = cache.getReadLock(url);
+				try {
+					long now = request.getReceivedOn();
+					CachedRequest dx = cache.findCachedRequest(url);
+					synchronized (dx) {
+						CachedEntity cached = dx.find(request);
+						if (resp.getStatusLine().getStatusCode() < 500) {
+							File f = saveMessageBody(resp, dx.getDirectory(), url);
+							CachedEntity fresh = dx.find(request, resp, f);
+							fresh.addRequest(request);
+							dx.replace(cached, fresh);
+							return respondWithCache(now, request, fresh, resp);
+						} else if (cached == null) {
+							return resp;
+						} else {
+							EntityUtils.consume(resp.getEntity());
+							HttpResponse result = respondWithCache(now, request, cached, resp);
+							result.addHeader("Warning", WARN_111);
+							logger.warn(resp.getStatusLine().getReasonPhrase());
+							return result;
+						}
 					}
+				} finally {
+					lock.release();
 				}
 			} else if (!request.isSafe()) {
 				invalidate(request);

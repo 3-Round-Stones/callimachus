@@ -30,12 +30,16 @@
 package org.callimachusproject.server.filters;
 
 import static java.net.URLEncoder.encode;
+import info.aduna.net.ParsedURI;
 
 import java.io.IOException;
 import java.net.URLDecoder;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpVersion;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.message.BasicHttpResponse;
 import org.callimachusproject.server.model.Filter;
 import org.callimachusproject.server.model.Request;
 
@@ -62,6 +66,24 @@ public class IdentityPrefix extends Filter {
 		} else {
 			this.prefixes = prefix;
 		}
+	}
+
+	@Override
+	public HttpResponse intercept(Request request) throws IOException {
+		String scheme = new ParsedURI(request.getIRI()).getScheme();
+		if (!request.isInternal() && "https".equals(scheme)) {
+			Object protocol = request.getParams().getParameter(
+					"http.protocol.scheme");
+			if (!scheme.equals(protocol)) {
+				String msg = "Cannot request secure resource over "
+						+ protocol;
+				BasicHttpResponse resp;
+				resp = new BasicHttpResponse(HttpVersion.HTTP_1_1, 400, msg);
+				resp.setEntity(new StringEntity(msg));
+				return resp;
+			}
+		}
+		return super.intercept(request);
 	}
 
 	public Request filter(Request req) throws IOException {

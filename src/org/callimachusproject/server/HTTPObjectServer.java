@@ -161,7 +161,6 @@ public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAg
 	public HTTPObjectServer(CallimachusRepository repository, File cacheDir)
 			throws IOException, NoSuchAlgorithmException {
 		this.repository = repository;
-		HttpParams params = getDefaultHttpParams();
 		Handler handler = new InvokeHandler();
 		handler = new NotFoundHandler(handler);
 		handler = new AlternativeHandler(handler);
@@ -186,10 +185,8 @@ public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAg
 		httpproc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
 				new ResponseDate(), new ResponseContent(true),
 				new ResponseConnControl() });
-		HttpAsyncService protocolHandler = createProtocolHandler(httpproc, service, params);
 		// Create server-side I/O event dispatch
-		dispatch = new DefaultHttpServerIODispatch(protocolHandler,
-				new DefaultNHttpServerConnectionFactory(params));
+		dispatch = createIODispatch();
 		// Create server-side I/O reactor
 		server = new DefaultListeningIOReactor();
 		server.setExceptionHandler(this);
@@ -197,9 +194,7 @@ public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAg
 			try {
 				SSLContext sslcontext = SSLContext.getDefault();
 				// Create server-side I/O event dispatch
-				ssldispatch = new DefaultHttpServerIODispatch(protocolHandler,
-						new SSLNHttpServerConnectionFactory(sslcontext, null,
-								params));
+				ssldispatch = createSSLDispatch(sslcontext);
 				// Create server-side I/O reactor
 				sslserver = new DefaultListeningIOReactor();
 				sslserver.setExceptionHandler(this);
@@ -216,6 +211,26 @@ public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAg
 				resetCache();
 			}
 		});
+	}
+
+	private DefaultHttpServerIODispatch createIODispatch() {
+		HttpAsyncService handler;
+		DefaultNHttpServerConnectionFactory factory;
+		HttpParams params = getDefaultHttpParams();
+		params.setParameter("http.protocol.scheme", "http");
+		handler = createProtocolHandler(httpproc, service, params);
+		factory = new DefaultNHttpServerConnectionFactory(params);
+		return new DefaultHttpServerIODispatch(handler, factory);
+	}
+
+	private DefaultHttpServerIODispatch createSSLDispatch(SSLContext sslcontext) {
+		HttpAsyncService handler;
+		SSLNHttpServerConnectionFactory factory;
+		HttpParams params = getDefaultHttpParams();
+		params.setParameter("http.protocol.scheme", "https");
+		handler = createProtocolHandler(httpproc, service, params);
+		factory = new SSLNHttpServerConnectionFactory(sslcontext, null, params);
+		return new DefaultHttpServerIODispatch(handler, factory);
 	}
 
 	private HttpParams getDefaultHttpParams() {

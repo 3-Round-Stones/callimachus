@@ -299,20 +299,14 @@
     <xsl:variable name="contentdepth" select="substring-before(d:imagedata/@contentdepth,'px')" />
     <xsl:variable name="contentwidth" select="substring-before(d:imagedata/@contentwidth,'px')" />
     <xsl:variable name="style">
-        <xsl:if test="d:imagedata/@align='left'">
-            <xsl:text>float:left;</xsl:text>
-        </xsl:if>
-        <xsl:if test="d:imagedata/@align='right'">
-            <xsl:text>float:right;</xsl:text>
+        <xsl:if test="d:imagedata/@contentwidth">
+            <xsl:text>width:</xsl:text>
+            <xsl:value-of select="d:imagedata/@contentwidth" />
+            <xsl:text>;</xsl:text>
         </xsl:if>
         <xsl:if test="d:imagedata/@contentdepth">
             <xsl:text>height:</xsl:text>
             <xsl:value-of select="d:imagedata/@contentdepth" />
-            <xsl:text>;</xsl:text>
-        </xsl:if>
-        <xsl:if test="d:imagedata/@contentwidth">
-            <xsl:text>width:</xsl:text>
-            <xsl:value-of select="d:imagedata/@contentwidth" />
             <xsl:text>;</xsl:text>
         </xsl:if>
         <xsl:if test="$contentdepth and contains(d:imagedata/@depth, 'px') and $contentwidth and contains(d:imagedata/@width,'px')">
@@ -321,6 +315,12 @@
             <xsl:text>px </xsl:text>
             <xsl:value-of select="(number(substring-before(d:imagedata/@width,'px')) - number($contentwidth)) div 2"/>
             <xsl:text>px;</xsl:text>
+        </xsl:if>
+        <xsl:if test="d:imagedata/@align='left'">
+            <xsl:text>float:left;</xsl:text>
+        </xsl:if>
+        <xsl:if test="d:imagedata/@align='right'">
+            <xsl:text>float:right;</xsl:text>
         </xsl:if>
     </xsl:variable>
     <img src="{d:imagedata/@fileref}">
@@ -417,11 +417,6 @@
 <!-- tables -->
 <xsl:template match="d:informaltable[not(d:caption)]">
     <xsl:variable name="style">
-        <xsl:if test="@border">
-            <xsl:text>border-style:solid;border-width:</xsl:text>
-            <xsl:value-of select="@border" />
-            <xsl:text>px;</xsl:text>
-        </xsl:if>
         <xsl:if test="@width">
             <xsl:text>width:</xsl:text>
             <xsl:value-of select="@width" />

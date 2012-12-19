@@ -221,7 +221,6 @@ public class Exchange implements Cancellable {
 	}
 
 	private class Consumer implements HttpAsyncRequestConsumer<HttpRequest> {
-		private final int capacity;
 		private final HttpRequest request;
 		private AsyncPipe pipe;
 		private Exception ex;
@@ -231,7 +230,6 @@ public class Exchange implements Cancellable {
 		}
 
 		public Consumer(HttpRequest request, int capacity) {
-			this.capacity = capacity;
 			this.request = request;
 			if (request instanceof HttpEntityEnclosingRequest) {
 				HttpEntityEnclosingRequest ereq = (HttpEntityEnclosingRequest) request;
@@ -256,7 +254,6 @@ public class Exchange implements Cancellable {
 		@Override
 		public void requestReceived(HttpRequest request) throws HttpException,
 				IOException {
-			assert this.request == request;
 		}
 
 		@Override

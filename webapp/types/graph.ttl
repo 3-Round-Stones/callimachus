@@ -155,12 +155,14 @@
 # GET /graph.rdf
 :GetNamedGraph rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <NamedGraph>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.openrdf.query.GraphQueryResult>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
     calli:method "GET";
     calli:rel "edit-media";
     calli:requires calli:reader;
-    calli:type "application/rdf+xml;q=0.4";
-    msg:sparql "CONSTRUCT { ?s ?p ?o } WHERE { GRAPH $this { ?s ?p ?o } }".
+    calli:type "application/rdf+xml";
+    calli:header "cache-control:no-cache";
+    calli:header "cache-control:cache-range";
+    calli:script "return this.openInputStream()".
 
 # POST ?create=/callimachus/NamedGraph
 :PostNamedGraphCreate owl:intersectionOf (<creatable.ttl#PostCreate>

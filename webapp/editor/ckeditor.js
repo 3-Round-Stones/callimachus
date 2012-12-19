@@ -227,10 +227,19 @@ jQuery(function($) {
     /**
      * Preprocesses input and sends it to the editor
      */ 
-    editor.setXhtml = function(html, updateSavedVar) {
+    editor.setXhtml = function(html, updateSavedVar, loops) {
+        if (!loops) loops = 0;
         html = injectCss(normalize(html));
+        var bodyRegex = /^[\s\S\r\n]+<body>\s*([\s\S\r\n]+)\<\/body[\s\S\r\n]+$/;
+        var body = html.replace(bodyRegex, '$1');
         editor.setData(html);
         setTimeout(function() {
+            // check if the content got set (because IE9 sometimes fails)
+            var newBody = editor.getXhtml().replace(bodyRegex, '$1').replace(/[\n\r\s]*$/, '');
+            if (body.length && !newBody.length && loops < 3) {// the content didn't get set properly, try again (up to 3 times).
+                editor.setXhtml(html, updateSavedVar, loops + 1);
+                return;
+            }
             if (updateSavedVar) {
                 saved = editor.getXhtml();
             }

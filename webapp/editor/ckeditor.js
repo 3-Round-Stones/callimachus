@@ -28,7 +28,7 @@ jQuery(function($) {
             { name: 'clipboard', items: [ 'Undo', 'Redo'] },
         	{ name: 'basicstyles', items: [ 'Bold', 'Italic', '!Strike', 'Subscript', 'Superscript' ] },
         	{ name: 'paragraph', items: [ 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', '-', '!JustifyLeft', '!JustifyCenter', '!JustifyRight' ] },
-        	{ name: 'links', items: [ 'Link', 'Unlink', '!Anchor' ] },
+        	{ name: 'links', items: [ 'Link', 'Unlink', 'Anchor' ] },
         	{ name: 'insert', items: [ 'Image', 'Table' ] },
             { name: 'paste', items: [ '!PasteText', '!PasteFromWord'] }
         ],

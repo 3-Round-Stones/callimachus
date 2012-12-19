@@ -18,8 +18,14 @@
     </xsl:attribute>
 </xsl:template>
 
+<xsl:template mode="anchor" match="@xml:id">
+    <a name="{.}" />
+</xsl:template>
+
 <xsl:template match="*">
     <div class="{name()}">
+        <xsl:apply-templates select="@*" />
+        <xsl:apply-templates mode="anchor" select="@xml:id" />
         <xsl:apply-templates />
     </div>
 </xsl:template>
@@ -60,36 +66,42 @@
         <xsl:when test="ancestor::*[7]">
             <h6>
                 <xsl:apply-templates select="../../@xml:id" />
+                <xsl:apply-templates mode="anchor" select="../../@xml:id" />
                 <xsl:apply-templates mode="heading" select="." />
             </h6>
         </xsl:when>
         <xsl:when test="ancestor::*[6]">
             <h5>
                 <xsl:apply-templates select="../../@xml:id" />
+                <xsl:apply-templates mode="anchor" select="../../@xml:id" />
                 <xsl:apply-templates mode="heading" select="." />
             </h5>
         </xsl:when>
         <xsl:when test="ancestor::*[5]">
             <h4>
                 <xsl:apply-templates select="../../@xml:id" />
+                <xsl:apply-templates mode="anchor" select="../../@xml:id" />
                 <xsl:apply-templates mode="heading" select="." />
             </h4>
         </xsl:when>
         <xsl:when test="ancestor::*[4]">
             <h3>
                 <xsl:apply-templates select="../../@xml:id" />
+                <xsl:apply-templates mode="anchor" select="../../@xml:id" />
                 <xsl:apply-templates mode="heading" select="." />
             </h3>
         </xsl:when>
         <xsl:when test="ancestor::*[3]">
             <h2>
                 <xsl:apply-templates select="../../@xml:id" />
+                <xsl:apply-templates mode="anchor" select="../../@xml:id" />
                 <xsl:apply-templates mode="heading" select="." />
             </h2>
         </xsl:when>
         <xsl:otherwise>
             <h1>
                 <xsl:apply-templates select="../../@xml:id" />
+                <xsl:apply-templates mode="anchor" select="../../@xml:id" />
                 <xsl:apply-templates mode="heading" select="." />
             </h1>
         </xsl:otherwise>
@@ -101,36 +113,42 @@
         <xsl:when test="ancestor::*[6]">
             <h6>
                 <xsl:apply-templates select="../@xml:id" />
+                <xsl:apply-templates mode="anchor" select="../@xml:id" />
                 <xsl:apply-templates mode="heading" select="." />
             </h6>
         </xsl:when>
         <xsl:when test="ancestor::*[5]">
             <h5>
                 <xsl:apply-templates select="../@xml:id" />
+                <xsl:apply-templates mode="anchor" select="../@xml:id" />
                 <xsl:apply-templates mode="heading" select="." />
             </h5>
         </xsl:when>
         <xsl:when test="ancestor::*[4]">
             <h4>
                 <xsl:apply-templates select="../@xml:id" />
+                <xsl:apply-templates mode="anchor" select="../@xml:id" />
                 <xsl:apply-templates mode="heading" select="." />
             </h4>
         </xsl:when>
         <xsl:when test="ancestor::*[3]">
             <h3>
                 <xsl:apply-templates select="../@xml:id" />
+                <xsl:apply-templates mode="anchor" select="../@xml:id" />
                 <xsl:apply-templates mode="heading" select="." />
             </h3>
         </xsl:when>
         <xsl:when test="ancestor::*[2]">
             <h2>
                 <xsl:apply-templates select="../@xml:id" />
+                <xsl:apply-templates mode="anchor" select="../@xml:id" />
                 <xsl:apply-templates mode="heading" select="." />
             </h2>
         </xsl:when>
         <xsl:otherwise>
             <h1>
                 <xsl:apply-templates select="../@xml:id" />
+                <xsl:apply-templates mode="anchor" select="../@xml:id" />
                 <xsl:apply-templates mode="heading" select="." />
             </h1>
         </xsl:otherwise>
@@ -144,6 +162,7 @@
 <xsl:template match="d:para">
     <p>
         <xsl:apply-templates select="@xml:id|@xml:lang" />
+        <xsl:apply-templates mode="anchor" select="@xml:id" />
         <xsl:apply-templates />
     </p>
 </xsl:template>
@@ -154,18 +173,24 @@
 
 <xsl:template match="d:blockquote">
     <blockquote>
+        <xsl:apply-templates select="@*" />
+        <xsl:apply-templates mode="anchor" select="@xml:id" />
         <xsl:apply-templates />
     </blockquote>
 </xsl:template>
 
 <xsl:template match="d:programlisting">
     <pre class="programlisting">
+        <xsl:apply-templates select="@*" />
+        <xsl:apply-templates mode="anchor" select="@xml:id" />
         <xsl:apply-templates />
     </pre>
 </xsl:template>
 
 <xsl:template match="d:screen">
     <pre>
+        <xsl:apply-templates select="@*" />
+        <xsl:apply-templates mode="anchor" select="@xml:id" />
         <xsl:apply-templates />
     </pre>
 </xsl:template>
@@ -173,6 +198,12 @@
 <!-- Hyperlinks -->
 <xsl:template match="d:ulink | d:link[not(@linkend)]">
     <a href="{@url | @xl:href}">
+        <xsl:apply-templates select="@xml:id" />
+        <xsl:if test="@xml:id">
+            <xsl:attribute name="name">
+                <xsl:value-of select="@xml:id" />
+            </xsl:attribute>
+        </xsl:if>
         <xsl:if test="d:remark | @xl:title">
             <xsl:attribute name="title">
                 <xsl:value-of select="d:remark | @xl:title" />
@@ -184,6 +215,12 @@
 
 <xsl:template match="d:uri[@xl:href]">
     <a href="{@xl:href}">
+        <xsl:apply-templates select="@xml:id" />
+        <xsl:if test="@xml:id">
+            <xsl:attribute name="name">
+                <xsl:value-of select="@xml:id" />
+            </xsl:attribute>
+        </xsl:if>
         <xsl:if test="@xl:title">
             <xsl:attribute name="title">
                 <xsl:value-of select="d:remark | @xl:title" />
@@ -197,12 +234,20 @@
 
 <xsl:template match="d:uri[not(@xl:href)]">
     <code class="uri">
+        <xsl:apply-templates select="@*" />
+        <xsl:apply-templates mode="anchor" select="@xml:id" />
         <xsl:apply-templates />
     </code>
 </xsl:template>
 
 <xsl:template match="d:link[@linkend]">
     <a href="#{@linkend}">
+        <xsl:apply-templates select="@xml:id" />
+        <xsl:if test="@xml:id">
+            <xsl:attribute name="name">
+                <xsl:value-of select="@xml:id" />
+            </xsl:attribute>
+        </xsl:if>
         <xsl:if test="d:remark">
             <xsl:attribute name="title">
                 <xsl:value-of select="d:remark" />
@@ -237,6 +282,12 @@
         </xsl:choose>
     </xsl:variable>
     <a href="#{$linkend}">
+        <xsl:apply-templates select="@xml:id" />
+        <xsl:if test="@xml:id">
+            <xsl:attribute name="name">
+                <xsl:value-of select="@xml:id" />
+            </xsl:attribute>
+        </xsl:if>
         <xsl:if test="d:remark">
             <xsl:attribute name="title">
                 <xsl:value-of select="d:remark" />
@@ -249,7 +300,8 @@
 <!-- Images -->
 <xsl:template match="d:figure">
     <p class="figure">
-        <xsl:apply-templates select="xml:id" />
+        <xsl:apply-templates select="@*" />
+        <xsl:apply-templates mode="anchor" select="@xml:id" />
         <xsl:apply-templates select="d:mediaobject|d:caption" />
         <xsl:if test="not(d:caption)">
             <span class="caption">
@@ -261,6 +313,8 @@
 
 <xsl:template match="d:informalfigure">
     <p class="figure">
+        <xsl:apply-templates select="@*" />
+        <xsl:apply-templates mode="anchor" select="@xml:id" />
         <xsl:apply-templates select="d:mediaobject|d:caption" />
     </p>
 </xsl:template>
@@ -271,18 +325,24 @@
 
 <xsl:template match="d:figure/d:caption/d:para|d:informalfigure/d:caption/d:para">
     <span class="caption">
+        <xsl:apply-templates select="@*" />
+        <xsl:apply-templates mode="anchor" select="@xml:id" />
         <xsl:apply-templates />
     </span>
 </xsl:template>
 
 <xsl:template match="d:figure/d:caption/d:simpara|d:informalfigure/d:caption/d:simpara">
     <span class="caption">
+        <xsl:apply-templates select="@*" />
+        <xsl:apply-templates mode="anchor" select="@xml:id" />
         <xsl:apply-templates />
     </span>
 </xsl:template>
 
 <xsl:template match="d:figure/d:caption[not(d:para or d:simpara)]|d:informalfigure/d:caption[not(d:para or d:simpara)]">
     <span class="caption">
+        <xsl:apply-templates select="@*" />
+        <xsl:apply-templates mode="anchor" select="@xml:id" />
         <xsl:apply-templates />
     </span>
 </xsl:template>
@@ -324,6 +384,7 @@
         </xsl:if>
     </xsl:variable>
     <img src="{d:imagedata/@fileref}">
+        <xsl:apply-templates select="@xml:id|@xml:lang" />
         <xsl:if test="$style">
             <xsl:attribute name="style">
                 <xsl:value-of select="$style" />
@@ -375,12 +436,14 @@
 <!-- LIST ELEMENTS -->
 <xsl:template match="d:itemizedlist">
     <ul>
+        <xsl:apply-templates select="@*" />
         <xsl:apply-templates />
     </ul>
 </xsl:template>
 
 <xsl:template match="d:orderedlist">
     <ol>
+        <xsl:apply-templates select="@*" />
         <xsl:apply-templates />
     </ol>
 </xsl:template>
@@ -388,6 +451,7 @@
 <!-- This template makes a DocBook variablelist out of an HTML definition list -->
 <xsl:template match="d:variablelist">
     <dl>
+        <xsl:apply-templates select="@*" />
         <xsl:apply-templates />
     </dl>
 </xsl:template>
@@ -398,18 +462,24 @@
 
 <xsl:template match="d:varlistentry/d:term">
     <dt>
+        <xsl:apply-templates select="@*" />
+        <xsl:apply-templates mode="anchor" select="@xml:id" />
         <xsl:apply-templates />
     </dt>
 </xsl:template>
 
 <xsl:template match="d:listitem">
     <li>
+        <xsl:apply-templates select="@*" />
+        <xsl:apply-templates mode="anchor" select="@xml:id" />
         <xsl:apply-templates />
     </li>
 </xsl:template>
 
 <xsl:template match="d:varlistentry/d:listitem">
     <dd>
+        <xsl:apply-templates select="@*" />
+        <xsl:apply-templates mode="anchor" select="@xml:id" />
         <xsl:apply-templates />
     </dd>
 </xsl:template>
@@ -497,7 +567,15 @@
 
 <!-- For docbook table elements (which differ from HTML5 elements 
      only by namespace URI), copy them as is but change the namespace -->
-<xsl:template match="d:tbody|d:tr|d:thead|d:tfoot|d:caption|d:colgroup|d:td|d:th|d:col">
+<xsl:template match="d:tbody|d:tr|d:thead|d:tfoot|d:colgroup|d:col">
+    <xsl:element name="{local-name()}" 
+                 namespace="http://www.w3.org/1999/xhtml">
+        <xsl:apply-templates select="@*" />
+        <xsl:apply-templates />
+    </xsl:element>
+</xsl:template>
+
+<xsl:template match="d:caption|d:td|d:th">
     <xsl:variable name="style">
         <xsl:if test="@align">
             <xsl:text>text-align:</xsl:text>
@@ -517,7 +595,9 @@
                 <xsl:value-of select="$style" />
             </xsl:attribute>
         </xsl:if>
-        <xsl:apply-templates select="@*|node()" />
+        <xsl:apply-templates select="@*" />
+        <xsl:apply-templates mode="anchor" select="@xml:id" />
+        <xsl:apply-templates />
     </xsl:element>
 </xsl:template>
 
@@ -534,6 +614,8 @@
 
 <xsl:template match="d:entry">
     <td>
+        <xsl:apply-templates select="@*" />
+        <xsl:apply-templates mode="anchor" select="@xml:id" />
         <xsl:apply-templates />
     </td>
 </xsl:template>
@@ -542,79 +624,105 @@
 
 <xsl:template match="d:literal">
     <code class="literal">
+        <xsl:apply-templates select="@*" />
+        <xsl:apply-templates mode="anchor" select="@xml:id" />
         <xsl:apply-templates />
     </code>
 </xsl:template>
 
 <xsl:template match="d:code">
     <code>
+        <xsl:apply-templates select="@*" />
+        <xsl:apply-templates mode="anchor" select="@xml:id" />
         <xsl:apply-templates />
     </code>
 </xsl:template>
 
 <xsl:template match="d:classname">
     <code class="classname">
+        <xsl:apply-templates select="@*" />
+        <xsl:apply-templates mode="anchor" select="@xml:id" />
         <xsl:apply-templates />
     </code>
 </xsl:template>
 
 <xsl:template match="d:filename">
     <code class="filename">
+        <xsl:apply-templates select="@*" />
+        <xsl:apply-templates mode="anchor" select="@xml:id" />
         <xsl:apply-templates />
     </code>
 </xsl:template>
 
 <xsl:template match="d:parameter">
     <code class="parameter">
+        <xsl:apply-templates select="@*" />
+        <xsl:apply-templates mode="anchor" select="@xml:id" />
         <xsl:apply-templates />
     </code>
 </xsl:template>
 
 <xsl:template match="d:function">
     <code class="function">
+        <xsl:apply-templates select="@*" />
+        <xsl:apply-templates mode="anchor" select="@xml:id" />
         <xsl:apply-templates />
     </code>
 </xsl:template>
 
 <xsl:template match="d:varname">
     <code class="varname">
+        <xsl:apply-templates select="@*" />
+        <xsl:apply-templates mode="anchor" select="@xml:id" />
         <xsl:apply-templates />
     </code>
 </xsl:template>
 
 <xsl:template match="d:emphasis[@role='bold']">
     <b>
+        <xsl:apply-templates select="@*" />
+        <xsl:apply-templates mode="anchor" select="@xml:id" />
         <xsl:apply-templates />
     </b>
 </xsl:template>
 
 <xsl:template match="d:emphasis[@role='strong']">
     <strong>
+        <xsl:apply-templates select="@*" />
+        <xsl:apply-templates mode="anchor" select="@xml:id" />
         <xsl:apply-templates />
     </strong>
 </xsl:template>
 
 <xsl:template match="d:emphasis">
     <em>
+        <xsl:apply-templates select="@*" />
+        <xsl:apply-templates mode="anchor" select="@xml:id" />
         <xsl:apply-templates />
     </em>
 </xsl:template>
 
 <xsl:template match="d:citetitle">
     <cite>
+        <xsl:apply-templates select="@*" />
+        <xsl:apply-templates mode="anchor" select="@xml:id" />
         <xsl:apply-templates />
     </cite>
 </xsl:template>
 
 <xsl:template match="d:superscript">
     <sup>
-        <xsl:value-of select="."/>
+        <xsl:apply-templates select="@*" />
+        <xsl:apply-templates mode="anchor" select="@xml:id" />
+        <xsl:apply-templates />
     </sup>
 </xsl:template>
 
 <xsl:template match="d:subscript">
     <sub>
-        <xsl:value-of select="."/>
+        <xsl:apply-templates select="@*" />
+        <xsl:apply-templates mode="anchor" select="@xml:id" />
+        <xsl:apply-templates />
     </sub>
 </xsl:template>
 

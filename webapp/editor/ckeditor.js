@@ -136,17 +136,9 @@ jQuery(function($) {
                 if ($(this).html().match(/^(border size|height|alignment)$/i)) {
                     $(this).parents('tr').first().hide();// only the immediate parent
                 }
-                // Set "width" value from @width of the referenced table (ckeditor bug)
-                else if (refEl && $(this).html().match(/^(width)$/i)) {
-                    el.find('#' + $(this).attr('for')).attr('value', refEl.attr('width'));
-                }
-                // Set "height" value from @height of the referenced table (ckeditor bug)
-                else if (refEl && $(this).html().match(/^(height)$/i)) {
-                    el.find('#' + $(this).attr('for')).attr('value', refEl.attr('height'));
-                }
             });
         }
-        // remove unsupported fields from "Cell Properties" dialogs
+        // hide unsupported fields in "Cell Properties" dialogs
         if (el.find('.cke_dialog_title').html().match(/Cell Properties/)) {
             el.find('label').each(function() {
                 if ($(this).html().match(/^(width|height|word wrap|border color|background color)$/i)) {
@@ -154,7 +146,7 @@ jQuery(function($) {
                 }
             });
         }
-        // remove unsupported fields from "Image Properties" dialogs
+        // hide unsupported fields in "Image Properties" dialogs
         if (el.find('.cke_dialog_title').html().match(/Image Properties/)) {
             el.find('label').each(function() {
                 if ($(this).html().match(/^(border)$/i)) {

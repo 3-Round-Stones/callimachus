@@ -31,7 +31,7 @@
     owl:equivalentClass </callimachus/Schematron>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/admin>;
-    calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/admin>;
+    calli:author </auth/groups/staff>,</auth/groups/admin>;
     calli:icon <../images/schematron.png>;
     calli:create <../templates/file-create.xhtml>;
     calli:mediaType "application/xml";

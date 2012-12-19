@@ -32,14 +32,14 @@ INSERT {
 	?auth a <types/Folder>, calli:Folder;
 	    rdfs:label "auth";
 		calli:reader </auth/groups/public>;
-		calli:subscriber </auth/groups/users>, </auth/groups/staff>;
+		calli:subscriber </auth/groups/everyone>;
 	    calli:administrator </auth/groups/admin>;
 	    calli:hasComponent ?digest .
 	?digest a <types/DigestManager>, calli:DigestManager, calli:AuthenticationManager;
 		rdfs:label "Digest account";
 		rdfs:comment "Sign in with a username and password";
 		calli:reader </auth/groups/public>;
-		calli:subscriber </auth/groups/users>, </auth/groups/staff>;
+		calli:subscriber </auth/groups/everyone>;
 		calli:administrator </auth/groups/admin>.
 } WHERE {
 	FILTER NOT EXISTS { $origin a calli:Origin }

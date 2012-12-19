@@ -164,14 +164,14 @@ INSERT {
 
 </auth/groups/staff> a calli:Party, calli:Group, <types/Group>;
     rdfs:label "staff";
-    rdfs:comment "Members of this group can design and edit resources within the system";
+    rdfs:comment "Members of this group can design websites and develop applications";
     calli:subscriber </auth/groups/staff>;
     calli:administrator </auth/groups/admin>;
     calli:membersFrom ".".
 
 </auth/groups/users> a calli:Party, calli:Group, <types/Group>;
     rdfs:label "users";
-    rdfs:comment "Members of this group can view, discuss, and document resources";
+    rdfs:comment "Members of this group can view, discuss, document, link, and upload binary resources";
     calli:subscriber </auth/groups/staff>;
     calli:administrator </auth/groups/admin>;
     calli:membersFrom ".".

@@ -158,7 +158,6 @@ rdfs:comment a rdf:Property.
     calli:requires calli:editor;
     calli:type "message/x-response";
     calli:script """
-        var con = this.objectConnection;
         var iter = this.calliPasswordDigest.iterator();
         while (iter.hasNext()) {
             iter.next()['delete']();

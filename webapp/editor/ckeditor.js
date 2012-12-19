@@ -157,6 +157,75 @@ jQuery(function($) {
     });
     
     /**
+     * Parses the HTML produced by CKEditor into valid XHTML
+     */
+     function parseHtml(html) {
+        var xhtml = [];
+        var parser = new CKEDITOR.htmlParser();
+        parser.onCDATA = function(cdata) {
+            xhtml.push('<![CDATA[', cdata, ']]>');
+        };
+        parser.onComment = function(comment) {
+            xhtml.push('<!--', comment, '-->');
+        };
+        parser.onTagClose = function(tagName) {
+            xhtml.push('</', tagName.toLowerCase(), '>');
+        };
+        parser.onTagOpen = function(tagName, attributes, selfClosing) {
+            xhtml.push('<', tagName.toLowerCase());
+            for (var name in attributes) {
+                var value = attributes[name];
+                xhtml.push(' ', name.toLowerCase(), '="', CKEDITOR.tools.htmlEncodeAttr(calli.decodeHtmlText(value)), '"');
+            }
+            if (selfClosing) {
+                xhtml.push(' /');
+            }
+            xhtml.push('>');
+        };
+        parser.onText = function(text) {
+            xhtml.push(CKEDITOR.tools.htmlEncode(calli.decodeHtmlText(text)));
+        };
+        parser.parse(html);
+        return xhtml.join('');
+     }
+    
+    /**
+     * Serialize valid XHTML into HTML for used with CKEditor
+     */
+     function serializeXhtml(xhtml) {
+        var voidElements = ['area','base','br','col','command','embed','hr','img','input','keygen','link','meta','param','source','track','wbr'];
+        var html = [];
+        var parser = new CKEDITOR.htmlParser();
+        parser.onCDATA = function(cdata) {
+            html.push(CKEDITOR.tools.htmlEncode(cdata));
+        };
+        parser.onComment = function(comment) {
+            html.push('<!--', comment, '-->');
+        };
+        parser.onTagClose = function(tagName) {
+            html.push('</', tagName, '>');
+        };
+        parser.onTagOpen = function(tagName, attributes, selfClosing) {
+            html.push('<', tagName);
+            for (var name in attributes) {
+                var value = attributes[name];
+                html.push(' ', name, '="', value, '"');
+            }
+            if (selfClosing && voidElements.indexOf(tagName) >= 0) {
+                html.push(' /');
+            } else if (selfClosing) {
+                html.push('></', tagName);
+            }
+            html.push('>');
+        };
+        parser.onText = function(text) {
+            html.push(text);
+        };
+        parser.parse(xhtml);
+        return html.join('');
+     }
+    
+    /**
      * Normalizes html for stable comparisons.
      */
      function normalize(html) {
@@ -168,7 +237,6 @@ jQuery(function($) {
             .replace(/<title\/>/, '<title></title>') // fix empty title tag
             .replace(/<style[\s\S]+<\/style>/g, '') // no <style> tags
             .replace(/<base [^\>]+>/, '') // remove base href
-            .replace('<head>', '<head><base href="' + top.location.href + '" />') // inject base href
             .replace(/>\s*(<)/g, ">\n<")    // put tags on a new line
             .replace(/(.)\s*(<[^\/])/g, "$1\n$2")    // put opening tags on a new line
             .replace(/<([a-z0-9]+) ([^>]+[^\/])(\/?>)/g, function(m, m1, m2, m3) { // sorted attributes
@@ -213,27 +281,29 @@ jQuery(function($) {
             'body { background-color: #f5f5f5; }',
             'body.cke_editable.cke_show_blocks > * { background-color: #fff; padding-bottom: 5px;}'
         ];
-        return html.replace('</head>', '<style type="text/css">' + styles.join("\n") + "\n" + '</style></head>');
+        return html
+            .replace('</head>', '<style type="text/css">' + styles.join("\n") + "\n" + '</style></head>')
+            .replace('<head>', '<head><base href="' + top.location.href + '" />'); // inject base href
     }
     
     /**
      * Preprocesses input and sends it to the editor
      */ 
-    editor.setXhtml = function(html, updateSavedVar, loops) {
+    editor.setXhtml = function(xhtml, updateSavedVar, loops) {
         if (!loops) loops = 0;
-        html = injectCss(normalize(html));
+        var html = injectCss(serializeXhtml(xhtml));
         var bodyRegex = /^[\s\S\r\n]+<body>\s*([\s\S\r\n]+)\<\/body[\s\S\r\n]+$/;
-        var body = html.replace(bodyRegex, '$1');
+        var body = html.replace(bodyRegex, '$1').replace(/[\n\r\s]*$/, '');
         editor.setData(html);
         setTimeout(function() {
             // check if the content got set (because IE9 sometimes fails)
-            var newBody = editor.getXhtml().replace(bodyRegex, '$1').replace(/[\n\r\s]*$/, '');
+            var newBody = editor.getData().replace(bodyRegex, '$1').replace(/[\n\r\s]*$/, '');
             if (body.length && !newBody.length && loops < 3) {// the content didn't get set properly, try again (up to 3 times).
-                editor.setXhtml(html, updateSavedVar, loops + 1);
+                editor.setXhtml(xhtml, updateSavedVar, loops + 1);
                 return;
             }
             if (updateSavedVar) {
-                saved = editor.getXhtml();
+                saved = normalize(editor.getData());
             }
             resizeEditor();
         }, 100);
@@ -243,7 +313,7 @@ jQuery(function($) {
      * Normalizes the output for stable comparisons.
      */ 
     editor.getXhtml = function() {
-        return normalize(this.getData());
+        return parseHtml(this.getData());
     }
     
     // warn the user before leaving a changed but unsaved article
@@ -251,7 +321,7 @@ jQuery(function($) {
         event = event || window.event;
         if (!editor) return;
         if (!editor.checkDirty()) return; // ckeditor didn't register changes at all
-        var diff = getDiff(saved, editor.getXhtml()); // make sure the content has really changed
+        var diff = getDiff(saved, normalize(editor.getData())); // make sure the content has really changed
         if (diff) {
             if (event) {
                 event.returnValue = 'There are unsaved changes';
@@ -289,8 +359,8 @@ jQuery(function($) {
                 return true;
             }
         } else if (header == 'GET text') {
-            saved = editor.getXhtml();
-            return saved;
+            saved = normalize(editor.getData());
+            return editor.getXhtml();
         } else if (header == 'PUT line.column') {
             return true;
         } else if (header == 'GET line.column') {

@@ -557,7 +557,7 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
                 <xsl:value-of select="@name" />
             </xsl:attribute>
         </xsl:when>
-        <xsl:when test="xhtml:a[@name]">
+        <xsl:when test="xhtml:a[@name and not(@href)]">
             <xsl:attribute name="xml:id">
                 <xsl:value-of select="xhtml:a/@name" />
             </xsl:attribute>

@@ -18,6 +18,9 @@
     </xsl:attribute>
 </xsl:template>
 
+<!-- must use anchor mode -->
+<xsl:template match="@xml:id" />
+
 <xsl:template mode="anchor" match="@xml:id">
     <a name="{.}" />
 </xsl:template>
@@ -65,42 +68,36 @@
     <xsl:choose>
         <xsl:when test="ancestor::*[7]">
             <h6>
-                <xsl:apply-templates select="../../@xml:id" />
                 <xsl:apply-templates mode="anchor" select="../../@xml:id" />
                 <xsl:apply-templates mode="heading" select="." />
             </h6>
         </xsl:when>
         <xsl:when test="ancestor::*[6]">
             <h5>
-                <xsl:apply-templates select="../../@xml:id" />
                 <xsl:apply-templates mode="anchor" select="../../@xml:id" />
                 <xsl:apply-templates mode="heading" select="." />
             </h5>
         </xsl:when>
         <xsl:when test="ancestor::*[5]">
             <h4>
-                <xsl:apply-templates select="../../@xml:id" />
                 <xsl:apply-templates mode="anchor" select="../../@xml:id" />
                 <xsl:apply-templates mode="heading" select="." />
             </h4>
         </xsl:when>
         <xsl:when test="ancestor::*[4]">
             <h3>
-                <xsl:apply-templates select="../../@xml:id" />
                 <xsl:apply-templates mode="anchor" select="../../@xml:id" />
                 <xsl:apply-templates mode="heading" select="." />
             </h3>
         </xsl:when>
         <xsl:when test="ancestor::*[3]">
             <h2>
-                <xsl:apply-templates select="../../@xml:id" />
                 <xsl:apply-templates mode="anchor" select="../../@xml:id" />
                 <xsl:apply-templates mode="heading" select="." />
             </h2>
         </xsl:when>
         <xsl:otherwise>
             <h1>
-                <xsl:apply-templates select="../../@xml:id" />
                 <xsl:apply-templates mode="anchor" select="../../@xml:id" />
                 <xsl:apply-templates mode="heading" select="." />
             </h1>
@@ -112,42 +109,36 @@
     <xsl:choose>
         <xsl:when test="ancestor::*[6]">
             <h6>
-                <xsl:apply-templates select="../@xml:id" />
                 <xsl:apply-templates mode="anchor" select="../@xml:id" />
                 <xsl:apply-templates mode="heading" select="." />
             </h6>
         </xsl:when>
         <xsl:when test="ancestor::*[5]">
             <h5>
-                <xsl:apply-templates select="../@xml:id" />
                 <xsl:apply-templates mode="anchor" select="../@xml:id" />
                 <xsl:apply-templates mode="heading" select="." />
             </h5>
         </xsl:when>
         <xsl:when test="ancestor::*[4]">
             <h4>
-                <xsl:apply-templates select="../@xml:id" />
                 <xsl:apply-templates mode="anchor" select="../@xml:id" />
                 <xsl:apply-templates mode="heading" select="." />
             </h4>
         </xsl:when>
         <xsl:when test="ancestor::*[3]">
             <h3>
-                <xsl:apply-templates select="../@xml:id" />
                 <xsl:apply-templates mode="anchor" select="../@xml:id" />
                 <xsl:apply-templates mode="heading" select="." />
             </h3>
         </xsl:when>
         <xsl:when test="ancestor::*[2]">
             <h2>
-                <xsl:apply-templates select="../@xml:id" />
                 <xsl:apply-templates mode="anchor" select="../@xml:id" />
                 <xsl:apply-templates mode="heading" select="." />
             </h2>
         </xsl:when>
         <xsl:otherwise>
             <h1>
-                <xsl:apply-templates select="../@xml:id" />
                 <xsl:apply-templates mode="anchor" select="../@xml:id" />
                 <xsl:apply-templates mode="heading" select="." />
             </h1>
@@ -161,7 +152,7 @@
 
 <xsl:template match="d:para">
     <p>
-        <xsl:apply-templates select="@xml:id|@xml:lang" />
+        <xsl:apply-templates select="@xml:lang" />
         <xsl:apply-templates mode="anchor" select="@xml:id" />
         <xsl:apply-templates />
     </p>
@@ -198,7 +189,6 @@
 <!-- Hyperlinks -->
 <xsl:template match="d:ulink | d:link[not(@linkend)]">
     <a href="{@url | @xl:href}">
-        <xsl:apply-templates select="@xml:id" />
         <xsl:if test="@xml:id">
             <xsl:attribute name="name">
                 <xsl:value-of select="@xml:id" />
@@ -215,7 +205,6 @@
 
 <xsl:template match="d:uri[@xl:href]">
     <a href="{@xl:href}">
-        <xsl:apply-templates select="@xml:id" />
         <xsl:if test="@xml:id">
             <xsl:attribute name="name">
                 <xsl:value-of select="@xml:id" />
@@ -242,7 +231,6 @@
 
 <xsl:template match="d:link[@linkend]">
     <a href="#{@linkend}">
-        <xsl:apply-templates select="@xml:id" />
         <xsl:if test="@xml:id">
             <xsl:attribute name="name">
                 <xsl:value-of select="@xml:id" />
@@ -282,7 +270,6 @@
         </xsl:choose>
     </xsl:variable>
     <a href="#{$linkend}">
-        <xsl:apply-templates select="@xml:id" />
         <xsl:if test="@xml:id">
             <xsl:attribute name="name">
                 <xsl:value-of select="@xml:id" />

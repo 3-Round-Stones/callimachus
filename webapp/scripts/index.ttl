@@ -67,5 +67,6 @@
     rdf:_56 <submit-update.js>;
     rdf:_57 <delete-resource.js>;
     rdf:_58 <insert-resource.js>;
-    rdf:_59 <discussion.js>.
+    rdf:_59 <discussion.js>;
+    rdf:_60 <decode-html.js>.
 

@@ -120,10 +120,16 @@ public class IntrospectSupport {
 		out.writeStartElement("ul");
 		for (Class<?> cls : classes) {
 			out.writeStartElement("li");
-			out.writeLink(info.getConceptIri(cls), info.getConceptName(cls));
 			Set<Class<?>> set = info.getSuperConcepts(cls);
-			if (!set.isEmpty()) {
+			if (set.isEmpty()) {
+				out.writeLink(info.getConceptIri(cls), info.getConceptName(cls));
+			} else {
+				out.writeStartElement("details");
+				out.writeStartElement("summary");
+				out.writeLink(info.getConceptIri(cls), info.getConceptName(cls));
+				out.writeEndElement();
 				writeConcepts(set, info, out);
+				out.writeEndElement();
 			}
 			out.writeEndElement(); //li
 		}

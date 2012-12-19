@@ -106,7 +106,7 @@ public class XHTMLInfoWriter {
 	public void writeStartDocument(String title) throws XMLStreamException {
 		out.writeStartDocument();
 		out.writeStartElement("html");
-		out.setDefaultNamespace("http://www.w3.org/1999/xhtml");
+		out.writeDefaultNamespace("http://www.w3.org/1999/xhtml");
 		out.writeStartElement("head");
 		out.writeStartElement("title");
 		out.writeCharacters(title);

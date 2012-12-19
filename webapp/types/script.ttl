@@ -105,6 +105,20 @@
         } finally {
             out.close();
         }
+        var saved = this.openReader(true);
+        try {
+            var compiler = new com.google.javascript.jscomp.Compiler();
+            var options = new com.google.javascript.jscomp.CompilerOptions();
+            var extern = com.google.javascript.jscomp.SourceFile.fromCode("nil","");
+            var input = com.google.javascript.jscomp.SourceFile.fromReader(this.toString(), saved);
+            compiler.compile(extern, input, options);
+            var errors = compiler.getErrors();
+            if (errors.length) {
+                throw new BadRequest(errors[0].toString());
+            }
+        } finally {
+            saved.close();
+        }
         var con = this.objectConnection;
         var bundles = con.getStatements(null, null, this.resource, true, []);
         try {

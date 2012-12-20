@@ -7,6 +7,7 @@ import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Set;
 import java.util.TreeSet;
 
 import javax.naming.NamingException;
@@ -83,7 +84,7 @@ public class DomainNameSystemResolver {
 	}
 
 	public Collection<String> reverseAllLocalHosts() throws SocketException {
-		Collection<String> set = new TreeSet<String>();
+		Set<String> set = new TreeSet<String>();
 		Enumeration<NetworkInterface> ifaces = NetworkInterface
 				.getNetworkInterfaces();
 		while (ifaces.hasMoreElements()) {
@@ -91,7 +92,7 @@ public class DomainNameSystemResolver {
 			Enumeration<InetAddress> raddrs = iface.getInetAddresses();
 			while (raddrs.hasMoreElements()) {
 				InetAddress raddr = raddrs.nextElement();
-				set.add(reverse(raddr));
+				addAllNames(raddr, set);
 			}
 			Enumeration<NetworkInterface> virtualIfaces = iface
 					.getSubInterfaces();
@@ -100,16 +101,16 @@ public class DomainNameSystemResolver {
 				Enumeration<InetAddress> vaddrs = viface.getInetAddresses();
 				while (vaddrs.hasMoreElements()) {
 					InetAddress vaddr = vaddrs.nextElement();
-					set.add(reverse(vaddr));
+					addAllNames(vaddr, set);
 				}
 			}
 		}
 		try {
-			InetAddress local = InetAddress.getLocalHost();
-			set.add(reverse(local));
+			addAllNames(InetAddress.getLocalHost(), set);
 		} catch (UnknownHostException e) {
 			throw new AssertionError(e);
 		}
+		addAllNames(getLocalHost(), set);
 		return set;
 	}
 
@@ -130,6 +131,28 @@ public class DomainNameSystemResolver {
 		} catch (UnknownHostException e) {
 			// use reverse name
 		}
+		String address = getAddress(netAddr);
+		if (address == null)
+			return name;
+		return address;
+	}
+
+	private void addAllNames(InetAddress addr, Set<String> set) {
+		String name = addr.getHostName();
+		if (!name.equals(addr.getHostAddress())) {
+			set.add(name);
+		}
+		String canonical = addr.getCanonicalHostName();
+		if (!canonical.equals(addr.getHostAddress())) {
+			set.add(canonical);
+		}
+		String address = getAddress(addr);
+		if (address != null) {
+			set.add(address);
+		}
+	}
+
+	private String getAddress(InetAddress netAddr) {
 		byte[] addr = netAddr.getAddress();
 		if (addr.length == 4) { // IPv4 Address
 			StringBuilder sb = new StringBuilder();
@@ -147,6 +170,6 @@ public class DomainNameSystemResolver {
 			}
 			return sb.append("ip6.arpa").toString();
 		}
-		return name;
+		return null;
 	}
 }

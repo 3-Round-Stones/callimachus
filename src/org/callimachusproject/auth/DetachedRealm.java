@@ -9,6 +9,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -211,7 +212,8 @@ public class DetachedRealm {
 						"text/html;charset=UTF-8").getEntity();
 				resp.setEntity(entity);
 			} else {
-				resp.setEntity(new StringEntity("Unauthorized"));
+				String via = Arrays.asList(request.get("via")).toString();
+				resp.setEntity(new StringEntity(via + " is unauthorized"));
 			}
 			return resp;
 		} finally {

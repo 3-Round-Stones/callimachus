@@ -105,12 +105,8 @@ public class BlobTest extends TemporaryServerTestCase {
             });
             
             put("script", new String[] { "blobtest-script.js", "text/javascript",
-							"if (response == true) { \n" +
-							"return true; \n" +
-							"}", //End original 
-							"if (response == UPDATED) { \n" + //Begin update
-							"return true; \n" +
-							"}"
+							"alert('boo');", //End original 
+							"alert('UPDATED');"
 			});
             
             put("text", new String[] { "blobtest-file.txt", "text/plain",

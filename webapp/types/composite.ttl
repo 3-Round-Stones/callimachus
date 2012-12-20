@@ -168,6 +168,7 @@
     calli:imports <java:org.callimachusproject.io.MultipartParser>;
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
     calli:imports <java:org.callimachusproject.server.exceptions.Forbidden>;
+    calli:imports <java:org.callimachusproject.server.exceptions.Conflict>;
     calli:imports <java:org.callimachusproject.xml.XMLEventReaderFactory>;
     calli:script """
         if (!location)
@@ -185,6 +186,8 @@
             throw new BadRequest("Location URI must be nested");
         if (createdUri.search(/[\\s\\#\\?]/) >= 0 || createdUri.search(/^\\w+:\\/\\/\\S+/) != 0)
             throw new BadRequest("Fragement or name resources are not supported: " + createdUri);
+        if (this.calliHasComponent.contains(location))
+            throw new Conflict("Resource already exists");
         var ftype = type;
         var documentTag = null;
         var bio = new org.callimachusproject.io.LatencyInputStream(body);
@@ -240,6 +243,8 @@
         }
         var construct = create.LookupConstructor(documentTag, ftype);
         var newCopy = construct.PostCreate(bio, location, ftype);
+        if (newCopy != location && this.calliHasComponent.contains(newCopy))
+            throw new Conflict("Resource already exists");
         var iter = this.FindCreator(newCopy).iterator();
         while (iter.hasNext()) {
             var user = iter.next();

@@ -7,7 +7,7 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX calli: <http://callimachusproject.org/rdf/2009/framework#>
 
 SELECT
-    (if(bound(?layout),?layout,<../pages/default-layout.xq>) AS ?layout)
+    (if(bound(?layout),?layout,<../transforms/default-layout.xq>) AS ?layout)
 WHERE {
     {
         <$realm> a calli:Realm

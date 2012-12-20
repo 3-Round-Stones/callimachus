@@ -507,8 +507,7 @@ INSERT {
     </callimachus/profile> rdf:type </callimachus/1.0/types/Profile>;
         rdfs:label "profile";
         calli:administrator </auth/groups/admin>;
-        calli:editor </auth/groups/staff>;
-        calli:subscriber </auth/groups/users>;
+        calli:subscriber </auth/groups/staff>;
         calli:reader </auth/groups/system>.
 } WHERE {
     FILTER NOT EXISTS { </callimachus/profile> a </callimachus/1.0/types/Profile> }

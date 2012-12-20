@@ -155,7 +155,8 @@ jQuery(function($) {
             });
         }
     });
-    
+
+    var voidElements = ['area','base','br','col','command','embed','hr','img','input','keygen','link','meta','param','source','track','wbr'];
     /**
      * Parses the HTML produced by CKEditor into valid XHTML
      */
@@ -169,7 +170,9 @@ jQuery(function($) {
             xhtml.push('<!--', comment, '-->');
         };
         parser.onTagClose = function(tagName) {
-            xhtml.push('</', tagName.toLowerCase(), '>');
+            if (voidElements.indexOf(tagName.toLowerCase()) < 0) {
+                xhtml.push('</', tagName.toLowerCase(), '>');
+            }
         };
         parser.onTagOpen = function(tagName, attributes, selfClosing) {
             xhtml.push('<', tagName.toLowerCase());
@@ -177,7 +180,7 @@ jQuery(function($) {
                 var value = attributes[name];
                 xhtml.push(' ', name.toLowerCase(), '="', CKEDITOR.tools.htmlEncodeAttr(calli.decodeHtmlText(value)), '"');
             }
-            if (selfClosing) {
+            if (selfClosing || voidElements.indexOf(tagName.toLowerCase()) >= 0) {
                 xhtml.push(' /');
             }
             xhtml.push('>');
@@ -193,7 +196,6 @@ jQuery(function($) {
      * Serialize valid XHTML into HTML for used with CKEditor
      */
      function serializeXhtml(xhtml) {
-        var voidElements = ['area','base','br','col','command','embed','hr','img','input','keygen','link','meta','param','source','track','wbr'];
         var html = [];
         var parser = new CKEDITOR.htmlParser();
         parser.onCDATA = function(cdata) {
@@ -203,7 +205,9 @@ jQuery(function($) {
             html.push('<!--', comment, '-->');
         };
         parser.onTagClose = function(tagName) {
-            html.push('</', tagName, '>');
+            if (voidElements.indexOf(tagName) < 0) {
+                html.push('</', tagName, '>');
+            }
         };
         parser.onTagOpen = function(tagName, attributes, selfClosing) {
             html.push('<', tagName);
@@ -211,7 +215,7 @@ jQuery(function($) {
                 var value = attributes[name];
                 html.push(' ', name, '="', value, '"');
             }
-            if (selfClosing && voidElements.indexOf(tagName) >= 0) {
+            if (voidElements.indexOf(tagName) >= 0) {
                 html.push(' /');
             } else if (selfClosing) {
                 html.push('></', tagName);

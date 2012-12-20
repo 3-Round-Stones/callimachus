@@ -138,14 +138,6 @@ html, body {
     min-height: 600px; /* make sure the create-menu doesn't trigger scrollbars */
 }
 
-html.ie #wrapper {/* ie8 doesn't support min-height */
-    height: 100%;
-}
-
-html.ie #page {/* ie8 doesn't support min-height */
-    height: 80%;
-}
-
 html.iframe #page {
     padding: 0;
     width: auto;
@@ -205,14 +197,6 @@ form {
     width: 18rem;
     right: 0;
     position: absolute;
-}
-
-html.ie #sidebar {
-    width: 35%;
-}
-
-html.ie #sidebar ~ div {
-    margin-right: 37%;
 }
 
 .iframe #sidebar {
@@ -318,4 +302,31 @@ aside h3 {
     cursor: copy;
     background: #ddd !important;
 }
+
+/* ie tweaks */
+
+html.ie #wrapper {/* ie8 doesn't support min-height */
+    height: 100%;
+}
+
+html.ie #page {/* ie8 doesn't support min-height */
+    height: 80%;
+}
+
+html.ie #sidebar {
+    width: 35%;
+}
+
+html.ie #sidebar ~ div {
+    margin-right: 37%;
+}
+
+html.ie aside {
+    .border-radius(3px);
+    .box-shadow(0 0 7px rgba(0, 0, 0, 0.1) inset);
+    padding: 15px;
+    border: 1px solid #ddd;
+    margin-bottom: 15px;
+}
+
 

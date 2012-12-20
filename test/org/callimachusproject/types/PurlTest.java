@@ -9,6 +9,7 @@ public class PurlTest extends TemporaryServerTestCase {
 
 	@Override
 	public void setUp() throws Exception {
+		file = null;
 		super.setUp();
 		String slug = "file" + ++count + ".txt";
 		file = getHomeFolder()
@@ -20,7 +21,9 @@ public class PurlTest extends TemporaryServerTestCase {
 
 	@Override
 	public void tearDown() throws Exception {
-		file.delete();
+		if (file != null) {
+			file.delete();
+		}
 		super.tearDown();
 	}
 

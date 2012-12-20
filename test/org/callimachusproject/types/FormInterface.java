@@ -45,6 +45,7 @@ public class FormInterface extends TemporaryServerTestCase {
 		String xhtml = this.xhtml.replace("<select/>", xml);
 		WebResource uri = createPage(xhtml, requestSlug);
 		String options = getOptions(uri);
+		uri.delete();
 		assertContains("<select", options);
 		assertOccurance(1, "<option", options);
 		assertContains("label-option-1", options);
@@ -61,6 +62,7 @@ public class FormInterface extends TemporaryServerTestCase {
 		String xhtml = this.xhtml.replace("<select/>", xml);
 		WebResource uri = createPage(xhtml, requestSlug);
 		String options = getOptions(uri);
+		uri.delete();
 		assertContains("<select", options);
 		assertOccurance(2, "<option", options);
 		assertContains("label-option-1", options);
@@ -79,6 +81,7 @@ public class FormInterface extends TemporaryServerTestCase {
 		String xhtml = this.xhtml.replace("<select/>", xml);
 		WebResource uri = createPage(xhtml, requestSlug);
 		String options = getOptions(uri);
+		uri.delete();
 		assertContains("<select", options);
 		assertOccurance(2, "<option", options);
 		assertContains("label-option-1", options);
@@ -98,6 +101,7 @@ public class FormInterface extends TemporaryServerTestCase {
 		String xhtml = this.xhtml.replace("<select/>", xml);
 		WebResource uri = createPage(xhtml, requestSlug);
 		String options = getOptions(uri);
+		uri.delete();
 		assertContains("<select", options);
 		assertOccurance(2, "<option", options);
 		assertContains("label-option-1", options);

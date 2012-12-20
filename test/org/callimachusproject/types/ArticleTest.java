@@ -22,6 +22,7 @@ public class ArticleTest extends TemporaryServerTestCase {
 		WebResource edit = article.link("edit-media", "application/docbook+xml");
 		edit.get("application/docbook+xml");
 		edit.put("application/docbook+xml", DOCBOOK.getBytes());
+		edit.delete();
 	}
 
 	@Test
@@ -31,6 +32,7 @@ public class ArticleTest extends TemporaryServerTestCase {
 		WebResource edit = article.link("edit-media", "application/xhtml+xml");
 		edit.get("application/xhtml+xml");
 		edit.put("application/xhtml+xml", XHTML.getBytes());
+		edit.delete();
 	}
 
 }

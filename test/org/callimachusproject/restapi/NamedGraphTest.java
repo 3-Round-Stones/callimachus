@@ -3,6 +3,7 @@ package org.callimachusproject.restapi;
 import java.net.MalformedURLException;
 
 import org.callimachusproject.test.TemporaryServerTestCase;
+import org.callimachusproject.test.WebResource;
 
 public class NamedGraphTest extends TemporaryServerTestCase {
 
@@ -26,27 +27,31 @@ public class NamedGraphTest extends TemporaryServerTestCase {
 				.link("contents", "application/atom+xml")
 				.getAppCollection()
 				.create(requestSlug, requestContentType,
-						outputString.getBytes());
+						outputString.getBytes())
+				.link("edit-media", requestContentType).delete();
 	}
 
 	public void testRetrieve() throws Exception {
-		String text = new String(getHomeFolder()
+		WebResource resource = getHomeFolder()
 				.link("contents", "application/atom+xml")
 				.getAppCollection()
 				.create(requestSlug, requestContentType,
-						outputString.getBytes())
+						outputString.getBytes());
+		String text = new String(resource
 				.link("edit-media", requestContentType).get(requestContentType));
+		resource.link("edit-media", requestContentType).delete();
 		assertTrue(text.contains("urn:x-states:New%20York"));
 	}
 
 	public void testUpdate() throws Exception {
-		getHomeFolder()
+		WebResource resource = getHomeFolder()
 				.link("contents", "application/atom+xml")
 				.getAppCollection()
 				.create(requestSlug, requestContentType,
-						outputString.getBytes())
-				.link("edit-media", requestContentType)
-				.put(requestContentType, updateOutputString.getBytes());
+						outputString.getBytes());
+		resource.link("edit-media", requestContentType).put(requestContentType,
+				updateOutputString.getBytes());
+		resource.link("edit-media", requestContentType).delete();
 	}
 
 	public void testDelete() throws Exception {

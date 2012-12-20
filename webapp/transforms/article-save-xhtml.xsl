@@ -190,7 +190,6 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
 <xsl:template match="xhtml:pre[@class='programlisting']">
     <programlisting>
         <xsl:call-template name="id" />
-        <xsl:apply-templates select="@*" />
         <xsl:apply-templates />
     </programlisting>
 </xsl:template>
@@ -441,7 +440,6 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
 <xsl:template match="xhtml:code[@class='classname']">
     <classname>
         <xsl:call-template name="id" />
-        <xsl:apply-templates select="@*" />
         <xsl:apply-templates />
     </classname>
 </xsl:template>
@@ -449,7 +447,6 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
 <xsl:template match="xhtml:code[@class='parameter']">
     <parameter>
         <xsl:call-template name="id" />
-        <xsl:apply-templates select="@*" />
         <xsl:apply-templates />
     </parameter>
 </xsl:template>
@@ -457,7 +454,6 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
 <xsl:template match="xhtml:code[@class='filename']">
     <filename>
         <xsl:call-template name="id" />
-        <xsl:apply-templates select="@*" />
         <xsl:apply-templates />
     </filename>
 </xsl:template>
@@ -465,7 +461,6 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
 <xsl:template match="xhtml:code[@class='function']">
     <function>
         <xsl:call-template name="id" />
-        <xsl:apply-templates select="@*" />
         <xsl:apply-templates />
     </function>
 </xsl:template>
@@ -473,7 +468,6 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
 <xsl:template match="xhtml:code[@class='varname']">
     <varname>
         <xsl:call-template name="id" />
-        <xsl:apply-templates select="@*" />
         <xsl:apply-templates />
     </varname>
 </xsl:template>
@@ -481,7 +475,6 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
 <xsl:template match="xhtml:code[@class='uri']">
     <uri>
         <xsl:call-template name="id" />
-        <xsl:apply-templates select="@*" />
         <xsl:apply-templates />
     </uri>
 </xsl:template>
@@ -489,7 +482,6 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
 <xsl:template match="xhtml:code[@class='literal']">
     <literal>
         <xsl:call-template name="id" />
-        <xsl:apply-templates select="@*" />
         <xsl:apply-templates />
     </literal>
 </xsl:template>

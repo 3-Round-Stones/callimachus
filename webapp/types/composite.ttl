@@ -154,7 +154,7 @@
                 throw new BadRequest("Cannot create: " + create);
             create = createAlternate;
         }
-        return create.GetCreatePage();
+        return create.GetCreatePage(this);
     """.
 
 :PostFactoryCreate rdfs:subClassOf msg:Message;

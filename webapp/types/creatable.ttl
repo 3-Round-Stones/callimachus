@@ -73,8 +73,11 @@
         var page = this.calliCreate.iterator().next();
         if (!page.GetHtml)
             throw new InternalServerError(page + " does not exist");
-        return page.GetHtml();
+        return page.GetHtml(targetOfCreate);
     """.
+
+:targetOfCreate a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :GetCreatePage.
 
 # POST ?create=/callimachus/File
 :LookupConstructor rdfs:subClassOf msg:Message;

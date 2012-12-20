@@ -58,7 +58,10 @@
     calli:requires calli:reader;
     calli:type "text/html";
     calli:header "cache-control:no-cache";
-    calli:post "../pipelines/page-layout-html.xpl?results\nContent-Location: $0\nContent-Type: application/xhtml+xml".
+    calli:post "../pipelines/page-layout-html.xpl?results&target={targetOfHtml}\nContent-Location: $0\nContent-Type: application/xhtml+xml".
+
+:targetOfHtml a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :GetHtml.
 
 # GET /page/MainPage.xhtml
 :GetPageSource rdfs:subClassOf msg:Message;

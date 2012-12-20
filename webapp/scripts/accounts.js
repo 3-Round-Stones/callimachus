@@ -208,9 +208,8 @@ function isLoggedIn() {
 }
 
 function getUsername() {
-    var value = document.cookie.replace(/(?:^|.*;\s*)username\s*\=\s*((?:[^;](?!;))*[^;]?).*/, "$1");
-    if (value)
-        return decodeURIComponent(value);
+    if (document.cookie && /(?:^|;\s*)username\s*\=/.test(document.cookie))
+        return decodeURIComponent(document.cookie.replace(/(?:^|.*;\s*)username\s*\=\s*((?:[^;](?!;))*[^;]?).*/, "$1"));
     return null;
 }
 

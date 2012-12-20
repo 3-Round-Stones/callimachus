@@ -166,7 +166,6 @@ form {
 /* navbar */
 
 .navbar-static-top {
-    margin-bottom: 1rem;
 }
 
 .navbar-inner {
@@ -181,6 +180,24 @@ form {
 
 .navbar-search {
   .navbarVerticalAlign(@searchHeight); 
+}
+
+/* breadcrumbs */
+
+.breadcrumb {
+    padding: 5px 2px;
+    background-color: transparent;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    opacity: 0.8;
+}    
+
+.breadcrumb:hover {
+    opacity: 1;
+}
+
+.breadcrumb .divider {
+    padding: 0 10px;
 }
 
 /* sidebar */
@@ -236,10 +253,9 @@ aside h3 {
     font-size:small;
 }
 
-#footer p#site-generator {
-    margin: 0.9rem 0 0;
-    float: right;
-    text-align: right;
+#footer a[title="Callimachus"] {
+    margin: 0.5rem 0 0;
+    display: inline-block;
 }
 
 #footer p#resource-lastmod {

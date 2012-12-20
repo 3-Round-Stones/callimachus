@@ -52,9 +52,9 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
 <xsl:template match="xhtml:html">
     <article version="5.0">
         <xsl:choose>
-            <xsl:when test="xhtml:body/xhtml:h1/xhtml:a[@name]">
+            <xsl:when test="xhtml:body/xhtml:h1/xhtml:a[@name and not(@href) and not(preceding-sibling::*) and string-length(normalize-space(preceding-sibling::node()))=0]">
                 <xsl:attribute name="xml:id">
-                    <xsl:value-of select="xhtml:body/xhtml:h1/xhtml:a/@name" />
+                    <xsl:value-of select="xhtml:body/xhtml:h1/xhtml:a[1]/@name" />
                 </xsl:attribute>
             </xsl:when>
             <xsl:when test="xhtml:body/xhtml:h1/@id">
@@ -209,7 +209,12 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
      - @xlink:title - Identifies the XLink title of the link.
      - @linkend     - Points to an internal link target by identifying the value of its xml:id attribute.
   -->
-<xsl:template match="xhtml:a" />
+<xsl:template match="xhtml:a[@name and not(@href)]">
+    <xsl:if test="preceding-sibling::* or string-length(normalize-space(preceding-sibling::node()))&gt;0">
+        <anchor xml:id="{@name}" />
+    </xsl:if>
+    <xsl:apply-templates />
+</xsl:template>
 
 <xsl:template match="xhtml:a[@href and not(starts-with(@href,'#'))]">
     <link xl:href="{@href}">
@@ -549,9 +554,9 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
                 <xsl:value-of select="@name" />
             </xsl:attribute>
         </xsl:when>
-        <xsl:when test="xhtml:a[@name and not(@href)]">
+        <xsl:when test="xhtml:a[@name and not(@href) and not(preceding-sibling::*) and string-length(normalize-space(preceding-sibling::node()))=0]">
             <xsl:attribute name="xml:id">
-                <xsl:value-of select="xhtml:a/@name" />
+                <xsl:value-of select="xhtml:a[1]/@name" />
             </xsl:attribute>
         </xsl:when>
         <xsl:when test="@id">

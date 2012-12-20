@@ -187,6 +187,10 @@
 </xsl:template>
 
 <!-- Hyperlinks -->
+<xsl:template match="d:anchor[@xml:id]">
+    <a name="{@xml:id}" />
+</xsl:template>
+
 <xsl:template match="d:ulink | d:link[not(@linkend)]">
     <a href="{@url | @xl:href}">
         <xsl:if test="@xml:id">

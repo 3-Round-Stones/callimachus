@@ -62,9 +62,6 @@
         var vf = con.getValueFactory();
 
         //# resource
-        if (location instanceof File) {
-            location = location.RemoveFile();
-        }
         var obj = location;
         if (!obj)
             throw new BadRequest("Missing location");

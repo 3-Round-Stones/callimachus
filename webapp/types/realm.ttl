@@ -58,9 +58,6 @@
 
 :DeleteRealm owl:intersectionOf ( <editable.ttl#Delete>
         [owl:onProperty msg:target; owl:allValuesFrom <Realm>]);
-    calli:method "DELETE";
-    calli:requires calli:editor;
-    calli:type "message/x-response";
     calli:script """
         if (this.calliSecret) {
             this.calliSecret['delete']();

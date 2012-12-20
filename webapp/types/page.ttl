@@ -88,9 +88,6 @@
         if (!location)
             throw new BadRequest("Missing location request header");
 
-        if (location instanceof File) {
-            location = location.RemoveFile();
-        }
         var created = location;
 
         var filename = created.resource.localName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");

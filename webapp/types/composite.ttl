@@ -65,7 +65,7 @@
         var location = updater.subject;
         var newCopy = of.createObject(location, updater.getTypes(location));
         if (this.calliHasComponent.contains(newCopy))
-            throw new Conflict("Resource already exists");
+            throw new Conflict("Resource " + newCopy + " already exists");
         if (!(newCopy instanceof Editable))
             throw new BadRequest("Resource is not Editable");
 
@@ -187,7 +187,7 @@
         if (createdUri.search(/[\\s\\#\\?]/) >= 0 || createdUri.search(/^\\w+:\\/\\/\\S+/) != 0)
             throw new BadRequest("Fragement or name resources are not supported: " + createdUri);
         if (this.calliHasComponent.contains(location))
-            throw new Conflict("Resource already exists");
+            throw new Conflict("Resource " + location + " already exists");
         var ftype = type;
         var documentTag = null;
         var bio = new org.callimachusproject.io.LatencyInputStream(body);
@@ -244,7 +244,7 @@
         var construct = create.LookupConstructor(documentTag, ftype);
         var newCopy = construct.PostCreate(bio, location, ftype);
         if (newCopy != location && this.calliHasComponent.contains(newCopy))
-            throw new Conflict("Resource already exists");
+            throw new Conflict("Resource " + newCopy + " already exists");
         var iter = this.FindCreator(newCopy).iterator();
         while (iter.hasNext()) {
             var user = iter.next();
@@ -420,7 +420,6 @@
 :DeleteComponents rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Composite>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-    calli:imports <Composite>;
     calli:imports <java:org.openrdf.model.BNode>;
     calli:imports <java:org.openrdf.model.URI>;
     calli:imports <java:javax.tools.FileObject>;
@@ -432,6 +431,7 @@
             try {
                 while (stmts.hasNext()) {
                     var st = stmts.next();
+                    con.remove(st, []);
                     if (st.object instanceof BNode && !st.object.equals(subject)) {
                         removeTriples(st.object, hash);
                     } else if (st.object instanceof URI && !st.object.equals(subject)) {
@@ -441,26 +441,48 @@
                             con.getObjectFactory().createObject(st.object).touchRevision();
                         }
                     }
-                    con.remove(st, []);
                 }
             } finally {
                 stmts.close();
             }
         }
+        //# delete subfolder contents first incase subfolders are in an index.ttl graph
         var components = this.calliHasComponent.iterator();
         while (components.hasNext()) {
             var component = components.next();
-            if (component instanceof Composite) {
+            if (component.DeleteComponents) {
                 component.DeleteComponents();
             }
-
-            con.clear([component.resource]); //# clear graph
-            removeTriples(component.resource, component.resource.stringValue() + '#'); //# follow blank and hash references
-            if (component instanceof FileObject) {
-                component['delete'](); //# remove document
+        }
+        components = this.calliHasComponent.iterator();
+        while (components.hasNext()) {
+            var component = components.next();
+            if (component.Delete) {
+                component.Delete();
+            } else {
+                con.clear([component.resource]); //# clear graph
+                removeTriples(component.resource, component.resource.stringValue() + '#'); //# follow blank and hash references
+                if (component instanceof FileObject) {
+                    component['delete'](); //# remove document
+                }
             }
             components.remove();
         }
+    """.
+
+:DeleteComposite owl:intersectionOf ( <editable.ttl#DeleteIfNotUsed>
+        [owl:onProperty msg:target; owl:allValuesFrom [owl:intersectionOf (<Editable> <Composite>)]]);
+    calli:method "DELETE";
+    calli:requires calli:editor;
+    calli:type "message/x-response";
+    calli:imports <java:org.callimachusproject.server.exceptions.Conflict>;
+    calli:script """
+        var size = this.calliHasComponent.size();
+        if (size == 1)
+            throw new Conflict(this.calliHasComponent.iterator().next() + " must be deleted first");
+        if (size)
+            throw new Conflict("The " + size + " child resources must be deleted first");
+        return proceed();
     """.
 
 ################################
@@ -587,5 +609,6 @@
             }
         }
     """.
+
 
 

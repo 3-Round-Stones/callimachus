@@ -154,9 +154,6 @@ rdfs:comment a rdf:Property.
 
 :DeleteUser owl:intersectionOf ( <editable.ttl#Delete>
         [owl:onProperty msg:target; owl:allValuesFrom <User>]);
-    calli:method "DELETE";
-    calli:requires calli:editor;
-    calli:type "message/x-response";
     calli:script """
         var iter = this.calliPasswordDigest.iterator();
         while (iter.hasNext()) {

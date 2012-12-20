@@ -131,9 +131,6 @@
         var vf = con.valueFactory;
         if (!location)
             throw new BadRequest("Missing location request header");
-        if (location instanceof File) {
-            location = location.RemoveFile();
-        }
         var created = location;
 
         var filename = created.resource.localName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
@@ -192,9 +189,6 @@
 
 :DeleteNamedQuery owl:intersectionOf ( <editable.ttl#Delete>
         [owl:onProperty msg:target; owl:allValuesFrom <NamedQuery>]);
-    calli:method "DELETE";
-    calli:requires calli:editor;
-    calli:type "message/x-response";
     calli:script """
         var con = this.objectConnection;
         con.repository.removeNamedQuery(this.resource);

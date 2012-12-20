@@ -138,14 +138,9 @@ public class DomainNameSystemResolver {
 	}
 
 	private void addAllNames(InetAddress addr, Set<String> set) {
-		String name = addr.getHostName();
-		if (!name.equals(addr.getHostAddress())) {
-			set.add(name);
-		}
-		String canonical = addr.getCanonicalHostName();
-		if (!canonical.equals(addr.getHostAddress())) {
-			set.add(canonical);
-		}
+		set.add(addr.getHostAddress());
+		set.add(addr.getHostName());
+		set.add(addr.getCanonicalHostName());
 		String address = getAddress(addr);
 		if (address != null) {
 			set.add(address);

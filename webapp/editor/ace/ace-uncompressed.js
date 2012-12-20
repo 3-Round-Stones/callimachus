@@ -171,7 +171,7 @@ define('pilot/fixoldbrowsers', ['require', 'exports', 'module' ], function(requi
  * these references and quotes to reflect the new document would be a welcome
  * volunteer project.
  *
- * @module
+ * module
  */
 
 /*whatsupdoc*/

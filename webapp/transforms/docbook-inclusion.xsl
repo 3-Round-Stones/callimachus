@@ -47,7 +47,7 @@
     <xsl:choose>
         <xsl:when test="starts-with(.,concat(base-uri(/),'#')) or starts-with(.,concat(base-uri(/),'?view#'))">
             <xsl:attribute name="linkend">
-                <xsl:value-of select="." />
+                <xsl:value-of select="substring-after(., '#')" />
             </xsl:attribute>
         </xsl:when>
         <xsl:otherwise>

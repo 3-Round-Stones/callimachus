@@ -198,4 +198,26 @@ xmlns="http://www.w3.org/1999/xhtml" xmlns:xhtml="http://www.w3.org/1999/xhtml" 
     <xsl:number format="I. " level="single" count="d:part|d:article|d:chapter|d:section" />
 </xsl:template>
 
+<xsl:template match="d:link[@linkend]">
+    <xsl:variable name="linkend" select="@linkend" />
+    <a href="#{$linkend}">
+        <xsl:if test="@xml:id">
+            <xsl:attribute name="name">
+                <xsl:value-of select="@xml:id" />
+            </xsl:attribute>
+        </xsl:if>
+        <xsl:if test="d:remark">
+            <xsl:attribute name="title">
+                <xsl:value-of select="d:remark" />
+            </xsl:attribute>
+        </xsl:if>
+        <xsl:if test="count(//*[@xml:id=$linkend])=0">
+            <xsl:attribute name="style">
+                <xsl:value-of select="'color:red'" />
+            </xsl:attribute>
+        </xsl:if>
+        <xsl:apply-templates />
+    </a>
+</xsl:template>
+
 </xsl:stylesheet>

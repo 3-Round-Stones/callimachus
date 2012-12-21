@@ -62,9 +62,9 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
         <div class="container">
             {calli:breadcrumb(<nav class="breadcrumb"><a class="muted"/><span class="divider">&#187;</span><span class="active"/></nav>)}
             {calli:hgroup()}
-            {calli:sidebar(<div id="sidebar" class="pull-right" />)}
+            {calli:sidebar(<div class="sidebar pull-right" />)}
             <div>
-                {calli:activateNav(<nav id="access" class="hidden-logout hidden-iframe nav-tabs">
+                {calli:activateNav(<nav class="hidden-logout hidden-iframe nav-tabs">
                     <a tabindex="1" href="?view" onclick="location.replace(href);return false">View</a>
                     <a tabindex="2" href="?edit" onclick="location.replace(href);return false">Edit</a>
                     <a tabindex="3" href="?discussion" onclick="location.replace(href);return false">Discussion</a>

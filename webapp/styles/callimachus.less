@@ -110,13 +110,13 @@ div, footer, iframe {
     padding: 0;
 }
 
-html.login #access ~ #container {
+html.login .nav-tabs ~ #container {
     border: 1px solid #ddd;
     .border-radius(0 0 4px 4px);
     border-top: none;
 }
 
-html.login.iframe #access ~ #container {
+html.login.iframe .nav-tabs ~ #container {
     padding: 0;
     border: 0;
 }
@@ -216,7 +216,7 @@ form {
 
 /* sidebar */
 
-#sidebar + div {
+.sidebar + div {
     margin-right: 20rem;
 }
 
@@ -224,13 +224,13 @@ form {
     min-height: 15rem;
 }
 
-#sidebar {
+.sidebar {
     width: 18rem;
     right: 0;
     position: absolute;
 }
 
-.iframe #sidebar {
+.iframe .sidebar {
     margin-top: 1rem;
 }
 
@@ -295,7 +295,7 @@ aside h3 {
   #gradient > .vertical(@navbarBackground, @navbarBackgroundHighlight);
 }
 .navbar-relative-bottom {
-  position: fixed;
+  position: relative;
   right: 0;
   left: 0;
   z-index: @zindexFixedNavbar;
@@ -390,15 +390,15 @@ html.ie.iframe .until-navbar-large {
     height: auto;
 }
 
-html.ie #sidebar {
+html.ie .sidebar {
     width: 35%;
 }
 
-html.ie #sidebar ~ div {
+html.ie .sidebar ~ div {
     margin-right: 37%;
 }
 
-html.ie.iframe #sidebar {
+html.ie.iframe .sidebar {
     margin: 10px 10px 0 0;
 }
 

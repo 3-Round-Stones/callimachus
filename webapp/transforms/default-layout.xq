@@ -72,12 +72,12 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
                     <a tabindex="5" href="?history" onclick="location.replace(href);return false">History</a>
                 </nav>)}
 
-                <div id="container">
+                <div class="tab-content">
                     {calli:error(<div class="alert alert-error alert-block">
                         <button type="button" class="close" data-dismiss="alert">×</button>
                         <h4>Oops!</h4>
                     </div>)}
-                    <div id="content">{calli:content()}</div>
+                    {calli:content()}
                 </div><!-- container -->
             </div>
         </div><!-- page -->
@@ -87,7 +87,7 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
         <footer class="navbar-inner">
             <div class="container">
                 {calli:generator(<p class="pull-right" />)}
-                {calli:lastmod(<p id="resource-lastmod">This resource was last modified at <time class="abbreviated"/></p>)}
+                {calli:lastmod(<p>This resource was last modified at <time class="abbreviated"/></p>)}
             </div>
         </footer>
     </div>

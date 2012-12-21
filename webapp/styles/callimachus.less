@@ -102,21 +102,21 @@ div, footer, iframe {
     box-sizing: border-box; 
 }
 
-#container {
+.tab-content {
     padding: 1rem;
 }
 
-.iframe #container {
+.iframe .tab-content {
     padding: 0;
 }
 
-html.login .nav-tabs ~ #container {
+html.login .nav-tabs ~ .tab-content {
     border: 1px solid #ddd;
     .border-radius(0 0 4px 4px);
     border-top: none;
 }
 
-html.login.iframe .nav-tabs ~ #container {
+html.login.iframe .nav-tabs ~ .tab-content {
     padding: 0;
     border: 0;
 }
@@ -220,7 +220,7 @@ form {
     margin-right: 20rem;
 }
 
-#content {
+.tab-content {
     min-height: 15rem;
 }
 
@@ -410,7 +410,7 @@ html.ie aside {
     margin-bottom: 15px;
 }
 
-html.ie #content form {
+html.ie .tab-content form {
     padding: 10px;
 }
 

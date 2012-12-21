@@ -30,7 +30,7 @@ The documentation service is itself a Callimachus application.  Please
 ask if you would like to contribute to Callimachus documentation!
 
 Documentation for the 1.0 release may be found at:
-  http://callimachusproject.org/docs/1.0/?view
+  http://callimachusproject.org/docs/1.0/
 
 Built-in support for most types of Persistent URLs (PURLs), including Active
 PURLs.  Partial PURLs are not supported in this release.

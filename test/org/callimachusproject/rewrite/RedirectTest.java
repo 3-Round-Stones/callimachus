@@ -31,19 +31,16 @@ public class RedirectTest extends TestCase {
 		@alternate("^http://(.*).example.com/(.*) http://example.com/$1/$2")
 		HttpResponse readDomain();
 
-		@alternate("$0#{frag}")
+		@alternate("$0#{+frag}")
 		HttpResponse frag(@Iri("urn:test:frag") String frag);
 
-		@alternate("$0?{query}")
+		@alternate("$0?{+query}")
 		HttpResponse replaceQuery(@Iri("urn:test:query") String query);
 
 		@alternate("$0?param={value}")
 		HttpResponse param(@Iri("urn:test:value") String value);
 
-		@alternate("$0?param=http%3A%2F%2Fexample.com%2Fq%3D{value}")
-		HttpResponse doubleParam(@Iri("urn:test:value") String value);
-
-		@alternate("{value}")
+		@alternate("{+value}")
 		HttpResponse resolve(@Iri("urn:test:value") java.net.URI value);
 	}
 
@@ -128,13 +125,6 @@ public class RedirectTest extends TestCase {
 		concept = con.addDesignation(con.getObject("http://www.example.com/pathinfo"),
 				Concept.class);
 		assertEquals("http://www.example.com/pathinfo?param=foo+bar", concept.param("foo bar").getFirstHeader("Location").getValue());
-	}
-
-	@Test
-	public void testDoubleQueryParameter() throws Exception {
-		concept = con.addDesignation(con.getObject("http://www.example.com/pathinfo"),
-				Concept.class);
-		assertEquals("http://www.example.com/pathinfo?param=http%3A%2F%2Fexample.com%2Fq%3Dfoo%2Bbar", concept.doubleParam("foo bar").getFirstHeader("Location").getValue());
 	}
 
 	@Test

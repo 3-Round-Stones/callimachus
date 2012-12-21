@@ -21,7 +21,7 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
 </head>
 <body>
     {calli:bodyAttributes()}
-    <div id="wrapper">
+    <div class="until-navbar-large">
         <div class="navbar navbar-static-top hidden-iframe">
             <header class="navbar-inner">
                 <div class="container">
@@ -40,7 +40,7 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
                                 <li>{calli:changes(<a>Recent changes</a>)}</li>
                                 <li class="divider"></li>
                                 <li><a href="http://callimachusproject.org/">About Callimachus</a></li>
-                                <li><a href="http://code.google.com/p/callimachus/wiki/GettingStarted">Getting started</a></li>
+                                <li><a href="http://callimachusproject.org/docs/1.0/getting-started-with-callimachus.docbook?view">Getting started</a></li>
                                 <li><a href="http://groups.google.com/group/callimachus-discuss">Send feedback</a></li>
                                 <li class="divider"></li>
                                 {calli:pageLinks(<li><a /></li>,<li class="divider" />)}
@@ -83,12 +83,14 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
         </div><!-- page -->
     </div><!-- wrapper -->
 
-    <footer id="footer" class="hidden-iframe">
-        <div id="colophon" class="container">
-            {calli:generator(<p class="pull-right" />)}
-            {calli:lastmod(<p id="resource-lastmod">This resource was last modified at <time class="abbreviated"/></p>)}
-        </div>
-    </footer>
+    <div class="navbar navbar-large navbar-relative-bottom hidden-iframe">
+        <footer class="navbar-inner">
+            <div class="container">
+                {calli:generator(<p class="pull-right" />)}
+                {calli:lastmod(<p id="resource-lastmod">This resource was last modified at <time class="abbreviated"/></p>)}
+            </div>
+        </footer>
+    </div>
     <!--[if lt IE 9]>
         <script src="//raw.github.com/chuckcarpenter/REM-unit-polyfill/master/js/rem.js"></script>
     <![endif]-->

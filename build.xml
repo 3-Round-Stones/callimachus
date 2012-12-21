@@ -121,9 +121,22 @@
                 <include name="lib/*.jar" />
                 <include name="dist/*.jar" />
                 <exclude name="lib/commons-codec-*.jar" />
+                <exclude name="lib/openrdf-sesame-2.6.10-onejar.jar" />
             </patternset>
             <mapper type="flatten" />
         </unzip>
+        <unzip overwrite="false" src="${downloads}/${openrdf-alibaba.zip}" dest="${tmp}">
+            <patternset>
+                <include name="lib/openrdf-sesame-2.6.10-onejar.jar" />
+            </patternset>
+            <mapper type="flatten" />
+        </unzip>
+        <zip destfile="${lib}/openrdf-sesame-2.6.10-onejar.jar">
+            <zipfileset src="${tmp}/openrdf-sesame-2.6.10-onejar.jar">
+                <exclude name="info/aduna/concurrent/locks/LockManager.class" /> 
+                <exclude name="info/aduna/concurrent/locks/LockManager$*.class" /> 
+            </zipfileset>
+        </zip>
         <unzip overwrite="false" src="${downloads}/${httpcore.zip}" dest="${lib}">
             <patternset>
                 <include name="**/lib/*.jar" />

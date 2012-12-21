@@ -2,23 +2,25 @@ Callimachus Project Release Notes
 
 http://callimachusproject.org/
 
-5 October 2012
+21 December 2012
 
-= REQUIREMENTS OF 0.18 =
+= REQUIREMENTS OF 1.0 =
 
-Callimachus works best on browsers that are closely tracking the
-development of HTML5.  At the time of this writing, Callimachus
-works best on Chrome, with Firefox and Safari as second choices.  It is
-recommended that Callimachus users track updates to their browsers for
-the best usage experience.
+Callimachus works best on browsers that are closely tracking the development of
+HTML5.  At the time of this writing, Callimachus works best on Chrome and
+Firefox.  It is recommended that Callimachus users track updates to their
+browsers for the best usage experience.
 
-Chrome 20 has been thoroughly tested.
-Firefox 10 and Safari 5 have no known issues.
+Chrome 23 has been thoroughly tested.
+Firefox 16 have no known issues.
+Safari 6 does not use the website login/logout forms.
 Internet Explorer 8 and 9 can login and read content, use the
 edit form, but cannot edit text documents or create complex resources.
 
 The Callimachus server requires Java JDK 1.6.0_18+ (before 1.7) on the
 server to run.
+
+= NEW IN VERSION 1.0 =
 
 = NEW IN VERSION 0.18 =
 
@@ -53,7 +55,7 @@ client agents, everyone group represents all authenticated agents, and the
 system group represents all agents connecting directly from the local machine.
 http://code.google.com/p/callimachus/wiki/Security has more details.
 
-= KNOWN ISSUES IN 0.18 =
+= KNOWN ISSUES IN 1.0 =
 
  * All possible options in check boxes must have a label.
  * rdf:XMLLiteral on form create auto adds xmlns to elements.
@@ -62,8 +64,6 @@ http://code.google.com/p/callimachus/wiki/Security has more details.
  * Safari browser cannot view Turtle or RDF/XML output in describe tab.
  * Safari does not retain the login state in all cases.
  * Safari does not support dragging files in the folder view.
- * IE does not work with the article editor.
- * Later versions of Chrome do not work with the article editor.
 
 In some environments, Callimachus may log "An exception has occurred in the
 compiler...FilePermission" exceptions. This is often due to an issue in the
@@ -95,4 +95,19 @@ first input field in the form.
 Every dropzone in a create or edit template requires a
 ondrop="return calli.insertResource(event)" as shown here:
 http://code.google.com/p/callimachus/wiki/FormPatterns#Range_Relationships
+
+= HOWTO UPGRADE FROM 0.18 =
+
+All information saved through a Web browser is saved in the repositories
+directory. This directory should be backed up (in the stopped state) before
+attempting to upgrade.
+
+Stop the 0.18 server using the callimachus-stop script in the bin directory.
+Remove the lib, bin, tmp, src directories.
+
+Download and unzip the callimachus-1.0.zip file in the install directory of
+the Callimachus 0.18 instance. Run the bin/callimachus-setup.sh/.bat script to
+upgrade the repositories directory. Run the bin/callimachus-start.sh/.bat script
+to start Callimachus.
+
 

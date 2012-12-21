@@ -59,7 +59,7 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
                 </div>
             </header>
         </div>
-        <div id="page" class="container">
+        <div class="container">
             {calli:breadcrumb(<nav class="breadcrumb"><a class="muted"/><span class="divider">&#187;</span><span class="active"/></nav>)}
             {calli:hgroup()}
             {calli:sidebar(<div id="sidebar" class="pull-right" />)}

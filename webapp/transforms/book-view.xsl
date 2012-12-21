@@ -16,6 +16,7 @@ xmlns="http://www.w3.org/1999/xhtml" xmlns:xhtml="http://www.w3.org/1999/xhtml" 
         <link rel="edit-form" href="?edit" />
         <link rel="describedby" href="?describe" />
         <link rel="version-history" href="?history" />
+        <link rel="alternate" href="?docbook" title="Download Docbook" />
         <xsl:apply-templates mode="rel" />
         <style type="text/css">
             .anchor { font-size: smaller; }

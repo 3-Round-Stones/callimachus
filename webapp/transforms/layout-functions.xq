@@ -3,10 +3,10 @@ xquery version "1.0" encoding "utf-8";
 module namespace calli = "http://callimachusproject.org/rdf/2009/framework#";
 
 declare copy-namespaces preserve, inherit;
-
 declare default element namespace "http://www.w3.org/1999/xhtml";
 
 declare variable $calli:realm external;
+declare variable $calli:html := /html;
 
 declare function calli:styles() as element() {calli:styles(<link rel="stylesheet" />)};
 declare function calli:styles($link as element()) as element() {
@@ -49,6 +49,31 @@ declare function calli:changes($a as element()) as element() {
         $a/@*[name()!='href'],
         $a/node()
     }
+};
+declare function calli:pageLinks($a as element(), $divider as element()) as element()* {
+    let $links := $calli:html/head/link[@title and @href]
+    return if ($links) then
+        for $link in $links
+        return (calli:substitute($a, $link/@href, $link/@title), $divider)
+    else
+        $links
+};
+declare function calli:substitute($a as element(), $href as xs:string, $title as xs:string) {
+    if (local-name($a)='a') then
+        element {node-name($a)} {
+            attribute href {$href},
+            $a/@*[name()!='href'],
+            $title
+        }
+    else if ($a/self::*) then
+        element {node-name($a)} {
+            $a/@*,
+            for $node in $a/node()
+            return calli:substitute($node, $href, $title)
+        }
+    else
+        $a
+        
 };
 declare function calli:whatlinkshere($a as element()) as element() {
     element {node-name($a)} {
@@ -126,8 +151,6 @@ declare function calli:generator($p as element()) as element() {
         </a>
     }
 };
-
-declare variable $calli:html := /html;
 
 declare function calli:head() as node()* {
     $calli:html/head/node()

@@ -39,15 +39,16 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
                                 <li>{calli:folder(<a>Home folder</a>)}</li>
                                 <li>{calli:changes(<a>Recent changes</a>)}</li>
                                 <li class="divider"></li>
+                                <li><a href="http://callimachusproject.org/">About Callimachus</a></li>
+                                <li><a href="http://code.google.com/p/callimachus/wiki/GettingStarted">Getting started</a></li>
+                                <li><a href="http://groups.google.com/group/callimachus-discuss">Send feedback</a></li>
+                                <li class="divider"></li>
+                                {calli:pageLinks(<li><a /></li>,<li class="divider" />)}
                                 <li>{calli:whatlinkshere(<a>What links here</a>)}</li>
                                 <li>{calli:relatedchanges(<a>Related changes</a>)}</li>
                                 <li>{calli:permissions(<a>Permissions</a>)}</li>
                                 <li>{calli:introspect(<a>Introspect resource</a>)}</li>
                                 <li><a href="javascript:print()">Print this page</a></li>
-                                <li class="divider"></li>
-                                <li><a href="http://callimachusproject.org/">About Callimachus</a></li>
-                                <li><a href="http://code.google.com/p/callimachus/wiki/GettingStarted">Getting started</a></li>
-                                <li><a href="http://groups.google.com/group/callimachus-discuss">Send feedback</a></li>
                                 <li class="divider"></li>
                                 <li>{calli:profile(<a>Account</a>)}</li>
                                 <li>{calli:logout(<a>Sign out</a>)}</li>

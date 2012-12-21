@@ -2,7 +2,6 @@ package org.callimachusproject.rewrite;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
-import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,15 +17,15 @@ public class Substitution {
 
 	private final String regex;
 	private final Pattern pattern;
-	private final String substitution;
+	private final String template;
 	private final List<String> groupNames;
 
-	public static Substitution compile(String regex, String substitution, String flags) {
-		return new Substitution(regex, substitution, flags);
+	public static Substitution compile(String regex, String template, String flags) {
+		return new Substitution(regex, template, flags);
 	}
 
-	public static Substitution compile(String regex, String substitution) {
-		return new Substitution(regex, substitution, "");
+	public static Substitution compile(String regex, String template) {
+		return new Substitution(regex, template, "");
 	}
 
 	public static Substitution compile(String command) {
@@ -44,15 +43,15 @@ public class Substitution {
 		}
 	}
 
-	private Substitution(String regex, String substitution, String flags) {
+	private Substitution(String regex, String template, String flags) {
 		this.regex = regex;
-		this.substitution = substitution;
+		this.template = template;
 		this.groupNames = extractGroupNames(regex);
 		this.pattern = Pattern.compile(buildStandardPattern(regex, groupNames), flags(flags));
 	}
 
 	public String toString() {
-		return regex + " " + substitution;
+		return regex + " " + template;
 	}
 
 	public String pattern() {
@@ -60,7 +59,7 @@ public class Substitution {
 	}
 
 	public String substitution() {
-		return substitution;
+		return template;
 	}
 
 	public int flags() {
@@ -68,7 +67,7 @@ public class Substitution {
 	}
 
 	public boolean containsVariableName(String name) {
-		return substitution.contains("{" + name + "}");
+		return template.contains("{" + name + "}") || template.contains("{+" + name + "}");
 	}
 
 	public String replace(CharSequence input) {
@@ -77,10 +76,10 @@ public class Substitution {
 	}
 
 	public String replace(CharSequence input, Map<String, ?> variables) {
-		int dollar = substitution.indexOf('$');
-		int percent = substitution.indexOf('{');
+		int dollar = template.indexOf('$');
+		int percent = template.indexOf('{');
 		if (dollar < 0 && percent < 0)
-			return substitution;
+			return template;
 		Matcher m = pattern.matcher(input);
 		StringBuilder sb = new StringBuilder(255);
 		int position = 0;
@@ -97,40 +96,37 @@ public class Substitution {
 
 	private void appendSubstitution(Matcher m,
 			Map<String, ?> variables, StringBuilder sb) {
-		Boolean encode = false;
-		for (int i = 0, n = substitution.length(); i < n; i++) {
-			char chr = substitution.charAt(i);
+		for (int i = 0, n = template.length(); i < n; i++) {
+			char chr = template.charAt(i);
 			if (chr == '=') {
-				encode = encode == null ? null : true;
 				sb.append(chr);
 			} else if (chr == '?' || chr == '&') {
-				encode = encode == null ? null : false;
 				sb.append(chr);
 			} else if (Character.isWhitespace(chr)) {
-				encode = null;
 				sb.append(chr);
 			} else if (chr == '\\' && i + 1 < n) {
-				sb.append(substitution.charAt(++i));
+				sb.append(template.charAt(++i));
 			} else if (chr == '$' && i + 1 < n) {
-				char next = substitution.charAt(++i);
+				char next = template.charAt(++i);
 				if (next == '$') {
 					sb.append(next);
 				} else if (next >= '0' && next <= '9' && m != null) {
 					int idx = next - '0';
-					appendGroup(m, idx, count(encode, sb), sb);
+					appendGroup(m, idx, false, sb);
 				} else {
 					sb.append(chr);
 					--i;
 				}
 			} else if (chr == '{' && i + 2 < n) {
-				int j = substitution.indexOf('}', i);
+				int j = template.indexOf('}', i);
 				if (j > i) {
-					String name = substitution.substring(i + 1, j);
+					String name = template.substring(i + 1, j);
 					if (name.startsWith("{")) {
 						sb.append(name);
+					} else if (name.startsWith("+")){
+						appendVariable(name.substring(1), m, variables, false, sb);
 					} else {
-						int e = count(encode, sb);
-						appendVariable(name, m, variables, e, sb);
+						appendVariable(name, m, variables, true, sb);
 					}
 					i = j;
 				} else {
@@ -142,27 +138,14 @@ public class Substitution {
 		}
 	}
 
-	private int count(Boolean encode, StringBuilder sb) {
-		if (encode == null || !encode)
-			return 0;
-		int q = sb.lastIndexOf("?");
-		int e = sb.lastIndexOf("=");
-		int a = sb.lastIndexOf("&");
-		if (e <= q && e <= a)
-			return 0;
-		if (e == sb.length() - 1)
-			return 1;
-		return 1 + count(true, new StringBuilder(decode(sb.substring(e + 1))));
-	}
-
-	private void appendGroup(Matcher m, int idx, int encode, StringBuilder sb) {
+	private void appendGroup(Matcher m, int idx, boolean encode, StringBuilder sb) {
 		if (idx <= m.groupCount()) {
 			sb.append(inline(m.group(idx), encode));
 		}
 	}
 
 	private void appendVariable(String name, Matcher m, Map<String, ?> variables,
-			int encode, StringBuilder sb) {
+			boolean encode, StringBuilder sb) {
 		String value;
 		int g = groupNames.indexOf(name) + 1;
 		if (g > 0) {
@@ -186,26 +169,15 @@ public class Substitution {
 		}
 	}
 
-	private CharSequence inline(String value, int encode) {
-		if (encode > 0) {
-			for (int i = 0; i < encode; i++) {
-				value = encode(value);
-			}
-		}
+	private CharSequence inline(String value, boolean encode) {
+		if (encode)
+			return encode(value);
 		return value;
 	}
 
 	private String encode(String value) {
 		try {
 			return URLEncoder.encode(value, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			throw new AssertionError(e);
-		}
-	}
-
-	private String decode(String value) {
-		try {
-			return URLDecoder.decode(value, "UTF-8");
 		} catch (UnsupportedEncodingException e) {
 			throw new AssertionError(e);
 		}

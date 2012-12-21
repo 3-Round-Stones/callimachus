@@ -1,5 +1,17 @@
-James Leigh - James Leigh Service Inc.
-David Wood - 3 Round Stones Inc.
-Luke Ruth - 3 Round Stones Inc.
-Steve Battle - Emcee Partners, LLC and Gloze Ltd.
-David Booth - Emcee Partners, LLC
+The Callimachus Project gratefully acknowledges the support of the following organizations and individuals:
+
+Institutional Sponsors:
+  3 Round Stones Inc.
+  AstraZeneca
+  Cleveland Clinic Foundation
+  Espace Semantiques
+  Talis Ltd.
+  Stanford University
+  Wolters Kluwer
+  Zepheira LLC
+
+Individual Contributors:
+	
+	The Callimachus Project is led by James Leigh, David Wood, Bernadette Hyland and Luke Ruth.
+
+  Special thanks to Dean Allemang, Steve Battle, David Booth, Matteo Busanelli, Benjamin Nowack, Peter Edwards, Richard Howlett, Juha Nurmi and other members of the callimachus-discuss@googlegroups.com mailing list for discussions and contributions.

@@ -11,7 +11,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Substitution {
-
+	private static final Pattern NUMERIC = Pattern.compile("\\d");
 	private static final Pattern NAMED_GROUP_PATTERN = Pattern
 			.compile("\\(\\?<(\\w+)>");
 
@@ -106,17 +106,6 @@ public class Substitution {
 				sb.append(chr);
 			} else if (chr == '\\' && i + 1 < n) {
 				sb.append(template.charAt(++i));
-			} else if (chr == '$' && i + 1 < n) {
-				char next = template.charAt(++i);
-				if (next == '$') {
-					sb.append(next);
-				} else if (next >= '0' && next <= '9' && m != null) {
-					int idx = next - '0';
-					appendGroup(m, idx, false, sb);
-				} else {
-					sb.append(chr);
-					--i;
-				}
 			} else if (chr == '{' && i + 2 < n) {
 				int j = template.indexOf('}', i);
 				if (j > i) {
@@ -138,18 +127,14 @@ public class Substitution {
 		}
 	}
 
-	private void appendGroup(Matcher m, int idx, boolean encode, StringBuilder sb) {
-		if (idx <= m.groupCount()) {
-			sb.append(inline(m.group(idx), encode));
-		}
-	}
-
 	private void appendVariable(String name, Matcher m, Map<String, ?> variables,
 			boolean encode, StringBuilder sb) {
 		String value;
 		int g = groupNames.indexOf(name) + 1;
 		if (g > 0) {
 			value = m.group(g);
+		} else if (NUMERIC.matcher(name).matches() && name.length() < 3 && m.groupCount() >= Integer.parseInt(name)) {
+			value = m.group(Integer.parseInt(name));
 		} else {
 			Object o = variables.get(name);
 			if (o == null) {

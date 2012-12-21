@@ -60,7 +60,7 @@
     calli:requires calli:reader;
     calli:type "application/docbook+xml";
     calli:header "cache-control:no-cache";
-    calli:post "../pipelines/docbook-inclusion.xpl?results\nContent-Location: $0\nContent-Type: application/docbook+xml".
+    calli:post "../pipelines/docbook-inclusion.xpl?results\nContent-Location: {+0}\nContent-Type: application/docbook+xml".
 
 # GET /books/main-article.docbook?view
 :GetPage owl:intersectionOf (<viewable.ttl#GetViewPage>
@@ -71,7 +71,7 @@
     calli:requires calli:reader;
     calli:type "text/html";
     calli:header "cache-control:no-cache";
-    calli:post "../pipelines/book-view.xpl?results\nContent-Location: $0\nContent-Type: application/docbook+xml".
+    calli:post "../pipelines/book-view.xpl?results\nContent-Location: {+0}\nContent-Type: application/docbook+xml".
 
 # POST ?create=/callimachus/Book
 :CreateBook owl:intersectionOf (<creatable.ttl#PostCreate>
@@ -137,10 +137,10 @@
 :ValidateBook rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Book>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-    calli:post "../schemas/docbookxi.rng?validate\nContent-Location:$0\nContent-Type: application/docbook+xml".
+    calli:post "../schemas/docbookxi.rng?validate\nContent-Location: {+0}\nContent-Type: application/docbook+xml".
 
 :CheckBook rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Book>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-    calli:post "../schemas/docbook.sch?validate\nContent-Location:$0\nContent-Type: application/docbook+xml".
+    calli:post "../schemas/docbook.sch?validate\nContent-Location: {+0}\nContent-Type: application/docbook+xml".
 

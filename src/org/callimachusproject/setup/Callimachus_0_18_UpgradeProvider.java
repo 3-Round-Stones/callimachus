@@ -66,9 +66,44 @@ public class Callimachus_0_18_UpgradeProvider implements UpdateProvider {
 				modified |= trimNamespaces(repository);
 				modified |= deleteFolders(origin, webapp, repository);
 				modified |= deleteFiles(origin, webapp, repository);
+				upgradeFrom1_0_beta(webapp, repository);
 				return modified;
 			}
 		};
+	}
+
+	void upgradeFrom1_0_beta(String webapp,
+			CallimachusRepository repository) throws OpenRDFException {
+		String files = "PREFIX foaf:<http://xmlns.com/foaf/0.1/>\n"
+				 + "DELETE {\n"
+				 + "    ?file ?p ?o\n"
+				 + "} WHERE {\n"
+				 + "    ?file a foaf:Document; ?p ?o\n"
+				 + "    FILTER strstarts(str(?file), str(</callimachus/1.0/>))\n"
+				 + "};";
+		String folders = "PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>\n"
+			 + "DELETE {\n"
+			 + "    ?folder ?p ?o\n"
+			 + "} WHERE {\n"
+			 + "    ?folder a calli:Folder; ?p ?o\n"
+			 + "    FILTER strstarts(str(?file), str(</callimachus/1.0/>))\n"
+			 + "};";
+		String components = "PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>\n"
+				 + "DELETE {\n"
+				 + "    ?folder calli:hasComponent ?file\n"
+				 + "} WHERE {\n"
+				 + "    ?folder calli:hasComponent ?file\n"
+				 + "    FILTER strstarts(str(?folder), str(</callimachus/1.0/>))\n"
+				 + "    FILTER strstarts(str(?file), str(</callimachus/1.0/>))\n"
+				 + "};";
+		ObjectConnection con = repository.getConnection();
+		try {
+			con.prepareUpdate(QueryLanguage.SPARQL, files, webapp).execute();
+			con.prepareUpdate(QueryLanguage.SPARQL, folders, webapp).execute();
+			con.prepareUpdate(QueryLanguage.SPARQL, components, webapp).execute();
+		} finally {
+			con.close();
+		}
 	}
 
 	boolean trimNamespaces(CallimachusRepository repository)

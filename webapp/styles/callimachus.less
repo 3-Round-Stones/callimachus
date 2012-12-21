@@ -192,16 +192,15 @@ form {
 
 
 .navbar + .container {
-    padding-top: 20px;
+    padding-top: 2.5em;
 }
 
 .navbar + .container > *.breadcrumb:first-child {
     position: absolute;
-    margin-top: -20px;
+    margin-top: -2.5em;
     padding: 5px 2px;
     background-color: transparent;
     font-size: 0.9rem;
-    margin-bottom: 0.5rem;
     opacity: 0.8;
     display: inline-block;
 }    
@@ -256,8 +255,6 @@ aside h3 {
     width: 100%;
     position: relative;
     clear: both;
-    color: @navbarText;
-    background-color: @navbarBackground;
     border-top: 1px solid @navbarBorder;
     height: @navbarHeight;
     margin-bottom: 0;
@@ -290,9 +287,6 @@ aside h3 {
         // Set the container width, and override it for fixed navbars in media queries
         .navbar-relative-bottom .container { .span(@gridColumns); }
     }
-}
-.navbar-relative-bottom .navbar-inner {
-  #gradient > .vertical(@navbarBackground, @navbarBackgroundHighlight);
 }
 .navbar-relative-bottom {
   position: relative;

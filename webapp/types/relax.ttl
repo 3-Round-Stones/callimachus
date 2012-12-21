@@ -114,7 +114,7 @@
 :ValidateRelax rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Relax>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-    calli:post "../schemas/relaxng.rng?validate\nContent-Location:$0\nContent-Type: application/xml".
+    calli:post "../schemas/relaxng.rng?validate\nContent-Location: {+0}\nContent-Type: application/xml".
 
 ################################
 # Validate
@@ -150,7 +150,7 @@
 :GetValidationError rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Relax>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-    calli:post "../pipelines/relax-validate.xpl?results&schema=$0\nContent-Location:{+invalidLocation}".
+    calli:post "../pipelines/relax-validate.xpl?results&schema={0}\nContent-Location:{+invalidLocation}".
 
 :invalidLocation a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :GetValidationError;

@@ -113,7 +113,7 @@
 :ValidatePipeline rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Pipeline>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-    calli:post "../schemas/xproc.rng?validate\nContent-Location:$0\nContent-Type: application/xml".
+    calli:post "../schemas/xproc.rng?validate\nContent-Location: {+0}\nContent-Type: application/xml".
 
 ################################
 # Execute Pipeline             #

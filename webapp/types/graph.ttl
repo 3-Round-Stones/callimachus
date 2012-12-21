@@ -175,9 +175,6 @@
     calli:script """
         if (!location)
             throw new BadRequest("No graph location provided");
-        if (location instanceof File) {
-            location = location.RemoveFile();
-        }
 
         var con = this.objectConnection;
         var vf = con.getValueFactory();

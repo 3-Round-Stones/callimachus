@@ -91,8 +91,5 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
             </div>
         </footer>
     </div>
-    <!--[if lt IE 9]>
-        <script src="//raw.github.com/chuckcarpenter/REM-unit-polyfill/master/js/rem.js"></script>
-    <![endif]-->
 </body>
 </html>

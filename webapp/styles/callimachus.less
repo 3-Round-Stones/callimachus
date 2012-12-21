@@ -141,6 +141,8 @@ html, body {
 html.iframe #page {
     padding: 0;
     width: auto;
+    min-height: 0; /* no need to have space for the create-menu */
+    height: 100%;
 }
 
 .ui-dialog {
@@ -190,6 +192,7 @@ form {
     font-size: 0.9rem;
     margin-bottom: 0.5rem;
     opacity: 0.8;
+    display: inline-block;
 }    
 
 .breadcrumb:hover {
@@ -321,12 +324,21 @@ aside h3 {
 
 /* ie tweaks */
 
-html.ie #wrapper {/* ie8 doesn't support min-height */
+html.ie #wrapper {/* ie8 doesn't properly support min-height */
     height: 100%;
 }
 
-html.ie #page {/* ie8 doesn't support min-height */
+html.ie #page {/* ie8 doesn't properly support min-height */
     height: 80%;
+}
+
+html.ie.iframe #wrapper {
+    overflow: auto;
+    height: auto;
+}
+
+html.ie.iframe #page {
+    height: auto;
 }
 
 html.ie #sidebar {
@@ -337,6 +349,10 @@ html.ie #sidebar ~ div {
     margin-right: 37%;
 }
 
+html.ie.iframe #sidebar {
+    margin: 10px 10px 0 0;
+}
+
 html.ie aside {
     .border-radius(3px);
     .box-shadow(0 0 7px rgba(0, 0, 0, 0.1) inset);
@@ -345,4 +361,10 @@ html.ie aside {
     margin-bottom: 15px;
 }
 
+html.ie form#form {
+    padding: 10px;
+}
 
+html.ie .form-actions {
+    padding: 10px;
+}

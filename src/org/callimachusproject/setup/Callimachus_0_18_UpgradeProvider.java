@@ -96,11 +96,19 @@ public class Callimachus_0_18_UpgradeProvider implements UpdateProvider {
 				 + "    FILTER strstarts(str(?folder), str(</callimachus/1.0/>))\n"
 				 + "    FILTER strstarts(str(?file), str(</callimachus/1.0/>))\n"
 				 + "};";
+		String graphs = "PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>\n"
+				 + "DELETE {\n"
+				 + "    GRAPH ?graph { ?s ?p ?o }\n"
+				 + "} WHERE {\n"
+				 + "    GRAPH ?graph { ?s ?p ?o }\n"
+				 + "    FILTER strstarts(str(?graph), str(</callimachus/1.0/>))\n"
+				 + "};";
 		ObjectConnection con = repository.getConnection();
 		try {
 			con.prepareUpdate(QueryLanguage.SPARQL, files, webapp).execute();
 			con.prepareUpdate(QueryLanguage.SPARQL, folders, webapp).execute();
 			con.prepareUpdate(QueryLanguage.SPARQL, components, webapp).execute();
+			con.prepareUpdate(QueryLanguage.SPARQL, graphs, webapp).execute();
 		} finally {
 			con.close();
 		}

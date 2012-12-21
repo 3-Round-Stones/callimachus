@@ -28,16 +28,16 @@ public class RedirectTest extends TestCase {
 		@alternate("http://example.com/")
 		HttpResponse literal();
 
-		@alternate("^http://(.*).example.com/(.*) http://example.com/$1/$2")
+		@alternate("^http://(.*).example.com/(.*) http://example.com/{+1}/{+2}")
 		HttpResponse readDomain();
 
-		@alternate("$0#{+frag}")
+		@alternate("{+0}#{+frag}")
 		HttpResponse frag(@Iri("urn:test:frag") String frag);
 
-		@alternate("$0?{+query}")
+		@alternate("{+0}?{+query}")
 		HttpResponse replaceQuery(@Iri("urn:test:query") String query);
 
-		@alternate("$0?param={value}")
+		@alternate("{+0}?param={value}")
 		HttpResponse param(@Iri("urn:test:value") String value);
 
 		@alternate("{+value}")

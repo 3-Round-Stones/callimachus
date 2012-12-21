@@ -1,6 +1,7 @@
 The Callimachus Project gratefully acknowledges the support of the following organizations and individuals:
 
 Institutional Sponsors:
+
   3 Round Stones Inc.
   AstraZeneca
   Cleveland Clinic Foundation
@@ -12,6 +13,6 @@ Institutional Sponsors:
 
 Individual Contributors:
 	
-	The Callimachus Project is led by James Leigh, David Wood, Bernadette Hyland and Luke Ruth.
+  The Callimachus Project is led by James Leigh, David Wood, Bernadette Hyland and Luke Ruth.
 
   Special thanks to Dean Allemang, Steve Battle, David Booth, Matteo Busanelli, Benjamin Nowack, Peter Edwards, Richard Howlett, Juha Nurmi and other members of the callimachus-discuss@googlegroups.com mailing list for discussions and contributions.

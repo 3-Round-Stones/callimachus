@@ -4,25 +4,49 @@ http://callimachusproject.org/
 
 21 December 2012
 
-= REQUIREMENTS OF 1.0 =
+= REQUIREMENTS FOR CALLIMACHUS 1.0 (Open Source) =
 
-Callimachus works best on browsers that are closely tracking the development of
-HTML5.  At the time of this writing, Callimachus works best on Chrome and
+Callimachus works best on browsers that are closely tracking the development
+of HTML5.  At the time of this writing, Callimachus works best on Chrome and
 Firefox.  It is recommended that Callimachus users track updates to their
 browsers for the best usage experience.
 
 Chrome 23 has been thoroughly tested.
-Firefox 16 have no known issues.
-Safari 6 does not use the website login/logout forms.
-Internet Explorer 8 and 9 can login and read content, use the
-edit form, but cannot edit text documents or create complex resources.
+Firefox 17 has no known issues.
+Safari 6 has no known issues, but does not support HTML5 drag-and-drop.
+Internet Explorer 8 and 9 cannot edit textual documents.
+
+Details of browser support may be found at:
+  http://callimachusproject.org/docs/1.0/articles/browser-support.docbook?view
 
 The Callimachus server requires Java JDK 1.6.0_18+ (before 1.7) on the
 server to run.
 
 = NEW IN VERSION 1.0 =
 
-= NEW IN VERSION 0.18 =
+The Callimachus Project now includes a live documentation service.
+Documentation will be updated as features change or problems are found.
+The documentation service is itself a Callimachus application.  Please
+ask if you would like to contribute to Callimachus documentation!
+
+Documentation for the 1.0 release may be found at:
+  http://callimachusproject.org/docs/1.0/?view
+
+Built-in support for most types of Persistent URLs (PURLs), including Active
+PURLs.  Partial PURLs are not supported in this release.
+
+XPROC Pipelines allow complex XML transformations to be performed on the
+server. Pipelines can be used to take the sparql-results of a Named Query and
+reformat it into another XML or text format. The result of a pipeline can be
+retrieved by requesting the URL of the pipeline with '?results' appended.
+Pipelines are written using the XProc XML format. More information about them
+can be seen at:
+  http://code.google.com/p/callimachus/wiki/XProcExamples
+
+To set a cache control for a pipeline (or other resource) a Copy (200) PURL can
+be created pointing to the result of the pipeline. In this case the PURL will
+cache the results of the pipeline. For more details about creating PURL see
+http://code.google.com/p/callimachus/wiki/PURLs
 
 Named Queries can now have a custom view page. Using an annotation comment both
 the response Cache-Control header and the view page can be assigned on each
@@ -34,18 +58,6 @@ query template there many be multiple values and the multiple variables used in
 different sections of the page. The primary use case for this would be to create
 a query view to list resources that match some criteria. For more information see
 http://code.google.com/p/callimachus/wiki/NamedQueries
-
-Pipelines allow complex XML transformations to be performed on the server.
-Pipelines can be used to take the sparql-results of a Named Query and reformat
-it into another XML or text format. The result of a pipeline can be retrived
-by requsting the URL of the pipeline with '?results' appended. Pipelines are
-written using the XProc XML format. More information about them can be seen here
-http://code.google.com/p/callimachus/wiki/XProcExamples
-
-To set a cache control for a pipeline (or other resource) a Copy (200) PURL can
-be created pointing to the result of the pipeline. In this case the PURL will
-cache the results of the pipeline. For more details about creating PURL see
-http://code.google.com/p/callimachus/wiki/PURLs
 
 Authorization can now be performed based on the DNS domain of the client. This
 allows the administrator to make resources public or private simply by changing

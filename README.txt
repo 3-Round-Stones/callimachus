@@ -6,11 +6,16 @@ http://callimachusproject.org/
 | Introduction |
 ----------------
 
-Thank you for your interest in the Callimachus Project.  Callimachus
-aims to make Semantic Web applications (much) easier to create.
+Thank you for your interest in the Callimachus Project.  This is the README
+for Callimachus (Open Source), a Linked Data management system.
+
+Callimachus aims to make Semantic Web applications (much) easier to create.
 Because this is a community effort, you can help by submitting your
 applications, upgrades and tools to the Callimachus Project site at
 http://callimachusproject.org.
+
+Documentation for Callimachus may be found at:
+  http://callimachusproject.org/docs/?view
 
 Please consider joining the mailing lists and participating in the
 online community so we can serve you better.
@@ -108,6 +113,8 @@ Additional documentation regarding usage and application development may
 be found on the project's wiki at:
   http://code.google.com/p/callimachus/wiki/GettingStarted
 
+Details of browser support may be found at:
+  http://callimachusproject.org/docs/1.0/articles/browser-support.docbook?view
 
 Share your experience or ask questions on the mailing list: callimachus-
 discuss@googlegroups.com.  You can sign up at 

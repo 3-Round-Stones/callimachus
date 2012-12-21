@@ -363,7 +363,7 @@ sub deleteFile {
         }
         return 1;
     } else {
-        say $OUT "Error: Failed to delete file.  The server reported: " . $res->status_line;
+        say $OUT "Error: Failed to delete file $title.  The server reported: " . $res->status_line;
         print $OUT $res->as_string if $debug;
         $exitstatus++;
         return 0;

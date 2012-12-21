@@ -99,7 +99,6 @@ div, footer, iframe {
 }
 
 #container {
-    background-color: @white;
     padding: 1rem;
 }
 
@@ -125,6 +124,7 @@ html, body {
 #wrapper {
     min-height: 100%;
     overflow: hidden;
+    background-color: @white;
 }
 
 .iframe #wrapper {
@@ -185,6 +185,14 @@ form {
 }
 
 /* breadcrumbs */
+
+#page > *:first-child {
+    margin-top: 20px;
+}
+
+#page > *.breadcrumb:first-child {
+    margin-top: 0px;
+}
 
 .breadcrumb {
     padding: 5px 2px;
@@ -336,8 +344,8 @@ html.ie #wrapper {/* ie8 doesn't properly support min-height */
     height: 100%;
 }
 
-html.ie #page {/* ie8 doesn't properly support min-height */
-    height: 80%;
+html.ie header.navbar-inner .container menu a.dropdown-toggle {
+    padding: 2px 0 0 10px;
 }
 
 html.ie.iframe #wrapper {
@@ -346,7 +354,8 @@ html.ie.iframe #wrapper {
 }
 
 html.ie.iframe #page {
-    height: auto;
+    padding-bottom: 0;
+    min-height: 600px;
 }
 
 html.ie #sidebar {
@@ -369,7 +378,7 @@ html.ie aside {
     margin-bottom: 15px;
 }
 
-html.ie form#form {
+html.ie #content form {
     padding: 10px;
 }
 

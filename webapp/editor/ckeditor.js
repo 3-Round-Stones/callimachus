@@ -170,7 +170,7 @@ jQuery(function($) {
             xhtml.push('<!--', comment, '-->');
         };
         parser.onTagClose = function(tagName) {
-            if (voidElements.indexOf(tagName.toLowerCase()) < 0) {
+            if (jQuery.inArray(tagName.toLowerCase(), voidElements) < 0) {
                 xhtml.push('</', tagName.toLowerCase(), '>');
             }
         };
@@ -180,7 +180,7 @@ jQuery(function($) {
                 var value = attributes[name];
                 xhtml.push(' ', name.toLowerCase(), '="', CKEDITOR.tools.htmlEncodeAttr(calli.decodeHtmlText(value)), '"');
             }
-            if (selfClosing || voidElements.indexOf(tagName.toLowerCase()) >= 0) {
+            if (selfClosing || jQuery.inArray(tagName.toLowerCase(), voidElements) >= 0) {
                 xhtml.push(' /');
             }
             xhtml.push('>');
@@ -205,7 +205,7 @@ jQuery(function($) {
             html.push('<!--', comment, '-->');
         };
         parser.onTagClose = function(tagName) {
-            if (voidElements.indexOf(tagName) < 0) {
+            if (jQuery.inArray(tagName, voidElements) < 0) {
                 html.push('</', tagName, '>');
             }
         };
@@ -215,7 +215,7 @@ jQuery(function($) {
                 var value = attributes[name];
                 html.push(' ', name, '="', value, '"');
             }
-            if (voidElements.indexOf(tagName) >= 0) {
+            if (jQuery.inArray(tagName, voidElements) >= 0) {
                 html.push(' /');
             } else if (selfClosing) {
                 html.push('></', tagName);

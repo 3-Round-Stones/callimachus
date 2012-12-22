@@ -17,7 +17,6 @@ import org.openrdf.model.ValueFactory;
 import org.openrdf.query.QueryLanguage;
 import org.openrdf.query.TupleQueryResult;
 import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.RepositoryResult;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.exceptions.ObjectStoreConfigException;
 import org.openrdf.repository.object.exceptions.RDFObjectException;
@@ -118,21 +117,16 @@ public class Callimachus_0_18_UpgradeProvider implements UpdateProvider {
 			throws OpenRDFException {
 		ObjectConnection con = repository.getConnection();
 		try {
-			RepositoryResult<Namespace> result = con.getNamespaces();
-			try {
-				boolean modified = false;
-				Set<String> namespaces = new HashSet<String>();
-				while (result.hasNext()) {
-					Namespace ns = result.next();
-					if (!namespaces.add(ns.getName())) {
-						con.removeNamespace(ns.getPrefix());
-						modified = true;
-					}
+			List<Namespace> result = con.getNamespaces().asList();
+			boolean modified = false;
+			Set<String> namespaces = new HashSet<String>();
+			for (Namespace ns : result) {
+				if (!namespaces.add(ns.getName())) {
+					con.removeNamespace(ns.getPrefix());
+					modified = true;
 				}
-				return modified;
-			} finally {
-				result.close();
 			}
+			return modified;
 		} finally {
 			con.close();
 		}

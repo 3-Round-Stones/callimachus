@@ -133,7 +133,7 @@ jQuery(function($) {
         if (el.find('.cke_dialog_title').html().match(/Table Properties/)) {
             el.find('label').each(function() {
                 // Remove unsupported fields
-                if ($(this).html().match(/^(border size|height|alignment)$/i)) {
+                if ($(this).html().match(/^(height|alignment)$/i)) {
                     $(this).parents('tr').first().hide();// only the immediate parent
                 }
             });

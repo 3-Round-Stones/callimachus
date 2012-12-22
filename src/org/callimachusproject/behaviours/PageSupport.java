@@ -28,6 +28,7 @@ import java.util.Set;
 
 import org.callimachusproject.auth.AuthorizationManager;
 import org.callimachusproject.auth.AuthorizationService;
+import org.callimachusproject.auth.DetachedRealm;
 import org.callimachusproject.engine.RDFEventReader;
 import org.callimachusproject.engine.Template;
 import org.callimachusproject.engine.TemplateEngine;
@@ -87,8 +88,11 @@ public abstract class PageSupport implements RDFObject {
 		AuthorizationManager auth = AuthorizationService.getInstance().get(this.getObjectConnection().getRepository());
 		String self = this.getResource().stringValue();
 		String target = TermFactory.newInstance(self).resolve(uri);
-		String realm = auth.getRealm(target).getResource().stringValue();
-		String url = self + "?layout&realm=" + URLEncoder.encode(realm, "UTF-8");
+		DetachedRealm realm = auth.getRealm(target);
+		if (realm == null) {
+			realm = auth.getRealm(self);
+		}
+		String url = self + "?layout&realm=" + URLEncoder.encode(realm.toString(), "UTF-8");
 		return ENGINE.getTemplate(url);
 	}
 

@@ -21,6 +21,6 @@
     rdfs:label "Foreign Resource";
     owl:complementOf :LocalResource;
     rdfs:subClassOf <$Serviceable>;
-    calli:reader </group/public>;
-    calli:subscriber </group/everyone>.
+    calli:reader </auth/groups/public>;
+    calli:subscriber </auth/groups/everyone>.
 

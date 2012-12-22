@@ -18,7 +18,7 @@
 </xsl:template>
 
 <xsl:template match="@*">
-    <xsl:attribute name="{name()}">
+    <xsl:attribute name="{name()}" namespace="{namespace-uri()}">
         <xsl:call-template name="remove-expressions-string">
             <xsl:with-param name="string" select="." />
         </xsl:call-template>

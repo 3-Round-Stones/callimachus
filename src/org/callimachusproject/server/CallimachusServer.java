@@ -62,7 +62,7 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 			URI uri = new URI(identities[i] + "/");
 			String sch = uri.getScheme();
 			String auth = uri.getAuthority();
-			identities[i] = new URI(sch, auth, IDENTITY_PATH).toASCIIString();
+			identities[i] = new URI(sch, auth, IDENTITY_PATH, null, null).toASCIIString();
 		}
 		server.setIdentityPrefix(identities);
 	}

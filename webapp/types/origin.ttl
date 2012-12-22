@@ -46,7 +46,6 @@
     rdfs:subClassOf [owl:onProperty :baseuri; owl:hasValue <../>];
     calli:method "GET";
     calli:query "baseuri";
-    calli:rel calli:realms;
     calli:requires calli:reader;
     calli:type "text/javascript";
     calli:script """

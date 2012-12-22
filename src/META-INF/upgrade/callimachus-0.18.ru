@@ -87,7 +87,7 @@ DELETE {
 </callimachus/ontology> a </callimachus/1.0/types/Serviceable>, owl:Ontology;
     rdfs:label "ontology";
     rdfs:comment "Vocabulary used to create local Callimachus applications";
-    owl:versionInfo "0.18";
+    owl:versionInfo "1.0";
     calli:administrator </auth/groups/admin>.
 } WHERE {
 </> calli:hasComponent </callimachus>.
@@ -96,6 +96,14 @@ DELETE {
     rdfs:comment ?comment;
     owl:versionInfo ?version;
     calli:administrator ?group
+};
+
+DELETE {
+	</callimachus/ontology> owl:versionInfo "0.18"
+} INSERT {
+	</callimachus/ontology> owl:versionInfo "1.0"
+} WHERE {
+	</callimachus/ontology> owl:versionInfo "0.18"
 };
 
 DELETE {

@@ -167,6 +167,10 @@ INSERT {
 	FILTER NOT EXISTS { </auth/> a calli:Folder }
 };
 
+INSERT DATA {
+    </> calli:reader </auth/groups/system>
+};
+
 DELETE {
     GRAPH ?graph {
 	    ?reader calli:reader ?group .

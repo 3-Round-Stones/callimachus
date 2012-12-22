@@ -28,6 +28,7 @@ INSERT {
 INSERT {
 	$origin a <types/Origin>, calli:Origin;
 		calli:authentication ?digest;
+		calli:reader </auth/groups/system>;
 		calli:hasComponent ?auth .
 	?auth a <types/Folder>, calli:Folder;
 	    rdfs:label "auth";

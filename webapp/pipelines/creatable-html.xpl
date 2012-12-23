@@ -22,6 +22,12 @@
     </calli:page-layout>
 
     <p:xslt>
+        <p:input port="stylesheet">
+            <p:document href="../transforms/flatten.xsl" />
+        </p:input>
+    </p:xslt>
+
+    <p:xslt>
         <p:with-param name="target" select="$target"/>
         <p:with-param name="query" select="$query"/>
         <p:input port="stylesheet">

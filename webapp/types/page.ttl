@@ -49,20 +49,6 @@
     calli:header "cache-control:no-cache";
     calli:post "../pipelines/page-layout-html.xpl?results&target={0}&query=view\nContent-Location: {+0}\nContent-Type: application/xhtml+xml".
 
-# GET /page/MainPage.xhtml?html
-:GetHtml rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Page>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
-    calli:method "GET";
-    calli:query "html";
-    calli:requires calli:reader;
-    calli:type "text/html";
-    calli:header "cache-control:no-cache";
-    calli:post "../pipelines/page-layout-html.xpl?results&target={targetOfHtml}\nContent-Location: {+0}\nContent-Type: application/xhtml+xml".
-
-:targetOfHtml a owl:FunctionalProperty, owl:ObjectProperty;
-    rdfs:domain :GetHtml.
-
 # GET /page/MainPage.xhtml
 :GetPageSource rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Page>];

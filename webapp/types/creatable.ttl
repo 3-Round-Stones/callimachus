@@ -71,13 +71,34 @@
         if (this.calliCreate.size() != 1)
             throw new InternalServerError("Multiple create templates");
         var page = this.calliCreate.iterator().next();
-        if (!page.GetHtml)
+        var stream = page.openInputStream();
+        if (!stream)
             throw new InternalServerError(page + " does not exist");
-        return page.GetHtml(targetOfCreate);
+        try {
+            return this.TransformCreatePage(page, stream, targetOfCreate);
+        } finally {
+            stream.close();
+        }
     """.
 
 :targetOfCreate a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :GetCreatePage.
+
+:TransformCreatePage rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Creatable>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
+    calli:post "../pipelines/creatable-html.xpl?results&target={targetOfHtml}\nContent-Location: {+createPage}\nContent-Type: application/xhtml+xml".
+
+:createPage a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :TransformCreatePage.
+
+:createPageStream a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :TransformCreatePage;
+    rdfs:range <java:java.io.InputStream>;
+    calli:type "application/xhtml+xml".
+
+:targetOfHtml a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :TransformCreatePage.
 
 # POST ?create=/callimachus/File
 :LookupConstructor rdfs:subClassOf msg:Message;

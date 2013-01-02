@@ -22,7 +22,7 @@
                         email: parameter("email")
                     },
                     success: function() {
-                        window.location.replace('?login&return_to=/');
+                        window.location.replace('?login&return_to=' + encodeURIComponent(parameter('return_to')));
                     }
                 });
                 return false;

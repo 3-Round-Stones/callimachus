@@ -79,16 +79,20 @@
     calli:requires calli:reader;
     calli:type "message/x-response";
     calli:script """
+        var query = registerQuery;
+        if (query.indexOf('&return_to=') < 0) {
+            query = query + '&return_to=' + encodeURIComponent(this.toString());
+        }
         if (this.calliAuthentication.size() == 1) {
             var auth = this.calliAuthentication.iterator().next();
-            var target = auth + '?' + registerQuery;
+            var target = auth + '?' + query;
             return {
                 status:302,message:"Found",
                 headers:{'content-type':"text/plain",'location':target},
                 body:[target]
             };
         } else if (registerChoice) {
-            var target = registerChoice + '?' + registerQuery;
+            var target = registerChoice + '?' + query;
             var cookie = this.getPreferredManagerCookie(registerChoice);
             return {
                 status:302,message:"Found",

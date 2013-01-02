@@ -72,8 +72,8 @@ public class DetachedFacebookManager implements DetachedAuthenticationManager {
 	private static final String ME_URL = "https://graph.facebook.com/me";
 	private static final BasicStatusLine _204 = new BasicStatusLine(
 			HttpVersion.HTTP_1_1, 204, "No Content");
-	private static final BasicStatusLine _307 = new BasicStatusLine(
-			HttpVersion.HTTP_1_1, 307, "Temporary Redirect");
+	private static final BasicStatusLine _303 = new BasicStatusLine(
+			HttpVersion.HTTP_1_1, 303, "See Other");
 
 	private final Logger logger = LoggerFactory.getLogger(DetachedFacebookManager.class);
 	private final String identifier;
@@ -168,14 +168,16 @@ public class DetachedFacebookManager implements DetachedAuthenticationManager {
 		if (count == 0) {
 			sb.append("&scope=email");
 		}
-		BasicHttpResponse resp = new BasicHttpResponse(_307);
+		BasicHttpResponse resp = new BasicHttpResponse(_303);
 		resp.addHeader("Location", sb.toString());
+		resp.addHeader("Set-Cookie", fbToken
+				+ ";Max-Age=0;Path=/;HttpOnly" + secure);
 		return resp;
 	}
 
 	public String getUsernameSetCookie(Collection<String> cookies) {
 		String email = getUserLogin(cookies);
-		return USERNAME + encode(email) + ";Path=" + protectedPath + secure;
+		return USERNAME + encode(email) + "Max-Age=604800;Path=" + protectedPath + secure;
 	}
 
 	@Override
@@ -266,7 +268,7 @@ public class DetachedFacebookManager implements DetachedAuthenticationManager {
 		AccessToken token = getAccessToken(url, via);
 		if (token == null)
 			return null;
-		BasicHttpResponse resp = new BasicHttpResponse(_307);
+		BasicHttpResponse resp = new BasicHttpResponse(_303);
 		resp.addHeader("Location", getReturnTo(url));
 		String cookie = fbToken + codec.encode(url.substring(redirect_uri.length()));
 		resp.addHeader("Set-Cookie", cookie + ";Path=/;HttpOnly" + secure);
@@ -360,12 +362,13 @@ public class DetachedFacebookManager implements DetachedAuthenticationManager {
 			if (tokens.containsKey(redirect_uri))
 				return tokens.get(redirect_uri);
 		}
+		String url = ACCESS_URL + "?client_id="
+				+ encode(getFacebookAppId()) + "&redirect_uri="
+				+ encode(redirect_uri) + "&client_secret="
+				+ encode(getFacebookSecret()) + "&code=" + encode(code);
 		try {
 			HTTPObjectClient client = HTTPObjectClient.getInstance();
-			HttpResponse resp = client.get(ACCESS_URL + "?client_id="
-					+ encode(getFacebookAppId()) + "&redirect_uri="
-					+ encode(redirect_uri) + "&client_secret="
-					+ encode(getFacebookSecret()) + "&code=" + encode(code));
+			HttpResponse resp = client.get(url);
 			HttpEntity entity = resp.getEntity();
 			try {
 				Scanner scanner = new Scanner(entity.getContent(), "UTF-8");
@@ -378,8 +381,9 @@ public class DetachedFacebookManager implements DetachedAuthenticationManager {
 			} finally {
 				EntityUtils.consume(entity);
 			}
-		} catch (IOException e) {
-			throw new BadGateway(e);
+		} catch (Exception e) {
+			logger.error(url, e);
+			return null;
 		}
 	}
 

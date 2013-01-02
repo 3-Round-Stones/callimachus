@@ -48,7 +48,7 @@ function changeDateLocale(node, now) {
             } else if (node.is(".datetime-local")) {
                 formatted = local(date, now);
             } else if (node.is(".date")) {
-                formatted = date.toLocaleDateString();
+                formatted = date.toDateString();
             } else if (node.is(".month")) {
                 formatted = month(date);
             } else if (node.is(".year")) {
@@ -56,7 +56,7 @@ function changeDateLocale(node, now) {
             } else if (node.is(".time")) {
                 formatted = date.toLocaleTimeString();
             } else if (text.indexOf('T') < 0) {
-                formatted = date.toLocaleDateString();
+                formatted = date.toDateString();
             } else {
                 formatted = date.toString();
             }

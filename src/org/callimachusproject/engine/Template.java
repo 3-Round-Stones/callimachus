@@ -65,6 +65,16 @@ public class Template {
 		return systemId.getSystemId();
 	}
 
+	public String getRawQueryString() throws TemplateException {
+		try {
+			return toSPARQL(openQuery());
+		} catch (RDFParseException e) {
+			throw new TemplateException(e);
+		} catch (IOException e) {
+			throw new TemplateException(e);
+		}
+	}
+
 	public String getQueryString() throws TemplateException {
 		try {
 			return toSafeSparql(openQuery());

@@ -173,7 +173,7 @@
     calli:query "sparql";
     calli:requires calli:administrator;
     calli:script """
-        var query = this.getTemplateFor('/').getQueryString();
+        var query = this.getTemplateFor('/').getRawQueryString();
         return new java.lang.String(query).getBytes("UTF-8");
     """.
 

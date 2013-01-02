@@ -178,7 +178,16 @@ jQuery(function($) {
             xhtml.push('<', tagName.toLowerCase());
             for (var name in attributes) {
                 var value = attributes[name];
-                xhtml.push(' ', name.toLowerCase(), '="', CKEDITOR.tools.htmlEncodeAttr(calli.decodeHtmlText(value)), '"');
+                var decoded = calli.decodeHtmlText(value);
+                var encoded = decoded
+                    .replace(/&/g, '&amp;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&apos;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/\r/g, '&#13;')
+                    .replace(/\n/g, '&#10;');
+                xhtml.push(' ', name.toLowerCase(), '="', encoded, '"');
             }
             if (selfClosing || jQuery.inArray(tagName.toLowerCase(), voidElements) >= 0) {
                 xhtml.push(' /');

@@ -32,7 +32,7 @@
             <xsl:when test="starts-with($relative, '{') or contains($relative, ' ') or contains($relative, '&lt;') or contains($relative, '&gt;') or contains($relative, '&quot;') or contains($relative, &quot;'&quot;)">
                 <xsl:value-of select="$relative" />
             </xsl:when>
-            <xsl:when test="contains($relative, '://') or starts-with($relative,'//')">
+            <xsl:when test="matches($relative, '^[\w+-.]+:') or starts-with($relative,'//')">
                 <xsl:value-of select="$relative" />
             </xsl:when>
             <xsl:when test="$relative='' or starts-with($relative,'?') or starts-with($relative,'#')">

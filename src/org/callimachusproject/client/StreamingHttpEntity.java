@@ -50,7 +50,7 @@ import org.callimachusproject.server.util.ChannelUtil;
  * @author James Leigh
  * 
  */
-public class HttpEntityWrapper implements HttpAsyncContentProducer, HttpEntity {
+public class StreamingHttpEntity implements HttpAsyncContentProducer, HttpEntity {
 	private HttpEntity entity;
 	private InputStream in;
 	private ReadableByteChannel cin;
@@ -60,7 +60,7 @@ public class HttpEntityWrapper implements HttpAsyncContentProducer, HttpEntity {
 	private long contentLength;
 	private Header contentEncoding;
 
-	public HttpEntityWrapper(HttpEntity entity) {
+	public StreamingHttpEntity(HttpEntity entity) {
 		setEntityDelegate(entity);
 	}
 
@@ -107,7 +107,7 @@ public class HttpEntityWrapper implements HttpAsyncContentProducer, HttpEntity {
 	}
 
 	public final boolean isStreaming() {
-		return in != null || entity != null && entity.isStreaming();
+		return true;
 	}
 
 	public final void consumeContent() throws IOException {

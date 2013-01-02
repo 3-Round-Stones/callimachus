@@ -14,7 +14,7 @@ import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
-import org.callimachusproject.client.HttpEntityWrapper;
+import org.callimachusproject.client.StreamingHttpEntity;
 import org.callimachusproject.server.model.Filter;
 import org.callimachusproject.server.model.Request;
 import org.callimachusproject.server.util.ChannelUtil;
@@ -62,7 +62,7 @@ public class AccessLog extends Filter {
 				log(addr, username, line, code, 0, referer, agent);
 			} else {
 				final long length = entity.getContentLength();
-				resp.setEntity(new HttpEntityWrapper(entity) {
+				resp.setEntity(new StreamingHttpEntity(entity) {
 					@Override
 					protected InputStream getDelegateContent()
 							throws IOException {

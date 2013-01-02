@@ -5,7 +5,7 @@ import java.io.IOException;
 
 import org.apache.http.HttpEntity;
 
-public class CloseableEntity extends HttpEntityWrapper {
+public class CloseableEntity extends StreamingHttpEntity {
 	private final Closeable closeable;
 
 	public CloseableEntity(HttpEntity entity, Closeable closeable) {

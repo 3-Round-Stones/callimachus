@@ -34,7 +34,7 @@ import java.nio.channels.ReadableByteChannel;
 import java.security.NoSuchAlgorithmException;
 
 import org.apache.http.HttpEntity;
-import org.callimachusproject.client.HttpEntityWrapper;
+import org.callimachusproject.client.StreamingHttpEntity;
 import org.callimachusproject.server.util.ChannelUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Ensures the message body matches the Content-MD5 header.
  */
-public class MD5ValidationEntity extends HttpEntityWrapper {
+public class MD5ValidationEntity extends StreamingHttpEntity {
 	private String md5;
 
 	public MD5ValidationEntity(HttpEntity entity, String md5) {

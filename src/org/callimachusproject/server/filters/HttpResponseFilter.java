@@ -39,7 +39,7 @@ import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
-import org.callimachusproject.client.HttpEntityWrapper;
+import org.callimachusproject.client.StreamingHttpEntity;
 import org.callimachusproject.fluid.MediaType;
 import org.callimachusproject.fluid.producers.HttpMessageReader;
 import org.callimachusproject.server.model.Filter;
@@ -155,7 +155,7 @@ public class HttpResponseFilter extends Filter {
 						.equals("identity")) {
 			response.setHeader("Transfer-Encoding", "chunked");
 			if (!body.isChunked()) {
-				response.setEntity(new HttpEntityWrapper(body) {
+				response.setEntity(new StreamingHttpEntity(body) {
 					@Override
 					public boolean isChunked() {
 						return true;

@@ -39,7 +39,7 @@ import org.apache.http.message.BasicHeader;
 /**
  * Decompresses the message body.
  */
-public class GUnzipEntity extends HttpEntityWrapper {
+public class GUnzipEntity extends StreamingHttpEntity {
 
 	public GUnzipEntity(HttpEntity entity) {
 		super(entity);

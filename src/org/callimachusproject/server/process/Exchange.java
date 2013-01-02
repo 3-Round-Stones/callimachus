@@ -23,7 +23,7 @@ import org.apache.http.nio.protocol.HttpAsyncRequestConsumer;
 import org.apache.http.nio.protocol.HttpAsyncResponseProducer;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
-import org.callimachusproject.client.HttpEntityWrapper;
+import org.callimachusproject.client.StreamingHttpEntity;
 import org.callimachusproject.server.model.Request;
 import org.callimachusproject.server.util.AsyncPipe;
 import org.callimachusproject.server.util.ChannelUtil;
@@ -238,7 +238,7 @@ public class Exchange implements Cancellable {
 					pipe = null;
 				} else {
 					pipe = new AsyncPipe(capacity);
-					entity = new HttpEntityWrapper(entity) {
+					entity = new StreamingHttpEntity(entity) {
 						protected InputStream getDelegateContent()
 								throws IOException {
 							return ChannelUtil.newInputStream(pipe.source());

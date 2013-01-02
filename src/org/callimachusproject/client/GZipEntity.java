@@ -43,7 +43,7 @@ import org.callimachusproject.server.util.ProducerStream.OutputProducer;
 /**
  * Compresses the message body.
  */
-public class GZipEntity extends HttpEntityWrapper {
+public class GZipEntity extends StreamingHttpEntity {
 
 	public GZipEntity(HttpEntity entity) {
 		super(entity);

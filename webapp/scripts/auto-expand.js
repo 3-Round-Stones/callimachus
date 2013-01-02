@@ -186,53 +186,10 @@ function fillOutFlex(e){
 }
 
 function flex(area) {
-    if ($(area).is(":input")) {
-        var contentWidth = getAvailableWidth(area);
-        var contentHeight = getAvailableHeight(area);
-        flexInput(area, contentWidth, contentHeight);
-    } else if (area.nodeName.toLowerCase() == "iframe") {
-        var contentWidth = getAvailableWidth(area);
-        var contentHeight = getAvailableHeight(area);
-        flexIframe(area, contentWidth, contentHeight);
-    } else {
-        var contentWidth = getAvailableWidth(area);
-        var contentHeight = getAvailableHeight(area);
-        flexBlock(area, contentWidth, contentHeight);
-    }
-}
-
-function flexInput(area, contentWidth, innerHeight) {
+    var contentWidth = getAvailableWidth(area);
+    var innerHeight = getAvailableHeight(area);
     $(area).css('width', contentWidth);
     $(area).css('height', innerHeight);
-    if (area.scrollHeight > innerHeight && window.parent != window) {
-        var clientHeight = window.innerHeight || document.documentElement.clientHeight;
-        var height = clientHeight + area.scrollHeight - innerHeight;
-        parent.postMessage('PUT height\n\n' + height, '*');
-    } else if (area.scrollWidth > contentWidth) {
-        var clientWidth = document.documentElement.clientWidth;
-        var width = clientWidth + area.scrollWidth - contentWidth;
-        parent.postMessage('PUT width\n\n' + width, '*');
-    }
-}
-
-function flexIframe(iframe, contentWidth, innerHeight) {
-    $(iframe).css('width', contentWidth);
-    $(iframe).css('height', innerHeight);
-}
-
-function flexBlock(area, contentWidth, innerHeight) {
-    $(area).css('width', contentWidth);
-    $(area).css('max-height', innerHeight);
-    $(area).css('overflow', 'auto');
-    if (area.scrollHeight > innerHeight && window.parent != window) {
-        var clientHeight = window.innerHeight || document.documentElement.clientHeight;
-        var height = clientHeight + area.scrollHeight - innerHeight;
-        parent.postMessage('PUT height\n\n' + height, '*');
-    } else if (area.scrollWidth > contentWidth) {
-        var clientWidth = document.documentElement.clientWidth;
-        var width = clientWidth + area.scrollWidth - contentWidth;
-        parent.postMessage('PUT width\n\n' + width, '*');
-    }
 }
 
 if (window.parent != window) {

@@ -27,11 +27,13 @@ function initWiki(pre) {
     for(var j=attrs.length-1; j>=0; j--) {
         div.setAttribute(attrs[j].name, attrs[j].value);
     }
-    if (!div.getAttribute("content")) {
+    if (text && !div.getAttribute("content")) {
         div.setAttribute("content", text);
     }
     pre.parentNode.replaceChild(div, pre);
-    creole.parse(div, text);
+    if (text) {
+        creole.parse(div, text);
+    }
 }
 
 })(window.jQuery);

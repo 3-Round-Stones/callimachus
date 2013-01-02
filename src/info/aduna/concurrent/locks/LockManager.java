@@ -122,15 +122,15 @@ public class LockManager {
 	{
 		while (true) {
 			boolean nochange;
+			Set<WeakLockReference> before;
 			synchronized (activeLocks) {
-				int before = activeLocks.size();
-				if (before < 1)
+				if (activeLocks.isEmpty())
 					return;
+				before = new HashSet<WeakLockReference>(activeLocks);
 				activeLocks.wait(waitToCollect);
-				int after = activeLocks.size();
-				if (after < 1)
+				if (activeLocks.isEmpty())
 					return;
-				nochange = before == after;
+				nochange = before.equals(activeLocks);
 			}
 			if (nochange) {
 				releaseAbandoned();

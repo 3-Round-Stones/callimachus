@@ -56,6 +56,7 @@ public class AsyncPipe {
 	public synchronized void close() {
 		closed = true;
 		this.notifyAll();
+		capacityAvailable();
 	}
 
 	/**

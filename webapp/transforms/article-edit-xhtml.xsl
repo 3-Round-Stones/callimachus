@@ -637,6 +637,30 @@
     </code>
 </xsl:template>
 
+<xsl:template match="d:property">
+    <code class="property">
+        <xsl:apply-templates select="@*" />
+        <xsl:apply-templates mode="anchor" select="@xml:id" />
+        <xsl:apply-templates />
+    </code>
+</xsl:template>
+
+<xsl:template match="d:symbol">
+    <code class="symbol">
+        <xsl:apply-templates select="@*" />
+        <xsl:apply-templates mode="anchor" select="@xml:id" />
+        <xsl:apply-templates />
+    </code>
+</xsl:template>
+
+<xsl:template match="d:token">
+    <code class="token">
+        <xsl:apply-templates select="@*" />
+        <xsl:apply-templates mode="anchor" select="@xml:id" />
+        <xsl:apply-templates />
+    </code>
+</xsl:template>
+
 <xsl:template match="d:filename">
     <code class="filename">
         <xsl:apply-templates select="@*" />

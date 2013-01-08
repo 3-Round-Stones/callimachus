@@ -1,0 +1,4 @@
+<article xmlns='http://docbook.org/ns/docbook' version="5.0">
+    <title>Example code</title>
+    <para><classname>my-class</classname> <property>my-property</property> <symbol>my-symbol</symbol> <token>my-token</token></para>
+</article>

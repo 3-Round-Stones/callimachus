@@ -209,10 +209,11 @@ public class DetachedFacebookManager implements DetachedAuthenticationManager {
 			throw new BadRequest("Missing authentication token");
 		ValueFactory vf = con.getValueFactory();
 		URI link = vf.createURI(token.getLink());
+		URI hasEmail = vf.createURI(EMAIL);
 		Literal label = vf.createLiteral(token.getName());
 		String email = token.getEmail();
-		RepositoryResult<Statement> stmts = con.getStatements((Resource) null,
-				null, user);
+		RepositoryResult<Statement> stmts;
+		stmts = con.getStatements((Resource) null, null, user);
 		try {
 			while (stmts.hasNext()) {
 				moveTo(link, stmts.next(), con);
@@ -220,15 +221,27 @@ public class DetachedFacebookManager implements DetachedAuthenticationManager {
 		} finally {
 			stmts.close();
 		}
+		stmts = con.getStatements(user, hasEmail, null);
+		try {
+			while (stmts.hasNext()) {
+				Value obj = stmts.next().getObject();
+				if (!con.hasStatement(link, hasEmail, obj)) {
+					con.add(link, hasEmail, obj);
+				}
+			}
+		} finally {
+			stmts.close();
+		}
 		con.remove(user, null, null);
 		add(link, RDF.TYPE, vf.createURI(PARTY), con);
 		add(link, RDF.TYPE, vf.createURI(USER), con);
-		add(link, RDFS.LABEL, label, con);
+		if (!con.hasStatement(link, RDFS.LABEL, label)) {
+			con.remove(link, RDFS.LABEL, null);
+			con.add(link, RDFS.LABEL, label);
+		}
 		if (email != null) {
-			URI hasEmail = vf.createURI(EMAIL);
 			Literal mailto = vf.createLiteral(email);
 			if (!con.hasStatement(link, hasEmail, mailto)) {
-				con.remove(link, hasEmail, mailto);
 				con.add(link, hasEmail, mailto);
 			}
 		}
@@ -287,6 +300,9 @@ public class DetachedFacebookManager implements DetachedAuthenticationManager {
 	private String getRedirectUri(String redirect_url) {
 		int end = redirect_url.indexOf("&return_to=");
 		end = redirect_url.indexOf('&', end + 1);
+		if (end < 0) {
+			end = redirect_url.length();
+		}
 		return redirect_url.substring(0, end);
 	}
 

@@ -9,9 +9,27 @@
     <script type="text/javascript"><![CDATA[
     jQuery(function($) {
         $('#message').val($('#message').val().replace(/@@REGISTRATION_URL@@/g, window.location.protocol + '//' + window.location.host + '/?register'));
+        var messageChanged = false;
+        $('#message').change(function(){
+            messageChanged = true;
+        });
         $('#label').on('change keyup blur', function() {
-            var salutation = $(this).val() ? 'Hello ' + $(this).val() : 'Hello';
-            $('#message').val($('#message').val().replace(/(^|[\r\n])Hello[^\r\n]*/, '$1' + salutation + ','));
+            if (!messageChanged) {
+                var salutation = $(this).val() ? 'Hello ' + $(this).val() : 'Hello';
+                $('#message').val($('#message').val().replace(/(^|[\r\n])Hello[^\r\n]*/, '$1' + salutation + ','));
+            }
+        });
+        $('#email').change(function(){
+            if (this.value.indexOf('<') >= 0) {
+                var name = this.value.substring(0, this.value.indexOf('<')).replace(/^\s+/,'').replace(/\s+$/,'');
+                if (name) {
+                    $('#label').val(name).change();
+                }
+                $(this).val(this.value.replace(/.*</, '').replace(/>.*/, '')).change();
+            }
+            if (this.value.indexOf('@') > 0 && !$('#name').val()) {
+                $('#name').val(this.value.substring(0, this.value.indexOf('@')));
+            }
         });
     }); // ]]>
     </script>
@@ -30,15 +48,15 @@
             onsubmit="return calli.saveResourceAs(event,calli.slugify($('#name').val()))">
         <fieldset>
             <div class="control-group">
-                <label for="name" class="control-label">Username</label>
+                <label for="email" class="control-label">E-mail address</label>
                 <div class="controls">
-                    <input id="name" name="name" type="text" class="auto-expand" required="required" autofocus="autofocus" />
+                    <input id="email" name="email" type="email" class="auto-expand" required="required" autofocus="autofocus" />
                 </div>
             </div>
             <div class="control-group">
-                <label for="email" class="control-label">E-mail address</label>
+                <label for="name" class="control-label">Username</label>
                 <div class="controls">
-                    <input id="email" name="email" type="email" class="auto-expand" required="required" />
+                    <input id="name" name="name" type="text" class="auto-expand" required="required" />
                 </div>
             </div>
         </fieldset>

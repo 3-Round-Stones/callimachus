@@ -38,7 +38,7 @@ INSERT {
 	    calli:hasComponent ?digest .
 	?digest a <types/DigestManager>, calli:DigestManager, calli:AuthenticationManager;
 		rdfs:label "Digest account";
-		rdfs:comment "Sign in with a username and password";
+		rdfs:comment "Sign in with your email address and a password";
 		calli:reader </auth/groups/public>;
 		calli:subscriber </auth/groups/everyone>;
 		calli:administrator </auth/groups/admin>.

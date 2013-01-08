@@ -8,6 +8,7 @@
     xmlns:dc="http://purl.org/dc/elements/1.1/">
 <head>
     <title resource="?this">{rdfs:label}</title>
+    <link rel="layout-sample" href="/callimachus/default-layout.xq" />
     <script type="text/javascript">
     // <![CDATA[
     jQuery(function($){
@@ -39,8 +40,8 @@
             </div>
             <div dropzone="link s:text/uri-list" class="control-group"
                     ondrop="return calli.insertResource(event)">
-              <label class="control-label">Layout <a href="../types/XQuery?create#!{calli:layout}" title="Customize"
-                  onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
+              <label class="control-label">Layout <a href="../types/XQuery?create" title="Customize"
+                  onclick="return calli.createResource(event, this.href + '#!' + $('[rel=layout-sample]').attr('href'))" class="ui-icon ui-icon-newwin" /></label>
               <div id="layout" rel="calli:layout" class="controls vbox">
                 <span resource="?layout" class="ui-state-highlight ui-corner-all">
                   <span property="rdfs:label" />
@@ -49,10 +50,11 @@
             </div>
             <div class="control-group">
                 <label for="authentication" class="control-label">Authentication</label>
-                <div class="controls">
-                    <select id="authentication" rel="calli:authentication">
-                        <option selected="selected" about="?authentication" typeof="calli:AuthenticationManager">{?authentication}</option>
-                    </select>
+                <div id="authentication" rel="calli:authentication" class="controls">
+                    <label about="?authentication" typeof="calli:AuthenticationManager" class="checkbox">
+                        <input type="checkbox" name="authentication" checked="checked" />
+                        <span title="{?authentication}">{rdfs:label}</span>
+                    </label>
                 </div>
             </div>
             <div class="form-actions">

@@ -13,6 +13,7 @@
 
     <p:xslt>
         <p:with-param name="target"   select="$target" />
+        <p:with-param name="systemId" select="$target" />
         <p:input port="stylesheet">
             <p:document href="../transforms/describe.xsl" />
         </p:input>

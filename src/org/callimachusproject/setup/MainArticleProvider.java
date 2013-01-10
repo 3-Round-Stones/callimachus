@@ -34,9 +34,12 @@ public class MainArticleProvider extends FileProvider {
 	protected void additionalMetadata(URI file, ObjectConnection con)
 			throws RepositoryException {
 		ValueFactory vf = con.getValueFactory();
-		con.add(vf.createURI(file.getNamespace()),
-				vf.createURI(CALLI_DESCRIBEDBY),
-				vf.createLiteral("main-article.docbook?view"));
+		URI folder = vf.createURI(file.getNamespace());
+		URI describedby = vf.createURI(CALLI_DESCRIBEDBY);
+		if (!con.hasStatement(folder, describedby, null)) {
+			con.add(folder, describedby,
+					vf.createLiteral("main-article.docbook?view"));
+		}
 	}
 
 }

@@ -51,6 +51,8 @@ mail.from = system@example.com
 mail.smtp.host = example.com
 mail.smtp.port = 25
 mail.smtp.auth = true
+mail.smtp.starttls.enable = true
+mail.smtp.starttls.required = true
 mail.user = system
 mail.password = secret
 

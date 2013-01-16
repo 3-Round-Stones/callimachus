@@ -1,6 +1,16 @@
 // callimachus-boostrap.less
 
 // ----------------------------------------------------------------------------
+// reset.less overrides
+// ----------------------------------------------------------------------------
+
+// Prevent max-width from affecting maps and fixed-width images
+img[style*="width"],    /* any img with an inline width style */
+.leaflet-map-pane img,  /* OpenStreetMap */
+.olMapViewport img {    /* OpenLayers maps */
+  max-width: none;
+}
+// ----------------------------------------------------------------------------
 // type.less overrides
 // ----------------------------------------------------------------------------
 

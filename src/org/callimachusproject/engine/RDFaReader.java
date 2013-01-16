@@ -29,8 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Stack;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.Location;
@@ -51,16 +49,18 @@ import org.callimachusproject.engine.events.Document;
 import org.callimachusproject.engine.events.RDFEvent;
 import org.callimachusproject.engine.events.Subject;
 import org.callimachusproject.engine.events.Triple;
+import org.callimachusproject.engine.expressions.ExpressionUtil;
 import org.callimachusproject.engine.helpers.AbstractRDFEventReader;
 import org.callimachusproject.engine.helpers.NamespaceStartElement;
 import org.callimachusproject.engine.impl.BlankNode;
+import org.callimachusproject.engine.impl.FallbackLocation;
+import org.callimachusproject.engine.model.AbsoluteTermFactory;
 import org.callimachusproject.engine.model.IRI;
+import org.callimachusproject.engine.model.Literal;
 import org.callimachusproject.engine.model.Node;
 import org.callimachusproject.engine.model.PlainLiteral;
 import org.callimachusproject.engine.model.Reference;
-import org.callimachusproject.engine.model.AbsoluteTermFactory;
 import org.callimachusproject.engine.model.TermOrigin;
-import org.callimachusproject.engine.model.Literal;
 
 /**
  * RDFa parser.
@@ -84,6 +84,7 @@ public class RDFaReader extends AbstractRDFEventReader {
 	private int number;
 	private int contentDepth = -1;
 	private StringWriter content;
+	private Location contentLocation;
 	private XMLEventWriter writer;
 	private XMLOutputFactory factory = XMLOutputFactory.newInstance();
 	private XMLEventFactory whites = XMLEventFactory.newInstance();
@@ -91,23 +92,17 @@ public class RDFaReader extends AbstractRDFEventReader {
 	private IRI XMLLITERAL = tf.iri(RDF + "XMLLiteral");
 	private List<Node> TYPE = Arrays.asList((Node) tf.iri(RDF + "type"));
 	
-	// Property expression:
-	// \{([^ \}\?\"\':]*):([^ \"\']+)\}
-	// group(1) is the prefix, group(2) is the local part, they must be separated by a colon
-	// The local part may only contain word characters
-	private static final String NCNameChar = "a-zA-Z0-9\\-\\._"
-			+ "\\u00C0-\\u00D6\\u00D8-\\u00F6\\u00F8-\\u02FF\\u0370-\\u037D\\u037F-\\u1FFF\\u200C-\\u200D\\u2070-\\u218F\\u2C00-\\u2FEF\\u3001-\\uD7FF\\uF900-\\uFDCF\\uFDF0-\\uFFFD"
-			+ "\\u00B7\\u0300-\\u036F\\u203F-\\u2040";
-	/** ^\{([NCNameChar]*):([NCNameChar]*?)\} */
-	public static final String PROPERTY_EXP_REGEX = "\\{([" + NCNameChar
-			+ "]*):([" + NCNameChar + "]*?)\\}";
-	
 	// The element stack keeps track of the origin of the node
 	private Stack<Integer> elementStack = new Stack<Integer>();
 	private int elementIndex = 1;
 	
 
 	public RDFaReader(String base, XMLEventReader reader, String systemId) {
+		try {
+			assert reader.peek().getLocation().getCharacterOffset() >= 0;
+		} catch (XMLStreamException e) {
+			throw new AssertionError(e);
+		}
 		this.reader = reader;
 		this.systemId = systemId;
 		this.base = new Base(systemId);
@@ -119,8 +114,8 @@ public class RDFaReader extends AbstractRDFEventReader {
 	
 	/* return the elementStack as a string that represents a template path */
 	
-	public TermOrigin origin() {
-		TermOrigin b = new TermOrigin();
+	public TermOrigin origin(Location location) {
+		TermOrigin b = new TermOrigin(location);
 		for(Iterator<Integer> i=elementStack.iterator(); i.hasNext();) {
 			b = b.slash(i.next());
 		}
@@ -147,6 +142,7 @@ public class RDFaReader extends AbstractRDFEventReader {
 				while (peek.size() < 2 && reader.hasNext()) {
 					while (reader.hasNext()) {
 						XMLEvent next = reader.nextEvent();
+						assert next.getLocation().getCharacterOffset() >= 0 || next.isEndDocument() : next;
 						peek.add(next);
 						if (!next.isCharacters())
 							break;
@@ -175,6 +171,7 @@ public class RDFaReader extends AbstractRDFEventReader {
 
 	private void process(XMLEvent event, CharSequence characterData) throws XMLStreamException,
 			IOException, RDFParseException {
+		assert event.getLocation().getCharacterOffset() >= 0 || event.isEndDocument();
 		if (event.isStartDocument()) {
 			processStartDocument(event);
 		} else if (event.isEndDocument()) {
@@ -188,6 +185,7 @@ public class RDFaReader extends AbstractRDFEventReader {
 			if (!elementStack.isEmpty()) elementIndex = elementStack.pop();
 			elementIndex++;
 		} else if (contentDepth >= 0) {
+			contentLocation = event.getLocation();
 			if (writer == null && event.isCharacters()) {
 				content.append(event.asCharacters().getData());
 			} else if (event.isCharacters()) {
@@ -200,7 +198,7 @@ public class RDFaReader extends AbstractRDFEventReader {
 		if (event.isCharacters() && tag!=null) {
 			Node subj = tag.getResource();
 			if (subj==null) subj = tag.getCurrentSubject();
-			tag.addPropertyExpressions(subj,event.asCharacters().getData());
+			tag.addPropertyExpressions(subj,event.asCharacters().getData(), event.getLocation());
 		}
 	}
 
@@ -260,6 +258,7 @@ public class RDFaReader extends AbstractRDFEventReader {
 	private void processEndElement(EndElement event) throws XMLStreamException,
 			RDFParseException {
 		if (contentDepth > 0) {
+			contentLocation = event.getLocation();
 			if (!tag.isTextContent()) {
 				writer.add(event);
 			}
@@ -270,7 +269,10 @@ public class RDFaReader extends AbstractRDFEventReader {
 				writer.close();
 				tag.setDatatype(XMLLITERAL);
 			}
-			tag.setContent(content.toString());
+			if (contentLocation == null) {
+				contentLocation = event.getLocation();
+			}
+			tag.setContent(content.toString(), contentLocation);
 			content = null;
 			writer = null;
 			tag.end(event);
@@ -299,6 +301,7 @@ public class RDFaReader extends AbstractRDFEventReader {
 		private int number;
 		private boolean empty;
 		private String content;
+		private Location contentLocation;
 		private Node datatype;
 		private boolean startedSubject;
 		TermOrigin origin;
@@ -306,12 +309,12 @@ public class RDFaReader extends AbstractRDFEventReader {
 		// the same variable may be re-used within a descendant tag
 		HashMap<String,Node> vars = new HashMap<String,Node>();
 
-		public Tag(Tag parent, StartElement event, CharSequence characterData, int number) {
+		public Tag(Tag parent, StartElement event, CharSequence characterData, int number) throws RDFParseException {
 			this.parent = parent;
 			this.event = event;
-			this.empty = characterData != null && !PROPERTY_EXP_PATTERN.matcher(characterData).find();
+			this.empty = ExpressionUtil.isEmpty(characterData, event.getNamespaceContext(), event.getLocation());
 			this.number = number;
-			this.origin = origin();
+			this.origin = origin(event.getLocation());
 			if (parent!=null) vars.putAll(parent.vars);
 		}
 
@@ -342,12 +345,17 @@ public class RDFaReader extends AbstractRDFEventReader {
 //			return "";
 //		}
 
-		public String getAttributeContent() {
-			return attr("content");
+		public Attribute getAttributeContent() {
+			Attribute a = event.getAttributeByName(new QName("content"));
+			if (a == null)
+				return null;
+			return a;
 		}
 
-		public void setContent(String content) {
+		public void setContent(String content, Location location) {
+			assert location != null;
 			this.content = content;
+			this.contentLocation = location;
 		}
 
 		public Node getDatatype() throws RDFParseException {
@@ -612,18 +620,11 @@ public class RDFaReader extends AbstractRDFEventReader {
 				}
 			}
 		}
-
-		// Property expression
-		private final Pattern PROPERTY_EXP_PATTERN = Pattern.compile(PROPERTY_EXP_REGEX);
 		
-		void addPropertyExpressions(Node subj, CharSequence value) throws RDFParseException {
+		void addPropertyExpressions(Node subj, CharSequence value, Location location) throws RDFParseException {
 			if (subj==null) return;
-			Matcher m = PROPERTY_EXP_PATTERN.matcher(value);
-			while (m.find()) {
-				PlainLiteral lit = tf.literal("");
-				Node c = curie(m.group(1)+":"+m.group(2));
-				lit.setOrigin(origin.term(c));
-				
+			List<RDFEvent> list = ExpressionUtil.pattern(tf, subj, value, origin, location, event.getNamespaceContext());
+			for (RDFEvent triple : list) {
 				if (isHanging()) {
 					List<Node> rel = getRel();
 					List<Node> rev = getRev();
@@ -631,7 +632,7 @@ public class RDFaReader extends AbstractRDFEventReader {
 						triple(getCurrentSubject(), rel, subj, false);
 					if (rev != null)
 						triple(subj, rev, getCurrentSubject(), true);
-					queue.add(new Subject(true, subj, getLocation()));
+					queue.add(new Subject(true, subj, location));
 				}
 				else if (parent.isHanging()) {
 					List<Node> rel = parent.getRel();
@@ -640,13 +641,13 @@ public class RDFaReader extends AbstractRDFEventReader {
 						triple(parent.getCurrentSubject(), rel, subj, false);
 					if (rev != null)
 						triple(subj, rev, parent.getCurrentSubject(), true);
-					queue.add(new Subject(true, subj, getLocation()));
+					queue.add(new Subject(true, subj, location));
 				}
 				
-				queue.add(new Triple(subj, (IRI) c, lit, getLocation()));
+				queue.add(triple);
 				
 				if (isHanging() || parent.isHanging()) {
-					queue.add(new Subject(false, subj, getLocation()));
+					queue.add(new Subject(false, subj, location));
 				}
 			}
 				
@@ -658,7 +659,7 @@ public class RDFaReader extends AbstractRDFEventReader {
 			while (i.hasNext()) {
 				Attribute a = (Attribute) i.next();
 				String value = a.getValue();
-				addPropertyExpressions(subj, value);
+				addPropertyExpressions(subj, value, getLocation(a));
 			}
 		}
 
@@ -668,15 +669,15 @@ public class RDFaReader extends AbstractRDFEventReader {
 		
 		private void addAttributeContent(Node subj) throws RDFParseException {
 			String property = attr("property");
-			String content = getAttributeContent();
+			Attribute content = getAttributeContent();
 			if (property != null && content != null) {
 				Node datatype = getDatatype();
 				List<Node> pred = curies(property);
 				if (pred != null && datatype == null) {
 					String lang = getLang();
-					plain(subj, pred, content, lang);
+					plain(subj, pred, content.getValue(), getLocation(content), lang);
 				} else if (pred != null) {
-					typed(subj, pred, content, (IRI) datatype);
+					typed(subj, pred, content.getValue(), getLocation(content), (IRI) datatype);
 				}
 			}
 		}
@@ -707,9 +708,9 @@ public class RDFaReader extends AbstractRDFEventReader {
 				List<Node> pred = curies(property);
 				if (pred != null && datatype == null) {
 					String lang = getLang();
-					plain(subj, pred, content, lang);
+					plain(subj, pred, content, contentLocation, lang);
 				} else if (pred != null) {
-					typed(subj, pred, content, (IRI) datatype);
+					typed(subj, pred, content, contentLocation, (IRI) datatype);
 				}
 			}
 			if (startedSubject) {
@@ -719,6 +720,10 @@ public class RDFaReader extends AbstractRDFEventReader {
 
 		private Location getLocation() {
 			return event.getLocation();
+		}
+
+		private Location getLocation(Attribute attr) {
+			return new FallbackLocation(attr, event);
 		}
 
 		private boolean isHTML(QName name) {
@@ -818,11 +823,11 @@ public class RDFaReader extends AbstractRDFEventReader {
 		}
 
 		private void plain(Node subj, List<Node> pred, String content,
-				String lang) {
+				Location location, String lang) {
 			PlainLiteral lit = tf.literal(content, lang);
 			//lit.setOrigin(origin+" "+TEXT_CONTENT);
 			if (content.isEmpty()) {
-				lit.setOrigin(origin.textContent());
+				lit.setOrigin(origin.textContent(location));
 			} else {
 				lit.setOrigin(origin);
 			}
@@ -832,11 +837,11 @@ public class RDFaReader extends AbstractRDFEventReader {
 		}
 
 		private void typed(Node subj, List<Node> pred, String content,
-				IRI datatype) {
+				Location location, IRI datatype) {
 			Literal lit = tf.literal(content, datatype);
 			//lit.setOrigin(origin+" "+TEXT_CONTENT);
 			if (content.isEmpty()) {
-				lit.setOrigin(origin.textContent());
+				lit.setOrigin(origin.textContent(location));
 			} else {
 				lit.setOrigin(origin);
 			}

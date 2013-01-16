@@ -1,14 +1,13 @@
 package org.callimachusproject.engine.expressions;
 
-import java.util.HashMap;
-import java.util.Map;
+import javax.xml.namespace.NamespaceContext;
+import javax.xml.stream.Location;
 
 import org.callimachusproject.engine.RDFParseException;
 import org.callimachusproject.engine.model.AbsoluteTermFactory;
 
 public class ExpressionFactory {
 	private AbsoluteTermFactory tf = AbsoluteTermFactory.newInstance();
-	private Map<String, String> namespaces = new HashMap<String, String>();
 
 	public AbsoluteTermFactory getTermFactory() {
 		return tf;
@@ -18,21 +17,8 @@ public class ExpressionFactory {
 		this.tf = tf;
 	}
 
-	public Map<String, String> getNamespaces() {
-		return namespaces;
-	}
-
-	public void setNamespaces(Map<String, String> namespaces) {
-		this.namespaces.clear();
-		this.namespaces.putAll(namespaces);
-	}
-
-	public Expression parse(String text) throws RDFParseException {
-		return new MarkupExpression(text, namespaces, tf);
-	}
-
-	public void setNamespace(String prefix, String value) {
-		namespaces.put(prefix, value);
+	public Expression parse(CharSequence text, NamespaceContext namespaces, Location location) throws RDFParseException {
+		return new MarkupExpression(text, namespaces, location, tf);
 	}
 
 }

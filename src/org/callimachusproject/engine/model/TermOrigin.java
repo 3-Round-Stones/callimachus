@@ -2,6 +2,8 @@ package org.callimachusproject.engine.model;
 
 import java.util.regex.Pattern;
 
+import javax.xml.stream.Location;
+
 public class TermOrigin {
 
 	private final String xptr;
@@ -13,45 +15,67 @@ public class TermOrigin {
 	// This is not used where content is assigned a variable.
 	private final boolean text;
 	private final boolean anonymous;
+	private final Location location;
 
-	public TermOrigin() {
+	public TermOrigin(Location location) {
+		assert location != null;
+		assert location.getCharacterOffset() >= 0;
 		this.xptr = "";
 		this.property = null;
 		this.blank = false;
 		this.text = false;
 		this.anonymous = false;
+		this.location = location;
 	}
 
-	private TermOrigin(String string, String property, boolean blank, boolean text) {
+	private TermOrigin(Location location, String string, String property, boolean blank, boolean text) {
+		assert location != null;
+		assert location.getCharacterOffset() >= 0;
 		this.xptr = string;
 		this.property = property;
 		this.blank = blank;
 		this.text = text;
 		this.anonymous = false;
+		this.location = location;
 	}
 
-	private TermOrigin(String string, String property, boolean blank, boolean text, boolean anonymous) {
+	private TermOrigin(Location location, String string, String property, boolean blank, boolean text, boolean anonymous) {
+		assert location != null;
+		assert location.getCharacterOffset() >= 0;
 		this.xptr = string;
 		this.property = property;
 		this.blank = blank;
 		this.text = text;
 		this.anonymous = anonymous;
+		this.location = location;
 	}
 
-	public TermOrigin textContent() {
-		return new TermOrigin(xptr, property, false, true);
+	public String toString() {
+		return location.toString();
+	}
+
+	public Location getLocation() {
+		return location;
+	}
+
+	public boolean hasLocation(Location location) {
+		return this.location.getCharacterOffset() == location.getCharacterOffset();
+	}
+
+	public TermOrigin textContent(Location location) {
+		return new TermOrigin(location, xptr, property, false, true);
 	}
 
 	public TermOrigin slash(Integer next) {
-		return new TermOrigin(xptr + "/" + next, property, blank, text);
+		return new TermOrigin(location, xptr + "/" + next, property, blank, text);
 	}
 
-	public TermOrigin term(Node term) {
-		return new TermOrigin(xptr, term.toString(), blank, text);
+	public TermOrigin term(Location location, Node term) {
+		return new TermOrigin(location, xptr, term.toString(), blank, text);
 	}
 
 	public TermOrigin blank() {
-		return new TermOrigin(xptr, property, true, text);
+		return new TermOrigin(location, xptr, property, true, text);
 	}
 
 	public boolean pathEquals(String path) {
@@ -97,7 +121,7 @@ public class TermOrigin {
 	}
 
 	public TermOrigin anonymous() {
-		return new TermOrigin(xptr, property, blank, text, true);
+		return new TermOrigin(location, xptr, property, blank, text, true);
 	}
 
 }

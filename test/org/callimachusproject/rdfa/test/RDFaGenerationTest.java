@@ -386,6 +386,7 @@ public class RDFaGenerationTest extends TestCase {
 		MapBindingSet bindings = new MapBindingSet();
 		bindings.addBinding("this", self);
 		XMLEventList xrdfa = new XMLEventList(temp.openResult(bindings, source));
+		assert xrdfa.get(0).getLocation().getCharacterOffset() >= 0;
 
 		loadRepository(actual, new RDFaReader(base, xrdfa.iterator(), base));
 		Document outputDoc = asDocument(xrdfa.iterator());

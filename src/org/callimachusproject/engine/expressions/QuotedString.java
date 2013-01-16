@@ -2,7 +2,6 @@ package org.callimachusproject.engine.expressions;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -10,21 +9,33 @@ import javax.xml.stream.Location;
 
 import org.callimachusproject.engine.events.RDFEvent;
 import org.callimachusproject.engine.model.Node;
-import org.openrdf.model.Value;
+import org.callimachusproject.engine.model.TermOrigin;
 
 public class QuotedString implements Expression {
 	private static final Pattern UNICODE_ESCAPE = Pattern.compile("\\\\u(\\w\\w\\w\\w)");
-	private String string;
+	private final Location location;
+	private final String string;
 
-	public QuotedString(String text) {
+	public QuotedString(String text, Location location) {
 		assert text.charAt(0) == '"' || text.charAt(0) == '\'';
 		assert text.charAt(0) == text.charAt(text.length() - 1);
 		String val = text.substring(1, text.length() - 1);
 		this.string = backslash(val);
+		this.location = location;
 	}
 
 	@Override
-	public String bind(Map<String, Value> variables) {
+	public Location getLocation() {
+		return location;
+	}
+
+	@Override
+	public String bind(ExpressionResult variables) {
+		return string;
+	}
+
+	@Override
+	public String toString() {
 		return string;
 	}
 
@@ -34,7 +45,12 @@ public class QuotedString implements Expression {
 	}
 
 	@Override
-	public List<RDFEvent> pattern(Node subject, Location location) {
+	public boolean isPatternPresent() {
+		return false;
+	}
+
+	@Override
+	public List<RDFEvent> pattern(Node subject, TermOrigin origin, Location location) {
 		return Collections.emptyList();
 	}
 

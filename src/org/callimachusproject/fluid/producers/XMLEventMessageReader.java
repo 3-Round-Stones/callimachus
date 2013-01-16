@@ -31,6 +31,7 @@ package org.callimachusproject.fluid.producers;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 
@@ -60,7 +61,7 @@ public class XMLEventMessageReader implements Producer {
 			return null;
 		InputStream stream = ChannelUtil.newInputStream(in);
 		if (charset == null)
-			return factory.createXMLEventReader(stream);
-		return factory.createXMLEventReader(stream, charset);
+			return factory.createXMLEventReader(base, stream);
+		return factory.createXMLEventReader(base, new InputStreamReader(stream, charset));
 	}
 }

@@ -2,27 +2,36 @@ package org.callimachusproject.engine.expressions;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import javax.xml.stream.Location;
 
 import org.callimachusproject.engine.events.RDFEvent;
 import org.callimachusproject.engine.model.Node;
-import org.openrdf.model.Value;
+import org.callimachusproject.engine.model.TermOrigin;
 
 public class VariableExpression implements Expression {
-	private String variable;
+	private final String variable;
+	private final Location location;
 
-	public VariableExpression(String variable) {
+	public VariableExpression(String variable, Location location) {
 		assert variable.charAt(0) == '?';
 		this.variable = variable.substring(1);
+		this.location = location;
 	}
 
 	@Override
-	public String bind(Map<String, Value> variables) {
-		if (variables.containsKey(variable))
-			return variables.get(variable).stringValue();
-		return "";
+	public String toString() {
+		return variable.toString();
+	}
+
+	@Override
+	public Location getLocation() {
+		return location;
+	}
+
+	@Override
+	public String bind(ExpressionResult variables) {
+		return variables.getVariable(variable, location);
 	}
 
 	@Override
@@ -31,7 +40,12 @@ public class VariableExpression implements Expression {
 	}
 
 	@Override
-	public List<RDFEvent> pattern(Node subject, Location location) {
+	public boolean isPatternPresent() {
+		return false;
+	}
+
+	@Override
+	public List<RDFEvent> pattern(Node subject, TermOrigin origin, Location location) {
 		return Collections.emptyList();
 	}
 

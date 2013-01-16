@@ -17,6 +17,7 @@
 
 package org.callimachusproject.engine.helpers;
 
+import java.lang.reflect.UndeclaredThrowableException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -26,11 +27,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
+import javax.xml.stream.Location;
 import javax.xml.stream.XMLEventFactory;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
@@ -39,7 +40,9 @@ import javax.xml.stream.events.Namespace;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
-import org.callimachusproject.engine.RDFaReader;
+import org.callimachusproject.engine.RDFParseException;
+import org.callimachusproject.engine.expressions.ExpressionUtil;
+import org.callimachusproject.engine.impl.FallbackLocation;
 import org.callimachusproject.engine.model.AbsoluteTermFactory;
 import org.callimachusproject.engine.model.TermOrigin;
 import org.openrdf.model.BNode;
@@ -297,17 +300,17 @@ public class RDFaProducer extends XMLEventReaderBase {
 		return true;
 	}
 
-	private boolean processCharacters(XMLEvent event) {
+	private boolean processCharacters(XMLEvent event) throws RDFParseException {
 		previous = event;
 		if (skipElement!=null) return false;
 		// postpone whitespace, add/repeat in advance of the next event
 		if (isWhitespace(event)) return false;
-		String text = substitute(event.toString());
-		if (text!=null) add(eventFactory.createCharacters(text));
+		String text = ExpressionUtil.substitute(event.asCharacters().getData(), event.getLocation(), context.assignments, origins, context.start.getNamespaceContext());
+		if (text!=null) add(createCharacters(text, event.getLocation()));
 		else add(event);
 		return true;
 	}
-	
+
 	/* Is the next result consumable in this context  */
 	
 	private boolean complete() {
@@ -416,7 +419,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 	 * Returns the variable name or null. 
 	 */
 	
-	Value substitute(String tag, Attribute attr, String path) {
+	Value substitute(StartElement start, String tag, Attribute attr, Location location, String path) throws RDFParseException {
 		String namespace = attr.getName().getNamespaceURI();
 		String localPart = attr.getName().getLocalPart();
 		String value = attr.getValue();
@@ -436,7 +439,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 				return context.assignments.get(name);
 		}
 		// look for variable expressions in the attribute value
-		value = substitute(value);
+		value = ExpressionUtil.substitute(value, location, context.assignments, origins, start.getNamespaceContext());
 		return value!=null?valueFactory.createLiteral(value):null;
 	}
 	
@@ -449,119 +452,6 @@ public class RDFaProducer extends XMLEventReaderBase {
 			return WHITESPACE_PATTERN.matcher(text).matches();
 		}
 		return false;
-	}
-	
-	/* Substitute variable and literal expressions in attributes and text nodes */
-	
-	// Variable expression
-	// \{\?([a-zA-Z]\w*)\}
-	private static final String VAR_EXP_REGEX = "\\{\\?([a-zA-Z]\\w*)\\}";
-	private static final Pattern VAR_EXP_PATTERN = Pattern.compile(VAR_EXP_REGEX);
-	
-	// Literal expression
-	// A string with " or ' delimiters, allowing escaped characters \" and \'
-	// \{(\"|\')(([^\"\n]|\\['"])*?)\1\}
-	private static final String LITERAL_EXP_REGEX1 = "\\{\"(([^\"\\n]|\\\\\")*?)\"\\}";
-	private static final Pattern LITERAL_EXP_PATTERN1 = Pattern.compile(LITERAL_EXP_REGEX1);
-	private static final String LITERAL_EXP_REGEX2 = "\\{'(([^'\\n]|\\\\')*?)'\\}";
-	private static final Pattern LITERAL_EXP_PATTERN2 = Pattern.compile(LITERAL_EXP_REGEX2);
-	private static final Pattern UNICODE_ESCAPE = Pattern.compile("\\\\u(\\w\\w\\w\\w)");
-	
-	// Property expression
-	private final Pattern PROPERTY_EXP_PATTERN = Pattern.compile(RDFaReader.PROPERTY_EXP_REGEX);
-	
-	String substitute(String text) {
-		// look for variable expressions in the attribute value
-		Matcher m = VAR_EXP_PATTERN.matcher(text);
-		Matcher m1 = LITERAL_EXP_PATTERN1.matcher(text);
-		Matcher m2 = LITERAL_EXP_PATTERN2.matcher(text);
-		Matcher m3 = PROPERTY_EXP_PATTERN.matcher(text);
-		boolean found = false;
-		boolean b=false, b1=false, b2=false, b3=false;
-		int start = 0;
-		while ((b=m.find(start)) || (b1=m1.find(start)) || (b2=m2.find(start)) || (b3=m3.find(start))) {
-			// variable expression
-			if (b) {
-				String var = m.group(1);
-				Value assignment = context.assignments.get(var);
-				if (assignment != null) {
-					String val = assignment.stringValue();
-					text = text.replace(m.group(), val);
-				} else {
-					text = text.replace(m.group(), "");
-				}
-				found = true;
-				start = m.end();
-			}
-			// literal expression 1
-			else if (b1) {
-				String val = m1.group(1);
-				// substitute escaped characters
-				val = backslash(val);
-				text = text.replace(m1.group(), val);
-				found = true;
-				start = m1.end();
-			}
-			// literal expression 2
-			else if (b2) {
-				String val = m2.group(1);
-				// substitute escaped characters
-				val = backslash(val);
-				text = text.replace(m2.group(), val);
-				found = true;
-				start = m2.end();
-			}
-			// property expression
-			else if (b3) {
-				String prefix = m3.group(1), localPart = m3.group(2);
-				String var = getVar(prefix+":"+localPart,context.path);
-				Value val = context.assignments.get(var);
-				text = text.replace(m3.group(), val!=null?val.stringValue():"");
-				found = true;
-				start = m3.end();
-			}
-		}
-		return found?text:null;		
-	}
-
-	private String backslash(String val) {
-		Matcher m = UNICODE_ESCAPE.matcher(val);
-		loop: while (m.find()) {
-			int unicode = 0;
-			for (char c : m.group(1).toCharArray()) {
-				if ((c >= '0') && (c <= '9')) {
-				    unicode = (unicode << 4) + c - '0';
-				}
-				else if ((c >= 'a') && (c <= 'f')) {
-				    unicode = (unicode << 4) + 10 + c - 'a';
-				}
-				else if ((c >= 'A') && (c <= 'F')) {
-				    unicode = (unicode << 4) + 10 + c - 'A';
-				}
-				else {
-				    break loop;
-				}
-			}
-			val.replace(m.group(), Character.toString((char) unicode));
-		}
-		val = val.replace("\\b", "\b");
-		val = val.replace("\\f", "\f");
-		val = val.replace("\\n", "\n");
-		val = val.replace("\\r", "\r");
-		val = val.replace("\\t", "\t");
-		val = val.replace("\\'", "\'");
-		val = val.replace("\\\"", "\"");
-		val = val.replaceAll("\\\\(.)", "$1");
-		return val;
-	}
-	
-	private String getVar(String property, String path) {
-		for (String name: origins.keySet()) {
-			if (!isAnonymous(name)) continue;
-			if (origins.get(name).startsWith(path) && origins.get(name).propertyEquals(property)) 
-				return name;
-		}
-		return null;
 	}
 	
 	/* Use result bindings to make assignments in this context */
@@ -656,6 +546,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 	 */
 	
 	class AttributeIterator implements Iterator<Object> {
+		private final StartElement start;
 		private final Iterator<?> attributes;
 		private final Value content;
 		private String datatype, lang;
@@ -665,9 +556,10 @@ public class RDFaProducer extends XMLEventReaderBase {
 		private final NamespaceContext ctx;
 		
 		public AttributeIterator
-		(String tag,Iterator<?> attributes, Value content, String path, boolean hasBody, NamespaceContext ctx) {
+		(String tag, StartElement start, Value content, String path, boolean hasBody, NamespaceContext ctx) {
 			this.tag = tag;
-			this.attributes = attributes;
+			this.start = start;
+			this.attributes = start.getAttributes();
 			this.content = content;
 			this.path = path;
 			this.hasBody = hasBody;
@@ -692,7 +584,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 				String namespace = attr.getName().getNamespaceURI();
 				String localPart = attr.getName().getLocalPart();
 				
-				Value newValue = substituteValue(tag,attr);
+				Value newValue = substituteValue(start, tag,attr);
 				if (newValue!=null) {
 					// clear content to prevent it being added as text
 					if (namespace.isEmpty() && localPart.equals("content")) {
@@ -707,38 +599,42 @@ public class RDFaProducer extends XMLEventReaderBase {
 						}
 					}
 					if (newValue instanceof BNode)
-						return eventFactory.createAttribute(attr.getName(), "[_:" + newValue.stringValue() + "]");
-					return eventFactory.createAttribute(attr.getName(), newValue.stringValue());
+						return createAttribute(start, attr, "[_:" + newValue.stringValue() + "]");
+					return createAttribute(start, attr, newValue.stringValue());
 				}
 				else return attr;
 			}
 			// opportunity to add additional attributes
 			else if (datatype!=null) {
-				Attribute a = eventFactory.createAttribute("datatype", datatype);
+				Attribute a = createAttribute(start, new QName("datatype"), datatype);
 				datatype = null;
 				return a;
 			}
 			else if (lang!=null) {
 				QName q = new QName(XML_NAMESPACE,"lang","xml");
-				Attribute a = eventFactory.createAttribute(q, lang);
+				Attribute a = createAttribute(start, q, lang);
 				lang = null;
 				return a;
 			}
 			return null;
 		}
 		/* If there is a content attribute there is no need to add text content */
-		private Value substituteValue(String tag,Attribute attr) {
+		private Value substituteValue(StartElement start, String tag,Attribute attr) {
 			String namespace = attr.getName().getNamespaceURI();
 			String localPart = attr.getName().getLocalPart();
 			String value = attr.getValue();
-			Value v = substitute(tag,attr,context.path);
-			// content variables are currently represented as empty strings
-			if (v==null && localPart.equals("content") && namespace.isEmpty() && value.isEmpty()) {
-				// remove content from the context to prevent addition as text content
-				context.content = null;
-				return content;	
+			try {
+				Value v = substitute(start, tag,attr,new FallbackLocation(attr, start), context.path);
+				// content variables are currently represented as empty strings
+				if (v==null && localPart.equals("content") && namespace.isEmpty() && value.isEmpty()) {
+					// remove content from the context to prevent addition as text content
+					context.content = null;
+					return content;	
+				}
+				return v;
+			} catch (RDFParseException e) {
+				throw new UndeclaredThrowableException(e);
 			}
-			return v;
 		}
 		@Override
 		public void remove() {
@@ -748,11 +644,13 @@ public class RDFaProducer extends XMLEventReaderBase {
 	/* NamespaceIterator is able to add an additional namespace declaration for content */
 	
 	class NamespaceIterator implements Iterator<Namespace> {
-		Iterator<?> namespaces;
+		final StartElement start;
+		final Iterator<?> namespaces;
 		String namespaceURI, prefix;
 		Namespace nextNamespace;
-		public NamespaceIterator(Iterator<?> namespaces, Value content, NamespaceContext ctx) {
-			this.namespaces = namespaces;
+		public NamespaceIterator(StartElement start, Value content, NamespaceContext ctx) {
+			this.start = start;
+			this.namespaces = start.getNamespaces();
 			URI datatype = getDatatype(content);
 			if (datatype!=null) {
 				namespaceURI = datatype.getNamespace();
@@ -778,7 +676,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 				String ns = namespaceURI;
 				// prevent adding this again
 				namespaceURI = null;
-				return eventFactory.createNamespace(prefix!=null?prefix:"null", ns);
+				return createNamespace(start, prefix!=null?prefix:"null", ns);
 			}
 			return null;
 		}
@@ -800,15 +698,45 @@ public class RDFaProducer extends XMLEventReaderBase {
 			hasBody = true;
 		}
 		NamespaceContext ctx = start.getNamespaceContext();
-		Iterator<?> namespaces = new NamespaceIterator(start.getNamespaces(), context.content, ctx);
+		Iterator<?> namespaces = new NamespaceIterator(start, context.content, ctx);
 		// AttributeIterator may clear context.content on construction so do this last
-		Iterator<?> attributes = new AttributeIterator(tag,start.getAttributes(), context.content, context.path, hasBody, ctx);
-		XMLEvent e = eventFactory.createStartElement(name.getPrefix(), name.getNamespaceURI(), name.getLocalPart(), attributes, namespaces, ctx);
+		Iterator<?> attributes = new AttributeIterator(tag,start, context.content, context.path, hasBody, ctx);
+		XMLEvent e = createStartElement(start, attributes, namespaces, ctx);
 		add(e);
 		
 		// The AttributeIterator (above) clears context.content if it adds the content attribute
 		if (!hasBody && context.content!=null)
-			add(eventFactory.createCharacters(context.content.stringValue()));
+			add(createCharacters(context.content.stringValue(), start.getLocation()));
+	}
+
+	public synchronized Namespace createNamespace(StartElement start, String string, String ns) {
+		eventFactory.setLocation(start.getLocation());
+		return eventFactory.createNamespace(string, ns);
+	}
+
+	private synchronized XMLEvent createStartElement(StartElement start,
+			Iterator<?> attributes, Iterator<?> namespaces, NamespaceContext ctx) {
+		QName name = start.getName();
+		eventFactory.setLocation(start.getLocation());
+		return eventFactory.createStartElement(name.getPrefix(),
+				name.getNamespaceURI(), name.getLocalPart(), attributes,
+				namespaces, ctx);
+	}
+
+	private synchronized Attribute createAttribute(StartElement start, QName name, String value) {
+		eventFactory.setLocation(start.getLocation());
+		return eventFactory.createAttribute(name, value);
+	}
+
+	private synchronized Attribute createAttribute(StartElement start, Attribute attr, String value) {
+		eventFactory.setLocation(new FallbackLocation(attr, start));
+		return eventFactory.createAttribute(attr.getName(), value);
+	}
+
+	private synchronized XMLEvent createCharacters(String text,
+			Location location) {
+		eventFactory.setLocation(location);
+		return eventFactory.createCharacters(text);
 	}
 
 }

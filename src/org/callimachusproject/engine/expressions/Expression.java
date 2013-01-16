@@ -1,20 +1,23 @@
 package org.callimachusproject.engine.expressions;
 
 import java.util.List;
-import java.util.Map;
 
 import javax.xml.stream.Location;
 
 import org.callimachusproject.engine.events.RDFEvent;
 import org.callimachusproject.engine.model.Node;
-import org.openrdf.model.Value;
+import org.callimachusproject.engine.model.TermOrigin;
 
 public interface Expression {
 
-	public abstract String getTemplate();
+	Location getLocation();
 
-	public abstract String bind(Map<String, Value> variables);
+	CharSequence getTemplate();
 
-	public abstract List<RDFEvent> pattern(Node subject, Location location);
+	CharSequence bind(ExpressionResult variables);
+
+	boolean isPatternPresent();
+
+	List<RDFEvent> pattern(Node subject, TermOrigin origin, Location location);
 
 }

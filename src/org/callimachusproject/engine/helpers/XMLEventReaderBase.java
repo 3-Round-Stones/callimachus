@@ -129,10 +129,14 @@ public abstract class XMLEventReaderBase implements XMLEventReader {
 	protected abstract boolean more() throws XMLStreamException;
 
 	protected void add(XMLEvent next) {
+		assert next.getLocation().getCharacterOffset() >= 0 || next.isEndDocument() : next;
 		queue.add(next);
 	}
 
 	protected boolean addAll(Collection<? extends XMLEvent> c) {
+		for (XMLEvent e : c) {
+			assert e.getLocation().getCharacterOffset() >= 0 || e.isEndDocument() : e;
+		}
 		return queue.addAll(c);
 	}
 

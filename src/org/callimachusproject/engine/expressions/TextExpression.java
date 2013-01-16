@@ -2,30 +2,45 @@ package org.callimachusproject.engine.expressions;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import javax.xml.stream.Location;
 
 import org.callimachusproject.engine.events.RDFEvent;
 import org.callimachusproject.engine.model.Node;
-import org.openrdf.model.Value;
+import org.callimachusproject.engine.model.TermOrigin;
 
 public class TextExpression implements Expression {
-	private String text;
+	private final CharSequence text;
+	private final Location location;
 
-	public TextExpression(String text) {
+	public TextExpression(CharSequence text, Location location) {
 		this.text = text;
+		this.location = location;
 	}
 
-	public String getTemplate() {
+	public String toString() {
+		return text.toString();
+	}
+
+	@Override
+	public Location getLocation() {
+		return location;
+	}
+
+	public CharSequence getTemplate() {
 		return text;
 	}
 
-	public String bind(Map<String,Value> variables) {
+	public CharSequence bind(ExpressionResult variables) {
 		return text;
 	}
 
-	public List<RDFEvent> pattern(Node subject, Location location) {
+	@Override
+	public boolean isPatternPresent() {
+		return false;
+	}
+
+	public List<RDFEvent> pattern(Node subject, TermOrigin origin, Location location) {
 		return Collections.emptyList();
 	}
 }

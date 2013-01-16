@@ -42,6 +42,12 @@ public class XMLEventList extends LinkedList<XMLEvent> {
 		}
 	}
 
+	@Override
+	public boolean add(XMLEvent e) {
+		assert e.getLocation().getCharacterOffset() >= 0 || e.isEndDocument() : e;
+		return super.add(e);
+	}
+
 	public XMLEventIterator iterator() {
 		return new XMLEventIterator(super.listIterator());
 	}

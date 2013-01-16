@@ -3,17 +3,17 @@ package org.callimachusproject.engine.expressions;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.xml.namespace.NamespaceContext;
 import javax.xml.stream.Location;
 
 import org.callimachusproject.engine.RDFParseException;
 import org.callimachusproject.engine.events.RDFEvent;
 import org.callimachusproject.engine.model.AbsoluteTermFactory;
 import org.callimachusproject.engine.model.Node;
-import org.openrdf.model.Value;
+import org.callimachusproject.engine.model.TermOrigin;
 
 public class MarkupExpression implements Expression {
 	/** ^\{(\?[a-zA-Z]\w*)\} */
@@ -21,10 +21,10 @@ public class MarkupExpression implements Expression {
 			.compile("^\\{(\\?[a-zA-Z]\\w*)\\}");
 	/** ^\{"(([^"\n]|\\")*?)"\} */
 	private static final Pattern STRING1 = Pattern
-			.compile("^\\{\"(([^\"\\n]|\\\\\")*?)\"\\}");
+			.compile("^\\{(\"([^\"\\n]|\\\\\")*?\")\\}");
 	/** ^\{'(([^'\n]|\\')*?)'\} */
 	private static final Pattern STRING2 = Pattern
-			.compile("^\\{'(([^'\\n]|\\\\')*?)'\\}");
+			.compile("^\\{('([^'\\n]|\\\\')*?')\\}");
 	private static final String NCNameChar = "a-zA-Z0-9\\-\\._"
 			+ "\\u00C0-\\u00D6\\u00D8-\\u00F6\\u00F8-\\u02FF\\u0370-\\u037D\\u037F-\\u1FFF\\u200C-\\u200D\\u2070-\\u218F\\u2C00-\\u2FEF\\u3001-\\uD7FF\\uF900-\\uFDCF\\uFDF0-\\uFFFD"
 			+ "\\u00B7\\u0300-\\u036F\\u203F-\\u2040";
@@ -35,14 +35,14 @@ public class MarkupExpression implements Expression {
 	private final List<Expression> exprs;
 	private final Expression expression;
 
-	public MarkupExpression(String text, Map<String, String> namespaces,
-			AbsoluteTermFactory tf) throws RDFParseException {
-		if (text.indexOf('{') < 0) {
-			expression = new TextExpression(text);
+	public MarkupExpression(CharSequence text, NamespaceContext namespaces,
+			Location location, AbsoluteTermFactory tf) throws RDFParseException {
+		if (indexOf(text, '{') < 0) {
+			expression = new TextExpression(text, location);
 			exprs = Collections.singletonList(expression);
 		} else {
 			exprs = new ArrayList<Expression>();
-			parse(text, namespaces, tf);
+			parse(text, namespaces, location, tf);
 			if (exprs.size() == 1) {
 				expression = exprs.get(0);
 			} else {
@@ -52,66 +52,121 @@ public class MarkupExpression implements Expression {
 	}
 
 	@Override
-	public String bind(Map<String, Value> variables) {
+	public Location getLocation() {
+		if (expression != null)
+			return expression.getLocation();
+		for (Expression exp : exprs) {
+			return exp.getLocation();
+		}
+		return null;
+	}
+
+	@Override
+	public String toString() {
+		if (expression != null)
+			return expression.toString();
+		StringBuilder sb = new StringBuilder();
+		for (Expression exp : exprs) {
+			sb.append(exp.toString());
+		}
+		return sb.toString();
+	}
+
+	@Override
+	public CharSequence bind(ExpressionResult variables) {
 		if (expression != null)
 			return expression.bind(variables);
 		StringBuilder sb = new StringBuilder();
 		for (Expression exp : exprs) {
 			sb.append(exp.bind(variables));
 		}
-		return sb.toString();
+		return sb;
 	}
 
 	@Override
-	public String getTemplate() {
+	public CharSequence getTemplate() {
 		if (expression != null)
 			return expression.getTemplate();
 		StringBuilder sb = new StringBuilder();
 		for (Expression exp : exprs) {
 			sb.append(exp.getTemplate());
 		}
-		return sb.toString();
+		return sb;
 	}
 
 	@Override
-	public List<RDFEvent> pattern(Node subject, Location location) {
+	public boolean isPatternPresent() {
 		if (expression != null)
-			return expression.pattern(subject, location);
+			return expression.isPatternPresent();
+		for (Expression exp : exprs) {
+			if (exp.isPatternPresent())
+				return true;
+		}
+		return false;
+	}
+
+	@Override
+	public List<RDFEvent> pattern(Node subject, TermOrigin origin, Location location) {
+		if (expression != null)
+			return expression.pattern(subject, origin, location);
 		List<RDFEvent> list = new ArrayList<RDFEvent>();
 		for (Expression exp : exprs) {
-			list.addAll(exp.pattern(subject, location));
+			list.addAll(exp.pattern(subject, origin, location));
 		}
 		return list;
 	}
 
-	private void parse(String text, Map<String, String> namespaces,
-			AbsoluteTermFactory tf) throws RDFParseException {
-		if (text.length() < 1)
-			return;
-		Matcher m;
-		int open = text.indexOf('{');
-		if (open < 0 || open == text.length() - 1) {
-			exprs.add(new TextExpression(text));
-		} else if (open != 0) {
-			exprs.add(new TextExpression(text.substring(0, open)));
-			parse(text.substring(open), namespaces, tf);
-		} else if ((m = VARIABLE.matcher(text)).find()) {
-			exprs.add(new VariableExpression(m.group(1)));
-		} else if ((m = STRING1.matcher(text)).find()) {
-			exprs.add(new QuotedString(m.group(1)));
-		} else if ((m = STRING2.matcher(text)).find()) {
-			exprs.add(new QuotedString(m.group(1)));
-		} else if ((m = PROPERTY.matcher(text)).find()) {
-			exprs.add(new PropertyExpression(m.group(1), namespaces, tf));
-		} else {
-			int next = text.indexOf('{', open + 1);
-			if (next < 0) {
-				exprs.add(new TextExpression(text));
-			} else {
-				exprs.add(new TextExpression(text.substring(0, next)));
-				parse(text.substring(next), namespaces, tf);
+	private void parse(CharSequence text, NamespaceContext namespaces,
+			Location loc, AbsoluteTermFactory tf) throws RDFParseException {
+		int p = 0;
+		while (p < text.length()) {
+			Matcher m;
+			char chr = text.charAt(p);
+			switch (chr) {
+			case '{':
+				if (p != 0) {
+					exprs.add(new TextExpression(text.subSequence(0, p), loc));
+					text = text.subSequence(p, text.length());
+					p = 0;
+					continue;
+				} else if ((m = VARIABLE.matcher(text)).find()) {
+					exprs.add(new VariableExpression(m.group(1), loc));
+					text = text.subSequence(m.end(), text.length());
+					p = 0;
+					continue;
+				} else if ((m = STRING1.matcher(text)).find()) {
+					exprs.add(new QuotedString(m.group(1), loc));
+					text = text.subSequence(m.end(), text.length());
+					p = 0;
+					continue;
+				} else if ((m = STRING2.matcher(text)).find()) {
+					exprs.add(new QuotedString(m.group(1), loc));
+					text = text.subSequence(m.end(), text.length());
+					p = 0;
+					continue;
+				} else if ((m = PROPERTY.matcher(text)).find()) {
+					exprs.add(new PropertyExpression(m.group(1), namespaces,
+							loc, tf));
+					text = text.subSequence(m.end(), text.length());
+					p = 0;
+					continue;
+				}
+			default:
+				p++;
 			}
 		}
+		if (text.length() > 0) {
+			exprs.add(new TextExpression(text, loc));
+		}
 	}
+
+	private int indexOf(CharSequence text, int ch) {
+        int max = text.length();
+        for (int i = 0; i < max ; i++) {
+            if (text.charAt(i) == ch)
+                return i;
+        }
+        return -1;
+    }
 
 }

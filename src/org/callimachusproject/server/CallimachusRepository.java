@@ -190,6 +190,7 @@ public class CallimachusRepository extends RepositoryWrapper {
 			return (ObjectRepository) repository;
 		ObjectRepositoryFactory factory = new ObjectRepositoryFactory();
 		ObjectRepositoryConfig config = factory.getConfig();
+		config.setIncludeInferred(false);
 		config.setObjectDataDir(dataDir);
 		File wwwDir = new File(dataDir, "www");
 		File blobDir = new File(dataDir, "blob");

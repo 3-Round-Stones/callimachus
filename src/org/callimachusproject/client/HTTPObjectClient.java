@@ -15,6 +15,7 @@ import static org.apache.http.params.CoreConnectionPNames.TCP_NODELAY;
 import static org.apache.http.params.CoreProtocolPNames.USER_AGENT;
 import static org.apache.http.params.CoreProtocolPNames.USE_EXPECT_CONTINUE;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -153,7 +154,7 @@ public class HTTPObjectClient extends AbstractHttpClient {
 		return config;
 	}
 
-	private Logger logger = LoggerFactory.getLogger(HTTPObjectClient.class);
+	final Logger logger = LoggerFactory.getLogger(HTTPObjectClient.class);
 	private final HttpClient client;
 	private final CachingHttpClient cache;
 	private final InternalHttpClient internal;
@@ -232,7 +233,7 @@ public class HTTPObjectClient extends AbstractHttpClient {
 	public HttpResponse service(HttpRequest request) throws IOException,
 			GatewayTimeout {
 		try {
-			return client.execute(determineTarget(request), request);
+			return execute(determineTarget(request), request);
 		} catch (java.net.ConnectException e) {
 			throw new GatewayTimeout(e);
 		}
@@ -261,9 +262,21 @@ public class HTTPObjectClient extends AbstractHttpClient {
 	}
 
 	@Override
-	public HttpResponse execute(HttpHost host, HttpRequest request,
+	public HttpResponse execute(final HttpHost host, final HttpRequest request,
 			HttpContext context) throws IOException, ClientProtocolException {
-		return client.execute(host, request, context);
+		HttpResponse resp = client.execute(host, request, context);
+		HttpEntity entity = resp.getEntity();
+		if (entity != null) {
+			resp.setEntity(new CloseableEntity(entity, new Closeable() {
+				public void close() throws IOException {
+					// this also keeps HTTPObjectClient from being finalized
+					// until all its response entities are consumed
+					String uri = request.getRequestLine().getUri();
+					logger.debug("Remote {}{} closed", host, uri);
+				}
+			}));
+		}
+		return resp;
 	}
 
 	@Override

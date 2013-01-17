@@ -5,7 +5,7 @@
     xmlns="http://www.w3.org/1999/xhtml" 
     xmlns:d="http://docbook.org/ns/docbook" 
     xmlns:xl   ="http://www.w3.org/1999/xlink"
-    exclude-result-prefixes="xsl d">
+    exclude-result-prefixes="xsl d xl">
 <xsl:output method="xml" indent="yes" omit-xml-declaration="yes"/>
 
 <xsl:template match="text()|comment()">

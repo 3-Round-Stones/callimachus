@@ -8,9 +8,11 @@
     <xsl:template match="sparql:sparql">
         <c:data>
             <xsl:value-of select="$handler" />
-            <xsl:text>({version:'0.6',reqId:'</xsl:text>
-            <xsl:value-of select="$reqId" />
-            <xsl:text>',status:'ok',table:{</xsl:text>
+            <xsl:text>({version:'0.6',reqId:</xsl:text>
+            <xsl:call-template name="escape-string">
+                <xsl:with-param name="s" select="$reqId" />
+            </xsl:call-template>
+            <xsl:text>,status:'ok',table:{</xsl:text>
             <xsl:apply-templates select="sparql:head" />
             <xsl:text>,</xsl:text>
             <xsl:apply-templates select="sparql:results" />
@@ -26,11 +28,15 @@
         <xsl:variable name="name" select="@name"/>
         <xsl:variable name="datatype" select="(/sparql:sparql/sparql:results/sparql:result/sparql:binding[@name=$name])[1]/sparql:literal/@datatype" />
         <xsl:variable name="local" select="substring-after($datatype, '#')" />
-        <xsl:text>{id:'</xsl:text>
-        <xsl:value-of select="$name" />
-        <xsl:text>',label:'</xsl:text>
-        <xsl:value-of select="translate($name,'_',' ')" />
-        <xsl:text>',type:'</xsl:text>
+        <xsl:text>{id:</xsl:text>
+        <xsl:call-template name="escape-string">
+            <xsl:with-param name="s" select="$name"/>
+        </xsl:call-template>
+        <xsl:text>,label:</xsl:text>
+        <xsl:call-template name="escape-string">
+            <xsl:with-param name="s" select="translate($name,'_',' ')"/>
+        </xsl:call-template>
+        <xsl:text>,type:'</xsl:text>
         <xsl:choose>
             <xsl:when test="not(starts-with($datatype, 'http://www.w3.org/2001/XMLSchema#'))">
                 <xsl:text>string</xsl:text>
@@ -85,15 +91,12 @@
     <xsl:template match="sparql:binding">
         <xsl:apply-templates select="*" />
     </xsl:template>
-    <xsl:template match="sparql:uri">
-        <xsl:text>{v:'</xsl:text>
-        <xsl:value-of select="text()" />
-        <xsl:text>'}</xsl:text>
-    </xsl:template>
-    <xsl:template match="sparql:bnode">
-        <xsl:text>{v:'</xsl:text>
-        <xsl:value-of select="text()" />
-        <xsl:text>'}</xsl:text>
+    <xsl:template match="sparql:uri|sparql:bnode">
+        <xsl:text>{v:</xsl:text>
+        <xsl:call-template name="escape-string">
+            <xsl:with-param name="s" select="text()"/>
+        </xsl:call-template>
+        <xsl:text>}</xsl:text>
     </xsl:template>
     <xsl:template match="sparql:literal">
         <xsl:variable name="ns" select="substring-before(@datatype, '#')" />

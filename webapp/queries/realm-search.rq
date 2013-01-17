@@ -28,8 +28,12 @@ SELECT * {
             WHERE {
                 {
                     SELECT * {
-                        ?url keyword:phone ?soundex
-                        FILTER sameTerm(?soundex, keyword:soundex("$q"))
+                        {
+                            SELECT * {
+                                ?url keyword:phone ?soundex
+                                FILTER sameTerm(?soundex, keyword:soundex("$q"))
+                            } LIMIT 1000
+                        }
                         FILTER (isIRI(?url))
                         FILTER (
                             strstarts(str(?url), str(<$target>)) ||

@@ -22,8 +22,6 @@
     <property name="triples.file" location="repositories/callimachus/triples-spoc.dat" />
     <property file="src/META-INF/callimachusproject.properties" />
     <property file="dependencies.properties" />
-    <property name="m2.repository" value="http://repo.aduna-software.org/maven2/snapshots" />
-    <property name="alibaba.snapshot" value="2.0-SNAPSHOT" />
     <property name="setup" value="org.callimachusproject.Setup" />
     <property name="main" value="org.callimachusproject.Server" />
     <property name="main-monitor" value="org.callimachusproject.ServerMonitor" />
@@ -211,25 +209,6 @@
             </patternset>
             <mapper type="flatten" />
         </unzip>
-        <antcall target="alibaba-snapshot" />
-    </target>
-
-    <target name="alibaba-snapshot" if="alibaba.snapshot">
-        <delete dir="${lib}" includes="openrdf-alibaba-*.jar" />
-        <property name="openrdf" value="${m2.repository}/org/openrdf/alibaba" />
-        <mkdir dir="${lib}" />
-        <get skipexisting="true" dest="${lib}">
-            <url url="${openrdf}/alibaba-composition-object/${alibaba.snapshot}/alibaba-composition-object-${alibaba.snapshot}.jar" />
-            <url url="${openrdf}/alibaba-model/${alibaba.snapshot}/alibaba-model-${alibaba.snapshot}.jar" />
-            <url url="${openrdf}/alibaba-repository-object/${alibaba.snapshot}/alibaba-repository-object-${alibaba.snapshot}.jar" />
-            <url url="${openrdf}/alibaba-repository-optimistic/${alibaba.snapshot}/alibaba-repository-optimistic-${alibaba.snapshot}.jar" />
-            <url url="${openrdf}/alibaba-runtime/${alibaba.snapshot}/alibaba-runtime-${alibaba.snapshot}.jar" />
-            <url url="${openrdf}/alibaba-repository-auditing/${alibaba.snapshot}/alibaba-repository-auditing-${alibaba.snapshot}.jar" />
-            <url url="${openrdf}/alibaba-sail-auditing/${alibaba.snapshot}/alibaba-sail-auditing-${alibaba.snapshot}.jar" />
-            <url url="${openrdf}/alibaba-store-blob/${alibaba.snapshot}/alibaba-store-blob-${alibaba.snapshot}.jar" />
-            <url url="${openrdf}/alibaba-sail-keyword/${alibaba.snapshot}/alibaba-sail-keyword-${alibaba.snapshot}.jar" />
-            <url url="${openrdf}/alibaba-repository-query/${alibaba.snapshot}/alibaba-repository-query-${alibaba.snapshot}.jar" />
-        </get>
     </target>
 
     <target name="compile" depends="init,dist-dependencies" description="compile the source">

@@ -177,7 +177,7 @@ public class DetachedFacebookManager implements DetachedAuthenticationManager {
 
 	public String getUsernameSetCookie(Collection<String> cookies) {
 		String email = getUserLogin(cookies);
-		return USERNAME + encode(email) + "Max-Age=604800;Path=" + protectedPath + secure;
+		return USERNAME + encode(email) + ";Max-Age=2678400;Path=" + protectedPath + secure;
 	}
 
 	@Override

@@ -74,7 +74,7 @@ public class DetachedRealm {
 		String path = new ParsedURI(realm).getPath();
 		try {
 			String value = URLEncoder.encode(manager, "UTF-8");
-			return PREF_AUTH + value + ";Path=" + path + ";HttpOnly";
+			return PREF_AUTH + value + ";Max-Age=2678400;Path=" + path + ";HttpOnly";
 		} catch (UnsupportedEncodingException e) {
 			throw new AssertionError(e);
 		}

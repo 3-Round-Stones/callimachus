@@ -61,7 +61,7 @@ SELECT REDUCED * {
                 } OPTIONAL {
                     ?id dcterms:title ?title
                 }
-            } ORDER BY ?id LIMIT 1000
+            } ORDER BY ?id LIMIT 100
         }
         OPTIONAL {
             {

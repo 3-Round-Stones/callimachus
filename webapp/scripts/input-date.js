@@ -24,7 +24,9 @@ function select(node, selector) {
 }
 
 function addDateSelect(node) {
-    $(node).datepicker({dateFormat:'yy-mm-dd'});
+    if (node.type == "text") {
+        $(node).datepicker({dateFormat:'yy-mm-dd'});
+    }
 }
 
 })(window.jQuery);

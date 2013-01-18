@@ -92,7 +92,7 @@
             <xsl:copy>
                 <xsl:apply-templates select="@*" />
                 <xsl:for-each select="document($url)//sparql:result[sparql:binding/@name='iri']">
-                    <xsl:if test="$target!=sparql:binding[@name='iri']/*">
+                    <xsl:if test="position()!=last()">
                         <xsl:call-template name="breadcrumb">
                             <xsl:with-param name="copy" select="$breadcrumb" />
                             <xsl:with-param name="href" select="sparql:binding[@name='iri']/*" />
@@ -107,7 +107,7 @@
                             </xsl:with-param>
                         </xsl:call-template>
                     </xsl:if>
-                    <xsl:if test="$target=sparql:binding[@name='iri']/*">
+                    <xsl:if test="position()=last()">
                         <xsl:element name="{name($active)}">
                             <xsl:apply-templates select="$active/@*" />
                             <xsl:value-of select="sparql:binding[@name='label']/*" />

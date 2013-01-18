@@ -379,8 +379,9 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
         <xsl:apply-templates select="@*" />
         <xsl:call-template name="id" />
         <simpara>
-            <xsl:apply-templates />
+            <xsl:apply-templates select="node()[not(self::xhtml:ul or self::xhtml:ol or self::xhtml:dl)]" />
         </simpara>
+        <xsl:apply-templates select="xhtml:ul|xhtml:ol|xhtml:dl" />
     </listitem>
 </xsl:template>
 
@@ -389,8 +390,9 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
         <xsl:apply-templates select="@*" />
         <xsl:call-template name="id" />
         <simpara>
-            <xsl:apply-templates />
+            <xsl:apply-templates select="node()[not(self::xhtml:ul or self::xhtml:ol or self::xhtml:dl)]" />
         </simpara>
+        <xsl:apply-templates select="xhtml:ul|xhtml:ol|xhtml:dl" />
     </listitem>
 </xsl:template>
 

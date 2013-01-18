@@ -7,11 +7,30 @@
         <listitem>
             <para>TeX and LaTeX</para>
         </listitem>
-        <listitem>
-            <para>Troff</para>
-        </listitem>
+        <listitem><simpara>Troff</simpara><itemizedlist>
+		        <listitem>
+		            <para>TeX and LaTeX</para>
+		        </listitem>
+		        <listitem>
+		            <para>Troff</para>
+		        </listitem>
+		        <listitem>
+		            <para>Lout</para>
+		        </listitem>
+		    </itemizedlist></listitem>
         <listitem>
             <para>Lout</para>
+		    <itemizedlist>
+		        <listitem>
+		            <para>TeX and LaTeX</para>
+		        </listitem>
+		        <listitem>
+		            <para>Troff</para>
+		        </listitem>
+		        <listitem>
+		            <para>Lout</para>
+		        </listitem>
+		    </itemizedlist>
         </listitem>
     </itemizedlist>
 </article>

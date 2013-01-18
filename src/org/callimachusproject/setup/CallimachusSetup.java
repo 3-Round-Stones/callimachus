@@ -64,6 +64,8 @@ import org.openrdf.model.util.ModelUtil;
 import org.openrdf.model.vocabulary.OWL;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.model.vocabulary.RDFS;
+import org.openrdf.query.QueryLanguage;
+import org.openrdf.query.TupleQueryResult;
 import org.openrdf.query.algebra.evaluation.util.ValueComparator;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
@@ -177,6 +179,9 @@ public class CallimachusSetup {
 	private static final String CALLI_AUTHNAME = CALLI + "authName";
 	private static final String CALLI_SECRET = CALLI + "secret";
 
+	private static final String RESOURCE_STRSTARTS = "SELECT ?resource { ?resource ?p ?o FILTER strstarts(str(?resource), str(<>)) }";
+	private static final String GRAPH_STRSTARTS = "SELECT ?graph { GRAPH ?graph { ?s ?p ?o } FILTER strstarts(str(?graph), str(<>)) }";
+
 	private final Logger logger = LoggerFactory.getLogger(CallimachusSetup.class);
 	private final ServiceLoader<UpdateProvider> updateProviders = ServiceLoader
 			.load(UpdateProvider.class, getClass().getClassLoader());
@@ -228,51 +233,7 @@ public class CallimachusSetup {
 	public boolean clearCallimachusWebapp(String origin) throws OpenRDFException {
 		if (webappIfPresent(origin) == null)
 			return false;
-		try {
-			repository.setSchemaGraphType(webapp(origin, SCHEMA_GRAPH));
-			repository.setCompileRepository(true);
-			ObjectConnection con = repository.getConnection();
-			try {
-				con.setAutoCommit(false);
-				Object folder = con.getObject(webapp(origin, ""));
-				Method DeleteComponents = findDeleteComponents(folder);
-				try {
-					logger.info("Removing {}", folder);
-					int argc = DeleteComponents.getParameterTypes().length;
-					DeleteComponents.invoke(folder, new Object[argc]);
-					URI target = webapp(origin, "");
-					con.remove(webapp(origin, "../"), null, target);
-					con.remove(target, null, null);
-					con.remove((Resource)null, null, null, target);
-					con.setAutoCommit(true);
-					return true;
-				} catch (InvocationTargetException e) {
-					try {
-						throw e.getCause();
-					} catch (Exception cause) {
-						logger.warn(cause.toString());
-					} catch (Error cause) {
-						logger.warn(cause.toString());
-					} catch (Throwable cause) {
-						logger.warn(cause.toString());
-					}
-					con.rollback();
-				}
-			} catch (IllegalAccessException e) {
-				logger.debug(e.toString());
-			} catch (NoSuchMethodException e) {
-				logger.debug(e.toString());
-			} finally {
-				con.rollback();
-				repository.setCompileRepository(false);
-				con.close();
-			}
-		} catch (RDFObjectException e) {
-			logger.warn(e.toString());
-		} catch (OpenRDFException e) {
-			logger.warn(e.toString());
-		}
-		return false;
+		return deleteComponents(origin) | removeAllComponents(origin);
 	}
 
 	/**
@@ -630,6 +591,54 @@ public class CallimachusSetup {
 		repository.setChangeFolder(webapp(origin, CHANGES_PATH).stringValue());
 	}
 
+	private boolean deleteComponents(String origin) {
+		try {
+			repository.setSchemaGraphType(webapp(origin, SCHEMA_GRAPH));
+			repository.setCompileRepository(true);
+			ObjectConnection con = repository.getConnection();
+			try {
+				con.setAutoCommit(false);
+				Object folder = con.getObject(webapp(origin, ""));
+				Method DeleteComponents = findDeleteComponents(folder);
+				try {
+					logger.info("Removing {}", folder);
+					int argc = DeleteComponents.getParameterTypes().length;
+					DeleteComponents.invoke(folder, new Object[argc]);
+					URI target = webapp(origin, "");
+					con.remove(webapp(origin, "../"), null, target);
+					con.remove(target, null, null);
+					con.remove((Resource)null, null, null, target);
+					con.setAutoCommit(true);
+					return true;
+				} catch (InvocationTargetException e) {
+					try {
+						throw e.getCause();
+					} catch (Exception cause) {
+						logger.warn(cause.toString());
+					} catch (Error cause) {
+						logger.warn(cause.toString());
+					} catch (Throwable cause) {
+						logger.warn(cause.toString());
+					}
+					con.rollback();
+				}
+			} catch (IllegalAccessException e) {
+				logger.debug(e.toString());
+			} catch (NoSuchMethodException e) {
+				logger.debug(e.toString());
+			} finally {
+				con.rollback();
+				repository.setCompileRepository(false);
+				con.close();
+			}
+		} catch (RDFObjectException e) {
+			logger.warn(e.toString());
+		} catch (OpenRDFException e) {
+			logger.warn(e.toString());
+		}
+		return false;
+	}
+
 	private Method findDeleteComponents(Object folder)
 			throws NoSuchMethodException {
 		for (Method method : folder.getClass().getMethods()) {
@@ -637,6 +646,54 @@ public class CallimachusSetup {
 				return method;
 		}
 		throw new NoSuchMethodException("DeleteComponents in " + folder);
+	}
+
+	private boolean removeAllComponents(String origin) throws OpenRDFException {
+		boolean modified = false;
+		ObjectConnection con = repository.getConnection();
+		try {
+			con.setAutoCommit(false);
+			String folder = webapp(origin, "").stringValue();
+			TupleQueryResult results;
+			results = con.prepareTupleQuery(QueryLanguage.SPARQL,
+					GRAPH_STRSTARTS, folder).evaluate();
+			try {
+				while (results.hasNext()) {
+					if (!modified) {
+						modified = true;
+						logger.info("Expunging {}", folder);
+					}
+					URI graph = (URI) results.next().getValue("graph");
+					con.clear(graph);
+				}
+			} finally {
+				results.close();
+			}
+			results = con.prepareTupleQuery(QueryLanguage.SPARQL,
+					RESOURCE_STRSTARTS, folder).evaluate();
+			try {
+				while (results.hasNext()) {
+					if (!modified) {
+						modified = true;
+						logger.info("Expunging {}", folder);
+					}
+					URI resource = (URI) results.next().getValue("resource");
+					if (folder.equals(resource.stringValue())) {
+						URI hasComponent = vf.createURI(CALLI_HASCOMPONENT);
+						con.remove(resource, hasComponent, null);
+					} else {
+						con.remove(resource, null, null);
+					}
+				}
+			} finally {
+				results.close();
+			}
+			con.setAutoCommit(true);
+			return modified;
+		} finally {
+			con.rollback();
+			con.close();
+		}
 	}
 
 	private URI[] importSchema(URL car, String folder, String origin) throws RepositoryException,

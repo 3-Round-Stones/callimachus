@@ -85,6 +85,10 @@ public class CallimachusRepository extends RepositoryWrapper {
 		return object.addSchemaListener(action);
 	}
 
+	public boolean removeSchemaListener(Runnable action) {
+		return object.removeSchemaListener(action);
+	}
+
 	public ObjectConnection getConnection() throws RepositoryException {
 		ObjectConnection con = object.getConnection();
 		if (auditing != null && con.getVersionBundle() == null) {

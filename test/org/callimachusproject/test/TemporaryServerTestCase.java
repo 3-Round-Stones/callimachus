@@ -5,6 +5,8 @@ import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
 
 import junit.framework.TestCase;
 
@@ -72,6 +74,22 @@ public abstract class TemporaryServerTestCase extends TestCase {
 
 	public CallimachusRepository getRepository() {
 		return server.getRepository();
+	}
+
+	public <T> T waitForCompile(Callable<T> callable) throws Exception {
+		final CountDownLatch latch = new CountDownLatch(1);
+		final Runnable listener = new Runnable() {
+			public void run() {
+				latch.countDown();
+			}
+		};
+		getRepository().addSchemaListener(listener);
+		try {
+			return callable.call();
+		} finally {
+			latch.await();
+			getRepository().removeSchemaListener(listener);
+		}
 	}
 
 }

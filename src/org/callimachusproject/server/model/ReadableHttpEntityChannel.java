@@ -165,6 +165,7 @@ public class ReadableHttpEntityChannel implements HttpEntity, HttpAsyncContentPr
 	public void produceContent(ContentEncoder encoder, IOControl ioctrl)
 			throws IOException {
 		if (cin.read(buf) < 0 && buf.position() == 0) {
+			close();
 			if (!encoder.isCompleted()) {
 				encoder.complete();
 			}

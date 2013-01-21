@@ -172,7 +172,10 @@ public class StreamingHttpEntity implements HttpAsyncContentProducer, HttpEntity
 			buf = ByteBuffer.allocate(1024);
 		}
 		if (cin.read(buf) < 0 && buf.position() == 0) {
-			encoder.complete();
+			close();
+			if (!encoder.isCompleted()) {
+				encoder.complete();
+			}
 		} else {
 			buf.flip();
 			encoder.write(buf);

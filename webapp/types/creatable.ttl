@@ -136,6 +136,7 @@
                 # boot strap graphs before calli:mediaType triples are loaded
                 BIND (<GraphDocument> AS ?class)
                 FILTER sameTerm($mediaType,"text/turtle")
+                FILTER sameTerm($this, <File>)
                 BIND (3 AS ?preference)
             } UNION {
                 BIND ($this AS ?class)
@@ -162,9 +163,10 @@
         var template = this.calliCreate.iterator().next();
         if (!template)
             throw new InternalServerError("Cannot create " + this.toString() + " with " + type);
-        if (type != "application/rdf+xml" && type.indexOf("application/rdf+xml;") != 0)
+        if (type != "application/rdf+xml" && type.indexOf("application/rdf+xml;") != 0
+                && type != "text/turtle" && type.indexOf("text/turtle;") != 0)
             throw new UnsupportedMediaType("File format is not recognized: " + type + " for " + location);
-        var newCopy = template.calliCreateResource(body, this.toString(), location);
+        var newCopy = template.calliCreateResource(body, type, this.toString(), location);
         newCopy = newCopy.objectConnection.addDesignation(newCopy, this.toString());
         return newCopy;
     """.

@@ -57,8 +57,10 @@ import org.openrdf.query.BooleanQuery;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.ObjectFactory;
 import org.openrdf.repository.object.RDFObject;
+import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandlerException;
-import org.openrdf.rio.rdfxml.RDFXMLParser;
+import org.openrdf.rio.RDFParser;
+import org.openrdf.rio.RDFParserRegistry;
 
 /**
  * Removes and saves the provided RDF/XML triples from and into the RDF store
@@ -96,8 +98,8 @@ public abstract class PageSupport implements RDFObject {
 		return ENGINE.getTemplate(url);
 	}
 
-	public RDFObject calliCreateResource(InputStream in, String base,
-			final RDFObject target) throws Exception {
+	public RDFObject calliCreateResource(InputStream in, String type,
+			String base, final RDFObject target) throws Exception {
 		try {
 			ObjectConnection con = target.getObjectConnection();
 			if (target.toString().equals(base))
@@ -106,7 +108,9 @@ public abstract class PageSupport implements RDFObject {
 				throw new Conflict("Resource already exists: " + target);
 			TripleInserter tracker = new TripleInserter(con);
 			tracker.accept(openPatternReader(target.toString()));
-			RDFXMLParser parser = new RDFXMLParser();
+			RDFFormat format = RDFFormat.forMIMEType(type);
+			RDFParserRegistry registry = RDFParserRegistry.getInstance();
+			RDFParser parser = registry.get(format).getParser();
 			parser.setValueFactory(con.getValueFactory());
 			parser.setRDFHandler(tracker);
 			parser.parse(in, base);

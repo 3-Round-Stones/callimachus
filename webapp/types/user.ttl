@@ -42,8 +42,8 @@ rdfs:comment a rdf:Property.
         var ds = new ByteArrayDataSource(body, "multipart/form-data") ;
         var multipart = new MimeMultipart(ds);
         //# read form
-        var username = multipart.getBodyPart(0).content;
-        var email = multipart.getBodyPart(1).content;
+        var email = multipart.getBodyPart(0).content;
+        var username = multipart.getBodyPart(1).content;
         var label = multipart.getBodyPart(2).content;
         var comment = multipart.getBodyPart(3).content;
         var subject = multipart.getBodyPart(4).content;

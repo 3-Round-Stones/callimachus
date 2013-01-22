@@ -28,7 +28,7 @@
                 $(this).val(this.value.replace(/.*</, '').replace(/>.*/, '')).change();
             }
             if (this.value.indexOf('@') > 0 && !$('#name').val()) {
-                $('#name').val(this.value.substring(0, this.value.indexOf('@')));
+                $('#name').val(this.value.substring(0, this.value.indexOf('@'))).change();
             }
         });
     }); // ]]>

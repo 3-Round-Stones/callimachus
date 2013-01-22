@@ -149,10 +149,17 @@ public abstract class PageSupport implements RDFObject {
 			ObjectConnection con = target.getObjectConnection();
 			URI resource = (URI) target.getResource();
 			EntityUpdater update = new EntityUpdater(resource);
+
+			// delete clause uses existing triples
 			update.acceptDelete(loadEditTriples(resource, con));
 			update.acceptInsert(openPatternReader(resource.stringValue()));
 			update.acceptInsert(changeNoteOf(resource));
-			update.executeUpdate(in, con);
+			String sparqlUpdate = update.parseUpdate(in);
+
+			update.executeUpdate(sparqlUpdate, con);
+
+			// insert clause uses triples that can be edited
+			verifyInsertClause(sparqlUpdate, resource, con);
 
 			ObjectFactory of = con.getObjectFactory();
 			for (URI partner : update.getPartners()) {
@@ -164,6 +171,15 @@ public abstract class PageSupport implements RDFObject {
 		} catch (RDFHandlerException e) {
 			throw new BadRequest(e);
 		}
+	}
+
+	private void verifyInsertClause(String sparqlUpdate, URI resource,
+			ObjectConnection con) throws RDFParseException, IOException,
+			TemplateException, OpenRDFException {
+		EntityUpdater postUpdate = new EntityUpdater(resource);
+		postUpdate.acceptInsert(loadEditTriples(resource, con));
+		postUpdate.acceptInsert(changeNoteOf(resource));
+		postUpdate.analyzeUpdate(sparqlUpdate);
 	}
 
 	private RDFEventReader loadEditTriples(URI resource, ObjectConnection con)

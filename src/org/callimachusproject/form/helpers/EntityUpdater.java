@@ -16,10 +16,12 @@ import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.query.BindingSet;
+import org.openrdf.query.MalformedQueryException;
 import org.openrdf.query.QueryLanguage;
 import org.openrdf.query.TupleQuery;
 import org.openrdf.query.TupleQueryResult;
 import org.openrdf.repository.object.ObjectConnection;
+import org.openrdf.rio.RDFHandlerException;
 
 public class EntityUpdater {
 	private final TripleAnalyzer analyzer = new TripleAnalyzer();
@@ -82,6 +84,18 @@ public class EntityUpdater {
 		return ret;
 	}
 
+	public void analyzeInsertData(String input)
+			throws MalformedQueryException, RDFHandlerException {
+		analyzer.analyzeInsertData(input, entity.stringValue());
+		verify();
+	}
+
+	public void analyzeUpdate(String input)
+			throws MalformedQueryException, RDFHandlerException {
+		analyzer.analyzeUpdate(input, entity.stringValue());
+		verify();
+	}
+
 	public void executeUpdate(String sparqlUpdate, ObjectConnection con)
 			throws BadRequest, OpenRDFException {
 		Set<Resource> nodes = selectBlankNodes(analyzer, con);
@@ -95,14 +109,10 @@ public class EntityUpdater {
 			throw new BadRequest("Wrong Subject: " + analyzer.getSubject());
 		if (!analyzer.isSingleton())
 			throw new BadRequest("Only one entity can be modified per request");
-		if (!analyzer.getTypes(entity).isEmpty())
-			throw new BadRequest("Cannot change resource type");
 		if (analyzer.isDisconnectedNodePresent())
 			throw new BadRequest("Blank nodes must be connected");
 		if (analyzer.isComplicated())
 			throw new BadRequest("Only basic graph patterns are permitted");
-		// # FIXME possible security hole if hash or blank resources are added
-		// with a restricted type
 		URI target = analyzer.getSubject();
 		if (components) {
 			String uri = target.stringValue();

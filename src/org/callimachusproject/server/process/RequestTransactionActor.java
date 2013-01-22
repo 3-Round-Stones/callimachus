@@ -1,6 +1,7 @@
 package org.callimachusproject.server.process;
 
 import java.io.Closeable;
+import java.io.IOException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 
@@ -9,6 +10,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolVersion;
+import org.apache.http.util.EntityUtils;
 import org.callimachusproject.client.CloseableEntity;
 import org.callimachusproject.server.CallimachusRepository;
 import org.callimachusproject.server.exceptions.NotAcceptable;
@@ -59,13 +61,24 @@ public class RequestTransactionActor extends ExchangeActor {
 				}
 			}
 			HttpResponse response = createSafeHttpResponse(op, resp);
-			exchange.submitResponse(filter.filter(req, response));
+			exchange.submitResponse(filter(req, response));
 			success = true;
 		} finally {
 			if (!success) {
 				op.endExchange();
 			}
 		}
+	}
+
+	protected HttpResponse filter(Request request, HttpResponse response)
+			throws IOException {
+		HttpResponse resp = filter.filter(request, response);
+		HttpEntity entity = resp.getEntity();
+		if ("HEAD".equals(request.getMethod()) && entity != null) {
+			EntityUtils.consume(entity);
+			resp.setEntity(null);
+		}
+		return resp;
 	}
 
 	private HttpResponse createSafeHttpResponse(final ResourceOperation req,

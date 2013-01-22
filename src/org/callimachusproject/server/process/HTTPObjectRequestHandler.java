@@ -39,8 +39,10 @@ import org.apache.http.HttpInetConnection;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
+import org.apache.http.StatusLine;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.message.BasicHttpResponse;
+import org.apache.http.message.BasicStatusLine;
 import org.apache.http.nio.protocol.HttpAsyncExchange;
 import org.apache.http.nio.protocol.HttpAsyncRequestConsumer;
 import org.apache.http.nio.protocol.HttpAsyncRequestHandler;
@@ -70,7 +72,7 @@ public class HTTPObjectRequestHandler extends AbstractHttpClient implements
 	private static final String SELF = HTTPObjectRequestHandler.class.getName();
 	private static final String EXCHANGE_ATTR = SELF + "#exchange";
 	private static final String PROCESSING_ATTR = SELF + "#processing";
-	private static final BasicHttpResponse _503 = new BasicHttpResponse(HttpVersion.HTTP_1_1, 503, "Invalid Service State");
+	private static final StatusLine _503 = new BasicStatusLine(HttpVersion.HTTP_1_1, 503, "Invalid Service State");
 	private static final InetAddress LOCALHOST = DomainNameSystemResolver.getInstance().getLocalHost();
 
 	private final Logger logger = LoggerFactory
@@ -186,7 +188,7 @@ public class HTTPObjectRequestHandler extends AbstractHttpClient implements
 	private void submit(Exchange exchange) {
 		RequestTriagerActor requestTriager = getRequestTriager();
 		if (requestTriager == null) {
-			exchange.submitResponse(_503);
+			exchange.submitResponse(new BasicHttpResponse(_503));
 		} else {
 			requestTriager.submit(exchange);
 		}
@@ -195,7 +197,7 @@ public class HTTPObjectRequestHandler extends AbstractHttpClient implements
 	private void execute(Exchange exchange) {
 		RequestTriagerActor requestTriager = getRequestTriager();
 		if (requestTriager == null) {
-			exchange.submitResponse(_503);
+			exchange.submitResponse(new BasicHttpResponse(_503));
 		} else {
 			requestTriager.execute(exchange);
 		}

@@ -25,7 +25,9 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolVersion;
+import org.apache.http.StatusLine;
 import org.apache.http.message.BasicHttpResponse;
+import org.apache.http.message.BasicStatusLine;
 import org.callimachusproject.server.exceptions.InternalServerError;
 import org.callimachusproject.server.exceptions.ResponseException;
 import org.callimachusproject.server.model.EntityRemovedHttpResponse;
@@ -46,9 +48,9 @@ public abstract class ExchangeActor {
 			.compile("\\w+://(?:\\.?[^\\s}>\\)\\]\\.])+");
 	private static final ProtocolVersion HTTP11 = HttpVersion.HTTP_1_1;
 	private static final ThreadLocal<Boolean> inError = new ThreadLocal<Boolean>();
-	private static final BasicHttpResponse SHUTDOWN_503 = new BasicHttpResponse(HttpVersion.HTTP_1_1, 503, "Service Unavailable For Maintenance");
-	private static final BasicHttpResponse _503 = new BasicHttpResponse(HttpVersion.HTTP_1_1, 503, "Service Temporary Overloaded");
-	static final BasicHttpResponse _500 = new BasicHttpResponse(HttpVersion.HTTP_1_1, 500, "Internal Server Error");
+	private static final StatusLine SHUTDOWN_503 = new BasicStatusLine(HttpVersion.HTTP_1_1, 503, "Service Unavailable For Maintenance");
+	private static final StatusLine _503 = new BasicStatusLine(HttpVersion.HTTP_1_1, 503, "Service Temporary Overloaded");
+	static final StatusLine _500 = new BasicStatusLine(HttpVersion.HTTP_1_1, 500, "Internal Server Error");
 
 	private final Logger logger = LoggerFactory.getLogger(ExchangeActor.class);
 	private final ExecutorService executor;
@@ -63,7 +65,7 @@ public abstract class ExchangeActor {
 	public void shutdown() {
 		for (Runnable run : executor.shutdownNow()) {
 			ExchangeTask task = (ExchangeTask) run;
-			task.getExchange().submitResponse(SHUTDOWN_503);
+			task.getExchange().submitResponse(new BasicHttpResponse(SHUTDOWN_503));
 		}
 	}
 
@@ -91,7 +93,7 @@ public abstract class ExchangeActor {
 				}
 			});
 		} catch (RejectedExecutionException e) {
-			exchange.submitResponse(_503);
+			exchange.submitResponse(new BasicHttpResponse(_503));
 		}
 		if (queue.size() > MAX_QUEUE_SIZE) {
 			Object[] tasks = queue.toArray();
@@ -99,7 +101,7 @@ public abstract class ExchangeActor {
 				Arrays.sort(tasks);
 				ExchangeTask task = (ExchangeTask) tasks[tasks.length - 1];
 				if (queue.remove(task)) {
-					task.getExchange().submitResponse(_503);
+					task.getExchange().submitResponse(new BasicHttpResponse(_503));
 				}
 			}
 		}
@@ -117,11 +119,12 @@ public abstract class ExchangeActor {
 			process(exchange, foreground);
 			processed = true;
 		} catch (Exception e) {
-			exchange.submitResponse(createErrorResponse(exchange.getRequest(), e));
+			Request req = exchange.getRequest();
+			exchange.submitResponse(filterError(req, createErrorResponse(req, e)));
 			processed = true;
 		} finally {
 			if (!processed) {
-				exchange.submitResponse(_500);
+				exchange.submitResponse(new BasicHttpResponse(_500));
 			}
 		}
 	}
@@ -138,7 +141,7 @@ public abstract class ExchangeActor {
 			return createHttpResponse(req, re);
 		} catch (Exception e1) {
 			logger.error(e1.toString(), e1);
-			return _500;
+			return new BasicHttpResponse(_500);
 		}
 	}
 
@@ -147,6 +150,18 @@ public abstract class ExchangeActor {
 			return (ResponseException) e;
 		logger.error("Internal Server Error while responding to " + req.getRequestLine().getUri(), e);
 		return new InternalServerError(e);
+	}
+
+	protected abstract HttpResponse filter(Request request, HttpResponse response)
+			throws IOException;
+
+	private HttpResponse filterError(Request request, HttpResponse response) {
+		try {
+			return filter(request, response);
+		} catch (Exception e) {
+			logger.error(e.toString(), e);
+			return new BasicHttpResponse(_500);
+		}
 	}
 
 	private HttpResponse createHttpResponse(Request req, ResponseException exception)

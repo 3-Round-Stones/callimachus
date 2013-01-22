@@ -46,7 +46,7 @@ public class RequestTriagerActor extends ExchangeActor {
 		}
 	}
 
-	private HttpResponse filter(Request request, HttpResponse response)
+	protected HttpResponse filter(Request request, HttpResponse response)
 			throws IOException {
 		HttpResponse resp = filter.filter(request, response);
 		HttpEntity entity = resp.getEntity();

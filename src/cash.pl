@@ -868,7 +868,7 @@ sub login {
         return 0;
     }
     $server_version =~ s/-.*$//; # Grab just the base version number.
-    if ( $server_version < 1.0 ) {
+    if ( $server_version =~ m/^\./ ) {
         # Older Callimachus
         $realmurl = $server->authority . "accounts?describe";
     } else {
@@ -885,7 +885,7 @@ sub login {
         my $xs = XML::Simple->new(ForceArray => 1, KeyAttr => []);
         my $xml = $xs->parse_string($realmres->content);
         print $OUT Dumper($xml) if $debug > 2;
-        if ( $server_version < 0.18 ) {
+        if ( $server_version =~ m/^\./ and $server_version ne "0.18" ) {
             # Older Callimachus
             $realm = $xml->{'rdf:Description'}[0]->{'calli:authName'}[0]->{'rdf:resource'};
         } else {
@@ -1266,29 +1266,45 @@ sub putFile {
     $headers->header( "Host" => $host );
     $headers->header( "Slug" => $slug );
     $headers->header( "Content-Type" => getContentType($filename) );
-    my $req = HTTP::Request->new("POST", $url, $headers, $content);
-    $req->protocol('HTTP/1.1');
-    say $OUT "REQUEST:" if ($debug > 1);
-    say $OUT $req->as_string if ($debug > 1);
+    # POST if this is a new file, PUT if the file already exists.
+    my $req;
+    my $serverfile = $server->files->{$filename}->{src};
+    if ($serverfile) {
+        $url = $server->files->{$filename}->{src};
+        say $OUT "This file already exists.  Using PUT to $url." if $debug>1;
+        $req = HTTP::Request->new("PUT", $url, $headers, $content);
+    } else {
+        say $OUT "This is a new file.  Using POST." if $debug>1;
+        $req = HTTP::Request->new("POST", $url, $headers, $content);
+    }
+    if ($req) {
+        $req->protocol('HTTP/1.1');
+        say $OUT "REQUEST:" if ($debug > 1);
+        say $OUT $req->as_string if ($debug > 1);
     
-    # Pass request to the user agent and get a response back
-    my $res = $ua->request($req);
-    # Check the outcome of the response
-    if ($res->is_success) {
-        say $OUT "File request resulted in:  " . $res->status_line if $debug;
-        say $OUT "File uploaded.";
-        parseDirPath( ".", "suppress display" );
-        return 1;
-    } elsif ( $res->status_line =~ m/401/ ) {
-        unless ( putFile($filename, $contentRef) ) {
-            say $OUT "Error: Failed to upload file after responding to Digest request.  Authentication credentials may be invalid.  Trying logging in again.";
+        # Pass request to the user agent and get a response back
+        my $res = $ua->request($req);
+        # Check the outcome of the response
+        if ($res->is_success) {
+            say $OUT "File request resulted in:  " . $res->status_line if $debug;
+            say $OUT "File uploaded.";
+            parseDirPath( ".", "suppress display" );
+            return 1;
+        } elsif ( $res->status_line =~ m/401/ ) {
+            unless ( putFile($filename, $contentRef) ) {
+                say $OUT "Error: Failed to upload file after responding to Digest request.  Authentication credentials may be invalid.  Trying logging in again.";
+                $exitstatus++;
+                return 0;
+            }
+            return 1;
+        } else {
+            say $OUT "Error: Failed to upload file.  The server reported: " . $res->status_line;
+            print $OUT $res->as_string if $debug > 2;
             $exitstatus++;
             return 0;
         }
-        return 1;
     } else {
-        say $OUT "Error: Failed to upload file.  The server reported: " . $res->status_line;
-        print $OUT $res->as_string if $debug > 2;
+        say $OUT "Error: Failed to upload file.  HTTP request could not be created.  This is likely a bug in Cash.  Sorry!";
         $exitstatus++;
         return 0;
     }

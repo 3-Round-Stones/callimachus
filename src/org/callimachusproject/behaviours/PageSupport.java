@@ -24,16 +24,14 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
+import java.util.Collection;
 import java.util.Set;
-
-import javax.xml.stream.XMLEventReader;
 
 import org.callimachusproject.auth.AuthorizationManager;
 import org.callimachusproject.auth.AuthorizationService;
 import org.callimachusproject.auth.DetachedRealm;
 import org.callimachusproject.engine.RDFEventReader;
 import org.callimachusproject.engine.RDFParseException;
-import org.callimachusproject.engine.RDFaReader;
 import org.callimachusproject.engine.Template;
 import org.callimachusproject.engine.TemplateEngine;
 import org.callimachusproject.engine.TemplateException;
@@ -51,22 +49,28 @@ import org.callimachusproject.engine.model.Var;
 import org.callimachusproject.engine.model.VarOrTerm;
 import org.callimachusproject.form.helpers.EntityUpdater;
 import org.callimachusproject.form.helpers.TripleInserter;
+import org.callimachusproject.form.helpers.TripleVerifier;
 import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.server.exceptions.Conflict;
 import org.callimachusproject.traits.VersionedObject;
 import org.openrdf.OpenRDFException;
+import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.query.BooleanQuery;
-import org.openrdf.query.TupleQueryResult;
+import org.openrdf.query.GraphQueryResult;
 import org.openrdf.query.impl.MapBindingSet;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.ObjectFactory;
 import org.openrdf.repository.object.RDFObject;
+import org.openrdf.repository.util.RDFInserter;
 import org.openrdf.rio.RDFFormat;
+import org.openrdf.rio.RDFHandler;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParser;
 import org.openrdf.rio.RDFParserRegistry;
+import org.openrdf.rio.helpers.RDFHandlerWrapper;
+import org.openrdf.rio.helpers.StatementCollector;
 
 /**
  * Removes and saves the provided RDF/XML triples from and into the RDF store
@@ -112,7 +116,9 @@ public abstract class PageSupport implements RDFObject {
 				throw new RDFHandlerException("Target resource URI not provided");
 			if (isResourceAlreadyPresent(con, target.toString()))
 				throw new Conflict("Resource already exists: " + target);
-			TripleInserter tracker = new TripleInserter(con);
+			StatementCollector statements = new StatementCollector();
+			RDFHandler handler = new RDFHandlerWrapper(new RDFInserter(con), statements);
+			TripleInserter tracker = new TripleInserter(handler, con);
 			tracker.accept(openPatternReader(target.toString()));
 			RDFFormat format = RDFFormat.forMIMEType(type);
 			RDFParserRegistry registry = RDFParserRegistry.getInstance();
@@ -126,14 +132,17 @@ public abstract class PageSupport implements RDFObject {
 				throw new BadRequest("Wrong Subject");
 			if (tracker.isDisconnectedNodePresent())
 				throw new BadRequest("Blank nodes must be connected");
+			URI created = tracker.getSubject();
+			verifyCreatedStatements(created, statements.getStatements(), con);
+
 			ObjectFactory of = con.getObjectFactory();
 			for (URI partner : tracker.getPartners()) {
 				if (!partner.toString().equals(base)) {
 					of.createObject(partner, VersionedObject.class).touchRevision();
 				}
 			}
-			Set<URI> types = tracker.getTypes(tracker.getSubject());
-			return of.createObject(tracker.getSubject(), types);
+			Set<URI> types = tracker.getTypes(created);
+			return of.createObject(created, types);
 		} catch (URISyntaxException  e) {
 			throw new BadRequest(e);
 		} catch (RDFHandlerException e) {
@@ -149,18 +158,18 @@ public abstract class PageSupport implements RDFObject {
 			ObjectConnection con = target.getObjectConnection();
 			URI resource = (URI) target.getResource();
 			EntityUpdater update = new EntityUpdater(resource);
-
+	
 			// delete clause uses existing triples
 			update.acceptDelete(loadEditTriples(resource, con));
 			update.acceptInsert(openPatternReader(resource.stringValue()));
 			update.acceptInsert(changeNoteOf(resource));
 			String sparqlUpdate = update.parseUpdate(in);
-
+	
 			update.executeUpdate(sparqlUpdate, con);
-
+	
 			// insert clause uses triples that can be edited
 			verifyInsertClause(sparqlUpdate, resource, con);
-
+	
 			ObjectFactory of = con.getObjectFactory();
 			for (URI partner : update.getPartners()) {
 				of.createObject(partner, VersionedObject.class).touchRevision();
@@ -173,6 +182,42 @@ public abstract class PageSupport implements RDFObject {
 		}
 	}
 
+	private void verifyCreatedStatements(URI created,
+			Collection<Statement> statements, ObjectConnection con)
+			throws IOException, TemplateException, RDFParseException,
+			OpenRDFException {
+		Template template = ENGINE
+				.getTemplate(this.getResource().stringValue());
+		String variable = getFirstVariable(template);
+		assert variable != null;
+		MapBindingSet bindings = new MapBindingSet();
+		bindings.addBinding(variable, created);
+		GraphQueryResult construct = template.evaluateGraph(bindings, con);
+		TripleVerifier verifier = new TripleVerifier();
+		verifier.accept(construct);
+		for (Statement st : statements) {
+			verifier.verify(st.getSubject(), st.getPredicate(), st.getObject());
+		}
+	}
+
+	private String getFirstVariable(Template template) throws TemplateException,
+			RDFParseException {
+		RDFEventReader query = template.openQuery();
+		try {
+			while (query.hasNext()) {
+				RDFEvent event = query.next();
+				if (event.isTriplePattern()) {
+					VarOrTerm subj = event.asTriplePattern().getSubject();
+					if (subj.isVar())
+						return subj.stringValue();
+				}
+			}
+			return null;
+		} finally {
+			query.close();
+		}
+	}
+
 	private void verifyInsertClause(String sparqlUpdate, URI resource,
 			ObjectConnection con) throws RDFParseException, IOException,
 			TemplateException, OpenRDFException {
@@ -182,16 +227,13 @@ public abstract class PageSupport implements RDFObject {
 		postUpdate.analyzeUpdate(sparqlUpdate);
 	}
 
-	private RDFEventReader loadEditTriples(URI resource, ObjectConnection con)
+	private GraphQueryResult loadEditTriples(URI resource, ObjectConnection con)
 			throws IOException, TemplateException, OpenRDFException,
 			RDFParseException {
-		String base = resource.stringValue();
-		Template template = getTemplateFor(base);
+		Template template = ENGINE.getTemplate(toString());
 		MapBindingSet bindings = new MapBindingSet();
 		bindings.addBinding("this", resource);
-		TupleQueryResult results = template.evaluate(bindings, con);
-		XMLEventReader rdfa = template.render(results);
-		return new RDFaReader(base, rdfa, base + "?edit");
+		return template.evaluateGraph(bindings, con);
 	}
 
 	private boolean isResourceAlreadyPresent(ObjectConnection con, String about)

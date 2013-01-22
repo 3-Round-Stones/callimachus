@@ -51,14 +51,18 @@ public class TripleInserter implements RDFHandler {
 	private final RepositoryConnection con;
 	private final ValueFactory vf;
 	private final TripleVerifier verifier = new TripleVerifier();
-	private final RDFInserter inserter;
+	private final RDFHandler inserter;
 	private final Set<String> prefixes = new HashSet<String>();
 	private final Set<String> namespaces = new HashSet<String>();
 
 	public TripleInserter(RepositoryConnection con) throws RepositoryException {
+		this(new RDFInserter(con), con);
+	}
+
+	public TripleInserter(RDFHandler handler, RepositoryConnection con) throws RepositoryException {
 		this.con = con;
 		this.vf = con.getValueFactory();
-		this.inserter = new RDFInserter(con);
+		this.inserter = handler;
 		RepositoryResult<Namespace> currently = con.getNamespaces();
 		try {
 			while (currently.hasNext()) {
@@ -122,18 +126,6 @@ public class TripleInserter implements RDFHandler {
 		return con.toString();
 	}
 
-	public void enforceContext(Resource... contexts) {
-		inserter.enforceContext(contexts);
-	}
-
-	public boolean enforcesContext() {
-		return inserter.enforcesContext();
-	}
-
-	public Resource[] getContexts() {
-		return inserter.getContexts();
-	}
-
 	public void startRDF() throws RDFHandlerException {
 		inserter.startRDF();
 	}
@@ -142,19 +134,11 @@ public class TripleInserter implements RDFHandler {
 		inserter.handleComment(comment);
 	}
 
-	public void setPreserveBNodeIDs(boolean preserveBNodeIDs) {
-		inserter.setPreserveBNodeIDs(preserveBNodeIDs);
-	}
-
-	public boolean preservesBNodeIDs() {
-		return inserter.preservesBNodeIDs();
-	}
-
 	public void endRDF() throws RDFHandlerException {
 		inserter.endRDF();
 	}
 
-	public void handleNamespace(String prefix, String name) {
+	public void handleNamespace(String prefix, String name) throws RDFHandlerException {
 		if (!prefixes.contains(prefix) && !namespaces.contains(name)) {
 			prefixes.add(prefix);
 			namespaces.add(name);

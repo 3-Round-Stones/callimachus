@@ -24,6 +24,7 @@ import org.callimachusproject.engine.events.Namespace;
 import org.callimachusproject.engine.events.RDFEvent;
 import org.callimachusproject.engine.events.TriplePattern;
 import org.callimachusproject.engine.helpers.ClusterCounter;
+import org.callimachusproject.engine.helpers.ConstructQueryReader;
 import org.callimachusproject.engine.helpers.OrderedSparqlReader;
 import org.callimachusproject.engine.helpers.RDFaProducer;
 import org.callimachusproject.engine.helpers.SPARQLPosteditor;
@@ -38,6 +39,8 @@ import org.callimachusproject.server.exceptions.InternalServerError;
 import org.openrdf.model.Resource;
 import org.openrdf.query.Binding;
 import org.openrdf.query.BindingSet;
+import org.openrdf.query.GraphQuery;
+import org.openrdf.query.GraphQueryResult;
 import org.openrdf.query.MalformedQueryException;
 import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.TupleQuery;
@@ -224,6 +227,32 @@ public class Template {
 		}
 	}
 
+	public GraphQueryResult evaluateGraph(BindingSet bindings, RepositoryConnection con)
+			throws TemplateException {
+		// evaluate SPARQL derived from the template
+		try {
+			RDFEventReader reader = new RDFaReader(getSystemId(), openSource(), getSystemId());
+			RDFEventReader select = new SPARQLProducer(reader);
+			RDFEventReader construct = new ConstructQueryReader(select);
+			String sparql = toSafeSparql(construct, bindings);
+			GraphQuery q = con.prepareGraphQuery(SPARQL, sparql, getSystemId());
+			for (Binding bind : bindings) {
+				q.setBinding(bind.getName(), bind.getValue());
+			}
+			return q.evaluate();
+		} catch (MalformedQueryException e) {
+			throw new TemplateException(e);
+		} catch (RepositoryException e) {
+			throw new TemplateException(e);
+		} catch (QueryEvaluationException e) {
+			throw new TemplateException(e);
+		} catch (RDFParseException e) {
+			throw new TemplateException(e);
+		} catch (IOException e) {
+			throw new TemplateException(e);
+		}
+	}
+
 	/**
 	 * Remove top triple and evaluate.
 	 * 
@@ -356,7 +385,7 @@ public class Template {
 		}
 	}
 
-	private String toSafeSparql(OrderedSparqlReader reader, BindingSet bindings) throws RDFParseException, IOException {
+	private String toSafeSparql(RDFEventReader reader, BindingSet bindings) throws RDFParseException, IOException {
 		String[] bindingNames = bindings.getBindingNames().toArray(new String[bindings.size()]);
 		return toSafeSparql(reader, bindingNames);
 	}

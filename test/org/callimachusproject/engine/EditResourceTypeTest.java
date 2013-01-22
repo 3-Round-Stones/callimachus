@@ -31,6 +31,12 @@ public class EditResourceTypeTest extends TemporaryServerTestCase {
 			"@prefix ex:<http://example.com/>.",
 			"",
 			"</my-resource> a ex:Work; rdfs:label \"my resource\".");
+	private static String BAD_RESOURCE_TURTLE = cat("@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.",
+			"@prefix owl:<http://www.w3.org/2002/07/owl#>.",
+			"@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.",
+			"@prefix ex:<http://example.com/>.",
+			"",
+			"</my-resource> a ex:Tag; rdfs:label \"my resource\".");
 	private static String RESOURCE_UPDATE = cat("PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>",
 			"PREFIX ex:<http://example.com/>",
 			"DELETE {",
@@ -198,6 +204,37 @@ public class EditResourceTypeTest extends TemporaryServerTestCase {
 			my_create_xhtml.link("edit-media", "application/xhtml+xml").delete();
 			types_ttl.link("describedby").delete();
 		}
+	}
+
+	public void testBadCreate() throws Exception {
+		final WebResource my_create_xhtml = getHomeFolder()
+				.link("contents", "application/atom+xml")
+				.getAppCollection().create("my-create.xhtml", "application/xhtml+xml", CREATE_TEMPLATE.getBytes());
+		WebResource MyClass = waitForCompile(new Callable<WebResource>() {
+			public WebResource call() throws Exception {
+				String createClass = "?create=/callimachus/1.0/types/Class&location=/MyClass";
+				String turtle = CLASS_TURTLE + ";\ncalli:create <" + my_create_xhtml + ">.";
+				return getHomeFolder().ref(createClass).create("text/turtle", turtle.getBytes());
+			}
+		});
+		WebResource types_ttl = getHomeFolder().link("contents", "application/atom+xml")
+				.getAppCollection()
+				.create("types.ttl", "text/turtle", TYPES_TURTLE.getBytes());
+		String createResource = "?create=" + MyClass + "&location=/my-resource";
+		WebResource my_resource = null;
+		try {
+			my_resource = getHomeFolder().ref(createResource).create("text/turtle", BAD_RESOURCE_TURTLE.getBytes());
+		} catch(AssertionFailedError e) {
+			return;
+		} finally {
+			if (my_resource != null) {
+				my_resource.delete();
+			}
+			MyClass.link("describedby").delete();
+			my_create_xhtml.link("edit-media", "application/xhtml+xml").delete();
+			types_ttl.link("describedby").delete();
+		}
+		fail();
 	}
 
 	public void testEdit() throws Exception {

@@ -31,6 +31,10 @@ import org.callimachusproject.engine.model.Term;
  */
 public class Triple extends TriplePattern {
 
+	public Triple(Node subject, IRI predicate, Term object) {
+		this(subject, predicate, object, null);
+	}
+
 	public Triple(Node subject, IRI predicate, Term object, Location location) {
 		super(subject, predicate, object, location);
 	}

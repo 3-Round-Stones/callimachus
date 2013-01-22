@@ -29,8 +29,11 @@ import java.util.Set;
 import org.callimachusproject.engine.RDFEventReader;
 import org.callimachusproject.engine.RDFParseException;
 import org.callimachusproject.engine.events.RDFEvent;
+import org.callimachusproject.engine.events.Triple;
 import org.callimachusproject.engine.events.TriplePattern;
 import org.callimachusproject.engine.model.AbsoluteTermFactory;
+import org.callimachusproject.engine.model.IRI;
+import org.callimachusproject.engine.model.Node;
 import org.callimachusproject.engine.model.Term;
 import org.callimachusproject.engine.model.VarOrIRI;
 import org.openrdf.model.Literal;
@@ -41,6 +44,8 @@ import org.openrdf.model.Value;
 import org.openrdf.model.impl.StatementImpl;
 import org.openrdf.model.impl.URIImpl;
 import org.openrdf.model.vocabulary.RDF;
+import org.openrdf.query.GraphQueryResult;
+import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.rio.RDFHandlerException;
 
 /**
@@ -107,6 +112,25 @@ public final class TripleVerifier implements Cloneable {
 						}
 					}
 				}
+			}
+		} finally {
+			reader.close();
+		}
+	}
+
+	public void accept(GraphQueryResult reader) throws RDFParseException,
+			QueryEvaluationException {
+		if (patterns == null) {
+			patterns = new LinkedHashSet<TriplePattern>();
+		}
+		try {
+			while (reader.hasNext()) {
+				Statement st = reader.next();
+				Resource subj = st.getSubject();
+				URI pred = st.getPredicate();
+				Value obj = st.getObject();
+				accept(new Triple((Node) asTerm(subj), (IRI) asTerm(pred),
+						asTerm(obj)));
 			}
 		} finally {
 			reader.close();

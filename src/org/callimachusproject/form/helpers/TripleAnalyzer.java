@@ -43,6 +43,7 @@ import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.query.BindingSet;
+import org.openrdf.query.GraphQueryResult;
 import org.openrdf.query.MalformedQueryException;
 import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.algebra.DeleteData;
@@ -133,8 +134,18 @@ public class TripleAnalyzer extends QueryModelVisitorBase<RDFHandlerException> {
 		deleteVerifier.accept(reader);
 	}
 
+	public void acceptDelete(GraphQueryResult result) throws RDFParseException,
+			QueryEvaluationException {
+		deleteVerifier.accept(result);
+	}
+
 	public void acceptInsert(RDFEventReader reader) throws RDFParseException {
 		insertVerifier.accept(reader);
+	}
+
+	public void acceptInsert(GraphQueryResult result) throws RDFParseException,
+			QueryEvaluationException {
+		insertVerifier.accept(result);
 	}
 
 	public void acceptInsert(TriplePattern pattern) {

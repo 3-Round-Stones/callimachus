@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import junit.framework.TestCase;
 
@@ -85,9 +86,10 @@ public abstract class TemporaryServerTestCase extends TestCase {
 		};
 		getRepository().addSchemaListener(listener);
 		try {
-			return callable.call();
+			T ret = callable.call();
+			latch.await(1, TimeUnit.MINUTES);
+			return ret;
 		} finally {
-			latch.await();
 			getRepository().removeSchemaListener(listener);
 		}
 	}

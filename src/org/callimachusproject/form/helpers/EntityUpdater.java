@@ -16,7 +16,9 @@ import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.query.BindingSet;
+import org.openrdf.query.GraphQueryResult;
 import org.openrdf.query.MalformedQueryException;
+import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.QueryLanguage;
 import org.openrdf.query.TupleQuery;
 import org.openrdf.query.TupleQueryResult;
@@ -44,8 +46,18 @@ public class EntityUpdater {
 		analyzer.acceptDelete(template);
 	}
 
+	public void acceptDelete(GraphQueryResult result) throws RDFParseException,
+			QueryEvaluationException {
+		analyzer.acceptDelete(result);
+	}
+
 	public void acceptInsert(RDFEventReader template) throws RDFParseException {
 		analyzer.acceptInsert(template);
+	}
+
+	public void acceptInsert(GraphQueryResult result) throws RDFParseException,
+			QueryEvaluationException {
+		analyzer.acceptInsert(result);
 	}
 
 	public void acceptInsert(TriplePattern pattern) {

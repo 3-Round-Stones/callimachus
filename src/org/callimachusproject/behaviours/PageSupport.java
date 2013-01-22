@@ -26,10 +26,14 @@ import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.util.Set;
 
+import javax.xml.stream.XMLEventReader;
+
 import org.callimachusproject.auth.AuthorizationManager;
 import org.callimachusproject.auth.AuthorizationService;
 import org.callimachusproject.auth.DetachedRealm;
 import org.callimachusproject.engine.RDFEventReader;
+import org.callimachusproject.engine.RDFParseException;
+import org.callimachusproject.engine.RDFaReader;
 import org.callimachusproject.engine.Template;
 import org.callimachusproject.engine.TemplateEngine;
 import org.callimachusproject.engine.TemplateException;
@@ -54,6 +58,8 @@ import org.openrdf.OpenRDFException;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.query.BooleanQuery;
+import org.openrdf.query.TupleQueryResult;
+import org.openrdf.query.impl.MapBindingSet;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.ObjectFactory;
 import org.openrdf.repository.object.RDFObject;
@@ -143,8 +149,9 @@ public abstract class PageSupport implements RDFObject {
 			ObjectConnection con = target.getObjectConnection();
 			URI resource = (URI) target.getResource();
 			EntityUpdater update = new EntityUpdater(resource);
-			update.accept(openPatternReader(resource.stringValue()));
-			update.accept(changeNoteOf(resource));
+			update.acceptDelete(loadEditTriples(resource, con));
+			update.acceptInsert(openPatternReader(resource.stringValue()));
+			update.acceptInsert(changeNoteOf(resource));
 			update.executeUpdate(in, con);
 
 			ObjectFactory of = con.getObjectFactory();
@@ -157,6 +164,18 @@ public abstract class PageSupport implements RDFObject {
 		} catch (RDFHandlerException e) {
 			throw new BadRequest(e);
 		}
+	}
+
+	private RDFEventReader loadEditTriples(URI resource, ObjectConnection con)
+			throws IOException, TemplateException, OpenRDFException,
+			RDFParseException {
+		String base = resource.stringValue();
+		Template template = getTemplateFor(base);
+		MapBindingSet bindings = new MapBindingSet();
+		bindings.addBinding("this", resource);
+		TupleQueryResult results = template.evaluate(bindings, con);
+		XMLEventReader rdfa = template.render(results);
+		return new RDFaReader(base, rdfa, base + "?edit");
 	}
 
 	private boolean isResourceAlreadyPresent(ObjectConnection con, String about)

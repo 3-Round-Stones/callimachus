@@ -38,12 +38,16 @@ public class EntityUpdater {
 		}
 	}
 
-	public void accept(RDFEventReader template) throws RDFParseException {
-		analyzer.accept(template);
+	public void acceptDelete(RDFEventReader template) throws RDFParseException {
+		analyzer.acceptDelete(template);
 	}
 
-	public void accept(TriplePattern pattern) {
-		analyzer.accept(pattern);
+	public void acceptInsert(RDFEventReader template) throws RDFParseException {
+		analyzer.acceptInsert(template);
+	}
+
+	public void acceptInsert(TriplePattern pattern) {
+		analyzer.acceptInsert(pattern);
 	}
 
 	public URI getSubject() {

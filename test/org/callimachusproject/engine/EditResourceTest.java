@@ -155,10 +155,17 @@ public class EditResourceTest extends TemporaryServerTestCase {
 			}
 		});
 		String createResource = "?create=" + MyClass + "&location=/my-resource";
-		WebResource my_resource = getHomeFolder().ref(createResource).create("text/turtle", RESOURCE_TURTLE.getBytes());
-		my_resource.link("describedby").delete();
-		MyClass.link("describedby").delete();
-		my_create_xhtml.link("edit-media", "application/xhtml+xml").delete();
+		WebResource my_resource = null;
+		try {
+			my_resource = getHomeFolder().ref(createResource).create("text/turtle", RESOURCE_TURTLE.getBytes());
+			return;
+		} finally {
+			if (my_resource != null) {
+				my_resource.link("describedby").delete();
+			}
+			MyClass.link("describedby").delete();
+			my_create_xhtml.link("edit-media", "application/xhtml+xml").delete();
+		}
 	}
 
 	public void testBadCreate1() throws Exception {
@@ -173,14 +180,19 @@ public class EditResourceTest extends TemporaryServerTestCase {
 			}
 		});
 		String createResource = "?create=" + MyClass + "&location=/my-resource";
+		WebResource my_resource = null;
 		try {
-			getHomeFolder().ref(createResource).create("text/turtle", BAD_RESOURCE_TURTLE1.getBytes());
-			fail();
+			my_resource = getHomeFolder().ref(createResource).create("text/turtle", BAD_RESOURCE_TURTLE1.getBytes());
 		} catch (AssertionFailedError e) {
+			return;
 		} finally {
+			if (my_resource != null) {
+				my_resource.delete();
+			}
 			MyClass.link("describedby").delete();
 			my_create_xhtml.link("edit-media", "application/xhtml+xml").delete();
 		}
+		fail();
 	}
 
 	public void testBadCreate2() throws Exception {
@@ -195,14 +207,19 @@ public class EditResourceTest extends TemporaryServerTestCase {
 			}
 		});
 		String createResource = "?create=" + MyClass + "&location=/my-resource";
+		WebResource my_resource = null;
 		try {
-			getHomeFolder().ref(createResource).create("text/turtle", BAD_RESOURCE_TURTLE2.getBytes());
-			fail();
+			my_resource = getHomeFolder().ref(createResource).create("text/turtle", BAD_RESOURCE_TURTLE2.getBytes());
 		} catch (AssertionFailedError e) {
+			return;
 		} finally {
+			if (my_resource != null) {
+				my_resource.delete();
+			}
 			MyClass.link("describedby").delete();
 			my_create_xhtml.link("edit-media", "application/xhtml+xml").delete();
 		}
+		fail();
 	}
 
 	public void testEdit() throws Exception {
@@ -221,11 +238,15 @@ public class EditResourceTest extends TemporaryServerTestCase {
 		});
 		String createResource = "?create=" + MyClass + "&location=my-resource";
 		WebResource my_resource = getHomeFolder().ref(createResource).create("text/turtle", RESOURCE_TURTLE.getBytes());
-		my_resource.ref("?edit").create("application/sparql-update", RESOURCE_UPDATE.getBytes());
-		my_resource.link("describedby").delete();
-		MyClass.link("describedby").delete();
-		my_edit_xhtml.link("edit-media", "application/xhtml+xml").delete();
-		my_create_xhtml.link("edit-media", "application/xhtml+xml").delete();
+		try {
+			my_resource.ref("?edit").create("application/sparql-update", RESOURCE_UPDATE.getBytes());
+			return;
+		} finally {
+			my_resource.link("describedby").delete();
+			MyClass.link("describedby").delete();
+			my_edit_xhtml.link("edit-media", "application/xhtml+xml").delete();
+			my_create_xhtml.link("edit-media", "application/xhtml+xml").delete();
+		}
 	}
 
 	public void testBadEdit1() throws Exception {
@@ -246,14 +267,15 @@ public class EditResourceTest extends TemporaryServerTestCase {
 		WebResource my_resource = getHomeFolder().ref(createResource).create("text/turtle", RESOURCE_TURTLE.getBytes());
 		try {
 			my_resource.ref("?edit").create("application/sparql-update", BAD_RESOURCE_UPDATE1.getBytes());
-			fail();
 		} catch (AssertionFailedError e) {
+			return;
 		} finally {
 			my_resource.link("describedby").delete();
 			MyClass.link("describedby").delete();
 			my_edit_xhtml.link("edit-media", "application/xhtml+xml").delete();
 			my_create_xhtml.link("edit-media", "application/xhtml+xml").delete();
 		}
+		fail();
 	}
 
 	public void testBadEdit2() throws Exception {
@@ -274,14 +296,15 @@ public class EditResourceTest extends TemporaryServerTestCase {
 		WebResource my_resource = getHomeFolder().ref(createResource).create("text/turtle", RESOURCE_TURTLE.getBytes());
 		try {
 			my_resource.ref("?edit").create("application/sparql-update", BAD_RESOURCE_UPDATE2.getBytes());
-			fail();
 		} catch (AssertionFailedError e) {
+			return;
 		} finally {
 			my_resource.link("describedby").delete();
 			MyClass.link("describedby").delete();
 			my_edit_xhtml.link("edit-media", "application/xhtml+xml").delete();
 			my_create_xhtml.link("edit-media", "application/xhtml+xml").delete();
 		}
+		fail();
 	}
 
 	private static String cat(String... strings) {

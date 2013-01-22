@@ -74,6 +74,8 @@ public class TripleAnalyzer extends QueryModelVisitorBase<RDFHandlerException> {
 	private final ValueFactory vf = new ValueFactoryImpl();
 	private final Map<String, Resource> anonymous = new HashMap<String, Resource>();
 	private final Set<Statement> connections = new HashSet<Statement>();
+	private TripleVerifier deleteVerifier = new TripleVerifier();
+	private TripleVerifier insertVerifier = new TripleVerifier();
 	private TripleVerifier verifier = new TripleVerifier();
 	private boolean complicated;
 
@@ -127,16 +129,22 @@ public class TripleAnalyzer extends QueryModelVisitorBase<RDFHandlerException> {
 		}
 	}
 
-	public void accept(RDFEventReader reader) throws RDFParseException {
-		verifier.accept(reader);
+	public void acceptDelete(RDFEventReader reader) throws RDFParseException {
+		deleteVerifier.accept(reader);
 	}
 
-	public void accept(TriplePattern pattern) {
-		verifier.accept(pattern);
+	public void acceptInsert(RDFEventReader reader) throws RDFParseException {
+		insertVerifier.accept(reader);
+	}
+
+	public void acceptInsert(TriplePattern pattern) {
+		insertVerifier.accept(pattern);
 	}
 
 	public void addSubject(URI subj) {
 		verifier.addSubject(subj);
+		deleteVerifier.addSubject(subj);
+		insertVerifier.addSubject(subj);
 	}
 
 	public boolean isComplicated() {
@@ -215,7 +223,7 @@ public class TripleAnalyzer extends QueryModelVisitorBase<RDFHandlerException> {
 	@Override
 	public void meet(DeleteData node) throws RDFHandlerException {
 		TripleVerifier previous = verifier;
-		verifier = new TripleVerifier(previous);
+		verifier = deleteVerifier.clone();
 		node.getDeleteExpr().visit(this);
 		verifiers.add(verifier);
 		verifier = previous;
@@ -224,7 +232,7 @@ public class TripleAnalyzer extends QueryModelVisitorBase<RDFHandlerException> {
 	@Override
 	public void meet(InsertData node) throws RDFHandlerException {
 		TripleVerifier previous = verifier;
-		verifier = new TripleVerifier(previous);
+		verifier = insertVerifier.clone();
 		node.getInsertExpr().visit(this);
 		verifiers.add(verifier);
 		verifier = previous;
@@ -234,17 +242,17 @@ public class TripleAnalyzer extends QueryModelVisitorBase<RDFHandlerException> {
 	public void meet(Modify node) throws RDFHandlerException {
 		TripleVerifier previous = verifier;
 		if (node.getDeleteExpr() != null) {
-			verifier = new TripleVerifier(previous);
+			verifier = deleteVerifier.clone();
 			node.getDeleteExpr().visit(this);
 			verifiers.add(verifier);
 		}
 		if (node.getInsertExpr() != null) {
-			verifier = new TripleVerifier(previous);
+			verifier = insertVerifier.clone();
 			node.getInsertExpr().visit(this);
 			verifiers.add(verifier);
 		}
 		if (node.getWhereExpr() != null) {
-			verifier = new TripleVerifier(previous);
+			verifier = deleteVerifier.clone();
 			node.getWhereExpr().visit(this);
 			verifiers.add(verifier);
 			connections.addAll(verifier.getConnections());

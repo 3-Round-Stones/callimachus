@@ -50,7 +50,7 @@ import org.openrdf.rio.RDFHandlerException;
  * @author James Leigh
  * 
  */
-public class TripleVerifier {
+public final class TripleVerifier implements Cloneable {
 	private final AbsoluteTermFactory tf = AbsoluteTermFactory.newInstance();
 	private final Set<URI> subjects;
 	private final Set<URI> partners;
@@ -71,7 +71,12 @@ public class TripleVerifier {
 		empty = true;
 	}
 
-	public TripleVerifier(TripleVerifier cloned) {
+	@Override
+	public TripleVerifier clone() {
+		return new TripleVerifier(this);
+	}
+
+	private TripleVerifier(TripleVerifier cloned) {
 		subjects = new HashSet<URI>(cloned.subjects);
 		partners = new HashSet<URI>(cloned.partners);
 		connected = new HashMap<Resource, Set<Statement>>(cloned.connected);

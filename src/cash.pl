@@ -101,7 +101,7 @@ my $OUT = *STDOUT;
 # Commands are processed in the following order:
 # 1. Commands provided on the command line (via -e)
 # 2. Interactive commands (via -i)
-# 3. Commands provided on STDIN if not interactive
+# 3. Commands provided on STDIN only if not interactive and no commands provided on the command line
 
 # Process commands from the command line.
 if ($execute) {
@@ -128,7 +128,9 @@ if ($interactive) {
     while ( defined ($_ = $term->readline($prompt)) ) {
         process($_);
     }    
-} else {
+}
+
+unless ($execute or $interactive) {
     # Process information from STDIN (presumed to be a Callimachus Shell script)
     $OUT = *STDOUT;
     while ( <> ) {
@@ -1261,12 +1263,11 @@ sub putFile {
         exit(1);
     }
     
-    # POST file to server.
+    # Place file on server.
     my $headers = HTTP::Headers->new;
     $headers->header( "Host" => $host );
     $headers->header( "Slug" => $slug );
     $headers->header( "Content-Type" => getContentType($filename) );
-    # POST if this is a new file, PUT if the file already exists.
     my $req;
     my $serverfile = $server->files->{$filename}->{src};
     if ($serverfile) {

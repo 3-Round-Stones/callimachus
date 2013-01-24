@@ -62,72 +62,116 @@ INSERT {
         <../default-layout.xq>,
         <../callimachus-powered.png>,
         <../Concept>.
+} WHERE {
+	FILTER NOT EXISTS { <../> a calli:Folder }
+};
 
-<../profile> rdf:type <types/Profile>;
+INSERT {
+<../profile> a <types/Profile>;
     rdfs:label "profile";
     calli:administrator </auth/groups/admin>;
     calli:subscriber </auth/groups/staff>;
     calli:reader </auth/groups/system>.
+} WHERE {
+	FILTER NOT EXISTS { <../profile> a <types/Profile> }
+};
 
+INSERT {
 <../changes/> a <types/Folder>, calli:Folder;
     rdfs:label "changes";
     calli:subscriber </auth/groups/admin>.
+} WHERE {
+	FILTER NOT EXISTS { <../changes/> a calli:Folder }
+};
 
+INSERT {
 <../styles.css> a <types/PURL>, calli:PURL ;
 	rdfs:label "styles.css";
 	calli:alternate <styles/callimachus.less?less>;
 	calli:administrator </auth/groups/admin>;
 	calli:reader </auth/groups/public> .
+} WHERE {
+	FILTER NOT EXISTS { <../styles.css> a calli:PURL }
+};
 
+INSERT {
 <../scripts.js> a <types/PURL>, calli:PURL ;
 	rdfs:label "scripts.js";
 	calli:alternate <scripts/index?source>;
 	calli:administrator </auth/groups/admin>;
 	calli:reader </auth/groups/public> .
+} WHERE {
+	FILTER NOT EXISTS { <../scripts.js> a calli:PURL }
+};
 
+INSERT {
 <../library.xpl> a <types/PURL>, calli:PURL ;
 	rdfs:label "library.xpl";
 	calli:alternate <pipelines/library.xpl>;
 	calli:administrator </auth/groups/admin>;
 	calli:reader </auth/groups/public> .
+} WHERE {
+	FILTER NOT EXISTS { <../library.xpl> a calli:PURL }
+};
 
+INSERT {
 <../forbidden.html> a <types/PURL>, calli:PURL ;
 	rdfs:label "forbidden.html";
 	calli:alternate <pages/forbidden.xhtml?html>;
 	calli:administrator </auth/groups/admin>;
 	calli:reader </auth/groups/public> .
+} WHERE {
+	FILTER NOT EXISTS { <../forbidden.html> a calli:PURL }
+};
 
+INSERT {
 <../unauthorized.html> a <types/PURL>, calli:PURL ;
 	rdfs:label "unauthorized.html";
 	calli:alternate <pages/unauthorized.xhtml?element=/1>;
 	calli:administrator </auth/groups/admin>;
 	calli:reader </auth/groups/public> .
+} WHERE {
+	FILTER NOT EXISTS { <../unauthorized.html> a calli:PURL }
+};
 
+INSERT {
 <../layout-functions.xq> a <types/PURL>, calli:PURL ;
 	rdfs:label "layout-functions.xq";
 	calli:alternate <transforms/layout-functions.xq>;
 	calli:administrator </auth/groups/admin>;
 	calli:reader </auth/groups/public> .
+} WHERE {
+	FILTER NOT EXISTS { <../layout-functions.xq> a calli:PURL }
+};
 
+INSERT {
 <../default-layout.xq> a <types/PURL>, calli:PURL ;
 	rdfs:label "default-layout.xq";
 	calli:alternate <transforms/default-layout.xq>;
 	calli:administrator </auth/groups/admin>;
 	calli:reader </auth/groups/public> .
+} WHERE {
+	FILTER NOT EXISTS { <../default-layout.xq> a calli:PURL }
+};
 
+INSERT {
 <../callimachus-powered.png> a <types/PURL>, calli:PURL ;
 	rdfs:label "callimachus-powered.png";
 	calli:alternate <images/callimachus-powered.png>;
 	calli:administrator </auth/groups/admin>;
 	calli:reader </auth/groups/public> .
+} WHERE {
+	FILTER NOT EXISTS { <../callimachus-powered.png> a calli:PURL }
+};
 
+INSERT {
 <../Concept> a <types/PURL>, calli:PURL ;
 	rdfs:label "Concept";
 	calli:canonical <types/Concept>;
 	calli:administrator </auth/groups/admin>;
 	calli:reader </auth/groups/public> .
 } WHERE {
-	FILTER NOT EXISTS { <../> a calli:Folder }
+	FILTER NOT EXISTS { <../Concept> a calli:PURL }
 };
 
 ################################

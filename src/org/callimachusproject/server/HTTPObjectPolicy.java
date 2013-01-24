@@ -30,8 +30,10 @@
 package org.callimachusproject.server;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FilePermission;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.management.ManagementPermission;
 import java.lang.reflect.ReflectPermission;
 import java.net.MalformedURLException;
@@ -152,6 +154,11 @@ public class HTTPObjectPolicy extends Policy {
 		addClassPath(readable);
 		writableLocations = new ArrayList<String>(directories.length + 1);
 		addWritableDirectories(directories);
+		try {
+			addWritableDirectories(getLoggingDirectories());
+		} catch (IOException e) {
+			logger.warn(e.toString(), e);
+		}
 		jars = copy(plugins);
 		jars.add(new RuntimePermission("*"));
 		jars.add(new MBeanPermission("*", "*"));
@@ -261,5 +268,90 @@ public class HTTPObjectPolicy extends Policy {
 			}
 		}
 	}
+
+	private File[] getLoggingDirectories() throws IOException {
+		List<File> directories = new ArrayList<File>();
+        String fname = System.getProperty("java.util.logging.config.file");
+        if (fname == null) {
+            fname = System.getProperty("java.home");
+            if (fname == null) {
+                throw new AssertionError("Can't find java.home ??");
+            }
+            File f = new File(fname, "lib");
+            f = new File(f, "logging.properties");
+            fname = f.getCanonicalPath();
+        }
+        InputStream in = new FileInputStream(fname);
+        try {
+        	Properties properties = new Properties();
+			properties.load(in);
+    		String handlers = properties.getProperty("handlers");
+			for (String logger : handlers.split("[\\s,]+")) {
+    			String pattern = properties.getProperty(logger + ".pattern");
+    			if (pattern != null) {
+    				File dir = getLogPatternDirectory(pattern);
+    				dir.mkdirs();
+					directories.add(dir);
+    			}
+    		}
+    		return directories.toArray(new File[directories.size()]);
+        } finally {
+            in.close();
+        }
+	}
+
+	/**
+     * Transform the pattern to the valid directory name, replacing any patterns.
+     */
+    private File getLogPatternDirectory(String pattern) {
+        String tempPath = System.getProperty("java.io.tmpdir"); //$NON-NLS-1$
+        boolean tempPathHasSepEnd = (tempPath == null ? false : tempPath
+                .endsWith(File.separator));
+
+        String homePath = System.getProperty("user.home"); //$NON-NLS-1$
+        boolean homePathHasSepEnd = (homePath == null ? false : homePath
+                .endsWith(File.separator));
+
+        StringBuilder sb = new StringBuilder();
+        pattern = pattern.replace('/', File.separatorChar);
+
+        int cur = 0;
+        int next = 0;
+        char[] value = pattern.toCharArray();
+        while ((next = pattern.indexOf('%', cur)) >= 0) {
+            if (++next < pattern.length()) {
+                switch (value[next]) {
+                    case 't':
+                        /*
+                         * we should probably try to do something cute here like
+                         * lookahead for adjacent '/'
+                         */
+                        sb.append(value, cur, next - cur - 1).append(tempPath);
+                        if (!tempPathHasSepEnd) {
+                            sb.append(File.separator);
+                        }
+                        break;
+                    case 'h':
+                        sb.append(value, cur, next - cur - 1).append(homePath);
+                        if (!homePathHasSepEnd) {
+                            sb.append(File.separator);
+                        }
+                        break;
+                    case '%':
+                        sb.append(value, cur, next - cur - 1).append('%');
+                        break;
+                    default:
+                        sb.append(value, cur, next - cur - 1);
+                        return new File(sb.substring(0, sb.lastIndexOf(File.separator)));
+                }
+                cur = ++next;
+            } else {
+                // fail silently
+            }
+        }
+
+        sb.append(value, cur, value.length - cur);
+        return new File(sb.substring(0, sb.lastIndexOf(File.separator)));
+    }
 
 }

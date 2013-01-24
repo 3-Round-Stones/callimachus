@@ -1,4 +1,5 @@
 /*
+ * Portions Copyright (c) 2011-13 3 Round Stones Inc., Some Rights Reserved
  * Portions Copyright (c) 2009-10 Zepheira LLC, Some Rights Reserved
  * Portions Copyright (c) 2010-11 Talis Inc, Some Rights Reserved
  *
@@ -22,10 +23,8 @@ import static org.openrdf.repository.manager.RepositoryProvider.getRepositoryMan
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.lang.management.ManagementFactory;
@@ -33,7 +32,6 @@ import java.lang.management.RuntimeMXBean;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Properties;
 
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanRegistrationException;
@@ -46,10 +44,7 @@ import org.callimachusproject.cli.Command;
 import org.callimachusproject.cli.CommandSet;
 import org.callimachusproject.client.HTTPObjectClient;
 import org.callimachusproject.logging.LoggerBean;
-import org.callimachusproject.server.CallimachusRepository;
 import org.callimachusproject.server.CallimachusServer;
-import org.callimachusproject.server.ConnectionBean;
-import org.callimachusproject.server.HTTPObjectAgentMXBean;
 import org.callimachusproject.server.HTTPObjectPolicy;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryException;
@@ -66,7 +61,7 @@ import org.slf4j.LoggerFactory;
  * @author James Leigh
  * 
  */
-public class Server implements HTTPObjectAgentMXBean {
+public class Server {
 	private static final String CHANGES_PATH = "../changes/";
 	private static final String ERROR_XPL_PATH = "pipelines/error.xpl";
 	public static final String NAME = Version.getInstance().getVersion();
@@ -107,14 +102,14 @@ public class Server implements HTTPObjectAgentMXBean {
 			server.init(args);
 			server.start();
 			Thread.sleep(1000);
-			if (server.isRunning() && !line.has("quiet")) {
+			if (server.server.isRunning() && !line.has("quiet")) {
 				System.out.println();
 				System.out.println(server.getClass().getSimpleName()
 						+ " is listening on port " + server.getPort()
 						+ " for " + server.toString() + "/");
-				System.out.println("Repository: " + server.getRepository());
+				System.out.println("Repository: " + server.server.getRepository());
 				System.out.println("Origin: " + server.toString());
-			} else if (!server.isRunning()) {
+			} else if (!server.server.isRunning()) {
 				System.err.println(server.getClass().getSimpleName()
 						+ " could not be started.");
 				System.exit(7);
@@ -173,88 +168,6 @@ public class Server implements HTTPObjectAgentMXBean {
 		return null;
 	}
 
-	public CallimachusRepository getRepository() {
-		if (server == null)
-			return null;
-		return server.getRepository();
-	}
-
-	public int getCacheCapacity() {
-		return server.getCacheCapacity();
-	}
-
-	public void setCacheCapacity(int capacity) {
-		server.setCacheCapacity(capacity);
-	}
-
-	public int getCacheSize() {
-		return server.getCacheSize();
-	}
-
-	public String getFrom() {
-		return server.getFrom();
-	}
-
-	public void setFrom(String from) {
-		server.setFrom(from);
-	}
-
-	public String getName() {
-		return server.getName();
-	}
-
-	public void setName(String name) {
-		server.setName(name);
-	}
-
-	public void invalidateCache() throws Exception {
-		server.invalidateCache();
-	}
-
-	public boolean isCacheAggressive() {
-		return server.isCacheAggressive();
-	}
-
-	public void setCacheAggressive(boolean cacheAggressive) {
-		server.setCacheAggressive(cacheAggressive);
-	}
-
-	public boolean isCacheDisconnected() {
-		return server.isCacheDisconnected();
-	}
-
-	public void setCacheDisconnected(boolean cacheDisconnected) {
-		server.setCacheDisconnected(cacheDisconnected);
-	}
-
-	public boolean isCacheEnabled() {
-		return server.isCacheEnabled();
-	}
-
-	public void setCacheEnabled(boolean cacheEnabled) {
-		server.setCacheEnabled(cacheEnabled);
-	}
-
-	public void resetCache() throws Exception {
-		server.resetCache();
-	}
-
-	public ConnectionBean[] getConnections() {
-		return server.getConnections();
-	}
-
-	public void connectionDumpToFile(String outputFile) throws IOException {
-		 server.connectionDumpToFile(outputFile);
-	}
-
-	public void resetConnections() throws IOException {
-		server.resetConnections();
-	}
-
-	public void poke() {
-		server.poke();
-	}
-
 	public void init(String[] args) {
 		try {
 			Command line = commands.parse(args);
@@ -287,16 +200,6 @@ public class Server implements HTTPObjectAgentMXBean {
 
 	public void start() throws Exception {
 		server.start();
-	}
-
-	public String getStatus() {
-		return server.getStatus();
-	}
-
-	public boolean isRunning() {
-		if (server == null)
-			return false;
-		return server.isRunning();
 	}
 
 	public void stop() throws Exception {
@@ -424,7 +327,7 @@ public class Server implements HTTPObjectAgentMXBean {
 		try {
 			MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
 			mbs.registerMBean(new LoggerBean(), getMXLoggerName());
-			mbs.registerMBean(this, getMXServerName());
+			mbs.registerMBean(server, getMXServerName());
 		} catch (Exception e) {
 			// ignore
 		}
@@ -456,7 +359,6 @@ public class Server implements HTTPObjectAgentMXBean {
 	private void applyPolicy(Command line, Repository repository, File dir) throws IOException {
 		if (!line.has("trust")) {
 			List<File> directories = new ArrayList<File>();
-			directories.addAll(getLoggingDirectories());
 			directories.add(dir);
 			if (repository.getDataDir() != null) {
 				directories.add(repository.getDataDir().getParentFile());
@@ -465,90 +367,5 @@ public class Server implements HTTPObjectAgentMXBean {
 			HTTPObjectPolicy.apply(new String[0], write);
 		}
 	}
-
-	private List<File> getLoggingDirectories() throws IOException {
-		List<File> directories = new ArrayList<File>();
-        String fname = System.getProperty("java.util.logging.config.file");
-        if (fname == null) {
-            fname = System.getProperty("java.home");
-            if (fname == null) {
-                throw new Error("Can't find java.home ??");
-            }
-            File f = new File(fname, "lib");
-            f = new File(f, "logging.properties");
-            fname = f.getCanonicalPath();
-        }
-        InputStream in = new FileInputStream(fname);
-        try {
-        	Properties properties = new Properties();
-			properties.load(in);
-    		String handlers = properties.getProperty("handlers");
-			for (String logger : handlers.split("[\\s,]+")) {
-    			String pattern = properties.getProperty(logger + ".pattern");
-    			if (pattern != null) {
-    				File dir = getLogPatternDirectory(pattern);
-    				dir.mkdirs();
-					directories.add(dir);
-    			}
-    		}
-    		return directories;
-        } finally {
-            in.close();
-        }
-	}
-
-	/**
-     * Transform the pattern to the valid directory name, replacing any patterns.
-     */
-    private File getLogPatternDirectory(String pattern) {
-        String tempPath = System.getProperty("java.io.tmpdir"); //$NON-NLS-1$
-        boolean tempPathHasSepEnd = (tempPath == null ? false : tempPath
-                .endsWith(File.separator));
-
-        String homePath = System.getProperty("user.home"); //$NON-NLS-1$
-        boolean homePathHasSepEnd = (homePath == null ? false : homePath
-                .endsWith(File.separator));
-
-        StringBuilder sb = new StringBuilder();
-        pattern = pattern.replace('/', File.separatorChar);
-
-        int cur = 0;
-        int next = 0;
-        char[] value = pattern.toCharArray();
-        while ((next = pattern.indexOf('%', cur)) >= 0) {
-            if (++next < pattern.length()) {
-                switch (value[next]) {
-                    case 't':
-                        /*
-                         * we should probably try to do something cute here like
-                         * lookahead for adjacent '/'
-                         */
-                        sb.append(value, cur, next - cur - 1).append(tempPath);
-                        if (!tempPathHasSepEnd) {
-                            sb.append(File.separator);
-                        }
-                        break;
-                    case 'h':
-                        sb.append(value, cur, next - cur - 1).append(homePath);
-                        if (!homePathHasSepEnd) {
-                            sb.append(File.separator);
-                        }
-                        break;
-                    case '%':
-                        sb.append(value, cur, next - cur - 1).append('%');
-                        break;
-                    default:
-                        sb.append(value, cur, next - cur - 1);
-                        return new File(sb.substring(0, sb.lastIndexOf(File.separator)));
-                }
-                cur = ++next;
-            } else {
-                // fail silently
-            }
-        }
-
-        sb.append(value, cur, value.length - cur);
-        return new File(sb.substring(0, sb.lastIndexOf(File.separator)));
-    }
 
 }

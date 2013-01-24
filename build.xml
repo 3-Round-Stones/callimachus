@@ -230,7 +230,7 @@
             <fileset dir="${src}" includes="*.sh *.bat *.pl"/>
         </copy>
         <fixcrlf srcdir="${bin}" includes="*.bat" eol="crlf" />
-        <chmod dir="${bin}" includes="*.sh,*.pl,callimachus-linux*,callimachus-darwin*" perm="ugo+rx"/>
+        <chmod dir="${bin}" includes="*.sh,*.pl,*-linux*,*-darwin*" perm="ugo+rx"/>
     </target>
 
     <target name="dist" depends="compile,car" description="generate the distribution">
@@ -266,7 +266,7 @@
     </target>
 
     <target name="car">
-        <!-- Create the distribution directory and create the jar -->
+        <!-- Create the distribution directory and create the car -->
         <mkdir dir="${dist}" />
         <zip destfile="${dist}/callimachus-webapp-${Version}.car">
             <zipfileset dir="${webapp}" prefix="" includes="**/*.ttl" />
@@ -340,7 +340,7 @@
     </target>
 
     <target name="package" depends="clean,dist,test" description="Create a package ready for release">
-        <echo>Artifact ready: ${dist}/Callimachus-${Version}.zip</echo>
+        <echo>Artifact ready: ${dist}/callimachus-${Version}.zip</echo>
     </target>
 
     <target name="setup" depends="dist" unless="repositories.uptodate">

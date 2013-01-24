@@ -1,5 +1,6 @@
 #!/bin/sh
 #
+# Portions Copyright (c) 2011-2013 3 Round Stones Inc., Some Rights Reserved
 # Portions Copyright (c) 2009-10 Zepheira LLC, Some Rights Reserved
 # Portions Copyright (c) 2010-11 Talis Inc, Some Rights Reserved
 #
@@ -33,22 +34,6 @@
 
 # PATH should only include /usr/* if it runs after the mountnfs.sh script
 PATH=/sbin:/usr/sbin:/bin:/usr/bin
-DESC="Linked Data Management System"
-
-# Define LSB log_* functions.
-if [ -r /lib/lsb/init-functions ]; then
-  . /lib/lsb/init-functions
-else
-  log_success_msg () {
-    echo $1
-  }
-  log_failure_msg () {
-    echo $1 2>&1
-  }
-  log_warning_msg () {
-    echo $1 2>&1
-  }
-fi
 
 # resolve links - $0 may be a softlink
 PRG="$0"
@@ -69,49 +54,11 @@ if [ -z "$NAME" ] ; then
   NAME=`basename "$PRG" | sed 's/\.sh$//'`
 fi
 
-cygwin=false
-darwin=false
-case "`uname`" in
-CYGWIN*) cygwin=true;;
-Darwin*) darwin=true;;
-esac
-
-if $darwin; then
-  DAEMON="$PRGDIR/$NAME-darwin"
-elif [ `uname -m` = "x86_64" ]; then
-  DAEMON="$PRGDIR/$NAME-linux-x86_64"
-elif [ `uname -m` = "i686" ]; then
-  DAEMON="$PRGDIR/$NAME-linux-i686"
-else
-  DAEMON="jsvc"
-fi
-
 # Only set BASEDIR if not already set
 [ -z "$BASEDIR" ] && BASEDIR=`cd "$PRGDIR/.." >/dev/null; pwd`
 
-PIDFILE="$BASEDIR/run/$NAME.pid"
-SCRIPTNAME=/etc/init.d/$NAME
-
 # Read relative config paths from BASEDIR
 cd "$BASEDIR"
-
-# Check that target executable exists
-if [ ! -f "$DAEMON" ]; then
-  log_failure_msg "Cannot find $DAEMON"
-  log_failure_msg "This file is needed to run this program"
-  exit 5
-fi
-
-# Check that target is executable
-if [ ! -x "$DAEMON" ]; then
-  chmod a+x "$DAEMON"
-  # Check that target is executable
-  if [ ! -x "$DAEMON" ]; then
-    log_failure_msg "$DAEMON is not executable"
-    log_failure_msg "This file is needed to run this program"
-    exit 5
-  fi
-fi
 
 # Read configuration variable file if it is present
 [ -r "/etc/default/$NAME" ] && . "/etc/default/$NAME"
@@ -135,8 +82,68 @@ if [ -r "$CONFIG" ]; then
   . "$CONFIG" 2>/dev/null
 fi
 
+PIDFILE="$BASEDIR/run/$NAME.pid"
+SCRIPTNAME=/etc/init.d/$NAME
+
+MAINCLASS=org.callimachusproject.Server
+SETUPCLASS=org.callimachusproject.Setup
+MONITORCLASS=org.callimachusproject.ServerMonitor
+
 # Ensure that any user defined CLASSPATH variables are not used on startup.
 CLASSPATH=
+
+# Define LSB log_* functions.
+if [ -r /lib/lsb/init-functions ]; then
+  . /lib/lsb/init-functions
+else
+  log_success_msg () {
+    echo $1
+  }
+  log_failure_msg () {
+    echo $1 2>&1
+  }
+  log_warning_msg () {
+    echo $1 2>&1
+  }
+fi
+
+cygwin=false
+darwin=false
+case "`uname`" in
+CYGWIN*) cygwin=true;;
+Darwin*) darwin=true;;
+esac
+
+if $darwin; then
+  DAEMON="$PRGDIR/$NAME-darwin"
+elif [ `uname -m` = "x86_64" ]; then
+  DAEMON="$PRGDIR/$NAME-linux-x86_64"
+elif [ `uname -m` = "i686" ]; then
+  DAEMON="$PRGDIR/$NAME-linux-i686"
+else
+  DAEMON=`command -v jsvc`
+fi
+if [ ! -f "$DAEMON" ]; then
+  DAEMON=`command -v jsvc`
+fi
+
+# Check that target executable exists
+if [ ! -f "$DAEMON" ]; then
+  log_failure_msg "Cannot find jsvc daemon"
+  log_failure_msg "This file is needed to run this program"
+  exit 5
+fi
+
+# Check that target is executable
+if [ ! -x "$DAEMON" ]; then
+  chmod a+x "$DAEMON"
+  # Check that target is executable
+  if [ ! -x "$DAEMON" ]; then
+    log_failure_msg "$DAEMON is not executable"
+    log_failure_msg "This file is needed to run this program"
+    exit 5
+  fi
+fi
 
 # For Cygwin, ensure paths are in UNIX format before anything is touched
 if $cygwin; then
@@ -370,10 +377,6 @@ if [ ! -z "$DAEMON_USER" ] ; then
   fi
 fi
 
-MAINCLASS=org.callimachusproject.Server
-SETUPCLASS=org.callimachusproject.Setup
-MONITORCLASS=org.callimachusproject.ServerMonitor
-
 
 #
 # Function that starts the daemon/service
@@ -392,7 +395,7 @@ do_start()
     return 6
   fi
 
-  JSVC_LOG="$BASEDIR/log/callimachus-start.log"
+  JSVC_LOG="$BASEDIR/log/$NAME-start.log"
   if [ -e "$JSVC_LOG" ]; then
     rm "$JSVC_LOG"
   fi
@@ -497,7 +500,7 @@ do_stop()
 }
 
 #
-# Function that loads the configuration and prompts for a password
+# Function that loads the configuration and prompts for a user
 #
 do_setup() {
   "$JAVA_HOME/bin/java" \
@@ -507,7 +510,7 @@ do_setup() {
     -classpath "$CLASSPATH" \
     -XX:OnOutOfMemoryError="kill -9 %p" \
     $JAVA_OPTS $SSL_OPTS "$SETUPCLASS" \
-    $PRIMARY_ORIGIN_OPTS -c "$REPOSITORY_CONFIG" -w "$(ls lib/$NAME*.car)" \
+    $PRIMARY_ORIGIN_OPTS -c "$REPOSITORY_CONFIG" -w "$(ls lib/callimachus-webapp*.car)" \
     -e "$EMAIL" -n "$FULLNAME" "$@"
   return $?
 }
@@ -528,7 +531,7 @@ do_dump() {
     fi
   fi
 
-  JSVC_LOG="$BASEDIR/log/callimachus-dump.log"
+  JSVC_LOG="$BASEDIR/log/$NAME-dump.log"
   if [ -e "$JSVC_LOG" ]; then
     rm "$JSVC_LOG"
   fi
@@ -550,7 +553,7 @@ do_dump() {
 # Function that resets the internal cache
 #
 do_reset() {
-  JSVC_LOG="$BASEDIR/log/callimachus-reset.log"
+  JSVC_LOG="$BASEDIR/log/$NAME-reset.log"
   if [ -e "$JSVC_LOG" ]; then
     rm "$JSVC_LOG"
   fi

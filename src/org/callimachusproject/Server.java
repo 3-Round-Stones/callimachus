@@ -44,6 +44,7 @@ import org.callimachusproject.cli.Command;
 import org.callimachusproject.cli.CommandSet;
 import org.callimachusproject.client.HTTPObjectClient;
 import org.callimachusproject.logging.LoggerBean;
+import org.callimachusproject.server.CallimachusRepository;
 import org.callimachusproject.server.CallimachusServer;
 import org.callimachusproject.server.HTTPObjectPolicy;
 import org.openrdf.repository.Repository;
@@ -107,7 +108,7 @@ public class Server {
 				System.out.println(server.getClass().getSimpleName()
 						+ " is listening on port " + server.getPort()
 						+ " for " + server.toString() + "/");
-				System.out.println("Repository: " + server.server.getRepository());
+				System.out.println("Repository: " + server.getRepository());
 				System.out.println("Origin: " + server.toString());
 			} else if (!server.server.isRunning()) {
 				System.err.println(server.getClass().getSimpleName()
@@ -166,6 +167,10 @@ public class Server {
 		if (sslports.length > 0)
 			return sslports[0];
 		return null;
+	}
+
+	public CallimachusRepository getRepository() {
+		return server.getRepository();
 	}
 
 	public void init(String[] args) {

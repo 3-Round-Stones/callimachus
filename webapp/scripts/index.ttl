@@ -24,8 +24,8 @@
     rdf:_13 <optional.js>;
     rdf:_14 <time.js>;
     rdf:_15 <auto-expand.js>;
-    rdf:_16 <hbox.js>;
-    rdf:_17 <vbox.js>;
+    rdf:_16 <vbox.js>;
+    rdf:_17 <hbox.js>;
     rdf:_18 <sorted.js>;
     rdf:_19 <creole.js>;
     rdf:_20 <wiki.js>;

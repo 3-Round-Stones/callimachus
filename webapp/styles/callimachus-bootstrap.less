@@ -261,6 +261,24 @@ menu {
   padding: (@baseLineHeight / 1.1) 20px @baseLineHeight;
 }
 
+.input-append,
+.input-prepend {
+  font-size: @baseFontSize * 0;
+
+  input,
+  select,
+  .uneditable-input {
+    font-size: 14px;
+    font-size: @baseFontSize;
+  }
+  .add-on {
+    height: @baseLineHeight;
+    font-size: 14px;
+    font-size: @baseFontSize;
+    line-height: @baseLineHeight;
+  }
+}
+
 
 // ----------------------------------------------------------------------------
 // code.less overrides
@@ -282,16 +300,30 @@ pre {
 // buttons.less overrides
 // ----------------------------------------------------------------------------
 
-.btn-large {
-	font-size: @baseFontSize * 1.2;
+.btn-group {
+  font-size: @baseFontSize * 0; // remove as part 1 of font-size inline-block hack
+}
+.btn-toolbar {
+  font-size: @baseFontSize * 0; // Hack to remove whitespace that results from using inline-block
 }
 
-.btn-small {
-	font-size: @baseFontSize / 1.2;
-	line-height: @baseLineHeight / 1.2;
+.btn-group > .dropdown-menu {
+  font-size: 14px;
+  font-size: @baseFontSize; // redeclare as part 2 of font-size inline-block hack
 }
 
-.btn-mini {
-	font-size: @baseFontSize / 1.3;
-	line-height: @baseLineHeight / 1.3;
+// Reset fonts for other sizes
+.btn-group > .btn-mini {
+    font-size: 11px;
+    font-size: @baseFontSize / 1.3;
+    line-height: @baseLineHeight / 1.3;
+}
+.btn-group > .btn-small {
+    font-size: 12px;
+    font-size: @baseFontSize / 1.2;
+    line-height: @baseLineHeight / 1.2;
+}
+.btn-group > .btn-large {
+    font-size: 16px;
+    font-size: @baseFontSize * 1.2;
 }

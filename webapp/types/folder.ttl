@@ -304,9 +304,9 @@
     calli:script """
         var con = this.objectConnection;
         var vf = con.getValueFactory();
-        function readFrom(type, entryStream, uri, graphs) {
+        function readFrom(type, entryStream, uri, graph) {
             var inserter = new org.callimachusproject.form.helpers.TripleInserter(con);
-            inserter.setGraph(graphs);
+            inserter.setGraph(graph);
     		var registry = org.openrdf.rio.RDFParserRegistry.getInstance();
 			var parser = registry.get(registry.getFileFormatForMIMEType(type)).getParser();
             parser.setValueFactory(vf);
@@ -354,7 +354,7 @@
                     container.PostFactoryCreate(entryStream, File, null, location, type);
                     dependency.remove(location);
                 } else if (carStream.isResourceEntry()) {
-                    readFrom(type, entryStream, uri, []);
+                    readFrom(type, entryStream, uri, null);
                     if (folder) {
                         folder.calliHasComponent.add(location);
                     }
@@ -362,7 +362,7 @@
                 } else if (carStream.isSchemaEntry()) {
                     var graphURI = vf.createURI(con.getVersionBundle().stringValue() + "#schema");
                     con.add(graphURI, RDF.TYPE, SchemaGraph, []);
-                    readFrom(type, entryStream, uri, [graphURI]);
+                    readFrom(type, entryStream, uri, graphURI);
                     //# copy rdf:type to activity graph
                     con.add(con.getStatements(vf.createURI(uri), RDF.TYPE, null, false, [graphURI]), [con.getVersionBundle()]);
                     if (folder) {

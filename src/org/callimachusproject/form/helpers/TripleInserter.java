@@ -32,6 +32,7 @@ import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
+import org.openrdf.model.impl.ContextStatementImpl;
 import org.openrdf.model.impl.StatementImpl;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -54,6 +55,7 @@ public class TripleInserter implements RDFHandler {
 	private final RDFHandler inserter;
 	private final Set<String> prefixes = new HashSet<String>();
 	private final Set<String> namespaces = new HashSet<String>();
+	private URI graph = null;
 
 	public TripleInserter(RepositoryConnection con) throws RepositoryException {
 		this(new RDFInserter(con), con);
@@ -73,6 +75,27 @@ public class TripleInserter implements RDFHandler {
 		} finally {
 			currently.close();
 		}
+	}
+
+	/**
+	 * Gets the graph that this enforces upon all statements that
+	 * are reported to it.
+	 * 
+	 * @return A URI identifying the contexts, or <tt>null</tt> if no
+	 *         contexts is enforced.
+	 */
+	public URI getGraph() {
+		return graph;
+	}
+
+	/**
+	 * Enforces the supplied graph upon all statements that are reported.
+	 * 
+	 * @param contexts
+	 *        the contexts to use.
+	 */
+	public void setGraph(URI graph) {
+		this.graph = graph;
 	}
 
 	@Override
@@ -151,7 +174,12 @@ public class TripleInserter implements RDFHandler {
 		URI pred = canonicalize(st.getPredicate());
 		Value obj = canonicalize(st.getObject());
 		verifier.verify(subj, pred, obj);
-		return new StatementImpl(subj, pred, obj);
+		URI graph = getGraph();
+		if (graph != null) {
+			return new ContextStatementImpl(subj, pred, obj, graph);
+		} else {
+			return new StatementImpl(subj, pred, obj);
+		}
 	}
 
 	private <V extends Value> V canonicalize(V value) throws RDFHandlerException {

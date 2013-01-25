@@ -306,7 +306,7 @@
         var vf = con.getValueFactory();
         function readFrom(type, entryStream, uri, graphs) {
             var inserter = new org.callimachusproject.form.helpers.TripleInserter(con);
-            inserter.enforceContext(graphs);
+            inserter.setGraph(graphs);
     		var registry = org.openrdf.rio.RDFParserRegistry.getInstance();
 			var parser = registry.get(registry.getFileFormatForMIMEType(type)).getParser();
             parser.setValueFactory(vf);

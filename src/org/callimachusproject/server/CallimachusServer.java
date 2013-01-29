@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
 import java.util.Set;
@@ -45,12 +46,13 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 	private CallimachusRepository repository;
 	private HTTPObjectServer server;
 
-	public CallimachusServer(Repository repository, File dataDir) throws Exception {
+	public CallimachusServer(Repository repository, File dataDir)
+			throws OpenRDFException, IOException, NoSuchAlgorithmException {
 		this.repository = new CallimachusRepository(repository, dataDir);
 		this.server = createServer(dataDir, this.repository);
 	}
 
-	public void addOrigin(String origin) throws Exception {
+	public void addOrigin(String origin) throws OpenRDFException, URISyntaxException {
 		ValueFactory vf = this.repository.getValueFactory();
 		String schema = repository.getCallimachusUrl(origin, SCHEMA_GRAPH);
 		if (schema != null) {
@@ -177,7 +179,7 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 		server.poke();
 	}
 
-	public void listen(int[] ports, int[] sslports) throws Exception {
+	public void listen(int[] ports, int[] sslports) throws OpenRDFException, URISyntaxException, IOException {
 		assert ports != null && ports.length > 0 || sslports != null
 				&& sslports.length > 0;
 		if (ports == null) {
@@ -193,7 +195,7 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 		server.listen(ports, sslports);
 	}
 
-	public void start() throws Exception {
+	public void start() throws IOException, OpenRDFException {
 		logger.info("Callimachus is binding to {}", toString());
 		for (String origin : origins) {
 			HttpHost host = getAuthorityAddress(origin);
@@ -225,7 +227,7 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 		return server.isRunning();
 	}
 
-	public void stop() throws Exception {
+	public void stop() throws IOException {
 		for (String origin : origins) {
 			HttpHost host = getAuthorityAddress(origin);
 			HTTPObjectClient.getInstance().removeProxy(host, server);
@@ -233,7 +235,7 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 		server.stop();
 	}
 
-	public void destroy() throws Exception {
+	public void destroy() throws IOException {
 		server.destroy();
 	}
 

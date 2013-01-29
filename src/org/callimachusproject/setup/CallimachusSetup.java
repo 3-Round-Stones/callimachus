@@ -223,6 +223,10 @@ public class CallimachusSetup {
 		}
 	}
 
+	public RepositoryConnection openConnection() throws RepositoryException {
+		return repository.getConnection();
+	}
+
 	/**
 	 * Remove the Callimachus webapp currently installed in <code>origin</code>.
 	 * 
@@ -241,9 +245,11 @@ public class CallimachusSetup {
 	 * 
 	 * @param origin will contain a Callimachus webapp
 	 * @return if the RDF store was modified
+	 * @throws OpenRDFException 
+	 * @throws IOException 
 	 * @throws Exception
 	 */
-	public boolean createWebappOrigin(String origin) throws Exception {
+	public boolean createWebappOrigin(String origin) throws OpenRDFException, IOException {
 		validateOrigin(origin);
 		boolean barren = webappIfPresent(origin) == null;
 		if (barren) {
@@ -327,13 +333,18 @@ public class CallimachusSetup {
 	 * @param car
 	 * @param webappOrigin origin to contain the Callimachus webapp
 	 * @return if the RDF store was modified
-	 * @throws Exception
+	 * @throws OpenRDFException
+	 * @throws InvocationTargetException 
+	 * @throws NoSuchMethodException 
+	 * @throws IOException 
 	 */
-	public boolean importCallimachusWebapp(URL car, String webappOrigin) throws Exception {
+	public boolean importCallimachusWebapp(URL car, String webappOrigin)
+			throws OpenRDFException, IOException, NoSuchMethodException,
+			InvocationTargetException {
 		String folder = repository.getCallimachusUrl(webappOrigin, "");
 		if (folder == null)
 			throw new IllegalArgumentException("Origin not setup: " + webappOrigin);
-		return importCar(car, folder, webappOrigin);
+		return importCar(car, folder);
 	}
 
 	/**
@@ -343,14 +354,17 @@ public class CallimachusSetup {
 	 * @param folder absolute hierarchical URI with a path
 	 * @param webappOrigin that contains a Callimachus webapp
 	 * @return if the RDF store was modified
-	 * @throws Exception
+	 * @throws InvocationTargetException 
+	 * @throws NoSuchMethodException 
+	 * @throws OpenRDFException 
+	 * @throws IOException 
 	 */
-	public boolean importCar(URL car, String folder, String webappOrigin)
-			throws Exception {
-		validateOrigin(webappOrigin);
+	public boolean importCar(URL car, String folder)
+			throws IOException, OpenRDFException, NoSuchMethodException,
+			InvocationTargetException {
 		if (car == null)
 			throw new IllegalArgumentException("No CAR provided");
-		createFolder(folder, webappOrigin);
+		String webappOrigin = createFolder(folder);
 		URI[] schemaGraphs = importSchema(car, folder, webappOrigin);
 		importArchive(schemaGraphs, car, folder, webappOrigin);
 		return true;
@@ -358,17 +372,18 @@ public class CallimachusSetup {
 
 	/**
 	 * Creates (or updates email) the given user.
-	 * 
-	 * @param name
 	 * @param email
 	 * @param username
+	 * @param label
+	 * @param comment
 	 * @param webappOrigin that contains a Callimachus webapp
+	 * 
 	 * @return if the RDF store was modified
 	 * @throws OpenRDFException
 	 * @throws IOException
 	 */
-	public boolean createAdmin(String name, String email, String username,
-			String webappOrigin) throws OpenRDFException, IOException {
+	public boolean createAdmin(String email, String username, String label,
+			String comment, String webappOrigin) throws OpenRDFException, IOException {
 		validateName(username);
 		validateEmail(email);
 		ObjectConnection con = repository.getConnection();
@@ -379,7 +394,7 @@ public class CallimachusSetup {
 			for (String space : getDigestUserNamespaces(webappOrigin, con)) {
 				URI subj = vf.createURI(space + username);
 				modified |= changeAdminPassword(webappOrigin, vf.createURI(space),
-						subj, name, email, username, con);
+						subj, email, username, label, comment, con);
 			}
 			con.setAutoCommit(true);
 			return modified;
@@ -498,8 +513,7 @@ public class CallimachusSetup {
 		Graph graph = parseTurtleGraph(configString);
 		Resource node = GraphUtil.getUniqueSubject(graph, RDF.TYPE,
 				RepositoryConfigSchema.REPOSITORY);
-		RepositoryConfig config = RepositoryConfig.create(graph, node);
-		return config;
+		return RepositoryConfig.create(graph, node);
 	}
 
 	private Graph parseTurtleGraph(String configString) throws IOException,
@@ -565,7 +579,7 @@ public class CallimachusSetup {
 		return null;
 	}
 
-	private String upgradeStore(String origin) throws Exception {
+	private String upgradeStore(String origin) throws OpenRDFException, IOException {
 		String version = getStoreVersion(origin);
 		Iterator<UpdateProvider> iter = updateProviders.iterator();
 		while (iter.hasNext()) {
@@ -584,7 +598,7 @@ public class CallimachusSetup {
 		return newVersion;
 	}
 
-	private void updateWebappContext(String origin) throws Exception {
+	private void updateWebappContext(String origin) throws OpenRDFException {
 		synchronized (webapps) {
 			webapps.clear();
 		}
@@ -766,9 +780,9 @@ public class CallimachusSetup {
 		}
 	}
 
-	private void importArchive(URI[] schemaGraphs, URL car,
-			String folderUri, String origin)
-			throws Exception {
+	private void importArchive(URI[] schemaGraphs, URL car, String folderUri,
+			String origin) throws IOException, OpenRDFException,
+			NoSuchMethodException, InvocationTargetException {
 		HttpHost host = getAuthorityAddress(origin);
 		HTTPObjectClient client = HTTPObjectClient.getInstance();
 		UnavailableHttpClient service = new UnavailableHttpClient();
@@ -792,16 +806,8 @@ public class CallimachusSetup {
 				Object[] args = new Object[argc];
 				args[0] = in;
 				UploadFolderComponents.invoke(folder, args);
-			} catch (InvocationTargetException e) {
-				try {
-					throw e.getCause();
-				} catch (Exception cause) {
-					throw cause;
-				} catch (Error cause) {
-					throw cause;
-				} catch (Throwable cause) {
-					throw e;
-				}
+			} catch (IllegalAccessException e) {
+				throw new AssertionError(e);
 			} finally {
 				in.close();
 			}
@@ -822,39 +828,63 @@ public class CallimachusSetup {
 		throw new NoSuchMethodException("UploadFolderComponents");
 	}
 
-	private boolean createFolder(String folder, String origin) throws OpenRDFException {
-		boolean modified = false;
+	private String createFolder(String folder) throws OpenRDFException {
+		String origin = null;
 		int idx = folder.lastIndexOf('/', folder.length() - 2);
 		String parent = folder.substring(0, idx + 1);
 		if (parent.endsWith("://")) {
 			parent = null;
 		} else {
-			modified = createFolder(parent, origin);
+			origin = createFolder(parent);
 		}
 		ValueFactory vf = repository.getValueFactory();
 		ObjectConnection con = repository.getConnection();
 		try {
-			con.setAutoCommit(false);
 			URI uri = vf.createURI(folder);
-			if (con.hasStatement(uri, RDF.TYPE, webapp(origin, ORIGIN_TYPE)))
-				return modified;
-			if (con.hasStatement(uri, RDF.TYPE, webapp(origin, REALM_TYPE)))
-				return modified;
-			if (con.hasStatement(uri, RDF.TYPE, webapp(origin, FOLDER_TYPE)))
-				return modified;
-			if (parent == null)
-				throw new IllegalStateException("Can only import a CAR within a previously defined origin or realm");
-			if (con.hasStatement(vf.createURI(parent), vf.createURI(CALLI_HASCOMPONENT), uri))
-				return modified;
-			con.add(vf.createURI(parent), vf.createURI(CALLI_HASCOMPONENT), uri);
-			String label = folder.substring(parent.length()).replace("/", "").replace('-', ' ');
-			con.add(uri, RDF.TYPE, vf.createURI(CALLI_FOLDER));
-			con.add(uri, RDF.TYPE, webapp(origin, FOLDER_TYPE));
-			con.add(uri, RDFS.LABEL, vf.createLiteral(label));
-			add(con, uri, CALLI_READER, origin + GROUP_PUBLIC);
-			add(con, uri, CALLI_ADMINISTRATOR, origin + GROUP_ADMIN);
-			con.setAutoCommit(true);
-			return true;
+			if (origin == null || parent == null) {
+				RepositoryResult<Statement> stmts = con.getStatements(uri,
+						RDF.TYPE, null);
+				try {
+					while (stmts.hasNext()) {
+						Statement st = stmts.next();
+						String type = st.getObject().stringValue();
+						if (type.endsWith(ORIGIN_TYPE)
+								|| type.endsWith(REALM_TYPE)
+								|| type.endsWith(FOLDER_TYPE)) {
+							String root = TermFactory.newInstance(type)
+									.resolve("/");
+							return root.substring(0, root.length() - 1);
+						}
+					}
+				} finally {
+					stmts.close();
+				}
+				throw new IllegalStateException(
+						"Can only import a CAR within a previously defined origin or realm");
+			} else {
+				if (con.hasStatement(uri, RDF.TYPE, webapp(origin, ORIGIN_TYPE)))
+					return origin;
+				if (con.hasStatement(uri, RDF.TYPE, webapp(origin, REALM_TYPE)))
+					return origin;
+				if (con.hasStatement(uri, RDF.TYPE, webapp(origin, FOLDER_TYPE)))
+					return origin;
+				if (con.hasStatement(vf.createURI(parent),
+						vf.createURI(CALLI_HASCOMPONENT), uri))
+					return origin;
+
+				con.setAutoCommit(false);
+				con.add(vf.createURI(parent), vf.createURI(CALLI_HASCOMPONENT),
+						uri);
+				String label = folder.substring(parent.length())
+						.replace("/", "").replace('-', ' ');
+				con.add(uri, RDF.TYPE, vf.createURI(CALLI_FOLDER));
+				con.add(uri, RDF.TYPE, webapp(origin, FOLDER_TYPE));
+				con.add(uri, RDFS.LABEL, vf.createLiteral(label));
+				add(con, uri, CALLI_READER, origin + GROUP_PUBLIC);
+				add(con, uri, CALLI_ADMINISTRATOR, origin + GROUP_ADMIN);
+				con.setAutoCommit(true);
+				return origin;
+			}
 		} finally {
 			con.close();
 		}
@@ -886,8 +916,8 @@ public class CallimachusSetup {
 	}
 
 	private boolean changeAdminPassword(String origin, Resource folder,
-			URI subj, String name, String email, String username,
-			ObjectConnection con) throws OpenRDFException, IOException {
+			URI subj, String email, String username, String label,
+			String comment, ObjectConnection con) throws OpenRDFException, IOException {
 		ValueFactory vf = con.getValueFactory();
 		URI calliEmail = vf.createURI(CALLI_EMAIL);
 		if (con.hasStatement(subj, RDF.TYPE, vf.createURI(CALLI_USER))) {
@@ -905,10 +935,13 @@ public class CallimachusSetup {
 			con.add(subj, RDF.TYPE, vf.createURI(CALLI_PARTY));
 			con.add(subj, RDF.TYPE, vf.createURI(CALLI_USER));
 			con.add(subj, vf.createURI(CALLI_NAME), vf.createLiteral(username));
-			if (name == null || name.length() == 0) {
+			if (label == null || label.length() == 0) {
 				con.add(subj, RDFS.LABEL, vf.createLiteral(username));
 			} else {
-				con.add(subj, RDFS.LABEL, vf.createLiteral(name));
+				con.add(subj, RDFS.LABEL, vf.createLiteral(label));
+			}
+			if (comment != null && comment.length() > 0) {
+				con.add(subj, RDFS.COMMENT, vf.createLiteral(comment));
 			}
 			con.add(subj, vf.createURI(CALLI_SUBSCRIBER), staff);
 			con.add(subj, vf.createURI(CALLI_ADMINISTRATOR), admin);

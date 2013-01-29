@@ -313,12 +313,12 @@ public class Server {
 			applyPolicy(line, repository, dataDir);
 		}
 		server.listen(ports, sslports);
-		registerMBean();
+		registerMBean(server);
 	}
 
 	private ObjectName getMXServerName() throws MalformedObjectNameException {
 		String pkg = Server.class.getPackage().getName();
-		return new ObjectName(pkg + ":type=" + Server.class.getSimpleName());
+		return new ObjectName(pkg + ":type=" + CallimachusServer.class.getSimpleName());
 	}
 
 	private ObjectName getMXLoggerName() throws MalformedObjectNameException {
@@ -326,7 +326,7 @@ public class Server {
 		return new ObjectName(pkg + ":type=Logger");
 	}
 
-	private void registerMBean() throws InstanceAlreadyExistsException,
+	private void registerMBean(CallimachusServer server) throws InstanceAlreadyExistsException,
 			MBeanRegistrationException, NotCompliantMBeanException,
 			MalformedObjectNameException {
 		try {

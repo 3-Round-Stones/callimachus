@@ -244,17 +244,11 @@ public class Setup {
 				}
 			}
 			for (Map.Entry<String, URL> e : cars.entrySet()) {
-				String origin = origins.iterator().next();
-				for (String o : origins) {
-					if (e.getKey().startsWith(o + "/")) {
-						origin = o;
-					}
-				}
-				changed |= setup.importCar(e.getValue(), e.getKey(), origin);
+				changed |= setup.importCar(e.getValue(), e.getKey());
 			}
 			if (email != null && email.length() > 0) {
 				for (String origin : origins) {
-					changed |= setup.createAdmin(name, email, username, origin);
+					changed |= setup.createAdmin(email, username, name, null, origin);
 					if (password == null || password.length < 1) {
 						for (String url : setup.getUserRegistrationLinks(username, email, origin)) {
 							System.err.println("Use this URL to assign a password");

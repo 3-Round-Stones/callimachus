@@ -410,7 +410,7 @@ public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAg
 		}
 	}
 
-	public synchronized void listen(int[] ports, int[] sslports) throws Exception {
+	public synchronized void listen(int[] ports, int[] sslports) throws IOException {
 		if (ports == null) {
 			ports = new int[0];
 		}
@@ -476,22 +476,26 @@ public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAg
 				}
 			}).start();
 		}
-		while (!started) {
-			wait();
-		}
-		Thread.sleep(100);
-		if (!isRunning()) {
-			String str = Arrays.toString(ports) + Arrays.toString(sslports);
-			str = str.replace('[', ' ').replace(']', ' ');
-			throw new BindException("Could not bind to port" + str
-					+ "server is " + getStatus());
+		try {
+			while (!started) {
+				wait();
+			}
+			Thread.sleep(100);
+			if (!isRunning()) {
+				String str = Arrays.toString(ports) + Arrays.toString(sslports);
+				str = str.replace('[', ' ').replace(']', ' ');
+				throw new BindException("Could not bind to port" + str
+						+ "server is " + getStatus());
+			}
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
 		}
 		synchronized (instances) {
 			instances.add(this);
 		}
 	}
 
-	public synchronized void start() throws Exception {
+	public synchronized void start() throws IOException {
 		service.start();
 		if (ports.length > 0) {
 			server.resume();
@@ -512,7 +516,7 @@ public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAg
 		return false;
 	}
 
-	public synchronized void stop() throws Exception {
+	public synchronized void stop() throws IOException {
 		service.stop();
 		if (ports.length > 0) {
 			server.pause();
@@ -522,30 +526,34 @@ public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAg
 		}
 	}
 
-	public synchronized void destroy() throws Exception {
+	public synchronized void destroy() throws IOException {
 		stop();
 		server.shutdown();
 		if (sslserver != null) {
 			sslserver.shutdown();
 		}
 		resetConnections();
-		while (!stopped) {
-			wait();
-		}
-		Thread.sleep(100);
-		while (server.getStatus() != IOReactorStatus.SHUT_DOWN
-				&& server.getStatus() != IOReactorStatus.INACTIVE) {
-			Thread.sleep(1000);
-			if (isRunning())
-				throw new HttpException("Could not shutdown server");
-		}
-		if (sslserver != null) {
-			while (sslserver.getStatus() != IOReactorStatus.SHUT_DOWN
-					&& sslserver.getStatus() != IOReactorStatus.INACTIVE) {
+		try {
+			while (!stopped) {
+				wait();
+			}
+			Thread.sleep(100);
+			while (server.getStatus() != IOReactorStatus.SHUT_DOWN
+					&& server.getStatus() != IOReactorStatus.INACTIVE) {
 				Thread.sleep(1000);
 				if (isRunning())
-					throw new HttpException("Could not shutdown server");
+					throw new IOException("Could not shutdown server");
 			}
+			if (sslserver != null) {
+				while (sslserver.getStatus() != IOReactorStatus.SHUT_DOWN
+						&& sslserver.getStatus() != IOReactorStatus.INACTIVE) {
+					Thread.sleep(1000);
+					if (isRunning())
+						throw new IOException("Could not shutdown server");
+				}
+			}
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
 		}
 		synchronized (instances) {
 			instances.remove(this);

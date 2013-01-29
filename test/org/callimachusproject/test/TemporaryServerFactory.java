@@ -198,7 +198,7 @@ public class TemporaryServerFactory {
 			setup.createWebappOrigin(origin);
 			setup.importCallimachusWebapp(WEBAPP_CAR.toURI().toURL(), origin);
 			String username = email.substring(0, email.indexOf('@'));
-			setup.createAdmin(email, email, username, origin);
+			setup.createAdmin(email, username, username, null, origin);
 			setup.changeUserPassword(email, username, password, origin);
 			setup.shutDown();
 		}

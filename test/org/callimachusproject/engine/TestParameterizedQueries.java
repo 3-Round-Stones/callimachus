@@ -18,7 +18,8 @@ import org.openrdf.sail.memory.MemoryStore;
 
 public class TestParameterizedQueries extends TestCase {
 	private static final String EXAMPLE_COM = "http://example.com/";
-	private static final String PREFIX = "PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
+	private static final String PREFIX = "PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>\n" +
+			"PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
 			+ "PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>\n"
 			+ "PREFIX test:<urn:test:>\n";
 	private SailRepository repo;
@@ -77,6 +78,54 @@ public class TestParameterizedQueries extends TestCase {
 		con.add(vf.createURI("urn:test:thing2"), RDFS.LABEL, vf.createLiteral("Thing2"));
 		con.add(vf.createURI("urn:test:thing1"), RDF.VALUE, vf.createLiteral(1));
 		con.add(vf.createURI("urn:test:thing2"), RDF.VALUE, vf.createLiteral(2));
+		TupleQueryResult result = parser.parseQuery(sparql, EXAMPLE_COM).evaluate(parameters, con);
+		assertEquals(Arrays.asList("thing", "label"), result.getBindingNames());
+		assertTrue(result.hasNext());
+		assertEquals("urn:test:thing1", result.next().getValue("thing").stringValue());
+		assertFalse(result.hasNext());
+		result.close();
+	}
+
+	public void testLangStringParameter() throws Exception {
+		String sparql = PREFIX + "SELECT * { ?thing rdfs:label \"$label\"@en }";
+		Map<String, String[]> parameters = Collections.singletonMap("label", new String[]{"Thing1"});
+
+		con.add(vf.createURI("urn:test:thing1"), RDFS.LABEL, vf.createLiteral("Thing1", "en"));
+		con.add(vf.createURI("urn:test:thing2"), RDFS.LABEL, vf.createLiteral("Thing2", "en"));
+		con.add(vf.createURI("urn:test:thing1"), RDF.VALUE, vf.createLiteral(1));
+		con.add(vf.createURI("urn:test:thing2"), RDF.VALUE, vf.createLiteral(2));
+		TupleQueryResult result = parser.parseQuery(sparql, EXAMPLE_COM).evaluate(parameters, con);
+		assertEquals(Arrays.asList("thing", "label"), result.getBindingNames());
+		assertTrue(result.hasNext());
+		assertEquals("urn:test:thing1", result.next().getValue("thing").stringValue());
+		assertFalse(result.hasNext());
+		result.close();
+	}
+
+	public void testTypeLiteralParameter() throws Exception {
+		String sparql = PREFIX + "SELECT * { ?thing rdfs:label \"$label\"^^xsd:token }";
+		Map<String, String[]> parameters = Collections.singletonMap("label", new String[]{"Thing1"});
+
+		con.add(vf.createURI("urn:test:thing1"), RDFS.LABEL, vf.createLiteral("Thing1", XMLSchema.TOKEN));
+		con.add(vf.createURI("urn:test:thing2"), RDFS.LABEL, vf.createLiteral("Thing2", XMLSchema.TOKEN));
+		con.add(vf.createURI("urn:test:thing3"), RDFS.LABEL, vf.createLiteral("Thing1"));
+		con.add(vf.createURI("urn:test:thing4"), RDFS.LABEL, vf.createLiteral("Thing2"));
+		TupleQueryResult result = parser.parseQuery(sparql, EXAMPLE_COM).evaluate(parameters, con);
+		assertEquals(Arrays.asList("thing", "label"), result.getBindingNames());
+		assertTrue(result.hasNext());
+		assertEquals("urn:test:thing1", result.next().getValue("thing").stringValue());
+		assertFalse(result.hasNext());
+		result.close();
+	}
+
+	public void testUriTypeLiteralParameter() throws Exception {
+		String sparql = PREFIX + "SELECT * { ?thing rdfs:label \"$label\"^^<http://www.w3.org/2001/XMLSchema#token> }";
+		Map<String, String[]> parameters = Collections.singletonMap("label", new String[]{"Thing1"});
+
+		con.add(vf.createURI("urn:test:thing1"), RDFS.LABEL, vf.createLiteral("Thing1", XMLSchema.TOKEN));
+		con.add(vf.createURI("urn:test:thing2"), RDFS.LABEL, vf.createLiteral("Thing2", XMLSchema.TOKEN));
+		con.add(vf.createURI("urn:test:thing3"), RDFS.LABEL, vf.createLiteral("Thing1", XMLSchema.ID));
+		con.add(vf.createURI("urn:test:thing4"), RDFS.LABEL, vf.createLiteral("Thing2", XMLSchema.ID));
 		TupleQueryResult result = parser.parseQuery(sparql, EXAMPLE_COM).evaluate(parameters, con);
 		assertEquals(Arrays.asList("thing", "label"), result.getBindingNames());
 		assertTrue(result.hasNext());

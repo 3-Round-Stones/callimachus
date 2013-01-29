@@ -247,7 +247,7 @@ public class ParameterizedQueryParser {
 		Map<String, String> prefixes = scanner.getPrefixes();
 		for (String name : parameters.keySet()) {
 			if (parameters.get(name) instanceof Literal) {
-				String pattern = "\"\\$" + Pattern.quote(name) + "\"(^^<[^\\s>]*>|^^\\S*:\\S*\\b|@\\w+\\b)?";
+				String pattern = "\"\\$" + Pattern.quote(name) + "\"(\\^\\^<[^\\s>]*>|\\^\\^\\S*:\\S*\\b|@\\w+\\b)?";
 				sparql = sparql.replaceAll(pattern, Matcher.quoteReplacement("$" + name));
 			} else {
 				String pattern = "<\\$" + Pattern.quote(name) + ">";

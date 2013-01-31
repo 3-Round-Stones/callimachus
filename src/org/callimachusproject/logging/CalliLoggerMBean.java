@@ -20,15 +20,13 @@ package org.callimachusproject.logging;
 
 import java.io.IOException;
 
-
-
 /**
  * MXBean interface used by the logging bean.
  * 
  * @author James Leigh
- *
+ * 
  */
-public interface LoggerMXBean {
+public interface CalliLoggerMBean {
 
 	void startNotifications(String prefix);
 
@@ -39,6 +37,10 @@ public interface LoggerMXBean {
 	void logInfo(String prefix);
 
 	void logWarn(String prefix);
+
+	String[] getLoggingProperties() throws IOException;
+
+	void setLoggingProperties(String[] lines) throws IOException;
 
 	String getVMSummary() throws Exception;
 

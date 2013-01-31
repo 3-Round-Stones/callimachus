@@ -18,7 +18,12 @@
  */
 package org.callimachusproject.logging;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -35,6 +40,7 @@ import java.util.Enumeration;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -64,8 +70,8 @@ import com.sun.management.OperatingSystemMXBean;
  * @author James Leigh
  * 
  */
-public class LoggerBean extends NotificationBroadcasterSupport implements
-		LoggerMXBean {
+public class CalliLogger extends NotificationBroadcasterSupport implements
+		CalliLoggerMBean {
 	private Formatter formatter;
 	private Handler nh;
 
@@ -108,7 +114,7 @@ public class LoggerBean extends NotificationBroadcasterSupport implements
 
 	}
 
-	public LoggerBean() {
+	public CalliLogger() {
 		formatter = new LogMessageFormatter();
 		nh = new NotificationHandler();
 		nh.setFormatter(formatter);
@@ -148,7 +154,46 @@ public class LoggerBean extends NotificationBroadcasterSupport implements
 		setLoggerLevel(fragment, Level.WARNING);
 	}
 
-	public String getVMSummary() throws Exception {
+	public synchronized String[] getLoggingProperties() throws IOException {
+		String fileName = System.getProperty("java.util.logging.config.file");
+		if (fileName == null || !new File(fileName).exists())
+			return new String[0];
+		FileReader fileReader = new FileReader(fileName);
+		BufferedReader bufferedReader = new BufferedReader(fileReader);
+		List<String> lines = new ArrayList<String>();
+		String line = null;
+		while ((line = bufferedReader.readLine()) != null) {
+		    lines.add(line);
+		}
+		bufferedReader.close();
+		return lines.toArray(new String[lines.size()]);
+	}
+
+	public synchronized void setLoggingProperties(String[] lines)
+			throws IOException {
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		PrintWriter writer = new PrintWriter(out);
+		try {
+			for (String line : lines) {
+				writer.println(line);
+			}
+		} finally {
+			writer.close();
+		}
+		byte[] data = out.toByteArray();
+		LogManager.getLogManager().readConfiguration(new ByteArrayInputStream(data));
+		String fileName = System.getProperty("java.util.logging.config.file");
+		if (fileName != null) {
+			FileOutputStream stream = new FileOutputStream(fileName);
+			try {
+				stream.write(data);
+			} finally {
+				stream.close();
+			}
+		}
+	}
+
+    public String getVMSummary() throws Exception {
 		StringWriter sw = new StringWriter();
 		PrintWriter w = new PrintWriter(sw);
 		printJVMVersion(w);
@@ -206,7 +251,7 @@ public class LoggerBean extends NotificationBroadcasterSupport implements
 		} finally {
 			writer.close();
 		}
-		LoggerFactory.getLogger(LoggerBean.class).info("Call trace dump: {}", outputFile);
+		LoggerFactory.getLogger(CalliLogger.class).info("Call trace dump: {}", outputFile);
 	}
 
 	private void addEach(Trace[] traces, Set<Trace> set) {

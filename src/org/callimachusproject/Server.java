@@ -33,17 +33,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
-import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 
 import org.callimachusproject.cli.Command;
 import org.callimachusproject.cli.CommandSet;
 import org.callimachusproject.client.HTTPObjectClient;
-import org.callimachusproject.logging.LoggerBean;
+import org.callimachusproject.logging.CalliLogger;
 import org.callimachusproject.server.CallimachusRepository;
 import org.callimachusproject.server.CallimachusServer;
 import org.callimachusproject.server.HTTPObjectPolicy;
@@ -218,7 +215,8 @@ public class Server {
 			server.getRepository().shutDown();
 			server.destroy();
 		}
-		unregisterMBean();
+		unregisterMBean(CalliLogger.class);
+		unregisterMBean(CallimachusServer.class);
 	}
 
 	private void logStdout() {
@@ -309,43 +307,40 @@ public class Server {
 		if (line.has("name")) {
 			server.setServerName(line.get("name"));
 		}
+		server.listen(ports, sslports);
+		registerMBean(server);
+		registerMBean(new CalliLogger());
 		if (!line.has("trust")) {
 			applyPolicy(line, repository, dataDir);
 		}
-		server.listen(ports, sslports);
-		registerMBean(server);
 	}
 
-	private ObjectName getMXServerName() throws MalformedObjectNameException {
-		String pkg = Server.class.getPackage().getName();
-		return new ObjectName(pkg + ":type=" + CallimachusServer.class.getSimpleName());
-	}
-
-	private ObjectName getMXLoggerName() throws MalformedObjectNameException {
-		String pkg = Server.class.getPackage().getName();
-		return new ObjectName(pkg + ":type=Logger");
-	}
-
-	private void registerMBean(CallimachusServer server) throws InstanceAlreadyExistsException,
-			MBeanRegistrationException, NotCompliantMBeanException,
-			MalformedObjectNameException {
+	private void registerMBean(Object bean) {
 		try {
+			Class<?> beanClass = bean.getClass();
+			ObjectName name = getMBeanName(beanClass);
 			MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
-			mbs.registerMBean(new LoggerBean(), getMXLoggerName());
-			mbs.registerMBean(server, getMXServerName());
+			mbs.registerMBean(bean, name);
 		} catch (Exception e) {
 			// ignore
 		}
 	}
 
-	private void unregisterMBean() {
+	private void unregisterMBean(Class<?> beanClass) {
 		try {
 			MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
-			mbs.unregisterMBean(getMXLoggerName());
-			mbs.unregisterMBean(getMXServerName());
+			mbs.unregisterMBean(getMBeanName(beanClass));
 		} catch (Exception e) {
 			// ignore
 		}
+	}
+
+	private ObjectName getMBeanName(Class<?> beanClass)
+			throws MalformedObjectNameException {
+		String pkg = Server.class.getPackage().getName();
+		String simple = beanClass.getSimpleName();
+		ObjectName name = new ObjectName(pkg + ":type=" + simple);
+		return name;
 	}
 
 	private String getRepositoryUrl(Command line)

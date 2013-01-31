@@ -45,7 +45,9 @@ import javax.xml.datatype.DatatypeFactory;
 
 import org.callimachusproject.cli.Command;
 import org.callimachusproject.cli.CommandSet;
-import org.callimachusproject.logging.LoggerMXBean;
+import org.callimachusproject.logging.CalliLogger;
+import org.callimachusproject.logging.CalliLoggerMBean;
+import org.callimachusproject.server.CallimachusServer;
 import org.callimachusproject.server.HTTPObjectAgentMXBean;
 import org.callimachusproject.server.util.ChannelUtil;
 import org.callimachusproject.server.util.ManagedThreadPool;
@@ -119,7 +121,7 @@ public class ServerMonitor {
 
 	private Object vm;
 	private MBeanServerConnection mbsc;
-	private LoggerMXBean logger;
+	private CalliLoggerMBean logger;
 	private HTTPObjectAgentMXBean server;
 	private boolean reset;
 	private boolean stop;
@@ -282,7 +284,7 @@ public class ServerMonitor {
 		server = JMX.newMXBeanProxy(mbsc, getMXServerName(),
 				HTTPObjectAgentMXBean.class);
 		logger = JMX
-				.newMXBeanProxy(mbsc, getMXLoggerName(), LoggerMXBean.class);
+				.newMXBeanProxy(mbsc, getMXLoggerName(), CalliLoggerMBean.class);
 	}
 
 	private void heapDump(Object vm, String hprof) throws Exception {
@@ -408,12 +410,12 @@ public class ServerMonitor {
 
 	private ObjectName getMXServerName() throws MalformedObjectNameException {
 		String pkg = Server.class.getPackage().getName();
-		return new ObjectName(pkg + ":type=" + Server.class.getSimpleName());
+		return new ObjectName(pkg + ":type=" + CallimachusServer.class.getSimpleName());
 	}
 
 	private ObjectName getMXLoggerName() throws MalformedObjectNameException {
 		String pkg = Server.class.getPackage().getName();
-		return new ObjectName(pkg + ":type=Logger");
+		return new ObjectName(pkg + ":type=" + CalliLogger.class.getSimpleName());
 	}
 
 }

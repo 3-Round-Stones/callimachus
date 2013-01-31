@@ -24,7 +24,7 @@ import javax.mail.MessagingException;
 import javax.naming.NamingException;
 
 import org.callimachusproject.concepts.User;
-import org.callimachusproject.util.MailSubmitter;
+import org.callimachusproject.util.Mailer;
 
 /**
  * Provides methods to send emails to a configured SMTP server using the
@@ -42,6 +42,6 @@ public abstract class MailSubmitterSupport implements User {
 
 	public void sendMessage(String html, Set<String> recipients)
 			throws IOException, MessagingException, NamingException {
-		new MailSubmitter(getCalliFullName(), getCalliEmail()).sendMessage(html, recipients);
+		new Mailer(getCalliFullName(), getCalliEmail()).sendMessage(html, recipients);
 	}
 }

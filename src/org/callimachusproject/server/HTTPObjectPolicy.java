@@ -73,6 +73,7 @@ public class HTTPObjectPolicy extends Policy {
 			.getProtectionDomain().getCodeSource();
 	/** loaded from a writable location */
 	private final PermissionCollection plugins;
+	private final PermissionCollection external;
 	private final PermissionCollection jars;
 	private final List<String> writableLocations;
 
@@ -94,7 +95,7 @@ public class HTTPObjectPolicy extends Policy {
 		if (source == codesource || source != null && source.equals(codesource))
 			return copy(jars);
 		if (codesource == null || codesource.getLocation() == null)
-			return copy(plugins);
+			return copy(external);
 		String location = codesource.getLocation().toExternalForm();
 		if (!location.startsWith("file:"))
 			return copy(plugins);
@@ -111,10 +112,9 @@ public class HTTPObjectPolicy extends Policy {
 		plugins.add(new PropertyPermission("apple.awt.graphics.*", "write"));
 		plugins.add(new RuntimePermission("getenv.*"));
 		plugins.add(new SocketPermission("*", "connect,resolve"));
-		plugins.add(new SocketPermission("*", "accept,listen"));
+		plugins.add(new SocketPermission("*", "accept"));
 		plugins.add(new NetPermission("getProxySelector"));
 		plugins.add(new ReflectPermission("suppressAccessChecks"));
-		plugins.add(new MBeanServerPermission("createMBeanServer"));
 		plugins.add(new SecurityPermission("putProviderProperty.*"));
 		plugins.add(new RuntimePermission("accessDeclaredMembers"));
 		plugins.add(new RuntimePermission("getClassLoader"));
@@ -159,14 +159,16 @@ public class HTTPObjectPolicy extends Policy {
 		} catch (IOException e) {
 			logger.warn(e.toString(), e);
 		}
-		jars = copy(plugins);
+		external = copy(plugins);
+		external.add(new SocketPermission("*", "listen"));
+		external.add(new MBeanPermission("*", "*"));
+		external.add(new ManagementPermission("monitor"));
+		external.add(new ManagementPermission("control"));
+		external.add(new MBeanServerPermission("*"));
+		external.add(new MBeanTrustPermission("register"));
+		external.add(new LoggingPermission("control", ""));
+		jars = copy(external);
 		jars.add(new RuntimePermission("*"));
-		jars.add(new MBeanPermission("*", "*"));
-		jars.add(new ManagementPermission("monitor"));
-		jars.add(new ManagementPermission("control"));
-		jars.add(new MBeanServerPermission("*"));
-		jars.add(new MBeanTrustPermission("register"));
-		jars.add(new LoggingPermission("control", ""));
 		addJavaPath(System.getProperty("jdk.home"));
 		addJavaPath(System.getProperty("java.home"));
 		addJavaPath(System.getenv("JAVA_HOME"));

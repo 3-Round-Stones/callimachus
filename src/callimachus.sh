@@ -422,7 +422,7 @@ do_start()
     TRUSTSTORE=$(grep -E '^javax.net.ssl.trustStore=' $SSL |perl -pe 's/^javax.net.ssl.trustStore=(.*)/$1/' 2>/dev/null)
     KEYSTORE=$(grep -E '^javax.net.ssl.keyStore=' $SSL |perl -pe 's/^javax.net.ssl.keyStore=(.*)/$1/' 2>/dev/null)
     for cert in etc/*.pem etc/*.cer etc/*.crt etc/*.cert etc/*.der ; do
-      if [ -r "$cert" -a -r "$TRUSTSTORE" -a r "$KEYSTORE" ] ; then
+      if [ -r "$cert" -a -r "$TRUSTSTORE" -a -r "$KEYSTORE" ] ; then
         ALIAS="$(basename "$cert" | sed 's/\.[a-z]\+$//' )"
         if ! "$KEYTOOL" -list -keystore "$TRUSTSTORE" -storepass "$(cat "$SSL.password")" |grep -q "^$ALIAS," ; then
           "$KEYTOOL" -import -alias "$ALIAS" -file "$cert" -noprompt -trustcacerts -keystore "$TRUSTSTORE" -storepass "$(cat "$SSL.password")" "-J-Djavax.net.ssl.trustStore=$TRUSTSTORE"
@@ -565,7 +565,7 @@ do_setup() {
     -Djava.mail.properties="$MAIL" \
     -classpath "$CLASSPATH" \
     -XX:OnOutOfMemoryError="kill -9 %p" \
-    $JAVA_OPTS $SSL_OPTS "$SETUPCLASS" \
+    $JAVA_OPTS "$SETUPCLASS" \
     $PRIMARY_ORIGIN_OPTS -c "$REPOSITORY_CONFIG" -w "$(ls lib/callimachus-webapp*.car)" \
     -e "$EMAIL" -n "$FULLNAME" "$@"
   return $?

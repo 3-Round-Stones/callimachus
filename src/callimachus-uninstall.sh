@@ -40,7 +40,7 @@ if [ ! -f "$PRGDIR/$NAME.sh" -o "$PRG" = "$PRGDIR/$NAME.sh" ]; then
 fi
 
 # resolve links - /etc/init.d/callimachus may be a softlink
-TARGET="/etc/init.d/callimachus"
+TARGET="/etc/init.d/$NAME"
 
 while [ -h "$TARGET" ] ; do
   ls=`ls -ld "$TARGET"`

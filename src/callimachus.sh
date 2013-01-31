@@ -224,6 +224,10 @@ if [ -z "$JDK_HOME" ] ; then
   fi
 fi
 
+if [ -z "$KEYTOOL" ] ; then
+  KEYTOOL="$JAVA_HOME/bin/keytool"
+fi
+
 if [ -z "$TMPDIR" ] ; then
   # Define the java.io.tmpdir to use
   TMPDIR="$BASEDIR"/tmp
@@ -245,12 +249,16 @@ if [ -z "$SSL_OPTS" -a -e "$SSL" ] ; then
   SSL_OPTS=$(perl -pe 's/\s*\#.*$//g' "$SSL" 2>/dev/null |perl -pe 's/(\S+)=(.*)/-D$1=$2/' 2>/dev/null |tr -s '\n' ' ')
 fi
 
-if [ -z "$REPOSITORY" ] ; then
-  REPOSITORY="$BASEDIR/repositories/$NAME"
+if [ -z "$JMXRMI" ] ; then
+  JMXRMI="$BASEDIR/etc/jmxremote.properties"
 fi
 
-if [ -z "$REPOSITORY_CONFIG" ] ; then
-  REPOSITORY_CONFIG="$BASEDIR/etc/$NAME-repository.ttl"
+if [ -z "$JMXRMI_OPTS" -a -e "$JMXRMI" ] ; then
+  JMXRMI_OPTS=$(perl -pe 's/\s*\#.*$//g' "$JMXRMI" 2>/dev/null |perl -pe 's/(\S+)=(.*)/-D$1=$2/' 2>/dev/null |tr -s '\n' ' ')
+fi
+
+if [ -z "$REPOSITORY" ] ; then
+  REPOSITORY="$BASEDIR/repositories/$NAME"
 fi
 
 if [ -z "$REPOSITORY_CONFIG" ] ; then
@@ -345,22 +353,35 @@ if [ ! -z "$DAEMON_USER" ] ; then
   if [ ! -z "$DAEMON_GROUP" ] ; then
     chown ":$DAEMON_GROUP" "$BASEDIR/log"
   fi
-  if [ -e "$BASEDIR/repositories" ]; then
-    chown -R "$DAEMON_USER" "$BASEDIR/repositories"
-    if [ ! -z "$DAEMON_GROUP" ] ; then
-      chown -R ":$DAEMON_GROUP" "$BASEDIR/repositories"
-    fi
+  if [ ! -e "$BASEDIR/repositories" ]; then
+    mkdir "$BASEDIR/repositories"
+  fi
+  chown -R "$DAEMON_USER" "$BASEDIR/repositories"
+  if [ ! -z "$DAEMON_GROUP" ] ; then
+    chown -R ":$DAEMON_GROUP" "$BASEDIR/repositories"
   fi
   if [ -e "$SSL" ]; then
-    chown -R "$DAEMON_USER" "$SSL"
-    if [ ! -z "$DAEMON_GROUP" ] ; then
-      chown -R ":$DAEMON_GROUP" "$SSL"
-    fi
     KEYSTORE=$(grep -E '^javax.net.ssl.keyStore=' $SSL |perl -pe 's/^javax.net.ssl.keyStore=(.*)/$1/' 2>/dev/null)
-    if [ -n "$KEYSTORE" -a -e "$BASEDIR/$KEYSTORE" ]; then
-      chown -R "$DAEMON_USER" "$BASEDIR/$KEYSTORE"
+    if [ -n "$KEYSTORE" -a -e "$KEYSTORE" ]; then
+      chown -R "$DAEMON_USER" "$KEYSTORE"
       if [ ! -z "$DAEMON_GROUP" ] ; then
-        chown -R ":$DAEMON_GROUP" "$BASEDIR/$KEYSTORE"
+        chown -R ":$DAEMON_GROUP" "$KEYSTORE"
+      fi
+    fi
+    TRUSTSTORE=$(grep -E '^javax.net.ssl.trustStore=' $SSL |perl -pe 's/^javax.net.ssl.trustStore=(.*)/$1/' 2>/dev/null)
+    if [ -n "$TRUSTSTORE" -a -e "$TRUSTSTORE" ]; then
+      chown -R "$DAEMON_USER" "$TRUSTSTORE"
+      if [ ! -z "$DAEMON_GROUP" ] ; then
+        chown -R ":$DAEMON_GROUP" "$TRUSTSTORE"
+      fi
+    fi
+  fi
+  if [ -e "$JMXRMI" ]; then
+    JMXRMIPASS=$(grep -E '^com.sun.management.jmxremote.password.file=' $JMXRMI |perl -pe 's/^com.sun.management.jmxremote.password.file=(.*)/$1/' 2>/dev/null)
+    if [ -n "$JMXRMIPASS" -a -e "$JMXRMIPASS" ]; then
+      chown -R "$DAEMON_USER" "$JMXRMIPASS"
+      if [ ! -z "$DAEMON_GROUP" ] ; then
+        chown -R ":$DAEMON_GROUP" "$JMXRMIPASS"
       fi
     fi
   fi
@@ -395,6 +416,41 @@ do_start()
     return 6
   fi
 
+  # import any new certificates before starting server
+  if [ -r "$SSL" ] ; then
+    grep -E '^javax.net.ssl.keyStorePassword=' "$SSL" |perl -pe 's/^javax.net.ssl.keyStorePassword=(.*)/$1/' 2>/dev/null > "$SSL.password"
+    TRUSTSTORE=$(grep -E '^javax.net.ssl.trustStore=' $SSL |perl -pe 's/^javax.net.ssl.trustStore=(.*)/$1/' 2>/dev/null)
+    KEYSTORE=$(grep -E '^javax.net.ssl.keyStore=' $SSL |perl -pe 's/^javax.net.ssl.keyStore=(.*)/$1/' 2>/dev/null)
+    for cert in etc/*.pem etc/*.cer etc/*.crt etc/*.cert etc/*.der ; do
+      if [ -r "$cert" -a -r "$TRUSTSTORE" -a r "$KEYSTORE" ] ; then
+        ALIAS="$(basename "$cert" | sed 's/\.[a-z]\+$//' )"
+        if ! "$KEYTOOL" -list -keystore "$TRUSTSTORE" -storepass "$(cat "$SSL.password")" |grep -q "^$ALIAS," ; then
+          "$KEYTOOL" -import -alias "$ALIAS" -file "$cert" -noprompt -trustcacerts -keystore "$TRUSTSTORE" -storepass "$(cat "$SSL.password")" "-J-Djavax.net.ssl.trustStore=$TRUSTSTORE"
+          if [ $? = 0 ] ; then
+            log_success_msg "Imported new trusted certificate $cert into $TRUSTSTORE"
+          else
+            log_warning_msg "Could not import new trusted certificate $cert into $TRUSTSTORE"
+          fi
+        fi
+        if ! "$KEYTOOL" -list -keystore "$KEYSTORE" -storepass "$(cat "$SSL.password")" |grep -q "^$ALIAS," ; then
+          "$KEYTOOL" -import -alias "$ALIAS" -file "$cert" -noprompt -trustcacerts -keystore "$KEYSTORE" -storepass "$(cat "$SSL.password")" "-J-Djavax.net.ssl.trustStore=$TRUSTSTORE"
+          if [ $? = 0 ] ; then
+            log_success_msg "Imported $cert into $KEYSTORE"
+          else
+            log_warning_msg "Could not import $cert into $KEYSTORE"
+          fi
+        elif [ "$cert" != "etc/$ALIAS.cer" ] &&"$KEYTOOL" -list -keystore "$KEYSTORE" -storepass "$(cat "$SSL.password")" |grep "^$ALIAS," |grep -q "PrivateKeyEntry," ; then
+          "$KEYTOOL" -import -alias "$ALIAS" -file "$cert" -noprompt -trustcacerts -keystore "$KEYSTORE" -storepass "$(cat "$SSL.password")" "-J-Djavax.net.ssl.trustStore=$TRUSTSTORE"
+          if [ $? = 0 ] ; then
+            log_success_msg "Imported certificate reply $cert into $KEYSTORE"
+          else
+            log_warning_msg "Could not import certificate reply $cert into $KEYSTORE"
+          fi
+        fi
+      fi
+    done
+  fi
+
   JSVC_LOG="$BASEDIR/log/$NAME-start.log"
   if [ -e "$JSVC_LOG" ]; then
     rm "$JSVC_LOG"
@@ -411,7 +467,7 @@ do_start()
     -classpath "$CLASSPATH" \
     -user "$DAEMON_USER" \
     -XX:OnOutOfMemoryError="kill -9 %p" \
-    $JSVC_OPTS $SSL_OPTS "$MAINCLASS" -q -r "$REPOSITORY" $OPTS "$@"
+    $JSVC_OPTS $SSL_OPTS $JMXRMI_OPTS "$MAINCLASS" -q -r "$REPOSITORY" $OPTS "$@"
 
   RETURN_VAL=$?
   sleep 1
@@ -584,7 +640,7 @@ do_run() {
     -XX:OnOutOfMemoryError="kill -9 %p" \
     -classpath "$CLASSPATH" \
     -user "$DAEMON_USER" \
-    $JSVC_OPTS $SSL_OPTS "$MAINCLASS" -q -r "$REPOSITORY" $OPTS "$@"
+    $JSVC_OPTS $SSL_OPTS $JMXRMI_OPTS "$MAINCLASS" -q -r "$REPOSITORY" $OPTS "$@"
 }
 
 case "$1" in

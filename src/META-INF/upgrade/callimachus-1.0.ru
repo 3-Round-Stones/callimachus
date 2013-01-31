@@ -29,3 +29,22 @@ INSERT {
     }
 };
 
+DELETE {
+    </layout/template.xsl> ?p ?o
+} WHERE {
+    </layout/template.xsl> ?p ?o
+};
+
+DELETE {
+    </> a <http://callimachusproject.org/rdf/2009/framework#Alias>
+} WHERE {
+    </> a <http://callimachusproject.org/rdf/2009/framework#Alias>, calli:Folder
+};
+
+INSERT {
+    ?graph a <http://www.openrdf.org/rdf/2012/auditing#ObsoleteBundle>
+} WHERE {
+    ?graph a <http://www.openrdf.org/rdf/2009/auditing#ObsoleteTransaction>
+    FILTER NOT EXISTS { ?graph a <http://www.openrdf.org/rdf/2012/auditing#ObsoleteBundle> }
+};
+

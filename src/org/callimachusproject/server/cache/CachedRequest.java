@@ -228,17 +228,20 @@ public class CachedRequest {
 	private List<CachedEntity> load(File dir) {
 		List<CachedEntity> responses;
 		responses = new LinkedList<CachedEntity>();
-		for (File file : dir.listFiles()) {
-			String name = file.getName();
-			if (name.endsWith("-head")) {
-				try {
-					File body = new File(dir, name.substring(0,
-							name.length() - 5));
-					CachedEntity response = new CachedEntity(file, body, locker);
-					responses.add(response);
-				} catch (Exception e) {
-					// skip file
-					logger.warn(e.toString() + " in " + file, e);
+		File[] listFiles = dir.listFiles();
+		if (listFiles != null) {
+			for (File file : listFiles) {
+				String name = file.getName();
+				if (name.endsWith("-head")) {
+					try {
+						File body = new File(dir, name.substring(0,
+								name.length() - 5));
+						CachedEntity response = new CachedEntity(file, body, locker);
+						responses.add(response);
+					} catch (Exception e) {
+						// skip file
+						logger.warn(e.toString() + " in " + file, e);
+					}
 				}
 			}
 		}

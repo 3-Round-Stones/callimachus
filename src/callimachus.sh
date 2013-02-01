@@ -300,12 +300,12 @@ if [ -z "$ORIGIN" ] ; then
   if [ -n "$AUTHORITY" ] ; then
     ORIGIN="http://$AUTHORITY"
   elif [ -n "$PORT" ] ; then
-    ORIGIN="http://$(hostname -f)"
+    ORIGIN="http://$(hostname -f |tr '[A-Z]' '[a-z]')"
     if [ "$PORT" != "80" ] ; then
       ORIGIN="$ORIGIN:$PORT"
     fi
   elif [ -n "$SSLPORT" ] ; then
-    ORIGIN="https://$(hostname -f)"
+    ORIGIN="https://$(hostname -f |tr '[A-Z]' '[a-z]')"
     if [ "$SSLPORT" != "443" ] ; then
       ORIGIN="$ORIGIN:$SSLPORT"
     fi
@@ -349,9 +349,9 @@ if [ ! -z "$DAEMON_USER" ] ; then
   if [ ! -e "$BASEDIR/log" ] ; then
     mkdir "$BASEDIR/log"
   fi
-  chown "$DAEMON_USER" "$BASEDIR/log"
+  chown -R "$DAEMON_USER" "$BASEDIR/log"
   if [ ! -z "$DAEMON_GROUP" ] ; then
-    chown ":$DAEMON_GROUP" "$BASEDIR/log"
+    chown -R ":$DAEMON_GROUP" "$BASEDIR/log"
   fi
   if [ ! -e "$BASEDIR/repositories" ]; then
     mkdir "$BASEDIR/repositories"
@@ -387,6 +387,11 @@ if [ ! -z "$DAEMON_USER" ] ; then
   fi
   if [ ! -e "$TMPDIR" ] ; then
     mkdir "$TMPDIR"
+    chown "$DAEMON_USER" "$TMPDIR"
+    if [ ! -z "$DAEMON_GROUP" ] ; then
+      chown ":$DAEMON_GROUP" "$TMPDIR"
+    fi
+  elif [ "$BASEDIR/tmp" = "$TMPDIR" ] ; then
     chown "$DAEMON_USER" "$TMPDIR"
     if [ ! -z "$DAEMON_GROUP" ] ; then
       chown ":$DAEMON_GROUP" "$TMPDIR"

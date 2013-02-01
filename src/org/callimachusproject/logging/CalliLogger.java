@@ -193,7 +193,7 @@ public class CalliLogger extends NotificationBroadcasterSupport implements
 		}
 	}
 
-    public String getVMSummary() throws Exception {
+    public String showVMSummary() throws Exception {
 		StringWriter sw = new StringWriter();
 		PrintWriter w = new PrintWriter(sw);
 		printJVMVersion(w);
@@ -209,7 +209,7 @@ public class CalliLogger extends NotificationBroadcasterSupport implements
 	}
 
 	@Override
-	public String[] getActiveCallTraces() {
+	public String[] traceActiveCalls() {
 		Trace[] threads = MethodCall.getActiveCallTraces();
 		String[] result = new String[threads.length];
 		for (int i=0; i<threads.length; i++) {

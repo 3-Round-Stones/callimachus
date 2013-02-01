@@ -193,25 +193,40 @@ public class CallimachusSetup {
 	public CallimachusSetup(File baseDir, String configString)
 			throws OpenRDFException, IOException {
 		RepositoryConfig config = getRepositoryConfig(configString);
-		Repository repo = getRepository(baseDir, config);
+		manager = getRepositoryManager(baseDir);
+		Repository repo = getRepository(manager, config);
 		if (repo == null)
 			throw new RepositoryConfigException(
 					"Missing repository configuration");
 		File dataDir = repo.getDataDir();
 		if (dataDir == null) {
-			LocalRepositoryManager manager = getRepositoryManager(baseDir);
 			dataDir = manager.getRepositoryDir(config.getID());
 		}
 		repository = new CallimachusRepository(repo, dataDir);
 		vf = repository.getValueFactory();
-		manager = RepositoryProvider.getRepositoryManager(baseDir);
+	}
+
+	public CallimachusSetup(LocalRepositoryManager manager, String configString)
+			throws OpenRDFException, IOException {
+		RepositoryConfig config = getRepositoryConfig(configString);
+		Repository repo = getRepository(manager, config);
+		if (repo == null)
+			throw new RepositoryConfigException(
+					"Missing repository configuration");
+		File dataDir = repo.getDataDir();
+		if (dataDir == null) {
+			dataDir = manager.getRepositoryDir(config.getID());
+		}
+		repository = new CallimachusRepository(repo, dataDir);
+		vf = repository.getValueFactory();
+		this.manager = null;
 	}
 
 	public CallimachusSetup(Repository repo, File dataDir)
 			throws OpenRDFException, IOException {
 		repository = new CallimachusRepository(repo, dataDir);
 		vf = repository.getValueFactory();
-		manager = null;
+		this.manager = null;
 	}
 
 	/**
@@ -324,6 +339,9 @@ public class CallimachusSetup {
 				modified |= updater.update(webapp, repository);
 			}
 		}
+		if (modified) {
+			logger.info("Created {}", realm);
+		}
 		return modified;
 	}
 
@@ -341,6 +359,7 @@ public class CallimachusSetup {
 	public boolean importCallimachusWebapp(URL car, String webappOrigin)
 			throws OpenRDFException, IOException, NoSuchMethodException,
 			InvocationTargetException {
+		logger.info("Initializing {}", webappOrigin);
 		String folder = repository.getCallimachusUrl(webappOrigin, "");
 		if (folder == null)
 			throw new IllegalArgumentException("Origin not setup: " + webappOrigin);
@@ -489,9 +508,8 @@ public class CallimachusSetup {
 		}
 	}
 
-	private Repository getRepository(File baseDir, RepositoryConfig config)
+	private Repository getRepository(LocalRepositoryManager manager, RepositoryConfig config)
 			throws OpenRDFException, MalformedURLException, IOException {
-		LocalRepositoryManager manager = getRepositoryManager(baseDir);
 		if (config == null || manager == null)
 			return null;
 		String id = config.getID();

@@ -348,7 +348,7 @@ public class ServerMonitor {
 	private void summaryDump(MBeanServerConnection mbsc, String filename)
 			throws Throwable {
 		try {
-			String summary = logger.getVMSummary();
+			String summary = logger.showVMSummary();
 			PrintWriter w = new PrintWriter(filename);
 			try {
 				w.println(summary);

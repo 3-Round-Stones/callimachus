@@ -73,7 +73,7 @@ public class HTTPObjectPolicy extends Policy {
 			.getProtectionDomain().getCodeSource();
 	/** loaded from a writable location */
 	private final PermissionCollection plugins;
-	private final PermissionCollection external;
+	private final PermissionCollection management;
 	private final PermissionCollection jars;
 	private final List<String> writableLocations;
 
@@ -95,7 +95,7 @@ public class HTTPObjectPolicy extends Policy {
 		if (source == codesource || source != null && source.equals(codesource))
 			return copy(jars);
 		if (codesource == null || codesource.getLocation() == null)
-			return copy(external);
+			return copy(management);
 		String location = codesource.getLocation().toExternalForm();
 		if (!location.startsWith("file:"))
 			return copy(plugins);
@@ -159,16 +159,17 @@ public class HTTPObjectPolicy extends Policy {
 		} catch (IOException e) {
 			logger.warn(e.toString(), e);
 		}
-		external = copy(plugins);
-		external.add(new SocketPermission("*", "listen"));
-		external.add(new MBeanPermission("*", "*"));
-		external.add(new ManagementPermission("monitor"));
-		external.add(new ManagementPermission("control"));
-		external.add(new MBeanServerPermission("*"));
-		external.add(new MBeanTrustPermission("register"));
-		external.add(new LoggingPermission("control", ""));
-		jars = copy(external);
-		jars.add(new RuntimePermission("*"));
+		management = copy(plugins);
+		management.add(new RuntimePermission("*"));
+		management.add(new PropertyPermission("*", "read,write"));
+		management.add(new SocketPermission("*", "listen"));
+		management.add(new MBeanPermission("*", "*"));
+		management.add(new ManagementPermission("monitor"));
+		management.add(new ManagementPermission("control"));
+		management.add(new MBeanServerPermission("*"));
+		management.add(new MBeanTrustPermission("register"));
+		management.add(new LoggingPermission("control", ""));
+		jars = copy(management);
 		addJavaPath(System.getProperty("jdk.home"));
 		addJavaPath(System.getProperty("java.home"));
 		addJavaPath(System.getenv("JAVA_HOME"));

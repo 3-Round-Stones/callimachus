@@ -14,6 +14,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -43,11 +44,13 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 public abstract class ExchangeActor {
+	private static final int MAX_PRETTY_CONCURRENT_ERRORS = 10;
 	private static final int MAX_QUEUE_SIZE = 32;
 	private static final Pattern URL_PATTERN = Pattern
 			.compile("\\w+://(?:\\.?[^\\s}>\\)\\]\\.])+");
 	private static final ProtocolVersion HTTP11 = HttpVersion.HTTP_1_1;
 	private static final ThreadLocal<Boolean> inError = new ThreadLocal<Boolean>();
+	private static final AtomicInteger activeErrors = new AtomicInteger();
 	private static final StatusLine SHUTDOWN_503 = new BasicStatusLine(HttpVersion.HTTP_1_1, 503, "Service Unavailable For Maintenance");
 	private static final StatusLine _503 = new BasicStatusLine(HttpVersion.HTTP_1_1, 503, "Service Temporary Overloaded");
 	static final StatusLine _500 = new BasicStatusLine(HttpVersion.HTTP_1_1, 500, "Internal Server Error");
@@ -193,11 +196,13 @@ public abstract class ExchangeActor {
 			print.close();
 		}
 		String body = writer.toString();
-		if (pipeline != null && inError.get() == null) {
+		if (pipeline != null && inError.get() == null
+				&& activeErrors.get() < MAX_PRETTY_CONCURRENT_ERRORS) {
 			String id = pipeline.getSystemId();
 			if (id == null || !req.getRequestURL().startsWith(id)) {
 				try {
 					inError.set(true);
+					activeErrors.incrementAndGet();
 					Pipe pb = pipeline.pipeReader(new StringReader(body), null);
 					pb.passOption("target", req.getIRI());
 					pb.passOption("query", req.getQueryString());
@@ -206,6 +211,7 @@ public abstract class ExchangeActor {
 					logger.error(exc.toString(), exc);
 				} finally {
 					inError.remove();
+					activeErrors.decrementAndGet();
 				}
 			}
 		}

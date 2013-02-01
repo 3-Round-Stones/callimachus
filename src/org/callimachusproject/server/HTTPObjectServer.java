@@ -481,7 +481,10 @@ public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAg
 				wait();
 			}
 			Thread.sleep(100);
-			if (!isRunning()) {
+			if (ports.length > 0 && server != null
+					&& server.getStatus() != IOReactorStatus.ACTIVE
+					|| sslports.length > 0 && sslserver != null
+					&& sslserver.getStatus() != IOReactorStatus.ACTIVE) {
 				String str = Arrays.toString(ports) + Arrays.toString(sslports);
 				str = str.replace('[', ' ').replace(']', ' ');
 				throw new BindException("Could not bind to port" + str
@@ -509,10 +512,10 @@ public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAg
 		if (stopped)
 			return false;
 		if (ports.length > 0 && server.getStatus() == IOReactorStatus.ACTIVE)
-			return true;
+			return !service.isShutdown();
 		if (sslports.length > 0 && sslserver != null
 				&& sslserver.getStatus() == IOReactorStatus.ACTIVE)
-			return true;
+			return !service.isShutdown();
 		return false;
 	}
 

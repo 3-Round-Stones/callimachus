@@ -497,6 +497,8 @@ public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAg
 	}
 
 	public boolean isRunning() {
+		if (ports == null || sslports == null)
+			return false;
 		if (ports.length > 0 && server.getStatus() == IOReactorStatus.ACTIVE)
 			return !service.isShutdown();
 		if (sslports.length > 0 && sslserver != null

@@ -48,6 +48,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 
 import javax.net.ssl.SSLContext;
 
@@ -148,8 +149,8 @@ public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAg
 	private final ServerNameFilter name;
 	private final IdentityPrefix abs;
 	private final HttpResponseFilter env;
-	private boolean started = false;
-	private boolean stopped = true;
+	private CountDownLatch started;
+	private CountDownLatch stopped;
 	private final HTTPObjectRequestHandler service;
 	private final LinksHandler links;
 	private final AuthenticationHandler authCache;
@@ -426,8 +427,9 @@ public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAg
 		name.setPort(ports.length > 0 ? ports[0] : sslports[0]);
 		this.ports = ports;
 		this.sslports = sslports;
-		started = false;
-		stopped = false;
+		int count = (ports.length > 0 ? 1 : 0) + (sslserver != null && sslports.length > 0 ? 1 : 0);
+		this.started = new CountDownLatch(count);
+		this.stopped = new CountDownLatch(count);
 		if (ports.length > 0) {
 			for (int port : ports) {
 				server.listen(new InetSocketAddress(port));
@@ -436,18 +438,12 @@ public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAg
 			executor.newThread(new Runnable() {
 				public void run() {
 					try {
-						synchronized (HTTPObjectServer.this) {
-							started = true;
-							HTTPObjectServer.this.notifyAll();
-						}
+						started.countDown();
 						server.execute(dispatch);
 					} catch (IOException e) {
 						logger.error(e.toString(), e);
 					} finally {
-						synchronized (HTTPObjectServer.this) {
-							stopped = true;
-							HTTPObjectServer.this.notifyAll();
-						}
+						stopped.countDown();
 					}
 				}
 			}).start();
@@ -460,26 +456,18 @@ public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAg
 			executor.newThread(new Runnable() {
 				public void run() {
 					try {
-						synchronized (HTTPObjectServer.this) {
-							started = true;
-							HTTPObjectServer.this.notifyAll();
-						}
+						started.countDown();
 						sslserver.execute(ssldispatch);
 					} catch (IOException e) {
 						logger.error(e.toString(), e);
 					} finally {
-						synchronized (HTTPObjectServer.this) {
-							stopped = true;
-							HTTPObjectServer.this.notifyAll();
-						}
+						stopped.countDown();
 					}
 				}
 			}).start();
 		}
 		try {
-			while (!started) {
-				wait();
-			}
+			started.await();
 			Thread.sleep(100);
 			if (ports.length > 0 && server != null
 					&& server.getStatus() != IOReactorStatus.ACTIVE
@@ -509,8 +497,6 @@ public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAg
 	}
 
 	public boolean isRunning() {
-		if (stopped)
-			return false;
 		if (ports.length > 0 && server.getStatus() == IOReactorStatus.ACTIVE)
 			return !service.isShutdown();
 		if (sslports.length > 0 && sslserver != null
@@ -537,9 +523,7 @@ public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAg
 		}
 		resetConnections();
 		try {
-			while (!stopped) {
-				wait();
-			}
+			stopped.await();
 			Thread.sleep(100);
 			while (server.getStatus() != IOReactorStatus.SHUT_DOWN
 					&& server.getStatus() != IOReactorStatus.INACTIVE) {

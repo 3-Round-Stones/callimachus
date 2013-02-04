@@ -52,7 +52,7 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 		this.server = createServer(dataDir, this.repository);
 	}
 
-	public void addOrigin(String origin) throws OpenRDFException, URISyntaxException {
+	public void addOrigin(String origin) throws OpenRDFException {
 		ValueFactory vf = this.repository.getValueFactory();
 		String schema = repository.getCallimachusUrl(origin, SCHEMA_GRAPH);
 		if (schema != null) {
@@ -61,10 +61,16 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 		origins.add(origin);
 		String[] identities = origins.toArray(new String[origins.size()]);
 		for (int i = 0; i < identities.length; i++) {
-			URI uri = new URI(identities[i] + "/");
+			URI uri = URI.create(identities[i] + "/");
 			String sch = uri.getScheme();
 			String auth = uri.getAuthority();
-			identities[i] = new URI(sch, auth, IDENTITY_PATH, null, null).toASCIIString();
+			try {
+				identities[i] = new URI(sch, auth, IDENTITY_PATH, null, null).toASCIIString();
+			} catch (URISyntaxException x) {
+	            IllegalArgumentException y = new IllegalArgumentException();
+	            y.initCause(x);
+	            throw y;
+	        }
 		}
 		server.setIdentityPrefix(identities);
 	}
@@ -179,7 +185,7 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 		server.poke();
 	}
 
-	public void listen(int[] ports, int[] sslports) throws OpenRDFException, URISyntaxException, IOException {
+	public void listen(int[] ports, int[] sslports) throws OpenRDFException, IOException {
 		assert ports != null && ports.length > 0 || sslports != null
 				&& sslports.length > 0;
 		if (ports == null) {

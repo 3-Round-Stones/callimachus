@@ -135,6 +135,10 @@ public class Setup {
 				System.exit(0);
 				return;
 			} else {
+				if (line.has("realm") && (line.has("virtual") || line.getAll("origin").length != 1)) {
+					System.err.println("Unresolvable realms can only be used with a single origin");
+					System.exit(2);
+				}
 				silent = line.has("silent");
 				if (line.has("dir")) {
 					dir = new File(line.get("dir")).getCanonicalFile();

@@ -42,7 +42,7 @@ public interface CalliLoggerMBean {
 
 	void setLoggingProperties(String[] lines) throws IOException;
 
-	String showVMSummary() throws Exception;
+	String[] showVMSummary() throws Exception;
 
 	String[] traceActiveCalls();
 

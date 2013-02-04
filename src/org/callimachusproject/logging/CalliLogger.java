@@ -193,19 +193,18 @@ public class CalliLogger extends NotificationBroadcasterSupport implements
 		}
 	}
 
-    public String showVMSummary() throws Exception {
-		StringWriter sw = new StringWriter();
-		PrintWriter w = new PrintWriter(sw);
-		printJVMVersion(w);
-		printOSUsage(w);
-		printMemoryUsage(w);
-		printRuntimeUsage(w);
-		printClassUsage(w);
-		printFileSystemUsage(w);
-		printSystemProperties(w);
-		printVariables(w);
-		w.flush();
-		return sw.toString();
+    public String[] showVMSummary() throws Exception {
+    	int i=0;
+    	String[] result = new String[8];
+		result[i++] = getJVMVersion();
+		result[i++] = getOSUsage();
+		result[i++] = getMemoryUsage();
+		result[i++] = getRuntimeUsage();
+		result[i++] = getClassUsage();
+		result[i++] = getFileSystemUsage();
+		result[i++] = getSystemProperties();
+		result[i++] = getVariables();
+		return result;
 	}
 
 	@Override
@@ -304,7 +303,9 @@ public class CalliLogger extends NotificationBroadcasterSupport implements
 		}
 	}
 
-	private void printJVMVersion(PrintWriter w) {
+	private String getJVMVersion() {
+		StringWriter sw = new StringWriter();
+		PrintWriter w = new PrintWriter(sw, true);
 		w.print("OS:\t");
 		w.print(System.getProperty("os.name"));
 		w.print(" ");
@@ -322,10 +323,12 @@ public class CalliLogger extends NotificationBroadcasterSupport implements
 		w.println(org.callimachusproject.Version.getInstance().getVersion());
 		w.print("User:\t");
 		w.println(System.getProperty("user.name"));
-		w.println();
+		return sw.toString();
 	}
 
-	private void printRuntimeUsage(PrintWriter w) throws DatatypeConfigurationException {
+	private String getRuntimeUsage() throws DatatypeConfigurationException {
+		StringWriter sw = new StringWriter();
+		PrintWriter w = new PrintWriter(sw, true);
 		RuntimeMXBean mx = ManagementFactory.getRuntimeMXBean();
 		Date starttime = new Date(mx.getStartTime());
 		GregorianCalendar gcal = new GregorianCalendar();
@@ -341,17 +344,21 @@ public class CalliLogger extends NotificationBroadcasterSupport implements
 		w.println("JVM arguments:\n" + mx.getInputArguments());
 		w.println("Boot class path:\n" + mx.getBootClassPath());
 		w.println("Class path:\n" + mx.getClassPath());
-		w.println();
+		return sw.toString();
 	}
 
-	private void printClassUsage(PrintWriter w) {
+	private String getClassUsage() {
+		StringWriter sw = new StringWriter();
+		PrintWriter w = new PrintWriter(sw, true);
 		ClassLoadingMXBean mx = ManagementFactory.getClassLoadingMXBean();
 		w.println("Classes loaded:\t" +mx.getLoadedClassCount());
 		w.println("Total loaded:\t" + mx.getTotalLoadedClassCount());
-		w.println();
+		return sw.toString();
 	}
 
-	private void printOSUsage(PrintWriter w) throws Exception {
+	private String getOSUsage() throws Exception {
+		StringWriter sw = new StringWriter();
+		PrintWriter w = new PrintWriter(sw, true);
 		OperatingSystemMXBean mx = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
 		w.print("Name:\t");
 		w.println(mx.getName());
@@ -382,10 +389,12 @@ public class CalliLogger extends NotificationBroadcasterSupport implements
 		w.print(":");
 		w.print(seconds - minutes * 60);
 		w.println();
-		w.println();
+		return sw.toString();
 	}
 
-	private void printMemoryUsage(PrintWriter w) {
+	private String getMemoryUsage() {
+		StringWriter sw = new StringWriter();
+		PrintWriter w = new PrintWriter(sw, true);
 		MemoryMXBean mx = ManagementFactory.getMemoryMXBean();
 		w.print("Memory used:\t");
 		Runtime runtime = Runtime.getRuntime();
@@ -405,10 +414,12 @@ public class CalliLogger extends NotificationBroadcasterSupport implements
 		w.println("m");
 		w.print("Pending finalization:\t");
 		w.println(mx.getObjectPendingFinalizationCount());
-		w.println();
+		return sw.toString();
 	}
 
-	private void printFileSystemUsage(PrintWriter w) {
+	private String getFileSystemUsage() {
+		StringWriter sw = new StringWriter();
+		PrintWriter w = new PrintWriter(sw, true);
 	    /* Get a list of all filesystem roots on this system */
 	    File[] roots = File.listRoots();
 
@@ -426,10 +437,12 @@ public class CalliLogger extends NotificationBroadcasterSupport implements
 	      w.print((int)(root.getUsableSpace() / 1024 / 1024));
 	      w.println("m");
 	    }
-		w.println();
+		return sw.toString();
 	}
 
-	private void printSystemProperties(PrintWriter w) {
+	private String getSystemProperties() {
+		StringWriter sw = new StringWriter();
+		PrintWriter w = new PrintWriter(sw, true);
 		Properties sysProps = System.getProperties();
 		ArrayList<String> keyList = new ArrayList<String>(sysProps.stringPropertyNames());
 		Collections.sort(keyList);
@@ -440,10 +453,12 @@ public class CalliLogger extends NotificationBroadcasterSupport implements
 			w.print(":\t");
 			w.println(sysProps.get(name));
 		}
-		w.println();
+		return sw.toString();
 	}
 
-	private void printVariables(PrintWriter w) {
+	private String getVariables() {
+		StringWriter sw = new StringWriter();
+		PrintWriter w = new PrintWriter(sw, true);
 		Map<String, String> envProps = System.getenv();
 		ArrayList<String> keyList = new ArrayList<String>(envProps.keySet());
 		Collections.sort(keyList);
@@ -454,7 +469,7 @@ public class CalliLogger extends NotificationBroadcasterSupport implements
 			w.print(":\t");
 			w.println(envProps.get(name));
 		}
-		w.println();
+		return sw.toString();
 	}
 
 }

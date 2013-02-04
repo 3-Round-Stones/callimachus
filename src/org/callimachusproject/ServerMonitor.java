@@ -348,10 +348,12 @@ public class ServerMonitor {
 	private void summaryDump(MBeanServerConnection mbsc, String filename)
 			throws Throwable {
 		try {
-			String summary = logger.showVMSummary();
+			String[] summary = logger.showVMSummary();
 			PrintWriter w = new PrintWriter(filename);
 			try {
-				w.println(summary);
+				for (String line : summary) {
+					w.println(line);
+				}
 			} finally {
 				w.close();
 			}

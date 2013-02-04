@@ -1,18 +1,8 @@
 package org.callimachusproject.util;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -31,7 +21,7 @@ import org.callimachusproject.server.exceptions.NotImplemented;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Mailer implements MailerMBean {
+public class Mailer {
 	private static final DomainNameSystemResolver resolver = DomainNameSystemResolver.getInstance();
 	private static final Pattern HTML_TITLE = Pattern
 			.compile("<title>\\s*([^<]*)\\s*<.title>");
@@ -39,50 +29,27 @@ public class Mailer implements MailerMBean {
 			.getLogger(Mailer.class);
 	private final String fromUser;
 	private final String fromEmail;
+	private final MailProperties file;
 
 	public Mailer() {
 		this.fromEmail = null;
 		this.fromUser = null;
+		this.file = MailProperties.getInstance();
 	}
 
 	public Mailer(String fromName, String fromEmail) {
 		this.fromEmail = fromEmail;
-		this.fromUser = fromName + " <" + fromEmail + ">";
+		this.fromUser = fromName == null ? null : (fromName + " <" + fromEmail + ">");
+		this.file = MailProperties.getInstance();
 	}
 
 	public synchronized String[] getMailProperties() throws IOException {
-		String fileName = System.getProperty("java.mail.properties");
-		if (fileName == null || !new File(fileName).isFile())
-			return new String[0];
-		FileReader fileReader = new FileReader(fileName);
-		BufferedReader bufferedReader = new BufferedReader(fileReader);
-		List<String> lines = new ArrayList<String>();
-		String line = null;
-		while ((line = bufferedReader.readLine()) != null) {
-		    lines.add(line);
-		}
-		bufferedReader.close();
-		return lines.toArray(new String[lines.size()]);
+		return file.getMailProperties();
 	}
 
 	public synchronized void setMailProperties(String[] lines)
 			throws IOException {
-		String fileName = System.getProperty("java.mail.properties");
-		if (fileName != null) {
-			FileOutputStream out = new FileOutputStream(fileName);
-			try {
-				PrintWriter writer = new PrintWriter(out);
-				try {
-					for (String line : lines) {
-						writer.println(line);
-					}
-				} finally {
-					writer.close();
-				}
-			} finally {
-				out.close();
-			}
-		}
+		file.setMailProperties(lines);
 	}
 
 	public void sendMessage(String html, String recipient) throws IOException,
@@ -94,7 +61,7 @@ public class Mailer implements MailerMBean {
 			throws IOException, MessagingException, NamingException {
 		if (recipients == null || recipients.isEmpty())
 			throw new BadRequest("Missing to paramenter");
-		Properties properties = loadMailProperties();
+		Properties properties = file.loadMailProperties();
 		Session session = Session.getInstance(properties);
 		MimeMessage message = new MimeMessage(session);
 		message.setSentDate(new Date());
@@ -175,24 +142,6 @@ public class Mailer implements MailerMBean {
 		}
 		logger.info("Sent e-mail {} {} {}", new Object[] { recipients,
 				message.getSubject(), message.getMessageID() });
-	}
-
-	private synchronized Properties loadMailProperties() throws IOException {
-		Properties properties = new Properties();
-		String javamail = System.getProperty("java.mail.properties");
-		if (javamail != null) {
-			try {
-				InputStream stream = new FileInputStream(javamail);
-				try {
-					properties.load(stream);
-				} finally {
-					stream.close();
-				}
-			} catch (FileNotFoundException e) {
-				// skip
-			}
-		}
-		return properties;
 	}
 
 	private String extractDomain(String to) {

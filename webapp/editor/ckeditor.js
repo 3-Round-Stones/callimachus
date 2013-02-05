@@ -52,7 +52,7 @@ jQuery(function($) {
 
     var editor = CKEDITOR.instances.editor;
     var saved = null;
-    var empty = null;
+    var systemId = window.location.href;
     
     /**
      * Turns img style rules into attributes for docbook compatibility.
@@ -297,13 +297,13 @@ jQuery(function($) {
         ];
         return html
             .replace('</head>', '<style type="text/css">' + styles.join("\n") + "\n" + '</style></head>')
-            .replace('<head>', '<head><base href="' + top.location.href + '" />'); // inject base href
+            .replace('<head>', '<head><base href="' + systemId + '" />'); // inject base href
     }
     
     /**
      * Preprocesses input and sends it to the editor
      */ 
-    editor.setXhtml = function(xhtml, updateSavedVar, loops) {
+    editor.setXhtml = function(xhtml, loops) {
         if (!loops) loops = 0;
         var html = injectCss(serializeXhtml(xhtml));
         var bodyRegex = /^[\s\S\r\n]+<body>\s*([\s\S\r\n]+)\<\/body[\s\S\r\n]+$/;
@@ -313,21 +313,13 @@ jQuery(function($) {
             // check if the content got set (because IE9 sometimes fails)
             var newBody = editor.getData().replace(bodyRegex, '$1').replace(/[\n\r\s]*$/, '');
             if (body.length && !newBody.length && loops < 3) {// the content didn't get set properly, try again (up to 3 times).
-                editor.setXhtml(xhtml, updateSavedVar, loops + 1);
+                editor.setXhtml(xhtml, loops + 1);
                 return;
             }
-            if (updateSavedVar) {
-                saved = normalize(editor.getData());
-            }
+            saved = normalize(editor.getData());
             resizeEditor();
         }, 100);
     }
-
-    /**
-     * Make sure xhtml namespaces is present in editor
-     */
-    editor.setXhtml('<html xmlns="http://www.w3.org/1999/xhtml"><head><title></title></head><body><p></p></body></html>');
-    saved = normalize(empty = editor.getData());
     
     /**
      * Normalizes the output for stable comparisons.
@@ -368,14 +360,18 @@ jQuery(function($) {
     function handleMessage(header, body) {
         if (header.match(/^PUT text(\n|$)/)) {
             var m = header.match(/\nContent-Location:\s*(.*)(\n|$)/i);
-            var systemId = m ? m[1] : null;
+            systemId = m ? m[1] : null; // used as base-uri
             if (header.match(/\nIf-None-Match: */) || !body) {
-                if (empty == editor.getData()) {
-                    editor.setXhtml(body, true);
+                if (!editor.getData()) {
+                    if (body) {
+                        editor.setXhtml(body);
+                    } else {
+                        editor.setXhtml('<html xmlns="http://www.w3.org/1999/xhtml"><head><title></title></head><body><p></p></body></html>');
+                    }
                 }
                 return true;
             } else {
-                editor.setXhtml(body, true);
+                editor.setXhtml(body);
                 return true;
             }
         } else if (header == 'GET text') {

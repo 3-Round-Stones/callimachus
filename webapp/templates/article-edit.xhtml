@@ -9,11 +9,10 @@
     <style type="text/css">
         #iframe { border:0; }
     </style>
-    <script type="text/javascript" src="../editor/edit.js"> </script>
 </head>
 <body>
     <form id="form" method="PUT" action="?xhtml" enctype="application/xhtml+xml">
-        <iframe id="iframe" class="flex" src="../editor/ckeditor.html"> </iframe>
+        <iframe id="iframe" class="flex" src="../../document-editor.html" onload="calli.loadEditor(event,'?xhtml')"> </iframe>
         <button type="submit" class="btn btn-primary">Save</button>
         <button type="button" onclick="calli.saveResourceAs(event, 'untitled article.docbook', calli.getCallimachusUrl('types/Article'))" class="btn btn-info">Save as...</button>
         <button type="button" onclick="window.location.replace('?view')" class="btn">Cancel</button>

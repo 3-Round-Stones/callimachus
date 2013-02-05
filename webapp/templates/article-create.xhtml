@@ -8,7 +8,6 @@
     <style type="text/css">
         #iframe { border:0; }
     </style>
-    <script type="text/javascript" src="../editor/create.js"> </script>
     <script id="template" type="application/xhtml+xml"><![CDATA[<?xml version="1.0" encoding="UTF-8" ?>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -22,7 +21,7 @@
 </head>
 <body>
     <form id="form" method="POST" action="" enctype="application/xhtml+xml">
-        <iframe id="iframe" class="flex" src="../editor/ckeditor.html"> </iframe>
+        <iframe id="iframe" class="flex" src="../../document-editor.html" onload="calli.initEditor(event,$('#template').text()||$('#template').html().replace(/^\s+/,''))"> </iframe>
         <button type="submit" onclick="return calli.saveResourceAs(event, 'untitled article.docbook')" class="btn btn-success">Create</button>
     </form>
 </body>

@@ -5,7 +5,6 @@
     xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
     <title>New Stylesheet Transform</title>
-    <script type="text/javascript" src="../editor/create.js"> </script>
     <script id="template" type="text/xsl"><![CDATA[<?xml version="1.0" encoding="UTF-8" ?>
 <xsl:stylesheet version="1.0"  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns="http://www.w3.org/1999/xhtml" xmlns:xhtml="http://www.w3.org/1999/xhtml"
@@ -22,7 +21,7 @@
 </head>
 <body>
     <form id="form" method="POST" action="" enctype="text/xsl">
-        <iframe id="iframe" class="flex" src="../editor/text-editor.html#xml"> </iframe>
+        <iframe id="iframe" class="flex" src="../../xml-editor.html" onload="calli.initEditor(event,$('#template').text()||$('#template').html().replace(/^\s+/,''))"> </iframe>
         <button type="submit" onclick="return calli.saveResourceAs(event, 'untitled transform.xsl')" class="btn btn-success">Create</button>
     </form>
 </body>

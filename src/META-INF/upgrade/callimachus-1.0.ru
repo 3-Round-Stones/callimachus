@@ -48,3 +48,80 @@ INSERT {
     FILTER NOT EXISTS { ?graph a <http://www.openrdf.org/rdf/2012/auditing#ObsoleteBundle> }
 };
 
+INSERT {
+<../> calli:hasComponent <../document-editor.html>.
+<../document-editor.html> a <types/PURL>, calli:PURL ;
+	rdfs:label "document-editor.html";
+	calli:alternate <editor/ckeditor.html>;
+	calli:administrator </auth/groups/admin>;
+	calli:reader </auth/groups/public> .
+} WHERE {
+	FILTER NOT EXISTS { <../document-editor.html> a calli:PURL }
+};
+
+INSERT {
+<../> calli:hasComponent <../css-editor.html>.
+<../css-editor.html> a <types/PURL>, calli:PURL ;
+	rdfs:label "css-editor.html";
+	calli:alternate <editor/text-editor.html#css>;
+	calli:administrator </auth/groups/admin>;
+	calli:reader </auth/groups/public> .
+} WHERE {
+	FILTER NOT EXISTS { <../css-editor.html> a calli:PURL }
+};
+
+INSERT {
+<../> calli:hasComponent <../html-editor.html>.
+<../html-editor.html> a <types/PURL>, calli:PURL ;
+	rdfs:label "html-editor.html";
+	calli:alternate <editor/text-editor.html#html>;
+	calli:administrator </auth/groups/admin>;
+	calli:reader </auth/groups/public> .
+} WHERE {
+	FILTER NOT EXISTS { <../html-editor.html> a calli:PURL }
+};
+
+INSERT {
+<../> calli:hasComponent <../javascript-editor.html>.
+<../javascript-editor.html> a <types/PURL>, calli:PURL ;
+	rdfs:label "javascript-editor.html";
+	calli:alternate <editor/text-editor.html#javascript>;
+	calli:administrator </auth/groups/admin>;
+	calli:reader </auth/groups/public> .
+} WHERE {
+	FILTER NOT EXISTS { <../javascript-editor.html> a calli:PURL }
+};
+
+INSERT {
+<../> calli:hasComponent <../sparql-editor.html>.
+<../sparql-editor.html> a <types/PURL>, calli:PURL ;
+	rdfs:label "sparql-editor.html";
+	calli:alternate <editor/text-editor.html#sparql>;
+	calli:administrator </auth/groups/admin>;
+	calli:reader </auth/groups/public> .
+} WHERE {
+	FILTER NOT EXISTS { <../sparql-editor.html> a calli:PURL }
+};
+
+INSERT {
+<../> calli:hasComponent <../text-editor.html>.
+<../text-editor.html> a <types/PURL>, calli:PURL ;
+	rdfs:label "text-editor.html";
+	calli:alternate <editor/text-editor.html>;
+	calli:administrator </auth/groups/admin>;
+	calli:reader </auth/groups/public> .
+} WHERE {
+	FILTER NOT EXISTS { <../css-editor.html> a calli:PURL }
+};
+
+INSERT {
+<../> calli:hasComponent <../xml-editor.html>.
+<../xml-editor.html> a <types/PURL>, calli:PURL ;
+	rdfs:label "xml-editor.html";
+	calli:alternate <editor/text-editor.html#xml>;
+	calli:administrator </auth/groups/admin>;
+	calli:reader </auth/groups/public> .
+} WHERE {
+	FILTER NOT EXISTS { <../xml-editor.html> a calli:PURL }
+};
+

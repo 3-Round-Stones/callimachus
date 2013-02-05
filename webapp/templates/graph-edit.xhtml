@@ -6,11 +6,10 @@
 <head>
     <title resource="?this">{rdfs:label}</title>
     <link rel="edit-media" href="?" type="text/turtle" />
-    <script type="text/javascript" src="../editor/edit.js"> </script>
 </head>
 <body>
     <form id="form" method="PUT" action="?" enctype="text/turtle">
-        <iframe id="iframe" class="flex" src="../editor/text-editor.html#sparql"> </iframe>
+        <iframe id="iframe" class="flex" src="../../sparql-editor.html" onload="calli.loadEditor(event,'?')"> </iframe>
         <button type="submit" class="btn btn-primary">Save</button>
         <button type="button" onclick="calli.saveResourceAs(event, 'untitled graph.ttl', calli.getCallimachusUrl('types/GraphDocument'))" class="btn btn-info">Save as...</button>
         <button type="button" onclick="window.location.replace('?view')" class="btn">Cancel</button>

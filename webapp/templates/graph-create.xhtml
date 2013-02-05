@@ -5,7 +5,6 @@
     xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
     <title>New Graph Document</title>
-    <script type="text/javascript" src="../editor/create.js"> </script>
     <script id="template" type="text/turtle"><![CDATA[@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
@@ -24,7 +23,7 @@
 </head>
 <body>
     <form id="form" method="POST" action="" enctype="text/turtle">
-        <iframe id="iframe" class="flex" src="../editor/text-editor.html#sparql"> </iframe>
+        <iframe id="iframe" class="flex" src="../../sparql-editor.html" onload="calli.initEditor(event,$('#template').text()||$('#template').html().replace(/^\s+/,''))"> </iframe>
         <button type="submit" onclick="return calli.saveResourceAs(event, 'untitled graph.ttl')" class="btn btn-success">Create</button>
     </form>
 </body>

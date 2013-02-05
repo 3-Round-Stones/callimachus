@@ -5,7 +5,6 @@
     xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
     <title>New Book</title>
-    <script type="text/javascript" src="../editor/create.js"> </script>
     <script id="template" type="application/docbook+xml"><![CDATA[<?xml version="1.0" encoding="UTF-8" ?>
 <book xmlns="http://docbook.org/ns/docbook" xmlns:xl="http://www.w3.org/1999/xlink" xmlns:xi="http://www.w3.org/2001/XInclude" version="5.0">
 
@@ -15,7 +14,7 @@
 </head>
 <body>
     <form id="form" method="POST" action="" enctype="application/docbook+xml">
-        <iframe id="iframe" class="flex" src="../editor/text-editor.html#xml"> </iframe>
+        <iframe id="iframe" class="flex" src="../../xml-editor.html" onload="calli.initEditor(event,$('#template').text()||$('#template').html().replace(/^\s+/,''))"> </iframe>
         <button type="submit" onclick="return calli.saveResourceAs(event, 'untitled book.docbook')" class="btn btn-success">Create</button>
     </form>
 </body>

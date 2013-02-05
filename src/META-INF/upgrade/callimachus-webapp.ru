@@ -61,6 +61,13 @@ INSERT {
         <../layout-functions.xq>,
         <../default-layout.xq>,
         <../callimachus-powered.png>,
+        <../document-editor.html>,
+        <../css-editor.html>,
+        <../html-editor.html>,
+        <../javascript-editor.html>,
+        <../sparql-editor.html>,
+        <../text-editor.html>,
+        <../xml-editor.html>,
         <../Concept>.
 } WHERE {
 	FILTER NOT EXISTS { <../> a calli:Folder }
@@ -162,6 +169,76 @@ INSERT {
 	calli:reader </auth/groups/public> .
 } WHERE {
 	FILTER NOT EXISTS { <../callimachus-powered.png> a calli:PURL }
+};
+
+INSERT {
+<../document-editor.html> a <types/PURL>, calli:PURL ;
+	rdfs:label "document-editor.html";
+	calli:alternate <editor/ckeditor.html>;
+	calli:administrator </auth/groups/admin>;
+	calli:reader </auth/groups/public> .
+} WHERE {
+	FILTER NOT EXISTS { <../document-editor.html> a calli:PURL }
+};
+
+INSERT {
+<../css-editor.html> a <types/PURL>, calli:PURL ;
+	rdfs:label "css-editor.html";
+	calli:alternate <editor/text-editor.html#css>;
+	calli:administrator </auth/groups/admin>;
+	calli:reader </auth/groups/public> .
+} WHERE {
+	FILTER NOT EXISTS { <../css-editor.html> a calli:PURL }
+};
+
+INSERT {
+<../html-editor.html> a <types/PURL>, calli:PURL ;
+	rdfs:label "html-editor.html";
+	calli:alternate <editor/text-editor.html#html>;
+	calli:administrator </auth/groups/admin>;
+	calli:reader </auth/groups/public> .
+} WHERE {
+	FILTER NOT EXISTS { <../html-editor.html> a calli:PURL }
+};
+
+INSERT {
+<../javascript-editor.html> a <types/PURL>, calli:PURL ;
+	rdfs:label "javascript-editor.html";
+	calli:alternate <editor/text-editor.html#javascript>;
+	calli:administrator </auth/groups/admin>;
+	calli:reader </auth/groups/public> .
+} WHERE {
+	FILTER NOT EXISTS { <../javascript-editor.html> a calli:PURL }
+};
+
+INSERT {
+<../sparql-editor.html> a <types/PURL>, calli:PURL ;
+	rdfs:label "sparql-editor.html";
+	calli:alternate <editor/text-editor.html#sparql>;
+	calli:administrator </auth/groups/admin>;
+	calli:reader </auth/groups/public> .
+} WHERE {
+	FILTER NOT EXISTS { <../sparql-editor.html> a calli:PURL }
+};
+
+INSERT {
+<../text-editor.html> a <types/PURL>, calli:PURL ;
+	rdfs:label "text-editor.html";
+	calli:alternate <editor/text-editor.html>;
+	calli:administrator </auth/groups/admin>;
+	calli:reader </auth/groups/public> .
+} WHERE {
+	FILTER NOT EXISTS { <../css-editor.html> a calli:PURL }
+};
+
+INSERT {
+<../xml-editor.html> a <types/PURL>, calli:PURL ;
+	rdfs:label "xml-editor.html";
+	calli:alternate <editor/text-editor.html#xml>;
+	calli:administrator </auth/groups/admin>;
+	calli:reader </auth/groups/public> .
+} WHERE {
+	FILTER NOT EXISTS { <../xml-editor.html> a calli:PURL }
 };
 
 INSERT {

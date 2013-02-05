@@ -5,11 +5,10 @@
     xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
     <title>New Stylesheet</title>
-    <script type="text/javascript" src="../editor/create.js"> </script>
 </head>
 <body>
     <form id="form" method="POST" action="" enctype="text/css">
-        <iframe id="iframe" class="flex" src="../editor/text-editor.html#css"> </iframe>
+        <iframe id="iframe" class="flex" src="../../css-editor.html" onload="calli.initEditor(event)"> </iframe>
         <button type="submit" onclick="return calli.saveResourceAs(event, 'untitled style.css')" class="btn btn-success">Create</button>
     </form>
 </body>

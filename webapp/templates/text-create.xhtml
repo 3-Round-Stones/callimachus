@@ -5,11 +5,10 @@
     xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
     <title>New Text File</title>
-    <script type="text/javascript" src="../editor/create.js"> </script>
 </head>
 <body>
     <form id="form" method="POST" action="" enctype="text/plain">
-        <iframe id="iframe" class="flex" src="../editor/text-editor.html"> </iframe>
+        <iframe id="iframe" class="flex" src="../../text-editor.html" onload="calli.initEditor(event)"> </iframe>
         <button type="submit" onclick="return calli.saveResourceAs(event, 'untitled text.txt')" class="btn btn-success">Create</button>
     </form>
 </body>

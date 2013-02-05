@@ -5,7 +5,6 @@
     xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
     <title>New Page</title>
-    <script type="text/javascript" src="../editor/create.js"> </script>
     <script id="template" type="application/xhtml+xml"><![CDATA[<?xml version="1.0" encoding="UTF-8" ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
@@ -25,7 +24,7 @@
 </head>
 <body>
     <form id="form" method="POST" action="" enctype="application/xhtml+xml">
-        <iframe id="iframe" class="flex" src="../editor/text-editor.html#html"> </iframe>
+        <iframe id="iframe" class="flex" src="../../html-editor.html" onload="calli.initEditor(event,$('#template').text()||$('#template').html().replace(/^\s+/,''))"> </iframe>
         <button type="submit" onclick="return calli.saveResourceAs(event, 'untitled page.xhtml')" class="btn btn-success">Create</button>
     </form>
 </body>

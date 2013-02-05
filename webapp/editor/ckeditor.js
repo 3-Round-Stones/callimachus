@@ -21,7 +21,7 @@ jQuery(function($) {
             'table:advanced;'
         ,
         coreStyles_bold: { element: 'strong' }, // convert bold to <strong>
-    	coreStyles_italic: { element: 'em' },   // convert italic to <em>
+        coreStyles_italic: { element: 'em' },   // convert italic to <em>
                 
         toolbar: [
             { name: 'styles', items: [ '!Styles', 'Format' ] },
@@ -52,6 +52,7 @@ jQuery(function($) {
 
     var editor = CKEDITOR.instances.editor;
     var saved = null;
+    var empty = null;
     
     /**
      * Turns img style rules into attributes for docbook compatibility.
@@ -326,6 +327,7 @@ jQuery(function($) {
      * Make sure xhtml namespaces is present in editor
      */
     editor.setXhtml('<html xmlns="http://www.w3.org/1999/xhtml"><head><title></title></head><body><p></p></body></html>');
+    saved = normalize(empty = editor.getData());
     
     /**
      * Normalizes the output for stable comparisons.
@@ -368,7 +370,7 @@ jQuery(function($) {
             var m = header.match(/\nContent-Location:\s*(.*)(\n|$)/i);
             var systemId = m ? m[1] : null;
             if (header.match(/\nIf-None-Match: */) || !body) {
-                if (!editor.getData()) {
+                if (empty == editor.getData()) {
                     editor.setXhtml(body, true);
                 }
                 return true;
@@ -413,10 +415,5 @@ jQuery(function($) {
             }
         }
     });
-    
-    // Tell the parent window we are ready
-    if (window.parent != window) {
-        parent.postMessage('CONNECT calliEditorLoaded', '*');
-    }
     
 });

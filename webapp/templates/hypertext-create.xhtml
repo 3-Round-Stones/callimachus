@@ -5,11 +5,10 @@
     xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
     <title>New Hypertext File</title>
-    <script type="text/javascript" src="../editor/create.js"> </script>
 </head>
 <body>
     <form id="form" method="POST" action="" enctype="text/html">
-        <iframe id="iframe" class="flex" src="../editor/text-editor.html#html"> </iframe>
+        <iframe id="iframe" class="flex" src="../../html-editor.html" onload="calli.initEditor(event)"> </iframe>
         <button type="submit" onclick="return calli.saveResourceAs(event, 'untitled.html')" class="btn btn-success">Create</button>
     </form>
 </body>

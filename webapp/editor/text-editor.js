@@ -138,7 +138,4 @@ jQuery(function($) {
             }
         }
     });
-    if (window.parent != window) {
-        parent.postMessage('CONNECT calliEditorLoaded', '*');
-    }
 });

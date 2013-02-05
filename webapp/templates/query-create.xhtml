@@ -5,7 +5,6 @@
     xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
     <title>New Named Query</title>
-    <script type="text/javascript" src="../editor/create.js"> </script>
     <script id="template" type="application/sparql-query"><![CDATA[#
 # @Cache-Control: 
 # @infer true
@@ -21,7 +20,7 @@ SELECT * {
 </head>
 <body>
     <form id="form" method="POST" action="" enctype="application/sparql-query">
-        <iframe id="iframe" class="flex" src="../editor/text-editor.html#sparql"> </iframe>
+        <iframe id="iframe" class="flex" src="../../sparql-editor.html" onload="calli.initEditor(event,$('#template').text()||$('#template').html().replace(/^\s+/,''))"> </iframe>
         <button type="submit" onclick="return calli.saveResourceAs(event, 'untitled query.rq')" class="btn btn-success">Create</button>
     </form>
 </body>

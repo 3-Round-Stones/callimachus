@@ -84,7 +84,7 @@ function getAvailableHeight(area) {
 
     var container = $(area).parents('form');
     if (!container.length) {
-        container = $(area).parents('#content');
+        container = $(area).parents('.container');
         if (!container.length) {
             container = $(area).parents('body>*');
         }
@@ -92,6 +92,9 @@ function getAvailableHeight(area) {
     var form = bottom(container) - innerHeight;
     if (form > 0 && form <= clientHeight / 3)
         return clientHeight - form;
+    var top = $(area).offset().top;
+    if (top <= clientHeight / 3)
+        return clientHeight - top;
     var formHeight = container.outerHeight(true) - innerHeight;
     if (formHeight > 0 && formHeight <= clientHeight / 3)
         return clientHeight - formHeight;

@@ -24,7 +24,9 @@
 <body>
     <form id="form" method="POST" action="" enctype="text/turtle">
         <iframe id="iframe" class="flex" src="../../sparql-editor.html" onload="calli.initEditor(event,$('#template').text()||$('#template').html().replace(/^\s+/,''))"> </iframe>
-        <button type="submit" onclick="return calli.saveResourceAs(event, 'untitled graph.ttl')" class="btn btn-success">Create</button>
+        <fieldset class="form-actions">
+            <button type="submit" onclick="return calli.saveResourceAs(event, 'untitled graph.ttl')" class="btn btn-success">Create</button>
+        </fieldset>
     </form>
 </body>
 </html>

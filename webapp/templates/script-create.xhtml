@@ -9,7 +9,9 @@
 <body>
     <form id="form" method="POST" action="" enctype="text/javascript">
         <iframe id="iframe" class="flex" src="../../javascript-editor.html" onload="calli.initEditor(event)"> </iframe>
-        <button type="submit" onclick="return calli.saveResourceAs(event, 'untitled script.js')" class="btn btn-success">Create</button>
+        <fieldset class="form-actions">
+            <button type="submit" onclick="return calli.saveResourceAs(event, 'untitled script.js')" class="btn btn-success">Create</button>
+        </fieldset>
     </form>
 </body>
 </html>

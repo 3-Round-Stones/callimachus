@@ -10,10 +10,12 @@
 <body>
     <form id="form" method="PUT" action="?" enctype="text/html">
         <iframe id="iframe" class="flex" src="../../html-editor.html" onload="calli.loadEditor(event,'?')"> </iframe>
-        <button type="submit" class="btn btn-primary">Save</button>
-        <button type="button" onclick="calli.saveResourceAs(event, 'untitled.html', calli.getCallimachusUrl('types/HypertextFile'))" class="btn btn-info">Save as...</button>
-        <button type="button" onclick="window.location.replace('?view')" class="btn">Cancel</button>
-        <button type="button" onclick="calli.deleteResource(event)" class="btn btn-danger">Delete</button>
+        <fieldset class="form-actions">
+            <button type="submit" class="btn btn-primary">Save</button>
+            <button type="button" onclick="calli.saveResourceAs(event, 'untitled.html', calli.getCallimachusUrl('types/HypertextFile'))" class="btn btn-info">Save as...</button>
+            <button type="button" onclick="window.location.replace('?view')" class="btn">Cancel</button>
+            <button type="button" onclick="calli.deleteResource(event)" class="btn btn-danger">Delete</button>
+        </fieldset>
     </form>
 </body>
 </html>

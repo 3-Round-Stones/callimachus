@@ -21,7 +21,9 @@ SELECT * {
 <body>
     <form id="form" method="POST" action="" enctype="application/sparql-query">
         <iframe id="iframe" class="flex" src="../../sparql-editor.html" onload="calli.initEditor(event,$('#template').text()||$('#template').html().replace(/^\s+/,''))"> </iframe>
-        <button type="submit" onclick="return calli.saveResourceAs(event, 'untitled query.rq')" class="btn btn-success">Create</button>
+        <fieldset class="form-actions">
+            <button type="submit" onclick="return calli.saveResourceAs(event, 'untitled query.rq')" class="btn btn-success">Create</button>
+        </fieldset>
     </form>
 </body>
 </html>

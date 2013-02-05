@@ -22,7 +22,9 @@
 <body>
     <form id="form" method="POST" action="" enctype="application/xhtml+xml">
         <iframe id="iframe" class="flex" src="../../document-editor.html" onload="calli.initEditor(event,$('#template').text()||$('#template').html().replace(/^\s+/,''))"> </iframe>
-        <button type="submit" onclick="return calli.saveResourceAs(event, 'untitled article.docbook')" class="btn btn-success">Create</button>
+        <fieldset class="form-actions">
+            <button type="submit" onclick="return calli.saveResourceAs(event, 'untitled article.docbook')" class="btn btn-success">Create</button>
+        </fieldset>
     </form>
 </body>
 </html>

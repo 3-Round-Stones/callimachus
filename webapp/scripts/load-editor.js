@@ -71,7 +71,7 @@ function bindEditorEvents(editor) {
             var msg = event.originalEvent.data;
             if (msg.indexOf('PUT text\n\n') == 0) {
                 var text = msg.substring('PUT text\n\n'.length);
-                var se = $.Event("calliSave", {data: text});
+                var se = $.Event("calliSave", {text: text});
                 $(editor.frameElement).trigger(se);
             }
         }
@@ -108,8 +108,7 @@ function bindFormEvents(form, editor, idempotent) {
     });
     if (idempotent) {
         $(form).bind('calliSave', function(event) {
-            var text = event.data;
-            saveFile(form, text);
+            saveFile(form, event.text);
         });
     }
     $(form).submit(function(event) {
@@ -230,6 +229,7 @@ function resolve(url) {
 }
 
 })(jQuery);
+
 
 
 

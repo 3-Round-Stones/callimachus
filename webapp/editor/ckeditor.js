@@ -321,6 +321,11 @@ jQuery(function($) {
             resizeEditor();
         }, 100);
     }
+
+    /**
+     * Make sure xhtml namespaces is present in editor
+     */
+    editor.setXhtml('<html xmlns="http://www.w3.org/1999/xhtml"><head><title></title></head><body><p></p></body></html>');
     
     /**
      * Normalizes the output for stable comparisons.

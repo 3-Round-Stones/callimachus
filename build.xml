@@ -1,5 +1,6 @@
 <project name="callimachus" default="help" basedir=".">
     <!-- set global properties for this build -->
+    <property name="artifact.name" value="callimachus" />
     <property name="src" location="src" />
     <property name="build" location="build" />
     <property name="build.tests" location="build" />
@@ -24,11 +25,12 @@
     <property file="dependencies.properties" />
     <property name="setup" value="org.callimachusproject.Setup" />
     <property name="main" value="org.callimachusproject.Server" />
+    <property name="server" value="org.callimachusproject.Server" />
     <property name="main-monitor" value="org.callimachusproject.ServerMonitor" />
     <property name="jvmargs" value="-ea -server -mx512m -Dfile.encoding=UTF-8 -Djava.library.path=${lib} -Duser.home=${home} -Djava.mail.properties=${mail} -Djava.awt.headless=true -Dcom.sun.management.jmxremote" />
     <property name="curl" value="curl" />
     <property name="curl.args" value="-fSs --digest http://localhost:8080/callimachus/1.0/?archive" />
-    <property name="setup.args" value="-s -o http://localhost:8080 -c etc/callimachus-repository.ttl -w ${dist}/callimachus-webapp-${Version}.car" />
+    <property name="setup.args" value="-s -o http://localhost:8080 -c etc/callimachus-repository.ttl -w ${dist}/${artifact.name}-webapp-${Version}.car" />
     <property name="args" value="--pid ${pid} -p 8080 -o http://localhost:8080 -r repositories/callimachus" />
 
     <target name="help">
@@ -236,7 +238,7 @@
     <target name="dist" depends="compile,car" description="generate the distribution">
         <!-- Create the distribution directory and create the jar -->
         <mkdir dir="${dist}" />
-        <property name="jar.file" value="${dist}/callimachus-${Version}.jar" />
+        <property name="jar.file" value="${dist}/${artifact.name}-${Version}.jar" />
         <manifestclasspath property="jar.classpath" jarfile="${jar.file}">
             <classpath>
                 <fileset dir="${lib}">
@@ -251,7 +253,7 @@
                 <attribute name="Class-Path" value="${jar.classpath}" />
             </manifest>
         </jar>
-        <zip destfile="${dist}/callimachus-${Version}.zip">
+        <zip destfile="${dist}/${artifact.name}-${Version}.zip">
             <zipfileset dir="." includes="*.txt" />
             <zipfileset dir="${src}" prefix="src" />
             <zipfileset dir="${webapp}" prefix="src/webapp" />
@@ -260,19 +262,19 @@
             <zipfileset dir="${etc}" prefix="etc" excludes="mail.properties ssl.properties" />
             <zipfileset dir="${lib}" prefix="lib" />
             <zipfileset file="${jar.file}" prefix="lib" />
-            <zipfileset file="${dist}/callimachus-webapp-${Version}.car" prefix="lib" />
+            <zipfileset file="${dist}/${artifact.name}-webapp-${Version}.car" prefix="lib" />
         </zip>
-        <uptodate srcfile="${dist}/callimachus-webapp-${Version}.car" targetfile="${triples.file}" property="repositories.uptodate" />
+        <uptodate srcfile="${dist}/${artifact.name}-webapp-${Version}.car" targetfile="${triples.file}" property="repositories.uptodate" />
     </target>
 
     <target name="car">
         <!-- Create the distribution directory and create the car -->
         <mkdir dir="${dist}" />
-        <zip destfile="${dist}/callimachus-webapp-${Version}.car">
+        <zip destfile="${dist}/${artifact.name}-webapp-${Version}.car">
             <zipfileset dir="${webapp}" prefix="" includes="**/*.ttl" />
             <zipfileset dir="${webapp}" prefix="" excludes="**/*.ttl" />
         </zip>
-        <uptodate srcfile="${dist}/callimachus-webapp-${Version}.car" targetfile="${triples.file}" property="repositories.uptodate" />
+        <uptodate srcfile="${dist}/${artifact.name}-webapp-${Version}.car" targetfile="${triples.file}" property="repositories.uptodate" />
     </target>
 
     <target name="test-dependencies" depends="init">
@@ -340,7 +342,7 @@
     </target>
 
     <target name="package" depends="clean,dist,test" description="Create a package ready for release">
-        <echo>Artifact ready: ${dist}/callimachus-${Version}.zip</echo>
+        <echo>Artifact ready: ${dist}/${artifact.name}-${Version}.zip</echo>
     </target>
 
     <target name="setup" depends="dist" unless="repositories.uptodate">
@@ -361,7 +363,7 @@
 
     <target name="start" depends="dist,setup" description="Start the server in the background">
         <mkdir dir="${log}" />
-        <java classname="${main}" fork="true" spawn="true">
+        <java classname="${server}" fork="true" spawn="true">
             <jvmarg line="${jvmargs} -Djava.util.logging.config.file=${logging}" />
             <arg line="${args} -q" />
             <classpath>
@@ -377,11 +379,11 @@
         <fail message="build.properties is not setup properly, please read README.txt" unless="callimachus.username" />
         <fail message="build.properties is missing password, please read README.txt" unless="callimachus.password" />
         <mkdir dir="${downloads}" />
-        <exec executable="${curl}" output="${downloads}/callimachus.car" logError="true" failonerror="true">
+        <exec executable="${curl}" output="${downloads}/${artifact.name}-webapp.car" logError="true" failonerror="true">
             <arg line="--user ${callimachus.username}:${callimachus.password} ${curl.args}" />
         </exec>
-        <unzip src="${downloads}/callimachus.car" dest="${webapp}" />
-        <delete file="${downloads}/callimachus.car" />
+        <unzip src="${downloads}/${artifact.name}-webapp.car" dest="${webapp}" />
+        <delete file="${downloads}/${artifact.name}-webapp.car" />
         <antcall target="car" />
         <touch file="${triples.file}" />
     </target>
@@ -411,7 +413,7 @@
     </target>
 
     <target name="run" depends="dist,setup" description="Run the server in the foreground">
-        <java classname="${main}" fork="true" failonerror="true">
+        <java classname="${server}" fork="true" failonerror="true">
             <jvmarg line="${jvmargs}" />
             <arg line="${args}" />
             <classpath>
@@ -428,7 +430,7 @@
             <jvmarg line="${jvmargs}" />
             <arg line="--pid ${pid} --reset" />
             <classpath>
-                <pathelement location="${dist}/callimachus-${Version}.jar" />
+                <pathelement location="${dist}/${artifact.name}-${Version}.jar" />
                 <pathelement location="${tools.jar}" />
                 <fileset dir="${lib}">
                     <include name="**/*.jar" />

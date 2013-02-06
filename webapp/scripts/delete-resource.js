@@ -14,7 +14,7 @@ window.calli.deleteResource = function(event, redirect) {
     var form = $(event.target).closest('form');
 
     if (event) {
-        var prompt = event.originalEvent.prompt;
+        var prompt = event.originalEvent.message;
         if (typeof prompt === "undefined") {
             prompt = "Are you sure you want to delete " + document.title + "?";
         }

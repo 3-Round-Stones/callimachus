@@ -18,10 +18,12 @@ package org.callimachusproject;
 
 import info.aduna.io.IOUtil;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -31,6 +33,7 @@ import java.util.Arrays;
 import java.util.GregorianCalendar;
 import java.util.Properties;
 import java.util.TimeZone;
+import java.util.concurrent.ThreadFactory;
 
 import javax.management.JMX;
 import javax.management.MBeanServerConnection;
@@ -62,6 +65,13 @@ import org.callimachusproject.server.util.ThreadPoolMXBean;
 public class ServerMonitor {
 	public static final String NAME = Version.getInstance().getVersion();
 	private static final String CONNECTOR_ADDRESS = "com.sun.management.jmxremote.localConnectorAddress";
+	private static final ThreadFactory tfactory = new ThreadFactory() {
+		public Thread newThread(Runnable r) {
+			Thread t = new Thread(r, "Callimachus-Configure-Setup-Queue" + Integer.toHexString(r.hashCode()));
+			t.setDaemon(true);
+			return t;
+		}
+	};
 
 	private static final CommandSet commands = new CommandSet(NAME);
 	static {
@@ -276,6 +286,7 @@ public class ServerMonitor {
 		poolDump(mbsc, dir + "pool-" + stamp + ".tdump");
 		traceDump(mbsc, dir + "trace-" + stamp + ".txt");
 		summaryDump(mbsc, dir + "summary-" + stamp + ".txt");
+		netStatistics(dir + "netstat-" + stamp + ".txt");
 	}
 
 	private void setPidFile(String pid) throws Throwable {
@@ -375,6 +386,69 @@ public class ServerMonitor {
 		} catch (InvocationTargetException e) {
 			throw e.getCause();
 		}
+	}
+
+	private void netStatistics(String fileName) throws IOException {
+		FileOutputStream out = new FileOutputStream(fileName);
+		try {
+			// Not all processes could be identified
+			if (exec(out, new ByteArrayOutputStream(), "netstat", "-tnpo")) {
+				exec(out, System.err, "netstat", "-st");
+				info(fileName);
+			} else {
+				new File(fileName).delete();
+			}
+		} catch (IOException e) {
+			// netstat not installed
+			new File(fileName).delete();
+		} finally {
+			out.close();
+		}
+	}
+
+	private boolean exec(OutputStream stdout, OutputStream stderr, String... command) throws IOException {
+		ProcessBuilder process = new ProcessBuilder(command);
+		Process p = process.start();
+		Thread tin = transfer(p.getInputStream(), stdout);
+		Thread terr = transfer(p.getErrorStream(), stderr);
+		p.getOutputStream().close();
+		try {
+			int ret = p.waitFor();
+			if (tin != null) {
+				tin.join();
+			}
+			if (terr != null) {
+				terr.join();
+			}
+			return ret == 0;
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			return false;
+		}
+	}
+
+	private Thread transfer(final InputStream in, final OutputStream out) {
+		if (in == null)
+			return null;
+		Thread thread = tfactory.newThread(new Runnable() {
+			public void run() {
+				try {
+					try {
+						int read;
+						byte[] buf = new byte[1024];
+						while ((read = in.read(buf)) >= 0) {
+							out.write(buf, 0, read);
+						}
+					} finally {
+						in.close();
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+		thread.start();
+		return thread;
 	}
 
 	private void info(String message) {

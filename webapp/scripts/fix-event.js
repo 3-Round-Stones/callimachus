@@ -25,7 +25,7 @@
     window.calli.fixEvent = function(event) {
         if (event && event.originalEvent)
             return event; // already a jQuery Event
-        if (event && !event.type) {
+        if (event && (typeof event.length != 'undefined' || typeof event == 'string' || event.nodeType)) {
             // an element or CSS selector was passed
             var evt = jQuery.Event('click');
             evt.target = $(event)[0];

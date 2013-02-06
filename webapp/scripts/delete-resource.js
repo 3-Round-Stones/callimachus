@@ -11,27 +11,32 @@ if (!window.calli) {
 }
 window.calli.deleteResource = function(event, redirect) {
     event = calli.fixEvent(event);
-    var form = $(event.target);
-    if(!form.is('form')) form = form.closest('form');
+    var form = $(event.target).closest('form');
 
-    if (event && !confirm("Are you sure you want to delete " + document.title + "?"))
-        return;
-    
-    if (!form || !form.length) {
-        form = $("form[about],form[resource]");
+    if (event) {
+        var prompt = event.originalEvent.prompt;
+        if (typeof prompt === "undefined") {
+            prompt = "Are you sure you want to delete " + document.title + "?";
+        }
+        if (prompt && !confirm(prompt))
+            return;
     }
-    if (!form.length) {
+
+    var url = calli.getPageUrl();
+    if (form.length) {
+        url = calli.getFormAction(form[0]);
+    } else {
         form = $(document);
+    }
+    if (url.indexOf('?') > 0) {
+        url = url.substring(0, url.indexOf('?'));
     }
     try {
         var de = jQuery.Event("calliDelete");
+        de.location = url;
         form.trigger(de);
         if (!de.isDefaultPrevented()) {
-            var url = calli.getPageUrl();
-            if (url.indexOf('?') > 0) {
-                url = url.substring(0, url.indexOf('?'));
-            }
-            var xhr = $.ajax({ type: "DELETE", url: url, dataType: "text", beforeSend: function(xhr){
+            var xhr = $.ajax({ type: "DELETE", url: de.location, dataType: "text", beforeSend: function(xhr){
                 var lastmod = getLastModified();
                 if (lastmod) {
                     xhr.setRequestHeader("If-Unmodified-Since", lastmod);

@@ -2,7 +2,7 @@ package org.callimachusproject.util;
 
 import java.io.IOException;
 
-public interface MailPropertiesMBean {
+public interface MailPropertiesMXBean {
 
 	String[] getMailProperties() throws IOException;
 

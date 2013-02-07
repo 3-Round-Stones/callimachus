@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-public class MailProperties implements MailPropertiesMBean {
+public class MailProperties implements MailPropertiesMXBean {
 	private static final MailProperties system = new MailProperties(
 			System.getProperty("java.mail.properties"));
 

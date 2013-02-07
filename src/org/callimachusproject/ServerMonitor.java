@@ -49,7 +49,7 @@ import javax.xml.datatype.DatatypeFactory;
 import org.callimachusproject.cli.Command;
 import org.callimachusproject.cli.CommandSet;
 import org.callimachusproject.logging.CalliLogger;
-import org.callimachusproject.logging.CalliLoggerMBean;
+import org.callimachusproject.logging.CalliLoggerMXBean;
 import org.callimachusproject.server.CallimachusServer;
 import org.callimachusproject.server.HTTPObjectAgentMXBean;
 import org.callimachusproject.server.util.ChannelUtil;
@@ -131,7 +131,7 @@ public class ServerMonitor {
 
 	private Object vm;
 	private MBeanServerConnection mbsc;
-	private CalliLoggerMBean logger;
+	private CalliLoggerMXBean logger;
 	private HTTPObjectAgentMXBean server;
 	private boolean reset;
 	private boolean stop;
@@ -295,7 +295,7 @@ public class ServerMonitor {
 		server = JMX.newMXBeanProxy(mbsc, getMXServerName(),
 				HTTPObjectAgentMXBean.class);
 		logger = JMX
-				.newMXBeanProxy(mbsc, getMXLoggerName(), CalliLoggerMBean.class);
+				.newMXBeanProxy(mbsc, getMXLoggerName(), CalliLoggerMXBean.class);
 	}
 
 	private void heapDump(Object vm, String hprof) throws Exception {

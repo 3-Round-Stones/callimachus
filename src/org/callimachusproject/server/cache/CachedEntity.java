@@ -115,6 +115,8 @@ public class CachedEntity {
 		BufferedReader reader = new BufferedReader(new FileReader(head));
 		try {
 			String line = reader.readLine();
+			if (line == null)
+				throw new IOException(head.getAbsolutePath() + " is empty");
 			int idx = line.indexOf(' ');
 			method = line.substring(0, idx);
 			url = single(line.substring(idx + 1));

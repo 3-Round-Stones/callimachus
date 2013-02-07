@@ -26,7 +26,7 @@ import java.io.IOException;
  * @author James Leigh
  * 
  */
-public interface CalliLoggerMBean {
+public interface CalliLoggerMXBean {
 
 	void startNotifications(String prefix);
 

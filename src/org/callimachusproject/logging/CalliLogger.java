@@ -71,7 +71,7 @@ import com.sun.management.OperatingSystemMXBean;
  * 
  */
 public class CalliLogger extends NotificationBroadcasterSupport implements
-		CalliLoggerMBean {
+		CalliLoggerMXBean {
 	private Formatter formatter;
 	private Handler nh;
 

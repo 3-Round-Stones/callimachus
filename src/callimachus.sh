@@ -448,6 +448,14 @@ do_start()
           else
             log_warning_msg "Could not import new trusted certificate $cert into $TRUSTSTORE"
           fi
+        elif [ "$cert" -nt "$TRUSTSTORE" ] ; then
+          "$KEYTOOL" -delete -alias "$ALIAS" -keystore "$TRUSTSTORE" -storepass "$(cat "$SSL.password")" $KEYTOOL_OPTS
+          "$KEYTOOL" -import -alias "$ALIAS" -file "$cert" -noprompt -trustcacerts -keystore "$TRUSTSTORE" -storepass "$(cat "$SSL.password")" $KEYTOOL_OPTS
+          if [ $? = 0 ] ; then
+            log_success_msg "Imported updated trusted certificate $cert into $TRUSTSTORE"
+          else
+            log_warning_msg "Could not updated certificate $cert into $TRUSTSTORE"
+          fi
         fi
       fi
     done

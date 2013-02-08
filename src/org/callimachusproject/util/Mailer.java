@@ -43,15 +43,6 @@ public class Mailer {
 		this.file = MailProperties.getInstance();
 	}
 
-	public synchronized String[] getMailProperties() throws IOException {
-		return file.getMailProperties();
-	}
-
-	public synchronized void setMailProperties(String[] lines)
-			throws IOException {
-		file.setMailProperties(lines);
-	}
-
 	public void sendMessage(String html, String recipient) throws IOException,
 			MessagingException, NamingException {
 		sendMessage(html, Collections.singleton(recipient));

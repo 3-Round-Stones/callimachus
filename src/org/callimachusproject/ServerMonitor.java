@@ -32,15 +32,16 @@ import java.rmi.UnmarshalException;
 import java.util.Arrays;
 import java.util.GregorianCalendar;
 import java.util.Properties;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.ThreadFactory;
 
 import javax.management.JMX;
 import javax.management.MBeanServerConnection;
 import javax.management.MalformedObjectNameException;
-import javax.management.Notification;
-import javax.management.NotificationListener;
 import javax.management.ObjectName;
+import javax.management.Query;
+import javax.management.QueryExp;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
@@ -80,8 +81,6 @@ public class ServerMonitor {
 		commands.option("dump").arg("directory").desc(
 				"Use the directory to dump the server status in the given directory");
 		commands.option("reset").desc("Empty any cache on the server");
-		commands.option("log").optional("name").desc(
-				"Print log statements from loggers with these names");
 		commands.option("stop").desc(
 				"Use the PID file to shutdown the server");
 		commands.option("h", "help").desc(
@@ -136,8 +135,6 @@ public class ServerMonitor {
 	private boolean reset;
 	private boolean stop;
 	private String dump;
-	private String[] log;
-	private NotificationListener listener;
 
 	public ServerMonitor() {
 		super();
@@ -166,12 +163,6 @@ public class ServerMonitor {
 				if (line.has("dump")) {
 					dump = line.get("dump") + File.separatorChar;
 				}
-				if (line.has("log")) {
-					log = line.getAll("log");
-					if (log == null || log.length == 0) {
-						log = new String[]{""};
-					}
-				}
 				reset = line.has("reset");
 				stop = line.has("stop");
 				String pid = line.get("pid");
@@ -194,48 +185,15 @@ public class ServerMonitor {
 		if (stop) {
 			destroyService();
 		}
-		if (log == null) {
-			System.exit(0);
-		} else {
-			logNotifications(log);
-		}
+		System.exit(0);
 	}
 
 	public void stop() throws Throwable {
-		try {
-			if (listener != null) {
-				mbsc.removeNotificationListener(getMXLoggerName(), listener);
-				logger.stopNotifications();
-			}
-		} catch (UndeclaredThrowableException e) {
-			throw e.getCause();
-		}
+		// nothing to stop
 	}
 
 	public void destroy() throws Exception {
 		// nothing to destroy
-	}
-
-	public void logNotifications(String[] log) throws Throwable {
-		listener = new NotificationListener() {
-			public void handleNotification(Notification note, Object handback) {
-				synchronized (this) {
-					System.out.println(note.getMessage());
-					Object userData = note.getUserData();
-					if (userData != null) {
-						System.out.println(userData);
-					}
-				}
-			}
-		};
-		try {
-			mbsc.addNotificationListener(getMXLoggerName(), listener, null, null);
-			for (String name : log) {
-				logger.startNotifications(name);
-			}
-		} catch (UndeclaredThrowableException e) {
-			throw e.getCause();
-		}
 	}
 
 	public boolean destroyService() throws Throwable {
@@ -292,10 +250,13 @@ public class ServerMonitor {
 	private void setPidFile(String pid) throws Throwable {
 		vm = getRemoteVirtualMachine(pid);
 		mbsc = getMBeanConnection(vm);
-		server = JMX.newMXBeanProxy(mbsc, getMXServerName(),
-				HTTPObjectAgentMXBean.class);
-		logger = JMX
-				.newMXBeanProxy(mbsc, getMXLoggerName(), CalliLoggerMXBean.class);
+		for (ObjectName name : getObjectNames(CallimachusServer.class, mbsc)) {
+			server = JMX
+					.newMXBeanProxy(mbsc, name, HTTPObjectAgentMXBean.class);
+		}
+		for (ObjectName name : getObjectNames(CalliLogger.class, mbsc)) {
+			logger = JMX.newMXBeanProxy(mbsc, name, CalliLoggerMXBean.class);
+		}
 	}
 
 	private void heapDump(Object vm, String hprof) throws Exception {
@@ -332,10 +293,20 @@ public class ServerMonitor {
 
 	private void connectionDump(MBeanServerConnection mbsc, String filename)
 			throws MalformedObjectNameException, IOException {
-		HTTPObjectAgentMXBean server = JMX.newMXBeanProxy(mbsc,
-				getMXServerName(), HTTPObjectAgentMXBean.class);
-		server.connectionDumpToFile(filename);
-		info(filename);
+		for (ObjectName name : getObjectNames(CallimachusServer.class, mbsc)) {
+			HTTPObjectAgentMXBean server = JMX.newMXBeanProxy(mbsc, name,
+					HTTPObjectAgentMXBean.class);
+			server.connectionDumpToFile(filename);
+			info(filename);
+		}
+	}
+
+	private Set<ObjectName> getObjectNames(Class<?> mclass,
+			MBeanServerConnection mbsc) throws IOException,
+			MalformedObjectNameException {
+		ObjectName name = new ObjectName("*,type=" + mclass.getSimpleName());
+		QueryExp instanceOf = Query.isInstanceOf(Query.value(mclass.getName()));
+		return mbsc.queryNames(name, instanceOf);
 	}
 
 	private void poolDump(MBeanServerConnection mbsc, String filename)
@@ -482,16 +453,6 @@ public class ServerMonitor {
 		JMXServiceURL service = new JMXServiceURL(connectorAddress);
 		JMXConnector connector = JMXConnectorFactory.connect(service);
 		return connector.getMBeanServerConnection();
-	}
-
-	private ObjectName getMXServerName() throws MalformedObjectNameException {
-		String pkg = Server.class.getPackage().getName();
-		return new ObjectName(pkg + ":type=" + CallimachusServer.class.getSimpleName());
-	}
-
-	private ObjectName getMXLoggerName() throws MalformedObjectNameException {
-		String pkg = Server.class.getPackage().getName();
-		return new ObjectName(pkg + ":type=" + CalliLogger.class.getSimpleName());
 	}
 
 }

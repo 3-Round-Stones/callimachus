@@ -522,6 +522,9 @@ public class CallimachusSetup {
 		config.validate();
 		logger.info("Creating repository: {}", id);
 		manager.addRepositoryConfig(config);
+		if (manager.getInitializedRepositoryIDs().contains(id)) {
+			manager.getRepository(id).shutDown();
+		}
 		return manager.getRepository(id);
 	}
 

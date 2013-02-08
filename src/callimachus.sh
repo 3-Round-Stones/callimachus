@@ -224,6 +224,18 @@ if [ -z "$JDK_HOME" ] ; then
   fi
 fi
 
+if [ ! -e "$JAVA_HOME/bin/java" ] ; then
+    log_failure_msg "$JAVA_HOME/bin/java is not executable"
+    log_failure_msg "This file is needed to run this program"
+    exit 5
+fi
+
+if [ ! -e "$JDK_HOME/bin/javac" ] ; then
+    log_failure_msg "$JDK_HOME/bin/javac is not executable"
+    log_failure_msg "This file is needed to run this program"
+    exit 5
+fi
+
 if [ -z "$KEYTOOL" ] ; then
   KEYTOOL="$JAVA_HOME/bin/keytool"
 fi
@@ -550,7 +562,7 @@ do_stop()
 # Function that loads the configuration and prompts for a user
 #
 do_setup() {
-  if [ ! -e "$SSL" ] ; then
+  if [ ! -e "$SSL" -a -r "$JAVA_HOME/lib/security/cacerts" ] ; then
     if [ -z "$KEYTOOL" ] ; then
       KEYTOOL="$JAVA_HOME/bin/keytool"
     fi

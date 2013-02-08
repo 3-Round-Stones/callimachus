@@ -9,11 +9,16 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MailProperties implements MailPropertiesMXBean {
+	private static final Pattern KEY_VALUE_REGEX = Pattern.compile("\\s*(.*)\\s*=\\s*(.*)\\s*$");
 	private static final MailProperties system = new MailProperties(
 			System.getProperty("java.mail.properties"));
 
@@ -31,38 +36,6 @@ public class MailProperties implements MailPropertiesMXBean {
 		this.file = file;
 	}
 
-	public synchronized String[] getMailProperties() throws IOException {
-		if (!file.isFile())
-			return new String[0];
-		FileReader fileReader = new FileReader(file);
-		BufferedReader bufferedReader = new BufferedReader(fileReader);
-		List<String> lines = new ArrayList<String>();
-		String line = null;
-		while ((line = bufferedReader.readLine()) != null) {
-			lines.add(line);
-		}
-		bufferedReader.close();
-		return lines.toArray(new String[lines.size()]);
-	}
-
-	public synchronized void setMailProperties(String[] lines)
-			throws IOException {
-		file.getParentFile().mkdirs();
-		FileOutputStream out = new FileOutputStream(file);
-		try {
-			PrintWriter writer = new PrintWriter(out);
-			try {
-				for (String line : lines) {
-					writer.println(line);
-				}
-			} finally {
-				writer.close();
-			}
-		} finally {
-			out.close();
-		}
-	}
-
 	public synchronized Properties loadMailProperties() throws IOException {
 		Properties properties = new Properties();
 		if (file.isFile()) {
@@ -78,5 +51,63 @@ public class MailProperties implements MailPropertiesMXBean {
 			}
 		}
 		return properties;
+	}
+
+	public synchronized Map<String,String> getMailProperties() throws IOException {
+		if (!file.isFile())
+			return Collections.emptyMap();
+		Map<String, String> properties = getAllMailProperties();
+		Iterator<String> iter = properties.keySet().iterator();
+		while (iter.hasNext()) {
+			if (iter.next().contains("password")) {
+				iter.remove();
+			}
+		}
+		return properties;
+	}
+
+	public synchronized void setMailProperties(Map<String,String> lines)
+			throws IOException {
+		if (file.canRead()) {
+			Map<String, String> map = getAllMailProperties();
+			map.putAll(lines);
+			lines = map;
+		}
+		file.getParentFile().mkdirs();
+		FileOutputStream out = new FileOutputStream(file);
+		try {
+			PrintWriter writer = new PrintWriter(out);
+			try {
+				for (Map.Entry<String, String> line : lines.entrySet()) {
+					if (line.getValue() == null) {
+						writer.println(line.getKey());
+					} else {
+						writer.println(line.getKey() + "=" + line.getValue());
+					}
+				}
+			} finally {
+				writer.close();
+			}
+		} finally {
+			out.close();
+		}
+	}
+
+	private Map<String, String> getAllMailProperties()
+			throws FileNotFoundException, IOException {
+		FileReader fileReader = new FileReader(file);
+		BufferedReader bufferedReader = new BufferedReader(fileReader);
+		Map<String,String> lines = new LinkedHashMap<String,String>();
+		String line = null;
+		while ((line = bufferedReader.readLine()) != null) {
+			Matcher m = KEY_VALUE_REGEX.matcher(line);
+			if (m.matches()) {
+				lines.put(m.group(1), m.group(2));
+			} else {
+				lines.put(line, null);
+			}
+		}
+		bufferedReader.close();
+		return lines;
 	}
 }

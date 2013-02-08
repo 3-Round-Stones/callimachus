@@ -67,4 +67,3 @@ else
         ln -sf "/etc/init.d/$NAME" "/etc/rc.d/rc${i}.d/K10$NAME"
    done
 fi
-

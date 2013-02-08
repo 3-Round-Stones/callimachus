@@ -422,38 +422,24 @@ do_start()
   fi
 
   # import any new certificates before starting server
-  if [ -r "$SSL" ] ; then
-    grep -E '^javax.net.ssl.keyStorePassword=' "$SSL" |perl -pe 's/^javax.net.ssl.keyStorePassword=(.*)/$1/' 2>/dev/null > "$SSL.password"
+  if [ -r "$SSL" ] && grep -q "trustStore" "$SSL" ; then
+    KEYTOOL_OPTS=$(perl -pe 's/\s*\#.*$//g' "$SSL" 2>/dev/null |perl -pe 's/(\S+)=(.*)/-J-D$1=$2/' 2>/dev/null |tr -s '\n' ' ')
+    grep -E '^javax.net.ssl.trustStorePassword=' "$SSL" |perl -pe 's/^javax.net.ssl.trustStorePassword=(.*)/$1/' 2>/dev/null > "$SSL.password"
     TRUSTSTORE=$(grep -E '^javax.net.ssl.trustStore=' $SSL |perl -pe 's/^javax.net.ssl.trustStore=(.*)/$1/' 2>/dev/null)
-    KEYSTORE=$(grep -E '^javax.net.ssl.keyStore=' $SSL |perl -pe 's/^javax.net.ssl.keyStore=(.*)/$1/' 2>/dev/null)
     for cert in etc/*.pem etc/*.cer etc/*.crt etc/*.cert etc/*.der ; do
-      if [ -r "$cert" -a -r "$TRUSTSTORE" -a -r "$KEYSTORE" ] ; then
+      if [ -r "$cert" -a -r "$TRUSTSTORE" ] ; then
         ALIAS="$(basename "$cert" | sed 's/\.[a-z]\+$//' )"
         if ! "$KEYTOOL" -list -keystore "$TRUSTSTORE" -storepass "$(cat "$SSL.password")" |grep -q "^$ALIAS," ; then
-          "$KEYTOOL" -import -alias "$ALIAS" -file "$cert" -noprompt -trustcacerts -keystore "$TRUSTSTORE" -storepass "$(cat "$SSL.password")" "-J-Djavax.net.ssl.trustStore=$TRUSTSTORE"
+          "$KEYTOOL" -import -alias "$ALIAS" -file "$cert" -noprompt -trustcacerts -keystore "$TRUSTSTORE" -storepass "$(cat "$SSL.password")" $KEYTOOL_OPTS
           if [ $? = 0 ] ; then
             log_success_msg "Imported new trusted certificate $cert into $TRUSTSTORE"
           else
             log_warning_msg "Could not import new trusted certificate $cert into $TRUSTSTORE"
           fi
         fi
-        if ! "$KEYTOOL" -list -keystore "$KEYSTORE" -storepass "$(cat "$SSL.password")" |grep -q "^$ALIAS," ; then
-          "$KEYTOOL" -import -alias "$ALIAS" -file "$cert" -noprompt -trustcacerts -keystore "$KEYSTORE" -storepass "$(cat "$SSL.password")" "-J-Djavax.net.ssl.trustStore=$TRUSTSTORE"
-          if [ $? = 0 ] ; then
-            log_success_msg "Imported $cert into $KEYSTORE"
-          else
-            log_warning_msg "Could not import $cert into $KEYSTORE"
-          fi
-        elif [ "$cert" != "etc/$ALIAS.cer" ] &&"$KEYTOOL" -list -keystore "$KEYSTORE" -storepass "$(cat "$SSL.password")" |grep "^$ALIAS," |grep -q "PrivateKeyEntry," ; then
-          "$KEYTOOL" -import -alias "$ALIAS" -file "$cert" -noprompt -trustcacerts -keystore "$KEYSTORE" -storepass "$(cat "$SSL.password")" "-J-Djavax.net.ssl.trustStore=$TRUSTSTORE"
-          if [ $? = 0 ] ; then
-            log_success_msg "Imported certificate reply $cert into $KEYSTORE"
-          else
-            log_warning_msg "Could not import certificate reply $cert into $KEYSTORE"
-          fi
-        fi
       fi
     done
+    rm "$SSL.password"
   fi
 
   JSVC_LOG="$BASEDIR/log/$NAME-start.log"
@@ -564,6 +550,19 @@ do_stop()
 # Function that loads the configuration and prompts for a user
 #
 do_setup() {
+  if [ ! -e "$SSL" ] ; then
+    if [ -z "$KEYTOOL" ] ; then
+      KEYTOOL="$JAVA_HOME/bin/keytool"
+    fi
+    echo $$$(date +%s)$RANDOM | md5sum | awk '{print $1}' > "$SSL.password"
+    cp "$JAVA_HOME/lib/security/cacerts" "$BASEDIR/etc/truststore"
+    "$KEYTOOL" -storepasswd -new "$(cat "$SSL.password")" -keystore "$BASEDIR/etc/truststore" -storepass "changeit"
+    echo "javax.net.ssl.trustStore=etc/truststore" >> "$SSL"
+    echo "javax.net.ssl.trustStorePassword=$(cat "$SSL.password")" >> "$SSL"
+    chmod go-rwx "$SSL"
+    rm "$SSL.password"
+  fi
+
   "$JAVA_HOME/bin/java" \
     -Duser.home="$BASEDIR" \
     -Djava.io.tmpdir="$TMPDIR" \

@@ -45,7 +45,18 @@ public class Mailer {
 
 	public void sendMessage(String html, String recipient) throws IOException,
 			MessagingException, NamingException {
-		sendMessage(html, Collections.singleton(recipient));
+		try {
+			sendMessage(html, Collections.singleton(recipient));
+		} catch (IOException e) {
+			logger.error(e.toString(), e);
+			throw e;
+		} catch (MessagingException e) {
+			logger.error(e.toString(), e);
+			throw e;
+		} catch (NamingException e) {
+			logger.error(e.toString(), e);
+			throw e;
+		}
 	}
 
 	public void sendMessage(String html, Set<String> recipients)

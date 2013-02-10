@@ -22,11 +22,6 @@ the URL provided for each project.
   JARs:     lib/callimachus-<version>.jar
             lib/callimachus-webapp-<version>.car
 
-  Franz AllegroGraph client libraries
-  URL:      http://www.franz.com/agraph/allegrograph/clients.lhtml
-  LICENSE:  Eclipse License
-  JARs:     lib/agraph-<version>.jar
-
   XML Calabash
   URL:      http://xmlcalabash.com/download/
   LICENSE:  Common Development and Distribution License (CDDL)

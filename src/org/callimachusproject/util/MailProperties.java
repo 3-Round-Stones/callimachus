@@ -17,8 +17,13 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.Transport;
+
 public class MailProperties implements MailPropertiesMXBean {
-	private static final Pattern KEY_VALUE_REGEX = Pattern.compile("\\s*(.*)\\s*=\\s*(.*)\\s*$");
+	private static final Pattern KEY_VALUE_REGEX = Pattern
+			.compile("\\s*(.*)\\s*=\\s*(.*)\\s*$");
 	private static final MailProperties system = new MailProperties(
 			System.getProperty("java.mail.properties"));
 
@@ -53,7 +58,8 @@ public class MailProperties implements MailPropertiesMXBean {
 		return properties;
 	}
 
-	public synchronized Map<String,String> getMailProperties() throws IOException {
+	public synchronized Map<String, String> getMailProperties()
+			throws IOException {
 		if (!file.isFile())
 			return Collections.emptyMap();
 		Map<String, String> properties = getAllMailProperties();
@@ -66,13 +72,14 @@ public class MailProperties implements MailPropertiesMXBean {
 		return properties;
 	}
 
-	public synchronized void setMailProperties(Map<String,String> lines)
-			throws IOException {
+	public synchronized void setMailProperties(Map<String, String> lines)
+			throws IOException, MessagingException {
 		if (file.canRead()) {
 			Map<String, String> map = getAllMailProperties();
 			map.putAll(lines);
 			lines = map;
 		}
+		validate(lines);
 		file.getParentFile().mkdirs();
 		FileOutputStream out = new FileOutputStream(file);
 		try {
@@ -97,7 +104,7 @@ public class MailProperties implements MailPropertiesMXBean {
 			throws FileNotFoundException, IOException {
 		FileReader fileReader = new FileReader(file);
 		BufferedReader bufferedReader = new BufferedReader(fileReader);
-		Map<String,String> lines = new LinkedHashMap<String,String>();
+		Map<String, String> lines = new LinkedHashMap<String, String>();
 		String line = null;
 		while ((line = bufferedReader.readLine()) != null) {
 			Matcher m = KEY_VALUE_REGEX.matcher(line);
@@ -109,5 +116,21 @@ public class MailProperties implements MailPropertiesMXBean {
 		}
 		bufferedReader.close();
 		return lines;
+	}
+
+	private void validate(Map<String, String> lines) throws MessagingException {
+		Properties properties = new Properties();
+		properties.putAll(lines);
+		if (properties.containsKey("mail.transport.protocol")) {
+			Session session = Session.getInstance(properties);
+			String user = session.getProperty("mail.user");
+			String password = session.getProperty("mail.password");
+			Transport tr = session.getTransport();
+			try {
+				tr.connect(user, password);
+			} finally {
+				tr.close();
+			}
+		}
 	}
 }

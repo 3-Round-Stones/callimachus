@@ -49,7 +49,7 @@ A typical file might contain the following block:
 mail.transport.protocol = smtp
 mail.from = system@example.com
 mail.host = example.com
-mail.port = 25
+mail.smtp.port = 25
 mail.smtp.auth = true
 mail.smtp.starttls.enable = true
 mail.smtp.starttls.required = true

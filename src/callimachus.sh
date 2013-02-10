@@ -574,7 +574,11 @@ do_setup() {
     if [ -z "$KEYTOOL" ] ; then
       KEYTOOL="$JAVA_HOME/bin/keytool"
     fi
-    echo $$$(date +%s)$RANDOM | md5sum | awk '{print $1}' > "$SSL.password"
+    if [ -x "$(command -v md5sum)" ] ; then
+      echo $$$(date +%s)$RANDOM | md5sum | awk '{print $1}' > "$SSL.password"
+    else
+      echo $$$(date +%s)$RANDOM | awk '{print $1}' > "$SSL.password"
+    fi
     cp "$JAVA_HOME/lib/security/cacerts" "$BASEDIR/etc/truststore"
     "$KEYTOOL" -storepasswd -new "$(cat "$SSL.password")" -keystore "$BASEDIR/etc/truststore" -storepass "changeit"
     echo "javax.net.ssl.trustStore=etc/truststore" >> "$SSL"

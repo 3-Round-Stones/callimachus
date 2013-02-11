@@ -44,7 +44,7 @@ DELETE {
 DELETE {
     ?resource calli:reader ?reader
 } INSERT {
-    ?resource calli:subscriber ?subscriber
+    ?resource calli:subscriber ?reader
 } WHERE {
     ?resource calli:reader ?reader
     FILTER NOT EXISTS { ?any calli:subscriber ?subscriber }

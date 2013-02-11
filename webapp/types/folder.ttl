@@ -128,6 +128,7 @@
     calli:rel "alternate";
     calli:requires calli:subscriber;
     calli:type "text/html";
+    calli:header "cache-control:no-store";
     calli:copy <../pipelines/folder-changes-html.xpl?results&target={0}>.
     
 :GetFolderChangeAtom rdfs:subClassOf msg:Message;

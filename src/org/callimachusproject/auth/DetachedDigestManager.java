@@ -30,6 +30,7 @@ import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -96,7 +97,6 @@ public class DetachedDigestManager implements DetachedAuthenticationManager {
 			.compile("\\s*([\\w\\!\\#\\$\\%\\&\\'\\*\\+\\-\\.\\^\\_\\`\\~]+)(?:\\s*=\\s*(?:\"([^\"]*)\"|([^,\"]*)))?\\s*,?");
 	private static final long THREE_MONTHS = 3 * 30 * 24 * 60 * 60;
 	private static final int MAX_NONCE_AGE = 300000; // nonce timeout of 5min
-	private static final String USERNAME = "username=";
 	private static final BasicStatusLine _403 = new BasicStatusLine(
 			HttpVersion.HTTP_1_1, 403, "Forbidden");
 	private static final BasicStatusLine _401 = new BasicStatusLine(
@@ -123,8 +123,9 @@ public class DetachedDigestManager implements DetachedAuthenticationManager {
 	private final String protectedPath;
 	private final RealmManager realms;
 	private final FailManager fail = new FailManager();
-	private final String secure;
+	private final String digestNonceSecure;
 	private final String digestNonce;
+	private final Set<String> userCookies = new LinkedHashSet<String>();
 
 	public DetachedDigestManager(Resource self, String authName, String path, List<String> domains, RealmManager realms) {
 		assert self != null;
@@ -133,25 +134,43 @@ public class DetachedDigestManager implements DetachedAuthenticationManager {
 		this.realms = realms;
 		this.self = self;
 		this.authName = authName;
+		this.protectedPath = path;
 		assert domains != null;
 		assert domains.size() > 0;
 		boolean secureOnly = true;
+		Set<Integer> ports = new HashSet<Integer>();
 		StringBuilder sb = new StringBuilder();
 		for (String domain : domains) {
 			sb.append(' ').append(domain);
-			if (!domain.startsWith("https")) {
+			int port = java.net.URI.create(domain).getPort();
+			ports.add(port);
+			StringBuilder suffix = new StringBuilder();
+			if (port > 0) {
+				suffix.append(port);
+			}
+			if (domain.startsWith("https")) {
+				suffix.append('s');
+			} else {
 				secureOnly = false;
+			}
+			suffix.append('=');
+			userCookies.add("username" + suffix);
+		}
+		this.protectedDomains = sb.substring(1);
+		this.digestNonceSecure = secureOnly ? ";Secure" : "";
+		StringBuilder dn = new StringBuilder();
+		dn.append("digestNonce");
+		if (ports.size() == 1) {
+			Integer port = ports.iterator().next();
+			if (port > 0) {
+				dn.append(port);
 			}
 		}
 		if (secureOnly) {
-			this.secure = ";Secure";
-			this.digestNonce = "digestNonceSsl=";
-		} else {
-			this.secure = "";
-			this.digestNonce = "digestNonce=";
+			dn.append('s');
 		}
-		this.protectedDomains = sb.substring(1);
-		this.protectedPath = path;
+		dn.append("=");
+		this.digestNonce = dn.toString();
 	}
 
 	@Override
@@ -263,9 +282,13 @@ public class DetachedDigestManager implements DetachedAuthenticationManager {
 			if (token.indexOf("username=\"-\"") > 0) {
 				// # bogus credentials received
 				BasicHttpResponse resp = new BasicHttpResponse(_204);
-				resp.addHeader("Set-Cookie", digestNonce + ";Max-Age=0;Path=/;HttpOnly" + secure);
-				resp.addHeader("Set-Cookie", USERNAME + ";Max-Age=0;Path="
-						+ protectedPath + secure);
+					resp.addHeader("Set-Cookie", digestNonce
+							+ ";Max-Age=0;Path=/;HttpOnly" + digestNonceSecure);
+				for (String userCookie : userCookies) {
+					String secure = userCookie.endsWith("s=") ? ";Secure" : "";
+					resp.addHeader("Set-Cookie", userCookie
+							+ ";Max-Age=0;Path=" + protectedPath + secure);
+				}
 				return resp;
 			}
 		}
@@ -289,19 +312,27 @@ public class DetachedDigestManager implements DetachedAuthenticationManager {
 		if (resp == null) {
 			resp = new BasicHttpResponse(_204);
 		}
-		String cookie = getUsernameSetCookie(tokens, con);
-		if (cookie == null)
+		String[] cookies = getUsernameSetCookie(tokens, con);
+		if (cookies.length == 0)
 			return new BasicHttpResponse(_403);
-		resp.addHeader("Set-Cookie", cookie);
+		for (String cookie : cookies) {
+			resp.addHeader("Set-Cookie", cookie);
+		}
 		return resp;
 	}
 
-	public String getUsernameSetCookie(Collection<String> tokens,
+	public String[] getUsernameSetCookie(Collection<String> tokens,
 			ObjectConnection con) {
 		String username = getUserLogin(tokens, con);
 		if (username == null)
-			return null;
-		return USERNAME + encode(username) + ";Path=" + protectedPath + secure;
+			return new String[0];
+		int i = 0;
+		String[] result = new String[userCookies.size()];
+		for (String userCookie : userCookies) {
+			String secure = userCookie.endsWith("s=") ? ";Secure" : "";
+			result[i++] = userCookie + encode(username) + ";Path=" + protectedPath + secure;
+		}
+		return result;
 	}
 
 	public String getUserIdentifier(Collection<String> tokens,
@@ -473,12 +504,12 @@ public class DetachedDigestManager implements DetachedAuthenticationManager {
 		if (cookies == null)
 			return null;
 		for (String cookie : cookies) {
-			if (!cookie.contains(digestNonce))
-				continue;
-			String[] pair = cookie.split("\\s*;\\s*");
-			for (String p : pair) {
-				if (p.startsWith(digestNonce)) {
-					return p.substring(digestNonce.length());
+			if (cookie.contains(digestNonce)) {
+				String[] pair = cookie.split("\\s*;\\s*");
+				for (String p : pair) {
+					if (p.startsWith(digestNonce)) {
+						return p.substring(digestNonce.length());
+					}
 				}
 			}
 		}
@@ -508,7 +539,7 @@ public class DetachedDigestManager implements DetachedAuthenticationManager {
 				Character.MAX_RADIX);
 		BasicHttpResponse resp = new BasicHttpResponse(_200);
 		resp.addHeader("Set-Cookie", digestNonce + nonce + ";Max-Age="
-				+ THREE_MONTHS + ";Path=/;HttpOnly" + secure);
+				+ THREE_MONTHS + ";Path=/;HttpOnly" + digestNonceSecure);
 		resp.addHeader("Cache-Control", "private");
 		resp.setHeader("Content-Type", "text/plain;charset=UTF-8");
 		String hash = md5(nonce + ":" + secret);

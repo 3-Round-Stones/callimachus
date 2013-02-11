@@ -65,7 +65,7 @@ public abstract class DigestManagerSupport implements RDFObject, DigestManager {
 	 * called from realm.ttl
 	 */
 	@Override
-	public String getUsernameSetCookie(Collection<String> tokens)
+	public String[] getUsernameSetCookie(Collection<String> tokens)
 			throws OpenRDFException, IOException {
 		DetachedDigestManager digest = getManager();
 		if (digest == null)

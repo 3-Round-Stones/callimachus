@@ -17,7 +17,7 @@ public interface AuthenticationManager {
 	String getUserLogin(Collection<String> tokens)
 			throws OpenRDFException, IOException;
 
-	String getUsernameSetCookie(Collection<String> tokens) throws OpenRDFException, IOException;
+	String[] getUsernameSetCookie(Collection<String> tokens) throws OpenRDFException, IOException;
 
 	DetachedAuthenticationManager detachAuthenticationManager(String path,
 			List<String> domains, RealmManager manager) throws OpenRDFException, IOException;

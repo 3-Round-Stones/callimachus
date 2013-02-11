@@ -43,13 +43,7 @@ public abstract class FacebookManagerSupport implements RDFObject, FacebookManag
 		String url = uri + "?login";
 		String appId = getCalliFacebookAppId();
 		CharSequence secret = getCalliFacebookSecret().getCharContent(false);
-		boolean secureOnly = true;
-		for (String domain : domains) {
-			if (!domain.endsWith("https")) {
-				secureOnly = false;
-			}
-		}
-		return new DetachedFacebookManager(uri, url, appId, secret, path, secureOnly);
+		return new DetachedFacebookManager(uri, url, appId, secret, path, domains);
 	}
 
 	public void resetCache() throws RepositoryException {
@@ -83,7 +77,7 @@ public abstract class FacebookManagerSupport implements RDFObject, FacebookManag
 	}
 
 	@Override
-	public String getUsernameSetCookie(Collection<String> tokens)
+	public String[] getUsernameSetCookie(Collection<String> tokens)
 			throws OpenRDFException, IOException {
 		DetachedFacebookManager digest = getManager();
 		if (digest == null)

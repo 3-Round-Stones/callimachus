@@ -26,9 +26,13 @@ import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.http.HttpEntity;
@@ -66,7 +70,6 @@ public class DetachedFacebookManager implements DetachedAuthenticationManager {
 	private static final String USER = "http://callimachusproject.org/rdf/2009/framework#User";
 	private static final String EMAIL = "http://callimachusproject.org/rdf/2009/framework#email";
 	private static final String PROV = "http://www.w3.org/ns/prov#";
-	private static final String USERNAME = "username=";
 	private static final String OAUTH_URL = "https://www.facebook.com/dialog/oauth";
 	private static final String ACCESS_URL = "https://graph.facebook.com/oauth/access_token";
 	private static final String ME_URL = "https://graph.facebook.com/me";
@@ -82,12 +85,13 @@ public class DetachedFacebookManager implements DetachedAuthenticationManager {
 	private final String protectedPath;
 	private final String appId;
 	private final String secret;
-	private final String secure;
+	private final String fbTokenSecure;
 	private final String fbToken;
+	private final Set<String> userCookies = new LinkedHashSet<String>();
 	private final Map<String, AccessToken> tokens = new HashMap<String, AccessToken>();
 
 	public DetachedFacebookManager(String identifier, String redirect_uri,
-			String appId, CharSequence secret, String path, boolean secureOnly) {
+			String appId, CharSequence secret, String path, List<String> domains) {
 		this.identifier = identifier;
 		this.redirect_uri = redirect_uri;
 		assert redirect_uri.contains("?");
@@ -95,13 +99,37 @@ public class DetachedFacebookManager implements DetachedAuthenticationManager {
 		this.appId = appId;
 		this.secret = secret.toString();
 		this.protectedPath = path;
-		if (secureOnly) {
-			this.secure = ";Secure";
-			this.fbToken = "fbTokenSsl=";
-		} else {
-			this.secure = "";
-			this.fbToken = "fbToken=";
+		boolean secureOnly = true;
+		Set<Integer> ports = new HashSet<Integer>();
+		for (String domain : domains) {
+			int port = java.net.URI.create(domain).getPort();
+			ports.add(port);
+			StringBuilder suffix = new StringBuilder();
+			if (port > 0) {
+				suffix.append(port);
+			}
+			if (domain.startsWith("https")) {
+				suffix.append('s');
+			} else {
+				secureOnly = false;
+			}
+			suffix.append('=');
+			userCookies.add("username" + suffix);
 		}
+		this.fbTokenSecure = secureOnly ? ";Secure" : "";
+		StringBuilder dn = new StringBuilder();
+		dn.append("fbToken");
+		if (ports.size() == 1) {
+			Integer port = ports.iterator().next();
+			if (port > 0) {
+				dn.append(port);
+			}
+		}
+		if (secureOnly) {
+			dn.append('s');
+		}
+		dn.append("=");
+		this.fbToken = dn.toString();
 	}
 
 	@Override
@@ -170,29 +198,46 @@ public class DetachedFacebookManager implements DetachedAuthenticationManager {
 		}
 		BasicHttpResponse resp = new BasicHttpResponse(_303);
 		resp.addHeader("Location", sb.toString());
-		resp.addHeader("Set-Cookie", fbToken
-				+ ";Max-Age=0;Path=/;HttpOnly" + secure);
+		resp.addHeader("Set-Cookie", fbToken + ";Max-Age=0;Path=/;HttpOnly"
+				+ fbTokenSecure);
 		return resp;
 	}
 
-	public String getUsernameSetCookie(Collection<String> cookies) {
+	public String[] getUsernameSetCookie(Collection<String> cookies) {
 		String email = getUserLogin(cookies);
-		return USERNAME + encode(email) + ";Max-Age=2678400;Path=" + protectedPath + secure;
+		if (email == null)
+			return new String[0];
+		int i = 0;
+		String[] result = new String[userCookies.size()];
+
+		for (String userCookie : userCookies) {
+			String secure = userCookie.endsWith("s=") ? ";Secure" : "";
+			result[i++] = userCookie + encode(email) + ";Max-Age=2678400;Path="
+					+ protectedPath + secure;
+		}
+		return result;
 	}
 
 	@Override
 	public HttpResponse logout(Collection<String> tokens) {
-		for (String token : tokens) {
+		boolean loggedIn = false;
+		loop: for (String token : tokens) {
 			if (token.indexOf(fbToken) >= 0) {
-				BasicHttpResponse resp = new BasicHttpResponse(_204);
-				resp.addHeader("Set-Cookie", fbToken
-						+ ";Max-Age=0;Path=/;HttpOnly" + secure);
-				resp.addHeader("Set-Cookie", USERNAME + ";Max-Age=0;Path="
-						+ protectedPath + secure);
-				return resp;
+				loggedIn = true;
+				break loop;
 			}
 		}
-		return null;
+		if (!loggedIn)
+			return null;
+		BasicHttpResponse resp = new BasicHttpResponse(_204);
+		resp.addHeader("Set-Cookie", fbToken + ";Max-Age=0;Path=/;HttpOnly"
+				+ fbTokenSecure);
+		for (String userCookie : userCookies) {
+			String secure = userCookie.endsWith("s=") ? ";Secure" : "";
+			resp.addHeader("Set-Cookie", userCookie + ";Max-Age=0;Path="
+					+ protectedPath + secure);
+		}
+		return resp;
 	}
 
 	@Override
@@ -283,9 +328,13 @@ public class DetachedFacebookManager implements DetachedAuthenticationManager {
 			return null;
 		BasicHttpResponse resp = new BasicHttpResponse(_303);
 		resp.addHeader("Location", getReturnTo(url));
-		String cookie = fbToken + codec.encode(url.substring(redirect_uri.length()));
-		resp.addHeader("Set-Cookie", cookie + ";Path=/;HttpOnly" + secure);
-		resp.addHeader("Set-Cookie", getUsernameSetCookie(asList(cookie)));
+		String cookie = fbToken
+				+ codec.encode(url.substring(redirect_uri.length()));
+		resp.addHeader("Set-Cookie", cookie + ";Path=/;HttpOnly"
+				+ fbTokenSecure);
+		for (String setCookie : getUsernameSetCookie(asList(cookie))) {
+			resp.addHeader("Set-Cookie", setCookie);
+		}
 		return resp;
 	}
 

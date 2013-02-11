@@ -18,6 +18,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
 
 import javax.tools.FileObject;
 
@@ -46,7 +47,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DetachedRealm {
-	private static final String PREF_AUTH = "prefAuth=";
+	private static final String PREF_AUTH = "prefAuth";
 	private static final String PREFIX = "PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>\n"
 			+ "PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>\n";
 	private static final String SELECT_REALM = PREFIX
@@ -71,10 +72,28 @@ public class DetachedRealm {
 	}
 
 	public static String getPreferredManagerCookie(String realm, String manager) {
-		String path = new ParsedURI(realm).getPath();
+		ParsedURI parsed = new ParsedURI(realm);
+		String path = parsed.getPath();
 		try {
 			String value = URLEncoder.encode(manager, "UTF-8");
-			return PREF_AUTH + value + ";Max-Age=2678400;Path=" + path + ";HttpOnly";
+			StringBuilder sb = new StringBuilder();
+			sb.append(PREF_AUTH);
+			String auth = parsed.getAuthority();
+			if (auth.contains(":")) {
+				sb.append(auth.substring(auth.lastIndexOf(':') + 1));
+			}
+			if ("https".equalsIgnoreCase(parsed.getScheme())) {
+				sb.append("s");
+			}
+			sb.append('=');
+			sb.append(value);
+			sb.append(";Max-Age=2678400;Path=");
+			sb.append(path);
+			sb.append(";HttpOnly");
+			if ("https".equalsIgnoreCase(parsed.getScheme())) {
+				sb.append(";Secure");
+			}
+			return sb.toString();
 		} catch (UnsupportedEncodingException e) {
 			throw new AssertionError(e);
 		}
@@ -334,13 +353,13 @@ public class DetachedRealm {
 	}
 
 	private Iterable<DetachedAuthenticationManager> getManagers(String[] cookies) {
-		String preferred = getPreferredManager(cookies);
+		Set<String> preferred = getPreferredManager(cookies);
 		List<DetachedAuthenticationManager> result = new ArrayList<DetachedAuthenticationManager>();
 		Iterator<?> iter = authentication.values().iterator();
 		while (iter.hasNext()) {
 			Object next = iter.next();
 			if (next instanceof DetachedAuthenticationManager) {
-				if (next.toString().equals(preferred)) {
+				if (preferred.contains(next.toString())) {
 					result.add(0, (DetachedAuthenticationManager) next);
 				} else {
 					result.add((DetachedAuthenticationManager) next);
@@ -353,16 +372,17 @@ public class DetachedRealm {
 	}
 
 	private Iterable<DetachedAuthenticationManager> getPrefManagers(String[] cookies) {
-		String preferred = getPreferredManager(cookies);
+		Set<String> preferred = getPreferredManager(cookies);
 		List<DetachedAuthenticationManager> result = new ArrayList<DetachedAuthenticationManager>();
 		Iterator<?> iter = authentication.values().iterator();
 		while (iter.hasNext()) {
 			Object next = iter.next();
 			if (next instanceof DetachedAuthenticationManager) {
-				if (((DetachedAuthenticationManager) next).getIdentifier().equals(preferred)) {
-					return Collections.singleton((DetachedAuthenticationManager) next);
+				DetachedAuthenticationManager dam = (DetachedAuthenticationManager) next;
+				if (preferred.contains(dam.getIdentifier())) {
+					return Collections.singleton(dam);
 				} else {
-					result.add((DetachedAuthenticationManager) next);
+					result.add(dam);
 				}
 			} else {
 				logger.error("{} is not an AuthenticationManager", next);
@@ -371,25 +391,26 @@ public class DetachedRealm {
 		return result;
 	}
 
-	private String getPreferredManager(String[] cookies) {
+	private Set<String> getPreferredManager(String[] cookies) {
 		if (cookies == null)
-			return null;
+			return Collections.emptySet();
+		Set<String> set = new LinkedHashSet<String>();
 		for (String cookie : cookies) {
 			if (!cookie.contains(PREF_AUTH))
 				continue;
 			String[] pair = cookie.split("\\s*;\\s*");
 			for (String p : pair) {
 				if (p.startsWith(PREF_AUTH)) {
-					String encoded = p.substring(PREF_AUTH.length());
+					String encoded = p.substring(p.indexOf('=') + 1);
 					try {
-						return URLDecoder.decode(encoded, "UTF-8");
+						set.add(URLDecoder.decode(encoded, "UTF-8"));
 					} catch (UnsupportedEncodingException e) {
 						throw new AssertionError(e);
 					}
 				}
 			}
 		}
-		return null;
+		return set;
 	}
 
 	private DetachedAuthenticationManager detach(Resource resource,

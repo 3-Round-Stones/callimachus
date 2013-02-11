@@ -176,7 +176,7 @@ function nowLoggedIn() {
 
 function nowLoggedOut() {
     try {
-        document.cookie = 'username=;max-age=0';
+        document.cookie = getUserCookieName() + '=;max-age=0';
     } catch (e) {}
     if (window.localStorage) {
         localStorage.removeItem("username");
@@ -192,9 +192,17 @@ function isLoggedIn() {
 }
 
 function getUsername() {
-    if (document.cookie && /(?:^|;\s*)username\s*\=/.test(document.cookie))
-        return decodeURIComponent(document.cookie.replace(/(?:^|.*;\s*)username\s*\=\s*((?:[^;](?!;))*[^;]?).*/, "$1"));
+    var pattern = escape(getUserCookieName()).replace(/[\-\.\+\*]/g, "\\$&");
+    var hasItem = new RegExp("(?:^|;\\s*)" + pattern + "\\s*\\=");
+    var regex = new RegExp("(?:^|.*;\\s*)" + pattern + "\\s*\\=\\s*((?:[^;](?!;))*[^;]?).*");
+    if (document.cookie && hasItem.test(document.cookie))
+        return decodeURIComponent(document.cookie.replace(regex, "$1"));
     return null;
+}
+
+function getUserCookieName() {
+    var secure = window.location.protocol == 'https:';
+    return "username" + window.location.port + (secure ? 's' : '');
 }
 
 function loadProfile(doc) {

@@ -27,7 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-package org.callimachusproject.server.util;
+package org.callimachusproject.concurrent;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -54,10 +54,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,38 +64,30 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class ManagedThreadPool implements ExecutorService, ThreadPoolMXBean {
-	private static final String MXBEAN_TYPE = "org.callimachusproject:type=ManagedThreads";
-
-	public static ObjectName getObjectNamePattern() throws MalformedObjectNameException {
-		return new ObjectName(MXBEAN_TYPE + ",name=*");
-	}
-
 	private final Logger logger = LoggerFactory.getLogger(ManagedThreadPool.class);
 	private ThreadPoolExecutor delegate;
-	private final String oname;
 	private final NamedThreadFactory threads;
-	private boolean registered;
 
-	public ManagedThreadPool(String name, boolean daemon) {
+	protected ManagedThreadPool(String name, boolean daemon) {
 		this(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS,
 				new SynchronousQueue<Runnable>(), name, daemon,
 				new ThreadPoolExecutor.AbortPolicy());
 	}
 
-	public ManagedThreadPool(int nThreads, String name, boolean daemon) {
+	protected ManagedThreadPool(int nThreads, String name, boolean daemon) {
 		this(nThreads, nThreads, 0L, TimeUnit.MILLISECONDS,
 				new SynchronousQueue<Runnable>(), name, daemon,
 				new ThreadPoolExecutor.AbortPolicy());
 	}
 
-	public ManagedThreadPool(int corePoolSize, int maximumPoolSize,
+	protected ManagedThreadPool(int corePoolSize, int maximumPoolSize,
 			long keepAliveTime, TimeUnit unit,
 			BlockingQueue<Runnable> workQueue, String name, boolean daemon) {
 		this(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue,
 				name, daemon, new ThreadPoolExecutor.AbortPolicy());
 	}
 
-	public ManagedThreadPool(int corePoolSize, int maximumPoolSize,
+	protected ManagedThreadPool(int corePoolSize, int maximumPoolSize,
 			long keepAliveTime, TimeUnit unit,
 			BlockingQueue<Runnable> workQueue, String name, boolean daemon,
 			RejectedExecutionHandler handler) {
@@ -111,19 +99,17 @@ public class ManagedThreadPool implements ExecutorService, ThreadPoolMXBean {
 	protected ManagedThreadPool(ThreadPoolExecutor delegate,
 			NamedThreadFactory factory) {
 		this.threads = factory;
-		this.oname = MXBEAN_TYPE + ",name=" + factory.toString();
 		delegate.setThreadFactory(factory);
 		setDelegate(delegate);
-		registerMBean();
 	}
 
 	public String getName() {
-		return getDelegate().getThreadFactory().toString();
+		return threads.toString();
 	}
 
 	@Override
 	public String toString() {
-		return getDelegate().getThreadFactory().toString();
+		return threads.toString();
 	}
 
 	public void setCorePoolSize(int corePoolSize) {
@@ -135,12 +121,10 @@ public class ManagedThreadPool implements ExecutorService, ThreadPoolMXBean {
 
 	public void shutdown() {
 		getDelegate().shutdown();
-		unregisterMBean();
 	}
 
 	public List<Runnable> shutdownNow() {
 		List<Runnable> tasks = getDelegate().shutdownNow();
-		unregisterMBean();
 		return tasks;
 	}
 
@@ -482,28 +466,6 @@ public class ManagedThreadPool implements ExecutorService, ThreadPoolMXBean {
 		s.println("\tLocked synchronizers: count = " + locks.length);
 		for (LockInfo li : locks) {
 			s.println("\t  - " + li);
-		}
-	}
-
-	private void registerMBean() {
-		try {
-			MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
-			mbs.registerMBean(this, new ObjectName(oname));
-			registered = true;
-		} catch (Exception e) {
-			logger.debug(e.toString(), e);
-		}
-	}
-
-	private void unregisterMBean() {
-		try {
-			if (registered) {
-				MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
-				mbs.unregisterMBean(new ObjectName(oname));
-				registered = false;
-			}
-		} catch (Exception e) {
-			logger.debug(e.toString(), e);
 		}
 	}
 

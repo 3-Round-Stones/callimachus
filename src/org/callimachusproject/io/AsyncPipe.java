@@ -1,4 +1,4 @@
-package org.callimachusproject.server.util;
+package org.callimachusproject.io;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;

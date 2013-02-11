@@ -43,7 +43,7 @@ import java.util.Set;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.fluid.consumers.helpers.MessageWriterBase;
-import org.callimachusproject.server.util.ChannelUtil;
+import org.callimachusproject.io.ChannelUtil;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Namespace;
 import org.openrdf.model.Statement;

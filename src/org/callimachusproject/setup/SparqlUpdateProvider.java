@@ -16,6 +16,7 @@ import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.server.CallimachusRepository;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.ValueFactory;
+import org.openrdf.query.MalformedQueryException;
 import org.openrdf.query.Update;
 import org.openrdf.repository.object.ObjectConnection;
 import org.slf4j.Logger;
@@ -63,7 +64,8 @@ public class SparqlUpdateProvider implements UpdateProvider {
 					throws IOException, OpenRDFException {
 				Enumeration<URL> resources = cl.getResources(WEBAPP_RU);
 				while (resources.hasMoreElements()) {
-					InputStream in = resources.nextElement().openStream();
+					URL url = resources.nextElement();
+					InputStream in = url.openStream();
 					logger.info("Updating {} Store", origin);
 					Reader reader = new InputStreamReader(in, "UTF-8");
 					String ru = IOUtil.readString(reader);
@@ -72,6 +74,9 @@ public class SparqlUpdateProvider implements UpdateProvider {
 						con.setAutoCommit(false);
 						con.prepareUpdate(SPARQL, ru, webapp).execute();
 						con.setAutoCommit(true);
+					} catch (MalformedQueryException e) {
+						throw new MalformedQueryException(e.getMessage()
+								.replaceAll("\n.*", "") + " in " + url, e);
 					} finally {
 						con.close();
 					}
@@ -93,7 +98,8 @@ public class SparqlUpdateProvider implements UpdateProvider {
 					throws IOException, OpenRDFException {
 				Enumeration<URL> resources = cl.getResources(ORIGIN_RU);
 				while (resources.hasMoreElements()) {
-					InputStream in = resources.nextElement().openStream();
+					URL url = resources.nextElement();
+					InputStream in = url.openStream();
 					Reader reader = new InputStreamReader(in, "UTF-8");
 					String ru = IOUtil.readString(reader);
 					ObjectConnection con = repository.getConnection();
@@ -104,6 +110,9 @@ public class SparqlUpdateProvider implements UpdateProvider {
 						update.setBinding("origin", vf.createURI(virtual + "/"));
 						update.execute();
 						con.setAutoCommit(true);
+					} catch (MalformedQueryException e) {
+						throw new MalformedQueryException(e.getMessage()
+								.replaceAll("\n.*", "") + " in " + url, e);
 					} finally {
 						con.close();
 					}
@@ -125,7 +134,8 @@ public class SparqlUpdateProvider implements UpdateProvider {
 					throws IOException, OpenRDFException {
 				Enumeration<URL> resources = cl.getResources(REALM_RU);
 				while (resources.hasMoreElements()) {
-					InputStream in = resources.nextElement().openStream();
+					URL url = resources.nextElement();
+					InputStream in = url.openStream();
 					Reader reader = new InputStreamReader(in, "UTF-8");
 					String ru = IOUtil.readString(reader);
 					ObjectConnection con = repository.getConnection();
@@ -136,6 +146,9 @@ public class SparqlUpdateProvider implements UpdateProvider {
 						update.setBinding("realm", vf.createURI(realm));
 						update.execute();
 						con.setAutoCommit(true);
+					} catch (MalformedQueryException e) {
+						throw new MalformedQueryException(e.getMessage()
+								.replaceAll("\n.*", "") + " in " + url, e);
 					} finally {
 						con.close();
 					}
@@ -156,8 +169,9 @@ public class SparqlUpdateProvider implements UpdateProvider {
 					throws IOException, OpenRDFException {
 				Enumeration<URL> resources = cl.getResources(name);
 				while (resources.hasMoreElements()) {
-					InputStream in = resources.nextElement().openStream();
+					URL url = resources.nextElement();
 					logger.info("Upgrading store from {}", version);
+					InputStream in = url.openStream();
 					Reader reader = new InputStreamReader(in, "UTF-8");
 					String ru = IOUtil.readString(reader);
 					ObjectConnection con = repository.getConnection();
@@ -165,6 +179,9 @@ public class SparqlUpdateProvider implements UpdateProvider {
 						con.setAutoCommit(false);
 						con.prepareUpdate(SPARQL, ru, webapp).execute();
 						con.setAutoCommit(true);
+					} catch (MalformedQueryException e) {
+						throw new MalformedQueryException(e.getMessage()
+								.replaceAll("\n.*", "") + " in " + url, e);
 					} finally {
 						con.close();
 					}

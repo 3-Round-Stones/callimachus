@@ -10,7 +10,7 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import org.callimachusproject.server.util.ManagedExecutors;
+import org.callimachusproject.concurrent.ManagedExecutors;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.vocabulary.RDF;
@@ -27,7 +27,9 @@ import org.slf4j.LoggerFactory;
 
 public final class CallimachusActivityFactory implements ActivityFactory {
 	private static final String PROV_SUFFIX = "#provenance";
-	private static final Executor executor = ManagedExecutors.newSingleScheduler(CallimachusActivityFactory.class.getSimpleName());
+	private static final Executor executor = ManagedExecutors.getInstance()
+			.newSingleScheduler(
+					CallimachusActivityFactory.class.getSimpleName());
 	private static final TimeZone UTC = TimeZone.getTimeZone("UTC");
 	private static final String ACTIVITY = "http://www.w3.org/ns/prov#Activity";
 	private static final String PREFIX = "PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"

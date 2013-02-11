@@ -27,7 +27,7 @@ import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidException;
 import org.callimachusproject.fluid.FluidFactory;
 import org.callimachusproject.fluid.MediaType;
-import org.callimachusproject.server.util.ChannelUtil;
+import org.callimachusproject.io.ChannelUtil;
 import org.callimachusproject.xml.CloseableEntityResolver;
 import org.callimachusproject.xml.CloseableURIResolver;
 import org.slf4j.Logger;

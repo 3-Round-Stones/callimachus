@@ -1,6 +1,5 @@
 /*
- * Copyright 2010, Zepheira LLC Some rights reserved.
- * Copyright (c) 2011 Talis Inc., Some rights reserved.
+ * Copyright (c) 2010, Zepheira LLC, Some rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -27,62 +26,45 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-package org.callimachusproject.server.util;
+package org.callimachusproject.io;
 
+import java.io.File;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.concurrent.ThreadFactory;
+import java.util.Collection;
 
 /**
- * Gives new threads a common prefix.
+ * Singleton that will delete directory on normal JVM exit.
  * 
  * @author James Leigh
- *
+ * 
  */
-public class NamedThreadFactory implements ThreadFactory {
-	private static volatile int COUNT = 0;
-	private String name;
-	private boolean daemon;
-	private final List<Thread> threads = new ArrayList<Thread>();
+public class FileUtil {
+	private static final Collection<File> temporary = new ArrayList<File>();
 
-	public NamedThreadFactory(String name, boolean daemon) {
-		this.name = name;
-		this.daemon = daemon;
-	}
-
-	public Thread[] getLiveThreads() {
-		synchronized (threads) {
-			removeTerminatedThreads();
-			return threads.toArray(new Thread[threads.size()]);
+	public static void deleteOnExit(File dir) {
+		synchronized (temporary) {
+			if (temporary.isEmpty()) {
+				Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+					public void run() {
+						synchronized (temporary) {
+							for (File dir : temporary) {
+								deleteFileOrDir(dir, 256);
+							}
+						}
+					}
+				}, "Temporary Directory Cleanup"));
+			}
+			temporary.add(dir);
 		}
 	}
 
-	public Thread newThread(final Runnable r) {
-		Thread thread = new Thread(r, name + "-" + (++COUNT));
-		if (thread.isDaemon() != daemon) {
-			thread.setDaemon(daemon);
-		}
-		synchronized (threads) {
-			removeTerminatedThreads();
-			threads.add(thread);
-		}
-		return thread;
-	}
-
-	@Override
-	public String toString() {
-		return name;
-	}
-
-	private void removeTerminatedThreads() {
-		Iterator<Thread> iter = threads.iterator();
-		while (iter.hasNext()) {
-			Thread thread = iter.next();
-			if (!thread.isAlive()) {
-				iter.remove();
+	private static void deleteFileOrDir(File dir, int max) {
+		File[] listFiles = dir.listFiles();
+		if (listFiles != null && max > 0) {
+			for (File file : listFiles) {
+				deleteFileOrDir(file, max - 1);
 			}
 		}
+		dir.delete();
 	}
-
 }

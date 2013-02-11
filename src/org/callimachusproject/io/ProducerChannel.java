@@ -26,7 +26,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-package org.callimachusproject.server.util;
+package org.callimachusproject.io;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
@@ -41,6 +41,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
+import org.callimachusproject.concurrent.ManagedExecutors;
+
 /**
  * A Piped {@link ReadableByteChannel} that runs the producer in another thread.
  * 
@@ -52,7 +54,7 @@ public class ProducerChannel implements ReadableByteChannel {
 		void produce(WritableByteChannel ch) throws IOException;
 	}
 
-	private static ExecutorService executor = ManagedExecutors.getProducerThreadPool();
+	private static ExecutorService executor = ManagedExecutors.getInstance().getProducerThreadPool();
 	private final WritableProducer producer;
 	private final SourceChannel ch;
 	private final Future<Void> task;

@@ -42,7 +42,7 @@ import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
 import org.apache.http.nio.entity.HttpAsyncContentProducer;
 import org.apache.http.util.EntityUtils;
-import org.callimachusproject.server.util.ChannelUtil;
+import org.callimachusproject.io.ChannelUtil;
 
 /**
  * Implements the ProducingNHttpEntity interface for subclasses.

@@ -52,8 +52,8 @@ import org.callimachusproject.fluid.Consumer;
 import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
-import org.callimachusproject.server.util.CatReadableByteChannel;
-import org.callimachusproject.server.util.ChannelUtil;
+import org.callimachusproject.io.CatReadableByteChannel;
+import org.callimachusproject.io.ChannelUtil;
 import org.openrdf.OpenRDFException;
 import org.xml.sax.SAXException;
 

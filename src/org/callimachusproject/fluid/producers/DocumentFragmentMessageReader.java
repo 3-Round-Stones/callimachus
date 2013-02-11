@@ -48,7 +48,7 @@ import javax.xml.transform.dom.DOMSource;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.fluid.Producer;
-import org.callimachusproject.server.util.ChannelUtil;
+import org.callimachusproject.io.ChannelUtil;
 import org.callimachusproject.xml.DocumentFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

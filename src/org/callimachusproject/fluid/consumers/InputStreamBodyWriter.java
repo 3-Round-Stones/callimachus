@@ -50,7 +50,7 @@ import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.fluid.Vapor;
-import org.callimachusproject.server.util.ChannelUtil;
+import org.callimachusproject.io.ChannelUtil;
 import org.callimachusproject.xml.DocumentFactory;
 import org.callimachusproject.xml.XMLEventReaderFactory;
 import org.w3c.dom.Document;

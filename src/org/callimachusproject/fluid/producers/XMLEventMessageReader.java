@@ -41,7 +41,7 @@ import javax.xml.stream.XMLStreamException;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.fluid.Producer;
-import org.callimachusproject.server.util.ChannelUtil;
+import org.callimachusproject.io.ChannelUtil;
 import org.callimachusproject.xml.XMLEventReaderFactory;
 
 /**

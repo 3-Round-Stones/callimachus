@@ -28,8 +28,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.callimachusproject.io.ChannelUtil;
 import org.callimachusproject.server.exceptions.BadRequest;
-import org.callimachusproject.server.util.ChannelUtil;
 import org.openrdf.annotations.Iri;
 import org.openrdf.repository.object.ObjectConnection;
 

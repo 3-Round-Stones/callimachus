@@ -43,8 +43,8 @@ import org.apache.http.message.BasicHeader;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
 import org.apache.http.nio.entity.HttpAsyncContentProducer;
-import org.callimachusproject.server.util.AutoCloseChannel;
-import org.callimachusproject.server.util.ChannelUtil;
+import org.callimachusproject.io.AutoCloseChannel;
+import org.callimachusproject.io.ChannelUtil;
 
 /**
  * Allows an {@link ReadableByteChannel} to be used as an HttpEntity.

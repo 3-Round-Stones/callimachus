@@ -29,8 +29,8 @@
  */
 package org.callimachusproject.server.cache;
 
-import static org.callimachusproject.server.util.ChannelUtil.newChannel;
-import static org.callimachusproject.server.util.ChannelUtil.newInputStream;
+import static org.callimachusproject.io.ChannelUtil.newChannel;
+import static org.callimachusproject.io.ChannelUtil.newInputStream;
 import info.aduna.concurrent.locks.Lock;
 
 import java.io.File;
@@ -60,14 +60,14 @@ import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.nio.entity.NFileEntity;
 import org.apache.http.protocol.HttpDateGenerator;
 import org.apache.http.util.EntityUtils;
+import org.callimachusproject.io.AutoCloseChannel;
+import org.callimachusproject.io.CatReadableByteChannel;
+import org.callimachusproject.io.ChannelUtil;
 import org.callimachusproject.server.model.EntityRemovedHttpResponse;
 import org.callimachusproject.server.model.FileHttpEntity;
 import org.callimachusproject.server.model.Filter;
 import org.callimachusproject.server.model.ReadableHttpEntityChannel;
 import org.callimachusproject.server.model.Request;
-import org.callimachusproject.server.util.AutoCloseChannel;
-import org.callimachusproject.server.util.CatReadableByteChannel;
-import org.callimachusproject.server.util.ChannelUtil;
 import org.callimachusproject.server.util.LockCleanupManager;
 import org.callimachusproject.util.DomainNameSystemResolver;
 import org.slf4j.Logger;

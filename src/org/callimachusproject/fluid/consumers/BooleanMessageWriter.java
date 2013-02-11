@@ -34,7 +34,7 @@ import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
 
 import org.callimachusproject.fluid.consumers.helpers.MessageWriterBase;
-import org.callimachusproject.server.util.ChannelUtil;
+import org.callimachusproject.io.ChannelUtil;
 import org.openrdf.query.resultio.BooleanQueryResultFormat;
 import org.openrdf.query.resultio.BooleanQueryResultWriterFactory;
 import org.openrdf.query.resultio.BooleanQueryResultWriterRegistry;

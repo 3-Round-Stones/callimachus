@@ -34,12 +34,12 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.util.concurrent.Executor;
 
+import org.callimachusproject.concurrent.ManagedExecutors;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.fluid.producers.base.MessageReaderBase;
+import org.callimachusproject.io.ChannelUtil;
 import org.callimachusproject.server.util.BackgroundGraphResult;
-import org.callimachusproject.server.util.ChannelUtil;
-import org.callimachusproject.server.util.ManagedExecutors;
 import org.openrdf.query.GraphQueryResult;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFParser;
@@ -55,7 +55,7 @@ import org.openrdf.rio.turtle.TurtleParserFactory;
  */
 public class GraphMessageReader extends
 		MessageReaderBase<RDFFormat, RDFParserFactory, GraphQueryResult> {
-	private static Executor executor = ManagedExecutors.getParserThreadPool();
+	private static Executor executor = ManagedExecutors.getInstance().getParserThreadPool();
 	static {
 		RDFFormat format = RDFFormat.forMIMEType("text/turtle");
 		if (format == null) {

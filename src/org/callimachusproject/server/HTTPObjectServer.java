@@ -84,6 +84,8 @@ import org.apache.http.protocol.ResponseDate;
 import org.callimachusproject.Version;
 import org.callimachusproject.client.AbstractHttpClient;
 import org.callimachusproject.client.HTTPObjectClient;
+import org.callimachusproject.concurrent.ManagedExecutors;
+import org.callimachusproject.concurrent.NamedThreadFactory;
 import org.callimachusproject.server.cache.CachingFilter;
 import org.callimachusproject.server.filters.GUnzipFilter;
 import org.callimachusproject.server.filters.GZipFilter;
@@ -107,8 +109,6 @@ import org.callimachusproject.server.model.Filter;
 import org.callimachusproject.server.model.Handler;
 import org.callimachusproject.server.process.Exchange;
 import org.callimachusproject.server.process.HTTPObjectRequestHandler;
-import org.callimachusproject.server.util.ManagedExecutors;
-import org.callimachusproject.server.util.NamedThreadFactory;
 import org.openrdf.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -380,7 +380,7 @@ public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAg
 	}
 
 	public void resetCache() {
-		ManagedExecutors.getTimeoutThreadPool().execute(new Runnable() {
+		ManagedExecutors.getInstance().getTimeoutThreadPool().execute(new Runnable() {
 			public String toString() {
 				return "reset cache";
 			}

@@ -37,7 +37,7 @@ import java.nio.charset.Charset;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.fluid.Producer;
-import org.callimachusproject.server.util.ChannelUtil;
+import org.callimachusproject.io.ChannelUtil;
 
 /**
  * Converts an InputStream into a byte[].

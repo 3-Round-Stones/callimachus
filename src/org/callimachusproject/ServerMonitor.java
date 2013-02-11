@@ -49,13 +49,13 @@ import javax.xml.datatype.DatatypeFactory;
 
 import org.callimachusproject.cli.Command;
 import org.callimachusproject.cli.CommandSet;
+import org.callimachusproject.concurrent.ManagedThreadPool;
+import org.callimachusproject.concurrent.ThreadPoolMXBean;
+import org.callimachusproject.io.ChannelUtil;
 import org.callimachusproject.logging.CalliLogger;
 import org.callimachusproject.logging.CalliLoggerMXBean;
 import org.callimachusproject.server.CallimachusServer;
 import org.callimachusproject.server.HTTPObjectAgentMXBean;
-import org.callimachusproject.server.util.ChannelUtil;
-import org.callimachusproject.server.util.ManagedThreadPool;
-import org.callimachusproject.server.util.ThreadPoolMXBean;
 
 /**
  * Command line tool for monitoring the server.
@@ -304,22 +304,28 @@ public class ServerMonitor {
 	private Set<ObjectName> getObjectNames(Class<?> mclass,
 			MBeanServerConnection mbsc) throws IOException,
 			MalformedObjectNameException {
-		ObjectName name = new ObjectName("*,type=" + mclass.getSimpleName());
-		QueryExp instanceOf = Query.isInstanceOf(Query.value(mclass.getName()));
-		return mbsc.queryNames(name, instanceOf);
+		ObjectName name = new ObjectName("*:type=" + mclass.getSimpleName() + ",*");
+		for (Class<?> mx : mclass.getInterfaces()) {
+			if (mx.getName().endsWith("Bean")) {
+				QueryExp instanceOf = Query.isInstanceOf(Query.value(mclass.getName()));
+				return mbsc.queryNames(name, instanceOf);
+			}
+		}
+		throw new AssertionError(mclass.getSimpleName() + " does not have an interface that ends with Bean");
 	}
 
 	private void poolDump(MBeanServerConnection mbsc, String filename)
 			throws MalformedObjectNameException, IOException {
-		ObjectName mtpp = ManagedThreadPool.getObjectNamePattern();
-		ObjectName[] mons = mbsc.queryNames(mtpp, null).toArray(
-				new ObjectName[0]);
-		for (int i = 0; i < mons.length; i++) {
-			ThreadPoolMXBean pool = JMX.newMXBeanProxy(mbsc, mons[i],
+		boolean empty = true;
+		for (ObjectName mon : getObjectNames(ManagedThreadPool.class, mbsc)) {
+			ThreadPoolMXBean pool = JMX.newMXBeanProxy(mbsc, mon,
 					ThreadPoolMXBean.class);
 			pool.threadDumpToFile(filename);
+			empty = false;
 		}
-		info(filename);
+		if (!empty) {
+			info(filename);
+		}
 	}
 
 	private void traceDump(MBeanServerConnection mbsc2, String filename) throws IOException {

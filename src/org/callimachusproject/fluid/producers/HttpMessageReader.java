@@ -58,7 +58,7 @@ import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.fluid.MediaType;
 import org.callimachusproject.fluid.Producer;
-import org.callimachusproject.server.util.ChannelUtil;
+import org.callimachusproject.io.ChannelUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

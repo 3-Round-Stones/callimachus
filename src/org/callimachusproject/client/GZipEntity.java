@@ -37,8 +37,8 @@ import java.util.zip.GZIPOutputStream;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.message.BasicHeader;
-import org.callimachusproject.server.util.ProducerStream;
-import org.callimachusproject.server.util.ProducerStream.OutputProducer;
+import org.callimachusproject.io.ProducerStream;
+import org.callimachusproject.io.ProducerStream.OutputProducer;
 
 /**
  * Compresses the message body.

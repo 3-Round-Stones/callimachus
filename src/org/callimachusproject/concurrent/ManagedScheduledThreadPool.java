@@ -27,7 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-package org.callimachusproject.server.util;
+package org.callimachusproject.concurrent;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.RejectedExecutionHandler;
@@ -51,17 +51,17 @@ public class ManagedScheduledThreadPool extends ManagedThreadPool implements
 	private final Logger logger = LoggerFactory
 			.getLogger(ManagedScheduledThreadPool.class);
 
-	public ManagedScheduledThreadPool(String name, boolean daemon) {
+	protected ManagedScheduledThreadPool(String name, boolean daemon) {
 		this(1, name, daemon, new ScheduledThreadPoolExecutor.AbortPolicy());
 	}
 
-	public ManagedScheduledThreadPool(int corePoolSize, String name,
+	protected ManagedScheduledThreadPool(int corePoolSize, String name,
 			boolean daemon) {
 		this(corePoolSize, name, daemon,
 				new ScheduledThreadPoolExecutor.AbortPolicy());
 	}
 
-	public ManagedScheduledThreadPool(int corePoolSize, String name,
+	protected ManagedScheduledThreadPool(int corePoolSize, String name,
 			boolean daemon, RejectedExecutionHandler handler) {
 		super(new ScheduledThreadPoolExecutor(corePoolSize, handler),
 				new NamedThreadFactory(name, daemon));

@@ -42,7 +42,7 @@ import javax.xml.transform.TransformerException;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.fluid.Producer;
-import org.callimachusproject.server.util.ChannelUtil;
+import org.callimachusproject.io.ChannelUtil;
 import org.callimachusproject.xml.DocumentFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

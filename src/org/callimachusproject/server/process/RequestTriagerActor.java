@@ -3,14 +3,13 @@ package org.callimachusproject.server.process;
 import java.io.IOException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
+import org.callimachusproject.concurrent.ManagedExecutors;
 import org.callimachusproject.server.model.Filter;
 import org.callimachusproject.server.model.Request;
-import org.callimachusproject.server.util.ManagedThreadPool;
 import org.openrdf.OpenRDFException;
 
 public class RequestTriagerActor extends ExchangeActor {
@@ -24,8 +23,8 @@ public class RequestTriagerActor extends ExchangeActor {
 
 	private RequestTriagerActor(BlockingQueue<Runnable> queue, Filter filter,
 			RequestTransactionActor handler) {
-		super(new ManagedThreadPool(N, N, 0L, TimeUnit.MILLISECONDS, queue,
-				"HttpTriage", true), queue);
+		super(ManagedExecutors.getInstance().newFixedThreadPool(N, queue, "HttpTriage"),
+				queue);
 		this.filter = filter;
 		this.handler = handler;
 	}

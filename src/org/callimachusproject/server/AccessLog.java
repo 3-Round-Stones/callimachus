@@ -15,9 +15,9 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.callimachusproject.client.StreamingHttpEntity;
+import org.callimachusproject.io.ChannelUtil;
 import org.callimachusproject.server.model.Filter;
 import org.callimachusproject.server.model.Request;
-import org.callimachusproject.server.util.ChannelUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

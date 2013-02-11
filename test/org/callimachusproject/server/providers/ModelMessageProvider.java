@@ -22,8 +22,8 @@ import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.MessageBodyWriter;
 
+import org.callimachusproject.concurrent.ManagedExecutors;
 import org.callimachusproject.server.util.BackgroundGraphResult;
-import org.callimachusproject.server.util.ManagedExecutors;
 import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
 import org.openrdf.model.impl.LinkedHashModel;
@@ -41,7 +41,7 @@ import org.openrdf.rio.RDFWriterRegistry;
 
 public class ModelMessageProvider implements MessageBodyReader<Model>,
 		MessageBodyWriter<Model> {
-	private static Executor executor = ManagedExecutors.getParserThreadPool();
+	private static Executor executor = ManagedExecutors.getInstance().getParserThreadPool();
 	private Class<Model> type = Model.class;
 	private RDFParserRegistry parsers = RDFParserRegistry.getInstance();
 	private RDFWriterRegistry writers = RDFWriterRegistry.getInstance();

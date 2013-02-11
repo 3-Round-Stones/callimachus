@@ -28,7 +28,7 @@ import javax.xml.stream.XMLEventReader;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.callimachusproject.server.util.ChannelUtil;
+import org.callimachusproject.io.ChannelUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Element;

@@ -35,7 +35,7 @@ import java.security.NoSuchAlgorithmException;
 
 import org.apache.http.HttpEntity;
 import org.callimachusproject.client.StreamingHttpEntity;
-import org.callimachusproject.server.util.ChannelUtil;
+import org.callimachusproject.io.ChannelUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

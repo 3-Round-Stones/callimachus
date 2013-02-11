@@ -42,9 +42,9 @@ import org.apache.http.util.EntityUtils;
 import org.callimachusproject.client.StreamingHttpEntity;
 import org.callimachusproject.fluid.MediaType;
 import org.callimachusproject.fluid.producers.HttpMessageReader;
+import org.callimachusproject.io.ChannelUtil;
 import org.callimachusproject.server.model.Filter;
 import org.callimachusproject.server.model.Request;
-import org.callimachusproject.server.util.ChannelUtil;
 
 /**
  * Response body of {@link HttpResponse} and a configured content type

@@ -29,7 +29,7 @@ import java.util.Set;
 import org.apache.http.HttpHost;
 import org.apache.http.client.utils.URIUtils;
 import org.callimachusproject.client.HTTPObjectClient;
-import org.callimachusproject.server.util.FileUtil;
+import org.callimachusproject.io.FileUtil;
 import org.callimachusproject.util.DomainNameSystemResolver;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.ValueFactory;

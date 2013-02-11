@@ -24,9 +24,9 @@ import org.apache.http.nio.protocol.HttpAsyncResponseProducer;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 import org.callimachusproject.client.StreamingHttpEntity;
+import org.callimachusproject.io.AsyncPipe;
+import org.callimachusproject.io.ChannelUtil;
 import org.callimachusproject.server.model.Request;
-import org.callimachusproject.server.util.AsyncPipe;
-import org.callimachusproject.server.util.ChannelUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

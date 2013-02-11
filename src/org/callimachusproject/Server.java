@@ -40,6 +40,9 @@ import javax.management.ObjectName;
 import org.callimachusproject.cli.Command;
 import org.callimachusproject.cli.CommandSet;
 import org.callimachusproject.client.HTTPObjectClient;
+import org.callimachusproject.concurrent.ManagedExecutors;
+import org.callimachusproject.concurrent.ManagedThreadPool;
+import org.callimachusproject.concurrent.ManagedThreadPoolListener;
 import org.callimachusproject.logging.CalliLogger;
 import org.callimachusproject.server.CallimachusRepository;
 import org.callimachusproject.server.CallimachusServer;
@@ -217,6 +220,7 @@ public class Server {
 		}
 		unregisterMBean(CalliLogger.class);
 		unregisterMBean(CallimachusServer.class);
+		ManagedExecutors.getInstance().cleanup();
 	}
 
 	private void logStdout() {
@@ -308,39 +312,62 @@ public class Server {
 			server.setServerName(line.get("name"));
 		}
 		server.listen(ports, sslports);
-		registerMBean(server);
-		registerMBean(new CalliLogger());
+		registerMBean(server, CallimachusServer.class);
+		registerMBean(new CalliLogger(), CalliLogger.class);
+		ManagedExecutors.getInstance().addListener(
+				new ManagedThreadPoolListener() {
+					public void threadPoolStarted(String name,
+							ManagedThreadPool pool) {
+						registerMBean(name, pool, ManagedThreadPool.class);
+
+					}
+
+					public void threadPoolTerminated(String name) {
+						unregisterMBean(name, ManagedThreadPool.class);
+					}
+				});
 		if (!line.has("trust")) {
 			applyPolicy(line, repository, dataDir);
 		}
 	}
 
-	private void registerMBean(Object bean) {
-		try {
-			Class<?> beanClass = bean.getClass();
-			ObjectName name = getMBeanName(beanClass);
-			MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
-			mbs.registerMBean(bean, name);
-		} catch (Exception e) {
-			// ignore
-		}
+	private <T> void registerMBean(T bean, Class<T> beanClass) {
+		registerMBean(null, bean, beanClass);
 	}
 
 	private void unregisterMBean(Class<?> beanClass) {
+		unregisterMBean(null, beanClass);
+	}
+
+	private <T> void registerMBean(String name, T bean, Class<T> beanClass) {
 		try {
+			ObjectName oname = getMBeanName(name, beanClass);
 			MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
-			mbs.unregisterMBean(getMBeanName(beanClass));
+			mbs.registerMBean(bean, oname);
 		} catch (Exception e) {
 			// ignore
 		}
 	}
 
-	private ObjectName getMBeanName(Class<?> beanClass)
+	private void unregisterMBean(String name, Class<?> beanClass) {
+		try {
+			MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+			mbs.unregisterMBean(getMBeanName(name, beanClass));
+		} catch (Exception e) {
+			// ignore
+		}
+	}
+
+	private ObjectName getMBeanName(String name, Class<?> beanClass)
 			throws MalformedObjectNameException {
 		String pkg = Server.class.getPackage().getName();
 		String simple = beanClass.getSimpleName();
-		ObjectName name = new ObjectName(pkg + ":type=" + simple);
-		return name;
+		StringBuilder sb = new StringBuilder();
+		sb.append(pkg).append(":type=").append(simple);
+		if (name != null) {
+			sb.append(",name=").append(name);
+		}
+		return new ObjectName(sb.toString());
 	}
 
 	private String getRepositoryUrl(Command line)

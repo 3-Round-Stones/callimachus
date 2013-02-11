@@ -47,7 +47,7 @@ import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidException;
 import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.fluid.Vapor;
-import org.callimachusproject.server.util.ChannelUtil;
+import org.callimachusproject.io.ChannelUtil;
 
 /**
  * Writes a percent encoded form from a {@link Map}.

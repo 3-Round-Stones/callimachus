@@ -15,7 +15,7 @@ import junit.framework.Assert;
 
 import org.callimachusproject.engine.impl.TermFactoryImpl;
 import org.callimachusproject.engine.model.TermFactory;
-import org.callimachusproject.server.util.ChannelUtil;
+import org.callimachusproject.io.ChannelUtil;
 
 public class WebResource {
 	private static final Pattern LINK = Pattern.compile("<([^>]*)>(?:\\s*;\\s*anchor=\"([^\"]*)\"|\\s*;\\s*rel=\"([^\"]*)\"|\\s*;\\s*rel=([a-z0-9\\.\\-]*)|\\s*;\\s*type=\"([^\"]*)\"|\\s*;\\s*type=([a-zA-z0-9\\.\\-\\+]*))*");

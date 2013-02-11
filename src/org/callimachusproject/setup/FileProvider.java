@@ -7,8 +7,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
 import org.callimachusproject.engine.model.TermFactory;
+import org.callimachusproject.io.ChannelUtil;
 import org.callimachusproject.server.CallimachusRepository;
-import org.callimachusproject.server.util.ChannelUtil;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;

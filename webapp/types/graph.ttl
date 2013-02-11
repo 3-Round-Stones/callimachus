@@ -107,7 +107,7 @@
     calli:method "PUT";
     calli:requires calli:editor;
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    calli:imports <java:org.callimachusproject.server.util.ProducerStream>;
+    calli:imports <java:org.callimachusproject.io.ProducerStream>;
     calli:imports <java:org.callimachusproject.server.HTTPObjectServer>;
     calli:imports <java:org.openrdf.rio.RDFFormat>;
     calli:script """
@@ -201,7 +201,7 @@
     calli:method "PUT";
     calli:requires calli:editor;
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    calli:imports <java:org.callimachusproject.server.util.ProducerStream>;
+    calli:imports <java:org.callimachusproject.io.ProducerStream>;
     calli:imports <java:org.callimachusproject.server.HTTPObjectServer>;
     calli:imports <java:org.openrdf.rio.RDFFormat>;
     calli:script """

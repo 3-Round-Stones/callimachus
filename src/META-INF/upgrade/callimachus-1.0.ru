@@ -52,10 +52,11 @@ INSERT {
 <../> calli:hasComponent <../document-editor.html>.
 <../document-editor.html> a <types/PURL>, calli:PURL ;
 	rdfs:label "document-editor.html";
-	calli:alternate <editor/ckeditor.html>;
+	calli:alternate ?alternate;
 	calli:administrator </auth/groups/admin>;
 	calli:reader </auth/groups/public> .
 } WHERE {
+    BIND (str(<editor/ckeditor.html>) AS ?alternate)
 	FILTER NOT EXISTS { <../document-editor.html> a calli:PURL }
 };
 
@@ -63,10 +64,11 @@ INSERT {
 <../> calli:hasComponent <../css-editor.html>.
 <../css-editor.html> a <types/PURL>, calli:PURL ;
 	rdfs:label "css-editor.html";
-	calli:alternate <editor/text-editor.html#css>;
+	calli:alternate ?alternate;
 	calli:administrator </auth/groups/admin>;
 	calli:reader </auth/groups/public> .
 } WHERE {
+    BIND (str(<editor/text-editor.html#css>) AS ?alternate)
 	FILTER NOT EXISTS { <../css-editor.html> a calli:PURL }
 };
 
@@ -74,10 +76,11 @@ INSERT {
 <../> calli:hasComponent <../html-editor.html>.
 <../html-editor.html> a <types/PURL>, calli:PURL ;
 	rdfs:label "html-editor.html";
-	calli:alternate <editor/text-editor.html#html>;
+	calli:alternate ?alternate;
 	calli:administrator </auth/groups/admin>;
 	calli:reader </auth/groups/public> .
 } WHERE {
+    BIND (str(<editor/text-editor.html#html>) AS ?alternate)
 	FILTER NOT EXISTS { <../html-editor.html> a calli:PURL }
 };
 
@@ -85,10 +88,11 @@ INSERT {
 <../> calli:hasComponent <../javascript-editor.html>.
 <../javascript-editor.html> a <types/PURL>, calli:PURL ;
 	rdfs:label "javascript-editor.html";
-	calli:alternate <editor/text-editor.html#javascript>;
+	calli:alternate ?alternate;
 	calli:administrator </auth/groups/admin>;
 	calli:reader </auth/groups/public> .
 } WHERE {
+    BIND (str(<editor/text-editor.html#javascript>) AS ?alternate)
 	FILTER NOT EXISTS { <../javascript-editor.html> a calli:PURL }
 };
 
@@ -96,10 +100,11 @@ INSERT {
 <../> calli:hasComponent <../sparql-editor.html>.
 <../sparql-editor.html> a <types/PURL>, calli:PURL ;
 	rdfs:label "sparql-editor.html";
-	calli:alternate <editor/text-editor.html#sparql>;
+	calli:alternate ?alternate;
 	calli:administrator </auth/groups/admin>;
 	calli:reader </auth/groups/public> .
 } WHERE {
+    BIND (str(<editor/text-editor.html#sparql>) AS ?alternate)
 	FILTER NOT EXISTS { <../sparql-editor.html> a calli:PURL }
 };
 
@@ -107,10 +112,11 @@ INSERT {
 <../> calli:hasComponent <../text-editor.html>.
 <../text-editor.html> a <types/PURL>, calli:PURL ;
 	rdfs:label "text-editor.html";
-	calli:alternate <editor/text-editor.html>;
+	calli:alternate ?alternate;
 	calli:administrator </auth/groups/admin>;
 	calli:reader </auth/groups/public> .
 } WHERE {
+    BIND (str(<editor/text-editor.html>) AS ?alternate)
 	FILTER NOT EXISTS { <../css-editor.html> a calli:PURL }
 };
 
@@ -118,11 +124,68 @@ INSERT {
 <../> calli:hasComponent <../xml-editor.html>.
 <../xml-editor.html> a <types/PURL>, calli:PURL ;
 	rdfs:label "xml-editor.html";
-	calli:alternate <editor/text-editor.html#xml>;
+	calli:alternate ?alternate;
 	calli:administrator </auth/groups/admin>;
 	calli:reader </auth/groups/public> .
 } WHERE {
+    BIND (str(<editor/text-editor.html#xml>) AS ?alternate)
 	FILTER NOT EXISTS { <../xml-editor.html> a calli:PURL }
+};
+
+DELETE {
+    ?purl calli:copy ?copyIRI.
+    ?purl calli:canonical ?canIRI.
+    ?purl calli:alternate ?altIRI.
+    ?purl calli:describedby ?descIRI.
+    ?purl calli:resides ?resIRI.
+    ?purl calli:moved ?moveIRI.
+    ?purl calli:missing ?misIRI.
+    ?purl calli:gone ?goneIRI.
+} INSERT {
+    ?purl calli:copy ?copyStr.
+    ?purl calli:canonical ?canStr.
+    ?purl calli:alternate ?altStr.
+    ?purl calli:describedby ?descStr.
+    ?purl calli:resides ?resStr.
+    ?purl calli:moved ?moveStr.
+    ?purl calli:missing ?misStr.
+    ?purl calli:gone ?goneStr.
+} WHERE {
+    </callimachus/> calli:hasComponent ?purl .
+    ?purl a calli:PURL .
+    {
+        ?purl calli:copy ?copyIRI
+        FILTER isIRI(?copyIRI)
+        BIND (str(?copyIRI) AS ?copyStr)
+    } UNION {
+        ?purl calli:canonical ?canIRI
+        FILTER isIRI(?canIRI)
+        BIND (str(?canIRI) AS ?canStr)
+    } UNION {
+        ?purl calli:alternate ?altIRI
+        FILTER isIRI(?altIRI)
+        BIND (str(?altIRI) AS ?altStr)
+    } UNION {
+        ?purl calli:describedby ?descIRI
+        FILTER isIRI(?descIRI)
+        BIND (str(?descIRI) AS ?descStr)
+    } UNION {
+        ?purl calli:resides ?resIRI
+        FILTER isIRI(?resIRI)
+        BIND (str(?resIRI) AS ?resStr)
+    } UNION {
+        ?purl calli:moved ?moveIRI
+        FILTER isIRI(?moveIRI)
+        BIND (str(?moveIRI) AS ?moveStr)
+    } UNION {
+        ?purl calli:missing ?misIRI
+        FILTER isIRI(?misIRI)
+        BIND (str(?misIRI) AS ?misStr)
+    } UNION {
+        ?purl calli:gone ?goneIRI
+        FILTER isIRI(?goneIRI)
+        BIND (str(?goneIRI) AS ?goneStr)
+    }
 };
 
 DELETE {
@@ -146,7 +209,7 @@ DELETE {
 } WHERE {
 	</group/> calli:hasComponent ?group .
 	</auth/groups/> calli:hasComponent ?auth .
-	FILTER (strafter(str(?group),str(</group/>)) = strafter(str(?auth),str(</auth/groups/>))
+	FILTER (strafter(str(?group),str(</group/>)) = strafter(str(?auth),str(</auth/groups/>)))
 	GRAPH ?graph {
 	    {
 		    ?reader calli:reader ?group
@@ -171,7 +234,7 @@ DELETE {
 	</group/> calli:hasComponent ?group .
 	?group ?pred ?obj .
 	</auth/groups/> calli:hasComponent ?auth .
-	FILTER (strafter(str(?group),str(</group/>)) = strafter(str(?auth),str(</auth/groups/>))
+	FILTER (strafter(str(?group),str(</group/>)) = strafter(str(?auth),str(</auth/groups/>)))
 };
 
 DELETE {

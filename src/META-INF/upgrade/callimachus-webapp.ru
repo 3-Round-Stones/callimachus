@@ -94,30 +94,33 @@ INSERT {
 INSERT {
 <../styles.css> a <types/PURL>, calli:PURL ;
 	rdfs:label "styles.css";
-	calli:alternate <styles/callimachus.less?less>;
+	calli:alternate ?alternate;
 	calli:administrator </auth/groups/admin>;
 	calli:reader </auth/groups/public> .
 } WHERE {
+    BIND (str(<styles/callimachus.less?less>) as ?alternate)
 	FILTER NOT EXISTS { <../styles.css> a calli:PURL }
 };
 
 INSERT {
 <../scripts.js> a <types/PURL>, calli:PURL ;
 	rdfs:label "scripts.js";
-	calli:alternate <scripts/index?source>;
+	calli:alternate ?alternate;
 	calli:administrator </auth/groups/admin>;
 	calli:reader </auth/groups/public> .
 } WHERE {
+    BIND (str(<scripts/index?source>) AS ?alternate)
 	FILTER NOT EXISTS { <../scripts.js> a calli:PURL }
 };
 
 INSERT {
 <../library.xpl> a <types/PURL>, calli:PURL ;
 	rdfs:label "library.xpl";
-	calli:alternate <pipelines/library.xpl>;
+	calli:alternate ?alternate;
 	calli:administrator </auth/groups/admin>;
 	calli:reader </auth/groups/public> .
 } WHERE {
+    BIND (str(<pipelines/library.xpl>) as ?alternate)
 	FILTER NOT EXISTS { <../library.xpl> a calli:PURL }
 };
 
@@ -134,120 +137,132 @@ INSERT {
 INSERT {
 <../unauthorized.html> a <types/PURL>, calli:PURL ;
 	rdfs:label "unauthorized.html";
-	calli:alternate <pages/unauthorized.xhtml?element=/1>;
+	calli:alternate ?alternate;
 	calli:administrator </auth/groups/admin>;
 	calli:reader </auth/groups/public> .
 } WHERE {
+    BIND (str(<pages/unauthorized.xhtml?element=/1>) AS ?alternate)
 	FILTER NOT EXISTS { <../unauthorized.html> a calli:PURL }
 };
 
 INSERT {
 <../layout-functions.xq> a <types/PURL>, calli:PURL ;
 	rdfs:label "layout-functions.xq";
-	calli:alternate <transforms/layout-functions.xq>;
+	calli:alternate ?alternate;
 	calli:administrator </auth/groups/admin>;
 	calli:reader </auth/groups/public> .
 } WHERE {
+    BIND (str(<transforms/layout-functions.xq>) AS ?alternate)
 	FILTER NOT EXISTS { <../layout-functions.xq> a calli:PURL }
 };
 
 INSERT {
 <../default-layout.xq> a <types/PURL>, calli:PURL ;
 	rdfs:label "default-layout.xq";
-	calli:alternate <transforms/default-layout.xq>;
+	calli:alternate ?alternate;
 	calli:administrator </auth/groups/admin>;
 	calli:reader </auth/groups/public> .
 } WHERE {
+    BIND (str(<transforms/default-layout.xq>) AS ?alternate)
 	FILTER NOT EXISTS { <../default-layout.xq> a calli:PURL }
 };
 
 INSERT {
 <../callimachus-powered.png> a <types/PURL>, calli:PURL ;
 	rdfs:label "callimachus-powered.png";
-	calli:alternate <images/callimachus-powered.png>;
+	calli:alternate ?alternate;
 	calli:administrator </auth/groups/admin>;
 	calli:reader </auth/groups/public> .
 } WHERE {
+    BIND (str(<images/callimachus-powered.png>) AS ?alternate)
 	FILTER NOT EXISTS { <../callimachus-powered.png> a calli:PURL }
 };
 
 INSERT {
 <../document-editor.html> a <types/PURL>, calli:PURL ;
 	rdfs:label "document-editor.html";
-	calli:alternate <editor/ckeditor.html>;
+	calli:alternate ?alternate;
 	calli:administrator </auth/groups/admin>;
 	calli:reader </auth/groups/public> .
 } WHERE {
+    BIND (str(<editor/ckeditor.html>) AS ?alternate)
 	FILTER NOT EXISTS { <../document-editor.html> a calli:PURL }
 };
 
 INSERT {
 <../css-editor.html> a <types/PURL>, calli:PURL ;
 	rdfs:label "css-editor.html";
-	calli:alternate <editor/text-editor.html#css>;
+	calli:alternate ?alternate;
 	calli:administrator </auth/groups/admin>;
 	calli:reader </auth/groups/public> .
 } WHERE {
+    BIND (str(<editor/text-editor.html#css>) AS ?alternate)
 	FILTER NOT EXISTS { <../css-editor.html> a calli:PURL }
 };
 
 INSERT {
 <../html-editor.html> a <types/PURL>, calli:PURL ;
 	rdfs:label "html-editor.html";
-	calli:alternate <editor/text-editor.html#html>;
+	calli:alternate ?alternate;
 	calli:administrator </auth/groups/admin>;
 	calli:reader </auth/groups/public> .
 } WHERE {
+    BIND (str(<editor/text-editor.html#html>) AS ?alternate)
 	FILTER NOT EXISTS { <../html-editor.html> a calli:PURL }
 };
 
 INSERT {
 <../javascript-editor.html> a <types/PURL>, calli:PURL ;
 	rdfs:label "javascript-editor.html";
-	calli:alternate <editor/text-editor.html#javascript>;
+	calli:alternate ?alternate;
 	calli:administrator </auth/groups/admin>;
 	calli:reader </auth/groups/public> .
 } WHERE {
+    BIND (str(<editor/text-editor.html#javascript>) AS ?alternate)
 	FILTER NOT EXISTS { <../javascript-editor.html> a calli:PURL }
 };
 
 INSERT {
 <../sparql-editor.html> a <types/PURL>, calli:PURL ;
 	rdfs:label "sparql-editor.html";
-	calli:alternate <editor/text-editor.html#sparql>;
+	calli:alternate ?alternate;
 	calli:administrator </auth/groups/admin>;
 	calli:reader </auth/groups/public> .
 } WHERE {
+    BIND (str(<editor/text-editor.html#sparql>) AS ?alternate)
 	FILTER NOT EXISTS { <../sparql-editor.html> a calli:PURL }
 };
 
 INSERT {
 <../text-editor.html> a <types/PURL>, calli:PURL ;
 	rdfs:label "text-editor.html";
-	calli:alternate <editor/text-editor.html>;
+	calli:alternate ?alternate;
 	calli:administrator </auth/groups/admin>;
 	calli:reader </auth/groups/public> .
 } WHERE {
+    BIND (str(<editor/text-editor.html>) AS ?alternate)
 	FILTER NOT EXISTS { <../css-editor.html> a calli:PURL }
 };
 
 INSERT {
 <../xml-editor.html> a <types/PURL>, calli:PURL ;
 	rdfs:label "xml-editor.html";
-	calli:alternate <editor/text-editor.html#xml>;
+	calli:alternate ?alternate;
 	calli:administrator </auth/groups/admin>;
 	calli:reader </auth/groups/public> .
 } WHERE {
+    BIND (str(<editor/text-editor.html#xml>) AS ?alternate)
 	FILTER NOT EXISTS { <../xml-editor.html> a calli:PURL }
 };
 
 INSERT {
 <../Concept> a <types/PURL>, calli:PURL ;
 	rdfs:label "Concept";
-	calli:canonical <types/Concept>;
+	calli:canonical ?canonical;
 	calli:administrator </auth/groups/admin>;
 	calli:reader </auth/groups/public> .
 } WHERE {
+    BIND (str(<types/Concept>) AS ?canonical)
 	FILTER NOT EXISTS { <../Concept> a calli:PURL }
 };
 

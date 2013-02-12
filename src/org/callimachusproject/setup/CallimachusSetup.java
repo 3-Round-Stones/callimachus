@@ -500,6 +500,20 @@ public class CallimachusSetup {
 		}
 	}
 
+	public boolean finalizeWebappOrigin(String origin) throws IOException, OpenRDFException {
+		validateOrigin(origin);
+		boolean modified = false;
+		Iterator<UpdateProvider> iter = updateProviders.iterator();
+		while (iter.hasNext()) {
+			Updater updater = iter.next().finalizeCallimachusWebapp(origin);
+			if (updater != null) {
+				String webapp = webapp(origin, "").stringValue();
+				modified |= updater.update(webapp, repository);
+			}
+		}
+		return modified;
+	}
+
 	private String encode(String string) {
 		try {
 			return URLEncoder.encode(string, "UTF-8");

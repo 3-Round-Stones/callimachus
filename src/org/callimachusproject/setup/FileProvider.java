@@ -44,6 +44,11 @@ public abstract class FileProvider implements UpdateProvider {
 		return null;
 	}
 
+	@Override
+	public Updater finalizeCallimachusWebapp(String origin) throws IOException {
+		return null;
+	}
+
 	public Updater updateOrigin(final String virtual)
 			throws IOException {
 		return new Updater() {

@@ -27,6 +27,7 @@ public class SparqlUpdateProvider implements UpdateProvider {
 	private static final String WEBAPP_RU = "META-INF/upgrade/callimachus-webapp.ru";
 	private static final String ORIGIN_RU = "META-INF/upgrade/callimachus-origin.ru";
 	private static final String REALM_RU = "META-INF/upgrade/callimachus-realm.ru";
+	private static final String FINALIZE_RU = "META-INF/upgrade/callimachus-finalize.ru";
 	private final Logger logger = LoggerFactory
 			.getLogger(SparqlUpdateProvider.class);
 
@@ -171,6 +172,38 @@ public class SparqlUpdateProvider implements UpdateProvider {
 				while (resources.hasMoreElements()) {
 					URL url = resources.nextElement();
 					logger.info("Upgrading store from {}", version);
+					InputStream in = url.openStream();
+					Reader reader = new InputStreamReader(in, "UTF-8");
+					String ru = IOUtil.readString(reader);
+					ObjectConnection con = repository.getConnection();
+					try {
+						con.setAutoCommit(false);
+						con.prepareUpdate(SPARQL, ru, webapp).execute();
+						con.setAutoCommit(true);
+					} catch (MalformedQueryException e) {
+						throw new MalformedQueryException(e.getMessage()
+								.replaceAll("\n.*", "") + " in " + url, e);
+					} finally {
+						con.close();
+					}
+				}
+				return true;
+			}
+		};
+	}
+
+	@Override
+	public Updater finalizeCallimachusWebapp(String origin) throws IOException {
+		final ClassLoader cl = getClass().getClassLoader();
+		Enumeration<URL> resources = cl.getResources(FINALIZE_RU);
+		if (!resources.hasMoreElements())
+			return null;
+		return new Updater() {
+			public boolean update(String webapp, CallimachusRepository repository)
+					throws IOException, OpenRDFException {
+				Enumeration<URL> resources = cl.getResources(FINALIZE_RU);
+				while (resources.hasMoreElements()) {
+					URL url = resources.nextElement();
 					InputStream in = url.openStream();
 					Reader reader = new InputStreamReader(in, "UTF-8");
 					String ru = IOUtil.readString(reader);

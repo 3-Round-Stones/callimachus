@@ -13,4 +13,6 @@ public interface UpdateProvider {
 	Updater updateFrom(String origin, String version) throws IOException;
 
 	Updater updateCallimachusWebapp(String origin) throws IOException;
+
+	Updater finalizeCallimachusWebapp(String origin) throws IOException;
 }

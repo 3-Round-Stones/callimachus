@@ -37,6 +37,10 @@ public class LocalSystemProvider implements UpdateProvider {
 		return null;
 	}
 
+	public Updater finalizeCallimachusWebapp(String origin) throws IOException {
+		return null;
+	}
+
 	public Updater updateCallimachusWebapp(final String origin) throws IOException {
 		return new Updater() {
 			public boolean update(String webapp,

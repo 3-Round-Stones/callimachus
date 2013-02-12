@@ -35,6 +35,11 @@ public class SecretRealmProvider implements UpdateProvider {
 	}
 
 	@Override
+	public Updater finalizeCallimachusWebapp(String origin) throws IOException {
+		return null;
+	}
+
+	@Override
 	public Updater updateRealm(final String realm)
 			throws IOException {
 		return new Updater() {

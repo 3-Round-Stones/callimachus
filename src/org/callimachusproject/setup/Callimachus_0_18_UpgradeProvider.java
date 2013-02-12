@@ -53,6 +53,10 @@ public class Callimachus_0_18_UpgradeProvider implements UpdateProvider {
 		return null;
 	}
 
+	public Updater finalizeCallimachusWebapp(String origin) throws IOException {
+		return null;
+	}
+
 	public Updater updateFrom(final String origin, String version)
 			throws IOException {
 		if (!"0.18".equals(version))

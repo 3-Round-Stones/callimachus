@@ -265,6 +265,9 @@ public class Setup {
 					}
 				}
 			}
+			for (String origin : origins) {
+				changed |= setup.finalizeWebappOrigin(origin);
+			}
 		} finally {
 			setup.shutDown();
 		}

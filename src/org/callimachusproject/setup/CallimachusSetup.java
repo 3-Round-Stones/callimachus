@@ -642,50 +642,62 @@ public class CallimachusSetup {
 
 	private boolean deleteComponents(String origin) {
 		try {
-			repository.setSchemaGraphType(webapp(origin, SCHEMA_GRAPH).stringValue());
-			repository.setCompileRepository(true);
-			ObjectConnection con = repository.getConnection();
 			try {
-				con.setAutoCommit(false);
-				Object folder = con.getObject(webapp(origin, ""));
-				Method DeleteComponents = findDeleteComponents(folder);
+				repository.setSchemaGraphType(webapp(origin, SCHEMA_GRAPH)
+						.stringValue());
+				repository.setCompileRepository(true);
+				ObjectConnection con = repository.getConnection();
 				try {
-					logger.info("Removing {}", folder);
-					int argc = DeleteComponents.getParameterTypes().length;
-					DeleteComponents.invoke(folder, new Object[argc]);
-					URI target = webapp(origin, "");
-					con.remove(webapp(origin, "../"), null, target);
-					con.remove(target, null, null);
-					con.remove((Resource)null, null, null, target);
-					con.setAutoCommit(true);
-					return true;
-				} catch (InvocationTargetException e) {
+					con.setAutoCommit(false);
+					Object folder = con.getObject(webapp(origin, ""));
+					Method DeleteComponents = findDeleteComponents(folder);
 					try {
-						throw e.getCause();
-					} catch (Exception cause) {
-						logger.warn(cause.toString());
-					} catch (Error cause) {
-						logger.warn(cause.toString());
-					} catch (Throwable cause) {
-						logger.warn(cause.toString());
+						logger.info("Removing {}", folder);
+						invokeAndRemove(DeleteComponents, folder, origin, con);
+						con.setAutoCommit(true);
+						return true;
+					} catch (InvocationTargetException e) {
+						try {
+							throw e.getCause();
+						} catch (Exception cause) {
+							logger.warn(cause.toString());
+						} catch (Error cause) {
+							logger.warn(cause.toString());
+						} catch (Throwable cause) {
+							logger.warn(cause.toString());
+						}
+						con.rollback();
+						return false;
 					}
+				} catch (IllegalAccessException e) {
+					logger.debug(e.toString());
+				} catch (NoSuchMethodException e) {
+					logger.debug(e.toString());
+				} finally {
 					con.rollback();
+					repository.setCompileRepository(false);
+					con.close();
 				}
-			} catch (IllegalAccessException e) {
-				logger.debug(e.toString());
-			} catch (NoSuchMethodException e) {
-				logger.debug(e.toString());
 			} finally {
-				con.rollback();
 				repository.setCompileRepository(false);
-				con.close();
 			}
 		} catch (RDFObjectException e) {
-			logger.warn(e.toString());
+			logger.debug(e.toString());
 		} catch (OpenRDFException e) {
-			logger.warn(e.toString());
+			logger.debug(e.toString());
 		}
 		return false;
+	}
+
+	private void invokeAndRemove(Method DeleteComponents, Object folder,
+			String origin, ObjectConnection con) throws IllegalAccessException,
+			InvocationTargetException, OpenRDFException {
+		int argc = DeleteComponents.getParameterTypes().length;
+		DeleteComponents.invoke(folder, new Object[argc]);
+		URI target = webapp(origin, "");
+		con.remove(webapp(origin, "../"), null, target);
+		con.remove(target, null, null);
+		con.remove((Resource)null, null, null, target);
 	}
 
 	private Method findDeleteComponents(Object folder)

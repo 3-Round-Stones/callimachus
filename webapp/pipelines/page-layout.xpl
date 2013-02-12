@@ -22,20 +22,35 @@
         </p:with-option>
         <p:input port="source">
             <p:inline>
-                <c:request method="GET">
+                <c:request method="GET" detailed="true">
                     <c:header name="Accept" value="application/xquery" />
                 </c:request>
             </p:inline>
         </p:input>
     </p:add-attribute>
-    <p:http-request name="xquery-request" />
+    <p:http-request />
+    <p:choose>
+        <p:when test="/c:response[@status='200' or @status='203']">
+            <p:identity>
+                <p:input port="source" select="/c:response/c:body" />
+            </p:identity>
+        </p:when>
+        <p:otherwise>
+            <p:identity>
+                <p:input port="source">
+                    <p:data href="../transforms/default-layout.xq" />
+                </p:input>
+            </p:identity>
+        </p:otherwise>
+    </p:choose>
+    <p:identity name="xquery-response" />
     <p:xquery>
         <p:with-param name="calli:realm" select="$realm" />
         <p:input port="source">
             <p:pipe step="page-template" port="result" />
         </p:input>
         <p:input port="query">
-            <p:pipe step="xquery-request" port="result" />
+            <p:pipe step="xquery-response" port="result" />
         </p:input>
     </p:xquery>
 </p:pipeline>

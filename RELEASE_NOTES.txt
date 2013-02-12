@@ -2,9 +2,9 @@ Callimachus Project Release Notes
 
 http://callimachusproject.org/
 
-21 December 2012
+12 Februrary 2013
 
-= REQUIREMENTS FOR CALLIMACHUS 1.0 (Open Source) =
+= REQUIREMENTS FOR CALLIMACHUS 1.0.1 (Open Source) =
 
 Callimachus works best on browsers that are closely tracking the development
 of HTML5.  At the time of this writing, Callimachus works best on Chrome and
@@ -67,7 +67,7 @@ client agents, everyone group represents all authenticated agents, and the
 system group represents all agents connecting directly from the local machine.
 http://code.google.com/p/callimachus/wiki/Security has more details.
 
-= KNOWN ISSUES IN 1.0 =
+= KNOWN ISSUES IN 1.0.1 =
 
  * All possible options in check boxes must have a label.
  * rdf:XMLLiteral on form create auto adds xmlns to elements.
@@ -119,6 +119,20 @@ Remove the lib, bin, tmp, src directories.
 
 Download and unzip the callimachus-1.0.zip file in the install directory of
 the Callimachus 0.18 instance. Run the bin/callimachus-setup.sh/.bat script to
+upgrade the repositories directory. Run the bin/callimachus-start.sh/.bat script
+to start Callimachus.
+
+= HOWTO UPGRADE FROM 1.0 =
+
+All information saved through a Web browser is saved in the repositories
+directory. This directory should be backed up (in the stopped state) before
+attempting to upgrade.
+
+Stop the 1.0 server using the callimachus-stop script in the bin directory.
+Remove the lib, bin, tmp, src directories.
+
+Download and unzip the callimachus-1.0.1.zip file in the install directory of
+the Callimachus 1.0 instance. Run the bin/callimachus-setup.sh/.bat script to
 upgrade the repositories directory. Run the bin/callimachus-start.sh/.bat script
 to start Callimachus.
 

@@ -357,6 +357,12 @@ if [ ! -e "$BASEDIR/log" ] ; then
   mkdir "$BASEDIR/log"
 fi
 
+# Make sure only root can run our script
+if [ "$1" != "setup" -a -n "$DAEMON_USER" -a "$USER" != "$DAEMON_USER" -a "$(id -u)" != "0" ]; then
+ echo "This script must be run as root" 1>&2
+ exit 4
+fi
+
 if [ ! -z "$DAEMON_USER" ] ; then
   if [ ! -e "$BASEDIR/log" ] ; then
     mkdir "$BASEDIR/log"
@@ -413,12 +419,6 @@ if [ ! -z "$DAEMON_USER" ] ; then
     chown "$DAEMON_USER" "$MAIL"
     chown ":$DAEMON_GROUP" "$MAIL"
   fi
-fi
-
-# Make sure only root can run our script
-if [ "$1" != "setup" -a -n "$DAEMON_USER" -a "$(id -u)" != "0" ]; then
- echo "This script must be run as root" 1>&2
- exit 4
 fi
 
 #

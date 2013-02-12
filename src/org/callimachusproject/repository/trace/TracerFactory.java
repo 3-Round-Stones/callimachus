@@ -1,4 +1,4 @@
-package org.callimachusproject.logging.trace;
+package org.callimachusproject.repository.trace;
 
 public interface TracerFactory {
 

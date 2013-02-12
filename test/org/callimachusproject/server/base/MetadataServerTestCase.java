@@ -15,7 +15,7 @@ import java.util.logging.Logger;
 
 import junit.framework.TestCase;
 
-import org.callimachusproject.server.CallimachusRepository;
+import org.callimachusproject.repository.CalliRepository;
 import org.callimachusproject.server.HTTPObjectServer;
 import org.callimachusproject.server.concepts.AnyThing;
 import org.openrdf.model.URI;
@@ -81,7 +81,7 @@ public abstract class MetadataServerTestCase extends TestCase {
 	private final Random rand = new Random();
 	private int port;
 	private boolean failed;
-	protected CallimachusRepository repository;
+	protected CalliRepository repository;
 	protected ObjectRepositoryConfig config = new ObjectRepositoryConfig();
 	protected HTTPObjectServer server;
 	protected File dataDir;
@@ -193,17 +193,17 @@ public abstract class MetadataServerTestCase extends TestCase {
 		return port = (seed % range) + range + MIN_PORT;
 	}
 
-	private CallimachusRepository createRepository() throws Exception {
+	private CalliRepository createRepository() throws Exception {
 		Sail sail = new MemoryStore(dataDir);
 		sail = new AuditingSail(sail);
 		Repository repo = new OptimisticRepository(sail);
 		repo.initialize();
 		ObjectRepositoryFactory factory = new ObjectRepositoryFactory();
 		repo = factory.createRepository(config, repo);
-		return new CallimachusRepository(repo, dataDir);
+		return new CalliRepository(repo, dataDir);
 	}
 
-	private void initDataset(CallimachusRepository repository) throws Exception {
+	private void initDataset(CalliRepository repository) throws Exception {
 		repository.setChangeFolder("http://example.com/changes/");
 		ObjectConnection con = repository.getConnection();
 		try {

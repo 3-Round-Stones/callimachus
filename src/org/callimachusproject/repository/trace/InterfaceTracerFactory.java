@@ -1,4 +1,4 @@
-package org.callimachusproject.logging.trace;
+package org.callimachusproject.repository.trace;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;

@@ -1,39 +1,31 @@
-package org.callimachusproject.logging.trace;
+package org.callimachusproject.repository.trace;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class MethodCall extends AbstractTrace {
 	private static final Map<String, Integer> variables = new HashMap<String, Integer>();
-	private static final List<MethodCall> active = new ArrayList<MethodCall>();
 
-	public static Trace[] getActiveCallTraces() {
-		synchronized (active) {
-			return active.toArray(new Trace[active.size()]);
-		}
-	}
-
+	private final TracerService service;
 	private final TraceAggregate aggregate;
 	private long started;
 	private long ended;
 	private String threw;
 
-	public MethodCall(Method method, Object... args) {
-		this(null, method, args);
+	public MethodCall(TracerService service, Method method, Object... args) {
+		this(service, null, method, args);
 	}
 
-	public MethodCall(Class<?> returnType, String methodName, Object... args) {
-		this(null, returnType, methodName, null, args);
+	public MethodCall(TracerService service, Class<?> returnType, String methodName, Object... args) {
+		this(service, null, returnType, methodName, null, args);
 	}
 
-	public MethodCall(MethodCall returnedTarget, Method method, Object... args) {
-		this(returnedTarget, method.getReturnType(), method.getName(), method.getParameterTypes(), args);
+	public MethodCall(TracerService service, MethodCall returnedTarget, Method method, Object... args) {
+		this(service, returnedTarget, method.getReturnType(), method.getName(), method.getParameterTypes(), args);
 	}
 
-	public MethodCall(MethodCall previous, Class<?> returnType,
+	public MethodCall(TracerService service, MethodCall previous, Class<?> returnType,
 			String methodName, Class<?>[] types, Object... args) {
 		super(previous, returnType, methodName, types, args);
 		TraceAggregate trace = null;
@@ -41,8 +33,8 @@ public class MethodCall extends AbstractTrace {
 			previous.done();
 			trace = previous.getTraceAggregate();
 		}
-		TraceAnalyser a = TraceAnalyser.getInstance();
-		aggregate = a.getAggregate(trace, returnType, methodName, types, args);
+		this.service = service;
+		aggregate = service.getAggregate(trace, returnType, methodName, types, args);
 	}
 
 	public TraceAggregate getTraceAggregate() {
@@ -56,9 +48,7 @@ public class MethodCall extends AbstractTrace {
 
 	public synchronized void calling() {
 		if (started == 0) {
-			synchronized (active) {
-				active.add(this);
-			}
+			service.enter(this);
 			started = System.nanoTime();
 		}
 	}
@@ -67,9 +57,7 @@ public class MethodCall extends AbstractTrace {
 		if (ended == 0) {
 			ended = System.nanoTime();
 			getTraceAggregate().spent(ended - started);
-			synchronized (active) {
-				active.remove(this);
-			}
+			service.exit(this);
 		}
 	}
 

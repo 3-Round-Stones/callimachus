@@ -6,7 +6,7 @@ import java.security.SecureRandom;
 import java.util.UUID;
 
 import org.apache.commons.codec.binary.Base64;
-import org.callimachusproject.server.CallimachusRepository;
+import org.callimachusproject.repository.CalliRepository;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
@@ -44,7 +44,7 @@ public class SecretRealmProvider implements UpdateProvider {
 			throws IOException {
 		return new Updater() {
 			public boolean update(String webapp,
-					CallimachusRepository repository) throws IOException,
+					CalliRepository repository) throws IOException,
 					OpenRDFException {
 				ObjectConnection con = repository.getConnection();
 				try {

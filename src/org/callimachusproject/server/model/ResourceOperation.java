@@ -59,7 +59,7 @@ import org.callimachusproject.annotations.requires;
 import org.callimachusproject.annotations.type;
 import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidType;
-import org.callimachusproject.server.CallimachusRepository;
+import org.callimachusproject.repository.CalliRepository;
 import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.server.exceptions.MethodNotAllowed;
 import org.callimachusproject.server.exceptions.NotAcceptable;
@@ -90,7 +90,7 @@ public class ResourceOperation extends ResourceRequest {
 	private UnsupportedMediaType unsupportedMediaType;
 	private boolean isPublic;
 
-	public ResourceOperation(Request request, CallimachusRepository repository)
+	public ResourceOperation(Request request, CalliRepository repository)
 			throws QueryEvaluationException, RepositoryException {
 		super(request, repository);
 	}

@@ -86,6 +86,7 @@ import org.callimachusproject.client.AbstractHttpClient;
 import org.callimachusproject.client.HTTPObjectClient;
 import org.callimachusproject.concurrent.ManagedExecutors;
 import org.callimachusproject.concurrent.NamedThreadFactory;
+import org.callimachusproject.repository.CalliRepository;
 import org.callimachusproject.server.cache.CachingFilter;
 import org.callimachusproject.server.filters.GUnzipFilter;
 import org.callimachusproject.server.filters.GZipFilter;
@@ -143,7 +144,7 @@ public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAg
 	private final IOEventDispatch dispatch;
 	private DefaultListeningIOReactor sslserver;
 	private IOEventDispatch ssldispatch;
-	private final CallimachusRepository repository;
+	private final CalliRepository repository;
 	private int[] ports;
 	private int[] sslports;
 	private final ServerNameFilter name;
@@ -159,7 +160,7 @@ public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAg
 	private int timeout = 0;
 	private final HttpProcessor httpproc;
 
-	public HTTPObjectServer(CallimachusRepository repository, File cacheDir)
+	public HTTPObjectServer(CalliRepository repository, File cacheDir)
 			throws IOException, NoSuchAlgorithmException {
 		this.repository = repository;
 		Handler handler = new InvokeHandler();

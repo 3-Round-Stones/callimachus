@@ -49,7 +49,7 @@ import org.callimachusproject.client.HTTPObjectClient;
 import org.callimachusproject.client.UnavailableHttpClient;
 import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.io.CarInputStream;
-import org.callimachusproject.server.CallimachusRepository;
+import org.callimachusproject.repository.CalliRepository;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Graph;
 import org.openrdf.model.Resource;
@@ -186,7 +186,7 @@ public class CallimachusSetup {
 	private final ServiceLoader<UpdateProvider> updateProviders = ServiceLoader
 			.load(UpdateProvider.class, getClass().getClassLoader());
 	private final Map<String,TermFactory> webapps = new HashMap<String, TermFactory>();
-	private final CallimachusRepository repository;
+	private final CalliRepository repository;
 	private final ValueFactory vf;
 	private final LocalRepositoryManager manager;
 
@@ -202,7 +202,7 @@ public class CallimachusSetup {
 		if (dataDir == null) {
 			dataDir = manager.getRepositoryDir(config.getID());
 		}
-		repository = new CallimachusRepository(repo, dataDir);
+		repository = new CalliRepository(repo, dataDir);
 		vf = repository.getValueFactory();
 	}
 
@@ -217,14 +217,14 @@ public class CallimachusSetup {
 		if (dataDir == null) {
 			dataDir = manager.getRepositoryDir(config.getID());
 		}
-		repository = new CallimachusRepository(repo, dataDir);
+		repository = new CalliRepository(repo, dataDir);
 		vf = repository.getValueFactory();
 		this.manager = null;
 	}
 
 	public CallimachusSetup(Repository repo, File dataDir)
 			throws OpenRDFException, IOException {
-		repository = new CallimachusRepository(repo, dataDir);
+		repository = new CalliRepository(repo, dataDir);
 		vf = repository.getValueFactory();
 		this.manager = null;
 	}
@@ -642,7 +642,7 @@ public class CallimachusSetup {
 
 	private boolean deleteComponents(String origin) {
 		try {
-			repository.setSchemaGraphType(webapp(origin, SCHEMA_GRAPH));
+			repository.setSchemaGraphType(webapp(origin, SCHEMA_GRAPH).stringValue());
 			repository.setCompileRepository(true);
 			ObjectConnection con = repository.getConnection();
 			try {
@@ -823,7 +823,7 @@ public class CallimachusSetup {
 		UnavailableHttpClient service = new UnavailableHttpClient();
 		client.setProxy(host, service);
 		for (URI schemaGraph : schemaGraphs) {
-			repository.addSchemaGraph(schemaGraph);
+			repository.addSchemaGraph(schemaGraph.stringValue());
 		}
 		repository.setCompileRepository(true);
 		ObjectConnection con = repository.getConnection();

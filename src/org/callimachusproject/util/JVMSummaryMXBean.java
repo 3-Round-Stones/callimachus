@@ -16,37 +16,10 @@
  * limitations under the License.
  *
  */
-package org.callimachusproject.logging;
+package org.callimachusproject.util;
 
-import java.io.IOException;
 
-/**
- * MXBean interface used by the logging bean.
- * 
- * @author James Leigh
- * 
- */
-public interface CalliLoggerMXBean {
-
-	void startNotifications(String prefix);
-
-	void stopNotifications();
-
-	void logAll(String prefix);
-
-	void logInfo(String prefix);
-
-	void logWarn(String prefix);
-
-	String[] getLoggingProperties() throws IOException;
-
-	void setLoggingProperties(String[] lines) throws IOException;
+public interface JVMSummaryMXBean {
 
 	String[] showVMSummary() throws Exception;
-
-	String[] traceActiveCalls();
-
-	void resetTraceAnalyser();
-
-	void traceDumpToFile(String outputFile) throws IOException;
 }

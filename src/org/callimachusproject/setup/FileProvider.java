@@ -8,7 +8,7 @@ import java.net.URLDecoder;
 
 import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.io.ChannelUtil;
-import org.callimachusproject.server.CallimachusRepository;
+import org.callimachusproject.repository.CalliRepository;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
@@ -52,7 +52,7 @@ public abstract class FileProvider implements UpdateProvider {
 	public Updater updateOrigin(final String virtual)
 			throws IOException {
 		return new Updater() {
-			public boolean update(String webapp, CallimachusRepository repository)
+			public boolean update(String webapp, CalliRepository repository)
 					throws IOException, OpenRDFException {
 				ObjectConnection con = repository.getConnection();
 				try {

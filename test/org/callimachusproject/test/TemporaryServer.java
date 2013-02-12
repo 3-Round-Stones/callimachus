@@ -1,6 +1,6 @@
 package org.callimachusproject.test;
 
-import org.callimachusproject.server.CallimachusRepository;
+import org.callimachusproject.repository.CalliRepository;
 
 public interface TemporaryServer {
 
@@ -20,6 +20,6 @@ public interface TemporaryServer {
 
 	char[] getPassword();
 
-	CallimachusRepository getRepository();
+	CalliRepository getRepository();
 
 }

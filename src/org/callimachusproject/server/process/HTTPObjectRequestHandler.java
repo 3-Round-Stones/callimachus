@@ -51,7 +51,7 @@ import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.client.AbstractHttpClient;
 import org.callimachusproject.client.UnavailableHttpClient;
-import org.callimachusproject.server.CallimachusRepository;
+import org.callimachusproject.repository.CalliRepository;
 import org.callimachusproject.server.model.Filter;
 import org.callimachusproject.server.model.Handler;
 import org.callimachusproject.server.model.Request;
@@ -79,13 +79,13 @@ public class HTTPObjectRequestHandler extends AbstractHttpClient implements
 			.getLogger(HTTPObjectRequestHandler.class);
 	private final Filter filter;
 	private final Handler handler;
-	private final CallimachusRepository repository;
+	private final CalliRepository repository;
 	private Pipeline pipeline;
 	private RequestTriagerActor requestTriager;
 	private RequestTransactionActor requestHandler;
 
 	public HTTPObjectRequestHandler(Filter filter, Handler handler,
-			CallimachusRepository repository) {
+			CalliRepository repository) {
 		this.filter = filter;
 		this.handler = handler;
 		this.repository = repository;

@@ -1,4 +1,4 @@
-package org.callimachusproject.logging.trace;
+package org.callimachusproject.repository.trace;
 
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
@@ -13,11 +13,6 @@ import java.util.WeakHashMap;
 public class TraceAnalyser {
 	private static final int MAX_TOP = 100;
 	private static final int MAX_RECENT = 1024;
-	private static final TraceAnalyser instance = new TraceAnalyser();
-
-	public static TraceAnalyser getInstance() {
-		return instance;
-	}
 
 	private int revision;
 	private long minTotalTime;
@@ -125,7 +120,7 @@ public class TraceAnalyser {
 			aggregate = ref.get();
 		}
 		if (aggregate == null) {
-			aggregate = new TraceAggregate(previous, common, revision);
+			aggregate = new TraceAggregate(this, previous, common, revision);
 		}
 		recent.put(common, aggregate);
 		if (ref != null) {

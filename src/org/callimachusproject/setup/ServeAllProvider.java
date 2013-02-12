@@ -8,7 +8,7 @@ import java.util.Scanner;
 import java.util.Set;
 
 import org.callimachusproject.engine.model.TermFactory;
-import org.callimachusproject.server.CallimachusRepository;
+import org.callimachusproject.repository.CalliRepository;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
@@ -72,7 +72,7 @@ public class ServeAllProvider implements UpdateProvider {
 	@Override
 	public Updater updateCallimachusWebapp(final String origin) throws IOException {
 		return new Updater() {
-			public boolean update(String webapp, CallimachusRepository repository)
+			public boolean update(String webapp, CalliRepository repository)
 					throws IOException, OpenRDFException {
 				TermFactory tf = TermFactory.newInstance(webapp);
 				ObjectConnection con = repository.getConnection();

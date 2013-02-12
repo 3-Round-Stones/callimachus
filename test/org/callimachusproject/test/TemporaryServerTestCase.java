@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 
 import junit.framework.TestCase;
 
-import org.callimachusproject.server.CallimachusRepository;
+import org.callimachusproject.repository.CalliRepository;
 import org.junit.After;
 import org.junit.Before;
 import org.openrdf.OpenRDFException;
@@ -73,7 +73,7 @@ public abstract class TemporaryServerTestCase extends TestCase {
 		return server.getPassword();
 	}
 
-	public CallimachusRepository getRepository() {
+	public CalliRepository getRepository() {
 		return server.getRepository();
 	}
 

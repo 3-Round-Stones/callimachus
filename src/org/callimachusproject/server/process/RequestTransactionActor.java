@@ -13,7 +13,7 @@ import org.apache.http.ProtocolVersion;
 import org.apache.http.util.EntityUtils;
 import org.callimachusproject.client.CloseableEntity;
 import org.callimachusproject.concurrent.ManagedExecutors;
-import org.callimachusproject.server.CallimachusRepository;
+import org.callimachusproject.repository.CalliRepository;
 import org.callimachusproject.server.exceptions.NotAcceptable;
 import org.callimachusproject.server.exceptions.ResponseException;
 import org.callimachusproject.server.model.EntityRemovedHttpResponse;
@@ -27,15 +27,15 @@ public class RequestTransactionActor extends ExchangeActor {
 	private static final ProtocolVersion HTTP11 = HttpVersion.HTTP_1_1;
 	private final Filter filter;
 	private final Handler handler;
-	private final CallimachusRepository repository;
+	private final CalliRepository repository;
 
 	public RequestTransactionActor(Filter filter, Handler handler,
-			CallimachusRepository repository) {
+			CalliRepository repository) {
 		this(new PriorityBlockingQueue<Runnable>(), filter, handler, repository);
 	}
 
 	private RequestTransactionActor(BlockingQueue<Runnable> queue,
-			Filter filter, Handler handler, CallimachusRepository repository) {
+			Filter filter, Handler handler, CalliRepository repository) {
 		super(ManagedExecutors.getInstance().newAntiDeadlockThreadPool(queue,
 				"HttpTransaction"), queue);
 		this.filter = filter;

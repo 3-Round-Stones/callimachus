@@ -2,11 +2,11 @@ package org.callimachusproject.setup;
 
 import java.io.IOException;
 
-import org.callimachusproject.server.CallimachusRepository;
+import org.callimachusproject.repository.CalliRepository;
 import org.openrdf.OpenRDFException;
 
 public interface Updater {
 
-	boolean update(String webapp, CallimachusRepository repository) throws IOException, OpenRDFException;
+	boolean update(String webapp, CalliRepository repository) throws IOException, OpenRDFException;
 
 }

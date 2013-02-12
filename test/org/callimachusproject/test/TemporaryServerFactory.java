@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Scanner;
 
 import org.callimachusproject.Server;
-import org.callimachusproject.server.CallimachusRepository;
+import org.callimachusproject.repository.CalliRepository;
 import org.callimachusproject.setup.CallimachusSetup;
 
 public class TemporaryServerFactory {
@@ -106,7 +106,7 @@ public class TemporaryServerFactory {
 			}
 
 			@Override
-			public CallimachusRepository getRepository() {
+			public CalliRepository getRepository() {
 				return getDelegate().getRepository();
 			}
 		};
@@ -176,7 +176,7 @@ public class TemporaryServerFactory {
 					return password;
 				}
 
-				public CallimachusRepository getRepository() {
+				public CalliRepository getRepository() {
 					return server.getRepository();
 				}
 			};

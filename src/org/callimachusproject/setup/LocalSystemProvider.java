@@ -2,7 +2,7 @@ package org.callimachusproject.setup;
 
 import java.io.IOException;
 
-import org.callimachusproject.server.CallimachusRepository;
+import org.callimachusproject.repository.CalliRepository;
 import org.callimachusproject.util.DomainNameSystemResolver;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Literal;
@@ -44,7 +44,7 @@ public class LocalSystemProvider implements UpdateProvider {
 	public Updater updateCallimachusWebapp(final String origin) throws IOException {
 		return new Updater() {
 			public boolean update(String webapp,
-					CallimachusRepository repository) throws IOException,
+					CalliRepository repository) throws IOException,
 					OpenRDFException {
 				String group = origin + SYSTEM_GROUP;
 				ObjectConnection con = repository.getConnection();

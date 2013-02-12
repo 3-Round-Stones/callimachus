@@ -54,7 +54,7 @@ import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidFactory;
 import org.callimachusproject.fluid.FluidType;
-import org.callimachusproject.server.CallimachusRepository;
+import org.callimachusproject.repository.CalliRepository;
 import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.traits.VersionedObject;
 import org.openrdf.model.URI;
@@ -92,7 +92,7 @@ public class ResourceRequest extends Request {
 	private boolean closed;
 	private String credential;
 
-	public ResourceRequest(Request request, CallimachusRepository repository)
+	public ResourceRequest(Request request, CalliRepository repository)
 			throws QueryEvaluationException, RepositoryException {
 		super(request);
 		List<String> headers = getVaryHeaders("Accept");

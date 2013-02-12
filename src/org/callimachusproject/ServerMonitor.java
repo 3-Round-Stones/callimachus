@@ -52,10 +52,12 @@ import org.callimachusproject.cli.CommandSet;
 import org.callimachusproject.concurrent.ManagedThreadPool;
 import org.callimachusproject.concurrent.ThreadPoolMXBean;
 import org.callimachusproject.io.ChannelUtil;
-import org.callimachusproject.logging.CalliLogger;
-import org.callimachusproject.logging.CalliLoggerMXBean;
+import org.callimachusproject.repository.CalliRepository;
+import org.callimachusproject.repository.CalliRepositoryMXBean;
 import org.callimachusproject.server.CallimachusServer;
 import org.callimachusproject.server.HTTPObjectAgentMXBean;
+import org.callimachusproject.util.JVMSummary;
+import org.callimachusproject.util.JVMSummaryMXBean;
 
 /**
  * Command line tool for monitoring the server.
@@ -130,11 +132,10 @@ public class ServerMonitor {
 
 	private Object vm;
 	private MBeanServerConnection mbsc;
-	private CalliLoggerMXBean logger;
+	private JVMSummaryMXBean summary;
 	private HTTPObjectAgentMXBean server;
 	private boolean reset;
 	private boolean stop;
-	private String dump;
 
 	public ServerMonitor() {
 		super();
@@ -160,13 +161,12 @@ public class ServerMonitor {
 				System.exit(0);
 				return;
 			} else {
-				if (line.has("dump")) {
-					dump = line.get("dump") + File.separatorChar;
-				}
+				setPidFile(line.get("pid"));
 				reset = line.has("reset");
 				stop = line.has("stop");
-				String pid = line.get("pid");
-				setPidFile(pid);
+				if (line.has("dump")) {
+					dumpService(line.get("dump") + File.separatorChar);
+				}
 			}
 		} catch (Throwable e) {
 			println(e);
@@ -176,9 +176,6 @@ public class ServerMonitor {
 	}
 
 	public void start() throws Throwable {
-		if (dump != null) {
-			dumpService(dump);
-		}
 		if (reset) {
 			resetCache();
 		}
@@ -245,6 +242,7 @@ public class ServerMonitor {
 		traceDump(mbsc, dir + "trace-" + stamp + ".txt");
 		summaryDump(mbsc, dir + "summary-" + stamp + ".txt");
 		netStatistics(dir + "netstat-" + stamp + ".txt");
+		topStatistics(dir + "top-" + stamp + ".txt");
 	}
 
 	private void setPidFile(String pid) throws Throwable {
@@ -254,8 +252,8 @@ public class ServerMonitor {
 			server = JMX
 					.newMXBeanProxy(mbsc, name, HTTPObjectAgentMXBean.class);
 		}
-		for (ObjectName name : getObjectNames(CalliLogger.class, mbsc)) {
-			logger = JMX.newMXBeanProxy(mbsc, name, CalliLoggerMXBean.class);
+		for (ObjectName name : getObjectNames(JVMSummary.class, mbsc)) {
+			summary = JMX.newMXBeanProxy(mbsc, name, JVMSummaryMXBean.class);
 		}
 	}
 
@@ -328,15 +326,27 @@ public class ServerMonitor {
 		}
 	}
 
-	private void traceDump(MBeanServerConnection mbsc2, String filename) throws IOException {
-		logger.traceDumpToFile(filename);
-		info(filename);
+	private void traceDump(MBeanServerConnection mbsc, String filename)
+			throws IOException, MalformedObjectNameException {
+		for (ObjectName name : getObjectNames(CalliRepository.class, mbsc)) {
+			CalliRepositoryMXBean repo = JMX.newMXBeanProxy(mbsc, name,
+					CalliRepositoryMXBean.class);
+			PrintWriter w = new PrintWriter(filename);
+			try {
+				for (String line : repo.showTraceSummary()) {
+					w.println(line);
+				}
+			} finally {
+				w.close();
+			}
+			info(filename);
+		}
 	}
 
 	private void summaryDump(MBeanServerConnection mbsc, String filename)
 			throws Throwable {
 		try {
-			String[] summary = logger.showVMSummary();
+			String[] summary = this.summary.showVMSummary();
 			PrintWriter w = new PrintWriter(filename);
 			try {
 				for (String line : summary) {
@@ -377,6 +387,22 @@ public class ServerMonitor {
 			}
 		} catch (IOException e) {
 			// netstat not installed
+			new File(fileName).delete();
+		} finally {
+			out.close();
+		}
+	}
+
+	private void topStatistics(String fileName) throws IOException {
+		FileOutputStream out = new FileOutputStream(fileName);
+		try {
+			if (exec(out, System.err, "top", "-bn", "1")) {
+				info(fileName);
+			} else {
+				new File(fileName).delete();
+			}
+		} catch (IOException e) {
+			// top not installed
 			new File(fileName).delete();
 		} finally {
 			out.close();

@@ -13,7 +13,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.callimachusproject.engine.model.TermFactory;
-import org.callimachusproject.server.CallimachusRepository;
+import org.callimachusproject.repository.CalliRepository;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.query.MalformedQueryException;
@@ -61,7 +61,7 @@ public class SparqlUpdateProvider implements UpdateProvider {
 		if (!resources.hasMoreElements())
 			return null;
 		return new Updater() {
-			public boolean update(String webapp, CallimachusRepository repository)
+			public boolean update(String webapp, CalliRepository repository)
 					throws IOException, OpenRDFException {
 				Enumeration<URL> resources = cl.getResources(WEBAPP_RU);
 				while (resources.hasMoreElements()) {
@@ -95,7 +95,7 @@ public class SparqlUpdateProvider implements UpdateProvider {
 		if (!resources.hasMoreElements())
 			return null;
 		return new Updater() {
-			public boolean update(String webapp, CallimachusRepository repository)
+			public boolean update(String webapp, CalliRepository repository)
 					throws IOException, OpenRDFException {
 				Enumeration<URL> resources = cl.getResources(ORIGIN_RU);
 				while (resources.hasMoreElements()) {
@@ -131,7 +131,7 @@ public class SparqlUpdateProvider implements UpdateProvider {
 		if (!resources.hasMoreElements())
 			return null;
 		return new Updater() {
-			public boolean update(String webapp, CallimachusRepository repository)
+			public boolean update(String webapp, CalliRepository repository)
 					throws IOException, OpenRDFException {
 				Enumeration<URL> resources = cl.getResources(REALM_RU);
 				while (resources.hasMoreElements()) {
@@ -166,7 +166,7 @@ public class SparqlUpdateProvider implements UpdateProvider {
 		if (!resources.hasMoreElements())
 			return null;
 		return new Updater() {
-			public boolean update(String webapp, CallimachusRepository repository)
+			public boolean update(String webapp, CalliRepository repository)
 					throws IOException, OpenRDFException {
 				Enumeration<URL> resources = cl.getResources(name);
 				while (resources.hasMoreElements()) {
@@ -199,7 +199,7 @@ public class SparqlUpdateProvider implements UpdateProvider {
 		if (!resources.hasMoreElements())
 			return null;
 		return new Updater() {
-			public boolean update(String webapp, CallimachusRepository repository)
+			public boolean update(String webapp, CalliRepository repository)
 					throws IOException, OpenRDFException {
 				Enumeration<URL> resources = cl.getResources(FINALIZE_RU);
 				while (resources.hasMoreElements()) {

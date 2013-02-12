@@ -30,9 +30,9 @@ import org.apache.http.HttpHost;
 import org.apache.http.client.utils.URIUtils;
 import org.callimachusproject.client.HTTPObjectClient;
 import org.callimachusproject.io.FileUtil;
+import org.callimachusproject.repository.CalliRepository;
 import org.callimachusproject.util.DomainNameSystemResolver;
 import org.openrdf.OpenRDFException;
-import org.openrdf.model.ValueFactory;
 import org.openrdf.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,20 +43,19 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 	private static final String IDENTITY_PATH = "/diverted;";
 	Logger logger = LoggerFactory.getLogger(CallimachusServer.class);
 	private final Set<String> origins = new HashSet<String>();
-	private CallimachusRepository repository;
+	private CalliRepository repository;
 	private HTTPObjectServer server;
 
 	public CallimachusServer(Repository repository, File dataDir)
 			throws OpenRDFException, IOException, NoSuchAlgorithmException {
-		this.repository = new CallimachusRepository(repository, dataDir);
+		this.repository = new CalliRepository(repository, dataDir);
 		this.server = createServer(dataDir, this.repository);
 	}
 
 	public void addOrigin(String origin) throws OpenRDFException {
-		ValueFactory vf = this.repository.getValueFactory();
 		String schema = repository.getCallimachusUrl(origin, SCHEMA_GRAPH);
 		if (schema != null) {
-			repository.addSchemaGraphType(vf.createURI(schema));
+			repository.addSchemaGraphType(schema);
 		}
 		origins.add(origin);
 		String[] identities = origins.toArray(new String[origins.size()]);
@@ -105,7 +104,7 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 		server.setErrorPipe(pipe);
 	}
 
-	public CallimachusRepository getRepository() {
+	public CalliRepository getRepository() {
 		return repository;
 	}
 
@@ -256,7 +255,7 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 		return hostname + ":" + port;
 	}
 
-	private HTTPObjectServer createServer(File dir, CallimachusRepository or)
+	private HTTPObjectServer createServer(File dir, CalliRepository or)
 			throws IOException, NoSuchAlgorithmException {
 		File cacheDir = new File(dir, "cache");
 		FileUtil.deleteOnExit(cacheDir);

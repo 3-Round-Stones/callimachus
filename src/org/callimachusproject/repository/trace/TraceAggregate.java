@@ -1,16 +1,17 @@
-package org.callimachusproject.logging.trace;
+package org.callimachusproject.repository.trace;
 
 import java.util.List;
 
 public class TraceAggregate implements Trace {
-	private final TraceAnalyser analyser = TraceAnalyser.getInstance();
+	private final TraceAnalyser analyser;
 	private final TraceAggregate previous;
 	private final CommonTrace trace;
 	private final int revision;
 	private long total;
 	private int invocations;
 
-	public TraceAggregate(TraceAggregate previous, CommonTrace trace, int revision) {
+	public TraceAggregate(TraceAnalyser analyser, TraceAggregate previous, CommonTrace trace, int revision) {
+		this.analyser = analyser;
 		this.previous = previous;
 		this.trace = trace;
 		this.revision = revision;

@@ -1,4 +1,4 @@
-package org.callimachusproject.server;
+package org.callimachusproject.repository;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -25,11 +25,11 @@ import org.openrdf.repository.auditing.ActivityFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class CallimachusActivityFactory implements ActivityFactory {
+public final class CalliActivityFactory implements ActivityFactory {
 	private static final String PROV_SUFFIX = "#provenance";
 	private static final Executor executor = ManagedExecutors.getInstance()
 			.newSingleScheduler(
-					CallimachusActivityFactory.class.getSimpleName());
+					CalliActivityFactory.class.getSimpleName());
 	private static final TimeZone UTC = TimeZone.getTimeZone("UTC");
 	private static final String ACTIVITY = "http://www.w3.org/ns/prov#Activity";
 	private static final String PREFIX = "PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
@@ -84,7 +84,7 @@ public final class CallimachusActivityFactory implements ActivityFactory {
 		}
 	}
 	private static final String CALLI_HASCOMPONENT = "http://callimachusproject.org/rdf/2009/framework#hasComponent";
-	private final Logger logger = LoggerFactory.getLogger(CallimachusActivityFactory.class);
+	private final Logger logger = LoggerFactory.getLogger(CalliActivityFactory.class);
 	private final String uid = "t"
 			+ Long.toHexString(System.currentTimeMillis()) + "x";
 	private final AtomicLong seq = new AtomicLong(0);
@@ -96,7 +96,7 @@ public final class CallimachusActivityFactory implements ActivityFactory {
 	private GregorianCalendar date;
 	private String folder;
 
-	public CallimachusActivityFactory(Repository repository, String uriSpace,
+	public CalliActivityFactory(Repository repository, String uriSpace,
 			String changeType, String folderType) {
 		assert repository != null;
 		assert uriSpace != null;

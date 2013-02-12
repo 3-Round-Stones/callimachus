@@ -1,4 +1,4 @@
-package org.callimachusproject.logging.trace;
+package org.callimachusproject.repository.trace;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;

@@ -1,11 +1,10 @@
-package org.callimachusproject.logging.trace;
+package org.callimachusproject.repository.trace;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class Tracer implements InvocationHandler {
 	private final Logger logger;
@@ -18,7 +17,7 @@ public class Tracer implements InvocationHandler {
 		assert target != null;
 		assert declaredType != null;
 		assert service != null;
-		this.logger = LoggerFactory.getLogger(declaredType);
+		this.logger = service.getLogger(declaredType);
 		this.service = service;
 		this.declaredType = declaredType;
 		this.returnedFrom = returnedFrom;
@@ -35,9 +34,9 @@ public class Tracer implements InvocationHandler {
 
 	public Object invoke(Object proxy, Method method, Object[] args)
 			throws Throwable {
-		if (logger.isTraceEnabled()) {
+		if (service.isTraceEnabled(declaredType.getName())) {
 			Method imethod = getInterfaceMethod(method);
-			MethodCall call = new MethodCall(returnedFrom, imethod, args);
+			MethodCall call = new MethodCall(service, returnedFrom, imethod, args);
 			try {
 				for (String assign : call.getAssignments()) {
 					logger.trace(assign);
@@ -75,7 +74,7 @@ public class Tracer implements InvocationHandler {
 	private Object invokeCall(MethodCall call, Method method, Object[] args) throws Throwable {
 		try {
 			Class type = method.getReturnType();
-			if (!type.isPrimitive() && LoggerFactory.getLogger(type).isTraceEnabled()) {
+			if (!type.isPrimitive() && service.isTraceEnabled(type.getName())) {
 				return service.trace(call, method.invoke(target, args), type);
 			} else {
 				return method.invoke(target, args);

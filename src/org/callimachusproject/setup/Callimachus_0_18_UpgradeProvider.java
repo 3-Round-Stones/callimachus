@@ -8,7 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.callimachusproject.server.CallimachusRepository;
+import org.callimachusproject.repository.CalliRepository;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Namespace;
 import org.openrdf.model.Resource;
@@ -63,7 +63,7 @@ public class Callimachus_0_18_UpgradeProvider implements UpdateProvider {
 			return null;
 		return new Updater() {
 			public boolean update(String webapp,
-					CallimachusRepository repository) throws IOException,
+					CalliRepository repository) throws IOException,
 					OpenRDFException {
 				boolean modified = false;
 				modified |= trimNamespaces(repository);
@@ -76,7 +76,7 @@ public class Callimachus_0_18_UpgradeProvider implements UpdateProvider {
 	}
 
 	void upgradeFrom1_0_beta(String webapp,
-			CallimachusRepository repository) throws OpenRDFException {
+			CalliRepository repository) throws OpenRDFException {
 		String files = "PREFIX foaf:<http://xmlns.com/foaf/0.1/>\n"
 				 + "DELETE {\n"
 				 + "    ?file ?p ?o\n"
@@ -117,7 +117,7 @@ public class Callimachus_0_18_UpgradeProvider implements UpdateProvider {
 		}
 	}
 
-	boolean trimNamespaces(CallimachusRepository repository)
+	boolean trimNamespaces(CalliRepository repository)
 			throws OpenRDFException {
 		ObjectConnection con = repository.getConnection();
 		try {
@@ -136,7 +136,7 @@ public class Callimachus_0_18_UpgradeProvider implements UpdateProvider {
 		}
 	}
 
-	boolean deleteFiles(String origin, String webapp, CallimachusRepository repository)
+	boolean deleteFiles(String origin, String webapp, CalliRepository repository)
 			throws OpenRDFException {
 		ObjectConnection con = repository.getConnection();
 		try {
@@ -165,21 +165,17 @@ public class Callimachus_0_18_UpgradeProvider implements UpdateProvider {
 		return true;
 	}
 
-	boolean deleteFolders(final String origin, String webapp,
-			CallimachusRepository repository) throws RepositoryException,
+	boolean deleteFolders(final String o, String webapp,
+			CalliRepository repository) throws RepositoryException,
 			ObjectStoreConfigException {
-		ValueFactory vf = repository.getValueFactory();
-		repository.setSchemaGraphType(vf.createURI(origin
-				+ "/callimachus/SchemaGraph"));
-		repository.addSchemaGraphType(vf.createURI(origin
-				+ "/callimachus/types/SchemaGraph"));
-		repository.addSchemaGraphType(vf.createURI(origin
-				+ "/callimachus/1.0/types/SchemaGraph"));
+		repository.setSchemaGraphType(o + "/callimachus/SchemaGraph");
+		repository.addSchemaGraphType(o + "/callimachus/types/SchemaGraph");
+		repository.addSchemaGraphType(o + "/callimachus/1.0/types/SchemaGraph");
 		try {
 			repository.setCompileRepository(true);
 			List<String> folders = getFolders(webapp, repository);
 			if (!folders.isEmpty()) {
-				deleteFolders(folders, origin, repository);
+				deleteFolders(folders, o, repository);
 				return true;
 			}
 		} catch (OpenRDFException e) {
@@ -193,7 +189,7 @@ public class Callimachus_0_18_UpgradeProvider implements UpdateProvider {
 	}
 
 	private List<String> getFolders(String webapp,
-			CallimachusRepository repository) throws OpenRDFException {
+			CalliRepository repository) throws OpenRDFException {
 		List<String> list = new ArrayList<String>();
 		ObjectConnection con = repository.getConnection();
 		try {
@@ -213,7 +209,7 @@ public class Callimachus_0_18_UpgradeProvider implements UpdateProvider {
 	}
 
 	private void deleteFolders(List<String> folders, String origin,
-			CallimachusRepository repository) throws OpenRDFException {
+			CalliRepository repository) throws OpenRDFException {
 		ObjectConnection con = repository.getConnection();
 		try {
 			con.setAutoCommit(false);

@@ -43,10 +43,10 @@ import org.callimachusproject.client.HTTPObjectClient;
 import org.callimachusproject.concurrent.ManagedExecutors;
 import org.callimachusproject.concurrent.ManagedThreadPool;
 import org.callimachusproject.concurrent.ManagedThreadPoolListener;
-import org.callimachusproject.logging.CalliLogger;
-import org.callimachusproject.server.CallimachusRepository;
+import org.callimachusproject.repository.CalliRepository;
 import org.callimachusproject.server.CallimachusServer;
 import org.callimachusproject.server.HTTPObjectPolicy;
+import org.callimachusproject.util.JVMSummary;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.config.RepositoryConfigException;
@@ -169,7 +169,7 @@ public class Server {
 		return null;
 	}
 
-	public CallimachusRepository getRepository() {
+	public CalliRepository getRepository() {
 		return server.getRepository();
 	}
 
@@ -215,10 +215,11 @@ public class Server {
 
 	public void destroy() throws Exception {
 		if (server != null) {
+			unregisterMBean(CalliRepository.class);
 			server.getRepository().shutDown();
 			server.destroy();
 		}
-		unregisterMBean(CalliLogger.class);
+		unregisterMBean(JVMSummary.class);
 		unregisterMBean(CallimachusServer.class);
 		ManagedExecutors.getInstance().cleanup();
 	}
@@ -313,7 +314,8 @@ public class Server {
 		}
 		server.listen(ports, sslports);
 		registerMBean(server, CallimachusServer.class);
-		registerMBean(new CalliLogger(), CalliLogger.class);
+		registerMBean(server.getRepository(), CalliRepository.class);
+		registerMBean(new JVMSummary(), JVMSummary.class);
 		ManagedExecutors.getInstance().addListener(
 				new ManagedThreadPoolListener() {
 					public void threadPoolStarted(String name,

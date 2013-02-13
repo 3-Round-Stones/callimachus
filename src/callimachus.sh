@@ -269,10 +269,6 @@ if [ -z "$JMXRMI_OPTS" -a -e "$JMXRMI" ] ; then
   JMXRMI_OPTS=$(perl -pe 's/\s*\#.*$//g' "$JMXRMI" 2>/dev/null |perl -pe 's/(\S+)=(.*)/-D$1=$2/' 2>/dev/null |tr -s '\n' ' ')
 fi
 
-if [ -z "$REPOSITORY" ] ; then
-  REPOSITORY="$BASEDIR/repositories/$NAME"
-fi
-
 if [ -z "$REPOSITORY_CONFIG" ] ; then
   REPOSITORY_CONFIG="$BASEDIR/etc/$NAME-repository.ttl"
 fi
@@ -312,12 +308,12 @@ if [ -z "$ORIGIN" ] ; then
   if [ -n "$AUTHORITY" ] ; then
     ORIGIN="http://$AUTHORITY"
   elif [ -n "$PORT" ] ; then
-    ORIGIN="http://$(hostname -f |tr '[A-Z]' '[a-z]')"
+    ORIGIN="http://localhost"
     if [ "$PORT" != "80" ] ; then
       ORIGIN="$ORIGIN:$PORT"
     fi
   elif [ -n "$SSLPORT" ] ; then
-    ORIGIN="https://$(hostname -f |tr '[A-Z]' '[a-z]')"
+    ORIGIN="https://localhost"
     if [ "$SSLPORT" != "443" ] ; then
       ORIGIN="$ORIGIN:$SSLPORT"
     fi
@@ -328,15 +324,12 @@ if [ -z "$PRIMARY_ORIGIN" ] ; then
   PRIMARY_ORIGIN="$ORIGIN"
 fi
 
-PORT_OPTS="$(echo $PORT |perl -pe 's/(^|\s)(\S)/ -p $2/g' 2>/dev/null) $(echo $SSLPORT |perl -pe 's/(^|\s)(\S)/ -s $2/g' 2>/dev/null)"
-ORIGIN_OPTS="-o $(echo $ORIGIN |perl -pe 's/(\s)(\S)/ -o $2/g' 2>/dev/null)"
 PRIMARY_ORIGIN_OPTS="-o $(echo $PRIMARY_ORIGIN |perl -pe 's/(\s)(\S)/ -o $2/g' 2>/dev/null)"
 
 if [ -z "$OPTS" ] ; then
   if [ "$SECURITY_MANAGER" = "false" ]; then
     OPTS="--trust"
   fi
-  OPTS="$PORT_OPTS $ORIGIN_OPTS $OPTS"
 fi
 
 # For Cygwin, switch paths to Windows format before running java
@@ -361,6 +354,62 @@ fi
 if [ "$1" != "setup" -a -n "$DAEMON_USER" -a "$USER" != "$DAEMON_USER" -a "$(id -u)" != "0" ]; then
  echo "This script must be run as root" 1>&2
  exit 4
+elif [ "$(id -u)" = "0" -a -x "$DAEMON" ] && ! getcap "$DAEMON" | grep -q "cap_net_bind_service" ; then
+  setcap cap_net_bind_service=ep "$DAEMON"
+fi
+
+# setup trust store
+if [ -r "$JAVA_HOME/lib/security/cacerts" ] && ( [ ! -e "$SSL" ] || ! grep -q javax.net.ssl.trustStore "$SSL" ) ; then
+  if [ -z "$KEYTOOL" ] ; then
+    KEYTOOL="$JAVA_HOME/bin/keytool"
+  fi
+  if [ -x "$(command -v md5sum)" ] ; then
+    echo 1$$$(date +%s)$RANDOM | md5sum | awk '{print $1}' > "$SSL.password"
+  else
+    echo $$$(date +%s)$RANDOM | awk '{print $1}' > "$SSL.password"
+  fi
+  cp "$JAVA_HOME/lib/security/cacerts" "$BASEDIR/etc/truststore"
+  "$KEYTOOL" -storepasswd -new "$(cat "$SSL.password")" -keystore "$BASEDIR/etc/truststore" -storepass "changeit"
+  echo "javax.net.ssl.trustStore=etc/truststore" >> "$SSL"
+  echo "javax.net.ssl.trustStorePassword=$(cat "$SSL.password")" >> "$SSL"
+  chmod go-rwx "$SSL"
+  rm "$SSL.password"
+fi
+
+# install jmxremote password
+if [ -z "$JMXRMI" ] ; then
+  JMXRMI="$BASEDIR/etc/jmxremote.properties"
+fi
+JMXRIMACCESS=$(grep -E '^com.sun.management.jmxremote.access.file=' "$JMXRMI" |perl -pe 's/^com.sun.management.jmxremote.access.file=(.*)/$1/' 2>/dev/null)
+if [ ! -e "$JMXRIMACCESS" ] ; then
+  if [ -r "$JAVA_HOME/lib/management/jmxremote.access" ] ; then
+    cp "$JAVA_HOME/lib/management/jmxremote.access" "$JMXRIMACCESS"
+  fi
+  if ! grep "^monitorRole" "$JMXRIMACCESS" | grep -q "read" ; then
+    echo >> "$JMXRIMACCESS"
+    echo "monitorRole   readonly" >> "$JMXRIMACCESS"
+  fi
+  if ! grep "^controlRole" "$JMXRIMACCESS" | grep -q "read" ; then
+    echo >> "$JMXRIMACCESS"
+    echo "controlRole   readwrite" >> "$JMXRIMACCESS"
+  fi
+fi
+JMXRIMPASS=$(grep -E '^com.sun.management.jmxremote.password.file=' "$JMXRMI" |perl -pe 's/^com.sun.management.jmxremote.password.file=(.*)/$1/' 2>/dev/null)
+if [ ! -e "$JMXRIMPASS" ] ; then
+  if [ -r "$JAVA_HOME/lib/management/jmxremote.password" ] ; then
+    cp "$JAVA_HOME/lib/management/jmxremote.password" "$JMXRIMPASS"
+  elif [ -r "$JAVA_HOME/lib/management/jmxremote.password.template" ] ; then
+    cp "$JAVA_HOME/lib/management/jmxremote.password.template" "$JMXRIMPASS"
+  fi
+  echo >> "$JMXRIMPASS"
+  if [ -x "$(command -v md5sum)" ] ; then
+    echo 2$$$(date +%s)$RANDOM | md5sum | awk '{print "monitorRole " $1}' >> "$JMXRIMPASS"
+    echo 3$$$(date +%s)$RANDOM | md5sum | awk '{print "controlRole " $1}' >> "$JMXRIMPASS"
+  else
+    echo $$$(date +%s)$RANDOM | awk '{print "monitorRole " $1}' >> "$JMXRIMPASS"
+    echo $$$(date +%s)$RANDOM | awk '{print "controlRole " $1}' >> "$JMXRIMPASS"
+  fi
+  chmod 600 "$JMXRIMPASS"
 fi
 
 if [ ! -z "$DAEMON_USER" ] ; then
@@ -377,6 +426,28 @@ if [ ! -z "$DAEMON_USER" ] ; then
   chown -R "$DAEMON_USER" "$BASEDIR/repositories"
   if [ ! -z "$DAEMON_GROUP" ] ; then
     chown -R ":$DAEMON_GROUP" "$BASEDIR/repositories"
+  fi
+  if [ ! -e "$MAIL" ]; then
+    touch "$MAIL"
+  fi
+  chown -R "$DAEMON_USER" "$MAIL"
+  if [ ! -z "$DAEMON_GROUP" ] ; then
+    chown -R ":$DAEMON_GROUP" "$MAIL"
+  fi
+  if [ ! -e "$BASEDIR/backups" ]; then
+    mkdir "$BASEDIR/backups"
+  fi
+  chown -R "$DAEMON_USER" "$BASEDIR/backups"
+  if [ ! -z "$DAEMON_GROUP" ] ; then
+    chown -R ":$DAEMON_GROUP" "$BASEDIR/backups"
+  fi
+  chown -R "$DAEMON_USER" "$CONFIG"
+  if [ ! -z "$DAEMON_GROUP" ] ; then
+    chown -R ":$DAEMON_GROUP" "$CONFIG"
+  fi
+  chown -R "$DAEMON_USER" "$REPOSITORY_CONFIG"
+  if [ ! -z "$DAEMON_GROUP" ] ; then
+    chown -R ":$DAEMON_GROUP" "$REPOSITORY_CONFIG"
   fi
   if [ -e "$SSL" ]; then
     KEYSTORE=$(grep -E '^javax.net.ssl.keyStore=' $SSL |perl -pe 's/^javax.net.ssl.keyStore=(.*)/$1/' 2>/dev/null)
@@ -428,14 +499,17 @@ do_start()
 {
   LSOF="$(which lsof 2>/dev/null)"
   LSOF_OPTS="$(echo $PORT |perl -pe 's/(^|\s)(\S)/ -i :$2/g' 2>/dev/null) $(echo $SSLPORT |perl -pe 's/(^|\s)(\S)/ -i :$2/g' 2>/dev/null)"
-  if [ -n "$LSOF" ] && "$LSOF" $LSOF_OPTS ; then
+  if [ -n "$LSOF" ] && [ -n "$PORT" -o -n "$SSLPORT" ] && "$LSOF" $LSOF_OPTS ; then
     log_failure_msg "Cannot bind to port $PORT $SSLPORT please ensure nothing is already listening on this port"
     return 150
   fi
-
-  if [ ! -e "$REPOSITORY" ]; then
-    log_failure_msg "The repository $REPOSITORY does not exist, please run the setup script first"
-    return 6
+  JMXPORT="$(grep -E '^com.sun.management.jmxremote.port=' "$JMXRMI" |perl -pe 's/^com.sun.management.jmxremote.port=(.*)/$1/' 2>/dev/null)"
+  if [ -n "$JMXPORT" ] ; then
+    LSOF_OPTS="$(echo $JMXPORT |perl -pe 's/(^|\s)(\S)/ -i :$2/g' 2>/dev/null)"
+    if [ -n "$LSOF" ] && "$LSOF" $LSOF_OPTS ; then
+      log_failure_msg "Cannot bind to port $JMXPORT please ensure nothing is already listening on this port"
+      return 150
+    fi
   fi
 
   # import any new certificates before starting server
@@ -466,6 +540,42 @@ do_start()
     done
     rm "$SSL.password"
   fi
+  if [ -r "$SSL" ] && grep -q "keyStore" "$SSL" ; then
+    KEYTOOL_OPTS=$(perl -pe 's/\s*\#.*$//g' "$SSL" 2>/dev/null |perl -pe 's/(\S+)=(.*)/-J-D$1=$2/' 2>/dev/null |tr -s '\n' ' ')
+    grep -E '^javax.net.ssl.keyStorePassword=' "$SSL" |perl -pe 's/^javax.net.ssl.keyStorePassword=(.*)/$1/' 2>/dev/null > "$SSL.password"
+    KEYSTORE=$(grep -E '^javax.net.ssl.keyStore=' $SSL |perl -pe 's/^javax.net.ssl.keyStore=(.*)/$1/' 2>/dev/null)
+    for cert in etc/*.pem etc/*.cer etc/*.crt etc/*.cert etc/*.der ; do
+      if [ -r "$cert" -a -r "$KEYSTORE" ] ; then
+        ALIAS="$(basename "$cert" | sed 's/\.[a-z]\+$//' )"
+        if ! "$KEYTOOL" -list -keystore "$KEYSTORE" -storepass "$(cat "$SSL.password")" |grep -q "^$ALIAS," ; then
+          "$KEYTOOL" -import -alias "$ALIAS" -file "$cert" -noprompt -trustcacerts -keystore "$KEYSTORE" -storepass "$(cat "$SSL.password")" $KEYTOOL_OPTS
+          if [ $? = 0 ] ; then
+            log_success_msg "Imported $cert into $KEYSTORE"
+          else
+            log_warning_msg "Could not import $cert into $KEYSTORE"
+          fi
+        elif "$KEYTOOL" -list -keystore "$KEYSTORE" -storepass "$(cat "$SSL.password")" |grep "^$ALIAS," |grep -q "PrivateKeyEntry," ; then
+          if [ "$cert" != "etc/$ALIAS.cer" ] ; then
+            "$KEYTOOL" -import -alias "$ALIAS" -file "$cert" -noprompt -trustcacerts -keystore "$KEYSTORE" -storepass "$(cat "$SSL.password")" $KEYTOOL_OPTS
+            if [ $? = 0 ] ; then
+              log_success_msg "Imported certificate reply $cert into $KEYSTORE"
+            else
+              log_warning_msg "Could not import certificate reply $cert into $KEYSTORE"
+            fi
+          fi
+        elif [ "$cert" -nt "$KEYSTORE" ] ; then
+          "$KEYTOOL" -delete -alias "$ALIAS" -keystore "$KEYSTORE" -storepass "$(cat "$SSL.password")" $KEYTOOL_OPTS
+          "$KEYTOOL" -import -alias "$ALIAS" -file "$cert" -noprompt -trustcacerts -keystore "$KEYSTORE" -storepass "$(cat "$SSL.password")" $KEYTOOL_OPTS
+          if [ $? = 0 ] ; then
+            log_success_msg "Imported $cert into $KEYSTORE"
+          else
+            log_warning_msg "Could not import $cert into $KEYSTORE"
+          fi
+        fi
+      fi
+    done
+    rm "$SSL.password"
+  fi
 
   JSVC_LOG="$BASEDIR/log/$NAME-start.log"
   if [ -e "$JSVC_LOG" ]; then
@@ -483,7 +593,7 @@ do_start()
     -classpath "$CLASSPATH" \
     -user "$DAEMON_USER" \
     -XX:OnOutOfMemoryError="kill -9 %p" \
-    $JSVC_OPTS $SSL_OPTS $JMXRMI_OPTS "$MAINCLASS" -q -r "$REPOSITORY" $OPTS "$@"
+    $JSVC_OPTS $SSL_OPTS $JMXRMI_OPTS "$MAINCLASS" -q -b "$BASEDIR" $OPTS "$@"
 
   RETURN_VAL=$?
   sleep 1
@@ -498,15 +608,15 @@ do_start()
     return $RETURN_VAL
   fi
 
-  SLEEP=120
+  SLEEP=10
   ID=`cat "$PIDFILE"`
-  while [ $SLEEP -ge 0 ]; do
+  while [ $SLEEP -ge 0 ] && [ -n "$PORT" -o -n "$SSLPORT" ]; do
     kill -0 $ID >/dev/null 2>&1
     if [ $? -gt 0 ]; then
       log_failure_msg "The server is not running, see log files for details. Start aborted."
       return 7
     fi
-    if [ -n "$LSOF" ] && "$LSOF" $LSOF_OPTS |grep -qe "\b$ID\b"; then
+    if [ -n "$LSOF" ] && "$LSOF" $LSOF_OPTS |grep -e ":$PORT\b" |grep -qe "\b$ID\b"; then
       sleep 4
       break
     elif [ -n "$PORT" ]; then
@@ -525,7 +635,7 @@ do_start()
     fi
     if [ $SLEEP -eq 0 ]; then
       if [ "`tty`" != "not a tty" ]; then
-        log_warning_msg "The server is still starting up, check log files for possible errors."
+        log_warning_msg "The Web service is not running, check log files for possible errors."
       fi
       break
     fi
@@ -575,21 +685,20 @@ do_stop()
 # Function that loads the configuration and prompts for a user
 #
 do_setup() {
-  if [ ! -e "$SSL" -a -r "$JAVA_HOME/lib/security/cacerts" ] ; then
-    if [ -z "$KEYTOOL" ] ; then
-      KEYTOOL="$JAVA_HOME/bin/keytool"
+  if [ ! -e "$BASEDIR/etc/$NAME.conf" -a -r "$BASEDIR/etc/$NAME-defaults.conf" ]; then
+    cp "$BASEDIR/etc/$NAME-defaults.conf" "$BASEDIR/etc/$NAME.conf"
+    if [ -n "$PRIMARY_ORIGIN" ] ; then
+      sed -i "s%#\?\s*PRIMARY_ORIGIN=.*%PRIMARY_ORIGIN=\"$PRIMARY_ORIGIN\"%" "$BASEDIR/etc/$NAME.conf"
     fi
-    if [ -x "$(command -v md5sum)" ] ; then
-      echo $$$(date +%s)$RANDOM | md5sum | awk '{print $1}' > "$SSL.password"
-    else
-      echo $$$(date +%s)$RANDOM | awk '{print $1}' > "$SSL.password"
+    if [ -n "$ORIGIN" ] ; then
+      sed -i "s%#\?\s*ORIGIN=.*%ORIGIN=\"$ORIGIN\"%" "$BASEDIR/etc/$NAME.conf"
     fi
-    cp "$JAVA_HOME/lib/security/cacerts" "$BASEDIR/etc/truststore"
-    "$KEYTOOL" -storepasswd -new "$(cat "$SSL.password")" -keystore "$BASEDIR/etc/truststore" -storepass "changeit"
-    echo "javax.net.ssl.trustStore=etc/truststore" >> "$SSL"
-    echo "javax.net.ssl.trustStorePassword=$(cat "$SSL.password")" >> "$SSL"
-    chmod go-rwx "$SSL"
-    rm "$SSL.password"
+    if [ -n "$PORT" ] ; then
+      sed -i "s:#\?\s*PORT=.*:PORT=\"$PORT\":" "$BASEDIR/etc/$NAME.conf"
+    fi
+    if [ -n "$SSLPORT" ] ; then
+      sed -i "s:#\?\s*SSLPORT=.*:SSLPORT=\"$SSLPORT\":" "$BASEDIR/etc/$NAME.conf"
+    fi
   fi
 
   "$JAVA_HOME/bin/java" \
@@ -673,7 +782,7 @@ do_run() {
     -XX:OnOutOfMemoryError="kill -9 %p" \
     -classpath "$CLASSPATH" \
     -user "$DAEMON_USER" \
-    $JSVC_OPTS $SSL_OPTS $JMXRMI_OPTS "$MAINCLASS" -q -r "$REPOSITORY" $OPTS "$@"
+    $JSVC_OPTS $SSL_OPTS $JMXRMI_OPTS "$MAINCLASS" -q -b "$BASEDIR" "$@"
 }
 
 case "$1" in
@@ -700,8 +809,10 @@ case "$1" in
     fi
     if [ "$VERBOSE" != no ]; then
       log_success_msg "Using BASEDIR:   $BASEDIR"
-      log_success_msg "Using PORT:      $PORT $SSLPORT"
-      log_success_msg "Using ORIGIN:    $ORIGIN"
+      if [ -n "$ORIGIN" ] ; then
+        log_success_msg "Using PORT:      $PORT $SSLPORT"
+        log_success_msg "Using ORIGIN:    $ORIGIN"
+      fi
       log_success_msg "Using JAVA_HOME: $JAVA_HOME"
       log_success_msg "Using JDK_HOME:  $JDK_HOME"
     fi

@@ -18,9 +18,6 @@
  */
 package org.callimachusproject;
 
-import static org.openrdf.repository.manager.RepositoryProvider.getRepositoryIdOfRepository;
-import static org.openrdf.repository.manager.RepositoryProvider.getRepositoryManagerOfRepository;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileWriter;
@@ -29,9 +26,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
@@ -39,20 +34,21 @@ import javax.management.ObjectName;
 
 import org.callimachusproject.cli.Command;
 import org.callimachusproject.cli.CommandSet;
-import org.callimachusproject.client.HTTPObjectClient;
 import org.callimachusproject.concurrent.ManagedExecutors;
 import org.callimachusproject.concurrent.ManagedThreadPool;
 import org.callimachusproject.concurrent.ManagedThreadPoolListener;
+import org.callimachusproject.management.BackupTool;
+import org.callimachusproject.management.CalliKeyStore;
+import org.callimachusproject.management.CalliServer;
+import org.callimachusproject.management.CalliServer.ServerListener;
+import org.callimachusproject.management.LogEmitter;
+import org.callimachusproject.management.LoggingProperties;
+import org.callimachusproject.management.SetupTool;
 import org.callimachusproject.repository.CalliRepository;
-import org.callimachusproject.server.CallimachusServer;
 import org.callimachusproject.server.HTTPObjectPolicy;
+import org.callimachusproject.server.WebServer;
 import org.callimachusproject.util.JVMSummary;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.config.RepositoryConfigException;
-import org.openrdf.repository.manager.LocalRepositoryManager;
-import org.openrdf.repository.manager.RepositoryManager;
-import org.openrdf.repository.manager.RepositoryProvider;
+import org.callimachusproject.util.MailProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,32 +59,20 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class Server {
-	private static final String CHANGES_PATH = "../changes/";
-	private static final String ERROR_XPL_PATH = "pipelines/error.xpl";
 	public static final String NAME = Version.getInstance().getVersion();
 
 	private static final CommandSet commands = new CommandSet(NAME);
 	static {
-		commands.option("n", "name").arg("name").desc("Server name");
-		commands.option("o", "origin").arg("http").desc(
-				"The scheme, hostname and port ( http://localhost:8080 )");
-		commands.option("p", "port").arg("number").desc(
-						"Port the server should listen on");
-		commands.option("s", "sslport").arg("number").desc(
-				"Secure port the server should listen on");
-		commands.require("r", "repository").arg("url").desc(
-				"The Sesame repository url (relative file: or http:)");
-		commands.option("d", "dir").arg("directory").desc(
-				"Directory used for data storage and retrieval");
+		commands.option("b", "basedir").arg("directory")
+				.desc("Base directory used for local storage");
 		commands.option("trust").desc(
 				"Allow all server code to read, write, and execute all files and directories "
 						+ "according to the file system's ACL");
-		commands.option("pid").arg("file").desc(
-				"File to store current process id");
+		commands.option("pid").arg("file")
+				.desc("File to store current process id");
 		commands.option("q", "quiet").desc(
 				"Don't print status messages to standard output.");
-		commands.option("h", "help").desc(
-				"Print help (this message) and exit");
+		commands.option("h", "help").desc("Print help (this message) and exit");
 		commands.option("v", "version").desc(
 				"Print version information and exit");
 	}
@@ -96,82 +80,36 @@ public class Server {
 	public static void main(String[] args) {
 		try {
 			Command line = commands.parse(args);
-			Server server = new Server();
 			if (line.has("pid")) {
-				storeProcessIdentifier(line.get("pid"));
+				RuntimeMXBean bean = ManagementFactory.getRuntimeMXBean();
+				String pid = bean.getName().replaceAll("@.*", "");
+				File file = new File(line.get("pid"));
+				file.getParentFile().mkdirs();
+				FileWriter writer = new FileWriter(file);
+				try {
+					writer.append(pid);
+				} finally {
+					writer.close();
+				}
+				file.deleteOnExit();
 			}
-			server.init(args);
-			server.start();
-			Thread.sleep(1000);
-			if (server.server.isRunning() && !line.has("quiet")) {
-				System.out.println();
-				System.out.println(server.getClass().getSimpleName()
-						+ " is listening on port " + server.getPort()
-						+ " for " + server.toString() + "/");
-				System.out.println("Repository: " + server.getRepository());
-				System.out.println("Origin: " + server.toString());
-			} else if (!server.server.isRunning()) {
-				System.err.println(server.getClass().getSimpleName()
-						+ " could not be started.");
-				System.exit(7);
+			Server node = new Server();
+			node.init(args);
+			node.start();
+			node.await();
+		} catch (Throwable e) {
+			while (e.getCause() != null) {
+				e = e.getCause();
 			}
-		} catch (ClassNotFoundException e) {
-			System.err.print("Missing jar with: ");
-			System.err.println(e.toString());
-			System.exit(5);
-		} catch (Exception e) {
-			println(e);
 			System.err.println("Arguments: " + Arrays.toString(args));
+			System.err.println(e.toString());
+			e.printStackTrace(System.err);
 			System.exit(1);
 		}
 	}
 
-	private static void println(Throwable e) {
-		Throwable cause = e.getCause();
-		if (cause == null && e.getMessage() == null) {
-			e.printStackTrace(System.err);
-		} else if (cause != null) {
-			println(cause);
-		}
-		System.err.println(e.toString());
-	}
-
-	private static void storeProcessIdentifier(String pidFile)
-			throws IOException {
-		RuntimeMXBean bean = ManagementFactory.getRuntimeMXBean();
-		String pid = bean.getName().replaceAll("@.*", "");
-		File file = new File(pidFile);
-		file.getParentFile().mkdirs();
-		FileWriter writer = new FileWriter(file);
-		try {
-			writer.append(pid);
-		} finally {
-			writer.close();
-		}
-		file.deleteOnExit();
-	}
-
-	private CallimachusServer server;
-	private int[] ports = new int[0];
-	private int[] sslports = new int[0];
-
-	public String toString() {
-		if (server == null)
-			return super.toString();
-		return server.toString();
-	}
-
-	public Integer getPort() {
-		if (ports.length > 0)
-			return ports[0];
-		if (sslports.length > 0)
-			return sslports[0];
-		return null;
-	}
-
-	public CalliRepository getRepository() {
-		return server.getRepository();
-	}
+	private final Logger logger = LoggerFactory.getLogger(Server.class);
+	private CalliServer node;
 
 	public void init(String[] args) {
 		try {
@@ -195,141 +133,88 @@ public class Server {
 					// ignore
 				}
 			}
-			init(line);
-		} catch (Exception e) {
-			println(e);
+			File baseDir = new File(".");
+			if (line.has("basedir")) {
+				baseDir = new File(line.get("basedir"));
+			}
+			ManagedExecutors.getInstance().addListener(
+					new ManagedThreadPoolListener() {
+						public void threadPoolStarted(String name,
+								ManagedThreadPool pool) {
+							registerMBean(name, pool, ManagedThreadPool.class);
+
+						}
+
+						public void threadPoolTerminated(String name) {
+							unregisterMBean(name, ManagedThreadPool.class);
+						}
+					});
+			SetupTool tool = new SetupTool(baseDir);
+			node = new CalliServer(baseDir, tool, new ServerListener() {
+				public void serverStarted(WebServer server) {
+					registerMBean(server, WebServer.class);
+					registerMBean(server.getRepository(), CalliRepository.class);
+				}
+
+				public void serverStopping(WebServer server) {
+					unregisterMBean(CalliRepository.class);
+					unregisterMBean(WebServer.class);
+				}
+			});
+			registerMBean(node, CalliServer.class);
+			registerMBean(new JVMSummary(), JVMSummary.class);
+			registerMBean(new LogEmitter(), LogEmitter.class);
+			registerMBean(LoggingProperties.getInstance(), LoggingProperties.class);
+			registerMBean(MailProperties.getInstance(), MailProperties.class);
+			registerMBean(new BackupTool(baseDir), BackupTool.class);
+			registerMBean(new CalliKeyStore(baseDir), CalliKeyStore.class);
+			registerMBean(tool, SetupTool.class);
+			if (!line.has("trust")) {
+				HTTPObjectPolicy.apply(new String[0], new File(baseDir, "etc"),
+						new File(baseDir, "backups"), new File(baseDir,
+								"repositories"));
+			}
+			node.init();
+		} catch (Throwable e) {
+			while (e.getCause() != null) {
+				e = e.getCause();
+			}
 			System.err.println("Arguments: " + Arrays.toString(args));
+			System.err.println(e.toString());
+			e.printStackTrace(System.err);
 			System.exit(1);
 		}
 	}
 
 	public void start() throws Exception {
-		server.start();
+		node.start();
+	}
+
+	public void await() throws InterruptedException {
+		synchronized (node) {
+			while (node.isRunning()) {
+				node.wait();
+			}
+		}
 	}
 
 	public void stop() throws Exception {
-		if (server != null) {
-			server.stop();
-		}
+		node.stop();
 	}
 
 	public void destroy() throws Exception {
-		if (server != null) {
-			unregisterMBean(CalliRepository.class);
-			server.getRepository().shutDown();
-			server.destroy();
-		}
-		unregisterMBean(JVMSummary.class);
-		unregisterMBean(CallimachusServer.class);
-		ManagedExecutors.getInstance().cleanup();
-	}
-
-	private void logStdout() {
-		System.setOut(new PrintStream(new OutputStream() {
-			private int ret = "\r".getBytes()[0];
-			private int newline = "\n".getBytes()[0];
-			private Logger logger = LoggerFactory.getLogger("stdout");
-			private ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-	
-			public synchronized void write(int b) throws IOException {
-				if (b == ret || b == newline) {
-					if (buffer.size() > 0) {
-						logger.info(buffer.toString());
-						buffer.reset();
-					}
-				} else {
-					buffer.write(b);
-				}
-			}
-		}, true));
-		System.setErr(new PrintStream(new OutputStream() {
-			private int ret = "\r".getBytes()[0];
-			private int newline = "\n".getBytes()[0];
-			private Logger logger = LoggerFactory.getLogger("stderr");
-			private ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-	
-			public synchronized void write(int b) throws IOException {
-				if (b == ret || b == newline) {
-					if (buffer.size() > 0) {
-						logger.warn(buffer.toString());
-						buffer.reset();
-					}
-				} else {
-					buffer.write(b);
-				}
-			}
-		}, true));
-	}
-
-	private void init(Command line) throws Exception {
-		String rurl = getRepositoryUrl(line);
-		Repository repository = RepositoryProvider.getRepository(rurl);
-		File dataDir = repository.getDataDir();
-		if (line.has("dir")) {
-			dataDir = new File(line.get("dir")).getCanonicalFile();
-		}
-		if (dataDir == null) {
-			RepositoryManager manager = getRepositoryManagerOfRepository(rurl);
-			if (manager instanceof LocalRepositoryManager) {
-				String id = getRepositoryIdOfRepository(rurl);
-				dataDir = ((LocalRepositoryManager) manager).getRepositoryDir(id);
-			} else {
-				dataDir = new File("").getCanonicalFile();
-			}
-		}
-		File cacheDir = new File(dataDir, "cache");
-		File in = new File(cacheDir, "client");
-		HTTPObjectClient.setCacheDirectory(in);
-		server = new CallimachusServer(repository, dataDir);
-		if (line.has("port")) {
-			String[] values = line.getAll("port");
-			ports = new int[values.length];
-			for (int i = 0; i < values.length; i++) {
-				ports[i] = Integer.parseInt(values[i]);
-			}
-		}
-		if (line.has("sslport")) {
-			String[] values = line.getAll("sslport");
-			sslports = new int[values.length];
-			for (int i = 0; i < values.length; i++) {
-				sslports[i] = Integer.parseInt(values[i]);
-			}
-		}
-		if (!line.has("port") && !line.has("sslport")) {
-			ports = new int[] { 8080 };
-		}
-		boolean primary = true;
-		if (line.has("origin")) {
-			for (String o : line.getAll("origin")) {
-				if (primary) {
-					server.setChangesPath(o, CHANGES_PATH);
-					server.setErrorPipe(o, ERROR_XPL_PATH);
-					primary = false;
-				}
-				server.addOrigin(o);
-			}
-		}
-		if (line.has("name")) {
-			server.setServerName(line.get("name"));
-		}
-		server.listen(ports, sslports);
-		registerMBean(server, CallimachusServer.class);
-		registerMBean(server.getRepository(), CalliRepository.class);
-		registerMBean(new JVMSummary(), JVMSummary.class);
-		ManagedExecutors.getInstance().addListener(
-				new ManagedThreadPoolListener() {
-					public void threadPoolStarted(String name,
-							ManagedThreadPool pool) {
-						registerMBean(name, pool, ManagedThreadPool.class);
-
-					}
-
-					public void threadPoolTerminated(String name) {
-						unregisterMBean(name, ManagedThreadPool.class);
-					}
-				});
-		if (!line.has("trust")) {
-			applyPolicy(line, repository, dataDir);
+		try {
+			node.destroy();
+		} finally {
+			unregisterMBean(CalliServer.class);
+			unregisterMBean(JVMSummary.class);
+			unregisterMBean(LogEmitter.class);
+			unregisterMBean(LoggingProperties.class);
+			unregisterMBean(MailProperties.class);
+			unregisterMBean(BackupTool.class);
+			unregisterMBean(CalliKeyStore.class);
+			unregisterMBean(SetupTool.class);
+			ManagedExecutors.getInstance().cleanup();
 		}
 	}
 
@@ -347,7 +232,7 @@ public class Server {
 			MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
 			mbs.registerMBean(bean, oname);
 		} catch (Exception e) {
-			// ignore
+			logger.error(e.toString(), e);
 		}
 	}
 
@@ -372,29 +257,40 @@ public class Server {
 		return new ObjectName(sb.toString());
 	}
 
-	private String getRepositoryUrl(Command line)
-			throws RepositoryException, RepositoryConfigException {
-		if (line.has("repository")) {
-			String url = line.get("repository");
-			Repository repository = RepositoryProvider.getRepository(url);
-			if (repository != null)
-				return url;
-			throw new IllegalStateException("No repository found");
-		} else {
-			throw new IllegalArgumentException("Option -r is required");
-		}
-	}
+	private void logStdout() {
+		System.setOut(new PrintStream(new OutputStream() {
+			private int ret = "\r".getBytes()[0];
+			private int newline = "\n".getBytes()[0];
+			private Logger logger = LoggerFactory.getLogger("stdout");
+			private ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 
-	private void applyPolicy(Command line, Repository repository, File dir) throws IOException {
-		if (!line.has("trust")) {
-			List<File> directories = new ArrayList<File>();
-			directories.add(dir);
-			if (repository.getDataDir() != null) {
-				directories.add(repository.getDataDir().getParentFile());
+			public synchronized void write(int b) throws IOException {
+				if (b == ret || b == newline) {
+					if (buffer.size() > 0) {
+						logger.info(buffer.toString());
+						buffer.reset();
+					}
+				} else {
+					buffer.write(b);
+				}
 			}
-			File[] write = directories.toArray(new File[directories.size()]);
-			HTTPObjectPolicy.apply(new String[0], write);
-		}
-	}
+		}, true));
+		System.setErr(new PrintStream(new OutputStream() {
+			private int ret = "\r".getBytes()[0];
+			private int newline = "\n".getBytes()[0];
+			private Logger logger = LoggerFactory.getLogger("stderr");
+			private ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 
+			public synchronized void write(int b) throws IOException {
+				if (b == ret || b == newline) {
+					if (buffer.size() > 0) {
+						logger.warn(buffer.toString());
+						buffer.reset();
+					}
+				} else {
+					buffer.write(b);
+				}
+			}
+		}, true));
+	}
 }

@@ -34,7 +34,7 @@ public class MailProperties implements MailPropertiesMXBean {
 	private final File file;
 
 	public MailProperties(String file) {
-		this(new File(file));
+		this(file == null ? null : new File(file));
 	}
 
 	public MailProperties(File file) {
@@ -43,7 +43,7 @@ public class MailProperties implements MailPropertiesMXBean {
 
 	public synchronized Properties loadMailProperties() throws IOException {
 		Properties properties = new Properties();
-		if (file.isFile()) {
+		if (file != null && file.isFile()) {
 			try {
 				InputStream stream = new FileInputStream(file);
 				try {
@@ -60,7 +60,7 @@ public class MailProperties implements MailPropertiesMXBean {
 
 	public synchronized Map<String, String> getMailProperties()
 			throws IOException {
-		if (!file.isFile())
+		if ( file == null || !file.isFile())
 			return Collections.emptyMap();
 		Map<String, String> properties = getAllMailProperties();
 		Iterator<String> iter = properties.keySet().iterator();
@@ -74,6 +74,9 @@ public class MailProperties implements MailPropertiesMXBean {
 
 	public synchronized void setMailProperties(Map<String, String> lines)
 			throws IOException, MessagingException {
+		if (file == null)
+			throw new IllegalStateException(
+					"The system property java.mail.properties must be provided on VM start");
 		if (file.canRead()) {
 			Map<String, String> map = getAllMailProperties();
 			map.putAll(lines);

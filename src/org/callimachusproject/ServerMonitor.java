@@ -54,7 +54,7 @@ import org.callimachusproject.concurrent.ThreadPoolMXBean;
 import org.callimachusproject.io.ChannelUtil;
 import org.callimachusproject.repository.CalliRepository;
 import org.callimachusproject.repository.CalliRepositoryMXBean;
-import org.callimachusproject.server.CallimachusServer;
+import org.callimachusproject.server.WebServer;
 import org.callimachusproject.server.HTTPObjectAgentMXBean;
 import org.callimachusproject.util.JVMSummary;
 import org.callimachusproject.util.JVMSummaryMXBean;
@@ -248,7 +248,7 @@ public class ServerMonitor {
 	private void setPidFile(String pid) throws Throwable {
 		vm = getRemoteVirtualMachine(pid);
 		mbsc = getMBeanConnection(vm);
-		for (ObjectName name : getObjectNames(CallimachusServer.class, mbsc)) {
+		for (ObjectName name : getObjectNames(WebServer.class, mbsc)) {
 			server = JMX
 					.newMXBeanProxy(mbsc, name, HTTPObjectAgentMXBean.class);
 		}
@@ -291,7 +291,7 @@ public class ServerMonitor {
 
 	private void connectionDump(MBeanServerConnection mbsc, String filename)
 			throws MalformedObjectNameException, IOException {
-		for (ObjectName name : getObjectNames(CallimachusServer.class, mbsc)) {
+		for (ObjectName name : getObjectNames(WebServer.class, mbsc)) {
 			HTTPObjectAgentMXBean server = JMX.newMXBeanProxy(mbsc, name,
 					HTTPObjectAgentMXBean.class);
 			server.connectionDumpToFile(filename);

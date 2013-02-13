@@ -32,11 +32,31 @@ done
 PRGDIR=$(cd `dirname "$PRG"`;pwd)
 NAME=`basename "$PRG" | perl -pe 's/-\w+.sh//' 2>/dev/null`
 
+# Only set BASEDIR if not already set
+[ -z "$BASEDIR" ] && BASEDIR=`cd "$PRGDIR/.." >/dev/null; pwd`
+
+# Read relative config paths from BASEDIR
+cd "$BASEDIR"
+
 # Check that target executable exists
 if [ ! -f "$PRGDIR/$NAME.sh" -o "$PRG" = "$PRGDIR/$NAME.sh" ]; then
   echo "Cannot find $PRGDIR/$NAME.sh" 2>&1
   echo "This file is needed to run this program" 2>&1
   exit 5
+fi
+
+# Make sure only root can run our script
+if [ "$(id -u)" != "0" ]; then
+   echo "This script must be run as root" 1>&2
+   exit 1
+fi
+
+if [ -z "$CONFIG" ] ; then
+  CONFIG="$BASEDIR/etc/$NAME.conf"
+fi
+
+if [ -r "$CONFIG" ]; then
+  . "$CONFIG" 2>/dev/null
 fi
 
 # resolve links - /etc/init.d/callimachus may be a softlink
@@ -57,6 +77,27 @@ if [ ! "$PRGDIR/$NAME.sh" -ef "$TARGET" -o ! -e "$TARGET" ]; then
   exit 0
 fi
 
+if [ -z "$CONFIG" ] ; then
+  CONFIG="$BASEDIR/etc/$NAME.conf"
+fi
+
+if [ -r "$CONFIG" ]; then
+  . "$CONFIG" 2>/dev/null
+fi
+
+# uninstall user/group
+if [ ! -z "$DAEMON_USER" ] ; then
+  if id "$DAEMON_USER" >/dev/null 2>&1 ; then
+    userdel "$DAEMON_USER"
+  fi
+fi
+if [ ! -z "$DAEMON_GROUP" ] ; then
+  if grep -q "$DAEMON_GROUP" /etc/group ; then
+    groupdel "$DAEMON_GROUP"
+  fi
+fi
+
+# uninstall init.d files
 "/etc/init.d/$NAME" stop  > /dev/null 2>&1
 if [ -x /usr/lib/lsb/remove_initd ]; then
   /usr/lib/lsb/install_initd "/etc/init.d/$NAME"

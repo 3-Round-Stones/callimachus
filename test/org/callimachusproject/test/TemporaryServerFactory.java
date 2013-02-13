@@ -9,13 +9,18 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Scanner;
 
-import org.callimachusproject.Server;
 import org.callimachusproject.repository.CalliRepository;
+import org.callimachusproject.server.WebServer;
 import org.callimachusproject.setup.CallimachusSetup;
+import org.openrdf.repository.Repository;
+import org.openrdf.repository.manager.LocalRepositoryManager;
+import org.openrdf.repository.manager.RepositoryProvider;
 
 public class TemporaryServerFactory {
 	private static int MIN_PORT = 49152;
 	private static int MAX_PORT = 65535;
+	private static final String CHANGES_PATH = "../changes/";
+	private static final String ERROR_XPL_PATH = "pipelines/error.xpl";
 	private static final File WEBAPP_CAR = findCallimachusWebappCar();
 	private static final int PORT = findPort(WEBAPP_CAR.getAbsolutePath().hashCode());
 	private static final TemporaryServerFactory instance = new TemporaryServerFactory("http://localhost:" + PORT, PORT, "test@example.com", "test".toCharArray());
@@ -115,16 +120,18 @@ public class TemporaryServerFactory {
 	private synchronized TemporaryServer createTemporaryServer() {
 		try {
 			final File dir = createCallimachus(origin);
+			final LocalRepositoryManager manager = RepositoryProvider.getRepositoryManager(dir);
+			final File dataDir = manager.getRepositoryDir("callimachus");
+			final Repository repository = manager.getRepository("callimachus");
 			return new TemporaryServer(){
-
-				private final Server server = new Server();
+				private final WebServer server = new WebServer(repository, dataDir);
 				private boolean stopped;
 
 				public synchronized void start() throws InterruptedException, Exception {
-					File dataDir = new File(new File(dir, "repositories"), "callimachus");
-					String uri = dataDir.toURI().toASCIIString();
-					String p = String.valueOf(port);
-					server.init(new String[] { "-p", p, "-o", origin, "-r", uri, "-trust" });
+					server.setChangesPath(origin, CHANGES_PATH);
+					server.setErrorPipe(origin, ERROR_XPL_PATH);
+					server.addOrigin(origin);
+					server.listen(new int[]{port}, new int[0]);
 					server.start();
 					Thread.sleep(100);
 				}
@@ -156,6 +163,7 @@ public class TemporaryServerFactory {
 
 				public synchronized void destroy() throws Exception {
 					stop();
+					manager.shutDown();
 					FileUtil.deltree(dir);
 				}
 
@@ -178,6 +186,10 @@ public class TemporaryServerFactory {
 
 				public CalliRepository getRepository() {
 					return server.getRepository();
+				}
+
+				public String toString() {
+					return server.toString();
 				}
 			};
 		} catch (Exception e) {

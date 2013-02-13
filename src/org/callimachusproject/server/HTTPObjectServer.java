@@ -552,11 +552,7 @@ public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAg
 
 	@Override
 	public boolean handle(IOException ex) {
-		if ("Connection reset by peer".equals(ex.getMessage())) {
-			logger.warn(ex.toString());
-		} else {
-			logger.error(ex.toString(), ex);
-		}
+		logger.warn(ex.toString());
 		return true;
 	}
 

@@ -37,16 +37,16 @@ import org.openrdf.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CallimachusServer implements HTTPObjectAgentMXBean {
+public class WebServer implements HTTPObjectAgentMXBean {
 	private static final String SCHEMA_GRAPH = "types/SchemaGraph";
 	private static final String ENVELOPE_TYPE = "message/x-response";
 	private static final String IDENTITY_PATH = "/diverted;";
-	Logger logger = LoggerFactory.getLogger(CallimachusServer.class);
+	Logger logger = LoggerFactory.getLogger(WebServer.class);
 	private final Set<String> origins = new HashSet<String>();
 	private CalliRepository repository;
 	private HTTPObjectServer server;
 
-	public CallimachusServer(Repository repository, File dataDir)
+	public WebServer(Repository repository, File dataDir)
 			throws OpenRDFException, IOException, NoSuchAlgorithmException {
 		this.repository = new CalliRepository(repository, dataDir);
 		this.server = createServer(dataDir, this.repository);

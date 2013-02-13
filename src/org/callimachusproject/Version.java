@@ -82,7 +82,18 @@ public class Version {
 	public String getVersion() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(getProduct());
-		sb.append("/").append(getMajorVersionNum());
+		sb.append("/").append(getVersionCode());
+		return sb.toString();
+	}
+
+	/**
+	 * Get the basic version string for the current Callimachus.
+	 * 
+	 * @return String denoting our current version
+	 */
+	public String getVersionCode() {
+		StringBuilder sb = new StringBuilder();
+		sb.append(getMajorVersionNum());
 		sb.append(".").append(getReleaseVersionNum());
 		if (getMaintenanceVersionNum() > 0) {
 			sb.append(".").append(getMaintenanceVersionNum());

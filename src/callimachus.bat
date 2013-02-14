@@ -74,6 +74,13 @@ set "CONFIG=%BASEDIR%/etc/%NAME%.conf"
 
 if exist "%CONFIG%" goto readConfig
 set "CONFIG=%BASEDIR%/etc/%NAME%-defaults.conf"
+setlocal EnableDelayedExpansion
+for /f "tokens=1,* delims==" %%i in ('find "=" "%BASEDIR%/etc/%NAME%-defaults.conf"') do (
+  set "key=%%i"
+  set "value=%%~j"
+  ( if "!key!" == "#PORT" ( echo PORT="!value!" ) else  (if "!key!" == "#ORIGIN" ( echo ORIGIN="!value!" ) else  ( echo !key!="!value!" ) ) ) >> "%BASEDIR%/etc/%NAME%.conf"
+)
+set "CONFIG=%BASEDIR%/etc/%NAME%.conf"
 :readConfig
 
 rem Get standard environment variables
@@ -81,7 +88,7 @@ if not exist "%CONFIG%" goto okConfig
 setlocal EnableDelayedExpansion
 IF NOT EXIST "%BASEDIR%\tmp" MKDIR "%BASEDIR%\tmp"
 for /f "tokens=1,* delims==" %%i in ('find /V "#" "%CONFIG%"') do (
-  set "line=set %%i=%%~j"
+  set "line=set "%%i=%%~j"
   if not "!line:~4,1!" == "-" echo !line!>> "%BASEDIR%\tmp\%NAME%-conf.bat"
 )
 call "%BASEDIR%\tmp\%NAME%-conf.bat"
@@ -106,14 +113,20 @@ set "JAVA_HOME=%JDK_HOME%\jre"
 :gotNoHome
 
 rem Make sure prerequisite environment variable is set
-if not "%JAVA_HOME%" == "" goto gotJavaHome
-echo The JAVA_HOME environment variable is not defined
+if exist "%JAVA_HOME%\bin\java.exe" goto gotJavaHome
+echo The JAVA_HOME environment variable "%JAVA_HOME%" is not defined correctly
 echo The JAVA_HOME environment variable is needed to run this server
 goto end
 :gotJavaHome
 
-if exist "%JDK_HOME%" goto gotJdkHome
+if exist "%JDK_HOME%" goto gotJdkHomeVar
 set "JDK_HOME=%JAVA_HOME%\.."
+:gotJdkHomeVar
+
+if exist "%JDK_HOME%\bin\javac.exe" goto gotJdkHome
+echo The JDK_HOME environment variable "%JDK_HOME%" is not defined correctly
+echo The JDK_HOME environment variable is needed to run this server
+goto end
 :gotJdkHome
 
 if not "%PID%" == "" goto gotOut
@@ -122,10 +135,6 @@ set "PID=%BASEDIR%\run\%NAME%.pid"
 
 if not "%TMPDIR%" == "" goto gotTmpdir
 set "TMPDIR=%BASEDIR%\tmp"
-:gotTmpdir
-
-if not "%JID%" == "" goto gotTmpdir
-set "JID=%BASEDIR%\run\callimathus.jmx"
 :gotTmpdir
 
 if not "%LOGGING%" == "" goto gotLogging
@@ -180,11 +189,7 @@ set "PORT=8080"
 :gotPort
 
 if not "%ORIGIN%" == "" goto gotOrigin
-if "%AUTHORITY%" == "" goto noAuthority
-set "ORIGIN=http://%AUTHORITY%"
-goto gotOrigin
-:noAuthority
-for /f %%i in ('hostname') do set "ORIGIN=http://%%i"
+set "ORIGIN=http://localhost"
 if "%PORT%" == "80" goto gotOrigin
 set "ORIGIN=%ORIGIN%:%PORT%"
 :gotOrigin
@@ -197,16 +202,6 @@ if not "%OPTS%" == "" goto gotOpts
 if not "%SECURITY_MANAGER%" == "true" goto gotOpts
 set "OPTS=--trust"
 :gotOpts
-
-if "%PORT%" == "" goto gotPortOpts
-set "OPTS=%OPTS% -p %PORT: = -p %"
-:gotPortOpts
-
-if "%SSLPORT%" == "" goto gotSslPortOpts
-set "OPTS=%OPTS% -s %SSLPORT: = -s %"
-:gotSslPortOpts
-
-set "OPTS=%OPTS% -o %ORIGIN: = -o %"
 
 IF NOT EXIST "%BASEDIR%\log" MKDIR "%BASEDIR%\log"
 IF NOT EXIST "%BASEDIR%\run" MKDIR "%BASEDIR%\run"
@@ -246,7 +241,7 @@ goto setStartArgs
 :doneSetStartArgs
 
 rem Execute Java with the applicable properties
-"%JAVA_HOME%\bin\java" -server "-Duser.home=%BASEDIR%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" "-Djava.mail.properties=%MAIL%" -classpath "%CLASSPATH%" -XX:OnOutOfMemoryError="taskkill /F /PID %%p" %JAVA_OPTS% %SSL_OPTS% %MAINCLASS% --pid "%PID%" -r "%REPOSITORY%" %OPTS% %CMD_LINE_ARGS%
+"%JAVA_HOME%\bin\java" -server "-Duser.home=%BASEDIR%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" "-Djava.mail.properties=%MAIL%" -classpath "%CLASSPATH%" -XX:OnOutOfMemoryError="taskkill /F /PID %%p" %JAVA_OPTS% %SSL_OPTS% %MAINCLASS% --pid "%PID%" -b "%BASEDIR%" %OPTS% %CMD_LINE_ARGS%
 goto end
 
 :doStart
@@ -265,7 +260,7 @@ goto setStartArgs
 :doneSetStartArgs
 
 rem Execute Java with the applicable properties
-start "%NAME%" "%JAVA_HOME%\bin\javaw" -server "-Duser.home=%BASEDIR%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" "-Djava.mail.properties=%MAIL%" -classpath "%CLASSPATH%" -XX:OnOutOfMemoryError="taskkill /F /PID %%p" %JAVA_OPTS% %SSL_OPTS% %MAINCLASS% --pid "%PID%" -q -r "%REPOSITORY%" %OPTS% %CMD_LINE_ARGS%
+start "%NAME%" "%JAVA_HOME%\bin\javaw" -server "-Duser.home=%BASEDIR%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" "-Djava.mail.properties=%MAIL%" -classpath "%CLASSPATH%" -XX:OnOutOfMemoryError="taskkill /F /PID %%p" %JAVA_OPTS% %SSL_OPTS% %MAINCLASS% --pid "%PID%" -q -b "%BASEDIR%" %OPTS% %CMD_LINE_ARGS%
 goto end
 
 :doStop
@@ -301,8 +296,8 @@ goto setStartArgs
 :doneSetStartArgs
 
 rem Execute Java with the applicable properties
-FOR /F "tokens=1 delims=" %%A in ('dir /b lib\%NAME%*.car') do SET "CAR_FILE=%%A"
-"%JAVA_HOME%\bin\java" -server "-Duser.home=%BASEDIR%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" "-Djava.mail.properties=%MAIL%" -classpath "%CLASSPATH%" -XX:OnOutOfMemoryError="taskkill /F /PID %%p" %JAVA_OPTS% %SSL_OPTS% %SETUPCLASS% -o %PRIMARY_ORIGIN: = -o % -c "%REPOSITORY_CONFIG%" -w "lib\%CAR_FILE%" -u "%USERNAME%" -e "%EMAIL%" -n "%FULLNAME%" %CMD_LINE_ARGS%
+FOR /F "tokens=1 delims=" %%A in ('dir /b lib\callimachus-webapp*.car') do SET "CAR_FILE=%%A"
+"%JAVA_HOME%\bin\java" -server "-Duser.home=%BASEDIR%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" "-Djava.mail.properties=%MAIL%" -classpath "%CLASSPATH%" -XX:OnOutOfMemoryError="taskkill /F /PID %%p" %JAVA_OPTS% %SETUPCLASS% -o %PRIMARY_ORIGIN: = -o % -c "%REPOSITORY_CONFIG%" -w "lib\%CAR_FILE%" -u "%USERNAME%" -e "%EMAIL%" -n "%FULLNAME%" %CMD_LINE_ARGS%
 goto end
 
 :doDump

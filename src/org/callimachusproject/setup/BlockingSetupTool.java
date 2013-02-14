@@ -1,4 +1,4 @@
-package org.callimachusproject.management;
+package org.callimachusproject.setup;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -25,8 +25,7 @@ import java.util.regex.Pattern;
 import javax.mail.MessagingException;
 import javax.naming.NamingException;
 
-import org.callimachusproject.Version;
-import org.callimachusproject.setup.CallimachusSetup;
+import org.callimachusproject.management.ConfigTemplate;
 import org.callimachusproject.util.Mailer;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Literal;
@@ -45,8 +44,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class BlockingSetupTool {
-	private static final String VERSION_CODE = Version.getInstance().getVersionCode();
-	private static final String WEBAPP_CAR = "callimachus-webapp-" + VERSION_CODE + ".car";
 	private static final String PREFIX = "PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>\n"
 			+ "PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>\n";
 	private static final String SELECT_ROOT = PREFIX
@@ -65,27 +62,64 @@ public class BlockingSetupTool {
 			+ "} GROUP BY ?root";
 	private static final String SELECT_EMAIL = PREFIX + "SELECT ?label ?email { </> calli:authentication [calli:authNamespace [calli:hasComponent [rdfs:label ?label; calli:email ?email]]] }";
 	private static final String SELECT_USERNAME = PREFIX + "SELECT ?username { </> calli:authentication [calli:authNamespace [calli:hasComponent [calli:name ?username; calli:email $email]]] }";
-	private static final String REPOSITORY_CONFIG = "callimachus-repository.ttl";
 	private static final String REPOSITORY_TYPES = "META-INF/templates/repository-types.properties";
 
 	private final Logger logger = LoggerFactory.getLogger(BlockingSetupTool.class);
-	private final File baseDir;
-	private final File etc;
+	private final LocalRepositoryManager manager;
+	private final File repositoryConfig;
+	private final File carFile;
 	private final CallimachusConf conf;
 
-	public BlockingSetupTool(File baseDir) {
-		this.baseDir = baseDir;
-		this.etc = new File(baseDir, "etc");
-		this.conf = CallimachusConf.getInstance();
+	public BlockingSetupTool(File baseDir, File repositoryConfig, File carFile,
+			CallimachusConf conf) throws OpenRDFException {
+		this.manager = RepositoryProvider.getRepositoryManager(baseDir);
+		this.repositoryConfig = repositoryConfig;
+		this.carFile = carFile;
+		this.conf = conf;
 	}
 
 	public String toString() {
-		return baseDir.toString();
+		return manager.getBaseDir().toString();
+	}
+
+	public LocalRepositoryManager getRepositoryManager() {
+		return manager;
+	}
+
+	public File getRepositoryConfigFile() {
+		return repositoryConfig;
+	}
+
+	public String getProperty(String key) throws IOException {
+		return conf.getProperty(key);
+	}
+
+	public void setProperty(String key, String value) throws IOException {
+		conf.setProperty(key, value);
+	}
+
+	public String[] getAvailableRepositoryTypes() throws IOException {
+		List<String> list = new ArrayList<String>();
+		ClassLoader cl = this.getClass().getClassLoader();
+		Enumeration<URL> types = cl.getResources(REPOSITORY_TYPES);
+		while (types.hasMoreElements()) {
+			Properties properties = new Properties();
+			InputStream in = types.nextElement().openStream();
+			try {
+				properties.load(in);
+			} finally {
+				in.close();
+			}
+			Enumeration<?> names = properties.propertyNames();
+			while (names.hasMoreElements()) {
+				list.add((String) names.nextElement());
+			}
+		}
+		return list.toArray(new String[list.size()]);
 	}
 
 	public Map<String,String> getRepositoryProperties() throws IOException {
-		File config = new File(etc, REPOSITORY_CONFIG);
-		if (!config.isFile())
+		if (!repositoryConfig.isFile())
 			return Collections.emptyMap();
 		ClassLoader cl = this.getClass().getClassLoader();
 		Enumeration<URL> types = cl.getResources(REPOSITORY_TYPES);
@@ -105,7 +139,7 @@ public class BlockingSetupTool {
 				while (configs.hasMoreElements()) {
 					URL url = configs.nextElement();
 					ConfigTemplate temp = new ConfigTemplate(url);
-					Map<String, String> parameters = temp.getParameters(config
+					Map<String, String> parameters = temp.getParameters(repositoryConfig
 							.toURI().toURL());
 					if (parameters == null)
 						continue;
@@ -145,10 +179,9 @@ public class BlockingSetupTool {
 					String config = temp.render(map);
 					if (config != null) {
 						modified = true;
-						File file = new File(etc, REPOSITORY_CONFIG);
-						logger.info("Replacing {}", file);
-						file.getParentFile().mkdirs();
-						FileWriter writer = new FileWriter(file);
+						logger.info("Replacing {}", repositoryConfig);
+						repositoryConfig.getParentFile().mkdirs();
+						FileWriter writer = new FileWriter(repositoryConfig);
 						try {
 							writer.write(config);
 						} finally {
@@ -160,7 +193,7 @@ public class BlockingSetupTool {
 		}
 		if (!modified)
 			throw new IllegalArgumentException("Unknown repository type: " + type);
-		RepositoryConnection conn = getSetup().openConnection();
+		RepositoryConnection conn = new CallimachusSetup(manager, getRepositoryConfig()).openConnection();
 		try {
 			// just check that we can access the repository
 			conn.hasStatement(null, null, null, false);
@@ -170,13 +203,7 @@ public class BlockingSetupTool {
 	}
 
 	public String getWebappOrigins() throws IOException {
-		String result = conf.getProperty("PRIMARY_ORIGIN");
-		if (result == null) {
-			result = conf.getProperty("ORIGIN");
-			if (result == null)
-				return "";
-		}
-		return result;
+		return join(Arrays.asList(conf.getCallimachusWebappOrigins()));
 	}
 
 	public synchronized void setWebappOrigins(String origins)
@@ -222,7 +249,7 @@ public class BlockingSetupTool {
 
 	public SetupOrigin[] getOrigins() throws IOException, OpenRDFException {
 		List<SetupOrigin> list = new ArrayList<SetupOrigin>();
-		CallimachusSetup setup = getSetup();
+		CallimachusSetup setup = new CallimachusSetup(manager, getRepositoryConfig());
 		RepositoryConnection con = setup.openConnection();
 		try {
 			for (String webappOrigin : getWebappOrigins().split("\\s+")) {
@@ -259,7 +286,7 @@ public class BlockingSetupTool {
 			if (!o.isResolvable())
 				throw new IllegalStateException("Multiple resolvable origins cannot be used if unresolvable realms exist");
 		}
-		CallimachusSetup setup = getSetup();
+		CallimachusSetup setup = new CallimachusSetup(manager, getRepositoryConfig());
 		setup.createOrigin(origin, webappOrigin);
 		String val = conf.getProperty("ORIGIN");
 		if (val == null) {
@@ -280,20 +307,20 @@ public class BlockingSetupTool {
 			if (origin.isResolvable() && !origin.getRoot().equals(root))
 				throw new IllegalStateException("Unresolvable realms can only be used with a single resolvable origin");
 		}
-		CallimachusSetup setup = getSetup();
+		CallimachusSetup setup = new CallimachusSetup(manager, getRepositoryConfig());
 		setup.createRealm(realm, webappOrigin);
 	}
 
 	public synchronized void importCar(String url, String folder)
 			throws OpenRDFException, IOException, NoSuchMethodException,
 			InvocationTargetException {
-		CallimachusSetup setup = getSetup();
+		CallimachusSetup setup = new CallimachusSetup(manager, getRepositoryConfig());
 		setup.importCar(new URL(url), folder);
 	}
 
 	public synchronized String[] getDigestEmailAddresses(String webappOrigin)
 			throws OpenRDFException, IOException {
-		CallimachusSetup setup = getSetup();
+		CallimachusSetup setup = new CallimachusSetup(manager, getRepositoryConfig());
 		RepositoryConnection con = setup.openConnection();
 		try {
 			List<String> list = new ArrayList<String>();
@@ -320,7 +347,7 @@ public class BlockingSetupTool {
 			String label, String comment, String subject, String body,
 			String webappOrigin) throws IOException, OpenRDFException,
 			MessagingException, NamingException, GeneralSecurityException {
-		CallimachusSetup setup = getSetup();
+		CallimachusSetup setup = new CallimachusSetup(manager, getRepositoryConfig());
 		setup.createAdmin(email, username, label, comment, webappOrigin);
 		Set<String> links = setup.getUserRegistrationLinks(username, email,
 				webappOrigin);
@@ -342,7 +369,7 @@ public class BlockingSetupTool {
 	public synchronized boolean changeDigestUserPassword(String email,
 			String password, String webappOrigin) throws OpenRDFException,
 			IOException {
-		CallimachusSetup setup = getSetup();
+		CallimachusSetup setup = new CallimachusSetup(manager, getRepositoryConfig());
 		RepositoryConnection con = setup.openConnection();
 		try {
 			int b = email.indexOf('<');
@@ -404,12 +431,11 @@ public class BlockingSetupTool {
 	private void createWebappOrigin(final String origin)
 			throws OpenRDFException, IOException, NoSuchMethodException,
 			InvocationTargetException {
-		CallimachusSetup setup = getSetup();
+		CallimachusSetup setup = new CallimachusSetup(manager, getRepositoryConfig());
 		boolean created = setup.createWebappOrigin(origin);
 		if (created) {
-			File car = new File(new File(baseDir, "lib"), WEBAPP_CAR);
-			if (car.isFile()) {
-				setup.importCallimachusWebapp(car.toURI().toURL(), origin);
+			if (carFile.isFile()) {
+				setup.importCallimachusWebapp(carFile.toURI().toURL(), origin);
 			}
 			setup.finalizeWebappOrigin(origin);
 			logger.info("Callimachus installed at {}", origin);
@@ -418,16 +444,10 @@ public class BlockingSetupTool {
 		}
 	}
 
-	private CallimachusSetup getSetup() throws OpenRDFException, IOException {
-		LocalRepositoryManager manager = RepositoryProvider.getRepositoryManager(baseDir);
-		return new CallimachusSetup(manager, getRepositoryConfig());
-	}
-
 	private String getRepositoryConfig() throws IOException {
-		File config = new File(etc, REPOSITORY_CONFIG);
-		if (!config.isFile())
+		if (!repositoryConfig.isFile())
 			return null;
-		Scanner file = new Scanner(config).useDelimiter("\\A");
+		Scanner file = new Scanner(repositoryConfig).useDelimiter("\\A");
 		try {
 			return file.next();
 		} finally {

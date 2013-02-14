@@ -38,15 +38,17 @@ public class BackupTool implements BackupToolMXBean {
 			.newSingleThreadScheduledExecutor(THREADFACTORY);
 	private Exception exception;
 	private final File baseDir;
+	private final File backupDir;
 	private volatile boolean backup;
 	private volatile boolean restore;
 
-	public BackupTool(File baseDir) {
+	public BackupTool(File baseDir, File backupDir) {
 		this.baseDir = baseDir;
+		this.backupDir = backupDir;
 	}
 
 	public String toString() {
-		return baseDir.toString();
+		return backupDir.toString();
 	}
 
 	public synchronized void checkForErrors() throws IOException {
@@ -121,7 +123,7 @@ public class BackupTool implements BackupToolMXBean {
 		backup = true;
 		try {
 			String name = label.replaceAll("\\s+", "_") + ".zip";
-			File backup = new File(new File(baseDir, "backups"), name);
+			File backup = new File(backupDir, name);
 			if (!baseDir.isDirectory())
 				throw new FileNotFoundException();
 			if (backup.exists()) {
@@ -168,7 +170,7 @@ public class BackupTool implements BackupToolMXBean {
 		restore = true;
 		try {
 			String name = label + ".zip";
-			File backup = new File(new File(baseDir, "backups"), name);
+			File backup = new File(backupDir, name);
 			if (!backup.exists())
 				throw new FileNotFoundException();
 			logger.info("Restoring {}", backup);

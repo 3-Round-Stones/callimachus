@@ -16,7 +16,7 @@
  * limitations under the License.
  *
  */
-package org.callimachusproject.util;
+package org.callimachusproject.management;
 
 
 public interface JVMSummaryMXBean {

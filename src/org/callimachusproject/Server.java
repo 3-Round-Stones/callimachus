@@ -41,14 +41,16 @@ import org.callimachusproject.management.BackupTool;
 import org.callimachusproject.management.CalliKeyStore;
 import org.callimachusproject.management.CalliServer;
 import org.callimachusproject.management.CalliServer.ServerListener;
+import org.callimachusproject.management.JVMSummary;
 import org.callimachusproject.management.LogEmitter;
 import org.callimachusproject.management.LoggingProperties;
 import org.callimachusproject.management.SetupTool;
 import org.callimachusproject.repository.CalliRepository;
 import org.callimachusproject.server.HTTPObjectPolicy;
 import org.callimachusproject.server.WebServer;
-import org.callimachusproject.util.JVMSummary;
+import org.callimachusproject.setup.CallimachusConf;
 import org.callimachusproject.util.MailProperties;
+import org.callimachusproject.util.SystemProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -137,6 +139,11 @@ public class Server {
 			if (line.has("basedir")) {
 				baseDir = new File(line.get("basedir"));
 			}
+			File backupDir = SystemProperties.getBackupDir();
+			File carFile = SystemProperties.getWebappCarFile();
+			File configFile = SystemProperties.getConfigFile();
+			File defaultsFile = SystemProperties.getConfigDefaultsFile();
+			File repositoryConfig = SystemProperties.getRepositoryConfigFile();
 			ManagedExecutors.getInstance().addListener(
 					new ManagedThreadPoolListener() {
 						public void threadPoolStarted(String name,
@@ -149,8 +156,10 @@ public class Server {
 							unregisterMBean(name, ManagedThreadPool.class);
 						}
 					});
-			SetupTool tool = new SetupTool(baseDir);
-			node = new CalliServer(baseDir, tool, new ServerListener() {
+			CallimachusConf conf = new CallimachusConf(configFile, defaultsFile);
+			SetupTool tool = new SetupTool(baseDir, repositoryConfig, carFile,
+					conf);
+			node = new CalliServer(tool, new ServerListener() {
 				public void serverStarted(WebServer server) {
 					registerMBean(server, WebServer.class);
 					registerMBean(server.getRepository(), CalliRepository.class);
@@ -166,12 +175,15 @@ public class Server {
 			registerMBean(new LogEmitter(), LogEmitter.class);
 			registerMBean(LoggingProperties.getInstance(), LoggingProperties.class);
 			registerMBean(MailProperties.getInstance(), MailProperties.class);
-			registerMBean(new BackupTool(baseDir), BackupTool.class);
-			registerMBean(new CalliKeyStore(baseDir), CalliKeyStore.class);
+			registerMBean(new BackupTool(baseDir, backupDir), BackupTool.class);
+			File etc = new File(baseDir, "etc");
+			registerMBean(new CalliKeyStore(etc), CalliKeyStore.class);
 			registerMBean(tool, SetupTool.class);
 			if (!line.has("trust")) {
-				HTTPObjectPolicy.apply(new String[0], new File(baseDir, "etc"),
-						new File(baseDir, "backups"), new File(baseDir,
+				HTTPObjectPolicy.apply(
+						new String[] { carFile.getAbsolutePath(),
+								defaultsFile.getAbsolutePath() }, configFile,
+						repositoryConfig, backupDir, new File(baseDir,
 								"repositories"));
 			}
 			node.init();

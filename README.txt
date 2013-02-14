@@ -105,10 +105,11 @@ Alternatively, if you want to check out the source code, see the directions at:
 Once you have the source code checked out, you will need to provide a username,
 email and password. Create a build.properties file in the same directory as
 build.xml. Put the variables "callimachus.username", "callimachus.email", and
-"callimachus.password" followed by '=' and their value on their own line. You
-can then execute 'ant run' from a command line in this top directory to run the
-server. If some files fail to download you may have to run "ant dist-clean" and
-run "ant run" again.
+"callimachus.password" followed by '=' and their value on their own line. Copy
+src/callimachus-defaults.conf to etc/callimachus.conf and edit file as above.
+You can then execute 'ant run' from a command line in this top directory to run
+the server. If some files fail to download you may have to run "ant dist-clean"
+and run "ant run" again.
 
 
 Additional documentation regarding usage and application development may

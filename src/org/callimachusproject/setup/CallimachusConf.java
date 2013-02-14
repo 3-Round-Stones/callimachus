@@ -1,4 +1,4 @@
-package org.callimachusproject.management;
+package org.callimachusproject.setup;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -12,27 +12,35 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.callimachusproject.util.SystemProperties;
+
 public class CallimachusConf {
 	private static final Pattern WSPACE = Pattern.compile("\\s");
-	private static final String SERVER_CONF = "etc/callimachus.conf";
-	private static final String SERVER_DEFAULT_CONF = "etc/callimachus-defaults.conf";
-	private static final CallimachusConf instance = new CallimachusConf(
-			new File(SERVER_CONF), new File(SERVER_DEFAULT_CONF));
-
-	public static CallimachusConf getInstance() {
-		return instance;
-	}
 
 	private final File file;
 	private final File defaultFile;
 
-	private CallimachusConf(File file, File defaultFile) {
+	public CallimachusConf() {
+		this(SystemProperties.getConfigFile(), SystemProperties.getConfigDefaultsFile());
+	}
+
+	public CallimachusConf(File file, File defaultFile) {
 		this.file = file;
 		this.defaultFile = defaultFile;
 	}
 
 	public String toString() {
 		return file.toString();
+	}
+
+	public synchronized String[] getCallimachusWebappOrigins() throws IOException {
+		String webapps = getProperty("PRIMARY_ORIGIN");
+		if (webapps != null && webapps.trim().length() > 0)
+			return webapps.trim().split("\\s+");
+		String origins = getProperty("ORIGIN");
+		if (origins != null && origins.trim().length() > 0)
+			return origins.trim().split("\\s+");
+		return new String[0];
 	}
 
 	public synchronized String getProperty(String key) throws IOException {

@@ -34,7 +34,6 @@ import org.openrdf.repository.config.RepositoryConfig;
 import org.openrdf.repository.config.RepositoryConfigException;
 import org.openrdf.repository.config.RepositoryConfigSchema;
 import org.openrdf.repository.manager.LocalRepositoryManager;
-import org.openrdf.repository.manager.RepositoryProvider;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFParser;
 import org.openrdf.rio.Rio;
@@ -46,7 +45,6 @@ import org.slf4j.LoggerFactory;
 public class CalliServer implements CalliServerMXBean {
 	private static final String CHANGES_PATH = "../changes/";
 	private static final String ERROR_XPL_PATH = "pipelines/error.xpl";
-	private static final String REPOSITORY_CONFIG = "callimachus-repository.ttl";
 	private static final String ORIGIN = "http://callimachusproject.org/rdf/2009/framework#Origin";
 
 	public static interface ServerListener {
@@ -56,28 +54,26 @@ public class CalliServer implements CalliServerMXBean {
 	}
 
 	private final Logger logger = LoggerFactory.getLogger(CalliServer.class);
-	private final LocalRepositoryManager manager;
-	private final CallimachusConf conf;
 	private final SetupTool tool;
 	private final ServerListener listener;
 	private volatile int starting;
 	private volatile boolean running;
 	private volatile boolean stopping;
 	private WebServer server;
+	private final LocalRepositoryManager manager;
 
-	public CalliServer(File baseDir, SetupTool tool, ServerListener listener) throws OpenRDFException, IOException {
-		this.manager = RepositoryProvider.getRepositoryManager(baseDir);
+	public CalliServer(SetupTool tool, ServerListener listener) throws OpenRDFException, IOException {
+		this.tool = tool;
+		this.listener = listener;
+		this.manager = tool.getRepositoryManager();
 		File dataDir = manager.getRepositoryDir(getRepositoryID());
 		File cacheDir = new File(dataDir, "cache");
 		File in = new File(cacheDir, "client");
 		HTTPObjectClient.setCacheDirectory(in);
-		this.conf = CallimachusConf.getInstance();
-		this.tool = tool;
-		this.listener = listener;
 	}
 
 	public String toString() {
-		return manager.getBaseDir().toString();
+		return tool.toString();
 	}
 
 	public boolean isRunning() {
@@ -141,7 +137,7 @@ public class CalliServer implements CalliServerMXBean {
 
 	@Override
 	public String getServerName() throws IOException {
-		String name = conf.getProperty("SERVER_NAME");
+		String name = tool.getProperty("SERVER_NAME");
 		if (name == null || name.length() == 0)
 			return Version.getInstance().getVersion();
 		return name;
@@ -150,9 +146,9 @@ public class CalliServer implements CalliServerMXBean {
 	@Override
 	public void setServerName(String name) throws IOException {
 		if (name == null || name.length() == 0 || name.equals(Version.getInstance().getVersion())) {
-			conf.setProperty("SERVER_NAME", null);
+			tool.setProperty("SERVER_NAME", null);
 		} else {
-			conf.setProperty("SERVER_NAME", name);
+			tool.setProperty("SERVER_NAME", name);
 		}
 		if (server != null) {
 			server.setServerName(getServerName());
@@ -160,25 +156,25 @@ public class CalliServer implements CalliServerMXBean {
 	}
 
 	public String getPorts() throws IOException {
-		return conf.getProperty("PORT");
+		return tool.getProperty("PORT");
 	}
 
 	public void setPorts(String ports) throws IOException {
 		if (ports == null || ports.trim().length() < 1) {
 			ports = null;
 		}
-		conf.setProperty("PORT", ports);
+		tool.setProperty("PORT", ports);
 	}
 
 	public String getSSLPorts() throws IOException {
-		return conf.getProperty("SSLPORT");
+		return tool.getProperty("SSLPORT");
 	}
 
 	public void setSSLPorts(String ports) throws IOException {
 		if (ports == null || ports.trim().length() < 1) {
 			ports = null;
 		}
-		conf.setProperty("SSLPORT", ports);
+		tool.setProperty("SSLPORT", ports);
 	}
 
 	public boolean isStartingInProgress() {
@@ -314,12 +310,11 @@ public class CalliServer implements CalliServerMXBean {
 	}
 
 	private String getRepositoryID() throws OpenRDFException, IOException {
-		File etc = new File(manager.getBaseDir(), "etc");
 		Graph graph = new GraphImpl();
 		RDFParser rdfParser = Rio.createParser(RDFFormat.TURTLE);
 		rdfParser.setRDFHandler(new StatementCollector(graph));
 		String base = new File(".").getAbsoluteFile().toURI().toASCIIString();
-		rdfParser.parse(new FileReader(new File(etc, REPOSITORY_CONFIG)), base);
+		rdfParser.parse(new FileReader(tool.getRepositoryConfigFile()), base);
 		Resource node = GraphUtil.getUniqueSubject(graph, RDF.TYPE,
 				RepositoryConfigSchema.REPOSITORY);
 		return RepositoryConfig.create(graph, node).getID();
@@ -334,7 +329,7 @@ public class CalliServer implements CalliServerMXBean {
 		try {
 			ValueFactory vf = conn.getValueFactory();
 			URI Origin = vf.createURI(ORIGIN);
-			String value = conf.getProperty("ORIGIN");
+			String value = tool.getProperty("ORIGIN");
 			if (value == null)
 				return false;
 			String[] origins = value.trim().split("\\s+");
@@ -358,7 +353,7 @@ public class CalliServer implements CalliServerMXBean {
 		File dataDir = manager.getRepositoryDir(repositoryID);
 		WebServer server = new WebServer(repository, dataDir);
 		boolean primary = true;
-		for (String origin : conf.getProperty("ORIGIN").trim().split("\\s+")) {
+		for (String origin : tool.getProperty("ORIGIN").trim().split("\\s+")) {
 			if (primary) {
 				server.setChangesPath(origin, CHANGES_PATH);
 				server.setErrorPipe(origin, ERROR_XPL_PATH);
@@ -372,7 +367,7 @@ public class CalliServer implements CalliServerMXBean {
 	}
 
 	private int[] getPortArray() throws IOException {
-		String portStr = conf.getProperty("PORT");
+		String portStr = tool.getProperty("PORT");
 		int[] ports = new int[0];
 		if (portStr != null && portStr.trim().length() > 0) {
 			String[] values = portStr.trim().split("\\s+");
@@ -385,7 +380,7 @@ public class CalliServer implements CalliServerMXBean {
 	}
 
 	private int[] getSSLPortArray() throws IOException {
-		String sslportStr = conf.getProperty("SSLPORT");
+		String sslportStr = tool.getProperty("SSLPORT");
 		int[] sslports = new int[0];
 		if (sslportStr != null && sslportStr.trim().length() > 0) {
 			String[] values = sslportStr.trim().split("\\s+");

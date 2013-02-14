@@ -16,7 +16,7 @@
  * limitations under the License.
  *
  */
-package org.callimachusproject.util;
+package org.callimachusproject.management;
 
 import java.io.File;
 import java.io.PrintWriter;

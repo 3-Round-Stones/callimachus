@@ -3,6 +3,7 @@ package org.callimachusproject.management;
 import java.io.IOException;
 import java.util.Map;
 
+import org.callimachusproject.setup.SetupOrigin;
 import org.openrdf.OpenRDFException;
 
 public interface SetupToolMXBean {
@@ -10,6 +11,8 @@ public interface SetupToolMXBean {
 	boolean isSetupInProgress();
 
 	void checkForErrors() throws Exception;
+
+	String[] getAvailableRepositoryTypes() throws IOException;
 
 	Map<String, String> getRepositoryProperties() throws IOException;
 

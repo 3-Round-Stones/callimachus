@@ -47,6 +47,7 @@ import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.io.FileUtil;
 import org.callimachusproject.server.exceptions.GatewayTimeout;
 import org.callimachusproject.server.exceptions.ResponseException;
+import org.callimachusproject.util.MailProperties;
 import org.callimachusproject.xml.ReusableDocumentResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,7 +89,7 @@ public class HTTPObjectClient extends AbstractHttpClient {
 		return instance;
 	}
 
-	public static synchronized void setCacheDirectory(File dir) {
+	public static synchronized void setCacheDirectory(File dir) throws IOException {
 		if (instance != null) {
 			instance.internal.getConnectionManager().shutdown();
 			instance.storage.shutdown();
@@ -118,7 +119,7 @@ public class HTTPObjectClient extends AbstractHttpClient {
 		ReusableDocumentResolver.invalidateCache();
 	}
 
-	private static HttpParams getDefaultHttpParams() {
+	private static HttpParams getDefaultHttpParams() throws IOException {
 		HttpParams params = new BasicHttpParams();
 		params.setIntParameter(SO_TIMEOUT, 0);
 		params.setIntParameter(CONNECTION_TIMEOUT, 10000);
@@ -133,9 +134,12 @@ public class HTTPObjectClient extends AbstractHttpClient {
 		params.setIntParameter(MAX_REDIRECTS, 20);
 		params.setBooleanParameter(ALLOW_CIRCULAR_REDIRECTS, false);
 		try {
-			BasicHeader hd = new BasicHeader("From",
-					System.getProperty("mail.from"));
-			params.setParameter(DEFAULT_HEADERS, Collections.singleton(hd));
+			MailProperties mail = MailProperties.getInstance();
+			String from = mail.getMailProperties().get("mail.from");
+			if (from != null) {
+				BasicHeader hd = new BasicHeader("From", from);
+				params.setParameter(DEFAULT_HEADERS, Collections.singleton(hd));
+			}
 		} catch (SecurityException e) {
 			// ignore
 		}

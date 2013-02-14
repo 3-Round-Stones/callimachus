@@ -23,15 +23,15 @@
     <property name="triples.file" location="repositories/callimachus/triples-spoc.dat" />
     <property file="src/META-INF/callimachusproject.properties" />
     <property file="dependencies.properties" />
-    <property name="setup" value="org.callimachusproject.Setup" />
     <property name="main" value="org.callimachusproject.Server" />
+    <property name="setup" value="org.callimachusproject.Setup" />
     <property name="server" value="org.callimachusproject.Server" />
     <property name="main-monitor" value="org.callimachusproject.ServerMonitor" />
     <property name="jvmargs" value="-ea -server -mx512m -Dfile.encoding=UTF-8 -Djava.library.path=${lib} -Duser.home=${home} -Djava.mail.properties=${mail} -Djava.awt.headless=true -Dcom.sun.management.jmxremote" />
     <property name="curl" value="curl" />
     <property name="curl.args" value="-fSs --digest http://localhost:8080/callimachus/1.0/?archive" />
-    <property name="setup.args" value="-s -o http://localhost:8080 -c etc/callimachus-repository.ttl -w ${dist}/${artifact.name}-webapp-${Version}.car" />
-    <property name="args" value="--pid ${pid} -p 8080 -o http://localhost:8080 -r repositories/callimachus" />
+    <property name="setup.args" value="-s" />
+    <property name="args" value="--pid ${pid}" />
 
     <target name="help">
         <exec executable="ant">
@@ -223,7 +223,7 @@
             </classpath>
         </javac>
         <copy todir="${build}">
-            <fileset dir="${src}" excludes="**/*.java *.run *.sh *.bat *.pl *.conf *.properties *.ttl"/>
+            <fileset dir="${src}" excludes="**/*.java *.*"/>
         </copy>
         <copy todir="${etc}">
             <fileset dir="${src}" includes="*.conf *.properties *.ttl"/>
@@ -259,7 +259,7 @@
             <zipfileset dir="${webapp}" prefix="src/webapp" />
             <zipfileset dir="${bin}" prefix="bin" includes="*.sh,*.pl,callimachus-linux*,callimachus-darwin*" filemode="755" />
             <zipfileset dir="${bin}" prefix="bin" excludes="*.sh,*.pl,callimachus-linux*,callimachus-darwin*" />
-            <zipfileset dir="${etc}" prefix="etc" excludes="mail.properties ssl.properties" />
+            <zipfileset dir="${etc}" prefix="etc" excludes="mail.properties ssl.properties jmxremote.password callimachus.conf" />
             <zipfileset dir="${lib}" prefix="lib" />
             <zipfileset file="${jar.file}" prefix="lib" />
             <zipfileset file="${dist}/${artifact.name}-webapp-${Version}.car" prefix="lib" />
@@ -350,7 +350,7 @@
         <fail message="build.properties is missing email, please read README.txt" unless="callimachus.email" />
         <fail message="build.properties is missing password, please read README.txt" unless="callimachus.password" />
         <java classname="${setup}" fork="true" failonerror="true">
-            <jvmarg line="${jvmargs}" />
+            <jvmarg line="${jvmargs} -Dorg.callimachusproject.config.webapp=${dist}/${artifact.name}-webapp-${Version}.car" />
             <arg line="${setup.args} -u ${callimachus.username}:${callimachus.password} -e ${callimachus.email}" />
             <classpath>
                 <pathelement location="${jar.file}" />
@@ -364,7 +364,7 @@
     <target name="start" depends="dist,setup" description="Start the server in the background">
         <mkdir dir="${log}" />
         <java classname="${server}" fork="true" spawn="true">
-            <jvmarg line="${jvmargs} -Djava.util.logging.config.file=${logging}" />
+            <jvmarg line="${jvmargs} -Djavax.net.ssl.trustStore=${javax.net.ssl.trustStore} -Djava.util.logging.config.file=${logging}" />
             <arg line="${args} -q" />
             <classpath>
                 <pathelement location="${jar.file}" />
@@ -414,7 +414,7 @@
 
     <target name="run" depends="dist,setup" description="Run the server in the foreground">
         <java classname="${server}" fork="true" failonerror="true">
-            <jvmarg line="${jvmargs}" />
+            <jvmarg line="${jvmargs} -Djavax.net.ssl.trustStore=${javax.net.ssl.trustStore}" />
             <arg line="${args}" />
             <classpath>
                 <pathelement location="${jar.file}" />

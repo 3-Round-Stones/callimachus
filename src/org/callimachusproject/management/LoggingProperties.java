@@ -19,21 +19,18 @@ import java.util.regex.Pattern;
 
 import javax.mail.MessagingException;
 
+import org.callimachusproject.util.SystemProperties;
+
 public class LoggingProperties implements LoggingPropertiesMXBean {
 	private static final Pattern KEY_VALUE_REGEX = Pattern
 			.compile("\\s*(.*)\\s*=\\s*(.*)\\s*$");
-	private static final LoggingProperties system = new LoggingProperties(
-			System.getProperty("java.util.logging.config.file"));
+	private static final LoggingProperties system = new LoggingProperties(SystemProperties.getLoggingPropertiesFile());
 
 	public static LoggingProperties getInstance() {
 		return system;
 	}
 
 	private final File file;
-
-	public LoggingProperties(String file) {
-		this(file == null ? null : new File(file));
-	}
 
 	public LoggingProperties(File file) {
 		this.file = file;

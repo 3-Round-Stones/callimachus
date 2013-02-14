@@ -23,18 +23,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Scanner;
-import java.util.Set;
 
 import org.callimachusproject.cli.Command;
 import org.callimachusproject.cli.CommandSet;
+import org.callimachusproject.setup.CallimachusConf;
 import org.callimachusproject.setup.CallimachusSetup;
+import org.callimachusproject.util.SystemProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,29 +46,17 @@ public class Setup {
 
 	private static final CommandSet commands = new CommandSet(NAME);
 	static {
-		commands.option("d", "dir").arg("directory").desc("Directory used for data storage and retrieval");
-		commands.require("c", "config").arg("file").desc(
-				"A repository config url (relative file: or http:)");
-		commands.option("f", "car").arg("file").desc(
-				"Target and CAR URL pairs, separated by equals, that should be installed for each primary origin");
-		commands.option("w", "webapp").arg("file").desc(
-				"Callimachus webapp CAR URL, the relative URL of the callimachus webapp CAR, that should be installed for each origin");
-		commands.require("o", "origin").arg("http").desc(
-				"The scheme, hostname and port ( http://localhost:8080 ) that resolves to this server");
-		commands.option("v", "virtual").arg("http").desc(
-				"Additional scheme, hostname and port ( http://localhost:8080 ) that resolves to this server");
-		commands.option("r", "realm").arg("http").desc(
-				"The scheme, hostname, port, and path ( http://example.com:8080/ ) that does not resolve to this server");
-		commands.option("u", "user").optional("name").desc(
-				"Create the given user");
-		commands.option("n", "name").arg("name").desc(
-				"If creating a new user use this full name");
-		commands.option("e", "email").arg("addr").desc(
-				"If creating a new user use this email address");
+		commands.option("b", "basedir").arg("directory")
+				.desc("Base directory used for local storage");
+		commands.option("u", "user").optional("name")
+				.desc("Create the given user");
+		commands.option("n", "name").arg("name")
+				.desc("If creating a new user use this full name");
+		commands.option("e", "email").arg("addr")
+				.desc("If creating a new user use this email address");
 		commands.option("s", "silent").desc(
 				"If the repository is already setup exit successfully");
-		commands.option("h", "help").desc(
-				"Print help (this message) and exit");
+		commands.option("h", "help").desc("Print help (this message) and exit");
 		commands.option("V", "version").desc(
 				"Print version information and exit");
 	}
@@ -107,13 +92,7 @@ public class Setup {
 
 	private final Logger logger = LoggerFactory.getLogger(Setup.class);
 	private boolean silent;
-	private File dir;
-	private URL config;
-	private URL webappCar;
-	private final Map<String, URL> cars = new HashMap<String, URL>();
-	private final Set<String> origins = new HashSet<String>();
-	private final Map<String, String> vhosts = new HashMap<String, String>();
-	private final Map<String, String> realms = new HashMap<String, String>();
+	private File basedir;
 	private String name;
 	private String email;
 	private String username;
@@ -135,81 +114,41 @@ public class Setup {
 				System.exit(0);
 				return;
 			} else {
-				if (line.has("realm") && (line.has("virtual") || line.getAll("origin").length != 1)) {
-					System.err.println("Unresolvable realms can only be used with a single origin");
-					System.exit(2);
-				}
 				silent = line.has("silent");
-				if (line.has("dir")) {
-					dir = new File(line.get("dir")).getCanonicalFile();
+				if (line.has("basedir")) {
+					basedir = new File(line.get("basedir")).getCanonicalFile();
 				} else {
-					dir = new File("").getCanonicalFile();
+					basedir = new File("").getCanonicalFile();
 				}
-				if (line.has("config")) {
-					config = resolve(line.get("config"));
-				}
-				if (line.has("origin")) {
-					for (String o : line.getAll("origin")) {
-						CallimachusSetup.validateOrigin(o);
-						origins.add(o);
+				if (line.has("user") || line.has("email")) {
+					this.name = line.get("name");
+					this.email = line.get("email");
+					String u = line.get("user");
+					if (u != null && u.contains(":")) {
+						username = u.substring(0, u.indexOf(':'));
+						password = u.substring(u.indexOf(':') + 1).toCharArray();
+						CallimachusSetup.validateName(username);
 					}
-					if (line.has("webapp")) {
-						webappCar = resolve(line.get("webapp"));
+					Console console = System.console();
+					if (username == null || username.length() < 1) {
+						if (u != null && u.length() > 0 && !u.contains(":")) {
+							username = u;
+						} else if (console == null) {
+							Reader reader = new InputStreamReader(System.in);
+							username = new BufferedReader(reader).readLine();
+						} else {
+							username = console.readLine("Enter a username: ");
+						}
+						CallimachusSetup.validateName(username);
 					}
-					if (line.has("car")) {
-						for (String pair : line.getAll("car")) {
-							int idx = pair.indexOf('=');
-							String path = pair.substring(0, idx);
-							URL url = resolve(pair.substring(idx + 1));
-							for (String origin : origins) {
-								java.net.URI uri = java.net.URI.create(origin + "/");
-								cars.put(uri.resolve(path).toASCIIString(), url);
-							}
+					if (email == null || email.length() < 1) {
+						if (console == null) {
+							Reader reader = new InputStreamReader(System.in);
+							email = new BufferedReader(reader).readLine();
+						} else {
+							email = console.readLine("Enter an email: ");
 						}
-					}
-					String origin = line.get("origin");
-					if (line.has("virtual")) {
-						for (String v : line.getAll("virtual")) {
-							CallimachusSetup.validateOrigin(v);
-							vhosts.put(v, origin);
-						}
-					}
-					if (line.has("realm")) {
-						for (String r : line.getAll("realm")) {
-							CallimachusSetup.validateRealm(r);
-							realms.put(r, origin);
-						}
-					}
-					if (line.has("user") || line.has("email")) {
-						this.name = line.get("name");
-						this.email = line.get("email");
-						String u = line.get("user");
-						if (u != null && u.contains(":")) {
-							username = u.substring(0, u.indexOf(':'));
-							password = u.substring(u.indexOf(':') + 1).toCharArray();
-							CallimachusSetup.validateName(username);
-						}
-						Console console = System.console();
-						if (username == null || username.length() < 1) {
-							if (u != null && u.length() > 0 && !u.contains(":")) {
-								username = u;
-							} else if (console == null) {
-								Reader reader = new InputStreamReader(System.in);
-								username = new BufferedReader(reader).readLine();
-							} else {
-								username = console.readLine("Enter a username: ");
-							}
-							CallimachusSetup.validateName(username);
-						}
-						if (email == null || email.length() < 1) {
-							if (console == null) {
-								Reader reader = new InputStreamReader(System.in);
-								email = new BufferedReader(reader).readLine();
-							} else {
-								email = console.readLine("Enter an email: ");
-							}
-							CallimachusSetup.validateEmail(email);
-						}
+						CallimachusSetup.validateEmail(email);
 					}
 				}
 			}
@@ -225,33 +164,27 @@ public class Setup {
 
 	public void start() throws Exception {
 		boolean changed = false;
-		String configString = readContent(config);
-		CallimachusSetup setup = new CallimachusSetup(dir, configString);
+		File repositoryConfig = SystemProperties.getRepositoryConfigFile();
+		File webappCar = SystemProperties.getWebappCarFile();
+		CallimachusConf conf = new CallimachusConf();
+		String configString = readContent(repositoryConfig.toURI().toURL());
+		CallimachusSetup setup = new CallimachusSetup(basedir, configString);
 		try {
-			if (webappCar != null) {
-				for (String origin : origins) {
+			if (webappCar.canRead()) {
+				for (String origin : conf.getCallimachusWebappOrigins()) {
 					changed |= setup.clearCallimachusWebapp(origin);
 				}
 			}
-			for (String origin : origins) {
+			for (String origin : conf.getCallimachusWebappOrigins()) {
 				changed |= setup.createWebappOrigin(origin);
 			}
-			for (Map.Entry<String, String> e : vhosts.entrySet()) {
-				changed |= setup.createOrigin(e.getKey(), e.getValue());
-			}
-			for (Map.Entry<String, String> e : realms.entrySet()) {
-				changed |= setup.createRealm(e.getKey(), e.getValue());
-			}
-			if (webappCar != null) {
-				for (String origin : origins) {
-					changed |= setup.importCallimachusWebapp(webappCar, origin);
+			if (webappCar.canRead()) {
+				for (String origin : conf.getCallimachusWebappOrigins()) {
+					changed |= setup.importCallimachusWebapp(webappCar.toURI().toURL(), origin);
 				}
 			}
-			for (Map.Entry<String, URL> e : cars.entrySet()) {
-				changed |= setup.importCar(e.getValue(), e.getKey());
-			}
 			if (email != null && email.length() > 0) {
-				for (String origin : origins) {
+				for (String origin : conf.getCallimachusWebappOrigins()) {
 					changed |= setup.createAdmin(email, username, name, null, origin);
 					if (password == null || password.length < 1) {
 						for (String url : setup.getUserRegistrationLinks(username, email, origin)) {
@@ -265,7 +198,7 @@ public class Setup {
 					}
 				}
 			}
-			for (String origin : origins) {
+			for (String origin : conf.getCallimachusWebappOrigins()) {
 				changed |= setup.finalizeWebappOrigin(origin);
 			}
 		} finally {
@@ -285,14 +218,6 @@ public class Setup {
 
 	public void destroy() throws Exception {
 		// do nothing
-	}
-
-	private URL resolve(String file) throws MalformedURLException {
-		try {
-			return new File(".").toURI().resolve(file).toURL();
-		} catch (IllegalArgumentException e) {
-			return new File(file).toURI().toURL();
-		}
 	}
 
 	private String readContent(URL config) throws IOException {

@@ -193,7 +193,7 @@ public class CallimachusSetup {
 	public CallimachusSetup(File baseDir, String configString)
 			throws OpenRDFException, IOException {
 		RepositoryConfig config = getRepositoryConfig(configString);
-		manager = getRepositoryManager(baseDir);
+		manager = RepositoryProvider.getRepositoryManager(baseDir);
 		Repository repo = getRepository(manager, config);
 		if (repo == null)
 			throw new RepositoryConfigException(
@@ -559,11 +559,6 @@ public class CallimachusSetup {
 		String base = new File(".").getAbsoluteFile().toURI().toASCIIString();
 		rdfParser.parse(new StringReader(configString), base);
 		return graph;
-	}
-
-	private LocalRepositoryManager getRepositoryManager(File dir)
-			throws RepositoryConfigException, RepositoryException {
-		return RepositoryProvider.getRepositoryManager(dir);
 	}
 
 	private boolean equal(RepositoryConfig c1, RepositoryConfig c2) {

@@ -1,4 +1,4 @@
-package org.callimachusproject.management;
+package org.callimachusproject.setup;
 
 import java.beans.ConstructorProperties;
 import java.io.Serializable;

@@ -324,8 +324,6 @@ if [ -z "$PRIMARY_ORIGIN" ] ; then
   PRIMARY_ORIGIN="$ORIGIN"
 fi
 
-PRIMARY_ORIGIN_OPTS="-o $(echo $PRIMARY_ORIGIN |perl -pe 's/(\s)(\S)/ -o $2/g' 2>/dev/null)"
-
 if [ -z "$OPTS" ] ; then
   if [ "$SECURITY_MANAGER" = "false" ]; then
     OPTS="--trust"
@@ -708,8 +706,7 @@ do_setup() {
     -classpath "$CLASSPATH" \
     -XX:OnOutOfMemoryError="kill -9 %p" \
     $JAVA_OPTS "$SETUPCLASS" \
-    $PRIMARY_ORIGIN_OPTS -c "$REPOSITORY_CONFIG" -w "$(ls lib/callimachus-webapp*.car)" \
-    -e "$EMAIL" -n "$FULLNAME" "$@"
+    -b "$BASEDIR" -e "$EMAIL" -n "$FULLNAME" "$@"
   return $?
 }
 

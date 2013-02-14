@@ -24,18 +24,13 @@ import javax.mail.Transport;
 public class MailProperties implements MailPropertiesMXBean {
 	private static final Pattern KEY_VALUE_REGEX = Pattern
 			.compile("\\s*(.*)\\s*=\\s*(.*)\\s*$");
-	private static final MailProperties system = new MailProperties(
-			System.getProperty("java.mail.properties"));
+	private static final MailProperties system = new MailProperties(SystemProperties.getMailPropertiesFile());
 
 	public static MailProperties getInstance() {
 		return system;
 	}
 
 	private final File file;
-
-	public MailProperties(String file) {
-		this(file == null ? null : new File(file));
-	}
 
 	public MailProperties(File file) {
 		this.file = file;

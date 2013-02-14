@@ -52,12 +52,12 @@ import org.callimachusproject.cli.CommandSet;
 import org.callimachusproject.concurrent.ManagedThreadPool;
 import org.callimachusproject.concurrent.ThreadPoolMXBean;
 import org.callimachusproject.io.ChannelUtil;
+import org.callimachusproject.management.JVMSummary;
+import org.callimachusproject.management.JVMSummaryMXBean;
 import org.callimachusproject.repository.CalliRepository;
 import org.callimachusproject.repository.CalliRepositoryMXBean;
 import org.callimachusproject.server.WebServer;
 import org.callimachusproject.server.HTTPObjectAgentMXBean;
-import org.callimachusproject.util.JVMSummary;
-import org.callimachusproject.util.JVMSummaryMXBean;
 
 /**
  * Command line tool for monitoring the server.

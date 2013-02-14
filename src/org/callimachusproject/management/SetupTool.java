@@ -12,8 +12,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 
+import org.callimachusproject.setup.BlockingSetupTool;
+import org.callimachusproject.setup.CallimachusConf;
+import org.callimachusproject.setup.SetupOrigin;
 import org.openrdf.OpenRDFException;
 import org.openrdf.repository.config.RepositoryConfigException;
+import org.openrdf.repository.manager.LocalRepositoryManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,12 +39,30 @@ public class SetupTool implements SetupToolMXBean {
 	private Exception exception;
 	private int processing;
 
-	public SetupTool(File baseDir) {
-		this.blocking = new BlockingSetupTool(baseDir);
+	public SetupTool(File baseDir, File repositoryConfig, File carFile,
+			CallimachusConf conf) throws OpenRDFException {
+		this.blocking = new BlockingSetupTool(baseDir, repositoryConfig,
+				carFile, conf);
 	}
 
 	public String toString() {
 		return blocking.toString();
+	}
+
+	public LocalRepositoryManager getRepositoryManager() {
+		return blocking.getRepositoryManager();
+	}
+
+	public File getRepositoryConfigFile() {
+		return blocking.getRepositoryConfigFile();
+	}
+
+	public String getProperty(String key) throws IOException {
+		return blocking.getProperty(key);
+	}
+
+	public void setProperty(String key, String value) throws IOException {
+		blocking.setProperty(key, value);
 	}
 
 	public synchronized void checkForErrors() throws Exception {
@@ -54,6 +76,10 @@ public class SetupTool implements SetupToolMXBean {
 
 	public synchronized boolean isSetupInProgress() {
 		return processing > 0;
+	}
+
+	public String[] getAvailableRepositoryTypes() throws IOException {
+		return blocking.getAvailableRepositoryTypes();
 	}
 
 	public Map<String,String> getRepositoryProperties() throws IOException {

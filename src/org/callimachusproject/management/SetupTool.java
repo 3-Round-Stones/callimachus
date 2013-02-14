@@ -39,10 +39,9 @@ public class SetupTool implements SetupToolMXBean {
 	private Exception exception;
 	private int processing;
 
-	public SetupTool(File baseDir, File repositoryConfig, File carFile,
-			CallimachusConf conf) throws OpenRDFException {
-		this.blocking = new BlockingSetupTool(baseDir, repositoryConfig,
-				carFile, conf);
+	public SetupTool(File baseDir, File rconfig, CallimachusConf conf)
+			throws OpenRDFException {
+		this.blocking = new BlockingSetupTool(baseDir, rconfig, conf);
 	}
 
 	public String toString() {
@@ -138,16 +137,6 @@ public class SetupTool implements SetupToolMXBean {
 		submit(new Callable<Void>() {
 			public Void call() throws Exception {
 				blocking.addRootRealm(realm, webappOrigin);
-				return null;
-			}
-		});
-	}
-
-	public void importCar(final String url, final String folder)
-			throws Exception {
-		submit(new Callable<Void>() {
-			public Void call() throws Exception {
-				blocking.importCar(url, folder);
 				return null;
 			}
 		});

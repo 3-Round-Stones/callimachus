@@ -67,14 +67,12 @@ public class BlockingSetupTool {
 	private final Logger logger = LoggerFactory.getLogger(BlockingSetupTool.class);
 	private final LocalRepositoryManager manager;
 	private final File repositoryConfig;
-	private final File carFile;
 	private final CallimachusConf conf;
 
-	public BlockingSetupTool(File baseDir, File repositoryConfig, File carFile,
+	public BlockingSetupTool(File baseDir, File repositoryConfig,
 			CallimachusConf conf) throws OpenRDFException {
 		this.manager = RepositoryProvider.getRepositoryManager(baseDir);
 		this.repositoryConfig = repositoryConfig;
-		this.carFile = carFile;
 		this.conf = conf;
 	}
 
@@ -311,13 +309,6 @@ public class BlockingSetupTool {
 		setup.createRealm(realm, webappOrigin);
 	}
 
-	public synchronized void importCar(String url, String folder)
-			throws OpenRDFException, IOException, NoSuchMethodException,
-			InvocationTargetException {
-		CallimachusSetup setup = new CallimachusSetup(manager, getRepositoryConfig());
-		setup.importCar(new URL(url), folder);
-	}
-
 	public synchronized String[] getDigestEmailAddresses(String webappOrigin)
 			throws OpenRDFException, IOException {
 		CallimachusSetup setup = new CallimachusSetup(manager, getRepositoryConfig());
@@ -432,12 +423,10 @@ public class BlockingSetupTool {
 			throws OpenRDFException, IOException, NoSuchMethodException,
 			InvocationTargetException {
 		CallimachusSetup setup = new CallimachusSetup(manager, getRepositoryConfig());
+		setup.prepareWebappOrigin(origin);
 		boolean created = setup.createWebappOrigin(origin);
+		setup.finalizeWebappOrigin(origin);
 		if (created) {
-			if (carFile.isFile()) {
-				setup.importCallimachusWebapp(carFile.toURI().toURL(), origin);
-			}
-			setup.finalizeWebappOrigin(origin);
 			logger.info("Callimachus installed at {}", origin);
 		} else {
 			logger.info("Callimachus already appears to be installed at {}", origin);

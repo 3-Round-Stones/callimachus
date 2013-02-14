@@ -13,31 +13,9 @@ import org.openrdf.model.ValueFactory;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.ObjectConnection;
 
-public class SecretRealmProvider implements UpdateProvider {
+public class SecretRealmProvider extends UpdateProvider {
 	private static final String CALLI = "http://callimachusproject.org/rdf/2009/framework#";
 	private static final String CALLI_SECRET = CALLI + "secret";
-
-	@Override
-	public String getDefaultCallimachusWebappLocation(String origin)
-			throws IOException {
-		return null;
-	}
-
-	@Override
-	public Updater updateCallimachusWebapp(String origin) throws IOException {
-		return null;
-	}
-
-	@Override
-	public Updater updateOrigin(String virtual)
-			throws IOException {
-		return null;
-	}
-
-	@Override
-	public Updater finalizeCallimachusWebapp(String origin) throws IOException {
-		return null;
-	}
 
 	@Override
 	public Updater updateRealm(final String realm)
@@ -80,11 +58,6 @@ public class SecretRealmProvider implements UpdateProvider {
 				}
 			}
 		};
-	}
-
-	@Override
-	public Updater updateFrom(String origin, String version) throws IOException {
-		return null;
 	}
 
 }

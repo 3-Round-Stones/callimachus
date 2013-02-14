@@ -24,7 +24,7 @@ import org.openrdf.rio.RDFParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ServeAllProvider implements UpdateProvider {
+public class ServeAllProvider extends UpdateProvider {
 	private static final String SERVICEABLE = "types/Serviceable";
 	private static final String SCHEMA_GRAPH = "types/SchemaGraph";
 	private static final String GRAPH_DOCUMENT = "types/GraphDocument";
@@ -42,32 +42,6 @@ public class ServeAllProvider implements UpdateProvider {
 	private static final String CALLI_READER = CALLI + "reader";
 
 	final Logger logger = LoggerFactory.getLogger(ServeAllProvider.class);
-
-	@Override
-	public String getDefaultCallimachusWebappLocation(String origin)
-			throws IOException {
-		return null;
-	}
-
-	@Override
-	public Updater updateOrigin(String virtual) throws IOException {
-		return null;
-	}
-
-	@Override
-	public Updater updateRealm(String realm) throws IOException {
-		return null;
-	}
-
-	@Override
-	public Updater updateFrom(String origin, String version) throws IOException {
-		return null;
-	}
-
-	@Override
-	public Updater finalizeCallimachusWebapp(String origin) throws IOException {
-		return null;
-	}
 
 	@Override
 	public Updater updateCallimachusWebapp(final String origin) throws IOException {

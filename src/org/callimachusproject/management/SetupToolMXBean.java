@@ -28,8 +28,6 @@ public interface SetupToolMXBean {
 
 	void addRootRealm(String realm, String webappOrigin) throws Exception;
 
-	void importCar(String url, String folder) throws Exception;
-
 	String[] getDigestEmailAddresses(String webappOrigin)
 			throws OpenRDFException, IOException;
 

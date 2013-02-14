@@ -19,7 +19,7 @@ import org.openrdf.repository.object.ObjectConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class FileProvider implements UpdateProvider {
+public abstract class FileProvider extends UpdateProvider {
 	private static final String READER_GROUP = "/auth/groups/public";
 	private static final String SUBSCRIBER_GROUP = "/auth/groups/users";
 	private static final String EDIT_GROUP = "/auth/groups/staff";
@@ -34,23 +34,7 @@ public abstract class FileProvider implements UpdateProvider {
 			.getLogger(FileProvider.class);
 
 	@Override
-	public String getDefaultCallimachusWebappLocation(String origin)
-			throws IOException {
-		return null;
-	}
-
-	@Override
-	public Updater updateCallimachusWebapp(final String origin) throws IOException {
-		return null;
-	}
-
-	@Override
-	public Updater finalizeCallimachusWebapp(String origin) throws IOException {
-		return null;
-	}
-
-	public Updater updateOrigin(final String virtual)
-			throws IOException {
+	public Updater updateOrigin(final String virtual) throws IOException {
 		return new Updater() {
 			public boolean update(String webapp, CalliRepository repository)
 					throws IOException, OpenRDFException {
@@ -106,16 +90,6 @@ public abstract class FileProvider implements UpdateProvider {
 				return file;
 			}
 		};
-	}
-
-	public Updater updateRealm(String realm)
-			throws IOException {
-		return null;
-	}
-
-	@Override
-	public Updater updateFrom(String origin, String version) throws IOException {
-		return null;
 	}
 
 	protected abstract InputStream getFileResourceAsStream();

@@ -140,7 +140,6 @@ public class Server {
 				baseDir = new File(line.get("basedir"));
 			}
 			File backupDir = SystemProperties.getBackupDir();
-			File carFile = SystemProperties.getWebappCarFile();
 			File configFile = SystemProperties.getConfigFile();
 			File defaultsFile = SystemProperties.getConfigDefaultsFile();
 			File repositoryConfig = SystemProperties.getRepositoryConfigFile();
@@ -157,8 +156,7 @@ public class Server {
 						}
 					});
 			CallimachusConf conf = new CallimachusConf(configFile, defaultsFile);
-			SetupTool tool = new SetupTool(baseDir, repositoryConfig, carFile,
-					conf);
+			SetupTool tool = new SetupTool(baseDir, repositoryConfig, conf);
 			node = new CalliServer(tool, new ServerListener() {
 				public void serverStarted(WebServer server) {
 					registerMBean(server, WebServer.class);
@@ -180,9 +178,7 @@ public class Server {
 			registerMBean(new CalliKeyStore(etc), CalliKeyStore.class);
 			registerMBean(tool, SetupTool.class);
 			if (!line.has("trust")) {
-				HTTPObjectPolicy.apply(
-						new String[] { carFile.getAbsolutePath(),
-								defaultsFile.getAbsolutePath() }, configFile,
+				HTTPObjectPolicy.apply(new String[0], configFile,
 						repositoryConfig, backupDir, new File(baseDir,
 								"repositories"));
 			}

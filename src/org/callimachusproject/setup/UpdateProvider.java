@@ -2,17 +2,33 @@ package org.callimachusproject.setup;
 
 import java.io.IOException;
 
-public interface UpdateProvider {
+public abstract class UpdateProvider {
 
-	String getDefaultCallimachusWebappLocation(String origin) throws IOException;
+	public String getDefaultWebappLocation(String origin) throws IOException {
+		return null;
+	}
 
-	Updater updateOrigin(String virtual) throws IOException;
+	public Updater prepareCallimachusWebapp(String origin) throws IOException {
+		return null;
+	}
 
-	Updater updateRealm(String realm) throws IOException;
+	public Updater updateFrom(String origin, String version) throws IOException {
+		return null;
+	}
 
-	Updater updateFrom(String origin, String version) throws IOException;
+	public Updater updateCallimachusWebapp(String origin) throws IOException {
+		return null;
+	}
 
-	Updater updateCallimachusWebapp(String origin) throws IOException;
+	public Updater updateOrigin(String virtual) throws IOException {
+		return null;
+	}
 
-	Updater finalizeCallimachusWebapp(String origin) throws IOException;
+	public Updater updateRealm(String realm) throws IOException {
+		return null;
+	}
+
+	public Updater finalizeCallimachusWebapp(String origin) throws IOException {
+		return null;
+	}
 }

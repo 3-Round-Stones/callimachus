@@ -18,37 +18,26 @@ package org.callimachusproject.setup;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.http.HttpHost;
-import org.apache.http.client.utils.URIUtils;
-import org.callimachusproject.client.HTTPObjectClient;
-import org.callimachusproject.client.UnavailableHttpClient;
 import org.callimachusproject.engine.model.TermFactory;
-import org.callimachusproject.io.CarInputStream;
 import org.callimachusproject.repository.CalliRepository;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Graph;
@@ -64,8 +53,6 @@ import org.openrdf.model.util.ModelUtil;
 import org.openrdf.model.vocabulary.OWL;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.model.vocabulary.RDFS;
-import org.openrdf.query.QueryLanguage;
-import org.openrdf.query.TupleQueryResult;
 import org.openrdf.query.algebra.evaluation.util.ValueComparator;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
@@ -77,7 +64,6 @@ import org.openrdf.repository.config.RepositoryConfigSchema;
 import org.openrdf.repository.manager.LocalRepositoryManager;
 import org.openrdf.repository.manager.RepositoryProvider;
 import org.openrdf.repository.object.ObjectConnection;
-import org.openrdf.repository.object.exceptions.RDFObjectException;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParseException;
@@ -152,22 +138,15 @@ public class CallimachusSetup {
 					+ "'");
 	}
 
-	private static final String SCHEMA_GRAPH = "types/SchemaGraph";
 	private static final String GROUP_ADMIN = "/auth/groups/admin";
 	private static final String GROUP_STAFF = "/auth/groups/staff";
-	private static final String GROUP_PUBLIC = "/auth/groups/public";
 	private static final String CHANGES_PATH = "../changes/";
-	private static final String REALM_TYPE = "types/Realm";
-	private static final String ORIGIN_TYPE = "types/Origin";
 	private static final String USER_TYPE = "types/User";
-	private static final String FOLDER_TYPE = "types/Folder";
 
 	private static final String CALLI = "http://callimachusproject.org/rdf/2009/framework#";
 	private static final String CALLI_HASCOMPONENT = CALLI + "hasComponent";
 	private static final String CALLI_ADMINISTRATOR = CALLI + "administrator";
 	private static final String CALLI_SUBSCRIBER = CALLI + "subscriber";
-	private static final String CALLI_READER = CALLI + "reader";
-	private static final String CALLI_FOLDER = CALLI + "Folder";
 	private static final String CALLI_AUTHENTICATION = CALLI + "authentication";
 	private static final String CALLI_AUTHNAMESPACE = CALLI + "authNamespace";
 	private static final String CALLI_USER = CALLI + "User";
@@ -179,12 +158,8 @@ public class CallimachusSetup {
 	private static final String CALLI_AUTHNAME = CALLI + "authName";
 	private static final String CALLI_SECRET = CALLI + "secret";
 
-	private static final String RESOURCE_STRSTARTS = "SELECT ?resource { ?resource ?p ?o FILTER strstarts(str(?resource), str(<>)) }";
-	private static final String GRAPH_STRSTARTS = "SELECT ?graph { GRAPH ?graph { ?s ?p ?o } FILTER strstarts(str(?graph), str(<>)) }";
-
 	private final Logger logger = LoggerFactory.getLogger(CallimachusSetup.class);
-	private final ServiceLoader<UpdateProvider> updateProviders = ServiceLoader
-			.load(UpdateProvider.class, getClass().getClassLoader());
+	private final UpdateProvider updateProvider = new UpdateService(getClass().getClassLoader());
 	private final Map<String,TermFactory> webapps = new HashMap<String, TermFactory>();
 	private final CalliRepository repository;
 	private final ValueFactory vf;
@@ -248,11 +223,15 @@ public class CallimachusSetup {
 	 * @param origin
 	 * @return <code>true</code> if the webapp was successfully removed
 	 * @throws OpenRDFException
+	 * @throws IOException 
 	 */
-	public boolean clearCallimachusWebapp(String origin) throws OpenRDFException {
-		if (webappIfPresent(origin) == null)
+	public boolean prepareWebappOrigin(String origin) throws OpenRDFException, IOException {
+		validateOrigin(origin);
+		Updater updater = updateProvider.prepareCallimachusWebapp(origin);
+		String webapp = webappIfPresent(origin);
+		if (webapp == null)
 			return false;
-		return deleteComponents(origin) | removeAllComponents(origin);
+		return updater.update(webapp, repository);
 	}
 
 	/**
@@ -280,15 +259,10 @@ public class CallimachusSetup {
 			String newVersion = upgradeStore(origin);
 			modified |= !newVersion.equals(version);
 		}
-		Iterator<UpdateProvider> iter = updateProviders.iterator();
-		while (iter.hasNext()) {
-			Updater updater = iter.next().updateCallimachusWebapp(origin);
-			if (updater != null) {
-				String webapp1 = webapp(origin, "").stringValue();
-				modified |= updater.update(webapp1, repository);
-				updateWebappContext(origin);
-			}
-		}
+		Updater updater = updateProvider.updateCallimachusWebapp(origin);
+		String webapp1 = webapp(origin, "").stringValue();
+		modified |= updater.update(webapp1, repository);
+		updateWebappContext(origin);
 		return modified;
 	}
 
@@ -306,14 +280,9 @@ public class CallimachusSetup {
 		validateOrigin(origin);
 		validateOrigin(webappOrigin);
 		boolean modified = false;
-		Iterator<UpdateProvider> iter = updateProviders.iterator();
-		while (iter.hasNext()) {
-			Updater updater = iter.next().updateOrigin(origin);
-			if (updater != null) {
-				String webapp = webapp(webappOrigin, "").stringValue();
-				modified |= updater.update(webapp, repository);
-			}
-		}
+		Updater updater = updateProvider.updateOrigin(origin);
+		String webapp = webapp(webappOrigin, "").stringValue();
+		modified |= updater.update(webapp, repository);
 		return modified | createRealm(origin + "/", webappOrigin);
 	}
 
@@ -331,62 +300,13 @@ public class CallimachusSetup {
 		validateRealm(realm);
 		validateOrigin(webappOrigin);
 		boolean modified = false;
-		Iterator<UpdateProvider> iter = updateProviders.iterator();
-		while (iter.hasNext()) {
-			Updater updater = iter.next().updateRealm(realm);
-			if (updater != null) {
-				String webapp = webapp(webappOrigin, "").stringValue();
-				modified |= updater.update(webapp, repository);
-			}
-		}
+		Updater updater = updateProvider.updateRealm(realm);
+		String webapp = webapp(webappOrigin, "").stringValue();
+		modified |= updater.update(webapp, repository);
 		if (modified) {
 			logger.info("Created {}", realm);
 		}
 		return modified;
-	}
-
-	/**
-	 * Installs the Callimachus webapp into the origin.
-	 * 
-	 * @param car
-	 * @param webappOrigin origin to contain the Callimachus webapp
-	 * @return if the RDF store was modified
-	 * @throws OpenRDFException
-	 * @throws InvocationTargetException 
-	 * @throws NoSuchMethodException 
-	 * @throws IOException 
-	 */
-	public boolean importCallimachusWebapp(URL car, String webappOrigin)
-			throws OpenRDFException, IOException, NoSuchMethodException,
-			InvocationTargetException {
-		logger.info("Initializing {}", webappOrigin);
-		String folder = repository.getCallimachusUrl(webappOrigin, "");
-		if (folder == null)
-			throw new IllegalArgumentException("Origin not setup: " + webappOrigin);
-		return importCar(car, folder);
-	}
-
-	/**
-	 * Installs the given CAR (or ZIP) into the given folder.
-	 * 
-	 * @param car
-	 * @param folder absolute hierarchical URI with a path
-	 * @param webappOrigin that contains a Callimachus webapp
-	 * @return if the RDF store was modified
-	 * @throws InvocationTargetException 
-	 * @throws NoSuchMethodException 
-	 * @throws OpenRDFException 
-	 * @throws IOException 
-	 */
-	public boolean importCar(URL car, String folder)
-			throws IOException, OpenRDFException, NoSuchMethodException,
-			InvocationTargetException {
-		if (car == null)
-			throw new IllegalArgumentException("No CAR provided");
-		String webappOrigin = createFolder(folder);
-		URI[] schemaGraphs = importSchema(car, folder, webappOrigin);
-		importArchive(schemaGraphs, car, folder, webappOrigin);
-		return true;
 	}
 
 	/**
@@ -502,16 +422,9 @@ public class CallimachusSetup {
 
 	public boolean finalizeWebappOrigin(String origin) throws IOException, OpenRDFException {
 		validateOrigin(origin);
-		boolean modified = false;
-		Iterator<UpdateProvider> iter = updateProviders.iterator();
-		while (iter.hasNext()) {
-			Updater updater = iter.next().finalizeCallimachusWebapp(origin);
-			if (updater != null) {
-				String webapp = webapp(origin, "").stringValue();
-				modified |= updater.update(webapp, repository);
-			}
-		}
-		return modified;
+		Updater updater = updateProvider.finalizeCallimachusWebapp(origin);
+		String webapp = webapp(origin, "").stringValue();
+		return updater.update(webapp, repository);
 	}
 
 	private String encode(String string) {
@@ -570,12 +483,9 @@ public class CallimachusSetup {
 	}
 
 	private String createWebappUrl(String origin) throws IOException {
-		Iterator<UpdateProvider> iter = updateProviders.iterator();
-		while (iter.hasNext()) {
-			String webapp = iter.next().getDefaultCallimachusWebappLocation(origin);
-			if (webapp != null)
-				return webapp;
-		}
+		String webapp = updateProvider.getDefaultWebappLocation(origin);
+		if (webapp != null)
+			return webapp;
 		throw new AssertionError("Cannot determine Callimachus webapp folder");
 	}
 
@@ -611,15 +521,10 @@ public class CallimachusSetup {
 
 	private String upgradeStore(String origin) throws OpenRDFException, IOException {
 		String version = getStoreVersion(origin);
-		Iterator<UpdateProvider> iter = updateProviders.iterator();
-		while (iter.hasNext()) {
-			Updater updater = iter.next().updateFrom(origin, version);
-			if (updater != null) {
-				String webapp = webapp(origin, "").stringValue();
-				updater.update(webapp, repository);
-				updateWebappContext(origin);
-			}
-		}
+		Updater updater = updateProvider.updateFrom(origin, version);
+		String webapp = webapp(origin, "").stringValue();
+		updater.update(webapp, repository);
+		updateWebappContext(origin);
 		String newVersion = getStoreVersion(origin);
 		if (version != null && !version.equals(newVersion)) {
 			logger.info("Upgraded store from {} to {}", version, newVersion);
@@ -633,313 +538,6 @@ public class CallimachusSetup {
 			webapps.clear();
 		}
 		repository.setChangeFolder(webapp(origin, CHANGES_PATH).stringValue());
-	}
-
-	private boolean deleteComponents(String origin) {
-		try {
-			try {
-				repository.setSchemaGraphType(webapp(origin, SCHEMA_GRAPH)
-						.stringValue());
-				repository.setCompileRepository(true);
-				ObjectConnection con = repository.getConnection();
-				try {
-					con.setAutoCommit(false);
-					Object folder = con.getObject(webapp(origin, ""));
-					Method DeleteComponents = findDeleteComponents(folder);
-					try {
-						logger.info("Removing {}", folder);
-						invokeAndRemove(DeleteComponents, folder, origin, con);
-						con.setAutoCommit(true);
-						return true;
-					} catch (InvocationTargetException e) {
-						try {
-							throw e.getCause();
-						} catch (Exception cause) {
-							logger.warn(cause.toString());
-						} catch (Error cause) {
-							logger.warn(cause.toString());
-						} catch (Throwable cause) {
-							logger.warn(cause.toString());
-						}
-						con.rollback();
-						return false;
-					}
-				} catch (IllegalAccessException e) {
-					logger.debug(e.toString());
-				} catch (NoSuchMethodException e) {
-					logger.debug(e.toString());
-				} finally {
-					con.rollback();
-					repository.setCompileRepository(false);
-					con.close();
-				}
-			} finally {
-				repository.setCompileRepository(false);
-			}
-		} catch (RDFObjectException e) {
-			logger.debug(e.toString());
-		} catch (OpenRDFException e) {
-			logger.debug(e.toString());
-		}
-		return false;
-	}
-
-	private void invokeAndRemove(Method DeleteComponents, Object folder,
-			String origin, ObjectConnection con) throws IllegalAccessException,
-			InvocationTargetException, OpenRDFException {
-		int argc = DeleteComponents.getParameterTypes().length;
-		DeleteComponents.invoke(folder, new Object[argc]);
-		URI target = webapp(origin, "");
-		con.remove(webapp(origin, "../"), null, target);
-		con.remove(target, null, null);
-		con.remove((Resource)null, null, null, target);
-	}
-
-	private Method findDeleteComponents(Object folder)
-			throws NoSuchMethodException {
-		for (Method method : folder.getClass().getMethods()) {
-			if ("DeleteComponents".equals(method.getName()))
-				return method;
-		}
-		throw new NoSuchMethodException("DeleteComponents in " + folder);
-	}
-
-	private boolean removeAllComponents(String origin) throws OpenRDFException {
-		boolean modified = false;
-		ObjectConnection con = repository.getConnection();
-		try {
-			con.setAutoCommit(false);
-			String folder = webapp(origin, "").stringValue();
-			TupleQueryResult results;
-			results = con.prepareTupleQuery(QueryLanguage.SPARQL,
-					GRAPH_STRSTARTS, folder).evaluate();
-			try {
-				while (results.hasNext()) {
-					if (!modified) {
-						modified = true;
-						logger.info("Expunging {}", folder);
-					}
-					URI graph = (URI) results.next().getValue("graph");
-					con.clear(graph);
-				}
-			} finally {
-				results.close();
-			}
-			results = con.prepareTupleQuery(QueryLanguage.SPARQL,
-					RESOURCE_STRSTARTS, folder).evaluate();
-			try {
-				while (results.hasNext()) {
-					if (!modified) {
-						modified = true;
-						logger.info("Expunging {}", folder);
-					}
-					URI resource = (URI) results.next().getValue("resource");
-					if (folder.equals(resource.stringValue())) {
-						URI hasComponent = vf.createURI(CALLI_HASCOMPONENT);
-						con.remove(resource, hasComponent, null);
-					} else {
-						con.remove(resource, null, null);
-					}
-				}
-			} finally {
-				results.close();
-			}
-			con.setAutoCommit(true);
-			return modified;
-		} finally {
-			con.rollback();
-			con.close();
-		}
-	}
-
-	private URI[] importSchema(URL car, String folder, String origin) throws RepositoryException,
-			IOException, RDFParseException {
-		Collection<URI> schemaGraphs = new LinkedHashSet<URI>();
-		ObjectConnection con = repository.getConnection();
-		try {
-			con.setAutoCommit(false);
-			CarInputStream carin = new CarInputStream(car.openStream());
-			try {
-				String name;
-				while ((name = carin.readEntryName()) != null) {
-					try {
-						URI graph = importSchemaGraphEntry(carin, folder, con);
-						if (graph != null) {
-							schemaGraphs.add(graph);
-						}
-					} catch (RDFParseException e) {
-						String msg = e.getMessage() + " in " + name;
-						RDFParseException pe = new RDFParseException(msg, e.getLineNumber(), e.getColumnNumber());
-						pe.initCause(e);
-						throw pe;
-					}
-				}
-			} finally {
-				carin.close();
-			}
-			con.setAutoCommit(true);
-		} finally {
-			con.close();
-		}
-		return schemaGraphs.toArray(new URI[schemaGraphs.size()]);
-	}
-
-	private URI importSchemaGraphEntry(CarInputStream carin, String folder,
-			ObjectConnection con) throws IOException, RDFParseException,
-			RepositoryException {
-		ValueFactory vf = con.getValueFactory();
-		String target = folder + carin.readEntryName();
-		InputStream in = carin.getEntryStream();
-		try {
-			if (carin.isSchemaEntry()) {
-				URI graph = con.getVersionBundle();
-				con.add(in, target, RDFFormat.RDFXML, graph);
-				return graph;
-			} else if (carin.isFileEntry()) {
-				URI graph = vf.createURI(target);
-				if (carin.getEntryType().startsWith("application/rdf+xml")) {
-					con.clear(graph);
-					con.add(in, target, RDFFormat.RDFXML, graph);
-					return graph;
-				} else if (carin.getEntryType().startsWith("text/turtle")) {
-					con.clear(graph);
-					con.add(in, target, RDFFormat.TURTLE, graph);
-					return graph;
-				} else {
-					byte[] buf = new byte[1024];
-					while (in.read(buf) >= 0)
-						;
-					return null;
-				}
-			} else {
-				byte[] buf = new byte[1024];
-				while (in.read(buf) >= 0)
-					;
-				return null;
-			}
-		} finally {
-			in.close();
-		}
-	}
-
-	private void importArchive(URI[] schemaGraphs, URL car, String folderUri,
-			String origin) throws IOException, OpenRDFException,
-			NoSuchMethodException, InvocationTargetException {
-		HttpHost host = getAuthorityAddress(origin);
-		HTTPObjectClient client = HTTPObjectClient.getInstance();
-		UnavailableHttpClient service = new UnavailableHttpClient();
-		client.setProxy(host, service);
-		for (URI schemaGraph : schemaGraphs) {
-			repository.addSchemaGraph(schemaGraph.stringValue());
-		}
-		repository.setCompileRepository(true);
-		ObjectConnection con = repository.getConnection();
-		try {
-			con.setAutoCommit(false);
-			if (schemaGraphs.length > 0) {
-				con.clear(schemaGraphs);
-			}
-			Object folder = con.getObject(folderUri);
-			Method UploadFolderComponents = findUploadFolderComponents(folder);
-			InputStream in = car.openStream();
-			try {
-				logger.info("Importing {} into {}", car, folderUri);
-				int argc = UploadFolderComponents.getParameterTypes().length;
-				Object[] args = new Object[argc];
-				args[0] = in;
-				UploadFolderComponents.invoke(folder, args);
-			} catch (IllegalAccessException e) {
-				throw new AssertionError(e);
-			} finally {
-				in.close();
-			}
-			repository.setCompileRepository(false);
-			con.setAutoCommit(true);
-		} finally {
-			con.close();
-			client.removeProxy(host, service);
-		}
-	}
-
-	private Method findUploadFolderComponents(Object folder)
-			throws NoSuchMethodException {
-		for (Method method : folder.getClass().getMethods()) {
-			if ("UploadFolderComponents".equals(method.getName()))
-				return method;
-		}
-		throw new NoSuchMethodException("UploadFolderComponents");
-	}
-
-	private String createFolder(String folder) throws OpenRDFException {
-		String origin = null;
-		int idx = folder.lastIndexOf('/', folder.length() - 2);
-		String parent = folder.substring(0, idx + 1);
-		if (parent.endsWith("://")) {
-			parent = null;
-		} else {
-			origin = createFolder(parent);
-		}
-		ValueFactory vf = repository.getValueFactory();
-		ObjectConnection con = repository.getConnection();
-		try {
-			URI uri = vf.createURI(folder);
-			if (origin == null || parent == null) {
-				RepositoryResult<Statement> stmts = con.getStatements(uri,
-						RDF.TYPE, null);
-				try {
-					while (stmts.hasNext()) {
-						Statement st = stmts.next();
-						String type = st.getObject().stringValue();
-						if (type.endsWith(ORIGIN_TYPE)
-								|| type.endsWith(REALM_TYPE)
-								|| type.endsWith(FOLDER_TYPE)) {
-							String root = TermFactory.newInstance(type)
-									.resolve("/");
-							return root.substring(0, root.length() - 1);
-						}
-					}
-				} finally {
-					stmts.close();
-				}
-				throw new IllegalStateException(
-						"Can only import a CAR within a previously defined origin or realm");
-			} else {
-				if (con.hasStatement(uri, RDF.TYPE, webapp(origin, ORIGIN_TYPE)))
-					return origin;
-				if (con.hasStatement(uri, RDF.TYPE, webapp(origin, REALM_TYPE)))
-					return origin;
-				if (con.hasStatement(uri, RDF.TYPE, webapp(origin, FOLDER_TYPE)))
-					return origin;
-				if (con.hasStatement(vf.createURI(parent),
-						vf.createURI(CALLI_HASCOMPONENT), uri))
-					return origin;
-
-				con.setAutoCommit(false);
-				con.add(vf.createURI(parent), vf.createURI(CALLI_HASCOMPONENT),
-						uri);
-				String label = folder.substring(parent.length())
-						.replace("/", "").replace('-', ' ');
-				con.add(uri, RDF.TYPE, vf.createURI(CALLI_FOLDER));
-				con.add(uri, RDF.TYPE, webapp(origin, FOLDER_TYPE));
-				con.add(uri, RDFS.LABEL, vf.createLiteral(label));
-				add(con, uri, CALLI_READER, origin + GROUP_PUBLIC);
-				add(con, uri, CALLI_ADMINISTRATOR, origin + GROUP_ADMIN);
-				con.setAutoCommit(true);
-				return origin;
-			}
-		} finally {
-			con.close();
-		}
-	}
-
-	private HttpHost getAuthorityAddress(String origin) {
-		return URIUtils.extractHost(java.net.URI.create(origin + "/"));
-	}
-
-	private void add(ObjectConnection con, URI subj, String pred,
-			String resource) throws RepositoryException {
-		ValueFactory vf = con.getValueFactory();
-		con.add(subj, vf.createURI(pred), vf.createURI(resource));
 	}
 
 	private List<String> getDigestUserNamespaces(String origin,

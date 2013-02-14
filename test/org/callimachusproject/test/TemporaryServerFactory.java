@@ -206,9 +206,11 @@ public class TemporaryServerFactory {
 			}
 			dir.delete();
 			String config = new Scanner(new File("etc", "callimachus-repository.ttl")).useDelimiter("\\A").next();
+			System.setProperty("org.callimachusproject.config.webapp", WEBAPP_CAR.getAbsolutePath());
 			CallimachusSetup setup = new CallimachusSetup(dir, config);
+			setup.prepareWebappOrigin(origin);
 			setup.createWebappOrigin(origin);
-			setup.importCallimachusWebapp(WEBAPP_CAR.toURI().toURL(), origin);
+			setup.finalizeWebappOrigin(origin);
 			String username = email.substring(0, email.indexOf('@'));
 			setup.createAdmin(email, username, username, null, origin);
 			setup.changeUserPassword(email, username, password, origin);

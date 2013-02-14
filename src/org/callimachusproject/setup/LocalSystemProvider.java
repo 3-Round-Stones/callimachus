@@ -10,37 +10,14 @@ import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.repository.object.ObjectConnection;
 
-public class LocalSystemProvider implements UpdateProvider {
+public class LocalSystemProvider extends UpdateProvider {
 	private static final String SYSTEM_GROUP = "/auth/groups/system";
 	private static final String CALLI = "http://callimachusproject.org/rdf/2009/framework#";
 	private static final String CALLI_ANONYMOUSFROM = CALLI + "anonymousFrom";
 	private final DomainNameSystemResolver dnsResolver = DomainNameSystemResolver
 			.getInstance();
 
-	public String getDefaultCallimachusWebappLocation(String origin)
-			throws IOException {
-		return null;
-	}
-
-	public Updater updateFrom(String origin, String version) throws IOException {
-		return null;
-	}
-
-
-	public Updater updateOrigin(final String virtual)
-			throws IOException {
-		return null;
-	}
-
-	public Updater updateRealm(String realm)
-			throws IOException {
-		return null;
-	}
-
-	public Updater finalizeCallimachusWebapp(String origin) throws IOException {
-		return null;
-	}
-
+	@Override
 	public Updater updateCallimachusWebapp(final String origin) throws IOException {
 		return new Updater() {
 			public boolean update(String webapp,

@@ -23,7 +23,7 @@ import org.openrdf.repository.object.exceptions.RDFObjectException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Callimachus_0_18_UpgradeProvider implements UpdateProvider {
+public class Callimachus_0_18_UpgradeProvider extends UpdateProvider {
 	private static final String MOVED_FILE = "PREFIX foaf:<http://xmlns.com/foaf/0.1/>\n"
 			+ "PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>\n"
 			+ "SELECT DISTINCT ?file { </callimachus/> calli:hasComponent ?file FILTER (?file=</callimachus/profile> || EXISTS { ?file a foaf:Document }) }";
@@ -34,29 +34,7 @@ public class Callimachus_0_18_UpgradeProvider implements UpdateProvider {
 
 	private final Logger logger = LoggerFactory.getLogger(Callimachus_0_18_UpgradeProvider.class);
 
-	public String getDefaultCallimachusWebappLocation(String origin)
-			throws IOException {
-		return null;
-	}
-
-	public Updater updateCallimachusWebapp(String origin) throws IOException {
-		return null;
-	}
-
-	public Updater updateOrigin(String virtual)
-			throws IOException {
-		return null;
-	}
-
-	public Updater updateRealm(String realm)
-			throws IOException {
-		return null;
-	}
-
-	public Updater finalizeCallimachusWebapp(String origin) throws IOException {
-		return null;
-	}
-
+	@Override
 	public Updater updateFrom(final String origin, String version)
 			throws IOException {
 		if (!"0.18".equals(version))

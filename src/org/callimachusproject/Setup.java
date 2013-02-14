@@ -165,23 +165,18 @@ public class Setup {
 	public void start() throws Exception {
 		boolean changed = false;
 		File repositoryConfig = SystemProperties.getRepositoryConfigFile();
-		File webappCar = SystemProperties.getWebappCarFile();
 		CallimachusConf conf = new CallimachusConf();
 		String configString = readContent(repositoryConfig.toURI().toURL());
 		CallimachusSetup setup = new CallimachusSetup(basedir, configString);
 		try {
-			if (webappCar.canRead()) {
-				for (String origin : conf.getCallimachusWebappOrigins()) {
-					changed |= setup.clearCallimachusWebapp(origin);
-				}
+			for (String origin : conf.getCallimachusWebappOrigins()) {
+				changed |= setup.prepareWebappOrigin(origin);
 			}
 			for (String origin : conf.getCallimachusWebappOrigins()) {
 				changed |= setup.createWebappOrigin(origin);
 			}
-			if (webappCar.canRead()) {
-				for (String origin : conf.getCallimachusWebappOrigins()) {
-					changed |= setup.importCallimachusWebapp(webappCar.toURI().toURL(), origin);
-				}
+			for (String origin : conf.getCallimachusWebappOrigins()) {
+				changed |= setup.finalizeWebappOrigin(origin);
 			}
 			if (email != null && email.length() > 0) {
 				for (String origin : conf.getCallimachusWebappOrigins()) {
@@ -197,9 +192,6 @@ public class Setup {
 						changed |= setup.changeUserPassword(email, username, password, origin);
 					}
 				}
-			}
-			for (String origin : conf.getCallimachusWebappOrigins()) {
-				changed |= setup.finalizeWebappOrigin(origin);
 			}
 		} finally {
 			setup.shutDown();

@@ -22,7 +22,7 @@ import org.openrdf.repository.object.ObjectConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SparqlUpdateProvider implements UpdateProvider {
+public class SparqlUpdateProvider extends UpdateProvider {
 	private static final Pattern DEFAULT_WEBAPP = Pattern.compile("(?:^|\n)\\s*#\\s*@webapp\\s*<([^>]*)>\\s*(?:\n|$)");
 	private static final String WEBAPP_RU = "META-INF/upgrade/callimachus-webapp.ru";
 	private static final String ORIGIN_RU = "META-INF/upgrade/callimachus-origin.ru";
@@ -31,7 +31,8 @@ public class SparqlUpdateProvider implements UpdateProvider {
 	private final Logger logger = LoggerFactory
 			.getLogger(SparqlUpdateProvider.class);
 
-	public String getDefaultCallimachusWebappLocation(String origin) throws IOException {
+	@Override
+	public String getDefaultWebappLocation(String origin) throws IOException {
 		Enumeration<URL> resources = getClass().getClassLoader().getResources(WEBAPP_RU);
 		if (!resources.hasMoreElements())
 			logger.warn("Missing {}", WEBAPP_RU);
@@ -55,6 +56,7 @@ public class SparqlUpdateProvider implements UpdateProvider {
 		return null;
 	}
 
+	@Override
 	public Updater updateCallimachusWebapp(final String origin) throws IOException {
 		final ClassLoader cl = getClass().getClassLoader();
 		Enumeration<URL> resources = cl.getResources(WEBAPP_RU);
@@ -159,6 +161,7 @@ public class SparqlUpdateProvider implements UpdateProvider {
 		};
 	}
 
+	@Override
 	public Updater updateFrom(final String origin, final String version) throws IOException {
 		final ClassLoader cl = getClass().getClassLoader();
 		final String name = "META-INF/upgrade/callimachus-" + version + ".ru";

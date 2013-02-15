@@ -84,7 +84,7 @@
             created.ValidateBook();
             created.CheckBook();
         } catch (e if e.javaException instanceof ServiceUnavailable) {
-            java.lang.System.err.println("Storing " + this);
+            java.lang.System.err.println("Storing " + created);
         }
         return created;
     """.

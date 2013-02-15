@@ -152,7 +152,6 @@ public class Server {
 			if (line.has("backups")) {
 				backupDir = new File(line.get("backups"));
 			}
-			File repositoryConfig = SystemProperties.getRepositoryConfigFile();
 			ManagedExecutors.getInstance().addListener(
 					new ManagedThreadPoolListener() {
 						public void threadPoolStarted(String name,
@@ -166,6 +165,7 @@ public class Server {
 						}
 					});
 			CallimachusConf conf = new CallimachusConf(confFile);
+			File repositoryConfig = SystemProperties.getRepositoryConfigFile();
 			SetupTool tool = new SetupTool(baseDir, repositoryConfig, conf);
 			node = new CalliServer(tool, new ServerListener() {
 				public void serverStarted(WebServer server) {
@@ -190,9 +190,11 @@ public class Server {
 			registerMBean(new CalliKeyStore(etc), CalliKeyStore.class);
 			registerMBean(tool, SetupTool.class);
 			if (!line.has("trust")) {
-				HTTPObjectPolicy.apply(new String[0], confFile,
-						repositoryConfig, backupDir, new File(baseDir,
-								"repositories"));
+				File[] writable = { confFile, repositoryConfig, backupDir,
+						SystemProperties.getMailPropertiesFile(),
+						SystemProperties.getLoggingPropertiesFile(),
+						new File(baseDir, "repositories") };
+				HTTPObjectPolicy.apply(new String[0], writable);
 			}
 			node.init();
 		} catch (Throwable e) {

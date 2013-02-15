@@ -74,8 +74,8 @@ if [ -z "$CONFIG" ] ; then
   CONFIG="$BASEDIR/etc/$NAME.conf"
 fi
 
-if [ ! -r "$CONFIG" ]; then
-  CONFIG="$BASEDIR/etc/$NAME-defaults.conf"
+if [ ! -e "$CONFIG" -a -r "$BASEDIR/etc/$NAME-defaults.conf" ]; then
+  cp "$BASEDIR/etc/$NAME-defaults.conf" "$CONFIG"
 fi
 
 if [ -r "$CONFIG" ]; then
@@ -298,30 +298,6 @@ fi
 
 if [ -z "$JSVC_OPTS" ] ; then
   JSVC_OPTS="$JAVA_OPTS"
-fi
-
-if [ -z "$PORT" -a -z "$SSLPORT" ] ; then
-  PORT="8080"
-fi
-
-if [ -z "$ORIGIN" ] ; then
-  if [ -n "$AUTHORITY" ] ; then
-    ORIGIN="http://$AUTHORITY"
-  elif [ -n "$PORT" ] ; then
-    ORIGIN="http://localhost"
-    if [ "$PORT" != "80" ] ; then
-      ORIGIN="$ORIGIN:$PORT"
-    fi
-  elif [ -n "$SSLPORT" ] ; then
-    ORIGIN="https://localhost"
-    if [ "$SSLPORT" != "443" ] ; then
-      ORIGIN="$ORIGIN:$SSLPORT"
-    fi
-  fi
-fi
-
-if [ -z "$PRIMARY_ORIGIN" ] ; then
-  PRIMARY_ORIGIN="$ORIGIN"
 fi
 
 if [ -z "$OPTS" ] ; then
@@ -588,10 +564,12 @@ do_start()
     -Djava.io.tmpdir="$TMPDIR" \
     -Djava.util.logging.config.file="$LOGGING" \
     -Djava.mail.properties="$MAIL" \
+    -Dorg.callimachusproject.config.repository="$REPOSITORY_CONFIG" \
+    -Dorg.callimachusproject.config.webapp="$(ls $BASEDIR/lib/$NAME-webapp*.car)" \
     -classpath "$CLASSPATH" \
     -user "$DAEMON_USER" \
     -XX:OnOutOfMemoryError="kill -9 %p" \
-    $JSVC_OPTS $SSL_OPTS $JMXRMI_OPTS "$MAINCLASS" -q -b "$BASEDIR" $OPTS "$@"
+    $JSVC_OPTS $SSL_OPTS $JMXRMI_OPTS "$MAINCLASS" -q -b "$BASEDIR" -c "$CONFIG" -k "$BASEDIR/backups" $OPTS "$@"
 
   RETURN_VAL=$?
   sleep 1
@@ -683,30 +661,38 @@ do_stop()
 # Function that loads the configuration and prompts for a user
 #
 do_setup() {
-  if [ ! -e "$BASEDIR/etc/$NAME.conf" -a -r "$BASEDIR/etc/$NAME-defaults.conf" ]; then
-    cp "$BASEDIR/etc/$NAME-defaults.conf" "$BASEDIR/etc/$NAME.conf"
-    if [ -n "$PRIMARY_ORIGIN" ] ; then
-      sed -i "s%#\?\s*PRIMARY_ORIGIN=.*%PRIMARY_ORIGIN=\"$PRIMARY_ORIGIN\"%" "$BASEDIR/etc/$NAME.conf"
+  if [ -z "$PORT" -a -z "$SSLPORT" ] ; then
+    PORT="8080"
+    sed -i "s:#\?\s*PORT=.*:PORT=$PORT:" "$CONFIG"
+  fi
+
+  if [ -z "$ORIGIN" ] ; then
+    if [ -n "$AUTHORITY" ] ; then
+      ORIGIN="http://$AUTHORITY"
+    elif [ -n "$PORT" ] ; then
+      ORIGIN="http://localhost"
+      if [ "$PORT" != "80" ] ; then
+        ORIGIN="$ORIGIN:$PORT"
+      fi
+    elif [ -n "$SSLPORT" ] ; then
+      ORIGIN="https://localhost"
+      if [ "$SSLPORT" != "443" ] ; then
+        ORIGIN="$ORIGIN:$SSLPORT"
+      fi
     fi
-    if [ -n "$ORIGIN" ] ; then
-      sed -i "s%#\?\s*ORIGIN=.*%ORIGIN=\"$ORIGIN\"%" "$BASEDIR/etc/$NAME.conf"
-    fi
-    if [ -n "$PORT" ] ; then
-      sed -i "s:#\?\s*PORT=.*:PORT=\"$PORT\":" "$BASEDIR/etc/$NAME.conf"
-    fi
-    if [ -n "$SSLPORT" ] ; then
-      sed -i "s:#\?\s*SSLPORT=.*:SSLPORT=\"$SSLPORT\":" "$BASEDIR/etc/$NAME.conf"
-    fi
+    sed -i "s%#\?\s*ORIGIN=.*%ORIGIN=$ORIGIN%" "$CONFIG"
   fi
 
   "$JAVA_HOME/bin/java" \
     -Duser.home="$BASEDIR" \
     -Djava.io.tmpdir="$TMPDIR" \
     -Djava.mail.properties="$MAIL" \
+    -Dorg.callimachusproject.config.repository="$REPOSITORY_CONFIG" \
+    -Dorg.callimachusproject.config.webapp="$(ls $BASEDIR/lib/$NAME-webapp*.car)" \
     -classpath "$CLASSPATH" \
     -XX:OnOutOfMemoryError="kill -9 %p" \
     $JAVA_OPTS "$SETUPCLASS" \
-    -b "$BASEDIR" -e "$EMAIL" -n "$FULLNAME" "$@"
+    -b "$BASEDIR" -c "$CONFIG" -k "$BASEDIR/backups" -e "$EMAIL" -n "$FULLNAME" "$@"
   return $?
 }
 
@@ -776,10 +762,12 @@ do_run() {
     -Djava.io.tmpdir="$TMPDIR" \
     -Djava.util.logging.config.file="$LOGGING" \
     -Djava.mail.properties="$MAIL" \
+    -Dorg.callimachusproject.config.repository="$REPOSITORY_CONFIG" \
+    -Dorg.callimachusproject.config.webapp="$(ls $BASEDIR/lib/$NAME-webapp*.car)" \
     -XX:OnOutOfMemoryError="kill -9 %p" \
     -classpath "$CLASSPATH" \
     -user "$DAEMON_USER" \
-    $JSVC_OPTS $SSL_OPTS $JMXRMI_OPTS "$MAINCLASS" -q -b "$BASEDIR" "$@"
+    $JSVC_OPTS $SSL_OPTS $JMXRMI_OPTS "$MAINCLASS" -q -b "$BASEDIR" -c "$CONFIG" -k "$BASEDIR/backups" "$@"
 }
 
 case "$1" in
@@ -928,8 +916,10 @@ case "$1" in
   setup)
     if [ "$VERBOSE" != no ]; then
       log_success_msg "Using BASEDIR:   $BASEDIR"
-      log_success_msg "Using PORT:      $PORT $SSLPORT"
-      log_success_msg "Using ORIGIN:    $ORIGIN"
+      if [ -n "$ORIGIN" ] ; then
+        log_success_msg "Using PORT:      $PORT $SSLPORT"
+        log_success_msg "Using ORIGIN:    $ORIGIN"
+      fi
       log_success_msg "Using JAVA_HOME: $JAVA_HOME"
       log_success_msg "Using JDK_HOME:  $JDK_HOME"
     fi

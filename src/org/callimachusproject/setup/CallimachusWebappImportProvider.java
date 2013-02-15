@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 
@@ -26,7 +27,7 @@ import org.openrdf.rio.RDFParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CallimachusWebappImportProvider extends WebappImportProvider {
+public class CallimachusWebappImportProvider extends UpdateProvider {
 	private static final String SCHEMA_GRAPH = "types/SchemaGraph";
 	private static final String CALLI = "http://callimachusproject.org/rdf/2009/framework#";
 	private static final String CALLI_HASCOMPONENT = CALLI + "hasComponent";
@@ -40,12 +41,13 @@ public class CallimachusWebappImportProvider extends WebappImportProvider {
 	@Override
 	public Updater prepareCallimachusWebapp(final String origin)
 			throws IOException {
-		if (isAvailable()) {
+		if (SystemProperties.getWebappCarFile().canRead()) {
 			return new Updater() {
 				public boolean update(String webapp, CalliRepository repository)
 						throws IOException, OpenRDFException {
 					if (!isPresent(webapp, repository))
 						return false;
+					logger.info("Initializing {}", origin);
 					return clearCallimachusWebapp(origin, webapp, repository);
 				}
 			};
@@ -53,16 +55,25 @@ public class CallimachusWebappImportProvider extends WebappImportProvider {
 		return null;
 	}
 
-	protected boolean isAvailable() {
-		return SystemProperties.getWebappCarFile().canRead();
-	}
-
-	protected String getTargetFolder(String webapp) {
-		return webapp;
-	}
-
-	protected InputStream openCarWebappStream() throws IOException {
-		return new FileInputStream(SystemProperties.getWebappCarFile());
+	@Override
+	public Updater updateCallimachusWebapp(final String origin)
+			throws IOException {
+		if (SystemProperties.getWebappCarFile().canRead()) {
+			return new Updater() {
+				public boolean update(String webapp, CalliRepository repository)
+						throws IOException, OpenRDFException {
+					try {
+						importArchive(webapp, repository);
+						return true;
+					} catch (NoSuchMethodException e) {
+						throw new UndeclaredThrowableException(e);
+					} catch (InvocationTargetException e) {
+						throw new UndeclaredThrowableException(e);
+					}
+				}
+			};
+		}
+		return null;
 	}
 
 	/**
@@ -76,6 +87,19 @@ public class CallimachusWebappImportProvider extends WebappImportProvider {
 			CalliRepository repository) throws OpenRDFException {
 		return deleteComponents(origin, webapp, repository)
 				| removeAllComponents(origin, webapp, repository);
+	}
+
+	void importArchive(String webapp, CalliRepository repo) throws IOException,
+			OpenRDFException, NoSuchMethodException, InvocationTargetException {
+		WebappArchiveImporter importer = new WebappArchiveImporter(webapp, repo);
+		importer.setSchemaGraphs(getSchemaGraphs(webapp, repo));
+		InputStream in = new FileInputStream(
+				SystemProperties.getWebappCarFile());
+		try {
+			importer.importArchive(in, webapp);
+		} finally {
+			in.close();
+		}
 	}
 
 	private boolean isPresent(String webapp, CalliRepository repository)
@@ -222,14 +246,13 @@ public class CallimachusWebappImportProvider extends WebappImportProvider {
 		return parent;
 	}
 
-	@Override
-	protected URI[] getSchemaGraphs(String folder, CalliRepository repository)
+	private URI[] getSchemaGraphs(String folder, CalliRepository repository)
 			throws IOException, OpenRDFException {
 		Collection<URI> schemaGraphs = new LinkedHashSet<URI>();
 		ObjectConnection con = repository.getConnection();
 		try {
 			con.setAutoCommit(false);
-			CarInputStream carin = new CarInputStream(openCarWebappStream());
+			CarInputStream carin = new CarInputStream(new FileInputStream(SystemProperties.getWebappCarFile()));
 			try {
 				String name;
 				while ((name = carin.readEntryName()) != null) {

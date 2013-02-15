@@ -43,7 +43,6 @@
         <!-- Delete the directory trees -->
         <delete dir="${reports.tests}" />
         <delete dir="${build.tests}" />
-        <delete dir="${lib.tests}" />
         <delete dir="${build}" />
         <delete dir="${dist}" />
         <delete dir="${lib}" />
@@ -52,6 +51,7 @@
     </target>
 
     <target name="dist-clean" depends="clean">
+        <delete dir="${lib.tests}" />
         <delete dir="${downloads}" />
     </target>
 

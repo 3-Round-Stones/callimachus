@@ -84,8 +84,7 @@ public class BackupTool implements BackupToolMXBean {
 	}
 
 	public String getBackupLabels() {
-		File backups = new File(baseDir, "backups");
-		File[] list = backups.listFiles();
+		File[] list = backupDir.listFiles();
 		if (list == null)
 			return "";
 		Arrays.sort(list, new Comparator<File>() {
@@ -122,15 +121,10 @@ public class BackupTool implements BackupToolMXBean {
 	synchronized void blockCreateBackup(String label) throws IOException {
 		backup = true;
 		try {
+			baseDir.mkdirs();
 			String name = label.replaceAll("\\s+", "_") + ".zip";
 			File backup = new File(backupDir, name);
-			if (!baseDir.isDirectory())
-				throw new FileNotFoundException();
-			if (backup.exists()) {
-				logger.warn("Replacing {}", backup);
-			} else {
-				logger.info("Creating {}", backup);
-			}
+			boolean replacing = backup.exists();
 			boolean created = false;
 			backup.getParentFile().mkdirs();
 			FileOutputStream out = new FileOutputStream(backup);
@@ -142,6 +136,11 @@ public class BackupTool implements BackupToolMXBean {
 				if (listFiles != null) {
 					for (File f : listFiles) {
 						if (!"SYSTEM".equals(f.getName())) {
+							if (!created && replacing) {
+								logger.warn("Replacing {}", backup);
+							} else if (!created) {
+								logger.info("Creating {}", backup);
+							}
 							created |= putEntries(base, f, zos);
 						}
 					}
@@ -155,6 +154,9 @@ public class BackupTool implements BackupToolMXBean {
 				} else {
 					out.close();
 					backup.delete();
+					if (replacing) {
+						logger.warn("Deleted {}", backup);
+					}
 				}
 			}
 		} catch (IOException e) {

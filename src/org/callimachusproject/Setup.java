@@ -23,12 +23,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.net.URI;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.Scanner;
 
 import org.callimachusproject.cli.Command;
 import org.callimachusproject.cli.CommandSet;
+import org.callimachusproject.management.BackupTool;
 import org.callimachusproject.setup.CallimachusConf;
 import org.callimachusproject.setup.CallimachusSetup;
 import org.callimachusproject.util.SystemProperties;
@@ -46,8 +50,14 @@ public class Setup {
 
 	private static final CommandSet commands = new CommandSet(NAME);
 	static {
+		commands.require("c", "conf")
+				.arg("file")
+				.desc("The local etc/callimachus.conf file to read settings from");
 		commands.option("b", "basedir").arg("directory")
 				.desc("Base directory used for local storage");
+		commands.option("k", "backups").arg("directory")
+				.desc("Backup directory");
+		commands.option("K", "no-backup").desc("Disable automatic backup");
 		commands.option("u", "user").optional("name")
 				.desc("Create the given user");
 		commands.option("n", "name").arg("name")
@@ -92,7 +102,9 @@ public class Setup {
 
 	private final Logger logger = LoggerFactory.getLogger(Setup.class);
 	private boolean silent;
+	private File confFile;
 	private File basedir;
+	private File backupDir;
 	private String name;
 	private String email;
 	private String username;
@@ -116,9 +128,17 @@ public class Setup {
 			} else {
 				silent = line.has("silent");
 				if (line.has("basedir")) {
-					basedir = new File(line.get("basedir")).getCanonicalFile();
+					basedir = new File(line.get("basedir"));
 				} else {
 					basedir = new File("").getCanonicalFile();
+				}
+				if (line.has("conf")) {
+					confFile = new File(line.get("conf"));
+				} else {
+					confFile = new File("etc/callimachus.conf");
+				}
+				if (line.has("backups") && !line.has("no-backup")) {
+					backupDir = new File(line.get("backups"));
 				}
 				if (line.has("user") || line.has("email")) {
 					this.name = line.get("name");
@@ -163,9 +183,19 @@ public class Setup {
 	}
 
 	public void start() throws Exception {
+		CallimachusConf conf = new CallimachusConf(confFile);
+		if (backupDir != null) {
+			BackupTool tool = new BackupTool(basedir, backupDir);
+			tool.createBackup(getDefaultBackupLabel(conf));
+			synchronized (tool) {
+				while (tool.isBackupInProgress()) {
+					tool.wait();
+				}
+			}
+			tool.checkForErrors();
+		}
 		boolean changed = false;
 		File repositoryConfig = SystemProperties.getRepositoryConfigFile();
-		CallimachusConf conf = new CallimachusConf();
 		String configString = readContent(repositoryConfig.toURI().toURL());
 		CallimachusSetup setup = new CallimachusSetup(basedir, configString);
 		try {
@@ -178,6 +208,7 @@ public class Setup {
 			for (String origin : conf.getCallimachusWebappOrigins()) {
 				changed |= setup.finalizeWebappOrigin(origin);
 			}
+			conf.setProperty("APP_VER", Version.getInstance().getVersionCode());
 			if (email != null && email.length() > 0) {
 				for (String origin : conf.getCallimachusWebappOrigins()) {
 					changed |= setup.createAdmin(email, username, name, null, origin);
@@ -219,6 +250,31 @@ public class Setup {
 		} finally {
 			in.close();
 		}
+	}
+
+	private String getDefaultBackupLabel(CallimachusConf conf) throws IOException {
+		StringBuilder sb = new StringBuilder();
+		if (conf.getCallimachusWebappOrigins().length > 0) {
+			String origin = conf.getCallimachusWebappOrigins()[0];
+			sb.append(URI.create(origin).getHost()).append("-");
+		}
+		String version = conf.getProperty("APP_VER");
+		if (version != null) {
+			sb.append(version).append("_");
+		}
+		GregorianCalendar now = new GregorianCalendar();
+		sb.append(now.get(Calendar.YEAR)).append('-');
+		int month = now.get(Calendar.MONTH);
+		if (month < 9) {
+			sb.append('0');
+		}
+		sb.append(1 + month).append('-');
+		int day = now.get(Calendar.DAY_OF_MONTH);
+		if (day < 10) {
+			sb.append('0');
+		}
+		sb.append(day);
+		return sb.toString();
 	}
 
 }

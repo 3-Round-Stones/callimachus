@@ -65,8 +65,13 @@ public class Server {
 
 	private static final CommandSet commands = new CommandSet(NAME);
 	static {
+		commands.require("c", "conf")
+				.arg("file")
+				.desc("The local etc/callimachus.conf file to read settings from");
 		commands.option("b", "basedir").arg("directory")
 				.desc("Base directory used for local storage");
+		commands.option("k", "backups").arg("directory")
+				.desc("Backup directory");
 		commands.option("trust").desc(
 				"Allow all server code to read, write, and execute all files and directories "
 						+ "according to the file system's ACL");
@@ -139,9 +144,14 @@ public class Server {
 			if (line.has("basedir")) {
 				baseDir = new File(line.get("basedir"));
 			}
-			File backupDir = SystemProperties.getBackupDir();
-			File configFile = SystemProperties.getConfigFile();
-			File defaultsFile = SystemProperties.getConfigDefaultsFile();
+			File confFile = new File("etc/callimachus.conf");
+			if (line.has("conf")) {
+				confFile = new File(line.get("conf"));
+			}
+			File backupDir = new File("backups");
+			if (line.has("backups")) {
+				backupDir = new File(line.get("backups"));
+			}
 			File repositoryConfig = SystemProperties.getRepositoryConfigFile();
 			ManagedExecutors.getInstance().addListener(
 					new ManagedThreadPoolListener() {
@@ -155,7 +165,7 @@ public class Server {
 							unregisterMBean(name, ManagedThreadPool.class);
 						}
 					});
-			CallimachusConf conf = new CallimachusConf(configFile, defaultsFile);
+			CallimachusConf conf = new CallimachusConf(confFile);
 			SetupTool tool = new SetupTool(baseDir, repositoryConfig, conf);
 			node = new CalliServer(tool, new ServerListener() {
 				public void serverStarted(WebServer server) {
@@ -173,12 +183,14 @@ public class Server {
 			registerMBean(new LogEmitter(), LogEmitter.class);
 			registerMBean(LoggingProperties.getInstance(), LoggingProperties.class);
 			registerMBean(MailProperties.getInstance(), MailProperties.class);
-			registerMBean(new BackupTool(baseDir, backupDir), BackupTool.class);
+			if (line.has("backups")) {
+				registerMBean(new BackupTool(baseDir, backupDir), BackupTool.class);
+			}
 			File etc = new File(baseDir, "etc");
 			registerMBean(new CalliKeyStore(etc), CalliKeyStore.class);
 			registerMBean(tool, SetupTool.class);
 			if (!line.has("trust")) {
-				HTTPObjectPolicy.apply(new String[0], configFile,
+				HTTPObjectPolicy.apply(new String[0], confFile,
 						repositoryConfig, backupDir, new File(baseDir,
 								"repositories"));
 			}

@@ -6,7 +6,6 @@ import java.io.IOException;
 import org.callimachusproject.Version;
 
 public class SystemProperties {
-	private static final String SERVER_CONF = "etc/callimachus.conf";
 	private static final String SERVER_DEFAULT_CONF = "etc/callimachus-defaults.conf";
 	private static final String REPOSITORY_CONFIG = "etc/callimachus-repository.ttl";
 	private static final String VERSION_CODE = Version.getInstance().getVersionCode();
@@ -40,13 +39,6 @@ public class SystemProperties {
 		return new File(file);
 	}
 
-	public static File getBackupDir() {
-		String backups = System.getProperty("org.callimachusproject.config.backups");
-		if (backups == null)
-			return new File("backups");
-		return new File(backups);
-	}
-
 	public static File getRepositoryConfigFile() {
 		String rconfig = System
 				.getProperty("org.callimachusproject.config.repository");
@@ -61,14 +53,6 @@ public class SystemProperties {
 		if (car != null)
 			return new File(car);
 		return new File(WEBAPP_CAR);
-	}
-
-	public static File getConfigFile() {
-		String file = System
-				.getProperty("org.callimachusproject.config.file");
-		if (file != null)
-			return new File(file);
-		return new File(SERVER_CONF);
 	}
 
 	public static File getConfigDefaultsFile() {

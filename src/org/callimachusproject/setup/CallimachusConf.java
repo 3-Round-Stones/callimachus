@@ -20,8 +20,8 @@ public class CallimachusConf {
 	private final File file;
 	private final File defaultFile;
 
-	public CallimachusConf() {
-		this(SystemProperties.getConfigFile(), SystemProperties.getConfigDefaultsFile());
+	public CallimachusConf(	File file) {
+		this(file, SystemProperties.getConfigDefaultsFile());
 	}
 
 	public CallimachusConf(File file, File defaultFile) {

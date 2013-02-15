@@ -73,7 +73,6 @@ set "CONFIG=%BASEDIR%/etc/%NAME%.conf"
 :gotConfigFile
 
 if exist "%CONFIG%" goto readConfig
-set "CONFIG=%BASEDIR%/etc/%NAME%-defaults.conf"
 setlocal EnableDelayedExpansion
 for /f "tokens=1,* delims==" %%i in ('find "=" "%BASEDIR%/etc/%NAME%-defaults.conf"') do (
   set "key=%%i"
@@ -241,7 +240,8 @@ goto setStartArgs
 :doneSetStartArgs
 
 rem Execute Java with the applicable properties
-"%JAVA_HOME%\bin\java" -server "-Duser.home=%BASEDIR%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" "-Djava.mail.properties=%MAIL%" -classpath "%CLASSPATH%" -XX:OnOutOfMemoryError="taskkill /F /PID %%p" %JAVA_OPTS% %SSL_OPTS% %MAINCLASS% --pid "%PID%" -b "%BASEDIR%" %OPTS% %CMD_LINE_ARGS%
+FOR /F "tokens=1 delims=" %%A in ('dir /b lib\callimachus-webapp*.car') do SET "CAR_FILE=%%A"
+"%JAVA_HOME%\bin\java" -server "-Duser.home=%BASEDIR%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" "-Djava.mail.properties=%MAIL%" "-Dorg.callimachusproject.config.repository=%REPOSITORY_CONFIG%" "-Dorg.callimachusproject.config.webapp=lib\%CAR_FILE%"  -classpath "%CLASSPATH%" -XX:OnOutOfMemoryError="taskkill /F /PID %%p" %JAVA_OPTS% %SSL_OPTS% %MAINCLASS% --pid "%PID%" -b "%BASEDIR%" -c "%CONFIG%" -k "%BASEDIR%\backups" %OPTS% %CMD_LINE_ARGS%
 goto end
 
 :doStart
@@ -260,7 +260,8 @@ goto setStartArgs
 :doneSetStartArgs
 
 rem Execute Java with the applicable properties
-start "%NAME%" "%JAVA_HOME%\bin\javaw" -server "-Duser.home=%BASEDIR%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" "-Djava.mail.properties=%MAIL%" -classpath "%CLASSPATH%" -XX:OnOutOfMemoryError="taskkill /F /PID %%p" %JAVA_OPTS% %SSL_OPTS% %MAINCLASS% --pid "%PID%" -q -b "%BASEDIR%" %OPTS% %CMD_LINE_ARGS%
+FOR /F "tokens=1 delims=" %%A in ('dir /b lib\callimachus-webapp*.car') do SET "CAR_FILE=%%A"
+start "%NAME%" "%JAVA_HOME%\bin\javaw" -server "-Duser.home=%BASEDIR%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" "-Djava.mail.properties=%MAIL%" "-Dorg.callimachusproject.config.repository=%REPOSITORY_CONFIG%" "-Dorg.callimachusproject.config.webapp=lib\%CAR_FILE%"  -classpath "%CLASSPATH%" -XX:OnOutOfMemoryError="taskkill /F /PID %%p" %JAVA_OPTS% %SSL_OPTS% %MAINCLASS% --pid "%PID%" -q -b "%BASEDIR%" -c "%CONFIG%" -k "%BASEDIR%\backups" %OPTS% %CMD_LINE_ARGS%
 goto end
 
 :doStop
@@ -296,7 +297,8 @@ goto setStartArgs
 :doneSetStartArgs
 
 rem Execute Java with the applicable properties
-"%JAVA_HOME%\bin\java" -server "-Duser.home=%BASEDIR%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" "-Djava.mail.properties=%MAIL%" -classpath "%CLASSPATH%" -XX:OnOutOfMemoryError="taskkill /F /PID %%p" %JAVA_OPTS% %SETUPCLASS% -b "%BASEDIR%" -u "%USERNAME%" -e "%EMAIL%" -n "%FULLNAME%" %CMD_LINE_ARGS%
+FOR /F "tokens=1 delims=" %%A in ('dir /b lib\callimachus-webapp*.car') do SET "CAR_FILE=%%A"
+"%JAVA_HOME%\bin\java" -server "-Duser.home=%BASEDIR%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" "-Djava.mail.properties=%MAIL%" "-Dorg.callimachusproject.config.repository=%REPOSITORY_CONFIG%" "-Dorg.callimachusproject.config.webapp=lib\%CAR_FILE%"  -classpath "%CLASSPATH%" -XX:OnOutOfMemoryError="taskkill /F /PID %%p" %JAVA_OPTS% %SETUPCLASS% -b "%BASEDIR%" -c "%CONFIG%" -k "%BASEDIR%\backups" -u "%USERNAME%" -e "%EMAIL%" -n "%FULLNAME%" %CMD_LINE_ARGS%
 goto end
 
 :doDump

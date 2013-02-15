@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.UndeclaredThrowableException;
 
 import org.apache.http.HttpHost;
 import org.apache.http.client.utils.URIUtils;
@@ -24,7 +23,7 @@ import org.openrdf.repository.object.ObjectConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class WebappImportProvider extends UpdateProvider {
+public class WebappArchiveImporter {
 	private static final String GROUP_PUBLIC = "/auth/groups/public";
 	private static final String GROUP_ADMIN = "/auth/groups/admin";
 	private static final String SCHEMA_GRAPH = "types/SchemaGraph";
@@ -38,56 +37,27 @@ public abstract class WebappImportProvider extends UpdateProvider {
 	private static final String CALLI_ADMINISTRATOR = CALLI + "administrator";
 
 	private final Logger logger = LoggerFactory
-			.getLogger(WebappImportProvider.class);
+			.getLogger(WebappArchiveImporter.class);
+	private final String webapp;
+	private final CalliRepository repository;
+	private URI[] schemaGraphs;
 
-	@Override
-	public Updater finalizeCallimachusWebapp(final String origin)
-			throws IOException {
-		if (isAvailable()) {
-			return new Updater() {
-				public boolean update(String webapp, CalliRepository repository)
-						throws IOException, OpenRDFException {
-					try {
-						return importCallimachusWebapp(webapp, repository);
-					} catch (NoSuchMethodException e) {
-						throw new UndeclaredThrowableException(e);
-					} catch (InvocationTargetException e) {
-						throw new UndeclaredThrowableException(e);
-					}
-				}
-			};
-		}
-		return null;
+	public WebappArchiveImporter(String webapp, CalliRepository repository) {
+		this.webapp = webapp;
+		this.repository = repository;
 	}
 
-	protected abstract boolean isAvailable();
-
-	protected abstract String getTargetFolder(String webapp);
-
-	protected abstract InputStream openCarWebappStream() throws IOException;
-
-	protected URI[] getSchemaGraphs(String folder, CalliRepository repository)
-			throws IOException, OpenRDFException {
-		return null;
+	public void setSchemaGraphs(URI... schemaGraphs) {
+		this.schemaGraphs = schemaGraphs;
 	}
 
-	boolean importCallimachusWebapp(String webapp, CalliRepository repository)
-			throws OpenRDFException, IOException, NoSuchMethodException,
-			InvocationTargetException {
-		logger.info("Initializing {}", webapp);
-		return importCar(getTargetFolder(webapp), webapp, repository);
-	}
-
-	private boolean importCar(String folder, String webapp,
-			CalliRepository repository) throws IOException, OpenRDFException,
+	public void importArchive(InputStream carStream, String folder) throws IOException, OpenRDFException,
 			NoSuchMethodException, InvocationTargetException {
 		String webappOrigin = createFolder(folder, webapp, repository);
-		URI[] schemaGraphs = getSchemaGraphs(folder, repository);
-		importArchive(schemaGraphs, folder, webappOrigin, webapp, repository);
-		return true;
+		importArchive(carStream, folder, webappOrigin, webapp, repository);
 	}
 
-	private void importArchive(URI[] schemaGraphs, String folderUri,
+	private void importArchive(InputStream carStream, String folderUri,
 			String origin, String webapp, CalliRepository repository)
 			throws IOException, OpenRDFException, NoSuchMethodException,
 			InvocationTargetException {
@@ -95,39 +65,40 @@ public abstract class WebappImportProvider extends UpdateProvider {
 		HTTPObjectClient client = HTTPObjectClient.getInstance();
 		UnavailableHttpClient service = new UnavailableHttpClient();
 		client.setProxy(host, service);
-		if (schemaGraphs != null) {
-			for (URI schemaGraph : schemaGraphs) {
-				repository.addSchemaGraph(schemaGraph.stringValue());
-			}
-		} else {
-			repository.setSchemaGraphType(webapp + SCHEMA_GRAPH);
-		}
-		repository.setCompileRepository(true);
-		ObjectConnection con = repository.getConnection();
 		try {
-			con.setAutoCommit(false);
-			if (schemaGraphs.length > 0) {
-				con.clear(schemaGraphs);
+			if (schemaGraphs != null) {
+				for (URI schemaGraph : schemaGraphs) {
+					repository.addSchemaGraph(schemaGraph.stringValue());
+				}
+			} else {
+				repository.setSchemaGraphType(webapp + SCHEMA_GRAPH);
 			}
-			Object folder = con.getObject(folderUri);
-			Method UploadFolderComponents = findUploadFolderComponents(folder);
-			InputStream in = openCarWebappStream();
+			repository.setCompileRepository(true);
+			ObjectConnection con = repository.getConnection();
 			try {
-				logger.info("Importing {}", folderUri);
-				int argc = UploadFolderComponents.getParameterTypes().length;
-				Object[] args = new Object[argc];
-				args[0] = in;
-				UploadFolderComponents.invoke(folder, args);
-			} catch (IllegalAccessException e) {
-				throw new AssertionError(e);
+				con.setAutoCommit(false);
+				if (schemaGraphs != null && schemaGraphs.length > 0) {
+					con.clear(schemaGraphs);
+				}
+				Object folder = con.getObject(folderUri);
+				Method UploadFolderComponents = findUploadFolderComponents(folder);
+				try {
+					logger.info("Importing {}", folderUri);
+					int argc = UploadFolderComponents.getParameterTypes().length;
+					Object[] args = new Object[argc];
+					args[0] = carStream;
+					UploadFolderComponents.invoke(folder, args);
+				} catch (IllegalAccessException e) {
+					throw new AssertionError(e);
+				}
+				repository.setCompileRepository(false);
+				con.setAutoCommit(true);
 			} finally {
-				in.close();
+				con.close();
+				client.removeProxy(host, service);
 			}
-			repository.setCompileRepository(false);
-			con.setAutoCommit(true);
 		} finally {
-			con.close();
-			client.removeProxy(host, service);
+			repository.setCompileRepository(false);
 		}
 	}
 

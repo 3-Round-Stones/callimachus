@@ -233,15 +233,15 @@ public class WebServer implements HTTPObjectAgentMXBean {
 	}
 
 	public void stop() throws IOException {
-		for (String origin : origins) {
-			HttpHost host = getAuthorityAddress(origin);
-			HTTPObjectClient.getInstance().removeProxy(host, server);
-		}
 		server.stop();
 	}
 
 	public void destroy() throws IOException {
 		server.destroy();
+		for (String origin : origins) {
+			HttpHost host = getAuthorityAddress(origin);
+			HTTPObjectClient.getInstance().removeProxy(host, server);
+		}
 	}
 
 	private HttpHost getAuthorityAddress(String origin) {

@@ -36,7 +36,7 @@ public interface CalliServerMXBean {
 
 	void startWebService() throws Exception;
 
-	boolean stopWebService();
+	void stopWebService() throws Exception;
 
 	String[] sparqlQuery(String query) throws OpenRDFException, IOException;
 

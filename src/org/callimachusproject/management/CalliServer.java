@@ -8,6 +8,7 @@ import java.io.StringWriter;
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
 
 import org.callimachusproject.Version;
 import org.callimachusproject.client.HTTPObjectClient;
@@ -82,7 +83,7 @@ public class CalliServer implements CalliServerMXBean {
 
 	public synchronized void init() throws OpenRDFException, IOException {
 		if (isWebServiceRunning()) {
-			stopWebService();
+			stopWebServiceNow();
 		}
 		try {
 			String repositoryID = getRepositoryID();
@@ -124,7 +125,7 @@ public class CalliServer implements CalliServerMXBean {
 	public synchronized void stop() throws IOException {
 		running = false;
 		if (isWebServiceRunning()) {
-			stopWebService();
+			stopWebServiceNow();
 		}
 		notifyAll();
 	}
@@ -190,41 +191,36 @@ public class CalliServer implements CalliServerMXBean {
 	}
 
 	public synchronized void startWebService() throws Exception {
+		if (isWebServiceRunning())
+			return;
 		final int start = ++starting;
 		if (tool == null) {
-			startServerNow(start);
+			startWebServiceNow(start);
 		} else {
 			tool.submit(new Callable<Void>() {
 				public Void call() throws Exception {
-					startServerNow(start);
+					startWebServiceNow(start);
 					return null;
 				}
 			});
 		}
 	}
 
-	public synchronized boolean stopWebService() {
-		stopping = true;
-		try {
-			if (server == null) {
-				manager.refresh();
-				return false;
-			} else {
-				if (listener != null) {
-					listener.serverStopping(server);
+	public void stopWebService() throws Exception {
+		if (stopping || !isWebServiceRunning())
+			return;
+		if (tool == null) {
+			stopWebServiceNow();
+		} else {
+			final CountDownLatch latch = new CountDownLatch(1);
+			tool.submit(new Callable<Void>() {
+				public Void call() throws Exception {
+					latch.countDown();
+					stopWebServiceNow();
+					return null;
 				}
-				server.stop();
-				server.destroy();
-				return true;
-			}
-		} catch (IOException e) {
-			logger.error(e.toString(), e);
-			return false;
-		} finally {
-			stopping = false;
-			notifyAll();
-			server = null;
-			manager.refresh();
+			});
+			latch.await();
 		}
 	}
 
@@ -270,12 +266,12 @@ public class CalliServer implements CalliServerMXBean {
 		}
 	}
 
-	private synchronized void startServerNow(int start) {
+	private synchronized void startWebServiceNow(int start) {
 		if (start != starting)
 			return;
 		try {
 			if (isWebServiceRunning()) {
-				stopWebService();
+				stopWebServiceNow();
 			}
 			try {
 				String repositoryID = getRepositoryID();
@@ -306,6 +302,31 @@ public class CalliServer implements CalliServerMXBean {
 		} finally {
 			starting = 0;
 			notifyAll();
+		}
+	}
+
+	private synchronized boolean stopWebServiceNow() {
+		stopping = true;
+		try {
+			if (server == null) {
+				manager.refresh();
+				return false;
+			} else {
+				if (listener != null) {
+					listener.serverStopping(server);
+				}
+				server.stop();
+				server.destroy();
+				return true;
+			}
+		} catch (IOException e) {
+			logger.error(e.toString(), e);
+			return false;
+		} finally {
+			stopping = false;
+			notifyAll();
+			server = null;
+			manager.refresh();
 		}
 	}
 

@@ -94,7 +94,7 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
 
 <xsl:template match="xhtml:h1">
     <title><xsl:apply-templates /></title>
-    <xsl:if test="not(key('section', generate-id())[*] or key('h2', generate-id()))">
+    <xsl:if test="not(key('section', generate-id())[self::*] or key('h2', generate-id()))">
         <para />
     </xsl:if>
     <xsl:apply-templates select="key('section', generate-id())" />
@@ -109,7 +109,7 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
     <section>
         <xsl:call-template name="id" />
         <title><xsl:apply-templates /></title>
-        <xsl:if test="not(key('section', generate-id())[*] or key('h3', generate-id()))">
+        <xsl:if test="not(key('section', generate-id())[self::*] or key('h3', generate-id()))">
             <para />
         </xsl:if>
         <xsl:apply-templates select="key('section', generate-id())" />
@@ -124,7 +124,7 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
     <section>
         <xsl:call-template name="id" />
         <title><xsl:apply-templates /></title>
-        <xsl:if test="not(key('section', generate-id())[*] or key('h4', generate-id()))">
+        <xsl:if test="not(key('section', generate-id())[self::*] or key('h4', generate-id()))">
             <para />
         </xsl:if>
         <xsl:apply-templates select="key('section', generate-id())" />
@@ -138,7 +138,7 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
     <section>
         <xsl:call-template name="id" />
         <title><xsl:apply-templates /></title>
-        <xsl:if test="not(key('section', generate-id())[*] or key('h5', generate-id()))">
+        <xsl:if test="not(key('section', generate-id())[self::*] or key('h5', generate-id()))">
             <para />
         </xsl:if>
         <xsl:apply-templates select="key('section', generate-id())" />
@@ -151,7 +151,7 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
     <section>
         <xsl:call-template name="id" />
         <title><xsl:apply-templates /></title>
-        <xsl:if test="not(key('section', generate-id())[*] or key('h6', generate-id()))">
+        <xsl:if test="not(key('section', generate-id())[self::*] or key('h6', generate-id()))">
             <para />
         </xsl:if>
         <xsl:apply-templates select="key('section', generate-id())" />
@@ -163,7 +163,7 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
     <section>
         <xsl:call-template name="id" />
         <title><xsl:apply-templates /></title>
-        <xsl:if test="not(key('section', generate-id())[*])">
+        <xsl:if test="not(key('section', generate-id())[self::*])">
             <para />
         </xsl:if>
         <xsl:apply-templates select="key('section', generate-id())" />

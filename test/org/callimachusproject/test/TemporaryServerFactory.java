@@ -214,7 +214,6 @@ public class TemporaryServerFactory {
 			String username = email.substring(0, email.indexOf('@'));
 			setup.createAdmin(email, username, username, null, origin);
 			setup.changeUserPassword(email, username, password, origin);
-			setup.finalizeWebappOrigin(origin);
 			setup.shutDown();
 		}
 		File temp = FileUtil.createTempDir(name);

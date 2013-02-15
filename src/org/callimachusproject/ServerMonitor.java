@@ -52,12 +52,14 @@ import org.callimachusproject.cli.CommandSet;
 import org.callimachusproject.concurrent.ManagedThreadPool;
 import org.callimachusproject.concurrent.ThreadPoolMXBean;
 import org.callimachusproject.io.ChannelUtil;
+import org.callimachusproject.management.CalliServer;
+import org.callimachusproject.management.CalliServerMXBean;
 import org.callimachusproject.management.JVMSummary;
 import org.callimachusproject.management.JVMSummaryMXBean;
 import org.callimachusproject.repository.CalliRepository;
 import org.callimachusproject.repository.CalliRepositoryMXBean;
-import org.callimachusproject.server.WebServer;
 import org.callimachusproject.server.HTTPObjectAgentMXBean;
+import org.callimachusproject.server.WebServer;
 
 /**
  * Command line tool for monitoring the server.
@@ -133,7 +135,8 @@ public class ServerMonitor {
 	private Object vm;
 	private MBeanServerConnection mbsc;
 	private JVMSummaryMXBean summary;
-	private HTTPObjectAgentMXBean server;
+	private HTTPObjectAgentMXBean webService;
+	private CalliServerMXBean server;
 	private boolean reset;
 	private boolean stop;
 
@@ -219,7 +222,7 @@ public class ServerMonitor {
 
 	public void resetCache() throws Throwable {
 		try {
-			server.resetCache();
+			webService.resetCache();
 		} catch (UndeclaredThrowableException e) {
 			throw e.getCause();
 		}
@@ -248,9 +251,12 @@ public class ServerMonitor {
 	private void setPidFile(String pid) throws Throwable {
 		vm = getRemoteVirtualMachine(pid);
 		mbsc = getMBeanConnection(vm);
+		for (ObjectName name : getObjectNames(CalliServer.class, mbsc)) {
+			server = JMX.newMXBeanProxy(mbsc, name, CalliServerMXBean.class);
+		}
 		for (ObjectName name : getObjectNames(WebServer.class, mbsc)) {
-			server = JMX
-					.newMXBeanProxy(mbsc, name, HTTPObjectAgentMXBean.class);
+			webService = JMX.newMXBeanProxy(mbsc, name,
+					HTTPObjectAgentMXBean.class);
 		}
 		for (ObjectName name : getObjectNames(JVMSummary.class, mbsc)) {
 			summary = JMX.newMXBeanProxy(mbsc, name, JVMSummaryMXBean.class);

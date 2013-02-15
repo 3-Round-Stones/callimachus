@@ -14,6 +14,19 @@ public class ArticleTest extends TemporaryServerTestCase {
 			"<body><h1>LS command</h1>" +
 			"<p>This command is a synonym for command. \n" +
 			"</p> </body> </html>";
+	private static final String XHTML_H2 = "<html xmlns='http://www.w3.org/1999/xhtml'>\n"
+			+ "<head>\n"
+			+ "    <title></title>\n"
+			+ "</head>\n"
+			+ "<body>\n"
+			+ "    <h1>heading</h1>\n"
+			+ "    \n"
+			+ "    <h2>Subheading</h2>\n"
+			+ "    \n"
+			+ "    <h2>subheading2</h2>\n"
+			+ "    \n"
+			+ "</body>\n"
+			+ "</html>";
 
 	@Test
 	public void testDocbookCreate() throws Exception {
@@ -32,6 +45,16 @@ public class ArticleTest extends TemporaryServerTestCase {
 		WebResource edit = article.link("edit-media", "application/xhtml+xml");
 		edit.get("application/xhtml+xml");
 		edit.put("application/xhtml+xml", XHTML.getBytes());
+		edit.delete();
+	}
+
+	@Test
+	public void testXhtmlHeadingCreate() throws Exception {
+		WebResource create = getHomeFolder().ref("?create="+ getCallimachusUrl("types/Article") + "&location=test-article.docbook");
+		WebResource article = create.create("application/xhtml+xml", XHTML.getBytes());
+		WebResource edit = article.link("edit-media", "application/xhtml+xml");
+		edit.get("application/xhtml+xml");
+		edit.put("application/xhtml+xml", XHTML_H2.getBytes());
 		edit.delete();
 	}
 

@@ -74,15 +74,6 @@ public class BackupTool implements BackupToolMXBean {
 		return restore;
 	}
 
-	public void createBackup(final String label) throws Exception {
-		submit(new Callable<Void>() {
-			public Void call() throws Exception {
-				blockCreateBackup(label);
-				return null;
-			}
-		});
-	}
-
 	public String getBackupLabels() {
 		File[] list = backupDir.listFiles();
 		if (list == null)
@@ -109,7 +100,22 @@ public class BackupTool implements BackupToolMXBean {
 		return result.substring(0, result.length() - 1);
 	}
 
-	public void restoreBackup(final String label) throws IOException {
+	public synchronized void createBackup(final String label) throws Exception {
+		if (isBackupInProgress())
+			throw new IllegalStateException("Backup already in progress");
+		backup = true;
+		submit(new Callable<Void>() {
+			public Void call() throws Exception {
+				blockCreateBackup(label);
+				return null;
+			}
+		});
+	}
+
+	public synchronized void restoreBackup(final String label) throws IOException {
+		if (isRestoreInProgress())
+			throw new IllegalStateException("Restore already in progress");
+		restore = true;
 		submit(new Callable<Void>() {
 			public Void call() throws Exception {
 				blockRestoreBackup(label);

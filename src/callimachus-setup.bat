@@ -1,5 +1,6 @@
 @echo off
 rem 
+rem Portions Copyright (c) 2012-2013 3 Round Stones Inc., Some Rights Reserved
 rem Portions Copyright (c) 2009-10 Zepheira LLC, Some Rights Reserved
 rem Portions Copyright (c) 2010-11 Talis Inc, Some Rights Reserved
 rem 
@@ -50,7 +51,7 @@ if "%BASEDIR:~-1%" NEQ "\" (
 set BASEDIR=%BASEDIR:~0,-1%
 if exist "%BASEDIR%\bin\%BASENAME%" goto okHome
 echo The BASEDIR environment variable is not defined correctly
-echo This environment variable is needed to run this program
+echo This environment variable is needed to run this server
 goto end
 :okHome
 
@@ -65,24 +66,129 @@ rem strip dash (-)
 set "NAME=%NAME:~0,-1%"
 :gotName
 
-set "EXECUTABLE=%BASEDIR%\bin\%NAME%.bat"
+rem Ensure that any user defined CLASSPATH variables are not used on startup.
+set CLASSPATH=
 
-rem Check that target executable exists
-if exist "%EXECUTABLE%" goto okExec
-echo Cannot find "%EXECUTABLE%"
-echo This file is needed to run this program
+if exist "%CONFIG%" goto gotConfigFile
+set "CONFIG=%BASEDIR%/etc/%NAME%.conf"
+:gotConfigFile
+
+if exist "%CONFIG%" goto readConfig
+setlocal EnableDelayedExpansion
+for /f "tokens=1,* delims==" %%i in ('find "=" "%BASEDIR%/etc/%NAME%-defaults.conf"') do (
+  set "key=%%i"
+  set "value=%%~j"
+  ( if "!key!" == "#PORT" ( echo PORT="!value!" ) else  (if "!key!" == "#ORIGIN" ( echo ORIGIN="!value!" ) else  ( echo !key!="!value!" ) ) ) >> "%BASEDIR%/etc/%NAME%.conf"
+)
+set "CONFIG=%BASEDIR%/etc/%NAME%.conf"
+:readConfig
+
+if not "%TMPDIR%" == "" goto gotTmpdir
+set "TMPDIR=%BASEDIR%\tmp"
+:gotTmpdir
+
+rem Get standard environment variables
+if not exist "%CONFIG%" goto okConfig
+setlocal EnableDelayedExpansion
+IF NOT EXIST "%TMPDIR%" MKDIR "%TMPDIR%"
+for /f "tokens=1,* delims==" %%i in ('find /V "#" "%CONFIG%"') do (
+  set "line=set "%%i=%%~j"
+  if not "!line:~4,1!" == "-" echo !line!>> "%TMPDIR%\%NAME%-conf.bat"
+)
+call "%TMPDIR%\%NAME%-conf.bat"
+del "%TMPDIR%\%NAME%-conf.bat"
+:okConfig
+
+rem Read relative config paths from BASEDIR
+cd "%BASEDIR%"
+
+rem check for a JDK in the BASEDIR
+for /d %%i in ("%BASEDIR%\jdk*") do set JDK_HOME=%%i
+for /d %%i in ("%BASEDIR%\jdk*") do set JAVA_HOME=%%i\jre
+
+rem Lookup the JDK in the registry
+if exist "%JAVA_HOME%" goto gotJavaHome
+set "KeyName=HKEY_LOCAL_MACHINE\SOFTWARE\JavaSoft\Java Development Kit\1.6"
+set Cmd=reg query "%KeyName%" /s
+for /f "tokens=2*" %%i in ('%Cmd% ^| find "JavaHome"') do set JDK_HOME=%%j
+
+if not exist "%JDK_HOME%" goto gotNoHome
+set "JAVA_HOME=%JDK_HOME%\jre"
+:gotNoHome
+
+rem Make sure prerequisite environment variable is set
+if exist "%JAVA_HOME%\bin\java.exe" goto gotJavaHome
+echo The JAVA_HOME environment variable "%JAVA_HOME%" is not defined correctly
+echo The JAVA_HOME environment variable is needed to run this server
 goto end
-:okExec
+:gotJavaHome
 
-rem Get remaining unshifted command line arguments and save them in the
+if exist "%JDK_HOME%" goto gotJdkHomeVar
+set "JDK_HOME=%JAVA_HOME%\.."
+:gotJdkHomeVar
+
+if exist "%JDK_HOME%\bin\javac.exe" goto gotJdkHome
+echo The JDK_HOME environment variable "%JDK_HOME%" is not defined correctly
+echo The JDK_HOME environment variable is needed to run this server
+goto end
+:gotJdkHome
+
+if not "%MAIL%" == "" goto gotMail
+set "MAIL=%BASEDIR%\etc\mail.properties"
+:gotMail
+
+if not "%REPOSITORY_CONFIG%" == "" goto gotRepositoryConfig
+set "REPOSITORY_CONFIG=etc/%NAME%-repository.ttl"
+:gotRepositoryConfig
+
+setlocal ENABLEDELAYEDEXPANSION
+for /r "lib" %%a IN (*.jar) do set CLASSPATH=!CLASSPATH!;%%a
+
+if not "%JAVA_OPTS%" == "" goto gotJavaOpts
+set "JAVA_OPTS=-Xmx512m"
+:gotJavaOpts
+
+if not "%PORT%" == "" goto gotPort
+if not "%SSLPORT%" == "" goto gotPort
+set "PORT=8080"
+:gotPort
+
+if not "%ORIGIN%" == "" goto gotOrigin
+set "ORIGIN=http://localhost"
+if "%PORT%" == "80" goto gotOrigin
+set "ORIGIN=%ORIGIN%:%PORT%"
+:gotOrigin
+
+if not "%PRIMARY_ORIGIN%" == "" goto gotPrimaryOrigin
+set "PRIMARY_ORIGIN=%ORIGIN%"
+:gotPrimaryOrigin
+
+IF NOT EXIST "%BASEDIR%\log" MKDIR "%BASEDIR%\log"
+IF NOT EXIST "%BASEDIR%\run" MKDIR "%BASEDIR%\run"
+
+rem ----- Execute The Requested Command ---------------------------------------
+
+set MAINCLASS=org.callimachusproject.Setup
+
+echo Using BASEDIR:   %BASEDIR%
+echo Using PORT:      %PORT% %SSLPORT%
+echo Using ORIGIN:    %ORIGIN%
+echo Using JAVA_HOME: %JAVA_HOME%
+echo Using JDK_HOME:  %JDK_HOME%
+
 set CMD_LINE_ARGS=
-:setArgs
-if ""%1""=="""" goto doneSetArgs
+set CMD_LINE_PARAMS=
+:setStartArgs
+if ""%1""=="""" goto doneSetStartArgs
 set CMD_LINE_ARGS=%CMD_LINE_ARGS% %1
 shift
-goto setArgs
-:doneSetArgs
+goto setStartArgs
+:doneSetStartArgs
 
-"%EXECUTABLE%" setup %CMD_LINE_ARGS%
+rem Execute Java with the applicable properties
+FOR /F "tokens=1 delims=" %%A in ('dir /b lib\callimachus-webapp*.car') do SET "CAR_FILE=%%A"
+"%JAVA_HOME%\bin\java" -server "-Duser.home=%BASEDIR%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.mail.properties=%MAIL%" "-Dorg.callimachusproject.config.repository=%REPOSITORY_CONFIG%" "-Dorg.callimachusproject.config.webapp=lib\%CAR_FILE%"  -classpath "%CLASSPATH%" -XX:OnOutOfMemoryError="taskkill /F /PID %%p" %JAVA_OPTS% %MAINCLASS% -b "%BASEDIR%" -c "%CONFIG%" -k "%BASEDIR%\backups" -u "%USERNAME%" -e "%EMAIL%" -n "%FULLNAME%" %CMD_LINE_ARGS%
+goto end
 
 :end
+

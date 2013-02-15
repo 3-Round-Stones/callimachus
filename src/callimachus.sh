@@ -86,7 +86,6 @@ PIDFILE="$BASEDIR/run/$NAME.pid"
 SCRIPTNAME=/etc/init.d/$NAME
 
 MAINCLASS=org.callimachusproject.Server
-SETUPCLASS=org.callimachusproject.Setup
 MONITORCLASS=org.callimachusproject.ServerMonitor
 
 # Ensure that any user defined CLASSPATH variables are not used on startup.
@@ -325,7 +324,7 @@ if [ ! -e "$BASEDIR/log" ] ; then
 fi
 
 # Make sure only root can run our script
-if [ "$1" != "setup" -a -n "$DAEMON_USER" -a "$USER" != "$DAEMON_USER" -a "$(id -u)" != "0" ]; then
+if [ -n "$DAEMON_USER" -a "$USER" != "$DAEMON_USER" -a "$(id -u)" != "0" ]; then
  echo "This script must be run as root" 1>&2
  exit 4
 elif [ "$(id -u)" = "0" -a -x "$DAEMON" ] && ! getcap "$DAEMON" | grep -q "cap_net_bind_service" ; then
@@ -658,45 +657,6 @@ do_stop()
 }
 
 #
-# Function that loads the configuration and prompts for a user
-#
-do_setup() {
-  if [ -z "$PORT" -a -z "$SSLPORT" ] ; then
-    PORT="8080"
-    sed -i "s:#\?\s*PORT=.*:PORT=$PORT:" "$CONFIG"
-  fi
-
-  if [ -z "$ORIGIN" ] ; then
-    if [ -n "$AUTHORITY" ] ; then
-      ORIGIN="http://$AUTHORITY"
-    elif [ -n "$PORT" ] ; then
-      ORIGIN="http://localhost"
-      if [ "$PORT" != "80" ] ; then
-        ORIGIN="$ORIGIN:$PORT"
-      fi
-    elif [ -n "$SSLPORT" ] ; then
-      ORIGIN="https://localhost"
-      if [ "$SSLPORT" != "443" ] ; then
-        ORIGIN="$ORIGIN:$SSLPORT"
-      fi
-    fi
-    sed -i "s%#\?\s*ORIGIN=.*%ORIGIN=$ORIGIN%" "$CONFIG"
-  fi
-
-  "$JAVA_HOME/bin/java" \
-    -Duser.home="$BASEDIR" \
-    -Djava.io.tmpdir="$TMPDIR" \
-    -Djava.mail.properties="$MAIL" \
-    -Dorg.callimachusproject.config.repository="$REPOSITORY_CONFIG" \
-    -Dorg.callimachusproject.config.webapp="$(ls $BASEDIR/lib/$NAME-webapp*.car)" \
-    -classpath "$CLASSPATH" \
-    -XX:OnOutOfMemoryError="kill -9 %p" \
-    $JAVA_OPTS "$SETUPCLASS" \
-    -b "$BASEDIR" -c "$CONFIG" -k "$BASEDIR/backups" -e "$EMAIL" -n "$FULLNAME" "$@"
-  return $?
-}
-
-#
 # Function that dumps the current state of the VM
 #
 do_dump() {
@@ -912,39 +872,6 @@ case "$1" in
   reload)
     log_failure_msg "Usage: $SCRIPTNAME {start|stop|status|restart|force-reload|try-restart|probe}"
     exit 3
-    ;;
-  setup)
-    if [ "$VERBOSE" != no ]; then
-      log_success_msg "Using BASEDIR:   $BASEDIR"
-      if [ -n "$ORIGIN" ] ; then
-        log_success_msg "Using PORT:      $PORT $SSLPORT"
-        log_success_msg "Using ORIGIN:    $ORIGIN"
-      fi
-      log_success_msg "Using JAVA_HOME: $JAVA_HOME"
-      log_success_msg "Using JDK_HOME:  $JDK_HOME"
-    fi
-    AUTO_START=
-    if [ -f "$PIDFILE" -a -r "$PIDFILE" ]; then
-      kill -0 `cat "$PIDFILE"` >/dev/null 2>&1
-      if [ $? -eq 0 ]; then
-        [ "$VERBOSE" != no ] && log_success_msg "Stopping $NAME"
-        do_stop
-        if [ $? -eq 0 ]; then
-          AUTO_START=true
-        fi
-      fi
-    fi
-    [ "$VERBOSE" != no ] && log_success_msg "Setting up $NAME"
-    if [ "$USERNAME" = "root" -a -n "$SUDO_USER" ]; then
-      USERNAME="$SUDO_USER"
-    fi
-    shift
-    do_setup -u "$USERNAME" "$@"
-    if [ $? -eq 0 -a -n "$AUTO_START" ]; then
-      [ "$VERBOSE" != no ] && log_success_msg "Starting $NAME"
-      do_start
-    fi
-    exit $?
     ;;
   dump)
     if [ -f "$PIDFILE" -a -r "$PIDFILE" ]; then

@@ -1,5 +1,6 @@
 @echo off
 rem 
+rem Portions Copyright (c) 2012-2013 3 Round Stones Inc., Some Rights Reserved
 rem Portions Copyright (c) 2009-10 Zepheira LLC, Some Rights Reserved
 rem Portions Copyright (c) 2010-11 Talis Inc, Some Rights Reserved
 rem 
@@ -219,7 +220,6 @@ echo Using JDK_HOME:  %JDK_HOME%
 
 if ""%1"" == ""start"" goto doStart
 if ""%1"" == ""stop"" goto doStop
-if ""%1"" == ""setup"" goto doSetup
 if ""%1"" == ""dump"" goto doDump
 if ""%1"" == ""reset"" goto doReset
 
@@ -280,25 +280,6 @@ goto setStartArgs
 
 rem Execute Java with the applicable properties
 "%JAVA_HOME%\bin\java" -server "-Duser.home=%BASEDIR%" "-Djava.io.tmpdir=%TMPDIR%" -classpath "%CLASSPATH%;%JDK_HOME%\lib\tools.jar" %MONITORCLASS% --pid "%PID%" --stop %CMD_LINE_ARGS%
-goto end
-
-:doSetup
-rem ---- Setup -----------------------------------------------------------------
-
-rem Get remaining command line arguments
-shift
-set CMD_LINE_ARGS=
-set CMD_LINE_PARAMS=
-:setStartArgs
-if ""%1""=="""" goto doneSetStartArgs
-set CMD_LINE_ARGS=%CMD_LINE_ARGS% %1
-shift
-goto setStartArgs
-:doneSetStartArgs
-
-rem Execute Java with the applicable properties
-FOR /F "tokens=1 delims=" %%A in ('dir /b lib\callimachus-webapp*.car') do SET "CAR_FILE=%%A"
-"%JAVA_HOME%\bin\java" -server "-Duser.home=%BASEDIR%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" "-Djava.mail.properties=%MAIL%" "-Dorg.callimachusproject.config.repository=%REPOSITORY_CONFIG%" "-Dorg.callimachusproject.config.webapp=lib\%CAR_FILE%"  -classpath "%CLASSPATH%" -XX:OnOutOfMemoryError="taskkill /F /PID %%p" %JAVA_OPTS% %SETUPCLASS% -b "%BASEDIR%" -c "%CONFIG%" -k "%BASEDIR%\backups" -u "%USERNAME%" -e "%EMAIL%" -n "%FULLNAME%" %CMD_LINE_ARGS%
 goto end
 
 :doDump

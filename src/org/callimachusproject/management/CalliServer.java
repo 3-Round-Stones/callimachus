@@ -685,9 +685,7 @@ public class CalliServer implements CalliServerMXBean {
 		Map<String, String> map = conf.getOriginRepositoryIDs();
 		Map<String, CalliRepository> repositories = new LinkedHashMap<String, CalliRepository>(map.size());
 		for (String origin : map.keySet()) {
-			if (repositories.isEmpty()) {
-				server.setErrorPipe(origin, ERROR_XPL_PATH);
-			}
+			boolean first = repositories.isEmpty();
 			String repositoryID = map.get(origin);
 			CalliRepository repository = repositories.get(repositoryID);
 			if (repository == null) {
@@ -704,6 +702,9 @@ public class CalliServer implements CalliServerMXBean {
 				}
 			}
 			server.addOrigin(origin, repository);
+			if (first) {
+				server.setErrorPipe(origin, ERROR_XPL_PATH);
+			}
 		}
 		server.setServerName(getServerName());
 		server.listen(getPortArray(), getSSLPortArray());

@@ -5,7 +5,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -16,9 +19,48 @@ import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.openrdf.OpenRDFException;
+import org.openrdf.model.Graph;
+import org.openrdf.model.Resource;
+import org.openrdf.model.impl.GraphImpl;
+import org.openrdf.model.util.GraphUtil;
+import org.openrdf.model.vocabulary.RDF;
+import org.openrdf.repository.config.RepositoryConfig;
+import org.openrdf.repository.config.RepositoryConfigSchema;
+import org.openrdf.rio.RDFFormat;
+import org.openrdf.rio.RDFParser;
+import org.openrdf.rio.Rio;
+import org.openrdf.rio.helpers.StatementCollector;
+
 
 public class CallimachusConf {
-	private static final String DEFAULT_REPOSITORY_ID = "callimachus";
+	private static final String DEFAULT_REPOSITORY_ID;
+	static {
+		File repositoryConfig = SystemProperties.getRepositoryConfigFile();
+		Graph graph = new GraphImpl();
+		RDFParser rdfParser = Rio.createParser(RDFFormat.TURTLE);
+		rdfParser.setRDFHandler(new StatementCollector(graph));
+		String base = new File(".").getAbsoluteFile().toURI().toASCIIString();
+		try {
+			InputStream in = repositoryConfig.toURI().toURL().openStream();
+			InputStreamReader reader = new InputStreamReader(in);
+			try {
+				rdfParser.parse(reader, base);
+			} finally {
+				reader.close();
+			}
+			Resource node = GraphUtil.getUniqueSubject(graph, RDF.TYPE,
+					RepositoryConfigSchema.REPOSITORY);
+			RepositoryConfig config = RepositoryConfig.create(graph, node);
+			DEFAULT_REPOSITORY_ID = config.getID();
+		} catch (MalformedURLException e) {
+			throw new AssertionError(e);
+		} catch (IOException e) {
+			throw new AssertionError(e);
+		} catch (OpenRDFException e) {
+			throw new AssertionError(e);
+		}
+	}
 
 	private static final Pattern WSPACE = Pattern.compile("\\s");
 

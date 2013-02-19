@@ -43,13 +43,11 @@ import org.callimachusproject.management.CalliServer;
 import org.callimachusproject.management.CalliServer.ServerListener;
 import org.callimachusproject.management.JVMSummary;
 import org.callimachusproject.management.LogEmitter;
-import org.callimachusproject.management.LoggingProperties;
 import org.callimachusproject.management.SetupTool;
 import org.callimachusproject.repository.CalliRepository;
 import org.callimachusproject.server.HTTPObjectPolicy;
 import org.callimachusproject.server.WebServer;
 import org.callimachusproject.setup.CallimachusConf;
-import org.callimachusproject.util.MailProperties;
 import org.callimachusproject.util.SystemProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -181,8 +179,6 @@ public class Server {
 			registerMBean(node, CalliServer.class);
 			registerMBean(new JVMSummary(), JVMSummary.class);
 			registerMBean(new LogEmitter(), LogEmitter.class);
-			registerMBean(LoggingProperties.getInstance(), LoggingProperties.class);
-			registerMBean(MailProperties.getInstance(), MailProperties.class);
 			if (line.has("backups")) {
 				registerMBean(new BackupTool(baseDir, backupDir), BackupTool.class);
 			}
@@ -231,8 +227,6 @@ public class Server {
 			unregisterMBean(CalliServer.class);
 			unregisterMBean(JVMSummary.class);
 			unregisterMBean(LogEmitter.class);
-			unregisterMBean(LoggingProperties.class);
-			unregisterMBean(MailProperties.class);
 			unregisterMBean(BackupTool.class);
 			unregisterMBean(CalliKeyStore.class);
 			unregisterMBean(SetupTool.class);

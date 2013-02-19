@@ -25,6 +25,7 @@ import java.util.regex.Pattern;
 import javax.mail.MessagingException;
 import javax.naming.NamingException;
 
+import org.callimachusproject.Version;
 import org.callimachusproject.management.ConfigTemplate;
 import org.callimachusproject.util.Mailer;
 import org.openrdf.OpenRDFException;
@@ -426,6 +427,9 @@ public class BlockingSetupTool {
 		setup.prepareWebappOrigin(origin);
 		boolean created = setup.createWebappOrigin(origin);
 		setup.finalizeWebappOrigin(origin);
+		if (conf.getProperty("APP_VER") == null) {
+			conf.setProperty("APP_VER", Version.getInstance().getVersionCode());
+		}
 		if (created) {
 			logger.info("Callimachus installed at {}", origin);
 		} else {

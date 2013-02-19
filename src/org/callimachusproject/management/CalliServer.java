@@ -1,19 +1,21 @@
 package org.callimachusproject.management;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 
+import javax.mail.MessagingException;
+
 import org.callimachusproject.Version;
 import org.callimachusproject.client.HTTPObjectClient;
-import org.callimachusproject.io.ArrangedWriter;
+import org.callimachusproject.logging.LoggingProperties;
 import org.callimachusproject.server.WebServer;
+import org.callimachusproject.util.MailProperties;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Graph;
 import org.openrdf.model.Resource;
@@ -22,12 +24,6 @@ import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.GraphImpl;
 import org.openrdf.model.util.GraphUtil;
 import org.openrdf.model.vocabulary.RDF;
-import org.openrdf.query.BooleanQuery;
-import org.openrdf.query.GraphQuery;
-import org.openrdf.query.Query;
-import org.openrdf.query.QueryLanguage;
-import org.openrdf.query.TupleQuery;
-import org.openrdf.query.resultio.text.tsv.SPARQLResultsTSVWriter;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -39,7 +35,6 @@ import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFParser;
 import org.openrdf.rio.Rio;
 import org.openrdf.rio.helpers.StatementCollector;
-import org.openrdf.rio.turtle.TurtleWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -224,46 +219,26 @@ public class CalliServer implements CalliServerMXBean {
 		}
 	}
 
-	public String[] sparqlQuery(String query) throws OpenRDFException, IOException {
-		String repositoryID = getRepositoryID();
-		if (!manager.hasRepositoryConfig(repositoryID))
-			throw new RepositoryConfigException("Repository is not initialized");
-		Repository repository = manager.getRepository(repositoryID);
-		RepositoryConnection conn = repository.getConnection();
-		try {
-			Query qry = conn.prepareQuery(QueryLanguage.SPARQL, query);
-			if (qry instanceof TupleQuery) {
-				ByteArrayOutputStream out = new ByteArrayOutputStream();
-				SPARQLResultsTSVWriter writer = new SPARQLResultsTSVWriter(out);
-				((TupleQuery) qry).evaluate(writer);
-				return new String(out.toByteArray(), "UTF-8").split("\r?\n");
-			} else if (qry instanceof BooleanQuery) {
-				return new String[]{String.valueOf(((BooleanQuery) qry).evaluate())};
-			} else if (qry instanceof GraphQuery) {
-				StringWriter string = new StringWriter(65536);
-				TurtleWriter writer = new TurtleWriter(string);
-				((GraphQuery) qry).evaluate(new ArrangedWriter(writer));
-				return string.toString().split("(?<=\\.)\r?\n");
-			} else {
-				throw new RepositoryException("Unknown query type: " + qry.getClass().getSimpleName());
-			}
-		} finally {
-			conn.close();
-		}
+	@Override
+	public Map<String, String> getMailProperties() throws IOException {
+		return MailProperties.getInstance().getMailProperties();
 	}
 
-	public void sparqlUpdate(String update) throws OpenRDFException, IOException {
-		String repositoryID = getRepositoryID();
-		if (!isServerInstalled(repositoryID))
-			throw new RepositoryConfigException("Repository is not initialized");
-		Repository repository = manager.getRepository(repositoryID);
-		RepositoryConnection conn = repository.getConnection();
-		try {
-			logger.info(update);
-			conn.prepareUpdate(QueryLanguage.SPARQL, update).execute();
-		} finally {
-			conn.close();
-		}
+	@Override
+	public void setMailProperties(Map<String, String> lines)
+			throws IOException, MessagingException {
+		MailProperties.getInstance().setMailProperties(lines);
+	}
+
+	@Override
+	public Map<String, String> getLoggingProperties() throws IOException {
+		return LoggingProperties.getInstance().getLoggingProperties();
+	}
+
+	@Override
+	public void setLoggingProperties(Map<String, String> lines)
+			throws IOException, MessagingException {
+		LoggingProperties.getInstance().setLoggingProperties(lines);
 	}
 
 	private synchronized void startWebServiceNow(int start) {

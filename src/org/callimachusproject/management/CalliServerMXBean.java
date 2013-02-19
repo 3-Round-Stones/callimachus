@@ -1,6 +1,9 @@
 package org.callimachusproject.management;
 
 import java.io.IOException;
+import java.util.Map;
+
+import javax.mail.MessagingException;
 
 import org.openrdf.OpenRDFException;
 
@@ -38,8 +41,14 @@ public interface CalliServerMXBean {
 
 	void stopWebService() throws Exception;
 
-	String[] sparqlQuery(String query) throws OpenRDFException, IOException;
+	Map<String, String> getMailProperties() throws IOException;
 
-	void sparqlUpdate(String update) throws OpenRDFException, IOException;
+	void setMailProperties(Map<String, String> lines) throws IOException,
+			MessagingException;
+
+	Map<String, String> getLoggingProperties() throws IOException;
+
+	void setLoggingProperties(Map<String, String> lines) throws IOException,
+			MessagingException;
 
 }

@@ -1,4 +1,4 @@
-package org.callimachusproject.management;
+package org.callimachusproject.logging;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -21,7 +21,7 @@ import javax.mail.MessagingException;
 
 import org.callimachusproject.util.SystemProperties;
 
-public class LoggingProperties implements LoggingPropertiesMXBean {
+public class LoggingProperties {
 	private static final Pattern KEY_VALUE_REGEX = Pattern
 			.compile("\\s*(.*)\\s*=\\s*(.*)\\s*$");
 	private static final LoggingProperties system = new LoggingProperties(SystemProperties.getLoggingPropertiesFile());

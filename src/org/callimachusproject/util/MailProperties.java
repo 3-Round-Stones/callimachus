@@ -21,7 +21,7 @@ import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.Transport;
 
-public class MailProperties implements MailPropertiesMXBean {
+public class MailProperties {
 	private static final Pattern KEY_VALUE_REGEX = Pattern
 			.compile("\\s*(.*)\\s*=\\s*(.*)\\s*$");
 	private static final MailProperties system = new MailProperties(SystemProperties.getMailPropertiesFile());

@@ -19,10 +19,8 @@ package org.callimachusproject.setup;
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
-import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
-import java.net.MalformedURLException;
 import java.net.URLEncoder;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -40,16 +38,11 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.repository.CalliRepository;
 import org.openrdf.OpenRDFException;
-import org.openrdf.model.Graph;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
-import org.openrdf.model.impl.GraphImpl;
-import org.openrdf.model.util.GraphUtil;
-import org.openrdf.model.util.GraphUtilException;
-import org.openrdf.model.util.ModelUtil;
 import org.openrdf.model.vocabulary.OWL;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.model.vocabulary.RDFS;
@@ -58,18 +51,7 @@ import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
-import org.openrdf.repository.config.RepositoryConfig;
-import org.openrdf.repository.config.RepositoryConfigException;
-import org.openrdf.repository.config.RepositoryConfigSchema;
-import org.openrdf.repository.manager.LocalRepositoryManager;
-import org.openrdf.repository.manager.RepositoryProvider;
 import org.openrdf.repository.object.ObjectConnection;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFHandlerException;
-import org.openrdf.rio.RDFParseException;
-import org.openrdf.rio.RDFParser;
-import org.openrdf.rio.Rio;
-import org.openrdf.rio.helpers.StatementCollector;
 import org.openrdf.store.blob.BlobObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -163,46 +145,11 @@ public class CallimachusSetup {
 	private final Map<String,TermFactory> webapps = new HashMap<String, TermFactory>();
 	private final CalliRepository repository;
 	private final ValueFactory vf;
-	private final LocalRepositoryManager manager;
 
-	public CallimachusSetup(File baseDir, String configString)
+	public CallimachusSetup(Repository repo, File dataDir)
 			throws OpenRDFException, IOException {
-		RepositoryConfig config = getRepositoryConfig(configString);
-		manager = RepositoryProvider.getRepositoryManager(baseDir);
-		Repository repo = getRepository(manager, config);
-		if (repo == null)
-			throw new RepositoryConfigException(
-					"Missing repository configuration");
-		File dataDir = repo.getDataDir();
-		if (dataDir == null) {
-			dataDir = manager.getRepositoryDir(config.getID());
-		}
 		repository = new CalliRepository(repo, dataDir);
 		vf = repository.getValueFactory();
-	}
-
-	public CallimachusSetup(LocalRepositoryManager manager, RepositoryConfig config)
-			throws OpenRDFException, IOException {
-		Repository repo = getRepository(manager, config);
-		if (repo == null)
-			throw new RepositoryConfigException(
-					"Missing repository configuration");
-		File dataDir = repo.getDataDir();
-		if (dataDir == null) {
-			dataDir = manager.getRepositoryDir(config.getID());
-		}
-		repository = new CalliRepository(repo, dataDir);
-		vf = repository.getValueFactory();
-		this.manager = null;
-	}
-
-	/**
-	 * If this object was created from a baseDir, shutdown the internal repository manager.
-	 */
-	public void shutDown() {
-		if (manager != null) {
-			manager.shutDown();
-		}
 	}
 
 	public RepositoryConnection openConnection() throws RepositoryException {
@@ -425,53 +372,6 @@ public class CallimachusSetup {
 		} catch (UnsupportedEncodingException e) {
 			throw new AssertionError(e);
 		}
-	}
-
-	private Repository getRepository(LocalRepositoryManager manager, RepositoryConfig config)
-			throws OpenRDFException, MalformedURLException, IOException {
-		if (config == null || manager == null)
-			return null;
-		String id = config.getID();
-		if (manager.hasRepositoryConfig(id)) {
-			RepositoryConfig oldConfig = manager.getRepositoryConfig(id);
-			if (equal(config, oldConfig))
-				return manager.getRepository(id);
-			logger.warn("Replacing repository configuration");
-		}
-		config.validate();
-		logger.info("Creating repository: {}", id);
-		manager.addRepositoryConfig(config);
-		if (manager.getInitializedRepositoryIDs().contains(id)) {
-			manager.getRepository(id).shutDown();
-		}
-		return manager.getRepository(id);
-	}
-
-	private RepositoryConfig getRepositoryConfig(String configString)
-			throws IOException, RDFParseException, RDFHandlerException,
-			GraphUtilException, RepositoryConfigException {
-		Graph graph = parseTurtleGraph(configString);
-		Resource node = GraphUtil.getUniqueSubject(graph, RDF.TYPE,
-				RepositoryConfigSchema.REPOSITORY);
-		return RepositoryConfig.create(graph, node);
-	}
-
-	private Graph parseTurtleGraph(String configString) throws IOException,
-			RDFParseException, RDFHandlerException {
-		Graph graph = new GraphImpl();
-		RDFParser rdfParser = Rio.createParser(RDFFormat.TURTLE);
-		rdfParser.setRDFHandler(new StatementCollector(graph));
-		String base = new File(".").getAbsoluteFile().toURI().toASCIIString();
-		rdfParser.parse(new StringReader(configString), base);
-		return graph;
-	}
-
-	private boolean equal(RepositoryConfig c1, RepositoryConfig c2) {
-		GraphImpl g1 = new GraphImpl();
-		GraphImpl g2 = new GraphImpl();
-		c1.export(g1);
-		c2.export(g2);
-		return ModelUtil.equals(g1, g2);
 	}
 
 	private String createWebappUrl(String origin) throws IOException {

@@ -373,11 +373,16 @@ public class CalliServer implements CalliServerMXBean {
 						RepositoryConfig oldConfig = manager.getRepositoryConfig(repositoryID);
 						if (temp.getParameters(config).equals(oldConfig))
 							continue;
+						config.validate();
 						logger.info("Replacing repository configuration {}", repositoryID);
 						manager.addRepositoryConfig(config);
 					} else {
+						config.validate();
 						logger.info("Creating repository {}", repositoryID);
 						manager.addRepositoryConfig(config);
+					}
+					if (manager.getInitializedRepositoryIDs().contains(repositoryID)) {
+						manager.getRepository(repositoryID).shutDown();
 					}
 					try {
 						Repository repo = manager.getRepository(repositoryID);
@@ -417,8 +422,9 @@ public class CalliServer implements CalliServerMXBean {
 	@Override
 	public void setupWebappOrigin(String webappOrigin, String repositoryID)
 			throws Exception {
-		RepositoryConfig config = manager.getRepositoryConfig(repositoryID);
-		SetupTool tool = new SetupTool(manager, config, conf);
+		Repository repository = manager.getRepository(repositoryID);
+		File dataDir = manager.getRepositoryDir(repositoryID);
+		SetupTool tool = new SetupTool(repository, dataDir, conf);
 		tool.setupWebappOrigin(webappOrigin, repositoryID);
 	}
 
@@ -438,8 +444,9 @@ public class CalliServer implements CalliServerMXBean {
 		List<SetupOrigin> list = new ArrayList<SetupOrigin>();
 		Collection<String> ids = conf.getOriginRepositoryIDs().values();
 		for (String repositoryID : new LinkedHashSet<String>(ids)) {
-			RepositoryConfig config = manager.getRepositoryConfig(repositoryID);
-			SetupTool tool = new SetupTool(manager, config, conf);
+			Repository repository = manager.getRepository(repositoryID);
+			File dataDir = manager.getRepositoryDir(repositoryID);
+			SetupTool tool = new SetupTool(repository, dataDir, conf);
 			list.addAll(Arrays.asList(tool.getOrigins()));
 		}
 		return list.toArray(new SetupOrigin[list.size()]);
@@ -518,8 +525,9 @@ public class CalliServer implements CalliServerMXBean {
 
 	SetupTool getSetupTool(String webappOrigin) throws OpenRDFException, IOException {
 		String repositoryID = conf.getOriginRepositoryIDs().get(webappOrigin);
-		RepositoryConfig config = manager.getRepositoryConfig(repositoryID);
-		return new SetupTool(manager, config, conf);
+		Repository repository = manager.getRepository(repositoryID);
+		File dataDir = manager.getRepositoryDir(repositoryID);
+		return new SetupTool(repository, dataDir, conf);
 	}
 
 	private Map<String, String> getAllRepositoryProperties()

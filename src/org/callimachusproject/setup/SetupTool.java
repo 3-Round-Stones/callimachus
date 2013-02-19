@@ -1,5 +1,6 @@
 package org.callimachusproject.setup;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.security.GeneralSecurityException;
@@ -29,10 +30,9 @@ import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.QueryLanguage;
 import org.openrdf.query.TupleQuery;
 import org.openrdf.query.TupleQueryResult;
+import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.config.RepositoryConfig;
-import org.openrdf.repository.manager.LocalRepositoryManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,23 +57,19 @@ public class SetupTool {
 	private static final String SELECT_USERNAME = PREFIX + "SELECT ?username { </> calli:authentication [calli:authNamespace [calli:hasComponent [calli:name ?username; calli:email $email]]] }";
 
 	private final Logger logger = LoggerFactory.getLogger(SetupTool.class);
-	private final LocalRepositoryManager manager;
-	private final RepositoryConfig config;
+	private final Repository repository;
+	private final File dataDir;
 	private final CallimachusConf conf;
 
-	public SetupTool(LocalRepositoryManager manager, RepositoryConfig config,
+	public SetupTool(Repository repository, File dataDir,
 			CallimachusConf conf) throws OpenRDFException {
-		this.manager = manager;
-		this.config = config;
+		this.repository = repository;
+		this.dataDir = dataDir;
 		this.conf = conf;
 	}
 
 	public String toString() {
-		return manager.getBaseDir().toString();
-	}
-
-	public LocalRepositoryManager getRepositoryManager() {
-		return manager;
+		return dataDir.toString();
 	}
 
 	public String[] getWebappOrigins() throws IOException {
@@ -82,7 +78,7 @@ public class SetupTool {
 
 	public SetupOrigin[] getOrigins() throws IOException, OpenRDFException {
 		List<SetupOrigin> list = new ArrayList<SetupOrigin>();
-		CallimachusSetup setup = new CallimachusSetup(manager, config);
+		CallimachusSetup setup = new CallimachusSetup(repository, dataDir);
 		RepositoryConnection con = setup.openConnection();
 		try {
 			for (String webappOrigin : getWebappOrigins()) {
@@ -146,7 +142,7 @@ public class SetupTool {
 			if (!o.isResolvable())
 				throw new IllegalStateException("Multiple resolvable origins cannot be used if unresolvable realms exist");
 		}
-		CallimachusSetup setup = new CallimachusSetup(manager, config);
+		CallimachusSetup setup = new CallimachusSetup(repository, dataDir);
 		setup.createOrigin(origin, webappOrigin);
 		Map<String, String> map = conf.getOriginRepositoryIDs();
 		map = new LinkedHashMap<String, String>(map);
@@ -163,13 +159,13 @@ public class SetupTool {
 			if (origin.isResolvable() && !origin.getRoot().equals(root))
 				throw new IllegalStateException("Unresolvable realms can only be used with a single resolvable origin");
 		}
-		CallimachusSetup setup = new CallimachusSetup(manager, config);
+		CallimachusSetup setup = new CallimachusSetup(repository, dataDir);
 		setup.createRealm(realm, webappOrigin);
 	}
 
 	public synchronized String[] getDigestEmailAddresses(String webappOrigin)
 			throws OpenRDFException, IOException {
-		CallimachusSetup setup = new CallimachusSetup(manager, config);
+		CallimachusSetup setup = new CallimachusSetup(repository, dataDir);
 		RepositoryConnection con = setup.openConnection();
 		try {
 			List<String> list = new ArrayList<String>();
@@ -196,7 +192,7 @@ public class SetupTool {
 			String label, String comment, String subject, String body,
 			String webappOrigin) throws IOException, OpenRDFException,
 			MessagingException, NamingException, GeneralSecurityException {
-		CallimachusSetup setup = new CallimachusSetup(manager, config);
+		CallimachusSetup setup = new CallimachusSetup(repository, dataDir);
 		setup.createAdmin(email, username, label, comment, webappOrigin);
 		Set<String> links = setup.getUserRegistrationLinks(username, email,
 				webappOrigin);
@@ -218,7 +214,7 @@ public class SetupTool {
 	public synchronized boolean changeDigestUserPassword(String email,
 			String password, String webappOrigin) throws OpenRDFException,
 			IOException {
-		CallimachusSetup setup = new CallimachusSetup(manager, config);
+		CallimachusSetup setup = new CallimachusSetup(repository, dataDir);
 		RepositoryConnection con = setup.openConnection();
 		try {
 			int b = email.indexOf('<');
@@ -280,7 +276,7 @@ public class SetupTool {
 	private void createWebappOrigin(final String origin)
 			throws OpenRDFException, IOException, NoSuchMethodException,
 			InvocationTargetException {
-		CallimachusSetup setup = new CallimachusSetup(manager, config);
+		CallimachusSetup setup = new CallimachusSetup(repository, dataDir);
 		setup.prepareWebappOrigin(origin);
 		boolean created = setup.createWebappOrigin(origin);
 		setup.finalizeWebappOrigin(origin);

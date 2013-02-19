@@ -23,6 +23,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.StringReader;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.Arrays;
@@ -36,6 +38,26 @@ import org.callimachusproject.management.BackupTool;
 import org.callimachusproject.setup.CallimachusSetup;
 import org.callimachusproject.util.CallimachusConf;
 import org.callimachusproject.util.SystemProperties;
+import org.openrdf.OpenRDFException;
+import org.openrdf.model.Graph;
+import org.openrdf.model.Resource;
+import org.openrdf.model.impl.GraphImpl;
+import org.openrdf.model.util.GraphUtil;
+import org.openrdf.model.util.GraphUtilException;
+import org.openrdf.model.util.ModelUtil;
+import org.openrdf.model.vocabulary.RDF;
+import org.openrdf.repository.Repository;
+import org.openrdf.repository.config.RepositoryConfig;
+import org.openrdf.repository.config.RepositoryConfigException;
+import org.openrdf.repository.config.RepositoryConfigSchema;
+import org.openrdf.repository.manager.LocalRepositoryManager;
+import org.openrdf.repository.manager.RepositoryProvider;
+import org.openrdf.rio.RDFFormat;
+import org.openrdf.rio.RDFHandlerException;
+import org.openrdf.rio.RDFParseException;
+import org.openrdf.rio.RDFParser;
+import org.openrdf.rio.Rio;
+import org.openrdf.rio.helpers.StatementCollector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -197,7 +219,14 @@ public class Setup {
 		boolean changed = false;
 		File repositoryConfig = SystemProperties.getRepositoryConfigFile();
 		String configString = readContent(repositoryConfig.toURI().toURL());
-		CallimachusSetup setup = new CallimachusSetup(basedir, configString);
+		RepositoryConfig config = getRepositoryConfig(configString);
+		LocalRepositoryManager manager = RepositoryProvider.getRepositoryManager(basedir);
+		Repository repo = getRepository(manager, config);
+		if (repo == null)
+			throw new RepositoryConfigException(
+					"Missing repository configuration");
+		File dataDir = manager.getRepositoryDir(config.getID());
+		CallimachusSetup setup = new CallimachusSetup(repo, dataDir);
 		try {
 			for (String origin : conf.getWebappOrigins()) {
 				changed |= setup.prepareWebappOrigin(origin);
@@ -225,7 +254,7 @@ public class Setup {
 				}
 			}
 		} finally {
-			setup.shutDown();
+			manager.shutDown();
 		}
 		if (changed || silent) {
 			System.exit(0);
@@ -275,6 +304,53 @@ public class Setup {
 		}
 		sb.append(day);
 		return sb.toString();
+	}
+
+	private Repository getRepository(LocalRepositoryManager manager, RepositoryConfig config)
+			throws OpenRDFException, MalformedURLException, IOException {
+		if (config == null || manager == null)
+			return null;
+		String id = config.getID();
+		if (manager.hasRepositoryConfig(id)) {
+			RepositoryConfig oldConfig = manager.getRepositoryConfig(id);
+			if (equal(config, oldConfig))
+				return manager.getRepository(id);
+			logger.warn("Replacing repository configuration");
+		}
+		config.validate();
+		logger.info("Creating repository: {}", id);
+		manager.addRepositoryConfig(config);
+		if (manager.getInitializedRepositoryIDs().contains(id)) {
+			manager.getRepository(id).shutDown();
+		}
+		return manager.getRepository(id);
+	}
+
+	private RepositoryConfig getRepositoryConfig(String configString)
+			throws IOException, RDFParseException, RDFHandlerException,
+			GraphUtilException, RepositoryConfigException {
+		Graph graph = parseTurtleGraph(configString);
+		Resource node = GraphUtil.getUniqueSubject(graph, RDF.TYPE,
+				RepositoryConfigSchema.REPOSITORY);
+		return RepositoryConfig.create(graph, node);
+	}
+
+	private Graph parseTurtleGraph(String configString) throws IOException,
+			RDFParseException, RDFHandlerException {
+		Graph graph = new GraphImpl();
+		RDFParser rdfParser = Rio.createParser(RDFFormat.TURTLE);
+		rdfParser.setRDFHandler(new StatementCollector(graph));
+		String base = new File(".").getAbsoluteFile().toURI().toASCIIString();
+		rdfParser.parse(new StringReader(configString), base);
+		return graph;
+	}
+
+	private boolean equal(RepositoryConfig c1, RepositoryConfig c2) {
+		GraphImpl g1 = new GraphImpl();
+		GraphImpl g2 = new GraphImpl();
+		c1.export(g1);
+		c2.export(g2);
+		return ModelUtil.equals(g1, g2);
 	}
 
 }

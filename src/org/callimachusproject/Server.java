@@ -43,12 +43,13 @@ import org.callimachusproject.management.CalliServer;
 import org.callimachusproject.management.CalliServer.ServerListener;
 import org.callimachusproject.management.JVMSummary;
 import org.callimachusproject.management.LogEmitter;
-import org.callimachusproject.management.SetupTool;
 import org.callimachusproject.repository.CalliRepository;
 import org.callimachusproject.server.HTTPObjectPolicy;
 import org.callimachusproject.server.WebServer;
-import org.callimachusproject.setup.CallimachusConf;
+import org.callimachusproject.util.CallimachusConf;
 import org.callimachusproject.util.SystemProperties;
+import org.openrdf.repository.manager.LocalRepositoryManager;
+import org.openrdf.repository.manager.RepositoryProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -163,17 +164,20 @@ public class Server {
 						}
 					});
 			CallimachusConf conf = new CallimachusConf(confFile);
-			File repositoryConfig = SystemProperties.getRepositoryConfigFile();
-			SetupTool tool = new SetupTool(baseDir, repositoryConfig, conf);
-			node = new CalliServer(tool, new ServerListener() {
-				public void serverStarted(WebServer server) {
-					registerMBean(server, WebServer.class);
-					registerMBean(server.getRepository(), CalliRepository.class);
+			LocalRepositoryManager manager = RepositoryProvider.getRepositoryManager(baseDir);
+			node = new CalliServer(conf, manager, new ServerListener() {
+				public void repositoryInitialized(String repositoryID,
+						CalliRepository repository) {
+					registerMBean(repositoryID, repository, CalliRepository.class);
 				}
 
-				public void serverStopping(WebServer server) {
-					unregisterMBean(CalliRepository.class);
+				public void webServiceStarted(WebServer server) {
+					registerMBean(server, WebServer.class);
+				}
+
+				public void webServiceStopping(WebServer server) {
 					unregisterMBean(WebServer.class);
+					unregisterMBean(CalliRepository.class);
 				}
 			});
 			registerMBean(node, CalliServer.class);
@@ -184,9 +188,8 @@ public class Server {
 			}
 			File etc = new File(baseDir, "etc");
 			registerMBean(new CalliKeyStore(etc), CalliKeyStore.class);
-			registerMBean(tool, SetupTool.class);
 			if (!line.has("trust")) {
-				File[] writable = { confFile, repositoryConfig, backupDir,
+				File[] writable = { confFile, backupDir,
 						SystemProperties.getMailPropertiesFile(),
 						SystemProperties.getLoggingPropertiesFile(),
 						new File(baseDir, "repositories") };
@@ -229,7 +232,6 @@ public class Server {
 			unregisterMBean(LogEmitter.class);
 			unregisterMBean(BackupTool.class);
 			unregisterMBean(CalliKeyStore.class);
-			unregisterMBean(SetupTool.class);
 			ManagedExecutors.getInstance().cleanup();
 		}
 	}

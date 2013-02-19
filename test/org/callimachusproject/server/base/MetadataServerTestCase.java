@@ -101,6 +101,7 @@ public abstract class MetadataServerTestCase extends TestCase {
 		vf = repository.getValueFactory();
 		initDataset(repository);
 		server = createServer();
+		server.addOrigin(getOrigin(), repository);
 		server.listen(new int[] { getPort() }, new int[0]);
 		server.start();
 		server.resetCache();
@@ -111,7 +112,7 @@ public abstract class MetadataServerTestCase extends TestCase {
 	}
 
 	protected HTTPObjectServer createServer() throws Exception {
-		return new HTTPObjectServer(repository, new File(dataDir, "cache"));
+		return new HTTPObjectServer(new File(dataDir, "cache"));
 	}
 
 	protected void addContentEncoding(WebResource client) {

@@ -2,6 +2,8 @@ package org.callimachusproject.server.process;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 
@@ -15,6 +17,7 @@ import org.callimachusproject.client.CloseableEntity;
 import org.callimachusproject.concurrent.ManagedExecutors;
 import org.callimachusproject.repository.CalliRepository;
 import org.callimachusproject.server.exceptions.NotAcceptable;
+import org.callimachusproject.server.exceptions.NotFound;
 import org.callimachusproject.server.exceptions.ResponseException;
 import org.callimachusproject.server.model.EntityRemovedHttpResponse;
 import org.callimachusproject.server.model.Filter;
@@ -25,29 +28,32 @@ import org.callimachusproject.server.model.Response;
 
 public class RequestTransactionActor extends ExchangeActor {
 	private static final ProtocolVersion HTTP11 = HttpVersion.HTTP_1_1;
+	private final Map<String, CalliRepository> repositories = new LinkedHashMap<String, CalliRepository>();
 	private final Filter filter;
 	private final Handler handler;
-	private final CalliRepository repository;
 
-	public RequestTransactionActor(Filter filter, Handler handler,
-			CalliRepository repository) {
-		this(new PriorityBlockingQueue<Runnable>(), filter, handler, repository);
+	public RequestTransactionActor(Filter filter, Handler handler) {
+		this(new PriorityBlockingQueue<Runnable>(), filter, handler);
 	}
 
 	private RequestTransactionActor(BlockingQueue<Runnable> queue,
-			Filter filter, Handler handler, CalliRepository repository) {
+			Filter filter, Handler handler) {
 		super(ManagedExecutors.getInstance().newAntiDeadlockThreadPool(queue,
 				"HttpTransaction"), queue);
 		this.filter = filter;
 		this.handler = handler;
-		this.repository = repository;
+	}
+
+	public synchronized void addOrigin(String origin, CalliRepository repository) {
+		repositories.put(origin, repository);
 	}
 
 	protected void process(Exchange exchange, boolean foreground)
 			throws Exception {
 		Request req = exchange.getRequest();
 		boolean success = false;
-		final ResourceOperation op = new ResourceOperation(req, repository);
+		CalliRepository repo = getRepository(req.getOrigin());
+		final ResourceOperation op = new ResourceOperation(req, repo);
 		try {
 			op.begin();
 			Response resp = handler.verify(op);
@@ -79,6 +85,14 @@ public class RequestTransactionActor extends ExchangeActor {
 			resp.setEntity(null);
 		}
 		return resp;
+	}
+
+	private synchronized CalliRepository getRepository(String origin) throws NotFound {
+		if (repositories.containsKey(origin))
+			return repositories.get(origin);
+		if (repositories.isEmpty())
+			throw new NotFound("Origins not configured");
+		return repositories.values().iterator().next();
 	}
 
 	private HttpResponse createSafeHttpResponse(final ResourceOperation req,

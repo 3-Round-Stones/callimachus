@@ -181,9 +181,8 @@ public class CallimachusSetup {
 		vf = repository.getValueFactory();
 	}
 
-	public CallimachusSetup(LocalRepositoryManager manager, String configString)
+	public CallimachusSetup(LocalRepositoryManager manager, RepositoryConfig config)
 			throws OpenRDFException, IOException {
-		RepositoryConfig config = getRepositoryConfig(configString);
 		Repository repo = getRepository(manager, config);
 		if (repo == null)
 			throw new RepositoryConfigException(
@@ -192,13 +191,6 @@ public class CallimachusSetup {
 		if (dataDir == null) {
 			dataDir = manager.getRepositoryDir(config.getID());
 		}
-		repository = new CalliRepository(repo, dataDir);
-		vf = repository.getValueFactory();
-		this.manager = null;
-	}
-
-	public CallimachusSetup(Repository repo, File dataDir)
-			throws OpenRDFException, IOException {
 		repository = new CalliRepository(repo, dataDir);
 		vf = repository.getValueFactory();
 		this.manager = null;

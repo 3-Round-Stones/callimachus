@@ -59,6 +59,7 @@ public class Request extends EditableHttpEntityEnclosingRequest {
 	private final boolean storable;
 	private final InetAddress remoteAddr;
 	private final boolean internal;
+	private final String origin;
 	private String forensicId;
 	private String iri;
 
@@ -78,25 +79,31 @@ public class Request extends EditableHttpEntityEnclosingRequest {
 				&& getCacheControl("no-store", 0) == 0;
 		if (request instanceof Request) {
 			iri = ((Request) request).getIRI();
+			origin = ((Request) request).origin;
 		} else {
-		try {
-			String path = request.getRequestLine().getUri();
-			int qx = path.indexOf('?');
-			if (qx > 0) {
-				path = path.substring(0, qx);
+			try {
+				String path = request.getRequestLine().getUri();
+				int qx = path.indexOf('?');
+				if (qx > 0) {
+					path = path.substring(0, qx);
+				}
+				if (path.startsWith("/")) {
+					String scheme = getScheme().toLowerCase();
+					String host = getAuthority().toLowerCase();
+					ParsedURI parsed = new ParsedURI(scheme, host, path, null, null);
+					String uri = parsed.toString();
+					iri = TermFactory.newInstance(uri).getSystemId();
+					origin = scheme + "://" + host;
+				} else {
+					iri = canonicalize(path);
+					ParsedURI parsed = new ParsedURI(iri);
+					origin = parsed.getScheme() + "://" + parsed.getAuthority();
+				}
+			} catch (IllegalArgumentException e) {
+				throw new BadRequest(e);
 			}
-			if (path.startsWith("/")) {
-				String scheme = getScheme().toLowerCase();
-				String host = getAuthority().toLowerCase();
-				String uri = new ParsedURI(scheme, host, path, null, null).toString();
-				iri = TermFactory.newInstance(uri).getSystemId();
-			} else {
-				iri = canonicalize(path);
-			}
-		} catch (IllegalArgumentException e) {
-			throw new BadRequest(e);
 		}
-	}}
+	}
 
 	public boolean isInternal() {
 		return internal;
@@ -256,6 +263,10 @@ public class Request extends EditableHttpEntityEnclosingRequest {
 
 	public void setIRI(String iri) {
 		this.iri = iri;
+	}
+
+	public String getOrigin() {
+		return origin;
 	}
 
 	public String getRequestURI() {

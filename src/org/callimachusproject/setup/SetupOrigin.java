@@ -16,6 +16,8 @@ public class SetupOrigin implements Serializable {
 	private final boolean placeholder;
 
 	public SetupOrigin(String root, boolean resolvable, String webappOrigin) {
+		assert root != null;
+		assert webappOrigin != null;
 		this.root = root;
 		this.resolvable = resolvable;
 		this.webappOrigin = webappOrigin;
@@ -33,6 +35,8 @@ public class SetupOrigin implements Serializable {
 	public SetupOrigin(String root, boolean resolvable, String webappOrigin,
 			String indexTarget, String layout, String forbiddenPage,
 			String unauthorizedPage, String[] authentication) {
+		assert root != null;
+		assert webappOrigin != null;
 		this.root = root;
 		this.resolvable = resolvable;
 		this.webappOrigin = webappOrigin;
@@ -74,6 +78,32 @@ public class SetupOrigin implements Serializable {
 
 	public String[] getAuthentication() {
 		return authentication;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + root.hashCode();
+		result = prime * result
+				+ webappOrigin.hashCode();
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		SetupOrigin other = (SetupOrigin) obj;
+		if (!root.equals(other.root))
+			return false;
+		if (!webappOrigin.equals(other.webappOrigin))
+			return false;
+		return true;
 	}
 
 	protected boolean isPlaceHolder() {

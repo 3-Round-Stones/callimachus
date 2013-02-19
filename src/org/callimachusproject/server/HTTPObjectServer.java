@@ -110,7 +110,6 @@ import org.callimachusproject.server.model.Filter;
 import org.callimachusproject.server.model.Handler;
 import org.callimachusproject.server.process.Exchange;
 import org.callimachusproject.server.process.HTTPObjectRequestHandler;
-import org.openrdf.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -144,7 +143,6 @@ public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAg
 	private final IOEventDispatch dispatch;
 	private DefaultListeningIOReactor sslserver;
 	private IOEventDispatch ssldispatch;
-	private final CalliRepository repository;
 	private int[] ports;
 	private int[] sslports;
 	private final ServerNameFilter name;
@@ -160,9 +158,8 @@ public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAg
 	private int timeout = 0;
 	private final HttpProcessor httpproc;
 
-	public HTTPObjectServer(CalliRepository repository, File cacheDir)
+	public HTTPObjectServer(File cacheDir)
 			throws IOException, NoSuchAlgorithmException {
-		this.repository = repository;
 		Handler handler = new InvokeHandler();
 		handler = new NotFoundHandler(handler);
 		handler = new AlternativeHandler(handler);
@@ -172,7 +169,7 @@ public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAg
 		handler = remoteCache = new ModifiedSinceHandler(handler);
 		handler = new UnmodifiedSinceHandler(handler);
 		handler = new ContentHeadersHandler(handler);
-		handler = authCache = new AuthenticationHandler(handler, repository.getDelegate());
+		handler = authCache = new AuthenticationHandler(handler);
 		Filter filter = env = new HttpResponseFilter(null);
 		filter = new GZipFilter(filter);
 		filter = cache = new CachingFilter(filter, cacheDir, 1024);
@@ -183,7 +180,7 @@ public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAg
 		filter = name = new ServerNameFilter(DEFAULT_NAME, filter);
 		filter = new HeadRequestFilter(filter);
 		filter = new AccessLog(filter);
-		service = new HTTPObjectRequestHandler(filter, handler, repository);
+		service = new HTTPObjectRequestHandler(filter, handler);
 		httpproc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
 				new ResponseDate(), new ResponseContent(true),
 				new ResponseConnControl() });
@@ -204,6 +201,11 @@ public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAg
 				logger.warn(e.toString(), e);
 			}
 		}
+	}
+
+	public synchronized void addOrigin(String origin, CalliRepository repository) {
+		service.addOrigin(origin, repository);
+		authCache.addOrigin(origin, repository);
 		repository.addSchemaListener(new Runnable() {
 			public String toString() {
 				return "reset cache";
@@ -281,10 +283,6 @@ public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAg
 
 	public void setErrorPipe(String url) throws IOException {
 		service.setErrorPipe(url);
-	}
-
-	public Repository getRepository() {
-		return repository;
 	}
 
 	public String getName() {

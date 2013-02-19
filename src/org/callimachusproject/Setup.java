@@ -33,8 +33,8 @@ import java.util.Scanner;
 import org.callimachusproject.cli.Command;
 import org.callimachusproject.cli.CommandSet;
 import org.callimachusproject.management.BackupTool;
-import org.callimachusproject.setup.CallimachusConf;
 import org.callimachusproject.setup.CallimachusSetup;
+import org.callimachusproject.util.CallimachusConf;
 import org.callimachusproject.util.SystemProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -199,18 +199,18 @@ public class Setup {
 		String configString = readContent(repositoryConfig.toURI().toURL());
 		CallimachusSetup setup = new CallimachusSetup(basedir, configString);
 		try {
-			for (String origin : conf.getCallimachusWebappOrigins()) {
+			for (String origin : conf.getWebappOrigins()) {
 				changed |= setup.prepareWebappOrigin(origin);
 			}
-			for (String origin : conf.getCallimachusWebappOrigins()) {
+			for (String origin : conf.getWebappOrigins()) {
 				changed |= setup.createWebappOrigin(origin);
 			}
-			for (String origin : conf.getCallimachusWebappOrigins()) {
+			for (String origin : conf.getWebappOrigins()) {
 				changed |= setup.finalizeWebappOrigin(origin);
 			}
-			conf.setProperty("APP_VER", Version.getInstance().getVersionCode());
+			conf.setAppVersion(Version.getInstance().getVersionCode());
 			if (email != null && email.length() > 0) {
-				for (String origin : conf.getCallimachusWebappOrigins()) {
+				for (String origin : conf.getWebappOrigins()) {
 					changed |= setup.createAdmin(email, username, name, null, origin);
 					if (password == null || password.length < 1) {
 						for (String url : setup.getUserRegistrationLinks(username, email, origin)) {
@@ -254,11 +254,11 @@ public class Setup {
 
 	private String getDefaultBackupLabel(CallimachusConf conf) throws IOException {
 		StringBuilder sb = new StringBuilder();
-		if (conf.getCallimachusWebappOrigins().length > 0) {
-			String origin = conf.getCallimachusWebappOrigins()[0];
+		if (conf.getWebappOrigins().length > 0) {
+			String origin = conf.getWebappOrigins()[0];
 			sb.append(URI.create(origin).getHost()).append("-");
 		}
-		String version = conf.getProperty("APP_VER");
+		String version = conf.getAppVersion();
 		if (version != null) {
 			sb.append(version).append("_");
 		}

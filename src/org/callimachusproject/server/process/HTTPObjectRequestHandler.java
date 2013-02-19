@@ -30,7 +30,9 @@ package org.callimachusproject.server.process;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Queue;
 
 import org.apache.http.HttpException;
@@ -77,27 +79,32 @@ public class HTTPObjectRequestHandler extends AbstractHttpClient implements
 
 	private final Logger logger = LoggerFactory
 			.getLogger(HTTPObjectRequestHandler.class);
+	private final Map<String, CalliRepository> repositories = new LinkedHashMap<String, CalliRepository>();
 	private final Filter filter;
 	private final Handler handler;
-	private final CalliRepository repository;
 	private Pipeline pipeline;
 	private RequestTriagerActor requestTriager;
 	private RequestTransactionActor requestHandler;
 
-	public HTTPObjectRequestHandler(Filter filter, Handler handler,
-			CalliRepository repository) {
+	public HTTPObjectRequestHandler(Filter filter, Handler handler) {
 		this.filter = filter;
 		this.handler = handler;
-		this.repository = repository;
+	}
+
+	public synchronized void addOrigin(String origin, CalliRepository repository) {
+		repositories.put(origin, repository);
 	}
 
 	public synchronized void start() throws IOException {
 		if (requestHandler != null)
 			throw new IllegalStateException("Stop must be called first");
-		requestHandler = new RequestTransactionActor(filter, handler, repository);
+		requestHandler = new RequestTransactionActor(filter, handler);
 		requestTriager = new RequestTriagerActor(filter, requestHandler);
 		requestHandler.setErrorPipe(pipeline);
 		requestTriager.setErrorPipe(pipeline);
+		for (Map.Entry<String, CalliRepository> e : repositories.entrySet()) {
+			requestHandler.addOrigin(e.getKey(), e.getValue());
+		}
 	}
 
 	public synchronized void stop() {

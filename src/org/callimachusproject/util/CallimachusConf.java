@@ -1,0 +1,258 @@
+package org.callimachusproject.util;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+
+public class CallimachusConf {
+	private static final String DEFAULT_REPOSITORY_ID = "callimachus";
+
+	private static final Pattern WSPACE = Pattern.compile("\\s");
+
+	private final File file;
+	private final File defaultFile;
+
+	public CallimachusConf(	File file) {
+		this(file, SystemProperties.getConfigDefaultsFile());
+	}
+
+	public CallimachusConf(File file, File defaultFile) {
+		this.file = file;
+		this.defaultFile = defaultFile;
+	}
+
+	public String toString() {
+		return file.toString();
+	}
+
+	public synchronized String[] getWebappOrigins() throws IOException {
+		String webapps = getProperty("PRIMARY_ORIGIN");
+		if (webapps != null && webapps.trim().length() > 0)
+			return webapps.trim().split("\\s+");
+		Map<String, String> map = getOriginRepositoryIDs();
+		if (map == null || map.isEmpty())
+			return new String[0];
+		return map.keySet().toArray(new String[map.size()]);
+	}
+
+	public synchronized void setWebappOrigins(String[] origins) throws IOException {
+		setProperty("PRIMARY_ORIGIN", join(origins));
+		Map<String, String> map = getOriginRepositoryIDs();
+		map = new LinkedHashMap<String, String>(map);
+		for (String item : origins) {
+			if (!map.containsKey(item)) {
+				map.put(item, DEFAULT_REPOSITORY_ID);
+			}
+		}
+		setOriginRepositoryIDs(map);
+	}
+
+	public Map<String, String> getOriginRepositoryIDs() throws IOException {
+		String value = getProperty("ORIGIN");
+		if (value == null)
+			return Collections.emptyMap();
+		String[] items = value.trim().split("\\s+");
+		Map<String, String> map = new LinkedHashMap<String, String>(items.length);
+		for (String item : items) {
+			int idx = item.indexOf('#');
+			if (idx < 0) {
+				map.put(item, DEFAULT_REPOSITORY_ID);
+			} else {
+				map.put(item.substring(0, idx), item.substring(idx + 1));
+			}
+		}
+		return map;
+	}
+
+	public void setOriginRepositoryIDs(Map<String, String> map) throws IOException {
+		StringBuilder sb = new StringBuilder();
+		Iterator<Entry<String, String>> iter = map.entrySet().iterator();
+		while (iter.hasNext()) {
+			Entry<String, String> e = iter.next();
+			sb.append(e.getKey()).append('#').append(e.getValue());
+			if (iter.hasNext()) {
+				sb.append(' ');
+			}
+		}
+		setProperty("ORIGIN", sb.toString());
+	}
+
+	public String getAppVersion() throws IOException {
+		return getProperty("APP_VER");
+	}
+
+	public void setAppVersion(String version) throws IOException {
+		setProperty("APP_VER", version);
+	}
+
+	public String getServerName() throws IOException {
+		return getProperty("SERVER_NAME");
+	}
+
+	public void setServerName(String name) throws IOException {
+		setProperty("SERVER_NAME", name);
+	}
+
+	public int[] getPorts() throws IOException {
+		String portStr = getProperty("PORT");
+		int[] ports = new int[0];
+		if (portStr != null && portStr.trim().length() > 0) {
+			String[] values = portStr.trim().split("\\s+");
+			ports = new int[values.length];
+			for (int i = 0; i < values.length; i++) {
+				ports[i] = Integer.parseInt(values[i]);
+			}
+		}
+		return ports;
+	}
+
+	public void setPorts(int[] ports) throws IOException {
+		StringBuilder sb = new StringBuilder();
+		for (int i=0; i<ports.length; i++) {
+			sb.append(ports[i]);
+			if (i <ports.length - 1) {
+				sb.append(' ');
+			}
+		}
+		setProperty("PORT", sb.toString());
+	}
+
+	public int[] getSslPorts() throws IOException {
+		String sslportStr = getProperty("SSLPORT");
+		int[] sslports = new int[0];
+		if (sslportStr != null && sslportStr.trim().length() > 0) {
+			String[] values = sslportStr.trim().split("\\s+");
+			sslports = new int[values.length];
+			for (int i = 0; i < values.length; i++) {
+				sslports[i] = Integer.parseInt(values[i]);
+			}
+		}
+		return sslports;
+	}
+
+	public void setSslPorts(int[] ports) throws IOException {
+		StringBuilder sb = new StringBuilder();
+		for (int i=0; i<ports.length; i++) {
+			sb.append(ports[i]);
+			if (i <ports.length - 1) {
+				sb.append(' ');
+			}
+		}
+		setProperty("SSLPORT", sb.toString());
+	}
+
+	private synchronized String getProperty(String key) throws IOException {
+		if (!file.isFile() && !defaultFile.isFile())
+			return null;
+		Pattern prefix = Pattern.compile("^\\s*" + Pattern.quote(key)
+				+ "\\s*=\\s*\\\"?([^\\\"]*)\\\"?\\s*$");
+		String value = getProperty(prefix, file);
+		if (value == null)
+			return getProperty(prefix, defaultFile);
+		return value;
+	}
+
+	private synchronized void setProperty(String key, String value)
+			throws IOException {
+		Pattern prefix = Pattern.compile("^\\s*#?\\s*" + Pattern.quote(key)
+				+ "\\s*=\\s*\\\"?([^\\\"]*)\\\"?\\s*$");
+		List<String> lines = getServerConfiguration();
+		file.getParentFile().mkdirs();
+		boolean replaced = false;
+		PrintWriter writer = new PrintWriter(file);
+		try {
+			for (String line : lines) {
+				if (prefix.matcher(line).matches()) {
+					replaced = true;
+					if (value != null && WSPACE.matcher(value).find()) {
+						writer.println(key + "=\"" + value.replace("\"", "")
+								+ "\"");
+					} else if (value != null) {
+						writer.println(key + "=" + value);
+					} else if (line.startsWith("#")) {
+						writer.println(line);
+					} else {
+						writer.println("#" + line);
+					}
+				} else {
+					writer.println(line);
+				}
+			}
+			if (!replaced && value != null) {
+				writer.println(key + "=" + value);
+			}
+		} finally {
+			writer.close();
+		}
+	}
+
+	private String getProperty(Pattern pattern, File file)
+			throws FileNotFoundException, IOException {
+		if (!file.isFile())
+			return null;
+		BufferedReader rd = new BufferedReader(new FileReader(file));
+		try {
+			String line;
+			while ((line = rd.readLine()) != null) {
+				Matcher m = pattern.matcher(line);
+				if (m.find()) {
+					return m.group(1);
+				}
+			}
+		} finally {
+			rd.close();
+		}
+		return null;
+	}
+
+	private List<String> getServerConfiguration() throws IOException {
+		List<String> lines = getServerConfiguration(file);
+		if (lines.isEmpty())
+			return getServerConfiguration(defaultFile);
+		return lines;
+	}
+
+	private List<String> getServerConfiguration(File file)
+			throws FileNotFoundException, IOException {
+		if (!file.isFile())
+			return Collections.emptyList();
+		List<String> lines = new ArrayList<String>();
+		FileReader fileReader = new FileReader(file);
+		BufferedReader reader = new BufferedReader(fileReader);
+		try {
+			String line = null;
+			while ((line = reader.readLine()) != null) {
+				lines.add(line);
+			}
+		} finally {
+			reader.close();
+		}
+		return lines;
+	}
+
+	private String join(String[] strings) {
+		if (strings == null || strings.length == 0)
+			return null;
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < strings.length; i++) {
+			sb.append(strings[i]);
+			if (i < strings.length - 1) {
+				sb.append(' ');
+			}
+		}
+		return sb.toString();
+	}
+}

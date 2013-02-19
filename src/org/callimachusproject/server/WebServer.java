@@ -23,17 +23,14 @@ import java.lang.management.ManagementFactory;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.apache.http.HttpHost;
 import org.apache.http.client.utils.URIUtils;
 import org.callimachusproject.client.HTTPObjectClient;
-import org.callimachusproject.io.FileUtil;
 import org.callimachusproject.repository.CalliRepository;
-import org.callimachusproject.util.DomainNameSystemResolver;
 import org.openrdf.OpenRDFException;
-import org.openrdf.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,23 +39,21 @@ public class WebServer implements HTTPObjectAgentMXBean {
 	private static final String ENVELOPE_TYPE = "message/x-response";
 	private static final String IDENTITY_PATH = "/diverted;";
 	Logger logger = LoggerFactory.getLogger(WebServer.class);
-	private final Set<String> origins = new HashSet<String>();
-	private CalliRepository repository;
+	private final Map<String, CalliRepository> repositories = new LinkedHashMap<String, CalliRepository>();
 	private HTTPObjectServer server;
 
-	public WebServer(Repository repository, File dataDir)
+	public WebServer(File tmpDir)
 			throws OpenRDFException, IOException, NoSuchAlgorithmException {
-		this.repository = new CalliRepository(repository, dataDir);
-		this.server = createServer(dataDir, this.repository);
+		this.server = createServer(tmpDir);
 	}
 
-	public void addOrigin(String origin) throws OpenRDFException {
+	public void addOrigin(String origin, CalliRepository repository) throws OpenRDFException, IOException {
 		String schema = repository.getCallimachusUrl(origin, SCHEMA_GRAPH);
 		if (schema != null) {
 			repository.addSchemaGraphType(schema);
 		}
-		origins.add(origin);
-		String[] identities = origins.toArray(new String[origins.size()]);
+		repositories.put(origin, repository);
+		String[] identities = repositories.keySet().toArray(new String[repositories.size()]);
 		for (int i = 0; i < identities.length; i++) {
 			URI uri = URI.create(identities[i] + "/");
 			String sch = uri.getScheme();
@@ -71,6 +66,7 @@ public class WebServer implements HTTPObjectAgentMXBean {
 	            throw y;
 	        }
 		}
+		server.addOrigin(origin, repository);
 		server.setIdentityPrefix(identities);
 	}
 
@@ -82,30 +78,21 @@ public class WebServer implements HTTPObjectAgentMXBean {
 		server.setName(serverName);
 	}
 
-	public void setChangesPath(String origin, String path) throws OpenRDFException {
-		String changes = repository.getCallimachusUrl(origin, path);
-		if (changes == null) {
-			logger.error("Callimachus webapp not installed in {}", origin);
-		} else {
-			repository.setChangeFolder(changes);
-		}
-	}
-
 	public String getErrorPipe() {
 		return server.getErrorPipe();
 	}
 
 	public void setErrorPipe(String origin, String path) throws IOException,
 			OpenRDFException {
+		CalliRepository repository = repositories.get(origin);
+		if (repository == null)
+			throw new IllegalArgumentException(
+					"Callimachus not serving: " + origin);
 		String pipe = repository.getCallimachusUrl(origin, path);
 		if (pipe == null)
 			throw new IllegalArgumentException(
 					"Callimachus webapp not setup on: " + origin);
 		server.setErrorPipe(pipe);
-	}
-
-	public CalliRepository getRepository() {
-		return repository;
 	}
 
 	public int getCacheSize() {
@@ -192,21 +179,18 @@ public class WebServer implements HTTPObjectAgentMXBean {
 		} else if (sslports == null) {
 			sslports = new int[0];
 		}
-		if (origins.isEmpty() && ports.length > 0) {
-			addOrigin("http://" + getAuthority(ports[0]));
-		} else if (origins.isEmpty() && sslports.length > 0) {
-			addOrigin("https://" + getAuthority(sslports[0]));
-		}
 		server.listen(ports, sslports);
 	}
 
 	public void start() throws IOException, OpenRDFException {
 		logger.info("Callimachus is binding to {}", toString());
-		for (String origin : origins) {
+		for (String origin : repositories.keySet()) {
 			HttpHost host = getAuthorityAddress(origin);
 			HTTPObjectClient.getInstance().setProxy(host, server);
 		}
-		repository.setCompileRepository(true);
+		for (CalliRepository repository : repositories.values()) {
+			repository.setCompileRepository(true);
+		}
 		server.start();
 		System.gc();
 		Thread.yield();
@@ -216,7 +200,7 @@ public class WebServer implements HTTPObjectAgentMXBean {
 
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		for (String origin : origins) {
+		for (String origin : repositories.keySet()) {
 			sb.append(origin).append(" ");
 		}
 		if (sb.length() == 0)
@@ -238,7 +222,7 @@ public class WebServer implements HTTPObjectAgentMXBean {
 
 	public void destroy() throws IOException {
 		server.destroy();
-		for (String origin : origins) {
+		for (String origin : repositories.keySet()) {
 			HttpHost host = getAuthorityAddress(origin);
 			HTTPObjectClient.getInstance().removeProxy(host, server);
 		}
@@ -248,19 +232,9 @@ public class WebServer implements HTTPObjectAgentMXBean {
 		return URIUtils.extractHost(java.net.URI.create(origin + "/"));
 	}
 
-	private String getAuthority(int port) throws IOException {
-		String hostname = DomainNameSystemResolver.getInstance().getCanonicalLocalHostName();
-		if (port == 80 || port == 443)
-			return hostname;
-		return hostname + ":" + port;
-	}
-
-	private HTTPObjectServer createServer(File dir, CalliRepository or)
+	private HTTPObjectServer createServer(File dir)
 			throws IOException, NoSuchAlgorithmException {
-		File cacheDir = new File(dir, "cache");
-		FileUtil.deleteOnExit(cacheDir);
-		File out = new File(cacheDir, "server");
-		HTTPObjectServer server = new HTTPObjectServer(or, out);
+		HTTPObjectServer server = new HTTPObjectServer(dir);
 		server.setEnvelopeType(ENVELOPE_TYPE);
 		return server;
 	}

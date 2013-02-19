@@ -122,15 +122,18 @@ public class TemporaryServerFactory {
 			final File dir = createCallimachus(origin);
 			final LocalRepositoryManager manager = RepositoryProvider.getRepositoryManager(dir);
 			final File dataDir = manager.getRepositoryDir("callimachus");
-			final Repository repository = manager.getRepository("callimachus");
 			return new TemporaryServer(){
-				private final WebServer server = new WebServer(repository, dataDir);
+				private final WebServer server = new WebServer(new File(dataDir, "cache/server"));
+				private CalliRepository repository;
 				private boolean stopped;
 
 				public synchronized void start() throws InterruptedException, Exception {
-					server.setChangesPath(origin, CHANGES_PATH);
+					Repository repo = manager.getRepository("callimachus");
+					this.repository = new CalliRepository(repo, dataDir);
+					String url = this.repository.getCallimachusUrl(origin, CHANGES_PATH);
+					this.repository.setChangeFolder(url);
+					server.addOrigin(origin, this.repository);
 					server.setErrorPipe(origin, ERROR_XPL_PATH);
-					server.addOrigin(origin);
 					server.listen(new int[]{port}, new int[0]);
 					server.start();
 					Thread.sleep(100);
@@ -185,7 +188,7 @@ public class TemporaryServerFactory {
 				}
 
 				public CalliRepository getRepository() {
-					return server.getRepository();
+					return this.repository;
 				}
 
 				public String toString() {

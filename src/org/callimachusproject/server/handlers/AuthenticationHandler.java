@@ -42,11 +42,12 @@ import org.apache.http.HttpResponse;
 import org.callimachusproject.auth.AuthorizationManager;
 import org.callimachusproject.auth.AuthorizationService;
 import org.callimachusproject.auth.Group;
+import org.callimachusproject.repository.CalliRepository;
+import org.callimachusproject.server.exceptions.NotFound;
 import org.callimachusproject.server.model.Handler;
 import org.callimachusproject.server.model.ResourceOperation;
 import org.callimachusproject.server.model.Response;
 import org.openrdf.OpenRDFException;
-import org.openrdf.repository.object.ObjectRepository;
 import org.openrdf.repository.object.RDFObject;
 
 /**
@@ -63,19 +64,27 @@ public class AuthenticationHandler implements Handler {
 			"Content-Length", "Content-Encoding", "Date", "Server" };
 	private static final Set<String> PRIVATE_HEADERS = new HashSet<String>(
 			Arrays.asList("set-cookie", "set-cookie2"));
-	private final AuthorizationManager manager;
+	private final Map<String, AuthorizationManager> managers = new LinkedHashMap<String, AuthorizationManager>();
 	private final Handler delegate;
 
-	public AuthenticationHandler(Handler delegate, ObjectRepository repository) {
+	public AuthenticationHandler(Handler delegate) {
 		this.delegate = delegate;
-		this.manager = AuthorizationService.getInstance().get(repository);
 	}
 
-	public void resetCache() {
-		manager.resetCache();
+	public synchronized void addOrigin(String origin, CalliRepository repository) {
+		AuthorizationService service = AuthorizationService.getInstance();
+		AuthorizationManager manager = service.get(repository.getDelegate());
+		managers.put(origin, manager);
+	}
+
+	public synchronized void resetCache() {
+		for (AuthorizationManager manager : managers.values()) {
+			manager.resetCache();
+		}
 	}
 
 	public Response verify(ResourceOperation request) throws Exception {
+		AuthorizationManager manager = getManager(request);
 		String[] requires = request.getRequires();
 		if (requires != null && requires.length == 0) {
 			request.setPublic(true);
@@ -88,23 +97,34 @@ public class AuthenticationHandler implements Handler {
 			} else {
 				HttpResponse unauthorized = manager.authorize(request, groups);
 				if (unauthorized != null) {
-					String allowed = getAllowedOrigin(request);
-					HttpResponse rb = allow(request, unauthorized, allowed);
+					String allowed = getAllowedOrigin(request, manager);
+					HttpResponse rb = allow(request, manager, unauthorized, allowed);
 					return new Response(rb, request.getObjectConnection());
 				}
 			}
 		}
-		String allowed = getAllowedOrigin(request);
-		return allow(request, delegate.verify(request), allowed);
+		String allowed = getAllowedOrigin(request, manager);
+		return allow(request, manager, delegate.verify(request), allowed);
 	}
 
 	public Response handle(ResourceOperation request) throws Exception {
-		String allowedOrigin = getAllowedOrigin(request);
-		return allow(request, delegate.handle(request), allowedOrigin);
+		AuthorizationManager manager = getManager(request);
+		String allowedOrigin = getAllowedOrigin(request, manager);
+		return allow(request, manager, delegate.handle(request), allowedOrigin);
 	}
 
-	private String getAllowedOrigin(ResourceOperation request)
-			throws OpenRDFException, IOException {
+	private synchronized AuthorizationManager getManager(
+			ResourceOperation request) throws NotFound {
+		String origin = request.getOrigin();
+		if (managers.containsKey(origin))
+			return managers.get(origin);
+		if (managers.isEmpty())
+			throw new NotFound("Origins not configured");
+		return managers.values().iterator().next();
+	}
+
+	private String getAllowedOrigin(ResourceOperation request,
+			AuthorizationManager manager) throws OpenRDFException, IOException {
 		Set<String> origins = manager.allowOrigin(request);
 		if (origins == null || origins.isEmpty())
 			return null;
@@ -123,7 +143,7 @@ public class AuthenticationHandler implements Handler {
 		return sb.toString();
 	}
 
-	private <R extends HttpMessage> R allow(ResourceOperation request, R rb,
+	private <R extends HttpMessage> R allow(ResourceOperation request, AuthorizationManager manager, R rb,
 			String allowedOrigin) throws OpenRDFException, IOException {
 		if (rb == null)
 			return null;

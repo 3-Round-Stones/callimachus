@@ -189,6 +189,16 @@ DELETE {
 };
 
 DELETE {
+	<../default-layout.xq> calli:alternate ?alt
+} INSERT {
+	<../default-layout.xq> calli:alternate ?alternate
+} WHERE {
+	<../default-layout.xq> calli:alternate ?alt .
+	FILTER (str(<pages/default-layout.xq>) = str(?alt))
+	BIND (str(<transforms/default-layout.xq>) AS ?alternate)
+};
+
+DELETE {
     GRAPH ?graph {
 	    ?reader calli:reader ?group .
 	    ?author calli:author ?group .

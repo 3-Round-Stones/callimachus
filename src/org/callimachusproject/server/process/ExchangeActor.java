@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 public abstract class ExchangeActor {
-	private static final int MAX_PRETTY_CONCURRENT_ERRORS = 10;
+	private static final int MAX_PRETTY_CONCURRENT_ERRORS = Runtime.getRuntime().availableProcessors();
 	private static final int MAX_QUEUE_SIZE = 32;
 	private static final Pattern URL_PATTERN = Pattern
 			.compile("\\w+://(?:\\.?[^\\s}>\\)\\]\\.])+");

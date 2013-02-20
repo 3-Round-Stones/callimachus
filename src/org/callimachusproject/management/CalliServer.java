@@ -444,8 +444,8 @@ public class CalliServer implements CalliServerMXBean {
 			public Void call() throws Exception {
 				Repository repository = manager.getRepository(repositoryID);
 				File dataDir = manager.getRepositoryDir(repositoryID);
-				SetupTool tool = new SetupTool(repository, dataDir, conf);
-				tool.setupWebappOrigin(webappOrigin, repositoryID);
+				SetupTool tool = new SetupTool(repositoryID, repository, dataDir, conf);
+				tool.setupWebappOrigin(webappOrigin);
 				if (server != null) {
 					server.addOrigin(webappOrigin, getRepository(webappOrigin));
 				}
@@ -468,16 +468,22 @@ public class CalliServer implements CalliServerMXBean {
 
 	public SetupOrigin[] getOrigins() throws IOException, OpenRDFException {
 		List<SetupOrigin> list = new ArrayList<SetupOrigin>();
+		Set<String> webapps = new LinkedHashSet<String>(Arrays.asList(getWebappOrigins()));
 		Collection<String> ids = conf.getOriginRepositoryIDs().values();
 		for (String repositoryID : new LinkedHashSet<String>(ids)) {
 			Repository repository = manager.getRepository(repositoryID);
 			File dataDir = manager.getRepositoryDir(repositoryID);
-			SetupTool tool = new SetupTool(repository, dataDir, conf);
+			SetupTool tool = new SetupTool(repositoryID, repository, dataDir, conf);
 			SetupOrigin[] origins = tool.getOrigins();
 			for (SetupOrigin origin : origins) {
-				origin.setRepositoryID(repositoryID);
+				webapps.remove(origin.getWebappOrigin());
 			}
 			list.addAll(Arrays.asList(origins));
+		}
+		for (String webappOrigin : webapps) {
+			// this webapp are not yet setup in the store
+			String id = conf.getOriginRepositoryIDs().get(webappOrigin);
+			list.add(new SetupOrigin(webappOrigin, id));
 		}
 		return list.toArray(new SetupOrigin[list.size()]);
 	}
@@ -561,7 +567,7 @@ public class CalliServer implements CalliServerMXBean {
 		String repositoryID = conf.getOriginRepositoryIDs().get(webappOrigin);
 		Repository repository = manager.getRepository(repositoryID);
 		File dataDir = manager.getRepositoryDir(repositoryID);
-		return new SetupTool(repository, dataDir, conf);
+		return new SetupTool(repositoryID, repository, dataDir, conf);
 	}
 
 	private Map<String, String> getAllRepositoryProperties()

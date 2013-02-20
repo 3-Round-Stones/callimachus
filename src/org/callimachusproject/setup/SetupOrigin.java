@@ -13,21 +13,19 @@ public class SetupOrigin implements Serializable {
 	private final String forbiddenPage;
 	private final String unauthorizedPage;
 	private final String[] authentication;
-	private final boolean placeholder;
-	private String repositoryID;
+	private final String repositoryID;
 
-	public SetupOrigin(String root, boolean resolvable, String webappOrigin) {
-		assert root != null;
+	public SetupOrigin(String webappOrigin, String repositoryID) {
 		assert webappOrigin != null;
-		this.root = root;
-		this.resolvable = resolvable;
+		this.root = webappOrigin + "/";
+		this.resolvable = true;
 		this.webappOrigin = webappOrigin;
 		this.indexTarget = null;
 		this.layout = null;
 		this.forbiddenPage = null;
 		this.unauthorizedPage = null;
 		this.authentication = null;
-		this.placeholder = true;
+		this.repositoryID = repositoryID;
 	}
 
 	@ConstructorProperties({ "root", "resolvable", "webappOrigin",
@@ -47,7 +45,6 @@ public class SetupOrigin implements Serializable {
 		this.unauthorizedPage = unauthorizedPage;
 		this.authentication = authentication;
 		this.repositoryID = repositoryID;
-		this.placeholder = false;
 	}
 
 	public String getRoot() {
@@ -86,10 +83,6 @@ public class SetupOrigin implements Serializable {
 		return repositoryID;
 	}
 
-	public void setRepositoryID(String repositoryID) {
-		this.repositoryID = repositoryID;
-	}
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -114,10 +107,6 @@ public class SetupOrigin implements Serializable {
 		if (!webappOrigin.equals(other.webappOrigin))
 			return false;
 		return true;
-	}
-
-	protected boolean isPlaceHolder() {
-		return placeholder;
 	}
 
 }

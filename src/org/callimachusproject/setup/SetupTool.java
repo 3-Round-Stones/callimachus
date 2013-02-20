@@ -57,12 +57,14 @@ public class SetupTool {
 	private static final String SELECT_USERNAME = PREFIX + "SELECT ?username { </> calli:authentication [calli:authNamespace [calli:hasComponent [calli:name ?username; calli:email $email]]] }";
 
 	private final Logger logger = LoggerFactory.getLogger(SetupTool.class);
+	private final String repositoryID;
 	private final Repository repository;
 	private final File dataDir;
 	private final CallimachusConf conf;
 
-	public SetupTool(Repository repository, File dataDir,
+	public SetupTool(String repositoryID, Repository repository, File dataDir,
 			CallimachusConf conf) throws OpenRDFException {
+		this.repositoryID = repositoryID;
 		this.repository = repository;
 		this.dataDir = dataDir;
 		this.conf = conf;
@@ -82,25 +84,19 @@ public class SetupTool {
 		RepositoryConnection con = setup.openConnection();
 		try {
 			for (String webappOrigin : getWebappOrigins()) {
-				if (webappOrigin.length() > 0) {
-					String root = webappOrigin + "/";
-					TupleQueryResult results = con.prepareTupleQuery(
-							QueryLanguage.SPARQL, SELECT_ROOT,
-							root).evaluate();
-					try {
-						if (!results.hasNext()) {
-							list.add(new SetupOrigin(root, true, webappOrigin));
+				String root = webappOrigin + "/";
+				TupleQueryResult results = con.prepareTupleQuery(
+						QueryLanguage.SPARQL, SELECT_ROOT, root).evaluate();
+				try {
+					while (results.hasNext()) {
+						SetupOrigin o = createSetupOrigin(webappOrigin,
+								results.next());
+						if (o != null) {
+							list.add(o);
 						}
-						while (results.hasNext()) {
-							SetupOrigin o = createSetupOrigin(webappOrigin,
-									results.next());
-							if (o != null) {
-								list.add(o);
-							}
-						}
-					} finally {
-						results.close();
 					}
+				} finally {
+					results.close();
 				}
 			}
 		} finally {
@@ -109,7 +105,7 @@ public class SetupTool {
 		return list.toArray(new SetupOrigin[list.size()]);
 	}
 
-	public synchronized void setupWebappOrigin(String origin, String repositoryID)
+	public synchronized void setupWebappOrigin(String origin)
 			throws IOException, OpenRDFException, NoSuchMethodException,
 			InvocationTargetException {
 		List<String> previous = Arrays.asList(conf.getWebappOrigins());
@@ -118,7 +114,7 @@ public class SetupTool {
 		// validate state
 		if (now.size() > 1) {
 			for (SetupOrigin o : getOrigins()) {
-				if (!o.isResolvable())
+				if (!o.isResolvable() && o.getRepositoryID().equals(repositoryID))
 					throw new IllegalStateException("Multiple resolvable origins cannot be used if unresolvable realms exist");
 			}
 		}
@@ -127,10 +123,9 @@ public class SetupTool {
 		map.put(origin, repositoryID);
 		conf.setOriginRepositoryIDs(map);
 		conf.setWebappOrigins(now.toArray(new String[now.size()]));
-		SetupOrigin[] allOrigins = getOrigins();
-		for (SetupOrigin o : allOrigins) {
-			if (o.getWebappOrigin().equals(origin) && !o.isPlaceHolder())
-				return; // already exists
+		for (SetupOrigin o : getOrigins()) {
+			if (o.getWebappOrigin().equals(origin))
+				return; // already exists in store
 		}
 		// if origin is undefined in RDF store, create it
 		createWebappOrigin(origin);
@@ -241,7 +236,7 @@ public class SetupTool {
 		String auth = stringValue(result.getValue("authentication"));
 		String[] split = auth == null ? new String[0] : auth.split("\\s+");
 		return new SetupOrigin(root, res, webappOrigin, indexTarget, layout,
-				forb, unauth, split, null);
+				forb, unauth, split, repositoryID);
 	}
 
 	private String stringValue(Value value) {

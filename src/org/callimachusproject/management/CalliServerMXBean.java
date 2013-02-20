@@ -44,6 +44,8 @@ public interface CalliServerMXBean {
 
 	void startWebService() throws Exception;
 
+	void restartWebService() throws Exception;
+
 	void stopWebService() throws Exception;
 
 	Map<String, String> getMailProperties() throws IOException;

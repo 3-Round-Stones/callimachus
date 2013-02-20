@@ -14,6 +14,7 @@ public class SetupOrigin implements Serializable {
 	private final String unauthorizedPage;
 	private final String[] authentication;
 	private final boolean placeholder;
+	private String repositoryID;
 
 	public SetupOrigin(String root, boolean resolvable, String webappOrigin) {
 		assert root != null;
@@ -31,10 +32,10 @@ public class SetupOrigin implements Serializable {
 
 	@ConstructorProperties({ "root", "resolvable", "webappOrigin",
 			"indexTarget", "layout", "forbiddenPage", "unauthorizedPage",
-			"authentication" })
+			"authentication", "repositoryID" })
 	public SetupOrigin(String root, boolean resolvable, String webappOrigin,
 			String indexTarget, String layout, String forbiddenPage,
-			String unauthorizedPage, String[] authentication) {
+			String unauthorizedPage, String[] authentication, String repositoryID) {
 		assert root != null;
 		assert webappOrigin != null;
 		this.root = root;
@@ -45,6 +46,7 @@ public class SetupOrigin implements Serializable {
 		this.forbiddenPage = forbiddenPage;
 		this.unauthorizedPage = unauthorizedPage;
 		this.authentication = authentication;
+		this.repositoryID = repositoryID;
 		this.placeholder = false;
 	}
 
@@ -78,6 +80,14 @@ public class SetupOrigin implements Serializable {
 
 	public String[] getAuthentication() {
 		return authentication;
+	}
+
+	public String getRepositoryID() {
+		return repositoryID;
+	}
+
+	public void setRepositoryID(String repositoryID) {
+		this.repositoryID = repositoryID;
 	}
 
 	@Override

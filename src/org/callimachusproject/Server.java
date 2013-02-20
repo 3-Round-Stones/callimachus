@@ -31,6 +31,8 @@ import java.util.Arrays;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import javax.management.Query;
+import javax.management.QueryExp;
 
 import org.callimachusproject.cli.Command;
 import org.callimachusproject.cli.CommandSet;
@@ -236,15 +238,15 @@ public class Server {
 		}
 	}
 
-	private <T> void registerMBean(T bean, Class<T> beanClass) {
+	<T> void registerMBean(T bean, Class<T> beanClass) {
 		registerMBean(null, bean, beanClass);
 	}
 
-	private void unregisterMBean(Class<?> beanClass) {
+	void unregisterMBean(Class<?> beanClass) {
 		unregisterMBean(null, beanClass);
 	}
 
-	private <T> void registerMBean(String name, T bean, Class<T> beanClass) {
+	<T> void registerMBean(String name, T bean, Class<T> beanClass) {
 		try {
 			ObjectName oname = getMBeanName(name, beanClass);
 			MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
@@ -254,10 +256,22 @@ public class Server {
 		}
 	}
 
-	private void unregisterMBean(String name, Class<?> beanClass) {
+	void unregisterMBean(String name, Class<?> beanClass) {
 		try {
 			MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
-			mbs.unregisterMBean(getMBeanName(name, beanClass));
+			if (name == null) {
+				ObjectName oname = new ObjectName("*:type=" + beanClass.getSimpleName() + ",*");
+				for (Class<?> mx : beanClass.getInterfaces()) {
+					if (mx.getName().endsWith("Bean")) {
+						QueryExp instanceOf = Query.isInstanceOf(Query.value(beanClass.getName()));
+						for (ObjectName on : mbs.queryNames(oname, instanceOf)) {
+							mbs.unregisterMBean(on);
+						}
+					}
+				}
+			} else {
+				mbs.unregisterMBean(getMBeanName(name, beanClass));
+			}
 		} catch (Exception e) {
 			// ignore
 		}

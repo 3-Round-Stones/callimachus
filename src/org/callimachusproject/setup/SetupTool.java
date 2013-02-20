@@ -241,7 +241,7 @@ public class SetupTool {
 		String auth = stringValue(result.getValue("authentication"));
 		String[] split = auth == null ? new String[0] : auth.split("\\s+");
 		return new SetupOrigin(root, res, webappOrigin, indexTarget, layout,
-				forb, unauth, split);
+				forb, unauth, split, null);
 	}
 
 	private String stringValue(Value value) {

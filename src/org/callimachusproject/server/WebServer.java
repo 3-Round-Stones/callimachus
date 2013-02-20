@@ -47,7 +47,7 @@ public class WebServer implements HTTPObjectAgentMXBean {
 		this.server = createServer(tmpDir);
 	}
 
-	public void addOrigin(String origin, CalliRepository repository) throws OpenRDFException, IOException {
+	public synchronized void addOrigin(String origin, CalliRepository repository) throws OpenRDFException, IOException {
 		String schema = repository.getCallimachusUrl(origin, SCHEMA_GRAPH);
 		if (schema != null) {
 			repository.addSchemaGraphType(schema);
@@ -68,6 +68,10 @@ public class WebServer implements HTTPObjectAgentMXBean {
 		}
 		server.addOrigin(origin, repository);
 		server.setIdentityPrefix(identities);
+		if (isRunning()) {
+			HttpHost host = getAuthorityAddress(origin);
+			HTTPObjectClient.getInstance().setProxy(host, server);
+		}
 	}
 
 	public String getServerName() {
@@ -82,7 +86,7 @@ public class WebServer implements HTTPObjectAgentMXBean {
 		return server.getErrorPipe();
 	}
 
-	public void setErrorPipe(String origin, String path) throws IOException,
+	public synchronized void setErrorPipe(String origin, String path) throws IOException,
 			OpenRDFException {
 		CalliRepository repository = repositories.get(origin);
 		if (repository == null)
@@ -182,7 +186,7 @@ public class WebServer implements HTTPObjectAgentMXBean {
 		server.listen(ports, sslports);
 	}
 
-	public void start() throws IOException, OpenRDFException {
+	public synchronized void start() throws IOException, OpenRDFException {
 		logger.info("Callimachus is binding to {}", toString());
 		for (String origin : repositories.keySet()) {
 			HttpHost host = getAuthorityAddress(origin);

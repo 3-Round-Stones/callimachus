@@ -93,6 +93,9 @@ public class HTTPObjectRequestHandler extends AbstractHttpClient implements
 
 	public synchronized void addOrigin(String origin, CalliRepository repository) {
 		repositories.put(origin, repository);
+		if (requestHandler != null) {
+			requestHandler.addOrigin(origin, repository);
+		}
 	}
 
 	public synchronized void start() throws IOException {

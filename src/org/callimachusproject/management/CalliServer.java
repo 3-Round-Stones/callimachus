@@ -18,7 +18,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -47,6 +46,7 @@ import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.config.RepositoryConfig;
 import org.openrdf.repository.config.RepositoryConfigException;
 import org.openrdf.repository.manager.LocalRepositoryManager;
+import org.openrdf.repository.manager.SystemRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,8 +84,9 @@ public class CalliServer implements CalliServerMXBean {
 	private volatile boolean stopping;
 	private int processing;
 	private Exception exception;
-	private WebServer server;
+	WebServer server;
 	private final LocalRepositoryManager manager;
+	private final Map<String, CalliRepository> repositories = new LinkedHashMap<String, CalliRepository>();
 
 	public CalliServer(CallimachusConf conf, LocalRepositoryManager manager, ServerListener listener) throws OpenRDFException, IOException {
 		this.conf = conf;
@@ -133,6 +134,7 @@ public class CalliServer implements CalliServerMXBean {
 		} finally {
 			if (server == null) {
 				manager.refresh();
+				repositories.clear();
 			}
 		}
 	}
@@ -260,18 +262,26 @@ public class CalliServer implements CalliServerMXBean {
 		});
 	}
 
+	public void restartWebService() throws Exception {
+		final int start = ++starting;
+		submit(new Callable<Void>() {
+			public Void call() throws Exception {
+				stopWebServiceNow();
+				startWebServiceNow(start);
+				return null;
+			}
+		});
+	}
+
 	public void stopWebService() throws Exception {
 		if (stopping || !isWebServiceRunning())
 			return;
-		final CountDownLatch latch = new CountDownLatch(1);
 		submit(new Callable<Void>() {
 			public Void call() throws Exception {
-				latch.countDown();
 				stopWebServiceNow();
 				return null;
 			}
 		});
-		latch.await();
 	}
 
 	@Override
@@ -298,7 +308,10 @@ public class CalliServer implements CalliServerMXBean {
 
 	@Override
 	public String[] getRepositoryIDs() throws OpenRDFException {
-		return manager.getRepositoryIDs().toArray(new String[0]);
+		Set<String> set = manager.getRepositoryIDs();
+		set = new LinkedHashSet<String>(set);
+		set.remove(SystemRepository.ID);
+		return set.toArray(new String[0]);
 	}
 
 	public Map<String,String> getRepositoryProperties() throws IOException, OpenRDFException {
@@ -335,10 +348,12 @@ public class CalliServer implements CalliServerMXBean {
 
 	public synchronized void setRepositoryProperties(Map<String,String> parameters)
 			throws IOException, OpenRDFException {
-		Map<String, String> combined = getAllRepositoryProperties();
+		Map<String, Map<String, String>> params;
+		Map<String, String> combined;
+		combined = getAllRepositoryProperties();
 		combined = new LinkedHashMap<String, String>(combined);
 		combined.putAll(parameters);
-		Map<String, Map<String, String>> params = groupBeforePeriod(combined);
+		params = groupBeforePeriod(combined);
 		Set<String> removed = new LinkedHashSet<String>(params.keySet());
 		removed.removeAll(groupBeforePeriod(parameters).keySet());
 		for (String repositoryID : removed) {
@@ -346,6 +361,10 @@ public class CalliServer implements CalliServerMXBean {
 				logger.warn("Removed repository {}", repositoryID);
 			}
 		}
+		combined = getAllRepositoryProperties();
+		combined = new LinkedHashMap<String, String>(combined);
+		combined.putAll(parameters);
+		params = groupBeforePeriod(combined);
 		for (String repositoryID : params.keySet()) {
 			Map<String, String> pmap = params.get(repositoryID);
 			String type = pmap.get(null);
@@ -371,7 +390,7 @@ public class CalliServer implements CalliServerMXBean {
 						throw new RepositoryConfigException("Missing parameters for " + repositoryID);
 					if (manager.hasRepositoryConfig(repositoryID)) {
 						RepositoryConfig oldConfig = manager.getRepositoryConfig(repositoryID);
-						if (temp.getParameters(config).equals(oldConfig))
+						if (temp.getParameters(config).equals(temp.getParameters(oldConfig)))
 							continue;
 						config.validate();
 						logger.info("Replacing repository configuration {}", repositoryID);
@@ -426,6 +445,9 @@ public class CalliServer implements CalliServerMXBean {
 		File dataDir = manager.getRepositoryDir(repositoryID);
 		SetupTool tool = new SetupTool(repository, dataDir, conf);
 		tool.setupWebappOrigin(webappOrigin, repositoryID);
+		if (server != null) {
+			server.addOrigin(webappOrigin, getRepository(webappOrigin));
+		}
 	}
 
 	@Override
@@ -447,7 +469,11 @@ public class CalliServer implements CalliServerMXBean {
 			Repository repository = manager.getRepository(repositoryID);
 			File dataDir = manager.getRepositoryDir(repositoryID);
 			SetupTool tool = new SetupTool(repository, dataDir, conf);
-			list.addAll(Arrays.asList(tool.getOrigins()));
+			SetupOrigin[] origins = tool.getOrigins();
+			for (SetupOrigin origin : origins) {
+				origin.setRepositoryID(repositoryID);
+			}
+			list.addAll(Arrays.asList(origins));
 		}
 		return list.toArray(new SetupOrigin[list.size()]);
 	}
@@ -457,6 +483,9 @@ public class CalliServer implements CalliServerMXBean {
 		submit(new Callable<Void>() {
 			public Void call() throws Exception {
 				getSetupTool(webappOrigin).setupResolvableOrigin(origin, webappOrigin);
+				if (server != null) {
+					server.addOrigin(origin, getRepository(webappOrigin));
+				}
 				return null;
 			}
 		});
@@ -552,6 +581,8 @@ public class CalliServer implements CalliServerMXBean {
 					URL url = configs.nextElement();
 					ConfigTemplate temp = new ConfigTemplate(url);
 					for (String id : manager.getRepositoryIDs()) {
+						if (id.equals(SystemRepository.ID))
+							continue;
 						RepositoryConfig cfg = manager.getRepositoryConfig(id);
 						Map<String, String> params = temp.getParameters(cfg);
 						if (params == null || id.indexOf('.') >= 0)
@@ -590,7 +621,7 @@ public class CalliServer implements CalliServerMXBean {
 		return params;
 	}
 
-	private synchronized void startWebServiceNow(int start) {
+	synchronized void startWebServiceNow(int start) {
 		if (start != starting)
 			return;
 		try {
@@ -608,6 +639,7 @@ public class CalliServer implements CalliServerMXBean {
 			} finally {
 				if (server == null) {
 					manager.refresh();
+					repositories.clear();
 				}
 			}
 			server.start();
@@ -626,7 +658,7 @@ public class CalliServer implements CalliServerMXBean {
 		}
 	}
 
-	private synchronized boolean stopWebServiceNow() {
+	synchronized boolean stopWebServiceNow() {
 		stopping = true;
 		try {
 			if (server == null) {
@@ -648,6 +680,7 @@ public class CalliServer implements CalliServerMXBean {
 			notifyAll();
 			server = null;
 			manager.refresh();
+			repositories.clear();
 		}
 	}
 
@@ -678,29 +711,13 @@ public class CalliServer implements CalliServerMXBean {
 		return false;
 	}
 
-	private synchronized WebServer createServer()
-			throws RepositoryConfigException, RepositoryException,
-			OpenRDFException, IOException, NoSuchAlgorithmException {
+	private synchronized WebServer createServer() throws OpenRDFException,
+			IOException, NoSuchAlgorithmException {
 		WebServer server = new WebServer(serverCacheDir);
 		Map<String, String> map = conf.getOriginRepositoryIDs();
-		Map<String, CalliRepository> repositories = new LinkedHashMap<String, CalliRepository>(map.size());
 		for (String origin : map.keySet()) {
 			boolean first = repositories.isEmpty();
-			String repositoryID = map.get(origin);
-			CalliRepository repository = repositories.get(repositoryID);
-			if (repository == null) {
-				Repository repo = manager.getRepository(repositoryID);
-				File dataDir = manager.getRepositoryDir(repositoryID);
-				repository = new CalliRepository(repo, dataDir);
-				String changes = repository.getCallimachusUrl(origin, CHANGES_PATH);
-				if (changes == null)
-					continue;
-				repository.setChangeFolder(changes);
-				repositories.put(repositoryID, repository);
-				if (listener != null) {
-					listener.repositoryInitialized(repositoryID, repository);
-				}
-			}
+			CalliRepository repository = getRepository(origin);
 			server.addOrigin(origin, repository);
 			if (first) {
 				server.setErrorPipe(origin, ERROR_XPL_PATH);
@@ -709,6 +726,26 @@ public class CalliServer implements CalliServerMXBean {
 		server.setServerName(getServerName());
 		server.listen(getPortArray(), getSSLPortArray());
 		return server;
+	}
+
+	synchronized CalliRepository getRepository(String origin)
+			throws IOException, OpenRDFException {
+		Map<String, String> map = conf.getOriginRepositoryIDs();
+		String repositoryID = map.get(origin);
+		CalliRepository repository = repositories.get(repositoryID);
+		if (repository == null) {
+			Repository repo = manager.getRepository(repositoryID);
+			File dataDir = manager.getRepositoryDir(repositoryID);
+			repository = new CalliRepository(repo, dataDir);
+			String changes = repository.getCallimachusUrl(origin, CHANGES_PATH);
+			// if (changes == null) continue;
+			repository.setChangeFolder(changes);
+			repositories.put(repositoryID, repository);
+			if (listener != null) {
+				listener.repositoryInitialized(repositoryID, repository);
+			}
+		}
+		return repository;
 	}
 
 	private int[] getPortArray() throws IOException {

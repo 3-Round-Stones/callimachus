@@ -33,6 +33,7 @@ import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParseException;
 import org.openrdf.rio.RDFParser;
 import org.openrdf.rio.Rio;
+import org.openrdf.rio.RDFParser.DatatypeHandling;
 import org.openrdf.rio.helpers.StatementCollector;
 
 public class ConfigTemplate {
@@ -58,6 +59,36 @@ public class ConfigTemplate {
 	}
 
 	public RepositoryConfig render(Map<String, String> parameters) throws OpenRDFException, IOException {
+		Graph graph = renderGraph(parameters);
+		if (graph == null)
+			return null;
+		Resource node = GraphUtil.getUniqueSubject(graph, RDF.TYPE,
+				RepositoryConfigSchema.REPOSITORY);
+		return RepositoryConfig.create(graph, node);
+	}
+
+	public Map<String, String> getParameters(RepositoryConfig config)
+			throws IOException, OpenRDFException {
+		GraphImpl graph = new GraphImpl();
+		config.export(graph);
+		Map<String, String> map = getDefaultParameters();
+		for (String key : map.keySet()) {
+			map.put(key, new BigInteger(130, random).toString(32));
+		}
+		Graph wild = renderGraph(map);
+		Map<String, String> parameters = new HashMap<String, String>();
+		for (Statement st : wild) {
+			setLikelyValue(st, map, graph, parameters);
+		}
+		Graph same = new GraphImpl();
+		render(parameters).export(same);
+		if (ModelUtil.equals(graph, same))
+			return parameters;
+		return null;
+	}
+
+	private Graph renderGraph(Map<String, String> parameters)
+			throws IOException, RDFParseException, RDFHandlerException {
 		StringBuffer result = new StringBuffer(template.length());
 		Matcher matcher = PARAMETER_PATTERN.matcher(template);
 		while (matcher.find()) {
@@ -76,31 +107,7 @@ public class ConfigTemplate {
 			matcher.appendReplacement(result, value);
 		}
 		matcher.appendTail(result);
-		Graph graph = parseTurtleGraph(result.toString());
-		Resource node = GraphUtil.getUniqueSubject(graph, RDF.TYPE,
-				RepositoryConfigSchema.REPOSITORY);
-		return RepositoryConfig.create(graph, node);
-	}
-
-	public Map<String, String> getParameters(RepositoryConfig config)
-			throws IOException, OpenRDFException {
-		GraphImpl graph = new GraphImpl();
-		config.export(graph);
-		Map<String, String> map = getDefaultParameters();
-		for (String key : map.keySet()) {
-			map.put(key, new BigInteger(130, random).toString(32));
-		}
-		Graph wild = new GraphImpl();
-		render(map).export(wild);
-		Map<String, String> parameters = new HashMap<String, String>();
-		for (Statement st : wild) {
-			setLikelyValue(st, map, graph, parameters);
-		}
-		Graph same = new GraphImpl();
-		render(parameters).export(same);
-		if (ModelUtil.equals(graph, same))
-			return parameters;
-		return null;
+		return parseTurtleGraph(result.toString());
 	}
 
 	private void setLikelyValue(Statement st, Map<String, String> map,
@@ -117,7 +124,7 @@ public class ConfigTemplate {
 					if (iter.hasNext())
 						continue;
 					if (w.equals(val)) {
-						map.put(key, o);
+						parameters.put(key, o);
 					} else {
 						int end = o.length() - w.length() + val.length() + idx;
 						parameters.put(key, o.substring(idx, end));
@@ -151,6 +158,8 @@ public class ConfigTemplate {
 			RDFParseException, RDFHandlerException {
 		Graph graph = new GraphImpl();
 		RDFParser rdfParser = Rio.createParser(RDFFormat.TURTLE);
+		rdfParser.setDatatypeHandling(DatatypeHandling.IGNORE);
+		rdfParser.setVerifyData(false);
 		rdfParser.setRDFHandler(new StatementCollector(graph));
 		String base = new File(".").getAbsoluteFile().toURI().toASCIIString();
 		rdfParser.parse(new StringReader(configString), base);

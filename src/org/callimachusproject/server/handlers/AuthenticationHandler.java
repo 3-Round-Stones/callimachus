@@ -75,6 +75,7 @@ public class AuthenticationHandler implements Handler {
 		AuthorizationService service = AuthorizationService.getInstance();
 		AuthorizationManager manager = service.get(repository.getDelegate());
 		managers.put(origin, manager);
+		manager.resetCache();
 	}
 
 	public synchronized void resetCache() {

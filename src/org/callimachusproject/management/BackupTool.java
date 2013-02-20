@@ -19,6 +19,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import org.openrdf.repository.manager.SystemRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -141,7 +142,7 @@ public class BackupTool implements BackupToolMXBean {
 				File[] listFiles = repositories.listFiles();
 				if (listFiles != null) {
 					for (File f : listFiles) {
-						if (!"SYSTEM".equals(f.getName())) {
+						if (!SystemRepository.ID.equals(f.getName())) {
 							if (!created && replacing) {
 								logger.warn("Replacing {}", backup);
 							} else if (!created) {

@@ -12,7 +12,7 @@
 
 [] a rep:Repository ;
    rep:repositoryID "callimachus" ;
-   rdfs:label "Callimachus Repository" ;
+   rdfs:label "Callimachus Sesame Native Repository" ;
    rep:repositoryImpl [
       rep:repositoryType "openrdf:AuditingRepository" ;
       audit:purgeObsoleteActivitiesAfter "P7D"^^xsd:dayTimeDuration ;

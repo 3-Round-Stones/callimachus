@@ -20,7 +20,6 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 
 import javax.mail.MessagingException;
@@ -439,15 +438,20 @@ public class CalliServer implements CalliServerMXBean {
 	}
 
 	@Override
-	public void setupWebappOrigin(String webappOrigin, String repositoryID)
-			throws Exception {
-		Repository repository = manager.getRepository(repositoryID);
-		File dataDir = manager.getRepositoryDir(repositoryID);
-		SetupTool tool = new SetupTool(repository, dataDir, conf);
-		tool.setupWebappOrigin(webappOrigin, repositoryID);
-		if (server != null) {
-			server.addOrigin(webappOrigin, getRepository(webappOrigin));
-		}
+	public void setupWebappOrigin(final String webappOrigin,
+			final String repositoryID) throws Exception {
+		submit(new Callable<Void>() {
+			public Void call() throws Exception {
+				Repository repository = manager.getRepository(repositoryID);
+				File dataDir = manager.getRepositoryDir(repositoryID);
+				SetupTool tool = new SetupTool(repository, dataDir, conf);
+				tool.setupWebappOrigin(webappOrigin, repositoryID);
+				if (server != null) {
+					server.addOrigin(webappOrigin, getRepository(webappOrigin));
+				}
+				return null;
+			}
+		});
 	}
 
 	@Override
@@ -535,10 +539,10 @@ public class CalliServer implements CalliServerMXBean {
 		notifyAll();
 	}
 
-	protected Future<?> submit(final Callable<Void> task)
+	protected void submit(final Callable<Void> task)
 			throws Exception {
 		checkForErrors();
-		return executor.submit(new Runnable() {
+		executor.submit(new Runnable() {
 			public void run() {
 				begin();
 				try {
@@ -550,6 +554,7 @@ public class CalliServer implements CalliServerMXBean {
 				}
 			}
 		});
+		Thread.yield();
 	}
 
 	SetupTool getSetupTool(String webappOrigin) throws OpenRDFException, IOException {

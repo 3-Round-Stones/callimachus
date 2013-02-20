@@ -69,6 +69,7 @@ public class WebServer implements HTTPObjectAgentMXBean {
 		server.addOrigin(origin, repository);
 		server.setIdentityPrefix(identities);
 		if (isRunning()) {
+			repository.setCompileRepository(true);
 			HttpHost host = getAuthorityAddress(origin);
 			HTTPObjectClient.getInstance().setProxy(host, server);
 		}

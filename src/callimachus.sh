@@ -549,16 +549,16 @@ do_start()
 
   JSVC_LOG="$BASEDIR/log/$NAME-stdout.log"
   if [ -e "$JSVC_LOG" ]; then
-    mv "$JSVC_LOG.8" "$JSVC_LOG.9"
-    mv "$JSVC_LOG.7" "$JSVC_LOG.8"
-    mv "$JSVC_LOG.6" "$JSVC_LOG.7"
-    mv "$JSVC_LOG.5" "$JSVC_LOG.6"
-    mv "$JSVC_LOG.4" "$JSVC_LOG.5"
-    mv "$JSVC_LOG.3" "$JSVC_LOG.4"
-    mv "$JSVC_LOG.2" "$JSVC_LOG.3"
-    mv "$JSVC_LOG.1" "$JSVC_LOG.2"
-    mv "$JSVC_LOG.0" "$JSVC_LOG.1"
-    mv "$JSVC_LOG" "$JSVC_LOG.0"
+    test -e "$JSVC_LOG.8" && mv "$JSVC_LOG.8" "$JSVC_LOG.9"
+    test -e "$JSVC_LOG.7" && mv "$JSVC_LOG.7" "$JSVC_LOG.8"
+    test -e "$JSVC_LOG.6" && mv "$JSVC_LOG.6" "$JSVC_LOG.7"
+    test -e "$JSVC_LOG.5" && mv "$JSVC_LOG.5" "$JSVC_LOG.6"
+    test -e "$JSVC_LOG.4" && mv "$JSVC_LOG.4" "$JSVC_LOG.5"
+    test -e "$JSVC_LOG.3" && mv "$JSVC_LOG.3" "$JSVC_LOG.4"
+    test -e "$JSVC_LOG.2" && mv "$JSVC_LOG.2" "$JSVC_LOG.3"
+    test -e "$JSVC_LOG.1" && mv "$JSVC_LOG.1" "$JSVC_LOG.2"
+    test -e "$JSVC_LOG.0" && mv "$JSVC_LOG.0" "$JSVC_LOG.1"
+    test -e "$JSVC_LOG" && mv "$JSVC_LOG" "$JSVC_LOG.0"
   fi
   "$DAEMON" -jvm server \
     -outfile "$JSVC_LOG" -errfile '&1' \

@@ -194,53 +194,78 @@ fi
 if [ -z "$KEYTOOL" ] ; then
   KEYTOOL="$JAVA_HOME/bin/keytool"
 fi
+if [ -r "$SSL" ] ; then
+  KEYTOOL_OPTS=$(perl -pe 's/\s*\#.*$//g' "$SSL" 2>/dev/null |perl -pe 's/(\S+)=(.*)/-J-D$1=$2/' 2>/dev/null |tr -s '\n' ' ')
+fi
 if [ ! -e "$SSL" ] || ! grep -q "keyStore" "$SSL" ; then
   echo "Would you like to generate a server certificate now? (type 'yes' or 'no')"
   read -p "  [no]:  " genkey
-  if [ "$genkey" = "yes" ] ; then
-    cname=$(hostname -f |tr '[A-Z]' '[a-z]')
-    orgunit="Unknown"
-    orgname="Unknown"
-    city="Unknown"
-    state="Unknown"
-    country="Unknown"
-    cont="no"
-    while [ "$cont" != "yes" ] ; do
-      echo "What is the secure domain or server name?"
-      read -p "  [$cname]:  " pcname
-      echo "What is the name of your organizational unit?"
-      read -p "  [$orgunit]:  " porgunit
-      echo "What is the name of your organization?"
-      read -p "  [$orgname]:  " porgname
-      echo "What is the name of your City or Locality?"
-      read -p "  [$city]:  " pcity
-      echo "What is the name of your State or Province?"
-      read -p "  [$state]:  " pstate
-      echo "What is the two-letter country code for this unit?"
-      read -p "  [$country]:  " pcountry
-      cname="${pcname:-$cname}"
-      orgunit="${porgunit:-$orgunit}"
-      orgname="${porgname:-$orgname}"
-      city="${pcity:-$city}"
-      state="${pstate:-$state}"
-      country="${pcountry:-$country}"
-      dname="CN=$(echo "$cname" |sed 's/,/\\,/g'), OU=$(echo "$orgunit" |sed 's/,/\\,/g'), O=$(echo "$orgname" |sed 's/,/\\,/g'), L=$(echo "$city" |sed 's/,/\\,/g'), ST=$(echo "$state" |sed 's/,/\\,/g'), C=$(echo "$country" |sed 's/,/\\,/g')"
-      echo "Is $dname correct? (type 'yes' or 'no')"
-      read -p "  [no]:  " cont
-    done
-    echo $$$(date +%s)$RANDOM | md5sum | awk '{print $1}' > "$SSL.password"
-    "$KEYTOOL" -genkey -alias "$cname" -keyalg "RSA" -keysize "2048" -dname "$dname" -keypass "$(cat "$SSL.password")" -validity "36525" -keystore ".keystore" -storepass "$(cat "$SSL.password")"
-    "$KEYTOOL" -export -alias "$cname" -keystore ".keystore" -storepass "$(cat "$SSL.password")" -rfc -file "etc/$cname.cer"
-    if [ -e "etc/$cname.cer" ] ; then
-      echo "Distribute etc/$cname.cer to all remote management agents"
+else
+  grep -E '^javax.net.ssl.keyStorePassword=' "$SSL" |perl -pe 's/^javax.net.ssl.keyStorePassword=(.*)/$1/' 2>/dev/null > "$SSL.password"
+  KEYSTORE=$(grep -E '^javax.net.ssl.keyStore=' $SSL |perl -pe 's/^javax.net.ssl.keyStore=(.*)/$1/' 2>/dev/null)
+  cname=$("$KEYTOOL" -list -v -keystore "$KEYSTORE" -storepass "$(cat "$SSL.password")" $KEYTOOL_OPTS |grep -B 2 PrivateKeyEntry |grep 'Alias' |head -n 1 |awk '{print $3}')
+  until=$("$KEYTOOL" -list -v -keystore "$KEYSTORE" -storepass "$(cat "$SSL.password")" $KEYTOOL_OPTS |grep -A 8 "$cname" |grep "until:" |tail -n 1 |sed 's/.*until: //')
+  expires=$(echo $(date --date="$until" +%s) "- 60 * 60 * 24 * 31" |bc)
+  if [ $(date +%s) -ge "$expires" ] ; then
+    echo "The certificate $cname will expire on $until."
+    echo "Would you like to generate a new server certificate now? (type 'yes' or 'no')"
+    read -p "  [no]:  " genkey
+    if [ "$genkey" = "yes" ] ; then
+      "$KEYTOOL" -delete -alias "$cname" -keystore "$KEYSTORE" -storepass "$(cat "$SSL.password")" $KEYTOOL_OPTS
+      rm "$cname.cer" "$cname.csr"
     fi
-    "$KEYTOOL" -certreq -alias "$cname" -keypass "$(cat "$SSL.password")" -keystore ".keystore" -storepass "$(cat "$SSL.password")" -file "etc/$cname.csr"
-    echo "javax.net.ssl.keyStore=.keystore" >> "$SSL"
-    echo "javax.net.ssl.keyStorePassword=$(cat "$SSL.password")" >> "$SSL"
-    chmod go-rwx "$SSL"
-    chmod go-rwx ".keystore"
-    rm "$SSL.password"
   fi
+fi
+if [ "$genkey" = "yes" ] ; then
+  if [ -z "$cname" ] ; then
+    cname=$(hostname -f |tr '[A-Z]' '[a-z]')
+  fi
+  orgunit="Unknown"
+  orgname="Unknown"
+  city="Unknown"
+  state="Unknown"
+  country="Unknown"
+  cont="no"
+  while [ "$cont" != "yes" ] ; do
+    echo "What is the secure domain or server name?"
+    read -p "  [$cname]:  " pcname
+    echo "What is the name of your organizational unit?"
+    read -p "  [$orgunit]:  " porgunit
+    echo "What is the name of your organization?"
+    read -p "  [$orgname]:  " porgname
+    echo "What is the name of your City or Locality?"
+    read -p "  [$city]:  " pcity
+    echo "What is the name of your State or Province?"
+    read -p "  [$state]:  " pstate
+    echo "What is the two-letter country code for this unit?"
+    read -p "  [$country]:  " pcountry
+    cname="${pcname:-$cname}"
+    orgunit="${porgunit:-$orgunit}"
+    orgname="${porgname:-$orgname}"
+    city="${pcity:-$city}"
+    state="${pstate:-$state}"
+    country="${pcountry:-$country}"
+    dname="CN=$(echo "$cname" |sed 's/,/\\,/g'), OU=$(echo "$orgunit" |sed 's/,/\\,/g'), O=$(echo "$orgname" |sed 's/,/\\,/g'), L=$(echo "$city" |sed 's/,/\\,/g'), ST=$(echo "$state" |sed 's/,/\\,/g'), C=$(echo "$country" |sed 's/,/\\,/g')"
+    echo "Is $dname correct? (type 'yes' or 'no')"
+    read -p "  [no]:  " cont
+  done
+  if [ -z "$KEYSTORE" ] ; then
+    KEYSTORE=".keystore"
+    echo "javax.net.ssl.keyStore=$KEYSTORE" >> "$SSL"
+  fi
+  if [ ! -e "$SSL.password" ] ; then
+    echo $$$(date +%s)$RANDOM | md5sum | awk '{print $1}' > "$SSL.password"
+    echo "javax.net.ssl.keyStorePassword=$(cat "$SSL.password")" >> "$SSL"
+  fi
+  "$KEYTOOL" -genkey -alias "$cname" -keyalg "RSA" -keysize "2048" -dname "$dname" -keypass "$(cat "$SSL.password")" -validity "192" -keystore "$KEYSTORE" -storepass "$(cat "$SSL.password")" $KEYTOOL_OPTS
+  "$KEYTOOL" -export -alias "$cname" -keystore "$KEYSTORE" -storepass "$(cat "$SSL.password")" -rfc -file "etc/$cname.cer" $KEYTOOL_OPTS
+  if [ -e "etc/$cname.cer" ] ; then
+    echo "Distribute etc/$cname.cer to all remote management agents"
+  fi
+  "$KEYTOOL" -certreq -alias "$cname" -keypass "$(cat "$SSL.password")" -keystore "$KEYSTORE" -storepass "$(cat "$SSL.password")" -file "etc/$cname.csr" $KEYTOOL_OPTS
+  chmod go-rwx "$SSL"
+  chmod go-rwx ".keystore"
+  rm "$SSL.password"
 fi
 
 # install init.d files

@@ -507,7 +507,6 @@ public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAg
 	}
 
 	public synchronized void stop() throws IOException {
-		service.stop();
 		if (ports.length > 0) {
 			server.pause();
 		}
@@ -518,6 +517,7 @@ public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAg
 
 	public synchronized void destroy() throws IOException {
 		stop();
+		service.stop();
 		server.shutdown();
 		if (sslserver != null) {
 			sslserver.shutdown();

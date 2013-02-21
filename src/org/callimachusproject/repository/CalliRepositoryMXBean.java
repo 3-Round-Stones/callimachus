@@ -62,4 +62,8 @@ public interface CalliRepositoryMXBean {
 
 	void sparqlUpdate(String update) throws OpenRDFException, IOException;
 
+	String getBlob(String uri) throws OpenRDFException, IOException;
+
+	void storeBlob(String uri, String content) throws OpenRDFException, IOException;
+
 }

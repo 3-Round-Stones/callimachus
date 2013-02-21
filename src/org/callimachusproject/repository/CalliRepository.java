@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -235,6 +236,30 @@ public class CalliRepository extends RepositoryWrapper implements CalliRepositor
 		try {
 			logger.info(update);
 			conn.prepareUpdate(QueryLanguage.SPARQL, update).execute();
+		} finally {
+			conn.close();
+		}
+	}
+
+	public String getBlob(String uri) throws OpenRDFException, IOException {
+		ObjectConnection conn = getConnection();
+		try {
+			return conn.getBlobObject(uri).getCharContent(true).toString();
+		} finally {
+			conn.close();
+		}
+	}
+
+	public void storeBlob(String uri, String content) throws OpenRDFException, IOException {
+		ObjectConnection conn = getConnection();
+		try {
+			logger.warn("Replacing {}", uri);
+			Writer writer = conn.getBlobObject(uri).openWriter();
+			try {
+				writer.write(content);
+			} finally {
+				writer.close();
+			}
 		} finally {
 			conn.close();
 		}

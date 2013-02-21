@@ -148,7 +148,12 @@ public class CallimachusSetup {
 
 	public CallimachusSetup(Repository repo, File dataDir)
 			throws OpenRDFException, IOException {
-		repository = new CalliRepository(repo, dataDir);
+		this(new CalliRepository(repo, dataDir));
+	}
+
+	public CallimachusSetup(CalliRepository repository)
+			throws OpenRDFException, IOException {
+		this.repository = repository;
 		vf = repository.getValueFactory();
 	}
 
@@ -429,7 +434,6 @@ public class CallimachusSetup {
 		synchronized (webapps) {
 			webapps.clear();
 		}
-		repository.setChangeFolder(webapp(origin, CHANGES_PATH).stringValue());
 	}
 
 	private List<String> getDigestUserNamespaces(String origin,

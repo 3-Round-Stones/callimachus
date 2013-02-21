@@ -8,7 +8,6 @@ import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -67,6 +66,8 @@ public class CalliServer implements CalliServerMXBean {
 	public static interface ServerListener {
 		void repositoryInitialized(String repositoryID, CalliRepository repository);
 
+		void repositoryShutDown(String repositoryID);
+
 		void webServiceStarted(WebServer server);
 
 		void webServiceStopping(WebServer server);
@@ -87,7 +88,8 @@ public class CalliServer implements CalliServerMXBean {
 	private final LocalRepositoryManager manager;
 	private final Map<String, CalliRepository> repositories = new LinkedHashMap<String, CalliRepository>();
 
-	public CalliServer(CallimachusConf conf, LocalRepositoryManager manager, ServerListener listener) throws OpenRDFException, IOException {
+	public CalliServer(CallimachusConf conf, LocalRepositoryManager manager,
+			ServerListener listener) throws OpenRDFException, IOException {
 		this.conf = conf;
 		this.listener = listener;
 		this.manager = manager;
@@ -132,8 +134,7 @@ public class CalliServer implements CalliServerMXBean {
 			logger.error(e.toString(), e);
 		} finally {
 			if (server == null) {
-				manager.refresh();
-				repositories.clear();
+				shutDownRepositories();
 			}
 		}
 	}
@@ -155,7 +156,7 @@ public class CalliServer implements CalliServerMXBean {
 		}
 	}
 
-	public synchronized void stop() throws IOException {
+	public synchronized void stop() throws IOException, OpenRDFException {
 		running = false;
 		if (isWebServiceRunning()) {
 			stopWebServiceNow();
@@ -163,8 +164,9 @@ public class CalliServer implements CalliServerMXBean {
 		notifyAll();
 	}
 
-	public synchronized void destroy() {
+	public synchronized void destroy() throws OpenRDFException {
 		running = false;
+		shutDownRepositories();
 		manager.shutDown();
 		notifyAll();
 	}
@@ -442,12 +444,19 @@ public class CalliServer implements CalliServerMXBean {
 			final String repositoryID) throws Exception {
 		submit(new Callable<Void>() {
 			public Void call() throws Exception {
-				Repository repository = manager.getRepository(repositoryID);
-				File dataDir = manager.getRepositoryDir(repositoryID);
-				SetupTool tool = new SetupTool(repositoryID, repository, dataDir, conf);
+				boolean freshRepository = false;
+				CalliRepository repository = getRepository(repositoryID);
+				if (repository == null) {
+					freshRepository = true;
+					repository = getRepository(repositoryID, webappOrigin);
+				}
+				SetupTool tool = new SetupTool(repositoryID, repository, conf);
 				tool.setupWebappOrigin(webappOrigin);
+				if (freshRepository) {
+					repository.shutDown();
+				}
 				if (server != null) {
-					server.addOrigin(webappOrigin, getRepository(webappOrigin));
+					server.addOrigin(webappOrigin, getRepository(repositoryID));
 				}
 				return null;
 			}
@@ -469,11 +478,10 @@ public class CalliServer implements CalliServerMXBean {
 	public SetupOrigin[] getOrigins() throws IOException, OpenRDFException {
 		List<SetupOrigin> list = new ArrayList<SetupOrigin>();
 		Set<String> webapps = new LinkedHashSet<String>(Arrays.asList(getWebappOrigins()));
-		Collection<String> ids = conf.getOriginRepositoryIDs().values();
-		for (String repositoryID : new LinkedHashSet<String>(ids)) {
-			Repository repository = manager.getRepository(repositoryID);
-			File dataDir = manager.getRepositoryDir(repositoryID);
-			SetupTool tool = new SetupTool(repositoryID, repository, dataDir, conf);
+		Map<String, String> map = conf.getOriginRepositoryIDs();
+		for (String repositoryID : new LinkedHashSet<String>(map.values())) {
+			CalliRepository repository = getRepository(repositoryID);
+			SetupTool tool = new SetupTool(repositoryID, repository, conf);
 			SetupOrigin[] origins = tool.getOrigins();
 			for (SetupOrigin origin : origins) {
 				webapps.remove(origin.getWebappOrigin());
@@ -482,7 +490,7 @@ public class CalliServer implements CalliServerMXBean {
 		}
 		for (String webappOrigin : webapps) {
 			// this webapp are not yet setup in the store
-			String id = conf.getOriginRepositoryIDs().get(webappOrigin);
+			String id = map.get(webappOrigin);
 			list.add(new SetupOrigin(webappOrigin, id));
 		}
 		return list.toArray(new SetupOrigin[list.size()]);
@@ -492,9 +500,10 @@ public class CalliServer implements CalliServerMXBean {
 			throws Exception {
 		submit(new Callable<Void>() {
 			public Void call() throws Exception {
-				getSetupTool(webappOrigin).setupResolvableOrigin(origin, webappOrigin);
+				SetupTool tool = getSetupTool(webappOrigin);
+				tool.setupResolvableOrigin(origin, webappOrigin);
 				if (server != null) {
-					server.addOrigin(origin, getRepository(webappOrigin));
+					server.addOrigin(origin, tool.getRepository());
 				}
 				return null;
 			}
@@ -511,7 +520,8 @@ public class CalliServer implements CalliServerMXBean {
 		});
 	}
 
-	public String[] getDigestEmailAddresses(String webappOrigin) throws OpenRDFException, IOException {
+	public String[] getDigestEmailAddresses(String webappOrigin)
+			throws OpenRDFException, IOException {
 		return getSetupTool(webappOrigin).getDigestEmailAddresses(webappOrigin);
 	}
 
@@ -520,8 +530,8 @@ public class CalliServer implements CalliServerMXBean {
 			final String body, final String webappOrigin) throws Exception {
 		submit(new Callable<Void>() {
 			public Void call() throws Exception {
-				getSetupTool(webappOrigin).inviteAdminUser(email, username, label, comment, subject,
-						body, webappOrigin);
+				getSetupTool(webappOrigin).inviteAdminUser(email, username,
+						label, comment, subject, body, webappOrigin);
 				return null;
 			}
 		});
@@ -529,7 +539,8 @@ public class CalliServer implements CalliServerMXBean {
 
 	public boolean changeDigestUserPassword(String email, String password,
 			String webappOrigin) throws OpenRDFException, IOException {
-		return getSetupTool(webappOrigin).changeDigestUserPassword(email, password, webappOrigin);
+		return getSetupTool(webappOrigin).changeDigestUserPassword(email,
+				password, webappOrigin);
 	}
 
 	synchronized void saveError(Exception exc) {
@@ -565,9 +576,8 @@ public class CalliServer implements CalliServerMXBean {
 
 	SetupTool getSetupTool(String webappOrigin) throws OpenRDFException, IOException {
 		String repositoryID = conf.getOriginRepositoryIDs().get(webappOrigin);
-		Repository repository = manager.getRepository(repositoryID);
-		File dataDir = manager.getRepositoryDir(repositoryID);
-		return new SetupTool(repositoryID, repository, dataDir, conf);
+		CalliRepository repository = getRepository(repositoryID);
+		return new SetupTool(repositoryID, repository, conf);
 	}
 
 	private Map<String, String> getAllRepositoryProperties()
@@ -649,8 +659,7 @@ public class CalliServer implements CalliServerMXBean {
 				}
 			} finally {
 				if (server == null) {
-					manager.refresh();
-					repositories.clear();
+					shutDownRepositories();
 				}
 			}
 			server.start();
@@ -669,11 +678,11 @@ public class CalliServer implements CalliServerMXBean {
 		}
 	}
 
-	synchronized boolean stopWebServiceNow() {
+	synchronized boolean stopWebServiceNow() throws OpenRDFException {
 		stopping = true;
 		try {
 			if (server == null) {
-				manager.refresh();
+				shutDownRepositories();
 				return false;
 			} else {
 				if (listener != null) {
@@ -690,8 +699,7 @@ public class CalliServer implements CalliServerMXBean {
 			stopping = false;
 			notifyAll();
 			server = null;
-			manager.refresh();
-			repositories.clear();
+			shutDownRepositories();
 		}
 	}
 
@@ -725,13 +733,15 @@ public class CalliServer implements CalliServerMXBean {
 	private synchronized WebServer createServer() throws OpenRDFException,
 			IOException, NoSuchAlgorithmException {
 		WebServer server = new WebServer(serverCacheDir);
-		Map<String, String> map = conf.getOriginRepositoryIDs();
-		for (String origin : map.keySet()) {
+		for (SetupOrigin so : getOrigins()) {
 			boolean first = repositories.isEmpty();
-			CalliRepository repository = getRepository(origin);
-			server.addOrigin(origin, repository);
-			if (first) {
-				server.setErrorPipe(origin, ERROR_XPL_PATH);
+			if (so.isResolvable()) {
+				String origin = so.getRoot().replaceAll("/$", "");
+				CalliRepository repo = getRepository(so.getRepositoryID());
+				server.addOrigin(origin, repo);
+				if (first) {
+					server.setErrorPipe(origin, ERROR_XPL_PATH);
+				}
 			}
 		}
 		server.setServerName(getServerName());
@@ -739,24 +749,48 @@ public class CalliServer implements CalliServerMXBean {
 		return server;
 	}
 
-	synchronized CalliRepository getRepository(String origin)
+	CalliRepository getRepository(String repositoryID)
 			throws IOException, OpenRDFException {
 		Map<String, String> map = conf.getOriginRepositoryIDs();
-		String repositoryID = map.get(origin);
+		for (Map.Entry<String, String> e : map.entrySet()) {
+			if (repositoryID.equals(e.getValue())) {
+				return getRepository(e.getValue(), e.getKey());
+			}
+		}
+		return null;
+	}
+
+	synchronized CalliRepository getRepository(String repositoryID,
+			String origin) throws IOException, OpenRDFException {
 		CalliRepository repository = repositories.get(repositoryID);
-		if (repository == null) {
+		if (repository == null || !repository.isInitialized()) {
 			Repository repo = manager.getRepository(repositoryID);
 			File dataDir = manager.getRepositoryDir(repositoryID);
 			repository = new CalliRepository(repo, dataDir);
 			String changes = repository.getCallimachusUrl(origin, CHANGES_PATH);
-			// if (changes == null) continue;
-			repository.setChangeFolder(changes);
+			if (changes != null) {
+				repository.setChangeFolder(changes);
+			}
+			if (listener != null && repositories.containsKey(repositoryID)) {
+				listener.repositoryShutDown(repositoryID);
+			}
 			repositories.put(repositoryID, repository);
 			if (listener != null) {
 				listener.repositoryInitialized(repositoryID, repository);
 			}
 		}
 		return repository;
+	}
+
+	private synchronized void shutDownRepositories() throws OpenRDFException {
+		for (Map.Entry<String, CalliRepository> e : repositories.entrySet()) {
+			e.getValue().shutDown();
+			if (listener != null) {
+				listener.repositoryShutDown(e.getKey());
+			}
+		}
+		manager.refresh();
+		repositories.clear();
 	}
 
 	private int[] getPortArray() throws IOException {

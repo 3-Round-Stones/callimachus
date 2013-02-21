@@ -81,9 +81,6 @@ public class CallimachusConf {
 	}
 
 	public synchronized String[] getWebappOrigins() throws IOException {
-		String webapps = getProperty("PRIMARY_ORIGIN");
-		if (webapps != null && webapps.trim().length() > 0)
-			return webapps.trim().split("\\s+");
 		Map<String, String> map = getOriginRepositoryIDs();
 		if (map == null || map.isEmpty())
 			return new String[0];
@@ -91,7 +88,6 @@ public class CallimachusConf {
 	}
 
 	public synchronized void setWebappOrigins(String[] origins) throws IOException {
-		setProperty("PRIMARY_ORIGIN", join(origins));
 		Map<String, String> map = getOriginRepositoryIDs();
 		map = new LinkedHashMap<String, String>(map);
 		for (String item : origins) {
@@ -283,18 +279,5 @@ public class CallimachusConf {
 			reader.close();
 		}
 		return lines;
-	}
-
-	private String join(String[] strings) {
-		if (strings == null || strings.length == 0)
-			return null;
-		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < strings.length; i++) {
-			sb.append(strings[i]);
-			if (i < strings.length - 1) {
-				sb.append(' ');
-			}
-		}
-		return sb.toString();
 	}
 }

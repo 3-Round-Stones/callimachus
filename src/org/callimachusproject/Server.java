@@ -173,13 +173,16 @@ public class Server {
 					registerMBean(repositoryID, repository, CalliRepository.class);
 				}
 
+				public void repositoryShutDown(String repositoryID) {
+					unregisterMBean(repositoryID, CalliRepository.class);
+				}
+
 				public void webServiceStarted(WebServer server) {
 					registerMBean(server, WebServer.class);
 				}
 
 				public void webServiceStopping(WebServer server) {
 					unregisterMBean(WebServer.class);
-					unregisterMBean(CalliRepository.class);
 				}
 			});
 			registerMBean(node, CalliServer.class);

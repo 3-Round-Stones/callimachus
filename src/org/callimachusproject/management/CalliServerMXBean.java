@@ -16,9 +16,9 @@ public interface CalliServerMXBean {
 
 	void start() throws IOException, OpenRDFException;
 
-	void stop() throws IOException;
+	void stop() throws IOException, OpenRDFException;
 
-	void destroy();
+	void destroy() throws OpenRDFException;
 
 	String getServerName() throws IOException;
 

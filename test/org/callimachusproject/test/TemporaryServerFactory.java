@@ -235,13 +235,15 @@ public class TemporaryServerFactory {
 				throw new RepositoryConfigException(
 						"Missing repository configuration");
 			File dataDir = manager.getRepositoryDir(config.getID());
-			CallimachusSetup setup = new CallimachusSetup(repo, dataDir);
+			CalliRepository repository = new CalliRepository(repo, dataDir);
+			CallimachusSetup setup = new CallimachusSetup(repository);
 			setup.prepareWebappOrigin(origin);
 			setup.createWebappOrigin(origin);
 			setup.finalizeWebappOrigin(origin);
 			String username = email.substring(0, email.indexOf('@'));
 			setup.createAdmin(email, username, username, null, origin);
 			setup.changeUserPassword(email, username, password, origin);
+			repository.shutDown();
 			manager.shutDown();
 		}
 		File temp = FileUtil.createTempDir(name);

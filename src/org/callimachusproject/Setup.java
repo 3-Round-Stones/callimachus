@@ -27,14 +27,28 @@ import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
 import org.callimachusproject.cli.Command;
 import org.callimachusproject.cli.CommandSet;
+import org.callimachusproject.concurrent.ManagedExecutors;
 import org.callimachusproject.management.BackupTool;
+import org.callimachusproject.repository.CalliRepository;
 import org.callimachusproject.setup.CallimachusSetup;
 import org.callimachusproject.util.CallimachusConf;
 import org.callimachusproject.util.SystemProperties;
@@ -47,6 +61,7 @@ import org.openrdf.model.util.GraphUtilException;
 import org.openrdf.model.util.ModelUtil;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.repository.Repository;
+import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.config.RepositoryConfig;
 import org.openrdf.repository.config.RepositoryConfigException;
 import org.openrdf.repository.config.RepositoryConfigSchema;
@@ -69,6 +84,7 @@ import org.slf4j.LoggerFactory;
  */
 public class Setup {
 	public static final String NAME = Version.getInstance().getVersion();
+	private static final ExecutorService executor = ManagedExecutors.getInstance().newCachedPool(Setup.class.getSimpleName());
 
 	private static final CommandSet commands = new CommandSet(NAME);
 	static {
@@ -205,56 +221,36 @@ public class Setup {
 	}
 
 	public void start() throws Exception {
-		CallimachusConf conf = new CallimachusConf(confFile);
-		if (backupDir != null) {
-			BackupTool tool = new BackupTool(basedir, backupDir);
-			tool.createBackup(getDefaultBackupLabel(conf));
-			synchronized (tool) {
-				while (tool.isBackupInProgress()) {
-					tool.wait();
-				}
-			}
-			tool.checkForErrors();
-		}
+		final CallimachusConf conf = new CallimachusConf(confFile);
+		makeBackup(conf);
 		boolean changed = false;
-		File repositoryConfig = SystemProperties.getRepositoryConfigFile();
-		String configString = readContent(repositoryConfig.toURI().toURL());
-		RepositoryConfig config = getRepositoryConfig(configString);
-		LocalRepositoryManager manager = RepositoryProvider.getRepositoryManager(basedir);
-		Repository repo = getRepository(manager, config);
-		if (repo == null)
-			throw new RepositoryConfigException(
-					"Missing repository configuration");
-		File dataDir = manager.getRepositoryDir(config.getID());
-		CallimachusSetup setup = new CallimachusSetup(repo, dataDir);
+		final LocalRepositoryManager manager = RepositoryProvider
+				.getRepositoryManager(basedir);
+		final List<String> links = new ArrayList<String>();
 		try {
-			for (String origin : conf.getWebappOrigins()) {
-				changed |= setup.prepareWebappOrigin(origin);
-			}
-			for (String origin : conf.getWebappOrigins()) {
-				changed |= setup.createWebappOrigin(origin);
-			}
-			for (String origin : conf.getWebappOrigins()) {
-				changed |= setup.finalizeWebappOrigin(origin);
-			}
-			conf.setAppVersion(Version.getInstance().getVersionCode());
-			if (email != null && email.length() > 0) {
-				for (String origin : conf.getWebappOrigins()) {
-					changed |= setup.createAdmin(email, username, name, null, origin);
-					if (password == null || password.length < 1) {
-						for (String url : setup.getUserRegistrationLinks(username, email, origin)) {
-							System.err.println("Use this URL to assign a password");
-							System.err.println();
-							System.out.println(url);
-							System.err.println();
-						}
-					} else {
-						changed |= setup.changeUserPassword(email, username, password, origin);
+			updateRepositoryConfig(manager);
+			List<Future<Boolean>> tasks = new ArrayList<Future<Boolean>>();
+			Map<String, String> idByOrigin = conf.getOriginRepositoryIDs();
+			for (final String id : new HashSet<String>(idByOrigin.values())) {
+				tasks.add(executor.submit(new Callable<Boolean>() {
+					public Boolean call() throws Exception {
+						return setupRepository(id, manager, conf, links);
 					}
-				}
+				}));
+			}
+			for (Future<Boolean> task : tasks) {
+				changed |= task.get();
 			}
 		} finally {
 			manager.shutDown();
+		}
+		if (!links.isEmpty()) {
+			System.err.println("Use this URL to assign a password");
+			System.err.println();
+			for (String url : links) {
+				System.out.println(url);
+			}
+			System.err.println();
 		}
 		if (changed || silent) {
 			System.exit(0);
@@ -272,13 +268,78 @@ public class Setup {
 		// do nothing
 	}
 
-	private String readContent(URL config) throws IOException {
-		InputStream in = config.openStream();
+	Boolean setupRepository(String repositoryID,
+			LocalRepositoryManager manager, CallimachusConf conf,
+			Collection<String> links) throws IOException,
+			MalformedURLException, OpenRDFException, NoSuchAlgorithmException {
+		Set<String> webappOrigins = getWebappsInRepository(repositoryID, conf);
+		File dataDir = manager.getRepositoryDir(repositoryID);
+		Repository repo = manager.getRepository(repositoryID);
+		if (repo == null)
+			throw new RepositoryConfigException(
+					"Missing repository configuration for "
+							+ dataDir.getAbsolutePath());
+		boolean changed = false;
+		CalliRepository repository = new CalliRepository(repo, dataDir);
 		try {
-			return new Scanner(in).useDelimiter("\\Z").next();
+			CallimachusSetup setup = new CallimachusSetup(repository);
+			for (String origin : webappOrigins) {
+				changed |= setup.prepareWebappOrigin(origin);
+			}
+			for (String origin : webappOrigins) {
+				changed |= setup.createWebappOrigin(origin);
+			}
+			for (String origin : webappOrigins) {
+				changed |= setup.finalizeWebappOrigin(origin);
+			}
+			if (email != null && email.length() > 0) {
+				for (String origin : webappOrigins) {
+					changed |= setup.createAdmin(email, username, name, null,
+							origin);
+					if (password == null || password.length < 1) {
+						Set<String> reg = setup.getUserRegistrationLinks(username,
+								email, origin);
+						synchronized (links) {
+							links.addAll(reg);
+						}
+					} else {
+						changed |= setup.changeUserPassword(email, username,
+								password, origin);
+					}
+				}
+			}
 		} finally {
-			in.close();
+			repository.shutDown();
 		}
+		return changed;
+	}
+
+	private Set<String> getWebappsInRepository(String repositoryID,
+			CallimachusConf conf) throws IOException {
+		Map<String, String> map = conf.getOriginRepositoryIDs();
+		map = new HashMap<String, String>(map);
+		Iterator<String> iter = map.values().iterator();
+		while (iter.hasNext()) {
+			if (!iter.next().equals(repositoryID)) {
+				iter.remove();
+			}
+		}
+		Set<String> webappOrigins = map.keySet();
+		return webappOrigins;
+	}
+
+	private void makeBackup(final CallimachusConf conf) throws Exception {
+		if (backupDir != null) {
+			BackupTool tool = new BackupTool(basedir, backupDir);
+			tool.createBackup(getDefaultBackupLabel(conf));
+			synchronized (tool) {
+				while (tool.isBackupInProgress()) {
+					tool.wait();
+				}
+			}
+			tool.checkForErrors();
+		}
+		conf.setAppVersion(Version.getInstance().getVersionCode());
 	}
 
 	private String getDefaultBackupLabel(CallimachusConf conf) throws IOException {
@@ -306,15 +367,32 @@ public class Setup {
 		return sb.toString();
 	}
 
-	private Repository getRepository(LocalRepositoryManager manager, RepositoryConfig config)
-			throws OpenRDFException, MalformedURLException, IOException {
-		if (config == null || manager == null)
-			return null;
+	private void updateRepositoryConfig(final LocalRepositoryManager manager)
+			throws IOException, MalformedURLException, RepositoryException,
+			RepositoryConfigException, RDFParseException, RDFHandlerException,
+			GraphUtilException {
+		File repositoryConfig = SystemProperties.getRepositoryConfigFile();
+		String configString = readContent(repositoryConfig.toURI().toURL());
+		updateRepositoryConfig(manager, getRepositoryConfig(configString));
+	}
+
+	private String readContent(URL config) throws IOException {
+		InputStream in = config.openStream();
+		try {
+			return new Scanner(in).useDelimiter("\\Z").next();
+		} finally {
+			in.close();
+		}
+	}
+
+	private void updateRepositoryConfig(LocalRepositoryManager manager,
+			RepositoryConfig config) throws RepositoryException,
+			RepositoryConfigException {
 		String id = config.getID();
 		if (manager.hasRepositoryConfig(id)) {
 			RepositoryConfig oldConfig = manager.getRepositoryConfig(id);
 			if (equal(config, oldConfig))
-				return manager.getRepository(id);
+				return;
 			logger.warn("Replacing repository configuration");
 		}
 		config.validate();
@@ -323,7 +401,7 @@ public class Setup {
 		if (manager.getInitializedRepositoryIDs().contains(id)) {
 			manager.getRepository(id).shutDown();
 		}
-		return manager.getRepository(id);
+		return;
 	}
 
 	private RepositoryConfig getRepositoryConfig(String configString)

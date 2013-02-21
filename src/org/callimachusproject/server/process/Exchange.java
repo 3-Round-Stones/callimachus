@@ -358,7 +358,7 @@ public class Exchange implements Cancellable {
 
 		@Override
 		public void failed(Exception ex) {
-			logger.error(ex.toString(), ex);
+			logger.error(ex.toString());
 		}
 
 		@Override

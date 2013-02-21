@@ -689,6 +689,7 @@ public class CalliServer implements CalliServerMXBean {
 					listener.webServiceStopping(server);
 				}
 				server.stop();
+				shutDownRepositories();
 				server.destroy();
 				return true;
 			}

@@ -323,6 +323,10 @@ if [ ! -e "$BASEDIR/log" ] ; then
   mkdir "$BASEDIR/log"
 fi
 
+if [ ! -e "$BASEDIR/log/stdout" ] ; then
+  mkdir "$BASEDIR/log/stdout"
+fi
+
 # Make sure only root can run our script
 if [ -n "$DAEMON_USER" -a "$USER" != "$DAEMON_USER" -a "$(id -u)" != "0" ]; then
  echo "This script must be run as root" 1>&2
@@ -386,9 +390,6 @@ if [ ! -e "$JMXRIMPASS" ] ; then
 fi
 
 if [ ! -z "$DAEMON_USER" ] ; then
-  if [ ! -e "$BASEDIR/log" ] ; then
-    mkdir "$BASEDIR/log"
-  fi
   chown -R "$DAEMON_USER" "$BASEDIR/log"
   if [ ! -z "$DAEMON_GROUP" ] ; then
     chown -R ":$DAEMON_GROUP" "$BASEDIR/log"
@@ -550,7 +551,7 @@ do_start()
     rm "$SSL.password"
   fi
 
-  JSVC_LOG="$BASEDIR/log/$NAME-start.log"
+  JSVC_LOG="$BASEDIR/log/stdout/$NAME-$(date +%s)-stdout.log"
   if [ -e "$JSVC_LOG" ]; then
     rm "$JSVC_LOG"
   fi

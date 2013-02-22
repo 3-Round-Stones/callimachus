@@ -106,6 +106,7 @@ public class Pipeline {
 	}
 
 	private Pipe pipeSource(XdmNode source, XdmNodeFactory resolver, XProcConfiguration config) throws SAXException, XProcException, IOException {
+		Pipe pipe = null;
 		XProcRuntime runtime = new XProcRuntime(config);
 		try {
 			CloseableURIResolver uriResolver = new CloseableURIResolver(resolver);
@@ -122,11 +123,13 @@ public class Pipeline {
 			if (source != null) {
 				xpipeline.writeTo("source", source);
 			}
-			return new Pipe(runtime, uriResolver, entityResolver, xpipeline, systemId);
+			return pipe = new Pipe(runtime, uriResolver, entityResolver, xpipeline, systemId);
 		} catch (SaxonApiException e) {
 			throw new SAXException(e);
 		} finally {
-			runtime.close();
+			if (pipe == null) {
+				runtime.close();
+			}
 		}
 	}
 

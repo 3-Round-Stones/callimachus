@@ -212,9 +212,13 @@ public abstract class ExchangeActor {
 					inError.set(true);
 					activeErrors.incrementAndGet();
 					Pipe pb = pipeline.pipeReader(new StringReader(body), null);
-					pb.passOption("target", req.getIRI());
-					pb.passOption("query", req.getQueryString());
-					body = pb.asString();
+					try {
+						pb.passOption("target", req.getIRI());
+						pb.passOption("query", req.getQueryString());
+						body = pb.asString();
+					} finally {
+						pb.close();
+					}
 				} catch (Throwable exc) {
 					logger.error(exc.toString(), exc);
 				} finally {

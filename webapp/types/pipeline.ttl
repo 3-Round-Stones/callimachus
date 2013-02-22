@@ -152,21 +152,25 @@
         var factory = PipelineFactory.newInstance();
         var pipeline = factory.createPipeline(this.openInputStream(), this.toString());
         var pipe = pipeline.pipeStream(sourcePort, sourceLocation);
-        var iterator = queryPostParameters.keySet().iterator();
-        while(iterator.hasNext()){
-            var key = iterator.next();
-            var value = queryPostParameters.get(key);
-            if (key != "result" && value && value.length){
-                pipe.passOption(key, value[0]);
-            } else if (value && value.length > 1) {
-                pipe.passOption(key, value[1]);
+        try {
+            var iterator = queryPostParameters.keySet().iterator();
+            while(iterator.hasNext()){
+                var key = iterator.next();
+                var value = queryPostParameters.get(key);
+                if (key != "result" && value && value.length){
+                    pipe.passOption(key, value[0]);
+                } else if (value && value.length > 1) {
+                    pipe.passOption(key, value[1]);
+                }
             }
+            return {
+                status: 200, message: "OK",
+                headers: {"content-type": pipe.getMediaType()},
+                body: pipe.asStream()
+            };
+        } finally {
+            pipe.close();
         }
-        return {
-            status: 200, message: "OK",
-            headers: {"content-type": pipe.getMediaType()},
-            body: pipe.asStream()
-        };
 """.
 
 :queryPostParameters a owl:FunctionalProperty, owl:ObjectProperty;

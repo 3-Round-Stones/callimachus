@@ -54,6 +54,7 @@ public class Pipe implements XProcMessageListener {
 	private final XPipeline pipeline;
 	private final Serialization serial;
 	private final StringBuilder errors = new StringBuilder();
+	private boolean closed = false;
 
 	Pipe(XProcRuntime runtime, CloseableURIResolver uriResolver, CloseableEntityResolver entityResolver,
 			XPipeline pipeline, String systemId) {
@@ -86,6 +87,16 @@ public class Pipe implements XProcMessageListener {
 		if (mediaType.startsWith("text/")
 				&& !mediaType.contains("charset=")) {
 			serial.setMediaType(mediaType + ";charset=" + encoding);
+		}
+	}
+
+	public void close() throws IOException {
+		if (!closed) {
+			closed = true;
+			uriResolver.close();
+			entityResolver.close();
+			errors.setLength(0);
+			runtime.close();
 		}
 	}
 
@@ -123,9 +134,7 @@ public class Pipe implements XProcMessageListener {
 		} catch (XProcException e) {
 			throw new XProcException(e.getMessage() + errors, e);
 		} finally {
-			uriResolver.close();
-			entityResolver.close();
-			errors.setLength(0);
+			close();
 		}
 	}
 

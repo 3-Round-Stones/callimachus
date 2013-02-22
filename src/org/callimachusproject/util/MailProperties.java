@@ -117,8 +117,15 @@ public class MailProperties {
 	}
 
 	private void validate(Map<String, String> lines) throws MessagingException {
+		Map<String, String> map = new LinkedHashMap<String, String>(lines);
+		Iterator<String> iter = map.values().iterator();
+		while (iter.hasNext()) {
+			if (iter.next() == null) {
+				iter.remove();
+			}
+		}
 		Properties properties = new Properties();
-		properties.putAll(lines);
+		properties.putAll(map);
 		if (properties.containsKey("mail.transport.protocol")) {
 			Session session = Session.getInstance(properties);
 			String user = session.getProperty("mail.user");

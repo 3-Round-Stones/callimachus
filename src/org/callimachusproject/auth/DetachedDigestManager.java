@@ -458,7 +458,9 @@ public class DetachedDigestManager implements DetachedAuthenticationManager {
 					Resource value = (Resource) result.getValue("passwordDigest");
 					Object file = con.getObjectFactory().createObject(value);
 					hash = readString((FileObject) file);
-					map.put(hash, iri);
+					if (hash != null) {
+						map.put(hash, iri);
+					}
 				}
 				DetachedRealm r = realms.getRealm(iri);
 				if (r == null || r.getSecret() == null)
@@ -634,6 +636,8 @@ public class DetachedDigestManager implements DetachedAuthenticationManager {
 	}
 
 	private String getDaypass(short day, String secret) {
+		if (secret == null)
+			return null;
 		byte[] random = readBytes(secret);
 		byte[] seed = new byte[random.length + Short.SIZE / Byte.SIZE];
 		System.arraycopy(random, 0, seed, 0, random.length);
@@ -680,6 +684,8 @@ public class DetachedDigestManager implements DetachedAuthenticationManager {
 	private String readString(FileObject file) {
 		try {
 			Reader reader = file.openReader(true);
+			if (reader == null)
+				return null;
 			try {
 				return new Scanner(reader).next();
 			} finally {

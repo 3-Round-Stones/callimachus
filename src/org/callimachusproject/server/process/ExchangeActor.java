@@ -114,6 +114,14 @@ public abstract class ExchangeActor {
 		execute(exchange, true);
 	}
 
+	protected void submitEndExchange(ExchangeTask task) {
+		try {
+			executor.execute(task);
+		} catch (RejectedExecutionException e) {
+			task.run();
+		}
+	}
+
 	protected abstract void process(Exchange exchange, boolean foreground) throws Exception;
 
 	void execute(Exchange exchange, boolean foreground) {

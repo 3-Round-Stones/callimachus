@@ -21,6 +21,8 @@ import org.callimachusproject.server.concepts.AnyThing;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.repository.Repository;
+import org.openrdf.repository.auditing.AuditingRepository;
+import org.openrdf.repository.auditing.config.AuditingRepositoryFactory;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.config.ObjectRepositoryConfig;
 import org.openrdf.repository.object.config.ObjectRepositoryFactory;
@@ -197,10 +199,13 @@ public abstract class MetadataServerTestCase extends TestCase {
 	private CalliRepository createRepository() throws Exception {
 		Sail sail = new MemoryStore(dataDir);
 		sail = new AuditingSail(sail);
-		Repository repo = new OptimisticRepository(sail);
-		repo.initialize();
+		Repository delegate = new OptimisticRepository(sail);
+		AuditingRepositoryFactory af = new AuditingRepositoryFactory();
+		AuditingRepository auditing = af.getRepository(af.getConfig());
+		auditing.setDelegate(delegate);
+		auditing.initialize();
 		ObjectRepositoryFactory factory = new ObjectRepositoryFactory();
-		repo = factory.createRepository(config, repo);
+		Repository repo = factory.createRepository(config, auditing);
 		return new CalliRepository(repo, dataDir);
 	}
 

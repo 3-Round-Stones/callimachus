@@ -42,7 +42,6 @@ import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
 import org.openrdf.repository.auditing.ActivityFactory;
 import org.openrdf.repository.auditing.AuditingRepository;
-import org.openrdf.repository.auditing.config.AuditingRepositoryFactory;
 import org.openrdf.repository.base.RepositoryWrapper;
 import org.openrdf.repository.config.RepositoryConfigException;
 import org.openrdf.repository.object.ObjectConnection;
@@ -69,7 +68,11 @@ public class CalliRepository extends RepositoryWrapper implements CalliRepositor
 			IOException {
 		object = createObjectRepository(dataDir, repository);
 		auditing = findAuditingRepository(repository, object);
-		trace(auditing);
+		RepositoryWrapper wrapper = object;
+		while (wrapper.getDelegate() instanceof RepositoryWrapper) {
+			wrapper = (RepositoryWrapper) wrapper.getDelegate();
+		}
+		trace(wrapper);
 		setDelegate(object);
 	}
 
@@ -355,13 +358,7 @@ public class CalliRepository extends RepositoryWrapper implements CalliRepositor
 		if (repository instanceof RepositoryWrapper)
 			return findAuditingRepository(
 					((RepositoryWrapper) repository).getDelegate(), object);
-		Repository delegate = object.getDelegate();
-		AuditingRepositoryFactory factory = new AuditingRepositoryFactory();
-		AuditingRepository auditing = factory
-				.getRepository(factory.getConfig());
-		auditing.setDelegate(delegate);
-		object.setDelegate(auditing);
-		return auditing;
+		return null;
 	}
 
 	private void trace(RepositoryWrapper repository) {

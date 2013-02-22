@@ -242,7 +242,10 @@ public class Setup {
 				changed |= task.get();
 			}
 		} finally {
-			manager.shutDown();
+			// manager thinks these are initialise, so make sure they are
+			for (String id : manager.getInitializedRepositoryIDs()) {
+				manager.getRepository(id);
+			}
 		}
 		if (!links.isEmpty()) {
 			System.err.println("Use this URL to assign a password");
@@ -388,15 +391,16 @@ public class Setup {
 	private void updateRepositoryConfig(LocalRepositoryManager manager,
 			RepositoryConfig config) throws RepositoryException,
 			RepositoryConfigException {
+		config.validate();
 		String id = config.getID();
 		if (manager.hasRepositoryConfig(id)) {
 			RepositoryConfig oldConfig = manager.getRepositoryConfig(id);
 			if (equal(config, oldConfig))
 				return;
 			logger.warn("Replacing repository configuration");
+		} else {
+			logger.info("Creating repository: {}", id);
 		}
-		config.validate();
-		logger.info("Creating repository: {}", id);
 		manager.addRepositoryConfig(config);
 		if (manager.getInitializedRepositoryIDs().contains(id)) {
 			manager.getRepository(id).shutDown();

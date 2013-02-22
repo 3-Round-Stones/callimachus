@@ -125,6 +125,8 @@ public class Pipeline {
 			return new Pipe(runtime, uriResolver, entityResolver, xpipeline, systemId);
 		} catch (SaxonApiException e) {
 			throw new SAXException(e);
+		} finally {
+			runtime.close();
 		}
 	}
 

@@ -386,38 +386,28 @@ if [ ! -e "$JMXRIMPASS" ] ; then
 fi
 
 if [ ! -z "$DAEMON_USER" ] ; then
-  chown -R "$DAEMON_USER" "$BASEDIR/log"
-  if [ ! -z "$DAEMON_GROUP" ] ; then
-    chown -R ":$DAEMON_GROUP" "$BASEDIR/log"
+  if [ ! -e "$MAIL" ]; then
+    touch "$MAIL"
   fi
   if [ ! -e "$BASEDIR/repositories" ]; then
     mkdir "$BASEDIR/repositories"
   fi
-  chown -R "$DAEMON_USER" "$BASEDIR/repositories"
-  if [ ! -z "$DAEMON_GROUP" ] ; then
-    chown -R ":$DAEMON_GROUP" "$BASEDIR/repositories"
-  fi
-  if [ ! -e "$MAIL" ]; then
-    touch "$MAIL"
-  fi
-  chown -R "$DAEMON_USER" "$MAIL"
-  if [ ! -z "$DAEMON_GROUP" ] ; then
-    chown -R ":$DAEMON_GROUP" "$MAIL"
-  fi
   if [ ! -e "$BASEDIR/backups" ]; then
     mkdir "$BASEDIR/backups"
   fi
+  chown "$DAEMON_USER" "$BASEDIR"
+  chown -R "$DAEMON_USER" "$BASEDIR/log"
+  chown -R "$DAEMON_USER" "$BASEDIR/repositories"
   chown -R "$DAEMON_USER" "$BASEDIR/backups"
+  chown "$DAEMON_USER" "$MAIL"
+  chown "$DAEMON_USER" "$CONFIG"
   if [ ! -z "$DAEMON_GROUP" ] ; then
+    chown ":$DAEMON_GROUP" "$BASEDIR"
+    chown -R ":$DAEMON_GROUP" "$BASEDIR/log"
+    chown -R ":$DAEMON_GROUP" "$BASEDIR/repositories"
     chown -R ":$DAEMON_GROUP" "$BASEDIR/backups"
-  fi
-  chown -R "$DAEMON_USER" "$CONFIG"
-  if [ ! -z "$DAEMON_GROUP" ] ; then
-    chown -R ":$DAEMON_GROUP" "$CONFIG"
-  fi
-  chown -R "$DAEMON_USER" "$REPOSITORY_CONFIG"
-  if [ ! -z "$DAEMON_GROUP" ] ; then
-    chown -R ":$DAEMON_GROUP" "$REPOSITORY_CONFIG"
+    chown ":$DAEMON_GROUP" "$MAIL"
+    chown ":$DAEMON_GROUP" "$CONFIG"
   fi
   if [ -e "$SSL" ]; then
     KEYSTORE=$(grep -E '^javax.net.ssl.keyStore=' $SSL |perl -pe 's/^javax.net.ssl.keyStore=(.*)/$1/' 2>/dev/null)
@@ -455,10 +445,6 @@ if [ ! -z "$DAEMON_USER" ] ; then
     if [ ! -z "$DAEMON_GROUP" ] ; then
       chown ":$DAEMON_GROUP" "$TMPDIR"
     fi
-  fi
-  if [ -e "$MAIL" ] ; then
-    chown "$DAEMON_USER" "$MAIL"
-    chown ":$DAEMON_GROUP" "$MAIL"
   fi
 fi
 
@@ -573,7 +559,7 @@ do_start()
     -Dorg.callimachusproject.config.webapp="$(ls $BASEDIR/lib/$NAME-webapp*.car)" \
     -classpath "$CLASSPATH" \
     -user "$DAEMON_USER" \
-    -XX:OnOutOfMemoryError="kill -9 %p" \
+    -XX:OnOutOfMemoryError="kill %p" \
     $JSVC_OPTS $SSL_OPTS $JMXRMI_OPTS "$MAINCLASS" -q -b "$BASEDIR" -c "$CONFIG" -k "$BASEDIR/backups" $OPTS "$@"
 
   RETURN_VAL=$?
@@ -730,7 +716,7 @@ do_run() {
     -Djava.mail.properties="$MAIL" \
     -Dorg.callimachusproject.config.repository="$REPOSITORY_CONFIG" \
     -Dorg.callimachusproject.config.webapp="$(ls $BASEDIR/lib/$NAME-webapp*.car)" \
-    -XX:OnOutOfMemoryError="kill -9 %p" \
+    -XX:OnOutOfMemoryError="kill %p" \
     -classpath "$CLASSPATH" \
     -user "$DAEMON_USER" \
     $JSVC_OPTS $SSL_OPTS $JMXRMI_OPTS "$MAINCLASS" -q -b "$BASEDIR" -c "$CONFIG" -k "$BASEDIR/backups" "$@"

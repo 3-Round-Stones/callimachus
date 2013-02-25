@@ -74,7 +74,7 @@ public class ServerNameFilter extends Filter {
 		resp = super.filter(req, resp);
 		if (name != null) {
 			if (resp.containsHeader("Server")) {
-				resp.addHeader("Via", via);
+				resp.addHeader("Via", getVia());
 			} else {
 				resp.setHeader("Server", name);
 			}
@@ -82,7 +82,11 @@ public class ServerNameFilter extends Filter {
 		return resp;
 	}
 
-	private void setVia() {
+	private synchronized String getVia() {
+		return via;
+	}
+
+	private synchronized void setVia() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(PROTOCOL).append(" ").append(HOSTNAME);
 		if (port != null && port != 80 && port != 443) {

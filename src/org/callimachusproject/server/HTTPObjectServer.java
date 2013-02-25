@@ -43,12 +43,10 @@ import java.net.BindException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.concurrent.CountDownLatch;
 
 import javax.net.ssl.SSLContext;
 
@@ -123,7 +121,7 @@ import org.slf4j.LoggerFactory;
 public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAgentMXBean, IOReactorExceptionHandler {
 	protected static final String DEFAULT_NAME = Version.getInstance().getVersion();
 	private static NamedThreadFactory executor = new NamedThreadFactory("HttpObjectServer", false);
-	private static final List<HTTPObjectServer> instances = new ArrayList<HTTPObjectServer>();
+	private static final Set<HTTPObjectServer> instances = new HashSet<HTTPObjectServer>();
 
 	public static HTTPObjectServer[] getInstances() {
 		synchronized (instances) {
@@ -143,13 +141,13 @@ public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAg
 	private final IOEventDispatch dispatch;
 	private DefaultListeningIOReactor sslserver;
 	private IOEventDispatch ssldispatch;
-	private int[] ports;
-	private int[] sslports;
+	private int[] ports = new int[0];
+	private int[] sslports = new int[0];
 	private final ServerNameFilter name;
 	private final IdentityPrefix abs;
 	private final HttpResponseFilter env;
-	private CountDownLatch started;
-	private CountDownLatch stopped;
+	volatile boolean listening;
+	volatile boolean ssllistening;
 	private final HTTPObjectRequestHandler service;
 	private final LinksHandler links;
 	private final AuthenticationHandler authCache;
@@ -410,69 +408,92 @@ public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAg
 		}
 	}
 
-	public synchronized void listen(int[] ports, int[] sslports) throws IOException {
+	public synchronized void listen(int[] ports, int[] sslports)
+			throws IOException {
 		if (ports == null) {
 			ports = new int[0];
 		}
 		if (sslports == null) {
 			sslports = new int[0];
 		}
-		if (ports.length <= 0 && sslports.length <= 0)
-			throw new IllegalStateException("No ports to listen on");
-		if (ports.length <= 0 && sslserver == null)
-			throw new IllegalStateException("No configured keystore for SSL ports");
-		if (isRunning())
-			throw new IllegalStateException("Server is already running");
-		name.setPort(ports.length > 0 ? ports[0] : sslports[0]);
+		if (sslports.length > 0 && sslserver == null)
+			throw new IllegalStateException(
+					"No configured keystore for SSL ports");
+		for (int port : diff(this.ports, ports)) {
+			server.listen(new InetSocketAddress(port));
+		}
+		for (int port : diff(this.sslports, sslports)) {
+			sslserver.listen(new InetSocketAddress(port));
+		}
+		if (!isRunning()) {
+			if (ports.length > 0) {
+				server.pause();
+			}
+			if (sslserver != null && sslports.length > 0) {
+				sslserver.pause();
+			}
+		}
 		this.ports = ports;
 		this.sslports = sslports;
-		int count = (ports.length > 0 ? 1 : 0) + (sslserver != null && sslports.length > 0 ? 1 : 0);
-		this.started = new CountDownLatch(count);
-		this.stopped = new CountDownLatch(count);
 		if (ports.length > 0) {
-			for (int port : ports) {
-				server.listen(new InetSocketAddress(port));
-			}
-			server.pause();
+			name.setPort(ports[0]);
+		} else if (sslports.length > 0) {
+			name.setPort(sslports[0]);
+		}
+		if (!listening && ports.length > 0) {
 			executor.newThread(new Runnable() {
 				public void run() {
 					try {
-						started.countDown();
+						synchronized (HTTPObjectServer.this) {
+							listening = true;
+							HTTPObjectServer.this.notifyAll();
+						}
 						server.execute(dispatch);
 					} catch (IOException e) {
 						logger.error(e.toString(), e);
 					} finally {
-						stopped.countDown();
+						synchronized (HTTPObjectServer.this) {
+							listening = false;
+							HTTPObjectServer.this.notifyAll();
+						}
 					}
 				}
 			}).start();
 		}
-		if (sslserver != null && sslports.length > 0) {
-			for (int port : sslports) {
-				sslserver.listen(new InetSocketAddress(port));
-			}
-			sslserver.pause();
+		if (!ssllistening && sslserver != null && sslports.length > 0) {
 			executor.newThread(new Runnable() {
 				public void run() {
 					try {
-						started.countDown();
+						synchronized (HTTPObjectServer.this) {
+							ssllistening = true;
+							HTTPObjectServer.this.notifyAll();
+						}
 						sslserver.execute(ssldispatch);
 					} catch (IOException e) {
 						logger.error(e.toString(), e);
 					} finally {
-						stopped.countDown();
+						synchronized (HTTPObjectServer.this) {
+							ssllistening = false;
+							HTTPObjectServer.this.notifyAll();
+						}
 					}
 				}
 			}).start();
 		}
 		try {
-			started.await();
+			synchronized (HTTPObjectServer.this) {
+				while (!listening && ports.length > 0 || !ssllistening
+						&& sslserver != null && sslports.length > 0) {
+					HTTPObjectServer.this.wait();
+				}
+			}
 			Thread.sleep(100);
 			if (ports.length > 0 && server != null
 					&& server.getStatus() != IOReactorStatus.ACTIVE
 					|| sslports.length > 0 && sslserver != null
 					&& sslserver.getStatus() != IOReactorStatus.ACTIVE) {
-				String str = Arrays.toString(ports) + Arrays.toString(sslports);
+				String str = Arrays.toString(ports)
+						+ Arrays.toString(sslports);
 				str = str.replace('[', ' ').replace(']', ' ');
 				throw new BindException("Could not bind to port" + str
 						+ "server is " + getStatus());
@@ -524,7 +545,11 @@ public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAg
 		}
 		resetConnections();
 		try {
-			stopped.await();
+			synchronized (HTTPObjectServer.this) {
+				while (!listening && !ssllistening) {
+					HTTPObjectServer.this.wait();
+				}
+			}
 			Thread.sleep(100);
 			while (server.getStatus() != IOReactorStatus.SHUT_DOWN
 					&& server.getStatus() != IOReactorStatus.INACTIVE) {
@@ -694,6 +719,17 @@ public class HTTPObjectServer extends AbstractHttpClient implements HTTPObjectAg
 			writer.close();
 		}
 		logger.info("Connection dump: {}", outputFile);
+	}
+
+	private Set<Integer> diff(int[] existingPorts, int[] ports) {
+		Set<Integer> newPorts = new LinkedHashSet<Integer>(ports.length);
+		for (int p : ports) {
+			newPorts.add(p);
+		}
+		for (int p : existingPorts) {
+			newPorts.remove(p);
+		}
+		return newPorts;
 	}
 
 	private NHttpConnection[] getOpenConnections() {

@@ -241,7 +241,7 @@ INSERT {
 	calli:reader </auth/groups/public> .
 } WHERE {
     BIND (str(<editor/text-editor.html>) AS ?alternate)
-	FILTER NOT EXISTS { <../css-editor.html> a calli:PURL }
+	FILTER NOT EXISTS { <../text-editor.html> a calli:PURL }
 };
 
 INSERT {

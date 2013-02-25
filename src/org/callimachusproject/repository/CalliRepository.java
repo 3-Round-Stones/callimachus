@@ -50,6 +50,7 @@ import org.openrdf.repository.object.config.ObjectRepositoryConfig;
 import org.openrdf.repository.object.config.ObjectRepositoryFactory;
 import org.openrdf.repository.object.exceptions.ObjectStoreConfigException;
 import org.openrdf.rio.turtle.TurtleWriter;
+import org.openrdf.store.blob.BlobStore;
 import org.openrdf.store.blob.file.FileBlobStoreProvider;
 import org.slf4j.LoggerFactory;
 
@@ -131,6 +132,14 @@ public class CalliRepository extends RepositoryWrapper implements CalliRepositor
 	public void setCompileRepository(boolean compileRepository)
 			throws ObjectStoreConfigException, RepositoryException {
 		object.setCompileRepository(compileRepository);
+	}
+
+	public BlobStore getBlobStore() {
+		return object.getBlobStore();
+	}
+
+	public void setBlobStore(BlobStore store) {
+		object.setBlobStore(store);
 	}
 
 	@Override

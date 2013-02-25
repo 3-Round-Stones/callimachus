@@ -45,6 +45,7 @@ import org.openrdf.repository.config.RepositoryConfig;
 import org.openrdf.repository.config.RepositoryConfigException;
 import org.openrdf.repository.manager.LocalRepositoryManager;
 import org.openrdf.repository.manager.SystemRepository;
+import org.openrdf.store.blob.BlobStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -445,10 +446,26 @@ public class CalliServer implements CalliServerMXBean {
 		submit(new Callable<Void>() {
 			public Void call() throws Exception {
 				boolean freshRepository = false;
-				CalliRepository repository = getRepository(repositoryID);
+				CalliRepository repository = getInitializedRepository(repositoryID);
+				Repository repo = manager.getRepository(repositoryID);
+				File dataDir = manager.getRepositoryDir(repositoryID);
 				if (repository == null) {
 					freshRepository = true;
-					repository = getRepository(repositoryID, webappOrigin);
+					repository = new CalliRepository(repo, dataDir);
+					String changes = repository.getCallimachusUrl(webappOrigin, CHANGES_PATH);
+					if (changes != null) {
+						repository.setChangeFolder(changes);
+					}
+				} else {
+					BlobStore blobs = repository.getBlobStore();
+					String changes = repository.getChangeFolder();
+					repository = new CalliRepository(repo, dataDir);
+					if (changes != null) {
+						repository.setChangeFolder(changes);
+					}
+					if (blobs != null) {
+						repository.setBlobStore(blobs);
+					}
 				}
 				SetupTool tool = new SetupTool(repositoryID, repository, conf);
 				tool.setupWebappOrigin(webappOrigin);
@@ -781,6 +798,14 @@ public class CalliServer implements CalliServerMXBean {
 			}
 		}
 		return repository;
+	}
+
+	synchronized CalliRepository getInitializedRepository(String repositoryID) {
+		CalliRepository repository = repositories.get(repositoryID);
+		if (repository == null || !repository.isInitialized()) {
+			return repository;
+		}
+		return null;
 	}
 
 	private synchronized void shutDownRepositories() throws OpenRDFException {

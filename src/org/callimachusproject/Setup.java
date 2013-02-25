@@ -25,7 +25,6 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -142,7 +141,7 @@ public class Setup {
 	private boolean silent;
 	private File confFile;
 	private File basedir;
-	private File backupDir;
+	private BackupTool backup;
 	private String name;
 	private String email;
 	private String username;
@@ -176,7 +175,7 @@ public class Setup {
 					confFile = new File("etc/callimachus.conf");
 				}
 				if (line.has("backups") && !line.has("no-backup")) {
-					backupDir = new File(line.get("backups"));
+					backup = new BackupTool(new File(line.get("backups")));
 				}
 				if (line.has("user") || line.has("email")) {
 					this.name = line.get("name");
@@ -222,7 +221,6 @@ public class Setup {
 
 	public void start() throws Exception {
 		final CallimachusConf conf = new CallimachusConf(confFile);
-		makeBackup(conf);
 		boolean changed = false;
 		final LocalRepositoryManager manager = RepositoryProvider
 				.getRepositoryManager(basedir);
@@ -241,6 +239,7 @@ public class Setup {
 			for (Future<Boolean> task : tasks) {
 				changed |= task.get();
 			}
+			conf.setAppVersion(Version.getInstance().getVersionCode());
 		} finally {
 			// manager thinks these are initialise, so make sure they are
 			for (String id : manager.getInitializedRepositoryIDs()) {
@@ -282,6 +281,9 @@ public class Setup {
 			throw new RepositoryConfigException(
 					"Missing repository configuration for "
 							+ dataDir.getAbsolutePath());
+		if (backup != null) {
+			backup.backup(getDefaultBackupLabel(repositoryID, conf), dataDir);
+		}
 		boolean changed = false;
 		CalliRepository repository = new CalliRepository(repo, dataDir);
 		try {
@@ -331,25 +333,10 @@ public class Setup {
 		return webappOrigins;
 	}
 
-	private void makeBackup(final CallimachusConf conf) throws Exception {
-		if (backupDir != null) {
-			BackupTool tool = new BackupTool(basedir, backupDir);
-			tool.createBackup(getDefaultBackupLabel(conf));
-			synchronized (tool) {
-				while (tool.isBackupInProgress()) {
-					tool.wait();
-				}
-			}
-			tool.checkForErrors();
-		}
-		conf.setAppVersion(Version.getInstance().getVersionCode());
-	}
-
-	private String getDefaultBackupLabel(CallimachusConf conf) throws IOException {
+	private String getDefaultBackupLabel(String repositoryID, CallimachusConf conf) throws IOException {
 		StringBuilder sb = new StringBuilder();
-		if (conf.getWebappOrigins().length > 0) {
-			String origin = conf.getWebappOrigins()[0];
-			sb.append(URI.create(origin).getHost()).append("-");
+		if (repositoryID != null && repositoryID.length() > 0) {
+			sb.append(repositoryID).append("-");
 		}
 		String version = conf.getAppVersion();
 		if (version != null) {

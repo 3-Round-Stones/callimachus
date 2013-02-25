@@ -1,5 +1,6 @@
 package org.callimachusproject.management;
 
+import java.io.File;
 import java.io.IOException;
 
 public interface BackupToolMXBean {
@@ -8,12 +9,10 @@ public interface BackupToolMXBean {
 
 	boolean isRestoreInProgress();
 
-	void checkForErrors() throws IOException;
-
-	void createBackup(String label) throws Exception;
+	void backup(String label, File dataDir) throws IOException;
 
 	String getBackupLabels();
 
-	void restoreBackup(String label) throws IOException;
+	void restoreBackup(String label, File dataDir) throws IOException;
 
 }

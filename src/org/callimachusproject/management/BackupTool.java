@@ -7,14 +7,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.lang.reflect.UndeclaredThrowableException;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.ThreadFactory;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -24,47 +18,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class BackupTool implements BackupToolMXBean {
-	private static final ThreadFactory THREADFACTORY = new ThreadFactory() {
-		public Thread newThread(Runnable r) {
-			String name = BackupTool.class.getSimpleName() + "-"
-					+ Integer.toHexString(r.hashCode());
-			Thread t = new Thread(r, name);
-			t.setDaemon(true);
-			return t;
-		}
-	};
-
 	private final Logger logger = LoggerFactory.getLogger(BackupTool.class);
-	private final ExecutorService executor = Executors
-			.newSingleThreadScheduledExecutor(THREADFACTORY);
-	private Exception exception;
-	private final File baseDir;
 	private final File backupDir;
 	private volatile boolean backup;
 	private volatile boolean restore;
 
-	public BackupTool(File baseDir, File backupDir) {
-		this.baseDir = baseDir;
+	public BackupTool(File backupDir) {
 		this.backupDir = backupDir;
 	}
 
 	public String toString() {
 		return backupDir.toString();
-	}
-
-	public synchronized void checkForErrors() throws IOException {
-		try {
-			if (exception != null)
-				throw exception;
-		} catch (RuntimeException e) {
-			throw (RuntimeException) e;
-		} catch (IOException e) {
-			throw (IOException) e;
-		} catch (Exception e) {
-			throw new UndeclaredThrowableException(e);
-		} finally {
-			exception = null;
-		}
 	}
 
 	public boolean isBackupInProgress() {
@@ -101,34 +65,34 @@ public class BackupTool implements BackupToolMXBean {
 		return result.substring(0, result.length() - 1);
 	}
 
-	public synchronized void createBackup(final String label) throws Exception {
+	public synchronized void backup(final String label, final File dataDir)
+			throws IOException {
 		if (isBackupInProgress())
 			throw new IllegalStateException("Backup already in progress");
 		backup = true;
-		submit(new Callable<Void>() {
-			public Void call() throws Exception {
-				blockCreateBackup(label);
-				return null;
-			}
-		});
+		blockCreateBackup(label, dataDir);
 	}
 
-	public synchronized void restoreBackup(final String label) throws IOException {
+	public synchronized void restoreBackup(final String label,
+			final File dataDir) throws IOException {
 		if (isRestoreInProgress())
 			throw new IllegalStateException("Restore already in progress");
 		restore = true;
-		submit(new Callable<Void>() {
-			public Void call() throws Exception {
-				blockRestoreBackup(label);
-				return null;
-			}
-		});
+		blockRestoreBackup(label, dataDir, null);
 	}
 
-	synchronized void blockCreateBackup(String label) throws IOException {
+	public synchronized void restoreBackup(final String label,
+			final File dataDir, Runnable prepare) throws IOException {
+		if (isRestoreInProgress())
+			throw new IllegalStateException("Restore already in progress");
+		restore = true;
+		blockRestoreBackup(label, dataDir, prepare);
+	}
+
+	synchronized void blockCreateBackup(String label, File dataDir) throws IOException {
 		backup = true;
 		try {
-			baseDir.mkdirs();
+			backupDir.mkdirs();
 			String name = label.replaceAll("\\s+", "_") + ".zip";
 			File backup = new File(backupDir, name);
 			boolean replacing = backup.exists();
@@ -137,9 +101,8 @@ public class BackupTool implements BackupToolMXBean {
 			FileOutputStream out = new FileOutputStream(backup);
 			ZipOutputStream zos = new ZipOutputStream(out);
 			try {
-				String base = baseDir.getAbsolutePath() + "/";
-				File repositories = new File(baseDir, "repositories");
-				File[] listFiles = repositories.listFiles();
+				String base = dataDir.getAbsolutePath() + "/";
+				File[] listFiles = dataDir.listFiles();
 				if (listFiles != null) {
 					for (File f : listFiles) {
 						if (!SystemRepository.ID.equals(f.getName())) {
@@ -152,8 +115,6 @@ public class BackupTool implements BackupToolMXBean {
 						}
 					}
 				}
-				created |= putEntries(base, new File(baseDir, "www"), zos);
-				created |= putEntries(base, new File(baseDir, "blob"), zos);
 			} finally {
 				if (created) {
 					zos.close();
@@ -175,17 +136,17 @@ public class BackupTool implements BackupToolMXBean {
 		}
 	}
 
-	synchronized void blockRestoreBackup(String label) throws IOException {
+	synchronized void blockRestoreBackup(String label, File dataDir,
+			Runnable prepare) throws IOException {
 		restore = true;
+		File baseDir = File.createTempFile(dataDir.getName(), ".restoring",
+				dataDir.getParentFile());
 		try {
 			String name = label + ".zip";
 			File backup = new File(backupDir, name);
 			if (!backup.exists())
 				throw new FileNotFoundException();
 			logger.info("Restoring {}", backup);
-			deleteAll(new File(baseDir, "repositories"));
-			deleteAll(new File(baseDir, "www"));
-			deleteAll(new File(baseDir, "blob"));
 			FileInputStream fis = new FileInputStream(backup);
 			ZipInputStream zis = new ZipInputStream(
 					new BufferedInputStream(fis));
@@ -206,38 +167,25 @@ public class BackupTool implements BackupToolMXBean {
 				}
 			}
 			zis.close();
+			if (prepare != null) {
+				prepare.run();
+			}
+			File tmp = File.createTempFile(dataDir.getName(), ".deleting",
+					dataDir.getParentFile());
+			dataDir.renameTo(tmp);
+			baseDir.renameTo(dataDir);
+			deleteAll(tmp);
 			logger.info("Restored {}", backup);
 		} catch (IOException e) {
 			logger.error(e.toString(), e);
 			throw e;
 		} finally {
+			if (baseDir.exists()) {
+				deleteAll(baseDir);
+			}
 			restore = false;
 			notifyAll();
 		}
-	}
-
-	synchronized void saveError(Exception exc) {
-		exception = exc;
-	}
-
-	synchronized void end() {
-		notifyAll();
-	}
-
-	private Future<?> submit(final Callable<Void> task)
-			throws IOException {
-		checkForErrors();
-		return executor.submit(new Runnable() {
-			public void run() {
-				try {
-					task.call();
-				} catch (Exception exc) {
-					saveError(exc);
-				} finally {
-					end();
-				}
-			}
-		});
 	}
 
 	private boolean putEntries(String base, File file, ZipOutputStream zos)

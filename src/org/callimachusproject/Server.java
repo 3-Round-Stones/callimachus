@@ -189,7 +189,7 @@ public class Server {
 			registerMBean(new JVMSummary(), JVMSummary.class);
 			registerMBean(new LogEmitter(), LogEmitter.class);
 			if (line.has("backups")) {
-				registerMBean(new BackupTool(baseDir, backupDir), BackupTool.class);
+				registerMBean(new BackupTool(backupDir), BackupTool.class);
 			}
 			File etc = new File(baseDir, "etc");
 			registerMBean(new CalliKeyStore(etc), CalliKeyStore.class);

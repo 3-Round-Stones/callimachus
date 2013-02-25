@@ -364,7 +364,7 @@
     <target name="start" depends="dist,setup" description="Start the server in the background">
         <mkdir dir="${log}" />
         <java classname="${server}" fork="true" spawn="true">
-            <jvmarg line="${jvmargs} -Djavax.net.ssl.trustStore=${javax.net.ssl.trustStore} -Djava.util.logging.config.file=${logging}" />
+            <jvmarg line="${jvmargs} -Djava.util.logging.config.file=${logging} -Dorg.callimachusproject.config.webapp=${dist}/${artifact.name}-webapp-${Version}.car" />
             <arg line="${args} -q" />
             <classpath>
                 <pathelement location="${jar.file}" />
@@ -414,7 +414,7 @@
 
     <target name="run" depends="dist,setup" description="Run the server in the foreground">
         <java classname="${server}" fork="true" failonerror="true">
-            <jvmarg line="${jvmargs} -Djavax.net.ssl.trustStore=${javax.net.ssl.trustStore}" />
+            <jvmarg line="${jvmargs} -Dorg.callimachusproject.config.webapp=${dist}/${artifact.name}-webapp-${Version}.car" />
             <arg line="${args}" />
             <classpath>
                 <pathelement location="${jar.file}" />

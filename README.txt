@@ -18,7 +18,8 @@ Documentation for Callimachus may be found at:
   http://callimachusproject.org/docs/
 
 Please consider joining the mailing lists and participating in the
-online community so we can serve you better.
+online community so we can serve you better.  See
+http://callimachusproject.org for more details.
 
 This software is licensed as defined in the accompanying files
 LICENSE.txt and LEGAL.txt.  These files may be found in the
@@ -43,7 +44,7 @@ Callimachus is expected to work on the following server platforms:
 -----------------
 
 An SMTP server is required to send an invite email and password and reset user's password.
-The SMTP server can be configured via the installer or in the file etc/mail.properties.
+The SMTP server can be configured in the file etc/mail.properties.
 A typical file might contain the following block:
 
 mail.transport.protocol = smtp

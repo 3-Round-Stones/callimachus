@@ -627,7 +627,7 @@ do_stop()
       rm -f "$PIDFILE"
       break
     fi
-    if [ "$SLEEP" = "60" ]; then
+    if [ "$SLEEP" = "120" ]; then
       kill $ID >/dev/null 2>&1
     fi
     if [ $SLEEP -gt 0 ]; then

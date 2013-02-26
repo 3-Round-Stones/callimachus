@@ -294,6 +294,7 @@ public class Template {
 			sparql.replaceFirst("\bSELECT REDUCED\b", "SELECT DISTINCT");
 			TupleQuery qry = con.prepareTupleQuery(SPARQL, sparql,
 					getSystemId());
+			qry.setIncludeInferred(true);
 			if (partner != null) {
 				for (TriplePattern t : rec.getTriplePatterns()) {
 					VarOrTerm vt = t.getSubject();

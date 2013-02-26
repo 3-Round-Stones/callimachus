@@ -154,7 +154,7 @@ public class CalliRepository extends RepositoryWrapper implements CalliRepositor
 	@Override
 	public void setTracingCalls(boolean trace) {
 		if (trace) {
-			service.setTracingPackages("org.openrdf.repository", "org.openrdf.query");
+			service.setTracingPackages("org.openrdf.repository", "org.openrdf.query", "org.openrdf.model");
 		} else {
 			service.setTracingPackages();
 		}
@@ -171,9 +171,11 @@ public class CalliRepository extends RepositoryWrapper implements CalliRepositor
 			setTracingCalls(trace);
 			setLoggerLevel("org.openrdf.repository", Level.ALL);
 			setLoggerLevel("org.openrdf.query", Level.ALL);
+			setLoggerLevel("org.openrdf.model", Level.ALL);
 		} else {
 			setLoggerLevel("org.openrdf.repository", Level.INFO);
 			setLoggerLevel("org.openrdf.query", Level.INFO);
+			setLoggerLevel("org.openrdf.model", Level.INFO);
 		}
 	}
 

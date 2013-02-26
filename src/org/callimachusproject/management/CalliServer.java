@@ -445,12 +445,10 @@ public class CalliServer implements CalliServerMXBean {
 			final String repositoryID) throws Exception {
 		submit(new Callable<Void>() {
 			public Void call() throws Exception {
-				boolean freshRepository = false;
 				CalliRepository repository = getInitializedRepository(repositoryID);
 				Repository repo = manager.getRepository(repositoryID);
 				File dataDir = manager.getRepositoryDir(repositoryID);
 				if (repository == null) {
-					freshRepository = true;
 					repository = new CalliRepository(repo, dataDir);
 					String changes = repository.getCallimachusUrl(webappOrigin, CHANGES_PATH);
 					if (changes != null) {
@@ -469,9 +467,6 @@ public class CalliServer implements CalliServerMXBean {
 				}
 				SetupTool tool = new SetupTool(repositoryID, repository, conf);
 				tool.setupWebappOrigin(webappOrigin);
-				if (freshRepository) {
-					repository.shutDown();
-				}
 				if (server != null) {
 					server.addOrigin(webappOrigin, getRepository(repositoryID));
 				}

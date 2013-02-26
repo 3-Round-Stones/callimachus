@@ -177,6 +177,7 @@ public class Server {
 			node = new CalliServer(conf, manager, new ServerListener() {
 				public void repositoryInitialized(String repositoryID,
 						CalliRepository repository) {
+					unregisterMBean(repositoryID, CalliRepository.class);
 					registerMBean(repositoryID, repository, CalliRepository.class);
 				}
 
@@ -275,7 +276,7 @@ public class Server {
 						}
 					}
 				}
-			} else {
+			} else if (mbs.isRegistered(getMBeanName(name, beanClass))) {
 				mbs.unregisterMBean(getMBeanName(name, beanClass));
 			}
 		} catch (Exception e) {

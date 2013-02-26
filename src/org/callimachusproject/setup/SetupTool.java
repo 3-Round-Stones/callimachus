@@ -71,6 +71,10 @@ public class SetupTool {
 		return repository.toString();
 	}
 
+	public String getRepositoryID() {
+		return repositoryID;
+	}
+
 	public CalliRepository getRepository() {
 		return repository;
 	}

@@ -484,7 +484,8 @@ public class CalliServer implements CalliServerMXBean {
 				}
 				SetupTool tool = new SetupTool(repositoryID, repository, conf);
 				tool.setupWebappOrigin(webappOrigin);
-				if (isRunning()) {
+				refreshRepository(repositoryID);
+				if (isWebServiceRunning()) {
 					server.addOrigin(webappOrigin, getRepository(repositoryID));
 					server.setIdentityPrefix(getIdentityPrefixes());
 					HttpHost host = URIUtils.extractHost(java.net.URI.create(webappOrigin + "/"));
@@ -534,8 +535,8 @@ public class CalliServer implements CalliServerMXBean {
 			public Void call() throws Exception {
 				SetupTool tool = getSetupTool(webappOrigin);
 				tool.setupResolvableOrigin(origin, webappOrigin);
-				if (isRunning()) {
-					server.addOrigin(origin, tool.getRepository());
+				if (isWebServiceRunning()) {
+					server.addOrigin(origin, getRepository(tool.getRepositoryID()));
 					server.setIdentityPrefix(getIdentityPrefixes());
 					HttpHost host = URIUtils.extractHost(java.net.URI.create(origin + "/"));
 					HTTPObjectClient.getInstance().setProxy(host, server);
@@ -839,6 +840,10 @@ public class CalliServer implements CalliServerMXBean {
 		if (repository == null || !repository.isInitialized())
 			return null;
 		return repository;
+	}
+
+	synchronized void refreshRepository(String repositoryID) {
+		repositories.remove(repositoryID);
 	}
 
 	private synchronized void shutDownRepositories() throws OpenRDFException {

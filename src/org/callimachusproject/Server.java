@@ -39,7 +39,6 @@ import org.callimachusproject.cli.CommandSet;
 import org.callimachusproject.concurrent.ManagedExecutors;
 import org.callimachusproject.concurrent.ManagedThreadPool;
 import org.callimachusproject.concurrent.ManagedThreadPoolListener;
-import org.callimachusproject.management.BackupTool;
 import org.callimachusproject.management.CalliKeyStore;
 import org.callimachusproject.management.CalliServer;
 import org.callimachusproject.management.CalliServer.ServerListener;
@@ -71,8 +70,6 @@ public class Server {
 				.desc("The local etc/callimachus.conf file to read settings from");
 		commands.option("b", "basedir").arg("directory")
 				.desc("Base directory used for local storage");
-		commands.option("k", "backups").arg("directory")
-				.desc("Backup directory");
 		commands.option("trust").desc(
 				"Allow all server code to read, write, and execute all files and directories "
 						+ "according to the file system's ACL");
@@ -101,7 +98,17 @@ public class Server {
 				}
 				file.deleteOnExit();
 			}
-			Server node = new Server();
+			final Server node = new Server();
+			Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+				public void run() {
+					try {
+						node.stop();
+						node.destroy();
+					} catch (Exception e) {
+						e.printStackTrace(System.err);
+					}
+				}
+			}));
 			node.init(args);
 			node.start();
 			node.await();
@@ -188,9 +195,6 @@ public class Server {
 			registerMBean(node, CalliServer.class);
 			registerMBean(new JVMSummary(), JVMSummary.class);
 			registerMBean(new LogEmitter(), LogEmitter.class);
-			if (line.has("backups")) {
-				registerMBean(new BackupTool(backupDir), BackupTool.class);
-			}
 			File etc = new File(baseDir, "etc");
 			registerMBean(new CalliKeyStore(etc), CalliKeyStore.class);
 			if (!line.has("trust")) {
@@ -235,7 +239,6 @@ public class Server {
 			unregisterMBean(CalliServer.class);
 			unregisterMBean(JVMSummary.class);
 			unregisterMBean(LogEmitter.class);
-			unregisterMBean(BackupTool.class);
 			unregisterMBean(CalliKeyStore.class);
 			ManagedExecutors.getInstance().cleanup();
 		}

@@ -1,4 +1,4 @@
-package org.callimachusproject.management;
+package org.callimachusproject.util;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -17,7 +17,7 @@ import org.openrdf.repository.manager.SystemRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BackupTool implements BackupToolMXBean {
+public class BackupTool {
 	private final Logger logger = LoggerFactory.getLogger(BackupTool.class);
 	private final File backupDir;
 	private volatile boolean backup;

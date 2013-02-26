@@ -560,7 +560,7 @@ do_start()
     -classpath "$CLASSPATH" \
     -user "$DAEMON_USER" \
     -XX:OnOutOfMemoryError="kill %p" \
-    $JSVC_OPTS $SSL_OPTS $JMXRMI_OPTS "$MAINCLASS" -q -b "$BASEDIR" -c "$CONFIG" -k "$BASEDIR/backups" $OPTS "$@"
+    $JSVC_OPTS $SSL_OPTS $JMXRMI_OPTS "$MAINCLASS" -q -b "$BASEDIR" -c "$CONFIG" $OPTS "$@"
 
   RETURN_VAL=$?
   sleep 1
@@ -719,7 +719,7 @@ do_run() {
     -XX:OnOutOfMemoryError="kill %p" \
     -classpath "$CLASSPATH" \
     -user "$DAEMON_USER" \
-    $JSVC_OPTS $SSL_OPTS $JMXRMI_OPTS "$MAINCLASS" -q -b "$BASEDIR" -c "$CONFIG" -k "$BASEDIR/backups" "$@"
+    $JSVC_OPTS $SSL_OPTS $JMXRMI_OPTS "$MAINCLASS" -q -b "$BASEDIR" -c "$CONFIG" "$@"
 }
 
 case "$1" in

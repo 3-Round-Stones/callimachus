@@ -8,7 +8,7 @@ import org.callimachusproject.auth.AuthorizationService;
 import org.callimachusproject.auth.DetachedRealm;
 import org.callimachusproject.auth.RealmManager;
 import org.callimachusproject.concepts.Realm;
-import org.callimachusproject.server.HTTPObjectServer;
+import org.callimachusproject.server.WebServer;
 import org.openrdf.OpenRDFException;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.ObjectConnection;
@@ -35,7 +35,7 @@ public abstract class RealmSupport implements RDFObject, Realm {
         conn.commit();
 		ObjectRepository repo = conn.getRepository();
 		service.get(repo).resetCache();
-		HTTPObjectServer.resetAllCache();
+		WebServer.resetAllCache();
 	}
 
 	public String getPreferredManagerCookie(String manager) {

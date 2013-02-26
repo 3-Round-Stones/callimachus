@@ -56,7 +56,7 @@
         [owl:onProperty msg:target; owl:hasValue <Transform> ]);
     calli:imports <java:org.openrdf.model.vocabulary.RDFS>;
     calli:imports <java:java.net.URLDecoder>;
-    calli:imports <java:org.callimachusproject.server.HTTPObjectServer>;
+    calli:imports <java:org.callimachusproject.server.WebServer>;
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
     calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
     calli:imports <File>;

@@ -111,7 +111,7 @@
     calli:requires calli:editor;
     calli:imports <java:org.openrdf.model.vocabulary.RDFS>;
     calli:imports <java:java.net.URLDecoder>;
-    calli:imports <java:org.callimachusproject.server.HTTPObjectServer>;
+    calli:imports <java:org.callimachusproject.server.WebServer>;
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
     calli:imports <java:org.callimachusproject.server.exceptions.ServiceUnavailable>;
     calli:script """
@@ -131,7 +131,7 @@
             java.lang.System.err.println("Storing " + this);
         }
         this.touchRevision();
-        HTTPObjectServer.resetAllCache();
+        WebServer.resetAllCache();
     """.
 
 :xhtmlStream a owl:ObjectProperty; a owl:FunctionalProperty;

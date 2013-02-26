@@ -39,23 +39,6 @@ public class CallimachusWebappImportProvider extends UpdateProvider {
 			.getLogger(CallimachusWebappImportProvider.class);
 
 	@Override
-	public Updater prepareCallimachusWebapp(final String origin)
-			throws IOException {
-		if (SystemProperties.getWebappCarFile().canRead()) {
-			return new Updater() {
-				public boolean update(String webapp, CalliRepository repository)
-						throws IOException, OpenRDFException {
-					if (!isPresent(webapp, repository))
-						return false;
-					logger.info("Initializing {}", origin);
-					return clearCallimachusWebapp(origin, webapp, repository);
-				}
-			};
-		}
-		return null;
-	}
-
-	@Override
 	public Updater updateCallimachusWebapp(final String origin)
 			throws IOException {
 		if (SystemProperties.getWebappCarFile().canRead()) {
@@ -63,6 +46,10 @@ public class CallimachusWebappImportProvider extends UpdateProvider {
 				public boolean update(String webapp, CalliRepository repository)
 						throws IOException, OpenRDFException {
 					try {
+						if (isPresent(webapp, repository)) {
+							logger.info("Initializing {}", origin);
+							clearCallimachusWebapp(origin, webapp, repository);
+						}
 						importArchive(webapp, repository);
 						return true;
 					} catch (NoSuchMethodException e) {

@@ -46,9 +46,9 @@ import org.callimachusproject.management.CalliServer.ServerListener;
 import org.callimachusproject.management.JVMSummary;
 import org.callimachusproject.management.LogEmitter;
 import org.callimachusproject.repository.CalliRepository;
-import org.callimachusproject.server.HTTPObjectPolicy;
 import org.callimachusproject.server.WebServer;
 import org.callimachusproject.util.CallimachusConf;
+import org.callimachusproject.util.CallimachusPolicy;
 import org.callimachusproject.util.SystemProperties;
 import org.openrdf.repository.manager.LocalRepositoryManager;
 import org.openrdf.repository.manager.RepositoryProvider;
@@ -198,7 +198,7 @@ public class Server {
 						SystemProperties.getMailPropertiesFile(),
 						SystemProperties.getLoggingPropertiesFile(),
 						new File(baseDir, "repositories") };
-				HTTPObjectPolicy.apply(new String[0], writable);
+				CallimachusPolicy.apply(new String[0], writable);
 			}
 			node.init();
 		} catch (Throwable e) {

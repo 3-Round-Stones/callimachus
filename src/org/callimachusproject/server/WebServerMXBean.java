@@ -36,7 +36,7 @@ import java.io.IOException;
  * @author James Leigh
  * 
  */
-public interface HTTPObjectAgentMXBean {
+public interface WebServerMXBean {
 
 	String getName();
 

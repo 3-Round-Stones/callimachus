@@ -11,6 +11,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Scanner;
 
+import org.apache.http.HttpHost;
+import org.apache.http.client.utils.URIUtils;
+import org.callimachusproject.client.HTTPObjectClient;
 import org.callimachusproject.repository.CalliRepository;
 import org.callimachusproject.server.WebServer;
 import org.callimachusproject.setup.CallimachusSetup;
@@ -38,7 +41,7 @@ public class TemporaryServerFactory {
 	private static int MIN_PORT = 49152;
 	private static int MAX_PORT = 65535;
 	private static final String CHANGES_PATH = "../changes/";
-	private static final String ERROR_XPL_PATH = "pipelines/error.xpl";
+	private static final String SCHEMA_GRAPH = "types/SchemaGraph";
 	private static final File WEBAPP_CAR = findCallimachusWebappCar();
 	private static final int PORT = findPort(WEBAPP_CAR.getAbsolutePath().hashCode());
 	private static final TemporaryServerFactory instance = new TemporaryServerFactory("http://localhost:" + PORT, PORT, "test@example.com", "test".toCharArray());
@@ -147,13 +150,17 @@ public class TemporaryServerFactory {
 
 				public synchronized void start() throws InterruptedException, Exception {
 					Repository repo = manager.getRepository("callimachus");
-					this.repository = new CalliRepository(repo, dataDir);
-					String url = this.repository.getCallimachusUrl(origin, CHANGES_PATH);
-					this.repository.setChangeFolder(url);
-					server.addOrigin(origin, this.repository);
-					server.setErrorPipe(origin, ERROR_XPL_PATH);
+					repository = new CalliRepository(repo, dataDir);
+					String url = repository.getCallimachusUrl(origin, CHANGES_PATH);
+					String schema = repository.getCallimachusUrl(origin, SCHEMA_GRAPH);
+					repository.addSchemaGraphType(schema);
+					repository.setChangeFolder(url);
+					repository.setCompileRepository(true);
+					server.addOrigin(origin, repository);
 					server.listen(new int[]{port}, new int[0]);
 					server.start();
+					HttpHost host = URIUtils.extractHost(java.net.URI.create(origin + "/"));
+					HTTPObjectClient.getInstance().setProxy(host, server);
 					Thread.sleep(100);
 				}
 

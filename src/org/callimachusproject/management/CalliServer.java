@@ -3,6 +3,7 @@ package org.callimachusproject.management;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.management.ManagementFactory;
 import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
@@ -23,6 +24,8 @@ import java.util.concurrent.ThreadFactory;
 
 import javax.mail.MessagingException;
 
+import org.apache.http.HttpHost;
+import org.apache.http.client.utils.URIUtils;
 import org.callimachusproject.Version;
 import org.callimachusproject.client.HTTPObjectClient;
 import org.callimachusproject.io.FileUtil;
@@ -52,6 +55,8 @@ import org.slf4j.LoggerFactory;
 public class CalliServer implements CalliServerMXBean {
 	private static final String CHANGES_PATH = "../changes/";
 	private static final String ERROR_XPL_PATH = "pipelines/error.xpl";
+	private static final String SCHEMA_GRAPH = "types/SchemaGraph";
+	private static final String IDENTITY_PATH = "/diverted;";
 	private static final String ORIGIN = "http://callimachusproject.org/rdf/2009/framework#Origin";
 	private static final String REPOSITORY_TYPES = "META-INF/templates/repository-types.properties";
 	private static final ThreadFactory THREADFACTORY = new ThreadFactory() {
@@ -145,7 +150,19 @@ public class CalliServer implements CalliServerMXBean {
 		notifyAll();
 		if (server != null) {
 			try {
+				logger.info("Callimachus is binding to {}", toString());
+				for (SetupOrigin origin : getOrigins()) {
+					HttpHost host = URIUtils.extractHost(java.net.URI.create(origin.getRoot()));
+					HTTPObjectClient.getInstance().setProxy(host, server);
+				}
+				for (CalliRepository repository : repositories.values()) {
+					repository.setCompileRepository(true);
+				}
 				server.start();
+				System.gc();
+				Thread.yield();
+				long uptime = ManagementFactory.getRuntimeMXBean().getUptime();
+				logger.info("Callimachus started after {} seconds", uptime / 1000.0);
 				if (listener != null) {
 					listener.webServiceStarted(server);
 				}
@@ -165,8 +182,8 @@ public class CalliServer implements CalliServerMXBean {
 		notifyAll();
 	}
 
-	public synchronized void destroy() throws OpenRDFException {
-		running = false;
+	public synchronized void destroy() throws IOException, OpenRDFException {
+		stop();
 		shutDownRepositories();
 		manager.shutDown();
 		notifyAll();
@@ -188,7 +205,7 @@ public class CalliServer implements CalliServerMXBean {
 			conf.setServerName(name);
 		}
 		if (server != null) {
-			server.setServerName(getServerName());
+			server.setName(getServerName());
 		}
 	}
 
@@ -467,8 +484,11 @@ public class CalliServer implements CalliServerMXBean {
 				}
 				SetupTool tool = new SetupTool(repositoryID, repository, conf);
 				tool.setupWebappOrigin(webappOrigin);
-				if (server != null) {
+				if (isRunning()) {
 					server.addOrigin(webappOrigin, getRepository(repositoryID));
+					server.setIdentityPrefix(getIdentityPrefixes());
+					HttpHost host = URIUtils.extractHost(java.net.URI.create(webappOrigin + "/"));
+					HTTPObjectClient.getInstance().setProxy(host, server);
 				}
 				return null;
 			}
@@ -514,8 +534,11 @@ public class CalliServer implements CalliServerMXBean {
 			public Void call() throws Exception {
 				SetupTool tool = getSetupTool(webappOrigin);
 				tool.setupResolvableOrigin(origin, webappOrigin);
-				if (server != null) {
+				if (isRunning()) {
 					server.addOrigin(origin, tool.getRepository());
+					server.setIdentityPrefix(getIdentityPrefixes());
+					HttpHost host = URIUtils.extractHost(java.net.URI.create(origin + "/"));
+					HTTPObjectClient.getInstance().setProxy(host, server);
 				}
 				return null;
 			}
@@ -703,6 +726,10 @@ public class CalliServer implements CalliServerMXBean {
 				server.stop();
 				shutDownRepositories();
 				server.destroy();
+				for (SetupOrigin origin : getOrigins()) {
+					HttpHost host = URIUtils.extractHost(java.net.URI.create(origin.getRoot()));
+					HTTPObjectClient.getInstance().removeProxy(host, server);
+				}
 				return true;
 			}
 		} catch (IOException e) {
@@ -750,14 +777,21 @@ public class CalliServer implements CalliServerMXBean {
 			boolean first = repositories.isEmpty();
 			if (so.isResolvable()) {
 				String origin = so.getRoot().replaceAll("/$", "");
-				CalliRepository repo = getRepository(so.getRepositoryID());
-				server.addOrigin(origin, repo);
+				server.addOrigin(origin, getRepository(so.getRepositoryID()));
+				server.setIdentityPrefix(getIdentityPrefixes());
+				HttpHost host = URIUtils.extractHost(java.net.URI.create(so.getRoot()));
+				HTTPObjectClient.getInstance().setProxy(host, server);
 				if (first) {
-					server.setErrorPipe(origin, ERROR_XPL_PATH);
+					CalliRepository repo = getRepository(so.getRepositoryID());
+					String pipe = repo.getCallimachusUrl(so.getWebappOrigin(), ERROR_XPL_PATH);
+					if (pipe == null)
+						throw new IllegalArgumentException(
+								"Callimachus webapp not setup on: " + so.getWebappOrigin());
+					server.setErrorPipe(pipe);
 				}
 			}
 		}
-		server.setServerName(getServerName());
+		server.setName(getServerName());
 		server.listen(getPortArray(), getSSLPortArray());
 		return server;
 	}
@@ -765,42 +799,46 @@ public class CalliServer implements CalliServerMXBean {
 	CalliRepository getRepository(String repositoryID)
 			throws IOException, OpenRDFException {
 		Map<String, String> map = conf.getOriginRepositoryIDs();
+		List<String> origins = new ArrayList<String>(map.size());
 		for (Map.Entry<String, String> e : map.entrySet()) {
 			if (repositoryID.equals(e.getValue())) {
-				return getRepository(e.getValue(), e.getKey());
+				origins.add(e.getKey());
 			}
 		}
-		return null;
-	}
-
-	synchronized CalliRepository getRepository(String repositoryID,
-			String origin) throws IOException, OpenRDFException {
 		CalliRepository repository = repositories.get(repositoryID);
-		if (repository == null || !repository.isInitialized()) {
-			Repository repo = manager.getRepository(repositoryID);
-			File dataDir = manager.getRepositoryDir(repositoryID);
-			repository = new CalliRepository(repo, dataDir);
-			String changes = repository.getCallimachusUrl(origin, CHANGES_PATH);
-			if (changes != null) {
-				repository.setChangeFolder(changes);
+		if (repository != null && repository.isInitialized())
+			return repository;
+		if (origins.isEmpty())
+			return null;
+		Repository repo = manager.getRepository(repositoryID);
+		File dataDir = manager.getRepositoryDir(repositoryID);
+		repository = new CalliRepository(repo, dataDir);
+		String changes = repository.getCallimachusUrl(origins.get(0), CHANGES_PATH);
+		if (changes != null) {
+			repository.setChangeFolder(changes);
+		}
+		for (String origin : origins) {
+			String schema = repository.getCallimachusUrl(origin, SCHEMA_GRAPH);
+			if (schema != null) {
+				repository.addSchemaGraphType(schema);
 			}
-			if (listener != null && repositories.containsKey(repositoryID)) {
-				listener.repositoryShutDown(repositoryID);
-			}
-			repositories.put(repositoryID, repository);
-			if (listener != null) {
-				listener.repositoryInitialized(repositoryID, repository);
-			}
+		}
+		repository.setCompileRepository(true);
+		if (listener != null && repositories.containsKey(repositoryID)) {
+			listener.repositoryShutDown(repositoryID);
+		}
+		repositories.put(repositoryID, repository);
+		if (listener != null) {
+			listener.repositoryInitialized(repositoryID, repository);
 		}
 		return repository;
 	}
 
 	synchronized CalliRepository getInitializedRepository(String repositoryID) {
 		CalliRepository repository = repositories.get(repositoryID);
-		if (repository == null || !repository.isInitialized()) {
-			return repository;
-		}
-		return null;
+		if (repository == null || !repository.isInitialized())
+			return null;
+		return repository;
 	}
 
 	private synchronized void shutDownRepositories() throws OpenRDFException {
@@ -821,4 +859,24 @@ public class CalliServer implements CalliServerMXBean {
 	private int[] getSSLPortArray() throws IOException {
 		return conf.getSslPorts();
 	}
+
+	private String[] getIdentityPrefixes() throws IOException, OpenRDFException {
+		Map<String, String> map = new LinkedHashMap<String, String>();
+		for (SetupOrigin origin : getOrigins()) {
+			String key = origin.getRepositoryID();
+			if (origin.isResolvable() && map.containsKey(key)) {
+				map.put(key, null);
+			} else {
+				map.put(key, origin.getWebappOrigin());
+			}
+		}
+		List<String> identities = new ArrayList<String>(map.size());
+		for (String origin : map.values()) {
+			if (origin != null) {
+				identities.add(origin + IDENTITY_PATH);
+			}
+		}
+		return identities.toArray(new String[identities.size()]);
+	}
+
 }

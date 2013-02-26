@@ -108,7 +108,7 @@
     calli:requires calli:editor;
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
     calli:imports <java:org.callimachusproject.io.ProducerStream>;
-    calli:imports <java:org.callimachusproject.server.HTTPObjectServer>;
+    calli:imports <java:org.callimachusproject.server.WebServer>;
     calli:imports <java:org.openrdf.rio.RDFFormat>;
     calli:script """
         if (!reader)
@@ -137,7 +137,7 @@
 
         this.touchRevision();
         con.recompileSchemaOnClose();
-        HTTPObjectServer.resetAllCache();
+        WebServer.resetAllCache();
     """.
 
 :reader a owl:FunctionalProperty, owl:ObjectProperty;
@@ -202,7 +202,7 @@
     calli:requires calli:editor;
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
     calli:imports <java:org.callimachusproject.io.ProducerStream>;
-    calli:imports <java:org.callimachusproject.server.HTTPObjectServer>;
+    calli:imports <java:org.callimachusproject.server.WebServer>;
     calli:imports <java:org.openrdf.rio.RDFFormat>;
     calli:script """
         if (!graphStream)
@@ -230,7 +230,7 @@
 
         this.touchRevision();
         con.recompileSchemaOnClose();
-        HTTPObjectServer.resetAllCache();
+        WebServer.resetAllCache();
     """.
 
 :graphStream a owl:FunctionalProperty, owl:ObjectProperty;

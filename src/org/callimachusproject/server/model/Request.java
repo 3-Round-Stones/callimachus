@@ -344,7 +344,7 @@ public class Request extends EditableHttpEntityEnclosingRequest {
 				// try the host header
 			}
 		}
-		// Set by HTTPObjectServer
+		// Set by WebServer
 		Object scheme = getParams().getParameter("http.protocol.scheme");
 		if (scheme == null)
 			return "http";

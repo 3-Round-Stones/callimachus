@@ -16,7 +16,6 @@
  */
 package org.callimachusproject.setup;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
@@ -47,7 +46,6 @@ import org.openrdf.model.vocabulary.OWL;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.model.vocabulary.RDFS;
 import org.openrdf.query.algebra.evaluation.util.ValueComparator;
-import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
@@ -145,11 +143,6 @@ public class CallimachusSetup {
 	private final Map<String,TermFactory> webapps = new HashMap<String, TermFactory>();
 	private final CalliRepository repository;
 	private final ValueFactory vf;
-
-	public CallimachusSetup(Repository repo, File dataDir)
-			throws OpenRDFException, IOException {
-		this(new CalliRepository(repo, dataDir));
-	}
 
 	public CallimachusSetup(CalliRepository repository)
 			throws OpenRDFException, IOException {

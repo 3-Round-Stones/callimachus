@@ -16,7 +16,7 @@ import java.util.logging.Logger;
 import junit.framework.TestCase;
 
 import org.callimachusproject.repository.CalliRepository;
-import org.callimachusproject.server.HTTPObjectServer;
+import org.callimachusproject.server.WebServer;
 import org.callimachusproject.server.concepts.AnyThing;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
@@ -85,7 +85,7 @@ public abstract class MetadataServerTestCase extends TestCase {
 	private boolean failed;
 	protected CalliRepository repository;
 	protected ObjectRepositoryConfig config = new ObjectRepositoryConfig();
-	protected HTTPObjectServer server;
+	protected WebServer server;
 	protected File dataDir;
 	protected WebResource client;
 	protected ValueFactory vf;
@@ -113,8 +113,8 @@ public abstract class MetadataServerTestCase extends TestCase {
 		Thread.sleep(100);
 	}
 
-	protected HTTPObjectServer createServer() throws Exception {
-		return new HTTPObjectServer(new File(dataDir, "cache"));
+	protected WebServer createServer() throws Exception {
+		return new WebServer(new File(dataDir, "cache"));
 	}
 
 	protected void addContentEncoding(WebResource client) {

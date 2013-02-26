@@ -58,7 +58,7 @@ import org.callimachusproject.management.JVMSummary;
 import org.callimachusproject.management.JVMSummaryMXBean;
 import org.callimachusproject.repository.CalliRepository;
 import org.callimachusproject.repository.CalliRepositoryMXBean;
-import org.callimachusproject.server.HTTPObjectAgentMXBean;
+import org.callimachusproject.server.WebServerMXBean;
 import org.callimachusproject.server.WebServer;
 
 /**
@@ -135,7 +135,7 @@ public class ServerMonitor {
 	private Object vm;
 	private MBeanServerConnection mbsc;
 	private JVMSummaryMXBean summary;
-	private HTTPObjectAgentMXBean webService;
+	private WebServerMXBean webService;
 	private CalliServerMXBean server;
 	private boolean reset;
 	private boolean stop;
@@ -256,7 +256,7 @@ public class ServerMonitor {
 		}
 		for (ObjectName name : getObjectNames(WebServer.class, mbsc)) {
 			webService = JMX.newMXBeanProxy(mbsc, name,
-					HTTPObjectAgentMXBean.class);
+					WebServerMXBean.class);
 		}
 		for (ObjectName name : getObjectNames(JVMSummary.class, mbsc)) {
 			summary = JMX.newMXBeanProxy(mbsc, name, JVMSummaryMXBean.class);
@@ -298,8 +298,8 @@ public class ServerMonitor {
 	private void connectionDump(MBeanServerConnection mbsc, String filename)
 			throws MalformedObjectNameException, IOException {
 		for (ObjectName name : getObjectNames(WebServer.class, mbsc)) {
-			HTTPObjectAgentMXBean server = JMX.newMXBeanProxy(mbsc, name,
-					HTTPObjectAgentMXBean.class);
+			WebServerMXBean server = JMX.newMXBeanProxy(mbsc, name,
+					WebServerMXBean.class);
 			server.connectionDumpToFile(filename);
 			info(filename);
 		}

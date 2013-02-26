@@ -142,7 +142,9 @@ public class SetupTool {
 				throw new IllegalStateException("Multiple resolvable origins cannot be used if unresolvable realms exist");
 		}
 		CallimachusSetup setup = new CallimachusSetup(repository);
+		setup.prepareWebappOrigin(webappOrigin);
 		setup.createOrigin(origin, webappOrigin);
+		setup.finalizeWebappOrigin(webappOrigin);
 	}
 
 	public synchronized void setupRootRealm(String realm, String webappOrigin)
@@ -153,7 +155,9 @@ public class SetupTool {
 				throw new IllegalStateException("Unresolvable realms can only be used with a single resolvable origin");
 		}
 		CallimachusSetup setup = new CallimachusSetup(repository);
+		setup.prepareWebappOrigin(webappOrigin);
 		setup.createRealm(realm, webappOrigin);
+		setup.finalizeWebappOrigin(webappOrigin);
 	}
 
 	public synchronized String[] getDigestEmailAddresses(String webappOrigin)

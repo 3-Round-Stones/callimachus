@@ -84,7 +84,7 @@
     calli:imports <java:org.callimachusproject.server.exceptions.ServiceUnavailable>;
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
     calli:imports <java:org.callimachusproject.xml.XQueryValidator>;
-    calli:imports <java:org.callimachusproject.server.HTTPObjectServer>;
+    calli:imports <java:org.callimachusproject.server.WebServer>;
     calli:script """
         if (!stream)
             throw new BadRequest("Missing PUT request payload");
@@ -108,7 +108,7 @@
             if (errors && errors.length > 0)
                 throw new BadRequest(errors[0], errors.join('\\n'));
             if (this.IsLayout()) {
-                HTTPObjectServer.resetAllCache();
+                WebServer.resetAllCache();
             }
         } catch (e if e.javaException instanceof ServiceUnavailable) {
             java.lang.System.err.println("Storing " + this);

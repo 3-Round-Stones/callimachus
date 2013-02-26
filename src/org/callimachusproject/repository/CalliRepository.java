@@ -67,6 +67,7 @@ public class CalliRepository extends RepositoryWrapper implements CalliRepositor
 	public CalliRepository(Repository repository, File dataDir)
 			throws RepositoryConfigException, RepositoryException,
 			IOException {
+		assert repository != null;
 		object = createObjectRepository(dataDir, repository);
 		auditing = findAuditingRepository(repository, object);
 		RepositoryWrapper wrapper = object;

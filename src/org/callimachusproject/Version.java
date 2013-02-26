@@ -6,7 +6,7 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.callimachusproject.server.HTTPObjectServer;
+import org.callimachusproject.server.WebServer;
 import org.slf4j.LoggerFactory;
 
 public class Version {
@@ -36,7 +36,7 @@ public class Version {
 				}
 			}
 		} catch (IOException e) {
-			LoggerFactory.getLogger(HTTPObjectServer.class).warn(
+			LoggerFactory.getLogger(WebServer.class).warn(
 					"Unable to read version info", e);
 		}
 		return "devel";

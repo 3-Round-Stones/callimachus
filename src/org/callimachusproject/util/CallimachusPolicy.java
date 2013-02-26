@@ -27,7 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-package org.callimachusproject.server;
+package org.callimachusproject.util;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -67,9 +67,9 @@ import org.slf4j.LoggerFactory;
  *
  * @author James Leigh
  */
-public class HTTPObjectPolicy extends Policy {
-	private static Logger logger = LoggerFactory.getLogger(HTTPObjectPolicy.class);
-	private static CodeSource source = HTTPObjectPolicy.class
+public class CallimachusPolicy extends Policy {
+	private static Logger logger = LoggerFactory.getLogger(CallimachusPolicy.class);
+	private static CodeSource source = CallimachusPolicy.class
 			.getProtectionDomain().getCodeSource();
 	/** loaded from a writable location */
 	private final PermissionCollection plugins;
@@ -79,7 +79,7 @@ public class HTTPObjectPolicy extends Policy {
 
 	public static boolean apply(String[] readable, File... writable) {
 		try {
-			Policy.setPolicy(new HTTPObjectPolicy(readable, writable));
+			Policy.setPolicy(new CallimachusPolicy(readable, writable));
 			System.setSecurityManager(new SecurityManager());
 			logger.info("Restricted file system access in effect");
 			return true;
@@ -106,7 +106,7 @@ public class HTTPObjectPolicy extends Policy {
 		return copy(jars);
 	}
 
-	private HTTPObjectPolicy(String[] readable, File... directories) {
+	private CallimachusPolicy(String[] readable, File... directories) {
 		plugins = new Permissions();
 		plugins.add(new PropertyPermission("*", "read"));
 		plugins.add(new PropertyPermission("apple.awt.graphics.*", "write"));

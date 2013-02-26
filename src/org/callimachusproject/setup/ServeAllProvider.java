@@ -35,7 +35,7 @@ public class ServeAllProvider extends UpdateProvider {
 	private static final String GROUP_PUBLIC = "/auth/groups/public";
 
 	private static final String CALLI = "http://callimachusproject.org/rdf/2009/framework#";
-	private static final String CALLI_ORIGIN = CALLI + "Origin";
+	private static final String CALLI_REALM = CALLI + "Realm";
 	private static final String CALLI_HASCOMPONENT = CALLI + "hasComponent";
 	private static final String CALLI_ADMINISTRATOR = CALLI + "administrator";
 	private static final String CALLI_SUBSCRIBER = CALLI + "subscriber";
@@ -59,7 +59,27 @@ public class ServeAllProvider extends UpdateProvider {
 						URI file = vf.createURI(tf.resolve(SERVE_ALL));
 						modified |= stopServingOther(con, file);
 						modified |= serverAs(tf, con, file);
-					} else if (single == null) {
+					}
+					con.setAutoCommit(true);
+					return modified;
+				} finally {
+					con.close();
+				}
+			}
+		};
+	}
+
+	@Override
+	public Updater finalizeCallimachusWebapp(String origin) throws IOException {
+		return new Updater() {
+			public boolean update(String webapp, CalliRepository repository)
+					throws IOException, OpenRDFException {
+				ObjectConnection con = repository.getConnection();
+				try {
+					con.setAutoCommit(false);
+					boolean modified = false;
+					String single = getSingleOrigin(con);
+					if (single == null) {
 						modified |= stopServingOther(con, null);
 					}
 					con.setAutoCommit(true);
@@ -144,9 +164,13 @@ public class ServeAllProvider extends UpdateProvider {
 	String getSingleOrigin(ObjectConnection con) throws RepositoryException {
 		Set<String> set = new HashSet<String>();
 		ValueFactory vf = con.getValueFactory();
-		for (Statement st : con.getStatements(null, RDF.TYPE,
-				vf.createURI(CALLI_ORIGIN)).asList()) {
-			set.add(st.getSubject().stringValue());
+		Resource nil = (Resource) null;
+		URI hasComponent = vf.createURI(CALLI_HASCOMPONENT);
+		for (Statement st : con.getStatements(nil, RDF.TYPE,
+				vf.createURI(CALLI_REALM)).asList()) {
+			if (!con.hasStatement(nil, hasComponent, st.getSubject())) {
+				set.add(st.getSubject().stringValue());
+			}
 		}
 		if (set.size() == 1)
 			return set.iterator().next();

@@ -8,23 +8,23 @@
 <section><title>Next Steps</title>
 
 <itemizedlist>
-	<listitem><simpara><link href="/?login">Sign in</link> using the options menu in the upper right corner.</simpara></listitem>
-	<listitem><simpara>Click on the "<link href="main-article.docbook?edit">Edit</link>" tab above to change the content of this page.</simpara></listitem>
-	<listitem><simpara>Switch to the <link href="./?view">Home folder</link> and create your first data object.
+	<listitem><simpara><link xl:href="/?login">Sign in</link> using the options menu in the upper right corner.</simpara></listitem>
+	<listitem><simpara>Click on the "<link xl:href="main-article.docbook?edit">Edit</link>" tab above to change the content of this page.</simpara></listitem>
+	<listitem><simpara>Switch to the <link xl:href="./?view">Home folder</link> and create your first data object.
 	
 	</simpara><itemizedlist>
-		<listitem><simpara>A selection of resource editors (e.g. for <link href="/callimachus/1.0/types/Concept?create">Concepts</link> and <link href="/callimachus/1.0/types/Class?create">Classes</link>) are provided out of the box.</simpara></listitem>
+		<listitem><simpara>A selection of resource editors (e.g. for <link xl:href="/callimachus/1.0/types/Concept?create">Concepts</link> and <link xl:href="/callimachus/1.0/types/Class?create">Classes</link>) are provided out of the box.</simpara></listitem>
 		<listitem><simpara>Find the menu for creating Callimachus resources in the upper left corner of any folder view.</simpara></listitem>
 	</itemizedlist></listitem>
-	<listitem><simpara>Check out the extensive <link href="http://callimachusproject.org/docs/1.0/getting-started-with-callimachus.docbook?view">Getting Started Guide</link> which also provides links to sample applications.</simpara></listitem>
+	<listitem><simpara>Check out the extensive <link xl:href="http://callimachusproject.org/docs/1.0/getting-started-with-callimachus.docbook?view">Getting Started Guide</link> which also provides links to sample applications.</simpara></listitem>
 </itemizedlist>
 
 </section><section><title>Need Help?</title>
 
 <itemizedlist>
-	<listitem><simpara>Please refer to the <link href="http://callimachusproject.org/">Callimachus Website</link> for support options, including the community <link href="http://groups.google.com/group/callimachus-discuss">mailing list</link>.</simpara></listitem>
+	<listitem><simpara>Please refer to the <link xl:href="http://callimachusproject.org/">Callimachus Website</link> for support options, including the community <link xl:href="http://groups.google.com/group/callimachus-discuss">mailing list</link>.</simpara></listitem>
 	<listitem><simpara>The README.txt in the install directory contains hints for technical problems.</simpara></listitem>
 </itemizedlist>
 
-<para><link href="http://callimachus.googlecode.com/svn/trunk/LICENSE.txt">License</link></para>
+<para><link xl:href="http://callimachus.googlecode.com/svn/trunk/LICENSE.txt">License</link></para>
 </section></section></article>

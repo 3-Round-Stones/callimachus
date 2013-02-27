@@ -1,16 +1,30 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<article version="5.0" xmlns="http://docbook.org/ns/docbook" xmlns:xl="http://www.w3.org/1999/xlink">
-  <title>Welcome to Callimachus</title>
-  <para>If you're seeing this page via a web browser, it means you've installed Callimachus successfully. Congratulations!</para>
-  <para>Using the username and password entered during the installation, login using the button at the top.</para>
-  <para>As you may have guessed by now, this is the default Callimachus home page. It can be changed using the edit tab above once you are logged in. Once you are logged in, jump over to the <link xl:href="/?view">home folder</link> and try 
-  <link xl:href="/callimachus/1.0/types/Concept?create">creating a new Concept</link> to see how easy Callimachus makes creating RDF data.</para>
-  <para>If you're seeing this page, and you don't think you should be, then you're either a user who has arrived at new installation of Callimachus, or you're an administrator who hasn't got his/her setup quite right. Providing the latter is the case, please refer to the <link xl:href="http://callimachusproject.org/">Callimachus Website</link> or the README.txt file provided in the install directory.</para>
-  <para>You can download sample applications following the 
-  <link xl:href="http://callimachusproject.org/docs/1.0/getting-started-with-callimachus.docbook?view">Getting Started page</link>.</para>
-  <para>Callimachus mailing lists are available at the <link xl:href="http://callimachusproject.org/">Callimachus Website</link>.</para>
-  <para>Thanks for using Callimachus!</para>
-  <para>
-    <link xl:href="http://www.apache.org/licenses/LICENSE-2.0">License</link>
-  </para>
-</article>
+<article xmlns="http://docbook.org/ns/docbook" xmlns:xl="http://www.w3.org/1999/xlink" version="5.0">
+<title>Welcome to Callimachus</title>
+
+<section><title>Congratulations! You have successfully installed Callimachus.</title>
+
+<para><inlinemediaobject><alt>Thank you for choosing Callimachus</alt><imageobject><imagedata align="right" contentdepth="165px" width="430px" fileref="/callimachus/1.0/images/callimachus-thanks.png" depth="245px" contentwidth="350px"/></imageobject></inlinemediaobject>You can now customize this website and build your Linked Data application.</para>
+
+<section><title>Next Steps</title>
+
+<itemizedlist>
+	<listitem><simpara><link href="/?login">Sign in</link> using the options menu in the upper right corner.</simpara></listitem>
+	<listitem><simpara>Click on the "<link href="main-article.docbook?edit">Edit</link>" tab above to change the content of this page.</simpara></listitem>
+	<listitem><simpara>Switch to the <link href="./?view">Home folder</link> and create your first data object.
+	
+	</simpara><itemizedlist>
+		<listitem><simpara>A selection of resource editors (e.g. for <link href="/callimachus/1.0/types/Concept?create">Concepts</link> and <link href="/callimachus/1.0/types/Class?create">Classes</link>) are provided out of the box.</simpara></listitem>
+		<listitem><simpara>Find the menu for creating Callimachus resources in the upper left corner of any folder view.</simpara></listitem>
+	</itemizedlist></listitem>
+	<listitem><simpara>Check out the extensive <link href="http://callimachusproject.org/docs/1.0/getting-started-with-callimachus.docbook?view">Getting Started Guide</link> which also provides links to sample applications.</simpara></listitem>
+</itemizedlist>
+
+</section><section><title>Need Help?</title>
+
+<itemizedlist>
+	<listitem><simpara>Please refer to the <link href="http://callimachusproject.org/">Callimachus Website</link> for support options, including the community <link href="http://groups.google.com/group/callimachus-discuss">mailing list</link>.</simpara></listitem>
+	<listitem><simpara>The README.txt in the install directory contains hints for technical problems.</simpara></listitem>
+</itemizedlist>
+
+<para><link href="http://callimachus.googlecode.com/svn/trunk/LICENSE.txt">License</link></para>
+</section></section></article>

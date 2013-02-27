@@ -55,18 +55,9 @@
     </xsl:template>
     <xsl:template name="resource">
         <xsl:param name="iri" />
-        <xsl:variable name="curie">
-            <xsl:call-template name="iriref">
-                <xsl:with-param name="iri" select="$iri" />
-            </xsl:call-template>
-        </xsl:variable>
-        <xsl:if test="$iri=$curie">
-            <xsl:text>&lt;</xsl:text>
-        </xsl:if>
-        <xsl:value-of select="$curie" />
-        <xsl:if test="$iri=$curie">
-            <xsl:text>&gt;</xsl:text>
-        </xsl:if>
+        <xsl:call-template name="iriref">
+            <xsl:with-param name="iri" select="$iri" />
+        </xsl:call-template>
     </xsl:template>
     <xsl:template match="rdf:RDF">
         <div class="graph">
@@ -247,9 +238,7 @@
                     <xsl:with-param name="iri" select="@rdf:about"/>
                 </xsl:call-template>
             </a>
-            <ul class="properties sorted">
-                <xsl:apply-templates />
-            </ul>
+            <xsl:apply-templates mode="properties" select="." />
         </div>
     </xsl:template>
     <xsl:template match="/rdf:RDF/rdf:Description[@rdf:ID]">
@@ -257,9 +246,7 @@
             <a href="#{@rdf:ID}" class="uri" name="{@rdf:ID}">
                 <xsl:value-of select="@rdf:ID"/>
             </a>
-            <ul class="properties sorted">
-                <xsl:apply-templates />
-            </ul>
+            <xsl:apply-templates mode="properties" select="." />
         </div>
     </xsl:template>
     <xsl:template match="/rdf:RDF/rdf:Description[@rdf:nodeID]">
@@ -268,9 +255,30 @@
                 <xsl:text>_:</xsl:text>
                 <xsl:value-of select="@rdf:nodeID" />
             </a>
-            <ul class="properties sorted">
-                <xsl:apply-templates />
-            </ul>
+            <xsl:apply-templates mode="properties" select="." />
         </div>
+    </xsl:template>
+    <xsl:template mode="properties" match="rdf:Description">
+        <xsl:if test="rdf:type[@rdf:resource]">
+            <xsl:text> </xsl:text>
+            <span class="predicate">a</span>
+            <xsl:for-each select="rdf:type[@rdf:resource]">
+                <xsl:sort select="@rdf:resource" />
+                <xsl:text> </xsl:text>
+                <a href="{@rdf:resource}" class="uri">
+                    <xsl:attribute name="rel">
+                        <xsl:call-template name="iriref">
+                            <xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
+                        </xsl:call-template>
+                    </xsl:attribute>
+                    <xsl:call-template name="resource">
+                        <xsl:with-param name="iri" select="@rdf:resource"/>
+                    </xsl:call-template>
+                </a>
+            </xsl:for-each>
+        </xsl:if>
+        <ul class="properties sorted">
+            <xsl:apply-templates select="*[not(self::rdf:type[@rdf:resource])]" />
+        </ul>
     </xsl:template>
 </xsl:stylesheet>

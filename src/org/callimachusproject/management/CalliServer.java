@@ -27,6 +27,7 @@ import javax.mail.MessagingException;
 import org.apache.http.HttpHost;
 import org.apache.http.client.utils.URIUtils;
 import org.callimachusproject.Version;
+import org.callimachusproject.auth.AuthorizationService;
 import org.callimachusproject.client.HTTPObjectClient;
 import org.callimachusproject.io.FileUtil;
 import org.callimachusproject.logging.LoggingProperties;
@@ -48,6 +49,7 @@ import org.openrdf.repository.config.RepositoryConfig;
 import org.openrdf.repository.config.RepositoryConfigException;
 import org.openrdf.repository.manager.LocalRepositoryManager;
 import org.openrdf.repository.manager.SystemRepository;
+import org.openrdf.repository.object.ObjectRepository;
 import org.openrdf.store.blob.BlobStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -566,8 +568,13 @@ public class CalliServer implements CalliServerMXBean {
 			final String body, final String webappOrigin) throws Exception {
 		submit(new Callable<Void>() {
 			public Void call() throws Exception {
-				getSetupTool(webappOrigin).inviteAdminUser(email, username,
-						label, comment, subject, body, webappOrigin);
+				SetupTool tool = getSetupTool(webappOrigin);
+				tool.inviteAdminUser(email, username, label, comment, subject,
+						body, webappOrigin);
+				String repositoryID = tool.getRepositoryID();
+				CalliRepository repository = getRepository(repositoryID);
+				ObjectRepository object = repository.getDelegate();
+				AuthorizationService.getInstance().get(object).resetCache();
 				return null;
 			}
 		});

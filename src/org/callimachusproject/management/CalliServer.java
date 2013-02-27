@@ -233,6 +233,9 @@ public class CalliServer implements CalliServerMXBean {
 			}
 		}
 		conf.setPorts(ports);
+		if (server != null) {
+			server.listen(getPortArray(), getSSLPortArray());
+		}
 	}
 
 	public String getSSLPorts() throws IOException {
@@ -257,6 +260,9 @@ public class CalliServer implements CalliServerMXBean {
 			}
 		}
 		conf.setSslPorts(ports);
+		if (server != null) {
+			server.listen(getPortArray(), getSSLPortArray());
+		}
 	}
 
 	public boolean isStartingInProgress() {

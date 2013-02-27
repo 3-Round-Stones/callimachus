@@ -792,7 +792,6 @@ public class CalliServer implements CalliServerMXBean {
 			if (so.isResolvable()) {
 				String origin = so.getRoot().replaceAll("/$", "");
 				server.addOrigin(origin, getRepository(so.getRepositoryID()));
-				server.setIdentityPrefix(getIdentityPrefixes());
 				HttpHost host = URIUtils.extractHost(java.net.URI.create(so.getRoot()));
 				HTTPObjectClient.getInstance().setProxy(host, server);
 				if (first) {
@@ -806,6 +805,7 @@ public class CalliServer implements CalliServerMXBean {
 			}
 		}
 		server.setName(getServerName());
+		server.setIdentityPrefix(getIdentityPrefixes());
 		server.listen(getPortArray(), getSSLPortArray());
 		return server;
 	}
@@ -866,8 +866,10 @@ public class CalliServer implements CalliServerMXBean {
 				listener.repositoryShutDown(e.getKey());
 			}
 		}
-		manager.refresh();
 		repositories.clear();
+		if (!manager.getInitializedRepositoryIDs().isEmpty()) {
+			manager.refresh();
+		}
 	}
 
 	private int[] getPortArray() throws IOException {
@@ -884,7 +886,7 @@ public class CalliServer implements CalliServerMXBean {
 			String key = origin.getRepositoryID();
 			if (origin.isResolvable() && map.containsKey(key)) {
 				map.put(key, null);
-			} else {
+			} else if (origin.isResolvable()) {
 				map.put(key, origin.getWebappOrigin());
 			}
 		}

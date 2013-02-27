@@ -64,7 +64,9 @@ public class WebappArchiveImporter {
 		HttpHost host = getAuthorityAddress(origin);
 		HTTPObjectClient client = HTTPObjectClient.getInstance();
 		UnavailableHttpClient service = new UnavailableHttpClient();
-		client.setProxy(host, service);
+		if (client.getProxy(host) == null) {
+			client.setProxy(host, service);
+		}
 		try {
 			if (schemaGraphs != null) {
 				for (URI schemaGraph : schemaGraphs) {

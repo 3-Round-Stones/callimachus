@@ -21,8 +21,16 @@ public class InternalHttpClient extends AbstractHttpClient {
 		this.client = client;
 	}
 
+	public HttpClient getProxy(HttpHost host) {
+		return proxies.get(host);
+	}
+
 	public HttpClient setProxy(HttpHost host, HttpClient proxy) {
-		return proxies.put(host, proxy);
+		if (proxy == null) {
+			return proxies.remove(host);
+		} else {
+			return proxies.put(host, proxy);
+		}
 	}
 
 	public boolean removeProxy(HttpHost host, HttpClient proxy) {

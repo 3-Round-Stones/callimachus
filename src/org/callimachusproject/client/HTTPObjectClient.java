@@ -185,6 +185,10 @@ public class HTTPObjectClient extends AbstractHttpClient {
 		storage.cleanResources();
 	}
 
+	public HttpClient getProxy(HttpHost destination) {
+		return internal.getProxy(destination);
+	}
+
 	public HttpClient setProxy(HttpHost destination, HttpClient proxy) {
 		return internal.setProxy(destination, proxy);
 	}

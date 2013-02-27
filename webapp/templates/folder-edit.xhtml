@@ -4,6 +4,30 @@
     xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
     <title resource="?this">{rdfs:label}</title>
+    <script type="text/javascript">
+    // <![CDATA[
+    jQuery(function($){
+        $('#pattern').change(function(){
+             $('span.pattern').attr('content', this.value);
+        });
+        $('#type').change(function(){
+            if (this.value) {
+                $('span.pattern').remove();
+                $('#pattern').parent().append('<span class="pattern" />');
+                $('span.pattern').attr('property', this.value);
+                $('#pattern').change();
+            }
+        });
+        $('span.pattern[property]').each(function(){
+            if (this.getAttribute('content')) {
+                $('#pattern').val(this.getAttribute('content'));
+                $('#type').val(this.getAttribute('property'));
+            }
+        });
+        $('#type').change();
+    });
+    // ]]>
+    </script>
 </head>
 <body resource="?this">
     <div id="sidebar">
@@ -15,17 +39,47 @@
     <h1 property="rdfs:label" />
     <form method="POST" action="" enctype="application/sparql-update" resource="?this">
         <fieldset>
+            <legend>Directory index</legend>
             <div class="control-group">
-                <label for="describedby" class="control-label">Directory index target</label>
-                <div id="field" class="controls">
-                    <input type="text" id="describedby" class="auto-expand" value="{calli:describedby}" />
+                <label for="type" class="control-label">Type</label>
+                <div class="controls">
+                    <select id="type">
+                        <option value="calli:copy">Copy (200)</option>
+                        <option value="calli:canonical">Canonical (301)</option>
+                        <option value="calli:alternate">Alternate (302)</option>
+                        <option value="calli:describedby" selected="selected">Described by (303)</option>
+                        <option value="calli:resides">Resides (307)</option>
+                        <option value="calli:moved">Moved (308)</option>
+                        <option value="calli:missing">Missing (404)</option>
+                        <option value="calli:gone">Gone (410)</option>
+                    </select>
                 </div>
             </div>
-            <div class="form-actions">
-                <button id="save" type="submit" class="btn btn-primary">Save</button>
-                <button id="cancel" type="button" onclick="window.location.replace('?view')" class="btn">Cancel</button>
-                <button id="delete" type="button" onclick="calli.deleteResource(event)" class="btn btn-danger">Delete</button>
+            <div class="control-group">
+                <label for="pattern" class="control-label">Content location</label>
+                <div class="controls">
+                    <input type="text" id="pattern" size="40" value="" />
+                    <span class="pattern" property="calli:copy" content="?copy" />
+                    <span class="pattern" property="calli:canonical" content="?canonical" />
+                    <span class="pattern" property="calli:alternate" content="?alternate" />
+                    <span class="pattern" property="calli:describedby" content="?describedby" />
+                    <span class="pattern" property="calli:resides" content="?resides" />
+                    <span class="pattern" property="calli:moved" content="?moved" />
+                    <span class="pattern" property="calli:missing" content="?missing" />
+                    <span class="pattern" property="calli:gone" content="?gone" />
+                </div>
             </div>
+            <div class="control-group">
+                <label for="cache" class="control-label">Cache Control</label>
+                <div class="controls">
+            		<input type="text"  id="cache" value="{calli:cacheControl}" placeholder="max-age=3600" />
+                </div>
+            </div>
+        </fieldset>
+        <fieldset class="form-actions">
+            <button id="save" type="submit" class="btn btn-primary">Save</button>
+            <button id="cancel" type="button" onclick="window.location.replace('?view')" class="btn">Cancel</button>
+            <button id="delete" type="button" onclick="calli.deleteResource(event)" class="btn btn-danger">Delete</button>
         </fieldset>
     </form>
 </body>

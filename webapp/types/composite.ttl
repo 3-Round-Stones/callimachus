@@ -73,8 +73,6 @@
         updater.executeUpdate(string, con);
 
         var iter = this.FindCreator(newCopy).iterator();
-        if (!iter.hasNext())
-            throw new InternalServerError("Could not find user");
         var authorization = this;
         while (iter.hasNext()) {
             var user = iter.next();

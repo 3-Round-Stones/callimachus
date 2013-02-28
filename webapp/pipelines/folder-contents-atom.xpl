@@ -19,10 +19,4 @@
             <p:document href="../transforms/sparql-results-atom.xsl" />
         </p:input>
     </p:xslt>
-    <p:xslt>
-        <p:with-param name="xsltId" select="resolve-uri('../transforms/divert-atom-links.xsl')" />
-        <p:input port="stylesheet">
-            <p:document href="../transforms/divert-atom-links.xsl" />
-        </p:input>
-    </p:xslt>
 </p:pipeline>

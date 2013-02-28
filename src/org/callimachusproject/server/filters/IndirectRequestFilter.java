@@ -33,6 +33,7 @@ import static java.net.URLEncoder.encode;
 import info.aduna.net.ParsedURI;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
 import org.apache.http.Header;
@@ -40,6 +41,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHttpResponse;
+import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.server.model.Filter;
 import org.callimachusproject.server.model.Request;
 
@@ -49,18 +51,18 @@ import org.callimachusproject.server.model.Request;
  * @author James Leigh
  * 
  */
-public class IdentityPrefix extends Filter {
+public class IndirectRequestFilter extends Filter {
 	private String[] prefixes;
 
-	public IdentityPrefix(Filter delegate) {
+	public IndirectRequestFilter(Filter delegate) {
 		super(delegate);
 	}
 
-	public String[] getIdentityPrefix() {
+	public String[] getIndirectIdentificationPrefix() {
 		return prefixes;
 	}
 
-	public void setIdentityPrefix(String[] prefix) {
+	public void setIndirectIdentificationPrefix(String[] prefix) {
 		if (prefix == null || prefix.length == 0) {
 			this.prefixes = null;
 		} else {
@@ -69,36 +71,20 @@ public class IdentityPrefix extends Filter {
 	}
 
 	@Override
-	public HttpResponse intercept(Request request) throws IOException {
-		String scheme = new ParsedURI(request.getIRI()).getScheme();
-		if (!request.isInternal() && "https".equals(scheme)) {
-			Object protocol = request.getParams().getParameter(
-					"http.protocol.scheme");
-			if (!scheme.equals(protocol)) {
-				String msg = "Cannot request secure resource over "
-						+ protocol;
-				BasicHttpResponse resp;
-				resp = new BasicHttpResponse(HttpVersion.HTTP_1_1, 400, msg);
-				resp.setEntity(new StringEntity(msg));
-				return resp;
-			}
-		}
-		return super.intercept(request);
-	}
-
-	public Request filter(Request req) throws IOException {
+	public HttpResponse intercept(Request req) throws IOException {
 		if (prefixes == null)
-			return super.filter(req);
+			return super.intercept(req);
 		String uri = req.getRequestURI();
 		for (String prefix : prefixes) {
 			if (uri != null && uri.startsWith(prefix)) {
-				String encoded = uri.substring(prefix.length());
-				String target = URLDecoder.decode(encoded, "UTF-8");
-				req.setIRI(req.resolve(target));
+				String iri = getIRI(prefix, uri);
+				if (!isGood(iri, req))
+					return insecure();
+				req.setIRI(iri);
 				break;
 			}
 		}
-		return super.filter(req);
+		return super.intercept(req);
 	}
 
 	public HttpResponse filter(Request req, HttpResponse resp)
@@ -135,6 +121,32 @@ public class IdentityPrefix extends Filter {
 				break;
 			}
 		}
+		return resp;
+	}
+
+	private String getIRI(String prefix, String uri)
+			throws UnsupportedEncodingException {
+		String encoded = uri.substring(prefix.length());
+		String target = URLDecoder.decode(encoded, "UTF-8");
+		return TermFactory.newInstance(target).getSystemId();
+	}
+
+	private boolean isGood(String iri, Request req) {
+		ParsedURI parsed = new ParsedURI(iri);
+		String scheme = parsed.getScheme();
+		String authority = parsed.getAuthority();
+		Object protocol = req.getParams().getParameter("http.protocol.scheme");
+		String host = req.getAuthority();
+		if (authority.equals(host))
+			return false;
+		return !"https".equals(scheme) || scheme.equals(protocol);
+	}
+
+	private BasicHttpResponse insecure() throws UnsupportedEncodingException {
+		String msg = "Cannot request secure resource over insecure channel";
+		BasicHttpResponse resp;
+		resp = new BasicHttpResponse(HttpVersion.HTTP_1_1, 400, msg);
+		resp.setEntity(new StringEntity(msg));
 		return resp;
 	}
 

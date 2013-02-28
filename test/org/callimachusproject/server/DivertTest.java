@@ -17,7 +17,7 @@ public class DivertTest extends MetadataServerTestCase {
 		config.addBehaviour(DescribeSupport.class, RDFS.RESOURCE);
 		super.setUp();
 		String prefix = client.path("/absolute;").getURI().toASCIIString();
-		server.setIdentityPrefix(new String[] { prefix });
+		server.setIndirectIdentificationPrefix(new String[] { prefix });
 		con = repository.getConnection();
 	}
 

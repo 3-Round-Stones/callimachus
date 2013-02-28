@@ -6,22 +6,7 @@
 
     <xsl:variable name="systemId" select="base-uri()" />
     <xsl:variable name="origin" select="resolve-uri('/')" />
-    <xsl:variable name="callback">
-        <xsl:choose>
-            <xsl:when test="starts-with($systemId,$origin)">
-                <xsl:value-of select="$systemId" />
-            </xsl:when>
-            <xsl:when test="$origin and $systemId">
-                <xsl:call-template name="divert">
-                    <xsl:with-param name="diverted" select="concat($origin,'diverted;')" />
-                    <xsl:with-param name="url" select="$systemId" />
-                </xsl:call-template>
-            </xsl:when>
-            <xsl:otherwise>
-                <xsl:value-of select="$systemId" />
-            </xsl:otherwise>
-        </xsl:choose>
-    </xsl:variable>
+    <xsl:variable name="callback" select="$systemId" />
 
     <xsl:template match="@*|node()">
         <xsl:copy>
@@ -125,37 +110,6 @@
                 <xsl:value-of select="$expression" />
             </xsl:attribute>
         </xsl:if>
-    </xsl:template>
-
-    <xsl:template name="divert">
-        <xsl:param name="diverted" />
-        <xsl:param name="url" />
-        <xsl:variable name="uri">
-            <xsl:choose>
-                <xsl:when test="contains($url,'?')">
-                    <xsl:value-of select="substring-before($url,'?')" />
-                </xsl:when>
-                <xsl:when test="contains($url,'#')">
-                    <xsl:value-of select="substring-before($url,'#')" />
-                </xsl:when>
-                <xsl:otherwise>
-                    <xsl:value-of select="$url" />
-                </xsl:otherwise>
-            </xsl:choose>
-        </xsl:variable>
-        <xsl:value-of select="$diverted" />
-        <xsl:call-template name="replace-string">
-            <xsl:with-param name="text">
-                <xsl:call-template name="replace-string">
-                    <xsl:with-param name="text" select="$uri"/>
-                    <xsl:with-param name="replace" select="'%'"/>
-                    <xsl:with-param name="with" select="'%25'"/>
-                </xsl:call-template>
-            </xsl:with-param>
-            <xsl:with-param name="replace" select="'+'"/>
-            <xsl:with-param name="with" select="'%2B'"/>
-        </xsl:call-template>
-        <xsl:value-of select="substring-after($url,$uri)" />
     </xsl:template>
 
     <xsl:template name="replace-string">

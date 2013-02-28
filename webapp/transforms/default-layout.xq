@@ -36,8 +36,8 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
                                 <i class="caret"></i>
                             </a>
                             <menu type="list" class="dropdown-menu">
-                                <li>{calli:folder-href(<a>Home folder</a>)}</li>
-                                <li>{calli:changes-href(<a>Recent changes</a>)}</li>
+                                <li>{calli:folder-href(<a class="diverted">Home folder</a>)}</li>
+                                <li>{calli:changes-href(<a class="diverted">Recent changes</a>)}</li>
                                 <li class="divider"></li>
                                 <li><a href="http://callimachusproject.org/">About Callimachus</a></li>
                                 <li><a href="http://callimachusproject.org/docs/1.0/getting-started-with-callimachus.docbook?view">Getting started</a></li>
@@ -60,16 +60,16 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
             </header>
         </div>
         <div class="container">
-            {calli:breadcrumb-nav(<nav class="breadcrumb"><a class="muted"/><span class="divider">&#187;</span><span class="active"/></nav>)}
+            {calli:breadcrumb-nav(<nav class="breadcrumb"><a class="muted diverted"/><span class="divider">&#187;</span><span class="active"/></nav>)}
             {calli:body-hgroup()}
             {calli:body-sidebar(<div class="sidebar pull-right" />)}
             <div>
                 {calli:activate-nav(<nav class="hidden-logout hidden-iframe nav-tabs">
                     {calli:view-href(<a tabindex="1" onclick="location.replace(href);return false">View</a>)}
-                    {calli:edit-href(<a tabindex="2" href="?edit" onclick="location.replace(href);return false">Edit</a>)}
-                    {calli:discussion-href(<a tabindex="3" href="?discussion" onclick="location.replace(href);return false">Discussion</a>)}
-                    {calli:describe-href(<a tabindex="4" href="?describe" onclick="location.replace(href);return false">Describe</a>)}
-                    {calli:history-href(<a tabindex="5" href="?history" onclick="location.replace(href);return false">History</a>)}
+                    {calli:edit-href(<a tabindex="2" onclick="location.replace(href);return false">Edit</a>)}
+                    {calli:discussion-href(<a tabindex="3" onclick="location.replace(href);return false">Discussion</a>)}
+                    {calli:describe-href(<a tabindex="4" onclick="location.replace(href);return false">Describe</a>)}
+                    {calli:history-href(<a tabindex="5" onclick="location.replace(href);return false">History</a>)}
                 </nav>)}
 
                 <div class="tab-content">

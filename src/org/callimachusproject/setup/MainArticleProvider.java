@@ -15,8 +15,8 @@ public class MainArticleProvider extends UpdateProvider {
 	private static final String CALLI_DESCRIBEDBY = CALLI + "describedby";
 
 	@Override
-	public Updater updateOrigin(String virtual) throws IOException {
-		return new FileUpdater(virtual) {
+	public Updater updateCallimachusWebapp(String origin) throws IOException {
+		return new FileUpdater(origin) {
 
 			@Override
 			protected String getFileUrl(String origin) {

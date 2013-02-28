@@ -34,22 +34,27 @@ declare function calli:head-links($a as element(), $divider as element()) as ele
     let $links := $calli:html-element/head/link[@title and @href]
     return if ($links) then
         for $link in $links
-        return (calli:add-href($a, $link/@href, $link/@title), $divider)
+        return (calli:add-href($a, $link, $link/@title), $divider)
     else
         $links
 };
-declare function calli:add-href($a as element(), $href as xs:string, $title as xs:string) {
+declare function calli:add-href($a as element(), $link as element(), $label as xs:string) {
     if (local-name($a)='a') then
         element {node-name($a)} {
-            attribute href {$href},
-            $a/@*[name()!='href'],
-            $title
+            $a/@*[name()!='class'],
+            for $attr in $link/@*
+            return if ($a/@*[name()=name($attr)]) then ()
+            else $attr,
+            if ($a/@class and $link/@class) then attribute class {concat($a/@class,' ',$link/@class)}
+            else if ($a/@class) then $a/@class
+            else (),
+            $label
         }
     else if ($a/self::*) then
         element {node-name($a)} {
             $a/@*,
             for $node in $a/node()
-            return calli:add-href($node, $href, $title)
+            return calli:add-href($node, $link, $label)
         }
     else
         $a

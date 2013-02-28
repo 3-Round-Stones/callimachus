@@ -58,7 +58,7 @@ public class CalliServer implements CalliServerMXBean {
 	private static final String CHANGES_PATH = "../changes/";
 	private static final String ERROR_XPL_PATH = "pipelines/error.xpl";
 	private static final String SCHEMA_GRAPH = "types/SchemaGraph";
-	private static final String IDENTITY_PATH = "/diverted;";
+	private static final String INDIRECT_PATH = "/diverted;";
 	private static final String ORIGIN = "http://callimachusproject.org/rdf/2009/framework#Origin";
 	private static final String REPOSITORY_TYPES = "META-INF/templates/repository-types.properties";
 	private static final ThreadFactory THREADFACTORY = new ThreadFactory() {
@@ -495,7 +495,7 @@ public class CalliServer implements CalliServerMXBean {
 				refreshRepository(repositoryID);
 				if (isWebServiceRunning()) {
 					server.addOrigin(webappOrigin, getRepository(repositoryID));
-					server.setIdentityPrefix(getIdentityPrefixes());
+					server.setIndirectIdentificationPrefix(getIndirectPrefixes());
 					HttpHost host = URIUtils.extractHost(java.net.URI.create(webappOrigin + "/"));
 					HTTPObjectClient.getInstance().setProxy(host, server);
 				}
@@ -545,7 +545,7 @@ public class CalliServer implements CalliServerMXBean {
 				tool.setupResolvableOrigin(origin, webappOrigin);
 				if (isWebServiceRunning()) {
 					server.addOrigin(origin, getRepository(tool.getRepositoryID()));
-					server.setIdentityPrefix(getIdentityPrefixes());
+					server.setIndirectIdentificationPrefix(getIndirectPrefixes());
 					HttpHost host = URIUtils.extractHost(java.net.URI.create(origin + "/"));
 					HTTPObjectClient.getInstance().setProxy(host, server);
 				}
@@ -625,6 +625,8 @@ public class CalliServer implements CalliServerMXBean {
 
 	SetupTool getSetupTool(String webappOrigin) throws OpenRDFException, IOException {
 		String repositoryID = conf.getOriginRepositoryIDs().get(webappOrigin);
+		if (repositoryID == null)
+			throw new IllegalArgumentException("Unknown Callimachus origin: " + webappOrigin);
 		CalliRepository repository = getRepository(repositoryID);
 		return new SetupTool(repositoryID, repository, conf);
 	}
@@ -805,7 +807,7 @@ public class CalliServer implements CalliServerMXBean {
 			}
 		}
 		server.setName(getServerName());
-		server.setIdentityPrefix(getIdentityPrefixes());
+		server.setIndirectIdentificationPrefix(getIndirectPrefixes());
 		server.listen(getPortArray(), getSSLPortArray());
 		return server;
 	}
@@ -880,7 +882,7 @@ public class CalliServer implements CalliServerMXBean {
 		return conf.getSslPorts();
 	}
 
-	private String[] getIdentityPrefixes() throws IOException, OpenRDFException {
+	private String[] getIndirectPrefixes() throws IOException, OpenRDFException {
 		Map<String, String> map = new LinkedHashMap<String, String>();
 		for (SetupOrigin origin : getOrigins()) {
 			String key = origin.getRepositoryID();
@@ -893,7 +895,7 @@ public class CalliServer implements CalliServerMXBean {
 		List<String> identities = new ArrayList<String>(map.size());
 		for (String origin : map.values()) {
 			if (origin != null) {
-				identities.add(origin + IDENTITY_PATH);
+				identities.add(origin + INDIRECT_PATH);
 			}
 		}
 		return identities.toArray(new String[identities.size()]);

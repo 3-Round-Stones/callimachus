@@ -12,6 +12,9 @@
     <link rel="viewable" href="../types/Viewable" />
     <link rel="editable" href="../types/Editable" />
     <link rel="composite" href="../types/Composite" />
+    <link rel="sample-create" href="../pages/sample-create.xhtml" />
+    <link rel="sample-view" href="../pages/sample-view.xhtml" />
+    <link rel="sample-edit" href="../pages/sample-edit.xhtml" />
     <script type="text/javascript"> // <![CDATA[
     jQuery(function($){
         $('#create').bind('calliLinked', function() {
@@ -131,34 +134,34 @@
             <div class="hbox">
                 <div id="create" dropzone="link s:text/uri-list" class="control-group"
                         ondrop="return calli.insertResource(event)">
-                    <label class="control-label">Create template <a href="../types/Page?create#!../pages/sample-create.xhtml" title="Create"
-                            onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
+                    <label class="control-label">Create template <a href="../types/Page" title="Create" class="ui-icon ui-icon-newwin"
+                            onclick="return calli.createResource(event, './?create=' + encodeURIComponent(this.href) + '#!' + $('link[rel=sample-create]').attr('href'))" /></label>
                     <div rel="calli:create" class="controls">
                         <span resource="?create" typeof="calli:Page" class="ui-state-highlight ui-corner-all">
                             <span property="rdfs:label" />
-                            <a href="{?create}" title="Stop using template" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
+                            <a href="{?create}" title="Don't use this template" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
                         </span>
                     </div>
                 </div>
                 <div id="view" dropzone="link s:text/uri-list" class="control-group"
                         ondrop="return calli.insertResource(event)">
-                    <label class="control-label">View template <a href="../types/Page?create#!../pages/sample-view.xhtml" title="Create"
-                            onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
+                    <label class="control-label">View template <a href="../types/Page" title="Create" class="ui-icon ui-icon-newwin"
+                            onclick="return calli.createResource(event, './?create=' + encodeURIComponent(this.href) + '#!' + $('link[rel=sample-view]').attr('href'))" /></label>
                     <div rel="calli:view" class="controls">
                         <span resource="?view" typeof="calli:Page" class="ui-state-highlight ui-corner-all">
                             <span property="rdfs:label" />
-                            <a href="{?view}" title="Stop using template" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
+                            <a href="{?view}" title="Don't use this template" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
                         </span>
                     </div>
                 </div>
                 <div id="edit" dropzone="link s:text/uri-list" class="control-group"
                         ondrop="return calli.insertResource(event)">
-                    <label class="control-label">Edit template <a href="../types/Page?create#!../pages/sample-edit.xhtml" title="Create"
-                            onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
+                    <label class="control-label">Edit template <a href="../types/Page" title="Create" class="ui-icon ui-icon-newwin"
+                            onclick="return calli.createResource(event, './?create=' + encodeURIComponent(this.href) + '#!' + $('link[rel=sample-edit]').attr('href'))" /></label>
                     <div rel="calli:edit" class="controls">
                         <span resource="?edit" typeof="calli:Page" class="ui-state-highlight ui-corner-all">
                             <span property="rdfs:label" />
-                            <a href="{?edit}" title="Stop using template" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
+                            <a href="{?edit}" title="Don't use this template" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
                         </span>
                     </div>
                 </div>

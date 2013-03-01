@@ -137,9 +137,9 @@ public class IndirectRequestFilter extends Filter {
 		String authority = parsed.getAuthority();
 		Object protocol = req.getParams().getParameter("http.protocol.scheme");
 		String host = req.getAuthority();
-		if (authority.equals(host))
+		if (host.equals(authority))
 			return false;
-		return !"https".equals(scheme) || scheme.equals(protocol);
+		return !"https".equals(scheme) || "https".equals(protocol);
 	}
 
 	private BasicHttpResponse insecure() throws UnsupportedEncodingException {

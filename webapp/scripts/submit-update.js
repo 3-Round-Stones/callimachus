@@ -15,6 +15,15 @@ $('form[enctype="application/sparql-update"]').each(function() {
         form.bind('reset', function() {
             stored = readRDF(form[0]);
         });
+        var etag = null;
+        var xhr = $.ajax({
+            type: 'HEAD',
+            url: calli.getFormAction(this),
+            beforeSend: calli.withCredentials,
+            success: function() {
+                etag = xhr.getResponseHeader('ETag');
+            }
+        });
         form.submit(function(event) {
             if (this.getAttribute("enctype") != "application/sparql-update")
                 return true;
@@ -22,7 +31,7 @@ $('form[enctype="application/sparql-update"]').each(function() {
             setTimeout(function(){
                 var resource = form.attr('about') || form.attr('resource');
                 if (resource) {
-                    submitRDFForm(form[0], stored);
+                    submitRDFForm(form[0], stored, etag);
                 }
             }, 0);
             return false;
@@ -32,7 +41,7 @@ $('form[enctype="application/sparql-update"]').each(function() {
     }
 });
 
-function submitRDFForm(form, stored) {
+function submitRDFForm(form, stored, etag) {
     var se = $.Event("calliSubmit");
     $(form).trigger(se);
     if (!se.isDefaultPrevented()) {
@@ -49,7 +58,7 @@ function submitRDFForm(form, stored) {
                 addBoundedDescription(added[hash], revised, added, removed);
             }
             var data = asSparqlUpdate(removed, added);
-            patchData(form[0], data, function(data, textStatus, xhr) {
+            patchData(form[0], data, etag, function(data, textStatus, xhr) {
                 try {
                     var redirect = null;
                     if (xhr.getResponseHeader('Content-Type') == 'text/uri-list') {
@@ -74,7 +83,7 @@ function submitRDFForm(form, stored) {
                 } catch(e) {
                     throw calli.error(e);
                 }
-            })
+            });
         } catch(e) {
             throw calli.error(e);
         }
@@ -196,7 +205,7 @@ function asSparqlUpdate(removed, added) {
     return writer.toString() || 'INSERT {} WHERE {}';
 }
 
-function patchData(form, data, callback) {
+function patchData(form, data, etag, callback) {
     var method = form.getAttribute('method');
     if (!method) {
         method = form.method;
@@ -210,23 +219,13 @@ function patchData(form, data, callback) {
     }
     var xhr = null;
     xhr = $.ajax({ type: method, url: calli.getFormAction(form), contentType: type, data: data, dataType: "text", beforeSend: function(xhr){
-        var lastmod = getLastModified();
-        if (lastmod) {
-            xhr.setRequestHeader("If-Unmodified-Since", lastmod);
+        if (etag) {
+            xhr.setRequestHeader("If-Match", etag);
         }
         calli.withCredentials(xhr);
     }, success: function(data, textStatus) {
         callback(data, textStatus, xhr);
     }});
-}
-
-function getLastModified() {
-    try {
-        var committedOn = $('#resource-lastmod').find('[property=audit:committedOn]').attr('content');
-        return new Date(committedOn).toGMTString();
-    } catch (e) {
-        return null;
-    }
 }
 
 function UpdateWriter() {

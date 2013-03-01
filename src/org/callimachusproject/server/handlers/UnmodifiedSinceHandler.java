@@ -78,13 +78,13 @@ public class UnmodifiedSinceHandler implements Handler {
 		}
 		while (matchs.hasMoreElements()) {
 			String match = (String) matchs.nextElement();
-			if (match(entityTag, match))
+			if (match(entityTag, match, request.isSafe()))
 				return true;
 		}
 		return !mustMatch;
 	}
 
-	private boolean match(String tag, String match) {
+	private boolean match(String tag, String match, boolean safe) {
 		if (tag == null)
 			return false;
 		if ("*".equals(match))
@@ -96,7 +96,7 @@ public class UnmodifiedSinceHandler implements Handler {
 			return true;
 		int md = match.indexOf('-');
 		int td = tag.indexOf('-');
-		if (td >= 0 && md >= 0)
+		if (td >= 0 && md >= 0 && safe)
 			return false;
 		if (md < 0) {
 			md = match.lastIndexOf('"');

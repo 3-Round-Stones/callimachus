@@ -25,87 +25,32 @@
 
 <> a <SchemaGraph>.
 
-<Image> a <Creatable>, owl:Class;
-    rdfs:subClassOf foaf:Image, <File>;
-    rdfs:label "Image" ;
-    owl:equivalentClass </callimachus/Image>;
-    rdfs:isDefinedBy <../../ontology>;
-    calli:administrator </auth/groups/admin>;
-    calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/admin>;
-    calli:icon <../images/image.png>;
-    calli:view <../templates/image-view.xhtml> ;
-    calli:edit <../templates/image-edit.xhtml> ;
-    calli:create <../templates/file-create.xhtml>.
-
-<AnimatedGraphic> a <Creatable>, owl:Class;
+<VectorGraphic> a <Creatable>, owl:Class;
     rdfs:subClassOf <Image>;
-    rdfs:label "Animated Graphic" ;
-    owl:equivalentClass </callimachus/AnimatedGraphic>;
+    rdfs:label "Vector Graphic" ;
+    owl:equivalentClass </callimachus/VectorGraphic>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/admin>;
     calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/admin>;
     calli:icon <../images/image.png>;
     calli:create <../templates/file-create.xhtml>;
-    calli:mediaType "image/gif".
+    calli:mediaType "image/svg+xml";
+    calli:documentTag <http://www.w3.org/2000/svg#svg>.
 
-<IconGraphic> a <Creatable>, owl:Class;
-    rdfs:subClassOf <Image>;
-    rdfs:label "Icon Graphic" ;
-    owl:equivalentClass </callimachus/IconGraphic>;
-    rdfs:isDefinedBy <../../ontology>;
-    calli:administrator </auth/groups/admin>;
-    calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/admin>;
-    calli:icon <../images/image.png>;
-    calli:create <../templates/file-create.xhtml>;
-    calli:mediaType "image/vnd.microsoft.icon".
-
-<NetworkGraphic> a <Creatable>, owl:Class;
-    rdfs:subClassOf <Image>;
-    rdfs:label "Network Graphic" ;
-    owl:equivalentClass </callimachus/NetworkGraphic>;
-    rdfs:isDefinedBy <../../ontology>;
-    calli:administrator </auth/groups/admin>;
-    calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/admin>;
-    calli:icon <../images/image.png>;
-    calli:create <../templates/file-create.xhtml>;
-    calli:mediaType "image/png".
-
-# GET /image.gif
-:GetAnimatedGraphic rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <AnimatedGraphic>];
+# GET /image.svg
+:GetVectorGraphic rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <VectorGraphic>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
     calli:method "GET";
     calli:rel "edit-media";
     calli:requires calli:reader;
-    calli:type "image/gif";
-    calli:header "cache-control:cache-range";
-    calli:script "return this.openInputStream()".
-
-# GET /image.ico
-:GetIconGraphic rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <IconGraphic>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-    calli:method "GET";
-    calli:rel "edit-media";
-    calli:requires calli:reader;
-    calli:type "image/vnd.microsoft.icon";
-    calli:header "cache-control:cache-range";
-    calli:script "return this.openInputStream()".
-
-# GET /image.png
-:GetNetworkGraphic rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <NetworkGraphic>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-    calli:method "GET";
-    calli:rel "edit-media";
-    calli:requires calli:reader;
-    calli:type "image/png";
+    calli:type "image/svg+xml";
     calli:header "cache-control:cache-range";
     calli:script "return this.openInputStream()".
 
 # POST ?create=/callimachus/ImageGraphic
-:PostImageCreate owl:intersectionOf (<creatable.ttl#PostCreate>
-        [owl:onProperty msg:target; owl:allValuesFrom [owl:oneOf (<NetworkGraphic> <IconGraphic> <AnimatedGraphic>)] ]);
+:PostVectorGraphicCreate owl:intersectionOf (<creatable.ttl#PostCreate>
+        [owl:onProperty msg:target; owl:hasValue <VectorGraphic>]);
     calli:imports <java:java.net.URLEncoder>;
     calli:imports <java:javax.mail.util.ByteArrayDataSource>;
     calli:imports <java:javax.mail.internet.MimeMultipart>;
@@ -138,11 +83,11 @@
         return obj;
     """.
 
-:PutImage rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Image> ];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+:PutVectorGraphic owl:intersectionOf (<image.ttl#PutImage>
+        [owl:onProperty msg:target; owl:allValuesFrom <VectorGraphic>]);
     calli:method "PUT";
     calli:requires calli:editor;
+    calli:imports <java:org.callimachusproject.server.exceptions.ServiceUnavailable>;
     calli:script """
         var out = this.openOutputStream() ;
         var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
@@ -154,10 +99,15 @@
         } finally {
             out.close();
         }
+        try {
+            this.ValidateVectorGraphic();
+        } catch (e if e.javaException instanceof ServiceUnavailable) {
+            java.lang.System.err.println("Storing " + this);
+        }
         this.touchRevision();
     """.
 
-:imageStream a owl:DatatypeProperty, owl:FunctionalProperty ;
-    rdfs:domain :PutImage ;
-    rdfs:range <java:java.io.InputStream> ;
-    calli:type "image/*" .
+:ValidateVectorGraphic rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <VectorGraphic>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+    calli:post "../schemas/svg11.rng?validate\nContent-Location: {+0}\nContent-Type: application/xml".

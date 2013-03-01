@@ -85,9 +85,8 @@
         return obj;
     """.
 
-:PutPhoto rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Photo> ];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+:PutPhoto owl:intersectionOf (<image.ttl#PutImage>
+        [owl:onProperty msg:target; owl:allValuesFrom <Photo>]);
     calli:method "PUT";
     calli:requires calli:editor;
     calli:script """
@@ -103,11 +102,6 @@
         }
         this.touchRevision();
     """.
-
-:imageStream a owl:DatatypeProperty, owl:FunctionalProperty ;
-    rdfs:domain :PutPhoto ;
-    rdfs:range <java:java.io.InputStream> ;
-    calli:type "application/octet-stream" .
 
 ################################
 # Resize Photo

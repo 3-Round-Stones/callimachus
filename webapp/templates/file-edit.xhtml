@@ -1,15 +1,39 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
-    xmlns:xsd="http://www.w3.org/2001/XMLSchema#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
     <title resource="?this">{rdfs:label}</title>
+    <style type="text/css">
+        .fileapi-show { display: none; }
+        .fileapi .fileapi-show { display: inline-block; }
+    </style>
+    <script type="text/javascript">
+        if (window.FileReader) document.documentElement.className += " fileapi";
+    </script>
 </head>
 <body resource="?this">
     <h1 property="rdfs:label" />
     <pre>{?this}</pre>
-    <form method="POST" action="" enctype="application/sparql-update" resource="?this">
-        <button id="cancel" type="button" onclick="window.location.replace('?view')" class="btn">Cancel</button>
-        <button id="delete" type="button" onclick="calli.deleteResource(event)" class="btn btn-danger">Delete</button>
-    </form>
+    <div rel="rdf:type" resource="?type">
+        <div property="calli:mediaType" content="?mediaType">
+            <form method="PUT" action="?" enctype="{?mediaType}">
+                <fieldset>
+                    <div class="control-group fileapi-show">
+                        <label class="control-label">Replacement file</label>
+                        <div class="controls">
+                            <input type="file" accept="{?mediaType}" />
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button id="replace" type="submit" class="btn btn-primary fileapi-show">Replace</button>
+                        <button id="cancel" type="button" onclick="window.location.replace('?view')" class="btn">Cancel</button>
+                        <button id="delete" type="button" onclick="calli.deleteResource(event)" class="btn btn-danger">Delete</button>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+    </div>
 </body>
 </html>

@@ -564,7 +564,7 @@ public class ResourceOperation extends ResourceRequest {
 			possible.clear();
 			possible.addAll(getAllMimeTypesOf(m));
 			String[] media = possible.toArray(new String[possible.size()]);
-			if (new FluidType(acceptable.asType(), media).is(preferred)) {
+			if (preferred == null || new FluidType(acceptable.asType(), media).is(preferred)) {
 				String iri;
 				Iri ann = m.getAnnotation(Iri.class);
 				if (ann == null) {

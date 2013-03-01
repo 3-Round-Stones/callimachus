@@ -81,7 +81,7 @@ window.calli.viewpage = function(uri) {
             }
         }
     }
-    var prefix = window.location.origin + '/';
+    var prefix = location.protocol + '//' + location.host + '/';
     if (url.indexOf(prefix) == 0) {
         url = url.substring(prefix.length - 1);
     }
@@ -102,9 +102,9 @@ window.calli.diverted = function(uri, query) {
                 }
             }
         }
-        if (url.indexOf(window.location.origin) != 0) {
-            var prefix = window.location.origin + '/diverted;';
-            url = prefix + encodeURIComponent(url).replace(/%2F/g, '/').replace(/%3A/g, ':');
+        var prefix = location.protocol + '//' + location.host + '/';
+        if (url.indexOf(prefix) != 0) {
+            url = prefix + 'diverted;' + encodeURIComponent(url).replace(/%2F/g, '/').replace(/%3A/g, ':');
         }
     }
     if (typeof query == "string") {

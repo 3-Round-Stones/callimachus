@@ -232,7 +232,7 @@
         }
     }
     jQuery(function(){
-        if (window.FileReader && (window.BlobBuilder || window.MozBlobBuilder || window.WebKitBlobBuilder)) {
+        if (window.FileReader) {
             $('#folder-box').bind('dragenter dragexit dragover', function(event) {
                 $(this).addClass(event.type);
                 event.stopPropagation();

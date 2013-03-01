@@ -80,7 +80,7 @@
         con.add(obj.resource, RDFS.LABEL, vf.createLiteral(label), []);
 
         //# load image data
-        var out = obj.PutPhoto(body) ;
+        var out = obj.PutImage(body) ;
 
         return obj;
     """.

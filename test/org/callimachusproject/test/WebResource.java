@@ -217,7 +217,7 @@ public class WebResource {
 		HttpURLConnection con = (HttpURLConnection) new URL(uri).openConnection();
 		con.setRequestMethod("DELETE");
 		int code = con.getResponseCode();
-		if (code != 201 && code != 204) {
+		if (code != 200 && code != 204) {
 			Assert.assertEquals(con.getResponseMessage(), 204, code);
 		}
 	}

@@ -90,7 +90,7 @@
     calli:method "POST";
     calli:query "edit";
     calli:requires calli:editor;
-    calli:expect "201-modified";
+    calli:expect "200-modified";
     calli:type "text/uri-list";
     calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
     calli:script """
@@ -189,8 +189,8 @@
 
         this.Delete();
         return {
-            status:201,message:"Modified",
-            headers:{location:redirect,'content-type':"text/plain"},
+            status:200,message:"Deleted",
+            headers:{'content-type':"text/uri-list"},
             body:[redirect]
         };
     """.

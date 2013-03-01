@@ -257,7 +257,7 @@ public class EditResourceTypeTest extends TemporaryServerTestCase {
 		String createResource = "?create=" + MyClass + "&location=my-resource";
 		WebResource my_resource = getHomeFolder().ref(createResource).create("text/turtle", RESOURCE_TURTLE.getBytes());
 		try {
-			my_resource.ref("?edit").create("application/sparql-update", RESOURCE_UPDATE.getBytes());
+			my_resource.ref("?edit").post("application/sparql-update", RESOURCE_UPDATE.getBytes(), "text/uri-list");
 			return;
 		} finally {
 			my_resource.link("describedby").delete();

@@ -51,7 +51,10 @@ function submitRDFForm(form, stored) {
             var data = asSparqlUpdate(removed, added);
             patchData(form[0], data, function(data, textStatus, xhr) {
                 try {
-                    var redirect = xhr.getResponseHeader("Location");
+                    var redirect = null;
+                    if (xhr.getResponseHeader('Content-Type') == 'text/uri-list') {
+                        redirect = xhr.responseText;
+                    }
                     if (!redirect) {
                         redirect = calli.getPageUrl();
                         if (redirect.indexOf('?') > 0) {

@@ -239,7 +239,7 @@ public class EditResourceTest extends TemporaryServerTestCase {
 		String createResource = "?create=" + MyClass + "&location=my-resource";
 		WebResource my_resource = getHomeFolder().ref(createResource).create("text/turtle", RESOURCE_TURTLE.getBytes());
 		try {
-			my_resource.ref("?edit").create("application/sparql-update", RESOURCE_UPDATE.getBytes());
+			my_resource.ref("?edit").post("application/sparql-update", RESOURCE_UPDATE.getBytes(), "text/uri-list");
 			return;
 		} finally {
 			my_resource.link("describedby").delete();
@@ -266,7 +266,7 @@ public class EditResourceTest extends TemporaryServerTestCase {
 		String createResource = "?create=" + MyClass + "&location=my-resource";
 		WebResource my_resource = getHomeFolder().ref(createResource).create("text/turtle", RESOURCE_TURTLE.getBytes());
 		try {
-			my_resource.ref("?edit").create("application/sparql-update", BAD_RESOURCE_UPDATE1.getBytes());
+			my_resource.ref("?edit").post("application/sparql-update", BAD_RESOURCE_UPDATE1.getBytes(), "text/uri-list");
 		} catch (AssertionFailedError e) {
 			return;
 		} finally {
@@ -295,7 +295,7 @@ public class EditResourceTest extends TemporaryServerTestCase {
 		String createResource = "?create=" + MyClass + "&location=my-resource";
 		WebResource my_resource = getHomeFolder().ref(createResource).create("text/turtle", RESOURCE_TURTLE.getBytes());
 		try {
-			my_resource.ref("?edit").create("application/sparql-update", BAD_RESOURCE_UPDATE2.getBytes());
+			my_resource.ref("?edit").post("application/sparql-update", BAD_RESOURCE_UPDATE2.getBytes(), "text/uri-list");
 		} catch (AssertionFailedError e) {
 			return;
 		} finally {

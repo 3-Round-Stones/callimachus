@@ -90,8 +90,8 @@ public final class CalliActivityFactory implements ActivityFactory {
 	private final AtomicLong seq = new AtomicLong(0);
 	private final Repository repository;
 	private final String uriSpace;
-	private final String changeType;
-	private final String folderType;
+	private final URI changeType;
+	private final URI folderType;
 	private String namespace;
 	private GregorianCalendar date;
 	private String folder;
@@ -100,10 +100,11 @@ public final class CalliActivityFactory implements ActivityFactory {
 			String changeType, String folderType) {
 		assert repository != null;
 		assert uriSpace != null;
+		ValueFactory vf = repository.getValueFactory();
 		this.repository = repository;
 		this.uriSpace = uriSpace;
-		this.changeType = changeType;
-		this.folderType = folderType;
+		this.changeType = changeType == null ? null : vf.createURI(changeType);
+		this.folderType = folderType == null ? null : vf.createURI(folderType);
 		assert uriSpace.endsWith("/");
 	}
 
@@ -120,7 +121,7 @@ public final class CalliActivityFactory implements ActivityFactory {
 		con.add(vf.createURI(graph.getNamespace()),
 				vf.createURI(CALLI_HASCOMPONENT), graph, graph);
 		if (changeType != null) {
-			con.add(graph, RDF.TYPE, vf.createURI(changeType), graph);
+			con.add(graph, RDF.TYPE, changeType, graph);
 		}
 		con.add(activity, RDF.TYPE, vf.createURI(ACTIVITY), graph);
 	}
@@ -146,7 +147,7 @@ public final class CalliActivityFactory implements ActivityFactory {
 
 	private synchronized void createFolder(URI bundle)
 			throws RepositoryException {
-		if (folder == null || !folder.equals(bundle.getNamespace())) {
+		if (!bundle.getNamespace().equals(folder)) {
 			folder = bundle.getNamespace();
 			executor.execute(new Runnable() {
 				public void run() {
@@ -171,7 +172,7 @@ public final class CalliActivityFactory implements ActivityFactory {
 		ValueFactory vf = con.getValueFactory();
 		if (uriSpace.equals(folder.stringValue()))
 			return false;
-		if (con.hasStatement(folder, RDF.TYPE, null, true))
+		if (con.hasStatement(folder, RDF.TYPE, folderType, true))
 			return false;
 		String str = folder.stringValue();
 		assert str.endsWith("/");
@@ -188,7 +189,7 @@ public final class CalliActivityFactory implements ActivityFactory {
 			update.setBinding("folder", folder);
 			update.setBinding("parent", parent);
 			if (folderType != null) {
-				update.setBinding("folderType", vf.createURI(folderType));
+				update.setBinding("folderType", folderType);
 			}
 			update.setBinding("label", vf.createLiteral(label));
 			update.execute();

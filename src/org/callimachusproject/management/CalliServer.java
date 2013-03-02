@@ -475,10 +475,6 @@ public class CalliServer implements CalliServerMXBean {
 				File dataDir = manager.getRepositoryDir(repositoryID);
 				if (repository == null) {
 					repository = new CalliRepository(repo, dataDir);
-					String changes = repository.getCallimachusUrl(webappOrigin, CHANGES_PATH);
-					if (changes != null) {
-						repository.setChangeFolder(changes);
-					}
 				} else {
 					BlobStore blobs = repository.getBlobStore();
 					String changes = repository.getChangeFolder();

@@ -95,10 +95,15 @@ public class CalliRepository extends RepositoryWrapper implements CalliRepositor
 	public void setChangeFolder(String uriSpace, String webapp) throws OpenRDFException {
 		this.changeFolder = uriSpace;
 		if (auditing != null) {
-			String bundle = webapp + CHANGE_TYPE;
-			String folder = webapp + FOLDER_TYPE;
-			auditing.setActivityFactory(new CalliActivityFactory(object,
-					uriSpace, bundle, folder));
+			if (webapp == null) {
+				auditing.setActivityFactory(new CalliActivityFactory(object,
+						uriSpace));
+			} else {
+				String bundle = webapp + CHANGE_TYPE;
+				String folder = webapp + FOLDER_TYPE;
+				auditing.setActivityFactory(new CalliActivityFactory(object,
+						uriSpace, bundle, folder));
+			}
 		}
 	}
 

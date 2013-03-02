@@ -96,6 +96,10 @@ public final class CalliActivityFactory implements ActivityFactory {
 	private GregorianCalendar date;
 	private String folder;
 
+	public CalliActivityFactory(Repository repository, String uriSpace) {
+		this(repository, uriSpace, null, null);
+	}
+
 	public CalliActivityFactory(Repository repository, String uriSpace,
 			String changeType, String folderType) {
 		assert repository != null;

@@ -139,36 +139,76 @@
             queueStarted = new Date();
         }
         queueTotalSize += file.size;
-        upload_queue.push(function() {
-            upload(file, function(){
-                upload_queue.shift();
-                queueCompleteSize += file.size;
-                uploadProgress(0);
-                if (upload_queue.length > 0) {
-                    upload_queue[0]();
-                } else {
-                    queueStarted = null;
-                    queueTotalSize = 0;
-                    queueCompleteSize = 0;
-                    notifyProgressComplete();
+        var next = function(){
+            upload_queue.shift();
+            queueCompleteSize += file.size;
+            uploadProgress(0);
+            if (upload_queue.length > 0) {
+                upload_queue[0]();
+            } else {
+                queueStarted = null;
+                queueTotalSize = 0;
+                queueCompleteSize = 0;
+                notifyProgressComplete();
+            }
+        };
+        var slug = calli.slugify(file.name.replace(/[-\s]+/g, '-'));
+        $.ajax({
+            type: 'HEAD',
+            url: slug,
+            global: false,
+            success: function() {
+                if (confirm(slug + " already exists. Do you want to replace it?")) {
+                    upload_queue.push(function() {
+                        putFile(file, slug, next);
+                    });
+                    if (upload_queue.length == 1) {
+                        upload_queue[0]();
+                    }
                 }
-            });
+            },
+            error: function() {
+                upload_queue.push(function() {
+                    postCreate(file, slug, next);
+                });
+                if (upload_queue.length == 1) {
+                    upload_queue[0]();
+                }
+            }
         });
-        if (upload_queue.length == 1) {
-            upload_queue[0]();
-        }
     }
-    function upload(file, callback) {
+    function postCreate(file, slug, callback) {
         var classFile = $('#file-class-link').attr('href');
         var formData = new FormData();
         formData.append(file.name, file);
-        var slug = calli.slugify(file.name.replace(/[-\s]+/g, '-'));
         jQuery.ajax({
             type:'POST',
             url:'?create=' + classFile + '&location=' + encodeURIComponent(slug),
             contentType:"multipart/form-data",
             processData:false,
             data:formData,
+            beforeSend:function(xhr) {
+                if (xhr.upload && xhr.upload.addEventListener) {
+                    xhr.upload.addEventListener("progress", function(event) {
+                        uploadProgress(event.loaded);
+                    }, false);
+                }
+                calli.withCredentials(xhr);
+            },
+            success:function(data, textStatus) {
+                reload();
+            },
+            complete:callback
+        });
+    }
+    function putFile(file, slug, callback) {
+        var classFile = $('#file-class-link').attr('href');
+        jQuery.ajax({
+            type:'PUT',
+            url:slug,
+            contentType:file.type,
+            processData:false,
+            data:file,
             beforeSend:function(xhr) {
                 if (xhr.upload && xhr.upload.addEventListener) {
                     xhr.upload.addEventListener("progress", function(event) {

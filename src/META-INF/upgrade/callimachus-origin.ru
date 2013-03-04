@@ -47,3 +47,31 @@ INSERT {
 	BIND (iri(concat(str($origin),"auth/")) AS ?auth)
 	BIND (iri(concat(str($origin),"auth/digest+account")) AS ?digest)
 };
+
+INSERT {
+$origin calli:hasComponent ?wellknown.
+?wellknown a <types/Folder>, calli:Folder;
+    rdfs:label ".well known";
+    calli:reader </auth/groups/public>;
+    calli:subscriber </auth/groups/staff>;
+    calli:administrator </auth/groups/admin>;
+    calli:hasComponent ?void.
+
+?void a <types/Serviceable>, void:DatasetDescription;
+    rdfs:label "void";
+    foaf:primaryTopic ?dataset;
+    calli:reader </auth/groups/public>.
+
+?dataset a void:Dataset;
+    foaf:homepage $origin;
+    void:sparqlEndpoint </sparql>;
+    void:uriSpace $origin;
+    void:rootResource $origin;
+    void:openSearchDescription ?search.
+} WHERE {
+    BIND (iri(concat(str($origin),".well-known/")) AS ?wellknown)
+    BIND (iri(concat(str($origin),".well-known/void")) AS ?void)
+    BIND (iri(concat(str($origin),".well-known/void#dataset")) AS ?dataset)
+    BIND (iri(concat(str($origin),"?search")) AS ?search)
+	FILTER NOT EXISTS { $origin calli:hasComponent ?wellknown }
+};

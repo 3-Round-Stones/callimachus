@@ -339,25 +339,6 @@ INSERT {
 ################################
 
 INSERT {
-</> calli:hasComponent </.well-known/>.
-</.well-known/> a <types/Folder>, calli:Folder;
-    rdfs:label ".well known";
-    calli:reader </auth/groups/public>;
-    calli:subscriber </auth/groups/staff>;
-    calli:administrator </auth/groups/admin>;
-    calli:hasComponent </.well-known/void>.
-
-</.well-known/void> a <types/Serviceable>, void:DatasetDescription;
-    rdfs:label "void";
-    foaf:primaryTopic </.well-known/void#dataset>;
-    calli:reader </auth/groups/public>.
-
-</.well-known/void#dataset> a void:Dataset;
-    foaf:homepage </>;
-    void:sparqlEndpoint </sparql>;
-    void:rootResource </>;
-    void:openSearchDescription </?search>.
-
 </> calli:hasComponent </sparql>.
 </sparql> a <types/SparqlService>, sd:Service;
     rdfs:label "sparql";
@@ -368,17 +349,5 @@ INSERT {
     sd:inputFormat <http://www.w3.org/ns/formats/RDF_XML>, <http://www.w3.org/ns/formats/Turtle>;
     sd:resultFormat <http://www.w3.org/ns/formats/RDF_XML>, <http://www.w3.org/ns/formats/SPARQL_Results_XML>.
 } WHERE {
-	FILTER NOT EXISTS { </> calli:hasComponent </.well-known/> }
-};
-
-INSERT {
-	</.well-known/void#dataset> void:uriSpace ?realm
-} WHERE {
-	{
-		?realm a <types/Realm>
-		FILTER NOT EXISTS { ?origin calli:hasComponent ?realm }
-	} UNION {
-		?realm a <types/Origin>
-	}
-	FILTER NOT EXISTS { </.well-known/void#dataset> void:uriSpace [] }
+	FILTER NOT EXISTS { </> calli:hasComponent </sparql/> }
 };

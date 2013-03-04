@@ -51,19 +51,6 @@
         return proceed();
     """.
 
-# folder view requires subscriber
-:GetFolderViewPage owl:intersectionOf (<viewable.ttl#GetViewPage>
-        [owl:onProperty msg:target; owl:allValuesFrom <Folder> ]);
-    calli:rel "alternate";
-    calli:method "GET";
-    calli:query "view";
-    calli:requires calli:subscriber;
-    calli:type "text/html";
-    calli:header "cache-control:no-cache";
-    calli:script """
-        return proceed();
-    """.
-
 ################################
 # POST file
 ################################

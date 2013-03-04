@@ -53,15 +53,22 @@ public class WebappArchiveImporter {
 
 	public void importArchive(InputStream carStream, String folder) throws IOException, OpenRDFException,
 			NoSuchMethodException, InvocationTargetException {
-		String webappOrigin = createFolder(folder, webapp, repository);
-		importArchive(carStream, folder, webappOrigin, webapp, repository);
+		createFolder(folder, webapp, repository);
+		importArchive(carStream, folder, webapp, repository);
+	}
+
+	protected void setFolderPermissions(URI uri, ObjectConnection con)
+			throws RepositoryException {
+		TermFactory tf = TermFactory.newInstance(webapp);
+		add(con, uri, CALLI_READER, tf.resolve(GROUP_PUBLIC));
+		add(con, uri, CALLI_ADMINISTRATOR, tf.resolve(GROUP_ADMIN));
 	}
 
 	private void importArchive(InputStream carStream, String folderUri,
-			String origin, String webapp, CalliRepository repository)
+			String webapp, CalliRepository repository)
 			throws IOException, OpenRDFException, NoSuchMethodException,
 			InvocationTargetException {
-		HttpHost host = getAuthorityAddress(origin);
+		HttpHost host = URIUtils.extractHost(java.net.URI.create(webapp));
 		HTTPObjectClient client = HTTPObjectClient.getInstance();
 		UnavailableHttpClient service = new UnavailableHttpClient();
 		if (client.getProxy(host) == null) {
@@ -113,18 +120,17 @@ public class WebappArchiveImporter {
 		throw new NoSuchMethodException("UploadFolderComponents");
 	}
 
-	private String createFolder(String folder, String webapp,
+	private void createFolder(String folder, String webapp,
 			CalliRepository repository) throws OpenRDFException {
-		String origin = null;
 		String parent = getParentFolder(folder);
 		if (parent != null) {
-			origin = createFolder(parent, webapp, repository);
+			createFolder(parent, webapp, repository);
 		}
 		ValueFactory vf = repository.getValueFactory();
 		ObjectConnection con = repository.getConnection();
 		try {
 			URI uri = vf.createURI(folder);
-			if (origin == null || parent == null) {
+			if (parent == null) {
 				RepositoryResult<Statement> stmts = con.getStatements(uri,
 						RDF.TYPE, null);
 				try {
@@ -134,9 +140,7 @@ public class WebappArchiveImporter {
 						if (type.endsWith(ORIGIN_TYPE)
 								|| type.endsWith(REALM_TYPE)
 								|| type.endsWith(FOLDER_TYPE)) {
-							String root = TermFactory.newInstance(type)
-									.resolve("/");
-							return root.substring(0, root.length() - 1);
+							return;
 						}
 					}
 				} finally {
@@ -147,16 +151,16 @@ public class WebappArchiveImporter {
 			} else {
 				if (con.hasStatement(uri, RDF.TYPE,
 						vf.createURI(webapp + ORIGIN_TYPE)))
-					return origin;
+					return;
 				if (con.hasStatement(uri, RDF.TYPE,
 						vf.createURI(webapp + REALM_TYPE)))
-					return origin;
+					return;
 				if (con.hasStatement(uri, RDF.TYPE,
 						vf.createURI(webapp + FOLDER_TYPE)))
-					return origin;
+					return;
 				if (con.hasStatement(vf.createURI(parent),
 						vf.createURI(CALLI_HASCOMPONENT), uri))
-					return origin;
+					return;
 
 				con.setAutoCommit(false);
 				con.add(vf.createURI(parent), vf.createURI(CALLI_HASCOMPONENT),
@@ -166,10 +170,9 @@ public class WebappArchiveImporter {
 				con.add(uri, RDF.TYPE, vf.createURI(CALLI_FOLDER));
 				con.add(uri, RDF.TYPE, vf.createURI(webapp + FOLDER_TYPE));
 				con.add(uri, RDFS.LABEL, vf.createLiteral(label));
-				add(con, uri, CALLI_READER, origin + GROUP_PUBLIC);
-				add(con, uri, CALLI_ADMINISTRATOR, origin + GROUP_ADMIN);
+				setFolderPermissions(uri, con);
 				con.setAutoCommit(true);
-				return origin;
+				return;
 			}
 		} finally {
 			con.close();
@@ -184,10 +187,6 @@ public class WebappArchiveImporter {
 		if (parent.endsWith("://"))
 			return null;
 		return parent;
-	}
-
-	private HttpHost getAuthorityAddress(String origin) {
-		return URIUtils.extractHost(java.net.URI.create(origin + "/"));
 	}
 
 	private void add(ObjectConnection con, URI subj, String pred,

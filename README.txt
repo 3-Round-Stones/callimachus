@@ -109,7 +109,7 @@ build.xml. Put the variables "callimachus.username", "callimachus.email", and
 "callimachus.password" followed by '=' and their value on their own line. Copy
 src/callimachus-defaults.conf to etc/callimachus.conf and edit file as above.
 You can then execute 'ant run' from a command line in this top directory to run
-the server. If some files fail to download you may have to run "ant dist-clean"
+the server. If some files fail to download you may have to run "ant clean dist"
 and run "ant run" again.
 
 

@@ -455,14 +455,14 @@ do_start()
 {
   LSOF="$(which lsof 2>/dev/null)"
   LSOF_OPTS="$(echo $PORT |perl -pe 's/(^|\s)(\S)/ -i :$2/g' 2>/dev/null) $(echo $SSLPORT |perl -pe 's/(^|\s)(\S)/ -i :$2/g' 2>/dev/null)"
-  if [ -n "$LSOF" ] && [ -n "$PORT" -o -n "$SSLPORT" ] && "$LSOF" $LSOF_OPTS ; then
+  if [ -n "$LSOF" ] && [ -n "$PORT" -o -n "$SSLPORT" ] && "$LSOF" $LSOF_OPTS |grep "LISTEN" ; then
     log_failure_msg "Cannot bind to port $PORT $SSLPORT please ensure nothing is already listening on this port"
     return 150
   fi
   JMXPORT="$(grep -E '^com.sun.management.jmxremote.port=' "$JMXRMI" |perl -pe 's/^com.sun.management.jmxremote.port=(.*)/$1/' 2>/dev/null)"
   if [ -n "$JMXPORT" ] ; then
     LSOF_OPTS="$(echo $JMXPORT |perl -pe 's/(^|\s)(\S)/ -i :$2/g' 2>/dev/null)"
-    if [ -n "$LSOF" ] && "$LSOF" $LSOF_OPTS ; then
+    if [ -n "$LSOF" ] && "$LSOF" $LSOF_OPTS |grep "LISTEN" ; then
       log_failure_msg "Cannot bind to port $JMXPORT please ensure nothing is already listening on this port"
       return 150
     fi

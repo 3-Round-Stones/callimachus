@@ -164,6 +164,7 @@
     calli:type "message/x-response";
     calli:imports <Creatable>;
     calli:imports <java:org.callimachusproject.io.MultipartParser>;
+    calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
     calli:imports <java:org.callimachusproject.server.exceptions.Forbidden>;
     calli:imports <java:org.callimachusproject.server.exceptions.Conflict>;
@@ -241,6 +242,7 @@
         }
         var construct = create.LookupConstructor(documentTag, ftype);
         var newCopy = construct.PostCreate(bio, location, ftype);
+        if (!newCopy) throw new InternalServerError("Could not create " + location + " using " + construct);
         if (newCopy != location && this.calliHasComponent.contains(newCopy))
             throw new Conflict("Resource " + newCopy + " already exists");
         var iter = this.FindCreator(newCopy).iterator();

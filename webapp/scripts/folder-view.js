@@ -153,14 +153,18 @@
             }
         };
         var slug = calli.slugify(file.name.replace(/[-\s]+/g, '-'));
-        $.ajax({
-            type: 'HEAD',
+        var xhr = $.ajax({
+            type: 'GET',
             url: slug,
             global: false,
             success: function() {
                 if (confirm(slug + " already exists. Do you want to replace it?")) {
+                    var contentType = file.type;
+                    if (!contentType || contentType.indexOf('/x-') > 0) {
+                        contentType = xhr.getResponseHeader('Content-Type');
+                    }
                     upload_queue.push(function() {
-                        putFile(file, slug, next);
+                        putFile(file, contentType, slug, next);
                     });
                     if (upload_queue.length == 1) {
                         upload_queue[0]();
@@ -201,12 +205,12 @@
             complete:callback
         });
     }
-    function putFile(file, slug, callback) {
+    function putFile(file, contentType, slug, callback) {
         var classFile = $('#file-class-link').attr('href');
         jQuery.ajax({
             type:'PUT',
             url:slug,
-            contentType:file.type,
+            contentType:contentType,
             processData:false,
             data:file,
             beforeSend:function(xhr) {

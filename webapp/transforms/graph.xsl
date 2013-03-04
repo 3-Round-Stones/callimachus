@@ -9,50 +9,6 @@
     <xsl:output indent="no" method="xml" />
     <xsl:param name="target" />
     <xsl:param name="systemId" />
-    <xsl:template match="/">
-        <xsl:if test="*">
-            <html>
-                <head>
-                    <title>
-                        <xsl:call-template name="resource">
-                            <xsl:with-param name="iri" select="$target"/>
-                        </xsl:call-template>
-                    </title>
-                    <style>
-                        ul.properties { margin-top: 0px; }
-                        li.triple { list-style-type: none }
-                        .plain { font-size: large; }
-                        .describe { font-size: xx-small; }
-                        .bnode, .plain { font-family: monospace; white-space: pre-wrap; }
-                        .typed { color: magenta; }
-                        .datatype, .language { color: gray; }
-                        .predicate { color: darkgreen; }
-                    </style>
-                    <script type="text/javascript">
-                    // <![CDATA[
-                    function describe(resource) {
-                        var hash = resource.indexOf('#');
-                        if (hash < 0)
-                            return window.calli.diverted(resource, 'describe');
-                        var uri = resource.substring(0, hash);
-                        var frag = resource.substring(hash);
-                        return window.calli.diverted(uri, 'describe') + frag;
-                    }
-                    // ]]>
-                    </script>
-                </head>
-                <body>
-                    <h1>
-                        <xsl:call-template name="resource">
-                            <xsl:with-param name="iri" select="$target"/>
-                        </xsl:call-template>
-                        <xsl:text> Graph</xsl:text>
-                    </h1>
-                    <xsl:apply-templates />
-                </body>
-            </html>
-        </xsl:if>
-    </xsl:template>
     <xsl:template name="resource">
         <xsl:param name="iri" />
         <xsl:call-template name="iriref">
@@ -121,8 +77,7 @@
             </a>
             <span class="describe">
                 <xsl:text> (</xsl:text>
-                <a resource="{@rdf:resource}" href="{@rdf:resource}?describe"
-                    onmousedown="href=describe(getAttribute('resource'))">describe</a>
+                <a href="{@rdf:resource}">describe</a>
                 <xsl:text>) </xsl:text>
             </span>
         </li>

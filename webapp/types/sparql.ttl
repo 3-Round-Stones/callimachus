@@ -190,6 +190,31 @@
     rdfs:range xsd:string;
     calli:query "query".
 
+# GET query parameter
+:GetHtmlResults rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <SparqlService>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    calli:method "GET";
+    calli:query "query";
+    calli:requires calli:reader;
+    calli:type "text/html";
+    calli:header "cache-control:no-validate";
+    calli:imports <java:org.apache.http.ProtocolVersion>;
+    calli:imports <java:org.apache.http.message.BasicHttpResponse>;
+    calli:imports <java:org.apache.http.entity.StringEntity>;
+    calli:script """
+        var resp = this.GetQueryResult(htmlQueryStr);
+        var stream = resp && resp.entity ? resp.entity.content : null;
+        if (stream)
+            return this.TransformResult(stream);
+        return null;
+    """.
+
+:htmlQueryStr a owl:DatatypeProperty, owl:FunctionalProperty;
+    rdfs:domain :GetHtmlResults;
+    rdfs:range xsd:string;
+    calli:query "query".
+
 # POST application/x-www-form-urlencoded
 :PostPercentEncoded rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <SparqlService>];

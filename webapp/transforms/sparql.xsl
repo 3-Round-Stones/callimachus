@@ -24,14 +24,16 @@
                     </style>
                     <script type="text/javascript">
                     // <![CDATA[
-                    function describe(resource) {
-                        var hash = resource.indexOf('#');
-                        if (hash < 0)
-                            return window.calli.diverted(resource, 'describe');
-                        var uri = resource.substring(0, hash);
-                        var frag = resource.substring(hash);
-                        return window.calli.diverted(uri, 'describe') + frag;
-                    }
+                    jQuery(function($) {
+                        $('.describe a').mousedown(function() {
+                            if (this.getAttribute('resource'))
+                                return true;
+                            var resource = this.href;
+                            this.setAttribute('resource', resource);
+                            this.href = '?query=' + encodeURIComponent('describe<' + resource + '>');
+                            return true;
+                        });
+                    });
                     // ]]>
                     </script>
                 </head>

@@ -2,6 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title>Explore Classes</title>
+    <link rel="sparql" href="/sparql" />
     <style>
         .describe { font-size: xx-small; }
     </style>
@@ -29,7 +30,9 @@
                     anchor.attr('title', "class description");
                     anchor.text(data.getValue(i, 1));
                     anchor.mousedown(function(){
-                        this.href = calli.diverted(this.getAttribute('resource'), 'describe');
+                        var resource = this.getAttribute('resource');
+                        var query = encodeURIComponent('describe<' + resource + '>');
+                        this.href = $('link[rel=sparql]').attr('href') + '?query=' + query;
                     });
                     tdata.append(anchor);
                                 // Add "assign templates" link

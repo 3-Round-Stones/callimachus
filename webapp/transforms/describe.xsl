@@ -5,7 +5,7 @@
     xmlns:xhtml="http://www.w3.org/1999/xhtml"
     exclude-result-prefixes="xhtml"
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-    <xsl:import href="../transforms/graph.xsl" />
+    <xsl:import href="graph.xsl" />
     <xsl:param name="target" />
     <xsl:template match="/">
         <html>
@@ -27,18 +27,6 @@
                 </style>
                 <script type="text/javascript">
                 // <![CDATA[
-                function describe(resource) {
-                    var hash = resource.indexOf('#');
-                    if (hash < 0)
-                        return window.calli.diverted(resource, 'describe');
-                    var uri = resource.substring(0, hash);
-                    var frag = resource.substring(hash);
-                    return window.calli.diverted(uri, 'describe') + frag;
-                }
-                // ]]>
-                </script>
-                <script type="text/javascript">
-                // <![CDATA[
                 jQuery(function($) {
                     var index = {};
                     $($('#results').children('div[resource]').get()).each(function() {
@@ -49,6 +37,21 @@
                         } else {
                             index[this.getAttribute('resource')] = this;
                         }
+                    });
+                    $('.describe a').mousedown(function() {
+                        if (this.getAttribute('resource'))
+                            return true;
+                        var resource = this.href;
+                        this.setAttribute('resource', resource);
+                        var hash = resource.indexOf('#');
+                        if (hash < 0) {
+                            this.href = window.calli.diverted(resource, 'describe');
+                        } else {
+                            var uri = resource.substring(0, hash);
+                            var frag = resource.substring(hash);
+                            this.href = window.calli.diverted(uri, 'describe') + frag;
+                        }
+                        return true;
                     });
                     $('#rdfxml').click(function(event) {
                         event.preventDefault();

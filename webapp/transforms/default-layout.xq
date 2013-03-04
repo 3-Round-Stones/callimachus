@@ -36,8 +36,8 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
                                 <i class="caret"></i>
                             </a>
                             <menu type="list" class="dropdown-menu">
-                                <li>{calli:folder-href(<a class="diverted">Home folder</a>)}</li>
-                                <li>{calli:changes-href(<a class="diverted">Recent changes</a>)}</li>
+                                <li>{calli:folder-href(<a>Home folder</a>)}</li>
+                                <li>{calli:changes-href(<a>Recent changes</a>)}</li>
                                 <li class="divider"></li>
                                 <li><a href="http://callimachusproject.org/">About Callimachus</a></li>
                                 <li><a href="http://callimachusproject.org/docs/1.0/getting-started-with-callimachus.docbook?view">Getting started</a></li>
@@ -60,7 +60,7 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
             </header>
         </div>
         <div class="container">
-            {calli:breadcrumb-nav(<nav class="breadcrumb"><a class="muted diverted"/><span class="divider">&#187;</span><span class="active"/></nav>)}
+            {calli:breadcrumb-nav(<nav class="breadcrumb"><a class="muted"/><span class="divider">&#187;</span><span class="active"/></nav>)}
             {calli:body-hgroup()}
             {calli:body-sidebar(<div class="sidebar pull-right" />)}
             <div>

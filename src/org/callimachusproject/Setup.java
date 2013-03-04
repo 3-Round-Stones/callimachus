@@ -226,10 +226,11 @@ public class Setup {
 				.getRepositoryManager(basedir);
 		final List<String> links = new ArrayList<String>();
 		try {
-			updateRepositoryConfig(manager);
-			List<Future<Boolean>> tasks = new ArrayList<Future<Boolean>>();
 			Map<String, String> idByOrigin = conf.getOriginRepositoryIDs();
-			for (final String id : new HashSet<String>(idByOrigin.values())) {
+			Set<String> repositoryIDs = new HashSet<String>(idByOrigin.values());
+			updateRepositoryConfig(manager, repositoryIDs);
+			List<Future<Boolean>> tasks = new ArrayList<Future<Boolean>>();
+			for (final String id : repositoryIDs) {
 				tasks.add(executor.submit(new Callable<Boolean>() {
 					public Boolean call() throws Exception {
 						return setupRepository(id, manager, conf, links);
@@ -357,13 +358,15 @@ public class Setup {
 		return sb.toString();
 	}
 
-	private void updateRepositoryConfig(final LocalRepositoryManager manager)
-			throws IOException, MalformedURLException, RepositoryException,
-			RepositoryConfigException, RDFParseException, RDFHandlerException,
-			GraphUtilException {
+	private void updateRepositoryConfig(final LocalRepositoryManager manager,
+			Set<String> repositoryIDs) throws IOException,
+			MalformedURLException, OpenRDFException {
 		File repositoryConfig = SystemProperties.getRepositoryConfigFile();
 		String configString = readContent(repositoryConfig.toURI().toURL());
-		updateRepositoryConfig(manager, getRepositoryConfig(configString));
+		RepositoryConfig config = getRepositoryConfig(configString);
+		if (repositoryIDs.contains(config.getID())) {
+			updateRepositoryConfig(manager, config);
+		}
 	}
 
 	private String readContent(URL config) throws IOException {

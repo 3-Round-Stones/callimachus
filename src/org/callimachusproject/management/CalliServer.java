@@ -109,9 +109,11 @@ public class CalliServer implements CalliServerMXBean {
 		if (!tmpDir.exists()) {
 			tmpDir.mkdirs();
 		}
-		File cacheDir = new File(tmpDir, "cache");
-		File in = new File(cacheDir, "client");
+		File cacheDir = File.createTempFile("cache", "", tmpDir);
+		cacheDir.delete();
+		cacheDir.mkdirs();
 		FileUtil.deleteOnExit(cacheDir);
+		File in = new File(cacheDir, "client");
 		HTTPObjectClient.setCacheDirectory(in);
 		serverCacheDir = new File(cacheDir, "server");
 	}

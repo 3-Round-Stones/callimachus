@@ -55,6 +55,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class CalliServer implements CalliServerMXBean {
+	private static final char COLON = ':';
 	private static final String CHANGES_PATH = "../changes/";
 	private static final String ERROR_XPL_PATH = "pipelines/error.xpl";
 	private static final String SCHEMA_GRAPH = "types/SchemaGraph";
@@ -382,9 +383,9 @@ public class CalliServer implements CalliServerMXBean {
 		combined = getAllRepositoryProperties();
 		combined = new LinkedHashMap<String, String>(combined);
 		combined.putAll(parameters);
-		params = groupBeforePeriod(combined);
+		params = groupBeforeColon(combined);
 		Set<String> removed = new LinkedHashSet<String>(params.keySet());
-		removed.removeAll(groupBeforePeriod(parameters).keySet());
+		removed.removeAll(groupBeforeColon(parameters).keySet());
 		for (String repositoryID : removed) {
 			if (manager.removeRepository(repositoryID)) {
 				logger.warn("Removed repository {}", repositoryID);
@@ -393,10 +394,12 @@ public class CalliServer implements CalliServerMXBean {
 		combined = getAllRepositoryProperties();
 		combined = new LinkedHashMap<String, String>(combined);
 		combined.putAll(parameters);
-		params = groupBeforePeriod(combined);
+		params = groupBeforeColon(combined);
 		for (String repositoryID : params.keySet()) {
 			Map<String, String> pmap = params.get(repositoryID);
 			String type = pmap.get(null);
+			if (type == null)
+				continue;
 			ClassLoader cl = this.getClass().getClassLoader();
 			Enumeration<URL> types = cl.getResources(REPOSITORY_TYPES);
 			while (types.hasMoreElements()) {
@@ -655,10 +658,10 @@ public class CalliServer implements CalliServerMXBean {
 							continue;
 						RepositoryConfig cfg = manager.getRepositoryConfig(id);
 						Map<String, String> params = temp.getParameters(cfg);
-						if (params == null || id.indexOf('.') >= 0)
+						if (params == null || id.indexOf(COLON) >= 0)
 							continue;
 						for (Map.Entry<String, String> e : params.entrySet()) {
-							map.put(id + '.' + e.getKey(), e.getValue());
+							map.put(id + COLON + e.getKey(), e.getValue());
 						}
 						map.put(id, type);
 					}
@@ -668,12 +671,12 @@ public class CalliServer implements CalliServerMXBean {
 		return map;
 	}
 
-	private Map<String, Map<String, String>> groupBeforePeriod(
+	private Map<String, Map<String, String>> groupBeforeColon(
 			Map<String, String> parameters) {
 		Map<String, Map<String, String>> params = new LinkedHashMap<String, Map<String,String>>();
 		for (Map.Entry<String, String> e : parameters.entrySet()) {
 			String id, key;
-			int idx = e.getKey().indexOf('.');
+			int idx = e.getKey().indexOf(COLON);
 			if (idx < 0) {
 				id = e.getKey();
 				key = null;

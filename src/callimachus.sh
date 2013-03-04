@@ -256,10 +256,6 @@ if [ -z "$SSL" ] ; then
   SSL="$BASEDIR/etc/ssl.properties"
 fi
 
-if [ -z "$SSL_OPTS" -a -e "$SSL" ] ; then
-  SSL_OPTS=$(perl -pe 's/\s*\#.*$//g' "$SSL" 2>/dev/null |perl -pe 's/(\S+)=(.*)/-D$1=$2/' 2>/dev/null |tr -s '\n' ' ')
-fi
-
 if [ -z "$JMXRMI" ] ; then
   JMXRMI="$BASEDIR/etc/jmxremote.properties"
 fi
@@ -347,6 +343,10 @@ if [ -r "$JAVA_HOME/lib/security/cacerts" ] && ( [ ! -e "$SSL" ] || ! grep -q ja
   echo "javax.net.ssl.trustStorePassword=$(cat "$SSL.password")" >> "$SSL"
   chmod go-rwx "$SSL"
   rm "$SSL.password"
+fi
+
+if [ -z "$SSL_OPTS" -a -e "$SSL" ] ; then
+  SSL_OPTS=$(perl -pe 's/\s*\#.*$//g' "$SSL" 2>/dev/null |perl -pe 's/(\S+)=(.*)/-D$1=$2/' 2>/dev/null |tr -s '\n' ' ')
 fi
 
 # install jmxremote password

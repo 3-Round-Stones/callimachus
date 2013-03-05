@@ -89,6 +89,7 @@ public class DetachedFacebookManager implements DetachedAuthenticationManager {
 	private final String fbToken;
 	private final Set<String> userCookies = new LinkedHashSet<String>();
 	private final Map<String, AccessToken> tokens = new HashMap<String, AccessToken>();
+	private final AuthorizationService service = AuthorizationService.getInstance();
 
 	public DetachedFacebookManager(String identifier, String redirect_uri,
 			String appId, CharSequence secret, String path, List<String> domains) {
@@ -290,6 +291,8 @@ public class DetachedFacebookManager implements DetachedAuthenticationManager {
 				con.add(link, hasEmail, mailto);
 			}
 		}
+		con.commit();
+		service.get(con.getRepository()).resetCache();
 	}
 
 	private void moveTo(URI link, Statement st, ObjectConnection con)

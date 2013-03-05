@@ -700,6 +700,8 @@ public class CalliServer implements CalliServerMXBean {
 		try {
 			if (isWebServiceRunning()) {
 				stopWebServiceNow();
+			} else {
+				shutDownRepositories();
 			}
 			try {
 				if (getPortArray().length == 0 && getSSLPortArray().length == 0)

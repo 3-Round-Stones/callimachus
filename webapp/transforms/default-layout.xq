@@ -78,10 +78,10 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
                         <h4>Oops!</h4>
                     </div>)}
                     {calli:body-nodes()}
-                </div><!-- container -->
+                </div>
             </div>
-        </div><!-- page -->
-    </div><!-- wrapper -->
+        </div>
+    </div>
 
     <div class="navbar navbar-large navbar-relative-bottom hidden-iframe">
         <footer class="navbar-inner">

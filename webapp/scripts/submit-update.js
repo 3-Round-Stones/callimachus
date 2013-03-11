@@ -15,15 +15,18 @@ $('form[enctype="application/sparql-update"]').each(function() {
         form.bind('reset', function() {
             stored = readRDF(form[0]);
         });
+        var action = calli.getFormAction(this);
         var etag = null;
-        var xhr = $.ajax({
-            type: 'HEAD',
-            url: calli.getFormAction(this),
-            beforeSend: calli.withCredentials,
-            success: function() {
-                etag = xhr.getResponseHeader('ETag');
-            }
-        });
+        if (action.match(/^https?:\/\/[A-Za-z0-9-_.~\!\*\'\(\)\;\:\@\&\=\+\$\,\/\?\%\#\[\]]*$/)) {
+            var xhr = $.ajax({
+                type: 'HEAD',
+                url: action,
+                beforeSend: calli.withCredentials,
+                success: function() {
+                    etag = xhr.getResponseHeader('ETag');
+                }
+            });
+        }
         form.submit(function(event) {
             if (this.getAttribute("enctype") != "application/sparql-update")
                 return true;
@@ -58,7 +61,7 @@ function submitRDFForm(form, stored, etag) {
                 addBoundedDescription(added[hash], revised, added, removed);
             }
             var data = asSparqlUpdate(removed, added);
-            patchData(form[0], data, etag, function(data, textStatus, xhr) {
+            patchData(form, data, etag, function(data, textStatus, xhr) {
                 try {
                     var redirect = null;
                     if (xhr.getResponseHeader('Content-Type') == 'text/uri-list') {

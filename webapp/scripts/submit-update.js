@@ -16,14 +16,13 @@ $('form[enctype="application/sparql-update"]').each(function() {
             stored = readRDF(form[0]);
         });
         var action = calli.getFormAction(this);
-        var etag = null;
         if (action.match(/^https?:\/\/[A-Za-z0-9-_.~\!\*\'\(\)\;\:\@\&\=\+\$\,\/\?\%\#\[\]]*$/)) {
             var xhr = $.ajax({
                 type: 'HEAD',
                 url: action,
                 beforeSend: calli.withCredentials,
                 success: function() {
-                    etag = xhr.getResponseHeader('ETag');
+                    calli.etag(action, xhr.getResponseHeader('ETag'));
                 }
             });
         }
@@ -34,7 +33,7 @@ $('form[enctype="application/sparql-update"]').each(function() {
             setTimeout(function(){
                 var resource = form.attr('about') || form.attr('resource');
                 if (resource) {
-                    submitRDFForm(form[0], stored, etag);
+                    submitRDFForm(form[0], stored);
                 }
             }, 0);
             return false;
@@ -44,7 +43,7 @@ $('form[enctype="application/sparql-update"]').each(function() {
     }
 });
 
-function submitRDFForm(form, stored, etag) {
+function submitRDFForm(form, stored) {
     var se = $.Event("calliSubmit");
     $(form).trigger(se);
     if (!se.isDefaultPrevented()) {
@@ -61,7 +60,7 @@ function submitRDFForm(form, stored, etag) {
                 addBoundedDescription(added[hash], revised, added, removed);
             }
             var data = asSparqlUpdate(removed, added);
-            patchData(form, data, etag, function(data, textStatus, xhr) {
+            patchData(form, data, function(data, textStatus, xhr) {
                 try {
                     var redirect = null;
                     if (xhr.getResponseHeader('Content-Type') == 'text/uri-list') {
@@ -208,7 +207,7 @@ function asSparqlUpdate(removed, added) {
     return writer.toString() || 'INSERT {} WHERE {}';
 }
 
-function patchData(form, data, etag, callback) {
+function patchData(form, data, callback) {
     var method = form.getAttribute('method');
     if (!method) {
         method = form.method;
@@ -220,13 +219,15 @@ function patchData(form, data, etag, callback) {
     if (!type) {
         type = "application/sparql-update";
     }
-    var xhr = null;
-    xhr = $.ajax({ type: method, url: calli.getFormAction(form), contentType: type, data: data, dataType: "text", beforeSend: function(xhr){
+    var action = calli.getFormAction(form);
+    var xhr = $.ajax({ type: method, url: action, contentType: type, data: data, dataType: "text", beforeSend: function(xhr){
+        var etag = calli.etag(action);
         if (etag) {
             xhr.setRequestHeader("If-Match", etag);
         }
         calli.withCredentials(xhr);
     }, success: function(data, textStatus) {
+        calli.etag(action, xhr.getResponseHeader("ETag"));
         callback(data, textStatus, xhr);
     }});
 }

@@ -69,5 +69,6 @@
     rdf:_58 <discussion.js>;
     rdf:_59 <decode-html.js>;
     rdf:_60 <load-editor.js>;
-    rdf:_61 <put-file.js>.
+    rdf:_61 <put-file.js>;
+    rdf:_62 <etag.js>.
 

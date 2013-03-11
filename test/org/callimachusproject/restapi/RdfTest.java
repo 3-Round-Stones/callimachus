@@ -37,19 +37,19 @@ public class RdfTest extends TemporaryServerTestCase {
         			"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n" +
         		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
         		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
-        			" DELETE { rdfs:label \"test\" } INSERT { rdfs:label \"UPDATED\" } WHERE {}"
+        			" DELETE { <> rdfs:label \"test\" } INSERT { <> rdfs:label \"UPDATED\" } WHERE {}"
         	});
         	
         	put("Group", new String[] {
         			"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n" +
         		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
         		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
-        			" INSERT DATA {  \n <created-testGroup/> a calli:Party, calli:Group, </callimachus/Group> ;  \n" +
+        			" INSERT DATA {  \n <created-testGroup> a calli:Party, calli:Group, </callimachus/Group> ;  \n" +
         			" rdfs:label \"testGroup\" . }",
         			"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n" +
         		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
         		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
-        			" DELETE { rdfs:label \"testGroup\" } INSERT { rdfs:label \"UPDATED\" } WHERE {}"
+        			" DELETE { <> rdfs:label \"testGroup\" } INSERT { <> rdfs:label \"UPDATED\" } WHERE {}"
         	});
         	
         	put("User", new String[] {
@@ -61,7 +61,7 @@ public class RdfTest extends TemporaryServerTestCase {
         			"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n" +
         		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
         		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
-        			" DELETE { rdfs:label \"user\" } INSERT { rdfs:label \"UPDATED\" } WHERE {}"
+        			" DELETE { <> rdfs:label \"user\" } INSERT { <> rdfs:label \"UPDATED\" } WHERE {}"
         	});
         	
         	put("PURL", new String[] {
@@ -73,7 +73,7 @@ public class RdfTest extends TemporaryServerTestCase {
         			"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n" +
         		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
         		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
-        			" DELETE { rdfs:label \"purl\" } INSERT { rdfs:label \"UPDATED\" } WHERE {}"
+        			" DELETE { <> rdfs:label \"purl\" } INSERT { <> rdfs:label \"UPDATED\" } WHERE {}"
         	});
         }
     };
@@ -93,7 +93,7 @@ public class RdfTest extends TemporaryServerTestCase {
 		super(name);
 		String [] args = parameters.get(name);
 		create = args[0];
-		update = args[0];
+		update = args[1];
 	}
 	
 	public void runTest() throws Exception {

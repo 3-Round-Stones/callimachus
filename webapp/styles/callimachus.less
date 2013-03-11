@@ -131,7 +131,7 @@ html.iframe,
 }
 
 .iframe body {
-    padding: 0.5rem;
+    padding: 0px;
 }
 
 .container {
@@ -228,6 +228,10 @@ form {
     min-height: 15rem;
 }
 
+.iframe .tab-content {
+    min-height: inherit;
+}
+
 .sidebar {
     width: 18rem;
     right: 0;
@@ -272,6 +276,11 @@ aside h3 {
 }
 .until-navbar-large + .navbar-large.navbar-relative-bottom {
     margin-top: -@largeNavbarHeight;
+}
+.iframe .until-navbar-large {
+    overflow: auto;
+    min-height: inherit;
+    padding-bottom: inherit;
 }
 
 .navbar-large {

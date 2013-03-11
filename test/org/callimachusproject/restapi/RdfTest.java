@@ -20,7 +20,12 @@ public class RdfTest extends TemporaryServerTestCase {
         		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
         		    " prefix skos: <http://www.w3.org/2004/02/skos/core#> \n " + 
         			" INSERT DATA {  \n <created-concept> a skos:Concept, </callimachus/Concept> ;  \n" +
-        			" skos:prefLabel \"concept\" . }"
+        			" skos:prefLabel \"concept\" . }",
+        			"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n" +
+        		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
+        		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
+        		    " prefix skos: <http://www.w3.org/2004/02/skos/core#> \n " + 
+        			" DELETE { <> skos:prefLabel \"concept\" } INSERT { <> skos:prefLabel \"UPDATED\" } WHERE {}"
         	});
         	
         	put("Folder", new String[] {
@@ -28,7 +33,11 @@ public class RdfTest extends TemporaryServerTestCase {
         		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
         		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
         			" INSERT DATA {  \n <created-test/> a calli:Folder, </callimachus/Folder> ;  \n" +
-        			" rdfs:label \"test\" . }"
+        			" rdfs:label \"test\" . }",
+        			"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n" +
+        		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
+        		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
+        			" DELETE { rdfs:label \"test\" } INSERT { rdfs:label \"UPDATED\" } WHERE {}"
         	});
         	
         	put("Group", new String[] {
@@ -36,7 +45,11 @@ public class RdfTest extends TemporaryServerTestCase {
         		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
         		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
         			" INSERT DATA {  \n <created-testGroup/> a calli:Party, calli:Group, </callimachus/Group> ;  \n" +
-        			" rdfs:label \"testGroup\" . }"
+        			" rdfs:label \"testGroup\" . }",
+        			"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n" +
+        		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
+        		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
+        			" DELETE { rdfs:label \"testGroup\" } INSERT { rdfs:label \"UPDATED\" } WHERE {}"
         	});
         	
         	put("User", new String[] {
@@ -44,7 +57,11 @@ public class RdfTest extends TemporaryServerTestCase {
         		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
         		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
         			" INSERT DATA {  \n <created-user> a calli:Party, calli:User, </callimachus/User> ;  \n" +
-        			" rdfs:label \"user\" . }"
+        			" rdfs:label \"user\" . }",
+        			"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n" +
+        		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
+        		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
+        			" DELETE { rdfs:label \"user\" } INSERT { rdfs:label \"UPDATED\" } WHERE {}"
         	});
         	
         	put("PURL", new String[] {
@@ -52,7 +69,11 @@ public class RdfTest extends TemporaryServerTestCase {
         		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
         		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
         			" INSERT DATA {  \n <created-purl> a calli:PURL, </callimachus/PURL> ;  \n" +
-        			" rdfs:label \"purl\" ; calli:alternate \"http://purl.org/\" . }"
+        			" rdfs:label \"purl\" ; calli:alternate \"http://purl.org/\" . }",
+        			"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n" +
+        		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
+        		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
+        			" DELETE { rdfs:label \"purl\" } INSERT { rdfs:label \"UPDATED\" } WHERE {}"
         	});
         }
     };
@@ -65,18 +86,20 @@ public class RdfTest extends TemporaryServerTestCase {
         return suite;
     }
 	
-	private String query;
+	private String create;
+	private String update;
 
 	public RdfTest(String name) throws Exception {
 		super(name);
 		String [] args = parameters.get(name);
-		query = args[0];
+		create = args[0];
+		update = args[0];
 	}
 	
 	public void runTest() throws Exception {
-		String update = "BASE <" + getHomeFolder() + "> \n" + query;
+		String sparql = "BASE <" + getHomeFolder() + "> \n" + create;
 		WebResource resource = getHomeFolder().link("describedby")
-				.create("application/sparql-update", update.getBytes());
+				.create("application/sparql-update", sparql.getBytes());
 		resource.link("alternate", "text/html").get("text/html");
 		resource.link("edit-form", "text/html").get("text/html");
 		resource.link("comments").get("text/html");
@@ -90,6 +113,7 @@ public class RdfTest extends TemporaryServerTestCase {
 		resource.ref("?relatedchanges").get("text/html");
 		resource.ref("?whatlinkshere").get("text/html");
 		resource.ref("?introspect").get("text/html");
+		resource.link("describedby").patch("application/sparql-update", update.getBytes());
 		resource.link("describedby").delete();
 	}
 

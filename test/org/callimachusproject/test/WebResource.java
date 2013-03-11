@@ -4,7 +4,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.Authenticator;
+import java.net.Authenticator.RequestorType;
 import java.net.HttpURLConnection;
+import java.net.InetAddress;
+import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.regex.Matcher;
@@ -13,6 +17,15 @@ import java.util.zip.GZIPInputStream;
 
 import junit.framework.Assert;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.methods.HttpPatch;
+import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.callimachusproject.engine.impl.TermFactoryImpl;
 import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.io.ChannelUtil;
@@ -211,6 +224,37 @@ public class WebResource {
 			out.close();
 		}
 		Assert.assertEquals(con.getResponseMessage(), 204, con.getResponseCode());
+	}
+
+	public void patch(String type, byte[] body) throws IOException {
+		ByteArrayEntity entity = new ByteArrayEntity(body);
+		entity.setContentType(type);
+		HttpPatch req = new HttpPatch(uri);
+		req.setEntity(entity);
+		DefaultHttpClient client = new DefaultHttpClient();
+		URL url = req.getURI().toURL();
+		int port = url.getPort();
+		String host = url.getHost();
+		PasswordAuthentication passAuth = Authenticator
+				.requestPasswordAuthentication(url.getHost(),
+						InetAddress.getByName(url.getHost()), port,
+						url.getProtocol(), "", "digest", url,
+						RequestorType.SERVER);
+		UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(
+				passAuth.getUserName(), new String(passAuth.getPassword()));
+		client.getCredentialsProvider().setCredentials(
+				new AuthScope(host, port), credentials);
+		client.execute(req, new ResponseHandler<Void>() {
+			public Void handleResponse(HttpResponse response)
+					throws ClientProtocolException, IOException {
+				StatusLine status = response.getStatusLine();
+				int code = status.getStatusCode();
+				if (code != 200 && code != 204) {
+					Assert.assertEquals(status.getReasonPhrase(), 204, code);
+				}
+				return null;
+			}
+		});
 	}
 
 	public void delete() throws IOException {

@@ -54,11 +54,15 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpInetConnection;
 import org.apache.http.HttpRequest;
+import org.apache.http.HttpRequestFactory;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
+import org.apache.http.MethodNotSupportedException;
+import org.apache.http.RequestLine;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
+import org.apache.http.impl.DefaultHttpRequestFactory;
 import org.apache.http.impl.nio.DefaultHttpServerIODispatch;
 import org.apache.http.impl.nio.DefaultNHttpServerConnectionFactory;
 import org.apache.http.impl.nio.SSLNHttpServerConnectionFactory;
@@ -70,6 +74,8 @@ import org.apache.http.nio.protocol.HttpAsyncService;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 import org.apache.http.nio.reactor.IOReactorStatus;
+import org.apache.http.nio.util.ByteBufferAllocator;
+import org.apache.http.nio.util.HeapByteBufferAllocator;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpContext;
@@ -108,6 +114,7 @@ import org.callimachusproject.server.model.Filter;
 import org.callimachusproject.server.model.Handler;
 import org.callimachusproject.server.process.Exchange;
 import org.callimachusproject.server.process.HTTPObjectRequestHandler;
+import org.callimachusproject.server.util.AnyHttpMethodRequestFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -183,8 +190,10 @@ public class WebServer extends AbstractHttpClient implements WebServerMXBean, IO
 		httpproc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
 				new ResponseDate(), new ResponseContent(true),
 				new ResponseConnControl() });
+		HttpRequestFactory rfactory = new AnyHttpMethodRequestFactory();
+		HeapByteBufferAllocator allocator = new HeapByteBufferAllocator();
 		// Create server-side I/O event dispatch
-		dispatch = createIODispatch();
+		dispatch = createIODispatch(rfactory, allocator);
 		// Create server-side I/O reactor
 		server = new DefaultListeningIOReactor();
 		server.setExceptionHandler(this);
@@ -192,7 +201,7 @@ public class WebServer extends AbstractHttpClient implements WebServerMXBean, IO
 			try {
 				SSLContext sslcontext = SSLContext.getDefault();
 				// Create server-side I/O event dispatch
-				ssldispatch = createSSLDispatch(sslcontext);
+				ssldispatch = createSSLDispatch(sslcontext, rfactory, allocator);
 				// Create server-side I/O reactor
 				sslserver = new DefaultListeningIOReactor();
 				sslserver.setExceptionHandler(this);
@@ -217,23 +226,28 @@ public class WebServer extends AbstractHttpClient implements WebServerMXBean, IO
 		});
 	}
 
-	private DefaultHttpServerIODispatch createIODispatch() {
+	private DefaultHttpServerIODispatch createIODispatch(
+			HttpRequestFactory requestFactory, ByteBufferAllocator allocator) {
 		HttpAsyncService handler;
 		DefaultNHttpServerConnectionFactory factory;
 		HttpParams params = getDefaultHttpParams();
 		params.setParameter("http.protocol.scheme", "http");
 		handler = createProtocolHandler(httpproc, service, params);
-		factory = new DefaultNHttpServerConnectionFactory(params);
+		factory = new DefaultNHttpServerConnectionFactory(requestFactory,
+				allocator, params);
 		return new DefaultHttpServerIODispatch(handler, factory);
 	}
 
-	private DefaultHttpServerIODispatch createSSLDispatch(SSLContext sslcontext) {
+	private DefaultHttpServerIODispatch createSSLDispatch(
+			SSLContext sslcontext, HttpRequestFactory requestFactory,
+			ByteBufferAllocator allocator) {
 		HttpAsyncService handler;
 		SSLNHttpServerConnectionFactory factory;
 		HttpParams params = getDefaultHttpParams();
 		params.setParameter("http.protocol.scheme", "https");
 		handler = createProtocolHandler(httpproc, service, params);
-		factory = new SSLNHttpServerConnectionFactory(sslcontext, null, params);
+		factory = new SSLNHttpServerConnectionFactory(sslcontext, null,
+				requestFactory, allocator, params);
 		return new DefaultHttpServerIODispatch(handler, factory);
 	}
 

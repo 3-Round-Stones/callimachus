@@ -228,7 +228,6 @@ public class Setup {
 		try {
 			Map<String, String> idByOrigin = conf.getOriginRepositoryIDs();
 			Set<String> repositoryIDs = new HashSet<String>(idByOrigin.values());
-			updateRepositoryConfig(manager, repositoryIDs);
 			List<Future<Boolean>> tasks = new ArrayList<Future<Boolean>>();
 			for (final String id : repositoryIDs) {
 				tasks.add(executor.submit(new Callable<Boolean>() {
@@ -277,15 +276,15 @@ public class Setup {
 			MalformedURLException, OpenRDFException, NoSuchAlgorithmException {
 		Set<String> webappOrigins = getWebappsInRepository(repositoryID, conf);
 		File dataDir = manager.getRepositoryDir(repositoryID);
+		if (backup != null && dataDir.isDirectory()) {
+			backup.backup(getDefaultBackupLabel(repositoryID, conf), dataDir);
+		}
+		boolean changed = updateRepositoryConfig(manager, repositoryID);
 		Repository repo = manager.getRepository(repositoryID);
 		if (repo == null)
 			throw new RepositoryConfigException(
 					"Missing repository configuration for "
 							+ dataDir.getAbsolutePath());
-		if (backup != null) {
-			backup.backup(getDefaultBackupLabel(repositoryID, conf), dataDir);
-		}
-		boolean changed = false;
 		CalliRepository repository = new CalliRepository(repo, dataDir);
 		try {
 			CallimachusSetup setup = new CallimachusSetup(repository);
@@ -358,14 +357,16 @@ public class Setup {
 		return sb.toString();
 	}
 
-	private void updateRepositoryConfig(final LocalRepositoryManager manager,
-			Set<String> repositoryIDs) throws IOException,
+	private boolean updateRepositoryConfig(final LocalRepositoryManager manager,
+			String repositoryID) throws IOException,
 			MalformedURLException, OpenRDFException {
 		File repositoryConfig = SystemProperties.getRepositoryConfigFile();
 		String configString = readContent(repositoryConfig.toURI().toURL());
 		RepositoryConfig config = getRepositoryConfig(configString);
-		if (repositoryIDs.contains(config.getID())) {
-			updateRepositoryConfig(manager, config);
+		if (repositoryID.equals(config.getID())) {
+			return updateRepositoryConfig(manager, config);
+		} else {
+			return false;
 		}
 	}
 
@@ -378,7 +379,7 @@ public class Setup {
 		}
 	}
 
-	private void updateRepositoryConfig(LocalRepositoryManager manager,
+	private boolean updateRepositoryConfig(LocalRepositoryManager manager,
 			RepositoryConfig config) throws RepositoryException,
 			RepositoryConfigException {
 		config.validate();
@@ -386,7 +387,7 @@ public class Setup {
 		if (manager.hasRepositoryConfig(id)) {
 			RepositoryConfig oldConfig = manager.getRepositoryConfig(id);
 			if (equal(config, oldConfig))
-				return;
+				return false;
 			logger.warn("Replacing repository configuration");
 		} else {
 			logger.info("Creating repository: {}", id);
@@ -395,7 +396,7 @@ public class Setup {
 		if (manager.getInitializedRepositoryIDs().contains(id)) {
 			manager.getRepository(id).shutDown();
 		}
-		return;
+		return true;
 	}
 
 	private RepositoryConfig getRepositoryConfig(String configString)

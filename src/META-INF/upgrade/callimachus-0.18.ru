@@ -743,7 +743,6 @@ DELETE {
 { ?resource a </callimachus/Creatable> BIND (</callimachus/Creatable> AS ?previous) BIND (</callimachus/1.0/types/Creatable> AS ?current) } UNION
 { ?resource a </callimachus/DigestManager> BIND (</callimachus/DigestManager> AS ?previous) BIND (</callimachus/1.0/types/DigestManager> AS ?current) } UNION
 { ?resource a </callimachus/Editable> BIND (</callimachus/Editable> AS ?previous) BIND (</callimachus/1.0/types/Editable> AS ?current) } UNION
-{ ?resource a </callimachus/FacebookManager> BIND (</callimachus/FacebookManager> AS ?previous) BIND (</callimachus/1.0/types/FacebookManager> AS ?current) } UNION
 { ?resource a </callimachus/File> BIND (</callimachus/File> AS ?previous) BIND (</callimachus/1.0/types/File> AS ?current) } UNION
 { ?resource a </callimachus/Folder> BIND (</callimachus/Folder> AS ?previous) BIND (</callimachus/1.0/types/Folder> AS ?current) } UNION
 { ?resource a </callimachus/Font> BIND (</callimachus/Font> AS ?previous) BIND (</callimachus/1.0/types/Font> AS ?current) } UNION
@@ -793,7 +792,6 @@ DELETE {
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/Creatable> } BIND (</callimachus/Creatable> AS ?previous) BIND (</callimachus/1.0/types/Creatable> AS ?current) } UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/DigestManager> } BIND (</callimachus/DigestManager> AS ?previous) BIND (</callimachus/1.0/types/DigestManager> AS ?current) } UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/Editable> } BIND (</callimachus/Editable> AS ?previous) BIND (</callimachus/1.0/types/Editable> AS ?current) } UNION
-{ GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/FacebookManager> } BIND (</callimachus/FacebookManager> AS ?previous) BIND (</callimachus/1.0/types/FacebookManager> AS ?current) } UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/File> } BIND (</callimachus/File> AS ?previous) BIND (</callimachus/1.0/types/File> AS ?current) } UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/Folder> } BIND (</callimachus/Folder> AS ?previous) BIND (</callimachus/1.0/types/Folder> AS ?current) } UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/Font> } BIND (</callimachus/Font> AS ?previous) BIND (</callimachus/1.0/types/Font> AS ?current) } UNION
@@ -845,7 +843,6 @@ DELETE {
 { ?resource a </callimachus/types/Creatable> BIND (</callimachus/types/Creatable> AS ?previous) BIND (</callimachus/1.0/types/Creatable> AS ?current) } UNION
 { ?resource a </callimachus/types/DigestManager> BIND (</callimachus/types/DigestManager> AS ?previous) BIND (</callimachus/1.0/types/DigestManager> AS ?current) } UNION
 { ?resource a </callimachus/types/Editable> BIND (</callimachus/types/Editable> AS ?previous) BIND (</callimachus/1.0/types/Editable> AS ?current) } UNION
-{ ?resource a </callimachus/types/FacebookManager> BIND (</callimachus/types/FacebookManager> AS ?previous) BIND (</callimachus/1.0/types/FacebookManager> AS ?current) } UNION
 { ?resource a </callimachus/types/File> BIND (</callimachus/types/File> AS ?previous) BIND (</callimachus/1.0/types/File> AS ?current) } UNION
 { ?resource a </callimachus/types/Folder> BIND (</callimachus/types/Folder> AS ?previous) BIND (</callimachus/1.0/types/Folder> AS ?current) } UNION
 { ?resource a </callimachus/types/Font> BIND (</callimachus/types/Font> AS ?previous) BIND (</callimachus/1.0/types/Font> AS ?current) } UNION
@@ -895,7 +892,6 @@ DELETE {
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/types/Creatable> } BIND (</callimachus/types/Creatable> AS ?previous) BIND (</callimachus/1.0/types/Creatable> AS ?current) } UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/types/DigestManager> } BIND (</callimachus/types/DigestManager> AS ?previous) BIND (</callimachus/1.0/types/DigestManager> AS ?current) } UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/types/Editable> } BIND (</callimachus/types/Editable> AS ?previous) BIND (</callimachus/1.0/types/Editable> AS ?current) } UNION
-{ GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/types/FacebookManager> } BIND (</callimachus/types/FacebookManager> AS ?previous) BIND (</callimachus/1.0/types/FacebookManager> AS ?current) } UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/types/File> } BIND (</callimachus/types/File> AS ?previous) BIND (</callimachus/1.0/types/File> AS ?current) } UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/types/Folder> } BIND (</callimachus/types/Folder> AS ?previous) BIND (</callimachus/1.0/types/Folder> AS ?current) } UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/types/Font> } BIND (</callimachus/types/Font> AS ?previous) BIND (</callimachus/1.0/types/Font> AS ?current) } UNION
@@ -949,7 +945,6 @@ DELETE {
 { ?resource a </callimachus/0.18/types/Creatable> BIND (</callimachus/0.18/types/Creatable> AS ?previous) BIND (</callimachus/1.0/types/Creatable> AS ?current) } UNION
 { ?resource a </callimachus/0.18/types/DigestManager> BIND (</callimachus/0.18/types/DigestManager> AS ?previous) BIND (</callimachus/1.0/types/DigestManager> AS ?current) } UNION
 { ?resource a </callimachus/0.18/types/Editable> BIND (</callimachus/0.18/types/Editable> AS ?previous) BIND (</callimachus/1.0/types/Editable> AS ?current) } UNION
-{ ?resource a </callimachus/0.18/types/FacebookManager> BIND (</callimachus/0.18/types/FacebookManager> AS ?previous) BIND (</callimachus/1.0/types/FacebookManager> AS ?current) } UNION
 { ?resource a </callimachus/0.18/types/File> BIND (</callimachus/0.18/types/File> AS ?previous) BIND (</callimachus/1.0/types/File> AS ?current) } UNION
 { ?resource a </callimachus/0.18/types/Folder> BIND (</callimachus/0.18/types/Folder> AS ?previous) BIND (</callimachus/1.0/types/Folder> AS ?current) } UNION
 { ?resource a </callimachus/0.18/types/Font> BIND (</callimachus/0.18/types/Font> AS ?previous) BIND (</callimachus/1.0/types/Font> AS ?current) } UNION
@@ -999,7 +994,6 @@ DELETE {
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/0.18/types/Creatable> } BIND (</callimachus/0.18/types/Creatable> AS ?previous) BIND (</callimachus/1.0/types/Creatable> AS ?current) } UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/0.18/types/DigestManager> } BIND (</callimachus/0.18/types/DigestManager> AS ?previous) BIND (</callimachus/1.0/types/DigestManager> AS ?current) } UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/0.18/types/Editable> } BIND (</callimachus/0.18/types/Editable> AS ?previous) BIND (</callimachus/1.0/types/Editable> AS ?current) } UNION
-{ GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/0.18/types/FacebookManager> } BIND (</callimachus/0.18/types/FacebookManager> AS ?previous) BIND (</callimachus/1.0/types/FacebookManager> AS ?current) } UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/0.18/types/File> } BIND (</callimachus/0.18/types/File> AS ?previous) BIND (</callimachus/1.0/types/File> AS ?current) } UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/0.18/types/Folder> } BIND (</callimachus/0.18/types/Folder> AS ?previous) BIND (</callimachus/1.0/types/Folder> AS ?current) } UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/0.18/types/Font> } BIND (</callimachus/0.18/types/Font> AS ?previous) BIND (</callimachus/1.0/types/Font> AS ?current) } UNION

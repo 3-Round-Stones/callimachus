@@ -15,13 +15,13 @@ $('form[method="POST"][enctype="multipart/form-data"],form[method="POST"][enctyp
     if (!this.target || this.target.indexOf('iframe-redirect-') != 0) {
         var iname = null;
         while (window.frames[iname = 'iframe-redirect-' + (++iframe_counter)]);
-        createIframeRedirect(iname, form.target);
+        createIframeRedirect(iname, this.target, event);
         this.target = iname;
     }
     return true;
 });
 
-function createIframeRedirect(iname, finalTarget) {
+function createIframeRedirect(iname, finalTarget, cause) {
     var iframe = $('<iframe></iframe>');
     iframe.attr('name', iname)
     iframe.bind('load', function(event) {
@@ -31,6 +31,7 @@ function createIframeRedirect(iname, finalTarget) {
         var redirect = $(doc).text();
         if (redirect && redirect.indexOf('http') == 0) {
             var event = $.Event("calliRedirect");
+            event.cause = cause;
             event.location = window.calli.viewpage(redirect);
             $(this).trigger(event);
             if (!event.isDefaultPrevented()) {

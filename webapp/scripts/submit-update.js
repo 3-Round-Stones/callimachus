@@ -44,23 +44,23 @@ $('form[enctype="application/sparql-update"]').each(function() {
 });
 
 function submitRDFForm(form, stored) {
-    var se = $.Event("calliSubmit");
-    $(form).trigger(se);
-    if (!se.isDefaultPrevented()) {
-        try {
-            var revised = readRDF(form);
-            var diff = diffTriples(stored, revised);
-            var removed = diff.removed;
-            var added = diff.added;
-            var hash, triple;
-            for (hash in removed) {
-                addBoundedDescription(removed[hash], stored, removed, added);
-            }
-            for (hash in added) {
-                addBoundedDescription(added[hash], revised, added, removed);
-            }
-            var data = asSparqlUpdate(removed, added);
-            patchData(form, data, function(data, textStatus, xhr) {
+    try {
+        var revised = readRDF(form);
+        var diff = diffTriples(stored, revised);
+        var removed = diff.removed;
+        var added = diff.added;
+        var hash, triple;
+        for (hash in removed) {
+            addBoundedDescription(removed[hash], stored, removed, added);
+        }
+        for (hash in added) {
+            addBoundedDescription(added[hash], revised, added, removed);
+        }
+        var se = $.Event("calliSubmit");
+        se.data = asSparqlUpdate(removed, added);
+        $(form).trigger(se);
+        if (!se.isDefaultPrevented()) {
+            patchData(form, se.data, function(data, textStatus, xhr) {
                 try {
                     var redirect = null;
                     if (xhr.getResponseHeader('Content-Type') == 'text/uri-list') {
@@ -74,6 +74,7 @@ function submitRDFForm(form, stored) {
                     }
                     redirect = redirect + "?view";
                     var event = $.Event("calliRedirect");
+                    event.cause = se;
                     event.location = redirect;
                     $(form).trigger(event);
                     if (!event.isDefaultPrevented()) {
@@ -86,9 +87,9 @@ function submitRDFForm(form, stored) {
                     throw calli.error(e);
                 }
             });
-        } catch(e) {
-            throw calli.error(e);
         }
+    } catch(e) {
+        throw calli.error(e);
     }
     return false;
 }

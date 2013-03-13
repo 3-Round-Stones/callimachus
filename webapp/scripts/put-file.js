@@ -8,63 +8,72 @@ $('form[method="PUT"]').each(function(event){
     var fileInput = $(form).find('input[type="file"][accept*="' + enctype + '"]');
     if (!enctype || fileInput.length != 1)
         return;
-    var etag = null;
-    var xhr = $.ajax({
-        type: 'HEAD',
-        url: calli.getFormAction(form),
-        beforeSend: calli.withCredentials,
-        success: function() {
-            etag = xhr.getResponseHeader('ETag');
-        }
-    });
+    var action = calli.getFormAction(this);
+    if (action.match(/^https?:\/\/[A-Za-z0-9-_.~\!\*\'\(\)\;\:\@\&\=\+\$\,\/\?\%\#\[\]]*$/)) {
+        var xhr = $.ajax({
+            type: 'HEAD',
+            url: action,
+            beforeSend: calli.withCredentials,
+            success: function() {
+                calli.etag(action, xhr.getResponseHeader('ETag'));
+            }
+        });
+    }
     $(form).submit(function(){
         var form = this;
         var enctype = form.getAttribute("enctype");
         if (!enctype)
             return true;
         var fileInput = $(form).find('input[type="file"][accept*="' + enctype + '"]');
-        if (fileInput.length != 1 || fileInput[0].files.length != 1)
+        if (fileInput.length != 1 || !fileInput[0].files || fileInput[0].files.length != 1)
             return true;
-        var file = fileInput[0].files[0];
-        var xhr = $.ajax({
-            type: form.getAttribute("method"),
-            url: calli.getFormAction(form),
-            contentType: file.type ? file.type : enctype,
-            processData: false,
-            data: file,
-            beforeSend: function(xhr) {
-                if (etag) {
-                    xhr.setRequestHeader('If-Match', etag);
-                }
-                calli.withCredentials(xhr);
-            },
-            success: function() {
-                try {
-                    var redirect = null;
-                    if (xhr.getResponseHeader('Content-Type') == 'text/uri-list') {
-                        redirect = xhr.responseText;
+        var se = $.Event("calliSubmit");
+        se.data = fileInput[0].files[0];
+        $(form).trigger(se);
+        if (!se.isDefaultPrevented()) {
+            var action = calli.getFormAction(form);
+            var xhr = $.ajax({
+                type: form.getAttribute("method"),
+                url: action,
+                contentType: form.getAttribute("enctype"),
+                processData: false,
+                data: se.data,
+                beforeSend: function(xhr) {
+                    var etag = calli.etag(action);
+                    if (etag) {
+                        xhr.setRequestHeader('If-Match', etag);
                     }
-                    if (!redirect) {
-                        redirect = calli.getPageUrl();
-                        if (redirect.indexOf('?') > 0) {
-                            redirect = redirect.substring(0, redirect.indexOf('?'));
+                    calli.withCredentials(xhr);
+                },
+                success: function() {
+                    try {
+                        var redirect = null;
+                        if (xhr.getResponseHeader('Content-Type') == 'text/uri-list') {
+                            redirect = xhr.responseText;
                         }
-                    }
-                    redirect = redirect + "?view";
-                    var event = $.Event("calliRedirect");
-                    event.location = redirect;
-                    $(form).trigger(event);
-                    if (!event.isDefaultPrevented()) {
-                        if (window.parent != window && parent.postMessage) {
-                            parent.postMessage('PUT src\n\n' + event.location, '*');
+                        if (!redirect) {
+                            redirect = calli.getPageUrl();
+                            if (redirect.indexOf('?') > 0) {
+                                redirect = redirect.substring(0, redirect.indexOf('?'));
+                            }
                         }
-                        window.location.replace(event.location);
+                        redirect = redirect + "?view";
+                        var event = $.Event("calliRedirect");
+                        event.cause = se;
+                        event.location = redirect;
+                        $(form).trigger(event);
+                        if (!event.isDefaultPrevented()) {
+                            if (window.parent != window && parent.postMessage) {
+                                parent.postMessage('PUT src\n\n' + event.location, '*');
+                            }
+                            window.location.replace(event.location);
+                        }
+                    } catch(e) {
+                        throw calli.error(e);
                     }
-                } catch(e) {
-                    throw calli.error(e);
                 }
-            }
-        });
+            });
+        }
         return false;
     });
 });

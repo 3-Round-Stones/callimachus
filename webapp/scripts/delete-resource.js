@@ -45,6 +45,7 @@ window.calli.deleteResource = function(event, redirect) {
                 try {
                     if (xhr.status >= 200) {
                         var event = jQuery.Event("calliRedirect");
+                        event.cause = de;
                         event.location = redirect;
                         if (!event.location && xhr.getResponseHeader('Content-Type') == 'text/uri-list') {
                             event.location = xhr.responseText;

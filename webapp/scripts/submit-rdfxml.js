@@ -24,29 +24,34 @@ $('form').submit(function(event) {
 
 function submitRDFForm(form, uri) {
     try {
-        var data = getRDFXML(uri, form);
-        postData(form, data, function(data, textStatus, xhr) {
-            try {
-                var redirect = xhr.getResponseHeader("Location");
-                if (!redirect) {
-                    redirect = calli.getPageUrl();
-                    if (redirect.indexOf('?') > 0) {
-                        redirect = redirect.substring(0, redirect.indexOf('?'));
+        var se = $.Event("calliSubmit");
+        se.data = getRDFXML(uri, form);
+        $(form).trigger(se);
+        if (!se.isDefaultPrevented()) {
+            postData(form, se.data, function(data, textStatus, xhr) {
+                try {
+                    var redirect = xhr.getResponseHeader("Location");
+                    if (!redirect) {
+                        redirect = calli.getPageUrl();
+                        if (redirect.indexOf('?') > 0) {
+                            redirect = redirect.substring(0, redirect.indexOf('?'));
+                        }
                     }
-                }
-                var event = $.Event("calliRedirect");
-                event.location = window.calli.viewpage(redirect);
-                $(form).trigger(event);
-                if (!event.isDefaultPrevented()) {
-                    if (window.parent != window && parent.postMessage) {
-                        parent.postMessage('PUT src\n\n' + event.location, '*');
+                    var event = $.Event("calliRedirect");
+                    event.cause = se;
+                    event.location = window.calli.viewpage(redirect);
+                    $(form).trigger(event);
+                    if (!event.isDefaultPrevented()) {
+                        if (window.parent != window && parent.postMessage) {
+                            parent.postMessage('PUT src\n\n' + event.location, '*');
+                        }
+                        window.location.replace(event.location);
                     }
-                    window.location.replace(event.location);
+                } catch(e) {
+                    throw calli.error(e);
                 }
-            } catch(e) {
-                throw calli.error(e);
-            }
-        });
+            });
+        }
     } catch(e) {
         throw calli.error(e);
     }

@@ -15,7 +15,7 @@
     rdfs:comment "Username and password associated with an email address";
     owl:equivalentClass </callimachus/User>;
     rdfs:isDefinedBy <../../ontology>;
-    calli:administrator </auth/groups/admin>;
+    calli:administrator </auth/groups/super>;
     calli:author </auth/groups/admin>;
     calli:icon <../images/user.png>;
     calli:view <../templates/user-view.xhtml>;

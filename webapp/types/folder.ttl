@@ -33,8 +33,8 @@
     rdfs:comment "A folder of resources";
     owl:equivalentClass </callimachus/Folder>;
     rdfs:isDefinedBy <../../ontology>;
-    calli:administrator </auth/groups/admin>;
-    calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/admin>;
+    calli:administrator </auth/groups/super>;
+    calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/power>,</auth/groups/admin>;
     calli:icon <../images/folder.png>;
     calli:view <../templates/folder-view.xhtml>;
     calli:edit <../templates/folder-edit.xhtml>;

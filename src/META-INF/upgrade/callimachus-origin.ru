@@ -12,24 +12,26 @@ PREFIX msg:<http://www.openrdf.org/rdf/2011/messaging#>
 PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
 
 INSERT {
-	?digest calli:authName ?name; calli:authNamespace ?space
+	$origin a <types/Origin>, calli:Origin, calli:Realm, calli:Folder;
+		rdfs:label ?label;
+		calli:authentication ?digest;
+		calli:reader </auth/groups/system>;
+		calli:reader </auth/groups/public>;
+		calli:subscriber </auth/groups/everyone>;
+		calli:contributor </auth/groups/users>;
+		calli:editor </auth/groups/staff>;
+		calli:administrator </auth/groups/admin>;
+		calli:unauthorized <../unauthorized.html>;
+		calli:forbidden <../forbidden.html>;
+		calli:layout <../default-layout.xq>;
+		calli:authentication </auth/digest+account>.
 } WHERE {
-	{
-		</> calli:authentication [calli:authName ?name; calli:authNamespace ?space]
-	} UNION {
-		FILTER NOT EXISTS { </> calli:authentication [calli:authName ?n; calli:authNamespace ?s] }
-		BIND (replace(replace(str(</>), "^[a-z]*://", ""), "[:/].*", "") AS ?name)
-		BIND (</auth/digest-users/> AS ?space)
-	}
 	FILTER NOT EXISTS { $origin a calli:Origin }
-	BIND (iri(concat(str($origin),"auth/digest+account")) AS ?digest)
+	BIND (replace(replace(str($origin), "^[a-z]*://", ""), "/$", "") AS ?label)
 };
 
 INSERT {
-	$origin a <types/Origin>, calli:Origin;
-		calli:authentication ?digest;
-		calli:reader </auth/groups/system>;
-		calli:hasComponent ?auth .
+	$origin calli:hasComponent ?auth .
 	?auth a <types/Folder>, calli:Folder;
 	    rdfs:label "auth";
 		calli:reader </auth/groups/public>;
@@ -41,11 +43,20 @@ INSERT {
 		rdfs:comment "Sign in with your email address and a site password";
 		calli:reader </auth/groups/public>;
 		calli:subscriber </auth/groups/everyone>;
-		calli:administrator </auth/groups/admin>.
+		calli:administrator </auth/groups/admin>;
+		calli:authName ?name;
+		calli:authNamespace ?space
 } WHERE {
-	FILTER NOT EXISTS { $origin a calli:Origin }
+	{
+		</> calli:authentication [calli:authName ?name; calli:authNamespace ?space]
+	} UNION {
+		FILTER NOT EXISTS { </> calli:authentication [calli:authName ?n; calli:authNamespace ?s] }
+		BIND (replace(replace(str(</>), "^[a-z]*://", ""), "[:/].*", "") AS ?name)
+		BIND (</auth/digest-users/> AS ?space)
+	}
 	BIND (iri(concat(str($origin),"auth/")) AS ?auth)
 	BIND (iri(concat(str($origin),"auth/digest+account")) AS ?digest)
+	FILTER NOT EXISTS { $origin calli:hasComponent ?auth }
 };
 
 INSERT {

@@ -101,24 +101,6 @@ public class UpdateService extends UpdateProvider {
 	}
 
 	@Override
-	public Updater updateRealm(final String realm) throws IOException {
-		return new Updater() {
-			public boolean update(String webapp, CalliRepository repository)
-					throws IOException, OpenRDFException {
-				boolean modified = false;
-				Iterator<UpdateProvider> iter = updateProviders.iterator();
-				while (iter.hasNext()) {
-					Updater updater = iter.next().updateRealm(realm);
-					if (updater != null) {
-						modified |= updater.update(webapp, repository);
-					}
-				}
-				return modified;
-			}
-		};
-	}
-
-	@Override
 	public Updater finalizeCallimachusWebapp(final String origin) throws IOException {
 		return new Updater() {
 			public boolean update(String webapp, CalliRepository repository)

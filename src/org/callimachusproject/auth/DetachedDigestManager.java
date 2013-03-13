@@ -37,7 +37,6 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -56,6 +55,7 @@ import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
 import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.server.exceptions.InternalServerError;
+import org.callimachusproject.setup.SecretRealmProvider;
 import org.callimachusproject.traits.VersionedObject;
 import org.callimachusproject.util.PasswordGenerator;
 import org.openrdf.OpenRDFException;
@@ -63,7 +63,6 @@ import org.openrdf.model.Literal;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
 import org.openrdf.model.vocabulary.XMLSchema;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.TupleQuery;
@@ -380,11 +379,12 @@ public class DetachedDigestManager implements DetachedAuthenticationManager {
 		return getDaypass(getHalfDay(now), readString(secret));
 	}
 
-	public Set<?> changeDigestPassword(Set<RDFObject> files, String[] passwords, ObjectConnection con)
+	public Set<?> changeDigestPassword(Set<RDFObject> files,
+			String[] passwords, String webapp, ObjectConnection con)
 			throws RepositoryException, IOException {
 		int i = 0;
 		Set<Object> set = new LinkedHashSet<Object>();
-		for (URI uuid : getPasswordFiles(files, passwords.length, con)) {
+		for (URI uuid : getPasswordFiles(files, passwords.length, webapp, con)) {
 			Writer writer = con.getBlobObject(uuid).openWriter();
 			try {
 				writer.write(passwords[i++]);
@@ -648,8 +648,8 @@ public class DetachedDigestManager implements DetachedAuthenticationManager {
 		return new PasswordGenerator(seed).nextPassword();
 	}
 
-	private Set<URI> getPasswordFiles(Set<RDFObject> files, int count, ObjectConnection con)
-			throws RepositoryException {
+	private Set<URI> getPasswordFiles(Set<RDFObject> files, int count,
+			String webapp, ObjectConnection con) throws RepositoryException {
 		if (files.size() == count) {
 			Set<URI> list = new TreeSet<URI>(new ValueComparator());
 			for (RDFObject file : files) {
@@ -660,7 +660,6 @@ public class DetachedDigestManager implements DetachedAuthenticationManager {
 			if (list.size() == count)
 				return list;
 		}
-		ValueFactory vf = con.getValueFactory();
 		for (RDFObject file : files) {
 			Resource object = file.getResource();
 			if (object instanceof URI) {
@@ -669,8 +668,7 @@ public class DetachedDigestManager implements DetachedAuthenticationManager {
 		}
 		Set<URI> list = new TreeSet<URI>(new ValueComparator());
 		for (int i = 0; i < count; i++) {
-			URI uuid = vf.createURI("urn:uuid:" + UUID.randomUUID());
-			list.add(uuid);
+			list.add(SecretRealmProvider.createSecretFile(webapp, con));
 		}
 		return list;
 	}

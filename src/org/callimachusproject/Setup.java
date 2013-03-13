@@ -97,6 +97,8 @@ public class Setup {
 		commands.option("K", "no-backup").desc("Disable automatic backup");
 		commands.option("u", "user").optional("name")
 				.desc("Create the given user");
+		commands.option("g", "group").arg("group path")
+				.desc("Add the new user to this group (in addition to the admin group)");
 		commands.option("n", "name").arg("name")
 				.desc("If creating a new user use this full name");
 		commands.option("e", "email").arg("addr")
@@ -138,6 +140,7 @@ public class Setup {
 	}
 
 	private final Logger logger = LoggerFactory.getLogger(Setup.class);
+	private final Set<String> groups = new HashSet<String>();
 	private boolean silent;
 	private File confFile;
 	private File basedir;
@@ -207,6 +210,7 @@ public class Setup {
 						}
 						CallimachusSetup.validateEmail(email);
 					}
+					groups.addAll(Arrays.asList(line.getAll("group")));
 				}
 			}
 		} catch (IllegalArgumentException e) {
@@ -301,6 +305,9 @@ public class Setup {
 				for (String origin : webappOrigins) {
 					changed |= setup.createAdmin(email, username, name, null,
 							origin);
+					for (String group : groups) {
+						changed |= setup.addUserToGroup(username, group, origin);
+					}
 					if (password == null || password.length < 1) {
 						Set<String> reg = setup.getUserRegistrationLinks(username,
 								email, origin);

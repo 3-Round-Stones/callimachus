@@ -58,6 +58,29 @@ public class CalliRepository extends RepositoryWrapper implements CalliRepositor
 	private static final String SLASH_ORIGIN = "/types/Origin";
 	private static final String CHANGE_TYPE = "types/Change";
 	private static final String FOLDER_TYPE = "types/Folder";
+
+	public static String getCallimachusWebapp(String url, RepositoryConnection con)
+			throws RepositoryException {
+		ParsedURI parsed = new ParsedURI(url + "/");
+		String root = parsed.getScheme() + "://" + parsed.getAuthority() + "/";
+		ValueFactory vf = con.getValueFactory();
+		RepositoryResult<Statement> stmts;
+		stmts = con
+				.getStatements(vf.createURI(root), RDF.TYPE, null, false);
+		try {
+			while (stmts.hasNext()) {
+				String type = stmts.next().getObject().stringValue();
+				if (type.startsWith(root) && type.endsWith(SLASH_ORIGIN)) {
+					int end = type.length() - SLASH_ORIGIN.length();
+					return type.substring(0, end + 1);
+				}
+			}
+			return null;
+		} finally {
+			stmts.close();
+		}
+	}
+
 	private final org.slf4j.Logger logger = LoggerFactory.getLogger(CalliRepository.class);
 	private final TracerService service = TracerService.newInstance();
 	private final AuditingRepository auditing;
@@ -330,9 +353,7 @@ public class CalliRepository extends RepositoryWrapper implements CalliRepositor
 	 */
 	public String getCallimachusUrl(String origin, String path)
 			throws OpenRDFException {
-		ParsedURI parsed = new ParsedURI(origin + "/");
-		String root = parsed.getScheme() + "://" + parsed.getAuthority() + "/";
-		String webapp = getCallimachusWebapp(root);
+		String webapp = getCallimachusWebapp(origin);
 		if (webapp == null)
 			return null;
 		return TermFactory.newInstance(webapp).resolve(path);
@@ -347,29 +368,13 @@ public class CalliRepository extends RepositoryWrapper implements CalliRepositor
 	 * @return folder of the Callimachus webapp (or null)
 	 * @throws OpenRDFException
 	 */
-	private String getCallimachusWebapp(String root) throws OpenRDFException {
-		assert root.endsWith("/");
+	private String getCallimachusWebapp(String url) throws OpenRDFException {
 		RepositoryConnection con = this.getConnection();
 		try {
-			ValueFactory vf = con.getValueFactory();
-			RepositoryResult<Statement> stmts;
-			stmts = con
-					.getStatements(vf.createURI(root), RDF.TYPE, null, false);
-			try {
-				while (stmts.hasNext()) {
-					String type = stmts.next().getObject().stringValue();
-					if (type.startsWith(root) && type.endsWith(SLASH_ORIGIN)) {
-						int end = type.length() - SLASH_ORIGIN.length();
-						return type.substring(0, end + 1);
-					}
-				}
-			} finally {
-				stmts.close();
-			}
+			return getCallimachusWebapp(url, con);
 		} finally {
 			con.close();
 		}
-		return null;
 	}
 
 	private AuditingRepository findAuditingRepository(Repository repository,

@@ -30,8 +30,8 @@
     rdfs:comment "New pages can be created in a folder";
     owl:equivalentClass </callimachus/Page>;
     rdfs:isDefinedBy <../../ontology>;
-    calli:administrator </auth/groups/admin>;
-    calli:author </auth/groups/staff>,</auth/groups/admin>;
+    calli:administrator </auth/groups/super>;
+    calli:author </auth/groups/staff>,</auth/groups/power>,</auth/groups/admin>;
     calli:icon <../images/page.png>;
     calli:edit <../templates/page-edit.xhtml>;
     calli:create <../templates/page-create.xhtml>;

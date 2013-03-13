@@ -24,10 +24,6 @@ public abstract class UpdateProvider {
 		return null;
 	}
 
-	public Updater updateRealm(String realm) throws IOException {
-		return null;
-	}
-
 	public Updater finalizeCallimachusWebapp(String origin) throws IOException {
 		return null;
 	}

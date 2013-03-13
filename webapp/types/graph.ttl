@@ -36,7 +36,7 @@
     rdfs:subClassOf <File>, sd:NamedGraph;
     rdfs:label "Named Graph";
     rdfs:isDefinedBy <../../ontology>;
-    calli:administrator </auth/groups/admin>;
+    calli:administrator </auth/groups/super>;
     calli:author </auth/groups/admin>;
     calli:icon <../images/graph.png>;
     calli:create <../templates/file-create.xhtml>;
@@ -48,7 +48,7 @@
     rdfs:label "Graph Document";
     rdfs:comment "Terse RDF Triple documents";
     rdfs:isDefinedBy <../../ontology>;
-    calli:administrator </auth/groups/admin>;
+    calli:administrator </auth/groups/super>;
     calli:author </auth/groups/admin>;
     calli:icon <../images/graph.png>;
     calli:edit <../templates/graph-edit.xhtml>;

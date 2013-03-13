@@ -555,16 +555,6 @@ public class CalliServer implements CalliServerMXBean {
 		});
 	}
 
-	public void setupRootRealm(final String realm, final String webappOrigin)
-			throws Exception {
-		submit(new Callable<Void>() {
-			public Void call() throws Exception {
-				getSetupTool(webappOrigin).setupRootRealm(realm, webappOrigin);
-				return null;
-			}
-		});
-	}
-
 	public String[] getDigestEmailAddresses(String webappOrigin)
 			throws OpenRDFException, IOException {
 		return getSetupTool(webappOrigin).getDigestEmailAddresses(webappOrigin);

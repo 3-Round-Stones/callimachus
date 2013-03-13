@@ -30,8 +30,8 @@
     rdfs:comment "Saved XQueries";
     owl:equivalentClass </callimachus/XQuery>;
     rdfs:isDefinedBy <../../ontology>;
-    calli:administrator </auth/groups/admin>;
-    calli:author </auth/groups/staff>, </auth/groups/admin>;
+    calli:administrator </auth/groups/super>;
+    calli:author </auth/groups/staff>, </auth/groups/power>,</auth/groups/admin>;
     calli:icon <../images/xquery.png>;
     calli:view <../templates/xquery-view.xhtml>;
     calli:edit <../templates/xquery-edit.xhtml>;

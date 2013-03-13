@@ -151,19 +151,6 @@ public class SetupTool {
 		setup.finalizeWebappOrigin(webappOrigin);
 	}
 
-	public synchronized void setupRootRealm(String realm, String webappOrigin)
-			throws OpenRDFException, IOException {
-		String root = webappOrigin + "/";
-		for (SetupOrigin origin : getOrigins()) {
-			if (origin.isResolvable() && !origin.getRoot().equals(root))
-				throw new IllegalStateException("Unresolvable realms can only be used with a single resolvable origin");
-		}
-		CallimachusSetup setup = new CallimachusSetup(repository);
-		setup.prepareWebappOrigin(webappOrigin);
-		setup.createRealm(realm, webappOrigin);
-		setup.finalizeWebappOrigin(webappOrigin);
-	}
-
 	public synchronized String[] getDigestEmailAddresses(String webappOrigin)
 			throws OpenRDFException, IOException {
 		CallimachusSetup setup = new CallimachusSetup(repository);

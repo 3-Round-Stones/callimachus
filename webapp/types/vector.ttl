@@ -30,8 +30,8 @@
     rdfs:label "Vector Graphic" ;
     owl:equivalentClass </callimachus/VectorGraphic>;
     rdfs:isDefinedBy <../../ontology>;
-    calli:administrator </auth/groups/admin>;
-    calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/admin>;
+    calli:administrator </auth/groups/super>;
+    calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/power>,</auth/groups/admin>;
     calli:icon <../images/image.png>;
     calli:create <../templates/file-create.xhtml>;
     calli:mediaType "image/svg+xml";

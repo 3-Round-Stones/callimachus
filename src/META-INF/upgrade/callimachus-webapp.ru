@@ -276,23 +276,48 @@ INSERT {
     rdfs:label "digest users";
     calli:subscriber </auth/groups/staff>;
     calli:administrator </auth/groups/admin>.
+} WHERE {
+	FILTER NOT EXISTS { </auth/digest-users/> a calli:Folder }
+};
 
+INSERT {
+</auth/> calli:hasComponent </auth/secrets/>.
+</auth/secrets/> a <types/Folder>, calli:Folder;
+    rdfs:label "secrets".
+} WHERE {
+	FILTER NOT EXISTS { </auth/secrets/> a calli:Folder }
+};
+
+INSERT {
 </auth/> calli:hasComponent </auth/groups/>.
 </auth/groups/> a <types/Folder>, calli:Folder;
     rdfs:label "groups";
     calli:subscriber </auth/groups/staff>;
     calli:administrator </auth/groups/admin>;
     calli:hasComponent
+        </auth/groups/super>,
         </auth/groups/admin>,
+        </auth/groups/power>,
         </auth/groups/staff>,
         </auth/groups/users>,
         </auth/groups/everyone>,
         </auth/groups/system>,
         </auth/groups/public>.
 
+</auth/groups/super> a calli:Party, calli:Group, <types/Group>;
+    rdfs:label "super";
+    rdfs:comment "The user accounts in this group have heightened privileges to change or patch the system itself".
+
 </auth/groups/admin> a calli:Party, calli:Group, <types/Group>;
     rdfs:label "admin";
-    rdfs:comment "The user accounts in this group have heightened privileges, including the ability to edit other user accounts and access the underlying data store";
+    rdfs:comment "Members of this grouph have the ability to edit other user accounts and access to modify the underlying data store";
+    calli:subscriber </auth/groups/staff>;
+    calli:administrator </auth/groups/admin>;
+    calli:membersFrom ".".
+
+</auth/groups/power> a calli:Party, calli:Group, <types/Group>;
+    rdfs:label "power";
+    rdfs:comment "Members of this group can access all data in the underlying data store";
     calli:subscriber </auth/groups/staff>;
     calli:administrator </auth/groups/admin>;
     calli:membersFrom ".".

@@ -3,6 +3,7 @@ org.callimachusproject.setup.SparqlUpdateProvider
 org.callimachusproject.setup.MainArticleProvider
 org.callimachusproject.setup.FaviconProvider
 org.callimachusproject.setup.LocalSystemProvider
+org.callimachusproject.setup.SuperSystemProvider
 org.callimachusproject.setup.RobotsProvider
 org.callimachusproject.setup.SecretRealmProvider
 org.callimachusproject.setup.ServeAllProvider

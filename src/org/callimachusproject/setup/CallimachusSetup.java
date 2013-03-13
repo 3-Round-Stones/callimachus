@@ -31,7 +31,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.UUID;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.callimachusproject.engine.model.TermFactory;
@@ -223,28 +222,8 @@ public class CallimachusSetup {
 		Updater updater = updateProvider.updateOrigin(origin);
 		String webapp = webapp(webappOrigin, "").stringValue();
 		modified |= updater.update(webapp, repository);
-		return modified | createRealm(origin + "/", webappOrigin);
-	}
-
-	/**
-	 * Creates or updates a root realm.
-	 * 
-	 * @param realm absolute hierarchical URI with a path
-	 * @param webappOrigin origin that will contain a Callimachus webapp
-	 * @return if the RDF store was modified
-	 * @throws OpenRDFException
-	 * @throws IOException
-	 */
-	public boolean createRealm(String realm, String webappOrigin)
-			throws OpenRDFException, IOException {
-		validateRealm(realm);
-		validateOrigin(webappOrigin);
-		boolean modified = false;
-		Updater updater = updateProvider.updateRealm(realm);
-		String webapp = webapp(webappOrigin, "").stringValue();
-		modified |= updater.update(webapp, repository);
 		if (modified) {
-			logger.info("Created {}", realm);
+			logger.info("Created {}", origin);
 		}
 		return modified;
 	}
@@ -274,6 +253,34 @@ public class CallimachusSetup {
 				URI subj = vf.createURI(space + username);
 				modified |= changeAdminPassword(webappOrigin, vf.createURI(space),
 						subj, email, username, label, comment, con);
+				URI admin = webapp(webappOrigin, GROUP_ADMIN);
+				if (!con.hasStatement(admin, vf.createURI(CALLI_MEMBER), subj)) {
+					con.add(admin, vf.createURI(CALLI_MEMBER), subj);
+					modified = true;
+				}
+			}
+			con.setAutoCommit(true);
+			return modified;
+		} finally {
+			con.close();
+		}
+	}
+
+	public boolean addUserToGroup(String username, String groupPath,
+			String webappOrigin) throws OpenRDFException, IOException {
+		validateName(username);
+		ObjectConnection con = repository.getConnection();
+		try {
+			con.setAutoCommit(false);
+			ValueFactory vf = con.getValueFactory();
+			boolean modified = false;
+			for (String space : getDigestUserNamespaces(webappOrigin, con)) {
+				URI subj = vf.createURI(space + username);
+				URI group = webapp(webappOrigin, groupPath);
+				if (!con.hasStatement(group, vf.createURI(CALLI_MEMBER), subj)) {
+					con.add(group, vf.createURI(CALLI_MEMBER), subj);
+					modified = true;
+				}
 			}
 			con.setAutoCommit(true);
 			return modified;
@@ -295,7 +302,7 @@ public class CallimachusSetup {
 				String[] encoded = encodePassword(username, email, authName,
 						password);
 				URI subj = vf.createURI(user + username);
-				modified |= setPassword(subj, encoded, con);
+				modified |= setPassword(subj, encoded, origin, con);
 			}
 			con.setAutoCommit(true);
 			if (modified) {
@@ -461,8 +468,8 @@ public class CallimachusSetup {
 			return true;
 		} else {
 			logger.info("Creating user {}", username);
-			URI staff = vf.createURI(origin + GROUP_STAFF);
-			URI admin = vf.createURI(origin + GROUP_ADMIN);
+			URI staff = webapp(origin, GROUP_STAFF);
+			URI admin = webapp(origin, GROUP_ADMIN);
 			con.add(subj, RDF.TYPE, webapp(origin, USER_TYPE));
 			con.add(subj, RDF.TYPE, vf.createURI(CALLI_PARTY));
 			con.add(subj, RDF.TYPE, vf.createURI(CALLI_USER));
@@ -478,7 +485,6 @@ public class CallimachusSetup {
 			con.add(subj, vf.createURI(CALLI_SUBSCRIBER), staff);
 			con.add(subj, vf.createURI(CALLI_ADMINISTRATOR), admin);
 			con.add(folder, vf.createURI(CALLI_HASCOMPONENT), subj);
-			con.add(admin, vf.createURI(CALLI_MEMBER), subj);
 			if (email != null && email.length() > 2) {
 				con.add(subj, calliEmail, vf.createLiteral(email));
 			}
@@ -519,17 +525,17 @@ public class CallimachusSetup {
 		return encoded;
 	}
 
-	private boolean setPassword(URI subj, String[] encoded, ObjectConnection con)
-			throws RepositoryException, IOException {
+	private boolean setPassword(URI subj, String[] encoded, String origin,
+			ObjectConnection con) throws RepositoryException, IOException {
 		int i = 0;
 		boolean modified = false;
-		for (URI uuid : getPasswordURI(subj, encoded.length, con)) {
+		for (URI uuid : getPasswordURI(subj, encoded.length, origin, con)) {
 			modified |= storeTextBlob(uuid, encoded[i++], con);
 		}
 		return modified;
 	}
 
-	private Collection<URI> getPasswordURI(URI subj, int count,
+	private Collection<URI> getPasswordURI(URI subj, int count, String origin,
 			ObjectConnection con) throws RepositoryException {
 		ValueFactory vf = con.getValueFactory();
 		List<Statement> passwords = con.getStatements(subj,
@@ -551,9 +557,10 @@ public class CallimachusSetup {
 			}
 			con.remove(st);
 		}
+		String webapp = CalliRepository.getCallimachusWebapp(origin, con);
 		Set<URI> list = new TreeSet<URI>(new ValueComparator());
 		for (int i = 0; i < count; i++) {
-			URI uuid = vf.createURI("urn:uuid:" + UUID.randomUUID());
+			URI uuid = SecretRealmProvider.createSecretFile(webapp, con);
 			con.add(subj, vf.createURI(CALLI_PASSWORD), uuid);
 			list.add(uuid);
 		}

@@ -14,6 +14,7 @@ import org.callimachusproject.auth.DetachedAuthenticationManager;
 import org.callimachusproject.auth.DetachedDigestManager;
 import org.callimachusproject.auth.RealmManager;
 import org.callimachusproject.concepts.DigestManager;
+import org.callimachusproject.repository.CalliRepository;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Resource;
 import org.openrdf.repository.RepositoryException;
@@ -93,8 +94,9 @@ public abstract class DigestManagerSupport implements RDFObject, DigestManager {
 		DetachedDigestManager digest = getManager();
 		if (digest == null)
 			return null;
-		return digest.changeDigestPassword(files, passwords,
-				this.getObjectConnection());
+		ObjectConnection con = this.getObjectConnection();
+		String webapp = CalliRepository.getCallimachusWebapp(this.toString(), con);
+		return digest.changeDigestPassword(files, passwords, webapp, con);
 	}
 
 	/**

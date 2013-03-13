@@ -30,8 +30,8 @@
     rdfs:comment "Text files";
     owl:equivalentClass </callimachus/TextFile>;
     rdfs:isDefinedBy <../../ontology>;
-    calli:administrator </auth/groups/admin>;
-    calli:author </auth/groups/staff>,</auth/groups/admin>;
+    calli:administrator </auth/groups/super>;
+    calli:author </auth/groups/staff>,</auth/groups/power>,</auth/groups/admin>;
     calli:icon <../images/text.png>;
     calli:view <../templates/text-view.xhtml>;
     calli:edit <../templates/text-edit.xhtml>;

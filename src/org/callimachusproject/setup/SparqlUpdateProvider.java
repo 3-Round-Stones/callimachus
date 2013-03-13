@@ -26,7 +26,6 @@ public class SparqlUpdateProvider extends UpdateProvider {
 	private static final Pattern DEFAULT_WEBAPP = Pattern.compile("(?:^|\n)\\s*#\\s*@webapp\\s*<([^>]*)>\\s*(?:\n|$)");
 	private static final String WEBAPP_RU = "META-INF/upgrade/callimachus-webapp.ru";
 	private static final String ORIGIN_RU = "META-INF/upgrade/callimachus-origin.ru";
-	private static final String REALM_RU = "META-INF/upgrade/callimachus-realm.ru";
 	private static final String FINALIZE_RU = "META-INF/upgrade/callimachus-finalize.ru";
 	private final Logger logger = LoggerFactory
 			.getLogger(SparqlUpdateProvider.class);
@@ -111,42 +110,6 @@ public class SparqlUpdateProvider extends UpdateProvider {
 						ValueFactory vf = con.getValueFactory();
 						Update update = con.prepareUpdate(SPARQL, ru, webapp);
 						update.setBinding("origin", vf.createURI(virtual + "/"));
-						update.execute();
-						con.setAutoCommit(true);
-					} catch (MalformedQueryException e) {
-						throw new MalformedQueryException(e.getMessage()
-								.replaceAll("\n.*", "") + " in " + url, e);
-					} finally {
-						con.close();
-					}
-				}
-				return true;
-			}
-		};
-	}
-
-	@Override
-	public Updater updateRealm(final String realm)
-			throws IOException {
-		final ClassLoader cl = getClass().getClassLoader();
-		Enumeration<URL> resources = cl.getResources(REALM_RU);
-		if (!resources.hasMoreElements())
-			return null;
-		return new Updater() {
-			public boolean update(String webapp, CalliRepository repository)
-					throws IOException, OpenRDFException {
-				Enumeration<URL> resources = cl.getResources(REALM_RU);
-				while (resources.hasMoreElements()) {
-					URL url = resources.nextElement();
-					InputStream in = url.openStream();
-					Reader reader = new InputStreamReader(in, "UTF-8");
-					String ru = IOUtil.readString(reader);
-					ObjectConnection con = repository.getConnection();
-					try {
-						con.setAutoCommit(false);
-						ValueFactory vf = con.getValueFactory();
-						Update update = con.prepareUpdate(SPARQL, ru, webapp);
-						update.setBinding("realm", vf.createURI(realm));
 						update.execute();
 						con.setAutoCommit(true);
 					} catch (MalformedQueryException e) {

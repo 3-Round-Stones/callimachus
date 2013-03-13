@@ -30,8 +30,8 @@
     rdfs:label "Image" ;
     owl:equivalentClass </callimachus/Image>;
     rdfs:isDefinedBy <../../ontology>;
-    calli:administrator </auth/groups/admin>;
-    calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/admin>;
+    calli:administrator </auth/groups/super>;
+    calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/power>,</auth/groups/admin>;
     calli:icon <../images/image.png>;
     calli:view <../templates/image-view.xhtml> ;
     calli:edit <../templates/image-edit.xhtml> ;
@@ -42,8 +42,8 @@
     rdfs:label "Animated Graphic" ;
     owl:equivalentClass </callimachus/AnimatedGraphic>;
     rdfs:isDefinedBy <../../ontology>;
-    calli:administrator </auth/groups/admin>;
-    calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/admin>;
+    calli:administrator </auth/groups/super>;
+    calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/power>,</auth/groups/admin>;
     calli:icon <../images/image.png>;
     calli:create <../templates/file-create.xhtml>;
     calli:mediaType "image/gif".
@@ -53,8 +53,8 @@
     rdfs:label "Icon Graphic" ;
     owl:equivalentClass </callimachus/IconGraphic>;
     rdfs:isDefinedBy <../../ontology>;
-    calli:administrator </auth/groups/admin>;
-    calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/admin>;
+    calli:administrator </auth/groups/super>;
+    calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/power>,</auth/groups/admin>;
     calli:icon <../images/image.png>;
     calli:create <../templates/file-create.xhtml>;
     calli:mediaType "image/vnd.microsoft.icon".
@@ -64,8 +64,8 @@
     rdfs:label "Network Graphic" ;
     owl:equivalentClass </callimachus/NetworkGraphic>;
     rdfs:isDefinedBy <../../ontology>;
-    calli:administrator </auth/groups/admin>;
-    calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/admin>;
+    calli:administrator </auth/groups/super>;
+    calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/power>,</auth/groups/admin>;
     calli:icon <../images/image.png>;
     calli:create <../templates/file-create.xhtml>;
     calli:mediaType "image/png".

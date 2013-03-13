@@ -14,8 +14,8 @@
     rdfs:subClassOf <Folder>, calli:Realm;
     owl:equivalentClass </callimachus/Realm>;
     rdfs:isDefinedBy <../../ontology>;
-    calli:administrator </auth/groups/admin>;
-    calli:author </auth/groups/admin>;
+    calli:administrator </auth/groups/super>;
+    calli:author </auth/groups/power>,</auth/groups/admin>;
     calli:icon <../images/realm.png>;
     calli:edit <../templates/realm-edit.xhtml>;
     calli:create <../templates/realm-create.xhtml>.
@@ -24,21 +24,21 @@
 :CreateRealm owl:intersectionOf (<creatable.ttl#PostCreate>
         [owl:onProperty msg:target; owl:hasValue <Realm> ]);
     calli:script """
-        var realm = proceed();
-        var uuid = java.util.UUID.randomUUID().toString();
-        realm.calliSecret = this.objectConnection.getObject("urn:uuid:" + uuid);
+        var con = this.objectConnection;
         //# generate random bits
         var random = java.security.SecureRandom.getInstance("SHA1PRNG");
         var bytes = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
         random.nextBytes(bytes);
         var text = org.apache.commons.codec.binary.Base64.encodeBase64String(bytes);
-        //# write to blob identified by the uuid
-        var out = realm.calliSecret.openWriter();
-        try {
-            out.write(text);
-        } finally {
-            out.close();
-        }
+        var stream = new java.io.ByteArrayInputStream(new java.lang.String(text).getBytes("UTF-8"));
+        var TextFileUri = this.toUri().resolve("TextFile").toASCIIString();
+        var TextFile = con.getObject(TextFileUri);
+        var realm = proceed();
+        var uuid = java.util.UUID.randomUUID().toString();
+        var uri = this.toUri().resolve("/auth/secrets/").toASCIIString();
+        realm.calliSecret = con.getObject(uri + uuid);
+        TextFile.PostCreate(stream, realm.calliSecret, "text/plain");
+        con.getObject(uri).calliHasComponent.add(realm.calliSecret);
         realm.resetCache();
         return realm;
     """.

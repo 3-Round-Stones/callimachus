@@ -30,8 +30,8 @@
     rdfs:label "Schematron" ;
     owl:equivalentClass </callimachus/Schematron>;
     rdfs:isDefinedBy <../../ontology>;
-    calli:administrator </auth/groups/admin>;
-    calli:author </auth/groups/staff>,</auth/groups/admin>;
+    calli:administrator </auth/groups/super>;
+    calli:author </auth/groups/staff>,</auth/groups/power>,</auth/groups/admin>;
     calli:icon <../images/schematron.png>;
     calli:create <../templates/file-create.xhtml>;
     calli:mediaType "application/xml";

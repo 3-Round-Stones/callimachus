@@ -76,8 +76,6 @@ public interface CalliServerMXBean {
 
 	void setupResolvableOrigin(String origin, String webappOrigin) throws Exception;
 
-	void setupRootRealm(String realm, String webappOrigin) throws Exception;
-
 	String[] getDigestEmailAddresses(String webappOrigin)
 			throws OpenRDFException, IOException;
 

@@ -52,10 +52,10 @@ public class SetupTool {
 	private static final String CALLI_AUTHENTICATION = CALLI + "authentication";
 	private static final String PREFIX = "PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>\n"
 			+ "PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>\n";
-	private static final String COPY_FOLDER_PERM = PREFIX
-			+ "INSERT { $folder\n"
+	private static final String COPY_FILE_PERM = PREFIX
+			+ "INSERT { $file\n"
 			+ "calli:reader ?reader; calli:subscriber ?subscriber; calli:contributor ?contributor; calli:editor ?editor; calli:administrator ?administrator\n"
-			+ "} WHERE { ?parent calli:hasComponent $folder\n"
+			+ "} WHERE { ?parent calli:hasComponent $file\n"
 			+ "OPTIONAL { ?parent calli:reader ?reader }\n"
 			+ "OPTIONAL { ?parent calli:subscriber ?subscriber }\n"
 			+ "OPTIONAL { ?parent calli:contributor ?contributor }\n"
@@ -205,11 +205,20 @@ public class SetupTool {
 		}
 	}
 
-	public void importGraph(String graph, String systemId, String type)
+	public void createResource(String graph, String systemId, String type)
 			throws OpenRDFException, IOException {
 		ObjectConnection con = repository.getConnection();
 		try {
+			ValueFactory vf = con.getValueFactory();
+			URI target = vf.createURI(systemId);
+			URI folder = vf.createURI(getParentFolder(systemId));
+			con.setAutoCommit(false);
 			con.add(new StringReader(graph), systemId, RDFFormat.forMIMEType(type));
+			con.add(folder, vf.createURI(CALLI_HASCOMPONENT), target);
+			Update perm = con.prepareUpdate(QueryLanguage.SPARQL, COPY_FILE_PERM);
+			perm.setBinding("file", target);
+			perm.execute();
+			con.setAutoCommit(true);
 		} finally {
 			con.close();
 		}
@@ -382,8 +391,8 @@ public class SetupTool {
 		if (!con.hasStatement(uri, RDF.TYPE, webapp(webappOrigin, REALM_TYPE))) {
 			con.add(uri, RDF.TYPE, webapp(webappOrigin, FOLDER_TYPE));
 		}
-		Update perm = con.prepareUpdate(QueryLanguage.SPARQL, COPY_FOLDER_PERM);
-		perm.setBinding("folder", uri);
+		Update perm = con.prepareUpdate(QueryLanguage.SPARQL, COPY_FILE_PERM);
+		perm.setBinding("file", uri);
 		perm.execute();
 		return uri;
 	}

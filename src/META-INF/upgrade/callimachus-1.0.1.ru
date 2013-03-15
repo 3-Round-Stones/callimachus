@@ -18,11 +18,17 @@ INSERT {
 } WHERE {
 	FILTER NOT EXISTS { </auth/secrets/> a calli:Folder }
 };
+
+INSERT {
 </auth/groups/> calli:hasComponent </auth/groups/super>.
 </auth/groups/super> a calli:Party, calli:Group, <types/Group>;
     rdfs:label "super";
     rdfs:comment "The user accounts in this group have heightened privileges to change or patch the system itself".
+} WHERE {
+	FILTER NOT EXISTS { </auth/groups/super> a calli:Group }
+};
 
+INSERT {
 </auth/groups/> calli:hasComponent </auth/groups/power>.
 </auth/groups/power> a calli:Party, calli:Group, <types/Group>;
     rdfs:label "power";
@@ -30,3 +36,6 @@ INSERT {
     calli:subscriber </auth/groups/staff>;
     calli:administrator </auth/groups/admin>;
     calli:membersFrom ".".
+} WHERE {
+	FILTER NOT EXISTS { </auth/groups/power> a calli:Group }
+};

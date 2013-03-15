@@ -25,10 +25,10 @@ $('form').submit(function(event) {
 function submitRDFForm(form, uri) {
     try {
         var se = $.Event("calliSubmit");
-        se.data = getRDFXML(uri, form);
+        se.payload = getRDFXML(uri, form);
         $(form).trigger(se);
         if (!se.isDefaultPrevented()) {
-            postData(form, se.data, function(data, textStatus, xhr) {
+            postData(form, se.payload, function(data, textStatus, xhr) {
                 try {
                     var redirect = xhr.getResponseHeader("Location");
                     if (!redirect) {

@@ -57,10 +57,10 @@ function submitRDFForm(form, stored) {
             addBoundedDescription(added[hash], revised, added, removed);
         }
         var se = $.Event("calliSubmit");
-        se.data = asSparqlUpdate(removed, added);
+        se.payload = asSparqlUpdate(removed, added);
         $(form).trigger(se);
         if (!se.isDefaultPrevented()) {
-            patchData(form, se.data, function(data, textStatus, xhr) {
+            patchData(form, se.payload, function(data, textStatus, xhr) {
                 try {
                     var redirect = null;
                     if (xhr.getResponseHeader('Content-Type') == 'text/uri-list') {

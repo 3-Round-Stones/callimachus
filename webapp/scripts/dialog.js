@@ -122,6 +122,7 @@ window.calli.openDialog = function(url, title, options) {
         return null;
     } else {
         iframe.dialog("open");
+        iframe.css('padding-left', '1em');
         iframe.css('width', '100%');
         iframe[0].src = url;
         if (typeof options.onlookup == 'function') {

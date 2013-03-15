@@ -28,7 +28,7 @@ $('form[method="PUT"]').each(function(event){
         if (fileInput.length != 1 || !fileInput[0].files || fileInput[0].files.length != 1)
             return true;
         var se = $.Event("calliSubmit");
-        se.data = fileInput[0].files[0];
+        se.payload = fileInput[0].files[0];
         $(form).trigger(se);
         if (!se.isDefaultPrevented()) {
             var action = calli.getFormAction(form);
@@ -37,7 +37,7 @@ $('form[method="PUT"]').each(function(event){
                 url: action,
                 contentType: form.getAttribute("enctype"),
                 processData: false,
-                data: se.data,
+                data: se.payload,
                 beforeSend: function(xhr) {
                     var etag = calli.etag(action);
                     if (etag) {

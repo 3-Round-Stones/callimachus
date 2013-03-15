@@ -48,8 +48,7 @@ INSERT {
 <../> a <types/Folder>, calli:Folder;
     rdfs:label "callimachus";
     calli:reader </auth/groups/public>;
-    calli:subscriber </auth/groups/staff>;
-    calli:administrator </auth/groups/admin>;
+    calli:administrator </auth/groups/super>;
     calli:hasComponent
         <../profile>,
         <../changes/>,
@@ -76,7 +75,8 @@ INSERT {
 INSERT {
 <../profile> a <types/Profile>;
     rdfs:label "profile";
-    calli:administrator </auth/groups/admin>;
+    calli:administrator </auth/groups/super>;
+    calli:editor </auth/groups/power>,</auth/groups/admin>;
     calli:subscriber </auth/groups/staff>;
     calli:reader </auth/groups/system>.
 } WHERE {
@@ -86,7 +86,7 @@ INSERT {
 INSERT {
 <../changes/> a <types/Folder>, calli:Folder;
     rdfs:label "changes";
-    calli:subscriber </auth/groups/admin>.
+    calli:subscriber </auth/groups/power>,</auth/groups/admin>.
 } WHERE {
 	FILTER NOT EXISTS { <../changes/> a calli:Folder }
 };
@@ -95,7 +95,7 @@ INSERT {
 <../styles.css> a <types/PURL>, calli:PURL ;
 	rdfs:label "styles.css";
 	calli:alternate ?alternate;
-	calli:administrator </auth/groups/admin>;
+	calli:administrator </auth/groups/super>;
 	calli:reader </auth/groups/public> .
 } WHERE {
     BIND (str(<styles/callimachus.less?less>) as ?alternate)
@@ -106,7 +106,7 @@ INSERT {
 <../scripts.js> a <types/PURL>, calli:PURL ;
 	rdfs:label "scripts.js";
 	calli:alternate ?alternate;
-	calli:administrator </auth/groups/admin>;
+	calli:administrator </auth/groups/super>;
 	calli:reader </auth/groups/public> .
 } WHERE {
     BIND (str(<scripts/index?source>) AS ?alternate)
@@ -117,7 +117,7 @@ INSERT {
 <../library.xpl> a <types/PURL>, calli:PURL ;
 	rdfs:label "library.xpl";
 	calli:alternate ?alternate;
-	calli:administrator </auth/groups/admin>;
+	calli:administrator </auth/groups/super>;
 	calli:reader </auth/groups/public> .
 } WHERE {
     BIND (str(<pipelines/library.xpl>) as ?alternate)
@@ -128,7 +128,7 @@ INSERT {
 <../forbidden.html> a <types/PURL>, calli:PURL ;
 	rdfs:label "forbidden.html";
 	calli:alternate <pages/forbidden.xhtml?html>;
-	calli:administrator </auth/groups/admin>;
+	calli:administrator </auth/groups/super>;
 	calli:reader </auth/groups/public> .
 } WHERE {
 	FILTER NOT EXISTS { <../forbidden.html> a calli:PURL }
@@ -138,7 +138,7 @@ INSERT {
 <../unauthorized.html> a <types/PURL>, calli:PURL ;
 	rdfs:label "unauthorized.html";
 	calli:alternate ?alternate;
-	calli:administrator </auth/groups/admin>;
+	calli:administrator </auth/groups/super>;
 	calli:reader </auth/groups/public> .
 } WHERE {
     BIND (str(<pages/unauthorized.xhtml?element=/1>) AS ?alternate)
@@ -149,7 +149,7 @@ INSERT {
 <../layout-functions.xq> a <types/PURL>, calli:PURL ;
 	rdfs:label "layout-functions.xq";
 	calli:alternate ?alternate;
-	calli:administrator </auth/groups/admin>;
+	calli:administrator </auth/groups/super>;
 	calli:reader </auth/groups/public> .
 } WHERE {
     BIND (str(<transforms/layout-functions.xq>) AS ?alternate)
@@ -160,7 +160,7 @@ INSERT {
 <../default-layout.xq> a <types/PURL>, calli:PURL ;
 	rdfs:label "default-layout.xq";
 	calli:alternate ?alternate;
-	calli:administrator </auth/groups/admin>;
+	calli:administrator </auth/groups/super>;
 	calli:reader </auth/groups/public> .
 } WHERE {
     BIND (str(<transforms/default-layout.xq>) AS ?alternate)
@@ -171,7 +171,7 @@ INSERT {
 <../callimachus-powered.png> a <types/PURL>, calli:PURL ;
 	rdfs:label "callimachus-powered.png";
 	calli:alternate ?alternate;
-	calli:administrator </auth/groups/admin>;
+	calli:administrator </auth/groups/super>;
 	calli:reader </auth/groups/public> .
 } WHERE {
     BIND (str(<images/callimachus-powered.png>) AS ?alternate)
@@ -182,7 +182,7 @@ INSERT {
 <../document-editor.html> a <types/PURL>, calli:PURL ;
 	rdfs:label "document-editor.html";
 	calli:alternate ?alternate;
-	calli:administrator </auth/groups/admin>;
+	calli:administrator </auth/groups/super>;
 	calli:reader </auth/groups/public> .
 } WHERE {
     BIND (str(<editor/ckeditor.html>) AS ?alternate)
@@ -193,7 +193,7 @@ INSERT {
 <../css-editor.html> a <types/PURL>, calli:PURL ;
 	rdfs:label "css-editor.html";
 	calli:alternate ?alternate;
-	calli:administrator </auth/groups/admin>;
+	calli:administrator </auth/groups/super>;
 	calli:reader </auth/groups/public> .
 } WHERE {
     BIND (str(<editor/text-editor.html#css>) AS ?alternate)
@@ -204,7 +204,7 @@ INSERT {
 <../html-editor.html> a <types/PURL>, calli:PURL ;
 	rdfs:label "html-editor.html";
 	calli:alternate ?alternate;
-	calli:administrator </auth/groups/admin>;
+	calli:administrator </auth/groups/super>;
 	calli:reader </auth/groups/public> .
 } WHERE {
     BIND (str(<editor/text-editor.html#html>) AS ?alternate)
@@ -215,7 +215,7 @@ INSERT {
 <../javascript-editor.html> a <types/PURL>, calli:PURL ;
 	rdfs:label "javascript-editor.html";
 	calli:alternate ?alternate;
-	calli:administrator </auth/groups/admin>;
+	calli:administrator </auth/groups/super>;
 	calli:reader </auth/groups/public> .
 } WHERE {
     BIND (str(<editor/text-editor.html#javascript>) AS ?alternate)
@@ -226,7 +226,7 @@ INSERT {
 <../sparql-editor.html> a <types/PURL>, calli:PURL ;
 	rdfs:label "sparql-editor.html";
 	calli:alternate ?alternate;
-	calli:administrator </auth/groups/admin>;
+	calli:administrator </auth/groups/super>;
 	calli:reader </auth/groups/public> .
 } WHERE {
     BIND (str(<editor/text-editor.html#sparql>) AS ?alternate)
@@ -237,7 +237,7 @@ INSERT {
 <../text-editor.html> a <types/PURL>, calli:PURL ;
 	rdfs:label "text-editor.html";
 	calli:alternate ?alternate;
-	calli:administrator </auth/groups/admin>;
+	calli:administrator </auth/groups/super>;
 	calli:reader </auth/groups/public> .
 } WHERE {
     BIND (str(<editor/text-editor.html>) AS ?alternate)
@@ -248,7 +248,7 @@ INSERT {
 <../xml-editor.html> a <types/PURL>, calli:PURL ;
 	rdfs:label "xml-editor.html";
 	calli:alternate ?alternate;
-	calli:administrator </auth/groups/admin>;
+	calli:administrator </auth/groups/super>;
 	calli:reader </auth/groups/public> .
 } WHERE {
     BIND (str(<editor/text-editor.html#xml>) AS ?alternate)
@@ -259,7 +259,7 @@ INSERT {
 <../Concept> a <types/PURL>, calli:PURL ;
 	rdfs:label "Concept";
 	calli:canonical ?canonical;
-	calli:administrator </auth/groups/admin>;
+	calli:administrator </auth/groups/super>;
 	calli:reader </auth/groups/public> .
 } WHERE {
     BIND (str(<types/Concept>) AS ?canonical)
@@ -274,7 +274,7 @@ INSERT {
 </auth/> calli:hasComponent </auth/digest-users/>.
 </auth/digest-users/> a <types/Folder>, calli:Folder;
     rdfs:label "digest users";
-    calli:subscriber </auth/groups/staff>;
+    calli:subscriber </auth/groups/power>;
     calli:administrator </auth/groups/admin>.
 } WHERE {
 	FILTER NOT EXISTS { </auth/digest-users/> a calli:Folder }
@@ -292,7 +292,7 @@ INSERT {
 </auth/> calli:hasComponent </auth/groups/>.
 </auth/groups/> a <types/Folder>, calli:Folder;
     rdfs:label "groups";
-    calli:subscriber </auth/groups/staff>;
+    calli:subscriber </auth/groups/power>;
     calli:administrator </auth/groups/admin>;
     calli:hasComponent
         </auth/groups/super>,
@@ -311,48 +311,48 @@ INSERT {
 </auth/groups/admin> a calli:Party, calli:Group, <types/Group>;
     rdfs:label "admin";
     rdfs:comment "Members of this grouph have the ability to edit other user accounts and access to modify the underlying data store";
-    calli:subscriber </auth/groups/staff>;
+    calli:subscriber </auth/groups/power>;
     calli:administrator </auth/groups/admin>;
     calli:membersFrom ".".
 
 </auth/groups/power> a calli:Party, calli:Group, <types/Group>;
     rdfs:label "power";
     rdfs:comment "Members of this group can access all data in the underlying data store";
-    calli:subscriber </auth/groups/staff>;
+    calli:subscriber </auth/groups/power>;
     calli:administrator </auth/groups/admin>;
     calli:membersFrom ".".
 
 </auth/groups/staff> a calli:Party, calli:Group, <types/Group>;
     rdfs:label "staff";
     rdfs:comment "Members of this group can design websites and develop applications";
-    calli:subscriber </auth/groups/staff>;
+    calli:subscriber </auth/groups/power>;
     calli:administrator </auth/groups/admin>;
     calli:membersFrom ".".
 
 </auth/groups/users> a calli:Party, calli:Group, <types/Group>;
     rdfs:label "users";
     rdfs:comment "Members of this group can view, discuss, document, link, and upload binary resources";
-    calli:subscriber </auth/groups/staff>;
+    calli:subscriber </auth/groups/power>;
     calli:administrator </auth/groups/admin>;
     calli:membersFrom ".".
 
 </auth/groups/everyone> a calli:Party, calli:Group, <types/Group>;
     rdfs:label "everyone";
     rdfs:comment "A virtual group of all authorized users";
-    calli:subscriber </auth/groups/staff>;
+    calli:subscriber </auth/groups/power>;
     calli:administrator </auth/groups/admin>;
     calli:everyoneFrom ".".
 
 </auth/groups/system> a calli:Party, calli:Group, <types/Group>;
     rdfs:label "system";
     rdfs:comment "The local computer or computer systems is the member of this group";
-    calli:subscriber </auth/groups/staff>;
+    calli:subscriber </auth/groups/power>;
     calli:administrator </auth/groups/admin>.
 
 </auth/groups/public> a calli:Party, calli:Group, <types/Group>;
     rdfs:label "public";
     rdfs:comment "A virtual group of all agents";
-    calli:subscriber </auth/groups/staff>;
+    calli:subscriber </auth/groups/power>;
     calli:administrator </auth/groups/admin>;
     calli:anonymousFrom ".".
 } WHERE {

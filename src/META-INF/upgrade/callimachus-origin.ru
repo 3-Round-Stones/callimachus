@@ -14,24 +14,22 @@ PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
 INSERT {
 	$origin a <types/Origin>, calli:Origin, calli:Realm, calli:Folder;
 		rdfs:label ?label;
-		calli:authentication ?digest;
-		calli:reader </auth/groups/system>;
-		calli:reader </auth/groups/public>;
+		calli:reader </auth/groups/public>,</auth/groups/system>;
 		calli:subscriber </auth/groups/everyone>;
 		calli:contributor </auth/groups/users>;
-		calli:editor </auth/groups/staff>;
+		calli:editor </auth/groups/staff>,</auth/groups/power>;
 		calli:administrator </auth/groups/admin>;
 		calli:unauthorized <../unauthorized.html>;
 		calli:forbidden <../forbidden.html>;
-		calli:layout <../default-layout.xq>;
-		calli:authentication </auth/digest+account>.
+		calli:layout <../default-layout.xq>.
 } WHERE {
 	FILTER NOT EXISTS { $origin a calli:Origin }
 	BIND (replace(replace(str($origin), "^[a-z]*://", ""), "/$", "") AS ?label)
 };
 
 INSERT {
-	$origin calli:hasComponent ?auth .
+	$origin calli:authentication ?digest;
+		calli:hasComponent ?auth .
 	?auth a <types/Folder>, calli:Folder;
 	    rdfs:label "auth";
 		calli:reader </auth/groups/public>;
@@ -64,7 +62,7 @@ $origin calli:hasComponent ?wellknown.
 ?wellknown a <types/Folder>, calli:Folder;
     rdfs:label ".well known";
     calli:reader </auth/groups/public>;
-    calli:subscriber </auth/groups/staff>;
+    calli:subscriber </auth/groups/power>;
     calli:administrator </auth/groups/admin>;
     calli:hasComponent ?void.
 

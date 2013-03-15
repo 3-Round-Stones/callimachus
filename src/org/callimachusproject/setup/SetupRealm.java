@@ -1,26 +1,24 @@
 package org.callimachusproject.setup;
 
+import info.aduna.net.ParsedURI;
+
 import java.beans.ConstructorProperties;
 import java.io.Serializable;
 
-public class SetupOrigin implements Serializable {
+public class SetupRealm implements Serializable {
 	private static final long serialVersionUID = 5202002298569579860L;
-	private final String root;
-	private final boolean resolvable;
+	private final String realm;
 	private final String webappOrigin;
-	private final String indexTarget;
 	private final String layout;
 	private final String forbiddenPage;
 	private final String unauthorizedPage;
 	private final String[] authentication;
 	private final String repositoryID;
 
-	public SetupOrigin(String webappOrigin, String repositoryID) {
+	public SetupRealm(String webappOrigin, String repositoryID) {
 		assert webappOrigin != null;
-		this.root = webappOrigin + "/";
-		this.resolvable = true;
+		this.realm = webappOrigin + "/";
 		this.webappOrigin = webappOrigin;
-		this.indexTarget = null;
 		this.layout = null;
 		this.forbiddenPage = null;
 		this.unauthorizedPage = null;
@@ -28,18 +26,16 @@ public class SetupOrigin implements Serializable {
 		this.repositoryID = repositoryID;
 	}
 
-	@ConstructorProperties({ "root", "resolvable", "webappOrigin",
-			"indexTarget", "layout", "forbiddenPage", "unauthorizedPage",
-			"authentication", "repositoryID" })
-	public SetupOrigin(String root, boolean resolvable, String webappOrigin,
-			String indexTarget, String layout, String forbiddenPage,
-			String unauthorizedPage, String[] authentication, String repositoryID) {
-		assert root != null;
+	@ConstructorProperties({ "realm", "webappOrigin", "layout",
+			"forbiddenPage", "unauthorizedPage", "authentication",
+			"repositoryID" })
+	public SetupRealm(String realm, String webappOrigin, String layout,
+			String forbiddenPage, String unauthorizedPage,
+			String[] authentication, String repositoryID) {
+		assert realm != null;
 		assert webappOrigin != null;
-		this.root = root;
-		this.resolvable = resolvable;
+		this.realm = realm;
 		this.webappOrigin = webappOrigin;
-		this.indexTarget = indexTarget;
 		this.layout = layout;
 		this.forbiddenPage = forbiddenPage;
 		this.unauthorizedPage = unauthorizedPage;
@@ -47,20 +43,17 @@ public class SetupOrigin implements Serializable {
 		this.repositoryID = repositoryID;
 	}
 
-	public String getRoot() {
-		return root;
+	public String getRealm() {
+		return realm;
 	}
 
-	public boolean isResolvable() {
-		return resolvable;
+	public String getOrigin() {
+		ParsedURI parsed = new ParsedURI(realm);
+		return parsed.getScheme() + "://" + parsed.getAuthority();
 	}
 
 	public String getWebappOrigin() {
 		return webappOrigin;
-	}
-
-	public String getIndexTarget() {
-		return indexTarget;
 	}
 
 	public String getLayout() {
@@ -87,7 +80,7 @@ public class SetupOrigin implements Serializable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + root.hashCode();
+		result = prime * result + realm.hashCode();
 		result = prime * result
 				+ webappOrigin.hashCode();
 		return result;
@@ -101,8 +94,8 @@ public class SetupOrigin implements Serializable {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		SetupOrigin other = (SetupOrigin) obj;
-		if (!root.equals(other.root))
+		SetupRealm other = (SetupRealm) obj;
+		if (!realm.equals(other.realm))
 			return false;
 		if (!webappOrigin.equals(other.webappOrigin))
 			return false;

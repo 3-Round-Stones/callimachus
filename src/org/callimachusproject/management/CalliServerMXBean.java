@@ -5,7 +5,7 @@ import java.util.Map;
 
 import javax.mail.MessagingException;
 
-import org.callimachusproject.setup.SetupOrigin;
+import org.callimachusproject.setup.SetupRealm;
 import org.openrdf.OpenRDFException;
 
 public interface CalliServerMXBean {
@@ -68,13 +68,17 @@ public interface CalliServerMXBean {
 
 	String[] getWebappOrigins() throws IOException;
 
-	SetupOrigin[] getOrigins() throws IOException, OpenRDFException;
+	SetupRealm[] getRealms() throws IOException, OpenRDFException;
+
+	Map<String, String> getAuthenticationManagers() throws OpenRDFException, IOException;
 
 	void setupWebappOrigin(String webappOrigin, String repositoryID) throws Exception;
 
 	void ignoreWebappOrigin(String webappOrigin) throws Exception;
 
-	void setupResolvableOrigin(String origin, String webappOrigin) throws Exception;
+	void setupRealm(String realm, String webappOrigin) throws Exception;
+
+	void createResource(String rdf, String systemId, String type) throws Exception;
 
 	String[] getDigestEmailAddresses(String webappOrigin)
 			throws OpenRDFException, IOException;

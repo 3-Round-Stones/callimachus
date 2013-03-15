@@ -33,7 +33,7 @@ import org.callimachusproject.io.FileUtil;
 import org.callimachusproject.logging.LoggingProperties;
 import org.callimachusproject.repository.CalliRepository;
 import org.callimachusproject.server.WebServer;
-import org.callimachusproject.setup.SetupOrigin;
+import org.callimachusproject.setup.SetupRealm;
 import org.callimachusproject.setup.SetupTool;
 import org.callimachusproject.util.CallimachusConf;
 import org.callimachusproject.util.ConfigTemplate;
@@ -42,6 +42,9 @@ import org.openrdf.OpenRDFException;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.vocabulary.RDF;
+import org.openrdf.query.BindingSet;
+import org.openrdf.query.QueryLanguage;
+import org.openrdf.query.TupleQueryResult;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -49,6 +52,7 @@ import org.openrdf.repository.config.RepositoryConfig;
 import org.openrdf.repository.config.RepositoryConfigException;
 import org.openrdf.repository.manager.LocalRepositoryManager;
 import org.openrdf.repository.manager.SystemRepository;
+import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.ObjectRepository;
 import org.openrdf.store.blob.BlobStore;
 import org.slf4j.Logger;
@@ -61,6 +65,10 @@ public class CalliServer implements CalliServerMXBean {
 	private static final String SCHEMA_GRAPH = "types/SchemaGraph";
 	private static final String INDIRECT_PATH = "/diverted;";
 	private static final String ORIGIN = "http://callimachusproject.org/rdf/2009/framework#Origin";
+	private static final String PREFIX = "PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>\n"
+			+ "PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>\n";
+	private static final String SEL_AUTH_MANAGER_LABEL = PREFIX
+			+ "SELECT ?manager ?label { ?manager a calli:AuthenticationManager; rdfs:label ?label }";
 	private static final String REPOSITORY_TYPES = "META-INF/templates/repository-types.properties";
 	private static final ThreadFactory THREADFACTORY = new ThreadFactory() {
 		public Thread newThread(Runnable r) {
@@ -156,8 +164,8 @@ public class CalliServer implements CalliServerMXBean {
 		if (server != null) {
 			try {
 				logger.info("Callimachus is binding to {}", toString());
-				for (SetupOrigin origin : getOrigins()) {
-					HttpHost host = URIUtils.extractHost(java.net.URI.create(origin.getRoot()));
+				for (SetupRealm origin : getRealms()) {
+					HttpHost host = URIUtils.extractHost(java.net.URI.create(origin.getRealm()));
 					HTTPObjectClient.getInstance().setProxy(host, server);
 				}
 				for (CalliRepository repository : repositories.values()) {
@@ -509,48 +517,106 @@ public class CalliServer implements CalliServerMXBean {
 	public void ignoreWebappOrigin(String webappOrigin) throws Exception {
 		List<String> list = new ArrayList<String>(Arrays.asList(conf.getWebappOrigins()));
 		list.remove(webappOrigin);
-		for (SetupOrigin origin : getOrigins()) {
+		for (SetupRealm origin : getRealms()) {
 			if (webappOrigin.equals(origin.getWebappOrigin())) {
-				list.remove(origin.getRoot().replaceAll("/$", ""));
+				list.remove(origin.getOrigin());
 			}
 		}
 		conf.setWebappOrigins(list.toArray(new String[list.size()]));
 	}
 
-	public SetupOrigin[] getOrigins() throws IOException, OpenRDFException {
-		List<SetupOrigin> list = new ArrayList<SetupOrigin>();
+	public SetupRealm[] getRealms() throws IOException, OpenRDFException {
+		List<SetupRealm> list = new ArrayList<SetupRealm>();
 		Set<String> webapps = new LinkedHashSet<String>(Arrays.asList(getWebappOrigins()));
 		Map<String, String> map = conf.getOriginRepositoryIDs();
 		for (String repositoryID : new LinkedHashSet<String>(map.values())) {
 			CalliRepository repository = getRepository(repositoryID);
 			SetupTool tool = new SetupTool(repositoryID, repository, conf);
-			SetupOrigin[] origins = tool.getOrigins();
-			for (SetupOrigin origin : origins) {
+			SetupRealm[] origins = tool.getRealms();
+			for (SetupRealm origin : origins) {
 				webapps.remove(origin.getWebappOrigin());
 			}
 			list.addAll(Arrays.asList(origins));
 		}
 		for (String webappOrigin : webapps) {
-			// this webapp are not yet setup in the store
+			// this webapp is not yet setup in the store
 			String id = map.get(webappOrigin);
-			list.add(new SetupOrigin(webappOrigin, id));
+			list.add(new SetupRealm(webappOrigin, id));
 		}
-		return list.toArray(new SetupOrigin[list.size()]);
+		return list.toArray(new SetupRealm[list.size()]);
 	}
 
-	public void setupResolvableOrigin(final String origin, final String webappOrigin)
+	public Map<String, String> getAuthenticationManagers()
+			throws OpenRDFException, IOException {
+		SetupRealm[] realms = getRealms();
+		Map<String, String> managers = new LinkedHashMap<String, String>();
+		Map<String, String> map = conf.getOriginRepositoryIDs();
+		for (String repositoryID : new LinkedHashSet<String>(map.values())) {
+			CalliRepository repository = getRepository(repositoryID);
+			ObjectConnection con = repository.getConnection();
+			try {
+				TupleQueryResult results = con.prepareTupleQuery(
+						QueryLanguage.SPARQL, SEL_AUTH_MANAGER_LABEL)
+						.evaluate();
+				try {
+					while (results.hasNext()) {
+						BindingSet result = results.next();
+						String manager = result.getValue("manager")
+								.stringValue();
+						String label = result.getValue("label").stringValue();
+						for (SetupRealm realm : realms) {
+							if (repositoryID.equals(realm.getRepositoryID())
+									&& manager.startsWith(realm.getRealm())) {
+								managers.put(manager, label);
+								break;
+							}
+						}
+					}
+				} finally {
+					results.close();
+				}
+			} finally {
+				con.close();
+			}
+		}
+		return managers;
+	}
+
+	public void setupRealm(final String realm, final String webappOrigin)
 			throws Exception {
 		submit(new Callable<Void>() {
 			public Void call() throws Exception {
 				SetupTool tool = getSetupTool(webappOrigin);
-				tool.setupResolvableOrigin(origin, webappOrigin);
+				tool.setupRealm(realm, webappOrigin);
 				if (isWebServiceRunning()) {
+					java.net.URI uri = java.net.URI.create(realm);
+					String origin = uri.getScheme() + "://" + uri.getAuthority();
 					server.addOrigin(origin, getRepository(tool.getRepositoryID()));
 					server.setIndirectIdentificationPrefix(getIndirectPrefixes());
-					HttpHost host = URIUtils.extractHost(java.net.URI.create(origin + "/"));
+					HttpHost host = URIUtils.extractHost(uri);
 					HTTPObjectClient.getInstance().setProxy(host, server);
 				}
 				return null;
+			}
+		});
+	}
+
+	public void createResource(final String rdf, final String systemId, final String type) throws Exception {
+		submit(new Callable<Void>() {
+			public Void call() throws Exception {
+				SetupTool tool = getSetupTool(getWebappOrigin(systemId));
+				tool.importGraph(rdf, systemId, type);
+				return null;
+			}
+
+			private String getWebappOrigin(final String uri) throws IOException,
+					OpenRDFException {
+				for (SetupRealm realm : getRealms()) {
+					if (uri.startsWith(realm.getRealm())) {
+						return realm.getWebappOrigin();
+					}
+				}
+				throw new IllegalArgumentException("Unknown location: " + uri);
 			}
 		});
 	}
@@ -735,8 +801,8 @@ public class CalliServer implements CalliServerMXBean {
 				server.stop();
 				shutDownRepositories();
 				server.destroy();
-				for (SetupOrigin origin : getOrigins()) {
-					HttpHost host = URIUtils.extractHost(java.net.URI.create(origin.getRoot()));
+				for (SetupRealm origin : getRealms()) {
+					HttpHost host = URIUtils.extractHost(java.net.URI.create(origin.getRealm()));
 					HTTPObjectClient.getInstance().removeProxy(host, server);
 				}
 				return true;
@@ -782,21 +848,19 @@ public class CalliServer implements CalliServerMXBean {
 	private synchronized WebServer createServer() throws OpenRDFException,
 			IOException, NoSuchAlgorithmException {
 		WebServer server = new WebServer(serverCacheDir);
-		for (SetupOrigin so : getOrigins()) {
+		for (SetupRealm so : getRealms()) {
 			boolean first = repositories.isEmpty();
-			if (so.isResolvable()) {
-				String origin = so.getRoot().replaceAll("/$", "");
-				server.addOrigin(origin, getRepository(so.getRepositoryID()));
-				HttpHost host = URIUtils.extractHost(java.net.URI.create(so.getRoot()));
-				HTTPObjectClient.getInstance().setProxy(host, server);
-				if (first) {
-					CalliRepository repo = getRepository(so.getRepositoryID());
-					String pipe = repo.getCallimachusUrl(so.getWebappOrigin(), ERROR_XPL_PATH);
-					if (pipe == null)
-						throw new IllegalArgumentException(
-								"Callimachus webapp not setup on: " + so.getWebappOrigin());
-					server.setErrorPipe(pipe);
-				}
+			String origin = so.getOrigin();
+			server.addOrigin(origin, getRepository(so.getRepositoryID()));
+			HttpHost host = URIUtils.extractHost(java.net.URI.create(so.getRealm()));
+			HTTPObjectClient.getInstance().setProxy(host, server);
+			if (first) {
+				CalliRepository repo = getRepository(so.getRepositoryID());
+				String pipe = repo.getCallimachusUrl(so.getWebappOrigin(), ERROR_XPL_PATH);
+				if (pipe == null)
+					throw new IllegalArgumentException(
+							"Callimachus webapp not setup on: " + so.getWebappOrigin());
+				server.setErrorPipe(pipe);
 			}
 		}
 		server.setName(getServerName());
@@ -877,11 +941,11 @@ public class CalliServer implements CalliServerMXBean {
 
 	private String[] getIndirectPrefixes() throws IOException, OpenRDFException {
 		Map<String, String> map = new LinkedHashMap<String, String>();
-		for (SetupOrigin origin : getOrigins()) {
+		for (SetupRealm origin : getRealms()) {
 			String key = origin.getRepositoryID();
-			if (origin.isResolvable() && map.containsKey(key)) {
+			if (map.containsKey(key)) {
 				map.put(key, null);
-			} else if (origin.isResolvable()) {
+			} else {
 				map.put(key, origin.getWebappOrigin());
 			}
 		}

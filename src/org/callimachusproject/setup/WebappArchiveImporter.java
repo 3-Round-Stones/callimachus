@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 
 public class WebappArchiveImporter {
 	private static final String GROUP_PUBLIC = "/auth/groups/public";
-	private static final String GROUP_ADMIN = "/auth/groups/admin";
+	private static final String GROUP_SUPER = "/auth/groups/super";
 	private static final String SCHEMA_GRAPH = "types/SchemaGraph";
 	private static final String REALM_TYPE = "types/Realm";
 	private static final String ORIGIN_TYPE = "types/Origin";
@@ -61,7 +61,7 @@ public class WebappArchiveImporter {
 			throws RepositoryException {
 		TermFactory tf = TermFactory.newInstance(webapp);
 		add(con, uri, CALLI_READER, tf.resolve(GROUP_PUBLIC));
-		add(con, uri, CALLI_ADMINISTRATOR, tf.resolve(GROUP_ADMIN));
+		add(con, uri, CALLI_ADMINISTRATOR, tf.resolve(GROUP_SUPER));
 	}
 
 	private void importArchive(InputStream carStream, String folderUri,

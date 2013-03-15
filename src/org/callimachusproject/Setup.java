@@ -210,7 +210,9 @@ public class Setup {
 						}
 						CallimachusSetup.validateEmail(email);
 					}
-					groups.addAll(Arrays.asList(line.getAll("group")));
+					if (line.has("group")) {
+						groups.addAll(Arrays.asList(line.getAll("group")));
+					}
 				}
 			}
 		} catch (IllegalArgumentException e) {

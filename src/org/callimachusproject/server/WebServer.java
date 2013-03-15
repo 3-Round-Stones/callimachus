@@ -57,12 +57,9 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestFactory;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
-import org.apache.http.MethodNotSupportedException;
-import org.apache.http.RequestLine;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
-import org.apache.http.impl.DefaultHttpRequestFactory;
 import org.apache.http.impl.nio.DefaultHttpServerIODispatch;
 import org.apache.http.impl.nio.DefaultNHttpServerConnectionFactory;
 import org.apache.http.impl.nio.SSLNHttpServerConnectionFactory;
@@ -145,6 +142,7 @@ public class WebServer extends AbstractHttpClient implements WebServerMXBean, IO
 
 	private final Logger logger = LoggerFactory.getLogger(WebServer.class);
 	private final Set<NHttpConnection> connections = new HashSet<NHttpConnection>();
+	private final Set<CalliRepository> repositories = new HashSet<CalliRepository>();
 	private final DefaultListeningIOReactor server;
 	private final IOEventDispatch dispatch;
 	private DefaultListeningIOReactor sslserver;
@@ -215,15 +213,17 @@ public class WebServer extends AbstractHttpClient implements WebServerMXBean, IO
 	public synchronized void addOrigin(String origin, CalliRepository repository) {
 		service.addOrigin(origin, repository);
 		authCache.addOrigin(origin, repository);
-		repository.addSchemaListener(new Runnable() {
-			public String toString() {
-				return "reset cache";
-			}
-
-			public void run() {
-				resetCache();
-			}
-		});
+		if (repositories.add(repository)) {
+			repository.addSchemaListener(new Runnable() {
+				public String toString() {
+					return "reset cache";
+				}
+	
+				public void run() {
+					resetCache();
+				}
+			});
+		}
 	}
 
 	private DefaultHttpServerIODispatch createIODispatch(

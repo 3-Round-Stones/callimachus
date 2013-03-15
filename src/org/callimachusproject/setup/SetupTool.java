@@ -1,6 +1,7 @@
 package org.callimachusproject.setup;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
@@ -22,36 +23,64 @@ import org.callimachusproject.repository.CalliRepository;
 import org.callimachusproject.util.CallimachusConf;
 import org.callimachusproject.util.Mailer;
 import org.openrdf.OpenRDFException;
-import org.openrdf.model.Literal;
+import org.openrdf.model.URI;
 import org.openrdf.model.Value;
+import org.openrdf.model.ValueFactory;
+import org.openrdf.model.vocabulary.RDF;
+import org.openrdf.model.vocabulary.RDFS;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.MalformedQueryException;
 import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.QueryLanguage;
 import org.openrdf.query.TupleQuery;
 import org.openrdf.query.TupleQueryResult;
+import org.openrdf.query.Update;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
+import org.openrdf.repository.object.ObjectConnection;
+import org.openrdf.rio.RDFFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SetupTool {
+	private static final String REALM_TYPE = "types/Realm";
+	private static final String FOLDER_TYPE = "types/Folder";
+	private static final String CALLI = "http://callimachusproject.org/rdf/2009/framework#";
+	private static final String CALLI_FOLDER = CALLI + "Folder";
+	private static final String CALLI_REALM = CALLI + "Realm";
+	private static final String CALLI_HASCOMPONENT = CALLI + "hasComponent";
 	private static final String PREFIX = "PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>\n"
 			+ "PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>\n";
-	private static final String SELECT_ROOT = PREFIX
-			+ "SELECT ?root\n"
-			+ "(max(?resolvable) AS ?resolvable) (group_concat(?indexTarget) AS ?indexTarget)\n"
+	private static final String COPY_FOLDER_PERM = PREFIX
+			+ "INSERT { $folder\n"
+			+ "calli:reader ?reader; calli:subscriber ?subscriber; calli:contributor ?contributor; calli:editor ?editor; calli:administrator ?administrator\n"
+			+ "} WHERE { ?parent calli:hasComponent $folder\n"
+			+ "OPTIONAL { ?parent calli:reader ?reader }\n"
+			+ "OPTIONAL { ?parent calli:subscriber ?subscriber }\n"
+			+ "OPTIONAL { ?parent calli:contributor ?contributor }\n"
+			+ "OPTIONAL { ?parent calli:editor ?editor }\n"
+			+ "OPTIONAL { ?parent calli:administrator ?administrator }\n" + "}";
+	private static final String COPY_REALM_PROPS = PREFIX
+			+ "INSERT { $realm\n"
+			+ "calli:authentication ?auth; calli:unauthorized ?unauth; calli:forbidden ?forbid; calli:layout ?layout\n"
+			+ "} WHERE { {SELECT ?origin { ?origin a calli:Realm; calli:hasComponent* $realm} ORDER BY desc(?origin) LIMIT 1}\n"
+			+ "OPTIONAL { ?origin calli:authentication ?auth }\n"
+			+ "OPTIONAL { ?origin calli:unauthorized ?unauth }\n"
+			+ "OPTIONAL { ?origin calli:forbidden ?forbid }\n"
+			+ "OPTIONAL { ?origin calli:layout ?layout }\n"
+			+ "}";
+	private static final String SELECT_REALM = PREFIX
+			+ "SELECT ?realm\n"
 			+ "(group_concat(?layout) AS ?layout) (group_concat(?forbiddenPage) AS ?forbiddenPage)\n"
 			+ "(group_concat(?unauthorizedPage) AS ?unauthorizedPage) (group_concat(?authentication) AS ?authentication)\n"
 			+ "WHERE {\n"
-			+ "{ ?root a </callimachus/1.0/types/Realm> FILTER NOT EXISTS { ?o calli:hasComponent ?root } BIND(false AS ?resolvable) }\n"
-			+ "UNION { ?root a </callimachus/1.0/types/Origin> BIND(true AS ?resolvable) }\n"
-			+ "OPTIONAL { ?root calli:describedby ?indexTarget }\n"
-			+ "OPTIONAL { ?root calli:layout ?layout }\n"
-			+ "OPTIONAL { ?root calli:forbidden ?forbiddenPage }\n"
-			+ "OPTIONAL { ?root calli:unauthorized ?unauthorizedPage }\n"
-			+ "OPTIONAL { ?root calli:authentication ?authentication }\n"
-			+ "} GROUP BY ?root";
+			+ "{ ?realm a </callimachus/1.0/types/Realm> }\n"
+			+ "UNION { ?realm a </callimachus/1.0/types/Origin> }\n"
+			+ "OPTIONAL { ?realm calli:layout ?layout }\n"
+			+ "OPTIONAL { ?realm calli:forbidden ?forbiddenPage }\n"
+			+ "OPTIONAL { ?realm calli:unauthorized ?unauthorizedPage }\n"
+			+ "OPTIONAL { ?realm calli:authentication ?authentication }\n"
+			+ "} GROUP BY ?realm";
 	private static final String SELECT_EMAIL = PREFIX + "SELECT ?label ?email { </> calli:authentication [calli:authNamespace [calli:hasComponent [rdfs:label ?label; calli:email ?email]]] }";
 	private static final String SELECT_USERNAME = PREFIX + "SELECT ?username { </> calli:authentication [calli:authNamespace [calli:hasComponent [calli:name ?username; calli:email $email]]] }";
 
@@ -83,8 +112,8 @@ public class SetupTool {
 		return conf.getWebappOrigins();
 	}
 
-	public SetupOrigin[] getOrigins() throws IOException, OpenRDFException {
-		List<SetupOrigin> list = new ArrayList<SetupOrigin>();
+	public SetupRealm[] getRealms() throws IOException, OpenRDFException {
+		List<SetupRealm> list = new ArrayList<SetupRealm>();
 		CallimachusSetup setup = new CallimachusSetup(repository);
 		RepositoryConnection con = setup.openConnection();
 		try {
@@ -94,11 +123,11 @@ public class SetupTool {
 					continue;
 				String root = e.getKey() + "/";
 				TupleQueryResult results = con.prepareTupleQuery(
-						QueryLanguage.SPARQL, SELECT_ROOT, root).evaluate();
+						QueryLanguage.SPARQL, SELECT_REALM, root).evaluate();
 				try {
 					while (results.hasNext()) {
 						BindingSet result = results.next();
-						SetupOrigin o = createSetupOrigin(e.getKey(), result);
+						SetupRealm o = createSetupRealm(e.getKey(), result);
 						if (o != null) {
 							list.add(o);
 						}
@@ -110,7 +139,7 @@ public class SetupTool {
 		} finally {
 			con.close();
 		}
-		return list.toArray(new SetupOrigin[list.size()]);
+		return list.toArray(new SetupRealm[list.size()]);
 	}
 
 	public synchronized void setupWebappOrigin(String origin)
@@ -119,19 +148,12 @@ public class SetupTool {
 		List<String> previous = Arrays.asList(conf.getWebappOrigins());
 		Collection<String> now = new LinkedHashSet<String>(previous);
 		now.add(origin);
-		// validate state
-		if (now.size() > 1) {
-			for (SetupOrigin o : getOrigins()) {
-				if (!o.isResolvable() && o.getRepositoryID().equals(repositoryID))
-					throw new IllegalStateException("Multiple resolvable origins cannot be used if unresolvable realms exist");
-			}
-		}
 		Map<String, String> map = conf.getOriginRepositoryIDs();
 		map = new LinkedHashMap<String, String>(map);
 		map.put(origin, repositoryID);
 		conf.setOriginRepositoryIDs(map);
 		conf.setWebappOrigins(now.toArray(new String[now.size()]));
-		for (SetupOrigin o : getOrigins()) {
+		for (SetupRealm o : getRealms()) {
 			if (o.getWebappOrigin().equals(origin))
 				return; // already exists in store
 		}
@@ -139,16 +161,25 @@ public class SetupTool {
 		createWebappOrigin(origin);
 	}
 
-	public synchronized void setupResolvableOrigin(String origin, String webappOrigin)
+	public synchronized void setupRealm(String realm, String webappOrigin)
 			throws IOException, OpenRDFException {
-		for (SetupOrigin o : getOrigins()) {
-			if (!o.isResolvable())
-				throw new IllegalStateException("Multiple resolvable origins cannot be used if unresolvable realms exist");
-		}
+		java.net.URI uri = java.net.URI.create(realm);
+		String origin = uri.getScheme() + "://" + uri.getAuthority();
 		CallimachusSetup setup = new CallimachusSetup(repository);
 		setup.prepareWebappOrigin(webappOrigin);
 		setup.createOrigin(origin, webappOrigin);
 		setup.finalizeWebappOrigin(webappOrigin);
+		createRealm(realm, webappOrigin);
+	}
+
+	public void importGraph(String graph, String systemId, String type)
+			throws OpenRDFException, IOException {
+		ObjectConnection con = repository.getConnection();
+		try {
+			con.add(new StringReader(graph), systemId, RDFFormat.forMIMEType(type));
+		} finally {
+			con.close();
+		}
 	}
 
 	public synchronized String[] getDigestEmailAddresses(String webappOrigin)
@@ -217,19 +248,17 @@ public class SetupTool {
 		}
 	}
 
-	private SetupOrigin createSetupOrigin(String webappOrigin, BindingSet result) {
-		String root = stringValue(result.getValue("root"));
-		if (root == null)
+	private SetupRealm createSetupRealm(String webappOrigin, BindingSet result) {
+		String realm = stringValue(result.getValue("realm"));
+		if (realm == null)
 			return null;
-		boolean res = ((Literal) result.getValue("resolvable")).booleanValue();
-		String indexTarget = stringValue(result.getValue("indexTarget"));
 		String layout = stringValue(result.getValue("layout"));
 		String forb = stringValue(result.getValue("forbiddenPage"));
 		String unauth = stringValue(result.getValue("unauthorizedPage"));
 		String auth = stringValue(result.getValue("authentication"));
 		String[] split = auth == null ? new String[0] : auth.split("\\s+");
-		return new SetupOrigin(root, res, webappOrigin, indexTarget, layout,
-				forb, unauth, split, repositoryID);
+		return new SetupRealm(realm, webappOrigin, layout, forb, unauth,
+				split, repositoryID);
 	}
 
 	private String stringValue(Value value) {
@@ -276,5 +305,63 @@ public class SetupTool {
 		} else {
 			logger.info("Callimachus already appears to be installed at {}", origin);
 		}
+	}
+
+	private boolean createRealm(String realm, String webappOrigin) throws OpenRDFException {
+		ObjectConnection con = repository.getConnection();
+		try {
+			ValueFactory vf = con.getValueFactory();
+			URI subj = vf.createURI(realm);
+			if (con.hasStatement(subj, RDF.TYPE, vf.createURI(CALLI_REALM), true))
+				return false;
+			con.add(subj, RDF.TYPE, vf.createURI(CALLI_REALM));
+			con.add(subj, RDF.TYPE, webapp(webappOrigin, REALM_TYPE));
+			createFolder(realm, webappOrigin, con);
+			Update props = con.prepareUpdate(QueryLanguage.SPARQL, COPY_REALM_PROPS);
+			props.setBinding("realm", subj);
+			props.execute();
+			return true;
+		} finally {
+			con.close();
+		}
+	}
+
+	private URI webapp(String webappOrigin, String path) throws OpenRDFException {
+		return repository.getValueFactory().createURI(repository.getCallimachusUrl(webappOrigin, path));
+	}
+
+	private URI createFolder(String folder, String webappOrigin,
+			ObjectConnection con) throws OpenRDFException {
+		ValueFactory vf = con.getValueFactory();
+		URI uri = vf.createURI(folder);
+		if (con.hasStatement(uri, RDF.TYPE, vf.createURI(CALLI_FOLDER)))
+			return uri;
+		String parent = getParentFolder(folder);
+		if (parent == null)
+			throw new IllegalStateException(
+					"Can only import a CAR within a previously defined origin or realm");
+		URI parentUri = createFolder(parent, webappOrigin, con);
+		con.add(parentUri, vf.createURI(CALLI_HASCOMPONENT), uri);
+		String label = folder.substring(parent.length()).replace("/", "")
+				.replace('-', ' ');
+		con.add(uri, RDFS.LABEL, vf.createLiteral(label));
+		con.add(uri, RDF.TYPE, vf.createURI(CALLI_FOLDER));
+		if (!con.hasStatement(uri, RDF.TYPE, webapp(webappOrigin, REALM_TYPE))) {
+			con.add(uri, RDF.TYPE, webapp(webappOrigin, FOLDER_TYPE));
+		}
+		Update perm = con.prepareUpdate(QueryLanguage.SPARQL, COPY_FOLDER_PERM);
+		perm.setBinding("folder", uri);
+		perm.execute();
+		return uri;
+	}
+
+	private String getParentFolder(String folder) {
+		int idx = folder.lastIndexOf('/', folder.length() - 2);
+		if (idx < 0)
+			return null;
+		String parent = folder.substring(0, idx + 1);
+		if (parent.endsWith("://"))
+			return null;
+		return parent;
 	}
 }

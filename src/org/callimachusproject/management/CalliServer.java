@@ -608,15 +608,27 @@ public class CalliServer implements CalliServerMXBean {
 				tool.importGraph(rdf, systemId, type);
 				return null;
 			}
+		});
+	}
 
-			private String getWebappOrigin(final String uri) throws IOException,
-					OpenRDFException {
-				for (SetupRealm realm : getRealms()) {
-					if (uri.startsWith(realm.getRealm())) {
-						return realm.getWebappOrigin();
-					}
-				}
-				throw new IllegalArgumentException("Unknown location: " + uri);
+	public 
+
+	void addAuthentication(final String realm, final String authenticationManager) throws Exception {
+		submit(new Callable<Void>() {
+			public Void call() throws Exception {
+				SetupTool tool = getSetupTool(getWebappOrigin(realm));
+				tool.addAuthentication(realm, authenticationManager);
+				return null;
+			}
+		});
+	}
+
+	public void removeAuthentication(final String realm, final String authenticationManager) throws Exception {
+		submit(new Callable<Void>() {
+			public Void call() throws Exception {
+				SetupTool tool = getSetupTool(getWebappOrigin(realm));
+				tool.removeAuthentication(realm, authenticationManager);
+				return null;
 			}
 		});
 	}
@@ -647,6 +659,16 @@ public class CalliServer implements CalliServerMXBean {
 			String webappOrigin) throws OpenRDFException, IOException {
 		return getSetupTool(webappOrigin).changeDigestUserPassword(email,
 				password, webappOrigin);
+	}
+
+	String getWebappOrigin(final String uri) throws IOException,
+			OpenRDFException {
+		for (SetupRealm realm : getRealms()) {
+			if (uri.startsWith(realm.getRealm())) {
+				return realm.getWebappOrigin();
+			}
+		}
+		throw new IllegalArgumentException("Unknown location: " + uri);
 	}
 
 	synchronized void saveError(Exception exc) {

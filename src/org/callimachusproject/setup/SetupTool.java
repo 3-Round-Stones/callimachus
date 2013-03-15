@@ -49,6 +49,7 @@ public class SetupTool {
 	private static final String CALLI_FOLDER = CALLI + "Folder";
 	private static final String CALLI_REALM = CALLI + "Realm";
 	private static final String CALLI_HASCOMPONENT = CALLI + "hasComponent";
+	private static final String CALLI_AUTHENTICATION = CALLI + "authentication";
 	private static final String PREFIX = "PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>\n"
 			+ "PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>\n";
 	private static final String COPY_FOLDER_PERM = PREFIX
@@ -170,6 +171,38 @@ public class SetupTool {
 		setup.createOrigin(origin, webappOrigin);
 		setup.finalizeWebappOrigin(webappOrigin);
 		createRealm(realm, webappOrigin);
+	}
+
+	public void addAuthentication(String realm, String manager) 
+			throws OpenRDFException, IOException {
+		ObjectConnection con = repository.getConnection();
+		try {
+			con.setAutoCommit(false);
+			ValueFactory vf = con.getValueFactory();
+			URI s = vf.createURI(realm);
+			URI p = vf.createURI(CALLI_AUTHENTICATION);
+			URI o = vf.createURI(manager);
+			if (!con.hasStatement(s, p, o)) {
+				con.add(s, p, o);
+			}
+			con.setAutoCommit(true);
+		} finally {
+			con.close();
+		}
+	}
+
+	public void removeAuthentication(String realm, String manager) 
+			throws OpenRDFException, IOException {
+		ObjectConnection con = repository.getConnection();
+		try {
+			ValueFactory vf = con.getValueFactory();
+			URI s = vf.createURI(realm);
+			URI p = vf.createURI(CALLI_AUTHENTICATION);
+			URI o = vf.createURI(manager);
+			con.remove(s, p, o);
+		} finally {
+			con.close();
+		}
 	}
 
 	public void importGraph(String graph, String systemId, String type)

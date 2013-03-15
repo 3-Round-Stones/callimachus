@@ -80,6 +80,10 @@ public interface CalliServerMXBean {
 
 	void createResource(String rdf, String systemId, String type) throws Exception;
 
+	void addAuthentication(String realm, String authenticationManager) throws Exception;
+
+	void removeAuthentication(String realm, String authenticationManager) throws Exception;
+
 	String[] getDigestEmailAddresses(String webappOrigin)
 			throws OpenRDFException, IOException;
 

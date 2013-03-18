@@ -283,7 +283,8 @@ INSERT {
 INSERT {
 </auth/> calli:hasComponent </auth/secrets/>.
 </auth/secrets/> a <types/Folder>, calli:Folder;
-    rdfs:label "secrets".
+    rdfs:label "secrets";
+    calli:editor </auth/groups/admin>.
 } WHERE {
 	FILTER NOT EXISTS { </auth/secrets/> a calli:Folder }
 };

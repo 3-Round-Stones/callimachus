@@ -19,6 +19,7 @@
 @prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
 @prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
 @prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix foaf:<http://xmlns.com/foaf/0.1/>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 
 <> a <types/SchemaGraph>.
@@ -277,6 +278,13 @@ calli:email a owl:DatatypeProperty, owl:FunctionalProperty;
     rdfs:comment "The primary email address for this user";
     rdfs:domain calli:User;
     rdfs:range rdf:PlainLiteral;
+    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
+calli:authButton a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:label "auth button";
+    rdfs:comment "Branded authentication images to initiate logins";
+    rdfs:domain calli:AuthenticationManager;
+    rdfs:range foaf:Image;
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:authNamespace a owl:FunctionalProperty, owl:ObjectProperty;

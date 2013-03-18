@@ -42,6 +42,7 @@ INSERT {
 		calli:reader </auth/groups/public>;
 		calli:subscriber </auth/groups/everyone>;
 		calli:administrator </auth/groups/admin>;
+		calli:authButton <images/digest_64.png>;
 		calli:authName ?name;
 		calli:authNamespace ?space
 } WHERE {

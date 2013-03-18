@@ -107,9 +107,12 @@ public class DetachedRealm {
 	private String forbidden;
 	private String unauthorized;
 
-	public DetachedRealm(Resource self, ObjectConnection con, RealmManager manager)
-			throws OpenRDFException, IOException {
+	public DetachedRealm(Resource self) {
 		this.self = self;
+	}
+
+	public void init(ObjectConnection con, RealmManager manager)
+			throws OpenRDFException, IOException {
 		TupleQuery query = con.prepareTupleQuery(SPARQL, SELECT_REALM);
 		query.setBinding("this", self);
 		TupleQueryResult results = query.evaluate();

@@ -61,21 +61,25 @@ public class RealmManager {
 		if (realms != null && revision == cache)
 			return realms;
 		revision = cache;
-		return realms = loadRealms(repo);
-	}
-
-	private TreeMap<String, DetachedRealm> loadRealms(ObjectRepository repo)
-			throws OpenRDFException, IOException {
 		ObjectConnection con = repo.getConnection();
 		try {
-			TreeMap<String, DetachedRealm> realms = new TreeMap<String, DetachedRealm>();
-			ValueFactory vf = con.getValueFactory();
-			addRealmsOfType(vf.createURI(CALLI_REALM), realms, con);
-			addRealmsOfType(vf.createURI(CALLI_ORIGIN), realms, con);
+			realms = loadRealms(con);
+			for (DetachedRealm realm : realms.values()) {
+				realm.init(con, this);
+			}
 			return realms;
 		} finally {
 			con.close();
 		}
+	}
+
+	private TreeMap<String, DetachedRealm> loadRealms(ObjectConnection con)
+			throws OpenRDFException, IOException {
+		TreeMap<String, DetachedRealm> realms = new TreeMap<String, DetachedRealm>();
+		ValueFactory vf = con.getValueFactory();
+		addRealmsOfType(vf.createURI(CALLI_REALM), realms, con);
+		addRealmsOfType(vf.createURI(CALLI_ORIGIN), realms, con);
+		return realms;
 	}
 
 	private void addRealmsOfType(URI type, TreeMap<String, DetachedRealm> realms,

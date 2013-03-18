@@ -75,11 +75,11 @@
                 $('#comment').change();
             }
         });
-        equivalentURL = unescape(window.location.hash.substring(2));
+        var equivalentURL = unescape(window.location.hash.substring(2));
         if (equivalentURL.length > 0) {
             var de = jQuery.Event('drop');
             de.dataTransfer = {getData:function(){return equivalentURL}};
-            $('#equivalentClass').trigger(de);  	
+            $('#equivalentClass').trigger(de);
         }
     }); // ]]>
     </script>

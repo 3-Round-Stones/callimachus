@@ -159,6 +159,7 @@ public class DetachedDigestManager implements DetachedAuthenticationManager {
 		this.digestNonceSecure = secureOnly ? ";Secure" : "";
 		StringBuilder dn = new StringBuilder();
 		dn.append("digestNonce");
+		dn.append(Integer.toHexString(Math.abs(self.hashCode())));
 		if (ports.size() == 1) {
 			Integer port = ports.iterator().next();
 			if (port > 0) {

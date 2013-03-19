@@ -208,8 +208,9 @@ public class DetachedRealm {
 	}
 
 	public HttpResponse unauthorized(String method, Object resource,
-			Map<String, String[]> request) throws Exception {
-		HttpResponse unauth = unauthorizedHeaders(method, resource, request);
+			Map<String, String[]> req, HttpEntity body)
+			throws Exception {
+		HttpResponse unauth = unauthorizedHeaders(method, resource, req, body);
 		if (unauthorized == null)
 			return unauth;
 		try {
@@ -234,7 +235,7 @@ public class DetachedRealm {
 						"text/html;charset=UTF-8").getEntity();
 				resp.setEntity(entity);
 			} else {
-				String via = Arrays.asList(request.get("via")).toString();
+				String via = Arrays.asList(req.get("via")).toString();
 				resp.setEntity(new StringEntity(via + " is unauthorized"));
 			}
 			return resp;
@@ -319,10 +320,10 @@ public class DetachedRealm {
 	}
 
 	private HttpResponse unauthorizedHeaders(String method, Object resource,
-			Map<String, String[]> request) throws IOException {
+			Map<String, String[]> request, HttpEntity body) throws IOException {
 		HttpResponse unauth = null;
 		for (DetachedAuthenticationManager realm : getPrefManagers(request.get("cookie"))) {
-			HttpResponse resp = realm.unauthorized(method, resource, request);
+			HttpResponse resp = realm.unauthorized(method, resource, request, body);
 			if (resp == null)
 				continue;
 			if (unauth == null) {

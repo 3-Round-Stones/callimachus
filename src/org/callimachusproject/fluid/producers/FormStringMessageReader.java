@@ -58,6 +58,8 @@ public class FormStringMessageReader implements Producer {
 			charset = Charset.forName("ISO-8859-1");
 		}
 		Reader reader = ChannelUtil.newReader(in, charset);
+		if (reader == null)
+			return null;
 		try {
 			StringWriter writer = new StringWriter();
 			char[] cbuf = new char[512];

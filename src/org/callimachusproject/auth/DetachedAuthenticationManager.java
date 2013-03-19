@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpMessage;
 import org.apache.http.HttpResponse;
 import org.openrdf.OpenRDFException;
@@ -107,11 +108,11 @@ public interface DetachedAuthenticationManager {
 	 *            The target resource of a request.
 	 * @param request
 	 *            A map with the above conditional keys
-	 * 
+	 * @param body request entity
 	 * @return An HTTP response
 	 */
 	HttpResponse unauthorized(String method, Object resource,
-			Map<String, String[]> request);
+			Map<String, String[]> request, HttpEntity body);
 
 	/**
 	 * Response headers that should be included in the response.

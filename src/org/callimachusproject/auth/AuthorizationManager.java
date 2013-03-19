@@ -115,7 +115,7 @@ public class AuthorizationManager {
 		// loop through first to see if further authorisation is needed
 		DetachedRealm realm = getRealm(request);
 		HttpResponse unauth = null;
-		boolean wrongOrigin = true;
+		boolean validOrigin = false;
 		boolean noRealm = true;
 		if (realm != null) {
 			String cred = null;
@@ -129,43 +129,30 @@ public class AuthorizationManager {
 				}
 			}
 			noRealm = false;
-			if (or != null && !isOriginAllowed(allowed, or)) {
-				try {
+			validOrigin = or == null || isOriginAllowed(allowed, or);
+			try {
+				if (cred == null) {
+					unauth = choose(unauth,
+							realm.unauthorized(m, target, map, request.getEntity()));
+				} else {
 					unauth = choose(unauth, realm.forbidden(m, target, map));
-				} catch (ResponseException exc) {
-					if (unauth != null) {
-						EntityUtils.consume(unauth.getEntity());
-					}
-					throw exc;
-				} catch (Exception exc) {
-					logger.error(exc.toString(), exc);
 				}
-			} else {
-				wrongOrigin = false;
-				try {
-					if (cred == null) {
-						unauth = choose(unauth,
-								realm.unauthorized(m, target, map));
-					} else {
-						unauth = choose(unauth, realm.forbidden(m, target, map));
-					}
-				} catch (ResponseException exc) {
-					if (unauth != null) {
-						EntityUtils.consume(unauth.getEntity());
-					}
-					throw exc;
-				} catch (Exception exc) {
-					logger.error(exc.toString(), exc);
+			} catch (ResponseException exc) {
+				if (unauth != null) {
+					EntityUtils.consume(unauth.getEntity());
 				}
+				throw exc;
+			} catch (Exception exc) {
+				logger.error(exc.toString(), exc);
 			}
-		}
-		if (noRealm) {
-			logger.info("No active realm for {}", request);
-		} else if (wrongOrigin) {
-			logger.info("Origin {} not allowed for {}", or, request);
 		}
 		if (unauth != null)
 			return unauth;
+		if (noRealm) {
+			logger.info("No active realm for {}", request);
+		} else if (!validOrigin) {
+			logger.info("Origin {} not allowed for {}", or, request);
+		}
 		StringEntity body = new StringEntity("Forbidden", "UTF-8");
 		body.setContentType("text/plain");
 		HttpResponse resp = new BasicHttpResponse(_403);

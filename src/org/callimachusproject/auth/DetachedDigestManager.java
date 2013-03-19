@@ -47,6 +47,7 @@ import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.httpclient.util.DateParseException;
 import org.apache.commons.httpclient.util.DateUtil;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpMessage;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
@@ -185,7 +186,7 @@ public class DetachedDigestManager implements DetachedAuthenticationManager {
 
 	@Override
 	public HttpResponse unauthorized(String method, Object resource,
-			Map<String, String[]> request) {
+			Map<String, String[]> request, HttpEntity body) {
 		String nonce = nextNonce(resource, request.get("via"));
 		String authenticate = "Digest realm=\"" + authName + "\""
 				+ (", domain=\"" + protectedDomains + "\"") + ", nonce=\""

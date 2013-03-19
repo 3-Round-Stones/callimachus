@@ -606,10 +606,6 @@ public class CalliServer implements CalliServerMXBean {
 			public Void call() throws Exception {
 				SetupTool tool = getSetupTool(getWebappOrigin(systemId));
 				tool.createResource(rdf, systemId, type);
-				String repositoryID = tool.getRepositoryID();
-				CalliRepository repository = getRepository(repositoryID);
-				ObjectRepository object = repository.getDelegate();
-				AuthorizationService.getInstance().get(object).resetCache();
 				return null;
 			}
 		});
@@ -622,6 +618,10 @@ public class CalliServer implements CalliServerMXBean {
 			public Void call() throws Exception {
 				SetupTool tool = getSetupTool(getWebappOrigin(realm));
 				tool.addAuthentication(realm, authenticationManager);
+				String repositoryID = tool.getRepositoryID();
+				CalliRepository repository = getRepository(repositoryID);
+				ObjectRepository object = repository.getDelegate();
+				AuthorizationService.getInstance().get(object).resetCache();
 				return null;
 			}
 		});
@@ -632,6 +632,10 @@ public class CalliServer implements CalliServerMXBean {
 			public Void call() throws Exception {
 				SetupTool tool = getSetupTool(getWebappOrigin(realm));
 				tool.removeAuthentication(realm, authenticationManager);
+				String repositoryID = tool.getRepositoryID();
+				CalliRepository repository = getRepository(repositoryID);
+				ObjectRepository object = repository.getDelegate();
+				AuthorizationService.getInstance().get(object).resetCache();
 				return null;
 			}
 		});

@@ -61,7 +61,7 @@
     rdfs:subClassOf [owl:onProperty :fileClass; owl:hasValue <File>];
     calli:method "POST";
     calli:query "contents";
-    calli:requires calli:administrator;
+    calli:requires calli:contributor;
     calli:type "message/x-response";
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
     calli:script """

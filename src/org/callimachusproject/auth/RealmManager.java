@@ -3,10 +3,9 @@ package org.callimachusproject.auth;
 import static org.openrdf.query.QueryLanguage.SPARQL;
 
 import java.io.IOException;
-import java.util.Map.Entry;
-import java.util.TreeMap;
 
 import org.callimachusproject.concepts.Realm;
+import org.callimachusproject.util.PrefixMap;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
@@ -31,7 +30,7 @@ public class RealmManager {
 	private final Logger logger = LoggerFactory.getLogger(RealmManager.class);
 	private int revision = cache;
 	private final ObjectRepository repo;
-	private TreeMap<String, DetachedRealm> realms;
+	private PrefixMap<DetachedRealm> realms;
 
 	public RealmManager(ObjectRepository repository) {
 		this.repo = repository;
@@ -42,8 +41,7 @@ public class RealmManager {
 	}
 
 	public DetachedRealm getRealm(String target) throws OpenRDFException, IOException {
-		TreeMap<String, DetachedRealm> realms = getRealms();
-		return get(target, realms);
+		return getRealms().getClosest(target);
 	}
 
 	public DetachedAuthenticationManager getAuthenticationManager(Resource uri)
@@ -56,7 +54,7 @@ public class RealmManager {
 		return null;
 	}
 
-	private synchronized TreeMap<String, DetachedRealm> getRealms()
+	private synchronized PrefixMap<DetachedRealm> getRealms()
 			throws OpenRDFException, IOException {
 		if (realms != null && revision == cache)
 			return realms;
@@ -73,16 +71,16 @@ public class RealmManager {
 		}
 	}
 
-	private TreeMap<String, DetachedRealm> loadRealms(ObjectConnection con)
+	private PrefixMap<DetachedRealm> loadRealms(ObjectConnection con)
 			throws OpenRDFException, IOException {
-		TreeMap<String, DetachedRealm> realms = new TreeMap<String, DetachedRealm>();
+		PrefixMap<DetachedRealm> realms = new PrefixMap<DetachedRealm>();
 		ValueFactory vf = con.getValueFactory();
 		addRealmsOfType(vf.createURI(CALLI_REALM), realms, con);
 		addRealmsOfType(vf.createURI(CALLI_ORIGIN), realms, con);
 		return realms;
 	}
 
-	private void addRealmsOfType(URI type, TreeMap<String, DetachedRealm> realms,
+	private void addRealmsOfType(URI type, PrefixMap<DetachedRealm> realms,
 			ObjectConnection con) throws OpenRDFException, IOException {
 		ObjectQuery qry = con.prepareObjectQuery(SPARQL, SELECT_BY_TYPE);
 		qry.setBinding("type", type);
@@ -96,24 +94,6 @@ public class RealmManager {
 				logger.error(o.toString() + " cannot be detached", e);
 			}
 		}
-	}
-
-	private DetachedRealm get(String target, TreeMap<String, DetachedRealm> realms) {
-		Entry<String, DetachedRealm> entry = realms.floorEntry(target);
-		if (entry == null)
-			return null;
-		String key = entry.getKey();
-		if (target.startsWith(key))
-			return entry.getValue();
-		if (target.length() == 0)
-			return null;
-		int idx = 0;
-		while (idx < target.length() && idx < key.length()
-				&& target.charAt(idx) == key.charAt(idx)) {
-			idx++;
-		}
-		String prefix = target.substring(0, idx);
-		return get(prefix, realms);
 	}
 
 }

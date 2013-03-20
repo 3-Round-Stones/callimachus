@@ -64,7 +64,7 @@ public class SetupTool {
 	private static final String COPY_REALM_PROPS = PREFIX
 			+ "INSERT { $realm\n"
 			+ "calli:authentication ?auth; calli:unauthorized ?unauth; calli:forbidden ?forbid; calli:layout ?layout\n"
-			+ "} WHERE { {SELECT ?origin { ?origin a calli:Realm; calli:hasComponent* $realm} ORDER BY desc(?origin) LIMIT 1}\n"
+			+ "} WHERE { {SELECT ?origin { ?origin a calli:Realm; calli:hasComponent+ $realm} ORDER BY desc(?origin) LIMIT 1}\n"
 			+ "OPTIONAL { ?origin calli:authentication ?auth }\n"
 			+ "OPTIONAL { ?origin calli:unauthorized ?unauth }\n"
 			+ "OPTIONAL { ?origin calli:forbidden ?forbid }\n"
@@ -205,20 +205,24 @@ public class SetupTool {
 		}
 	}
 
-	public void createResource(String graph, String systemId, String type)
+	public boolean createResource(String graph, String systemId, String type)
 			throws OpenRDFException, IOException {
 		ObjectConnection con = repository.getConnection();
 		try {
 			ValueFactory vf = con.getValueFactory();
 			URI target = vf.createURI(systemId);
 			URI folder = vf.createURI(getParentFolder(systemId));
+			URI hasComponent = vf.createURI(CALLI_HASCOMPONENT);
 			con.setAutoCommit(false);
+			if (con.hasStatement(folder, hasComponent, target))
+				return false;
 			con.add(new StringReader(graph), systemId, RDFFormat.forMIMEType(type));
-			con.add(folder, vf.createURI(CALLI_HASCOMPONENT), target);
+			con.add(folder, hasComponent, target);
 			Update perm = con.prepareUpdate(QueryLanguage.SPARQL, COPY_FILE_PERM);
 			perm.setBinding("file", target);
 			perm.execute();
 			con.setAutoCommit(true);
+			return true;
 		} finally {
 			con.close();
 		}

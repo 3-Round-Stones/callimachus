@@ -398,21 +398,25 @@ public class CalliRepository extends RepositoryWrapper implements CalliRepositor
 			RepositoryException, IOException {
 		if (repository instanceof ObjectRepository)
 			return (ObjectRepository) repository;
-		ObjectRepositoryFactory factory = new ObjectRepositoryFactory();
-		ObjectRepositoryConfig config = factory.getConfig();
-		config.setIncludeInferred(false);
-		config.setObjectDataDir(dataDir);
-		File wwwDir = new File(dataDir, "www");
-		File blobDir = new File(dataDir, "blob");
-		if (wwwDir.isDirectory() && !blobDir.isDirectory()) {
-			config.setBlobStore(wwwDir.toURI().toString());
-			Map<String, String> map = new HashMap<String, String>();
-			map.put("provider", FileBlobStoreProvider.class.getName());
-			config.setBlobStoreParameters(map);
-		} else {
-			config.setBlobStore(blobDir.toURI().toString());
+		// AdviceService used in ObjectRepository#compileSchema
+		// uses java.util.ServiceLoader is a non-thread safe way
+		synchronized (CalliRepository.class) {
+			ObjectRepositoryFactory factory = new ObjectRepositoryFactory();
+			ObjectRepositoryConfig config = factory.getConfig();
+			config.setIncludeInferred(false);
+			config.setObjectDataDir(dataDir);
+			File wwwDir = new File(dataDir, "www");
+			File blobDir = new File(dataDir, "blob");
+			if (wwwDir.isDirectory() && !blobDir.isDirectory()) {
+				config.setBlobStore(wwwDir.toURI().toString());
+				Map<String, String> map = new HashMap<String, String>();
+				map.put("provider", FileBlobStoreProvider.class.getName());
+				config.setBlobStoreParameters(map);
+			} else {
+				config.setBlobStore(blobDir.toURI().toString());
+			}
+			return factory.createRepository(config, repository);
 		}
-		return factory.createRepository(config, repository);
 	}
 
 	private void setLoggerLevel(String fragment, Level level) {

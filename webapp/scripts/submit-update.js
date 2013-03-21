@@ -33,7 +33,7 @@ $('form[enctype="application/sparql-update"]').each(function() {
             setTimeout(function(){
                 var resource = form.attr('about') || form.attr('resource');
                 if (resource) {
-                    submitRDFForm(form[0], stored);
+                    submitRDFForm(form[0], resource, stored);
                 }
             }, 0);
             return false;
@@ -43,7 +43,7 @@ $('form[enctype="application/sparql-update"]').each(function() {
     }
 });
 
-function submitRDFForm(form, stored) {
+function submitRDFForm(form, resource, stored) {
     try {
         var revised = readRDF(form);
         var diff = diffTriples(stored, revised);
@@ -57,6 +57,7 @@ function submitRDFForm(form, stored) {
             addBoundedDescription(added[hash], revised, added, removed);
         }
         var se = $.Event("calliSubmit");
+        se.resource = resource;
         se.payload = asSparqlUpdate(removed, added);
         $(form).trigger(se);
         if (!se.isDefaultPrevented()) {
@@ -72,10 +73,10 @@ function submitRDFForm(form, stored) {
                             redirect = redirect.substring(0, redirect.indexOf('?'));
                         }
                     }
-                    redirect = redirect + "?view";
                     var event = $.Event("calliRedirect");
                     event.cause = se;
-                    event.location = redirect;
+                    event.resource = redirect;
+                    event.location = redirect + "?view";
                     $(form).trigger(event);
                     if (!event.isDefaultPrevented()) {
                         if (window.parent != window && parent.postMessage) {

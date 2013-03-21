@@ -32,6 +32,7 @@ window.calli.deleteResource = function(event, redirect) {
     }
     try {
         var de = jQuery.Event("calliDelete");
+        de.resource = url.replace(/\?.*/,'');
         de.location = url;
         form.trigger(de);
         if (!de.isDefaultPrevented()) {
@@ -46,6 +47,7 @@ window.calli.deleteResource = function(event, redirect) {
                     if (xhr.status >= 200) {
                         var event = jQuery.Event("calliRedirect");
                         event.cause = de;
+                        event.resource = de.resource;
                         event.location = redirect;
                         if (!event.location && xhr.getResponseHeader('Content-Type') == 'text/uri-list') {
                             event.location = xhr.responseText;

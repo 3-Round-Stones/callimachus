@@ -116,7 +116,7 @@ function bindFormEvents(form, editor, idempotent) {
         var resource = $(form).attr('about') || $(form).attr('resource');
         if (idempotent || resource) {
             calli.readEditorText(editor, function(text) {
-                saveFile(form, text, function(xhr) {
+                saveFile(form, text, function(xhr, cause) {
                     var event = $.Event("calliRedirect");
                     var redirect = xhr.getResponseHeader('Location');
                     var url = calli.getPageUrl();
@@ -124,12 +124,14 @@ function bindFormEvents(form, editor, idempotent) {
                         url = url.substring(0, url.indexOf('?'));
                     }
                     if (redirect) {
-                        event.location = redirect + '?view';
+                        event.resource = redirect;
                     } else if (resource) {
-                        event.location = resource + '?view';
+                        event.resource = resource;
                     } else {
-                        event.location = url + '?view';
+                        event.resource = url;
                     }
+                    event.cause = cause;
+                    event.location = event.resource + '?view';
                     $(form).trigger(event);
                     if (!event.isDefaultPrevented()) {
                         if (window.parent != window && parent.postMessage) {
@@ -150,37 +152,41 @@ function bindFormEvents(form, editor, idempotent) {
 
 // saveFile
 var saving = {};
-var etags = {};
 function saveFile(form, text, callback) {
-    if (saving[form]) return false;
-    saving[form] = true;
-    var method = form.getAttribute('method');
-    var url = calli.getFormAction(form);
-    $.ajax({
-        type: method,
-        url: url,
-        contentType: form.getAttribute("enctype"),
-        data: text,
-    	dataType: "text", 
-        beforeSend: function(xhr) {
-            if (etags[url] && method == 'PUT') {
-                xhr.setRequestHeader('If-Match', etags[url]);
-            }
-            calli.withCredentials(xhr);
-        },
-        complete: function(xhr) {
-            saving = false;
-            if (xhr.status < 300 || xhr.status == 1223) {
-                if (xhr.status == 204 || xhr.status == 1223) {
-                    etags[url] = xhr.getResponseHeader('ETag');
+    var se = $.Event("calliSubmit");
+    se.resource = $(form).attr('about') || $(form).attr('resource') || calli.getFormAction(form).replace(/\?.*/,'');
+    se.payload = text;
+    $(form).trigger(se);
+    if (!se.isDefaultPrevented()) {
+        if (saving[form]) return false;
+        saving[form] = true;
+        var method = form.getAttribute('method');
+        var url = calli.getFormAction(form);
+        $.ajax({
+            type: method,
+            url: url,
+            contentType: form.getAttribute("enctype"),
+            data: se.payload,
+            dataType: "text", 
+            beforeSend: function(xhr) {
+                if (calli.etag(url) && method == 'PUT') {
+                    xhr.setRequestHeader('If-Match', calli.etag(url));
                 }
-                if (typeof callback == 'function') {
-                    callback(xhr);
+                calli.withCredentials(xhr);
+            },
+            complete: function(xhr) {
+                saving = false;
+                if (xhr.status < 300 || xhr.status == 1223) {
+                    if (xhr.status == 204 || xhr.status == 1223) {
+                        calli.etag(url, xhr.getResponseHeader('ETag'));
+                    }
+                    if (typeof callback == 'function') {
+                        callback(xhr, se);
+                    }
                 }
             }
-        }
-    });
-    return true;
+        });
+    }
 }
 
 // setText
@@ -208,7 +214,7 @@ function loadText(url, editor) {
     url = resolve(url);
     $.ajax({type: 'GET', dataType: "text", url: url, beforeSend: calli.withCredentials, complete: function(xhr) {
         if (xhr.status == 200 || xhr.status == 304) {
-            etags[url] = xhr.getResponseHeader('ETag');
+            calli.etag(url, xhr.getResponseHeader('ETag'));
             editor.postMessage('PUT text\nContent-Location: '+ url +'\n\n' + xhr.responseText, '*');
             onhashchange(editor)();
         }

@@ -28,6 +28,7 @@ $('form[method="PUT"]').each(function(event){
         if (fileInput.length != 1 || !fileInput[0].files || fileInput[0].files.length != 1)
             return true;
         var se = $.Event("calliSubmit");
+        se.resource = calli.getFormAction(form).replace(/\?.*/,'');
         se.payload = fileInput[0].files[0];
         $(form).trigger(se);
         if (!se.isDefaultPrevented()) {
@@ -57,10 +58,10 @@ $('form[method="PUT"]').each(function(event){
                                 redirect = redirect.substring(0, redirect.indexOf('?'));
                             }
                         }
-                        redirect = redirect + "?view";
                         var event = $.Event("calliRedirect");
                         event.cause = se;
-                        event.location = redirect;
+                        event.resource = redirect;
+                        event.location = redirect + "?view";
                         $(form).trigger(event);
                         if (!event.isDefaultPrevented()) {
                             if (window.parent != window && parent.postMessage) {

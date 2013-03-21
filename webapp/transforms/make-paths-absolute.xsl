@@ -10,7 +10,7 @@
         </xsl:copy>
     </xsl:template>
 
-    <xsl:template match="@src|@href|@about|@resource">
+    <xsl:template match="@src|@href|@about|@resource|@action">
         <xsl:attribute name="{name()}">
             <xsl:call-template name="resolve-path">
                 <xsl:with-param name="relative" select="." />

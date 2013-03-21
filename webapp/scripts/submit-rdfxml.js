@@ -25,6 +25,7 @@ $('form').submit(function(event) {
 function submitRDFForm(form, uri) {
     try {
         var se = $.Event("calliSubmit");
+        se.resource = uri;
         se.payload = getRDFXML(uri, form);
         $(form).trigger(se);
         if (!se.isDefaultPrevented()) {
@@ -39,6 +40,7 @@ function submitRDFForm(form, uri) {
                     }
                     var event = $.Event("calliRedirect");
                     event.cause = se;
+                    event.resource = redirect;
                     event.location = window.calli.viewpage(redirect);
                     $(form).trigger(event);
                     if (!event.isDefaultPrevented()) {

@@ -86,14 +86,14 @@ window.calli.openDialog = function(url, title, options) {
     var handle = function(event) {
         if (event.originalEvent.source == iframe[0].contentWindow) {
             var data = event.originalEvent.data;
-            if (typeof options.onmessage == 'function') {
+            if (typeof settings.onmessage == 'function') {
                 if (!event.source) {
                     event.source = event.originalEvent.source;
                 }
                 if (!event.data) {
                     event.data = event.originalEvent.data;
                 }
-                options.onmessage(event);
+                settings.onmessage(event);
             }
         }
     };
@@ -110,8 +110,8 @@ window.calli.openDialog = function(url, title, options) {
         $(window).unbind('message', handle);
         iframe.remove();
         iframe.parent().remove();
-        if (typeof options.onclose == 'function') {
-            options.onclose();
+        if (typeof settings.onclose == 'function') {
+            settings.onclose();
         }
     });
     // trigger open
@@ -125,7 +125,7 @@ window.calli.openDialog = function(url, title, options) {
         iframe.css('padding-left', '1em');
         iframe.css('width', '100%');
         iframe[0].src = url;
-        if (typeof options.onlookup == 'function') {
+        if (typeof settings.onlookup == 'function') {
             var dialogTitle = iframe.parents(".ui-dialog").find(".ui-dialog-title");
             var form = $("<form></form>");
             var searchTerms = $("<input/>");
@@ -138,7 +138,7 @@ window.calli.openDialog = function(url, title, options) {
             form.submit(function(event) {
                 event.preventDefault();
                 if (searchTerms.val()) {
-                    options.onlookup(searchTerms.val());
+                    settings.onlookup(searchTerms.val());
                 }
                 return false;
             });

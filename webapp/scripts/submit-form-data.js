@@ -32,6 +32,7 @@ function createIframeRedirect(iname, finalTarget, cause) {
         if (redirect && redirect.indexOf('http') == 0) {
             var event = $.Event("calliRedirect");
             event.cause = cause;
+            event.resource = redirect;
             event.location = window.calli.viewpage(redirect);
             $(this).trigger(event);
             if (!event.isDefaultPrevented()) {

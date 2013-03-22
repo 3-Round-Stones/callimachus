@@ -46,6 +46,10 @@ public class ConfigTemplate {
 		this.template = readString(url);
 	}
 
+	public String toString() {
+		return template;
+	}
+
 	public Map<String, String> getDefaultParameters() {
 		Map<String, String> parameters = new HashMap<String, String>();
 		Matcher matcher = PARAMETER_PATTERN.matcher(template);
@@ -73,7 +77,7 @@ public class ConfigTemplate {
 		config.export(graph);
 		Map<String, String> map = getDefaultParameters();
 		for (String key : map.keySet()) {
-			map.put(key, new BigInteger(130, random).toString(32));
+			map.put(key, "urn:" + new BigInteger(130, random).toString(32));
 		}
 		Graph wild = renderGraph(map);
 		Map<String, String> parameters = new HashMap<String, String>();

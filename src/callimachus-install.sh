@@ -197,10 +197,10 @@ fi
 if [ -r "$SSL" ] ; then
   KEYTOOL_OPTS=$(perl -pe 's/\s*\#.*$//g' "$SSL" 2>/dev/null |perl -pe 's/(\S+)=(.*)/-J-D$1=$2/' 2>/dev/null |tr -s '\n' ' ')
 fi
-if [ ! -e "$SSL" ] || ! grep -q "keyStore" "$SSL" ; then
+if [ ! -e "$SSL" ] || [ -r "$SSL" ] && ! grep -q "keyStore" "$SSL" ; then
   echo "Would you like to generate a server certificate now? (type 'yes' or 'no')"
   read -p "  [no]:  " genkey
-else
+elif [ -r "$SSL" ]; then
   grep -E '^javax.net.ssl.keyStorePassword=' "$SSL" |perl -pe 's/^javax.net.ssl.keyStorePassword=(.*)/$1/' 2>/dev/null > "$SSL.password"
   KEYSTORE=$(grep -E '^javax.net.ssl.keyStore=' $SSL |perl -pe 's/^javax.net.ssl.keyStore=(.*)/$1/' 2>/dev/null)
   cname=$("$KEYTOOL" -list -v -keystore "$KEYSTORE" -storepass "$(cat "$SSL.password")" $KEYTOOL_OPTS |grep -B 2 PrivateKeyEntry |grep 'Alias' |head -n 1 |awk '{print $3}')

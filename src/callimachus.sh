@@ -328,7 +328,7 @@ elif [ "$(id -u)" = "0" -a -x "$DAEMON" -a -x "$(command -v getcap)" -a -x "$(co
 fi
 
 # setup trust store
-if [ -r "$JAVA_HOME/lib/security/cacerts" ] && ( [ ! -e "$SSL" ] || ! grep -q javax.net.ssl.trustStore "$SSL" ) ; then
+if [ -r "$JAVA_HOME/lib/security/cacerts" ] && ( [ ! -e "$SSL" ] || [ -r "$SSL" ] && ! grep -q javax.net.ssl.trustStore "$SSL" ) ; then
   if [ -z "$KEYTOOL" ] ; then
     KEYTOOL="$JAVA_HOME/bin/keytool"
   fi
@@ -354,7 +354,7 @@ if [ -z "$JMXRMI" ] ; then
   JMXRMI="$BASEDIR/etc/jmxremote.properties"
 fi
 JMXRIMACCESS=$(grep -E '^com.sun.management.jmxremote.access.file=' "$JMXRMI" |perl -pe 's/^com.sun.management.jmxremote.access.file=(.*)/$1/' 2>/dev/null)
-if [ ! -e "$JMXRIMACCESS" ] ; then
+if [ ! -e "$JMXRIMACCESS" -a -r "$JMXRMI" ] ; then
   if [ -r "$JAVA_HOME/lib/management/jmxremote.access" ] ; then
     cp "$JAVA_HOME/lib/management/jmxremote.access" "$JMXRIMACCESS"
   fi
@@ -368,7 +368,7 @@ if [ ! -e "$JMXRIMACCESS" ] ; then
   fi
 fi
 JMXRIMPASS=$(grep -E '^com.sun.management.jmxremote.password.file=' "$JMXRMI" |perl -pe 's/^com.sun.management.jmxremote.password.file=(.*)/$1/' 2>/dev/null)
-if [ ! -e "$JMXRIMPASS" ] ; then
+if [ ! -e "$JMXRIMPASS" -a -r "$JMXRMI" ] ; then
   if [ -r "$JAVA_HOME/lib/management/jmxremote.password" ] ; then
     cp "$JAVA_HOME/lib/management/jmxremote.password" "$JMXRIMPASS"
   elif [ -r "$JAVA_HOME/lib/management/jmxremote.password.template" ] ; then
@@ -409,7 +409,7 @@ if [ ! -z "$DAEMON_USER" ] ; then
     chown ":$DAEMON_GROUP" "$MAIL"
     chown ":$DAEMON_GROUP" "$CONFIG"
   fi
-  if [ -e "$SSL" ]; then
+  if [ -r "$SSL" ]; then
     KEYSTORE=$(grep -E '^javax.net.ssl.keyStore=' $SSL |perl -pe 's/^javax.net.ssl.keyStore=(.*)/$1/' 2>/dev/null)
     if [ -n "$KEYSTORE" -a -e "$KEYSTORE" ]; then
       chown -R "$DAEMON_USER" "$KEYSTORE"
@@ -425,7 +425,7 @@ if [ ! -z "$DAEMON_USER" ] ; then
       fi
     fi
   fi
-  if [ -e "$JMXRMI" ]; then
+  if [ -r "$JMXRMI" ]; then
     JMXRMIPASS=$(grep -E '^com.sun.management.jmxremote.password.file=' $JMXRMI |perl -pe 's/^com.sun.management.jmxremote.password.file=(.*)/$1/' 2>/dev/null)
     if [ -n "$JMXRMIPASS" -a -e "$JMXRMIPASS" ]; then
       chown -R "$DAEMON_USER" "$JMXRMIPASS"

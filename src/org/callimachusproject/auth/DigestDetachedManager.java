@@ -56,20 +56,27 @@ import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
 import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.server.exceptions.InternalServerError;
-import org.callimachusproject.setup.SecretRealmProvider;
+import org.callimachusproject.setup.SecretOriginProvider;
 import org.callimachusproject.traits.VersionedObject;
 import org.callimachusproject.util.PasswordGenerator;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Resource;
+import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
+import org.openrdf.model.ValueFactory;
+import org.openrdf.model.vocabulary.RDF;
+import org.openrdf.model.vocabulary.RDFS;
 import org.openrdf.model.vocabulary.XMLSchema;
 import org.openrdf.query.BindingSet;
+import org.openrdf.query.QueryLanguage;
 import org.openrdf.query.TupleQuery;
 import org.openrdf.query.TupleQueryResult;
+import org.openrdf.query.Update;
 import org.openrdf.query.algebra.evaluation.util.ValueComparator;
 import org.openrdf.repository.RepositoryException;
+import org.openrdf.repository.RepositoryResult;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.RDFObject;
 import org.slf4j.Logger;
@@ -78,7 +85,12 @@ import org.slf4j.LoggerFactory;
 /**
  * Validates HTTP digest authorization.
  */
-public class DetachedDigestManager implements DetachedAuthenticationManager {
+public class DigestDetachedManager implements DetachedAuthenticationManager {
+	private static final String HAS_COMPONENT = "http://callimachusproject.org/rdf/2009/framework#hasComponent";
+	private static final String PARTY = "http://callimachusproject.org/rdf/2009/framework#Party";
+	private static final String USER = "http://callimachusproject.org/rdf/2009/framework#User";
+	private static final String EMAIL = "http://callimachusproject.org/rdf/2009/framework#email";
+	private static final String PROV = "http://www.w3.org/ns/prov#";
 	private static final String PREFIX = "PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>\n";
 	private static final String SELECT_PASSWORD = PREFIX
 			+ "SELECT (str(?user) AS ?id) ?encoded ?passwordDigest {{\n"
@@ -93,6 +105,14 @@ public class DetachedDigestManager implements DetachedAuthenticationManager {
 			+ "?folder calli:hasComponent ?user .\n"
 			+ "OPTIONAL { ?user calli:passwordDigest ?passwordDigest }\n"
 			+ "}}";
+	private static final String COPY_PERM = PREFIX
+			+ "INSERT { $dst\n"
+			+ "calli:reader ?reader; calli:subscriber ?subscriber; calli:contributor ?contributor; calli:editor ?editor; calli:administrator ?administrator\n"
+			+ "} WHERE { { $src calli:reader ?reader }\n"
+			+ "UNION { $src calli:subscriber ?subscriber }\n"
+			+ "UNION { $src calli:contributor ?contributor }\n"
+			+ "UNION { $src calli:editor ?editor }\n"
+			+ "UNION { $src calli:administrator ?administrator }\n" + "}";
 	private static final Pattern TOKENS_REGEX = Pattern
 			.compile("\\s*([\\w\\!\\#\\$\\%\\&\\'\\*\\+\\-\\.\\^\\_\\`\\~]+)(?:\\s*=\\s*(?:\"([^\"]*)\"|([^,\"]*)))?\\s*,?");
 	private static final long THREE_MONTHS = 3 * 30 * 24 * 60 * 60;
@@ -116,7 +136,7 @@ public class DetachedDigestManager implements DetachedAuthenticationManager {
 		DIGEST_OPTS.put("nc", null);
 		DIGEST_OPTS.put("response", null);
 	}
-	private final Logger logger = LoggerFactory.getLogger(DetachedDigestManager.class);
+	private final Logger logger = LoggerFactory.getLogger(DigestDetachedManager.class);
 	private final Resource self;
 	private final String authName;
 	private final String protectedDomains;
@@ -126,8 +146,11 @@ public class DetachedDigestManager implements DetachedAuthenticationManager {
 	private final String digestNonceSecure;
 	private final String digestNonce;
 	private final Set<String> userCookies = new LinkedHashSet<String>();
+	private final AuthorizationService service = AuthorizationService
+			.getInstance();
 
-	public DetachedDigestManager(Resource self, String authName, String path, List<String> domains, RealmManager realms) {
+	public DigestDetachedManager(Resource self, String authName, String path,
+			List<String> domains, RealmManager realms) {
 		assert self != null;
 		assert authName != null;
 		assert realms != null;
@@ -361,6 +384,80 @@ public class DetachedDigestManager implements DetachedAuthenticationManager {
 		return username;
 	}
 
+	public void registerUser(Resource invitedUser, URI digestUser,
+			String email, String fullname, ObjectConnection con)
+			throws OpenRDFException {
+		ValueFactory vf = con.getValueFactory();
+		RepositoryResult<Statement> stmts;
+		stmts = con.getStatements((Resource) null, null, invitedUser);
+		try {
+			while (stmts.hasNext()) {
+				moveTo(digestUser, stmts.next(), con);
+			}
+		} finally {
+			stmts.close();
+		}
+		stmts = con.getStatements(invitedUser, RDFS.COMMENT, null);
+		try {
+			while (stmts.hasNext()) {
+				Statement st = stmts.next();
+				add(digestUser, st.getPredicate(), st.getObject(), con);
+			}
+		} finally {
+			stmts.close();
+		}
+		if (fullname == null) {
+			stmts = con.getStatements(invitedUser, RDFS.LABEL, null);
+			try {
+				while (stmts.hasNext()) {
+					Value label = stmts.next().getObject();
+					if (!con.hasStatement(digestUser, RDFS.LABEL, label)) {
+						con.remove(digestUser, RDFS.LABEL, null);
+						con.add(digestUser, RDFS.LABEL, label);
+					}
+				}
+			} finally {
+				stmts.close();
+			}
+		} else {
+			Literal label = vf.createLiteral(fullname);
+			if (!con.hasStatement(digestUser, RDFS.LABEL, label)) {
+				con.remove(digestUser, RDFS.LABEL, null);
+				con.add(digestUser, RDFS.LABEL, label);
+			}
+		}
+		URI hasEmail = vf.createURI(EMAIL);
+		if (email == null) {
+			stmts = con.getStatements(invitedUser, hasEmail, null);
+			try {
+				while (stmts.hasNext()) {
+					Value obj = stmts.next().getObject();
+					if (!con.hasStatement(digestUser, hasEmail, obj)) {
+						con.remove(digestUser, hasEmail, null);
+						con.add(digestUser, hasEmail, obj);
+					}
+				}
+			} finally {
+				stmts.close();
+			}
+		} else {
+			Literal mailto = vf.createLiteral(email);
+			if (!con.hasStatement(digestUser, hasEmail, mailto)) {
+				con.remove(digestUser, hasEmail, null);
+				con.add(digestUser, hasEmail, mailto);
+			}
+		}
+		Update update = con.prepareUpdate(QueryLanguage.SPARQL, COPY_PERM);
+		update.setBinding("src", invitedUser);
+		update.setBinding("dst", digestUser);
+		update.execute();
+		con.remove(invitedUser, null, null);
+		add(digestUser, RDF.TYPE, vf.createURI(PARTY), con);
+		add(digestUser, RDF.TYPE, vf.createURI(USER), con);
+		con.commit();
+		service.get(con.getRepository()).resetCache();
+	}
+
 	public boolean isDigestPassword(Collection<String> tokens, String[] hash,
 			ObjectConnection con) throws OpenRDFException, IOException {
 		Map<String, String> auth = parseDigestAuthorization(tokens);
@@ -374,11 +471,11 @@ public class DetachedDigestManager implements DetachedAuthenticationManager {
 		return false;
 	}
 
-	public String getDaypass(FileObject secret) {
+	public String getDaypass(String secret) {
 		if (secret == null)
 			throw new InternalServerError("Temporary passwords are not enabled");
 		long now = System.currentTimeMillis();
-		return getDaypass(getHalfDay(now), readString(secret));
+		return getDaypass(getHalfDay(now), secret);
 	}
 
 	public Set<?> changeDigestPassword(Set<RDFObject> files,
@@ -396,6 +493,27 @@ public class DetachedDigestManager implements DetachedAuthenticationManager {
 			set.add(con.getObject(uuid));
 		}
 		return set;
+	}
+
+	private void moveTo(URI link, Statement st, ObjectConnection con)
+			throws RepositoryException {
+		URI pred = st.getPredicate();
+		if (RDF.NAMESPACE.equals(pred.getNamespace()))
+			return;
+		if (PROV.equals(pred.getNamespace()))
+			return;
+		Resource subj = st.getSubject();
+		con.remove(subj, pred, st.getObject());
+		if (HAS_COMPONENT.equals(pred.stringValue()))
+			return;
+		add(subj, pred, link, con);
+	}
+
+	private void add(Resource subj, URI pred, Value obj, ObjectConnection con)
+			throws RepositoryException {
+		if (con.hasStatement(subj, pred, obj))
+			return;
+		con.add(subj, pred, obj);
 	}
 
 	private Map.Entry<String, String> findAuthUser(String method,
@@ -465,9 +583,9 @@ public class DetachedDigestManager implements DetachedAuthenticationManager {
 					}
 				}
 				DetachedRealm r = realms.getRealm(iri);
-				if (r == null || r.getSecret() == null)
+				if (r == null || r.getOriginSecret() == null)
 					continue;
-				String secret = r.getSecret();
+				String secret = r.getOriginSecret();
 				if (nonce != null && hash != null) {
 					String password = md5(hash + ":" + md5(nonce + ":" + secret));
 					map.put(md5(username + ':' + realm + ':' + password), iri);
@@ -528,7 +646,7 @@ public class DetachedDigestManager implements DetachedAuthenticationManager {
 				String iri = results.next().getValue("id").stringValue();
 				DetachedRealm realm = realms.getRealm(iri);
 				if (realm != null) {
-					String secret = realm.getSecret();
+					String secret = realm.getOriginSecret();
 					return getPersistentLogin(secret);
 				}
 			}
@@ -670,7 +788,7 @@ public class DetachedDigestManager implements DetachedAuthenticationManager {
 		}
 		Set<URI> list = new TreeSet<URI>(new ValueComparator());
 		for (int i = 0; i < count; i++) {
-			list.add(SecretRealmProvider.createSecretFile(webapp, con));
+			list.add(SecretOriginProvider.createSecretFile(webapp, con));
 		}
 		return list;
 	}

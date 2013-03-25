@@ -249,7 +249,7 @@ public class TemporaryServerFactory {
 			setup.finalizeWebappOrigin(origin);
 			String username = email.substring(0, email.indexOf('@'));
 			setup.createAdmin(email, username, username, null, origin);
-			setup.changeUserPassword(email, username, password, origin);
+			setup.registerDigestUser(email, username, password, origin);
 			repository.shutDown();
 			manager.shutDown();
 		}

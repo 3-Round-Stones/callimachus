@@ -5,24 +5,25 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import javax.tools.FileObject;
-
 import org.apache.http.HttpResponse;
 import org.callimachusproject.auth.AuthorizationManager;
 import org.callimachusproject.auth.AuthorizationService;
 import org.callimachusproject.auth.DetachedAuthenticationManager;
-import org.callimachusproject.auth.DetachedDigestManager;
+import org.callimachusproject.auth.DigestDetachedManager;
 import org.callimachusproject.auth.RealmManager;
 import org.callimachusproject.concepts.DigestManager;
 import org.callimachusproject.repository.CalliRepository;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Resource;
+import org.openrdf.model.URI;
+import org.openrdf.model.ValueFactory;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.ObjectRepository;
 import org.openrdf.repository.object.RDFObject;
 
 public abstract class DigestManagerSupport implements RDFObject, DigestManager {
+	private static final String HAS_COMPONENT = "http://callimachusproject.org/rdf/2009/framework#hasComponent";
 	private final AuthorizationService service = AuthorizationService.getInstance();
 
 	@Override
@@ -30,7 +31,7 @@ public abstract class DigestManagerSupport implements RDFObject, DigestManager {
 			String path, List<String> domains, RealmManager manager)
 			throws OpenRDFException {
 		Resource subj = this.getResource();
-		return new DetachedDigestManager(subj, getAuthName(), path, domains, manager);
+		return new DigestDetachedManager(subj, getAuthName(), path, domains, manager);
 	}
 
 	public void resetCache() throws RepositoryException {
@@ -41,11 +42,28 @@ public abstract class DigestManagerSupport implements RDFObject, DigestManager {
 	}
 
 	/**
+	 * Called from digest.ttl
+	 */
+	public URI registerUser(Resource invitedUser, String username,
+			String email, String fullname) throws OpenRDFException, IOException {
+		ObjectConnection con = this.getObjectConnection();
+		ValueFactory vf = con.getValueFactory();
+		Resource space = getAuthNamespace().getResource();
+		URI digestUser = vf.createURI(space.stringValue(), username);
+		DigestDetachedManager mgr = getManager();
+		mgr.registerUser(invitedUser, digestUser, email, fullname, con);
+		if (!con.hasStatement(space, vf.createURI(HAS_COMPONENT), digestUser)) {
+			con.add(space, vf.createURI(HAS_COMPONENT), digestUser);
+		}
+		return digestUser;
+	}
+
+	/**
 	 * Called from realm.ttl and user.ttl
 	 */
 	public String getUserIdentifier(Collection<String> tokens)
 			throws OpenRDFException, IOException {
-		DetachedDigestManager digest = getManager();
+		DigestDetachedManager digest = getManager();
 		if (digest == null)
 			return null;
 		return digest.getUserIdentifier(tokens, this.getObjectConnection());
@@ -56,7 +74,7 @@ public abstract class DigestManagerSupport implements RDFObject, DigestManager {
 	 */
 	public String getUserLogin(Collection<String> tokens)
 			throws OpenRDFException, IOException {
-		DetachedDigestManager digest = getManager();
+		DigestDetachedManager digest = getManager();
 		if (digest == null)
 			return null;
 		return digest.getUserLogin(tokens, this.getObjectConnection());
@@ -68,7 +86,7 @@ public abstract class DigestManagerSupport implements RDFObject, DigestManager {
 	@Override
 	public String[] getUsernameSetCookie(Collection<String> tokens)
 			throws OpenRDFException, IOException {
-		DetachedDigestManager digest = getManager();
+		DigestDetachedManager digest = getManager();
 		if (digest == null)
 			return null;
 		return digest.getUsernameSetCookie(tokens, this.getObjectConnection());
@@ -79,7 +97,7 @@ public abstract class DigestManagerSupport implements RDFObject, DigestManager {
 	 */
 	public boolean isDigestPassword(Collection<String> tokens, String[] hash)
 			throws OpenRDFException, IOException {
-		DetachedDigestManager digest = getManager();
+		DigestDetachedManager digest = getManager();
 		if (digest == null)
 			return false;
 		return digest
@@ -91,7 +109,7 @@ public abstract class DigestManagerSupport implements RDFObject, DigestManager {
 	 */
 	public Set<?> changeDigestPassword(Set<RDFObject> files, String[] passwords)
 			throws OpenRDFException, IOException {
-		DetachedDigestManager digest = getManager();
+		DigestDetachedManager digest = getManager();
 		if (digest == null)
 			return null;
 		ObjectConnection con = this.getObjectConnection();
@@ -104,7 +122,7 @@ public abstract class DigestManagerSupport implements RDFObject, DigestManager {
 	 */
 	public HttpResponse login(Collection<String> tokens, boolean persistent)
 			throws OpenRDFException, IOException {
-		DetachedDigestManager digest = getManager();
+		DigestDetachedManager digest = getManager();
 		if (digest == null)
 			return null;
 		return digest.login(tokens, persistent, this.getObjectConnection());
@@ -113,18 +131,22 @@ public abstract class DigestManagerSupport implements RDFObject, DigestManager {
 	/**
 	 * Called from digest.ttl
 	 */
-	public String getDaypass(FileObject secret) throws OpenRDFException, IOException {
-		DetachedDigestManager digest = getManager();
+	public String getDaypass(RDFObject obj) throws OpenRDFException, IOException {
+		DigestDetachedManager digest = getManager();
 		if (digest == null)
 			return null;
+		ObjectRepository repo = obj.getObjectConnection().getRepository();
+		AuthorizationManager manager = service.get(repo);
+		String uri = obj.getResource().stringValue();
+		String secret = manager.getRealm(uri).getOriginSecret();
 		return digest.getDaypass(secret);
 	}
 
-	private DetachedDigestManager getManager() throws OpenRDFException, IOException {
+	private DigestDetachedManager getManager() throws OpenRDFException, IOException {
 		Resource self = this.getResource();
 		ObjectRepository repo = this.getObjectConnection().getRepository();
 		AuthorizationManager manager = service.get(repo);
-		return (DetachedDigestManager) manager.getAuthenticationManager(self);
+		return (DigestDetachedManager) manager.getAuthenticationManager(self);
 	}
 
 }

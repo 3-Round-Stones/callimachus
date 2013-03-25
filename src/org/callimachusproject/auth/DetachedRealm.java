@@ -34,10 +34,12 @@ import org.apache.http.message.BasicStatusLine;
 import org.apache.http.util.EntityUtils;
 import org.callimachusproject.client.HTTPObjectClient;
 import org.callimachusproject.concepts.AuthenticationManager;
+import org.callimachusproject.engine.model.TermFactory;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
+import org.openrdf.model.ValueFactory;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.TupleQuery;
 import org.openrdf.query.TupleQueryResult;
@@ -53,11 +55,10 @@ public class DetachedRealm {
 	private static final String SELECT_REALM = PREFIX
 			+ "SELECT ?secret ?forbidden ?unauthorized ?domain ?authentication (group_concat(?protected;separator=' ') as ?protected) {\n"
 			+ "{ $this calli:authentication ?authentication . ?protected calli:authentication ?authentication }\n"
-			+ "UNION { $this calli:secret ?secret }\n"
+			+ "UNION { $origin calli:secret ?secret }\n"
 			+ "UNION { $this calli:forbidden ?forbidden }\n"
 			+ "UNION { $this calli:unauthorized ?unauthorized }\n"
-			+ "UNION { $this a ?realm . ?realm calli:icon ?icon . ?domain a calli:Origin\n"
-			+ "{ ?domain a ?realm } UNION { ?domain a [rdfs:subClassOf ?realm] }}\n"
+			+ "UNION { $origin a ?localOrigin . ?localOrigin rdfs:subClassOf calli:Origin . ?domain a ?localOrigin FILTER (?localOrigin != calli:Origin) }\n"
 			+ "} GROUP BY ?secret ?forbidden ?unauthorized ?domain ?authentication";
 	private static final ThreadLocal<Boolean> inForbidden = new ThreadLocal<Boolean>();
 	private static final ThreadLocal<Boolean> inUnauthorized = new ThreadLocal<Boolean>();
@@ -113,8 +114,11 @@ public class DetachedRealm {
 
 	public void init(ObjectConnection con, RealmManager manager)
 			throws OpenRDFException, IOException {
+		ValueFactory vf = con.getValueFactory();
 		TupleQuery query = con.prepareTupleQuery(SPARQL, SELECT_REALM);
 		query.setBinding("this", self);
+		String origin = TermFactory.newInstance(self.stringValue()).resolve("/");
+		query.setBinding("origin", vf.createURI(origin));
 		TupleQueryResult results = query.evaluate();
 		try {
 			while (results.hasNext()) {
@@ -166,7 +170,7 @@ public class DetachedRealm {
 		return authentication.get(uri);
 	}
 
-	public String getSecret() {
+	public String getOriginSecret() {
 		return secret;
 	}
 

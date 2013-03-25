@@ -24,6 +24,7 @@ import java.net.URLEncoder;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -33,9 +34,11 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.callimachusproject.behaviours.DigestManagerSupport;
 import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.repository.CalliRepository;
 import org.openrdf.OpenRDFException;
+import org.openrdf.model.Literal;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
@@ -44,11 +47,15 @@ import org.openrdf.model.ValueFactory;
 import org.openrdf.model.vocabulary.OWL;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.model.vocabulary.RDFS;
+import org.openrdf.query.BindingSet;
+import org.openrdf.query.QueryLanguage;
+import org.openrdf.query.TupleQueryResult;
 import org.openrdf.query.algebra.evaluation.util.ValueComparator;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
 import org.openrdf.repository.object.ObjectConnection;
+import org.openrdf.repository.object.RDFObject;
 import org.openrdf.store.blob.BlobObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,6 +67,9 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class CallimachusSetup {
+
+	private static final String DIGEST_USER_TYPE = "types/DigestUser";
+	private static final String INVITED_USERS = "/auth/invited-users/";
 
 	public static void validateOrigin(String origin) {
 		if (origin == null)
@@ -118,24 +128,27 @@ public class CallimachusSetup {
 	}
 
 	private static final String GROUP_ADMIN = "/auth/groups/admin";
-	private static final String GROUP_STAFF = "/auth/groups/staff";
+	private static final String GROUP_POWER = "/auth/groups/power";
 	private static final String CHANGES_PATH = "../changes/";
-	private static final String USER_TYPE = "types/User";
+	private static final String USER_TYPE = "types/InvitedUser";
 
 	private static final String CALLI = "http://callimachusproject.org/rdf/2009/framework#";
 	private static final String CALLI_HASCOMPONENT = CALLI + "hasComponent";
 	private static final String CALLI_ADMINISTRATOR = CALLI + "administrator";
+	private static final String CALLI_EDITOR = CALLI + "editor";
 	private static final String CALLI_SUBSCRIBER = CALLI + "subscriber";
-	private static final String CALLI_AUTHENTICATION = CALLI + "authentication";
-	private static final String CALLI_AUTHNAMESPACE = CALLI + "authNamespace";
 	private static final String CALLI_USER = CALLI + "User";
 	private static final String CALLI_PARTY = CALLI + "Party";
 	private static final String CALLI_NAME = CALLI + "name";
 	private static final String CALLI_EMAIL = CALLI + "email";
 	private static final String CALLI_MEMBER = CALLI + "member";
 	private static final String CALLI_PASSWORD = CALLI + "passwordDigest";
-	private static final String CALLI_AUTHNAME = CALLI + "authName";
 	private static final String CALLI_SECRET = CALLI + "secret";
+	private static final String PREFIX = "PREFIX calli:<" + CALLI + ">\n";
+	private static final String SELECT_DIGEST = PREFIX
+			+ "SELECT REDUCED ?digest ?authName ?authNamespace\n"
+			+ "WHERE { </> calli:authentication ?digest .\n" +
+			"?digest a calli:DigestManager; calli:authName ?authName; calli:authNamespace ?authNamespace }";
 
 	private final Logger logger = LoggerFactory.getLogger(CallimachusSetup.class);
 	private final UpdateProvider updateProvider = new UpdateService(getClass().getClassLoader());
@@ -249,15 +262,14 @@ public class CallimachusSetup {
 			con.setAutoCommit(false);
 			ValueFactory vf = con.getValueFactory();
 			boolean modified = false;
-			for (String space : getDigestUserNamespaces(webappOrigin, con)) {
-				URI subj = vf.createURI(space + username);
-				modified |= changeAdminPassword(webappOrigin, vf.createURI(space),
-						subj, email, username, label, comment, con);
-				URI admin = webapp(webappOrigin, GROUP_ADMIN);
-				if (!con.hasStatement(admin, vf.createURI(CALLI_MEMBER), subj)) {
-					con.add(admin, vf.createURI(CALLI_MEMBER), subj);
-					modified = true;
-				}
+			URI space = webapp(webappOrigin, INVITED_USERS);
+			URI subj = vf.createURI(space.stringValue(), username);
+			modified |= changeAdminEmail(webappOrigin, space,
+					subj, email, username, label, comment, con);
+			URI admin = webapp(webappOrigin, GROUP_ADMIN);
+			if (!con.hasStatement(admin, vf.createURI(CALLI_MEMBER), subj)) {
+				con.add(admin, vf.createURI(CALLI_MEMBER), subj);
+				modified = true;
 			}
 			con.setAutoCommit(true);
 			return modified;
@@ -274,13 +286,12 @@ public class CallimachusSetup {
 			con.setAutoCommit(false);
 			ValueFactory vf = con.getValueFactory();
 			boolean modified = false;
-			for (String space : getDigestUserNamespaces(webappOrigin, con)) {
-				URI subj = vf.createURI(space + username);
-				URI group = webapp(webappOrigin, groupPath);
-				if (!con.hasStatement(group, vf.createURI(CALLI_MEMBER), subj)) {
-					con.add(group, vf.createURI(CALLI_MEMBER), subj);
-					modified = true;
-				}
+			URI space = webapp(webappOrigin, INVITED_USERS);
+			URI subj = vf.createURI(space + username);
+			URI group = webapp(webappOrigin, groupPath);
+			if (!con.hasStatement(group, vf.createURI(CALLI_MEMBER), subj)) {
+				con.add(group, vf.createURI(CALLI_MEMBER), subj);
+				modified = true;
 			}
 			con.setAutoCommit(true);
 			return modified;
@@ -289,20 +300,36 @@ public class CallimachusSetup {
 		}
 	}
 
-	public boolean changeUserPassword(String email, String username, char[] password, String origin) throws OpenRDFException, IOException {
+	public boolean registerDigestUser(String email, String username,
+			char[] password, String origin) throws OpenRDFException,
+			IOException {
 		validateName(username);
 		ObjectConnection con = repository.getConnection();
 		try {
 			con.setAutoCommit(false);
 			ValueFactory vf = con.getValueFactory();
 			boolean modified = false;
-			for (String[] row : getAuthNamesAndNamespaces(origin, con)) {
-				String authName = row[0];
-				String user = row[1];
-				String[] encoded = encodePassword(username, email, authName,
-						password);
-				URI subj = vf.createURI(user + username);
-				modified |= setPassword(subj, encoded, origin, con);
+			URI space = webapp(origin, INVITED_USERS);
+			URI invitedUser = vf.createURI(space.stringValue(), username);
+			for (DigestManagerSupport digest : getDigestManagers(origin, con)) {
+				URI digestUser = digest.registerUser(invitedUser, username, email, null);
+				URI DigestUser = webapp(origin, DIGEST_USER_TYPE);
+				if (!con.hasStatement(digestUser, RDF.TYPE, DigestUser)) {
+					con.add(digestUser, RDF.TYPE, DigestUser);
+				}
+				URI calliName = vf.createURI(CALLI_NAME);
+				Literal lit = vf.createLiteral(username);
+				if (!con.hasStatement(digestUser, calliName, lit)) {
+					con.remove(digestUser, calliName, null);
+					con.add(digestUser, calliName, lit);
+				}
+				URI calliEditor = vf.createURI(CALLI_EDITOR);
+				if (!con.hasStatement(digestUser, calliEditor, digestUser)) {
+					con.add(digestUser, calliEditor, digestUser);
+				}
+				String[] encoded = encodePassword(username, email,
+						digest.getAuthName(), password);
+				modified |= setPassword(digestUser, encoded, origin, con);
 			}
 			con.setAutoCommit(true);
 			if (modified) {
@@ -335,32 +362,31 @@ public class CallimachusSetup {
 		ObjectConnection con = repository.getConnection();
 		try {
 			ValueFactory vf = con.getValueFactory();
-			for (String space : getDigestUserNamespaces(webappOrigin, con)) {
-				URI subj = vf.createURI(space + username);
-				if (!con.hasStatement(subj, RDF.TYPE, webapp(webappOrigin, USER_TYPE)))
-					continue;
-				if (con.hasStatement(subj, vf.createURI(CALLI_PASSWORD), null))
-					continue;
-		        Random random = java.security.SecureRandom.getInstance("SHA1PRNG");
-		        String nonce = java.lang.Integer.toHexString(random.nextInt());
-		        String hash = DigestUtils.md5Hex(subj.stringValue());
-		        for (Statement st : con.getStatements((Resource) null, vf.createURI(CALLI_SECRET), null).asList()) {
-		        	String realm = st.getSubject().stringValue();
-					if (!space.startsWith(realm))
-		        		continue;
-		        	BlobObject secret = con.getBlobObject((URI) st.getObject());
-			        Reader reader = secret.openReader(true);
-			        try {
-				        String text = new java.util.Scanner(reader).useDelimiter("\\A").next();
-				        String token = DigestUtils.md5Hex(hash + ":" + nonce + ":" + text);
-				        String queryString = "?register&token=" + token + "&nonce=" + nonce +
-				            "&email=" + encode(email) + "&username=" + encode(username);
-				        list.add(realm + queryString);
-			        } finally {
-			        	reader.close();
-			        }
+			URI space = webapp(webappOrigin, INVITED_USERS);
+			URI subj = vf.createURI(space.stringValue(), username);
+			if (!con.hasStatement(subj, RDF.TYPE, webapp(webappOrigin, USER_TYPE)))
+				return Collections.emptySet();
+			if (con.hasStatement(subj, vf.createURI(CALLI_PASSWORD), null))
+				return Collections.emptySet();
+	        Random random = java.security.SecureRandom.getInstance("SHA1PRNG");
+	        String nonce = java.lang.Integer.toHexString(random.nextInt());
+	        String hash = DigestUtils.md5Hex(subj.stringValue());
+	        URI origin = webapp(webappOrigin, "/");
+			URI calliSecret = vf.createURI(CALLI_SECRET);
+			for (Statement st : con.getStatements(origin, calliSecret, null).asList()) {
+	        	String realm = st.getSubject().stringValue();
+	        	BlobObject secret = con.getBlobObject((URI) st.getObject());
+		        Reader reader = secret.openReader(true);
+		        try {
+			        String text = new java.util.Scanner(reader).useDelimiter("\\A").next();
+			        String token = DigestUtils.md5Hex(hash + ":" + nonce + ":" + text);
+			        String queryString = "?register&token=" + token + "&nonce=" + nonce +
+			            "&email=" + encode(email);
+			        list.add(realm + queryString);
+		        } finally {
+		        	reader.close();
 		        }
-			}
+	        }
 			return list;
 		} finally {
 			con.close();
@@ -439,22 +465,7 @@ public class CallimachusSetup {
 		}
 	}
 
-	private List<String> getDigestUserNamespaces(String origin,
-			ObjectConnection con) throws RepositoryException {
-		List<String> list = new ArrayList<String>();
-		ValueFactory vf = con.getValueFactory();
-		for (Statement st1 : con.getStatements(vf.createURI(origin + "/"),
-				vf.createURI(CALLI_AUTHENTICATION), null).asList()) {
-			Resource accounts = (Resource) st1.getObject();
-			for (Statement st3 : con.getStatements(accounts,
-					vf.createURI(CALLI_AUTHNAMESPACE), null).asList()) {
-				list.add(st3.getObject().stringValue());
-			}
-		}
-		return list;
-	}
-
-	private boolean changeAdminPassword(String origin, Resource folder,
+	private boolean changeAdminEmail(String origin, Resource folder,
 			URI subj, String email, String username, String label,
 			String comment, ObjectConnection con) throws OpenRDFException, IOException {
 		ValueFactory vf = con.getValueFactory();
@@ -468,12 +479,11 @@ public class CallimachusSetup {
 			return true;
 		} else {
 			logger.info("Creating user {}", username);
-			URI staff = webapp(origin, GROUP_STAFF);
+			URI power = webapp(origin, GROUP_POWER);
 			URI admin = webapp(origin, GROUP_ADMIN);
 			con.add(subj, RDF.TYPE, webapp(origin, USER_TYPE));
 			con.add(subj, RDF.TYPE, vf.createURI(CALLI_PARTY));
 			con.add(subj, RDF.TYPE, vf.createURI(CALLI_USER));
-			con.add(subj, vf.createURI(CALLI_NAME), vf.createLiteral(username));
 			if (label == null || label.length() == 0) {
 				con.add(subj, RDFS.LABEL, vf.createLiteral(username));
 			} else {
@@ -482,7 +492,7 @@ public class CallimachusSetup {
 			if (comment != null && comment.length() > 0) {
 				con.add(subj, RDFS.COMMENT, vf.createLiteral(comment));
 			}
-			con.add(subj, vf.createURI(CALLI_SUBSCRIBER), staff);
+			con.add(subj, vf.createURI(CALLI_SUBSCRIBER), power);
 			con.add(subj, vf.createURI(CALLI_ADMINISTRATOR), admin);
 			con.add(folder, vf.createURI(CALLI_HASCOMPONENT), subj);
 			if (email != null && email.length() > 2) {
@@ -492,22 +502,48 @@ public class CallimachusSetup {
 		}
 	}
 
-	private List<String[]> getAuthNamesAndNamespaces(String origin,
-			ObjectConnection con) throws RepositoryException {
-		List<String[]> list = new ArrayList<String[]>();
-		ValueFactory vf = con.getValueFactory();
-		for (Statement st1 : con.getStatements(vf.createURI(origin + "/"),
-				vf.createURI(CALLI_AUTHENTICATION), null).asList()) {
-			Resource accounts = (Resource) st1.getObject();
-			for (Statement st2 : con.getStatements(accounts,
-					vf.createURI(CALLI_AUTHNAME), null).asList()) {
-				String authName = st2.getObject().stringValue();
-				for (Statement st3 : con.getStatements(accounts,
-						vf.createURI(CALLI_AUTHNAMESPACE), null).asList()) {
-					String ns = st3.getObject().stringValue();
-					list.add(new String[] { authName, ns });
-				}
+	private List<DigestManagerSupport> getDigestManagers(String origin,
+			final ObjectConnection con) throws OpenRDFException {
+		List<DigestManagerSupport> list = new ArrayList<DigestManagerSupport>();
+		TupleQueryResult results = con.prepareTupleQuery(QueryLanguage.SPARQL,
+				SELECT_DIGEST, origin + "/").evaluate();
+		try {
+			while (results.hasNext()) {
+				BindingSet result = results.next();
+				final Resource digest = (Resource) result.getValue("digest");
+				final String authName = result.getValue("authName")
+						.stringValue();
+				final Resource authNamespace = (Resource) result
+						.getValue("authNamespace");
+				list.add(new DigestManagerSupport() {
+					public void setAuthName(String authName) {
+						throw new UnsupportedOperationException();
+					}
+
+					public String getAuthName() {
+						return authName;
+					}
+
+					public RDFObject getAuthNamespace() {
+						return con.getObjectFactory().createObject(
+								authNamespace);
+					}
+
+					public void setAuthNamespace(RDFObject authNamespace) {
+						throw new UnsupportedOperationException();
+					}
+
+					public Resource getResource() {
+						return digest;
+					}
+
+					public ObjectConnection getObjectConnection() {
+						return con;
+					}
+				});
 			}
+		} finally {
+			results.close();
 		}
 		return list;
 	}
@@ -560,7 +596,7 @@ public class CallimachusSetup {
 		String webapp = CalliRepository.getCallimachusWebapp(origin, con);
 		Set<URI> list = new TreeSet<URI>(new ValueComparator());
 		for (int i = 0; i < count; i++) {
-			URI uuid = SecretRealmProvider.createSecretFile(webapp, con);
+			URI uuid = SecretOriginProvider.createSecretFile(webapp, con);
 			con.add(subj, vf.createURI(CALLI_PASSWORD), uuid);
 			list.add(uuid);
 		}

@@ -127,7 +127,7 @@
         while (iter.hasNext()) {
             var registeringUser = iter.next();
             if (registeringUser.calliPasswordDigest.empty &&
-                    token == registeringUser.GetSecretToken(nonce))
+                    token == registeringUser.getSecretToken(nonce))
                 return digest_register_xhtml.Construct(this, 'register');
         }
         throw new BadRequest("Invitation is No Longer Valid");
@@ -151,6 +151,9 @@
 :digest_register_xhtml a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :GetRegisterDigestUserPage.
 
+rdfs:label a rdf:Property.
+rdfs:comment a rdf:Property.
+
 # subitted from the digest-register.xhtml page
 :PostDigestUserRegistration rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <DigestManager>];
@@ -158,19 +161,34 @@
     calli:method "POST";
     calli:query "register";
     calli:requires calli:reader;
+    calli:imports <DigestUser>;
     calli:script """
         var nonce = regForm.get("nonce")[0];
         var token = regForm.get("token")[0];
+        var fullname = regForm.get("fullname")[0];
         var email = regForm.get("email")[0];
+        var username = regForm.get("username")[0];
         var password = regForm.get("password");
         if (!token)
             throw new BadRequest("This is not a valid registration URL");
-        var iter = this.FindUsersByEmail(email).iterator();
+        if (!username)
+            throw new BadRequest("Missing name");
+        if (username.toLowerCase() != username)
+            throw new BadRequest("Username must be in lowercase");
+        if (URLEncoder.encode(username, "UTF-8") != username)
+            throw new BadRequest("Invalid username: '" + username + "'");
+
+        var iter = this.FindInvitedUsersByEmail(email).iterator();
         while (iter.hasNext()) {
             var user = iter.next();
-            if (user.calliPasswordDigest.empty &&
-                    token == user.GetSecretToken(nonce)) {
-                user.calliPasswordDigest = this.changeDigestPassword(user.calliPasswordDigest, password);
+            if (token == user.getSecretToken(nonce)) {
+                var vf = this.objectConnection.valueFactory;
+                var location = this.registerUser(user.resource, username, email, fullname);
+                var newUser = this.objectConnection.getObject(location);
+                newUser = this.addDesignation(newUser, DigestUser);
+                newUser.calliName = username;
+                newUser.calliEditor.add(newUser);
+                newUser.calliPasswordDigest = this.changeDigestPassword(newUser.calliPasswordDigest, password);
                 return;
             }
         }
@@ -181,6 +199,24 @@
     rdfs:domain :PostDigestUserRegistration;
     rdfs:range <java:java.util.Map>;
     calli:type "application/x-www-form-urlencoded".
+
+# Looks up user by email address
+# Used to request password reset
+:FindInvitedUsersByEmail rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <DigestManager>];
+    rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom calli:User];
+    msg:sparql  """
+        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
+        SELECT REDUCED ?user
+        WHERE {
+            </auth/invited-users/> calli:hasComponent ?user .
+            ?user calli:email $invitedEmail .
+        }
+    """.
+
+:invitedEmail a owl:DatatypeProperty, owl:FunctionalProperty;
+    rdfs:domain :FindInvitedUsersByEmail;
+    rdfs:range xsd:string.
 
 ################################
 # User needs a day pass
@@ -222,7 +258,7 @@
         }
         while (iter.hasNext()) {
             var user = iter.next();
-            var password = this.getDaypass(user.FindSecret());
+            var password = this.getDaypass(user);
             var body = mail_digest_daypass_xhtml.RawConstruct(user);
             body = body.replace(/@@PASSWORD@@/g, password);
             user.sendMessage(body, user.rdfsLabel.iterator().next() + " <" + userEmail + ">");

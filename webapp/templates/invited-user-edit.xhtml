@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:foaf="http://xmlns.com/foaf/0.1/">
+<head>
+    <title resource="?this">{rdfs:label}</title>
+    <script type="text/javascript"><![CDATA[
+    jQuery(function($) {
+        $('#rdfForm').bind('calliRedirect', function(event) {
+            if (event.cause.type == 'calliSubmit') {
+                event.preventDefault();
+                $('#msgForm').submit();
+                return false;
+            }
+        });
+    }); // ]]>
+    </script>
+</head>
+<body resource="?this">
+    <h1 property="rdfs:label" />
+    <div id="sidebar">
+        <aside>
+            <p>Enter their full name</p>
+            <p>Upload a small photo of them so others can recognize them using the photo icon</p>
+            <p>Additional information is to provide additional contact information and is viewable to all authenticated users</p>
+            <p>You can customize the message sent in the email here</p>
+        </aside>
+    </div>
+    <form id="rdfForm" method="POST" action="" enctype="application/sparql-update" resource="?this">
+        <fieldset>
+            <div class="control-group">
+                <label for="label" class="control-label">Full name</label>
+                <div class="controls">
+                    <input id="label" value="{rdfs:label}" type="text" class="auto-expand" required="required" />
+                </div>
+             </div>
+             <div dropzone="link s:text/uri-list" class="control-group" ondrop="return calli.insertResource(event)">
+                <label class="control-label">Photo <a href="../types/Photo?create" title="Upload"
+                        onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
+                <div rel="foaf:depiction" class="controls">
+                    <span resource="?img" typeof="foaf:Image" class="ui-state-highlight ui-corner-all">
+                        <img src="{?img}?small" />
+                    </span>
+                </div>
+            </div>
+            <div class="control-group">
+                <label for="comment" class="control-label">Additional information</label>
+                <div class="controls">
+                    <textarea id="comment" class="auto-expand">{rdfs:comment}</textarea>
+                </div>
+            </div>
+        </fieldset>
+    </form>
+    <hr />
+    <form id="msgForm" method="POST" action="?invite" enctype="application/x-www-form-urlencoded">
+        <fieldset>
+            <div class="control-group">
+                <label for="subject" class="control-label">Welcome subject</label>
+                <div class="controls">
+                    <input id="subject" name="subject" type="text" class="auto-expand" required="required" value="Account Registration" />
+                </div>
+            </div>
+            <div class="control-group">
+                <label for="message" class="control-label">Welcome message</label>
+                <div class="controls">
+                    <textarea id="message" class="auto-expand" required="required" name="message">Hello,
+
+A new account has been created for you. Use the link below to pick a
+password or other authentication options.
+
+@@REGISTRATION_URL@@
+
+Enjoy!
+</textarea>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Re-send invitation</button>
+                <button id="cancel" type="button" onclick="window.location.replace('?view')" class="btn">Cancel</button>
+                <button type="button" onclick="calli.deleteResource(event)" class="btn btn-danger">Revoke invitation</button>
+            </div>
+        </fieldset>
+    </form>
+</body>
+</html>

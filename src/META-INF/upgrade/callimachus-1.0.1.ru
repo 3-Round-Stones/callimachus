@@ -39,3 +39,19 @@ INSERT {
 } WHERE {
 	FILTER NOT EXISTS { </auth/groups/power> a calli:Group }
 };
+
+INSERT {
+    ?user a <types/DigestUser>
+} WHERE {
+    ?user a <types/User>
+};
+
+INSERT {
+</auth/> calli:hasComponent </auth/invited-users/>.
+</auth/invited-users/> a <types/Folder>, calli:Folder;
+    rdfs:label "invited users";
+    calli:subscriber </auth/groups/power>;
+    calli:administrator </auth/groups/admin>.
+} WHERE {
+	FILTER NOT EXISTS { </auth/invited-users/> a calli:Folder }
+};

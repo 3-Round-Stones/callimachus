@@ -16,7 +16,7 @@
         $('#label').on('change keyup blur', function() {
             if (!messageChanged) {
                 var salutation = $(this).val() ? 'Hello ' + $(this).val() : 'Hello';
-                $('#message').val($('#message').val().replace(/(^|[\r\n])Hello[^\r\n]*/, '$1' + salutation + ','));
+                $('#message').val($('#message').val().replace(/(^|[\r\n])Hello.*/, '$1' + salutation + ','));
             }
         });
         $('#email').change(function(){
@@ -27,8 +27,13 @@
                 }
                 $(this).val(this.value.replace(/.*</, '').replace(/>.*/, '')).change();
             }
-            if (this.value.indexOf('@') > 0 && !$('#name').val()) {
-                $('#name').val(this.value.substring(0, this.value.indexOf('@'))).change();
+        });
+        $('#rdfForm').bind('calliRedirect', function(event) {
+            if (event.cause.type == 'calliSubmit') {
+                event.preventDefault();
+                $('#fullname').val($('#label').val());
+                $('#msgForm').attr("action", event.resource + '?invite').submit();
+                return false;
             }
         });
     }); // ]]>
@@ -37,15 +42,14 @@
 <body>
     <div id="sidebar">
         <aside>
-            <p>The username cannot be changed once the user is created</p>
             <p>E-mail address is used to send an invite and possibly reset the password</p>
             <p>Provide the user's full name</p>
             <p>Provide any additional contact information or affiliation information</p>
             <p>You can customize the message sent in the email here</p>
         </aside>
     </div>
-    <form id="form" method="POST" action="" enctype="multipart/form-data" autocomplete="off"
-            onsubmit="return calli.saveResourceAs(event,calli.slugify($('#name').val()))">
+    <form id="rdfForm" method="POST" action="" enctype="application/rdf+xml" typeof="calli:User calli:Party" autocomplete="off"
+            onsubmit="return calli.saveResourceAs(event,calli.slugify($('#email').val()))">
         <fieldset>
             <div class="control-group">
                 <label for="email" class="control-label">E-mail address</label>
@@ -53,14 +57,6 @@
                     <input id="email" name="email" type="email" class="auto-expand" required="required" autofocus="autofocus" />
                 </div>
             </div>
-            <div class="control-group">
-                <label for="name" class="control-label">Username</label>
-                <div class="controls">
-                    <input id="name" name="name" type="text" class="auto-expand" required="required" />
-                </div>
-            </div>
-        </fieldset>
-        <fieldset>
             <div class="control-group">
                 <label for="label" class="control-label">Full name</label>
                 <div class="controls">
@@ -74,8 +70,11 @@
                 </div>
             </div>
         </fieldset>
-        <hr />
+    </form>
+    <hr />
+    <form id="msgForm" method="POST" action="?invite" enctype="application/x-www-form-urlencoded">
         <fieldset>
+            <input type="hidden" name="fullname" id="fullname" />
             <div class="control-group">
                 <label for="subject" class="control-label">Welcome subject</label>
                 <div class="controls">
@@ -85,7 +84,7 @@
             <div class="control-group">
                 <label for="message" class="control-label">Welcome message</label>
                 <div class="controls">
-                    <textarea id="message" class="auto-expand" required="required" name="message">Hello,
+                    <textarea id="body" name="body" class="auto-expand" required="required">Hello,
 
 A new account has been created for you. Use the link below to pick a
 password or other authentication options.
@@ -97,7 +96,7 @@ Enjoy!
                 </div>
             </div>
             <div class="form-actions">
-                <button id="invite" type="submit" class="btn">Invite</button>
+                <button id="invite" class="btn">Invite</button>
             </div>
         </fieldset>
     </form>

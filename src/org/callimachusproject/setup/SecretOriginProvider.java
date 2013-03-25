@@ -16,7 +16,7 @@ import org.openrdf.model.vocabulary.RDFS;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.ObjectConnection;
 
-public class SecretRealmProvider extends UpdateProvider {
+public class SecretOriginProvider extends UpdateProvider {
 	private static final String FOAF_DOC = "http://xmlns.com/foaf/0.1/Document";
 	private static final String CALLI = "http://callimachusproject.org/rdf/2009/framework#";
 	private static final String CALLI_SECRET = CALLI + "secret";

@@ -7,10 +7,6 @@
 <head>
     <title resource="?this">{rdfs:label} Sign Up</title>
     <style type="text/css">
-    #email,
-    #username {
-        font-weight: bold;
-    }
     .password-meter {
         position:relative;
         width: 180px;
@@ -72,10 +68,11 @@
                 var m = regex.exec(window.location.search);
                 return m ? decodeURIComponent(m[1]) : null;
             }
-            $("#email").text(parameter("email"));
-            $("#username").text(parameter("username"));
+            $('#fullname').val(parameter("fullname"));
+            $('#email').val(parameter("email"));
+            $('#username').val(parameter("email").replace(/@.*/,''));
             $("#form").validate({submitHandler: function(form) {
-                var username = parameter("username");
+                var username = $("#username").val();
                 var email = parameter("email");
                 var authName = $("#authName").text();
                 var password = $("#password").val();
@@ -86,7 +83,9 @@
                     data: {
                         nonce: parameter("nonce"),
                         token: parameter("token"),
+                        fullname: $("#fullname").val(),
                         email: email,
+                        username: username,
                         password: [hash1, hash2]
                     },
                     success: function() {
@@ -94,7 +93,7 @@
                     }
                 });
                 return false;
-               }});
+            }});
         });
         // ]]>
     </script>
@@ -104,10 +103,34 @@
         <h1>{rdfs:label} Sign Up</h1>
         <h2 id="authName">{calli:authName}</h2>
     </hgroup>
+    <div id="sidebar">
+        <aside>
+            <p>Your full name is used to indentify your work on this website</p>
+            <p>Your E-mail address is used to manage your password and is not shown on the website</p>
+            <p>Your username is used to uniquely identify your account on this website</p>
+        </aside>
+    </div>
     <p>{rdfs:comment}</p>
-    <p>The email address <span id="email"/> has been assigned the username "<span id="username"/>".
-        Please provide a password to complete the registration.</p>
+    <p>To accept this invitation please confirm the information belove and provide a password.</p>
     <form id="form" method="POST" action="?register">
+        <div class="control-group">
+            <label for="fullname" class="control-label">Full name</label>
+            <div class="controls">
+                <input id="fullname" name="fullname" type="text" required="required" />
+            </div>
+        </div>
+        <div class="control-group">
+            <label for="email" class="control-label">Email address</label>
+            <div class="controls">
+                <input id="email" name="email" type="text" required="required" />
+            </div>
+        </div>
+        <div class="control-group">
+            <label for="username" class="control-label">Username</label>
+            <div class="controls">
+                <input id="username" name="username" type="text" required="required" />
+            </div>
+        </div>
         <div class="control-group">
         	<label for="password" class="control-label">New password</label>
     		<div class="controls">

@@ -303,7 +303,7 @@ calli:authName a owl:FunctionalProperty, owl:DatatypeProperty;
 calli:secret a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:label "secret";
     rdfs:comment "A document of random bits in Base 64 encoding";
-    rdfs:domain calli:Realm;
+    rdfs:domain calli:Origin;
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:forbidden a owl:ObjectProperty;

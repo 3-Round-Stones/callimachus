@@ -10,3 +10,4 @@ org.callimachusproject.behaviours.DigestManagerSupport
 org.callimachusproject.behaviours.RealmSupport
 org.callimachusproject.behaviours.GroupSupport = http://callimachusproject.org/rdf/2009/framework#Group
 org.callimachusproject.behaviours.CompositeSupport = http://callimachusproject.org/rdf/2009/framework#Composite
+org.callimachusproject.behaviours.UserSupport

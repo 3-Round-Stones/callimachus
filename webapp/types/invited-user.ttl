@@ -1,0 +1,93 @@
+@prefix xsd:<http://www.w3.org/2001/XMLSchema#>.
+@prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
+@prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
+@prefix prov:<http://www.w3.org/ns/prov#>.
+@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+@prefix :<#>.
+
+<> a <SchemaGraph>.
+
+<InvitedUser> a <Creatable>, owl:Class;
+    rdfs:subClassOf <Viewable>, <Editable>, calli:User;
+    rdfs:label "Invited User";
+    rdfs:comment "Invited user account with an email address";
+    rdfs:isDefinedBy <../../ontology>;
+    calli:administrator </auth/groups/super>;
+    calli:author </auth/groups/admin>;
+    calli:icon <../images/user.png>;
+    calli:view <../templates/user-view.xhtml>;
+    calli:edit <../templates/invited-user-edit.xhtml>;
+    calli:create <../templates/user-create.xhtml>.
+
+################################
+# User invite
+################################
+
+rdfs:label a rdf:Property.
+
+:PostUserInvite rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <InvitedUser>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    calli:method "POST";
+    calli:query "invite";
+    calli:requires calli:administrator;
+    calli:expect "303-see-other";
+    calli:type "text/uri-list";
+    calli:imports <java:javax.mail.util.ByteArrayDataSource>;
+    calli:imports <java:javax.mail.internet.MimeMultipart>;
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <java:org.callimachusproject.server.exceptions.Conflict>;
+    calli:imports <java:org.apache.commons.codec.digest.DigestUtils>;
+    calli:imports <java:java.net.URLEncoder>;
+    calli:script """
+        //# read form
+        var fullname = inviteForm.get('fullname')[0];
+        var subject = inviteForm.get('subject')[0];
+        var body = inviteForm.get('body')[0];
+        if (!this.calliEmail)
+            throw new BadRequest("Missing email");
+        if (!fullname)
+            throw new BadRequest("Missing fullname");
+        if (!subject)
+            throw new BadRequest("Missing subject");
+        if (!body)
+            throw new BadRequest("Missing message");
+        if (body.indexOf('?register') < 0)
+            throw new BadRequest("Missing register URL is message body");
+
+        //# create registration link
+        var random = java.security.SecureRandom.getInstance("SHA1PRNG");
+        var nonce = java.lang.Integer.toHexString(random.nextInt());
+        var token = this.getSecretToken(nonce);
+        var queryString = "?register&token=" + token + "&nonce=" + nonce +
+            "&email=" + encodeURIComponent(this.calliEmail) +
+            "&fullname=" + encodeURIComponent(fullname);
+        body = body.replace(/\\?register/g, queryString);
+
+        //# email the link to the new user
+        var fromUser = this.FindUserCreator();
+        if (!fromUser || !fromUser.sendMessage)
+            throw new BadRequest("Could not find administrator");
+        fromUser.sendMessage(subject + '\\n' + body, this.rdfsLabel + " <" + this.calliEmail + ">");
+        return newUser;
+    """.
+
+:inviteForm a owl:ObjectProperty, owl:FunctionalProperty;
+    rdfs:domain :PostUserInvite;
+    rdfs:range <java:java.util.Map>;
+    calli:type "application/x-www-form-urlencoded".
+
+# find the user that created $this
+:FindUserCreator rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <User>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom calli:User];
+    msg:sparql  """
+        PREFIX prov:<http://www.w3.org/ns/prov#>
+        SELECT ?contributor
+        WHERE {
+            $this prov:wasGeneratedBy [prov:wasAssociatedWith ?contributor]
+        } LIMIT 1
+    """.
+

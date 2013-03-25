@@ -276,7 +276,7 @@ public class SetupTool {
 		}
 	}
 
-	public synchronized boolean changeDigestUserPassword(String email,
+	public synchronized boolean registerDigestUser(String email,
 			String password, String webappOrigin) throws OpenRDFException,
 			IOException {
 		CallimachusSetup setup = new CallimachusSetup(repository);
@@ -287,7 +287,7 @@ public class SetupTool {
 			if (b >= 0 && e > 0) {
 				email = email.substring(b + 1, e);
 			}
-			return changeDigestUserPassword(email, password.toCharArray(), webappOrigin,
+			return registeDigestUser(email, password.toCharArray(), webappOrigin,
 					setup, con);
 		} finally {
 			con.close();
@@ -313,7 +313,7 @@ public class SetupTool {
 		return value.stringValue();
 	}
 
-	private boolean changeDigestUserPassword(String email, char[] password,
+	private boolean registeDigestUser(String email, char[] password,
 			String webappOrigin, CallimachusSetup setup,
 			RepositoryConnection con) throws RepositoryException,
 			MalformedQueryException, QueryEvaluationException,
@@ -327,7 +327,7 @@ public class SetupTool {
 			while (results.hasNext()) {
 				String username = results.next().getValue("username")
 						.stringValue();
-				changed |= setup.changeUserPassword(email, username, password,
+				changed |= setup.registerDigestUser(email, username, password,
 						webappOrigin);
 			}
 		} finally {

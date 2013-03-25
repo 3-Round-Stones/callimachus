@@ -91,7 +91,7 @@ public interface CalliServerMXBean {
 			String comment, String subject, String body, String webappOrigin)
 			throws Exception;
 
-	boolean changeDigestUserPassword(String email, String password,
+	boolean registerDigestUser(String email, String password,
 			String webappOrigin) throws OpenRDFException, IOException;
 
 }

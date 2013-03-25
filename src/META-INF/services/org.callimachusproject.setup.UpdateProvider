@@ -6,6 +6,6 @@ org.callimachusproject.setup.FaviconProvider
 org.callimachusproject.setup.LocalSystemProvider
 org.callimachusproject.setup.SuperSystemProvider
 org.callimachusproject.setup.RobotsProvider
-org.callimachusproject.setup.SecretRealmProvider
+org.callimachusproject.setup.SecretOriginProvider
 org.callimachusproject.setup.ServeAllProvider
 org.callimachusproject.setup.CallimachusWebappImportProvider

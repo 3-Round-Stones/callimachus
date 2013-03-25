@@ -663,9 +663,9 @@ public class CalliServer implements CalliServerMXBean {
 		});
 	}
 
-	public boolean changeDigestUserPassword(String email, String password,
+	public boolean registerDigestUser(String email, String password,
 			String webappOrigin) throws OpenRDFException, IOException {
-		return getSetupTool(webappOrigin).changeDigestUserPassword(email,
+		return getSetupTool(webappOrigin).registerDigestUser(email,
 				password, webappOrigin);
 	}
 

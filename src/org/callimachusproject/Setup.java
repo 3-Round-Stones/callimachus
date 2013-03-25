@@ -317,7 +317,7 @@ public class Setup {
 							links.addAll(reg);
 						}
 					} else {
-						changed |= setup.changeUserPassword(email, username,
+						changed |= setup.registerDigestUser(email, username,
 								password, origin);
 					}
 				}

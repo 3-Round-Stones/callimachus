@@ -1,0 +1,109 @@
+@prefix xsd:<http://www.w3.org/2001/XMLSchema#>.
+@prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
+@prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
+@prefix prov:<http://www.w3.org/ns/prov#>.
+@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+@prefix :<#>.
+
+<> a <SchemaGraph>.
+
+<DigestUser> a owl:Class;
+    rdfs:subClassOf <Composite>, <Viewable>, <Editable>, calli:User;
+    rdfs:label "Digest User";
+    rdfs:comment "Username and password digest associated with an email address";
+    owl:equivalentClass </callimachus/User>, <User>;
+    rdfs:isDefinedBy <../../ontology>;
+    calli:administrator </auth/groups/super>;
+    calli:author </auth/groups/admin>;
+    calli:icon <../images/user.png>;
+    calli:view <../templates/user-view.xhtml>;
+    calli:edit <../templates/digest-user-edit.xhtml>.
+
+:DeleteUser owl:intersectionOf ( <editable.ttl#Delete>
+        [owl:onProperty msg:target; owl:allValuesFrom <User>]);
+    calli:script """
+        var iter = this.calliPasswordDigest.iterator();
+        while (iter.hasNext()) {
+            iter.next()['delete']();
+        }
+        return proceed();
+    """.
+
+################################
+# User password
+################################
+
+:GetUserPasswordPage rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <DigestUser>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    rdfs:subClassOf [owl:onProperty :digest_password_xhtml; owl:hasValue <../pages/digest-password.xhtml>];
+    calli:method "GET";
+    calli:query "password";
+    calli:requires calli:editor;
+    calli:type "text/html";
+    calli:header "cache-control:no-cache";
+    calli:script """
+        return digest_password_xhtml.Construct(this, 'password');
+    """.
+
+:digest_password_xhtml a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :GetUserPasswordPage.
+
+:PostUserPassword rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <DigestUser>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    calli:method "POST";
+    calli:query "password";
+    calli:requires calli:editor;
+    calli:expect "201-modified";
+    calli:type "text/uri-list";
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <java:org.apache.commons.codec.binary.Hex>;
+    calli:script """
+        var accounts = this.FindAuthenticationManager();
+        var credential = accounts.getUserIdentifier(authorization);
+        //# read form
+        var email = form.get("email") ? form.get("email")[0] : null;
+        var current = form.get("current");
+        var password = form.get("password");
+        if (this.toString().equals(credential.toString())) {
+            //# check if they know their own password
+            if (!current)
+                throw new BadRequest("What is your current password?");
+            if (!accounts.isDigestPassword(authorization, current))
+                throw new BadRequest("That is not your current password");
+        }
+        //# save email
+        if (email && email != this.calliEmail) {
+            this.calliEmail = email;
+        }
+        //# save password
+        if (password && password.length) {
+            this.calliPasswordDigest = accounts.changeDigestPassword(this.calliPasswordDigest, password);
+        }
+        return this + "?view";
+    """.
+
+:form a owl:ObjectProperty, owl:FunctionalProperty;
+    rdfs:domain :PostUserPassword;
+    rdfs:range <java:java.util.Map>;
+    calli:type "application/x-www-form-urlencoded".
+
+:authorization a owl:DatatypeProperty;
+    rdfs:domain :PostUserPassword;
+    rdfs:range xsd:string;
+    calli:header "Authorization", "Cookie".
+
+:FindAuthenticationManager rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <DigestUser>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom calli:AuthenticationManager];
+    msg:sparql """
+        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
+        SELECT ?manager {
+            ?namespace calli:hasComponent $this .
+            ?manager calli:authNamespace ?namespace .
+        } LIMIT 1
+    """.
+

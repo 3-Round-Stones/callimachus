@@ -12,8 +12,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.mail.MessagingException;
 import javax.naming.NamingException;
@@ -77,11 +75,11 @@ public class SetupTool {
 			+ "WHERE {\n"
 			+ "{ ?realm a </callimachus/1.0/types/Realm> }\n"
 			+ "UNION { ?realm a </callimachus/1.0/types/Origin> }\n"
-			+ "OPTIONAL { ?realm calli:layout ?layout }\n"
-			+ "OPTIONAL { ?realm calli:forbidden ?forbiddenPage }\n"
-			+ "OPTIONAL { ?realm calli:unauthorized ?unauthorizedPage }\n"
-			+ "OPTIONAL { ?realm calli:authentication ?authentication }\n"
-			+ "} GROUP BY ?realm";
+			+ "OPTIONAL { { ?realm calli:layout ?layout }\n"
+			+ "UNION { ?realm calli:forbidden ?forbiddenPage }\n"
+			+ "UNION { ?realm calli:unauthorized ?unauthorizedPage }\n"
+			+ "UNION { ?realm calli:authentication ?authentication } }\n"
+			+ "} GROUP BY ?realm ORDER BY ?realm";
 	private static final String SELECT_EMAIL = PREFIX + "SELECT ?label ?email { </> calli:authentication [calli:authNamespace [calli:hasComponent [rdfs:label ?label; calli:email ?email]]] }";
 	private static final String SELECT_USERNAME = PREFIX + "SELECT ?username { </> calli:authentication [calli:authNamespace [calli:hasComponent [calli:name ?username; calli:email $email]]] }";
 
@@ -205,13 +203,13 @@ public class SetupTool {
 		}
 	}
 
-	public boolean createResource(String graph, String systemId, String type)
-			throws OpenRDFException, IOException {
+	public boolean createResource(String graph, String systemId, String type,
+			String webappOrigin) throws OpenRDFException, IOException {
 		ObjectConnection con = repository.getConnection();
 		try {
 			ValueFactory vf = con.getValueFactory();
 			URI target = vf.createURI(systemId);
-			URI folder = vf.createURI(getParentFolder(systemId));
+			URI folder = createFolder(getParentFolder(systemId), webappOrigin, con);
 			URI hasComponent = vf.createURI(CALLI_HASCOMPONENT);
 			con.setAutoCommit(false);
 			if (con.hasStatement(folder, hasComponent, target))
@@ -263,11 +261,8 @@ public class SetupTool {
 				webappOrigin);
 		for (String link : links) {
 			String emailBody;
-			Matcher m = Pattern.compile("[^<\"\\s]*\\?register").matcher(
-					body);
-			if (m.find()) {
-				emailBody = body.substring(0, m.start()) + link
-						+ body.substring(m.end(), body.length());
+			if (body.contains("?register")) {
+				emailBody = body.replaceAll("[^<\"\\s]*\\?register", link);
 			} else {
 				emailBody = body + "\n" + link;
 			}
@@ -302,13 +297,16 @@ public class SetupTool {
 		String forb = stringValue(result.getValue("forbiddenPage"));
 		String unauth = stringValue(result.getValue("unauthorizedPage"));
 		String auth = stringValue(result.getValue("authentication"));
-		String[] split = auth == null ? new String[0] : auth.split("\\s+");
+		String[] split =  new String[0];
+		if (auth != null && auth.length() > 0) {
+			split = auth.split("\\s+");
+		}
 		return new SetupRealm(realm, webappOrigin, layout, forb, unauth,
 				split, repositoryID);
 	}
 
 	private String stringValue(Value value) {
-		if (value == null)
+		if (value == null || value.stringValue().length() == 0)
 			return null;
 		return value.stringValue();
 	}

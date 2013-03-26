@@ -604,8 +604,9 @@ public class CalliServer implements CalliServerMXBean {
 	public void createResource(final String rdf, final String systemId, final String type) throws Exception {
 		submit(new Callable<Void>() {
 			public Void call() throws Exception {
-				SetupTool tool = getSetupTool(getWebappOrigin(systemId));
-				tool.createResource(rdf, systemId, type);
+				String webappOrigin = getWebappOrigin(systemId);
+				SetupTool tool = getSetupTool(webappOrigin);
+				tool.createResource(rdf, systemId, type, webappOrigin);
 				return null;
 			}
 		});

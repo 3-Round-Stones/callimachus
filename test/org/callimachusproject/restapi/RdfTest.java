@@ -52,18 +52,6 @@ public class RdfTest extends TemporaryServerTestCase {
         			" DELETE { <> rdfs:label \"testGroup\" } INSERT { <> rdfs:label \"UPDATED\" } WHERE {}"
         	});
         	
-        	put("User", new String[] {
-        			"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n" +
-        		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
-        		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
-        			" INSERT DATA {  \n <created-user> a calli:Party, calli:User, </callimachus/User> ;  \n" +
-        			" rdfs:label \"user\" . }",
-        			"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n" +
-        		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
-        		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
-        			" DELETE { <> rdfs:label \"user\" } INSERT { <> rdfs:label \"UPDATED\" } WHERE {}"
-        	});
-        	
         	put("PURL", new String[] {
         			"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n" +
         		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +

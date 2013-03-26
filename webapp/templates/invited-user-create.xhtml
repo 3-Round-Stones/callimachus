@@ -8,15 +8,15 @@
     <title>Invite a New User</title>
     <script type="text/javascript"><![CDATA[
     jQuery(function($) {
-        $('#message').val($('#message').val().replace(/@@REGISTRATION_URL@@/g, window.location.protocol + '//' + window.location.host + '/?register'));
+        $('#body').val($('#body').val().replace(/@@REGISTRATION_URL@@/g, window.location.protocol + '//' + window.location.host + '/?register'));
         var messageChanged = false;
-        $('#message').change(function(){
+        $('#body').change(function(){
             messageChanged = true;
         });
         $('#label').on('change keyup blur', function() {
             if (!messageChanged) {
                 var salutation = $(this).val() ? 'Hello ' + $(this).val() : 'Hello';
-                $('#message').val($('#message').val().replace(/(^|[\r\n])Hello.*/, '$1' + salutation + ','));
+                $('#body').val($('#body').val().replace(/(^|[\r\n])Hello.*/, '$1' + salutation + ','));
             }
         });
         $('#email').change(function(){
@@ -54,19 +54,19 @@
             <div class="control-group">
                 <label for="email" class="control-label">E-mail address</label>
                 <div class="controls">
-                    <input id="email" name="email" type="email" class="auto-expand" required="required" autofocus="autofocus" />
+                    <input id="email" name="email" type="email" required="required" autofocus="autofocus" value="{calli:email}" />
                 </div>
             </div>
             <div class="control-group">
                 <label for="label" class="control-label">Full name</label>
                 <div class="controls">
-                    <input id="label" name="label" type="text" class="auto-expand" required="required" />
+                    <input id="label" name="label" type="text" required="required" value="{rdfs:label}" />
                 </div>
             </div>
             <div class="control-group">
                 <label for="comment" class="control-label">Additional information</label>
                 <div class="controls">
-                    <textarea id="comment" class="auto-expand" name="comment"></textarea>
+                    <textarea id="comment" class="auto-expand" name="comment">{rdfs:comment}</textarea>
                 </div>
             </div>
         </fieldset>
@@ -78,13 +78,13 @@
             <div class="control-group">
                 <label for="subject" class="control-label">Welcome subject</label>
                 <div class="controls">
-                    <input id="subject" name="subject" type="text" class="auto-expand" required="required" value="Account Registration" />
+                    <input id="subject" name="subject" type="text" class="span5" required="required" value="Account Registration" />
                 </div>
             </div>
             <div class="control-group">
                 <label for="message" class="control-label">Welcome message</label>
                 <div class="controls">
-                    <textarea id="body" name="body" class="auto-expand" required="required">Hello,
+                    <textarea id="body" name="body" class="auto-expand span5" required="required">Hello,
 
 A new account has been created for you. Use the link below to pick a
 password or other authentication options.
@@ -96,7 +96,7 @@ Enjoy!
                 </div>
             </div>
             <div class="form-actions">
-                <button id="invite" class="btn">Invite</button>
+                <button id="invite" class="btn" onclick="$('#rdfForm').submit();return false">Invite</button>
             </div>
         </fieldset>
     </form>

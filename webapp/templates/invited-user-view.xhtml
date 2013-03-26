@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:foaf="http://xmlns.com/foaf/0.1/">
+<head>
+    <title resource="?this">{rdfs:label}</title>
+    <link rel="edit-form" href="?edit" />
+    <link rel="comments" href="?discussion" />
+    <link rel="describedby" href="?describe" />
+    <link rel="version-history" href="?history" />
+    <link href="#msgForm" role="button" data-toggle="modal" title="Re-send invitation" />
+    <script type="text/javascript"><![CDATA[
+    jQuery(function($) {
+        $('#body').val($('#body').val().replace(/@@REGISTRATION_URL@@/g, window.location.protocol + '//' + window.location.host + '/?register'));
+        $('#msgForm').bind('calliRedirect', function(event) {
+            if (event.cause.type == 'calliSubmit') {
+                event.preventDefault();
+                $('#msgForm').hide();
+                return false;
+            }
+        });
+    }); // ]]>
+    </script>
+</head>
+<body resource="?this">
+    <h1 property="rdfs:label" />
+    <div id="sidebar">
+        <aside>
+            <h3>Group memberships</h3>
+            <ul rev="calli:member">
+                <li resource="?group"><a href="?group" property="rdfs:label"/></li>
+            </ul>
+        </aside>
+    </div>
+    <div id="img" rel="foaf:depiction" resource="?img" style="margin: 0px 1ex 1ex 0px;max-width:10em">
+        <a href="{?img}" class="view"><img src="{?img}?small" style="max-height:100%;max-width:10em" /></a>
+    </div>
+    <div>
+        <p property="calli:name" />
+        <pre class="wiki" property="rdfs:comment" />
+    </div>
+    <form id="msgForm" class="modal hide fade" tabindex="-1" role="dialog" aria-hidden="true"
+            method="POST" action="?invite" enctype="application/x-www-form-urlencoded">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3 id="myModalLabel">Invitation Message</h3>
+        </div>
+        <fieldset class="modal-body">
+            <input type="hidden" name="fullname" id="fullname" value="{rdfs:label}" />
+            <div class="control-group">
+                <label for="subject" class="control-label">Welcome subject</label>
+                <div class="controls">
+                    <input id="subject" name="subject" type="text" class="span5" required="required" value="Account Registration" />
+                </div>
+            </div>
+            <div class="control-group">
+                <label for="message" class="control-label">Welcome message</label>
+                <div class="controls">
+                    <textarea id="body" name="body" class="auto-expand span5" required="required">Hello {rdfs:label},
+
+This is a reminder that a new account has been created for you. Use the
+link below to pick a password or other authentication options.
+
+@@REGISTRATION_URL@@
+
+Enjoy!
+</textarea>
+                </div>
+            </div>
+        </fieldset>
+        <fieldset class="modal-footer">
+            <button type="submit" class="btn btn-primary">Re-send invitation</button>
+            <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+        </fieldset>
+    </form>
+</body>
+</html>

@@ -118,12 +118,11 @@
     calli:requires calli:reader;
     calli:type "text/html";
     calli:header "cache-control:no-store";
-    calli:imports <java:org.apache.commons.codec.digest.DigestUtils>;
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
     calli:script """
         if (!token)
             throw new BadRequest("This is not a valid registration URL");
-        var iter = this.FindUsersByEmail(registeringUserEmail).iterator();
+        var iter = this.FindInvitedUsersByEmail(registeringUserEmail).iterator();
         while (iter.hasNext()) {
             var registeringUser = iter.next();
             if (registeringUser.calliPasswordDigest.empty &&
@@ -162,11 +161,13 @@ rdfs:comment a rdf:Property.
     calli:query "register";
     calli:requires calli:reader;
     calli:imports <DigestUser>;
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
     calli:script """
         var nonce = regForm.get("nonce")[0];
         var token = regForm.get("token")[0];
         var fullname = regForm.get("fullname")[0];
         var email = regForm.get("email")[0];
+        var authEmail = regForm.get("auth-email")[0];
         var username = regForm.get("username")[0];
         var password = regForm.get("password");
         if (!token)
@@ -175,7 +176,7 @@ rdfs:comment a rdf:Property.
             throw new BadRequest("Missing name");
         if (username.toLowerCase() != username)
             throw new BadRequest("Username must be in lowercase");
-        if (URLEncoder.encode(username, "UTF-8") != username)
+        if (encodeURIComponent(username) != username)
             throw new BadRequest("Invalid username: '" + username + "'");
 
         var iter = this.FindInvitedUsersByEmail(email).iterator();
@@ -183,9 +184,9 @@ rdfs:comment a rdf:Property.
             var user = iter.next();
             if (token == user.getSecretToken(nonce)) {
                 var vf = this.objectConnection.valueFactory;
-                var location = this.registerUser(user.resource, username, email, fullname);
+                var location = this.registerUser(user.resource, username, authEmail, fullname);
                 var newUser = this.objectConnection.getObject(location);
-                newUser = this.addDesignation(newUser, DigestUser);
+                newUser = this.objectConnection.addDesignation(newUser, DigestUser);
                 newUser.calliName = username;
                 newUser.calliEditor.add(newUser);
                 newUser.calliPasswordDigest = this.changeDigestPassword(newUser.calliPasswordDigest, password);

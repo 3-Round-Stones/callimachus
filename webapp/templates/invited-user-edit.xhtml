@@ -7,17 +7,6 @@
     xmlns:foaf="http://xmlns.com/foaf/0.1/">
 <head>
     <title resource="?this">{rdfs:label}</title>
-    <script type="text/javascript"><![CDATA[
-    jQuery(function($) {
-        $('#rdfForm').bind('calliRedirect', function(event) {
-            if (event.cause.type == 'calliSubmit') {
-                event.preventDefault();
-                $('#msgForm').submit();
-                return false;
-            }
-        });
-    }); // ]]>
-    </script>
 </head>
 <body resource="?this">
     <h1 property="rdfs:label" />
@@ -34,7 +23,7 @@
             <div class="control-group">
                 <label for="label" class="control-label">Full name</label>
                 <div class="controls">
-                    <input id="label" value="{rdfs:label}" type="text" class="auto-expand" required="required" />
+                    <input id="label" value="{rdfs:label}" type="text" required="required" />
                 </div>
              </div>
              <div dropzone="link s:text/uri-list" class="control-group" ondrop="return calli.insertResource(event)">
@@ -52,33 +41,8 @@
                     <textarea id="comment" class="auto-expand">{rdfs:comment}</textarea>
                 </div>
             </div>
-        </fieldset>
-    </form>
-    <hr />
-    <form id="msgForm" method="POST" action="?invite" enctype="application/x-www-form-urlencoded">
-        <fieldset>
-            <div class="control-group">
-                <label for="subject" class="control-label">Welcome subject</label>
-                <div class="controls">
-                    <input id="subject" name="subject" type="text" class="auto-expand" required="required" value="Account Registration" />
-                </div>
-            </div>
-            <div class="control-group">
-                <label for="message" class="control-label">Welcome message</label>
-                <div class="controls">
-                    <textarea id="message" class="auto-expand" required="required" name="message">Hello,
-
-A new account has been created for you. Use the link below to pick a
-password or other authentication options.
-
-@@REGISTRATION_URL@@
-
-Enjoy!
-</textarea>
-                </div>
-            </div>
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary">Re-send invitation</button>
+                <button id="save" type="submit" class="btn btn-primary">Save</button>
                 <button id="cancel" type="button" onclick="window.location.replace('?view')" class="btn">Cancel</button>
                 <button type="button" onclick="calli.deleteResource(event)" class="btn btn-danger">Revoke invitation</button>
             </div>

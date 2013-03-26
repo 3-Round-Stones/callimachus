@@ -86,6 +86,8 @@ import org.slf4j.LoggerFactory;
  * Validates HTTP digest authorization.
  */
 public class DigestDetachedManager implements DetachedAuthenticationManager {
+	private static final String DERIVED_FROM = "http://www.w3.org/ns/prov#wasDerivedFrom";
+	private static final String FOAF_DEPICTION = "http://xmlns.com/foaf/0.1/depiction";
 	private static final String HAS_COMPONENT = "http://callimachusproject.org/rdf/2009/framework#hasComponent";
 	private static final String PARTY = "http://callimachusproject.org/rdf/2009/framework#Party";
 	private static final String USER = "http://callimachusproject.org/rdf/2009/framework#User";
@@ -406,6 +408,15 @@ public class DigestDetachedManager implements DetachedAuthenticationManager {
 		} finally {
 			stmts.close();
 		}
+		stmts = con.getStatements(invitedUser, vf.createURI(FOAF_DEPICTION), null);
+		try {
+			while (stmts.hasNext()) {
+				Statement st = stmts.next();
+				add(digestUser, st.getPredicate(), st.getObject(), con);
+			}
+		} finally {
+			stmts.close();
+		}
 		if (fullname == null) {
 			stmts = con.getStatements(invitedUser, RDFS.LABEL, null);
 			try {
@@ -451,9 +462,10 @@ public class DigestDetachedManager implements DetachedAuthenticationManager {
 		update.setBinding("src", invitedUser);
 		update.setBinding("dst", digestUser);
 		update.execute();
-		con.remove(invitedUser, null, null);
 		add(digestUser, RDF.TYPE, vf.createURI(PARTY), con);
 		add(digestUser, RDF.TYPE, vf.createURI(USER), con);
+		add(digestUser, vf.createURI(DERIVED_FROM), invitedUser, con);
+		con.remove(invitedUser, null, null);
 		con.commit();
 		service.get(con.getRepository()).resetCache();
 	}

@@ -17,9 +17,9 @@
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/admin>;
     calli:icon <../images/user.png>;
-    calli:view <../templates/user-view.xhtml>;
+    calli:view <../templates/invited-user-view.xhtml>;
     calli:edit <../templates/invited-user-edit.xhtml>;
-    calli:create <../templates/user-create.xhtml>.
+    calli:create <../templates/invited-user-create.xhtml>.
 
 ################################
 # User invite
@@ -29,7 +29,7 @@ rdfs:label a rdf:Property.
 
 :PostUserInvite rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <InvitedUser>];
-    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <InvitedUser>];
     calli:method "POST";
     calli:query "invite";
     calli:requires calli:administrator;
@@ -71,7 +71,7 @@ rdfs:label a rdf:Property.
         if (!fromUser || !fromUser.sendMessage)
             throw new BadRequest("Could not find administrator");
         fromUser.sendMessage(subject + '\\n' + body, this.rdfsLabel + " <" + this.calliEmail + ">");
-        return newUser;
+        return this;
     """.
 
 :inviteForm a owl:ObjectProperty, owl:FunctionalProperty;
@@ -81,7 +81,7 @@ rdfs:label a rdf:Property.
 
 # find the user that created $this
 :FindUserCreator rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <User>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <InvitedUser>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom calli:User];
     msg:sparql  """
         PREFIX prov:<http://www.w3.org/ns/prov#>

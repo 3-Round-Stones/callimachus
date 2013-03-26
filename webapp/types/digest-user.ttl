@@ -10,7 +10,7 @@
 <> a <SchemaGraph>.
 
 <DigestUser> a owl:Class;
-    rdfs:subClassOf <Composite>, <Viewable>, <Editable>, calli:User;
+    rdfs:subClassOf <Viewable>, <Editable>, calli:User;
     rdfs:label "Digest User";
     rdfs:comment "Username and password digest associated with an email address";
     owl:equivalentClass </callimachus/User>, <User>;
@@ -18,7 +18,7 @@
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/admin>;
     calli:icon <../images/user.png>;
-    calli:view <../templates/user-view.xhtml>;
+    calli:view <../templates/digest-user-view.xhtml>;
     calli:edit <../templates/digest-user-edit.xhtml>.
 
 :DeleteUser owl:intersectionOf ( <editable.ttl#Delete>

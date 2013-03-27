@@ -319,6 +319,11 @@ public class CallimachusSetup {
 				if (!con.hasStatement(digestUser, RDF.TYPE, DigestUser)) {
 					con.add(digestUser, RDF.TYPE, DigestUser);
 				}
+				URI auth_users = vf.createURI(users);
+				URI hasComponent = vf.createURI(CALLI_HASCOMPONENT);
+				if (!con.hasStatement(auth_users, hasComponent, digestUser)) {
+					con.add(auth_users, hasComponent, digestUser);
+				}
 				URI calliName = vf.createURI(CALLI_NAME);
 				Literal lit = vf.createLiteral(username);
 				if (!con.hasStatement(digestUser, calliName, lit)) {

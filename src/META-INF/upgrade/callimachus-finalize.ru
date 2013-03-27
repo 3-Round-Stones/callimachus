@@ -14,7 +14,7 @@ PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
 DELETE {
 	?file calli:reader </auth/groups/public>
 } INSERT {
-	?file calli:reader </auth/groups/system>
+	?file calli:reader </auth/groups/system>, </auth/groups/admin>
 } WHERE {
 	{
 		<types/> calli:hasComponent? ?file . ?file calli:reader </auth/groups/public>

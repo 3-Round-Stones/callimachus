@@ -63,3 +63,20 @@ INSERT {
     FILTER NOT EXISTS { </sparql> calli:reader </auth/groups/power> }
 };
 
+INSERT {
+	?file calli:reader </auth/groups/admin>
+} WHERE {
+	{
+		<types/> calli:hasComponent? ?file . ?file calli:reader </auth/groups/system>
+	} UNION {
+		<pipelines/> calli:hasComponent? ?file . ?file calli:reader </auth/groups/system>
+	} UNION {
+		<queries/> calli:hasComponent? ?file . ?file calli:reader </auth/groups/system>
+	} UNION {
+		<schemas/> calli:hasComponent? ?file . ?file calli:reader </auth/groups/system>
+	} UNION {
+		<transforms/> calli:hasComponent? ?file . ?file calli:reader </auth/groups/system>
+	}
+	FILTER NOT EXISTS { ?file calli:reader </auth/groups/admin> }
+};
+

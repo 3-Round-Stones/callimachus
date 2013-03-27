@@ -197,7 +197,7 @@ fi
 if [ -r "$SSL" ] ; then
   KEYTOOL_OPTS=$(perl -pe 's/\s*\#.*$//g' "$SSL" 2>/dev/null |perl -pe 's/(\S+)=(.*)/-J-D$1=$2/' 2>/dev/null |tr -s '\n' ' ')
 fi
-if [ ! -e "$SSL" ] || [ -r "$SSL" ] && ! grep -q "keyStore" "$SSL" ; then
+if [ ! -e "$SSL" ] || ( [ -r "$SSL" ] && ! grep -q "keyStore" "$SSL" ) ; then
   echo "Would you like to generate a server certificate now? (type 'yes' or 'no')"
   read -p "  [no]:  " genkey
 elif [ -r "$SSL" ]; then

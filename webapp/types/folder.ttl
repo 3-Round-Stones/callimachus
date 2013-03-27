@@ -413,7 +413,7 @@
 
 :FindComponentsWithExternalDependent rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
-    rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom <Serviceable>];
+    rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom rdfs:Resource];
     msg:sparql """
         PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>

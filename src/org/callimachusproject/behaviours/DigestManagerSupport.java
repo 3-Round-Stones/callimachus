@@ -16,14 +16,12 @@ import org.callimachusproject.repository.CalliRepository;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
-import org.openrdf.model.ValueFactory;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.ObjectRepository;
 import org.openrdf.repository.object.RDFObject;
 
 public abstract class DigestManagerSupport implements RDFObject, DigestManager {
-	private static final String HAS_COMPONENT = "http://callimachusproject.org/rdf/2009/framework#hasComponent";
 	private final AuthorizationService service = AuthorizationService.getInstance();
 
 	@Override
@@ -31,7 +29,7 @@ public abstract class DigestManagerSupport implements RDFObject, DigestManager {
 			String path, List<String> domains, RealmManager manager)
 			throws OpenRDFException {
 		Resource subj = this.getResource();
-		return new DigestDetachedManager(subj, getAuthName(), path, domains, manager);
+		return new DigestDetachedManager(subj, getCalliAuthName(), path, domains, manager);
 	}
 
 	public void resetCache() throws RepositoryException {
@@ -44,18 +42,11 @@ public abstract class DigestManagerSupport implements RDFObject, DigestManager {
 	/**
 	 * Called from digest.ttl
 	 */
-	public URI registerUser(Resource invitedUser, String username,
+	public void registerUser(Resource invitedUser, URI digestUser,
 			String email, String fullname) throws OpenRDFException, IOException {
 		ObjectConnection con = this.getObjectConnection();
-		ValueFactory vf = con.getValueFactory();
-		Resource space = getAuthNamespace().getResource();
-		URI digestUser = vf.createURI(space.stringValue(), username);
 		DigestDetachedManager mgr = getManager();
 		mgr.registerUser(invitedUser, digestUser, email, fullname, con);
-		if (!con.hasStatement(space, vf.createURI(HAS_COMPONENT), digestUser)) {
-			con.add(space, vf.createURI(HAS_COMPONENT), digestUser);
-		}
-		return digestUser;
 	}
 
 	/**

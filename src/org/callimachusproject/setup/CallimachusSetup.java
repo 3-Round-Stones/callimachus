@@ -312,7 +312,9 @@ public class CallimachusSetup {
 			URI space = webapp(origin, INVITED_USERS);
 			URI invitedUser = vf.createURI(space.stringValue(), username);
 			for (DigestManagerSupport digest : getDigestManagers(origin, con)) {
-				URI digestUser = digest.registerUser(invitedUser, username, email, null);
+				String users = digest.getCalliAuthNamespace().getResource().stringValue();
+				URI digestUser = vf.createURI(users, username);
+				digest.registerUser(invitedUser, digestUser, email, null);
 				URI DigestUser = webapp(origin, DIGEST_USER_TYPE);
 				if (!con.hasStatement(digestUser, RDF.TYPE, DigestUser)) {
 					con.add(digestUser, RDF.TYPE, DigestUser);
@@ -328,7 +330,7 @@ public class CallimachusSetup {
 					con.add(digestUser, calliEditor, digestUser);
 				}
 				String[] encoded = encodePassword(username, email,
-						digest.getAuthName(), password);
+						digest.getCalliAuthName(), password);
 				modified |= setPassword(digestUser, encoded, origin, con);
 			}
 			con.setAutoCommit(true);
@@ -516,20 +518,20 @@ public class CallimachusSetup {
 				final Resource authNamespace = (Resource) result
 						.getValue("authNamespace");
 				list.add(new DigestManagerSupport() {
-					public void setAuthName(String authName) {
+					public void setCalliAuthName(String authName) {
 						throw new UnsupportedOperationException();
 					}
 
-					public String getAuthName() {
+					public String getCalliAuthName() {
 						return authName;
 					}
 
-					public RDFObject getAuthNamespace() {
+					public RDFObject getCalliAuthNamespace() {
 						return con.getObjectFactory().createObject(
 								authNamespace);
 					}
 
-					public void setAuthNamespace(RDFObject authNamespace) {
+					public void setCalliAuthNamespace(RDFObject authNamespace) {
 						throw new UnsupportedOperationException();
 					}
 

@@ -184,12 +184,28 @@ rdfs:comment a rdf:Property.
             var user = iter.next();
             if (token == user.getSecretToken(nonce)) {
                 var vf = this.objectConnection.valueFactory;
-                var location = this.registerUser(user.resource, username, authEmail, fullname);
-                var newUser = this.objectConnection.getObject(location);
-                newUser = this.objectConnection.addDesignation(newUser, DigestUser);
-                newUser.calliName = username;
-                newUser.calliEditor.add(newUser);
-                newUser.calliPasswordDigest = this.changeDigestPassword(newUser.calliPasswordDigest, password);
+                var newUser = this.objectConnection.getObject(this.calliAuthNamespace.toString() + username);
+                if (newUser instanceof DigestUser) {
+                    if (newUser.calliEmail == authEmail && newUser.calliPasswordDigest.size() == password.length) {
+                        var i = 0;
+                        var iter = newUser.calliPasswordDigest.iterator();
+                        while (iter.hasNext()) {
+                            var pass = iter.next().getCharContent(true).toString();
+                            if (password[i++] != pass)
+                                throw new BadRequest("This email address is already used in an account, but the password is not the same");
+                        }
+                        this.registerUser(user.resource, newUser.resource, authEmail, fullname);
+                    } else {
+                        throw new BadRequest("This username is already taken, please choose a different one");
+                    }
+                } else {
+                    this.calliAuthNamespace.calliHasComponent.add(newUser);
+                    newUser = this.objectConnection.addDesignation(newUser, DigestUser);
+                    newUser.calliEditor.add(newUser);
+                    newUser.calliName = username;
+                    this.registerUser(user.resource, newUser.resource, authEmail, fullname);
+                    newUser.calliPasswordDigest = this.changeDigestPassword(newUser.calliPasswordDigest, password);
+                }
                 return;
             }
         }

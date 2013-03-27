@@ -7,15 +7,15 @@ import org.openrdf.repository.object.RDFObject;
 public interface DigestManager extends AuthenticationManager {
 
 	@Iri("http://callimachusproject.org/rdf/2009/framework#authName")
-	String getAuthName();
+	String getCalliAuthName();
 
 	@Iri("http://callimachusproject.org/rdf/2009/framework#authName")
-	void setAuthName(String authName);
+	void setCalliAuthName(String authName);
 
 	@Iri("http://callimachusproject.org/rdf/2009/framework#authNamespace")
-	RDFObject getAuthNamespace();
+	RDFObject getCalliAuthNamespace();
 
 	@Iri("http://callimachusproject.org/rdf/2009/framework#authNamespace")
-	void setAuthNamespace(RDFObject authNamespace);
+	void setCalliAuthNamespace(RDFObject authNamespace);
 
 }

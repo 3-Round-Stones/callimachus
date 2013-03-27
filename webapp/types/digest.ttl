@@ -163,6 +163,20 @@ rdfs:comment a rdf:Property.
     calli:imports <DigestUser>;
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
     calli:script """
+        if (!regForm.containsKey("fullname"))
+            throw new BadRequest("Missing fullname");
+        if (!regForm.containsKey("username"))
+            throw new BadRequest("Missing username");
+        if (!regForm.containsKey("password"))
+            throw new BadRequest("Missing password");
+        if (!regForm.containsKey("email"))
+            throw new BadRequest("Missing email");
+        if (!regForm.containsKey("auth-email"))
+            throw new BadRequest("Missing auth-email");
+        if (!regForm.containsKey("token"))
+            throw new BadRequest("Missing token");
+        if (!regForm.containsKey("nonce"))
+            throw new BadRequest("Missing nonce");
         var nonce = regForm.get("nonce")[0];
         var token = regForm.get("token")[0];
         var fullname = regForm.get("fullname")[0];

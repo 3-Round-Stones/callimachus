@@ -378,6 +378,7 @@ INSERT {
 </> calli:hasComponent </sparql>.
 </sparql> a <types/SparqlService>, sd:Service;
     rdfs:label "sparql";
+    calli:reader </auth/groups/power>;
     calli:administrator </auth/groups/admin>;
     sd:endpoint </sparql>;
     sd:supportedLanguage sd:SPARQL11Query, sd:SPARQL11Update;

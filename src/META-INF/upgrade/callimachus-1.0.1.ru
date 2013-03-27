@@ -55,3 +55,11 @@ INSERT {
 } WHERE {
 	FILTER NOT EXISTS { </auth/invited-users/> a calli:Folder }
 };
+
+INSERT {
+    </sparql> calli:reader </auth/groups/power>;
+} WHERE {
+    </sparql> a <types/SparqlService>, sd:Service .
+    FILTER NOT EXISTS { </sparql> calli:reader </auth/groups/power> }
+};
+

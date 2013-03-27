@@ -24,12 +24,12 @@ LIMIT 50
 </pre>
         </aside>
     </div>
-    <form action="/sparql" method="POST">
+    <form id="form" action="/sparql" method="GET">
         <textarea id="sparql" name="query" class="flex" required="required"
             onchange="$(form).find('button').removeAttr('disabled')"></textarea>
         <div>
-            <button type="submit" class="btn btn-primary" onclick="$('#sparql').attr('name', 'query')">Evaluate Query</button>
-            <button type="submit" class="btn btn-primary" onclick="$('#sparql').attr('name', 'update')">Execute Update</button>
+            <button type="submit" class="btn btn-primary" onclick="$('#form').attr('method','GET');$('#sparql').attr('name', 'query')">Evaluate Query</button>
+            <button type="submit" class="btn btn-primary" onclick="$('#form').attr('method','POST');$('#sparql').attr('name', 'update')">Execute Update</button>
             <button type="button" onclick="history.back()" class="btn">Cancel</button>
         </div>
     </form>

@@ -328,7 +328,7 @@ elif [ "$(id -u)" = "0" -a -x "$DAEMON" -a -x "$(command -v getcap)" -a -x "$(co
 fi
 
 # setup trust store
-if [ -r "$JAVA_HOME/lib/security/cacerts" ] && ( [ ! -e "$SSL" ] || [ -r "$SSL" ] && ! grep -q javax.net.ssl.trustStore "$SSL" ) ; then
+if [ -r "$JAVA_HOME/lib/security/cacerts" ] && ( [ ! -e "$SSL" ] || ( [ -r "$SSL" ] && ! grep -q javax.net.ssl.trustStore "$SSL" ) ) ; then
   if [ -z "$KEYTOOL" ] ; then
     KEYTOOL="$JAVA_HOME/bin/keytool"
   fi

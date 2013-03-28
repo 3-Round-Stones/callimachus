@@ -16,6 +16,7 @@
  */
 package org.callimachusproject;
 
+import java.awt.Desktop;
 import java.io.BufferedReader;
 import java.io.Console;
 import java.io.File;
@@ -25,6 +26,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -100,10 +102,11 @@ public class Setup {
 				.desc("Add the new user to this group (in addition to the admin group)");
 		commands.option("n", "name").arg("name")
 				.desc("If creating a new user use this full name");
-		commands.option("e", "email").arg("addr")
+		commands.option("e", "email").optional("addr")
 				.desc("If creating a new user use this email address");
-		commands.option("s", "silent").desc(
-				"If the repository is already setup exit successfully");
+		commands.option("l", "launch").optional("command")
+				.desc("When the setup is complete launch this command and (if appropriate) open a Web browser to register");
+		commands.option("L", "no-launch").desc("Don't launch any commands and don't open any browsers");
 		commands.option("h", "help").desc("Print help (this message) and exit");
 		commands.option("V", "version").desc(
 				"Print version information and exit");
@@ -144,7 +147,6 @@ public class Setup {
 					Runtime.getRuntime().availableProcessors(),
 					Setup.class.getSimpleName());
 	private final Set<String> groups = new HashSet<String>();
-	private boolean silent;
 	private File confFile;
 	private File basedir;
 	private BackupTool backup;
@@ -152,6 +154,7 @@ public class Setup {
 	private String email;
 	private String username;
 	private char[] password;
+	private String launch;
 
 	public void init(String[] args) {
 		try {
@@ -169,7 +172,6 @@ public class Setup {
 				System.exit(0);
 				return;
 			} else {
-				silent = line.has("silent");
 				if (line.has("basedir")) {
 					basedir = new File(line.get("basedir"));
 				} else {
@@ -187,34 +189,41 @@ public class Setup {
 					this.name = line.get("name");
 					this.email = line.get("email");
 					String u = line.get("user");
-					if (u != null && u.contains(":")) {
-						username = u.substring(0, u.indexOf(':'));
-						password = u.substring(u.indexOf(':') + 1).toCharArray();
-						CallimachusSetup.validateName(username);
-					}
-					Console console = System.console();
-					if (username == null || username.length() < 1) {
-						if (u != null && u.length() > 0 && !u.contains(":")) {
-							username = u;
-						} else if (console == null) {
-							Reader reader = new InputStreamReader(System.in);
-							username = new BufferedReader(reader).readLine();
+					if (u != null) {
+						if (u.contains(":")) {
+							username = u.substring(0, u.indexOf(':'));
+							password = u.substring(u.indexOf(':') + 1).toCharArray();
 						} else {
-							username = console.readLine("Enter a username: ");
+							username = u;
 						}
 						CallimachusSetup.validateName(username);
 					}
 					if (email == null || email.length() < 1) {
+						Console console = System.console();
 						if (console == null) {
 							Reader reader = new InputStreamReader(System.in);
 							email = new BufferedReader(reader).readLine();
 						} else {
-							email = console.readLine("Enter an email: ");
+							email = console.readLine("Enter the email address of the initial admin user: ");
 						}
-						CallimachusSetup.validateEmail(email);
+						if (email != null && email.trim().length() < 0) {
+							email = null;
+						}
+						if (email != null) {
+							CallimachusSetup.validateEmail(email);
+						}
+					}
+					if (email != null && (name == null || name.trim().length() < 0)) {
+						name = email.replaceAll("@.*", "").replaceAll("\\W+", " ").trim();
 					}
 					if (line.has("group")) {
 						groups.addAll(Arrays.asList(line.getAll("group")));
+					}
+				}
+				if (line.has("launch") && !line.has("no-launch")) {
+					launch = line.get("launch");
+					if (launch == null) {
+						launch = "";
 					}
 				}
 			}
@@ -230,7 +239,6 @@ public class Setup {
 
 	public void start() throws Exception {
 		final CallimachusConf conf = new CallimachusConf(confFile);
-		boolean changed = false;
 		final LocalRepositoryManager manager = RepositoryProvider
 				.getRepositoryManager(basedir);
 		final List<String> links = new ArrayList<String>();
@@ -246,7 +254,7 @@ public class Setup {
 				}));
 			}
 			for (Future<Boolean> task : tasks) {
-				changed |= task.get();
+				task.get();
 			}
 			conf.setAppVersion(Version.getInstance().getVersionCode());
 		} finally {
@@ -254,6 +262,7 @@ public class Setup {
 			for (String id : manager.getInitializedRepositoryIDs()) {
 				manager.getRepository(id);
 			}
+			manager.shutDown();
 		}
 		if (!links.isEmpty()) {
 			System.err.println("Use this URL to assign a password");
@@ -263,12 +272,46 @@ public class Setup {
 			}
 			System.err.println();
 		}
-		if (changed || silent) {
-			System.exit(0);
-		} else {
-			logger.warn("Repository is already setup");
-			System.exit(166); // already setup
+		if (launch != null) {
+			if (launch.length() > 0) {
+				final Process exec = Runtime.getRuntime().exec(launch);
+				new Thread() {
+					@Override
+					public void run() {
+						try {
+							InputStream in = exec.getInputStream();
+							InputStreamReader isr = new InputStreamReader(in);
+							BufferedReader br = new BufferedReader(isr);
+							String line = null;
+							while ((line = br.readLine()) != null)
+								System.out.println(line);
+						} catch (IOException ioe) {
+							logger.error(ioe.getMessage(), ioe);
+						}
+					}
+				}.start();
+				exec.getOutputStream().close();
+				InputStream stderr = exec.getErrorStream();
+				InputStreamReader isr = new InputStreamReader(stderr);
+				BufferedReader br = new BufferedReader(isr);
+				String line = null;
+				while ((line = br.readLine()) != null) {
+					System.err.println(line);
+				}
+				int ret = exec.waitFor();
+				if (ret == 0) {
+					if (!links.isEmpty() && Desktop.isDesktopSupported()) {
+				        Desktop desktop = Desktop.getDesktop();
+				        if (desktop.isSupported(Desktop.Action.BROWSE)) {
+				        	for (String url : links) {
+				        		desktop.browse(URI.create(url));
+				        	}
+				        }
+					}
+				}
+			}
 		}
+		System.exit(0);
 	}
 
 	public void stop() throws Exception {
@@ -308,20 +351,22 @@ public class Setup {
 			}
 			if (email != null && email.length() > 0) {
 				for (String origin : webappOrigins) {
-					changed |= setup.createAdmin(email, username, name, null,
-							origin);
-					for (String group : groups) {
-						changed |= setup.addUserToGroup(username, group, origin);
-					}
-					if (password == null || password.length < 1) {
-						Set<String> reg = setup.getUserRegistrationLinks(username,
-								email, origin);
-						synchronized (links) {
-							links.addAll(reg);
+					if (!setup.isAdminEmail(email, origin)) {
+						changed |= setup.createAdmin(email, name, null, origin);
+						for (String group : groups) {
+							changed |= setup.addInvitedUserToGroup(email, group, origin);
 						}
-					} else {
-						changed |= setup.registerDigestUser(email, username,
-								password, origin);
+						if (password == null || password.length < 1
+								|| username == null || username.length() < 1) {
+							Set<String> reg = setup.getUserRegistrationLinks(email,
+									origin);
+							synchronized (links) {
+								links.addAll(reg);
+							}
+						} else {
+							changed |= setup.registerDigestUser(email, username,
+									password, origin);
+						}
 					}
 				}
 			}

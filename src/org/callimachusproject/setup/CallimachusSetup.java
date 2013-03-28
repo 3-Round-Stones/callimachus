@@ -48,6 +48,7 @@ import org.openrdf.model.vocabulary.OWL;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.model.vocabulary.RDFS;
 import org.openrdf.query.BindingSet;
+import org.openrdf.query.BooleanQuery;
 import org.openrdf.query.QueryLanguage;
 import org.openrdf.query.TupleQueryResult;
 import org.openrdf.query.algebra.evaluation.util.ValueComparator;
@@ -130,7 +131,7 @@ public class CallimachusSetup {
 	private static final String GROUP_ADMIN = "/auth/groups/admin";
 	private static final String GROUP_POWER = "/auth/groups/power";
 	private static final String CHANGES_PATH = "../changes/";
-	private static final String USER_TYPE = "types/InvitedUser";
+	private static final String INVITED_USER_TYPE = "types/InvitedUser";
 
 	private static final String CALLI = "http://callimachusproject.org/rdf/2009/framework#";
 	private static final String CALLI_HASCOMPONENT = CALLI + "hasComponent";
@@ -145,6 +146,7 @@ public class CallimachusSetup {
 	private static final String CALLI_PASSWORD = CALLI + "passwordDigest";
 	private static final String CALLI_SECRET = CALLI + "secret";
 	private static final String PREFIX = "PREFIX calli:<" + CALLI + ">\n";
+	private static final String ASK_ADMIN_EMAIL = PREFIX + "ASK { </auth/groups/admin> calli:member [calli:email $email]}";
 	private static final String SELECT_DIGEST = PREFIX
 			+ "SELECT REDUCED ?digest ?authName ?authNamespace\n"
 			+ "WHERE { </> calli:authentication ?digest .\n" +
@@ -240,21 +242,73 @@ public class CallimachusSetup {
 		return modified;
 	}
 
+	public boolean isAdminEmail(String email, String origin) throws OpenRDFException, IOException {
+		ObjectConnection con = repository.getConnection();
+		try {
+			ValueFactory vf = con.getValueFactory();
+			BooleanQuery qry = con.prepareBooleanQuery(QueryLanguage.SPARQL,
+					ASK_ADMIN_EMAIL, origin + "/");
+			qry.setBinding("email", vf.createLiteral(email));
+			return qry.evaluate();
+		} finally {
+			con.close();
+		}
+	}
+
 	/**
 	 * Creates (or updates email) the given user.
 	 * @param email
-	 * @param username
 	 * @param label
 	 * @param comment
-	 * @param webappOrigin that contains a Callimachus webapp
-	 * 
+	 * @param origin that contains a Callimachus webapp
 	 * @return if the RDF store was modified
 	 * @throws OpenRDFException
 	 * @throws IOException
 	 */
-	public boolean createAdmin(String email, String username, String label,
-			String comment, String webappOrigin) throws OpenRDFException, IOException {
-		validateName(username);
+	public boolean createAdmin(String email, String label, String comment,
+			String origin) throws OpenRDFException, IOException {
+		validateEmail(email);
+		ObjectConnection con = repository.getConnection();
+		try {
+			con.setAutoCommit(false);
+			ValueFactory vf = con.getValueFactory();
+			URI folder = webapp(origin, INVITED_USERS);
+			URI subj = vf.createURI(folder.stringValue(), slugify(email));
+			URI calliEmail = vf.createURI(CALLI_EMAIL);
+			if (con.hasStatement(subj, RDF.TYPE, vf.createURI(CALLI_USER)))
+				return false;
+			logger.info("Inviting user {}", email);
+			URI power = webapp(origin, GROUP_POWER);
+			URI admin = webapp(origin, GROUP_ADMIN);
+			con.add(subj, RDF.TYPE, webapp(origin, INVITED_USER_TYPE));
+			con.add(subj, RDF.TYPE, vf.createURI(CALLI_PARTY));
+			con.add(subj, RDF.TYPE, vf.createURI(CALLI_USER));
+			if (label == null || label.length() == 0) {
+				con.add(subj, RDFS.LABEL, vf.createLiteral(email));
+			} else {
+				con.add(subj, RDFS.LABEL, vf.createLiteral(label));
+			}
+			if (comment != null && comment.length() > 0) {
+				con.add(subj, RDFS.COMMENT, vf.createLiteral(comment));
+			}
+			con.add(subj, vf.createURI(CALLI_SUBSCRIBER), power);
+			con.add(subj, vf.createURI(CALLI_ADMINISTRATOR), admin);
+			con.add(folder, vf.createURI(CALLI_HASCOMPONENT), subj);
+			if (email != null && email.length() > 2) {
+				con.add(subj, calliEmail, vf.createLiteral(email));
+			}
+			if (!con.hasStatement(admin, vf.createURI(CALLI_MEMBER), subj)) {
+				con.add(admin, vf.createURI(CALLI_MEMBER), subj);
+			}
+			con.setAutoCommit(true);
+			return true;
+		} finally {
+			con.close();
+		}
+	}
+
+	public boolean addInvitedUserToGroup(String email, String groupPath,
+			String webappOrigin) throws OpenRDFException, IOException {
 		validateEmail(email);
 		ObjectConnection con = repository.getConnection();
 		try {
@@ -262,31 +316,7 @@ public class CallimachusSetup {
 			ValueFactory vf = con.getValueFactory();
 			boolean modified = false;
 			URI space = webapp(webappOrigin, INVITED_USERS);
-			URI subj = vf.createURI(space.stringValue(), username);
-			modified |= changeAdminEmail(webappOrigin, space,
-					subj, email, username, label, comment, con);
-			URI admin = webapp(webappOrigin, GROUP_ADMIN);
-			if (!con.hasStatement(admin, vf.createURI(CALLI_MEMBER), subj)) {
-				con.add(admin, vf.createURI(CALLI_MEMBER), subj);
-				modified = true;
-			}
-			con.setAutoCommit(true);
-			return modified;
-		} finally {
-			con.close();
-		}
-	}
-
-	public boolean addUserToGroup(String username, String groupPath,
-			String webappOrigin) throws OpenRDFException, IOException {
-		validateName(username);
-		ObjectConnection con = repository.getConnection();
-		try {
-			con.setAutoCommit(false);
-			ValueFactory vf = con.getValueFactory();
-			boolean modified = false;
-			URI space = webapp(webappOrigin, INVITED_USERS);
-			URI subj = vf.createURI(space + username);
+			URI subj = vf.createURI(space + slugify(email));
 			URI group = webapp(webappOrigin, groupPath);
 			if (!con.hasStatement(group, vf.createURI(CALLI_MEMBER), subj)) {
 				con.add(group, vf.createURI(CALLI_MEMBER), subj);
@@ -350,29 +380,24 @@ public class CallimachusSetup {
 	/**
 	 * Returns a set of registration links for the user with the given username
 	 * on this webappOrigin. The empty set is returned if the user has already registered.
-	 * 
-	 * @param username
 	 * @param email
 	 * @param webappOrigin
 	 *            that contains a Callimachus webapp
+	 * 
 	 * @return Set of links (if any, but often just one)
 	 * @throws OpenRDFException
 	 * @throws IOException
 	 * @throws NoSuchAlgorithmException 
 	 */
-	public Set<String> getUserRegistrationLinks(String username, String email,
-			String webappOrigin) throws OpenRDFException, IOException, NoSuchAlgorithmException {
-		validateName(username);
+	public Set<String> getUserRegistrationLinks(String email, String webappOrigin) throws OpenRDFException, IOException, NoSuchAlgorithmException {
 		validateEmail(email);
 		Set<String> list = new LinkedHashSet<String>();
 		ObjectConnection con = repository.getConnection();
 		try {
 			ValueFactory vf = con.getValueFactory();
 			URI space = webapp(webappOrigin, INVITED_USERS);
-			URI subj = vf.createURI(space.stringValue(), username);
-			if (!con.hasStatement(subj, RDF.TYPE, webapp(webappOrigin, USER_TYPE)))
-				return Collections.emptySet();
-			if (con.hasStatement(subj, vf.createURI(CALLI_PASSWORD), null))
+			URI subj = vf.createURI(space.stringValue(), slugify(email));
+			if (!con.hasStatement(subj, RDF.TYPE, webapp(webappOrigin, INVITED_USER_TYPE)))
 				return Collections.emptySet();
 	        Random random = java.security.SecureRandom.getInstance("SHA1PRNG");
 	        String nonce = java.lang.Integer.toHexString(random.nextInt());
@@ -404,6 +429,10 @@ public class CallimachusSetup {
 		Updater updater = updateProvider.finalizeCallimachusWebapp(origin);
 		String webapp = webapp(origin, "").stringValue();
 		return updater.update(webapp, repository);
+	}
+
+	private String slugify(String email) {
+		return email.replaceAll("\\s+", "+").replaceAll("[^\\w\\+\\-\\_\\.\\!\\~\\*\\'\\(\\);\\,\\&\\=\\$\\[\\]]+","_");
 	}
 
 	private String encode(String string) {
@@ -468,43 +497,6 @@ public class CallimachusSetup {
 	private void updateWebappContext(String origin) throws OpenRDFException {
 		synchronized (webapps) {
 			webapps.clear();
-		}
-	}
-
-	private boolean changeAdminEmail(String origin, Resource folder,
-			URI subj, String email, String username, String label,
-			String comment, ObjectConnection con) throws OpenRDFException, IOException {
-		ValueFactory vf = con.getValueFactory();
-		URI calliEmail = vf.createURI(CALLI_EMAIL);
-		if (con.hasStatement(subj, RDF.TYPE, vf.createURI(CALLI_USER))) {
-			if (email == null || con.hasStatement(subj, calliEmail, vf.createLiteral(email)))
-				return false;
-			logger.info("Changing email of {}", username);
-			con.remove(subj, calliEmail, null);
-			con.add(subj, calliEmail, vf.createLiteral(email));
-			return true;
-		} else {
-			logger.info("Creating user {}", username);
-			URI power = webapp(origin, GROUP_POWER);
-			URI admin = webapp(origin, GROUP_ADMIN);
-			con.add(subj, RDF.TYPE, webapp(origin, USER_TYPE));
-			con.add(subj, RDF.TYPE, vf.createURI(CALLI_PARTY));
-			con.add(subj, RDF.TYPE, vf.createURI(CALLI_USER));
-			if (label == null || label.length() == 0) {
-				con.add(subj, RDFS.LABEL, vf.createLiteral(username));
-			} else {
-				con.add(subj, RDFS.LABEL, vf.createLiteral(label));
-			}
-			if (comment != null && comment.length() > 0) {
-				con.add(subj, RDFS.COMMENT, vf.createLiteral(comment));
-			}
-			con.add(subj, vf.createURI(CALLI_SUBSCRIBER), power);
-			con.add(subj, vf.createURI(CALLI_ADMINISTRATOR), admin);
-			con.add(folder, vf.createURI(CALLI_HASCOMPONENT), subj);
-			if (email != null && email.length() > 2) {
-				con.add(subj, calliEmail, vf.createLiteral(email));
-			}
-			return true;
 		}
 	}
 

@@ -659,8 +659,8 @@ public class CalliServer implements CalliServerMXBean {
 		submit(new Callable<Void>() {
 			public Void call() throws Exception {
 				SetupTool tool = getSetupTool(webappOrigin);
-				tool.inviteAdminUser(email, username, label, comment, subject,
-						body, webappOrigin);
+				tool.inviteAdminUser(email, label, comment, subject, body,
+						webappOrigin);
 				String repositoryID = tool.getRepositoryID();
 				CalliRepository repository = getRepository(repositoryID);
 				ObjectRepository object = repository.getDelegate();

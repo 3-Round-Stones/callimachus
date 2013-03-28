@@ -159,6 +159,10 @@ public class SetupTool {
 	public synchronized void setupRealm(String realm, String webappOrigin)
 			throws IOException, OpenRDFException {
 		java.net.URI uri = java.net.URI.create(realm);
+		if (!realm.startsWith(uri.toASCIIString()))
+			throw new IllegalArgumentException("Invalid realm: " + realm);
+		if (!realm.endsWith("/"))
+			throw new IllegalArgumentException("Realms must end with a slash: " + realm);
 		String origin = uri.getScheme() + "://" + uri.getAuthority();
 		CallimachusSetup setup = new CallimachusSetup(repository);
 		setup.prepareWebappOrigin(webappOrigin);
@@ -247,14 +251,13 @@ public class SetupTool {
 		}
 	}
 
-	public synchronized void inviteAdminUser(String email, String username,
-			String label, String comment, String subject, String body,
-			String webappOrigin) throws IOException, OpenRDFException,
-			MessagingException, NamingException, GeneralSecurityException {
+	public synchronized void inviteAdminUser(String email, String label,
+			String comment, String subject, String body, String webappOrigin)
+			throws IOException, OpenRDFException, MessagingException,
+			NamingException, GeneralSecurityException {
 		CallimachusSetup setup = new CallimachusSetup(repository);
-		setup.createAdmin(email, username, label, comment, webappOrigin);
-		Set<String> links = setup.getUserRegistrationLinks(username, email,
-				webappOrigin);
+		setup.createAdmin(email, label, comment, webappOrigin);
+		Set<String> links = setup.getUserRegistrationLinks(email, webappOrigin);
 		for (String link : links) {
 			String emailBody;
 			if (body.contains("?register")) {

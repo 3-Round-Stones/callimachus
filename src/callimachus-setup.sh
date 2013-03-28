@@ -228,7 +228,6 @@ if $cygwin; then
   CLASSPATH=`cygpath --path --windows "$CLASSPATH"`
 fi
 
-
 if [ -z "$PORT" -a -z "$SSLPORT" ] ; then
   PORT="8080"
   sed -i "s:#\?\s*PORT=.*:PORT=$PORT:" "$CONFIG"
@@ -259,11 +258,6 @@ if [ "$VERBOSE" != no ]; then
   log_success_msg "Using JDK_HOME:  $JDK_HOME"
 fi
 
-[ "$VERBOSE" != no ] && log_success_msg "Setting up $NAME"
-if [ "$USERNAME" = "root" -a -n "$SUDO_USER" ]; then
-  USERNAME="$SUDO_USER"
-fi
-
 exec "$JAVA_HOME/bin/java" \
     -Duser.home="$BASEDIR" \
     -Djava.mail.properties="$MAIL" \
@@ -272,5 +266,5 @@ exec "$JAVA_HOME/bin/java" \
     -classpath "$CLASSPATH" \
     -XX:OnOutOfMemoryError="kill -9 %p" \
     $JAVA_OPTS "$MAINCLASS" \
-    -b "$BASEDIR" -c "$CONFIG" -k "$BASEDIR/backups" -e "$EMAIL" -n "$FULLNAME" -u "$USERNAME" "$@"
+    -b "$BASEDIR" -c "$CONFIG" -k "$BASEDIR/backups" -e "$EMAIL" -l "/bin/sh bin/$NAME-start.sh" "$@"
 

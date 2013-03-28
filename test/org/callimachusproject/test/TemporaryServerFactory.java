@@ -248,7 +248,7 @@ public class TemporaryServerFactory {
 			setup.createWebappOrigin(origin);
 			setup.finalizeWebappOrigin(origin);
 			String username = email.substring(0, email.indexOf('@'));
-			setup.createAdmin(email, username, username, null, origin);
+			setup.createAdmin(email, username, null, origin);
 			setup.registerDigestUser(email, username, password, origin);
 			repository.shutDown();
 			manager.shutDown();

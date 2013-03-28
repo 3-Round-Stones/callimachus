@@ -80,3 +80,19 @@ INSERT {
 	FILTER NOT EXISTS { ?file calli:reader </auth/groups/admin> }
 };
 
+INSERT {
+    ?digest calli:authName ?authNameLit
+} WHERE {
+    ?digest a calli:DigestManager; calli:authName ?authName
+    FILTER NOT EXISTS { ?digest calli:authName ?lit FILTER isLiteral(?lit) }
+    FILTER isIRI(?authName)
+    BIND (str(?authName) as ?authNameLit)
+};
+
+DELETE {
+    ?digest calli:authName ?authName
+} WHERE {
+    ?digest a calli:DigestManager; calli:authName ?authName
+    FILTER isLiteral(?authName)
+};
+

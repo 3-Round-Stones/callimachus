@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -75,10 +76,15 @@ public class ManagedExecutors {
 		return register(new ManagedThreadPool(name, true));
 	}
 
+	public ExecutorService newFixedThreadPool(int nThreads, String name) {
+		return newFixedThreadPool(nThreads,
+				new LinkedBlockingDeque<Runnable>(), name);
+	}
+
 	public ExecutorService newFixedThreadPool(int nThreads,
 			BlockingQueue<Runnable> queue, String name) {
 		return register(new ManagedThreadPool(nThreads, nThreads, 0L,
-				TimeUnit.MILLISECONDS, queue, "HttpTriage", true));
+				TimeUnit.MILLISECONDS, queue, name, true));
 	}
 
 	public ScheduledExecutorService newSingleScheduler(String name) {

@@ -107,10 +107,6 @@ public class SetupTool {
 		return repository;
 	}
 
-	public String[] getWebappOrigins() throws IOException {
-		return conf.getWebappOrigins();
-	}
-
 	public SetupRealm[] getRealms() throws IOException, OpenRDFException {
 		List<SetupRealm> list = new ArrayList<SetupRealm>();
 		CallimachusSetup setup = new CallimachusSetup(repository);

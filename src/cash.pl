@@ -1269,9 +1269,9 @@ sub putFile {
     $headers->header( "Slug" => $slug );
     $headers->header( "Content-Type" => getContentType($filename) );
     my $req;
-    my $serverfile = $server->files->{$filename}->{src};
+    my $serverfile = $server->files->{$slug}->{src};
     if ($serverfile) {
-        $url = $server->files->{$filename}->{src};
+        $url = $server->files->{$slug}->{src};
         say $OUT "This file already exists.  Using PUT to $url." if $debug>1;
         $req = HTTP::Request->new("PUT", $url, $headers, $content);
     } else {

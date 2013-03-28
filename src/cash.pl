@@ -62,7 +62,7 @@ BEGIN {
 Getopt::Long::Configure( qw(gnu_getopt) );
 
 # Globals
-my $version = "0.14";
+my $version = "0.15";
 my $authority;
 my $host;
 my $debug = 0;

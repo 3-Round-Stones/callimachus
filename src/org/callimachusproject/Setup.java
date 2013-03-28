@@ -83,7 +83,6 @@ import org.slf4j.LoggerFactory;
  */
 public class Setup {
 	public static final String NAME = Version.getInstance().getVersion();
-	private static final ExecutorService executor = ManagedExecutors.getInstance().newCachedPool(Setup.class.getSimpleName());
 
 	private static final CommandSet commands = new CommandSet(NAME);
 	static {
@@ -140,6 +139,10 @@ public class Setup {
 	}
 
 	private final Logger logger = LoggerFactory.getLogger(Setup.class);
+	private final ExecutorService executor = ManagedExecutors
+			.getInstance().newFixedThreadPool(
+					Runtime.getRuntime().availableProcessors(),
+					Setup.class.getSimpleName());
 	private final Set<String> groups = new HashSet<String>();
 	private boolean silent;
 	private File confFile;
@@ -273,7 +276,7 @@ public class Setup {
 	}
 
 	public void destroy() throws Exception {
-		// do nothing
+		executor.shutdownNow();
 	}
 
 	Boolean setupRepository(String repositoryID,

@@ -93,6 +93,6 @@ DELETE {
     ?digest calli:authName ?authName
 } WHERE {
     ?digest a calli:DigestManager; calli:authName ?authName
-    FILTER isLiteral(?authName)
+    FILTER isIRI(?authName)
 };
 

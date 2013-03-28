@@ -86,15 +86,12 @@ a callimachus-start script located in the bin/ directory to start the server.
 On Linux run:
  $ bin/callimachus-install.sh
  $ bin/callimachus-setup.sh
- $ bin/callimachus-start.sh
 
 On Windows run:
  # bin/callimachus-setup.bat
- # bin/callimachus-start.bat
 
 On Mac run:
  $ bin/callimachus-setup.sh
- $ bin/callimachus-start.sh
 
 To monitor the activity of the server watch the log/callimachus.log.0 file for
 log messages. Windows users may find the callimachus-log.bat script useful to

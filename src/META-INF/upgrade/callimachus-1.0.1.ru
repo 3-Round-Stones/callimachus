@@ -96,3 +96,12 @@ DELETE {
     FILTER isIRI(?authName)
 };
 
+DELETE {
+    GRAPH ?g1 { ?realm calli:authentication ?auth }
+} WHERE {
+    GRAPH ?g1 { ?realm calli:authentication ?auth }
+    GRAPH ?g2 { ?realm calli:authentication ?auth }
+    FILTER (str(?g1) < str(?g2))
+};
+
+

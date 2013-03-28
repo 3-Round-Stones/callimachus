@@ -1269,9 +1269,24 @@ sub putFile {
     $headers->header( "Slug" => $slug );
     $headers->header( "Content-Type" => getContentType($filename) );
     my $req;
-    my $serverfile = $server->files->{$slug}->{src};
-    if ($serverfile) {
-        $url = $server->files->{$slug}->{src};
+    
+    # Check to determine whether a file of this name already exists on the server.
+    my $filesOnServer = $server->files;
+    my $escapedSlug = $slug;
+    $escapedSlug =~ s/\+/\\\+/g;
+    my $foundFileOnServer = 0;
+    foreach my $file (keys %$filesOnServer) {
+        say $OUT "  Checking filename: $file" if $debug > 2;
+        my $fileUrl = $server->files->{$file}->{src};
+        say $OUT "    URL: $fileUrl" if $debug > 2;
+        if ( $fileUrl =~ m/$escapedSlug/i ) {
+            say $OUT "    FOUND A MATCH!" if $debug > 2;
+            $foundFileOnServer = 1;
+            $url = $fileUrl; # Set the URL to PUT to the file's URL instead of the folder's URL.
+        }
+    }
+    
+    if ($foundFileOnServer) {
         say $OUT "This file already exists.  Using PUT to $url." if $debug>1;
         $req = HTTP::Request->new("PUT", $url, $headers, $content);
     } else {

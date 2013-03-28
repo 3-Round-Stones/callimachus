@@ -201,10 +201,9 @@ public class CallimachusSetup {
 				webapps.put(origin, TermFactory.newInstance(createWebappUrl(origin)));
 			}
 		}
-		String webapp = webapp(origin, "").stringValue();
 		if (repository.getChangeFolder() == null) {
 			String changes = webapp(origin, CHANGES_PATH).stringValue();
-			repository.setChangeFolder(changes, webapp);
+			repository.setChangeFolder(changes, webapp(origin, "").stringValue());
 		}
 		boolean modified = createOrigin(origin, origin);
 		if (!barren) {
@@ -213,7 +212,7 @@ public class CallimachusSetup {
 			modified |= !newVersion.equals(version);
 		}
 		Updater updater = updateProvider.updateCallimachusWebapp(origin);
-		modified |= updater.update(webapp, repository);
+		modified |= updater.update(webapp(origin, "").stringValue(), repository);
 		updateWebappContext(origin);
 		return modified;
 	}

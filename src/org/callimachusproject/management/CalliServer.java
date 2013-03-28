@@ -486,6 +486,8 @@ public class CalliServer implements CalliServerMXBean {
 				CalliRepository repository = getInitializedRepository(repositoryID);
 				Repository repo = manager.getRepository(repositoryID);
 				File dataDir = manager.getRepositoryDir(repositoryID);
+				if (repo == null)
+					throw new IllegalArgumentException("Unknown repositoryID: " + repositoryID);
 				if (repository == null) {
 					repository = new CalliRepository(repo, dataDir);
 				} else {
@@ -530,6 +532,8 @@ public class CalliServer implements CalliServerMXBean {
 		Set<String> webapps = new LinkedHashSet<String>(Arrays.asList(getWebappOrigins()));
 		Map<String, String> map = conf.getOriginRepositoryIDs();
 		for (String repositoryID : new LinkedHashSet<String>(map.values())) {
+			if (!manager.hasRepositoryConfig(repositoryID))
+				continue;
 			CalliRepository repository = getRepository(repositoryID);
 			SetupTool tool = new SetupTool(repositoryID, repository, conf);
 			SetupRealm[] origins = tool.getRealms();
@@ -552,6 +556,8 @@ public class CalliServer implements CalliServerMXBean {
 		Map<String, String> managers = new LinkedHashMap<String, String>();
 		Map<String, String> map = conf.getOriginRepositoryIDs();
 		for (String repositoryID : new LinkedHashSet<String>(map.values())) {
+			if (!manager.hasRepositoryConfig(repositoryID))
+				continue;
 			CalliRepository repository = getRepository(repositoryID);
 			ObjectConnection con = repository.getConnection();
 			try {
@@ -764,12 +770,14 @@ public class CalliServer implements CalliServerMXBean {
 		for (Map.Entry<String, String> e : parameters.entrySet()) {
 			String id, key;
 			int idx = e.getKey().indexOf(COLON);
-			if (idx < 0) {
+			if (idx > 0 && idx < e.getKey().length() - 1) {
+				id = e.getKey().substring(0, idx);
+				key = e.getKey().substring(idx + 1);
+			} else if (idx < 0 && e.getKey().length() > 0) {
 				id = e.getKey();
 				key = null;
 			} else {
-				id = e.getKey().substring(0, idx);
-				key = e.getKey().substring(idx + 1);
+				throw new IllegalArgumentException("Invalid parameter key: " + e.getKey());
 			}
 			String value = e.getValue();
 			Map<String, String> map = params.get(id);
@@ -916,6 +924,8 @@ public class CalliServer implements CalliServerMXBean {
 			return null;
 		Repository repo = manager.getRepository(repositoryID);
 		File dataDir = manager.getRepositoryDir(repositoryID);
+		if (repo == null)
+			throw new IllegalArgumentException("Unknown repositoryID: " + repositoryID);
 		repository = new CalliRepository(repo, dataDir);
 		String changes = repository.getCallimachusUrl(origins.get(0), CHANGES_PATH);
 		if (changes != null) {

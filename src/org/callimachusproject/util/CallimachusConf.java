@@ -91,7 +91,9 @@ public class CallimachusConf {
 		Map<String, String> map = getOriginRepositoryIDs();
 		map = new LinkedHashMap<String, String>(map);
 		for (String item : origins) {
-			if (!map.containsKey(item)) {
+			if (item == null || item.length() == 0 || !item.contains("://"))
+				throw new IllegalArgumentException("Invalid origin: " + item);
+			if (item != null && item.length() > 0 && !map.containsKey(item)) {
 				map.put(item, DEFAULT_REPOSITORY_ID);
 			}
 		}
@@ -120,6 +122,10 @@ public class CallimachusConf {
 		Iterator<Entry<String, String>> iter = map.entrySet().iterator();
 		while (iter.hasNext()) {
 			Entry<String, String> e = iter.next();
+			if (e.getKey() == null || e.getKey().length() == 0 || !e.getKey().contains("://"))
+				throw new IllegalArgumentException("Invalid origin: " + e.getKey());
+			if (e.getValue() == null || e.getValue().length() == 0)
+				throw new IllegalArgumentException("Invalid repositoryID: " + e.getValue());
 			sb.append(e.getKey()).append('#').append(e.getValue());
 			if (iter.hasNext()) {
 				sb.append(' ');

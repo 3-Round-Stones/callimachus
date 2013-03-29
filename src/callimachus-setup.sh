@@ -16,19 +16,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-### 
-# chkconfig: 345 85 60
-# description: Linked Data Management System
-# processname: callimachus
-### BEGIN INIT INFO
-# Provides:          callimachus
-# Required-Start:    $remote_fs $network $syslog
-# Required-Stop:     $remote_fs $syslog
-# Default-Start:     2 3 4 5
-# Default-Stop:      0 1 6
-# Short-Description: Linked Data Management System
-# Description:       Callimachus is a framework for data-driven applications based on Linked Data principles.
-### END INIT INFO
 
 # Author: James Leigh <james@3roundstones.com>
 
@@ -146,9 +133,9 @@ if [ -z "$JAVA_HOME" ] ; then
         JAVA=`dirname "$JAVA"`/"$link"
       fi
     done
-    HOME=`echo "$JAVA" | awk '{ print substr($1, 1, length($1)-9); }'`
-    if [ -d "$HOME" ] ; then
-      JAVA_HOME="$HOME"
+    JHOME=`echo "$JAVA" | awk '{ print substr($1, 1, length($1)-9); }'`
+    if [ -d "$JHOME" ] ; then
+      JAVA_HOME="$JHOME"
     else
       JAVA_HOME=`which java 2>/dev/null | awk '{ print substr($1, 1, length($1)-9); }'`
     fi
@@ -176,9 +163,9 @@ if [ -z "$JDK_HOME" ] ; then
         JAVAC=`dirname "$JAVAC"`/"$link"
       fi
     done
-    HOME=`echo "$JAVAC" | awk '{ print substr($1, 1, length($1)-10); }'`
-    if [ -d "$HOME" ] ; then
-      JDK_HOME="$HOME"
+    JHOME=`echo "$JAVAC" | awk '{ print substr($1, 1, length($1)-10); }'`
+    if [ -d "$JHOME" ] ; then
+      JDK_HOME="$JHOME"
     else
       JDK_HOME=`which javac 2>/dev/null | awk '{ print substr($1, 1, length($1)-10); }'`
     fi
@@ -259,7 +246,6 @@ if [ "$VERBOSE" != no ]; then
 fi
 
 exec "$JAVA_HOME/bin/java" \
-    -Duser.home="$BASEDIR" \
     -Djava.mail.properties="$MAIL" \
     -Dorg.callimachusproject.config.repository="$REPOSITORY_CONFIG" \
     -Dorg.callimachusproject.config.webapp="$(ls $BASEDIR/lib/$NAME-webapp*.car)" \

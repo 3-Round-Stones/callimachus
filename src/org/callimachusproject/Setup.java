@@ -25,6 +25,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
+import java.net.ConnectException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -204,7 +205,7 @@ public class Setup {
 							Reader reader = new InputStreamReader(System.in);
 							email = new BufferedReader(reader).readLine();
 						} else {
-							email = console.readLine("Enter the email address of the initial admin user: ");
+							email = console.readLine("\nEnter the email address of the initial admin user: ");
 						}
 						if (email != null && email.trim().length() < 0) {
 							email = null;
@@ -267,49 +268,21 @@ public class Setup {
 		if (!links.isEmpty()) {
 			System.err.println("Use this URL to assign a password");
 			System.err.println();
+			System.err.flush();
 			for (String url : links) {
 				System.out.println(url);
 			}
+			System.out.flush();
 			System.err.println();
 		}
-		if (launch != null) {
-			if (launch.length() > 0) {
-				final Process exec = Runtime.getRuntime().exec(launch);
-				new Thread() {
-					@Override
-					public void run() {
-						try {
-							InputStream in = exec.getInputStream();
-							InputStreamReader isr = new InputStreamReader(in);
-							BufferedReader br = new BufferedReader(isr);
-							String line = null;
-							while ((line = br.readLine()) != null)
-								System.out.println(line);
-						} catch (IOException ioe) {
-							logger.error(ioe.getMessage(), ioe);
-						}
-					}
-				}.start();
-				exec.getOutputStream().close();
-				InputStream stderr = exec.getErrorStream();
-				InputStreamReader isr = new InputStreamReader(stderr);
-				BufferedReader br = new BufferedReader(isr);
-				String line = null;
-				while ((line = br.readLine()) != null) {
-					System.err.println(line);
-				}
-				int ret = exec.waitFor();
-				if (ret == 0) {
-					if (!links.isEmpty() && Desktop.isDesktopSupported()) {
-				        Desktop desktop = Desktop.getDesktop();
-				        if (desktop.isSupported(Desktop.Action.BROWSE)) {
-				        	for (String url : links) {
-				        		desktop.browse(URI.create(url));
-				        	}
-				        }
-					}
-				}
+		String cmd = launch;
+		if (cmd != null) {
+			if (cmd.length() > 0) {
+				launch(cmd);
+				//Thread.sleep(5000);
+				waitUntilServing(conf);
 			}
+			openWebBrowser(links);
 		}
 		System.exit(0);
 	}
@@ -351,7 +324,7 @@ public class Setup {
 			}
 			if (email != null && email.length() > 0) {
 				for (String origin : webappOrigins) {
-					if (!setup.isAdminEmail(email, origin)) {
+					if (!setup.isRegisteredAdminEmail(email, origin)) {
 						changed |= setup.createAdmin(email, name, null, origin);
 						for (String group : groups) {
 							changed |= setup.addInvitedUserToGroup(email, group, origin);
@@ -481,6 +454,77 @@ public class Setup {
 		c1.export(g1);
 		c2.export(g2);
 		return ModelUtil.equals(g1, g2);
+	}
+
+	private void launch(String cmd) throws IOException {
+		final Process exec = Runtime.getRuntime().exec(cmd);
+		new Thread() {
+			@Override
+			public void run() {
+				try {
+					InputStream in = exec.getInputStream();
+					InputStreamReader isr = new InputStreamReader(in);
+					BufferedReader br = new BufferedReader(isr);
+					String line = null;
+					while ((line = br.readLine()) != null)
+						System.out.println(line);
+				} catch (IOException ioe) {
+					logger.error(ioe.getMessage(), ioe);
+				}
+			}
+		}.start();
+		new Thread() {
+			@Override
+			public void run() {
+				try {
+					exec.getOutputStream().close();
+					InputStream stderr = exec.getErrorStream();
+					InputStreamReader isr = new InputStreamReader(stderr);
+					BufferedReader br = new BufferedReader(isr);
+					String line = null;
+					while ((line = br.readLine()) != null) {
+						System.err.println(line);
+					}
+				} catch (IOException ioe) {
+					logger.error(ioe.getMessage(), ioe);
+				}
+			}
+		}.start();
+	}
+
+	private void waitUntilServing(final CallimachusConf conf)
+			throws InterruptedException {
+		for (int i = 0; i < 120; i++) {
+			try {
+				for (String origin : conf.getWebappOrigins()) {
+					readContent(new URL(origin + "/callimachus/scripts.js"));
+					readContent(new URL(origin + "/callimachus/styles.css"));
+				}
+				break;
+			} catch (ConnectException e) {
+				Thread.sleep(2000);
+				continue;
+			} catch (IOException e) {
+				break;
+			}
+		}
+	}
+
+	private void openWebBrowser(final List<String> links) throws IOException {
+		if (!links.isEmpty() && Desktop.isDesktopSupported()) {
+		    Desktop desktop = Desktop.getDesktop();
+		    if (desktop.isSupported(Desktop.Action.BROWSE)) {
+		    	for (String url : links) {
+		    		desktop.browse(URI.create(url));
+		    	}
+		    } else {
+		    	logger.debug("Browser not suported");
+		    }
+		} else if (links.isEmpty()) {
+			logger.debug("No outstanding invites for this email address");
+		} else {
+			logger.debug("Desktop not supported");
+		}
 	}
 
 }

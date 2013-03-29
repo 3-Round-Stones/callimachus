@@ -84,7 +84,7 @@ the repository. The script will ask for a password for the initial user. Execute
 a callimachus-start script located in the bin/ directory to start the server.
 
 On Linux run:
- $ bin/callimachus-install.sh
+ $ sudo bin/callimachus-install.sh
  $ bin/callimachus-setup.sh
 
 On Windows run:

@@ -146,7 +146,10 @@ public class CallimachusSetup {
 	private static final String CALLI_PASSWORD = CALLI + "passwordDigest";
 	private static final String CALLI_SECRET = CALLI + "secret";
 	private static final String PREFIX = "PREFIX calli:<" + CALLI + ">\n";
-	private static final String ASK_ADMIN_EMAIL = PREFIX + "ASK { </auth/groups/admin> calli:member [calli:email $email]}";
+	private static final String ASK_ADMIN_EMAIL = PREFIX + "ASK {\n" +
+			"</auth/groups/admin> calli:member ?user .\n" +
+			"?user calli:email $email\n" +
+			"FILTER NOT EXISTS { ?user a <types/InvitedUser> } }";
 	private static final String SELECT_DIGEST = PREFIX
 			+ "SELECT REDUCED ?digest ?authName ?authNamespace\n"
 			+ "WHERE { </> calli:authentication ?digest .\n" +
@@ -242,12 +245,12 @@ public class CallimachusSetup {
 		return modified;
 	}
 
-	public boolean isAdminEmail(String email, String origin) throws OpenRDFException, IOException {
+	public boolean isRegisteredAdminEmail(String email, String origin) throws OpenRDFException, IOException {
 		ObjectConnection con = repository.getConnection();
 		try {
 			ValueFactory vf = con.getValueFactory();
 			BooleanQuery qry = con.prepareBooleanQuery(QueryLanguage.SPARQL,
-					ASK_ADMIN_EMAIL, origin + "/");
+					ASK_ADMIN_EMAIL, webapp(origin, "").stringValue());
 			qry.setBinding("email", vf.createLiteral(email));
 			return qry.evaluate();
 		} finally {
@@ -504,7 +507,7 @@ public class CallimachusSetup {
 			final ObjectConnection con) throws OpenRDFException {
 		List<DigestManagerSupport> list = new ArrayList<DigestManagerSupport>();
 		TupleQueryResult results = con.prepareTupleQuery(QueryLanguage.SPARQL,
-				SELECT_DIGEST, origin + "/").evaluate();
+				SELECT_DIGEST, webapp(origin, "").stringValue()).evaluate();
 		try {
 			while (results.hasNext()) {
 				BindingSet result = results.next();

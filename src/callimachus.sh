@@ -184,9 +184,9 @@ if [ -z "$JAVA_HOME" ] ; then
         JAVA=`dirname "$JAVA"`/"$link"
       fi
     done
-    HOME=`echo "$JAVA" | awk '{ print substr($1, 1, length($1)-9); }'`
-    if [ -d "$HOME" ] ; then
-      JAVA_HOME="$HOME"
+    JHOME=`echo "$JAVA" | awk '{ print substr($1, 1, length($1)-9); }'`
+    if [ -d "$JHOME" ] ; then
+      JAVA_HOME="$JHOME"
     else
       JAVA_HOME=`which java 2>/dev/null | awk '{ print substr($1, 1, length($1)-9); }'`
     fi
@@ -214,9 +214,9 @@ if [ -z "$JDK_HOME" ] ; then
         JAVAC=`dirname "$JAVAC"`/"$link"
       fi
     done
-    HOME=`echo "$JAVAC" | awk '{ print substr($1, 1, length($1)-10); }'`
-    if [ -d "$HOME" ] ; then
-      JDK_HOME="$HOME"
+    JHOME=`echo "$JAVAC" | awk '{ print substr($1, 1, length($1)-10); }'`
+    if [ -d "$JHOME" ] ; then
+      JDK_HOME="$JHOME"
     else
       JDK_HOME=`which javac 2>/dev/null | awk '{ print substr($1, 1, length($1)-10); }'`
     fi
@@ -559,6 +559,7 @@ do_start()
     -Dorg.callimachusproject.config.webapp="$(ls $BASEDIR/lib/$NAME-webapp*.car)" \
     -classpath "$CLASSPATH" \
     -user "$DAEMON_USER" \
+    -Djava.awt.headless=true \
     -XX:OnOutOfMemoryError="kill %p" \
     $JSVC_OPTS $SSL_OPTS $JMXRMI_OPTS "$MAINCLASS" -q -b "$BASEDIR" -c "$CONFIG" $OPTS "$@"
 
@@ -673,6 +674,7 @@ do_dump() {
     -Duser.home="$BASEDIR" \
     -Djava.io.tmpdir="$TMPDIR" \
     -Djava.mail.properties="$MAIL" \
+    -Djava.awt.headless=true \
     -XX:OnOutOfMemoryError="kill -9 %p" \
     -classpath "$CLASSPATH:$JDK_HOME/lib/tools.jar:$JDK_HOME/../Classes/classes.jar" \
     -user "$DAEMON_USER" \
@@ -695,6 +697,7 @@ do_reset() {
     -Duser.home="$BASEDIR" \
     -Djava.io.tmpdir="$TMPDIR" \
     -Djava.mail.properties="$MAIL" \
+    -Djava.awt.headless=true \
     -XX:OnOutOfMemoryError="kill -9 %p" \
     -classpath "$CLASSPATH:$JDK_HOME/lib/tools.jar:$JDK_HOME/../Classes/classes.jar" \
     -user "$DAEMON_USER" \
@@ -716,6 +719,7 @@ do_run() {
     -Djava.mail.properties="$MAIL" \
     -Dorg.callimachusproject.config.repository="$REPOSITORY_CONFIG" \
     -Dorg.callimachusproject.config.webapp="$(ls $BASEDIR/lib/$NAME-webapp*.car)" \
+    -Djava.awt.headless=true \
     -XX:OnOutOfMemoryError="kill %p" \
     -classpath "$CLASSPATH" \
     -user "$DAEMON_USER" \

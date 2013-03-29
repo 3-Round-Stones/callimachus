@@ -342,7 +342,7 @@ public class CallimachusSetup {
 			ValueFactory vf = con.getValueFactory();
 			boolean modified = false;
 			URI space = webapp(origin, INVITED_USERS);
-			URI invitedUser = vf.createURI(space.stringValue(), username);
+			URI invitedUser = vf.createURI(space.stringValue(), slugify(email));
 			for (DigestManagerSupport digest : getDigestManagers(origin, con)) {
 				String users = digest.getCalliAuthNamespace().getResource().stringValue();
 				URI digestUser = vf.createURI(users, username);

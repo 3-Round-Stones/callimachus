@@ -99,7 +99,6 @@ public class SparqlStep implements XProcStep {
 	}
 
 	public void run() throws SaxonApiException {
-		runtime.reportStep(step);
 		if (queryPipe == null || !queryPipe.moreDocuments()) {
 			throw XProcException.dynamicError(6, step.getNode(),
 					"No query provided.");

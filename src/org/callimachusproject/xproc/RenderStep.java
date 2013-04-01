@@ -89,8 +89,6 @@ public class RenderStep implements XProcStep {
 	}
 
 	public void run() throws SaxonApiException {
-		runtime.reportStep(step);
-
 		if (templatePipe == null || !templatePipe.moreDocuments()) {
 			throw XProcException.dynamicError(6, step.getNode(),
 					"No template provided.");

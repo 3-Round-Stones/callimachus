@@ -44,10 +44,29 @@
 </xsl:template>
 
 <xsl:template match="d:link/@xl:href">
+    <xsl:variable name="url" select="." />
+    <xsl:variable name="uri">
+        <xsl:choose>
+            <xsl:when test="contains($url, '#')">
+                <xsl:value-of select="substring-before($url, '#')" />
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:value-of select="$url" />
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:variable>
+    <xsl:variable name="frag" select="substring-after($url, '#')" />
     <xsl:choose>
-        <xsl:when test="starts-with(.,concat(base-uri(/),'#')) or starts-with(.,concat(base-uri(/),'?view#'))">
+        <xsl:when test="$uri=base-uri(/) or $uri=concat(base-uri(/),'?view#')">
             <xsl:attribute name="linkend">
-                <xsl:value-of select="substring-after(., '#')" />
+                <xsl:value-of select="$frag" />
+            </xsl:attribute>
+        </xsl:when>
+        <xsl:when test="//*[@xml:id=$frag and ($uri=base-uri() or $uri=concat(base-uri(),'?view'))]">
+            <xsl:attribute name="linkend">
+                <xsl:call-template name="id">
+                    <xsl:with-param name="target" select="//*[@xml:id=$frag and ($uri=base-uri() or $uri=concat(base-uri(),'?view'))]" />
+                </xsl:call-template>
             </xsl:attribute>
         </xsl:when>
         <xsl:otherwise>

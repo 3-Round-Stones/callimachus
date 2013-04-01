@@ -68,9 +68,9 @@
                 var m = regex.exec(window.location.search);
                 return m ? decodeURIComponent(m[1]) : null;
             }
-            $('#fullname').val(parameter("fullname"));
             $('#email').val(parameter("email"));
             $('#username').val(parameter("email").replace(/@.*/,''));
+            $('#fullname').val(parameter("fullname") || $('#username').val());
             $("#form").validate({submitHandler: function(form) {
                 var username = $("#username").val();
                 var email = $('#email').val();

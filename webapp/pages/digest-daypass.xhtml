@@ -1,43 +1,61 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <html xmlns="http://www.w3.org/1999/xhtml">
-    <head>
-        <title>Daypass Request Form</title>
-        <script type="text/javascript">//<![CDATA[
-            jQuery(function($){
-                $('#form').submit(function() {
-                    document.getElementById("success").style.display = "none"
-                    jQuery.ajax({type: "POST", url: this.action,
-                        data: { "email": this.elements.email.value },
-                        success: function() {
-                            document.getElementById("success").style.display = "block"
-                        }
-                    });
-                    return false;
-                });
+<head>
+    <title>Daypass Request Form</title>
+    <script type="text/javascript">//<![CDATA[
+    jQuery(function($){
+        $('#body').val($('#body').val().replace(/@@REGISTRATION_URL@@/g, window.location.protocol + '//' + window.location.host + '/?register'));
+        $('#form').submit(function() {
+            document.getElementById("success").style.display = "none"
+            jQuery.ajax({type: "POST", url: this.action,
+                data: {
+                    "email": this.elements.email.value,
+                    "subject": this.elements.subject.value,
+                    "body": this.elements.body.value,
+                },
+                success: function() {
+                    document.getElementById("success").style.display = "block"
+                }
             });
-            // ]]>
-        </script>
-    </head>
-    <body>
-        <h1>Daypass Request Form</h1>
-        <p>You can request a temporary password by providing the e-mail address associated with your account.</p>
-        <form id="form" method="POST" action="?daypass">
-            <fieldset>
-                <div class="control-group">
-                    <label for="email" class="control-label">Account e-mail address</label>
-                    <div class="controls">
-                        <input type="email" name="email" id="email" />
-                    </div>
+            return false;
+        });
+    });
+    // ]]>
+    </script>
+</head>
+<body>
+    <h1>Daypass Request Form</h1>
+    <p>You can request a temporary password by providing the e-mail address associated with your account.</p>
+    <form id="form" method="POST" action="?daypass">
+        <fieldset>
+            <div class="control-group">
+                <label for="email" class="control-label">Account e-mail address</label>
+                <div class="controls">
+                    <input type="email" name="email" id="email" />
                 </div>
-                <div class="form-actions">
-                    <button type="submit" class="btn btn-primary">Request Password</button>
-                    <button type="button" onclick="history.back()" class="btn">Cancel</button>
-                </div>
-            </fieldset>
-        </form>
-        <div id="success" style="display:none">
-            <p>If the email address provided is on file, instructions have been sent.</p>
-            <p>Please follow the instruction sent in the email to proceed.</p>
-        </div>
-    </body>
+            </div>
+            <input name="subject" type="hidden" value="Account Registration" />
+            <textarea id="body" name="body" style="display:none">Hello,
+
+If you didn't ask us for a another invitation to register link, let us
+know right away. Reporting it is important because it helps us prevent
+fraudsters from stealing information.
+
+Use the link below to pick a password or other authentication options.
+
+@@REGISTRATION_URL@@
+
+Enjoy!
+</textarea>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Request Password</button>
+                <button type="button" onclick="history.back()" class="btn">Cancel</button>
+            </div>
+        </fieldset>
+    </form>
+    <div id="success" style="display:none">
+        <p>If the email address provided is on file, instructions have been sent.</p>
+        <p>Please follow the instruction sent in the email to proceed.</p>
+    </div>
+</body>
 </html>

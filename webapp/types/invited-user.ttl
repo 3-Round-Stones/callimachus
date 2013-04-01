@@ -43,27 +43,26 @@ rdfs:label a rdf:Property.
     calli:imports <java:java.net.URLEncoder>;
     calli:script """
         //# read form
-        var fullname = inviteForm.get('fullname')[0];
         var subject = inviteForm.get('subject')[0];
         var body = inviteForm.get('body')[0];
         if (!this.calliEmail)
             throw new BadRequest("Missing email");
-        if (!fullname)
-            throw new BadRequest("Missing fullname");
         if (!subject)
             throw new BadRequest("Missing subject");
         if (!body)
             throw new BadRequest("Missing message");
         if (body.indexOf('?register') < 0)
-            throw new BadRequest("Missing register URL is message body");
+            throw new BadRequest("Missing register URL in message body");
 
         //# create registration link
         var random = java.security.SecureRandom.getInstance("SHA1PRNG");
         var nonce = java.lang.Integer.toHexString(random.nextInt());
         var token = this.getSecretToken(nonce);
         var queryString = "?register&token=" + token + "&nonce=" + nonce +
-            "&email=" + encodeURIComponent(this.calliEmail) +
-            "&fullname=" + encodeURIComponent(fullname);
+            "&email=" + encodeURIComponent(this.calliEmail);
+        if (inviteForm.get('fullname')) {
+            queryString += "&fullname=" + encodeURIComponent(inviteForm.get('fullname')[0]);
+        }
         body = body.replace(/\\?register/g, queryString);
 
         //# email the link to the new user

@@ -284,17 +284,27 @@ rdfs:comment a rdf:Property.
             throw new BadRequest("Missing Email");
         var userEmail = userEmailForm.get("email")[0];
         var iter = this.FindUsersByEmail(userEmail).iterator();
-        if (!iter.hasNext()) {
-            println("No users with email " + userEmail + " found");
+        if (iter.hasNext()) {
+            while (iter.hasNext()) {
+                var user = iter.next();
+                var password = this.getDaypass(user);
+                var body = mail_digest_daypass_xhtml.RawConstruct(user);
+                body = body.replace(/@@PASSWORD@@/g, password);
+                user.sendMessage(body, user.rdfsLabel.iterator().next() + " <" + userEmail + ">");
+            }
+            java.lang.Thread.sleep(new java.util.Random().nextInt() % 1000 + 1000);
+        } else {
+            iter = this.FindInvitedUsersByEmail(userEmail).iterator();
+            if (iter.hasNext()) {
+                while (iter.hasNext()) {
+                    iter.next().PostUserInvite(userEmailForm);
+                }
+                java.lang.Thread.sleep(new java.util.Random().nextInt() % 1000 + 1000);
+            } else {
+                println("No users with email " + userEmail + " found");
+                java.lang.Thread.sleep(new java.util.Random().nextInt() % 2000 + 2000);
+            }
         }
-        while (iter.hasNext()) {
-            var user = iter.next();
-            var password = this.getDaypass(user);
-            var body = mail_digest_daypass_xhtml.RawConstruct(user);
-            body = body.replace(/@@PASSWORD@@/g, password);
-            user.sendMessage(body, user.rdfsLabel.iterator().next() + " <" + userEmail + ">");
-        }
-        java.lang.Thread.sleep(new java.util.Random().nextInt() % 2000 + 2000);
     """.
 
 :userEmailForm a owl:FunctionalProperty, owl:ObjectProperty;

@@ -48,7 +48,6 @@ import org.openrdf.model.vocabulary.OWL;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.model.vocabulary.RDFS;
 import org.openrdf.query.BindingSet;
-import org.openrdf.query.BooleanQuery;
 import org.openrdf.query.QueryLanguage;
 import org.openrdf.query.TupleQueryResult;
 import org.openrdf.query.algebra.evaluation.util.ValueComparator;
@@ -148,7 +147,7 @@ public class CallimachusSetup {
 	private static final String PREFIX = "PREFIX calli:<" + CALLI + ">\n";
 	private static final String ASK_ADMIN_EMAIL = PREFIX + "ASK {\n" +
 			"</auth/groups/admin> calli:member ?user .\n" +
-			"?user calli:email $email\n" +
+			"?user calli:email ?email\n" +
 			"FILTER NOT EXISTS { ?user a <types/InvitedUser> } }";
 	private static final String SELECT_DIGEST = PREFIX
 			+ "SELECT REDUCED ?digest ?authName ?authNamespace\n"
@@ -245,14 +244,13 @@ public class CallimachusSetup {
 		return modified;
 	}
 
-	public boolean isRegisteredAdminEmail(String email, String origin) throws OpenRDFException, IOException {
+	public boolean isRegisteredAdmin(String origin) throws OpenRDFException,
+			IOException {
 		ObjectConnection con = repository.getConnection();
 		try {
-			ValueFactory vf = con.getValueFactory();
-			BooleanQuery qry = con.prepareBooleanQuery(QueryLanguage.SPARQL,
-					ASK_ADMIN_EMAIL, webapp(origin, "").stringValue());
-			qry.setBinding("email", vf.createLiteral(email));
-			return qry.evaluate();
+			String base = webapp(origin, "").stringValue();
+			return con.prepareBooleanQuery(QueryLanguage.SPARQL,
+					ASK_ADMIN_EMAIL, base).evaluate();
 		} finally {
 			con.close();
 		}
@@ -268,7 +266,7 @@ public class CallimachusSetup {
 	 * @throws OpenRDFException
 	 * @throws IOException
 	 */
-	public boolean createAdmin(String email, String label, String comment,
+	public boolean inviteUser(String email, String label, String comment,
 			String origin) throws OpenRDFException, IOException {
 		validateEmail(email);
 		ObjectConnection con = repository.getConnection();
@@ -299,9 +297,6 @@ public class CallimachusSetup {
 			con.add(folder, vf.createURI(CALLI_HASCOMPONENT), subj);
 			if (email != null && email.length() > 2) {
 				con.add(subj, calliEmail, vf.createLiteral(email));
-			}
-			if (!con.hasStatement(admin, vf.createURI(CALLI_MEMBER), subj)) {
-				con.add(admin, vf.createURI(CALLI_MEMBER), subj);
 			}
 			con.setAutoCommit(true);
 			return true;

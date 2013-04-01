@@ -30,7 +30,7 @@
     <property name="jvmargs" value="-ea -server -mx512m -Dfile.encoding=UTF-8 -Duser.home=${home} -Djava.mail.properties=${mail} -Djava.awt.headless=true -Dcom.sun.management.jmxremote" />
     <property name="curl" value="curl" />
     <property name="curl.args" value="-fSs --digest http://localhost:8080/callimachus/1.0/?archive" />
-    <property name="setup.args" value="-s -c etc/callimachus.conf -g /auth/groups/super" />
+    <property name="setup.args" value="-c etc/callimachus.conf -g /auth/groups/super" />
     <property name="args" value="--pid ${pid} -c etc/callimachus.conf" />
 
     <target name="help">

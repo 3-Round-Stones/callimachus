@@ -18,12 +18,10 @@ package org.callimachusproject;
 
 import java.awt.Desktop;
 import java.io.BufferedReader;
-import java.io.Console;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Reader;
 import java.io.StringReader;
 import java.net.ConnectException;
 import java.net.MalformedURLException;
@@ -53,6 +51,7 @@ import org.callimachusproject.repository.CalliRepository;
 import org.callimachusproject.setup.CallimachusSetup;
 import org.callimachusproject.util.BackupTool;
 import org.callimachusproject.util.CallimachusConf;
+import org.callimachusproject.util.DomainNameSystemResolver;
 import org.callimachusproject.util.SystemProperties;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Graph;
@@ -85,6 +84,8 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class Setup {
+	private static final String ADMIN_GROUP = "/auth/groups/admin";
+
 	public static final String NAME = Version.getInstance().getVersion();
 
 	private static final CommandSet commands = new CommandSet(NAME);
@@ -153,6 +154,7 @@ public class Setup {
 	private BackupTool backup;
 	private String name;
 	private String email;
+	private String defaultEmail;
 	private String username;
 	private char[] password;
 	private String launch;
@@ -200,22 +202,14 @@ public class Setup {
 						CallimachusSetup.validateName(username);
 					}
 					if (email == null || email.length() < 1) {
-						Console console = System.console();
-						if (console == null) {
-							Reader reader = new InputStreamReader(System.in);
-							email = new BufferedReader(reader).readLine();
-						} else {
-							email = console.readLine("\nEnter the email address of the initial admin user: ");
-						}
-						if (email != null && email.trim().length() < 0) {
-							email = null;
-						}
-						if (email != null) {
-							CallimachusSetup.validateEmail(email);
-						}
+						email = null;
+						defaultEmail = System.getProperty("user.name") + "@" + DomainNameSystemResolver.getInstance().getCanonicalLocalHostName();
+						CallimachusSetup.validateEmail(defaultEmail);
 					}
 					if (email != null && (name == null || name.trim().length() < 0)) {
 						name = email.replaceAll("@.*", "").replaceAll("\\W+", " ").trim();
+					} else if (name == null || name.trim().length() < 0) {
+						name = System.getProperty("user.name");
 					}
 					if (line.has("group")) {
 						groups.addAll(Arrays.asList(line.getAll("group")));
@@ -322,22 +316,25 @@ public class Setup {
 			for (String origin : webappOrigins) {
 				changed |= setup.finalizeWebappOrigin(origin);
 			}
-			if (email != null && email.length() > 0) {
+			if (email != null || defaultEmail != null) {
 				for (String origin : webappOrigins) {
-					if (!setup.isRegisteredAdminEmail(email, origin)) {
-						changed |= setup.createAdmin(email, name, null, origin);
+					if (email != null || !setup.isRegisteredAdmin(origin)) {
+						String e = email == null ? defaultEmail : email;
+						changed |= setup.inviteUser(e, name, null, origin);
+						changed |= setup.addInvitedUserToGroup(e, ADMIN_GROUP, origin);
 						for (String group : groups) {
-							changed |= setup.addInvitedUserToGroup(email, group, origin);
+							changed |= setup.addInvitedUserToGroup(e, group,
+									origin);
 						}
 						if (password == null || password.length < 1
 								|| username == null || username.length() < 1) {
-							Set<String> reg = setup.getUserRegistrationLinks(email,
+							Set<String> reg = setup.getUserRegistrationLinks(e,
 									origin);
 							synchronized (links) {
 								links.addAll(reg);
 							}
 						} else {
-							changed |= setup.registerDigestUser(email, username,
+							changed |= setup.registerDigestUser(e, username,
 									password, origin);
 						}
 					}
@@ -511,7 +508,11 @@ public class Setup {
 	}
 
 	private void openWebBrowser(final List<String> links) throws IOException {
-		if (!links.isEmpty() && Desktop.isDesktopSupported()) {
+		if (links.isEmpty()) {
+			logger.debug("No outstanding invites for this email address");
+		} else if ("root".equals(System.getProperty("user.name"))) {
+			logger.debug("Not going to open a Web browser as root");
+		} else if (Desktop.isDesktopSupported()) {
 		    Desktop desktop = Desktop.getDesktop();
 		    if (desktop.isSupported(Desktop.Action.BROWSE)) {
 		    	for (String url : links) {
@@ -520,8 +521,6 @@ public class Setup {
 		    } else {
 		    	logger.debug("Browser not suported");
 		    }
-		} else if (links.isEmpty()) {
-			logger.debug("No outstanding invites for this email address");
 		} else {
 			logger.debug("Desktop not supported");
 		}

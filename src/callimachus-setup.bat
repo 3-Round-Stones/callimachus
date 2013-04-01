@@ -187,7 +187,7 @@ goto setStartArgs
 
 rem Execute Java with the applicable properties
 FOR /F "tokens=1 delims=" %%A in ('dir /b lib\callimachus-webapp*.car') do SET "CAR_FILE=%%A"
-"%JAVA_HOME%\bin\java" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.mail.properties=%MAIL%" "-Dorg.callimachusproject.config.repository=%REPOSITORY_CONFIG%" "-Dorg.callimachusproject.config.webapp=lib\%CAR_FILE%"  -classpath "%CLASSPATH%" -XX:OnOutOfMemoryError="taskkill /F /PID %%p" %JAVA_OPTS% %MAINCLASS% -b "%BASEDIR%" -c "%CONFIG%" -k "%BASEDIR%\backups" -e "%EMAIL%" -l "cmd.exe /c bin\%NAME%-start.bat %CMD_LINE_ARGS%
+"%JAVA_HOME%\bin\java" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.mail.properties=%MAIL%" "-Dorg.callimachusproject.config.repository=%REPOSITORY_CONFIG%" "-Dorg.callimachusproject.config.webapp=lib\%CAR_FILE%"  -classpath "%CLASSPATH%" -XX:OnOutOfMemoryError="taskkill /F /PID %%p" %JAVA_OPTS% %MAINCLASS% -b "%BASEDIR%" -c "%CONFIG%" -k "%BASEDIR%\backups" -e -l "cmd.exe /c bin\%NAME%-start.bat %CMD_LINE_ARGS%
 goto end
 
 :end

@@ -41,6 +41,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SetupTool {
+	private static final String ADMIN_GROUP = "/auth/groups/admin";
 	private static final String REALM_TYPE = "types/Realm";
 	private static final String FOLDER_TYPE = "types/Folder";
 	private static final String CALLI = "http://callimachusproject.org/rdf/2009/framework#";
@@ -256,7 +257,8 @@ public class SetupTool {
 			throws IOException, OpenRDFException, MessagingException,
 			NamingException, GeneralSecurityException {
 		CallimachusSetup setup = new CallimachusSetup(repository);
-		setup.createAdmin(email, label, comment, webappOrigin);
+		setup.inviteUser(email, label, comment, webappOrigin);
+		setup.addInvitedUserToGroup(email, ADMIN_GROUP, webappOrigin);
 		Set<String> links = setup.getUserRegistrationLinks(email, webappOrigin);
 		for (String link : links) {
 			String emailBody;

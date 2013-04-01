@@ -72,26 +72,27 @@ or checkout the Subversion repository.
 If you download a ZIP archive of a release from http://callimachusproject.org/, 
 extract it into a new directory. Copy etc/callimachus-defaults.conf to
 etc/callimachus.conf; change the ORIGIN and PORT to the be the same as the
-hostname and port (if not port 80); add an initial user as instructed. Be sure
-to remove the preceding comment character ('#') in the .conf file.
+hostname and port (if not port 80). Be sure to remove the preceding comment
+character ('#') in the .conf file.
 
 To register a Callimachus daemon with the Linux system (to stop Callimachus
 on machine shut down) run the bin/callimachus-install.sh script. The
 Callimachus daemon is only available for Linux.
 
 Execute a callimachus-setup script located in the bin/ directory to initialize
-the repository. The script will ask for a password for the initial user. Execute
-a callimachus-start script located in the bin/ directory to start the server.
+the repository. Open your Web browser to http://localhost:8080/ to access the
+service. Execute a callimachus-stop script located in the bin/ directory to
+stop the server. To start the server again use the provided start script.
 
-On Linux run:
- $ sudo bin/callimachus-install.sh
+On Linux server run (as root):
+ # bin/callimachus-install.sh
+ # bin/callimachus-setup.sh
+
+On Linux or Mac desktop run:
  $ bin/callimachus-setup.sh
 
-On Windows run:
+On Windows desktop run:
  # bin/callimachus-setup.bat
-
-On Mac run:
- $ bin/callimachus-setup.sh
 
 To monitor the activity of the server watch the log/callimachus.log.0 file for
 log messages. Windows users may find the callimachus-log.bat script useful to

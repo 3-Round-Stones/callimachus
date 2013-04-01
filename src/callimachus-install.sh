@@ -102,9 +102,9 @@ if [ -z "$JAVA_HOME" ] ; then
         JAVA=`dirname "$JAVA"`/"$link"
       fi
     done
-    HOME=`echo "$JAVA" | awk '{ print substr($1, 1, length($1)-9); }'`
-    if [ -d "$HOME" ] ; then
-      JAVA_HOME="$HOME"
+    JHOME=`echo "$JAVA" | awk '{ print substr($1, 1, length($1)-9); }'`
+    if [ -d "$JHOME" ] ; then
+      JAVA_HOME="$JHOME"
     else
       JAVA_HOME=`which java 2>/dev/null | awk '{ print substr($1, 1, length($1)-9); }'`
     fi
@@ -132,9 +132,9 @@ if [ -z "$JDK_HOME" ] ; then
         JAVAC=`dirname "$JAVAC"`/"$link"
       fi
     done
-    HOME=`echo "$JAVAC" | awk '{ print substr($1, 1, length($1)-10); }'`
-    if [ -d "$HOME" ] ; then
-      JDK_HOME="$HOME"
+    JHOME=`echo "$JAVAC" | awk '{ print substr($1, 1, length($1)-10); }'`
+    if [ -d "$JHOME" ] ; then
+      JDK_HOME="$JHOME"
     else
       JDK_HOME=`which javac 2>/dev/null | awk '{ print substr($1, 1, length($1)-10); }'`
     fi

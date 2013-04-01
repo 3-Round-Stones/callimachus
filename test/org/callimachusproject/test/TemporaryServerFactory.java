@@ -38,6 +38,7 @@ import org.openrdf.rio.Rio;
 import org.openrdf.rio.helpers.StatementCollector;
 
 public class TemporaryServerFactory {
+	private static final String ADMIN_GROUP = "/auth/groups/admin";
 	private static int MIN_PORT = 49152;
 	private static int MAX_PORT = 65535;
 	private static final String CHANGES_PATH = "../changes/";
@@ -248,7 +249,8 @@ public class TemporaryServerFactory {
 			setup.createWebappOrigin(origin);
 			setup.finalizeWebappOrigin(origin);
 			String username = email.substring(0, email.indexOf('@'));
-			setup.createAdmin(email, username, null, origin);
+			setup.inviteUser(email, username, null, origin);
+			setup.addInvitedUserToGroup(email, ADMIN_GROUP, origin);
 			setup.registerDigestUser(email, username, password, origin);
 			repository.shutDown();
 			manager.shutDown();

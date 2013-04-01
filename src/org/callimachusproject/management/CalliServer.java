@@ -887,13 +887,14 @@ public class CalliServer implements CalliServerMXBean {
 	private synchronized WebServer createServer() throws OpenRDFException,
 			IOException, NoSuchAlgorithmException {
 		WebServer server = new WebServer(serverCacheDir);
+		boolean first = true;
 		for (SetupRealm so : getRealms()) {
-			boolean first = repositories.isEmpty();
 			String origin = so.getOrigin();
 			server.addOrigin(origin, getRepository(so.getRepositoryID()));
 			HttpHost host = URIUtils.extractHost(java.net.URI.create(so.getRealm()));
 			HTTPObjectClient.getInstance().setProxy(host, server);
 			if (first) {
+				first = false;
 				CalliRepository repo = getRepository(so.getRepositoryID());
 				String pipe = repo.getCallimachusUrl(so.getWebappOrigin(), ERROR_XPL_PATH);
 				if (pipe == null)

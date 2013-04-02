@@ -6,12 +6,26 @@
 
 <xsl:template match="@*|node()">
     <xsl:copy>
+        <xsl:if test="self::* and base-uri(.)!=base-uri(..) and not(@xml:id)">
+            <xsl:attribute name="xml:id">
+                <xsl:call-template name="id">
+                    <xsl:with-param name="target" select="." />
+                </xsl:call-template>
+            </xsl:attribute>
+        </xsl:if>
         <xsl:apply-templates select="@*|node()"/>
     </xsl:copy>
 </xsl:template>
 
 <xsl:template match="d:preface/d:article|d:partintro/d:article|d:article/d:article|d:chapter/d:article|d:appendix/d:article|d:section/d:article|d:topic/d:article">
     <section>
+        <xsl:if test="base-uri(.)!=base-uri(..) and not(@xml:id)">
+            <xsl:attribute name="xml:id">
+                <xsl:call-template name="id">
+                    <xsl:with-param name="target" select="." />
+                </xsl:call-template>
+            </xsl:attribute>
+        </xsl:if>
         <xsl:apply-templates select="@*|node()" />
     </section>
 </xsl:template>
@@ -47,25 +61,35 @@
     <xsl:variable name="url" select="." />
     <xsl:variable name="uri">
         <xsl:choose>
+            <xsl:when test="contains($url, '?')">
+                <xsl:value-of select="substring-before($url, '?')" />
+            </xsl:when>
             <xsl:when test="contains($url, '#')">
                 <xsl:value-of select="substring-before($url, '#')" />
             </xsl:when>
             <xsl:otherwise>
-                <xsl:value-of select="$url" />
+                <xsl:value-of select="string($url)" />
             </xsl:otherwise>
         </xsl:choose>
     </xsl:variable>
     <xsl:variable name="frag" select="substring-after($url, '#')" />
     <xsl:choose>
-        <xsl:when test="$uri=base-uri(/) or $uri=concat(base-uri(/),'?view#')">
+        <xsl:when test="$uri=base-uri(/)">
             <xsl:attribute name="linkend">
                 <xsl:value-of select="$frag" />
             </xsl:attribute>
         </xsl:when>
-        <xsl:when test="//*[@xml:id=$frag and ($uri=base-uri() or $uri=concat(base-uri(),'?view'))]">
+        <xsl:when test="//*[@xml:id=$frag and $uri=base-uri()]">
             <xsl:attribute name="linkend">
                 <xsl:call-template name="id">
-                    <xsl:with-param name="target" select="//*[@xml:id=$frag and ($uri=base-uri() or $uri=concat(base-uri(),'?view'))]" />
+                    <xsl:with-param name="target" select="(//*[@xml:id=$frag and $uri=base-uri()])[1]" />
+                </xsl:call-template>
+            </xsl:attribute>
+        </xsl:when>
+        <xsl:when test="string-length($frag)=0 and //*[$uri=base-uri()]">
+            <xsl:attribute name="linkend">
+                <xsl:call-template name="id">
+                    <xsl:with-param name="target" select="(//*[$uri=base-uri()])[1]" />
                 </xsl:call-template>
             </xsl:attribute>
         </xsl:when>
@@ -79,13 +103,24 @@
     <xsl:param name="target" />
     <xsl:variable name="id" select="$target/@xml:id" />
     <xsl:variable name="preceding" select="count($target/preceding::*[@xml:id = $id])" />
+    <xsl:variable name="title" select="replace(normalize-space($target/d:title|$target/d:info/d:title),'\W','_')" />
+    <xsl:variable name="precedingTitle" select="count($target/preceding::d:title[replace(normalize-space(),'\W','_')=$title])" />
     
     <xsl:choose>
-        <xsl:when test="$preceding != 0">
+        <xsl:when test="$id and 0!=$preceding">
             <xsl:value-of select="concat($id, $preceding)" />
         </xsl:when>
-        <xsl:otherwise>
+        <xsl:when test="$id">
             <xsl:value-of select="$id" />
+        </xsl:when>
+        <xsl:when test="$title and 0!=$precedingTitle">
+            <xsl:value-of select="concat($title, $precedingTitle)" />
+        </xsl:when>
+        <xsl:when test="$title">
+            <xsl:value-of select="$title" />
+        </xsl:when>
+        <xsl:otherwise>
+            <xsl:value-of select="generate-id($target)" />
         </xsl:otherwise>
     </xsl:choose>
 </xsl:template>

@@ -162,14 +162,14 @@ xmlns="http://www.w3.org/1999/xhtml" xmlns:xhtml="http://www.w3.org/1999/xhtml" 
             </xsl:otherwise>
         </xsl:choose>
     </xsl:variable>
-    <xsl:if test="$id=replace(normalize-space(),'\W','_')">
+    <xsl:if test="not(parent::d:info/../@xml:id) and not(../@xml:id)">
         <a name="{$id}" />
     </xsl:if>
     <xsl:apply-templates mode="heading-prefix" select="." />
     <xsl:apply-templates />
     <xsl:if test="../.. and base-uri(.)!=base-uri(../..) or parent::d:info and base-uri(.)!=base-uri(parent::d:info/../..)">
         <xsl:text> </xsl:text>
-        <a href="{concat(base-uri(),'?view#', $id)}" class="anchor">#</a>
+        <a href="{concat(base-uri(),'?view')}" class="anchor">¶</a>
     </xsl:if>
 </xsl:template>
 

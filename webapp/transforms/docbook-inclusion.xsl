@@ -74,10 +74,13 @@
     </xsl:variable>
     <xsl:variable name="frag" select="substring-after($url, '#')" />
     <xsl:choose>
-        <xsl:when test="$uri=base-uri(/)">
+        <xsl:when test="$frag and $uri=base-uri(/)">
             <xsl:attribute name="linkend">
                 <xsl:value-of select="$frag" />
             </xsl:attribute>
+        </xsl:when>
+        <xsl:when test="$uri=base-uri(/)">
+            <xsl:copy />
         </xsl:when>
         <xsl:when test="//*[@xml:id=$frag and $uri=base-uri()]">
             <xsl:attribute name="linkend">

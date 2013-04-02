@@ -258,16 +258,16 @@ public class CallimachusSetup {
 
 	/**
 	 * Creates (or updates email) the given user.
+	 * 
 	 * @param email
-	 * @param label
-	 * @param comment
-	 * @param origin that contains a Callimachus webapp
+	 * @param origin
+	 *            that contains a Callimachus webapp
 	 * @return if the RDF store was modified
 	 * @throws OpenRDFException
 	 * @throws IOException
 	 */
-	public boolean inviteUser(String email, String label, String comment,
-			String origin) throws OpenRDFException, IOException {
+	public boolean inviteUser(String email, String origin)
+			throws OpenRDFException, IOException {
 		validateEmail(email);
 		ObjectConnection con = repository.getConnection();
 		try {
@@ -284,14 +284,7 @@ public class CallimachusSetup {
 			con.add(subj, RDF.TYPE, webapp(origin, INVITED_USER_TYPE));
 			con.add(subj, RDF.TYPE, vf.createURI(CALLI_PARTY));
 			con.add(subj, RDF.TYPE, vf.createURI(CALLI_USER));
-			if (label == null || label.length() == 0) {
-				con.add(subj, RDFS.LABEL, vf.createLiteral(email));
-			} else {
-				con.add(subj, RDFS.LABEL, vf.createLiteral(label));
-			}
-			if (comment != null && comment.length() > 0) {
-				con.add(subj, RDFS.COMMENT, vf.createLiteral(comment));
-			}
+			con.add(subj, RDFS.LABEL, vf.createLiteral(email));
 			con.add(subj, vf.createURI(CALLI_SUBSCRIBER), power);
 			con.add(subj, vf.createURI(CALLI_ADMINISTRATOR), admin);
 			con.add(folder, vf.createURI(CALLI_HASCOMPONENT), subj);

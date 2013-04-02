@@ -249,7 +249,7 @@ public class TemporaryServerFactory {
 			setup.createWebappOrigin(origin);
 			setup.finalizeWebappOrigin(origin);
 			String username = email.substring(0, email.indexOf('@'));
-			setup.inviteUser(email, username, null, origin);
+			setup.inviteUser(email, origin);
 			setup.addInvitedUserToGroup(email, ADMIN_GROUP, origin);
 			setup.registerDigestUser(email, username, password, origin);
 			repository.shutDown();

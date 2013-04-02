@@ -252,12 +252,12 @@ public class SetupTool {
 		}
 	}
 
-	public synchronized void inviteAdminUser(String email, String label,
-			String comment, String subject, String body, String webappOrigin)
-			throws IOException, OpenRDFException, MessagingException,
-			NamingException, GeneralSecurityException {
+	public synchronized void inviteAdminUser(String email, String subject,
+			String body, String webappOrigin) throws IOException,
+			OpenRDFException, MessagingException, NamingException,
+			GeneralSecurityException {
 		CallimachusSetup setup = new CallimachusSetup(repository);
-		setup.inviteUser(email, label, comment, webappOrigin);
+		setup.inviteUser(email, webappOrigin);
 		setup.addInvitedUserToGroup(email, ADMIN_GROUP, webappOrigin);
 		Set<String> links = setup.getUserRegistrationLinks(email, webappOrigin);
 		for (String link : links) {
@@ -267,8 +267,7 @@ public class SetupTool {
 			} else {
 				emailBody = body + "\n" + link;
 			}
-			new Mailer().sendMessage(subject + "\n" + emailBody,
-					label + " <" + email + ">");
+			new Mailer().sendMessage(subject + "\n" + emailBody, email);
 		}
 	}
 

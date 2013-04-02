@@ -102,8 +102,6 @@ public class Setup {
 				.desc("Create the given user");
 		commands.option("g", "group").arg("group path")
 				.desc("Add the new user to this group (in addition to the admin group)");
-		commands.option("n", "name").arg("name")
-				.desc("If creating a new user use this full name");
 		commands.option("e", "email").optional("addr")
 				.desc("If creating a new user use this email address");
 		commands.option("l", "launch").optional("command")
@@ -152,7 +150,6 @@ public class Setup {
 	private File confFile;
 	private File basedir;
 	private BackupTool backup;
-	private String name;
 	private String email;
 	private String defaultEmail;
 	private String username;
@@ -189,7 +186,6 @@ public class Setup {
 					backup = new BackupTool(new File(line.get("backups")));
 				}
 				if (line.has("user") || line.has("email")) {
-					this.name = line.get("name");
 					this.email = line.get("email");
 					String u = line.get("user");
 					if (u != null) {
@@ -205,11 +201,6 @@ public class Setup {
 						email = null;
 						defaultEmail = System.getProperty("user.name") + "@" + DomainNameSystemResolver.getInstance().getCanonicalLocalHostName();
 						CallimachusSetup.validateEmail(defaultEmail);
-					}
-					if (email != null && (name == null || name.trim().length() < 0)) {
-						name = email.replaceAll("@.*", "").replaceAll("\\W+", " ").trim();
-					} else if (name == null || name.trim().length() < 0) {
-						name = System.getProperty("user.name");
 					}
 					if (line.has("group")) {
 						groups.addAll(Arrays.asList(line.getAll("group")));
@@ -320,7 +311,7 @@ public class Setup {
 				for (String origin : webappOrigins) {
 					if (email != null || !setup.isRegisteredAdmin(origin)) {
 						String e = email == null ? defaultEmail : email;
-						changed |= setup.inviteUser(e, name, null, origin);
+						changed |= setup.inviteUser(e, origin);
 						changed |= setup.addInvitedUserToGroup(e, ADMIN_GROUP, origin);
 						for (String group : groups) {
 							changed |= setup.addInvitedUserToGroup(e, group,

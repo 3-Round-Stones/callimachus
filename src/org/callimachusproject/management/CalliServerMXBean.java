@@ -62,34 +62,40 @@ public interface CalliServerMXBean {
 
 	String[] getAvailableRepositoryTypes() throws IOException;
 
-	Map<String, String> getRepositoryProperties() throws IOException, OpenRDFException;
+	Map<String, String> getRepositoryProperties() throws IOException,
+			OpenRDFException;
 
-	void setRepositoryProperties(Map<String,String> properties) throws IOException, OpenRDFException;
+	void setRepositoryProperties(Map<String, String> properties)
+			throws IOException, OpenRDFException;
 
 	String[] getWebappOrigins() throws IOException;
 
 	SetupRealm[] getRealms() throws IOException, OpenRDFException;
 
-	Map<String, String> getAuthenticationManagers() throws OpenRDFException, IOException;
+	Map<String, String> getAuthenticationManagers() throws OpenRDFException,
+			IOException;
 
-	void setupWebappOrigin(String webappOrigin, String repositoryID) throws Exception;
+	void setupWebappOrigin(String webappOrigin, String repositoryID)
+			throws Exception;
 
 	void ignoreWebappOrigin(String webappOrigin) throws Exception;
 
 	void setupRealm(String realm, String webappOrigin) throws Exception;
 
-	void createResource(String rdf, String systemId, String type) throws Exception;
+	void createResource(String rdf, String systemId, String type)
+			throws Exception;
 
-	void addAuthentication(String realm, String authenticationManager) throws Exception;
+	void addAuthentication(String realm, String authenticationManager)
+			throws Exception;
 
-	void removeAuthentication(String realm, String authenticationManager) throws Exception;
+	void removeAuthentication(String realm, String authenticationManager)
+			throws Exception;
 
 	String[] getDigestEmailAddresses(String webappOrigin)
 			throws OpenRDFException, IOException;
 
-	void inviteAdminUser(String email, String username, String label,
-			String comment, String subject, String body, String webappOrigin)
-			throws Exception;
+	void inviteAdminUser(String email, String subject, String body,
+			String webappOrigin) throws Exception;
 
 	boolean registerDigestUser(String email, String password,
 			String webappOrigin) throws OpenRDFException, IOException;

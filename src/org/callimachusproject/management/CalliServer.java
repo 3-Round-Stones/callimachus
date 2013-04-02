@@ -653,14 +653,12 @@ public class CalliServer implements CalliServerMXBean {
 		return getSetupTool(webappOrigin).getDigestEmailAddresses(webappOrigin);
 	}
 
-	public void inviteAdminUser(final String email, final String username,
-			final String label, final String comment, final String subject,
+	public void inviteAdminUser(final String email, final String subject,
 			final String body, final String webappOrigin) throws Exception {
 		submit(new Callable<Void>() {
 			public Void call() throws Exception {
 				SetupTool tool = getSetupTool(webappOrigin);
-				tool.inviteAdminUser(email, label, comment, subject, body,
-						webappOrigin);
+				tool.inviteAdminUser(email, subject, body, webappOrigin);
 				String repositoryID = tool.getRepositoryID();
 				CalliRepository repository = getRepository(repositoryID);
 				ObjectRepository object = repository.getDelegate();

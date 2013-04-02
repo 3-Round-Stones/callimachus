@@ -93,6 +93,11 @@
                 </xsl:call-template>
             </xsl:attribute>
         </xsl:when>
+        <xsl:when test="//*[$uri=base-uri()]">
+            <xsl:attribute name="linkend">
+                <xsl:value-of select="$frag" />
+            </xsl:attribute>
+        </xsl:when>
         <xsl:otherwise>
             <xsl:copy />
         </xsl:otherwise>

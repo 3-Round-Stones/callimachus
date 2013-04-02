@@ -167,7 +167,7 @@ public class TermFactoryImpl extends TermFactory {
 	private String canonicalize(String iri) {
 		try {
 			java.net.URI net = new java.net.URI(iri);
-			net.normalize();
+			net = net.normalize();
 			String scheme = net.getScheme();
 			if (scheme != null) {
 				scheme = scheme.toLowerCase();
@@ -181,9 +181,24 @@ public class TermFactoryImpl extends TermFactory {
 			String auth = net.getAuthority();
 			if (auth != null) {
 				auth = auth.toLowerCase();
+				if (auth.endsWith(":")) {
+					auth = auth.substring(0, auth.length() - 1);
+				} else if ("http".equals(scheme) && auth.endsWith(":80")) {
+					auth = auth.substring(0, auth.length() - 3);
+				} else if ("https".equals(scheme) && auth.endsWith(":443")) {
+					auth = auth.substring(0, auth.length() - 4);
+				}
 			}
 			String qs = net.getRawQuery();
-			net = new java.net.URI(scheme, auth, net.getPath(), null, null);
+			String path = net.getPath();
+			if (path == null || "".equals(path)) {
+				path = "/";
+			} else {
+				while (path.startsWith("/../")) {
+					path = path.substring(3);
+				}
+			}
+			net = new java.net.URI(scheme, auth, path, null, null);
 			StringBuilder sb = new StringBuilder(net.toASCIIString());
 			if (qs != null) {
 				sb.append('?').append(qs);

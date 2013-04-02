@@ -17,7 +17,7 @@ window.calli.slugify = function(label) {
     if (!name.match(/[a-z][A-Z]/)) {
         name = name.toLowerCase();
     }
-    return name.replace(/\s+/g, '+').replace(/[^\w\+\-\_\.\!\~\*\'\(\);\,\&\=\$\[\]]+/g,'_');
+    return name.replace(/\s+/g, '+').replace(/[^\w\+\-\_\.\!\~\*\'\(\);\,\&\=\$\[\]]+/g,'_').replace(/^_+/,'').replace(/_+$/,'');
 };
 
 function removeDiacritics(str) {

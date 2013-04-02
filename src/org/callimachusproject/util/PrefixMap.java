@@ -50,6 +50,42 @@ public class PrefixMap<V> extends AbstractMap<String, V> implements Cloneable,
 		return entry.getValue();
 	}
 
+	/**
+	 * Returns the entry with the longest key which the specified string starts
+	 * with, or {@code null} if this map contains no prefix mapping for the
+	 * specified string.
+	 * 
+	 * <p>
+	 * More formally, if this map contains a mapping from a key {@code k} to a
+	 * value {@code v} such that {@code string}
+	 * {@link String#startsWith(String)} {@code k}, then this method returns
+	 * {@code k} and {@code v}; otherwise it returns {@code null}. Where
+	 * {@code k} has the highest {@link String#length()} value of the matching
+	 * {@code k}.
+	 * 
+	 * @throws ClassCastException
+	 *             if the specified key cannot be compared with the keys
+	 *             currently in the map
+	 * @throws NullPointerException
+	 *             if the specified string is null
+	 */
+	public Entry<String, V> getClosestEntry(String string) {
+		Entry<String, V> entry = map.floorEntry(string);
+		if (entry == null)
+			return null;
+		String key = entry.getKey();
+		if (string == key || string.startsWith(key))
+			return entry;
+		if (string == null || string.length() == 0)
+			return null;
+		int idx = 0;
+		while (idx < string.length() && idx < key.length()
+				&& string.charAt(idx) == key.charAt(idx)) {
+			idx++;
+		}
+		return getClosestEntry(string.substring(0, idx));
+	}
+
 	public V get(Object key) {
 		return map.get(key);
 	}
@@ -92,23 +128,6 @@ public class PrefixMap<V> extends AbstractMap<String, V> implements Cloneable,
 
 	public Set<java.util.Map.Entry<String, V>> entrySet() {
 		return map.entrySet();
-	}
-
-	private Entry<String, V> getClosestEntry(String string) {
-		Entry<String, V> entry = map.floorEntry(string);
-		if (entry == null)
-			return null;
-		String key = entry.getKey();
-		if (string == key || string.startsWith(key))
-			return entry;
-		if (string == null || string.length() == 0)
-			return null;
-		int idx = 0;
-		while (idx < string.length() && idx < key.length()
-				&& string.charAt(idx) == key.charAt(idx)) {
-			idx++;
-		}
-		return getClosestEntry(string.substring(0, idx));
 	}
 
 }

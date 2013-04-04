@@ -60,7 +60,7 @@ public interface CalliServerMXBean {
 
 	String[] getRepositoryIDs() throws OpenRDFException;
 
-	String[] getAvailableRepositoryTypes() throws IOException;
+	String[] getAvailableRepositoryTypes() throws IOException, OpenRDFException;
 
 	Map<String, String> getRepositoryProperties() throws IOException,
 			OpenRDFException;

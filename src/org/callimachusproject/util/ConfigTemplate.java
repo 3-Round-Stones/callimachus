@@ -1,5 +1,7 @@
 package org.callimachusproject.util;
 
+import static org.openrdf.repository.config.RepositoryConfigSchema.REPOSITORYTYPE;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,6 +16,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,6 +25,7 @@ import org.openrdf.model.Graph;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
+import org.openrdf.model.Value;
 import org.openrdf.model.impl.GraphImpl;
 import org.openrdf.model.util.GraphUtil;
 import org.openrdf.model.util.ModelUtil;
@@ -32,13 +36,17 @@ import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParseException;
 import org.openrdf.rio.RDFParser;
-import org.openrdf.rio.Rio;
 import org.openrdf.rio.RDFParser.DatatypeHandling;
+import org.openrdf.rio.Rio;
 import org.openrdf.rio.helpers.StatementCollector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ConfigTemplate {
 	private static final Pattern PARAMETER_PATTERN = Pattern
 			.compile("\\{%[\\p{Print}&&[^\\}]]+%\\}");
+
+	private final Logger logger = LoggerFactory.getLogger(ConfigTemplate.class);
 	private final Random random = new Random();
 	private final String template;
 
@@ -48,6 +56,17 @@ public class ConfigTemplate {
 
 	public String toString() {
 		return template;
+	}
+
+	public String[] getRepositoryTypes() throws OpenRDFException, IOException {
+		Graph graph = renderGraph(getDefaultParameters());
+		Set<Value> set = GraphUtil.getObjects(graph, null, REPOSITORYTYPE);
+		String[] result = new String[set.size()];
+		Iterator<Value> iter = set.iterator();
+		for (int i=0; i<result.length; i++) {
+			result[i] = iter.next().stringValue();
+		}
+		return result;
 	}
 
 	public Map<String, String> getDefaultParameters() {
@@ -72,22 +91,26 @@ public class ConfigTemplate {
 	}
 
 	public Map<String, String> getParameters(RepositoryConfig config)
-			throws IOException, OpenRDFException {
+			throws IOException {
 		GraphImpl graph = new GraphImpl();
 		config.export(graph);
 		Map<String, String> map = getDefaultParameters();
 		for (String key : map.keySet()) {
 			map.put(key, "urn:" + new BigInteger(130, random).toString(32));
 		}
-		Graph wild = renderGraph(map);
-		Map<String, String> parameters = new HashMap<String, String>();
-		for (Statement st : wild) {
-			setLikelyValue(st, map, graph, parameters);
+		try {
+			Graph wild = renderGraph(map);
+			Map<String, String> parameters = new HashMap<String, String>();
+			for (Statement st : wild) {
+				setLikelyValue(st, map, graph, parameters);
+			}
+			Graph same = new GraphImpl();
+			render(parameters).export(same);
+			if (ModelUtil.equals(graph, same))
+				return parameters;
+		} catch (OpenRDFException exc) {
+			logger.debug(exc.toString(), exc);
 		}
-		Graph same = new GraphImpl();
-		render(parameters).export(same);
-		if (ModelUtil.equals(graph, same))
-			return parameters;
 		return null;
 	}
 

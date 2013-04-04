@@ -50,6 +50,7 @@ import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.config.RepositoryConfig;
 import org.openrdf.repository.config.RepositoryConfigException;
+import org.openrdf.repository.config.RepositoryRegistry;
 import org.openrdf.repository.manager.LocalRepositoryManager;
 import org.openrdf.repository.manager.SystemRepository;
 import org.openrdf.repository.object.ObjectConnection;
@@ -363,7 +364,7 @@ public class CalliServer implements CalliServerMXBean {
 		return map;
 	}
 
-	public String[] getAvailableRepositoryTypes() throws IOException {
+	public String[] getAvailableRepositoryTypes() throws IOException, OpenRDFException {
 		List<String> list = new ArrayList<String>();
 		ClassLoader cl = this.getClass().getClassLoader();
 		Enumeration<URL> types = cl.getResources(REPOSITORY_TYPES);
@@ -377,7 +378,20 @@ public class CalliServer implements CalliServerMXBean {
 			}
 			Enumeration<?> names = properties.propertyNames();
 			while (names.hasMoreElements()) {
-				list.add((String) names.nextElement());
+				String name = (String) names.nextElement();
+				String path = properties.getProperty(name);
+				Enumeration<URL> configs = cl.getResources(path);
+				loop: while (configs.hasMoreElements()) {
+					URL url = configs.nextElement();
+					ConfigTemplate temp = new ConfigTemplate(url);
+					for (String repoType : temp.getRepositoryTypes()) {
+						if (!RepositoryRegistry.getInstance().has(repoType)) {
+							logger.debug("Missing repository factory for {}", repoType);
+							continue loop;
+						}
+					}
+					list.add(name);
+				}
 			}
 		}
 		return list.toArray(new String[list.size()]);

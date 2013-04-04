@@ -397,89 +397,55 @@ public class CalliServer implements CalliServerMXBean {
 		return list.toArray(new String[list.size()]);
 	}
 
-	public synchronized void setRepositoryProperties(Map<String,String> parameters)
-			throws IOException, OpenRDFException {
-		Map<String, Map<String, String>> params;
-		Map<String, String> combined;
-		combined = getAllRepositoryProperties();
-		combined = new LinkedHashMap<String, String>(combined);
-		combined.putAll(parameters);
-		params = groupBeforeColon(combined);
-		Set<String> removed = new LinkedHashSet<String>(params.keySet());
-		removed.removeAll(groupBeforeColon(parameters).keySet());
-		for (String repositoryID : removed) {
-			if (manager.removeRepository(repositoryID)) {
-				logger.warn("Removed repository {}", repositoryID);
-			}
-		}
-		combined = getAllRepositoryProperties();
-		combined = new LinkedHashMap<String, String>(combined);
-		combined.putAll(parameters);
-		params = groupBeforeColon(combined);
-		for (String repositoryID : params.keySet()) {
-			Map<String, String> pmap = params.get(repositoryID);
-			String type = pmap.get(null);
-			if (type == null)
-				continue;
-			ClassLoader cl = this.getClass().getClassLoader();
-			Enumeration<URL> types = cl.getResources(REPOSITORY_TYPES);
-			while (types.hasMoreElements()) {
-				Properties properties = new Properties();
-				InputStream in = types.nextElement().openStream();
-				try {
-					properties.load(in);
-				} finally {
-					in.close();
+	public synchronized void setRepositoryProperties(
+			final Map<String, String> parameters) throws Exception {
+		submit(new Callable<Void>() {
+			public Void call() throws Exception {
+				Map<String, Map<String, String>> params;
+				Map<String, String> combined;
+				combined = getAllRepositoryProperties();
+				combined = new LinkedHashMap<String, String>(combined);
+				combined.putAll(parameters);
+				params = groupBeforeColon(combined);
+				Set<String> removed = new LinkedHashSet<String>(params.keySet());
+				removed.removeAll(groupBeforeColon(parameters).keySet());
+				for (String repositoryID : removed) {
+					if (manager.removeRepository(repositoryID)) {
+						logger.warn("Removed repository {}", repositoryID);
+					}
 				}
-				if (!properties.containsKey(type))
-					continue;
-				String path = properties.getProperty(type);
-				Enumeration<URL> configs = cl.getResources(path);
-				while (configs.hasMoreElements()) {
-					URL url = configs.nextElement();
-					ConfigTemplate temp = new ConfigTemplate(url);
-					RepositoryConfig config = temp.render(pmap);
-					if (config == null)
-						throw new RepositoryConfigException("Missing parameters for " + repositoryID);
-					if (manager.hasRepositoryConfig(repositoryID)) {
-						RepositoryConfig oldConfig = manager.getRepositoryConfig(repositoryID);
-						if (temp.getParameters(config).equals(temp.getParameters(oldConfig)))
-							continue;
-						config.validate();
-						logger.info("Replacing repository configuration {}", repositoryID);
-						manager.addRepositoryConfig(config);
-					} else {
-						config.validate();
-						logger.info("Creating repository {}", repositoryID);
-						manager.addRepositoryConfig(config);
-					}
-					if (manager.getInitializedRepositoryIDs().contains(repositoryID)) {
-						manager.getRepository(repositoryID).shutDown();
-						if (isWebServiceRunning()) {
-							CalliRepository repository = getRepository(repositoryID);
-							SetupTool tool = new SetupTool(repositoryID, repository, conf);
-							SetupRealm[] origins = tool.getRealms();
-							for (SetupRealm so : origins) {
-								server.addOrigin(so.getOrigin(), repository);
-							}
-						}
-					}
-					try {
-						Repository repo = manager.getRepository(repositoryID);
-						RepositoryConnection conn = repo.getConnection();
+				combined = getAllRepositoryProperties();
+				combined = new LinkedHashMap<String, String>(combined);
+				combined.putAll(parameters);
+				params = groupBeforeColon(combined);
+				for (String repositoryID : params.keySet()) {
+					Map<String, String> pmap = params.get(repositoryID);
+					String type = pmap.get(null);
+					if (type == null)
+						continue;
+					ClassLoader cl = this.getClass().getClassLoader();
+					Enumeration<URL> types = cl.getResources(REPOSITORY_TYPES);
+					while (types.hasMoreElements()) {
+						Properties properties = new Properties();
+						InputStream in = types.nextElement().openStream();
 						try {
-							// just check that we can access the repository
-							conn.hasStatement(null, null, null, false);
+							properties.load(in);
 						} finally {
-							conn.close();
+							in.close();
 						}
-					} catch (OpenRDFException e) {
-						logger.error(e.toString(), e);
-						throw new RepositoryConfigException(e.toString());
+						if (!properties.containsKey(type))
+							continue;
+						String path = properties.getProperty(type);
+						Enumeration<URL> configs = cl.getResources(path);
+						while (configs.hasMoreElements()) {
+							URL url = configs.nextElement();
+							updateRepositoryConfig(repositoryID, url, pmap);
+						}
 					}
 				}
+				return null;
 			}
-		}
+		});
 	}
 
 	public synchronized void checkForErrors() throws Exception {
@@ -916,6 +882,54 @@ public class CalliServer implements CalliServerMXBean {
 		server.setIndirectIdentificationPrefix(getIndirectPrefixes());
 		server.listen(getPortArray(), getSSLPortArray());
 		return server;
+	}
+
+	void updateRepositoryConfig(String repositoryID, URL configTemplate,
+			Map<String, String> parameters) throws IOException,
+			OpenRDFException {
+		ConfigTemplate temp = new ConfigTemplate(configTemplate);
+		RepositoryConfig config = temp.render(parameters);
+		if (config == null)
+			throw new RepositoryConfigException("Missing parameters for "
+					+ repositoryID);
+		if (manager.hasRepositoryConfig(repositoryID)) {
+			RepositoryConfig oldConfig = manager
+					.getRepositoryConfig(repositoryID);
+			if (temp.getParameters(config)
+					.equals(temp.getParameters(oldConfig)))
+				return;
+			config.validate();
+			logger.info("Replacing repository configuration {}", repositoryID);
+			manager.addRepositoryConfig(config);
+		} else {
+			config.validate();
+			logger.info("Creating repository {}", repositoryID);
+			manager.addRepositoryConfig(config);
+		}
+		if (manager.getInitializedRepositoryIDs().contains(repositoryID)) {
+			manager.getRepository(repositoryID).shutDown();
+			if (isWebServiceRunning()) {
+				CalliRepository repository = getRepository(repositoryID);
+				SetupTool tool = new SetupTool(repositoryID, repository, conf);
+				SetupRealm[] origins = tool.getRealms();
+				for (SetupRealm so : origins) {
+					server.addOrigin(so.getOrigin(), repository);
+				}
+			}
+		}
+		try {
+			Repository repo = manager.getRepository(repositoryID);
+			RepositoryConnection conn = repo.getConnection();
+			try {
+				// just check that we can access the repository
+				conn.hasStatement(null, null, null, false);
+			} finally {
+				conn.close();
+			}
+		} catch (OpenRDFException e) {
+			logger.error(e.toString(), e);
+			throw new RepositoryConfigException(e.toString());
+		}
 	}
 
 	CalliRepository getRepository(String repositoryID)

@@ -66,7 +66,7 @@ public interface CalliServerMXBean {
 			OpenRDFException;
 
 	void setRepositoryProperties(Map<String, String> properties)
-			throws IOException, OpenRDFException;
+			throws Exception;
 
 	String[] getWebappOrigins() throws IOException;
 

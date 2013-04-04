@@ -14,13 +14,8 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.transform.TransformerException;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -29,36 +24,34 @@ import org.apache.http.ProtocolVersion;
 import org.apache.http.StatusLine;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
+import org.callimachusproject.auth.AuthorizationManager;
+import org.callimachusproject.auth.AuthorizationService;
+import org.callimachusproject.auth.DetachedRealm;
 import org.callimachusproject.io.ChannelUtil;
+import org.callimachusproject.repository.CalliRepository;
 import org.callimachusproject.server.exceptions.InternalServerError;
 import org.callimachusproject.server.exceptions.ResponseException;
 import org.callimachusproject.server.model.EntityRemovedHttpResponse;
 import org.callimachusproject.server.model.ReadableHttpEntityChannel;
 import org.callimachusproject.server.model.Request;
-import org.callimachusproject.xproc.Pipe;
-import org.callimachusproject.xproc.Pipeline;
 import org.openrdf.OpenRDFException;
 import org.openrdf.repository.object.exceptions.BehaviourException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
 
 public abstract class ExchangeActor {
-	private static final int MAX_PRETTY_CONCURRENT_ERRORS = Runtime.getRuntime().availableProcessors();
 	private static final int MAX_QUEUE_SIZE = 32;
 	private static final Pattern URL_PATTERN = Pattern
 			.compile("\\w+://(?:\\.?[^\\s}>\\)\\]\\.])+");
 	private static final ProtocolVersion HTTP11 = HttpVersion.HTTP_1_1;
-	private static final ThreadLocal<Boolean> inError = new ThreadLocal<Boolean>();
-	private static final AtomicInteger activeErrors = new AtomicInteger();
 	private static final StatusLine SHUTDOWN_503 = new BasicStatusLine(HttpVersion.HTTP_1_1, 503, "Service Unavailable For Maintenance");
 	private static final StatusLine _503 = new BasicStatusLine(HttpVersion.HTTP_1_1, 503, "Service Temporary Overloaded");
 	static final StatusLine _500 = new BasicStatusLine(HttpVersion.HTTP_1_1, 500, "Internal Server Error");
 
 	private final Logger logger = LoggerFactory.getLogger(ExchangeActor.class);
+	private final AuthorizationService service = AuthorizationService.getInstance();
 	private final ExecutorService executor;
 	private final BlockingQueue<Runnable> queue;
-	private Pipeline pipeline;
 
 	public ExchangeActor(ExecutorService executor, BlockingQueue<Runnable> queue) {
 		this.executor = executor;
@@ -78,14 +71,6 @@ public abstract class ExchangeActor {
 
 	public boolean isTerminated() {
 		return executor.isTerminated();
-	}
-
-	public Pipeline getErrorPipe() {
-		return pipeline;
-	}
-
-	public void setErrorPipe(Pipeline pipeline) throws IOException {
-		this.pipeline = pipeline;
 	}
 
 	public void submit(Exchange exchange) {
@@ -131,7 +116,7 @@ public abstract class ExchangeActor {
 			processed = true;
 		} catch (Exception e) {
 			Request req = exchange.getRequest();
-			exchange.submitResponse(filterError(req, createErrorResponse(req, e)));
+			exchange.submitResponse(filterError(req, createErrorResponse(req, exchange.getRepository(), e)));
 			processed = true;
 		} finally {
 			if (!processed) {
@@ -140,7 +125,7 @@ public abstract class ExchangeActor {
 		}
 	}
 
-	protected HttpResponse createErrorResponse(Request req, Exception e) {
+	protected HttpResponse createErrorResponse(Request req, CalliRepository repository, Exception e) {
 		while (e instanceof BehaviourException
 				|| e instanceof InvocationTargetException
 				|| e instanceof ExecutionException
@@ -149,7 +134,7 @@ public abstract class ExchangeActor {
 		}
 		ResponseException re = asResponseException(req, e);
 		try {
-			return createHttpResponse(req, re);
+			return createHttpResponse(req, repository, re);
 		} catch (Exception e1) {
 			logger.error(e1.toString(), e1);
 			return new BasicHttpResponse(_500);
@@ -175,17 +160,16 @@ public abstract class ExchangeActor {
 		}
 	}
 
-	private HttpResponse createHttpResponse(Request req, ResponseException exception)
-			throws IOException, OpenRDFException, XMLStreamException,
-			TransformerException, ParserConfigurationException,
-			SAXException {
+	private HttpResponse createHttpResponse(Request req,
+			CalliRepository repository, ResponseException exception)
+			throws IOException, OpenRDFException {
 		ProtocolVersion ver = HTTP11;
 		int code = exception.getStatusCode();
 		String phrase = exception.getShortMessage();
 		HttpResponse response = new EntityRemovedHttpResponse(ver, code, phrase);
 		String type = "text/html;charset=UTF-8";
 		response.setHeader("Content-Type", type);
-		byte[] body = createErrorPage(req, exception);
+		byte[] body = createErrorPage(req, repository, exception);
 		int size = body.length;
 		response.setHeader("Content-Length", String.valueOf(size));
 		ReadableByteChannel in = ChannelUtil.newChannel(body);
@@ -194,8 +178,8 @@ public abstract class ExchangeActor {
 		return response;
 	}
 
-	private byte[] createErrorPage(Request req, ResponseException exception) throws IOException,
-			TransformerException {
+	private byte[] createErrorPage(Request req, CalliRepository repository,
+			ResponseException exception) throws IOException, OpenRDFException {
 		Writer writer = new StringWriter();
 		PrintWriter print = new PrintWriter(writer);
 		try {
@@ -204,34 +188,26 @@ public abstract class ExchangeActor {
 			print.close();
 		}
 		String body = writer.toString();
-		if (pipeline != null && inError.get() == null
-				&& activeErrors.get() < MAX_PRETTY_CONCURRENT_ERRORS) {
-			String id = pipeline.getSystemId();
-			if (id == null || !req.getRequestURL().startsWith(id)) {
-				try {
-					inError.set(true);
-					activeErrors.incrementAndGet();
-					Pipe pb = pipeline.pipeReader(new StringReader(body), null);
-					try {
-						pb.passOption("target", req.getIRI());
-						pb.passOption("query", req.getQueryString());
-						body = pb.asString();
-					} finally {
-						pb.close();
-					}
-				} catch (Throwable exc) {
-					logger.error(exc.toString(), exc);
-				} finally {
-					inError.remove();
-					activeErrors.decrementAndGet();
-				}
-			}
+		if (repository == null)
+			return body.getBytes("UTF-8");
+		try {
+			StringReader reader = new StringReader(body);
+			String target = req.getIRI();
+			AuthorizationManager manager = service.get(repository.getDelegate());
+			if (manager == null)
+				return body.getBytes("UTF-8");
+			DetachedRealm realm = manager.getRealm(target);
+			if (realm == null)
+				return body.getBytes("UTF-8");
+			ByteArrayOutputStream out = new ByteArrayOutputStream(8192);
+			OutputStreamWriter w = new OutputStreamWriter(out, "UTF-8");
+			realm.transformErrorPage(reader, w, target, req.getQueryString());
+			w.close();
+			return out.toByteArray();
+		} catch (Exception exc) {
+			logger.error(exc.toString(), exc);
+			return body.getBytes("UTF-8");
 		}
-		ByteArrayOutputStream out = new ByteArrayOutputStream(8192);
-		OutputStreamWriter w = new OutputStreamWriter(out, "UTF-8");
-		w.append(body);
-		w.close();
-		return out.toByteArray();
 	}
 
 	private void printHTMLTo(int code, ResponseException exc, PrintWriter writer) {

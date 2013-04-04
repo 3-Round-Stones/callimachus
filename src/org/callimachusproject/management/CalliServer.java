@@ -61,7 +61,6 @@ import org.slf4j.LoggerFactory;
 public class CalliServer implements CalliServerMXBean {
 	private static final char COLON = ':';
 	private static final String CHANGES_PATH = "../changes/";
-	private static final String ERROR_XPL_PATH = "pipelines/error.xpl";
 	private static final String SCHEMA_GRAPH = "types/SchemaGraph";
 	private static final String INDIRECT_PATH = "/diverted;";
 	private static final String ORIGIN = "http://callimachusproject.org/rdf/2009/framework#Origin";
@@ -442,6 +441,14 @@ public class CalliServer implements CalliServerMXBean {
 					}
 					if (manager.getInitializedRepositoryIDs().contains(repositoryID)) {
 						manager.getRepository(repositoryID).shutDown();
+						if (isWebServiceRunning()) {
+							CalliRepository repository = getRepository(repositoryID);
+							SetupTool tool = new SetupTool(repositoryID, repository, conf);
+							SetupRealm[] origins = tool.getRealms();
+							for (SetupRealm so : origins) {
+								server.addOrigin(so.getOrigin(), repository);
+							}
+						}
 					}
 					try {
 						Repository repo = manager.getRepository(repositoryID);
@@ -885,21 +892,11 @@ public class CalliServer implements CalliServerMXBean {
 	private synchronized WebServer createServer() throws OpenRDFException,
 			IOException, NoSuchAlgorithmException {
 		WebServer server = new WebServer(serverCacheDir);
-		boolean first = true;
 		for (SetupRealm so : getRealms()) {
 			String origin = so.getOrigin();
 			server.addOrigin(origin, getRepository(so.getRepositoryID()));
 			HttpHost host = URIUtils.extractHost(java.net.URI.create(so.getRealm()));
 			HTTPObjectClient.getInstance().setProxy(host, server);
-			if (first) {
-				first = false;
-				CalliRepository repo = getRepository(so.getRepositoryID());
-				String pipe = repo.getCallimachusUrl(so.getWebappOrigin(), ERROR_XPL_PATH);
-				if (pipe == null)
-					throw new IllegalArgumentException(
-							"Callimachus webapp not setup on: " + so.getWebappOrigin());
-				server.setErrorPipe(pipe);
-			}
 		}
 		server.setName(getServerName());
 		server.setIndirectIdentificationPrefix(getIndirectPrefixes());

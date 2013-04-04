@@ -4,8 +4,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 
@@ -21,8 +19,8 @@ import org.callimachusproject.concurrent.ManagedExecutors;
 import org.callimachusproject.io.ChannelUtil;
 import org.callimachusproject.repository.CalliRepository;
 import org.callimachusproject.server.exceptions.NotAcceptable;
-import org.callimachusproject.server.exceptions.NotFound;
 import org.callimachusproject.server.exceptions.ResponseException;
+import org.callimachusproject.server.exceptions.ServiceUnavailable;
 import org.callimachusproject.server.model.EntityRemovedHttpResponse;
 import org.callimachusproject.server.model.Filter;
 import org.callimachusproject.server.model.Handler;
@@ -33,7 +31,6 @@ import org.callimachusproject.server.model.Response;
 public class RequestTransactionActor extends ExchangeActor {
 	private static final int ONE_PACKET = 1024;
 	private static final ProtocolVersion HTTP11 = HttpVersion.HTTP_1_1;
-	private final Map<String, CalliRepository> repositories = new LinkedHashMap<String, CalliRepository>();
 	private final Filter filter;
 	private final Handler handler;
 
@@ -49,15 +46,13 @@ public class RequestTransactionActor extends ExchangeActor {
 		this.handler = handler;
 	}
 
-	public synchronized void addOrigin(String origin, CalliRepository repository) {
-		repositories.put(origin, repository);
-	}
-
 	protected void process(Exchange exchange, boolean foreground)
 			throws Exception {
 		Request req = exchange.getRequest();
 		boolean success = false;
-		CalliRepository repo = getRepository(req.getOrigin());
+		CalliRepository repo = exchange.getRepository();
+		if (repo == null || !repo.isInitialized())
+			throw new ServiceUnavailable("This origin is not configured");
 		final ResourceOperation op = new ResourceOperation(req, repo);
 		try {
 			op.begin();
@@ -92,22 +87,15 @@ public class RequestTransactionActor extends ExchangeActor {
 		return resp;
 	}
 
-	private synchronized CalliRepository getRepository(String origin) throws NotFound {
-		if (repositories.containsKey(origin))
-			return repositories.get(origin);
-		if (repositories.isEmpty())
-			throw new NotFound("Origins not configured");
-		return repositories.values().iterator().next();
-	}
-
 	private HttpResponse createSafeHttpResponse(final ResourceOperation req,
 			Response resp, final Exchange exchange, final boolean fore)
 			throws Exception {
 		boolean endNow = true;
 		HttpResponse response;
+		CalliRepository repository = exchange.getRepository();
 		try {
 			if (resp.isException())
-				return createErrorResponse(req, resp.getException());
+				return createErrorResponse(req, repository, resp.getException());
 			ProtocolVersion ver = HTTP11;
 			int code = resp.getStatus();
 			String phrase = resp.getMessage();
@@ -133,7 +121,7 @@ public class RequestTransactionActor extends ExchangeActor {
 				endNow = true;
 			}
 		} catch (Exception e) {
-			return createErrorResponse(req, e);
+			return createErrorResponse(req, repository, e);
 		} finally {
 			if (endNow) {
 				req.endExchange();

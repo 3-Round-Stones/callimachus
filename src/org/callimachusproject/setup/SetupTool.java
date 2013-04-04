@@ -62,21 +62,24 @@ public class SetupTool {
 			+ "OPTIONAL { ?parent calli:administrator ?administrator }\n" + "}";
 	private static final String COPY_REALM_PROPS = PREFIX
 			+ "INSERT { $realm\n"
-			+ "calli:authentication ?auth; calli:unauthorized ?unauth; calli:forbidden ?forbid; calli:layout ?layout\n"
+			+ "calli:authentication ?auth; calli:unauthorized ?unauth; calli:forbidden ?forbid; calli:error ?error; calli:layout ?layout\n"
 			+ "} WHERE { {SELECT ?origin { ?origin a calli:Realm; calli:hasComponent+ $realm} ORDER BY desc(?origin) LIMIT 1}\n"
-			+ "OPTIONAL { ?origin calli:authentication ?auth }\n"
-			+ "OPTIONAL { ?origin calli:unauthorized ?unauth }\n"
-			+ "OPTIONAL { ?origin calli:forbidden ?forbid }\n"
-			+ "OPTIONAL { ?origin calli:layout ?layout }\n"
+			+ "{ ?origin calli:authentication ?auth }\n"
+			+ "UNION { ?origin calli:unauthorized ?unauth }\n"
+			+ "UNION { ?origin calli:forbidden ?forbid }\n"
+			+ "UNION { ?origin calli:error ?error }\n"
+			+ "UNION { ?origin calli:layout ?layout }\n"
 			+ "}";
 	private static final String SELECT_REALM = PREFIX
 			+ "SELECT ?realm\n"
-			+ "(group_concat(?layout) AS ?layout) (group_concat(?forbiddenPage) AS ?forbiddenPage)\n"
-			+ "(group_concat(?unauthorizedPage) AS ?unauthorizedPage) (group_concat(?authentication) AS ?authentication)\n"
+			+ "(group_concat(?layout) AS ?layout) (group_concat(?errorPipe) AS ?errorPipe)\n" +
+			"(group_concat(?forbiddenPage) AS ?forbiddenPage) (group_concat(?unauthorizedPage) AS ?unauthorizedPage)\n" +
+			"(group_concat(?authentication) AS ?authentication)\n"
 			+ "WHERE {\n"
 			+ "{ ?realm a </callimachus/1.0/types/Realm> }\n"
 			+ "UNION { ?realm a </callimachus/1.0/types/Origin> }\n"
 			+ "OPTIONAL { { ?realm calli:layout ?layout }\n"
+			+ "UNION { ?realm calli:error ?errorPipe }\n"
 			+ "UNION { ?realm calli:forbidden ?forbiddenPage }\n"
 			+ "UNION { ?realm calli:unauthorized ?unauthorizedPage }\n"
 			+ "UNION { ?realm calli:authentication ?authentication } }\n"
@@ -294,6 +297,7 @@ public class SetupTool {
 		if (realm == null)
 			return null;
 		String layout = stringValue(result.getValue("layout"));
+		String error = stringValue(result.getValue("errorPipe"));
 		String forb = stringValue(result.getValue("forbiddenPage"));
 		String unauth = stringValue(result.getValue("unauthorizedPage"));
 		String auth = stringValue(result.getValue("authentication"));
@@ -301,7 +305,7 @@ public class SetupTool {
 		if (auth != null && auth.length() > 0) {
 			split = auth.split("\\s+");
 		}
-		return new SetupRealm(realm, webappOrigin, layout, forb, unauth,
+		return new SetupRealm(realm, webappOrigin, layout, error, forb, unauth,
 				split, repositoryID);
 	}
 

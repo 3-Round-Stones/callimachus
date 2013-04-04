@@ -26,6 +26,7 @@ import org.apache.http.util.EntityUtils;
 import org.callimachusproject.client.StreamingHttpEntity;
 import org.callimachusproject.io.AsyncPipe;
 import org.callimachusproject.io.ChannelUtil;
+import org.callimachusproject.repository.CalliRepository;
 import org.callimachusproject.server.model.Request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +39,7 @@ public class Exchange implements Cancellable {
 	private final HttpContext context;
 	private final Queue<Exchange> queue;
 	private final Consumer consumer;
+	private final CalliRepository repository;
 	private HttpAsyncExchange exchange;
 	private HttpResponse response;
 	private HttpAsyncContentProducer producer;
@@ -47,20 +49,22 @@ public class Exchange implements Cancellable {
 	private boolean ready;
 	private boolean cancelled;
 
-	public Exchange(Request request, HttpContext context) throws IOException {
+	public Exchange(Request request, CalliRepository repository, HttpContext context) throws IOException {
 		assert request != null;
 		this.request = request;
+		this.repository = repository;
 		this.context = context;
 		this.queue = null;
 		this.consumer = null;
 		setExpectContinue(false);
 	}
 
-	public Exchange(Request request, HttpContext context, Queue<Exchange> queue)
+	public Exchange(Request request, CalliRepository repository, HttpContext context, Queue<Exchange> queue)
 			throws IOException {
 		assert request != null;
 		assert queue != null;
 		this.request = request;
+		this.repository = repository;
 		this.context = context;
 		this.queue = queue;
 		String expect = request.getHeader("Expect");
@@ -86,6 +90,10 @@ public class Exchange implements Cancellable {
 
 	public synchronized void setRequest(Request request) {
 		this.request = request;
+	}
+
+	public CalliRepository getRepository() {
+		return repository;
 	}
 
 	public HttpContext getContext() {

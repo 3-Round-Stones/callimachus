@@ -27,7 +27,7 @@ INSERT {
 <../ontology> a <types/Serviceable>, owl:Ontology;
     rdfs:label "ontology";
     rdfs:comment "Vocabulary used to create local Callimachus applications";
-    owl:versionInfo "1.0";
+    owl:versionInfo "1.0.1";
     calli:administrator </auth/groups/admin>.
 } WHERE {
 	FILTER NOT EXISTS { <../ontology> a owl:Ontology }
@@ -55,6 +55,7 @@ INSERT {
         <../styles.css>,
         <../scripts.js>,
         <../library.xpl>,
+        <../error.xpl>,
         <../forbidden.html>,
         <../unauthorized.html>,
         <../layout-functions.xq>,
@@ -66,8 +67,7 @@ INSERT {
         <../javascript-editor.html>,
         <../sparql-editor.html>,
         <../text-editor.html>,
-        <../xml-editor.html>,
-        <../Concept>.
+        <../xml-editor.html>.
 } WHERE {
 	FILTER NOT EXISTS { <../> a calli:Folder }
 };
@@ -122,6 +122,17 @@ INSERT {
 } WHERE {
     BIND (str(<pipelines/library.xpl>) as ?alternate)
 	FILTER NOT EXISTS { <../library.xpl> a calli:PURL }
+};
+
+INSERT {
+<../error.xpl> a <types/PURL>, calli:PURL ;
+	rdfs:label "error.xpl";
+	calli:alternate ?alternate;
+	calli:administrator </auth/groups/super>;
+	calli:reader </auth/groups/public> .
+} WHERE {
+    BIND (str(<pipelines/error.xpl>) as ?alternate)
+	FILTER NOT EXISTS { <../error.xpl> a calli:PURL }
 };
 
 INSERT {
@@ -253,17 +264,6 @@ INSERT {
 } WHERE {
     BIND (str(<editor/text-editor.html#xml>) AS ?alternate)
 	FILTER NOT EXISTS { <../xml-editor.html> a calli:PURL }
-};
-
-INSERT {
-<../Concept> a <types/PURL>, calli:PURL ;
-	rdfs:label "Concept";
-	calli:canonical ?canonical;
-	calli:administrator </auth/groups/super>;
-	calli:reader </auth/groups/public> .
-} WHERE {
-    BIND (str(<types/Concept>) AS ?canonical)
-	FILTER NOT EXISTS { <../Concept> a calli:PURL }
 };
 
 ################################

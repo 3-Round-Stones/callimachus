@@ -10,6 +10,7 @@ public class SetupRealm implements Serializable {
 	private final String realm;
 	private final String webappOrigin;
 	private final String layout;
+	private final String errorPipe;
 	private final String forbiddenPage;
 	private final String unauthorizedPage;
 	private final String[] authentication;
@@ -20,23 +21,25 @@ public class SetupRealm implements Serializable {
 		this.realm = webappOrigin + "/";
 		this.webappOrigin = webappOrigin;
 		this.layout = null;
+		this.errorPipe = null;
 		this.forbiddenPage = null;
 		this.unauthorizedPage = null;
 		this.authentication = null;
 		this.repositoryID = repositoryID;
 	}
 
-	@ConstructorProperties({ "realm", "webappOrigin", "layout",
+	@ConstructorProperties({ "realm", "webappOrigin", "layout", "errorPipe",
 			"forbiddenPage", "unauthorizedPage", "authentication",
 			"repositoryID" })
 	public SetupRealm(String realm, String webappOrigin, String layout,
-			String forbiddenPage, String unauthorizedPage,
+			String errorPipe, String forbiddenPage, String unauthorizedPage,
 			String[] authentication, String repositoryID) {
 		assert realm != null;
 		assert webappOrigin != null;
 		this.realm = realm;
 		this.webappOrigin = webappOrigin;
 		this.layout = layout;
+		this.errorPipe = errorPipe;
 		this.forbiddenPage = forbiddenPage;
 		this.unauthorizedPage = unauthorizedPage;
 		this.authentication = authentication;
@@ -58,6 +61,10 @@ public class SetupRealm implements Serializable {
 
 	public String getLayout() {
 		return layout;
+	}
+
+	public String getErrorPipe() {
+		return errorPipe;
 	}
 
 	public String getForbiddenPage() {

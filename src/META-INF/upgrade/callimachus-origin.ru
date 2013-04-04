@@ -21,7 +21,8 @@ INSERT {
 		calli:administrator </auth/groups/admin>;
 		calli:unauthorized <../unauthorized.html>;
 		calli:forbidden <../forbidden.html>;
-		calli:layout <../default-layout.xq>.
+		calli:layout <../default-layout.xq>;
+		calli:error <../error.xpl>.
 } WHERE {
 	FILTER NOT EXISTS { $origin a calli:Origin }
 	BIND (replace(replace(str($origin), "^[a-z]*://", ""), "/$", "") AS ?label)

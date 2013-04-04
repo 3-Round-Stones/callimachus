@@ -6,6 +6,7 @@ import info.aduna.net.ParsedURI;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.tools.FileObject;
 
@@ -35,6 +37,9 @@ import org.apache.http.util.EntityUtils;
 import org.callimachusproject.client.HTTPObjectClient;
 import org.callimachusproject.concepts.AuthenticationManager;
 import org.callimachusproject.engine.model.TermFactory;
+import org.callimachusproject.xproc.Pipe;
+import org.callimachusproject.xproc.Pipeline;
+import org.callimachusproject.xproc.PipelineFactory;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
@@ -53,15 +58,19 @@ public class DetachedRealm {
 	private static final String PREFIX = "PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>\n"
 			+ "PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>\n";
 	private static final String SELECT_REALM = PREFIX
-			+ "SELECT ?secret ?forbidden ?unauthorized ?domain ?authentication (group_concat(?protected;separator=' ') as ?protected) {\n"
+			+ "SELECT ?secret ?error ?forbidden ?unauthorized ?domain ?authentication (group_concat(?protected;separator=' ') as ?protected) {\n"
 			+ "{ $this calli:authentication ?authentication . ?protected calli:authentication ?authentication }\n"
 			+ "UNION { $origin calli:secret ?secret }\n"
+			+ "UNION { $this calli:error ?error }\n"
 			+ "UNION { $this calli:forbidden ?forbidden }\n"
 			+ "UNION { $this calli:unauthorized ?unauthorized }\n"
 			+ "UNION { $origin a ?localOrigin . ?localOrigin rdfs:subClassOf calli:Origin . ?domain a ?localOrigin FILTER (?localOrigin != calli:Origin) }\n"
-			+ "} GROUP BY ?secret ?forbidden ?unauthorized ?domain ?authentication";
+			+ "} GROUP BY ?secret ?error ?forbidden ?unauthorized ?domain ?authentication";
 	private static final ThreadLocal<Boolean> inForbidden = new ThreadLocal<Boolean>();
 	private static final ThreadLocal<Boolean> inUnauthorized = new ThreadLocal<Boolean>();
+	private static final int MAX_PRETTY_CONCURRENT_ERRORS = Runtime.getRuntime().availableProcessors();
+	private static final ThreadLocal<Boolean> inError = new ThreadLocal<Boolean>();
+	private static final AtomicInteger activeErrors = new AtomicInteger();
 	private static final BasicStatusLine _204;
 	private static final BasicStatusLine _401;
 	private static final BasicStatusLine _403;
@@ -105,6 +114,7 @@ public class DetachedRealm {
 	private final Collection<String> allowOrigin = new LinkedHashSet<String>();
 	private final Resource self;
 	private String secret;
+	private Pipeline error;
 	private String forbidden;
 	private String unauthorized;
 
@@ -126,6 +136,10 @@ public class DetachedRealm {
 				if (result.hasBinding("secret")) {
 					URI uri = (URI) result.getValue("secret");
 					secret = readString(con.getBlobObject(uri));
+				}
+				if (result.hasBinding("error")) {
+					String url = result.getValue("error").stringValue();
+					error = PipelineFactory.newInstance().createPipeline(url);
 				}
 				if (result.hasBinding("forbidden")) {
 					forbidden = result.getValue("forbidden").stringValue();
@@ -187,6 +201,39 @@ public class DetachedRealm {
 				return true;
 		}
 		return false;
+	}
+
+	public void transformErrorPage(Reader reader, Writer writer, String target, String query) throws IOException {
+		if (error != null && inError.get() == null
+				&& activeErrors.get() < MAX_PRETTY_CONCURRENT_ERRORS) {
+			String id = error.getSystemId();
+			if (id == null || !id.equals(target)) {
+				try {
+					inError.set(true);
+					activeErrors.incrementAndGet();
+					Pipe pb = error.pipeReader(reader, null);
+					try {
+						pb.passOption("target", target);
+						pb.passOption("query", query);
+						String body = pb.asString();
+						writer.append(body);
+						return;
+					} finally {
+						pb.close();
+					}
+				} catch (Throwable exc) {
+					logger.error(exc.toString(), exc);
+				} finally {
+					inError.remove();
+					activeErrors.decrementAndGet();
+				}
+			}
+		}
+		int read = 0;
+	    char[] buf = new char[4096];
+	    while ((read = reader.read(buf)) != -1) {
+	      writer.write(buf, 0, read);
+	    }
 	}
 
 	public final HttpResponse forbidden(String method, Object resource,

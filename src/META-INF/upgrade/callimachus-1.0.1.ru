@@ -104,4 +104,30 @@ DELETE {
     FILTER (str(?g1) < str(?g2))
 };
 
+INSERT {
+<../> calli:hasComponent <../error.xpl> .
+<../error.xpl> a <types/PURL>, calli:PURL ;
+	rdfs:label "error.xpl";
+	calli:alternate ?alternate;
+	calli:administrator </auth/groups/super>;
+	calli:reader </auth/groups/public> .
+} WHERE {
+    BIND (str(<pipelines/error.xpl>) as ?alternate)
+	FILTER NOT EXISTS { <../error.xpl> a calli:PURL }
+};
+
+INSERT {
+	?origin calli:error <../error.xpl>.
+} WHERE {
+    ?origin a <types/Origin>
+	FILTER NOT EXISTS { ?origin calli:error ?error }
+};
+
+INSERT {
+	?realm calli:error <../error.xpl>.
+} WHERE {
+    ?realm a <types/Realm>
+	FILTER NOT EXISTS { ?realm calli:error ?error }
+};
+
 

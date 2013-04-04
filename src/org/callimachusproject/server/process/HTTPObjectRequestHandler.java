@@ -58,8 +58,6 @@ import org.callimachusproject.server.model.Filter;
 import org.callimachusproject.server.model.Handler;
 import org.callimachusproject.server.model.Request;
 import org.callimachusproject.util.DomainNameSystemResolver;
-import org.callimachusproject.xproc.Pipeline;
-import org.callimachusproject.xproc.PipelineFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,7 +80,6 @@ public class HTTPObjectRequestHandler extends AbstractHttpClient implements
 	private final Map<String, CalliRepository> repositories = new LinkedHashMap<String, CalliRepository>();
 	private final Filter filter;
 	private final Handler handler;
-	private Pipeline pipeline;
 	private RequestTriagerActor requestTriager;
 	private RequestTransactionActor requestHandler;
 
@@ -93,9 +90,6 @@ public class HTTPObjectRequestHandler extends AbstractHttpClient implements
 
 	public synchronized void addOrigin(String origin, CalliRepository repository) {
 		repositories.put(origin, repository);
-		if (requestHandler != null) {
-			requestHandler.addOrigin(origin, repository);
-		}
 	}
 
 	public synchronized void start() throws IOException {
@@ -103,11 +97,6 @@ public class HTTPObjectRequestHandler extends AbstractHttpClient implements
 			throw new IllegalStateException("Stop must be called first");
 		requestHandler = new RequestTransactionActor(filter, handler);
 		requestTriager = new RequestTriagerActor(filter, requestHandler);
-		requestHandler.setErrorPipe(pipeline);
-		requestTriager.setErrorPipe(pipeline);
-		for (Map.Entry<String, CalliRepository> e : repositories.entrySet()) {
-			requestHandler.addOrigin(e.getKey(), e.getValue());
-		}
 	}
 
 	public synchronized void stop() {
@@ -131,14 +120,6 @@ public class HTTPObjectRequestHandler extends AbstractHttpClient implements
 		return requestTriager.isTerminated() && requestHandler.isTerminated();
 	}
 
-	public synchronized String getErrorPipe() {
-		return pipeline.getSystemId();
-	}
-
-	public synchronized void setErrorPipe(String url) throws IOException {
-		this.pipeline = PipelineFactory.newInstance().createPipeline(url);
-	}
-
 	@Override
 	public HttpAsyncRequestConsumer<HttpRequest> processRequest(
 			HttpRequest request, HttpContext ctx) throws HttpException,
@@ -147,7 +128,8 @@ public class HTTPObjectRequestHandler extends AbstractHttpClient implements
 		InetAddress remoteAddress = getRemoteAddress(ctx);
 		Request req = new Request(request, remoteAddress, false);
 		final Queue<Exchange> queue = getOrCreateProcessingQueue(ctx);
-		Exchange exchange = new Exchange(req, ctx, queue);
+		CalliRepository repository = getRepository(req.getOrigin());
+		Exchange exchange = new Exchange(req, repository, ctx, queue);
 		ctx.setAttribute(EXCHANGE_ATTR, exchange);
 		submit(exchange);
 		return exchange.getConsumer();
@@ -169,7 +151,8 @@ public class HTTPObjectRequestHandler extends AbstractHttpClient implements
 		logger.debug("Request received {}", request.getRequestLine());
 		InetAddress remoteAddress = getRemoteAddress(ctx);
 		Request req = new Request(request, remoteAddress, true);
-		Exchange exchange = new Exchange(req, ctx);
+		CalliRepository repository = getRepository(req.getOrigin());
+		Exchange exchange = new Exchange(req, repository, ctx);
 		HttpAsyncExchange trigger = new ForegroundAsyncExchange(request);
 		exchange.setHttpAsyncExchange(trigger);
 		execute(exchange);
@@ -193,6 +176,10 @@ public class HTTPObjectRequestHandler extends AbstractHttpClient implements
 		synchronized (queue) {
 			return queue.toArray(new Exchange[queue.size()]);
 		}
+	}
+
+	private synchronized CalliRepository getRepository(String origin) {
+		return repositories.get(origin);
 	}
 
 	private void submit(Exchange exchange) {

@@ -306,18 +306,25 @@ calli:secret a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain calli:Origin;
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
+calli:error a owl:ObjectProperty;
+    rdfs:label "error";
+    rdfs:comment "An XPROC pipeline file that should be used to transform/style simple error pages";
+    rdfs:domain calli:Realm;
+    rdfs:range calli:PURL;
+    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
 calli:forbidden a owl:ObjectProperty;
     rdfs:label "forbidden";
-    rdfs:comment "The RDFa page template used when an agent is forbidden from the requested resource";
+    rdfs:comment "The XHTML page template used when an agent is forbidden from the requested resource";
     rdfs:domain calli:Realm;
-    rdfs:range calli:Page;
+    rdfs:range calli:PURL;
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:unauthorized a owl:ObjectProperty;
     rdfs:label "authorized";
-    rdfs:comment "The RDFa page template used when an agent is aunothorized from the requested resource";
+    rdfs:comment "The XHTML page used when an agent is aunothorized from the requested resource";
     rdfs:domain calli:Realm;
-    rdfs:range calli:Page;
+    rdfs:range calli:PURL;
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:authentication a owl:ObjectProperty;

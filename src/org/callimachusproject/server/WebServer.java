@@ -46,7 +46,9 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.WeakHashMap;
 
 import javax.net.ssl.SSLContext;
 
@@ -142,7 +144,7 @@ public class WebServer extends AbstractHttpClient implements WebServerMXBean, IO
 
 	private final Logger logger = LoggerFactory.getLogger(WebServer.class);
 	private final Set<NHttpConnection> connections = new HashSet<NHttpConnection>();
-	private final Set<CalliRepository> repositories = new HashSet<CalliRepository>();
+	private final Map<CalliRepository, Boolean> repositories = new WeakHashMap<CalliRepository, Boolean>();
 	private final DefaultListeningIOReactor server;
 	private final IOEventDispatch dispatch;
 	private DefaultListeningIOReactor sslserver;
@@ -213,7 +215,7 @@ public class WebServer extends AbstractHttpClient implements WebServerMXBean, IO
 	public synchronized void addOrigin(String origin, CalliRepository repository) {
 		service.addOrigin(origin, repository);
 		authCache.addOrigin(origin, repository);
-		if (repositories.add(repository)) {
+		if (repositories.put(repository, true) == null) {
 			repository.addSchemaListener(new Runnable() {
 				public String toString() {
 					return "reset cache";
@@ -289,14 +291,6 @@ public class WebServer extends AbstractHttpClient implements WebServerMXBean, IO
 
         };
 		return protocolHandler;
-	}
-
-	public String getErrorPipe() {
-		return service.getErrorPipe();
-	}
-
-	public void setErrorPipe(String url) throws IOException {
-		service.setErrorPipe(url);
 	}
 
 	public String getName() {

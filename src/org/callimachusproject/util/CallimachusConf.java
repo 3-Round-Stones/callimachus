@@ -87,19 +87,6 @@ public class CallimachusConf {
 		return map.keySet().toArray(new String[map.size()]);
 	}
 
-	public synchronized void setWebappOrigins(String[] origins) throws IOException {
-		Map<String, String> map = getOriginRepositoryIDs();
-		map = new LinkedHashMap<String, String>(map);
-		for (String item : origins) {
-			if (item == null || item.length() == 0 || !item.contains("://"))
-				throw new IllegalArgumentException("Invalid origin: " + item);
-			if (item != null && item.length() > 0 && !map.containsKey(item)) {
-				map.put(item, DEFAULT_REPOSITORY_ID);
-			}
-		}
-		setOriginRepositoryIDs(map);
-	}
-
 	public Map<String, String> getOriginRepositoryIDs() throws IOException {
 		String value = getProperty("ORIGIN");
 		if (value == null)

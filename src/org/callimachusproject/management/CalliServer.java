@@ -409,6 +409,9 @@ public class CalliServer implements CalliServerMXBean {
 				params = groupBeforeColon(combined);
 				Set<String> removed = new LinkedHashSet<String>(params.keySet());
 				removed.removeAll(groupBeforeColon(parameters).keySet());
+				Map<String, String> map = conf.getOriginRepositoryIDs();
+				map.values().removeAll(removed);
+				conf.setOriginRepositoryIDs(map);
 				for (String repositoryID : removed) {
 					if (manager.removeRepository(repositoryID)) {
 						logger.warn("Removed repository {}", repositoryID);
@@ -500,18 +503,6 @@ public class CalliServer implements CalliServerMXBean {
 				return null;
 			}
 		});
-	}
-
-	@Override
-	public void ignoreWebappOrigin(String webappOrigin) throws Exception {
-		List<String> list = new ArrayList<String>(Arrays.asList(conf.getWebappOrigins()));
-		list.remove(webappOrigin);
-		for (SetupRealm origin : getRealms()) {
-			if (webappOrigin.equals(origin.getWebappOrigin())) {
-				list.remove(origin.getOrigin());
-			}
-		}
-		conf.setWebappOrigins(list.toArray(new String[list.size()]));
 	}
 
 	public SetupRealm[] getRealms() throws IOException, OpenRDFException {

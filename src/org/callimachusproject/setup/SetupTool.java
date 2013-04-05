@@ -5,10 +5,7 @@ import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -144,14 +141,13 @@ public class SetupTool {
 	public synchronized void setupWebappOrigin(String origin)
 			throws IOException, OpenRDFException, NoSuchMethodException,
 			InvocationTargetException {
-		List<String> previous = Arrays.asList(conf.getWebappOrigins());
-		Collection<String> now = new LinkedHashSet<String>(previous);
-		now.add(origin);
 		Map<String, String> map = conf.getOriginRepositoryIDs();
+		if (map.containsKey(origin) && !repositoryID.equals(map.get(origin)))
+			throw new IllegalArgumentException(
+					"Origin already exists in repository: " + map.get(origin));
 		map = new LinkedHashMap<String, String>(map);
 		map.put(origin, repositoryID);
 		conf.setOriginRepositoryIDs(map);
-		conf.setWebappOrigins(now.toArray(new String[now.size()]));
 		for (SetupRealm o : getRealms()) {
 			if (o.getWebappOrigin().equals(origin))
 				return; // already exists in store

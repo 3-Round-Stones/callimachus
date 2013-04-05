@@ -78,8 +78,6 @@ public interface CalliServerMXBean {
 	void setupWebappOrigin(String webappOrigin, String repositoryID)
 			throws Exception;
 
-	void ignoreWebappOrigin(String webappOrigin) throws Exception;
-
 	void setupRealm(String realm, String webappOrigin) throws Exception;
 
 	void createResource(String rdf, String systemId, String type)

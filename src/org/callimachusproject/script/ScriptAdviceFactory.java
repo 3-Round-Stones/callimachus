@@ -20,14 +20,14 @@ public class ScriptAdviceFactory implements AdviceFactory, AdviceProvider {
 
 	@Override
 	public Advice createAdvice(Method method) {
-		EmbededScriptEngine engine = createEmbededScriptEngine(method);
+		EmbeddedScriptEngine engine = createEmbededScriptEngine(method);
 		return new ScriptAdvice(engine, method);
 	}
 
-	private EmbededScriptEngine createEmbededScriptEngine(Method method) {
+	private EmbeddedScriptEngine createEmbededScriptEngine(Method method) {
 		ClassLoader cl = method.getDeclaringClass().getClassLoader();
 		String[] script = method.getAnnotation(script.class).value();
-		return EmbededScriptEngine.newInstance(cl, getSystemId(method), script);
+		return EmbeddedScriptEngine.newInstance(cl, getSystemId(method), script);
 	}
 
 	private String getSystemId(Method m) {

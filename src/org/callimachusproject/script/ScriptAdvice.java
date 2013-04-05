@@ -11,7 +11,7 @@ import java.util.Set;
 import javax.script.SimpleBindings;
 
 import org.callimachusproject.annotations.imports;
-import org.callimachusproject.script.EmbededScriptEngine.ScriptResult;
+import org.callimachusproject.script.EmbeddedScriptEngine.ScriptResult;
 import org.openrdf.annotations.Iri;
 import org.openrdf.model.impl.LiteralImpl;
 import org.openrdf.model.impl.URIImpl;
@@ -25,12 +25,12 @@ import org.openrdf.repository.object.advice.Advice;
 import org.openrdf.repository.object.traits.ObjectMessage;
 
 public class ScriptAdvice implements Advice {
-	private final EmbededScriptEngine engine;
+	private final EmbeddedScriptEngine engine;
 	private final Class<?> rty;
 	private final Map<Method, String[]> bindingNames = new HashMap<Method, String[]>(1);
 	private final Map<Method, String[]> defaults = new HashMap<Method, String[]>(1);
 
-	public ScriptAdvice(EmbededScriptEngine engine, Method method) {
+	public ScriptAdvice(EmbeddedScriptEngine engine, Method method) {
 		this.engine = engine;
 		this.rty = method.getReturnType();
 		Annotation[][] panns = method.getParameterAnnotations();

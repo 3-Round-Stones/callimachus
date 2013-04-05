@@ -57,7 +57,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author James Leigh
  **/
-public class EmbededScriptEngine {
+public class EmbeddedScriptEngine {
 	private static final String[] RHINO_CONTEXT = {
 			"sun.org.mozilla.javascript.Context",
 			"sun.org.mozilla.javascript.internal.Context" };
@@ -68,7 +68,7 @@ public class EmbededScriptEngine {
 			throw new AssertionError("Rhino not available");
 		for (String cn : RHINO_CONTEXT) {
 			try {
-				ClassLoader cl = EmbededScriptEngine.class.getClassLoader();
+				ClassLoader cl = EmbeddedScriptEngine.class.getClassLoader();
 				Context = Class.forName(cn, false, cl);
 				break;
 			} catch (ClassNotFoundException exc) {
@@ -81,9 +81,9 @@ public class EmbededScriptEngine {
 			throw new AssertionError("Could not find rhino context");
 	}
 
-	public static EmbededScriptEngine newInstance(ClassLoader cl,
+	public static EmbeddedScriptEngine newInstance(ClassLoader cl,
 			String systemId, String... code) {
-		return new EmbededScriptEngine(cl, systemId, code);
+		return new EmbeddedScriptEngine(cl, systemId, code);
 	}
 
 	public static class ScriptResult {
@@ -202,7 +202,7 @@ public class EmbededScriptEngine {
 		}
 	}
 
-	private final Logger logger = LoggerFactory.getLogger(EmbededScriptEngine.class);
+	private final Logger logger = LoggerFactory.getLogger(EmbeddedScriptEngine.class);
 	private final String[] scripts;
 	private EmbeddedScript engine;
 	private final String systemId;
@@ -210,7 +210,7 @@ public class EmbededScriptEngine {
 	private final EmbeddedScriptFactory factory;
 	private final EmbeddedScriptContext context;
 
-	public EmbededScriptEngine(ClassLoader cl, String systemId, String... scripts) {
+	public EmbeddedScriptEngine(ClassLoader cl, String systemId, String... scripts) {
 		assert cl != null;
 		assert scripts != null && scripts.length > 0;
 		assert systemId != null;
@@ -230,17 +230,17 @@ public class EmbededScriptEngine {
 		return sb.toString();
 	}
 
-	public EmbededScriptEngine importClass(String className) {
+	public EmbeddedScriptEngine importClass(String className) {
 		context.importClass(className);
 		return this;
 	}
 
-	public EmbededScriptEngine binding(String name) {
+	public EmbeddedScriptEngine binding(String name) {
 		context.addBindingName(name);
 		return this;
 	}
 
-	public EmbededScriptEngine returnType(Class<?> returnType) {
+	public EmbeddedScriptEngine returnType(Class<?> returnType) {
 		context.setReturnType(returnType);
 		return this;
 	}
@@ -346,6 +346,8 @@ public class EmbededScriptEngine {
 	}
 
 	private boolean isAbsoluteUri(String uri) {
+		if (uri.indexOf(' ') >= 0 || uri.indexOf('\n') >= 0)
+			return false;
 		try {
 			return new URI(uri).isAbsolute();
 		} catch (URISyntaxException e) {

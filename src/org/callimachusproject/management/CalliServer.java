@@ -55,7 +55,6 @@ import org.openrdf.repository.manager.LocalRepositoryManager;
 import org.openrdf.repository.manager.SystemRepository;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.ObjectRepository;
-import org.openrdf.store.blob.BlobStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -483,27 +482,13 @@ public class CalliServer implements CalliServerMXBean {
 			final String repositoryID) throws Exception {
 		submit(new Callable<Void>() {
 			public Void call() throws Exception {
-				CalliRepository repository = getInitializedRepository(repositoryID);
-				Repository repo = manager.getRepository(repositoryID);
-				File dataDir = manager.getRepositoryDir(repositoryID);
-				if (repo == null)
-					throw new IllegalArgumentException("Unknown repositoryID: " + repositoryID);
-				if (repository == null) {
-					repository = new CalliRepository(repo, dataDir);
-				} else {
-					BlobStore blobs = repository.getBlobStore();
-					String changes = repository.getChangeFolder();
-					repository = new CalliRepository(repo, dataDir);
-					if (changes != null) {
-						repository.setChangeFolder(changes);
-					}
-					if (blobs != null) {
-						repository.setBlobStore(blobs);
-					}
+				CalliRepository repository = getSetupRepository(repositoryID);
+				try {
+					SetupTool tool = new SetupTool(repositoryID, repository, conf);
+					tool.setupWebappOrigin(webappOrigin);
+				} finally {
+					refreshRepository(repositoryID);
 				}
-				SetupTool tool = new SetupTool(repositoryID, repository, conf);
-				tool.setupWebappOrigin(webappOrigin);
-				refreshRepository(repositoryID);
 				if (isWebServiceRunning()) {
 					server.addOrigin(webappOrigin, getRepository(repositoryID));
 					server.setIndirectIdentificationPrefix(getIndirectPrefixes());
@@ -540,7 +525,6 @@ public class CalliServer implements CalliServerMXBean {
 
 	public Map<String, String> getAuthenticationManagers()
 			throws OpenRDFException, IOException {
-		SetupRealm[] realms = getRealms();
 		Map<String, String> managers = new LinkedHashMap<String, String>();
 		Map<String, String> map = conf.getOriginRepositoryIDs();
 		for (String repositoryID : new LinkedHashSet<String>(map.values())) {
@@ -558,13 +542,7 @@ public class CalliServer implements CalliServerMXBean {
 						String manager = result.getValue("manager")
 								.stringValue();
 						String label = result.getValue("label").stringValue();
-						for (SetupRealm realm : realms) {
-							if (repositoryID.equals(realm.getRepositoryID())
-									&& manager.startsWith(realm.getRealm())) {
-								managers.put(manager, label);
-								break;
-							}
-						}
+						managers.put(manager, label);
 					}
 				} finally {
 					results.close();
@@ -824,12 +802,9 @@ public class CalliServer implements CalliServerMXBean {
 					listener.webServiceStopping(server);
 				}
 				server.stop();
+				HTTPObjectClient.getInstance().removeProxy(server);
 				shutDownRepositories();
 				server.destroy();
-				for (SetupRealm origin : getRealms()) {
-					HttpHost host = URIUtils.extractHost(java.net.URI.create(origin.getRealm()));
-					HTTPObjectClient.getInstance().removeProxy(host, server);
-				}
 				return true;
 			}
 		} catch (IOException e) {
@@ -933,7 +908,7 @@ public class CalliServer implements CalliServerMXBean {
 		}
 	}
 
-	CalliRepository getRepository(String repositoryID)
+	synchronized CalliRepository getRepository(String repositoryID)
 			throws IOException, OpenRDFException {
 		Map<String, String> map = conf.getOriginRepositoryIDs();
 		List<String> origins = new ArrayList<String>(map.size());
@@ -952,9 +927,11 @@ public class CalliServer implements CalliServerMXBean {
 		if (repo == null)
 			throw new IllegalArgumentException("Unknown repositoryID: " + repositoryID);
 		repository = new CalliRepository(repo, dataDir);
-		String changes = repository.getCallimachusUrl(origins.get(0), CHANGES_PATH);
-		if (changes != null) {
-			repository.setChangeFolder(changes);
+		if (!origins.isEmpty()) {
+			String changes = repository.getCallimachusUrl(origins.get(0), CHANGES_PATH);
+			if (changes != null) {
+				repository.setChangeFolder(changes);
+			}
 		}
 		for (String origin : origins) {
 			String schema = repository.getCallimachusUrl(origin, SCHEMA_GRAPH);
@@ -973,14 +950,24 @@ public class CalliServer implements CalliServerMXBean {
 		return repository;
 	}
 
-	synchronized CalliRepository getInitializedRepository(String repositoryID) {
-		CalliRepository repository = repositories.get(repositoryID);
-		if (repository == null || !repository.isInitialized())
-			return null;
+	synchronized CalliRepository getSetupRepository(String repositoryID)
+			throws OpenRDFException, IOException {
+		refreshRepository(repositoryID);
+		Repository repo = manager.getRepository(repositoryID);
+		File dataDir = manager.getRepositoryDir(repositoryID);
+		if (repo == null)
+			throw new IllegalArgumentException("Unknown repositoryID: "
+					+ repositoryID);
+		CalliRepository repository = new CalliRepository(repo, dataDir);
+		repositories.put(repositoryID, repository);
 		return repository;
 	}
 
-	synchronized void refreshRepository(String repositoryID) {
+	synchronized void refreshRepository(String repositoryID) throws RepositoryException {
+		CalliRepository repository = repositories.get(repositoryID);
+		if (repository != null && repository.isInitialized()) {
+			repository.shutDown();
+		}
 		repositories.remove(repositoryID);
 	}
 

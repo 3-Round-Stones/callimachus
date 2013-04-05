@@ -126,28 +126,28 @@ public class ResourceOperation extends ResourceRequest {
 		return getContentType(method);
 	}
 
-	public String getEntityTag(String revision, String cache, String contentType)
+	public String getEntityTag(String version, String cache, String contentType)
 			throws RepositoryException, QueryEvaluationException {
 		Method m = this.method;
 		int headers = getHeaderCodeFor(m);
 		boolean strong = cache != null && cache.contains("cache-range");
 		String method = getMethod();
 		if (contentType != null) {
-			return variantTag(revision, strong, contentType, headers);
+			return variantTag(version, strong, contentType, headers);
 		} else if ("GET".equals(method) || "HEAD".equals(method)) {
 			if (m != null && contentType == null)
-				return revisionTag(revision, strong, headers);
+				return revisionTag(version, strong, headers);
 			if (m != null)
-				return variantTag(revision, strong, contentType, headers);
+				return variantTag(version, strong, contentType, headers);
 			Method operation;
 			if ((operation = getAlternativeMethod("alternate")) != null) {
 				String type = getContentType(operation);
 				headers = getHeaderCodeFor(operation);
-				return variantTag(revision, strong, type, headers);
+				return variantTag(version, strong, type, headers);
 			} else if ((operation = getAlternativeMethod("describedby")) != null) {
 				String type = getContentType(operation);
 				headers = getHeaderCodeFor(operation);
-				return variantTag(revision,strong,  type, headers);
+				return variantTag(version,strong,  type, headers);
 			}
 		} else {
 			String putContentType = null;
@@ -171,13 +171,13 @@ public class ResourceOperation extends ResourceRequest {
 				get = null;
 			}
 			if (get == null && putContentType == null) {
-				return revisionTag(revision, strong, headers);
+				return revisionTag(version, strong, headers);
 			} else if (get == null) {
-				return variantTag(revision, strong, putContentType, headers);
+				return variantTag(version, strong, putContentType, headers);
 			} else {
 				String get_cache = getResponseCacheControlFor(get);
 				boolean get_strong = get_cache != null && get_cache.contains("cache-range");
-				return variantTag(revision, get_strong, getContentType(get), headers);
+				return variantTag(version, get_strong, getContentType(get), headers);
 			}
 		}
 		return null;
@@ -468,20 +468,22 @@ public class ResourceOperation extends ResourceRequest {
 		return false;
 	}
 
-	private String revisionTag(String revision, boolean strong, int code) {
-		if (revision == null)
+	private String revisionTag(String version, boolean strong, int code) {
+		if (version == null)
 			return null;
+		String revision = toHexString(version.hashCode());
 		String weak = strong ? "" : "W/";
 		if (code == 0)
 			return weak + '"' + revision + '"';
 		return weak + '"' + revision + '-' + toHexString(code) + '"';
 	}
 
-	private String variantTag(String revision, boolean strong, String mediaType, int code) {
+	private String variantTag(String version, boolean strong, String mediaType, int code) {
 		if (mediaType == null)
-			return revisionTag(revision, strong, code);
-		if (revision == null)
+			return revisionTag(version, strong, code);
+		if (version == null)
 			return null;
+		String revision = toHexString(version.hashCode());
 		String weak = strong ? "" : "W/";
 		String cd = toHexString(code);
 		String v = toHexString(mediaType.hashCode());

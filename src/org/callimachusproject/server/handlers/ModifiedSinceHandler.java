@@ -59,7 +59,7 @@ public class ModifiedSinceHandler implements Handler {
 		String method = req.getMethod();
 		String contentType = req.getResponseContentType();
 		String cache = req.getResponseCacheControl();
-		String entityTag = req.getEntityTag(req.revision(), cache, contentType);
+		String entityTag = req.getEntityTag(req.getContentVersion(), cache, contentType);
 		if (req.isSafe() && req.isNoValidate()) {
 			return delegate.verify(req);
 		} else {

@@ -320,8 +320,23 @@ public class ResourceRequest extends Request {
 		return 0;
 	}
 
-	public String revision() {
-		return target.revision();
+	public String getContentVersion() {
+		try {
+			Activity activity = target.getProvWasGeneratedBy();
+			if (activity == null)
+				return null;
+			String uri = ((RDFObject) activity).getResource().stringValue();
+			int f = uri.indexOf('#');
+			if (f >= 0) {
+				uri = uri.substring(0, f);
+			}
+			String origin = this.getOrigin();
+			if (uri.startsWith(origin) && '/' == uri.charAt(origin.length()))
+				return uri.substring(origin.length());
+			return uri;
+		} catch (ClassCastException e) {
+			return null;
+		}
 	}
 
 	public FluidType getAcceptable() {

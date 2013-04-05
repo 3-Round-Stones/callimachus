@@ -51,7 +51,7 @@ public class UnmodifiedSinceHandler implements Handler {
 	public Response verify(ResourceOperation request) throws Exception {
 		String contentType = request.getResponseContentType();
 		String cache = request.getResponseCacheControl();
-		String entityTag = request.getEntityTag(request.revision(), cache, contentType);
+		String entityTag = request.getEntityTag(request.getContentVersion(), cache, contentType);
 		if (unmodifiedSince(request, entityTag)) {
 			return delegate.verify(request);
 		} else {

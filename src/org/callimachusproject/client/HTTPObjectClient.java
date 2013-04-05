@@ -197,6 +197,10 @@ public class HTTPObjectClient extends AbstractHttpClient {
 		return internal.removeProxy(destination, proxy);
 	}
 
+	public boolean removeProxy(HttpClient proxy) {
+		return internal.removeProxy(proxy);
+	}
+
 	/**
 	 * Follows redirects and returns the final 200 or 203 response with the
 	 * final request URL represented as the response header Content-Location

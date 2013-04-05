@@ -1,6 +1,7 @@
 package org.callimachusproject.client;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -35,6 +36,10 @@ public class InternalHttpClient extends AbstractHttpClient {
 
 	public boolean removeProxy(HttpHost host, HttpClient proxy) {
 		return proxies.remove(host, proxy);
+	}
+
+	public boolean removeProxy(HttpClient proxy) {
+		return proxies.values().removeAll(Collections.singleton(proxy));
 	}
 
 	public HttpResponse execute(HttpHost host, HttpRequest request,

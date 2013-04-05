@@ -44,5 +44,5 @@
     calli:query "view";
     calli:requires calli:reader;
     calli:type "text/html";
-    calli:copy <../pipelines/change-view.xpl?results&target={0}>.
+    calli:copy "../pipelines/change-view.xpl?results&target={0}".
 

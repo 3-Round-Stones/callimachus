@@ -92,6 +92,10 @@ public class HTTPObjectRequestHandler extends AbstractHttpClient implements
 		repositories.put(origin, repository);
 	}
 
+	public synchronized void removeOrigin(String origin) {
+		repositories.remove(origin);
+	}
+
 	public synchronized void start() throws IOException {
 		if (requestHandler != null)
 			throw new IllegalStateException("Stop must be called first");

@@ -228,6 +228,11 @@ public class WebServer extends AbstractHttpClient implements WebServerMXBean, IO
 		}
 	}
 
+	public synchronized void removeOrigin(String origin) {
+		service.removeOrigin(origin);
+		authCache.removeOrigin(origin);
+	}
+
 	private DefaultHttpServerIODispatch createIODispatch(
 			HttpRequestFactory requestFactory, ByteBufferAllocator allocator) {
 		HttpAsyncService handler;

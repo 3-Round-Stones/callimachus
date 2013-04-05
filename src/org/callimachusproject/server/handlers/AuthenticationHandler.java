@@ -78,6 +78,10 @@ public class AuthenticationHandler implements Handler {
 		manager.resetCache();
 	}
 
+	public synchronized void removeOrigin(String origin) {
+		managers.remove(origin);
+	}
+
 	public synchronized void resetCache() {
 		for (AuthorizationManager manager : managers.values()) {
 			manager.resetCache();

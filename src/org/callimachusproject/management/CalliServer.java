@@ -410,6 +410,16 @@ public class CalliServer implements CalliServerMXBean {
 				Set<String> removed = new LinkedHashSet<String>(params.keySet());
 				removed.removeAll(groupBeforeColon(parameters).keySet());
 				Map<String, String> map = conf.getOriginRepositoryIDs();
+				if (isWebServiceRunning()) {
+					for (Map.Entry<String, String> e : map.entrySet()) {
+						if (removed.contains(e.getValue())) {
+							String webappOrigin = e.getKey();
+							HttpHost host = URIUtils.extractHost(java.net.URI.create(webappOrigin + "/"));
+							HTTPObjectClient.getInstance().removeProxy(host, server);
+							server.removeOrigin(webappOrigin);
+						}
+					}
+				}
 				map.values().removeAll(removed);
 				conf.setOriginRepositoryIDs(map);
 				for (String repositoryID : removed) {

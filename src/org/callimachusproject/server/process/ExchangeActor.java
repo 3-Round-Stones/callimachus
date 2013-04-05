@@ -190,9 +190,9 @@ public abstract class ExchangeActor {
 		String body = writer.toString();
 		if (repository == null)
 			return body.getBytes("UTF-8");
+		String target = req.getIRI();
 		try {
 			StringReader reader = new StringReader(body);
-			String target = req.getIRI();
 			AuthorizationManager manager = service.get(repository.getDelegate());
 			if (manager == null)
 				return body.getBytes("UTF-8");
@@ -205,7 +205,7 @@ public abstract class ExchangeActor {
 			w.close();
 			return out.toByteArray();
 		} catch (Exception exc) {
-			logger.error(exc.toString(), exc);
+			logger.error("Could not creating error page: " + target, exc);
 			return body.getBytes("UTF-8");
 		}
 	}

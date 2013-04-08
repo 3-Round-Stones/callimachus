@@ -59,6 +59,8 @@ public class TermOrigin {
 	}
 
 	public boolean hasLocation(Location location) {
+		if (this.location == null)
+			return location == null;
 		return this.location.getCharacterOffset() == location.getCharacterOffset();
 	}
 

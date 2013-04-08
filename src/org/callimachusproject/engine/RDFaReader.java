@@ -723,7 +723,7 @@ public class RDFaReader extends AbstractRDFEventReader {
 		}
 
 		private Location getLocation(Attribute attr) {
-			return new FallbackLocation(attr, event);
+			return FallbackLocation.newInstance(attr, event);
 		}
 
 		private boolean isHTML(QName name) {

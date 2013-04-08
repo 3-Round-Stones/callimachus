@@ -4,14 +4,23 @@ import javax.xml.stream.Location;
 import javax.xml.stream.events.XMLEvent;
 
 public class FallbackLocation implements Location {
+
+	public static Location newInstance(XMLEvent primary, XMLEvent secondary) {
+		return newInstance(primary.getLocation(), secondary.getLocation());
+	}
+
+	public static Location newInstance(Location primary, Location secondary) {
+		if (primary == null)
+			return secondary;
+		if (secondary == null)
+			return primary;
+		return new FallbackLocation(primary, secondary);
+	}
+
 	private final Location primary;
 	private final Location secondary;
 
-	public FallbackLocation(XMLEvent primary, XMLEvent secondary) {
-		this(primary.getLocation(), secondary.getLocation());
-	}
-
-	public FallbackLocation(Location primary, Location secondary) {
+	private FallbackLocation(Location primary, Location secondary) {
 		this.primary = primary;
 		this.secondary = secondary;
 	}

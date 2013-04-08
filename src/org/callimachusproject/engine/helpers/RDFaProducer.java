@@ -624,7 +624,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 			String localPart = attr.getName().getLocalPart();
 			String value = attr.getValue();
 			try {
-				Value v = substitute(start, tag,attr,new FallbackLocation(attr, start), context.path);
+				Value v = substitute(start, tag,attr,FallbackLocation.newInstance(attr, start), context.path);
 				// content variables are currently represented as empty strings
 				if (v==null && localPart.equals("content") && namespace.isEmpty() && value.isEmpty()) {
 					// remove content from the context to prevent addition as text content
@@ -729,7 +729,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 	}
 
 	private synchronized Attribute createAttribute(StartElement start, Attribute attr, String value) {
-		eventFactory.setLocation(new FallbackLocation(attr, start));
+		eventFactory.setLocation(FallbackLocation.newInstance(attr, start));
 		return eventFactory.createAttribute(attr.getName(), value);
 	}
 

@@ -283,7 +283,7 @@ public class OrderByTest {
 		List<RDFEvent> list = Arrays
 				.asList(new Document(true, null),
 						new Namespace("", "http://www.w3.org/1999/xhtml", null),
-						new Namespace("eg", "http://example.com#", null),
+						new Namespace("eg", "http://example.com/#", null),
 						new Namespace("skos",
 								"http://www.w3.org/2004/02/skos/core#", null),
 						new Namespace("skosxl",
@@ -298,12 +298,12 @@ public class OrderByTest {
 								new VarImpl("this"),
 								new IRIImpl(
 										"http://www.w3.org/1999/02/22-rdf-syntax-ns#type"),
-								new IRIImpl("http://example.com#MyClass"),
+								new IRIImpl("http://example.com/#MyClass"),
 								false, null),
 						new Optional(true, null),
 						new Group(true, null),
 						new TriplePattern(new VarImpl("this"), new IRIImpl(
-								"http://example.com#myRel"), new VarImpl(
+								"http://example.com/#myRel"), new VarImpl(
 								"concept"), false, null),
 						new Subject(true, new VarImpl("concept"), null),
 						new TriplePattern(

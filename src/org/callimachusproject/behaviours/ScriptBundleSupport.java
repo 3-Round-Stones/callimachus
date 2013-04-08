@@ -7,8 +7,9 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.http.HttpResponse;
-import org.callimachusproject.client.HTTPObjectClient;
+import org.apache.http.HttpEntity;
+import org.callimachusproject.client.HttpOriginClient;
+import org.callimachusproject.client.HttpUriClient;
 import org.callimachusproject.concepts.ScriptBundle;
 import org.callimachusproject.server.exceptions.GatewayTimeout;
 import org.callimachusproject.server.exceptions.InternalServerError;
@@ -85,7 +86,7 @@ public abstract class ScriptBundleSupport implements ScriptBundle {
 	}
 
 	private String getJavaScriptCode(String url) throws IOException {
-		HTTPObjectClient client = HTTPObjectClient.getInstance();
+		HttpOriginClient client = new HttpOriginClient(this.toString());
 		Reader reader = openJavaScriptReader(url, 10, client);
 		try {
 			StringWriter writer = new StringWriter();
@@ -101,9 +102,9 @@ public abstract class ScriptBundleSupport implements ScriptBundle {
 	}
 
 	private Reader openJavaScriptReader(String url, int max,
-			HTTPObjectClient client) throws IOException {
-		HttpResponse resp = client.get(url, "text/javascript;charset=UTF-8");
-		return new InputStreamReader(resp.getEntity().getContent(), "UTF-8");
+			HttpUriClient client) throws IOException {
+		HttpEntity entity = client.getEntity(url, "text/javascript;charset=UTF-8");
+		return new InputStreamReader(entity.getContent(), "UTF-8");
 	}
 
 }

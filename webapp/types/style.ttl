@@ -120,8 +120,9 @@
     calli:query "less";
     calli:requires calli:reader;
     calli:type "text/css";
-    calli:imports <java:org.apache.http.message.BasicHttpRequest>;
-    calli:imports <java:org.callimachusproject.client.HTTPObjectClient>;
+    calli:imports <java:org.apache.http.client.methods.HttpGet>;
+    calli:imports <java:org.callimachusproject.client.HttpOriginClient>;
+    calli:imports <java:org.callimachusproject.server.exceptions.NotFound>;
     calli:imports <java:org.callimachusproject.server.exceptions.ResponseException>;
     calli:script ("""
         var window = {};
@@ -165,30 +166,17 @@
     <../scripts/less/tree.js>
     <../scripts/less/browser.js>
     """
+        var client = new HttpOriginClient(this.toString());
         var contents = {};
         window.less.Parser.importer = function(path, paths, callback, env) {
             if (path != null) {
                 var systemId = new java.net.URI(paths[0]).resolve(path).normalize().toASCIIString();
-                var redirect = systemId;
-                var resp = null;
-                var client = HTTPObjectClient.getInstance();
-                for (var i = 0; i < 20 && redirect != null; i++) {
-                    systemId = redirect;
-                    var req = new BasicHttpRequest("GET", redirect);
-                    req.setHeader("Accept", "text/css");
-                    req.setHeader("Accept-Charset", "UTF-8");
-                    resp = client.service(req);
-                    redirect = client.redirectLocation(redirect, resp);
-                }
-                var code = resp.statusLine.statusCode;
-                if (code < 200 || 300 <= code && code < 400 || 500 <= code)
-                    throw ResponseException.create(resp, systemId);
+                var req = new HttpGet(systemId);
+                req.setHeader("Accept", "text/css");
+                req.setHeader("Accept-Charset", "UTF-8");
                 var content = '';
-                if (400 <= code) {
-                    var exception = ResponseException.create(resp, systemId);
-                    println(exception.longMessage);
-                    content = "/*\\n" + exception.longMessage.replace(/\\*/g,'_') + "\\n*/";
-                } else if (resp.entity && resp.entity.content) {
+                try {
+                    var resp = client.getResponse(req);
                     try {
                         var scanner = new java.util.Scanner(resp.entity.content, "UTF-8");
                         scanner = scanner.useDelimiter("\\\\A");
@@ -198,6 +186,9 @@
                     } finally {
                         resp.entity.content.close();
                     }
+                } catch (e if e.javaException instanceof NotFound) {
+                    println(e.javaException.longMessage);
+                    content = "/*\\n" + e.javaException.longMessage.replace(/\\*/g,'_') + "\\n*/";
                 }
                 var dir = new java.net.URI(systemId).resolve(".").normalize();
                 var file = dir.relativize(new java.net.URI(systemId)).toASCIIString();

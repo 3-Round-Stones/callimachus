@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringWriter;
+import java.net.URI;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.transform.stream.StreamSource;
@@ -35,7 +36,7 @@ import com.xmlcalabash.util.S9apiUtils;
 
 public class RenderStep implements XProcStep {
 	private static final FluidFactory FF = FluidFactory.getInstance();
-	private static final TemplateEngine ENGINE = TemplateEngine.newInstance();
+	private final TemplateEngine engine;
 	private final XProcRuntime runtime;
 	private final XAtomicStep step;
 	private ReadablePipe sourcePipe = null;
@@ -47,6 +48,9 @@ public class RenderStep implements XProcStep {
 	public RenderStep(XProcRuntime runtime, XAtomicStep step) {
 		this.runtime = runtime;
 		this.step = step;
+		URI docId = step.getNode().getDocumentURI();
+		assert docId != null;
+		engine = TemplateEngine.newInstance(docId.toASCIIString());
 	}
 
 	@Override
@@ -120,7 +124,7 @@ public class RenderStep implements XProcStep {
 			IOException, FluidException, TemplateException {
 		String tempId = t.getBaseURI().toASCIIString();
 		Reader template = asReader(t);
-		Template tem = ENGINE.getTemplate(template, tempId);
+		Template tem = engine.getTemplate(template, tempId);
 		TupleQueryResult source = asTupleQueryResult(s);
 		Reader result = asReader(tem.render(source), resolve(outputBase));
 

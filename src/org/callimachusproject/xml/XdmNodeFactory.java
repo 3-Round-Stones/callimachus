@@ -22,12 +22,13 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
 public class XdmNodeFactory implements EntityResolver, URIResolver {
+	private static final String XML_MEDIA = "application/xml, application/xslt+xml, text/xml, text/xsl";
 	private final Processor processor;
 	private final InputSourceResolver resolver;
 
-	public XdmNodeFactory(Processor processor) {
+	public XdmNodeFactory(String systemId, Processor processor) {
 		this.processor = processor;
-		this.resolver = new InputSourceResolver();
+		this.resolver = new InputSourceResolver(systemId, XML_MEDIA);
 	}
 
 	public Source resolve(String href, String base) throws TransformerException {

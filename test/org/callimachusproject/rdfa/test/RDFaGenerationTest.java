@@ -376,7 +376,7 @@ public class RDFaGenerationTest extends TestCase {
 			write(readDocument(template),System.out);
 		}
 		// produce SPARQL from the RDFa template
-		TemplateEngine engine = TemplateEngine.newInstance();
+		TemplateEngine engine = TemplateEngine.newInstance(template.toURI().toASCIIString());
 		Template temp = engine.getTemplate(new FileInputStream(template), base);
 
 		//XMLEventReader xml = xmlInputFactory.createXMLEventReader(src); 

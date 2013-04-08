@@ -83,13 +83,11 @@ public abstract class PageSupport implements RDFObject {
 	private static final String CHANGE_NOTE = "http://www.w3.org/2004/02/skos/core#changeNote";
 	private static final String HAS_COMPONENT = "http://callimachusproject.org/rdf/2009/framework#" + "hasComponent";
 
-	private static final TemplateEngine ENGINE = TemplateEngine.newInstance();
-
 	/**
 	 * Called from page.ttl
 	 */
 	public Template getTemplate() throws IOException, TemplateException {
-		return ENGINE.getTemplate(this.getResource().stringValue());
+		return getEngine().getTemplate(this.getResource().stringValue());
 	}
 
 	/**
@@ -105,7 +103,7 @@ public abstract class PageSupport implements RDFObject {
 			realm = auth.getRealm(self);
 		}
 		String url = self + "?layout&realm=" + URLEncoder.encode(realm.toString(), "UTF-8");
-		return ENGINE.getTemplate(url);
+		return getEngine().getTemplate(url);
 	}
 
 	public RDFObject calliCreateResource(InputStream in, String type,
@@ -186,7 +184,7 @@ public abstract class PageSupport implements RDFObject {
 			Collection<Statement> statements, ObjectConnection con)
 			throws IOException, TemplateException, RDFParseException,
 			OpenRDFException {
-		Template template = ENGINE
+		Template template = getEngine()
 				.getTemplate(this.getResource().stringValue());
 		String variable = getFirstVariable(template);
 		assert variable != null;
@@ -230,7 +228,7 @@ public abstract class PageSupport implements RDFObject {
 	private GraphQueryResult loadEditTriples(URI resource, ObjectConnection con)
 			throws IOException, TemplateException, OpenRDFException,
 			RDFParseException {
-		Template template = ENGINE.getTemplate(toString());
+		Template template = getEngine().getTemplate(toString());
 		MapBindingSet bindings = new MapBindingSet();
 		bindings.addBinding("this", resource);
 		return template.evaluateGraph(bindings, con);
@@ -288,7 +286,11 @@ public abstract class PageSupport implements RDFObject {
 	private RDFEventReader openPatternReader(String about)
 			throws IOException, TemplateException {
 		String base = toString();
-		return ENGINE.getTemplate(base).openQuery();
+		return getEngine().getTemplate(base).openQuery();
+	}
+
+	private TemplateEngine getEngine() {
+		return TemplateEngine.newInstance(this.getResource().stringValue());
 	}
 
 	private TriplePattern changeNoteOf(URI resource) {

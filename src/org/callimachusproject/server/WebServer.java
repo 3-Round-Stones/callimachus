@@ -86,7 +86,7 @@ import org.apache.http.protocol.ResponseContent;
 import org.apache.http.protocol.ResponseDate;
 import org.callimachusproject.Version;
 import org.callimachusproject.client.AbstractHttpClient;
-import org.callimachusproject.client.HTTPObjectClient;
+import org.callimachusproject.client.HttpClientManager;
 import org.callimachusproject.concurrent.ManagedExecutors;
 import org.callimachusproject.concurrent.NamedThreadFactory;
 import org.callimachusproject.repository.CalliRepository;
@@ -387,7 +387,7 @@ public class WebServer extends AbstractHttpClient implements WebServerMXBean, IO
 
 	public void invalidateCache() throws IOException, InterruptedException {
 		cache.invalidate();
-		HTTPObjectClient.invalidateCache();
+		HttpClientManager.invalidateCache();
 		remoteCache.invalidate();
 	}
 
@@ -400,7 +400,7 @@ public class WebServer extends AbstractHttpClient implements WebServerMXBean, IO
 			public void run() {
 				try {
 					cache.reset();
-					HTTPObjectClient.resetCache();
+					HttpClientManager.invalidateCache();
 					remoteCache.invalidate();
 					authCache.resetCache();
 				} catch (Error e) {

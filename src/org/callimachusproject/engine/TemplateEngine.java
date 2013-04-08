@@ -9,36 +9,30 @@ import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerException;
 
-import org.apache.http.HttpResponse;
-import org.callimachusproject.client.HTTPObjectClient;
+import org.callimachusproject.client.HttpOriginClient;
+import org.callimachusproject.client.HttpUriEntity;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidException;
 import org.callimachusproject.fluid.FluidFactory;
 
 public class TemplateEngine {
 
-	public static TemplateEngine newInstance() {
-		return new TemplateEngine();
+	public static TemplateEngine newInstance(String origin) {
+		return new TemplateEngine(origin);
 	}
 
-	public static TemplateEngine getInstance() {
-		return instance;
+	private final HttpOriginClient client;
+
+	public TemplateEngine(String origin) {
+		this.client = new HttpOriginClient(origin);
 	}
 
-	private static final TemplateEngine instance = newInstance();
-
-	public Template getTemplate(String url) throws IOException,
+	public Template getTemplate(String systemId) throws IOException,
 			TemplateException {
-		return getTemplate(url, null);
-	}
-
-	public Template getTemplate(String systemId, Map<String, ?> parameters)
-			throws IOException, TemplateException {
-		HTTPObjectClient client = HTTPObjectClient.getInstance();
-		HttpResponse resp = client.get(systemId, "appliaction/xhtml+xml, application/xml, text/xml");
-		systemId = resp.getLastHeader("Content-Location").getValue();
-		InputStream in = resp.getEntity().getContent();
-		return getTemplate(in, systemId, parameters);
+		HttpUriEntity resp = client.getEntity(systemId, "appliaction/xhtml+xml, application/xml, text/xml");
+		systemId = resp.getSystemId();
+		InputStream in = resp.getContent();
+		return getTemplate(in, systemId, null);
 	}
 
 	public Template getTemplate(InputStream in, String systemId) throws IOException,

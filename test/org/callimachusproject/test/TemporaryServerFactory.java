@@ -13,7 +13,7 @@ import java.util.Scanner;
 
 import org.apache.http.HttpHost;
 import org.apache.http.client.utils.URIUtils;
-import org.callimachusproject.client.HTTPObjectClient;
+import org.callimachusproject.client.HttpClientManager;
 import org.callimachusproject.repository.CalliRepository;
 import org.callimachusproject.server.WebServer;
 import org.callimachusproject.setup.CallimachusSetup;
@@ -161,7 +161,7 @@ public class TemporaryServerFactory {
 					server.listen(new int[]{port}, new int[0]);
 					server.start();
 					HttpHost host = URIUtils.extractHost(java.net.URI.create(origin + "/"));
-					HTTPObjectClient.getInstance().setProxy(host, server);
+					HttpClientManager.getInstance().setProxy(host, server);
 					Thread.sleep(100);
 				}
 

@@ -45,8 +45,8 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import javax.script.SimpleBindings;
 
-import org.apache.http.HttpResponse;
-import org.callimachusproject.client.HTTPObjectClient;
+import org.apache.http.HttpEntity;
+import org.callimachusproject.client.HttpOriginClient;
 import org.openrdf.repository.object.exceptions.BehaviourException;
 import org.openrdf.repository.object.traits.ObjectMessage;
 import org.slf4j.Logger;
@@ -207,6 +207,7 @@ public class EmbeddedScriptEngine {
 	private EmbeddedScript engine;
 	private final String systemId;
 	private final String filename;
+	private final HttpOriginClient client;
 	private final EmbeddedScriptFactory factory;
 	private final EmbeddedScriptContext context;
 
@@ -219,6 +220,7 @@ public class EmbeddedScriptEngine {
 		this.context = new EmbeddedScriptContext();
 		this.factory = new EmbeddedScriptFactory(cl, context);
 		this.scripts = scripts;
+		this.client = new HttpOriginClient(systemId);
 	}
 
 	@Override
@@ -357,12 +359,10 @@ public class EmbeddedScriptEngine {
 
 	private void readUrlInto(String systemId, CharArrayWriter writer)
 			throws IOException, UnsupportedEncodingException {
-		HTTPObjectClient client = HTTPObjectClient.getInstance();
-		HttpResponse resp = client.get(systemId,
-				"text/javascript;charset=UTF-8",
-				"application/javascript;charset=UTF-8");
-		if (resp.getEntity() != null) {
-			InputStream in = resp.getEntity().getContent();
+		HttpEntity entity = client.getEntity(systemId,
+				"text/javascript;charset=UTF-8, application/javascript;charset=UTF-8");
+		if (entity != null) {
+			InputStream in = entity.getContent();
 			try {
 				InputStreamReader reader = new InputStreamReader(in, "UTF-8");
 				int read;

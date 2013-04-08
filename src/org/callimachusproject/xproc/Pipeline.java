@@ -42,7 +42,7 @@ public class Pipeline {
 	Pipeline(InputStream in, String systemId) throws SAXException, IOException {
 		this.systemId = systemId;
 		this.config = new XProcConfiguration("he", false);
-		this.resolver = new XdmNodeFactory(config.getProcessor());
+		this.resolver = new XdmNodeFactory(systemId, config.getProcessor());
 		loadConfig(resolver, config);
 		this.pipeline = resolver.parse(systemId, in);
 	}
@@ -50,7 +50,7 @@ public class Pipeline {
 	Pipeline(Reader in, String systemId) throws SAXException, IOException {
 		this.systemId = systemId;
 		this.config = new XProcConfiguration("he", false);
-		this.resolver = new XdmNodeFactory(config.getProcessor());
+		this.resolver = new XdmNodeFactory(systemId, config.getProcessor());
 		loadConfig(resolver, config);
 		this.pipeline = resolver.parse(systemId, in);
 	}
@@ -71,7 +71,7 @@ public class Pipeline {
 		XdmNodeFactory resolver = this.resolver;
 		if (config == null) {
 			config = new XProcConfiguration("he", false);
-			resolver = new XdmNodeFactory(config.getProcessor());
+			resolver = new XdmNodeFactory(getSystemId(), config.getProcessor());
 			loadConfig(resolver, config);
 		}
 		return pipeSource(null, resolver, config);
@@ -88,7 +88,7 @@ public class Pipeline {
 		XdmNodeFactory resolver = this.resolver;
 		if (config == null) {
 			config = new XProcConfiguration("he", false);
-			resolver = new XdmNodeFactory(config.getProcessor());
+			resolver = new XdmNodeFactory(getSystemId(), config.getProcessor());
 			loadConfig(resolver, config);
 		}
 		return pipeSource(resolver.parse(systemId, source), resolver, config);
@@ -99,7 +99,7 @@ public class Pipeline {
 		XdmNodeFactory resolver = this.resolver;
 		if (config == null) {
 			config = new XProcConfiguration("he", false);
-			resolver = new XdmNodeFactory(config.getProcessor());
+			resolver = new XdmNodeFactory(getSystemId(), config.getProcessor());
 			loadConfig(resolver, config);
 		}
 		return pipeSource(resolver.parse(systemId, reader), resolver, config);

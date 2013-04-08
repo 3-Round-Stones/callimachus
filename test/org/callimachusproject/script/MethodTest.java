@@ -12,7 +12,7 @@ import org.openrdf.sail.memory.MemoryStore;
 
 public class MethodTest extends CodeGenTestCase {
 
-	private static final String NS = "urn:test:candy#";
+	private static final String NS = "file:///tmp/test/candy#";
 
 	public void testCandy() throws Exception {
 		addRdfSource("rdfs-schema.rdf");

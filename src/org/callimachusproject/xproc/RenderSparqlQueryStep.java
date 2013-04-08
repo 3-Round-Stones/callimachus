@@ -3,6 +3,7 @@ package org.callimachusproject.xproc;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringWriter;
+import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -38,11 +39,11 @@ import com.xmlcalabash.util.Base64;
 import com.xmlcalabash.util.S9apiUtils;
 
 public class RenderSparqlQueryStep implements XProcStep {
-	private static final TemplateEngine ENGINE = TemplateEngine.newInstance();
 	private static final QName _content_type = new QName("content-type");
 	public static final QName _encoding = new QName("", "encoding");
 	private static final FluidFactory FF = FluidFactory.getInstance();
 	private static final DocumentFactory df = DocumentFactory.newInstance();
+	private final TemplateEngine engine;
 	private final FluidBuilder fb = FF.builder();
 	private final Map<String, String> parameters = new LinkedHashMap<String, String>();
 	private final XProcRuntime runtime;
@@ -55,6 +56,9 @@ public class RenderSparqlQueryStep implements XProcStep {
 	public RenderSparqlQueryStep(XProcRuntime runtime, XAtomicStep step) {
 		this.runtime = runtime;
 		this.step = step;
+		URI docId = step.getNode().getDocumentURI();
+		assert docId != null;
+		engine = TemplateEngine.newInstance(docId.toASCIIString());
 	}
 
 	@Override
@@ -153,7 +157,7 @@ public class RenderSparqlQueryStep implements XProcStep {
 			TemplateException, ParserConfigurationException {
 		String tempId = t.getBaseURI().toASCIIString();
 		Reader template = asReader(t);
-		Template tem = ENGINE.getTemplate(template, tempId);
+		Template tem = engine.getTemplate(template, tempId);
 		Document doc = toDocument(tem.getQueryString(queryString));
 
 		DocumentBuilder xdmBuilder = newDocumentBuilder();
@@ -165,7 +169,7 @@ public class RenderSparqlQueryStep implements XProcStep {
 			TemplateException, ParserConfigurationException {
 		String tempId = t.getBaseURI().toASCIIString();
 		Reader template = asReader(t);
-		Template tem = ENGINE.getTemplate(template, tempId);
+		Template tem = engine.getTemplate(template, tempId);
 		Document doc = toDocument(tem.getQueryString());
 
 		DocumentBuilder xdmBuilder = newDocumentBuilder();

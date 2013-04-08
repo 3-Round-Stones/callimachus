@@ -44,9 +44,9 @@
     calli:method "GET";
     calli:requires calli:reader;
     calli:type "message/x-response";
-    calli:imports <java:org.apache.http.message.BasicHttpRequest>;
+    calli:imports <java:org.apache.http.client.methods.HttpGet>;
     calli:imports <java:org.callimachusproject.rewrite.Substitution>;
-    calli:imports <java:org.callimachusproject.client.HTTPObjectClient>;
+    calli:imports <java:org.callimachusproject.client.HttpOriginClient>;
     calli:imports <java:org.callimachusproject.server.exceptions.ResponseException>;
     calli:script """
         var cacheControl = this.calliCacheControl.toArray();
@@ -77,23 +77,14 @@
                 if (queryString && location.indexOf('?') < 0) {
                     location = location + '?' + queryString;
                 }   
-                var client = HTTPObjectClient.getInstance();
+                var client = new HttpOriginClient(this.toString());
                 var systemId = new java.net.URI(this.toString()).resolve(location).normalize().toASCIIString();
-                var redirect = systemId;
-                var resp = null;
-                for (var i = 0; i < 20 && redirect != null; i++) {
-                    systemId = redirect;
-                    var req = new BasicHttpRequest("GET", systemId);
-                    for (var i=1; i<split.length; i++) {
-                        var header = split[i].split(':');
-                        req.addHeader(header[0], header[1]);
-                    }
-                    resp = client.service(req);
-                    redirect = client.redirectLocation(redirect, resp);
+                var req = new HttpGet(systemId);
+                for (var i=1; i<split.length; i++) {
+                    var header = split[i].split(':');
+                    req.addHeader(header[0], header[1]);
                 }
-                var code = resp.statusLine.statusCode;
-                if (code != 200 && code != 203)
-                    throw ResponseException.create(resp, systemId);
+                var resp = client.getResponse(req);
                 var headers = {'content-location': systemId,'cache-control':cacheControl};
                 if (resp.getFirstHeader('last-modified')) {
                     headers['last-modified'] = resp.getFirstHeader('last-modified').value;

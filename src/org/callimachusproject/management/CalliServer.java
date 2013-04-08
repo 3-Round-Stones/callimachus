@@ -28,7 +28,7 @@ import org.apache.http.HttpHost;
 import org.apache.http.client.utils.URIUtils;
 import org.callimachusproject.Version;
 import org.callimachusproject.auth.AuthorizationService;
-import org.callimachusproject.client.HTTPObjectClient;
+import org.callimachusproject.client.HttpClientManager;
 import org.callimachusproject.io.FileUtil;
 import org.callimachusproject.logging.LoggingProperties;
 import org.callimachusproject.repository.CalliRepository;
@@ -122,7 +122,7 @@ public class CalliServer implements CalliServerMXBean {
 		cacheDir.mkdirs();
 		FileUtil.deleteOnExit(cacheDir);
 		File in = new File(cacheDir, "client");
-		HTTPObjectClient.setCacheDirectory(in);
+		HttpClientManager.setCacheDirectory(in);
 		serverCacheDir = new File(cacheDir, "server");
 	}
 
@@ -165,7 +165,7 @@ public class CalliServer implements CalliServerMXBean {
 				logger.info("Callimachus is binding to {}", toString());
 				for (SetupRealm origin : getRealms()) {
 					HttpHost host = URIUtils.extractHost(java.net.URI.create(origin.getRealm()));
-					HTTPObjectClient.getInstance().setProxy(host, server);
+					HttpClientManager.getInstance().setProxy(host, server);
 				}
 				for (CalliRepository repository : repositories.values()) {
 					repository.setCompileRepository(true);
@@ -414,7 +414,7 @@ public class CalliServer implements CalliServerMXBean {
 						if (removed.contains(e.getValue())) {
 							String webappOrigin = e.getKey();
 							HttpHost host = URIUtils.extractHost(java.net.URI.create(webappOrigin + "/"));
-							HTTPObjectClient.getInstance().removeProxy(host, server);
+							HttpClientManager.getInstance().removeProxy(host, server);
 							server.removeOrigin(webappOrigin);
 						}
 					}
@@ -493,7 +493,7 @@ public class CalliServer implements CalliServerMXBean {
 					server.addOrigin(webappOrigin, getRepository(repositoryID));
 					server.setIndirectIdentificationPrefix(getIndirectPrefixes());
 					HttpHost host = URIUtils.extractHost(java.net.URI.create(webappOrigin + "/"));
-					HTTPObjectClient.getInstance().setProxy(host, server);
+					HttpClientManager.getInstance().setProxy(host, server);
 				}
 				return null;
 			}
@@ -566,7 +566,7 @@ public class CalliServer implements CalliServerMXBean {
 					server.addOrigin(origin, getRepository(tool.getRepositoryID()));
 					server.setIndirectIdentificationPrefix(getIndirectPrefixes());
 					HttpHost host = URIUtils.extractHost(uri);
-					HTTPObjectClient.getInstance().setProxy(host, server);
+					HttpClientManager.getInstance().setProxy(host, server);
 				}
 				return null;
 			}
@@ -802,7 +802,7 @@ public class CalliServer implements CalliServerMXBean {
 					listener.webServiceStopping(server);
 				}
 				server.stop();
-				HTTPObjectClient.getInstance().removeProxy(server);
+				HttpClientManager.getInstance().removeProxy(server);
 				shutDownRepositories();
 				server.destroy();
 				return true;
@@ -852,7 +852,7 @@ public class CalliServer implements CalliServerMXBean {
 			String origin = so.getOrigin();
 			server.addOrigin(origin, getRepository(so.getRepositoryID()));
 			HttpHost host = URIUtils.extractHost(java.net.URI.create(so.getRealm()));
-			HTTPObjectClient.getInstance().setProxy(host, server);
+			HttpClientManager.getInstance().setProxy(host, server);
 		}
 		server.setName(getServerName());
 		server.setIndirectIdentificationPrefix(getIndirectPrefixes());

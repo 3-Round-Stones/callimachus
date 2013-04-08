@@ -7,11 +7,11 @@
    <!ENTITY rdf  "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
    <!ENTITY xsd  "http://www.w3.org/2001/XMLSchema#" >
  ]>
-<rdf:RDF xmlns="urn:test:candy#" xmlns:msg="&msg;"
+<rdf:RDF xmlns="file:///tmp/test/candy#" xmlns:msg="&msg;"
 	xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:owl="http://www.w3.org/2002/07/owl#"
 	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-	xmlns:xsd="http://www.w3.org/2001/XMLSchema#" xmlns:sour="urn:test:Sour#"
-	 xmlns:candy="urn:test:candy#" xml:base="urn:test:candy">
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema#" xmlns:sour="file:///tmp/test/Sour#"
+	 xmlns:candy="file:///tmp/test/candy#" xml:base="file:///tmp/test/candy">
 
 	<!-- Classes -->
 
@@ -84,7 +84,7 @@
 		<rdfs:range rdf:resource="#Candy" />
 	</owl:ObjectProperty>
 
-	<owl:Class rdf:about="urn:test:Sour#lick">
+	<owl:Class rdf:about="file:///tmp/test/Sour#lick">
 		<rdfs:subClassOf rdf:resource="#taste" />
 		<msg:script><![CDATA[
 		return proceed();
@@ -193,7 +193,7 @@
 		</owl:intersectionOf>
 		<msg:precedes rdf:resource="#taste" />
 		<msg:precedes rdf:resource="#catchAll" />
-		<msg:script>return !this.objectConnection.getObject("urn:test:candy#john").candyTaste(candy); // jane likes it, if john doesn't</msg:script>
+		<msg:script>return !this.objectConnection.getObject("file:///tmp/test/candy#john").candyTaste(candy); // jane likes it, if john doesn't</msg:script>
 	</owl:Class>
 
 	<owl:Class rdf:ID="getURI">

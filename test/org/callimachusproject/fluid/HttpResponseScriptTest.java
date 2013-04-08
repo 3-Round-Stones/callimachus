@@ -25,7 +25,7 @@ import org.openrdf.sail.memory.MemoryStore;
 
 public class HttpResponseScriptTest extends TestCase {
 
-	@Iri("urn:test:BooleanTester")
+	@Iri("file:///tmp/test/BooleanTester")
 	public interface BooleanTester {
 		@script("return { headers:{'content-type':'text/plain'}, body:'hello' }")
 		Object returnBodyString();
@@ -64,7 +64,7 @@ public class HttpResponseScriptTest extends TestCase {
 	@Test
 	public void testBodyString() throws Exception {
 		BooleanTester tester = con.addDesignation(
-				con.getObject("urn:test:test"), BooleanTester.class);
+				con.getObject("file:///tmp/test"), BooleanTester.class);
 		HttpResponse http = asHttpResponse(tester.returnBodyString());
 		assertEquals(200, http.getStatusLine().getStatusCode());
 		assertEquals("text/plain", http.getFirstHeader("Content-Type")
@@ -76,7 +76,7 @@ public class HttpResponseScriptTest extends TestCase {
 	@Test
 	public void testBodyArray() throws Exception {
 		BooleanTester tester = con.addDesignation(
-				con.getObject("urn:test:test"), BooleanTester.class);
+				con.getObject("file:///tmp/test"), BooleanTester.class);
 		HttpResponse http = asHttpResponse(tester.returnBodyArray());
 		assertEquals(200, http.getStatusLine().getStatusCode());
 		assertEquals("text/plain", http.getFirstHeader("Content-Type")
@@ -88,7 +88,7 @@ public class HttpResponseScriptTest extends TestCase {
 	@Test
 	public void testStatus201() throws Exception {
 		BooleanTester tester = con.addDesignation(
-				con.getObject("urn:test:test"), BooleanTester.class);
+				con.getObject("file:///tmp/test"), BooleanTester.class);
 		HttpResponse http = asHttpResponse(tester.returnStatus201());
 		assertEquals(201, http.getStatusLine().getStatusCode());
 		assertEquals("text/plain", http.getFirstHeader("Content-Type")

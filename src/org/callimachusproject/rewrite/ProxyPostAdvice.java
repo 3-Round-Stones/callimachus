@@ -11,9 +11,8 @@ import java.util.Map;
 import javax.tools.FileObject;
 
 import org.apache.http.Header;
-import org.apache.http.HttpRequest;
-import org.apache.http.message.BasicHttpEntityEnclosingRequest;
-import org.apache.http.message.BasicHttpRequest;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.callimachusproject.annotations.type;
 import org.callimachusproject.client.StreamEntity;
 import org.callimachusproject.fluid.Fluid;
@@ -52,7 +51,7 @@ public class ProxyPostAdvice extends ProxyGetAdvice {
 		}
 	}
 
-	protected HttpRequest createRequest(String location, Header[] headers,
+	protected HttpUriRequest createRequest(String location, Header[] headers,
 			ObjectMessage message, FluidBuilder fb) throws IOException,
 			FluidException {
 		Object target = message.getTarget();
@@ -62,8 +61,7 @@ public class ProxyPostAdvice extends ProxyGetAdvice {
 			FileObject file = (FileObject) target;
 			InputStream in = file.openInputStream();
 			if (in != null) {
-				BasicHttpEntityEnclosingRequest req;
-				req = new BasicHttpEntityEnclosingRequest("POST", location);
+				HttpPost req = new HttpPost(location);
 				req.setHeaders(headers);
 				if (!contains(headers, "Content-Location")) {
 					String uri = file.toUri().toASCIIString();
@@ -74,12 +72,11 @@ public class ProxyPostAdvice extends ProxyGetAdvice {
 			}
 		}
 		if (bodyIndex == null) {
-			BasicHttpRequest req = new BasicHttpRequest("POST", location);
+			HttpPost req = new HttpPost(location);
 			req.setHeaders(headers);
 			return req;
 		}
-		BasicHttpEntityEnclosingRequest req;
-		req = new BasicHttpEntityEnclosingRequest("POST", location);
+		HttpPost req = new HttpPost(location);
 		req.setHeaders(headers);
 		Object body = message.getParameters()[bodyIndex];
 		Fluid fluid = fb.consume(body, getSystemId(), bodyFluidType);

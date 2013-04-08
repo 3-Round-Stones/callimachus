@@ -34,7 +34,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
 import org.apache.http.util.EntityUtils;
-import org.callimachusproject.client.HTTPObjectClient;
+import org.callimachusproject.client.HttpOriginClient;
 import org.callimachusproject.concepts.AuthenticationManager;
 import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.xproc.Pipe;
@@ -112,6 +112,7 @@ public class DetachedRealm {
 	private Logger logger = LoggerFactory.getLogger(DetachedRealm.class);
 	private final Map<Resource, DetachedAuthenticationManager> authentication = new HashMap<Resource, DetachedAuthenticationManager>();
 	private final Collection<String> allowOrigin = new LinkedHashSet<String>();
+	private final HttpOriginClient client;
 	private final Resource self;
 	private String secret;
 	private Pipeline error;
@@ -120,6 +121,7 @@ public class DetachedRealm {
 
 	public DetachedRealm(Resource self) {
 		this.self = self;
+		this.client = new HttpOriginClient(self.stringValue());
 	}
 
 	public void init(ObjectConnection con, RealmManager manager)
@@ -245,9 +247,7 @@ public class DetachedRealm {
 		try {
 			if (inForbidden.get() == null) {
 				inForbidden.set(true);
-				HTTPObjectClient client = HTTPObjectClient.getInstance();
-				HttpEntity entity = client.get(forbidden, "text/html;charset=UTF-8")
-						.getEntity();
+				HttpEntity entity = client.getEntity(forbidden, "text/html;charset=UTF-8");
 				resp.setEntity(entity);
 			} else {
 				resp.setEntity(new StringEntity("Forbidden"));
@@ -281,9 +281,8 @@ public class DetachedRealm {
 			resp.setHeader("Cache-Control", "no-store");
 			if (inUnauthorized.get() == null) {
 				inUnauthorized.set(true);
-				HTTPObjectClient client = HTTPObjectClient.getInstance();
-				HttpEntity entity = client.get(unauthorized,
-						"text/html;charset=UTF-8").getEntity();
+				HttpEntity entity = client.getEntity(unauthorized,
+						"text/html;charset=UTF-8");
 				resp.setEntity(entity);
 			} else {
 				String via = Arrays.asList(req.get("via")).toString();

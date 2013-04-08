@@ -32,6 +32,7 @@ import net.sf.saxon.type.ValidationException;
 import org.xml.sax.SAXException;
 
 public class XQueryValidator implements ErrorListener, ModuleURIResolver {
+	private static final String XQUERY_MEDIA = "application/xquery, application/xml, application/xslt+xml, text/xml, text/xsl";
 	private static final long serialVersionUID = -6151922474188907745L;
 	private static final String MODULE = "Module declaration must not be used in a main module";
 	private static final Pattern[] MODULE_ERRORS = {
@@ -40,12 +41,13 @@ public class XQueryValidator implements ErrorListener, ModuleURIResolver {
 			Pattern.compile("Unexpected token \"<eof>\" in path expression"),
 			Pattern.compile("Prefix \\S+ has not been declared") };
 	private final String baseURI;
-	private final InputSourceResolver resolver = new InputSourceResolver("application/xquery, application/xml, application/xslt+xml, text/xml, text/xsl");
+	private final InputSourceResolver resolver;
 	private final List<String> messages = new ArrayList<String>();
 	private boolean module;
 
 	public XQueryValidator(String baseURI) {
 		this.baseURI = baseURI;
+		resolver = new InputSourceResolver(baseURI, XQUERY_MEDIA);
 	}
 
 	public void parse(InputStream queryStream) throws IOException {

@@ -18,24 +18,21 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.URIResolver;
 import javax.xml.transform.stream.StreamSource;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.callimachusproject.client.HTTPObjectClient;
-import org.callimachusproject.server.exceptions.ResponseException;
+import org.callimachusproject.client.HttpOriginClient;
+import org.callimachusproject.client.HttpUriEntity;
+import org.callimachusproject.server.exceptions.NotFound;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 
 public class InputSourceResolver implements EntityResolver, URIResolver {
 	private static final Pattern CHARSET = Pattern
 			.compile("\\bcharset\\s*=\\s*([\\w-:]+)");
+	private final HttpOriginClient client;
 	private final String accept;
 
-	public InputSourceResolver() {
-		this("application/xml, application/xslt+xml, text/xml, text/xsl");
-	}
-
-	public InputSourceResolver(String accept) {
+	public InputSourceResolver(String systemId, String accept) {
 		this.accept = accept;
+		this.client = new HttpOriginClient(systemId);
 	}
 
 	@Override
@@ -101,27 +98,15 @@ public class InputSourceResolver implements EntityResolver, URIResolver {
 	 * returns null for 404 resources.
 	 */
 	private InputSource resolveHttp(String systemId) throws IOException {
-		HTTPObjectClient client = HTTPObjectClient.getInstance();
-		HttpResponse resp = client.get(systemId, getAcceptHeader());
-		HttpEntity entity = resp.getEntity();
-		InputStream in = entity == null ? null : entity.getContent();
-		String type = null;
-		if (resp.containsHeader("Content-Type")) {
-			type = resp.getFirstHeader("Content-Type").getValue();
-		}
-		if (resp.containsHeader("Content-Location")) {
-			systemId = resp.getLastHeader("Content-Location").getValue();
-		}
-		int status = resp.getStatusLine().getStatusCode();
-		if (status == 404 || status == 405 || status == 410 || status == 204) {
-			if (in != null) {
-				in.close();
-			}
+		try {
+			HttpUriEntity entity = client.getEntity(systemId, getAcceptHeader());
+			InputStream in = entity == null ? null : entity.getContent();
+			String type = entity.getContentType().getValue();
+			systemId = entity.getSystemId();
+			return create(type, in, systemId);
+		} catch (NotFound e) {
 			return null;
-		} else if (status >= 300) {
-			throw ResponseException.create(resp, systemId);
 		}
-		return create(type, in, systemId);
 	}
 
 	/**

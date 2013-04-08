@@ -29,28 +29,28 @@ public class BooleanScriptTest extends TestCase {
 		String[] value();
 	}
 
-	@Iri("urn:test:BooleanTester")
+	@Iri("file:///tmp/test/BooleanTester")
 	public interface BooleanTester {
 		@script("return false;")
-		@Iri("urn:test:returnBooleanFalse")
+		@Iri("file:///tmp/test/returnBooleanFalse")
 		boolean returnBooleanFalse();
 
 		@script("return true;")
-		@Iri("urn:test:returnBooleanTrue")
+		@Iri("file:///tmp/test/returnBooleanTrue")
 		boolean returnBooleanTrue();
 
 		@script("if (proceed()) return true; return false;")
-		@equivalentClass("urn:test:returnBooleanFalse")
-		@Iri("returnEquivBooleanFalse")
+		@equivalentClass("file:///tmp/test/returnBooleanFalse")
+		@Iri("file:///tmp/test/returnEquivBooleanFalse")
 		boolean returnEquivBooleanFalse();
 
 		@script("if (proceed()) return true; return false;")
-		@equivalentClass("urn:test:returnBooleanTrue")
-		@Iri("returnEquivBooleanTrue")
+		@equivalentClass("file:///tmp/test/returnBooleanTrue")
+		@Iri("file:///tmp/test/returnEquivBooleanTrue")
 		boolean returnEquivBooleanTrue();
 
 		@script("if (arg) return true; return false")
-		boolean returnBooleanArg(@Iri("urn:test:arg") boolean arg);
+		boolean returnBooleanArg(@Iri("file:///tmp/test/arg") boolean arg);
 
 		@script("if (java.lang.Boolean.valueOf(true)) return true; return false")
 		boolean returnBooleanObjectTrue();
@@ -84,7 +84,7 @@ public class BooleanScriptTest extends TestCase {
 	}
 
 	public void testBooleanReturnType() throws Exception {
-		BooleanTester tester = con.addDesignation(con.getObject("urn:test:test"), BooleanTester.class);
+		BooleanTester tester = con.addDesignation(con.getObject("file:///tmp/test"), BooleanTester.class);
 		assertTrue(tester.returnBooleanTrue());
 		assertFalse(tester.returnBooleanFalse());
 		assertTrue(tester.returnEquivBooleanTrue());
@@ -92,13 +92,13 @@ public class BooleanScriptTest extends TestCase {
 	}
 
 	public void testBooleanArgument() throws Exception {
-		BooleanTester tester = con.addDesignation(con.getObject("urn:test:test"), BooleanTester.class);
+		BooleanTester tester = con.addDesignation(con.getObject("file:///tmp/test"), BooleanTester.class);
 		assertTrue(tester.returnBooleanArg(true));
 		assertFalse(tester.returnBooleanArg(false));
 	}
 
 	public void testBooleanObject() throws Exception {
-		BooleanTester tester = con.addDesignation(con.getObject("urn:test:test"), BooleanTester.class);
+		BooleanTester tester = con.addDesignation(con.getObject("file:///tmp/test"), BooleanTester.class);
 		assertTrue(tester.returnBooleanObjectTrue());
 		assertFalse(tester.returnBooleanObjectFalse());
 	}

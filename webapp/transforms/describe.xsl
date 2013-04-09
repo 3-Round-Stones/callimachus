@@ -108,4 +108,18 @@
             </body>
         </html>
     </xsl:template>
+    <xsl:template mode="describe" match="*[@rdf:resource]">
+        <xsl:choose>
+            <xsl:when test="contains(@rdf:resource, '?')" />
+            <xsl:when test="not(starts-with(@rdf:resource, 'http'))" />
+            <xsl:when test="contains(@rdf:resource, '#')">
+                <xsl:text> </xsl:text>
+                <a href="{substring-before(@rdf:resource,'#')}?describe#{substring-after(@rdf:resource,'#')}" class="describe">»</a>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:text> </xsl:text>
+                <a href="{@rdf:resource}?describe" class="describe">»</a>
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:template>
 </xsl:stylesheet>

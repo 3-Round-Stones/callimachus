@@ -22,20 +22,6 @@
                         .datatype, .language { color: gray; }
                         .predicate { color: darkgreen; }
                     </style>
-                    <script type="text/javascript">
-                    // <![CDATA[
-                    jQuery(function($) {
-                        $('.describe a').mousedown(function() {
-                            if (this.getAttribute('resource'))
-                                return true;
-                            var resource = this.href;
-                            this.setAttribute('resource', resource);
-                            this.href = '?query=' + encodeURIComponent('describe<' + resource + '>');
-                            return true;
-                        });
-                    });
-                    // ]]>
-                    </script>
                 </head>
                 <body>
                     <h1>SPARQL Results</h1>
@@ -45,6 +31,14 @@
                 </body>
             </html>
         </xsl:if>
+    </xsl:template>
+    <xsl:template mode="describe" match="*[@rdf:resource]">
+        <xsl:text> </xsl:text>
+        <a href="?query=describe%3C{encode-for-uri(@rdf:resource)}%3E" class="describe">»</a>
+    </xsl:template>
+    <xsl:template mode="describe" match="*[@rdf:about]">
+        <xsl:text> </xsl:text>
+        <a href="?query=describe%3C{encode-for-uri(@rdf:about)}%3E" class="describe">«</a>
     </xsl:template>
     <xsl:template match="sparql:sparql">
         <table id="sparql">
@@ -95,6 +89,8 @@
                 <xsl:with-param name="iri" select="text()"/>
             </xsl:call-template>
         </a>
+        <xsl:text> </xsl:text>
+        <a href="?query=describe%3C{encode-for-uri(text())}%3E" class="describe">»</a>
     </xsl:template>
     <xsl:template match="sparql:bnode">
         <a class="bnode" resource="_:{text()}" name="{text()}">

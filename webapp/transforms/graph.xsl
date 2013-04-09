@@ -75,13 +75,10 @@
                     <xsl:with-param name="iri" select="@rdf:resource"/>
                 </xsl:call-template>
             </a>
-            <span class="describe">
-                <xsl:text> (</xsl:text>
-                <a href="{@rdf:resource}">describe</a>
-                <xsl:text>) </xsl:text>
-            </span>
+            <xsl:apply-templates mode="describe" select="." />
         </li>
     </xsl:template>
+    <xsl:template mode="describe" match="node()" />
     <xsl:template match="/rdf:RDF/rdf:Description/*[@rdf:datatype]">
         <li class="triple">
             <span class="asc predicate">
@@ -193,6 +190,7 @@
                     <xsl:with-param name="iri" select="@rdf:about"/>
                 </xsl:call-template>
             </a>
+            <xsl:apply-templates mode="describe" select="." />
             <xsl:apply-templates mode="properties" select="." />
         </div>
     </xsl:template>
@@ -230,6 +228,7 @@
                         <xsl:with-param name="iri" select="@rdf:resource"/>
                     </xsl:call-template>
                 </a>
+                <xsl:apply-templates mode="describe" select="." />
             </xsl:for-each>
         </xsl:if>
         <ul class="properties sorted">

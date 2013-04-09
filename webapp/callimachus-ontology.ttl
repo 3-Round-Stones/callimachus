@@ -22,7 +22,8 @@
 @prefix foaf:<http://xmlns.com/foaf/0.1/>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 
-<> a <types/SchemaGraph>.
+<> a <types/SchemaGraph>;
+    foaf:primaryTopic <http://callimachusproject.org/rdf/2009/framework>.
 
 ################################
 # Ontology

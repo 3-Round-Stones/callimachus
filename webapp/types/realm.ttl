@@ -4,11 +4,13 @@
 @prefix owl:<http://www.w3.org/2002/07/owl#>.
 @prefix skos:<http://www.w3.org/2004/02/skos/core#>.
 @prefix dc:<http://purl.org/dc/elements/1.1/>.
+@prefix foaf:<http://xmlns.com/foaf/0.1/>.
 @prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<> a <SchemaGraph>.
+<> a <SchemaGraph>;
+    foaf:primaryTopic <Realm>.
 
 <Realm> a owl:Class;
     rdfs:subClassOf <Folder>, calli:Realm;

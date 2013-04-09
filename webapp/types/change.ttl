@@ -29,7 +29,8 @@
 @prefix prov:<http://www.w3.org/ns/prov#>.
 @prefix :<#>.
 
-<> a <SchemaGraph>.
+<> a <SchemaGraph>;
+    foaf:primaryTopic <Change>.
 
 <Change> rdfs:subClassOf <Viewable>, prov:Bundle;
     owl:equivalentClass </callimachus/Activity>;

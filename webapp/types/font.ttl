@@ -23,7 +23,8 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<> a <SchemaGraph>.
+<> a <SchemaGraph>;
+    foaf:primaryTopic <Font>.
 
 <Font> a <Creatable>, owl:Class;
     rdfs:subClassOf <File>;

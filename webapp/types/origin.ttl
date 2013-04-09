@@ -25,7 +25,8 @@
 @prefix prov:<http://www.w3.org/ns/prov#>.
 @prefix :<#>.
 
-<> a <SchemaGraph>.
+<> a <SchemaGraph>;
+    foaf:primaryTopic <Origin>.
 
 <Origin> a owl:Class;
     rdfs:subClassOf <Realm>, calli:Origin;

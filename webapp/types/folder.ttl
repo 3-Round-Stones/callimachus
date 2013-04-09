@@ -25,7 +25,8 @@
 @prefix prov:<http://www.w3.org/ns/prov#>.
 @prefix :<#>.
 
-<> a <SchemaGraph>.
+<> a <SchemaGraph>;
+    foaf:primaryTopic <Folder>.
 
 <Folder> a <Creatable>, owl:Class;
     rdfs:subClassOf <Composite>, <PURL>, calli:Folder;

@@ -23,7 +23,8 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<> a <SchemaGraph>.
+<> a <SchemaGraph>;
+    foaf:primaryTopic <Composite>.
 
 <Composite> a owl:Class;
     rdfs:label "Composite";

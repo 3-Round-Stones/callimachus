@@ -24,7 +24,8 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<> a <SchemaGraph>.
+<> a <SchemaGraph>;
+    foaf:primaryTopic <Photo>.
 
 <Photo> a <Creatable>, owl:Class;
     rdfs:subClassOf <Image>;

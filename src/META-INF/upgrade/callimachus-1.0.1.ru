@@ -150,4 +150,17 @@ DELETE {
     ?group a <types/Group>; calli:membersFrom ?from
 };
 
+INSERT {
+    ?realm calli:allowOrigin ?allowed
+} WHERE {
+    ?origin a <types/Origin>
+    {
+        ?realm a <types/Origin>
+    } UNION {
+        ?realm a <types/Realm>
+    }
+	BIND (replace(str(?origin), "/$", "") AS ?allowed)
+	FILTER NOT EXISTS { ?realm calli:allowOrigin ?allowed }
+};
+
 

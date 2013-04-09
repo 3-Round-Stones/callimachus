@@ -64,7 +64,7 @@ public class DetachedRealm {
 			+ "UNION { $this calli:error ?error }\n"
 			+ "UNION { $this calli:forbidden ?forbidden }\n"
 			+ "UNION { $this calli:unauthorized ?unauthorized }\n"
-			+ "UNION { $origin a ?localOrigin . ?localOrigin rdfs:subClassOf calli:Origin . ?domain a ?localOrigin FILTER (?localOrigin != calli:Origin) }\n"
+			+ "UNION { $this calli:allowOrigin ?domain }\n"
 			+ "} GROUP BY ?secret ?error ?forbidden ?unauthorized ?domain ?authentication";
 	private static final ThreadLocal<Boolean> inForbidden = new ThreadLocal<Boolean>();
 	private static final ThreadLocal<Boolean> inUnauthorized = new ThreadLocal<Boolean>();
@@ -160,13 +160,7 @@ public class DetachedRealm {
 					}
 				}
 				if (result.hasBinding("domain")) {
-					String uri = result.getValue("domain").stringValue();
-					if (uri.contains("://")) {
-						int idx = uri.indexOf('/', uri.indexOf("://") + 3);
-						if (idx > 0) {
-							allowOrigin.add(uri.substring(0, idx));
-						}
-					}
+					allowOrigin.add(result.getValue("domain").stringValue());
 				}
 			}
 		} finally {

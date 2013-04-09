@@ -388,6 +388,13 @@ calli:minified a owl:DatatypeProperty;
     rdfs:range xsd:integer;
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
+calli:allowOrigin a owl:DatatypeProperty;
+    rdfs:label "allow origin";
+    rdfs:comment "An HTTP code origin that is permitted to authenticate and access protected resources by behave of the requesting agent";
+    rdfs:domain calli:Realm;
+    rdfs:range xsd:string;
+    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
 calli:layout a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:label "layout";
     rdfs:comment "An XQuery transform to add header/footer markup to page templates";

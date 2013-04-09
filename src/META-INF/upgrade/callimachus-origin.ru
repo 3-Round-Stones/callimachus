@@ -29,6 +29,18 @@ INSERT {
 };
 
 INSERT {
+    ?realm calli:allowOrigin ?allowed
+} WHERE {
+    {
+        ?realm a <types/Origin>
+    } UNION {
+        ?realm a <types/Realm>
+    }
+	BIND (replace(str($origin), "/$", "") AS ?allowed)
+	FILTER NOT EXISTS { ?realm calli:allowOrigin ?allowed }
+};
+
+INSERT {
 	$origin calli:authentication ?digest;
 		calli:hasComponent ?auth .
 	?auth a <types/Folder>, calli:Folder;

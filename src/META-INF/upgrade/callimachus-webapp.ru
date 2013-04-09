@@ -382,5 +382,15 @@ INSERT {
     sd:inputFormat <http://www.w3.org/ns/formats/RDF_XML>, <http://www.w3.org/ns/formats/Turtle>;
     sd:resultFormat <http://www.w3.org/ns/formats/RDF_XML>, <http://www.w3.org/ns/formats/SPARQL_Results_XML>.
 } WHERE {
-	FILTER NOT EXISTS { </> calli:hasComponent </sparql/> }
+	FILTER NOT EXISTS { </> calli:hasComponent </sparql> }
+};
+
+INSERT {
+</> calli:hasComponent </describe>.
+</describe> a <types/DescribeService>, sd:Service;
+    rdfs:label "describe";
+    calli:reader </auth/groups/power>;
+    calli:administrator </auth/groups/admin>.
+} WHERE {
+	FILTER NOT EXISTS { </> calli:hasComponent </describe> }
 };

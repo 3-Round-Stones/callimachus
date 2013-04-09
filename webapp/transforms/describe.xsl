@@ -7,12 +7,13 @@
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
     <xsl:import href="graph.xsl" />
     <xsl:param name="target" />
+    <xsl:param name="query" />
     <xsl:template match="/">
         <html>
             <head>
                 <title>
                     <xsl:call-template name="resource">
-                        <xsl:with-param name="iri" select="$target"/>
+                        <xsl:with-param name="iri" select="/rdf:RDF/rdf:Description/@rdf:about[1]"/>
                     </xsl:call-template>
                 </title>
                 <style>
@@ -38,25 +39,10 @@
                             index[this.getAttribute('resource')] = this;
                         }
                     });
-                    $('.describe a').mousedown(function() {
-                        if (this.getAttribute('resource'))
-                            return true;
-                        var resource = this.href;
-                        this.setAttribute('resource', resource);
-                        var hash = resource.indexOf('#');
-                        if (hash < 0) {
-                            this.href = window.calli.diverted(resource, 'describe');
-                        } else {
-                            var uri = resource.substring(0, hash);
-                            var frag = resource.substring(hash);
-                            this.href = window.calli.diverted(uri, 'describe') + frag;
-                        }
-                        return true;
-                    });
                     $('#rdfxml').click(function(event) {
                         event.preventDefault();
                         var req = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP");
-                        req.open('GET', '?describe', true);
+                        req.open('GET', calli.getPageUrl(), true);
                         req.setRequestHeader("Accept", "application/rdf+xml");
                         req.onreadystatechange = function () {
                             if (req.readyState != 4) return;
@@ -72,7 +58,7 @@
                     $('#turtle').click(function(event) {
                         event.preventDefault();
                         var req = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP");
-                        req.open('GET', '?describe', true);
+                        req.open('GET', calli.getPageUrl(), true);
                         req.setRequestHeader("Accept", "text/turtle");
                         req.onreadystatechange = function () {
                             if (req.readyState != 4) return;
@@ -92,7 +78,7 @@
             <body>
                 <h1>
                     <xsl:call-template name="resource">
-                        <xsl:with-param name="iri" select="$target"/>
+                        <xsl:with-param name="iri" select="/rdf:RDF/rdf:Description/@rdf:about[1]"/>
                     </xsl:call-template>
                     <xsl:text> Resource</xsl:text>
                 </h1>
@@ -110,6 +96,10 @@
     </xsl:template>
     <xsl:template mode="describe" match="*[@rdf:resource]">
         <xsl:choose>
+            <xsl:when test="'describe'!=$query">
+                <xsl:text> </xsl:text>
+                <a href="?uri={encode-for-uri(@rdf:resource)}" class="describe">»</a>
+            </xsl:when>
             <xsl:when test="contains(@rdf:resource, '?')" />
             <xsl:when test="not(starts-with(@rdf:resource, 'http'))" />
             <xsl:when test="contains(@rdf:resource, '#')">

@@ -23,7 +23,8 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<> a <SchemaGraph>.
+<> a <SchemaGraph>;
+    foaf:primaryTopic <Serviceable>.
 
 <Serviceable> a owl:Class;
     rdfs:label "Serviceable";
@@ -235,7 +236,7 @@ skos:editorialNote a owl:AnnotationProperty.
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Serviceable>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
     calli:type "text/html";
-    calli:post <../pipelines/describe.xpl?results&target={0}>.
+    calli:post <../pipelines/describe.xpl?results&query=describe&target={0}>.
 
 :graphResult a owl:ObjectProperty, owl:FunctionalProperty;
     rdfs:domain :TransformDescription;

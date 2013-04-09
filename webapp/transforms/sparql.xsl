@@ -103,7 +103,7 @@
             <xsl:value-of select="text()" />
         </span>
     </xsl:template>
-    <xsl:template match="sparql:literal[@datatype]">
+    <xsl:template match="sparql:literal[@datatype and @datatype!='http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral']">
         <span class="typed literal">
             <xsl:attribute name="datatype">
                 <xsl:call-template name="iriref">

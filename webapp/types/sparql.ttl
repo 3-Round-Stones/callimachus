@@ -19,13 +19,15 @@
 @prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
 @prefix owl:<http://www.w3.org/2002/07/owl#>.
 @prefix sd:<http://www.w3.org/ns/sparql-service-description#>.
+@prefix foaf:<http://xmlns.com/foaf/0.1/>.
 @prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<> a <SchemaGraph>.
+<> a <SchemaGraph>;
+    foaf:primaryTopic <SparqlService>.
 
-<SparqlService> a <Serviceable>, owl:Class;
+<SparqlService> a owl:Class;
     rdfs:subClassOf <Viewable>, sd:Service;
     owl:equivalentClass </callimachus/SparqlService>;
     rdfs:label "Sparql Service";

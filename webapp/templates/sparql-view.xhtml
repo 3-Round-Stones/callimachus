@@ -24,7 +24,7 @@ LIMIT 50
 </pre>
         </aside>
     </div>
-    <form id="form" action="/sparql" method="GET">
+    <form id="form" action="{?this}" method="GET">
         <textarea id="sparql" name="query" class="flex" required="required"
             onchange="$(form).find('button').removeAttr('disabled')"></textarea>
         <div>

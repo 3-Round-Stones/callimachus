@@ -88,6 +88,7 @@ $origin calli:hasComponent ?wellknown.
 ?dataset a void:Dataset;
     foaf:homepage $origin;
     void:sparqlEndpoint </sparql>;
+    void:uriLookupEndpoint </describe?uri=>;
     void:uriSpace $origin;
     void:rootResource $origin;
     void:openSearchDescription ?search.

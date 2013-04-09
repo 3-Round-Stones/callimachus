@@ -163,4 +163,28 @@ INSERT {
 	FILTER NOT EXISTS { ?realm calli:allowOrigin ?allowed }
 };
 
+INSERT {
+</> calli:hasComponent </describe>.
+</describe> a <types/DescribeService>, sd:Service;
+    rdfs:label "describe";
+    calli:reader </auth/groups/power>;
+    calli:administrator </auth/groups/admin>.
+} WHERE {
+	FILTER NOT EXISTS { </> calli:hasComponent </describe> }
+};
+
+INSERT {
+    ?dataset void:uriLookupEndpoint </describe?uri=>
+} WHERE {
+    $origin a <types/Origin>;
+        calli:hasComponent/calli:hasComponent ?void.
+
+    ?void a void:DatasetDescription;
+        foaf:primaryTopic ?dataset.
+
+    ?dataset a void:Dataset;
+        void:sparqlEndpoint </sparql>.
+    FILTER NOT EXISTS { ?dataset void:uriLookupEndpoint </describe?uri=> }
+};
+
 

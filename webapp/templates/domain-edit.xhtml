@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:skos="http://www.w3.org/2004/02/skos/core#">
+<head>
+    <title resource="?this">{rdfs:label}</title>
+    <script type="text/javascript">
+    // <![CDATA[
+        jQuery(function($){
+            $('.controls.auto-prompt').each(function(){
+                if (!$(this).find(':input').length) {
+                    $(this).find('a').click();
+                }
+            });
+        });
+    // ]]>
+    </script>
+</head>
+<body resource="?this">
+    <h1><span property="rdfs:label" /> Domain</h1>
+    <div id="sidebar">
+        <aside>
+            <p>Use Wiki text to describe the purpose of this domain</p>
+            <p>You must specify the Domain Name System suffix to enable access for this group</p>
+            <p>To allow access from any network use a single dot character '.'</p>
+            <p>The longest domain suffix overrides shorter domain suffixes</p>
+        </aside>
+    </div>
+    <form id="form" method="POST" action="" enctype="application/sparql-update" resource="?this"
+            onsubmit="saveChangeNote()">
+        <fieldset>
+            <div class="control-group">
+                <label for="comment" class="control-label">Description</label>
+                <div class="controls">
+                    <textarea id="comment" class="auto-expand">{rdfs:comment}</textarea>
+                </div>
+            </div>
+            <div class="hbox">
+                <div class="control-group">
+                    <label for="anonymousFrom" class="control-label">Anonymous access from</label>
+                    <div class="controls auto-prompt vbox">
+                        <input type="text" id="anonymousFrom" property="calli:anonymousFrom" content="?anonymousFrom" value="{?anonymousFrom}" placeholder="domain.name" class="auto-expand" />
+                        <a href="javascript:void(0)" title="More" onclick="return calli.addResource(event)" class="ui-icon ui-icon-plus" />
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label for="everyoneFrom" class="control-label">Authenticated access from</label>
+                    <div class="controls auto-prompt vbox">
+                        <input type="text" id="everyoneFrom" property="calli:everyoneFrom" content="?everyoneFrom" value="{?everyoneFrom}" placeholder="domain.name" class="auto-expand" />
+                        <a href="javascript:void(0)" title="More" onclick="return calli.addResource(event)" class="ui-icon ui-icon-plus" />
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label for="nobodyFrom" class="control-label">Deny access from</label>
+                    <div class="controls auto-prompt vbox">
+                        <input type="text" id="nobodyFrom" property="calli:nobodyFrom" content="?nobodyFrom" value="{?nobodyFrom}" placeholder="domain.name" class="auto-expand" />
+                        <a href="javascript:void(0)" title="More" onclick="return calli.addResource(event)" class="ui-icon ui-icon-plus" />
+                    </div>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button id="save" type="submit" class="btn btn-primary">Save</button>
+                <button id="cancel" type="button" onclick="window.location.replace('?view')" class="btn">Cancel</button>
+                <button id="delete" type="button" onclick="calli.deleteResource(event)" class="btn btn-danger">Delete</button>
+            </div>
+        </fieldset>
+    </form>
+</body>
+</html>

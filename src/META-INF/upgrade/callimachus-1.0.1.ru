@@ -130,4 +130,24 @@ INSERT {
 	FILTER NOT EXISTS { ?realm calli:error ?error }
 };
 
+DELETE {
+    </auth/groups/everyone> a calli:Group, <types/Group>.
+    </auth/groups/system> a calli:Group, <types/Group>.
+    </auth/groups/public> a calli:Group, <types/Group>.
+} INSERT {
+    </auth/groups/everyone> a calli:Domain, <types/Domain>.
+    </auth/groups/system> a calli:Domain, <types/Domain>.
+    </auth/groups/public> a calli:Domain, <types/Domain>.
+} WHERE {
+    </auth/groups/everyone> a calli:Group, <types/Group>.
+    </auth/groups/system> a calli:Group, <types/Group>.
+    </auth/groups/public> a calli:Group, <types/Group>.
+};
+
+DELETE {
+    ?group calli:membersFrom ?from
+} WHERE {
+    ?group a <types/Group>; calli:membersFrom ?from
+};
+
 

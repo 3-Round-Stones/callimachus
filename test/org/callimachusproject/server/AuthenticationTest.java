@@ -92,7 +92,6 @@ public class AuthenticationTest extends MetadataServerTestCase {
 		ObjectConnection con = repository.getConnection();
 		try {
 			ValueFactory vf = con.getValueFactory();
-			con.add(vf.createURI("urn:test:my-group"), vf.createURI("http://callimachusproject.org/rdf/2009/framework#membersFrom"), vf.createLiteral("."));
 			con.add(vf.createURI("urn:test:my-group"), vf.createURI("http://callimachusproject.org/rdf/2009/framework#member"), vf.createURI("urn:test:user:bob"));
 			con.add(vf.createURI("urn:test:my-group"), vf.createURI("http://callimachusproject.org/rdf/2009/framework#member"), vf.createURI("urn:test:user:jim"));
 			con.add(vf.createURI(ORIGIN), RDF.TYPE, vf.createURI("http://callimachusproject.org/rdf/2009/framework#Origin"));

@@ -323,44 +323,40 @@ INSERT {
     rdfs:label "admin";
     rdfs:comment "Members of this grouph have the ability to edit other user accounts and access to modify the underlying data store";
     calli:subscriber </auth/groups/power>;
-    calli:administrator </auth/groups/admin>;
-    calli:membersFrom ".".
+    calli:administrator </auth/groups/admin>.
 
 </auth/groups/power> a calli:Party, calli:Group, <types/Group>;
     rdfs:label "power";
     rdfs:comment "Members of this group can access all data in the underlying data store";
     calli:subscriber </auth/groups/power>;
-    calli:administrator </auth/groups/admin>;
-    calli:membersFrom ".".
+    calli:administrator </auth/groups/admin>.
 
 </auth/groups/staff> a calli:Party, calli:Group, <types/Group>;
     rdfs:label "staff";
     rdfs:comment "Members of this group can design websites and develop applications";
     calli:subscriber </auth/groups/power>;
-    calli:administrator </auth/groups/admin>;
-    calli:membersFrom ".".
+    calli:administrator </auth/groups/admin>.
 
 </auth/groups/users> a calli:Party, calli:Group, <types/Group>;
     rdfs:label "users";
     rdfs:comment "Members of this group can view, discuss, document, link, and upload binary resources";
     calli:subscriber </auth/groups/power>;
-    calli:administrator </auth/groups/admin>;
-    calli:membersFrom ".".
+    calli:administrator </auth/groups/admin>.
 
-</auth/groups/everyone> a calli:Party, calli:Group, <types/Group>;
+</auth/groups/everyone> a calli:Party, calli:Domain, <types/Domain>;
     rdfs:label "everyone";
-    rdfs:comment "A virtual group of all authorized users";
+    rdfs:comment "A virtual group of all authenticated agents";
     calli:subscriber </auth/groups/power>;
     calli:administrator </auth/groups/admin>;
     calli:everyoneFrom ".".
 
-</auth/groups/system> a calli:Party, calli:Group, <types/Group>;
+</auth/groups/system> a calli:Party, calli:Domain, <types/Domain>;
     rdfs:label "system";
-    rdfs:comment "The local computer or computer systems is the member of this group";
+    rdfs:comment "The local computer or computer systems is the member of this domain";
     calli:subscriber </auth/groups/power>;
     calli:administrator </auth/groups/admin>.
 
-</auth/groups/public> a calli:Party, calli:Group, <types/Group>;
+</auth/groups/public> a calli:Party, calli:Domain, <types/Domain>;
     rdfs:label "public";
     rdfs:comment "A virtual group of all agents";
     calli:subscriber </auth/groups/power>;

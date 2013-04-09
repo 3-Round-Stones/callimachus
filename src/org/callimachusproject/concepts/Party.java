@@ -31,7 +31,7 @@ package org.callimachusproject.concepts;
 import org.openrdf.annotations.Iri;
 
 /** A collection of credentials. */
-@Iri("http://callimachusproject.org/rdf/2009/framework#Group")
-public interface Group {
+@Iri("http://callimachusproject.org/rdf/2009/framework#Party")
+public interface Party {
 
 }

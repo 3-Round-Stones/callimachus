@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
+<head>
+    <title>New Domain</title>
+</head>
+<body>
+    <h1>New Domain</h1>
+    <div id="sidebar">
+        <aside>
+            <p>The domain name cannot be changed once created</p>
+            <p>Use Wiki text to describe the group</p>
+        </aside>
+    </div>
+    <form id="form" method="POST" action="" enctype="application/rdf+xml" typeof="calli:Party calli:Domain"
+            onsubmit="return calli.saveResourceAs(event,calli.slugify($('#label').val()))">
+        <fieldset>
+            <div class="control-group">
+                <label for="label" class="control-label">Name</label>
+                <div class="controls">
+                    <input id="label" value="{rdfs:label}" type="text" class="auto-expand" required="required" autofocus="autofocus" />
+                </div>
+            </div>
+            <div class="control-group">
+                <label for="comment" class="control-label">Description</label>
+                <div class="controls">
+                    <textarea id="comment" class="auto-expand">{rdfs:comment}</textarea>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button id="create" type="submit" class="btn btn-success">Create</button>
+            </div>
+        </fieldset>
+    </form>
+</body>
+</html>

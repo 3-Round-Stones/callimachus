@@ -13,7 +13,6 @@ public class Group {
 	private static final String CALLI = "http://callimachusproject.org/rdf/2009/framework#";
 	private static final String CALLI_ANONYMOUSFROM = CALLI + "anonymousFrom";
 	private static final String CALLI_EVERYONEFROM = CALLI + "everyoneFrom";
-	private static final String CALLI_MEMBERSFROM = CALLI + "membersFrom";
 	private static final String CALLI_NOBODYFROM = CALLI + "nobodyFrom";
 	private static final String CALLI_MEMBER = CALLI + "member";
 	private static final Group notGroup = new Group();
@@ -24,12 +23,11 @@ public class Group {
 
 	private final TreeSet<String> anonymousFrom = new TreeSet<String>();
 	private final TreeSet<String> everyoneFrom = new TreeSet<String>();
-	private final TreeSet<String> membersFrom = new TreeSet<String>();
 	private final TreeSet<String> nobodyFrom = new TreeSet<String>();
 	private final TreeSet<String> members = new TreeSet<String>();
 	@SuppressWarnings("unchecked")
 	private final TreeSet<String>[] sets = new TreeSet[]{anonymousFrom,
-			everyoneFrom, membersFrom, nobodyFrom};
+			everyoneFrom, nobodyFrom};
 
 	private Group() {
 		super();
@@ -46,8 +44,6 @@ public class Group {
 					anonymousFrom.add(key(st.getObject().stringValue()));
 				} else if (CALLI_EVERYONEFROM.equals(pred)) {
 					everyoneFrom.add(key(st.getObject().stringValue()));
-				} else if (CALLI_MEMBERSFROM.equals(pred)) {
-					membersFrom.add(key(st.getObject().stringValue()));
 				} else if (CALLI_NOBODYFROM.equals(pred)) {
 					nobodyFrom.add(key(st.getObject().stringValue()));
 				} else if (CALLI_MEMBER.equals(pred)) {
@@ -58,7 +54,6 @@ public class Group {
 			stmts.close();
 		}
 		if (this.equals(notGroup)) {
-			membersFrom.add(".");
 			members.add(uri);
 		}
 	}
@@ -80,7 +75,7 @@ public class Group {
 	}
 
 	public boolean isMember(String user, String from) {
-		return isMember(user) && isAllowed(from, membersFrom);
+		return isMember(user);
 	}
 
 	public boolean isMember(String user) {
@@ -134,16 +129,12 @@ public class Group {
 				sb.append(everyoneFrom);
 			}
 		}
-		if (!membersFrom.isEmpty() && !members.isEmpty()) {
+		if (!members.isEmpty()) {
 			if (sb.length() > 0) {
 				sb.append("\n");
 			}
 			sb.append("Allow ");
 			sb.append(members);
-			if (!Collections.singleton(".").equals(membersFrom)) {
-				sb.append(" from ");
-				sb.append(membersFrom);
-			}
 		}
 		if (!nobodyFrom.isEmpty()) {
 			if (sb.length() > 0) {
@@ -168,7 +159,6 @@ public class Group {
 		result = prime * result + anonymousFrom.hashCode();
 		result = prime * result + everyoneFrom.hashCode();
 		result = prime * result + members.hashCode();
-		result = prime * result + membersFrom.hashCode();
 		result = prime * result + nobodyFrom.hashCode();
 		return result;
 	}
@@ -187,8 +177,6 @@ public class Group {
 		if (!everyoneFrom.equals(other.everyoneFrom))
 			return false;
 		if (!members.equals(other.members))
-			return false;
-		if (!membersFrom.equals(other.membersFrom))
 			return false;
 		if (!nobodyFrom.equals(other.nobodyFrom))
 			return false;

@@ -8,6 +8,6 @@ org.callimachusproject.behaviours.FileObjectSupport = http://www.w3.org/2000/01/
 org.callimachusproject.behaviours.VersionedObjectSupport = http://www.w3.org/2000/01/rdf-schema#Resource
 org.callimachusproject.behaviours.DigestManagerSupport
 org.callimachusproject.behaviours.RealmSupport
-org.callimachusproject.behaviours.GroupSupport = http://callimachusproject.org/rdf/2009/framework#Group
+org.callimachusproject.behaviours.PartySupport
 org.callimachusproject.behaviours.CompositeSupport = http://callimachusproject.org/rdf/2009/framework#Composite
 org.callimachusproject.behaviours.UserSupport

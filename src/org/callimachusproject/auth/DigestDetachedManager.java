@@ -338,6 +338,7 @@ public class DigestDetachedManager implements DetachedAuthenticationManager {
 		if (resp == null) {
 			resp = new BasicHttpResponse(_204);
 		}
+		resp.addHeader("Cache-Control", "no-cache");
 		String[] cookies = getUsernameSetCookie(tokens, con);
 		if (cookies.length == 0)
 			return new BasicHttpResponse(_403);

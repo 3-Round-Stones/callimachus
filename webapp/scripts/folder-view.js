@@ -18,8 +18,7 @@
         td.addClass('filecell');
         var a = $('<a/>');
         if (url) {
-            a.attr('href', url);
-            a.addClass('view');
+            a.attr('href', url + '?view');
             if (type) {
                 a.attr('type', type);
             }
@@ -298,7 +297,6 @@
     });
 })(jQuery, jQuery);
 jQuery(function($){
-    $('a.breadcrumb').addClass("view").trigger("DOMNodeInserted");
     if (!$('#tfolders').children().length) {
         $('#tfolders').remove();
     }

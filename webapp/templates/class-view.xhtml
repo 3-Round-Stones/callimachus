@@ -20,7 +20,7 @@
 <body resource="?this">
     <h1>
         <div id="icon" rel="calli:icon" resource="?icon" style="float:left;max-width:1em;padding-right:1ex;">
-            <a href="{?icon}" class="view"><img src="{?icon}" style="max-width:1em;max-height:2em" /></a>
+            <a href="{?icon}?view"><img src="{?icon}" style="max-width:1em;max-height:2em" /></a>
         </div>
         <a property="rdfs:label" href="?this" />
     </h1>
@@ -36,31 +36,31 @@
         <aside rel="rdfs:subClassOf" class="optional">
             <h3>Super class</h3>
             <p resource="?subClassOf" typeof="owl:Class">
-                <a href="?subClassOf" property="rdfs:label" class="view" />
+                <a href="?subClassOf" property="rdfs:label" />
             </p>
         </aside>
         <aside rev="owl:equivalentClass" class="optional">
             <h3>Equivalent class</h3>
             <p resource="?equivalentClass" typeof="owl:Class">
-                <a href="?equivalentClass" property="rdfs:label" class="view" />
+                <a href="?equivalentClass" property="rdfs:label" />
             </p>
         </aside>
         <aside rev="rdfs:subClassOf" class="optional">
             <h3>Sub class</h3>
             <p resource="?subClass" typeof="owl:Class">
-                <a href="?subClass" property="rdfs:label" class="view" />
+                <a href="?subClass" property="rdfs:label" />
             </p>
         </aside>
         <aside class="optional">
             <h3>Templates</h3>
-            <p rel="calli:create">
-                <a id="create-template" href="?create" property="rdfs:label" class="view" />
+            <p>
+                <a id="create-template" rel="calli:create" resource="?create" href="{?create}?view">{rdfs:label}</a>
             </p>
-            <p rel="calli:view">
-                <a href="?view" property="rdfs:label" class="view" />
+            <p>
+                <a rel="calli:view" resource="?view" href="{?view}?view">{rdfs:label}</a>
             </p>
-            <p rel="calli:edit">
-                <a href="?edit" property="rdfs:label" class="view" />
+            <p>
+                <a rel="calli:edit" resource="?edit" href="{?edit}?view">{rdfs:label}</a>
             </p>
         </aside>
     </div>

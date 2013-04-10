@@ -41,7 +41,7 @@ function submitRDFForm(form, uri) {
                     var event = $.Event("calliRedirect");
                     event.cause = se;
                     event.resource = redirect;
-                    event.location = window.calli.viewpage(redirect);
+                    event.location = redirect;
                     $(form).trigger(event);
                     if (!event.isDefaultPrevented()) {
                         if (window.parent != window && parent.postMessage) {

@@ -108,14 +108,15 @@ function openSaveAsDialog(form, label, create, callback) {
         src += encodeURIComponent(label.replace(/!/g,''));
     }
     if (location.search.search(/\?create=/) == 0) {
-        src += '!' + calli.viewpage(calli.getPageUrl());
+        var page = calli.getPageUrl();
+        src += '!' + page.substring(0, page.indexOf('?')) + '?view';
     } else if (window.sessionStorage) {
         try {
             var url = sessionStorage.getItem("LastFolder");
             if (url) {
-                src += '!' + calli.viewpage(url);
+                src += '!' + url;
             } else if (url = localStorage.setItem("LastFolder")) {
-                src += '!' + calli.viewpage(url);
+                src += '!' + url;
             }
         } catch (e) {
             // ignore
@@ -144,7 +145,7 @@ function openSaveAsDialog(form, label, create, callback) {
                 if (src.indexOf('?') >= 0) {
                     src = src.substring(0, src.indexOf('?'));
                 }
-                var ns = calli.listResourceIRIs(src)[0];
+                var ns = src.replace(/\?.*/,'');
                 if (ns.lastIndexOf('/') != ns.length - 1) {
                     ns += '/';
                 }

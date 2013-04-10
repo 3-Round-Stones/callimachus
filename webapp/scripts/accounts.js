@@ -3,26 +3,12 @@
 (function($,jQuery){
 
 $(document).ready(function(){
-    $('a#login-link,a#profile-link').mousedown(function(event) {
-        this.href = divertIfForeign(this.href);
-        return true;
-    });
     $('a#logout-link').click(function(event) {
-        logout(divertIfForeign(this.href));
+        logout(this.href);
         event.preventDefault();
         return false;
     });
 });
-
-function divertIfForeign(url) {
-    var same = location.protocol + '//' + location.host + '/';
-    if (url.indexOf(same) != 0 && url.indexOf('?') >= 0) {
-        return calli.diverted(url.substring(0, url.indexOf('?')), url.substring(url.indexOf('?') + 1));
-    } else if (url.indexOf(same) != 0) {
-        return calli.diverted(url);
-    }
-    return url;
-}
 
 function logout(url) {
     jQuery.ajax({ type: 'POST', url: url,

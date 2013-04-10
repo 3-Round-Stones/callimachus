@@ -38,10 +38,10 @@
             <xsl:if test="not(sparql:binding[@name='icon'])">
                 <img src="{resolve-uri('../images/rdf-icon.png')}" class="icon" />
             </xsl:if>
-            <a class="view">
+            <a>
                 <xsl:if test="sparql:binding[@name='url']">
                     <xsl:attribute name="href">
-                        <xsl:value-of select="sparql:binding[@name='url']/*" />
+                        <xsl:value-of select="concat(sparql:binding[@name='url']/*,'?view')" />
                     </xsl:attribute>
                 </xsl:if>
                 <xsl:apply-templates select="sparql:binding[@name='label']" />
@@ -53,7 +53,7 @@
             </a>
             <xsl:if test="sparql:binding[@name='url']">
                 <xsl:text> (</xsl:text>
-                <a resource="{sparql:binding[@name='url']/*}" href="{sparql:binding[@name='url']/*}?whatlinkshere" onmousedown="href=calli.diverted(getAttribute('resource'), 'whatlinkshere')">links</a>
+                <a resource="{sparql:binding[@name='url']/*}" href="{sparql:binding[@name='url']/*}?whatlinkshere">links</a>
                 <xsl:text>) </xsl:text>
             </xsl:if>
             <xsl:if test="sparql:binding[@name='comment']">

@@ -52,7 +52,7 @@ calli.selectResource = function(event, src) {
         },
         buttons: {
             "Select": function() {
-                var uri = calli.listResourceIRIs(src)[0];
+                var uri = src.replace(/\?.*/,'');
                 var de = jQuery.Event('drop');
                 de.dataTransfer = {getData:function(){return uri}};
                 de.errorMessage = "Invalid Selection";

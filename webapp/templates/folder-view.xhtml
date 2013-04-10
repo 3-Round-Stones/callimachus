@@ -91,7 +91,7 @@
     <div id="folder-box" class="ui-grid ui-widget ui-widget-content ui-corner-all" dropzone="copy f:image/pjpeg f:image/x-png f:image/png f:image/jpeg f:image/gif f:image/vnd.microsoft.icon f:application/rdf+xml f:application/sparql-query f:application/xhtml+xml f:text/javascript f:text/css f:text/plain f:application/docbook+xml">
         <div class="ui-grid-header ui-widget-header ui-corner-top">
             <span rev="calli:hasComponent" resource="?parent">
-                <a href="?parent" class="view ui-icon ui-icon-arrowthick-1-n" property="rdfs:label" content="?plabel" title="Up to {?plabel}" />
+                <a href="{?parent}?view" class="ui-icon ui-icon-arrowthick-1-n" property="rdfs:label" content="?plabel" title="Up to {?plabel}" />
             </span>
             <span class="hidden-logout">
                 <a href="javascript:void(0)" class="ui-icon ui-icon-gear" title="Create something new"
@@ -138,7 +138,7 @@
             <tbody id="tfolders" rel="calli:hasComponent">
                 <tr resource="?folder" typeof="calli:Folder">
                     <td class="ui-widget-content filecell">
-                        <a class="view" href="?folder" property="rdfs:label" content="?flabel">
+                        <a href="{?folder}?view" property="rdfs:label" content="?flabel">
                             <img class="icon" src="../images/folder.png" /><span>{?flabel}</span>
                         </a>
                     </td>

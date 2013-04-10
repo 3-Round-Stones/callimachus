@@ -33,7 +33,7 @@ function createIframeRedirect(iname, finalTarget, cause) {
             var event = $.Event("calliRedirect");
             event.cause = cause;
             event.resource = redirect;
-            event.location = window.calli.viewpage(redirect);
+            event.location = redirect + '?view';
             $(this).trigger(event);
             if (!event.isDefaultPrevented()) {
                 if (finalTarget && window.frames[finalTarget]) {

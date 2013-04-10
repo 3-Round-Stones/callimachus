@@ -42,10 +42,7 @@
             <a>
                 <xsl:if test="sparql:binding[@name='id']/*">
                     <xsl:attribute name="href">
-                        <xsl:value-of select="sparql:binding[@name='id']/*" />
-                    </xsl:attribute>
-                    <xsl:attribute name="class">
-                        <xsl:value-of select="'view'" />
+                        <xsl:value-of select="concat(sparql:binding[@name='id']/*,'?view')" />
                     </xsl:attribute>
                 </xsl:if>
                 <xsl:apply-templates select="sparql:binding[@name='title']/*" />

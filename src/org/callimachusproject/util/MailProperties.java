@@ -23,7 +23,7 @@ import javax.mail.Transport;
 
 public class MailProperties {
 	private static final Pattern KEY_VALUE_REGEX = Pattern
-			.compile("\\s*(.*)\\s*=\\s*(.*)\\s*$");
+			.compile("\\s*(.*?)\\s*=\\s*(.*?)\\s*$");
 	private static final MailProperties system = new MailProperties(SystemProperties.getMailPropertiesFile());
 
 	public static MailProperties getInstance() {

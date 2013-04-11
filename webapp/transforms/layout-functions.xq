@@ -33,8 +33,11 @@ declare function calli:body-nodes() as node()* {
 declare function calli:head-links($a as element(), $divider as element()) as element()* {
     let $links := $calli:html-element/head/link[@title and @href]
     return if ($links) then
-        for $link in $links
-        return (calli:add-href($a, $link, $link/@title), $divider)
+        (
+            for $link in $links
+            return calli:add-href($a, $link, $link/@title),
+            $divider
+        )
     else
         $links
 };

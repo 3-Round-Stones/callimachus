@@ -10,7 +10,7 @@
     xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
     <title><xsl:value-of select="//sparql:result[1]/sparql:binding[@name='title']/*" /></title>
-    <link rel="create-form" href="?create" />
+    <link rel="create-form" href="?create" title="Create a new {//sparql:result[1]/sparql:binding[@name='title']/*}" />
     <script type="text/javascript">//<![CDATA[
         jQuery(function($){
             $('#_').children('div').each(function() {
@@ -51,16 +51,13 @@
 </head>
 <body>
     <h1><xsl:value-of select="//sparql:result[1]/sparql:binding[@name='title']/*" /> Resources</h1>
-    <div id="sidebar">
-        <aside id="create-link" class="hidden-logout">		
-            <p><a href="?create">Create a new <xsl:value-of select="//sparql:result[1]/sparql:binding[@name='title']/*" /></a></p>
-        </aside>
-        <xsl:if test="//sparql:result[1]/sparql:binding[@name='description']/*">
+    <xsl:if test="//sparql:result[1]/sparql:binding[@name='description']/*">
+        <div id="sidebar">
             <aside>
                 <p><xsl:value-of select="//sparql:result[1]/sparql:binding[@name='description']/*"/></p>
             </aside>
-        </xsl:if>
-    </div>
+        </div>
+    </xsl:if>
     <div id="index">
         <a href="#A">A</a><xsl:text> </xsl:text>
         <a href="#B">B</a><xsl:text> </xsl:text>

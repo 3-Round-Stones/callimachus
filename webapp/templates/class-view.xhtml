@@ -7,15 +7,9 @@
     <title resource="?this">{rdfs:label}</title>
     <link rel="edit-form" href="?edit" />
     <link rel="comments" href="?discussion" />
-    <link rel="describedby" href="?describe" />
     <link rel="version-history" href="?history" />
-    <script type="text/javascript">
-        jQuery(function($){
-            if (!$('#create-template').length) {
-                $('#create-link').hide();
-            }
-        });
-    </script>
+    <link href="?create" resource="?this" title="Create a new {rdfs:label}" />
+    <link href="?index" resource="?this" title="{rdfs:label} resources" />
 </head>
 <body resource="?this">
     <h1>
@@ -25,14 +19,6 @@
         <a property="rdfs:label" href="?this" />
     </h1>
     <div id="sidebar">
-        <aside>
-            <p id="create-link" class="hidden-logout">
-                <a href="?create">Create a new <span resource="?this" property="rdfs:label"/></a>
-            </p>
-            <p>
-                <a href="?index"><span resource="?this" property="rdfs:label"/> resources</a>
-            </p>
-        </aside>
         <aside rel="rdfs:subClassOf" class="optional">
             <h3>Super class</h3>
             <p resource="?subClassOf" typeof="owl:Class">

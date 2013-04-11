@@ -8,10 +8,14 @@ import org.callimachusproject.repository.CalliRepository;
 import org.callimachusproject.util.SystemProperties;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Resource;
+import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
+import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.query.QueryLanguage;
 import org.openrdf.query.TupleQueryResult;
+import org.openrdf.repository.RepositoryException;
+import org.openrdf.repository.RepositoryResult;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.RDFObject;
 import org.openrdf.repository.object.exceptions.RDFObjectException;
@@ -20,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 public class Callimachus_1_0_1_UpgradeProvider extends UpdateProvider {
 	private static final String SCHEMA_GRAPH = "types/SchemaGraph";
+	private static final String SERVE_ALL = "../everything-else-public.ttl";
 	private static final String CALLI = "http://callimachusproject.org/rdf/2009/framework#";
 	private static final String CALLI_HASCOMPONENT = CALLI + "hasComponent";
 
@@ -34,19 +39,19 @@ public class Callimachus_1_0_1_UpgradeProvider extends UpdateProvider {
 			throws IOException {
 		if (!"1.0.1".equals(version))
 			return null;
-		if (SystemProperties.getWebappCarFile().canRead()) {
-			return new Updater() {
-				public boolean update(String webapp, CalliRepository repository)
-						throws IOException, OpenRDFException {
-					if (!isPresent(webapp, repository))
-						return false;
+		return new Updater() {
+			public boolean update(String webapp, CalliRepository repository)
+					throws IOException, OpenRDFException {
+				if (!isPresent(webapp, repository))
+					return false;
+				if (SystemProperties.getWebappCarFile().canRead()) {
 					logger.info("Initializing {}", origin);
 					clearCallimachusWebapp(origin, webapp, repository);
-					return true;
 				}
-			};
-		}
-		return null;
+				removeServeAll(repository);
+				return true;
+			}
+		};
 	}
 
 	/**
@@ -59,7 +64,7 @@ public class Callimachus_1_0_1_UpgradeProvider extends UpdateProvider {
 	boolean clearCallimachusWebapp(String origin, String webapp,
 			CalliRepository repository) throws OpenRDFException {
 		return deleteComponents(origin, webapp, repository)
-				| removeAllComponents(origin, webapp, repository);
+				|| removeAllComponents(origin, webapp, repository);
 	}
 
 	private boolean isPresent(String webapp, CalliRepository repository)
@@ -204,6 +209,48 @@ public class Callimachus_1_0_1_UpgradeProvider extends UpdateProvider {
 		if (parent.endsWith("://"))
 			return null;
 		return parent;
+	}
+
+	boolean removeServeAll(CalliRepository repository)
+			throws RepositoryException {
+		ObjectConnection con = repository.getConnection();
+		try {
+			con.setAutoCommit(false);
+			boolean modified = false;
+			modified |= stopServingOther(con);
+			con.setAutoCommit(true);
+			return modified;
+		} finally {
+			con.close();
+		}
+	}
+
+	private boolean stopServingOther(ObjectConnection con)
+			throws RepositoryException {
+		boolean modified = false;
+		ValueFactory vf = con.getValueFactory();
+		URI hasComponent = vf.createURI(CALLI_HASCOMPONENT);
+		URI NamedGraph = vf
+				.createURI("http://www.w3.org/ns/sparql-service-description#NamedGraph");
+		RepositoryResult<Statement> stmts = con.getStatements(null, RDF.TYPE,
+				NamedGraph);
+		try {
+			while (stmts.hasNext()) {
+				Statement st = stmts.next();
+				Resource serve = st.getSubject();
+				if (serve.stringValue().matches(".*" + SERVE_ALL)) {
+					logger.info(
+							"Other resources are no longer served publicly through {}",
+							st.getSubject());
+					con.clear(serve);
+					con.remove((Resource) null, hasComponent, serve);
+					modified = true;
+				}
+			}
+		} finally {
+			stmts.close();
+		}
+		return modified;
 	}
 
 }

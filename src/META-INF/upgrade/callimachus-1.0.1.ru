@@ -187,4 +187,26 @@ INSERT {
     FILTER NOT EXISTS { ?dataset void:uriLookupEndpoint </describe?uri=> }
 };
 
+INSERT {
+    <../> calli:hasComponent <../callimachus-for-web-developers> .
+    <../callimachus-for-web-developers> a <types/PURL>, calli:PURL ;
+	rdfs:label "callimachus-for-web-developers";
+	calli:alternate <http://callimachusproject.org/docs/1.1/callimachus-for-web-developers.docbook?view>;
+	calli:administrator </auth/groups/super>;
+	calli:reader </auth/groups/public> .
+} WHERE {
+	FILTER NOT EXISTS { <../callimachus-for-web-developers> a calli:PURL }
+};
+
+INSERT {
+    <../> calli:hasComponent <../getting-started-with-callimachus> .
+    <../getting-started-with-callimachus> a <types/PURL>, calli:PURL ;
+	rdfs:label "getting-started-with-callimachus";
+	calli:alternate <http://callimachusproject.org/docs/1.0/getting-started-with-callimachus.docbook?view>;
+	calli:administrator </auth/groups/super>;
+	calli:reader </auth/groups/public> .
+} WHERE {
+	FILTER NOT EXISTS { <../getting-started-with-callimachus> a calli:PURL }
+};
+
 

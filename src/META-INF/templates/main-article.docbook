@@ -16,7 +16,7 @@
 		<listitem><simpara>A selection of resource editors (e.g. for <link xl:href="/callimachus/1.0/types/Concept?create">Concepts</link> and <link xl:href="/callimachus/1.0/types/Class?create">Classes</link>) are provided out of the box.</simpara></listitem>
 		<listitem><simpara>Find the menu for creating Callimachus resources in the upper left corner of any folder view.</simpara></listitem>
 	</itemizedlist></listitem>
-	<listitem><simpara>Check out the extensive <link xl:href="http://callimachusproject.org/docs/1.0/getting-started-with-callimachus.docbook?view">Getting Started Guide</link> which also provides links to sample applications.</simpara></listitem>
+	<listitem><simpara>Check out the extensive <link xl:href="/callimachus/getting-started-with-callimachus">Getting Started Guide</link> which also provides links to sample applications.</simpara></listitem>
 </itemizedlist>
 
 </section><section><title>Need Help?</title>

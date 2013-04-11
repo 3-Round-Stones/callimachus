@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
-    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
     xmlns:dcterms="http://purl.org/dc/terms/"
-    xmlns:calli="http://callimachusproject.org/rdf/2009/framework#" xmlns:prov="http://www.w3.org/ns/prov#">
+    xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
+    xmlns:prov="http://www.w3.org/ns/prov#">
 <head>
     <title resource="?this">{rdfs:label}</title>
     <link href="?changes" type="application/atom+xml" rel="alternate" />
@@ -14,45 +16,11 @@
     <link rel="version-history" href="?history" />
     <link id="file-class-link" href="../types/File" />
     <style type="text/css" media="all">
-        #create-menu {
-            position: absolute;
-            -webkit-transition: height 0.5s ease-in;
-            -moz-transition: height 0.5s ease-in;
-            transition: height 0.5s ease-in;
-            height: 0px;
-            opacity: 0;
-            visibility: hidden;
-            overflow: hidden;
-        }
-        #create-menu.open {
-            height: 60em;
-            opacity: 1;
-            visibility: visible;
-        }
-        #create-menu ul {
-            list-style: none;
-            padding: 2px;
-            margin-top: 16px;
-            display: block;
-            outline: none;
-        }
-        #create-menu li {
-            margin: 0;
-            padding: 0;
-            zoom: 1;
-            width: 100%;
-        }
-        #create-menu a {
-            text-decoration: none;
-            display: block;
-            padding: .2em .4em;
-            line-height: 1.5;
-            zoom: 1;
-            font-weight: normal;
-            white-space: nowrap;
-            text-align: left;
-            border-bottom: none;
-        }
+        .ui-grid-header nav { text-align: left; display: inline-block; }
+        .ui-grid-header .btn-inverse { color: white; }
+        .btn-x-small { padding: 3px 5px; }
+        .btn-x-small .icon-upload { height: 12px; background-position: -144px -25px; }
+        .btn-x-small .icon-arrow-up { height: 12px; }
 
         .filecol { width:100% }
         .ui-grid table tbody td.filecell { text-align: left }
@@ -70,55 +38,47 @@
         .ui-grid table thead a { display: block;  }
         .ui-grid .ui-icon { float: left; }
     </style>
-    <script type="text/javascript" src="../scripts/folder-view.js" />
+    <script type="text/javascript" src="../scripts/folder-view.js"></script>
     <script type="text/javascript">
         jQuery(function($) {
             $('#create-menu').find('a').click(function() {
+                if (this.href.indexOf('javascript:') == 0)
+                    return true;
                 window.location.href = '?create=' + encodeURIComponent(this.href);
                 return false;
-            }).hover(
-                function(){ 
-                    $(this).addClass("ui-state-hover"); 
-                },
-                function(){ 
-                    $(this).removeClass("ui-state-hover"); 
-                }
-            );
+            });
         });
     </script>
 </head>
 <body resource="?this">
     <div id="folder-box" class="ui-grid ui-widget ui-widget-content ui-corner-all" dropzone="copy f:image/pjpeg f:image/x-png f:image/png f:image/jpeg f:image/gif f:image/vnd.microsoft.icon f:application/rdf+xml f:application/sparql-query f:application/xhtml+xml f:text/javascript f:text/css f:text/plain f:application/docbook+xml">
         <div class="ui-grid-header ui-widget-header ui-corner-top">
-            <span rev="calli:hasComponent" resource="?parent">
-                <a href="{?parent}?view" class="ui-icon ui-icon-arrowthick-1-n" property="rdfs:label" content="?plabel" title="Up to {?plabel}" />
-            </span>
             <span class="hidden-logout">
-                <a href="javascript:void(0)" class="ui-icon ui-icon-gear" title="Create something new"
-                    onclick="$('#create-menu').toggleClass('open');return false" />
-                <nav id="create-menu" onclick="$('#create-menu').removeClass('open')">
-                    <ul class="unstyled ui-widget ui-widget-content ui-corner-all">
-                        <li><a class="ui-state-default" href="../types/File"><img class="icon" src="../images/file.png" /> File</a></li>
-                        <li><a class="ui-state-default" href="../types/Folder"><img class="icon" src="../images/folder.png" /> Folder</a></li>
-                        <li><a class="ui-state-default" href="../types/Article"><img class="icon" src="../images/article.png" /> Article</a></li>
-                        <li><a class="ui-state-default" href="../types/Book"><img class="icon" src="../images/book.png" /> Book</a></li>
-                        <li><a class="ui-state-default" href="../types/Class"><img class="icon" src="../images/class.png" /> Class</a></li>
-                        <li><a class="ui-state-default" href="../types/Concept"><img class="icon" src="../images/concept.png" /> Concept</a></li>
-                        <li><a class="ui-state-default" href="../types/GraphDocument"><img class="icon" src="../images/graph.png" /> Graph document</a></li>
-                        <li><a class="ui-state-default" href="../types/NamedQuery"><img class="icon" src="../images/query.png" /> Named query</a></li>
-                        <li><a class="ui-state-default" href="../types/Page"><img class="icon" src="../images/page.png" /> Page</a></li>
-                        <li><a class="ui-state-default" href="../types/Pipeline"><img class="icon" src="../images/pipeline.png" /> Pipeline</a></li>
-                        <li><a class="ui-state-default" href="../types/PURL"><img class="icon" src="../images/purl.png" /> PURL</a></li>
-                        <li><a class="ui-state-default" href="../types/Script"><img class="icon" src="../images/script.png" /> Script</a></li>
-                        <li><a class="ui-state-default" href="../types/Style"><img class="icon" src="../images/style.png" /> Style</a></li>
-                        <li><a class="ui-state-default" href="../types/Transform"><img class="icon" src="../images/transform.png" /> Transform</a></li>
-                        <li><a class="ui-state-default" href="../types/Group"><img class="icon" src="../images/group.png" /> User Group</a></li>
-                    </ul>
+                <nav class="pull-left btn-group">
+                    <a rev="calli:hasComponent" resource="?parent" href="{?parent}?view" class="btn btn-inverse btn-x-small btn-small" title="Up"><i class="icon-arrow-up icon-white"></i></a>
                 </nav>
-            </span>
-            <span class="hidden-logout">
-                <a id="exploreanchor" href="../pages/explore.xhtml?view" class="ui-icon ui-icon-lightbulb" title="Explore RDF in this folder"
-                        onmousedown="if(this.href.indexOf('#')&lt;0)this.href+='#!'+$('body').attr('resource')" />
+                <nav id="create-menu" class="pull-left dropdown btn-group">
+                    <a href="javascript:void(0)" class="btn btn-small btn-inverse" data-toggle="dropdown">Create</a>
+                    <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
+                        <li><a tabindex="-1" href="../types/Folder"><img class="icon" src="../images/folder.png" /> Folder</a></li>
+                        <li><a tabindex="-1" href="../types/Article"><img class="icon" src="../images/article.png" /> Article</a></li>
+                        <li><a tabindex="-1" href="../types/Concept"><img class="icon" src="../images/concept.png" /> Concept</a></li>
+                        <li><a tabindex="-1" href="../types/PURL"><img class="icon" src="../images/purl.png" /> PURL</a></li>
+                        <li class="divider"></li>
+                        <li><a tabindex="-1" href="../types/Book"><img class="icon" src="../images/book.png" /> Book</a></li>
+                        <li><a tabindex="-1" href="../types/Class"><img class="icon" src="../images/class.png" /> Class</a></li>
+                        <li><a tabindex="-1" href="../types/Page"><img class="icon" src="../images/page.png" /> Page</a></li>
+                        <li><a tabindex="-1" href="../types/Pipeline"><img class="icon" src="../images/pipeline.png" /> Pipeline</a></li>
+                        <li><a tabindex="-1" href="../types/Script"><img class="icon" src="../images/script.png" /> Script</a></li>
+                        <li><a tabindex="-1" href="../types/Style"><img class="icon" src="../images/style.png" /> Style</a></li>
+                        <li><a tabindex="-1" href="../types/Transform"><img class="icon" src="../images/transform.png" /> Transform</a></li>
+                        <li class="divider"></li>
+                        <li><a tabindex="-1" href="../types/GraphDocument"><img class="icon" src="../images/graph.png" /> Graph document</a></li>
+                        <li><a tabindex="-1" href="../types/NamedQuery"><img class="icon" src="../images/query.png" /> Named query</a></li>
+                        <li><a tabindex="-1" href="../types/Group"><img class="icon" src="../images/group.png" /> User Group</a></li>
+                    </ul>
+                    <a href="../types/File" class="btn btn-small btn-x-small btn-inverse" title="Upload"><i class="icon-upload icon-white"></i></a>
+                </nav>
             </span>
             <span property="rdfs:label"/>
         </div>

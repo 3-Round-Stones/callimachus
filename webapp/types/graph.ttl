@@ -40,6 +40,7 @@
     calli:author </auth/groups/admin>;
     calli:icon <../images/graph.png>;
     calli:create <../templates/file-create.xhtml>;
+    calli:view <../templates/graph-view.xhtml>;
     calli:mediaType "application/rdf+xml";
     calli:documentTag <http://www.w3.org/1999/02/22-rdf-syntax-ns#RDF>.
 
@@ -51,8 +52,9 @@
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/admin>;
     calli:icon <../images/graph.png>;
-    calli:edit <../templates/graph-edit.xhtml>;
     calli:create <../templates/graph-create.xhtml>;
+    calli:view <../templates/graph-view.xhtml>;
+    calli:edit <../templates/graph-edit.xhtml>;
     calli:mediaType "text/turtle".
 
 ################################

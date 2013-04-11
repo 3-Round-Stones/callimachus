@@ -11,11 +11,9 @@
       // <![CDATA[
       jQuery(function($) {
          if (window.location.hash.indexOf('#!') == 0) {
-              var folderURL = window.location.hash.substring(2); // strip '#!'
-              var authpattern = new RegExp("http.*:\/\/.*?/"); // could be 'http://' or 'https://'
-              var authority = authpattern.exec(folderURL);
+              var graphURI = window.location.hash.substring(2); // strip '#!'
               google.load("visualization", "1.0", {callback:function() {
-                new google.visualization.Query(calli.getCallimachusUrl("queries/findclasses.rq?results&folder="+folderURL)).send(function(result){
+                new google.visualization.Query(calli.getCallimachusUrl("queries/findclasses.rq?results&graph=")+encodeURIComponent(graphURI)).send(function(result){
                   var tbody = $('#classtable tbody');
                   var data = result.getDataTable();
                   var rows = data.getNumberOfRows();
@@ -40,7 +38,7 @@
                     classcreate.attr('class', 'describe');
                     classcreate.text(' (');
                     var classcreateanchor = $('<a/>');
-                    classcreateanchor.attr('href', folderURL + "?create=" + encodeURIComponent(calli.getCallimachusUrl("types/Class")) + "#!" + escape(data.getValue(i, 0)));
+                    classcreateanchor.attr('href', graphURI + "/../?create=" + encodeURIComponent(calli.getCallimachusUrl("types/Class")) + "#!" + escape(data.getValue(i, 0)));
                     classcreateanchor.attr('title', "create templates for this class");
                     classcreateanchor.text("assign templates");
                     classcreate.append(classcreateanchor);

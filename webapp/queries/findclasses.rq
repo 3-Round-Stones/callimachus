@@ -22,10 +22,9 @@ PREFIX calli: <http://callimachusproject.org/rdf/2009/framework#>
 PREFIX : <#>
 
 SELECT ?cls (COALESCE(?label, replace(str(?cls), "^.*[/#:]", "")) AS ?name) ?comment {
-    <$folder> calli:hasComponent ?graph
-    GRAPH ?graph { ?cls a owl:Class }
+    GRAPH <$graph> { ?cls a owl:Class }
     OPTIONAL { ?cls rdfs:label ?label }
     OPTIONAL { ?cls rdfs:comment ?comment }
     FILTER isIRI(?cls)
 }
-LIMIT 100
+LIMIT 1000

@@ -89,7 +89,7 @@ public class CallimachusConf {
 
 	public Map<String, String> getOriginRepositoryIDs() throws IOException {
 		String value = getProperty("ORIGIN");
-		if (value == null)
+		if (value == null || value.trim().length() == 0)
 			return Collections.emptyMap();
 		String[] items = value.trim().split("\\s+");
 		Map<String, String> map = new LinkedHashMap<String, String>(items.length);

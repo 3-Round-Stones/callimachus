@@ -188,6 +188,17 @@ INSERT {
 };
 
 INSERT {
+    <../> calli:hasComponent <../getting-started-with-callimachus> .
+    <../getting-started-with-callimachus> a <types/PURL>, calli:PURL ;
+	rdfs:label "getting-started-with-callimachus";
+	calli:alternate <http://callimachusproject.org/docs/1.1/getting-started-with-callimachus.docbook?view>;
+	calli:administrator </auth/groups/super>;
+	calli:reader </auth/groups/public> .
+} WHERE {
+	FILTER NOT EXISTS { <../getting-started-with-callimachus> a calli:PURL }
+};
+
+INSERT {
     <../> calli:hasComponent <../callimachus-for-web-developers> .
     <../callimachus-for-web-developers> a <types/PURL>, calli:PURL ;
 	rdfs:label "callimachus-for-web-developers";
@@ -198,15 +209,20 @@ INSERT {
 	FILTER NOT EXISTS { <../callimachus-for-web-developers> a calli:PURL }
 };
 
-INSERT {
-    <../> calli:hasComponent <../getting-started-with-callimachus> .
-    <../getting-started-with-callimachus> a <types/PURL>, calli:PURL ;
-	rdfs:label "getting-started-with-callimachus";
-	calli:alternate <http://callimachusproject.org/docs/1.0/getting-started-with-callimachus.docbook?view>;
-	calli:administrator </auth/groups/super>;
-	calli:reader </auth/groups/public> .
+DELETE {
+    <../getting-started-with-callimachus> calli:alternate <http://callimachusproject.org/docs/1.0/getting-started-with-callimachus.docbook?view>.
+} INSERT {
+    <../getting-started-with-callimachus> calli:alternate <http://callimachusproject.org/docs/1.1/getting-started-with-callimachus.docbook?view>.
 } WHERE {
-	FILTER NOT EXISTS { <../getting-started-with-callimachus> a calli:PURL }
+    <../getting-started-with-callimachus> calli:alternate <http://callimachusproject.org/docs/1.0/getting-started-with-callimachus.docbook?view>.
+};
+
+DELETE {
+    <../callimachus-for-web-developers> calli:alternate <http://callimachusproject.org/docs/1.0/callimachus-for-web-developers.docbook?view>.
+} INSERT {
+    <../callimachus-for-web-developers> calli:alternate <http://callimachusproject.org/docs/1.1/callimachus-for-web-developers.docbook?view>.
+} WHERE {
+    <../callimachus-for-web-developers> calli:alternate <http://callimachusproject.org/docs/1.0/callimachus-for-web-developers.docbook?view>.
 };
 
 

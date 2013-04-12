@@ -8,7 +8,6 @@
         <html>
             <head>
                 <title></title>
-    <link rel="help" href="../../callimachus-for-web-developers" target="_blank" title="Help" />
             </head>
             <body>
                 <xsl:apply-templates />

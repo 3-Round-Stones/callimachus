@@ -29,7 +29,7 @@
         <html>
             <head>
                 <title><xsl:value-of select="sparql:sparql/sparql:results/sparql:result[1]/sparql:binding[@name='modified']/*" /> Changeset</title>
-    <link rel="help" href="../../callimachus-for-web-developers" target="_blank" title="Help" />
+                <link rel="help" href="../../callimachus-for-web-developers" target="_blank" title="Help" />
                 <style>
                     .uri, .bnode, .literal { font-size: large; }
                     .bnode, .literal { font-family: monospace; white-space: pre-wrap; }

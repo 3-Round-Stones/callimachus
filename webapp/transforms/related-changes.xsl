@@ -10,7 +10,7 @@
         <html>
             <head>
                 <title>Related Changes</title>
-    <link rel="help" href="../../callimachus-for-web-developers" target="_blank" title="Help" />
+                <link rel="help" href="../../callimachus-for-web-developers" target="_blank" title="Help" />
             </head>
             <body>
                 <h1>Related Changes</h1>

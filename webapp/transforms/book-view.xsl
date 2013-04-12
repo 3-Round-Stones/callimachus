@@ -13,7 +13,6 @@ xmlns="http://www.w3.org/1999/xhtml" xmlns:xhtml="http://www.w3.org/1999/xhtml" 
         xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
     <head>
         <title><xsl:value-of select="/*/d:title|/*/d:info/d:title" /></title>
-    <link rel="help" href="../../callimachus-for-web-developers" target="_blank" title="Help" />
         <link rel="edit-form" href="?edit" />
         <link rel="describedby" href="?describe" />
         <link rel="version-history" href="?history" />

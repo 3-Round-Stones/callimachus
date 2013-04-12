@@ -24,9 +24,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.cache.ResourceFactory;
 import org.apache.http.impl.client.SystemDefaultHttpClient;
 import org.apache.http.impl.client.cache.CacheConfig;
-import org.apache.http.impl.client.cache.CachingHttpClient;
 import org.apache.http.impl.client.cache.FileResourceFactory;
-import org.apache.http.impl.client.cache.ManagedHttpCacheStorage;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
@@ -84,8 +82,7 @@ public class HttpClientManager {
 
 	private final InternalHttpClient internal;
 	private final ResourceFactory entryFactory;
-	private ManagedHttpCacheStorage storage;
-	private HttpSystemClient client;
+	private HttpCacheClient client;
 	private int numberOfClientCalls = 0;
 
 	private HttpClientManager(File dir) throws IOException {
@@ -101,24 +98,20 @@ public class HttpClientManager {
 
 	public synchronized void resetCache() {
 		CacheConfig config = getDefaultCacheConfig();
-		storage = new ManagedHttpCacheStorage(config);
-		CachingHttpClient cache = new CachingHttpClient(internal, entryFactory,
-				storage, config);
-		HttpClient client = new GUnZipHttpResponseClient(cache);
-		this.client = new HttpSystemClient(client, storage);
+		this.client = new HttpCacheClient(internal, entryFactory, config);
 	}
 
 	public synchronized HttpUriClient getClient() {
 		if (++numberOfClientCalls % 100 == 0) {
 			// Deletes the (no longer used) temporary cache files from disk.
-			storage.cleanResources();
+			client.cleanResources();
 		}
 		return client;
 	}
 
 	public synchronized void shutdown() {
 		internal.getConnectionManager().shutdown();
-		storage.shutdown();
+		client.shutdown();
 	}
 
 	public synchronized HttpClient getProxy(HttpHost destination) {

@@ -12,10 +12,13 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.cache.ResourceFactory;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.utils.URIUtils;
 import org.apache.http.conn.ClientConnectionManager;
+import org.apache.http.impl.client.cache.CacheConfig;
+import org.apache.http.impl.client.cache.CachingHttpClient;
 import org.apache.http.impl.client.cache.ManagedHttpCacheStorage;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
@@ -29,18 +32,29 @@ import org.callimachusproject.server.exceptions.ResponseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HttpSystemClient extends AbstractHttpClient implements HttpUriClient {
+public class HttpCacheClient extends AbstractHttpClient implements HttpUriClient {
 	final Logger logger = LoggerFactory.getLogger(HttpClientManager.class);
 	private final HttpClient client;
 	private final ManagedHttpCacheStorage storage;
 
-	public HttpSystemClient(HttpClient client, ManagedHttpCacheStorage storage) {
-		this.client = client;
-		this.storage = storage;
+	public HttpCacheClient(HttpClient client, ResourceFactory factory,
+			CacheConfig config) {
+		this.storage = new ManagedHttpCacheStorage(config);
+		CachingHttpClient cache = new CachingHttpClient(client, factory,
+				this.storage, config);
+		this.client = new GUnZipHttpResponseClient(cache);
 	}
 
 	@Override
 	protected void finalize() throws Throwable {
+		storage.shutdown();
+	}
+
+	public void cleanResources() {
+		storage.cleanResources();
+	}
+
+	public void shutdown() {
 		storage.shutdown();
 	}
 

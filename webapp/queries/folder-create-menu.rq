@@ -46,7 +46,7 @@ WHERE {
         BIND (4 AS ?menu)
         BIND (8 AS ?section)
     } UNION {
-        BIND (5 AS ?menu)
+        BIND (4 AS ?menu)
         BIND (9 AS ?section)
     }
 } GROUP BY ?cls ORDER BY ?menu ?section ?label

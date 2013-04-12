@@ -22,7 +22,7 @@
         .tab-content { overflow: visible; }
         .dropup .dropdown-menu { top: auto; bottom: -7px; }
         .ui-grid-header nav { text-align: left; display: inline-block; }
-        .ui-grid-header .btn-inverse { color: white; }
+        .ui-grid-header .btn-danger { color: white; }
         .btn-x-small { padding: 3px 5px; }
         .btn-x-small .icon-upload { height: 12px; background-position: -144px -25px; }
         .btn-x-small .icon-arrow-up { height: 12px; }
@@ -53,17 +53,17 @@
     <div id="folder-box" class="ui-grid ui-widget ui-widget-content ui-corner-all" dropzone="copy f:image/pjpeg f:image/x-png f:image/png f:image/jpeg f:image/gif f:image/vnd.microsoft.icon f:application/rdf+xml f:application/sparql-query f:application/xhtml+xml f:text/javascript f:text/css f:text/plain f:application/docbook+xml">
         <div class="ui-grid-header ui-widget-header ui-corner-top">
             <span class="hidden-logout">
-                <nav class="pull-left btn-group">
-                    <a rev="calli:hasComponent" resource="?parent" href="{?parent}?view" class="btn btn-inverse btn-x-small btn-small" title="Up"><i class="icon-arrow-up icon-white"></i></a>
+                <nav class="pull-left btn-group" rev="calli:hasComponent" resource="?parent">
+                    <a href="{?parent}?view" class="btn btn-inverse btn-x-small btn-small" title="Up"><i class="icon-arrow-up icon-white"></i></a>
                 </nav>
                 <nav class="pull-left dropdown btn-group">
-                    <a id="create-menu" href="javascript:void(0)" class="btn btn-small btn-inverse" title="Create menu" data-toggle="dropdown">Create</a>
+                    <a id="create-menu" href="javascript:void(0)" class="btn btn-small btn-danger" title="Create menu" data-toggle="dropdown">Create</a>
                     <ul id="create-menu-more" class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
                     </ul>
-                    <a href="../types/Folder" class="btn btn-small btn-x-small btn-inverse" title="Create folder"><i class="icon-folder-open icon-white"></i></a>
-                    <a href="?archive" class="btn btn-small btn-x-small btn-inverse" title="Export folder contents"><i class="icon-circle-arrow-down icon-white"></i></a>
-                    <a href="?import" class="btn btn-small btn-x-small btn-inverse" title="Import folder contents"><i class="icon-circle-arrow-up icon-white"></i></a>
-                    <a href="../types/File" class="btn btn-small btn-x-small btn-inverse" title="Upload file"><i class="icon-upload icon-white"></i></a>
+                    <a href="../types/Folder" class="btn btn-small btn-x-small btn-danger" title="Create folder"><i class="icon-folder-open icon-white"></i></a>
+                    <a href="?archive" class="btn btn-small btn-x-small btn-danger" title="Export folder contents"><i class="icon-circle-arrow-down icon-white"></i></a>
+                    <a href="?import" class="btn btn-small btn-x-small btn-danger" title="Import folder contents"><i class="icon-circle-arrow-up icon-white"></i></a>
+                    <a href="../types/File" class="btn btn-small btn-x-small btn-danger" title="Upload file"><i class="icon-upload icon-white"></i></a>
                 </nav>
             </span>
             <span property="rdfs:label"/>

@@ -10,6 +10,7 @@
         <html>
             <head>
                 <title>Search Results</title>
+    <link rel="help" href="../../callimachus-for-web-developers" target="_blank" title="Help" />
                 <script>
                 // <![CDATA[
                 function parameter(name) {

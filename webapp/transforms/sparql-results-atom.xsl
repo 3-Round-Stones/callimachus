@@ -64,6 +64,7 @@
     <title>
         <xsl:value-of select="*" />
     </title>
+    <link rel="help" href="../../callimachus-for-web-developers" target="_blank" title="Help" />
 </xsl:template>
 
 <xsl:template match="sparql:binding[@name='subtitle']">
@@ -203,6 +204,7 @@
     <app:collection href="{*}">
         <xsl:if test="../sparql:binding[@name='collection_title']">
             <title><xsl:value-of select="../sparql:binding[@name='collection_title']/*" /></title>
+    <link rel="help" href="../../callimachus-for-web-developers" target="_blank" title="Help" />
         </xsl:if>
         <xsl:variable name="id" select="../sparql:binding[@name='id']/*" />
         <xsl:for-each select="../../sparql:result[sparql:binding[@name='id']/*=$id]/sparql:binding[@name='collection_accept']">

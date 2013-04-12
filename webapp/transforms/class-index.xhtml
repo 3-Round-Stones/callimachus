@@ -10,6 +10,7 @@
     xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
     <title><xsl:value-of select="//sparql:result[1]/sparql:binding[@name='title']/*" /></title>
+    <link rel="help" href="../../callimachus-for-web-developers" target="_blank" title="Help" />
     <link rel="create-form" href="?create" title="Create a new {//sparql:result[1]/sparql:binding[@name='title']/*}" />
     <script type="text/javascript">//<![CDATA[
         jQuery(function($){

@@ -16,6 +16,7 @@
                         <xsl:with-param name="iri" select="/rdf:RDF/rdf:Description/@rdf:about[1]"/>
                     </xsl:call-template>
                 </title>
+    <link rel="help" href="../../callimachus-for-web-developers" target="_blank" title="Help" />
                 <style>
                     ul.properties { margin-top: 0px; }
                     li.triple { list-style-type: none }

@@ -10,6 +10,7 @@
         <html>
             <head>
                 <title>What Links Here</title>
+    <link rel="help" href="../../callimachus-for-web-developers" target="_blank" title="Help" />
             </head>
             <body>
                 <h1>What Links Here</h1>

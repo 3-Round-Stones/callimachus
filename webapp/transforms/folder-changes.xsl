@@ -10,6 +10,7 @@
         <html>
             <head>
                 <title>Recent Changes</title>
+    <link rel="help" href="../../callimachus-for-web-developers" target="_blank" title="Help" />
             </head>
             <body>
                 <h1>Recent Changes</h1>

@@ -14,10 +14,12 @@
     <link rel="comments" href="?discussion" />
     <link rel="version-history" href="?history" />
     <link id="file-class-link" href="../types/File" />
+    <link id="create-menu-json" href="../queries/folder-create-menu.rq?results&amp;tqx=out:table" />
     <link href="?archive" title="Export folder contents" />
     <link href="?import" title="Import folder contents" />
     <style type="text/css" media="all">
         .tab-content { overflow: visible; }
+        .dropup .dropdown-menu { top: auto; bottom: -7px; }
         .ui-grid-header nav { text-align: left; display: inline-block; }
         .ui-grid-header .btn-inverse { color: white; }
         .btn-x-small { padding: 3px 5px; }
@@ -44,20 +46,7 @@
         .ui-grid .ui-icon { float: left; }
     </style>
     <script type="text/javascript" src="../scripts/folder-view.js"></script>
-    <script type="text/javascript">
-    // <![CDATA[
-        jQuery(function($) {
-            $('#create-menu').find('a').click(function() {
-                if (this.href.indexOf('javascript:') != 0 && this.href.indexOf('?') < 0){
-                    window.location.href = '?create=' + encodeURIComponent(this.href);
-                    return false;
-                } else {
-                    return true;
-                }
-            });
-        });
-    // ]]>
-    </script>
+    <script type="text/javascript" src="../scripts/folder-create-menu.js"></script>
 </head>
 <body resource="?this">
     <div id="folder-box" class="ui-grid ui-widget ui-widget-content ui-corner-all" dropzone="copy f:image/pjpeg f:image/x-png f:image/png f:image/jpeg f:image/gif f:image/vnd.microsoft.icon f:application/rdf+xml f:application/sparql-query f:application/xhtml+xml f:text/javascript f:text/css f:text/plain f:application/docbook+xml">
@@ -66,24 +55,9 @@
                 <nav class="pull-left btn-group">
                     <a rev="calli:hasComponent" resource="?parent" href="{?parent}?view" class="btn btn-inverse btn-x-small btn-small" title="Up"><i class="icon-arrow-up icon-white"></i></a>
                 </nav>
-                <nav id="create-menu" class="pull-left dropdown btn-group">
-                    <a href="javascript:void(0)" class="btn btn-small btn-inverse" title="Create menu" data-toggle="dropdown">Create</a>
-                    <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
-                        <li><a tabindex="-1" href="../types/Article"><img class="icon" src="../images/article.png" /> Article</a></li>
-                        <li><a tabindex="-1" href="../types/Concept"><img class="icon" src="../images/concept.png" /> Concept</a></li>
-                        <li><a tabindex="-1" href="../types/PURL"><img class="icon" src="../images/purl.png" /> PURL</a></li>
-                        <li class="divider"></li>
-                        <li><a tabindex="-1" href="../types/Book"><img class="icon" src="../images/book.png" /> Book</a></li>
-                        <li><a tabindex="-1" href="../types/Class"><img class="icon" src="../images/class.png" /> Class</a></li>
-                        <li><a tabindex="-1" href="../types/Page"><img class="icon" src="../images/page.png" /> Page</a></li>
-                        <li><a tabindex="-1" href="../types/Pipeline"><img class="icon" src="../images/pipeline.png" /> Pipeline</a></li>
-                        <li><a tabindex="-1" href="../types/Script"><img class="icon" src="../images/script.png" /> Script</a></li>
-                        <li><a tabindex="-1" href="../types/Style"><img class="icon" src="../images/style.png" /> Style</a></li>
-                        <li><a tabindex="-1" href="../types/Transform"><img class="icon" src="../images/transform.png" /> Transform</a></li>
-                        <li class="divider"></li>
-                        <li><a tabindex="-1" href="../types/GraphDocument"><img class="icon" src="../images/graph.png" /> Graph document</a></li>
-                        <li><a tabindex="-1" href="../types/NamedQuery"><img class="icon" src="../images/query.png" /> Named query</a></li>
-                        <li><a tabindex="-1" href="../types/Group"><img class="icon" src="../images/group.png" /> User Group</a></li>
+                <nav class="pull-left dropdown btn-group">
+                    <a id="create-menu" href="javascript:void(0)" class="btn btn-small btn-inverse" title="Create menu" data-toggle="dropdown">Create</a>
+                    <ul id="create-menu-more" class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
                     </ul>
                     <a href="../types/Folder" class="btn btn-small btn-x-small btn-inverse" title="Create folder"><i class="icon-folder-open icon-white"></i></a>
                     <a href="?archive" class="btn btn-small btn-x-small btn-inverse" title="Export folder contents"><i class="icon-circle-arrow-down icon-white"></i></a>

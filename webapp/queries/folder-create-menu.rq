@@ -1,0 +1,52 @@
+#
+# @Cache-Control: 
+# @view 
+#
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX calli: <http://callimachusproject.org/rdf/2009/framework#>
+
+SELECT DISTINCT (concat('?create=', encode_for_uri(str(?cls))) AS ?url)
+    (max(?label) AS ?label) (max(?icon) AS ?icon)
+    (min(?menu) AS ?menu) (min(?section) AS ?section)
+WHERE {
+    ?cls rdf:type/rdfs:subClassOf? <../types/Creatable>; rdfs:label ?label
+    FILTER (?cls NOT IN (<../types/File>, <../types/Folder>))
+    OPTIONAL { ?cls calli:icon ?icon }
+    {
+        ?cls calli:author </auth/groups/users>
+        FILTER (?cls IN (<../types/Article>, <../types/Concept>, <../types/PURL>))
+        BIND (1 AS ?menu)
+        BIND (1 AS ?section)
+    } UNION {
+        ?cls calli:author </auth/groups/staff>
+        FILTER (?cls IN (<../types/Book>, <../types/Class>, <../types/Page>, <../types/Pipeline>,
+            <../types/Script>, <../types/Style>, <../types/Transform>))
+        BIND (1 AS ?menu)
+        BIND (2 AS ?section)
+    } UNION {
+        ?cls calli:author </auth/groups/everyone>
+        BIND (2 AS ?menu)
+        BIND (4 AS ?section)
+    } UNION {
+        ?cls calli:author </auth/groups/users>
+        BIND (2 AS ?menu)
+        BIND (5 AS ?section)
+    } UNION {
+        ?cls calli:author </auth/groups/staff>
+        BIND (3 AS ?menu)
+        BIND (6 AS ?section)
+    } UNION {
+        ?cls calli:author </auth/groups/power>
+        BIND (3 AS ?menu)
+        BIND (7 AS ?section)
+    } UNION {
+        ?cls calli:author </auth/groups/admin>
+        BIND (4 AS ?menu)
+        BIND (8 AS ?section)
+    } UNION {
+        BIND (5 AS ?menu)
+        BIND (9 AS ?section)
+    }
+} GROUP BY ?cls ORDER BY ?menu ?section ?label

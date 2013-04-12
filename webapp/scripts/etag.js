@@ -5,6 +5,17 @@ window.calli = window.calli || {};
 if (window.sessionStorage) {
     window.calli.etag = function(url, value) {
         var uri = url;
+        if (uri.indexOf('http') != 0) {
+            if (document.baseURIObject && document.baseURIObject.resolve) {
+                uri = document.baseURIObject.resolve(uri);
+            } else {
+                var a = document.createElement('a');
+                a.setAttribute('href', uri);
+                if (a.href) {
+                    uri = a.href;
+                }
+            }
+        }
         if (uri.indexOf('?') > 0) {
             uri = uri.substring(0, uri.indexOf('?'));
         }

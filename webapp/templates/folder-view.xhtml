@@ -12,15 +12,20 @@
     <link href="?contents" type="application/atom+xml" rel="contents" />
     <link rel="edit-form" href="?edit" />
     <link rel="comments" href="?discussion" />
-    <link rel="describedby" href="?describe" />
     <link rel="version-history" href="?history" />
     <link id="file-class-link" href="../types/File" />
+    <link href="?archive" title="Export folder contents" />
+    <link href="?import" title="Import folder contents" />
     <style type="text/css" media="all">
+        .tab-content { overflow: visible; }
         .ui-grid-header nav { text-align: left; display: inline-block; }
         .ui-grid-header .btn-inverse { color: white; }
         .btn-x-small { padding: 3px 5px; }
         .btn-x-small .icon-upload { height: 12px; background-position: -144px -25px; }
         .btn-x-small .icon-arrow-up { height: 12px; }
+        .btn-x-small .icon-folder-open { height: 12px; }
+        .btn-x-small .icon-circle-arrow-up { height: 12px; background-position: -288px -145px; }
+        .btn-x-small .icon-circle-arrow-down { height: 12px; background-position: -312px -145px; }
 
         .filecol { width:100% }
         .ui-grid table tbody td.filecell { text-align: left }
@@ -40,14 +45,18 @@
     </style>
     <script type="text/javascript" src="../scripts/folder-view.js"></script>
     <script type="text/javascript">
+    // <![CDATA[
         jQuery(function($) {
             $('#create-menu').find('a').click(function() {
-                if (this.href.indexOf('javascript:') == 0)
+                if (this.href.indexOf('javascript:') != 0 && this.href.indexOf('?') < 0){
+                    window.location.href = '?create=' + encodeURIComponent(this.href);
+                    return false;
+                } else {
                     return true;
-                window.location.href = '?create=' + encodeURIComponent(this.href);
-                return false;
+                }
             });
         });
+    // ]]>
     </script>
 </head>
 <body resource="?this">
@@ -58,9 +67,8 @@
                     <a rev="calli:hasComponent" resource="?parent" href="{?parent}?view" class="btn btn-inverse btn-x-small btn-small" title="Up"><i class="icon-arrow-up icon-white"></i></a>
                 </nav>
                 <nav id="create-menu" class="pull-left dropdown btn-group">
-                    <a href="javascript:void(0)" class="btn btn-small btn-inverse" data-toggle="dropdown">Create</a>
+                    <a href="javascript:void(0)" class="btn btn-small btn-inverse" title="Create menu" data-toggle="dropdown">Create</a>
                     <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
-                        <li><a tabindex="-1" href="../types/Folder"><img class="icon" src="../images/folder.png" /> Folder</a></li>
                         <li><a tabindex="-1" href="../types/Article"><img class="icon" src="../images/article.png" /> Article</a></li>
                         <li><a tabindex="-1" href="../types/Concept"><img class="icon" src="../images/concept.png" /> Concept</a></li>
                         <li><a tabindex="-1" href="../types/PURL"><img class="icon" src="../images/purl.png" /> PURL</a></li>
@@ -77,7 +85,10 @@
                         <li><a tabindex="-1" href="../types/NamedQuery"><img class="icon" src="../images/query.png" /> Named query</a></li>
                         <li><a tabindex="-1" href="../types/Group"><img class="icon" src="../images/group.png" /> User Group</a></li>
                     </ul>
-                    <a href="../types/File" class="btn btn-small btn-x-small btn-inverse" title="Upload"><i class="icon-upload icon-white"></i></a>
+                    <a href="../types/Folder" class="btn btn-small btn-x-small btn-inverse" title="Create folder"><i class="icon-folder-open icon-white"></i></a>
+                    <a href="?archive" class="btn btn-small btn-x-small btn-inverse" title="Export folder contents"><i class="icon-circle-arrow-down icon-white"></i></a>
+                    <a href="?import" class="btn btn-small btn-x-small btn-inverse" title="Import folder contents"><i class="icon-circle-arrow-up icon-white"></i></a>
+                    <a href="../types/File" class="btn btn-small btn-x-small btn-inverse" title="Upload file"><i class="icon-upload icon-white"></i></a>
                 </nav>
             </span>
             <span property="rdfs:label"/>

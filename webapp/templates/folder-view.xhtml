@@ -48,6 +48,14 @@
     </style>
     <script type="text/javascript" src="../scripts/folder-view.js"></script>
     <script type="text/javascript" src="../scripts/folder-create-menu.js"></script>
+    <script type="text/javascript">
+        jQuery(function($) {
+            $('.create-here').click(function() {
+                window.location.href = '?create=' + encodeURIComponent(this.href);
+                return false;
+            });
+        });
+    </script>
 </head>
 <body resource="?this">
     <div id="folder-box" class="ui-grid ui-widget ui-widget-content ui-corner-all" dropzone="copy f:image/pjpeg f:image/x-png f:image/png f:image/jpeg f:image/gif f:image/vnd.microsoft.icon f:application/rdf+xml f:application/sparql-query f:application/xhtml+xml f:text/javascript f:text/css f:text/plain f:application/docbook+xml">
@@ -60,10 +68,10 @@
                     <a id="create-menu" href="javascript:void(0)" class="btn btn-small btn-danger" title="Create menu" data-toggle="dropdown">Create</a>
                     <ul id="create-menu-more" class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
                     </ul>
-                    <a href="../types/Folder" class="btn btn-small btn-x-small btn-danger" title="Create folder"><i class="icon-folder-open icon-white"></i></a>
+                    <a href="../types/Folder" class="create-here btn btn-small btn-x-small btn-danger" title="Create folder"><i class="icon-folder-open icon-white"></i></a>
                     <a href="?archive" class="btn btn-small btn-x-small btn-danger" title="Export folder contents"><i class="icon-circle-arrow-down icon-white"></i></a>
                     <a href="?import" class="btn btn-small btn-x-small btn-danger" title="Import folder contents"><i class="icon-circle-arrow-up icon-white"></i></a>
-                    <a href="../types/File" class="btn btn-small btn-x-small btn-danger" title="Upload file"><i class="icon-upload icon-white"></i></a>
+                    <a href="../types/File" class="create-here btn btn-small btn-x-small btn-danger" title="Upload file"><i class="icon-upload icon-white"></i></a>
                 </nav>
             </span>
             <span property="rdfs:label"/>

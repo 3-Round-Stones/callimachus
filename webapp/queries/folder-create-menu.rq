@@ -8,11 +8,12 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX calli: <http://callimachusproject.org/rdf/2009/framework#>
 
 SELECT DISTINCT (concat('?create=', encode_for_uri(str(?cls))) AS ?url)
-    (max(?label) AS ?label) (max(?icon) AS ?icon)
+    (max(?label) AS ?label) (max(?comment) AS ?comment) (max(?icon) AS ?icon)
     (min(?menu) AS ?menu) (min(?section) AS ?section)
 WHERE {
     ?cls rdf:type/rdfs:subClassOf? <../types/Creatable>; rdfs:label ?label
     FILTER (?cls NOT IN (<../types/File>, <../types/Folder>))
+    OPTIONAL { ?cls rdfs:comment ?comment }
     OPTIONAL { ?cls calli:icon ?icon }
     {
         ?cls calli:author </auth/groups/users>

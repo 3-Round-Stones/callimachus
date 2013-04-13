@@ -23,18 +23,6 @@ import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.filter.HTTPDigestAuthFilter;
 
 public class AuthenticationTest extends MetadataServerTestCase {
-	private static final int PORT = 59322;
-	private static final String ORIGIN = "http://localhost:" + PORT;
-
-	@Override
-	protected int getPort() {
-		return PORT;
-	}
-
-	@Override
-	protected String getOrigin() {
-		return ORIGIN;
-	}
 
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target( { ElementType.METHOD, ElementType.TYPE, ElementType.PARAMETER })
@@ -94,9 +82,9 @@ public class AuthenticationTest extends MetadataServerTestCase {
 			ValueFactory vf = con.getValueFactory();
 			con.add(vf.createURI("urn:test:my-group"), vf.createURI("http://callimachusproject.org/rdf/2009/framework#member"), vf.createURI("urn:test:user:bob"));
 			con.add(vf.createURI("urn:test:my-group"), vf.createURI("http://callimachusproject.org/rdf/2009/framework#member"), vf.createURI("urn:test:user:jim"));
-			con.add(vf.createURI(ORIGIN), RDF.TYPE, vf.createURI("http://callimachusproject.org/rdf/2009/framework#Origin"));
-			con.add(vf.createURI(ORIGIN), RDF.TYPE, vf.createURI("http://callimachusproject.org/rdf/2009/framework#Realm"));
-			con.add(vf.createURI(ORIGIN), vf.createURI("http://callimachusproject.org/rdf/2009/framework#authentication"), vf.createURI("urn:test:auth"));
+			con.add(vf.createURI(getOrigin()), RDF.TYPE, vf.createURI("http://callimachusproject.org/rdf/2009/framework#Origin"));
+			con.add(vf.createURI(getOrigin()), RDF.TYPE, vf.createURI("http://callimachusproject.org/rdf/2009/framework#Realm"));
+			con.add(vf.createURI(getOrigin()), vf.createURI("http://callimachusproject.org/rdf/2009/framework#authentication"), vf.createURI("urn:test:auth"));
 			con.add(vf.createURI("urn:test:auth"), RDF.TYPE, vf.createURI("http://callimachusproject.org/rdf/2009/framework#DigestManager"));
 			con.add(vf.createURI("urn:test:auth"), vf.createURI("http://callimachusproject.org/rdf/2009/framework#authName"), vf.createLiteral("test"));
 			con.add(vf.createURI("urn:test:auth"), vf.createURI("http://callimachusproject.org/rdf/2009/framework#authNamespace"), vf.createURI("urn:test:user:"));

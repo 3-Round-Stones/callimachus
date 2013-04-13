@@ -11,8 +11,9 @@ SELECT DISTINCT (concat('?create=', encode_for_uri(str(?cls))) AS ?url)
     (max(?label) AS ?label) (max(?comment) AS ?comment) (max(?icon) AS ?icon)
     (min(?menu) AS ?menu) (min(?section) AS ?section)
 WHERE {
-    ?cls rdf:type/rdfs:subClassOf? <../types/Creatable>; rdfs:label ?label
-    FILTER (?cls NOT IN (<../types/File>, <../types/Folder>))
+    ?cls rdf:type/rdfs:subClassOf? <../types/Creatable>; rdfs:label ?label; calli:create ?create
+    FILTER (?cls != <../types/Folder>)
+    FILTER (?create != <../templates/file-create.xhtml>)
     OPTIONAL { ?cls rdfs:comment ?comment }
     OPTIONAL { ?cls calli:icon ?icon }
     {

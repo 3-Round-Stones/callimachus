@@ -28,7 +28,7 @@
 <Pipeline> a <Creatable>, owl:Class;
     rdfs:subClassOf <File>;
     rdfs:label "Pipeline";
-    rdfs:comment "New pipelines can be created from a folder";
+    rdfs:comment "XML Processing XProc file";
     owl:equivalentClass </callimachus/Pipeline>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;

@@ -29,6 +29,7 @@
 <VectorGraphic> a <Creatable>, owl:Class;
     rdfs:subClassOf <Image>;
     rdfs:label "Vector Graphic" ;
+    rdfs:comment "SVG image files" ;
     owl:equivalentClass </callimachus/VectorGraphic>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;

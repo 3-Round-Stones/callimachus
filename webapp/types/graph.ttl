@@ -35,6 +35,7 @@
 <NamedGraph> a <Creatable>, owl:Class;
     rdfs:subClassOf <File>, sd:NamedGraph;
     rdfs:label "Named Graph";
+    rdfs:comemnt "RDF document encoded as a RDF+XML file";
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/admin>;
@@ -47,7 +48,7 @@
 <GraphDocument> a <Creatable>, owl:Class;
     rdfs:subClassOf <File>, sd:NamedGraph;
     rdfs:label "Graph Document";
-    rdfs:comment "Terse RDF Triple documents";
+    rdfs:comment "RDF document encoded as a Turtle file";
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/admin>;

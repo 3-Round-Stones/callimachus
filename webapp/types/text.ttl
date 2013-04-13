@@ -28,7 +28,7 @@
 <TextFile> a <Creatable>, owl:Class;
     rdfs:subClassOf <File>;
     rdfs:label "Text File";
-    rdfs:comment "Text files";
+    rdfs:comment "Plain text files";
     owl:equivalentClass </callimachus/TextFile>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;

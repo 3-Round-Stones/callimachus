@@ -27,6 +27,7 @@
 
 <File> a <Creatable>, owl:Class;
     rdfs:label "File";
+    rdfs:comment "Upload a file with a known file type and extension";
     rdfs:subClassOf <Viewable>, <Editable>, foaf:Document;
     owl:equivalentClass </callimachus/File>;
     rdfs:isDefinedBy <../../ontology>;

@@ -28,6 +28,7 @@
 <Image> a <Creatable>, owl:Class;
     rdfs:subClassOf foaf:Image, <File>;
     rdfs:label "Image" ;
+    rdfs:comment "Image file";
     owl:equivalentClass </callimachus/Image>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;
@@ -40,6 +41,7 @@
 <AnimatedGraphic> a <Creatable>, owl:Class;
     rdfs:subClassOf <Image>;
     rdfs:label "Animated Graphic" ;
+    rdfs:comment "GIF image" ;
     owl:equivalentClass </callimachus/AnimatedGraphic>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;
@@ -51,6 +53,7 @@
 <IconGraphic> a <Creatable>, owl:Class;
     rdfs:subClassOf <Image>;
     rdfs:label "Icon Graphic" ;
+    rdfs:comment "ICO image" ;
     owl:equivalentClass </callimachus/IconGraphic>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;
@@ -62,6 +65,7 @@
 <NetworkGraphic> a <Creatable>, owl:Class;
     rdfs:subClassOf <Image>;
     rdfs:label "Network Graphic" ;
+    rdfs:comment "PNG image" ;
     owl:equivalentClass </callimachus/NetworkGraphic>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;

@@ -30,6 +30,7 @@
 <Photo> a <Creatable>, owl:Class;
     rdfs:subClassOf <Image>;
     rdfs:label "Photo" ;
+    rdfs:comment "JPEG image file";
     owl:equivalentClass </callimachus/Photo>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;

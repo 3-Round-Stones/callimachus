@@ -28,7 +28,7 @@
 <Transform> a <Creatable>, owl:Class;
     rdfs:subClassOf <File>;
     rdfs:label "Transform";
-    rdfs:comment "Transform files";
+    rdfs:comment "XSL transform files";
     owl:equivalentClass </callimachus/Transform>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;

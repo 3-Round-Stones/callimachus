@@ -28,7 +28,7 @@
 <Book> a <Creatable>, owl:Class;
     rdfs:subClassOf <File>;
     rdfs:label "Book";
-    rdfs:comment "New books can be created from a folder";
+    rdfs:comment "A book is a DocBook XML document that includes articles";
     owl:equivalentClass </callimachus/Book>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;

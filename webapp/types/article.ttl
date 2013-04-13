@@ -28,7 +28,7 @@
 <Article> a <Creatable>, owl:Class;
     rdfs:subClassOf <Book>;
     rdfs:label "Article";
-    rdfs:comment "New articles can be created from a folder";
+    rdfs:comment "An article is a text file that is structured using the DocBook, a popular and open standard for marking up technical documentation";
     owl:equivalentClass </callimachus/Article>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;

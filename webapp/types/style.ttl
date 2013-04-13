@@ -28,7 +28,7 @@
 <Style> a <Creatable>, owl:Class;
     rdfs:subClassOf <File>;
     rdfs:label "Style";
-    rdfs:comment "Style files";
+    rdfs:comment "Style CSS files";
     owl:equivalentClass </callimachus/Style>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;

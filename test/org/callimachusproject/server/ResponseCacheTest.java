@@ -13,19 +13,6 @@ import org.openrdf.annotations.Iri;
 import com.sun.jersey.api.client.WebResource;
 
 public class ResponseCacheTest extends MetadataServerTestCase {
-	private static final int PORT = 56031;
-	private static final String ORIGIN = "http://localhost:" + PORT;
-
-	@Override
-	protected int getPort() {
-		return PORT;
-	}
-
-	@Override
-	protected String getOrigin() {
-		return ORIGIN;
-	}
-
 	private WebResource display;
 	private WebResource clock;
 	private WebResource seq;

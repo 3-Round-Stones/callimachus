@@ -25,7 +25,8 @@ import org.slf4j.LoggerFactory;
 public abstract class FileUpdater implements Updater {
 	private static final String READER_GROUP = "/auth/groups/public";
 	private static final String SUBSCRIBER_GROUP = "/auth/groups/users";
-	private static final String EDIT_GROUP = "/auth/groups/staff";
+	private static final String EDIT_GROUP[] = { "/auth/groups/staff",
+			"/auth/groups/power" };
 	private static final String ADMIN_GROUP = "/auth/groups/admin";
 	private static final String CALLI = "http://callimachusproject.org/rdf/2009/framework#";
 	private static final String CALLI_ADMINISTRATOR = CALLI + "administrator";
@@ -110,8 +111,10 @@ public abstract class FileUpdater implements Updater {
 				vf.createURI(origin.resolve(READER_GROUP)));
 		con.add(file, vf.createURI(CALLI_SUBSCRIBER),
 				vf.createURI(origin.resolve(SUBSCRIBER_GROUP)));
-		con.add(file, vf.createURI(CALLI_EDITOR),
-				vf.createURI(origin.resolve(EDIT_GROUP)));
+		URI editor = vf.createURI(CALLI_EDITOR);
+		for (String group : EDIT_GROUP) {
+			con.add(file, editor, vf.createURI(origin.resolve(group)));
+		}
 		con.add(file, vf.createURI(CALLI_ADMINISTRATOR),
 				vf.createURI(origin.resolve(ADMIN_GROUP)));
 		con.add(folder, vf.createURI(CALLI_HASCOMPONENT), file);

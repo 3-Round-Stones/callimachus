@@ -243,8 +243,7 @@ rdfs:comment a rdf:Property.
         PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
         SELECT REDUCED ?user
         WHERE {
-            </auth/invited-users/> calli:hasComponent ?user .
-            ?user calli:email $invitedEmail .
+            ?user a <InvitedUser>; calli:email $invitedEmail .
         }
     """.
 

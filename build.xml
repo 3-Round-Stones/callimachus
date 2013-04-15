@@ -95,6 +95,7 @@
         <basename file="${daemon-darwin.url}" property="daemon-darwin.tar.gz" />
         <basename file="${tagsoup.url}" property="tagsoup.jar" />
         <basename file="${httpcore.url}" property="httpcore.zip" />
+        <basename file="${httpclient-cache.url}" property="httpclient-cache.jar" />
         <mkdir dir="${downloads}" />
         <get usetimestamp="true" skipexisting="${lib.present}" dest="${downloads}">
             <url url="${alibaba.url}" />
@@ -107,10 +108,11 @@
             <url url="${mail.url}" />
             <url url="${compress.url}" />
             <url url="${jing.url}" />
-            <url url="${httpclient.url}" />
             <url url="${daemon-darwin.url}" />
             <url url="${tagsoup.url}" />
             <url url="${httpcore.url}" />
+            <url url="${httpclient.url}" />
+            <url url="${httpclient-cache.url}" />
         </get>
         <mkdir dir="${lib}" />
         <mkdir dir="${bin}" />
@@ -147,9 +149,11 @@
             <patternset>
                 <include name="**/lib/*.jar" />
                 <exclude name="**/lib/httpcore-*.jar" />
+                <exclude name="**/lib/httpclient-cache-*.jar" />
             </patternset>
             <mapper type="flatten" />
         </unzip>
+        <copy file="${downloads}/${httpclient-cache.jar}" tofile="${lib}/${httpclient-cache.jar}" />
         <unzip overwrite="false" src="${downloads}/${jchardet.zip}" dest="${lib}">
             <patternset>
                 <include name="*/dist/lib/*.jar" />

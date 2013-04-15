@@ -44,7 +44,7 @@ window.calli.deleteResource = function(event, redirect) {
                 calli.withCredentials(xhr);
             }, complete: function(xhr) {
                 try {
-                    if (xhr.status >= 200) {
+                    if (200 <= xhr.status && xhr.status < 300) {
                         var event = jQuery.Event("calliRedirect");
                         event.cause = de;
                         event.resource = de.resource;

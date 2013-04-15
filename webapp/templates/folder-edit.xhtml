@@ -32,7 +32,8 @@
             var xhr = $.ajax({
                 type: 'DELETE',
                 url: '?archive',
-    			dataType: "text", 
+    			dataType: "text",
+                global: false,
                 beforeSend: function(xhr){
                     var etag = calli.etag('?archive');
                     if (etag) {
@@ -40,7 +41,7 @@
                     }
                     calli.withCredentials(xhr);
                 },
-                success: function(data, textStatus) {
+                complete: function(data, textStatus) {
                     event.message = '';
                     calli.deleteResource(event);
                 }

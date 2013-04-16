@@ -10,8 +10,8 @@
 #
 # Don't try to use /robots.txt to hide information.
 #
-# "Disallow:" tells the robots they have complete access.
 # "Disallow: /" tells the robots that it should not visit any pages on the site.
 #
 User-agent: *
-Disallow:
+Disallow: /auth/
+Disallow: /callimachus/

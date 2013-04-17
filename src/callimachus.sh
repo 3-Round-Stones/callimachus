@@ -268,11 +268,9 @@ if [ -z "$REPOSITORY_CONFIG" ] ; then
   REPOSITORY_CONFIG="$BASEDIR/etc/$NAME-repository.ttl"
 fi
 
+CLASSPATH="$BASEDIR/classes/"
 for JAR in "$BASEDIR"/lib/*.jar ; do
-  if [ ! -z "$CLASSPATH" ] ; then
-    CLASSPATH="$CLASSPATH":
-  fi
-  CLASSPATH="$CLASSPATH$JAR"
+  CLASSPATH="$CLASSPATH:$JAR"
 done
 
 if [ -z "$JAVA_OPTS" ] ; then

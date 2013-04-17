@@ -142,6 +142,7 @@ set "REPOSITORY_CONFIG=etc/%NAME%-repository.ttl"
 :gotRepositoryConfig
 
 setlocal ENABLEDELAYEDEXPANSION
+set "CLASSPATH=%BASEDIR%\classes\"
 for /r "lib" %%a IN (*.jar) do set CLASSPATH=!CLASSPATH!;%%a
 
 if not "%JAVA_OPTS%" == "" goto gotJavaOpts

@@ -71,9 +71,9 @@
     calli:type "message/x-response";
     calli:script """
         if (loginOptions.indexOf("persistent=true") >= 0) {
-            return this.getPersistentLogin("GET", cookies);
+            return this.getPersistentLogin("POST", cookies);
         } else {
-            return this.getLogin("GET", cookies);
+            return this.getLogin("POST", cookies);
         }
     """.
 

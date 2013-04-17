@@ -336,19 +336,21 @@ public class AuthorizationManager {
 		return false;
 	}
 
-	private HttpResponse choose(HttpResponse unauthorized, HttpResponse auth)
+	private HttpResponse choose(HttpResponse a, HttpResponse b)
 			throws IOException {
-		if (unauthorized == null)
-			return auth;
-		if (auth == null)
-			return unauthorized;
-		int code = unauthorized.getStatusLine().getStatusCode();
-		if (auth.getStatusLine().getStatusCode() < code) {
-			EntityUtils.consume(unauthorized.getEntity());
-			return auth;
+		if (a == null)
+			return b;
+		if (b == null)
+			return a;
+		int acode = a.getStatusLine().getStatusCode();
+		int bcode = b.getStatusLine().getStatusCode();
+		// prefer 401 Unauthorized responses
+		if (bcode < acode && (bcode == 401 || acode != 401)) {
+			EntityUtils.consume(a.getEntity());
+			return b;
 		} else {
-			EntityUtils.consume(auth.getEntity());
-			return unauthorized;
+			EntityUtils.consume(b.getEntity());
+			return a;
 		}
 	}
 

@@ -17,16 +17,11 @@
  */
 package org.callimachusproject.auth;
 
-import static org.openrdf.query.QueryLanguage.SPARQL;
 import info.aduna.net.ParsedURI;
 
 import java.io.IOException;
-import java.io.Reader;
 import java.io.UnsupportedEncodingException;
-import java.io.Writer;
 import java.net.URLEncoder;
-import java.nio.charset.Charset;
-import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -34,15 +29,10 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.tools.FileObject;
-
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.httpclient.util.DateParseException;
@@ -55,10 +45,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
 import org.callimachusproject.server.exceptions.BadRequest;
-import org.callimachusproject.server.exceptions.InternalServerError;
-import org.callimachusproject.setup.SecretOriginProvider;
 import org.callimachusproject.traits.VersionedObject;
-import org.callimachusproject.util.PasswordGenerator;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Resource;
@@ -68,24 +55,16 @@ import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.model.vocabulary.RDFS;
-import org.openrdf.model.vocabulary.XMLSchema;
-import org.openrdf.query.BindingSet;
-import org.openrdf.query.QueryLanguage;
-import org.openrdf.query.TupleQuery;
-import org.openrdf.query.TupleQueryResult;
-import org.openrdf.query.Update;
-import org.openrdf.query.algebra.evaluation.util.ValueComparator;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
 import org.openrdf.repository.object.ObjectConnection;
-import org.openrdf.repository.object.RDFObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Validates HTTP digest authorization.
  */
-public class DigestDetachedManager implements DetachedAuthenticationManager {
+public class DigestAuthenticationManager implements DetachedAuthenticationManager {
 	private static final String DERIVED_FROM = "http://www.w3.org/ns/prov#wasDerivedFrom";
 	private static final String FOAF_DEPICTION = "http://xmlns.com/foaf/0.1/depiction";
 	private static final String HAS_COMPONENT = "http://callimachusproject.org/rdf/2009/framework#hasComponent";
@@ -93,40 +72,13 @@ public class DigestDetachedManager implements DetachedAuthenticationManager {
 	private static final String USER = "http://callimachusproject.org/rdf/2009/framework#User";
 	private static final String EMAIL = "http://callimachusproject.org/rdf/2009/framework#email";
 	private static final String PROV = "http://www.w3.org/ns/prov#";
-	private static final String PREFIX = "PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>\n";
-	private static final String SELECT_PASSWORD = PREFIX
-			+ "SELECT (str(?user) AS ?id) ?encoded ?passwordDigest {{\n"
-			+ "?user calli:name $name .\n"
-			+ "$this calli:authNamespace ?folder .\n"
-			+ "?folder calli:hasComponent ?user .\n"
-			+ "FILTER (str(?user) = concat(str(?folder), $name))\n"
-			+ "OPTIONAL { ?user calli:encoded ?encoded; calli:algorithm \"MD5\" }\n"
-			+ "OPTIONAL { ?user calli:passwordDigest ?passwordDigest }\n"
-			+ "} UNION {\n" + "?user calli:email $name .\n"
-			+ "$this calli:authNamespace ?folder .\n"
-			+ "?folder calli:hasComponent ?user .\n"
-			+ "OPTIONAL { ?user calli:passwordDigest ?passwordDigest }\n"
-			+ "}}";
-	private static final String COPY_PERM = PREFIX
-			+ "INSERT { $dst\n"
-			+ "calli:reader ?reader; calli:subscriber ?subscriber; calli:contributor ?contributor; calli:editor ?editor; calli:administrator ?administrator\n"
-			+ "} WHERE { { $src calli:reader ?reader }\n"
-			+ "UNION { $src calli:subscriber ?subscriber }\n"
-			+ "UNION { $src calli:contributor ?contributor }\n"
-			+ "UNION { $src calli:editor ?editor }\n"
-			+ "UNION { $src calli:administrator ?administrator }\n" + "}";
 	private static final Pattern TOKENS_REGEX = Pattern
 			.compile("\\s*([\\w\\!\\#\\$\\%\\&\\'\\*\\+\\-\\.\\^\\_\\`\\~]+)(?:\\s*=\\s*(?:\"([^\"]*)\"|([^,\"]*)))?\\s*,?");
-	private static final long THREE_MONTHS = 3 * 30 * 24 * 60 * 60;
 	private static final int MAX_NONCE_AGE = 300000; // nonce timeout of 5min
-	private static final BasicStatusLine _403 = new BasicStatusLine(
-			HttpVersion.HTTP_1_1, 403, "Forbidden");
 	private static final BasicStatusLine _401 = new BasicStatusLine(
 			HttpVersion.HTTP_1_1, 401, "Unauthorized");
 	private static final BasicStatusLine _204 = new BasicStatusLine(
 			HttpVersion.HTTP_1_1, 204, "No Content");
-	private static final BasicStatusLine _200 = new BasicStatusLine(
-			HttpVersion.HTTP_1_1, 200, "OK");
 	private static final Map<String, String> DIGEST_OPTS = new HashMap<String, String>();
 	static {
 		DIGEST_OPTS.put("realm", null);
@@ -138,31 +90,25 @@ public class DigestDetachedManager implements DetachedAuthenticationManager {
 		DIGEST_OPTS.put("nc", null);
 		DIGEST_OPTS.put("response", null);
 	}
-	private final Logger logger = LoggerFactory.getLogger(DigestDetachedManager.class);
-	private final Resource self;
+	private final Logger logger = LoggerFactory.getLogger(DigestAuthenticationManager.class);
 	private final String authName;
 	private final String protectedDomains;
 	private final String protectedPath;
-	private final RealmManager realms;
+	private final List<String> domains;
 	private final FailManager fail = new FailManager();
-	private final String digestNonceSecure;
-	private final String digestNonce;
 	private final Set<String> userCookies = new LinkedHashSet<String>();
 	private final AuthorizationService service = AuthorizationService
 			.getInstance();
+	private final DigestAccessor accessor;
 
-	public DigestDetachedManager(Resource self, String authName, String path,
-			List<String> domains, RealmManager realms) {
-		assert self != null;
+	public DigestAuthenticationManager(String authName, String path,
+			List<String> domains, DigestAccessor accessor) {
 		assert authName != null;
-		assert realms != null;
-		this.realms = realms;
-		this.self = self;
 		this.authName = authName;
 		this.protectedPath = path;
 		assert domains != null;
 		assert domains.size() > 0;
-		boolean secureOnly = true;
+		this.domains = domains;
 		Set<Integer> ports = new HashSet<Integer>();
 		StringBuilder sb = new StringBuilder();
 		for (String domain : domains) {
@@ -175,71 +121,78 @@ public class DigestDetachedManager implements DetachedAuthenticationManager {
 			}
 			if (domain.startsWith("https")) {
 				suffix.append('s');
-			} else {
-				secureOnly = false;
 			}
 			suffix.append('=');
 			userCookies.add("username" + suffix);
 		}
 		this.protectedDomains = sb.substring(1);
-		this.digestNonceSecure = secureOnly ? ";Secure" : "";
-		StringBuilder dn = new StringBuilder();
-		dn.append("digestNonce");
-		dn.append(Integer.toHexString(Math.abs(self.hashCode())));
-		if (ports.size() == 1) {
-			Integer port = ports.iterator().next();
-			if (port > 0) {
-				dn.append(port);
-			}
-		}
-		if (secureOnly) {
-			dn.append('s');
-		}
-		dn.append("=");
-		this.digestNonce = dn.toString();
+		this.accessor = accessor;
 	}
 
 	@Override
 	public String toString() {
-		return getIdentifier();
+		return getDigestAccessor().getIdentifier();
 	}
 
 	@Override
 	public String getIdentifier() {
-		return self.stringValue();
+		return getDigestAccessor().getIdentifier();
+	}
+
+	public DigestAccessor getDigestAccessor() {
+		return accessor;
+	}
+
+	public boolean isProtected(String url) {
+		for (String domain : domains) {
+			if (url.startsWith(domain))
+				return true;
+		}
+		return false;
 	}
 
 	@Override
 	public HttpResponse unauthorized(String method, Object resource,
-			Map<String, String[]> request, HttpEntity body) {
+			Map<String, String[]> request, HttpEntity body) throws IOException {
 		String nonce = nextNonce(resource, request.get("via"));
 		String authenticate = "Digest realm=\"" + authName + "\""
-				+ (", domain=\"" + protectedDomains + "\"") + ", nonce=\""
+				+ ", domain=\"" + protectedDomains + "\"" + ", nonce=\""
 				+ nonce + "\", algorithm=\"MD5\", qop=\"auth\"";
 		Map<String, String> options = parseDigestAuthorization(request);
-		if (options != null) {
-			if (!isRecentDigest(resource, request, options)) {
-				authenticate += ",stale=true";
-				HttpResponse resp = new BasicHttpResponse(_401);
-				resp.setHeader("Cache-Control", "no-store");
-				resp.setHeader("Content-Type", "text/plain;charset=\"UTF-8\"");
-				resp.setHeader("WWW-Authenticate", authenticate);
-				try {
-					resp.setEntity(new StringEntity("Stale authorization header", "UTF-8"));
-				} catch (UnsupportedEncodingException e) {
-					throw new AssertionError(e);
-				}
-				return resp;
+		HttpResponse resp;
+		if (options == null && isUserLoggedIn(request)) {
+			resp = new BasicHttpResponse(_401);
+			resp.setHeader("Content-Type", "text/plain;charset=\"UTF-8\"");
+			try {
+				resp.setEntity(new StringEntity("Authorization header required", "UTF-8"));
+			} catch (UnsupportedEncodingException e) {
+				throw new AssertionError(e);
+			}
+		} else if (options != null && !isRecentDigest(resource, request, options)) {
+			resp = new BasicHttpResponse(_401);
+			resp.setHeader("WWW-Authenticate", authenticate + ",stale=true");
+			resp.setHeader("Content-Type", "text/plain;charset=\"UTF-8\"");
+			try {
+				resp.setEntity(new StringEntity("Stale authorization header", "UTF-8"));
+			} catch (UnsupportedEncodingException e) {
+				throw new AssertionError(e);
+			}
+		} else {
+			String url = getRequestUrl(request);
+			String[] via = request.get("via");
+			Collection<String> cookie = asList(request.get("cookie"));
+			if (options == null) {
+				 resp = accessor.getNotLoggedInResponse(method, url, via, cookie, body);
+			} else {
+				resp = accessor.getBadCredentialResponse(method, url, via, cookie, body);
 			}
 		}
-		HttpResponse resp = new BasicHttpResponse(_401);
-		resp.setHeader("Cache-Control", "no-store");
-		resp.setHeader("Content-Type", "text/plain;charset=\"UTF-8\"");
-		resp.setHeader("WWW-Authenticate", authenticate);
-		try {
-			resp.setEntity(new StringEntity("Unauthorized", "UTF-8"));
-		} catch (UnsupportedEncodingException e) {
-			throw new AssertionError(e);
+		if (!resp.containsHeader("Cache-Control")) {
+			resp.setHeader("Cache-Control", "no-store");
+		}
+		if (resp.getStatusLine().getStatusCode() == 401
+				&& !resp.containsHeader("WWW-Authenticate")) {
+			resp.setHeader("WWW-Authenticate", authenticate);
 		}
 		return resp;
 	}
@@ -307,9 +260,7 @@ public class DigestDetachedManager implements DetachedAuthenticationManager {
 		for (String token : tokens) {
 			if (token.indexOf("username=\"-\"") > 0) {
 				// # bogus credentials received
-				BasicHttpResponse resp = new BasicHttpResponse(_204);
-					resp.addHeader("Set-Cookie", digestNonce
-							+ ";Max-Age=0;Path=/;HttpOnly" + digestNonceSecure);
+				HttpResponse resp = getDigestAccessor().getLogoutResponse();
 				for (String userCookie : userCookies) {
 					String secure = userCookie.endsWith("s=") ? ";Secure" : "";
 					resp.addHeader("Set-Cookie", userCookie
@@ -328,26 +279,6 @@ public class DigestDetachedManager implements DetachedAuthenticationManager {
 		return resp;
 	}
 
-	public HttpResponse login(Collection<String> tokens, boolean persistent,
-			ObjectConnection con) throws OpenRDFException, IOException {
-		HttpResponse resp = null;
-		String username = getUserLogin(tokens, con);
-		if (persistent) {
-			resp = getPersistentLogin(username, con);
-		}
-		if (resp == null) {
-			resp = new BasicHttpResponse(_204);
-		}
-		resp.addHeader("Cache-Control", "no-cache");
-		String[] cookies = getUsernameSetCookie(tokens, con);
-		if (cookies.length == 0)
-			return new BasicHttpResponse(_403);
-		for (String cookie : cookies) {
-			resp.addHeader("Set-Cookie", cookie);
-		}
-		return resp;
-	}
-
 	public String[] getUsernameSetCookie(Collection<String> tokens,
 			ObjectConnection con) {
 		String username = getUserLogin(tokens, con);
@@ -362,7 +293,7 @@ public class DigestDetachedManager implements DetachedAuthenticationManager {
 		return result;
 	}
 
-	public String getUserIdentifier(Collection<String> tokens,
+	public String getUserIdentifier(String method, Collection<String> tokens,
 			ObjectConnection con) throws OpenRDFException, IOException {
 		Map<String, String> options = parseDigestAuthorization(tokens);
 		if (options == null)
@@ -370,11 +301,11 @@ public class DigestDetachedManager implements DetachedAuthenticationManager {
 		String username = options.get("username");
 		if (username == null)
 			throw new BadRequest("Missing username");
-		String realm = options.get("realm");
-		Map<String, String> passwords = findDigestUser(username, realm, tokens, con);
-		if (passwords == null || passwords.isEmpty())
+		Map.Entry<String, String> passwords = findAuthUser(method, options,
+				tokens, con);
+		if (passwords == null)
 			return null;
-		return passwords.values().iterator().next();
+		return passwords.getValue();
 	}
 
 	public String getUserLogin(Collection<String> tokens, ObjectConnection con) {
@@ -389,7 +320,7 @@ public class DigestDetachedManager implements DetachedAuthenticationManager {
 
 	public void registerUser(Resource invitedUser, URI digestUser,
 			String email, String fullname, ObjectConnection con)
-			throws OpenRDFException {
+			throws OpenRDFException, IOException {
 		ValueFactory vf = con.getValueFactory();
 		RepositoryResult<Statement> stmts;
 		stmts = con.getStatements((Resource) null, null, invitedUser);
@@ -459,10 +390,7 @@ public class DigestDetachedManager implements DetachedAuthenticationManager {
 				con.add(digestUser, hasEmail, mailto);
 			}
 		}
-		Update update = con.prepareUpdate(QueryLanguage.SPARQL, COPY_PERM);
-		update.setBinding("src", invitedUser);
-		update.setBinding("dst", digestUser);
-		update.execute();
+		getDigestAccessor().registerUser(invitedUser, digestUser, con);
 		add(digestUser, RDF.TYPE, vf.createURI(PARTY), con);
 		add(digestUser, RDF.TYPE, vf.createURI(USER), con);
 		add(digestUser, vf.createURI(DERIVED_FROM), invitedUser, con);
@@ -476,36 +404,13 @@ public class DigestDetachedManager implements DetachedAuthenticationManager {
 		Map<String, String> auth = parseDigestAuthorization(tokens);
 		String username = auth.get("username");
 		String realm = auth.get("realm");
-		Map<String, String> passwords = findDigestUser(username, realm, tokens, con);
+		Map<String, String> passwords = getDigestAccessor().findDigestUser(username, realm, tokens, con);
 		for (String h : hash) {
 			if (passwords.containsKey(h))
 				return true;
 		}
+		fail.failedAttempt(username);
 		return false;
-	}
-
-	public String getDaypass(String secret) {
-		if (secret == null)
-			throw new InternalServerError("Temporary passwords are not enabled");
-		long now = System.currentTimeMillis();
-		return getDaypass(getHalfDay(now), secret);
-	}
-
-	public Set<?> changeDigestPassword(Set<RDFObject> files,
-			String[] passwords, String webapp, ObjectConnection con)
-			throws RepositoryException, IOException {
-		int i = 0;
-		Set<Object> set = new LinkedHashSet<Object>();
-		for (URI uuid : getPasswordFiles(files, passwords.length, webapp, con)) {
-			Writer writer = con.getBlobObject(uuid).openWriter();
-			try {
-				writer.write(passwords[i++]);
-			} finally {
-				writer.close();
-			}
-			set.add(con.getObject(uuid));
-		}
-		return set;
 	}
 
 	private void moveTo(URI link, Statement st, ObjectConnection con)
@@ -535,6 +440,13 @@ public class DigestDetachedManager implements DetachedAuthenticationManager {
 			throws OpenRDFException, IOException {
 		if (!isRecentDigest(resource, request, auth))
 			return null;
+		Collection<String> cookies = asList(request.get("cookie"));
+		return findAuthUser(method, auth, cookies, con);
+	}
+
+	private Map.Entry<String, String> findAuthUser(String method,
+			Map<String, String> auth, Collection<String> cookies,
+			ObjectConnection con) throws OpenRDFException, IOException {
 		String qop = auth.get("qop");
 		String uri = auth.get("uri");
 		String nonce = auth.get("nonce");
@@ -543,8 +455,9 @@ public class DigestDetachedManager implements DetachedAuthenticationManager {
 		String response = auth.get("response");
 		String ha2 = md5(method + ":" + uri);
 		assert username != null;
-		Map<String, String> passwords = findDigestUser(username, realm,
-				asList(request.get("cookie")), con);
+		DigestAccessor accessor = getDigestAccessor();
+		Map<String, String> passwords = accessor.findDigestUser(username,
+				realm, cookies, con);
 		if (passwords == null) {
 			logger.info("Account not found: {}", username);
 			return null;
@@ -568,120 +481,6 @@ public class DigestDetachedManager implements DetachedAuthenticationManager {
 		}
 	}
 
-	private Map<String, String> findDigestUser(String username, String realm,
-			Collection<String> cookies,
-			ObjectConnection con) throws OpenRDFException, IOException {
-		if (username == null)
-			throw new NullPointerException();
-		TupleQueryResult results = findPasswordDigest(username, con);
-		try {
-			if (!results.hasNext())
-				return null;
-			String nonce = getDigestNonce(cookies);
-			Map<String, String> map = new HashMap<String, String>();
-			while (results.hasNext()) {
-				BindingSet result = results.next();
-				String iri = result.getValue("id").stringValue();
-				assert iri != null;
-				if (result.hasBinding("encoded")) {
-					map.put(encodeHex(result.getValue("encoded")), iri);
-				}
-				String hash = null;
-				if (result.hasBinding("passwordDigest")) {
-					Resource value = (Resource) result.getValue("passwordDigest");
-					Object file = con.getObjectFactory().createObject(value);
-					hash = readString((FileObject) file);
-					if (hash != null) {
-						map.put(hash, iri);
-					}
-				}
-				DetachedRealm r = realms.getRealm(iri);
-				if (r == null || r.getOriginSecret() == null)
-					continue;
-				String secret = r.getOriginSecret();
-				if (nonce != null && hash != null) {
-					String password = md5(hash + ":" + md5(nonce + ":" + secret));
-					map.put(md5(username + ':' + realm + ':' + password), iri);
-				}
-				long now = System.currentTimeMillis();
-				short halfDay = getHalfDay(now);
-				for (short d = halfDay; d >= halfDay - 1; d--) {
-					String daypass = getDaypass(d, secret);
-					map.put(md5(username + ':' + realm + ':' + daypass), iri);
-				}
-			}
-			return map;
-		} finally {
-			results.close();
-		}
-	}
-
-	private TupleQueryResult findPasswordDigest(String username,
-			ObjectConnection con) throws OpenRDFException {
-		TupleQuery query = con.prepareTupleQuery(SPARQL, SELECT_PASSWORD);
-		query.setBinding("this", self);
-		query.setBinding("name", con.getValueFactory().createLiteral(username));
-		return query.evaluate();
-	}
-
-	private String encodeHex(Value value) {
-		Literal lit = (Literal) value;
-		if (XMLSchema.HEXBINARY.equals(lit.getDatatype()))
-			return lit.stringValue();
-		if (XMLSchema.BASE64BINARY.equals(lit.getDatatype())) {
-			byte[] bits = Base64.decodeBase64(lit.stringValue());
-			return new String(Hex.encodeHex(bits));
-		}
-		throw new AssertionError("Unexpected datatype: " + lit);
-	}
-
-	private String getDigestNonce(Collection<String> cookies) {
-		if (cookies == null)
-			return null;
-		for (String cookie : cookies) {
-			if (cookie.contains(digestNonce)) {
-				String[] pair = cookie.split("\\s*;\\s*");
-				for (String p : pair) {
-					if (p.startsWith(digestNonce)) {
-						return p.substring(digestNonce.length());
-					}
-				}
-			}
-		}
-		return null;
-	}
-
-	private HttpResponse getPersistentLogin(String username,
-			ObjectConnection con) throws OpenRDFException, IOException {
-		TupleQueryResult results = findPasswordDigest(username, con);
-		try {
-			while (results.hasNext()) {
-				String iri = results.next().getValue("id").stringValue();
-				DetachedRealm realm = realms.getRealm(iri);
-				if (realm != null) {
-					String secret = realm.getOriginSecret();
-					return getPersistentLogin(secret);
-				}
-			}
-		} finally {
-			results.close();
-		}
-		return null;
-	}
-
-	private HttpResponse getPersistentLogin(String secret) {
-		String nonce = Long.toString(Math.abs(new SecureRandom().nextLong()),
-				Character.MAX_RADIX);
-		BasicHttpResponse resp = new BasicHttpResponse(_200);
-		resp.addHeader("Set-Cookie", digestNonce + nonce + ";Max-Age="
-				+ THREE_MONTHS + ";Path=/;HttpOnly" + digestNonceSecure);
-		resp.addHeader("Cache-Control", "private");
-		resp.setHeader("Content-Type", "text/plain;charset=UTF-8");
-		String hash = md5(nonce + ":" + secret);
-		resp.setEntity(new StringEntity(hash, Charset.forName("UTF-8")));
-		return resp;
-	}
-
 	private String nextNonce(Object resource, String[] via) {
 		String ip = hash(via);
 		String revision = getRevisionOf(resource);
@@ -701,10 +500,56 @@ public class DigestDetachedManager implements DetachedAuthenticationManager {
 
 	private Map<String, String> parseDigestAuthorization(
 			Map<String, String[]> request) {
-		String[] authorization = request.get("authorization");
+		return parseDigestAuthorization(asList(request.get("authorization")));
+	}
+
+	private Map<String, String> parseDigestAuthorization(
+			Collection<String> authorization) {
 		if (authorization == null)
 			return null;
-		return parseDigestAuthorization(asList(authorization));
+		for (String digest : authorization) {
+			if (digest == null || !digest.startsWith("Digest "))
+				continue;
+			if (digest.indexOf("username=\"-\"") > 0)
+				continue; // bogus
+			String options = digest.substring("Digest ".length());
+			Map<String, String> result = new HashMap<String, String>(
+					DIGEST_OPTS);
+			Matcher m = TOKENS_REGEX.matcher(options);
+			while (m.find()) {
+				String key = m.group(1);
+				if (result.containsKey(key)) {
+					if (m.group(2) != null) {
+						result.put(key, m.group(2));
+					} else if (m.group(3) != null) {
+						result.put(key, m.group(3));
+					}
+				}
+			}
+			return result;
+		}
+		return null;
+	}
+
+	private String getRequestUrl(Map<String, String[]> request) {
+		String target = request.get("request-target")[0];
+		if (target.charAt(0) != '/')
+			return target;
+		String scheme = request.get("request-scheme")[0];
+		String host = request.get("host")[0];
+		return scheme + "://" + host + target;
+	}
+
+	private boolean isUserLoggedIn(Map<String, String[]> request) {
+		if (request.get("cookie") == null)
+			return false;
+		for (String cookie : request.get("cookie")) {
+			for (String cookieName : userCookies) {
+				if (cookie.contains(cookieName))
+					return true;
+			}
+		}
+		return false;
 	}
 
 	private Collection<String> asList(String[] array) {
@@ -761,95 +606,6 @@ public class DigestDetachedManager implements DetachedAuthenticationManager {
 			logger.warn(e.toString(), e);
 			return false;
 		}
-	}
-
-	private short getHalfDay(long now) {
-		long halfDay = now / 1000 / 60 / 60 / 12;
-		return (short) halfDay;
-	}
-
-	private String getDaypass(short day, String secret) {
-		if (secret == null)
-			return null;
-		byte[] random = readBytes(secret);
-		byte[] seed = new byte[random.length + Short.SIZE / Byte.SIZE];
-		System.arraycopy(random, 0, seed, 0, random.length);
-		for (int i = random.length; i < seed.length; i++) {
-			seed[i] = (byte) day;
-			day >>= Byte.SIZE;
-		}
-		return new PasswordGenerator(seed).nextPassword();
-	}
-
-	private Set<URI> getPasswordFiles(Set<RDFObject> files, int count,
-			String webapp, ObjectConnection con) throws RepositoryException {
-		if (files.size() == count) {
-			Set<URI> list = new TreeSet<URI>(new ValueComparator());
-			for (RDFObject file : files) {
-				if (file.getResource() instanceof URI) {
-					list.add((URI) file.getResource());
-				}
-			}
-			if (list.size() == count)
-				return list;
-		}
-		for (RDFObject file : files) {
-			Resource object = file.getResource();
-			if (object instanceof URI) {
-				con.getBlobObject((URI) object).delete();
-			}
-		}
-		Set<URI> list = new TreeSet<URI>(new ValueComparator());
-		for (int i = 0; i < count; i++) {
-			list.add(SecretOriginProvider.createSecretFile(webapp, con));
-		}
-		return list;
-	}
-
-	private byte[] readBytes(String string) {
-		if (Base64.isBase64(string))
-			return Base64.decodeBase64(string);
-		return string.getBytes(Charset.forName("UTF-8"));
-	}
-
-	private String readString(FileObject file) {
-		try {
-			Reader reader = file.openReader(true);
-			if (reader == null)
-				return null;
-			try {
-				return new Scanner(reader).next();
-			} finally {
-				reader.close();
-			}
-		} catch (IOException e) {
-			logger.error(e.toString(), e);
-			return null;
-		}
-	}
-
-	private Map<String, String> parseDigestAuthorization(
-			Collection<String> authorization) {
-		for (String digest : authorization) {
-			if (digest == null || !digest.startsWith("Digest "))
-				continue;
-			String options = digest.substring("Digest ".length());
-			Map<String, String> result = new HashMap<String, String>(
-					DIGEST_OPTS);
-			Matcher m = TOKENS_REGEX.matcher(options);
-			while (m.find()) {
-				String key = m.group(1);
-				if (result.containsKey(key)) {
-					if (m.group(2) != null) {
-						result.put(key, m.group(2));
-					} else if (m.group(3) != null) {
-						result.put(key, m.group(3));
-					}
-				}
-			}
-			return result;
-		}
-		return null;
 	}
 
 	private String md5(String text) {

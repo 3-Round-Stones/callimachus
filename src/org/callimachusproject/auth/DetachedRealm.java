@@ -15,6 +15,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -126,6 +127,7 @@ public class DetachedRealm {
 
 	public void init(ObjectConnection con, RealmManager manager)
 			throws OpenRDFException, IOException {
+		Map<Resource, String> protects = new LinkedHashMap<Resource, String>();
 		ValueFactory vf = con.getValueFactory();
 		TupleQuery query = con.prepareTupleQuery(SPARQL, SELECT_REALM);
 		query.setBinding("this", self);
@@ -151,13 +153,8 @@ public class DetachedRealm {
 							.stringValue();
 				}
 				if (result.hasBinding("authentication")) {
-					Value protects = result.getValue("protected");
 					Value uri = result.getValue("authentication");
-					DetachedAuthenticationManager dam = detach((Resource) uri,
-							protects.stringValue(), manager, con);
-					if (dam != null) {
-						authentication.put((Resource) uri, dam);
-					}
+					protects.put((Resource) uri, result.getValue("protected").stringValue());
 				}
 				if (result.hasBinding("domain")) {
 					allowOrigin.add(result.getValue("domain").stringValue());
@@ -165,6 +162,13 @@ public class DetachedRealm {
 			}
 		} finally {
 			results.close();
+		}
+		for (Map.Entry<Resource, String> e : protects.entrySet()) {
+			DetachedAuthenticationManager dam = detach(e.getKey(),
+					e.getValue(), manager, con);
+			if (dam != null) {
+				authentication.put(e.getKey(), dam);
+			}
 		}
 	}
 

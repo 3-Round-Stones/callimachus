@@ -1,7 +1,6 @@
 package org.callimachusproject.concepts;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.List;
 
 import org.callimachusproject.auth.DetachedAuthenticationManager;
@@ -12,12 +11,11 @@ import org.openrdf.annotations.Iri;
 @Iri("http://callimachusproject.org/rdf/2009/framework#AuthenticationManager")
 public interface AuthenticationManager {
 
-	String getUserIdentifier(Collection<String> tokens) throws OpenRDFException, IOException;
+	@Iri("http://callimachusproject.org/rdf/2009/framework#authName")
+	String getCalliAuthName();
 
-	String getUserLogin(Collection<String> tokens)
-			throws OpenRDFException, IOException;
-
-	String[] getUsernameSetCookie(Collection<String> tokens) throws OpenRDFException, IOException;
+	@Iri("http://callimachusproject.org/rdf/2009/framework#authName")
+	void setCalliAuthName(String authName);
 
 	DetachedAuthenticationManager detachAuthenticationManager(String path,
 			List<String> domains, RealmManager manager) throws OpenRDFException, IOException;

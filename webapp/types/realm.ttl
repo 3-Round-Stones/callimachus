@@ -198,7 +198,7 @@
         var iter = this.calliAuthentication.iterator();
         while (iter.hasNext()) {
             var manager = iter.next();
-            var credential = manager.getUserIdentifier(cookies);
+            var credential = manager.getUserIdentifier("GET", cookies);
             if (credential) {
                 var title = manager.getUserLogin(cookies);
                 var cookie = manager.getUsernameSetCookie(cookies);

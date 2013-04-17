@@ -70,7 +70,11 @@
     calli:requires calli:subscriber;
     calli:type "message/x-response";
     calli:script """
-        return this.login(cookies, loginOptions.indexOf("persistent=true") >= 0);
+        if (loginOptions.indexOf("persistent=true") >= 0) {
+            return this.getPersistentLogin("GET", cookies);
+        } else {
+            return this.getLogin("GET", cookies);
+        }
     """.
 
 :cookies a owl:DatatypeProperty;
@@ -92,7 +96,7 @@
     calli:header "cache-control:max-age:3600";
     calli:type "text/html";
     calli:script """
-        var credential = this.getUserIdentifier(cookies);
+        var credential = this.getUserIdentifier("GET", cookies);
         if (credential) {
             var title = this.getUserLogin(cookies);
             return '<html><head><title>' + title + '</title>'
@@ -201,7 +205,8 @@ rdfs:comment a rdf:Property.
             var user = iter.next();
             if (token == user.getSecretToken(nonce)) {
                 var vf = this.objectConnection.valueFactory;
-                var newUser = this.objectConnection.getObject(this.calliAuthNamespace.toString() + username);
+                var newUserIri = this.calliAuthNamespace.toString() + username;
+                var newUser = this.objectConnection.getObject(newUserIri);
                 if (newUser instanceof DigestUser) {
                     if (newUser.calliEmail == authEmail && newUser.calliPasswordDigest.size() == password.length) {
                         var i = 0;
@@ -211,7 +216,7 @@ rdfs:comment a rdf:Property.
                             if (password[i++] != pass)
                                 throw new BadRequest("This email address is already used in an account, but the password is not the same");
                         }
-                        this.registerUser(user.resource, newUser.resource, authEmail, fullname);
+                        this.registerUser(user.resource, newUserIri, authEmail, fullname);
                     } else {
                         throw new BadRequest("This username is already taken, please choose a different one");
                     }
@@ -220,7 +225,7 @@ rdfs:comment a rdf:Property.
                     newUser = this.objectConnection.addDesignation(newUser, DigestUser);
                     newUser.calliEditor.add(newUser);
                     newUser.calliName = username;
-                    this.registerUser(user.resource, newUser.resource, authEmail, fullname);
+                    this.registerUser(user.resource, newUserIri, authEmail, fullname);
                     newUser.calliPasswordDigest = this.changeDigestPassword(newUser.calliPasswordDigest, password);
                 }
                 return;

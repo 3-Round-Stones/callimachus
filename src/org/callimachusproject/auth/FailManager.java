@@ -24,7 +24,7 @@ import java.util.Map.Entry;
 
 public class FailManager {
 	private static long resetAttempts;
-	private static final Map<Object, Integer> failedAttempts = new HashMap<Object, Integer>();
+	private static final Map<String, Integer> failedAttempts = new HashMap<String, Integer>();
 	private static final int MAX_ENTRIES = 2048;
 	private static final Map<Object, Object> replay = new LinkedHashMap<Object, Object>() {
 		private static final long serialVersionUID = -6673793531014489904L;
@@ -41,7 +41,7 @@ public class FailManager {
 		}
 	}
 
-	public void failedAttempt(Object user) {
+	public void failedAttempt(String username) {
 		synchronized (failedAttempts) {
 			long now = System.currentTimeMillis();
 			if (resetAttempts < now) {
@@ -49,18 +49,18 @@ public class FailManager {
 				resetAttempts = now + 60 * 60 * 1000;
 			}
 			try {
-				if (user == null) {
+				if (username == null) {
 					Thread.sleep(1000);
 				} else {
-					Integer count = failedAttempts.get(user);
+					Integer count = failedAttempts.get(username);
 					if (count == null) {
-						failedAttempts.put(user, 1);
+						failedAttempts.put(username, 1);
 						Thread.sleep(1000);
 					} else if (count > 100) {
-						failedAttempts.put(user, count + 1);
+						failedAttempts.put(username, count + 1);
 						Thread.sleep(10000);
 					} else {
-						failedAttempts.put(user, count + 1);
+						failedAttempts.put(username, count + 1);
 						Thread.sleep(1000);
 					}
 				}

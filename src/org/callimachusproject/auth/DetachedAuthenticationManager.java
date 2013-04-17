@@ -110,9 +110,10 @@ public interface DetachedAuthenticationManager {
 	 *            A map with the above conditional keys
 	 * @param body request entity
 	 * @return An HTTP response
+	 * @throws IOException 
 	 */
 	HttpResponse unauthorized(String method, Object resource,
-			Map<String, String[]> request, HttpEntity body);
+			Map<String, String[]> request, HttpEntity body) throws IOException;
 
 	/**
 	 * Response headers that should be included in the response.

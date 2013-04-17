@@ -334,7 +334,7 @@ public class CallimachusSetup {
 			for (DigestManagerSupport digest : getDigestManagers(origin, con)) {
 				String users = digest.getCalliAuthNamespace().getResource().stringValue();
 				URI digestUser = vf.createURI(users, username);
-				digest.registerUser(invitedUser, digestUser, email, null);
+				digest.registerUser(invitedUser, digestUser.stringValue(), email, null);
 				URI DigestUser = webapp(origin, DIGEST_USER_TYPE);
 				if (!con.hasStatement(digestUser, RDF.TYPE, DigestUser)) {
 					con.add(digestUser, RDF.TYPE, DigestUser);

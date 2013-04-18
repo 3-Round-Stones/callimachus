@@ -270,7 +270,7 @@ rdfs:comment a rdf:Property.
         if (iter.hasNext()) {
             while (iter.hasNext()) {
                 var user = iter.next();
-                var password = this.getDaypass(user);
+                var password = this.getDaypass(user, userEmail);
                 var body = mail_digest_daypass_xhtml.RawConstruct(user);
                 body = body.replace(/@@PASSWORD@@/g, password);
                 user.sendMessage(body, user.rdfsLabel.iterator().next() + " <" + userEmail + ">");

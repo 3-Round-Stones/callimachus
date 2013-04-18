@@ -224,11 +224,11 @@ public class DigestPasswordAccessor implements DigestAccessor {
 		return set;
 	}
 
-	public String getDaypass(String secret) {
+	public String getDaypass(String email, String secret) {
 		if (secret == null)
 			throw new InternalServerError("Temporary passwords are not enabled");
 		long now = System.currentTimeMillis();
-		return getDaypass(getHalfDay(now), secret);
+		return getDaypass(getHalfDay(now), email, secret);
 	}
 
 	private Map<String, String> findDigestUser(String username, String realm,
@@ -269,7 +269,7 @@ public class DigestPasswordAccessor implements DigestAccessor {
 				long now = System.currentTimeMillis();
 				short halfDay = getHalfDay(now);
 				for (short d = halfDay; d >= halfDay - 1; d--) {
-					String daypass = getDaypass(d, secret);
+					String daypass = getDaypass(d, username, secret);
 					map.put(md5(username + ':' + realm + ':' + daypass), iri);
 				}
 			}
@@ -367,13 +367,15 @@ public class DigestPasswordAccessor implements DigestAccessor {
 		return (short) halfDay;
 	}
 
-	private String getDaypass(short day, String secret) {
+	private String getDaypass(short day, String email, String secret) {
 		if (secret == null)
 			return null;
 		byte[] random = readBytes(secret);
-		byte[] seed = new byte[random.length + Short.SIZE / Byte.SIZE];
+		byte[] id = email.getBytes(Charset.forName("UTF-8"));
+		byte[] seed = new byte[random.length + id.length + Short.SIZE / Byte.SIZE];
 		System.arraycopy(random, 0, seed, 0, random.length);
-		for (int i = random.length; i < seed.length; i++) {
+		System.arraycopy(id, 0, seed, random.length, id.length);
+		for (int i = random.length + id.length; i < seed.length; i++) {
 			seed[i] = (byte) day;
 			day >>= Byte.SIZE;
 		}

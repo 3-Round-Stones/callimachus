@@ -71,7 +71,7 @@ public abstract class DigestManagerSupport extends AuthenticationManagerSupport
 	/**
 	 * Called from digest.ttl
 	 */
-	public String getDaypass(RDFObject obj) throws OpenRDFException,
+	public String getDaypass(RDFObject obj, String email) throws OpenRDFException,
 			IOException {
 		DigestPasswordAccessor digest = getAccessor();
 		if (digest == null)
@@ -80,7 +80,7 @@ public abstract class DigestManagerSupport extends AuthenticationManagerSupport
 		AuthorizationManager manager = service.get(repo);
 		String uri = obj.getResource().stringValue();
 		String secret = manager.getRealm(uri).getOriginSecret();
-		return digest.getDaypass(secret);
+		return digest.getDaypass(email, secret);
 	}
 
 	/**

@@ -59,13 +59,14 @@ public class SetupTool {
 			+ "OPTIONAL { ?parent calli:administrator ?administrator }\n" + "}";
 	private static final String COPY_REALM_PROPS = PREFIX
 			+ "INSERT { $realm\n"
-			+ "calli:authentication ?auth; calli:unauthorized ?unauth; calli:forbidden ?forbid; calli:error ?error; calli:layout ?layout\n"
+			+ "calli:authentication ?auth; calli:unauthorized ?unauth; calli:forbidden ?forbid; calli:error ?error; calli:layout ?layout; calli:allowOrigin ?allowed\n"
 			+ "} WHERE { {SELECT ?origin { ?origin a calli:Realm; calli:hasComponent+ $realm} ORDER BY desc(?origin) LIMIT 1}\n"
 			+ "{ ?origin calli:authentication ?auth }\n"
 			+ "UNION { ?origin calli:unauthorized ?unauth }\n"
 			+ "UNION { ?origin calli:forbidden ?forbid }\n"
 			+ "UNION { ?origin calli:error ?error }\n"
 			+ "UNION { ?origin calli:layout ?layout }\n"
+			+ "UNION { ?origin calli:allowOrigin ?allowed }\n"
 			+ "}";
 	private static final String SELECT_REALM = PREFIX
 			+ "SELECT ?realm\n"

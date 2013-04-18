@@ -210,7 +210,7 @@ public class CalliServer implements CalliServerMXBean {
 	}
 
 	@Override
-	public void setServerName(String name) throws IOException {
+	public synchronized void setServerName(String name) throws IOException {
 		if (name == null || name.length() == 0 || name.equals(Version.getInstance().getVersion())) {
 			conf.setServerName(null);
 		} else {
@@ -233,7 +233,7 @@ public class CalliServer implements CalliServerMXBean {
 		return sb.toString();
 	}
 
-	public void setPorts(String portStr) throws IOException {
+	public synchronized void setPorts(String portStr) throws IOException {
 		int[] ports = new int[0];
 		if (portStr != null && portStr.trim().length() > 0) {
 			String[] values = portStr.trim().split("\\s+");
@@ -260,7 +260,7 @@ public class CalliServer implements CalliServerMXBean {
 		return sb.toString();
 	}
 
-	public void setSSLPorts(String portStr) throws IOException {
+	public synchronized void setSSLPorts(String portStr) throws IOException {
 		int[] ports = new int[0];
 		if (portStr != null && portStr.trim().length() > 0) {
 			String[] values = portStr.trim().split("\\s+");
@@ -283,7 +283,7 @@ public class CalliServer implements CalliServerMXBean {
 		return stopping;
 	}
 
-	public boolean isWebServiceRunning() {
+	public synchronized boolean isWebServiceRunning() {
 		return server != null && server.isRunning();
 	}
 
@@ -344,7 +344,7 @@ public class CalliServer implements CalliServerMXBean {
 	}
 
 	@Override
-	public String[] getRepositoryIDs() throws OpenRDFException {
+	public synchronized String[] getRepositoryIDs() throws OpenRDFException {
 		Set<String> set = manager.getRepositoryIDs();
 		set = new LinkedHashSet<String>(set);
 		set.remove(SystemRepository.ID);
@@ -408,24 +408,7 @@ public class CalliServer implements CalliServerMXBean {
 				params = groupBeforeColon(combined);
 				Set<String> removed = new LinkedHashSet<String>(params.keySet());
 				removed.removeAll(groupBeforeColon(parameters).keySet());
-				Map<String, String> map = conf.getOriginRepositoryIDs();
-				if (isWebServiceRunning()) {
-					for (Map.Entry<String, String> e : map.entrySet()) {
-						if (removed.contains(e.getValue())) {
-							String webappOrigin = e.getKey();
-							HttpHost host = URIUtils.extractHost(java.net.URI.create(webappOrigin + "/"));
-							HttpClientManager.getInstance().removeProxy(host, server);
-							server.removeOrigin(webappOrigin);
-						}
-					}
-				}
-				map.values().removeAll(removed);
-				conf.setOriginRepositoryIDs(map);
-				for (String repositoryID : removed) {
-					if (manager.removeRepository(repositoryID)) {
-						logger.warn("Removed repository {}", repositoryID);
-					}
-				}
+				removeRepository(removed);
 				combined = getAllRepositoryProperties();
 				combined = new LinkedHashMap<String, String>(combined);
 				combined.putAll(parameters);
@@ -489,12 +472,7 @@ public class CalliServer implements CalliServerMXBean {
 				} finally {
 					refreshRepository(repositoryID);
 				}
-				if (isWebServiceRunning()) {
-					server.addOrigin(webappOrigin, getRepository(repositoryID));
-					server.setIndirectIdentificationPrefix(getIndirectPrefixes());
-					HttpHost host = URIUtils.extractHost(java.net.URI.create(webappOrigin + "/"));
-					HttpClientManager.getInstance().setProxy(host, server);
-				}
+				addOrigin(webappOrigin, repositoryID);
 				return null;
 			}
 		});
@@ -560,14 +538,7 @@ public class CalliServer implements CalliServerMXBean {
 			public Void call() throws Exception {
 				SetupTool tool = getSetupTool(webappOrigin);
 				tool.setupRealm(realm, webappOrigin);
-				if (isWebServiceRunning()) {
-					java.net.URI uri = java.net.URI.create(realm);
-					String origin = uri.getScheme() + "://" + uri.getAuthority();
-					server.addOrigin(origin, getRepository(tool.getRepositoryID()));
-					server.setIndirectIdentificationPrefix(getIndirectPrefixes());
-					HttpHost host = URIUtils.extractHost(uri);
-					HttpClientManager.getInstance().setProxy(host, server);
-				}
+				addOrigin(realm, tool.getRepositoryID());
 				return null;
 			}
 		});
@@ -689,7 +660,7 @@ public class CalliServer implements CalliServerMXBean {
 		return new SetupTool(repositoryID, repository, conf);
 	}
 
-	private Map<String, String> getAllRepositoryProperties()
+	private synchronized Map<String, String> getAllRepositoryProperties()
 			throws IOException, OpenRDFException {
 		Map<String, String> map = new LinkedHashMap<String, String>();
 		ClassLoader cl = this.getClass().getClassLoader();
@@ -818,7 +789,7 @@ public class CalliServer implements CalliServerMXBean {
 		}
 	}
 
-	private boolean isThereAnOriginSetup() throws RepositoryException,
+	private synchronized boolean isThereAnOriginSetup() throws RepositoryException,
 			RepositoryConfigException, IOException {
 		Map<String, String> map = conf.getOriginRepositoryIDs();
 		for (String repositoryID : new LinkedHashSet<String>(map.values())) {
@@ -860,7 +831,7 @@ public class CalliServer implements CalliServerMXBean {
 		return server;
 	}
 
-	void updateRepositoryConfig(String repositoryID, URL configTemplate,
+	synchronized void updateRepositoryConfig(String repositoryID, URL configTemplate,
 			Map<String, String> parameters) throws IOException,
 			OpenRDFException {
 		ConfigTemplate temp = new ConfigTemplate(configTemplate);
@@ -1009,6 +980,40 @@ public class CalliServer implements CalliServerMXBean {
 			}
 		}
 		return identities.toArray(new String[identities.size()]);
+	}
+
+	synchronized void removeRepository(Set<String> removed) throws IOException,
+			RepositoryException, RepositoryConfigException {
+		Map<String, String> map = conf.getOriginRepositoryIDs();
+		if (isWebServiceRunning()) {
+			for (Map.Entry<String, String> e : map.entrySet()) {
+				if (removed.contains(e.getValue())) {
+					String webappOrigin = e.getKey();
+					HttpHost host = URIUtils.extractHost(java.net.URI.create(webappOrigin + "/"));
+					HttpClientManager.getInstance().removeProxy(host, server);
+					server.removeOrigin(webappOrigin);
+				}
+			}
+		}
+		map.values().removeAll(removed);
+		conf.setOriginRepositoryIDs(map);
+		for (String repositoryID : removed) {
+			if (manager.removeRepository(repositoryID)) {
+				logger.warn("Removed repository {}", repositoryID);
+			}
+		}
+	}
+
+	synchronized void addOrigin(final String realm, final String repositoryID)
+			throws IOException, OpenRDFException {
+		if (isWebServiceRunning()) {
+			java.net.URI uri = java.net.URI.create(realm);
+			String origin = uri.getScheme() + "://" + uri.getAuthority();
+			server.addOrigin(origin, getRepository(repositoryID));
+			server.setIndirectIdentificationPrefix(getIndirectPrefixes());
+			HttpHost host = URIUtils.extractHost(uri);
+			HttpClientManager.getInstance().setProxy(host, server);
+		}
 	}
 
 }

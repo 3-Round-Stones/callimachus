@@ -211,7 +211,7 @@ public class DetachedRealm {
 				try {
 					inError.set(true);
 					activeErrors.incrementAndGet();
-					Pipe pb = error.pipeReader(reader, null);
+					Pipe pb = error.pipeReader(reader, target);
 					try {
 						pb.passOption("target", target);
 						pb.passOption("query", query);

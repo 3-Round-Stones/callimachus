@@ -472,7 +472,7 @@ public class CalliServer implements CalliServerMXBean {
 				} finally {
 					refreshRepository(repositoryID);
 				}
-				addOrigin(webappOrigin, repositoryID);
+				serveRealm(webappOrigin, repositoryID);
 				return null;
 			}
 		});
@@ -538,7 +538,7 @@ public class CalliServer implements CalliServerMXBean {
 			public Void call() throws Exception {
 				SetupTool tool = getSetupTool(webappOrigin);
 				tool.setupRealm(realm, webappOrigin);
-				addOrigin(realm, tool.getRepositoryID());
+				serveRealm(realm, tool.getRepositoryID());
 				return null;
 			}
 		});
@@ -1004,7 +1004,7 @@ public class CalliServer implements CalliServerMXBean {
 		}
 	}
 
-	synchronized void addOrigin(final String realm, final String repositoryID)
+	synchronized void serveRealm(final String realm, final String repositoryID)
 			throws IOException, OpenRDFException {
 		if (isWebServiceRunning()) {
 			java.net.URI uri = java.net.URI.create(realm);

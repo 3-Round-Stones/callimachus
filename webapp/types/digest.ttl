@@ -87,30 +87,6 @@
     rdfs:range xsd:string;
     calli:type "application/x-www-form-urlencoded".
 
-:GetProfile rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <DigestManager>];
-    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-    calli:method "GET";
-    calli:query "settings", "contributions";
-    calli:requires calli:subscriber;
-    calli:header "cache-control:max-age:3600";
-    calli:type "text/html";
-    calli:script """
-        var credential = this.getUserIdentifier("GET", cookies);
-        if (credential) {
-            var title = this.getUserLogin(cookies);
-            return '<html><head><title>' + title + '</title>'
-                + '<meta http-equiv="REFRESH" content="0; url=' + credential + '"/></head>'
-                + '<body resource="' + credential + '">' + title  + '</body></html>';
-        }
-        return null;
-    """.
-
-:cookies a owl:DatatypeProperty;
-    rdfs:domain :GetProfile;
-    rdfs:range xsd:string;
-    calli:header "Authorization", "Cookie".
-
 ################################
 # Registration
 ################################

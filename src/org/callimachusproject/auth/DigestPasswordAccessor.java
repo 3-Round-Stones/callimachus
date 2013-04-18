@@ -55,6 +55,7 @@ import org.openrdf.model.Value;
 import org.openrdf.model.vocabulary.XMLSchema;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.MalformedQueryException;
+import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.QueryLanguage;
 import org.openrdf.query.TupleQuery;
 import org.openrdf.query.TupleQueryResult;
@@ -190,9 +191,49 @@ public class DigestPasswordAccessor implements DigestAccessor {
 		update.execute();
 	}
 
-	public Map<String, String> findDigestUser(String username, String realm,
-			Collection<String> cookies,
+	public Map<String, String> findDigestUser(String method, String username,
+			String realm, Collection<String> cookies, ObjectConnection con)
+			throws OpenRDFException, IOException {
+		return findDigestUser(username, realm, cookies, con);
+	}
+
+	public boolean isDigestPassword(String username, String authName, Collection<String> tokens, String[] hash,
 			ObjectConnection con) throws OpenRDFException, IOException {
+		Map<String, String> passwords = findDigestUser(username, authName, tokens, con);
+		for (String h : hash) {
+			if (passwords.containsKey(h))
+				return true;
+		}
+		return false;
+	}
+
+	public Set<?> changeDigestPassword(Set<RDFObject> files,
+			String[] passwords, String webapp, ObjectConnection con)
+			throws RepositoryException, IOException {
+		int i = 0;
+		Set<Object> set = new LinkedHashSet<Object>();
+		for (URI uuid : getPasswordFiles(files, passwords.length, webapp, con)) {
+			Writer writer = con.getBlobObject(uuid).openWriter();
+			try {
+				writer.write(passwords[i++]);
+			} finally {
+				writer.close();
+			}
+			set.add(con.getObject(uuid));
+		}
+		return set;
+	}
+
+	public String getDaypass(String secret) {
+		if (secret == null)
+			throw new InternalServerError("Temporary passwords are not enabled");
+		long now = System.currentTimeMillis();
+		return getDaypass(getHalfDay(now), secret);
+	}
+
+	private Map<String, String> findDigestUser(String username, String realm,
+			Collection<String> cookies, ObjectConnection con)
+			throws OpenRDFException, QueryEvaluationException, IOException {
 		if (username == null)
 			throw new NullPointerException();
 		TupleQueryResult results = findPasswordDigest(username, con);
@@ -238,35 +279,11 @@ public class DigestPasswordAccessor implements DigestAccessor {
 		}
 	}
 
-	public Set<?> changeDigestPassword(Set<RDFObject> files,
-			String[] passwords, String webapp, ObjectConnection con)
-			throws RepositoryException, IOException {
-		int i = 0;
-		Set<Object> set = new LinkedHashSet<Object>();
-		for (URI uuid : getPasswordFiles(files, passwords.length, webapp, con)) {
-			Writer writer = con.getBlobObject(uuid).openWriter();
-			try {
-				writer.write(passwords[i++]);
-			} finally {
-				writer.close();
-			}
-			set.add(con.getObject(uuid));
-		}
-		return set;
-	}
-
 	private String nextNonce() {
 		synchronized (random) {
 			return Long.toString(Math.abs(random.nextLong()),
 					Character.MAX_RADIX);
 		}
-	}
-
-	public String getDaypass(String secret) {
-		if (secret == null)
-			throw new InternalServerError("Temporary passwords are not enabled");
-		long now = System.currentTimeMillis();
-		return getDaypass(getHalfDay(now), secret);
 	}
 
 	private TupleQueryResult findPasswordDigest(String username,

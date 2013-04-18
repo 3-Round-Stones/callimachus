@@ -88,11 +88,13 @@ public abstract class DigestManagerSupport extends AuthenticationManagerSupport
 	 */
 	public boolean isDigestPassword(Collection<String> tokens, String[] hash)
 			throws OpenRDFException, IOException {
-		DigestAuthenticationManager digest = getManager();
+		DigestPasswordAccessor digest = getAccessor();
 		if (digest == null)
 			return false;
-		return digest
-				.isDigestPassword(tokens, hash, this.getObjectConnection());
+		String username = getUserLogin(tokens);
+		String authName = getCalliAuthName();
+		ObjectConnection con = this.getObjectConnection();
+		return digest.isDigestPassword(username, authName, tokens, hash, con);
 	}
 
 	/**

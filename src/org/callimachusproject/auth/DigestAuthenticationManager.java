@@ -399,20 +399,6 @@ public class DigestAuthenticationManager implements DetachedAuthenticationManage
 		service.get(con.getRepository()).resetCache();
 	}
 
-	public boolean isDigestPassword(Collection<String> tokens, String[] hash,
-			ObjectConnection con) throws OpenRDFException, IOException {
-		Map<String, String> auth = parseDigestAuthorization(tokens);
-		String username = auth.get("username");
-		String realm = auth.get("realm");
-		Map<String, String> passwords = getDigestAccessor().findDigestUser(username, realm, tokens, con);
-		for (String h : hash) {
-			if (passwords.containsKey(h))
-				return true;
-		}
-		fail.failedAttempt(username);
-		return false;
-	}
-
 	private void moveTo(URI link, Statement st, ObjectConnection con)
 			throws RepositoryException {
 		URI pred = st.getPredicate();
@@ -456,8 +442,8 @@ public class DigestAuthenticationManager implements DetachedAuthenticationManage
 		String ha2 = md5(method + ":" + uri);
 		assert username != null;
 		DigestAccessor accessor = getDigestAccessor();
-		Map<String, String> passwords = accessor.findDigestUser(username,
-				realm, cookies, con);
+		Map<String, String> passwords = accessor.findDigestUser(method,
+				username, realm, cookies, con);
 		if (passwords == null) {
 			logger.info("Account not found: {}", username);
 			return null;

@@ -18,8 +18,8 @@ public interface DigestAccessor {
 	void registerUser(Resource invitedUser, URI registeredUser,
 			ObjectConnection con) throws OpenRDFException, IOException;
 
-	Map<String, String> findDigestUser(String username, String authName,
-			Collection<String> cookies, ObjectConnection con)
+	Map<String, String> findDigestUser(String method, String username,
+			String authName, Collection<String> cookies, ObjectConnection con)
 			throws OpenRDFException, IOException;
 
 	HttpResponse getLogoutResponse();

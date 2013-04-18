@@ -383,15 +383,11 @@ if [ ! -e "$JMXRIMPASS" -a -r "$JMXRMI" ] ; then
   chmod 600 "$JMXRIMPASS"
 fi
 
-if [ ! -f "$ULIMIT" ]; then
-  ULIMIT=`command -v ulimit`
+if [ $(ulimit -n) -lt 4096 ]; then
+  ulimit -n 4096
 fi
 
-if [ -e "$ULIMIT" ] && [ "$("$ULIMIT" -n)" -lt 4096 ]; then
-  "$ULIMIT" -n 4096
-fi
-
-if [ -e "$ULIMIT" ] && [ "$("$ULIMIT" -n)" -lt 4096 ]; then
+if [ $(ulimit -n) -lt 4096 ]; then
   log_warning_msg "The maximum number of open file descriptors maybe too small"
 fi
 

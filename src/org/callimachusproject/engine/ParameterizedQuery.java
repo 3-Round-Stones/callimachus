@@ -45,7 +45,7 @@ public class ParameterizedQuery {
 					Pattern.CASE_INSENSITIVE);
 	private static final Pattern CACHE_CONTROL = Pattern
 			.compile(
-					"(?:^|\n|\r).*#[ \t]*@Cache-Control[ \t]*(?::[ \t]*)?([\\w ,=\\-\"]+)[ \t]*(?:$|\n|\r)",
+					"(?:^|\n|\r).*#[ \t]*@Cache-Control[ \t]*(?::[ \t]*)?(\\w[\\w ,=\\-\"]+)[ \t]*(?:$|\n|\r)",
 					Pattern.CASE_INSENSITIVE);
 	private static final Pattern VIEW_TEMPLATE = Pattern
 			.compile(
@@ -128,7 +128,10 @@ public class ParameterizedQuery {
 		}
 		if (sb.length() == 0)
 			return null;
-		return sb.toString();
+		String control = sb.toString().trim();
+		if (control.length() == 0)
+			return null;
+		return control;
 	}
 
 	public String getViewTemplate() {

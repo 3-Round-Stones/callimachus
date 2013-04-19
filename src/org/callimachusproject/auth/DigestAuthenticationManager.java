@@ -446,7 +446,7 @@ public class DigestAuthenticationManager implements DetachedAuthenticationManage
 		Map<String, String> passwords = accessor.findDigestUser(method,
 				username, realm, cookies, con);
 		if (passwords == null) {
-			logger.info("Account not found: {}", username);
+			logger.debug("Account {} not found in {}", username, getIdentifier());
 			return null;
 		}
 		for (Map.Entry<String, String> e : passwords.entrySet()) {

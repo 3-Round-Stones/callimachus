@@ -225,4 +225,42 @@ DELETE {
     <../callimachus-for-web-developers> calli:alternate <http://callimachusproject.org/docs/1.0/callimachus-for-web-developers.docbook?view>.
 };
 
+INSERT {
+    ?digest rdfs:comment "Sign in with your email address and a site password"
+} WHERE {
+    ?digest a <types/DigestManager>
+    FILTER NOT EXISTS { ?digest rdfs:comment ?comment }
+};
+
+INSERT {
+    ?digest calli:authButton <images/digest_64.png>
+} WHERE {
+    ?digest a <types/DigestManager>
+    FILTER NOT EXISTS { ?digest calli:authButton ?button }
+};
+
+INSERT {
+    ?origin calli:subscriber </auth/groups/everyone>
+} WHERE {
+    ?origin a <types/Origin>
+    FILTER NOT EXISTS { ?origin calli:subscriber </auth/groups/everyone> }
+};
+
+INSERT {
+    ?auth calli:subscriber </auth/groups/everyone>
+} WHERE {
+    ?origin a <types/Origin>; calli:hasComponent ?auth .
+    ?auth calli:hasComponent ?manager .
+    ?manager a calli:AuthenticationManager .
+    FILTER NOT EXISTS { ?auth calli:subscriber </auth/groups/everyone> }
+};
+
+INSERT {
+    ?manager calli:subscriber </auth/groups/everyone>
+} WHERE {
+    ?origin a <types/Origin>; calli:hasComponent ?auth .
+    ?auth calli:hasComponent ?manager .
+    ?manager a calli:AuthenticationManager .
+    FILTER NOT EXISTS { ?manager calli:subscriber </auth/groups/everyone> }
+};
 

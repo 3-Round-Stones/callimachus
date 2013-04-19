@@ -265,8 +265,16 @@ INSERT {
 };
 
 INSERT {
-	<queries/folder-create-menu.rq> calli:reader </auth/groups/public>
+	<queries/folder-create-menu.rq> calli:reader </auth/groups/everyone>
 } WHERE {
-	FILTER NOT EXISTS { <queries/folder-create-menu.rq> calli:reader </auth/groups/public> }
+	FILTER NOT EXISTS { <queries/folder-create-menu.rq> calli:reader </auth/groups/everyone> }
+};
+
+DELETE {
+	</callimachus/ontology> owl:versionInfo "1.0.1"
+} INSERT {
+	</callimachus/ontology> owl:versionInfo "1.1"
+} WHERE {
+	</callimachus/ontology> owl:versionInfo "1.0.1"
 };
 

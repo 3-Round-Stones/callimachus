@@ -21,15 +21,41 @@
     <style type="text/css" media="all">
         .tab-content { overflow: visible; }
         .dropup .dropdown-menu { top: auto; bottom: -7px; }
-        .ui-grid-header nav { text-align: left; display: inline-block; }
-        .ui-grid-header .btn-danger { color: white; }
-        .btn-x-small { padding: 3px 5px; }
-        .btn-x-small .icon-upload { height: 12px; background-position: -144px -25px; }
-        .btn-x-small .icon-arrow-up { height: 12px; }
-        .btn-x-small .icon-folder-open { height: 12px; }
-        .btn-x-small .icon-circle-arrow-up { height: 12px; background-position: -288px -145px; }
-        .btn-x-small .icon-circle-arrow-down { height: 12px; background-position: -312px -145px; }
-
+        
+.ui-grid-header {
+            line-height: 24px;
+        }
+        
+        .ui-grid-header nav.btn-group {
+            text-align: left;
+            display: inline-block;
+            margin: 0;
+            font-weight: normal;
+            vertical-align: middle;
+            line-height: 21px;
+        }    
+        
+        .ui-grid-header nav.btn-group a.btn {
+            padding: 3px 10px 4px !important;
+            font-size: 14px;
+            vertical-align: middle;
+            color: #fff;
+        }
+        
+        .ui-grid-header nav.btn-group a.btn-icon {
+            padding: 3px 5px 4px !important;
+        }
+        
+        .ui-grid-header nav.btn-group a.btn-icon i {
+            vertical-align: top;
+            margin-top: 1px;
+        }
+        
+        .ui-grid-header .dropdown-menu img.icon[src*="pipeline"] {
+            margin-left: 3px;
+            margin-right: 3px;
+        }
+        
         .filecol { width:100% }
         .ui-grid table tbody td.filecell { text-align: left }
         #table.small .permission { display:none; }
@@ -63,7 +89,7 @@
                     <a id="create-menu" href="javascript:void(0)" class="btn btn-small btn-danger" title="Create menu" data-toggle="dropdown">Create</a>
                     <ul id="create-menu-more" class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
                     </ul>
-                    <a id="file-create" href="../types/File" class="btn btn-small btn-x-small btn-danger" title="Upload file"><i class="icon-upload icon-white"></i></a>
+                    <a id="file-create" href="../types/File" class="btn btn-small btn-icon btn-danger" title="Upload file"><i class="icon-upload icon-white"></i></a>
                 </nav>
             </span>
             <span property="rdfs:label"/>

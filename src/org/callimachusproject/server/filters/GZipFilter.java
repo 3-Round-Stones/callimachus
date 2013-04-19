@@ -56,8 +56,8 @@ public class GZipFilter extends Filter {
 		boolean safe = method.equals("HEAD") || method.equals("GET") || method.equals("PROFIND");
 		boolean compressed = isAlreadyCompressed(resp.getEntity());
 		if (code < 500 && safe && isCompressable(resp) || compressed) {
-			Header length = resp.getFirstHeader("Content-Length");
-			if (compressed || length == null || Long.parseLong(length.getValue()) > 500) {
+			long len = getContentLength(resp);
+			if (compressed || len < 0 || len > 500) {
 				resp.removeHeaders("Content-MD5");
 				resp.removeHeaders("Content-Length");
 				resp.setHeader("Transfer-Encoding", "chunked");
@@ -76,6 +76,15 @@ public class GZipFilter extends Filter {
 		return false;
 	}
 
+	private long getContentLength(HttpResponse resp) {
+		if (resp.getEntity() != null)
+			return resp.getEntity().getContentLength();
+		Header length = resp.getFirstHeader("Content-Length");
+		if (length == null)
+			return -1;
+		return Long.parseLong(length.getValue());
+	}
+
 	private HttpEntity gzip(HttpEntity entity) {
 		if (entity instanceof GUnzipEntity)
 			return ((GUnzipEntity) entity).getEntityDelegate();
@@ -88,8 +97,13 @@ public class GZipFilter extends Filter {
 	}
 
 	private boolean isCompressable(HttpResponse msg) {
+		if (msg.getEntity() == null)
+			return false;
 		Header contentType = msg.getFirstHeader("Content-Type");
-		if (contentType == null || msg.getEntity() == null)
+		if (contentType == null) {
+			contentType = msg.getEntity().getContentType();
+		}
+		if (contentType == null)
 			return false;
 		for (Header hd : msg.getHeaders("Cache-Control")) {
 			if (hd.getValue().contains("no-transform"))

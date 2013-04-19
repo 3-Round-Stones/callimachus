@@ -411,10 +411,11 @@ public class DetachedRealm {
 		while (iter.hasNext()) {
 			Object next = iter.next();
 			if (next instanceof DetachedAuthenticationManager) {
-				if (preferred.contains(next.toString())) {
-					result.add(0, (DetachedAuthenticationManager) next);
+				DetachedAuthenticationManager manager = (DetachedAuthenticationManager) next;
+				if (preferred.contains(manager.getIdentifier())) {
+					result.add(0, manager);
 				} else {
-					result.add((DetachedAuthenticationManager) next);
+					result.add(manager);
 				}
 			} else {
 				logger.error("{} is not an AuthenticationManager", next);

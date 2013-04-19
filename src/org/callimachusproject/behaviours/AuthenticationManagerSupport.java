@@ -30,6 +30,8 @@ public abstract class AuthenticationManagerSupport implements RDFObject,
 			String path, List<String> domains, RealmManager manager)
 			throws OpenRDFException, IOException {
 		DigestAccessor accessor = createDigestAccessor(manager);
+		if (accessor == null)
+			return null;
 		String authName = getCalliAuthName();
 		if (authName == null) {
 			authName = URI.create(accessor.getIdentifier()).getHost();

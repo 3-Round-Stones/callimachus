@@ -104,6 +104,7 @@ public class DigestAuthenticationManager implements DetachedAuthenticationManage
 	public DigestAuthenticationManager(String authName, String path,
 			List<String> domains, DigestAccessor accessor) {
 		assert authName != null;
+		assert accessor != null;
 		this.authName = authName;
 		this.protectedPath = path;
 		assert domains != null;
@@ -531,8 +532,19 @@ public class DigestAuthenticationManager implements DetachedAuthenticationManage
 			return false;
 		for (String cookie : request.get("cookie")) {
 			for (String cookieName : userCookies) {
-				if (cookie.contains(cookieName))
-					return true;
+				if (cookie.contains(cookieName)) {
+					int start = cookie.indexOf(cookieName) + cookieName.length();
+					if (start >= cookie.length())
+						return false;
+					int semi = cookie.indexOf(';', start);
+					int comma = cookie.indexOf(',', start);
+					int end = comma < 0 || semi < comma && semi > 0 ? semi : comma;
+					if (end < 0) {
+						end = cookie.length();
+					}
+					String value = cookie.substring(start, end).trim();
+					return value.length() > 0;
+				}
 			}
 		}
 		return false;

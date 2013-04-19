@@ -264,3 +264,9 @@ INSERT {
     FILTER NOT EXISTS { ?manager calli:subscriber </auth/groups/everyone> }
 };
 
+INSERT {
+	<queries/folder-create-menu.rq> calli:reader </auth/groups/public>
+} WHERE {
+	FILTER NOT EXISTS { <queries/folder-create-menu.rq> calli:reader </auth/groups/public> }
+};
+

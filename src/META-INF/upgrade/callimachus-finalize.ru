@@ -22,6 +22,7 @@ DELETE {
 		<pipelines/> calli:hasComponent? ?file . ?file calli:reader </auth/groups/public>
 	} UNION {
 		<queries/> calli:hasComponent? ?file . ?file calli:reader </auth/groups/public>
+		FILTER (<queries/folder-create-menu.rq> != ?file)
 	} UNION {
 		<schemas/> calli:hasComponent? ?file . ?file calli:reader </auth/groups/public>
 	} UNION {

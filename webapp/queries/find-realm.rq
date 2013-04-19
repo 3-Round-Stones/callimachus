@@ -4,6 +4,10 @@ SELECT ?realm {
         ?realm calli:hasComponent* <$target>
         FILTER EXISTS {?realm a calli:Realm}
     } UNION {
+        ?realm a calli:Realm
+        FILTER (strstarts(str(<$target>), str(?realm)))
+        BIND (false AS ?default)
+    } UNION {
         BIND (</> AS ?realm)
         BIND (true AS ?default)
     }

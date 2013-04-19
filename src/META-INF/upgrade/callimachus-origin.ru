@@ -29,6 +29,13 @@ INSERT {
 };
 
 INSERT {
+    $origin calli:allowOrigin ?allowed
+} WHERE {
+    </> calli:allowOrigin ?allowed
+	FILTER NOT EXISTS { $origin calli:allowOrigin ?allowed }
+};
+
+INSERT {
     ?realm calli:allowOrigin ?allowed
 } WHERE {
     {

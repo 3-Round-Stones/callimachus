@@ -563,6 +563,7 @@ do_start()
     -Djava.mail.properties="$MAIL" \
     -Dorg.callimachusproject.config.repository="$REPOSITORY_CONFIG" \
     -Dorg.callimachusproject.config.webapp="$(ls $BASEDIR/lib/$NAME-webapp*.car)" \
+    -Dorg.callimachusproject.config.backups="$BASEDIR/backups" \
     -classpath "$CLASSPATH" \
     -user "$DAEMON_USER" \
     -Djava.awt.headless=true \
@@ -726,6 +727,7 @@ do_run() {
     -Djava.mail.properties="$MAIL" \
     -Dorg.callimachusproject.config.repository="$REPOSITORY_CONFIG" \
     -Dorg.callimachusproject.config.webapp="$(ls $BASEDIR/lib/$NAME-webapp*.car)" \
+    -Dorg.callimachusproject.config.backups="$BASEDIR/backups" \
     -Djava.awt.headless=true \
     -XX:OnOutOfMemoryError="kill %p" \
     -classpath "$CLASSPATH" \

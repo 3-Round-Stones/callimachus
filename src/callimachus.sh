@@ -644,6 +644,7 @@ do_stop()
   done
 
   if [ -f "$PIDFILE" ]; then
+    do_dump
     log_warning_msg "Killing: $ID"
     rm -f "$PIDFILE"
     kill -9 "$ID"

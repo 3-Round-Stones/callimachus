@@ -35,9 +35,11 @@ import org.callimachusproject.repository.CalliRepository;
 import org.callimachusproject.server.WebServer;
 import org.callimachusproject.setup.SetupRealm;
 import org.callimachusproject.setup.SetupTool;
+import org.callimachusproject.util.BackupTool;
 import org.callimachusproject.util.CallimachusConf;
 import org.callimachusproject.util.ConfigTemplate;
 import org.callimachusproject.util.MailProperties;
+import org.callimachusproject.util.SystemProperties;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
@@ -997,7 +999,13 @@ public class CalliServer implements CalliServerMXBean {
 		}
 		map.values().removeAll(removed);
 		conf.setOriginRepositoryIDs(map);
+		File backupDir = SystemProperties.getBackupDirectory();
+		BackupTool backup = backupDir == null ? null : new BackupTool(backupDir);
 		for (String repositoryID : removed) {
+			File dataDir = manager.getRepositoryDir(repositoryID);
+			if (backup != null && dataDir.isDirectory()) {
+				backup.backup(repositoryID, conf.getAppVersion(), dataDir);
+			}
 			if (manager.removeRepository(repositoryID)) {
 				logger.warn("Removed repository {}", repositoryID);
 			}

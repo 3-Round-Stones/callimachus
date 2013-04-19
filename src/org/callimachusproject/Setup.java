@@ -30,9 +30,7 @@ import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collection;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -287,7 +285,7 @@ public class Setup {
 		Set<String> webappOrigins = getWebappsInRepository(repositoryID, conf);
 		File dataDir = manager.getRepositoryDir(repositoryID);
 		if (backup != null && dataDir.isDirectory()) {
-			backup.backup(getDefaultBackupLabel(repositoryID, conf), dataDir);
+			backup.backup(repositoryID, conf.getAppVersion(), dataDir);
 		}
 		boolean changed = updateRepositoryConfig(manager, repositoryID);
 		Repository repo = manager.getRepository(repositoryID);
@@ -349,30 +347,6 @@ public class Setup {
 		}
 		Set<String> webappOrigins = map.keySet();
 		return webappOrigins;
-	}
-
-	private String getDefaultBackupLabel(String repositoryID, CallimachusConf conf) throws IOException {
-		StringBuilder sb = new StringBuilder();
-		if (repositoryID != null && repositoryID.length() > 0) {
-			sb.append(repositoryID).append("-");
-		}
-		String version = conf.getAppVersion();
-		if (version != null) {
-			sb.append(version).append("_");
-		}
-		GregorianCalendar now = new GregorianCalendar();
-		sb.append(now.get(Calendar.YEAR)).append('-');
-		int month = now.get(Calendar.MONTH);
-		if (month < 9) {
-			sb.append('0');
-		}
-		sb.append(1 + month).append('-');
-		int day = now.get(Calendar.DAY_OF_MONTH);
-		if (day < 10) {
-			sb.append('0');
-		}
-		sb.append(day);
-		return sb.toString();
 	}
 
 	private boolean updateRepositoryConfig(final LocalRepositoryManager manager,

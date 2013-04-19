@@ -8,7 +8,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Comparator;
+import java.util.GregorianCalendar;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -63,6 +65,11 @@ public class BackupTool {
 		if (result.length() == 0)
 			return "";
 		return result.substring(0, result.length() - 1);
+	}
+
+	public void backup(String repositoryID, String version, File dataDir)
+			throws IOException {
+		backup(getDefaultBackupLabel(repositoryID, version), dataDir);
 	}
 
 	public synchronized void backup(final String label, final File dataDir)
@@ -231,5 +238,28 @@ public class BackupTool {
 			}
 		}
 		dir.delete();
+	}
+
+	private String getDefaultBackupLabel(String repositoryID, String version) {
+		StringBuilder sb = new StringBuilder();
+		if (repositoryID != null && repositoryID.length() > 0) {
+			sb.append(repositoryID).append("-");
+		}
+		if (version != null) {
+			sb.append(version).append("_");
+		}
+		GregorianCalendar now = new GregorianCalendar();
+		sb.append(now.get(Calendar.YEAR)).append('-');
+		int month = now.get(Calendar.MONTH);
+		if (month < 9) {
+			sb.append('0');
+		}
+		sb.append(1 + month).append('-');
+		int day = now.get(Calendar.DAY_OF_MONTH);
+		if (day < 10) {
+			sb.append('0');
+		}
+		sb.append(day);
+		return sb.toString();
 	}
 }

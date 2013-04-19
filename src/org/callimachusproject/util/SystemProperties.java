@@ -62,4 +62,12 @@ public class SystemProperties {
 			return new File(defaultFile);
 		return new File(SERVER_DEFAULT_CONF);
 	}
+
+	public static File getBackupDirectory() {
+		String defaultFile = System
+				.getProperty("org.callimachusproject.config.backups");
+		if (defaultFile != null)
+			return new File(defaultFile);
+		return null;
+	}
 }

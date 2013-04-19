@@ -8,6 +8,7 @@
     xmlns:prov="http://www.w3.org/ns/prov#">
 <head>
     <title resource="?this">{rdfs:label}</title>
+    <link href="../styles/folder-view.css" type="text/css" rel="stylesheet" />
     <link href="?changes" type="application/atom+xml" rel="alternate" />
     <link href="?contents" type="application/atom+xml" rel="contents" />
     <link rel="edit-form" href="?edit" />
@@ -18,60 +19,6 @@
     <link id="create-menu-json" href="../queries/folder-create-menu.rq?results&amp;tqx=out:table" />
     <link href="?archive" title="Export folder contents" />
     <link href="?import" title="Import folder contents" />
-    <style type="text/css" media="all">
-        .tab-content { overflow: visible; }
-        .dropup .dropdown-menu { top: auto; bottom: -7px; }
-        
-.ui-grid-header {
-            line-height: 24px;
-        }
-        
-        .ui-grid-header nav.btn-group {
-            text-align: left;
-            display: inline-block;
-            margin: 0;
-            font-weight: normal;
-            vertical-align: middle;
-            line-height: 21px;
-        }    
-        
-        .ui-grid-header nav.btn-group a.btn {
-            padding: 3px 10px 4px !important;
-            font-size: 14px;
-            vertical-align: middle;
-            color: #fff;
-        }
-        
-        .ui-grid-header nav.btn-group a.btn-icon {
-            padding: 3px 5px 4px !important;
-        }
-        
-        .ui-grid-header nav.btn-group a.btn-icon i {
-            vertical-align: top;
-            margin-top: 1px;
-        }
-        
-        .ui-grid-header .dropdown-menu img.icon[src*="pipeline"] {
-            margin-left: 3px;
-            margin-right: 3px;
-        }
-        
-        .filecol { width:100% }
-        .ui-grid table tbody td.filecell { text-align: left }
-        #table.small .permission { display:none; }
-
-        /* Grid
-        ----------------------------------*/
-        .ui-grid { font-size:small}
-        .ui-grid .ui-grid-content { width: 100%; border-collapse: collapse; border-spacing:0; }
-        .ui-grid table thead th { white-space:nowrap; }
-        .ui-grid table tbody td { text-align: right; white-space:nowrap; }
-        .ui-grid table tbody td, .ui-grid .ui-grid-header, .ui-grid table thead a { padding: .4em;  }
-        .ui-grid .ui-grid-header, .ui-grid .ui-grid-footer { padding: .8em .4em; text-align: center; }
-        .ui-grid .ui-grid-footer { background-image: none; font-weight: normal; text-align: left; }
-        .ui-grid table thead a { display: block;  }
-        .ui-grid .ui-icon { float: left; }
-    </style>
     <script type="text/javascript" src="../scripts/folder-view.js"></script>
     <script type="text/javascript" src="../scripts/folder-create-menu.js"></script>
     <script type="text/javascript">
@@ -86,7 +33,7 @@
         <div class="ui-grid-header ui-widget-header ui-corner-top">
             <span class="hidden-logout">
                 <nav class="pull-left dropdown btn-group">
-                    <a id="create-menu" href="javascript:void(0)" class="btn btn-small btn-danger" title="Create menu" data-toggle="dropdown">Create</a>
+                    <a id="create-menu" href="javascript:void(0)" class="btn btn-small btn-danger" title="Create menu" data-toggle="dropdown">Create</i></a>
                     <ul id="create-menu-more" class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
                     </ul>
                     <a id="file-create" href="../types/File" class="btn btn-small btn-icon btn-danger" title="Upload file"><i class="icon-upload icon-white"></i></a>

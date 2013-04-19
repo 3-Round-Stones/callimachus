@@ -406,14 +406,20 @@ public class CalliServer implements CalliServerMXBean {
 				Map<String, String> combined;
 				combined = getAllRepositoryProperties();
 				combined = new LinkedHashMap<String, String>(combined);
-				combined.putAll(parameters);
+				if (parameters != null) {
+					combined.putAll(parameters);
+				}
 				params = groupBeforeColon(combined);
 				Set<String> removed = new LinkedHashSet<String>(params.keySet());
-				removed.removeAll(groupBeforeColon(parameters).keySet());
+				if (parameters != null) {
+					removed.removeAll(groupBeforeColon(parameters).keySet());
+				}
 				removeRepository(removed);
 				combined = getAllRepositoryProperties();
 				combined = new LinkedHashMap<String, String>(combined);
-				combined.putAll(parameters);
+				if (parameters != null) {
+					combined.putAll(parameters);
+				}
 				params = groupBeforeColon(combined);
 				for (String repositoryID : params.keySet()) {
 					Map<String, String> pmap = params.get(repositoryID);

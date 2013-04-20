@@ -11,12 +11,6 @@ import org.openrdf.annotations.Iri;
 @Iri("http://callimachusproject.org/rdf/2009/framework#AuthenticationManager")
 public interface AuthenticationManager {
 
-	@Iri("http://callimachusproject.org/rdf/2009/framework#authName")
-	String getCalliAuthName();
-
-	@Iri("http://callimachusproject.org/rdf/2009/framework#authName")
-	void setCalliAuthName(String authName);
-
 	DetachedAuthenticationManager detachAuthenticationManager(String path,
 			List<String> domains, RealmManager manager) throws OpenRDFException, IOException;
 }

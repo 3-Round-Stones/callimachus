@@ -1,7 +1,9 @@
 package org.callimachusproject.behaviours;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.http.HttpResponse;
@@ -10,6 +12,8 @@ import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
 import org.callimachusproject.auth.AuthorizationManager;
 import org.callimachusproject.auth.AuthorizationService;
+import org.callimachusproject.auth.DetachedAuthenticationManager;
+import org.callimachusproject.auth.DigestAccessor;
 import org.callimachusproject.auth.DigestAuthenticationManager;
 import org.callimachusproject.auth.DigestPasswordAccessor;
 import org.callimachusproject.auth.RealmManager;
@@ -34,7 +38,7 @@ public abstract class DigestManagerSupport extends AuthenticationManagerSupport
 	 */
 	public HttpResponse getPersistentLogin(String method,
 			Collection<String> tokens) throws OpenRDFException, IOException {
-		DigestAuthenticationManager digest = getManager();
+		DigestAuthenticationManager digest = (DigestAuthenticationManager) getManager();
 		if (digest == null)
 			return null;
 		ObjectConnection con = this.getObjectConnection();
@@ -53,9 +57,9 @@ public abstract class DigestManagerSupport extends AuthenticationManagerSupport
 	/**
 	 * Called from digest.ttl
 	 */
-	public HttpResponse getLogin(String method,
-			Collection<String> tokens) throws OpenRDFException, IOException {
-		DigestAuthenticationManager digest = getManager();
+	public HttpResponse getLogin(String method, Collection<String> tokens)
+			throws OpenRDFException, IOException {
+		DetachedAuthenticationManager digest = getManager();
 		if (digest == null)
 			return null;
 		ObjectConnection con = this.getObjectConnection();
@@ -71,8 +75,8 @@ public abstract class DigestManagerSupport extends AuthenticationManagerSupport
 	/**
 	 * Called from digest.ttl
 	 */
-	public String getDaypass(RDFObject obj, String email) throws OpenRDFException,
-			IOException {
+	public String getDaypass(RDFObject obj, String email)
+			throws OpenRDFException, IOException {
 		DigestPasswordAccessor digest = getAccessor();
 		if (digest == null)
 			return null;
@@ -111,14 +115,30 @@ public abstract class DigestManagerSupport extends AuthenticationManagerSupport
 		return digest.changeDigestPassword(files, passwords, webapp, con);
 	}
 
-	protected DigestPasswordAccessor createDigestAccessor(RealmManager manager) {
+	@Override
+	public DetachedAuthenticationManager detachAuthenticationManager(
+			String path, List<String> domains, RealmManager manager)
+			throws OpenRDFException, IOException {
+		DigestAccessor accessor = createDigestAccessor(manager);
+		if (accessor == null)
+			return null;
+		String authName = getCalliAuthName();
+		if (authName == null) {
+			authName = URI.create(accessor.getIdentifier()).getHost();
+		}
+		return new DigestAuthenticationManager(authName, path, domains,
+				accessor);
+	}
+
+	private DigestPasswordAccessor createDigestAccessor(RealmManager manager) {
 		Resource self = this.getResource();
 		return new DigestPasswordAccessor(self, manager);
 	}
 
 	private DigestPasswordAccessor getAccessor() throws OpenRDFException,
 			IOException {
-		return (DigestPasswordAccessor) getManager().getDigestAccessor();
+		return (DigestPasswordAccessor) ((DigestAuthenticationManager) getManager())
+				.getDigestAccessor();
 	}
 
 }

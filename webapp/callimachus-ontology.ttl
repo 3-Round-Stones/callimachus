@@ -304,7 +304,7 @@ calli:authNamespace a owl:FunctionalProperty, owl:ObjectProperty;
 calli:authName a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:label "auth name";
     rdfs:comment "A string to be displayed to users so they know which username and password to use. This string should contain at least the name of the host performing the authentication and might additionally indicate the collection of users who might have access. This string is used to encode the passwords and changing it will invalidates existing encoded passwords";
-    rdfs:domain calli:AuthenticationManager;
+    rdfs:domain calli:DigestManager;
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:secret a owl:FunctionalProperty, owl:ObjectProperty;

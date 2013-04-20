@@ -37,6 +37,8 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpMessage;
 import org.apache.http.HttpResponse;
 import org.openrdf.OpenRDFException;
+import org.openrdf.model.Resource;
+import org.openrdf.model.URI;
 import org.openrdf.repository.object.ObjectConnection;
 
 /**
@@ -108,9 +110,10 @@ public interface DetachedAuthenticationManager {
 	 *            The target resource of a request.
 	 * @param request
 	 *            A map with the above conditional keys
-	 * @param body request entity
+	 * @param body
+	 *            request entity
 	 * @return An HTTP response
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	HttpResponse unauthorized(String method, Object resource,
 			Map<String, String[]> request, HttpEntity body) throws IOException;
@@ -144,7 +147,7 @@ public interface DetachedAuthenticationManager {
 	 * 
 	 * @return Set of HTTP headers
 	 * @throws OpenRDFException
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	HttpMessage authenticationInfo(String method, Object resource,
 			Map<String, String[]> request, ObjectConnection con)
@@ -156,4 +159,20 @@ public interface DetachedAuthenticationManager {
 	 * @return set of HTTP headers in a 204 response
 	 */
 	HttpResponse logout(Collection<String> tokens);
+
+	boolean isProtected(String url);
+
+	void registerUser(Resource invitedUser, URI createURI, String email,
+			String fullname, ObjectConnection con) throws OpenRDFException,
+			IOException;
+
+	String getUserIdentifier(String method, Collection<String> tokens,
+			ObjectConnection objectConnection) throws OpenRDFException,
+			IOException;
+
+	String getUserLogin(Collection<String> tokens,
+			ObjectConnection objectConnection);
+
+	String[] getUsernameSetCookie(Collection<String> tokens,
+			ObjectConnection objectConnection);
 }

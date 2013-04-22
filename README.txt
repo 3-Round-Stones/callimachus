@@ -113,10 +113,10 @@ and run "ant run" again.
 
 Additional documentation regarding usage and application development may
 be found on the project's wiki at:
-  http://code.google.com/p/callimachus/wiki/GettingStarted
+  http://callimachusproject.org/docs/1.1/getting-started-with-callimachus.docbook?view
 
 Details of browser support may be found at:
-  http://callimachusproject.org/docs/1.0/articles/browser-support.docbook?view
+  http://callimachusproject.org/docs/1.1/articles/browser-support.docbook?view
 
 Share your experience or ask questions on the mailing list: callimachus-
 discuss@googlegroups.com.  You can sign up at 

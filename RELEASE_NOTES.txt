@@ -17,7 +17,7 @@ Safari 6.1 has known issues.
 Internet Explorer 9 and 10 cannot edit textual documents.
 
 Details of browser support may be found at:
-  http://callimachusproject.org/docs/1.0/articles/browser-support.docbook?view
+  http://callimachusproject.org/docs/1.1/articles/browser-support.docbook?view
 
 The Callimachus server requires Java JDK 1.6.0_18+ (before 1.7) on the
 server to run.
@@ -42,7 +42,7 @@ server to run.
  * Safari does not support logging in with email address via digest access.
  * Safari does not retain the login state in all cases.
  * Safari does not support dragging files in the folder view.
- * Template variables are only bound if there is at least one triple binding after them
+ * Template variables are only bound if there is at least one triple binding after them.
 
 The setup script may say the following, which can be ignored.
 SEVERE: Error processing http://callimachusproject.org/callimachus/1.0/types/GraphDocument

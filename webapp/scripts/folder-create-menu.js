@@ -15,7 +15,7 @@ jQuery(function($) {
                     if (menu != this[4]) {
                         if (menu) {
                             ul.append('<li class="divider"></li>');
-                            ul.append('<li class="dropdown-submenu dropup"><a tabindex="-1" href="javascript:void(0)">More options</a><ul class="dropdown-menu"></ul></li>')
+                            ul.append('<li class="dropdown-submenu"><a tabindex="-1" href="javascript:void(0)">More options</a><ul class="dropdown-menu"></ul></li>')
                             ul = ul.find('ul');
                         }
                         menu = this[4];
@@ -41,6 +41,15 @@ jQuery(function($) {
                     }
                     li.append(a);
                     ul.append(li);
+                });
+                $('#create-menu-more').find('.dropdown-submenu').each(function() {
+                    var sup = $(this).siblings('li').length;
+                    var sub = $(this).children('ul').children('li').length;
+                    if (sup < sub) {
+                        $(this).css('position','static');
+                    } else {
+                        $(this).parent('ul').addClass('dropup');
+                    }
                 });
             }
         });

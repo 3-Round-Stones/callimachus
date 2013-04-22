@@ -1,7 +1,8 @@
 /* folder-view.css */
 
 .tab-content { overflow: visible; }
-.dropup .dropdown-menu { top: auto; bottom: -7px; }
+.dropup .dropdown-menu { top: auto; bottom: -2px; }
+.dropup>.dropdown-submenu>.dropdown-menu { bottom: -7px; }
 
 .ui-grid-header {
     line-height: 24px;

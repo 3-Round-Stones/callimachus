@@ -11,10 +11,12 @@ SELECT DISTINCT (concat('?create=', encode_for_uri(str(?cls))) AS ?url)
     (max(?label) AS ?label) (max(?comment) AS ?comment) (coalesce(max(?icon),<../images/rdf-icon.png>) AS ?icon)
     (min(?menu) AS ?menu) (min(?section) AS ?section)
 WHERE {
-    ?cls rdf:type/rdfs:subClassOf? <../types/Creatable>; rdfs:label ?label; calli:create ?create
+    ?cls rdf:type/rdfs:subClassOf? <../types/Creatable>;
+        calli:icon ?icon;
+        rdfs:label ?label;
+        rdfs:comment ?comment;
+        calli:create ?create
     FILTER (?create != <../templates/file-create.xhtml>)
-    OPTIONAL { ?cls rdfs:comment ?comment }
-    OPTIONAL { ?cls calli:icon ?icon }
     {
         ?cls calli:author </auth/groups/everyone>
         BIND (1 AS ?menu)

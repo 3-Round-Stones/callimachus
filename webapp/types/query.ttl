@@ -361,7 +361,7 @@
 
 :TransformIntoWire rdfs:subClassOf :TransformSparqlResult;
     calli:type "text/javascript;charset=UTF-8";
-    calli:post <../pipelines/sparql-results-wire.xpl?results&handler={handler}&reqId={reqId}>.
+    calli:post "../pipelines/sparql-results-wire.xpl?results&handler={handler}&reqId={reqId}".
 
 :handler a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :TransformIntoWire;

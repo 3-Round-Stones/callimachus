@@ -284,7 +284,7 @@
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <SparqlService>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
     calli:type "text/html";
-    calli:post <../pipelines/sparql.xpl?results&target={0}>.
+    calli:post "../pipelines/sparql.xpl?results&target={0}".
 
 :inputStream a owl:ObjectProperty, owl:FunctionalProperty;
     rdfs:domain :TransformResult;

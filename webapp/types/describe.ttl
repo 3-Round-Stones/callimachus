@@ -142,7 +142,7 @@
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <DescribeService>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
     calli:type "text/html";
-    calli:post <../pipelines/describe.xpl?results&target={0}>.
+    calli:post "../pipelines/describe.xpl?results&target={0}".
 
 :graphResult a owl:ObjectProperty, owl:FunctionalProperty;
     rdfs:domain :TransformDescribeService;

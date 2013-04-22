@@ -270,7 +270,7 @@
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Page>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
     calli:type "text/html";
-    calli:post <../pipelines/page-render.xpl?results&template={pageTemplate}&target={renderResource}&query={renderResourceQuery}&element={renderXpointerElement}>.
+    calli:post "../pipelines/page-render.xpl?results&template={pageTemplate}&target={renderResource}&query={renderResourceQuery}&element={renderXpointerElement}".
 
 :pageTemplate a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :Render;

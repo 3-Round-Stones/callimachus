@@ -70,9 +70,11 @@ public class SetupTool {
 			+ "}";
 	private static final String SELECT_REALM = PREFIX
 			+ "SELECT ?realm\n"
-			+ "(group_concat(?layout) AS ?layout) (group_concat(?errorPipe) AS ?errorPipe)\n" +
-			"(group_concat(?forbiddenPage) AS ?forbiddenPage) (group_concat(?unauthorizedPage) AS ?unauthorizedPage)\n" +
-			"(group_concat(?authentication) AS ?authentication)\n"
+			+ "(group_concat(if(bound(?layout),str(?layout),\"\")) AS ?layout)\n"
+			+ "(group_concat(if(bound(?errorPipe),str(?errorPipe),\"\")) AS ?errorPipe)\n"
+			+ "(group_concat(if(bound(?forbiddenPage),str(?forbiddenPage),\"\")) AS ?forbiddenPage)\n"
+			+ "(group_concat(if(bound(?unauthorizedPage),str(?unauthorizedPage),\"\")) AS ?unauthorizedPage)\n"
+			+ "(group_concat(if(bound(?authentication),str(?authentication),\"\")) AS ?authentication)\n"
 			+ "WHERE {\n"
 			+ "{ ?realm a </callimachus/1.0/types/Realm> }\n"
 			+ "UNION { ?realm a </callimachus/1.0/types/Origin> }\n"
@@ -300,7 +302,7 @@ public class SetupTool {
 		String auth = stringValue(result.getValue("authentication"));
 		String[] split =  new String[0];
 		if (auth != null && auth.length() > 0) {
-			split = auth.split("\\s+");
+			split = auth.trim().split("\\s+");
 		}
 		return new SetupRealm(realm, webappOrigin, layout, error, forb, unauth,
 				split, repositoryID);

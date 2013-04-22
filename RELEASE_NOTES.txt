@@ -14,7 +14,7 @@ browsers for the best usage experience.
 Chrome 25 has been thoroughly tested.
 Firefox 20 has no known issues.
 Safari 6.1 has known issues.
-Internet Explorer 9 cannot edit textual documents.
+Internet Explorer 9 and 10 cannot edit textual documents.
 
 Details of browser support may be found at:
   http://callimachusproject.org/docs/1.0/articles/browser-support.docbook?view
@@ -39,7 +39,6 @@ server to run.
  * rdf:XMLLiteral on form create auto adds xmlns to elements.
  * When resource labels are updated, referencing resource may not display new
    label until they are modified as well or the callimachus-reset script is run.
- * Safari browser cannot view Turtle or RDF/XML output in describe tab.
  * Safari does not support logging in with email address via digest access.
  * Safari does not retain the login state in all cases.
  * Safari does not support dragging files in the folder view.

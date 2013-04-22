@@ -2,19 +2,19 @@ Callimachus Project Release Notes
 
 http://callimachusproject.org/
 
-12 Februrary 2013
+22 April 2013
 
-= REQUIREMENTS FOR CALLIMACHUS 1.0.1 (Open Source) =
+= REQUIREMENTS FOR CALLIMACHUS 1.1 (Open Source) =
 
 Callimachus works best on browsers that are closely tracking the development
 of HTML5.  At the time of this writing, Callimachus works best on Chrome and
 Firefox.  It is recommended that Callimachus users track updates to their
 browsers for the best usage experience.
 
-Chrome 23 has been thoroughly tested.
-Firefox 17 has no known issues.
-Safari 6 has no known issues, but does not support HTML5 drag-and-drop.
-Internet Explorer 8 and 9 cannot edit textual documents.
+Chrome 25 has been thoroughly tested.
+Firefox 20 has no known issues.
+Safari 6.1 has known issues.
+Internet Explorer 9 cannot edit textual documents.
 
 Details of browser support may be found at:
   http://callimachusproject.org/docs/1.0/articles/browser-support.docbook?view
@@ -22,58 +22,25 @@ Details of browser support may be found at:
 The Callimachus server requires Java JDK 1.6.0_18+ (before 1.7) on the
 server to run.
 
-= NEW IN VERSION 1.0 =
+= NEW IN VERSION 1.1 =
 
-The Callimachus Project now includes a live documentation service.
-Documentation will be updated as features change or problems are found.
-The documentation service is itself a Callimachus application.  Please
-ask if you would like to contribute to Callimachus documentation!
+ * Folder create menu is now dynamic and includes all creatable classes (with icon/comment).
+ * Sidebar operations have been moved to the main menu of the resource view page.
+ * User invitations can now be resent.
+ * New "power" group has read-only access to the RDF store.
+ * New /describe endpoint shows all RDF properties of a resource.
+ * Setup script now auto starts the server and opens a Web browser to register.
+ * Context specific Help links added to most pages.
+ * Diverted URLs are deprecated and their usages reduced.
 
-Documentation for the 1.0 release may be found at:
-  http://callimachusproject.org/docs/1.0/
-
-Built-in support for most types of Persistent URLs (PURLs), including Active
-PURLs.  Partial PURLs are not supported in this release.
-
-XPROC Pipelines allow complex XML transformations to be performed on the
-server. Pipelines can be used to take the sparql-results of a Named Query and
-reformat it into another XML or text format. The result of a pipeline can be
-retrieved by requesting the URL of the pipeline with '?results' appended.
-Pipelines are written using the XProc XML format. More information about them
-can be seen at:
-  http://code.google.com/p/callimachus/wiki/XProcExamples
-
-To set a cache control for a pipeline (or other resource) a Copy (200) PURL can
-be created pointing to the result of the pipeline. In this case the PURL will
-cache the results of the pipeline. For more details about creating PURL see
-http://code.google.com/p/callimachus/wiki/PURLs
-
-Named Queries can now have a custom view page. Using an annotation comment both
-the response Cache-Control header and the view page can be assigned on each
-Named Query. In addition the view page can be a template for the resources in
-the query result. Variables in the query results (one bound variable per
-result/row) can be used as an anchor in the view template. This is done in a
-similar way to how the variable '?this' is used in view templates. However, in a
-query template there many be multiple values and the multiple variables used in
-different sections of the page. The primary use case for this would be to create
-a query view to list resources that match some criteria. For more information see
-http://code.google.com/p/callimachus/wiki/NamedQueries
-
-Authorization can now be performed based on the DNS domain of the client. This
-allows the administrator to make resources public or private simply by changing
-its permissions. Three new groups have been added to simply this process. They
-include "public", "everyone", and "system". The public group represents all
-client agents, everyone group represents all authenticated agents, and the
-system group represents all agents connecting directly from the local machine.
-http://code.google.com/p/callimachus/wiki/Security has more details.
-
-= KNOWN ISSUES IN 1.0.1 =
+= KNOWN ISSUES IN 1.1 =
 
  * All possible options in check boxes must have a label.
  * rdf:XMLLiteral on form create auto adds xmlns to elements.
  * When resource labels are updated, referencing resource may not display new
    label until they are modified as well or the callimachus-reset script is run.
  * Safari browser cannot view Turtle or RDF/XML output in describe tab.
+ * Safari does not support logging in with email address via digest access.
  * Safari does not retain the login state in all cases.
  * Safari does not support dragging files in the folder view.
  * Template variables are only bound if there is at least one triple binding after them
@@ -87,56 +54,12 @@ compiler...FilePermission" exceptions. This is often due to an issue in the
 embedded Java compiler and if so has no impact on the run time behaviour of
 Callimachus.
 
-= HOWTO UPGRADE FROM 0.17 =
+= HOWTO UPGRADE FROM 1.0.1 =
 
-All information saved through a Web browser is saved in the repositories
-directory. This directory should be backed up (in the stopped state) before
-attempting to upgrade.
-
-Stop the 0.17 server using the callimachus-stop script in the bin directory.
+Stop the 1.0.1 server using the callimachus-stop script in the bin directory.
 Remove the lib, bin, tmp, src directories.
 
-Download and unzip the callimachus-0.18.zip file in the install directory of
-the Callimachus 0.17 instance. Run the bin/callimachus-setup.sh/.bat script to
-upgrade the repositories directory. Use the "-K" flag to disabled automatic
-backup. Run the bin/callimachus-start.sh/.bat script to start Callimachus.
-
-Every create template where the form element has no typeof attribute, will need
-to have a typeof="" attribute added (empty attribute value is permitted).
-
-Every create template, that has a onsubmit="return calli.saveResourceAs(event)",
-will need to be replaced with onsubmit="return calli.saveResourceAs(event,
-calli.slugify($('#label').val()))" where "label" is the id of the
-first input field in the form.
-
-Every dropzone in a create or edit template requires a
-ondrop="return calli.insertResource(event)" as shown here:
-http://code.google.com/p/callimachus/wiki/FormPatterns#Range_Relationships
-
-= HOWTO UPGRADE FROM 0.18 =
-
-All information saved through a Web browser is saved in the repositories
-directory. This directory should be backed up (in the stopped state) before
-attempting to upgrade.
-
-Stop the 0.18 server using the callimachus-stop script in the bin directory.
-Remove the lib, bin, tmp, src directories.
-
-Download and unzip the callimachus-1.0.zip file in the install directory of
-the Callimachus 0.18 instance. Run the bin/callimachus-setup.sh/.bat script to
-upgrade the repositories directory. Use the "-K" flag to disabled automatic
-backup. Run the bin/callimachus-start.sh/.bat script to start Callimachus.
-
-= HOWTO UPGRADE FROM 1.0 =
-
-All information saved through a Web browser is saved in the repositories
-directory. This directory should be backed up (in the stopped state) before
-attempting to upgrade.
-
-Stop the 1.0 server using the callimachus-stop script in the bin directory.
-Remove the lib, bin, tmp, src directories.
-
-Download and unzip the callimachus-1.0.1.zip file in the install directory of
+Download and unzip the callimachus-1.1.zip file in the install directory of
 the Callimachus 1.0 instance. Run the bin/callimachus-setup.sh/.bat script to
 upgrade the repositories directory. Use the "-K" flag to disabled automatic
 backup. Run the bin/callimachus-start.sh/.bat script to start Callimachus.

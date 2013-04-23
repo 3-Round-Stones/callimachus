@@ -7,14 +7,13 @@ PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX calli: <http://callimachusproject.org/rdf/2009/framework#>
 
-SELECT DISTINCT (concat('?create=', encode_for_uri(str(?cls))) AS ?url)
-    (max(?label) AS ?label) (max(?comment) AS ?comment) (coalesce(max(?icon),<../images/rdf-icon.png>) AS ?icon)
-    (min(?menu) AS ?menu) (min(?section) AS ?section)
+SELECT (concat('?create=', encode_for_uri(str(?cls))) AS ?url)
+    ?label ?comment ?icon (min(?menu) AS ?menu) (min(?section) AS ?section)
 WHERE {
     ?cls rdf:type/rdfs:subClassOf? <../types/Creatable>;
-        calli:icon ?icon;
         rdfs:label ?label;
         rdfs:comment ?comment;
+        calli:icon ?icon;
         calli:create ?create
     FILTER (?create != <../templates/file-create.xhtml>)
     {
@@ -41,4 +40,4 @@ WHERE {
         BIND (3 AS ?menu)
         BIND (6 AS ?section)
     }
-} GROUP BY ?cls ORDER BY ?menu ?section ?label
+} GROUP BY ?cls ?label ?comment ?icon ORDER BY ?menu ?section ?label

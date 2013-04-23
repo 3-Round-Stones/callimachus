@@ -27,18 +27,18 @@ WHERE {
         BIND (2 AS ?section)
     } UNION {
         ?cls calli:author </auth/groups/staff>
-        BIND (1 AS ?menu)
+        BIND (2 AS ?menu)
         BIND (3 AS ?section)
     } UNION {
         ?cls calli:author </auth/groups/power>
-        BIND (2 AS ?menu)
+        BIND (3 AS ?menu)
         BIND (4 AS ?section)
     } UNION {
         ?cls calli:author </auth/groups/admin>
-        BIND (2 AS ?menu)
+        BIND (3 AS ?menu)
         BIND (5 AS ?section)
     } UNION {
-        BIND (2 AS ?menu)
+        BIND (3 AS ?menu)
         BIND (6 AS ?section)
     }
 } GROUP BY ?cls ORDER BY ?menu ?section ?label

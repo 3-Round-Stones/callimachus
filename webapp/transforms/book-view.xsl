@@ -125,7 +125,7 @@ xmlns="http://www.w3.org/1999/xhtml" xmlns:xhtml="http://www.w3.org/1999/xhtml" 
 <!-- FIXME this should be part of docbook2xhtml -->
 <xsl:template match="d:figure">
     <figure>
-        <xsl:apply-templates select="@xml:id" />
+        <xsl:apply-templates select="@*" />
         <xsl:apply-templates select="d:mediaobject|d:caption" />
         <xsl:if test="not(d:caption)">
             <figcaption>
@@ -137,13 +137,14 @@ xmlns="http://www.w3.org/1999/xhtml" xmlns:xhtml="http://www.w3.org/1999/xhtml" 
 
 <xsl:template match="d:informalfigure">
     <figure>
-        <xsl:apply-templates select="@xml:id" />
+        <xsl:apply-templates select="@*" />
         <xsl:apply-templates select="d:mediaobject|d:caption" />
     </figure>
 </xsl:template>
 
 <xsl:template match="d:figure/d:caption|d:informalfigure/d:caption">
     <figcaption>
+        <xsl:apply-templates select="@*" />
         <xsl:apply-templates />
     </figcaption>
 </xsl:template>
@@ -217,6 +218,7 @@ xmlns="http://www.w3.org/1999/xhtml" xmlns:xhtml="http://www.w3.org/1999/xhtml" 
                 <xsl:value-of select="'color:red'" />
             </xsl:attribute>
         </xsl:if>
+        <xsl:apply-templates select="@*[name()!='linkend' and name()!='xml:id']" />
         <xsl:apply-templates />
     </a>
 </xsl:template>

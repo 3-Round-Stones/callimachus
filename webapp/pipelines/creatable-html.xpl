@@ -15,7 +15,7 @@
 
     <p:variable name="targetOrSystem" select="if($target)then $target else base-uri()" />
     <p:variable name="find-realm-uri" select="concat('../queries/find-realm.rq?results&amp;target=', encode-for-uri($targetOrSystem))" />
-    <p:variable name="realm" select="doc($find-realm-uri)//sparql:uri" />
+    <p:variable name="realm" select="doc($find-realm-uri)//sparql:binding[@name='realm']/sparql:uri" />
 
     <calli:page-layout>
         <p:with-option name="realm" select="$realm" />

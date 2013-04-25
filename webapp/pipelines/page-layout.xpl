@@ -17,7 +17,7 @@
         <p:with-option name="href" select="concat('../queries/realm-layout.rq?results&amp;realm=', encode-for-uri($realm))" />
     </p:load>
     <p:add-attribute match="c:request" attribute-name="href">
-        <p:with-option name="attribute-value" select="//sparql:binding[@name='layout']/*/text()">
+        <p:with-option name="attribute-value" select="//sparql:binding[@name='layout']/sparql:uri/text()">
             <p:pipe step="realm-load" port="result" />
         </p:with-option>
         <p:input port="source">

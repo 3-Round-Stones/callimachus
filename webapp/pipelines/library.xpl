@@ -58,7 +58,7 @@
         </p:load>
 
         <p:group>
-            <p:variable name="realm" select="//sparql:uri">
+            <p:variable name="realm" select="//sparql:binding[@name='realm']/sparql:uri">
                 <p:pipe step="realm" port="result" />
             </p:variable>
 

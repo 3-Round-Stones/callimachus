@@ -686,11 +686,27 @@
 </xsl:template>
 
 <xsl:template match="d:varname">
-    <code class="varname">
+    <var>
         <xsl:apply-templates select="@*" />
         <xsl:apply-templates mode="anchor" select="@xml:id" />
         <xsl:apply-templates />
-    </code>
+    </var>
+</xsl:template>
+
+<xsl:template match="d:computeroutput">
+    <samp>
+        <xsl:apply-templates select="@*" />
+        <xsl:apply-templates mode="anchor" select="@xml:id" />
+        <xsl:apply-templates />
+    </samp>
+</xsl:template>
+
+<xsl:template match="d:quote">
+    <q>
+        <xsl:apply-templates select="@*" />
+        <xsl:apply-templates mode="anchor" select="@xml:id" />
+        <xsl:apply-templates />
+    </q>
 </xsl:template>
 
 <xsl:template match="d:emphasis[@role='bold']">

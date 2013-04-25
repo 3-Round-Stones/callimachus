@@ -526,7 +526,7 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
     </function>
 </xsl:template>
 
-<xsl:template match="xhtml:code[@class='varname']">
+<xsl:template match="xhtml:var|xhtml:code[@class='varname']">
     <varname>
         <xsl:call-template name="id" />
         <xsl:apply-templates />
@@ -545,6 +545,22 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
         <xsl:call-template name="id" />
         <xsl:apply-templates />
     </literal>
+</xsl:template>
+
+<xsl:template match="xhtml:samp">
+    <computeroutput>
+        <xsl:call-template name="id" />
+        <xsl:apply-templates select="@*" />
+        <xsl:apply-templates />
+    </computeroutput>
+</xsl:template>
+
+<xsl:template match="xhtml:q">
+    <quote>
+        <xsl:call-template name="id" />
+        <xsl:apply-templates select="@*" />
+        <xsl:apply-templates />
+    </quote>
 </xsl:template>
 
 <xsl:template match="xhtml:b">

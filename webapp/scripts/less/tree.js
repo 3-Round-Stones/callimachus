@@ -1,5 +1,33 @@
 (function (tree) {
 
+tree.debugInfo = function(env, ctx) {
+    var result="";
+    if (env.dumpLineNumbers && !env.compress) {
+        switch(env.dumpLineNumbers) {
+            case 'comments':
+                result = tree.debugInfo.asComment(ctx);
+                break;
+            case 'mediaquery':
+                result = tree.debugInfo.asMediaQuery(ctx);
+                break;
+            case 'all':
+                result = tree.debugInfo.asComment(ctx)+tree.debugInfo.asMediaQuery(ctx);
+                break;
+        }
+    }
+    return result;
+};
+
+tree.debugInfo.asComment = function(ctx) {
+    return '/* line ' + ctx.debugInfo.lineNumber + ', ' + ctx.debugInfo.fileName + ' */\n';
+};
+
+tree.debugInfo.asMediaQuery = function(ctx) {
+    return '@media -sass-debug-info{filename{font-family:' +
+        ('file://' + ctx.debugInfo.fileName).replace(/[\/:.]/g, '\\$&') +
+        '}line{font-family:\\00003' + ctx.debugInfo.lineNumber + '}}\n';
+};
+
 tree.isArray = Array.isArray ? Array.isArray : function(obj) {
     return Object.prototype.toString.call(obj) === "[object Array]" ||
            (obj instanceof Array);

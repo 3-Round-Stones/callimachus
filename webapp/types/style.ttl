@@ -158,9 +158,11 @@
     <../scripts/less/tree/operation.js>
     <../scripts/less/tree/paren.js>
     <../scripts/less/tree/quoted.js>
+    <../scripts/less/tree/ratio.js>
     <../scripts/less/tree/rule.js>
     <../scripts/less/tree/ruleset.js>
     <../scripts/less/tree/selector.js>
+    <../scripts/less/tree/unicode-descriptor.js>
     <../scripts/less/tree/url.js>
     <../scripts/less/tree/value.js>
     <../scripts/less/tree/variable.js>

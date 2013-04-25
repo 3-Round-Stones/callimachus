@@ -22,18 +22,28 @@ jQuery(function($) {
         ,
         coreStyles_bold: { element: 'strong' }, // convert bold to <strong>
         coreStyles_italic: { element: 'em' },   // convert italic to <em>
-                
-        toolbar: [
-            { name: 'styles', items: [ '!Styles', 'Format' ] },
-            { name: 'clipboard', items: [ 'Undo', 'Redo'] },
-        	{ name: 'basicstyles', items: [ 'Bold', 'Italic', '!Strike', 'Subscript', 'Superscript' ] },
-        	{ name: 'paragraph', items: [ 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', '-', '!JustifyLeft', '!JustifyCenter', '!JustifyRight' ] },
-        	{ name: 'links', items: [ 'Link', 'Unlink', 'Anchor' ] },
-        	{ name: 'insert', items: [ 'Image', 'Table' ] },
-            { name: 'paste', items: [ '!PasteText', '!PasteFromWord'] }
-        ],
         
-        format_tags: 'p;h1;h2;h3;h4;h5;h6;pre',
+        removeButtons: 'Underline,Strike,ShowBlocks,Iframe',
+        
+        format_tags: 'p;h1;h2;h3;h4;h5;h6',
+        
+        stylesSet: [
+        	{ name: 'Computer Code',	element: 'code' },
+        	{ name: 'Sample Text',		element: 'samp' },
+        	{ name: 'Variable',			element: 'var' },
+            { name: 'Class Name',    	element: 'code', attributes: { 'class': 'classname' } },
+            { name: 'Property',        	element: 'code', attributes: { 'class': 'property' } },
+            { name: 'Symbol',        	element: 'code', attributes: { 'class': 'symbol' } },
+            { name: 'Token',        	element: 'code', attributes: { 'class': 'token' } },
+            { name: 'Parameter',        element: 'code', attributes: { 'class': 'parameter' } },
+            { name: 'File Name',    	element: 'code', attributes: { 'class': 'filename' } },
+            { name: 'Function',        	element: 'code', attributes: { 'class': 'function' } },
+            { name: 'URI',        	    element: 'code', attributes: { 'class': 'uri' } },
+            { name: 'Literal',        	element: 'code', attributes: { 'class': 'literal' } },
+        
+        	{ name: 'Cited Work',		element: 'cite' },
+        	{ name: 'Inline Quotation',	element: 'q' }
+        ],
         
         on: {
             instanceReady: function() {
@@ -177,6 +187,9 @@ jQuery(function($) {
         };
         parser.onTagOpen = function(tagName, attributes, selfClosing) {
             xhtml.push('<', tagName.toLowerCase());
+            if ("html" == tagName.toLowerCase() && !attributes['xmlns']) {
+                xhtml.push(' xmlns="http://www.w3.org/1999/xhtml"');
+            }
             for (var name in attributes) {
                 var value = attributes[name];
                 var decoded = calli.decodeHtmlText(value);
@@ -327,6 +340,13 @@ jQuery(function($) {
     editor.getXhtml = function() {
         return parseHtml(this.getData());
     }
+    
+    $('#form').submit(function(event){
+        event.preventDefault();
+        var text = editor.getXhtml();
+        parent.postMessage('PUT text\n\n' + text, '*');
+        return false;
+    });
     
     // warn the user before leaving a changed but unsaved article
     window.onbeforeunload = function(event){

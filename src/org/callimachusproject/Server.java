@@ -230,7 +230,9 @@ public class Server {
 	}
 
 	public void stop() throws Exception {
-		node.stop();
+		if (node != null) {
+			node.stop();
+		}
 	}
 
 	public void destroy() throws Exception {

@@ -299,7 +299,24 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
     </xsl:if>
     <imageobject>
         <imagedata>
-            <xsl:apply-templates select="@*" />
+            <xsl:choose>
+                <xsl:when test="@align">
+                    <xsl:attribute name="align">
+                        <xsl:value-of select="@align" />
+                    </xsl:attribute>
+                </xsl:when>
+                <xsl:when test="contains(@style, 'float:left')">
+                    <xsl:attribute name="align">
+                        <xsl:text>left</xsl:text>
+                    </xsl:attribute>
+                </xsl:when>
+                <xsl:when test="contains(@style, 'float:right')">
+                    <xsl:attribute name="align">
+                        <xsl:text>right</xsl:text>
+                    </xsl:attribute>
+                </xsl:when>
+            </xsl:choose>
+            <xsl:apply-templates select="@*[name()!= 'alt' and name()!='title' and name()!='align']" />
         </imagedata>
     </imageobject>
     <xsl:if test="@title">

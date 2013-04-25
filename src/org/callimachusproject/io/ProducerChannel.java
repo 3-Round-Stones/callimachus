@@ -77,7 +77,9 @@ public class ProducerChannel implements ReadableByteChannel {
 				} catch (ClosedChannelException e) {
 					// exit
 				} catch (IOException e) {
-					throwable = e;
+					if (!"Broken pipe".equals(e.getMessage())) {
+						throwable = e;
+					}
 				} catch (RuntimeException e) {
 					throwable = e;
 				} catch (Error e) {

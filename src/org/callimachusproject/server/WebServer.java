@@ -67,6 +67,7 @@ import org.apache.http.impl.nio.DefaultHttpServerIODispatch;
 import org.apache.http.impl.nio.DefaultNHttpServerConnectionFactory;
 import org.apache.http.impl.nio.SSLNHttpServerConnectionFactory;
 import org.apache.http.impl.nio.reactor.DefaultListeningIOReactor;
+import org.apache.http.impl.nio.reactor.IOReactorConfig;
 import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.NHttpServerConnection;
 import org.apache.http.nio.protocol.HttpAsyncRequestHandlerRegistry;
@@ -193,10 +194,11 @@ public class WebServer extends AbstractHttpClient implements WebServerMXBean, IO
 				new ResponseConnControl() });
 		HttpRequestFactory rfactory = new AnyHttpMethodRequestFactory();
 		HeapByteBufferAllocator allocator = new HeapByteBufferAllocator();
+		IOReactorConfig config = createIOReactorConfig();
 		// Create server-side I/O event dispatch
 		dispatch = createIODispatch(rfactory, allocator);
 		// Create server-side I/O reactor
-		server = new DefaultListeningIOReactor();
+		server = new DefaultListeningIOReactor(config);
 		server.setExceptionHandler(this);
 		if (System.getProperty("javax.net.ssl.keyStore") != null) {
 			try {
@@ -204,7 +206,7 @@ public class WebServer extends AbstractHttpClient implements WebServerMXBean, IO
 				// Create server-side I/O event dispatch
 				ssldispatch = createSSLDispatch(sslcontext, rfactory, allocator);
 				// Create server-side I/O reactor
-				sslserver = new DefaultListeningIOReactor();
+				sslserver = new DefaultListeningIOReactor(config);
 				sslserver.setExceptionHandler(this);
 			} catch (NoSuchAlgorithmException e) {
 				logger.warn(e.toString(), e);
@@ -268,6 +270,18 @@ public class WebServer extends AbstractHttpClient implements WebServerMXBean, IO
 		params.setBooleanParameter(STALE_CONNECTION_CHECK, false);
 		params.setBooleanParameter(TCP_NODELAY, false);
 		return params;
+	}
+
+	private IOReactorConfig createIOReactorConfig() {
+		IOReactorConfig config = new IOReactorConfig();
+		config.setConnectTimeout(timeout);
+		config.setIoThreadCount(Runtime.getRuntime().availableProcessors());
+		config.setSndBufSize(8 * 1024);
+		config.setSoKeepalive(true);
+		config.setSoReuseAddress(true);
+		config.setSoTimeout(timeout);
+		config.setTcpNoDelay(false);
+		return config;
 	}
 
 	private HttpAsyncService createProtocolHandler(HttpProcessor httpproc,

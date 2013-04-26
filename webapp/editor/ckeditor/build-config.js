@@ -57,7 +57,6 @@ var CKBUILDER_CONFIG = {
 		'listblock' : 1,
 		'richcombo' : 1,
 		'stylescombo' : 1,
-		'backup' : 1,
 		'insertpre' : 1,
 		'htmlwriter' : 1,
 		'format' : 1,

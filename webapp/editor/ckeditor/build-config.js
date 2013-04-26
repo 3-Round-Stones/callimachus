@@ -53,7 +53,6 @@ var CKBUILDER_CONFIG = {
 		'specialchar' : 1,
 		'table' : 1,
 		'tabletools' : 1,
-		'wsc' : 1,
 		'listblock' : 1,
 		'richcombo' : 1,
 		'stylescombo' : 1,

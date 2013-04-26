@@ -28,21 +28,22 @@ jQuery(function($) {
         format_tags: 'p;h1;h2;h3;h4;h5;h6',
         
         stylesSet: [
-        	{ name: 'Computer Code',	element: 'code' },
-        	{ name: 'Sample Text',		element: 'samp' },
-        	{ name: 'Variable',			element: 'var' },
-            { name: 'Class Name',    	element: 'code', attributes: { 'class': 'classname' } },
-            { name: 'Property',        	element: 'code', attributes: { 'class': 'property' } },
-            { name: 'Symbol',        	element: 'code', attributes: { 'class': 'symbol' } },
-            { name: 'Token',        	element: 'code', attributes: { 'class': 'token' } },
+            { name: 'Cited Work',       element: 'cite' },
+            { name: 'Inline Quotation', element: 'q' },
+
+            { name: 'Sample Text',      element: 'samp' },
+            { name: 'Variable',         element: 'var' },
+
+            { name: 'Computer Code',    element: 'code' },
+            { name: 'Class Name',       element: 'code', attributes: { 'class': 'classname' } },
+            { name: 'Property',         element: 'code', attributes: { 'class': 'property' } },
+            { name: 'Symbol',           element: 'code', attributes: { 'class': 'symbol' } },
+            { name: 'Token',            element: 'code', attributes: { 'class': 'token' } },
             { name: 'Parameter',        element: 'code', attributes: { 'class': 'parameter' } },
-            { name: 'File Name',    	element: 'code', attributes: { 'class': 'filename' } },
-            { name: 'Function',        	element: 'code', attributes: { 'class': 'function' } },
-            { name: 'URI',        	    element: 'code', attributes: { 'class': 'uri' } },
-            { name: 'Literal',        	element: 'code', attributes: { 'class': 'literal' } },
-        
-        	{ name: 'Cited Work',		element: 'cite' },
-        	{ name: 'Inline Quotation',	element: 'q' }
+            { name: 'File Name',        element: 'code', attributes: { 'class': 'filename' } },
+            { name: 'Function',         element: 'code', attributes: { 'class': 'function' } },
+            { name: 'URI',              element: 'code', attributes: { 'class': 'uri' } },
+            { name: 'Literal',          element: 'code', attributes: { 'class': 'literal' } }
         ],
         
         on: {

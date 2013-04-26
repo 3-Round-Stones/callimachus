@@ -131,13 +131,16 @@ public class EmbeddedScriptFactory {
 		warnIfKeywordUsed(code);
 		Thread current = Thread.currentThread();
 		ClassLoader previously = current.getContextClassLoader();
-		current.setContextClassLoader(cl);
-		ScriptEngineManager man = new ScriptEngineManager();
-		ScriptEngine engine = man.getEngineByName("rhino");
-		current.setContextClassLoader(previously);
-		engine.put(ScriptEngine.FILENAME, systemId);
-		engine.eval(code);
-		return new EmbeddedScript(engine, getInvokeName(), context.getBindingNames(), systemId);
+		try {
+			current.setContextClassLoader(cl);
+			ScriptEngineManager man = new ScriptEngineManager();
+			ScriptEngine engine = man.getEngineByName("rhino");
+			engine.put(ScriptEngine.FILENAME, systemId);
+			engine.eval(code);
+			return new EmbeddedScript(engine, getInvokeName(), context.getBindingNames(), systemId);
+		} finally {
+			current.setContextClassLoader(previously);
+		}
 	}
 
 	private String getInvokeName() {

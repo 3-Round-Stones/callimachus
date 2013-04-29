@@ -167,12 +167,16 @@ public class WebResource {
 		con.setRequestProperty("Accept-Encoding", "gzip");
 		Assert.assertEquals(con.getResponseMessage(), 200, con.getResponseCode());
 		InputStream in = con.getInputStream();
-		if ("gzip".equals(con.getHeaderField("Content-Encoding"))) {
-			in = new GZIPInputStream(in);
+		try {
+			if ("gzip".equals(con.getHeaderField("Content-Encoding"))) {
+				in = new GZIPInputStream(in);
+			}
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
+			ChannelUtil.transfer(in, out);
+			return out.toByteArray();
+		} finally {
+			in.close();
 		}
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		ChannelUtil.transfer(in, out);
-		return out.toByteArray();
 	}
 
 	public byte[] post(String type, byte[] body, String accept) throws IOException {
@@ -190,12 +194,16 @@ public class WebResource {
 		}
 		Assert.assertEquals(con.getResponseMessage(), 200, con.getResponseCode());
 		InputStream in = con.getInputStream();
-		if ("gzip".equals(con.getHeaderField("Content-Encoding"))) {
-			in = new GZIPInputStream(in);
+		try {
+			if ("gzip".equals(con.getHeaderField("Content-Encoding"))) {
+				in = new GZIPInputStream(in);
+			}
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
+			ChannelUtil.transfer(in, out);
+			return out.toByteArray();
+		} finally {
+			in.close();
 		}
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		ChannelUtil.transfer(in, out);
-		return out.toByteArray();
 	}
 
 	public void post(String type, byte[] body) throws IOException {

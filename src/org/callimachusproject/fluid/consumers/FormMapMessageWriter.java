@@ -177,14 +177,14 @@ public class FormMapMessageWriter implements Consumer<Map<String, Object>> {
 		if (mtype.isUnknown() && value != null) {
 			mtype = mtype.as(value.getClass());
 		}
-		ByteArrayOutputStream out = new ByteArrayOutputStream(1024);
 		ReadableByteChannel in = delegate.consume(value, base, mtype)
 				.asChannel("text/plain;charset=ISO-8859-1");
 		try {
+			ByteArrayOutputStream out = new ByteArrayOutputStream(1024);
 			ChannelUtil.transfer(in, out);
+			return out.toString("ISO-8859-1");
 		} finally {
 			in.close();
 		}
-		return out.toString("ISO-8859-1");
 	}
 }

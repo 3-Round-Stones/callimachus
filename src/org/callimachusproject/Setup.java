@@ -425,11 +425,16 @@ public class Setup {
 			public void run() {
 				try {
 					InputStream in = exec.getInputStream();
-					InputStreamReader isr = new InputStreamReader(in);
-					BufferedReader br = new BufferedReader(isr);
-					String line = null;
-					while ((line = br.readLine()) != null)
-						System.out.println(line);
+					try {
+						InputStreamReader isr = new InputStreamReader(in);
+						BufferedReader br = new BufferedReader(isr);
+						String line = null;
+						while ((line = br.readLine()) != null) {
+							System.out.println(line);
+						}
+					} finally {
+						in.close();
+					}
 				} catch (IOException ioe) {
 					logger.error(ioe.getMessage(), ioe);
 				}
@@ -439,13 +444,17 @@ public class Setup {
 			@Override
 			public void run() {
 				try {
-					exec.getOutputStream().close();
 					InputStream stderr = exec.getErrorStream();
-					InputStreamReader isr = new InputStreamReader(stderr);
-					BufferedReader br = new BufferedReader(isr);
-					String line = null;
-					while ((line = br.readLine()) != null) {
-						System.err.println(line);
+					try {
+						exec.getOutputStream().close();
+						InputStreamReader isr = new InputStreamReader(stderr);
+						BufferedReader br = new BufferedReader(isr);
+						String line = null;
+						while ((line = br.readLine()) != null) {
+							System.err.println(line);
+						}
+					} finally {
+						stderr.close();
 					}
 				} catch (IOException ioe) {
 					logger.error(ioe.getMessage(), ioe);

@@ -69,7 +69,8 @@ INSERT {
         <../javascript-editor.html>,
         <../sparql-editor.html>,
         <../text-editor.html>,
-        <../xml-editor.html>.
+        <../xml-editor.html>,
+        <../xquery-editor.html>.
 } WHERE {
 	FILTER NOT EXISTS { <../> a calli:Folder }
 };
@@ -286,6 +287,17 @@ INSERT {
 } WHERE {
     BIND (str(<editor/text-editor.html#xml>) AS ?alternate)
 	FILTER NOT EXISTS { <../xml-editor.html> a calli:PURL }
+};
+
+INSERT {
+<../xquery-editor.html> a <types/PURL>, calli:PURL ;
+	rdfs:label "xquery-editor.html";
+	calli:alternate ?alternate;
+	calli:administrator </auth/groups/super>;
+	calli:reader </auth/groups/public> .
+} WHERE {
+    BIND (str(<editor/text-editor.html#xquery>) AS ?alternate)
+	FILTER NOT EXISTS { <../xquery-editor.html> a calli:PURL }
 };
 
 ################################

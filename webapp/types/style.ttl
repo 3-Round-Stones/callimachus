@@ -136,38 +136,7 @@
             return window.less[arg.split('/')[1]];
         };
     """
-    <../scripts/less/parser.js>
-    <../scripts/less/functions.js>
-    <../scripts/less/colors.js>
-    <../scripts/less/tree/alpha.js>
-    <../scripts/less/tree/anonymous.js>
-    <../scripts/less/tree/assignment.js>
-    <../scripts/less/tree/call.js>
-    <../scripts/less/tree/color.js>
-    <../scripts/less/tree/comment.js>
-    <../scripts/less/tree/condition.js>
-    <../scripts/less/tree/dimension.js>
-    <../scripts/less/tree/directive.js>
-    <../scripts/less/tree/element.js>
-    <../scripts/less/tree/expression.js>
-    <../scripts/less/tree/import.js>
-    <../scripts/less/tree/javascript.js>
-    <../scripts/less/tree/keyword.js>
-    <../scripts/less/tree/media.js>
-    <../scripts/less/tree/mixin.js>
-    <../scripts/less/tree/operation.js>
-    <../scripts/less/tree/paren.js>
-    <../scripts/less/tree/quoted.js>
-    <../scripts/less/tree/ratio.js>
-    <../scripts/less/tree/rule.js>
-    <../scripts/less/tree/ruleset.js>
-    <../scripts/less/tree/selector.js>
-    <../scripts/less/tree/unicode-descriptor.js>
-    <../scripts/less/tree/url.js>
-    <../scripts/less/tree/value.js>
-    <../scripts/less/tree/variable.js>
-    <../scripts/less/tree.js>
-    <../scripts/less/browser.js>
+    <../scripts/less.js>
     """
         var client = new HttpOriginClient(this.toString());
         var contents = {};

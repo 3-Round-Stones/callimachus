@@ -1,8 +1,25 @@
+define("ace/mode/sparql", function(require, exports, module) {
+
+var oop = require("../lib/oop");
+var TextMode = require("./text").Mode;
+var Tokenizer = require("../tokenizer").Tokenizer;
+var SparqlHighlightRules = require("./sparql_highlight_rules").SparqlHighlightRules;
+var MatchingBraceOutdent = require("./matching_brace_outdent").MatchingBraceOutdent;
+var Range = require("../range").Range;
+
+var Mode = function() {
+  this.$tokenizer = new Tokenizer(new SparqlHighlightRules().getRules());
+};
+oop.inherits(Mode, TextMode);
+
+exports.Mode = Mode;
+
+});
 define("ace/mode/sparql_highlight_rules", function(require, exports, module) {
 
-var oop = require("pilot/oop");
-var lang = require("pilot/lang");
-var TextHighlightRules = require("ace/mode/text_highlight_rules").TextHighlightRules;
+var oop = require("../lib/oop");
+var lang = require("../lib/lang");
+var TextHighlightRules = require("./text_highlight_rules").TextHighlightRules;
 
 var SparqlHighlightRules = function() {
 

@@ -9,26 +9,21 @@
 
 <text_bundle> a calli:ScriptBundle;
     calli:reader </auth/groups/public>;
-    rdf:_1 <ace/ace-uncompressed.js>;
-    rdf:_2 <ace/css_highlight_rules.js>;
-    rdf:_3 <ace/css.js>;
-    rdf:_4 <ace/cstyle.js>;
-    rdf:_5 <ace/doc_comment_highlight_rules.js>;
-    rdf:_6 <ace/html_highlight_rules.js>;
-    rdf:_7 <ace/html.js>;
-    rdf:_8 <ace/javascript_highlight_rules.js>;
-    rdf:_9 <ace/javascript.js>;
-    rdf:_10 <ace/matching_brace_outdent.js>;
-    rdf:_11 <ace/sparql_highlight_rules.js>;
-    rdf:_12 <ace/sparql.js>;
-    rdf:_13 <ace/worker_client.js>;
-    rdf:_14 <ace/xml.js>;
-    rdf:_15 <ace/xml_highlight_rules.js>;
-    rdf:_16 <ace/xml_mode.js>;
-    rdf:_17 <../scripts/jquery.js>;
-    rdf:_18 <../scripts/error.js>;
-    rdf:_19 <../scripts/location.js>;
-    rdf:_20 <text-editor.js>.
+    rdf:_1 <ace/ace.js>;
+    rdf:_2 <ace/mode-css.js>;
+    rdf:_3 <ace/mode-html.js>;
+    rdf:_4 <ace/mode-javascript.js>;
+    rdf:_5 <ace/mode-json.js>;
+    rdf:_6 <ace/mode-less.js>;
+    rdf:_7 <ace/mode-sparql.js>;
+    rdf:_8 <ace/mode-svg.js>;
+    rdf:_9 <ace/mode-text.js>;
+    rdf:_10 <ace/mode-xml.js>;
+    rdf:_11 <ace/mode-xquery.js>;
+    rdf:_12 <../scripts/jquery.js>;
+    rdf:_13 <../scripts/error.js>;
+    rdf:_14 <../scripts/location.js>;
+    rdf:_15 <text-editor.js>.
 
 <ckeditor_bundle> a calli:ScriptBundle ;
     calli:reader </auth/groups/public>;

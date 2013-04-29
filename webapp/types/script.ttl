@@ -109,6 +109,8 @@
             var options = new com.google.javascript.jscomp.CompilerOptions();
             var extern = com.google.javascript.jscomp.SourceFile.fromCode("nil","");
             var input = com.google.javascript.jscomp.SourceFile.fromReader(this.toString(), saved);
+            options.setLanguageIn(com.google.javascript.jscomp.CompilerOptions.LanguageMode.ECMASCRIPT5);
+            options.setLanguageOut(com.google.javascript.jscomp.CompilerOptions.LanguageMode.ECMASCRIPT5);
             compiler.compile(extern, input, options);
             var errors = compiler.getErrors();
             if (errors.length) {

@@ -53,7 +53,7 @@ jQuery(function($) {
         }
     };
 
-    require('pilot/canon').addCommand({
+    editor.commands.addCommand({
         name: 'save',
         bindKey: {
             win: 'Ctrl-S',

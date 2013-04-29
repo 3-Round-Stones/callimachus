@@ -58,9 +58,7 @@ public class ByteArrayStreamMessageReader implements Producer {
 			ChannelUtil.transfer(in, out);
 			return out;
 		} finally {
-			if (in != null) {
-				in.close();
-			}
+			in.close();
 		}
 	}
 }

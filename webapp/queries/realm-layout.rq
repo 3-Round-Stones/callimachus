@@ -7,11 +7,11 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX calli: <http://callimachusproject.org/rdf/2009/framework#>
 
 SELECT
-    (if(bound(?layout),?layout,<../transforms/default-layout.xq>) AS ?layout)
+    (coalesce(?l,<../transforms/default-layout.xq>) AS ?layout)
 WHERE {
     {
         <$realm> a calli:Realm
     } OPTIONAL {
-        <$realm> calli:layout ?layout
+        <$realm> calli:layout ?l
     }
 }

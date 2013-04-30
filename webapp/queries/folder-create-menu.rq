@@ -8,7 +8,7 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX calli: <http://callimachusproject.org/rdf/2009/framework#>
 
 SELECT (concat('?create=', encode_for_uri(str(?cls))) AS ?url)
-    ?label ?comment ?icon (min(?menu) AS ?menu) (min(?section) AS ?section)
+    ?label ?comment ?icon (min(?m) AS ?menu) (min(?s) AS ?section)
 WHERE {
     ?cls rdf:type/rdfs:subClassOf? <../types/Creatable>;
         rdfs:label ?label;
@@ -18,26 +18,26 @@ WHERE {
     FILTER (?create != <../templates/file-create.xhtml>)
     {
         ?cls calli:author </auth/groups/everyone>
-        BIND (1 AS ?menu)
-        BIND (1 AS ?section)
+        BIND (1 AS ?m)
+        BIND (1 AS ?s)
     } UNION {
         ?cls calli:author </auth/groups/users>
-        BIND (1 AS ?menu)
-        BIND (2 AS ?section)
+        BIND (1 AS ?m)
+        BIND (2 AS ?s)
     } UNION {
         ?cls calli:author </auth/groups/staff>
-        BIND (2 AS ?menu)
-        BIND (3 AS ?section)
+        BIND (2 AS ?m)
+        BIND (3 AS ?s)
     } UNION {
         ?cls calli:author </auth/groups/power>
-        BIND (3 AS ?menu)
-        BIND (4 AS ?section)
+        BIND (3 AS ?m)
+        BIND (4 AS ?s)
     } UNION {
         ?cls calli:author </auth/groups/admin>
-        BIND (3 AS ?menu)
-        BIND (5 AS ?section)
+        BIND (3 AS ?m)
+        BIND (5 AS ?s)
     } UNION {
-        BIND (3 AS ?menu)
-        BIND (6 AS ?section)
+        BIND (3 AS ?m)
+        BIND (6 AS ?s)
     }
 } GROUP BY ?cls ?label ?comment ?icon ORDER BY ?menu ?section ?label

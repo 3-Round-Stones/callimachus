@@ -32,10 +32,15 @@ import info.aduna.iteration.Iterations;
 
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
 import org.callimachusproject.fluid.producers.base.MessageReaderBase;
 import org.openrdf.model.Model;
+import org.openrdf.model.Namespace;
 import org.openrdf.model.impl.LinkedHashModel;
+import org.openrdf.model.impl.NamespaceImpl;
 import org.openrdf.query.GraphQueryResult;
 import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.rio.RDFFormat;
@@ -61,7 +66,12 @@ public class ModelMessageReader extends
 	public Model readFrom(RDFParserFactory factory, ReadableByteChannel in,
 			Charset charset, String base) throws QueryEvaluationException {
 		GraphQueryResult result = delegate.readFrom(factory, in, charset, base);
-		return new LinkedHashModel(result.getNamespaces(), Iterations
+		Map<String, String> map = result.getNamespaces();
+		Set<Namespace> namespaces = new LinkedHashSet<Namespace>(map.size());
+		for (Map.Entry<String, String> e : map.entrySet()) {
+			namespaces.add(new NamespaceImpl(e.getKey(), e.getValue()));
+		}
+		return new LinkedHashModel(namespaces, Iterations
 				.asList(result));
 	}
 }

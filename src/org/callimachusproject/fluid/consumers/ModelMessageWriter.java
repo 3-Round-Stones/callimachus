@@ -29,11 +29,16 @@
  */
 package org.callimachusproject.fluid.consumers;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
+
 import org.callimachusproject.fluid.Consumer;
 import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
 import org.openrdf.model.Model;
+import org.openrdf.model.Namespace;
 import org.openrdf.query.GraphQueryResult;
 import org.openrdf.query.impl.GraphQueryResultImpl;
 
@@ -60,7 +65,12 @@ public class ModelMessageWriter implements Consumer<Model> {
 			final FluidType ftype, final FluidBuilder builder) {
 		GraphQueryResult result = null;
 		if (model != null) {
-			result = new GraphQueryResultImpl(model.getNamespaces(), model);
+			Set<Namespace> namespaces = model.getNamespaces();
+			Map<String, String> map = new LinkedHashMap<String, String>(namespaces.size());
+			for (Namespace ns : namespaces) {
+				map.put(ns.getPrefix(), ns.getName());
+			}
+			result = new GraphQueryResultImpl(map, model);
 		}
 		return delegate.consume(result, base, ftype.as(GraphQueryResult.class),
 				builder);

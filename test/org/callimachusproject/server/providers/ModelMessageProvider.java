@@ -11,7 +11,10 @@ import java.io.OutputStreamWriter;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Executor;
 
 import javax.ws.rs.WebApplicationException;
@@ -25,8 +28,10 @@ import javax.ws.rs.ext.MessageBodyWriter;
 import org.callimachusproject.concurrent.ManagedExecutors;
 import org.callimachusproject.server.util.BackgroundGraphResult;
 import org.openrdf.model.Model;
+import org.openrdf.model.Namespace;
 import org.openrdf.model.Statement;
 import org.openrdf.model.impl.LinkedHashModel;
+import org.openrdf.model.impl.NamespaceImpl;
 import org.openrdf.query.GraphQueryResult;
 import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.impl.GraphQueryResultImpl;
@@ -74,7 +79,11 @@ public class ModelMessageProvider implements MessageBodyReader<Model>,
 		result = new BackgroundGraphResult(parser, in, charset, base);
 		executor.execute(result);
 		try {
-			Map<String, String> ns = result.getNamespaces();
+			Map<String, String> map = result.getNamespaces();
+			Set<Namespace> ns = new LinkedHashSet<Namespace>(map.size());
+			for (Map.Entry<String, String> e : map.entrySet()) {
+				ns.add(new NamespaceImpl(e.getKey(), e.getValue()));
+			}
 			return new LinkedHashModel(ns, Iterations.asList(result));
 		} catch (QueryEvaluationException e) {
 			e.printStackTrace(System.err);
@@ -99,8 +108,12 @@ public class ModelMessageProvider implements MessageBodyReader<Model>,
 			MultivaluedMap<String, Object> httpHeaders, OutputStream out)
 			throws IOException, WebApplicationException {
 		httpHeaders.putSingle("Content-Type", getContentType(mediaType));
-		GraphQueryResult result = new GraphQueryResultImpl(model
-				.getNamespaces(), model);
+		Set<Namespace> namespaces = model.getNamespaces();
+		Map<String, String> map = new LinkedHashMap<String, String>(namespaces.size());
+		for (Namespace ns : namespaces) {
+			map.put(ns.getPrefix(), ns.getName());
+		}
+		GraphQueryResult result = new GraphQueryResultImpl(map, model);
 		RDFWriterFactory factory = getWriterFactory(mediaType);
 		Charset charset = getCharset(mediaType, null);
 		RDFWriter writer = getWriter(out, charset, factory);
@@ -108,8 +121,8 @@ public class ModelMessageProvider implements MessageBodyReader<Model>,
 		// writer.setBaseURI(base);
 		try {
 			writer.startRDF();
-			for (String prefix : model.getNamespaces().keySet()) {
-				writer.handleNamespace(prefix, model.getNamespace(prefix));
+			for (Namespace ns : model.getNamespaces()) {
+				writer.handleNamespace(ns.getPrefix(), ns.getName());
 			}
 			while (result.hasNext()) {
 				Statement st = result.next();

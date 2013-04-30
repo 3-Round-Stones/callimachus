@@ -16,6 +16,7 @@
  */
 package org.callimachusproject.io;
 
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -30,6 +31,8 @@ import org.openrdf.model.Statement;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFWriter;
+import org.openrdf.rio.RioSetting;
+import org.openrdf.rio.WriterConfig;
 
 public class ArrangedWriter implements RDFWriter { 
 	private static int MAX_QUEUE_SIZE = 100;
@@ -52,6 +55,18 @@ public class ArrangedWriter implements RDFWriter {
 
 	public ArrangedWriter(RDFWriter delegate) {
 		this.delegate = delegate;
+	}
+
+	public void setWriterConfig(WriterConfig config) {
+		delegate.setWriterConfig(config);
+	}
+
+	public WriterConfig getWriterConfig() {
+		return delegate.getWriterConfig();
+	}
+
+	public Collection<RioSetting<?>> getSupportedSettings() {
+		return delegate.getSupportedSettings();
 	}
 
 	public RDFFormat getRDFFormat() {

@@ -18,6 +18,8 @@ package org.callimachusproject.io;
 
 
 import java.net.URISyntaxException;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.regex.Pattern;
 
 import javax.xml.stream.XMLStreamException;
@@ -31,16 +33,31 @@ import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFWriter;
+import org.openrdf.rio.RioSetting;
+import org.openrdf.rio.WriterConfig;
 
 public class RDFXMLStreamWriter implements RDFWriter {
 	private static final Pattern ESCAPED = Pattern.compile("^\\s|<|&|>|\\s$");
 	private final XMLStreamWriter writer;
 	private final Relativizer base;
+	private WriterConfig config = new WriterConfig();
 	private Resource open;
 
 	public RDFXMLStreamWriter(XMLStreamWriter writer, String systemId) throws URISyntaxException {
 		this.writer = writer;
 		this.base = new Relativizer(systemId);
+	}
+
+	public Collection<RioSetting<?>> getSupportedSettings() {
+		return Collections.emptyList();
+	}
+
+	public WriterConfig getWriterConfig() {
+		return config;
+	}
+
+	public void setWriterConfig(WriterConfig config) {
+		this.config = config;
 	}
 
 	@Override

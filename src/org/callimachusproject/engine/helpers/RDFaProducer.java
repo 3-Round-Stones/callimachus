@@ -360,7 +360,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 		return false;
 	}
 	
-	private boolean grounded(StartElement start) {
+	private boolean grounded(StartElement start) throws QueryEvaluationException {
 		// all explicit variables or content originating from this element must be bound
 		// These origins are the first use of a variable - no need to check subsequent use in descendants
 		for (String name: resultSet.getBindingNames()) {
@@ -376,7 +376,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 		return true;
 	}
 	
-	private boolean complete(StartElement start) {
+	private boolean complete(StartElement start) throws QueryEvaluationException {
 		// all implicit variables originating from this element must be bound
 		// excluding property expressions
 		for (String name: resultSet.getBindingNames()) {
@@ -419,7 +419,9 @@ public class RDFaProducer extends XMLEventReaderBase {
 	 * Returns the variable name or null. 
 	 */
 	
-	Value substitute(StartElement start, String tag, Attribute attr, Location location, String path) throws RDFParseException {
+	Value substitute(StartElement start, String tag, Attribute attr,
+			Location location, String path) throws RDFParseException,
+			QueryEvaluationException {
 		String namespace = attr.getName().getNamespaceURI();
 		String localPart = attr.getName().getLocalPart();
 		String value = attr.getValue();
@@ -619,7 +621,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 			return null;
 		}
 		/* If there is a content attribute there is no need to add text content */
-		private Value substituteValue(StartElement start, String tag,Attribute attr) {
+		private Value substituteValue(StartElement start, String tag, Attribute attr) {
 			String namespace = attr.getName().getNamespaceURI();
 			String localPart = attr.getName().getLocalPart();
 			String value = attr.getValue();
@@ -633,6 +635,8 @@ public class RDFaProducer extends XMLEventReaderBase {
 				}
 				return v;
 			} catch (RDFParseException e) {
+				throw new UndeclaredThrowableException(e);
+			} catch (QueryEvaluationException e) {
 				throw new UndeclaredThrowableException(e);
 			}
 		}

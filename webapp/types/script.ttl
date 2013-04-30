@@ -111,6 +111,7 @@
             var input = com.google.javascript.jscomp.SourceFile.fromReader(this.toString(), saved);
             options.setLanguageIn(com.google.javascript.jscomp.CompilerOptions.LanguageMode.ECMASCRIPT5);
             options.setLanguageOut(com.google.javascript.jscomp.CompilerOptions.LanguageMode.ECMASCRIPT5);
+            options.setWarningLevel(com.google.javascript.jscomp.DiagnosticGroups.NON_STANDARD_JSDOC, com.google.javascript.jscomp.CheckLevel.OFF);
             compiler.compile(extern, input, options);
             var errors = compiler.getErrors();
             if (errors.length) {

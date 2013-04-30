@@ -15,11 +15,13 @@ import org.callimachusproject.server.exceptions.GatewayTimeout;
 import org.callimachusproject.server.exceptions.InternalServerError;
 import org.openrdf.annotations.Sparql;
 
+import com.google.javascript.jscomp.CheckLevel;
 import com.google.javascript.jscomp.CommandLineRunner;
 import com.google.javascript.jscomp.CompilationLevel;
 import com.google.javascript.jscomp.Compiler;
 import com.google.javascript.jscomp.CompilerOptions;
 import com.google.javascript.jscomp.CompilerOptions.LanguageMode;
+import com.google.javascript.jscomp.DiagnosticGroups;
 import com.google.javascript.jscomp.JSSourceFile;
 import com.google.javascript.jscomp.Result;
 import com.google.javascript.jscomp.SourceFile;
@@ -48,6 +50,7 @@ public abstract class ScriptBundleSupport implements ScriptBundle {
 		CompilerOptions options = new CompilerOptions();
 		options.setLanguageIn(LanguageMode.ECMASCRIPT5);
 		options.setLanguageOut(LanguageMode.ECMASCRIPT5);
+		options.setWarningLevel(DiagnosticGroups.NON_STANDARD_JSDOC, CheckLevel.OFF);
 		getCompilationLevel(minification).setOptionsForCompilationLevel(options);
 
 		List<SourceFile> externals = CommandLineRunner.getDefaultExterns();

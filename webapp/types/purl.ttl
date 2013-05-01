@@ -130,6 +130,17 @@
     calli:type "application/x-www-form-urlencoded";
     calli:query "*".
 
+:GetViewPage owl:intersectionOf (<viewable.ttl#GetViewPage>
+        [owl:onProperty msg:target; owl:allValuesFrom <PURL> ]);
+    calli:method "GET";
+    calli:query "view";
+    calli:requires calli:subscriber;
+    calli:type "text/html";
+    calli:header "cache-control:no-cache";
+    calli:script """
+        return proceed();
+    """.
+
 :FindPurlPattern rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <PURL>];
     rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom rdfs:Resource];

@@ -132,6 +132,7 @@
 
 :GetViewPage owl:intersectionOf (<viewable.ttl#GetViewPage>
         [owl:onProperty msg:target; owl:allValuesFrom <PURL> ]);
+    calli:rel "alternate";
     calli:method "GET";
     calli:query "view";
     calli:requires calli:subscriber;

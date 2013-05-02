@@ -399,6 +399,10 @@ public class CallimachusSetup {
 	        	String realm = st.getSubject().stringValue();
 	        	BlobObject secret = con.getBlobObject((URI) st.getObject());
 		        Reader reader = secret.openReader(true);
+		        if (reader == null) {
+		        	logger.error("{} is not correctly configured", origin);
+		        	continue;
+		        }
 		        try {
 			        String text = new java.util.Scanner(reader).useDelimiter("\\A").next();
 			        String token = DigestUtils.md5Hex(hash + ":" + nonce + ":" + text);
@@ -579,8 +583,9 @@ public class CallimachusSetup {
 			Value object = st.getObject();
 			if (object instanceof URI) {
 				con.getBlobObject((URI) object).delete();
+				con.remove((URI) object, null, null);
+				con.remove((URI) null, null, (URI) object);
 			}
-			con.remove(st);
 		}
 		String webapp = CalliRepository.getCallimachusWebapp(origin, con);
 		Set<URI> list = new TreeSet<URI>(new ValueComparator());

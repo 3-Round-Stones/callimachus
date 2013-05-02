@@ -182,7 +182,7 @@
                     if (pred == "http://callimachusproject.org/rdf/2009/framework#hasComponent") {
                         redirect = subj.stringValue();
                     }
-                    con.remove(st, []);
+                    con.remove(st.subject, st.predicate, st.object, []);
                 }
             }
         } finally {
@@ -211,7 +211,7 @@
             try {
                 while (stmts.hasNext()) {
                     var st = stmts.next();
-                    con.remove(st, []);
+                    con.remove(st.subject, st.predicate, st.object, []);
                     if (st.object instanceof BNode && !st.object.equals(subject)) {
                         removeTriples(st.object, hash);
                     } else if (st.object instanceof URI && !st.object.equals(subject)) {

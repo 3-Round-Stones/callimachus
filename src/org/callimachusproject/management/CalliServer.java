@@ -861,15 +861,13 @@ public class CalliServer implements CalliServerMXBean {
 			logger.info("Creating repository {}", repositoryID);
 			manager.addRepositoryConfig(config);
 		}
-		if (manager.getInitializedRepositoryIDs().contains(repositoryID)) {
-			manager.getRepository(repositoryID).shutDown();
-			if (isWebServiceRunning()) {
-				CalliRepository repository = getRepository(repositoryID);
-				SetupTool tool = new SetupTool(repositoryID, repository, conf);
-				SetupRealm[] origins = tool.getRealms();
-				for (SetupRealm so : origins) {
-					server.addOrigin(so.getOrigin(), repository);
-				}
+		refreshRepository(repositoryID);
+		if (isWebServiceRunning()) {
+			CalliRepository repository = getRepository(repositoryID);
+			SetupTool tool = new SetupTool(repositoryID, repository, conf);
+			SetupRealm[] origins = tool.getRealms();
+			for (SetupRealm so : origins) {
+				server.addOrigin(so.getOrigin(), repository);
 			}
 		}
 		try {
@@ -1013,6 +1011,7 @@ public class CalliServer implements CalliServerMXBean {
 				backup.backup(repositoryID, conf.getAppVersion(), dataDir);
 			}
 			if (manager.removeRepository(repositoryID)) {
+				refreshRepository(repositoryID);
 				logger.warn("Removed repository {}", repositoryID);
 			}
 		}

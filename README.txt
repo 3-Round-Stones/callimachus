@@ -29,7 +29,7 @@ installation directory.
 | prerequisites |
 -----------------
 
-You must have Java 6 JDK (1.6.0_18+) installed and available.
+You must have at least Java 6 JDK (1.6.0_18+) installed and available.
 
 Callimachus is expected to work on the following server platforms:
 * Linux i386

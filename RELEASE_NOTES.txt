@@ -19,8 +19,16 @@ Internet Explorer 9 and 10 cannot edit textual documents.
 Details of browser support may be found at:
   http://callimachusproject.org/docs/1.1/articles/browser-support.docbook?view
 
-The Callimachus server requires Java JDK 1.6.0_18+ (before 1.7) on the
+The Callimachus server requires Java JDK 1.6.0_18+ on the
 server to run.
+
+= NEW IN VERSION 1.1.1 =
+
+ * Reify deleted resources.
+ * Surpress warning about maximum number of open file descriptors maybe too small.
+ * Enable JDK7 compatibility.
+ * Remove binding error on restart.
+ * Add parent folder link in folder view
 
 = NEW IN VERSION 1.1 =
 
@@ -33,7 +41,7 @@ server to run.
  * Context specific Help links added to most pages.
  * Diverted URLs are deprecated and their usages reduced.
 
-= KNOWN ISSUES IN 1.1 =
+= KNOWN ISSUES IN 1.1.1 =
 
  * All possible options in check boxes must have a label.
  * rdf:XMLLiteral on form create auto adds xmlns to elements.
@@ -52,6 +60,16 @@ In some environments, Callimachus may log "An exception has occurred in the
 compiler...FilePermission" exceptions. This is often due to an issue in the
 embedded Java compiler and if so has no impact on the run time behaviour of
 Callimachus.
+
+= HOWTO UPGRADE FROM 1.1 =
+
+Stop the 1.1 server using the callimachus-stop script in the bin directory.
+Remove the lib, bin, tmp, src directories.
+
+Download and unzip the callimachus-1.1.1.zip file in the install directory of
+the Callimachus 1.1 instance. Run the bin/callimachus-setup.sh/.bat script to
+upgrade the repositories directory. Use the "-K" flag to disabled automatic
+backup. Run the bin/callimachus-start.sh/.bat script to start Callimachus.
 
 = HOWTO UPGRADE FROM 1.0.1 =
 

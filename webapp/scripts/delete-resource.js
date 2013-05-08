@@ -52,7 +52,7 @@ window.calli.deleteResource = function(event, redirect) {
                         if (!event.location && xhr.getResponseHeader('Content-Type') == 'text/uri-list') {
                             event.location = xhr.responseText;
                         }
-                        if (!event.location && location.pathname.match(/\/$/)) {
+                        if (!event.location && window.location.pathname.match(/\/$/)) {
                             event.location = '../';
                         } else if (!event.location) {
                             event.location = './';

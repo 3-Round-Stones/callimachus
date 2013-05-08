@@ -119,7 +119,7 @@ function bindFormEvents(form, editor, idempotent) {
                 saveFile(form, text, function(xhr, cause) {
                     var event = $.Event("calliRedirect");
                     var redirect = xhr.getResponseHeader('Location');
-                    var url = calli.getPageUrl();
+                    var url = calli.getFormAction(form);
                     if (url.indexOf('?') > 0) {
                         url = url.substring(0, url.indexOf('?'));
                     }

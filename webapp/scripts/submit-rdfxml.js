@@ -33,7 +33,7 @@ function submitRDFForm(form, uri) {
                 try {
                     var redirect = xhr.getResponseHeader("Location");
                     if (!redirect) {
-                        redirect = calli.getPageUrl();
+                        redirect = calli.getFormAction(form);
                         if (redirect.indexOf('?') > 0) {
                             redirect = redirect.substring(0, redirect.indexOf('?'));
                         }

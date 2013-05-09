@@ -109,7 +109,7 @@ public class TestTripleAnalyzer {
 	public void testSingleInsertDATA() throws Exception {
 		String input = PREFIX + "INSERT DATA { <#me> a foaf:Person }";
 		TripleAnalyzer analyzer = new TripleAnalyzer();
-		analyzer.analyzeInsertData(input, "http://example.com/");
+		analyzer.analyzeUpdate(input, "http://example.com/");
 		Assert.assertFalse(analyzer.isEmpty());
 		Assert.assertTrue(analyzer.isAbout(vf.createURI("http://example.com/")));
 		Assert.assertFalse(analyzer.isDisconnectedNodePresent());
@@ -121,7 +121,7 @@ public class TestTripleAnalyzer {
 	public void testInsertDATA() throws Exception {
 		String input = PREFIX + "INSERT DATA { <#me> a foaf:Person; foaf:name \"me\" }";
 		TripleAnalyzer analyzer = new TripleAnalyzer();
-		analyzer.analyzeInsertData(input, "http://example.com/");
+		analyzer.analyzeUpdate(input, "http://example.com/");
 		Assert.assertFalse(analyzer.isEmpty());
 		Assert.assertTrue(analyzer.isAbout(vf.createURI("http://example.com/")));
 		Assert.assertFalse(analyzer.isDisconnectedNodePresent());
@@ -133,7 +133,7 @@ public class TestTripleAnalyzer {
 	public void testBlankInsertDATA() throws Exception {
 		String input = PREFIX + "INSERT DATA { <#me> a foaf:Person; foaf:knows [foaf:name \"you\"]}";
 		TripleAnalyzer analyzer = new TripleAnalyzer();
-		analyzer.analyzeInsertData(input, "http://example.com/");
+		analyzer.analyzeUpdate(input, "http://example.com/");
 		Assert.assertFalse(analyzer.isEmpty());
 		Assert.assertTrue(analyzer.isAbout(vf.createURI("http://example.com/")));
 		Assert.assertFalse(analyzer.isDisconnectedNodePresent());

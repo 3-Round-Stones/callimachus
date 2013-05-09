@@ -82,24 +82,11 @@ public class EntityUpdater {
 		executeUpdate(sparqlUpdate, con);
 	}
 
-	public String parseInsertData(InputStream in)
-			throws OpenRDFException, IOException {
-		String ret = analyzer.parseInsertData(in, entity.stringValue());
-		verify();
-		return ret;
-	}
-
 	public String parseUpdate(InputStream in) throws OpenRDFException,
 			IOException {
 		String ret = analyzer.parseUpdate(in, entity.stringValue());
 		verify();
 		return ret;
-	}
-
-	public void analyzeInsertData(String input)
-			throws MalformedQueryException, RDFHandlerException {
-		analyzer.analyzeInsertData(input, entity.stringValue());
-		verify();
 	}
 
 	public void analyzeUpdate(String input)
@@ -116,30 +103,32 @@ public class EntityUpdater {
 	}
 
 	private void verify() throws BadRequest {
-		String ns = entity.stringValue();
-		if (!components && !analyzer.isAbout(entity))
-			throw new BadRequest("Wrong Subject: " + analyzer.getSubject());
+		if (!analyzer.isAbout(entity)) {
+			URI target = analyzer.getSubject();
+			if (components && analyzer.isInsertOnly()) {
+				String uri = target.stringValue();
+				String ns = entity.stringValue();
+				if (uri.indexOf(ns) != 0)
+					throw new BadRequest("Resource URI must start with: " + ns);
+				String local = uri.substring(ns.length());
+				if (local.indexOf('/') == 0 && ns.charAt(ns.length() - 1) != '/') {
+					local = local.substring(1);
+				}
+				if (local.charAt(local.length() - 1) == '/') {
+					local = local.substring(0, local.length() - 1);
+				}
+				if (local.indexOf('/') >= 0)
+					throw new BadRequest("Can only created nested components here");
+			} else {
+				throw new BadRequest("Wrong Subject: " + analyzer.getSubject());
+			}
+		}
 		if (!analyzer.isSingleton())
 			throw new BadRequest("Only one entity can be modified per request");
 		if (analyzer.isDisconnectedNodePresent())
 			throw new BadRequest("Blank nodes must be connected");
 		if (analyzer.isComplicated())
 			throw new BadRequest("Only basic graph patterns are permitted");
-		URI target = analyzer.getSubject();
-		if (components) {
-			String uri = target.stringValue();
-			if (uri.indexOf(ns) != 0)
-				throw new BadRequest("Resource URI must start with: " + ns);
-			String local = uri.substring(ns.length());
-			if (local.indexOf('/') == 0 && ns.charAt(ns.length() - 1) != '/') {
-				local = local.substring(1);
-			}
-			if (local.charAt(local.length() - 1) == '/') {
-				local = local.substring(0, local.length() - 1);
-			}
-			if (local.indexOf('/') >= 0)
-				throw new BadRequest("Can only created nested components here");
-		}
 	}
 
 	private Set<Resource> selectBlankNodes(TripleAnalyzer analyzer,

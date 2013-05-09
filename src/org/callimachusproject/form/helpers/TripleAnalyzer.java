@@ -79,30 +79,7 @@ public class TripleAnalyzer extends QueryModelVisitorBase<RDFHandlerException> {
 	private TripleVerifier insertVerifier = new TripleVerifier();
 	private TripleVerifier verifier = new TripleVerifier();
 	private boolean complicated;
-
-	public String parseInsertData(InputStream in, String systemId)
-			throws RDFHandlerException, IOException, MalformedQueryException {
-		String input = readString(in);
-		analyzeInsertData(input, systemId);
-		return input;
-	}
-
-	public void analyzeInsertData(String input, String systemId)
-			throws MalformedQueryException, RDFHandlerException {
-		SPARQLParser parser = new SPARQLParser();
-		ParsedUpdate parsed = parser.parseUpdate(input, systemId);
-		if (parsed.getUpdateExprs().isEmpty())
-			throw new RDFHandlerException("No input");
-		for (UpdateExpr updateExpr : parsed.getUpdateExprs()) {
-			if (updateExpr instanceof InsertData) {
-				updateExpr.visit(this);
-			} else {
-				throw new RDFHandlerException(
-						"Unsupported type of update statement: "
-								+ updateExpr.getClass().getSimpleName());
-			}
-		}
-	}
+	private boolean modify;
 
 	public String parseUpdate(InputStream in, String systemId)
 			throws RDFHandlerException, IOException, MalformedQueryException {
@@ -118,9 +95,11 @@ public class TripleAnalyzer extends QueryModelVisitorBase<RDFHandlerException> {
 		if (parsed.getUpdateExprs().isEmpty())
 			throw new RDFHandlerException("No input");
 		for (UpdateExpr updateExpr : parsed.getUpdateExprs()) {
-			if (updateExpr instanceof DeleteData
-					|| updateExpr instanceof InsertData
+			if (updateExpr instanceof InsertData) {
+				updateExpr.visit(this);
+			} else if (updateExpr instanceof DeleteData
 					|| updateExpr instanceof Modify) {
+				modify = true;
 				updateExpr.visit(this);
 			} else {
 				throw new RDFHandlerException(
@@ -160,6 +139,13 @@ public class TripleAnalyzer extends QueryModelVisitorBase<RDFHandlerException> {
 
 	public boolean isComplicated() {
 		return complicated;
+	}
+
+	/**
+	 * No delete operations are used.
+	 */
+	public boolean isInsertOnly() {
+		return !modify;
 	}
 
 	public boolean isDisconnectedNodePresent() {

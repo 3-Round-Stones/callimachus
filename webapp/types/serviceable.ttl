@@ -253,12 +253,7 @@ skos:editorialNote a owl:AnnotationProperty.
     calli:method "PATCH";
     calli:query "describe";
     calli:requires calli:administrator;
-    calli:imports <java:org.openrdf.query.QueryLanguage>;
     calli:imports <java:org.callimachusproject.form.helpers.EntityUpdater>;
-    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    calli:imports <java:org.callimachusproject.server.exceptions.Forbidden>;
-    calli:imports <java:org.callimachusproject.server.exceptions.Conflict>;
-    calli:imports <Serviceable>;
     calli:script """
         var con = this.objectConnection;
 
@@ -276,6 +271,37 @@ skos:editorialNote a owl:AnnotationProperty.
 
 :deleteInsert a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :PatchDeleteInsert;
+    rdfs:range <java:java.io.InputStream>;
+    calli:type "application/sparql-update".
+
+# another version to work in IE, overridden in composite.ttl
+:PostDeleteInsert rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Serviceable>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <Serviceable>];
+    calli:method "POST";
+    calli:query "describe";
+    calli:requires calli:administrator;
+    calli:expect "204-no-content";
+    calli:type "text/uri-list";
+    calli:imports <java:org.callimachusproject.form.helpers.EntityUpdater>;
+    calli:script """
+        var con = this.objectConnection;
+
+        //# Parse DELETE INSERT
+        var updater = new EntityUpdater(this.resource);
+        updater.executeUpdate(insertData, con);
+
+        this.touchRevision();
+        //# FIXME we shouldn't need to touch anything
+        var parent = this.SelectParentComposite();
+        if (parent) {
+            parent.touchRevision();
+        }
+        return null;
+    """.
+
+:insertData a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :PostDeleteInsert;
     rdfs:range <java:java.io.InputStream>;
     calli:type "application/sparql-update".
 

@@ -36,9 +36,8 @@
 # POST INSERT DATA
 ################################
 
-:PostInsertData rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Composite>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <Serviceable>];
+:PostInsertData owl:intersectionOf ( <serviceable.ttl#PostDeleteInsert>
+        [owl:onProperty msg:target; owl:allValuesFrom <Composite>]);
     calli:method "POST";
     calli:query "describe";
     calli:requires calli:administrator;
@@ -60,15 +59,27 @@
 
         //# Parse INSERT DATA
         var updater = new EntityUpdater(this.resource, true);
-        var string = updater.parseInsertData(insertData);
+        var string = updater.parseUpdate(insertData);
         
         //# Verify input
         var location = updater.subject;
-        var newCopy = of.createObject(location, updater.getTypes(location));
-        if (this.calliHasComponent.contains(newCopy))
-            throw new Conflict("Resource " + newCopy + " already exists");
-        if (!(newCopy instanceof Editable))
-            throw new BadRequest("Resource is not Editable");
+        if (location == this.resource) {
+            //# PATCH itself
+            updater.executeUpdate(string, con);
+            this.touchRevision();
+            //# FIXME we shouldn't need to touch anything
+            var parent = this.SelectParentComposite();
+            if (parent) {
+                parent.touchRevision();
+            }
+            return null;
+        } else {
+            var newCopy = of.createObject(location, updater.getTypes(location));
+            if (this.calliHasComponent.contains(newCopy))
+                throw new Conflict("Resource " + newCopy + " already exists");
+            if (!(newCopy instanceof Editable))
+                throw new BadRequest("Resource is not Editable");
+        }
 
         //# Execute input
         updater.executeUpdate(string, con);
@@ -126,11 +137,6 @@
         }
         return newCopy;
     """.
-
-:insertData a owl:FunctionalProperty, owl:ObjectProperty;
-    rdfs:domain :PostInsertData;
-    rdfs:range <java:java.io.InputStream>;
-    calli:type "application/sparql-update".
 
 ################################
 # Create

@@ -352,7 +352,7 @@ public class InvokeHandler implements Handler {
 			FluidBuilder builder = ff.builder(con);
 			if (!builder.isConsumable(genericType, mimeTypes))
 				throw new NotAcceptable(type.getSimpleName()
-						+ " cannot be converted into " + mimeTypes);
+						+ " cannot be converted into " + Arrays.asList(mimeTypes));
 			this.writer = builder.consume(result, base, genericType, mimeTypes);
 		}
 

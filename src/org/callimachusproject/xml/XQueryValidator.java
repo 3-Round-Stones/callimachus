@@ -10,7 +10,6 @@ import javax.xml.transform.ErrorListener;
 import javax.xml.transform.SourceLocator;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.dom.DOMLocator;
-import javax.xml.transform.stream.StreamSource;
 
 import net.sf.saxon.Configuration;
 import net.sf.saxon.expr.instruct.AttributeSet;
@@ -18,7 +17,6 @@ import net.sf.saxon.expr.instruct.Instruction;
 import net.sf.saxon.expr.instruct.Procedure;
 import net.sf.saxon.expr.instruct.Template;
 import net.sf.saxon.expr.instruct.UserFunction;
-import net.sf.saxon.lib.ModuleURIResolver;
 import net.sf.saxon.lib.NamespaceConstant;
 import net.sf.saxon.om.NodeInfo;
 import net.sf.saxon.om.StructuredQName;
@@ -31,9 +29,8 @@ import net.sf.saxon.type.ValidationException;
 
 import org.xml.sax.SAXException;
 
-public class XQueryValidator implements ErrorListener, ModuleURIResolver {
+public class XQueryValidator implements ErrorListener {
 	private static final String XQUERY_MEDIA = "application/xquery, application/xml, application/xslt+xml, text/xml, text/xsl";
-	private static final long serialVersionUID = -6151922474188907745L;
 	private static final String MODULE = "Module declaration must not be used in a main module";
 	private static final Pattern[] MODULE_ERRORS = {
 			Pattern.compile("Module declaration must not be used in a main module"),
@@ -56,7 +53,7 @@ public class XQueryValidator implements ErrorListener, ModuleURIResolver {
         StaticQueryContext staticEnv = config.newStaticQueryContext();
         staticEnv.setBaseURI(baseURI);
         staticEnv.setErrorListener(this);
-        staticEnv.setModuleURIResolver(this);
+        staticEnv.setModuleURIResolver(resolver);
         try {
 			staticEnv.compileQuery(queryStream, null);
 		} catch (XPathException e) {
@@ -66,25 +63,6 @@ public class XQueryValidator implements ErrorListener, ModuleURIResolver {
 
 	public String[] getErrorMessages() {
 		return messages.toArray(new String[messages.size()]);
-	}
-
-	public StreamSource[] resolve(String moduleURI, String baseURI,
-			String[] locations) throws XPathException {
-		List<StreamSource> list = new ArrayList<StreamSource>();
-		try {
-			if (locations == null || locations.length == 0) {
-				list.add(resolver.resolve(moduleURI, baseURI));
-			} else {
-				for (String location : locations) {
-					list.add(resolver.resolve(location, baseURI));
-				}
-			}
-		} catch (XPathException e) {
-			throw e;
-		} catch (TransformerException e) {
-			throw new XPathException(e);
-		}
-		return list.toArray(new StreamSource[list.size()]);
 	}
 
 	@Override

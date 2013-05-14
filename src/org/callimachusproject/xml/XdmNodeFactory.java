@@ -9,11 +9,14 @@ import javax.xml.transform.Source;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.URIResolver;
 import javax.xml.transform.sax.SAXSource;
+import javax.xml.transform.stream.StreamSource;
 
+import net.sf.saxon.lib.ModuleURIResolver;
 import net.sf.saxon.s9api.DocumentBuilder;
 import net.sf.saxon.s9api.Processor;
 import net.sf.saxon.s9api.SaxonApiException;
 import net.sf.saxon.s9api.XdmNode;
+import net.sf.saxon.trans.XPathException;
 
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
@@ -21,23 +24,31 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
-public class XdmNodeFactory implements EntityResolver, URIResolver {
+public class XdmNodeFactory implements EntityResolver, URIResolver, ModuleURIResolver {
 	private static final String XML_MEDIA = "application/xml, application/xslt+xml, text/xml, text/xsl";
+	private static final String XQUERY_MEDIA = "application/xquery, " + XML_MEDIA;
 	private final Processor processor;
-	private final InputSourceResolver resolver;
+	private final InputSourceResolver xmlResolver;
+	private final ModuleURIResolver xqueryResolver;
 
 	public XdmNodeFactory(String systemId, Processor processor) {
 		this.processor = processor;
-		this.resolver = new InputSourceResolver(systemId, XML_MEDIA);
+		this.xmlResolver = new InputSourceResolver(systemId, XML_MEDIA);
+		this.xqueryResolver = new InputSourceResolver(systemId, XQUERY_MEDIA);
 	}
 
-	public Source resolve(String href, String base) throws TransformerException {
-		return resolver.resolve(href, base);
+	public StreamSource resolve(String href, String base) throws TransformerException {
+		return xmlResolver.resolve(href, base);
 	}
 
 	public InputSource resolveEntity(String publicId, String systemId)
 			throws IOException {
-		return resolver.resolveEntity(publicId, systemId);
+		return xmlResolver.resolveEntity(publicId, systemId);
+	}
+
+	public StreamSource[] resolve(String moduleURI, String baseURI,
+			String[] locations) throws XPathException {
+		return xqueryResolver.resolve(moduleURI, baseURI, locations);
 	}
 
 	public XdmNode parse(String systemId) throws SAXException, IOException {
@@ -85,7 +96,7 @@ public class XdmNodeFactory implements EntityResolver, URIResolver {
 	private XdmNode parse(InputSource isource) throws SAXException {
         // Make sure the builder uses our entity resolver
         XMLReader reader = XMLReaderFactory.createXMLReader();
-        reader.setEntityResolver(resolver);
+        reader.setEntityResolver(xmlResolver);
         SAXSource source = new SAXSource(reader, isource);
         if (isource.getSystemId() != null) {
         	source.setSystemId(isource.getSystemId());

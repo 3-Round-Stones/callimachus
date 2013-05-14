@@ -10,6 +10,8 @@ import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
@@ -18,13 +20,16 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.URIResolver;
 import javax.xml.transform.stream.StreamSource;
 
+import net.sf.saxon.lib.ModuleURIResolver;
+import net.sf.saxon.trans.XPathException;
+
 import org.callimachusproject.client.HttpOriginClient;
 import org.callimachusproject.client.HttpUriEntity;
 import org.callimachusproject.server.exceptions.NotFound;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 
-public class InputSourceResolver implements EntityResolver, URIResolver {
+public class InputSourceResolver implements EntityResolver, URIResolver, ModuleURIResolver {
 	private static final Pattern CHARSET = Pattern
 			.compile("\\bcharset\\s*=\\s*([\\w-:]+)");
 	private final HttpOriginClient client;
@@ -59,6 +64,26 @@ public class InputSourceResolver implements EntityResolver, URIResolver {
 		} catch (IOException e) {
 			throw new TransformerException(e);
 		}
+	}
+
+	@Override
+	public StreamSource[] resolve(String moduleURI, String baseURI,
+			String[] locations) throws XPathException {
+		List<StreamSource> list = new ArrayList<StreamSource>();
+		try {
+			if (locations == null || locations.length == 0) {
+				list.add(resolve(moduleURI, baseURI));
+			} else {
+				for (String location : locations) {
+					list.add(resolve(location, baseURI));
+				}
+			}
+		} catch (XPathException e) {
+			throw e;
+		} catch (TransformerException e) {
+			throw new XPathException(e);
+		}
+		return list.toArray(new StreamSource[list.size()]);
 	}
 
 	@Override

@@ -10,6 +10,8 @@ import java.util.Enumeration;
 import net.sf.saxon.s9api.SaxonApiException;
 import net.sf.saxon.s9api.XdmNode;
 
+import org.apache.http.client.HttpClient;
+import org.callimachusproject.client.HttpOriginClient;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidException;
 import org.callimachusproject.fluid.FluidFactory;
@@ -67,6 +69,7 @@ public class Pipeline {
 	}
 
 	public Pipe pipe() throws SAXException, IOException {
+		HttpClient client = new HttpOriginClient(getSystemId());
 		XProcConfiguration config = this.config;
 		XdmNodeFactory resolver = this.resolver;
 		if (config == null) {
@@ -74,7 +77,7 @@ public class Pipeline {
 			resolver = new XdmNodeFactory(getSystemId(), config.getProcessor());
 			loadConfig(resolver, config);
 		}
-		return pipeSource(null, resolver, config);
+		return pipeSource(null, resolver, client, config);
 	}
 
 	public Pipe pipe(Object source, String systemId, Type type, String... media)
@@ -84,6 +87,7 @@ public class Pipeline {
 
 	public Pipe pipeStream(InputStream source, String systemId)
 			throws SAXException, IOException, XProcException {
+		HttpClient client = new HttpOriginClient(getSystemId());
 		XProcConfiguration config = this.config;
 		XdmNodeFactory resolver = this.resolver;
 		if (config == null) {
@@ -91,10 +95,11 @@ public class Pipeline {
 			resolver = new XdmNodeFactory(getSystemId(), config.getProcessor());
 			loadConfig(resolver, config);
 		}
-		return pipeSource(resolver.parse(systemId, source), resolver, config);
+		return pipeSource(resolver.parse(systemId, source), resolver, client, config);
 	}
 
 	public Pipe pipeReader(Reader reader, String systemId) throws SAXException, IOException, XProcException {
+		HttpClient client = new HttpOriginClient(getSystemId());
 		XProcConfiguration config = this.config;
 		XdmNodeFactory resolver = this.resolver;
 		if (config == null) {
@@ -102,10 +107,12 @@ public class Pipeline {
 			resolver = new XdmNodeFactory(getSystemId(), config.getProcessor());
 			loadConfig(resolver, config);
 		}
-		return pipeSource(resolver.parse(systemId, reader), resolver, config);
+		return pipeSource(resolver.parse(systemId, reader), resolver, client, config);
 	}
 
-	private Pipe pipeSource(XdmNode source, XdmNodeFactory resolver, XProcConfiguration config) throws SAXException, XProcException, IOException {
+	private Pipe pipeSource(XdmNode source, XdmNodeFactory resolver,
+			HttpClient client, XProcConfiguration config) throws SAXException,
+			XProcException, IOException {
 		Pipe pipe = null;
 		XProcRuntime runtime = new XProcRuntime(config);
 		try {
@@ -113,6 +120,7 @@ public class Pipeline {
 			CloseableEntityResolver entityResolver = new CloseableEntityResolver(resolver);
 			runtime.setURIResolver(uriResolver);
 			runtime.setEntityResolver(entityResolver);
+			runtime.setHttpClient(client);
 			XdmNode doc = this.pipeline;
 			if (doc == null) {
 				doc = resolver.parse(systemId);

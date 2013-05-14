@@ -96,6 +96,7 @@ public class Pipe implements XProcMessageListener {
 			uriResolver.close();
 			entityResolver.close();
 			errors.setLength(0);
+			runtime.setHttpClient(null);
 			runtime.close();
 		}
 	}

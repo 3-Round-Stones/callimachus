@@ -100,7 +100,9 @@ public class InputSourceResolver implements EntityResolver, URIResolver {
 	private InputSource resolveHttp(String systemId) throws IOException {
 		try {
 			HttpUriEntity entity = client.getEntity(systemId, getAcceptHeader());
-			InputStream in = entity == null ? null : entity.getContent();
+			if (entity == null)
+				return null;
+			InputStream in = entity.getContent();
 			String type = entity.getContentType().getValue();
 			systemId = entity.getSystemId();
 			return create(type, in, systemId);

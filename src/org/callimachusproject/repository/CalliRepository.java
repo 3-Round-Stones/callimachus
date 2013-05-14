@@ -432,7 +432,7 @@ public class CalliRepository extends RepositoryWrapper implements CalliRepositor
 			}
 		}
 		if (!found)
-			throw new IllegalArgumentException("Not such logger");
+			throw new IllegalArgumentException("No such logger: " + fragment);
 	}
 
 	private void setHandlerLevel(Logger logger, Level level) {

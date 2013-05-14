@@ -44,8 +44,8 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractHttpClient implements HttpClient {
-	private final Logger logger = LoggerFactory.getLogger(AbstractHttpClient.class);
+public abstract class OverloadedHttpClient implements HttpClient {
+	private final Logger logger = LoggerFactory.getLogger(OverloadedHttpClient.class);
 
 	public HttpResponse execute(HttpUriRequest request) throws IOException,
 			ClientProtocolException {
@@ -93,33 +93,35 @@ public abstract class AbstractHttpClient implements HttpClient {
         }
 
         HttpResponse response = execute(host, request, context);
-
-        T result;
         try {
-            result = responseHandler.handleResponse(response);
+	        boolean fail = false;
+	        try {
+	            return responseHandler.handleResponse(response);
+	        } catch (Exception t) {
+	        	fail = true;
+	        	throw t;
+	        } finally {
+	            // Ensure that the content has been fully consumed.
+	            HttpEntity entity = response.getEntity();
+	            try {
+	                EntityUtils.consume(entity);
+	            } catch (Exception t2) {
+	                // Log this exception. The original exception is more
+	                // important and will be thrown to the caller.
+	            	if (fail) {
+	            		logger.warn("Error consuming content after an exception.", t2);
+	            	} else {
+	            		throw t2;
+	            	}
+	            }
+	        }
+        } catch (RuntimeException t) {
+            throw t;
+        } catch (IOException t) {
+            throw t;
         } catch (Exception t) {
-            HttpEntity entity = response.getEntity();
-            try {
-                EntityUtils.consume(entity);
-            } catch (Exception t2) {
-                // Log this exception. The original exception is more
-                // important and will be thrown to the caller.
-                logger.warn("Error consuming content after an exception.", t2);
-            }
-            if (t instanceof RuntimeException) {
-                throw (RuntimeException) t;
-            }
-            if (t instanceof IOException) {
-                throw (IOException) t;
-            }
             throw new UndeclaredThrowableException(t);
         }
-
-        // Handling the response was successful. Ensure that the content has
-        // been fully consumed.
-        HttpEntity entity = response.getEntity();
-        EntityUtils.consume(entity);
-        return result;
 	}
 
 	private static HttpHost determineTarget(HttpUriRequest request)

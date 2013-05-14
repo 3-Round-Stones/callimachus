@@ -42,17 +42,14 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.StatusLine;
-import org.apache.http.conn.ClientConnectionManager;
+import org.apache.http.client.RequestDirector;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
 import org.apache.http.nio.protocol.HttpAsyncExchange;
 import org.apache.http.nio.protocol.HttpAsyncRequestConsumer;
 import org.apache.http.nio.protocol.HttpAsyncRequestHandler;
-import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
-import org.callimachusproject.client.AbstractHttpClient;
-import org.callimachusproject.client.UnavailableHttpClient;
 import org.callimachusproject.repository.CalliRepository;
 import org.callimachusproject.server.model.Filter;
 import org.callimachusproject.server.model.Handler;
@@ -67,8 +64,8 @@ import org.slf4j.LoggerFactory;
  * @author James Leigh
  * 
  */
-public class HTTPObjectRequestHandler extends AbstractHttpClient implements
-		HttpAsyncRequestHandler<HttpRequest> {
+public class HTTPObjectRequestHandler implements
+		HttpAsyncRequestHandler<HttpRequest>, RequestDirector {
 	private static final String SELF = HTTPObjectRequestHandler.class.getName();
 	private static final String EXCHANGE_ATTR = SELF + "#exchange";
 	private static final String PROCESSING_ATTR = SELF + "#processing";
@@ -151,7 +148,7 @@ public class HTTPObjectRequestHandler extends AbstractHttpClient implements
 
 	@Override
 	public HttpResponse execute(HttpHost host, HttpRequest request,
-			HttpContext ctx) throws IOException {
+			HttpContext ctx) throws IOException, HttpException {
 		logger.debug("Request received {}", request.getRequestLine());
 		InetAddress remoteAddress = getRemoteAddress(ctx);
 		Request req = new Request(request, remoteAddress, true);
@@ -161,16 +158,6 @@ public class HTTPObjectRequestHandler extends AbstractHttpClient implements
 		exchange.setHttpAsyncExchange(trigger);
 		execute(exchange);
 		return trigger.getResponse();
-	}
-
-	@Override
-	public ClientConnectionManager getConnectionManager() {
-		return new UnavailableHttpClient().getConnectionManager();
-	}
-
-	@Override
-	public HttpParams getParams() {
-		return new UnavailableHttpClient().getParams();
 	}
 
 	public Exchange[] getPendingExchange(HttpContext ctx) {

@@ -8,7 +8,7 @@ import java.lang.reflect.Method;
 import org.apache.http.HttpHost;
 import org.apache.http.client.utils.URIUtils;
 import org.callimachusproject.client.HttpClientManager;
-import org.callimachusproject.client.UnavailableHttpClient;
+import org.callimachusproject.client.UnavailableRequestDirector;
 import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.repository.CalliRepository;
 import org.openrdf.OpenRDFException;
@@ -70,7 +70,7 @@ public class WebappArchiveImporter {
 			InvocationTargetException {
 		HttpHost host = URIUtils.extractHost(java.net.URI.create(webapp));
 		HttpClientManager client = HttpClientManager.getInstance();
-		UnavailableHttpClient service = new UnavailableHttpClient();
+		UnavailableRequestDirector service = new UnavailableRequestDirector();
 		if (client.getProxy(host) == null) {
 			client.setProxy(host, service);
 		}

@@ -4,59 +4,38 @@ import java.io.IOException;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpHost;
+import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.conn.ClientConnectionManager;
-import org.apache.http.params.HttpParams;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HttpProcessor;
 import org.callimachusproject.util.DomainNameSystemResolver;
 
-public class GUnZipHttpResponseClient extends AbstractHttpClient {
+public class GUnzipInterceptor implements HttpProcessor {
 	private static final String hostname = DomainNameSystemResolver.getInstance().getLocalHostName();
 	private static final String WARN_214 = "214 " + hostname
 			+ " \"Transformation applied\"";
-	private final HttpClient client;
-
-	public GUnZipHttpResponseClient(HttpClient client) {
-		this.client = client;
-	}
 
 	@Override
-	public HttpResponse execute(HttpHost host, HttpRequest request,
-			HttpContext context) throws IOException, ClientProtocolException {
-		acceptEncoding(request);
-		HttpResponse resp = client.execute(host, request, context);
-		return removeEncoding(request, resp);
-	}
-
-	@Override
-	public ClientConnectionManager getConnectionManager() {
-		return client.getConnectionManager();
-	}
-
-	@Override
-	public HttpParams getParams() {
-		return client.getParams();
-	}
-
-	private void acceptEncoding(HttpRequest req) {
-		if (!req.containsHeader("Accept-Encoding")) {
-			req.setHeader("Accept-Encoding", "gzip");
+	public void process(HttpRequest request, HttpContext context)
+			throws HttpException, IOException {
+		if (!request.containsHeader("Accept-Encoding")) {
+			request.setHeader("Accept-Encoding", "gzip");
 		}
 	}
 
-	private HttpResponse removeEncoding(HttpRequest req, HttpResponse resp) {
-		if (resp == null)
-			return resp;
+	@Override
+	public void process(HttpResponse resp, HttpContext context)
+			throws HttpException, IOException {
+		HttpRequest req = (HttpUriRequest) context.getAttribute(ExecutionContext.HTTP_REQUEST);
 		HttpEntity entity = resp.getEntity();
 		if (entity == null)
-			return resp;
+			return;
 		Header cache = req.getFirstHeader("Cache-Control");
 		if (cache != null && cache.getValue().contains("no-transform"))
-			return resp;
+			return;
 		Header encoding = resp.getFirstHeader("Content-Encoding");
 		if (encoding != null && "gzip".equals(encoding.getValue())) {
 			resp.removeHeaders("Content-MD5");
@@ -65,7 +44,6 @@ public class GUnZipHttpResponseClient extends AbstractHttpClient {
 			resp.addHeader("Warning", WARN_214);
 			resp.setEntity(gunzip(entity));
 		}
-		return resp;
 	}
 
 	private HttpEntity gunzip(HttpEntity entity) {
@@ -78,5 +56,4 @@ public class GUnZipHttpResponseClient extends AbstractHttpClient {
 		}
 		return new GUnzipEntity(entity);
 	}
-
 }

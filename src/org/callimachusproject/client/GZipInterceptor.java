@@ -5,44 +5,24 @@ import java.io.IOException;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
-import org.apache.http.HttpHost;
+import org.apache.http.HttpException;
 import org.apache.http.HttpMessage;
 import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.conn.ClientConnectionManager;
-import org.apache.http.params.HttpParams;
+import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.util.DomainNameSystemResolver;
 
-public class GZipHttpRequestClient extends AbstractHttpClient {
+public class GZipInterceptor implements HttpRequestInterceptor {
 	private static final String hostname = DomainNameSystemResolver.getInstance().getLocalHostName();
 	private static final String WARN_214 = "214 " + hostname
 			+ " \"Transformation applied\"";
-	private final HttpClient client;
-
-	public GZipHttpRequestClient(HttpClient client) {
-		this.client = client;
-	}
 
 	@Override
-	public HttpResponse execute(HttpHost host, HttpRequest request,
-			HttpContext context) throws IOException, ClientProtocolException {
+	public void process(HttpRequest request, HttpContext context)
+			throws HttpException, IOException {
 		if (request instanceof HttpEntityEnclosingRequest) {
 			compress((HttpEntityEnclosingRequest) request);
 		}
-		return client.execute(host, request, context);
-	}
-
-	@Override
-	public ClientConnectionManager getConnectionManager() {
-		return client.getConnectionManager();
-	}
-
-	@Override
-	public HttpParams getParams() {
-		return client.getParams();
 	}
 
 	private void compress(HttpEntityEnclosingRequest req) {
@@ -115,5 +95,4 @@ public class GZipHttpRequestClient extends AbstractHttpClient {
 				&& (type.endsWith("+xml") || type.contains("+xml;"));
 		return identity && compressable && transformable;
 	}
-
 }

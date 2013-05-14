@@ -61,7 +61,7 @@ import org.apache.http.HttpRequestFactory;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.conn.ClientConnectionManager;
+import org.apache.http.client.RequestDirector;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.nio.DefaultHttpServerIODispatch;
 import org.apache.http.impl.nio.DefaultNHttpServerConnectionFactory;
@@ -87,7 +87,6 @@ import org.apache.http.protocol.ResponseConnControl;
 import org.apache.http.protocol.ResponseContent;
 import org.apache.http.protocol.ResponseDate;
 import org.callimachusproject.Version;
-import org.callimachusproject.client.AbstractHttpClient;
 import org.callimachusproject.client.HttpClientManager;
 import org.callimachusproject.concurrent.ManagedExecutors;
 import org.callimachusproject.concurrent.NamedThreadFactory;
@@ -126,7 +125,7 @@ import org.slf4j.LoggerFactory;
  * @param <a>
  * 
  */
-public class WebServer extends AbstractHttpClient implements WebServerMXBean, IOReactorExceptionHandler {
+public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, RequestDirector {
 	protected static final String DEFAULT_NAME = Version.getInstance().getVersion();
 	private static final String ENVELOPE_TYPE = "message/x-response";
 	private static NamedThreadFactory executor = new NamedThreadFactory("WebServer", false);
@@ -651,16 +650,6 @@ public class WebServer extends AbstractHttpClient implements WebServerMXBean, IO
 		} catch (HttpException e) {
 			throw new ClientProtocolException(e);
 		}
-	}
-
-	@Override
-	public ClientConnectionManager getConnectionManager() {
-		return service.getConnectionManager();
-	}
-
-	@Override
-	public HttpParams getParams() {
-		return service.getParams();
 	}
 
 	public ConnectionBean[] getConnections() {

@@ -21,6 +21,7 @@ import java.util.Collections;
 
 import org.apache.http.HttpHost;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.RequestDirector;
 import org.apache.http.client.cache.ResourceFactory;
 import org.apache.http.impl.client.SystemDefaultHttpClient;
 import org.apache.http.impl.client.cache.CacheConfig;
@@ -89,9 +90,8 @@ public class HttpClientManager {
 		dir.mkdirs();
 		entryFactory = new FileResourceFactory(dir);
 		HttpParams params = getDefaultHttpParams();
-		HttpClient client;
-		client = new SystemDefaultHttpClient(params);
-		client = new GZipHttpRequestClient(client);
+		SystemDefaultHttpClient client = new SystemDefaultHttpClient(params);
+		client.addRequestInterceptor(new GZipInterceptor());
 		internal = new InternalHttpClient(client);
 		resetCache();
 	}
@@ -101,7 +101,7 @@ public class HttpClientManager {
 		this.client = new HttpCacheClient(internal, entryFactory, config);
 	}
 
-	public synchronized HttpUriClient getClient() {
+	public synchronized HttpClient getClient() {
 		if (++numberOfClientCalls % 100 == 0) {
 			// Deletes the (no longer used) temporary cache files from disk.
 			client.cleanResources();
@@ -114,21 +114,21 @@ public class HttpClientManager {
 		client.shutdown();
 	}
 
-	public synchronized HttpClient getProxy(HttpHost destination) {
+	public synchronized RequestDirector getProxy(HttpHost destination) {
 		return internal.getProxy(destination);
 	}
 
-	public synchronized HttpClient setProxy(HttpHost destination,
-			HttpClient proxy) {
+	public synchronized RequestDirector setProxy(HttpHost destination,
+			RequestDirector proxy) {
 		return internal.setProxy(destination, proxy);
 	}
 
 	public synchronized boolean removeProxy(HttpHost destination,
-			HttpClient proxy) {
+			RequestDirector proxy) {
 		return internal.removeProxy(destination, proxy);
 	}
 
-	public synchronized boolean removeProxy(HttpClient proxy) {
+	public synchronized boolean removeProxy(RequestDirector proxy) {
 		return internal.removeProxy(proxy);
 	}
 

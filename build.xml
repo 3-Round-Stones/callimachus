@@ -95,6 +95,7 @@
         <basename file="${daemon-darwin.url}" property="daemon-darwin.tar.gz" />
         <basename file="${tagsoup.url}" property="tagsoup.jar" />
         <basename file="${httpcore.url}" property="httpcore.zip" />
+        <basename file="${httpclient-cache.url}" property="httpclient-cache.jar" />
         <mkdir dir="${downloads}" />
         <get usetimestamp="true" skipexisting="${lib.present}" dest="${downloads}">
             <url url="${alibaba.url}" />
@@ -111,6 +112,7 @@
             <url url="${tagsoup.url}" />
             <url url="${httpcore.url}" />
             <url url="${httpclient.url}" />
+            <url url="${httpclient-cache.url}" />
         </get>
         <mkdir dir="${lib}" />
         <mkdir dir="${bin}" />
@@ -134,9 +136,11 @@
             <patternset>
                 <include name="**/lib/*.jar" />
                 <exclude name="**/lib/httpcore-*.jar" />
+                <exclude name="**/lib/httpclient-cache-*.jar" />
             </patternset>
             <mapper type="flatten" />
         </unzip>
+        <copy file="${downloads}/${httpclient-cache.jar}" tofile="${lib}/${httpclient-cache.jar}" />
         <unzip overwrite="false" src="${downloads}/${jchardet.zip}" dest="${lib}">
             <patternset>
                 <include name="*/dist/lib/*.jar" />
@@ -202,7 +206,7 @@
 
     <target name="compile" depends="init,dist-dependencies" description="compile the source">
         <!-- Compile the java code from ${src} into ${build} -->
-        <javac srcdir="${src}" destdir="${build}" debug="true" debuglevel="lines,source">
+        <javac srcdir="${src}" destdir="${build}" source="1.6" target="1.6" debug="true" debuglevel="lines,source">
             <classpath>
                 <fileset dir="${lib}">
                     <include name="**/*.jar" />

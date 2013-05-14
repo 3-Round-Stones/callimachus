@@ -69,7 +69,7 @@ public class LogEmitter extends NotificationBroadcasterSupport implements LogEmi
 	public void startNotifications(String loggerName) {
 		Logger logger = LogManager.getLogManager().getLogger(loggerName);
 		if (logger == null)
-			throw new IllegalArgumentException("Not such logger");
+			throw new IllegalArgumentException("No such logger: " + loggerName);
 		logger.removeHandler(nh);
 		logger.addHandler(nh);
 	}

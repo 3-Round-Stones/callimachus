@@ -2,7 +2,6 @@ package org.callimachusproject.client;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 
 import javax.net.ssl.SSLSession;
 
@@ -68,11 +67,7 @@ public class VirtualConnection implements HttpRoutedConnection {
 	
 	@Override
 	public InetAddress getRemoteAddress() {
-		try {
-			return InetAddress.getByName(host.getHostName());
-		} catch (UnknownHostException e) {
-			return null;
-		}
+		return DomainNameSystemResolver.getInstance().getLocalHost();
 	}
 	
 	@Override

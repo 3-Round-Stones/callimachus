@@ -31,12 +31,11 @@ public class LocalSystemProvider extends UpdateProvider {
 					URI subj = vf.createURI(group);
 					URI pred = vf.createURI(CALLI_ANONYMOUSFROM);
 					boolean modified = false;
-					for (String host : dnsResolver.reverseAllLocalHosts()) {
-						Literal obj = vf.createLiteral(host);
-						if (!con.hasStatement(subj, pred, obj)) {
-							con.add(subj, pred, obj);
-							modified = true;
-						}
+					String host = dnsResolver.reverse(dnsResolver.getLocalHost());
+					Literal obj = vf.createLiteral(host);
+					if (!con.hasStatement(subj, pred, obj)) {
+						con.add(subj, pred, obj);
+						modified = true;
 					}
 					con.setAutoCommit(true);
 					return modified;

@@ -23,3 +23,11 @@ INSERT {
 	FILTER NOT EXISTS { <../xquery-editor.html> a calli:PURL }
 };
 
+DELETE {
+    </auth/groups/system> calli:anonymousFrom ?host
+} WHERE {
+    </auth/groups/system> calli:anonymousFrom ?host
+    FILTER (?host != "localhost")
+    FILTER EXISTS { </auth/groups/system> calli:anonymousFrom "localhost" }
+};
+

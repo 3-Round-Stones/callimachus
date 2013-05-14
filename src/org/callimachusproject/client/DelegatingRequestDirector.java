@@ -207,7 +207,7 @@ public class DelegatingRequestDirector implements RequestDirector {
 	
 	            // Populate the execution context
 	            context.setAttribute(ExecutionContext.HTTP_TARGET_HOST, target);
-                context.setAttribute(ExecutionContext.HTTP_CONNECTION, createConnection(target));
+                context.setAttribute(ExecutionContext.HTTP_CONNECTION, new VirtualConnection(target));
 	
 	            // Run request protocol interceptors
 	            requestExec.preProcess(wrapper, httpProcessor, context);
@@ -243,11 +243,6 @@ public class DelegatingRequestDirector implements RequestDirector {
 	        throw ioex;
 	    }
 	} // execute
-
-
-	private Object createConnection(HttpHost host) {
-		return new VirtualConnection(host);
-	}
 
 
 	private RequestWrapper wrapRequest(final HttpRequest request)

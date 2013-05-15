@@ -16,8 +16,6 @@ import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
 
-import com.sun.xml.internal.ws.handler.HandlerException;
-
 public class InternalHttpClient extends OverloadedHttpClient {
 	private ConcurrentMap<HttpHost, RequestDirector> proxies = new ConcurrentHashMap<HttpHost, RequestDirector>();
 	private final HttpClient client;
@@ -47,7 +45,7 @@ public class InternalHttpClient extends OverloadedHttpClient {
 	}
 
 	public HttpResponse execute(HttpHost host, HttpRequest request,
-			HttpContext context) throws IOException, HandlerException {
+			HttpContext context) throws IOException {
 		if (host != null) {
 			RequestDirector proxy = proxies.get(host);
 			if (proxy != null) {

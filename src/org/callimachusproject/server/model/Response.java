@@ -41,13 +41,11 @@ import org.apache.http.ProtocolVersion;
 import org.apache.http.StatusLine;
 import org.apache.http.message.AbstractHttpMessage;
 import org.callimachusproject.server.exceptions.BadRequest;
-import org.callimachusproject.server.exceptions.Conflict;
 import org.callimachusproject.server.exceptions.InternalServerError;
 import org.callimachusproject.server.exceptions.NotFound;
 import org.callimachusproject.server.exceptions.ResponseException;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.exceptions.BehaviourException;
-import org.openrdf.sail.optimistic.exceptions.ConcurrencyException;
 
 /**
  * Builds an HTTP response.
@@ -92,10 +90,6 @@ public class Response extends AbstractHttpMessage {
 
 	public Response badRequest(Exception e) {
 		return exception(new BadRequest(e));
-	}
-
-	public Response conflict(ConcurrencyException e) {
-		return exception(new Conflict(e));
 	}
 
 	public ResponseException getException() {

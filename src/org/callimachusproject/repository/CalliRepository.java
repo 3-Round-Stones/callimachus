@@ -23,6 +23,8 @@ import java.util.logging.Logger;
 
 import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.io.ArrangedWriter;
+import org.callimachusproject.repository.auditing.ActivityFactory;
+import org.callimachusproject.repository.auditing.AuditingRepository;
 import org.callimachusproject.repository.trace.Trace;
 import org.callimachusproject.repository.trace.TracerService;
 import org.openrdf.OpenRDFException;
@@ -40,8 +42,6 @@ import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
-import org.openrdf.repository.auditing.ActivityFactory;
-import org.openrdf.repository.auditing.AuditingRepository;
 import org.openrdf.repository.base.RepositoryWrapper;
 import org.openrdf.repository.config.RepositoryConfigException;
 import org.openrdf.repository.object.ObjectConnection;

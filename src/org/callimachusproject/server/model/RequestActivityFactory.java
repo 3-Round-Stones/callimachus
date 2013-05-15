@@ -7,11 +7,11 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import org.callimachusproject.repository.auditing.ActivityFactory;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.auditing.ActivityFactory;
 
 public class RequestActivityFactory implements ActivityFactory {
 	private static final TimeZone UTC = TimeZone.getTimeZone("UTC");

@@ -16,21 +16,22 @@ import java.util.logging.Logger;
 import junit.framework.TestCase;
 
 import org.callimachusproject.repository.CalliRepository;
+import org.callimachusproject.repository.auditing.AuditingRepository;
+import org.callimachusproject.repository.auditing.config.AuditingRepositoryFactory;
+import org.callimachusproject.sail.auditing.AuditingSail;
 import org.callimachusproject.server.WebServer;
 import org.callimachusproject.server.concepts.AnyThing;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.repository.Repository;
-import org.openrdf.repository.auditing.AuditingRepository;
-import org.openrdf.repository.auditing.config.AuditingRepositoryFactory;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.config.ObjectRepositoryConfig;
 import org.openrdf.repository.object.config.ObjectRepositoryFactory;
+import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.rio.trig.TriGWriter;
 import org.openrdf.sail.Sail;
-import org.openrdf.sail.auditing.AuditingSail;
 import org.openrdf.sail.memory.MemoryStore;
-import org.openrdf.sail.optimistic.OptimisticRepository;
+import org.openrdf.sail.optimistic.OptimisticSail;
 
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientHandlerException;
@@ -199,7 +200,7 @@ public abstract class MetadataServerTestCase extends TestCase {
 	private CalliRepository createRepository() throws Exception {
 		Sail sail = new MemoryStore(dataDir);
 		sail = new AuditingSail(sail);
-		Repository delegate = new OptimisticRepository(sail);
+		Repository delegate = new SailRepository(new OptimisticSail(sail));
 		AuditingRepositoryFactory af = new AuditingRepositoryFactory();
 		AuditingRepository auditing = af.getRepository(af.getConfig());
 		auditing.setDelegate(delegate);

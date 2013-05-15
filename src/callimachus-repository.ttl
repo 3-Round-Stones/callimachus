@@ -8,29 +8,33 @@
 @prefix sail: <http://www.openrdf.org/config/sail#>.
 @prefix ns: <http://www.openrdf.org/config/sail/native#>.
 @prefix audit: <http://www.openrdf.org/config/repository/auditing#>.
-@prefix opt: <http://www.openrdf.org/config/repository/optimistic#>.
+@prefix opt: <http://www.openrdf.org/config/sail/optimistic#>.
 
 [] a rep:Repository ;
-   rep:repositoryID "callimachus" ;
-   rdfs:label "Callimachus Sesame Native Repository" ;
-   rep:repositoryImpl [
-      rep:repositoryType "openrdf:AuditingRepository" ;
-      audit:purgeObsoleteActivitiesAfter "P7D"^^xsd:dayTimeDuration ;
-      audit:minimumRecentActivities 100 ;
-      audit:maximumRecentActivities 1000 ;
-      rep:delegate [
-	      rep:repositoryType "openrdf:OptimisticRepository" ;
-	      opt:snapshot false ;
-	      opt:serializable false ;
-	      sr:sailImpl [
-	         sail:sailType "openrdf:AuditingSail" ;
-	         sail:delegate [
-	            sail:sailType "openrdf:KeywordSail" ;
-	            sail:delegate [
-	              sail:sailType "openrdf:NativeStore" ;
-	              ns:tripleIndexes "spoc,pocs,oscp,cspo"
-	            ]
-	         ]
-	      ]
-	   ]
-   ].
+    rep:repositoryID "callimachus" ;
+    rdfs:label "Callimachus Sesame Native Repository" ;
+    rep:repositoryImpl [
+        rep:repositoryType "openrdf:AuditingRepository" ;
+        audit:purgeObsoleteActivitiesAfter "P7D"^^xsd:dayTimeDuration ;
+        audit:minimumRecentActivities 100 ;
+        audit:maximumRecentActivities 1000 ;
+        rep:delegate [
+            rep:repositoryType "openrdf:SailRepository" ;
+            sr:sailImpl [
+                sail:sailType "openrdf:OptimisticSail" ;
+                opt:readSnapshot true ;
+                opt:snapshot false ;
+                opt:serializable false ;
+                sail:delegate [
+                    sail:sailType "openrdf:AuditingSail" ;
+                    sail:delegate [
+                        sail:sailType "openrdf:KeywordSail" ;
+                        sail:delegate [
+                            sail:sailType "openrdf:NativeStore" ;
+                            ns:tripleIndexes "spoc,pocs,oscp,cspo"
+                        ]
+                    ]
+                ]
+            ]
+        ]
+    ].

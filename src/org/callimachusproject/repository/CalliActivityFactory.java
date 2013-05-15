@@ -11,6 +11,7 @@ import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.callimachusproject.concurrent.ManagedExecutors;
+import org.callimachusproject.repository.auditing.ActivityFactory;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.vocabulary.RDF;
@@ -21,7 +22,6 @@ import org.openrdf.query.UpdateExecutionException;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.auditing.ActivityFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

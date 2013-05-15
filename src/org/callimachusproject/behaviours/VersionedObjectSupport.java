@@ -32,14 +32,14 @@ package org.callimachusproject.behaviours;
 import static java.lang.Integer.toHexString;
 
 import org.callimachusproject.concepts.Activity;
+import org.callimachusproject.repository.auditing.ActivityFactory;
+import org.callimachusproject.repository.auditing.AuditingRepositoryConnection;
 import org.callimachusproject.traits.VersionedObject;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.auditing.ActivityFactory;
-import org.openrdf.repository.auditing.AuditingRepositoryConnection;
 import org.openrdf.repository.base.RepositoryConnectionWrapper;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.ObjectFactory;

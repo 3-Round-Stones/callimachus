@@ -36,11 +36,20 @@ public class EditResourceTest extends TemporaryServerTestCase {
 			"@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.",
 			"",
 			"</my-resource> a calli:Folder; rdfs:label \"my resource\".");
-	private static String RESOURCE_UPDATE = cat("PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>",
+	private static String RESOURCE_UPDATE1 = cat("PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>",
 			"DELETE {",
 			"	</my-resource> rdfs:label \"my resource\" .",
 			"}",
 			"WHERE {",
+			"	</my-resource> rdfs:label \"my resource\" .",
+			"};",
+			"INSERT {",
+			"	</my-resource> rdfs:label \"my modified resource\" .",
+			"}",
+			"WHERE {",
+			"};");
+	private static String RESOURCE_UPDATE2 = cat("PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>",
+			"DELETE WHERE {",
 			"	</my-resource> rdfs:label \"my resource\" .",
 			"};",
 			"INSERT {",
@@ -62,10 +71,7 @@ public class EditResourceTest extends TemporaryServerTestCase {
 			"WHERE {",
 			"};");
 	private static String BAD_RESOURCE_UPDATE2 = cat("PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>",
-			"DELETE {",
-			"	</my-resource> rdfs:label \"no resource\" .",
-			"}",
-			"WHERE {",
+			"DELETE WHERE {",
 			"	</my-resource> rdfs:label \"no resource\" .",
 			"};",
 			"INSERT {",
@@ -222,7 +228,7 @@ public class EditResourceTest extends TemporaryServerTestCase {
 		fail();
 	}
 
-	public void testEdit() throws Exception {
+	public void testEdit1() throws Exception {
 		final WebResource my_create_xhtml = getHomeFolder()
 				.link("contents", "application/atom+xml")
 				.getAppCollection().create("my-create.xhtml", "application/xhtml+xml", CREATE_TEMPLATE.getBytes());
@@ -239,7 +245,34 @@ public class EditResourceTest extends TemporaryServerTestCase {
 		String createResource = "?create=" + MyClass + "&location=my-resource";
 		WebResource my_resource = getHomeFolder().ref(createResource).create("text/turtle", RESOURCE_TURTLE.getBytes());
 		try {
-			my_resource.ref("?edit").post("application/sparql-update", RESOURCE_UPDATE.getBytes(), "text/uri-list");
+			my_resource.ref("?edit").post("application/sparql-update", RESOURCE_UPDATE1.getBytes(), "text/uri-list");
+			return;
+		} finally {
+			my_resource.link("describedby").delete();
+			MyClass.link("describedby").delete();
+			my_edit_xhtml.link("edit-media", "application/xhtml+xml").delete();
+			my_create_xhtml.link("edit-media", "application/xhtml+xml").delete();
+		}
+	}
+
+	public void testEdit2() throws Exception {
+		final WebResource my_create_xhtml = getHomeFolder()
+				.link("contents", "application/atom+xml")
+				.getAppCollection().create("my-create.xhtml", "application/xhtml+xml", CREATE_TEMPLATE.getBytes());
+		final WebResource my_edit_xhtml = getHomeFolder()
+				.link("contents", "application/atom+xml")
+				.getAppCollection().create("my-edit.xhtml", "application/xhtml+xml", EDIT_TEMPLATE.getBytes());
+		WebResource MyClass = waitForCompile(new Callable<WebResource>() {
+			public WebResource call() throws Exception {
+				String createClass = "?create=/callimachus/1.0/types/Class&location=/MyClass";
+				String turtle = CLASS_TURTLE + ";\ncalli:create <" + my_create_xhtml + ">;\ncalli:edit <" + my_edit_xhtml + ">.";
+				return getHomeFolder().ref(createClass).create("text/turtle", turtle.getBytes());
+			}
+		});
+		String createResource = "?create=" + MyClass + "&location=my-resource";
+		WebResource my_resource = getHomeFolder().ref(createResource).create("text/turtle", RESOURCE_TURTLE.getBytes());
+		try {
+			my_resource.ref("?edit").post("application/sparql-update", RESOURCE_UPDATE2.getBytes(), "text/uri-list");
 			return;
 		} finally {
 			my_resource.link("describedby").delete();

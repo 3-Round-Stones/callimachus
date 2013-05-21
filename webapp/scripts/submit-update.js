@@ -184,16 +184,11 @@ function asSparqlUpdate(removed, added) {
     var writer = new UpdateWriter();
 
     if (removed && !$.isEmptyObject(removed)) {
-        writer.openDelete();
+        writer.openDeleteWhere();
         for (triple in removed) {
             writer.pattern(removed[triple]);
         }
-        writer.closeDelete();
-        writer.openWhere();
-        for (triple in removed) {
-            writer.pattern(removed[triple]);
-        }
-        writer.closeWhere();
+        writer.closeDeleteWhere();
     }
 
     if (added && !$.isEmptyObject(added)) {
@@ -250,11 +245,11 @@ function UpdateWriter() {
         return this.buf.join('');
     };
     
-    this.openDelete = function() {
-        this.push('DELETE {\n');
+    this.openDeleteWhere = function() {
+        this.push('DELETE WHERE {\n');
     };
     
-    this.closeDelete = function() {
+    this.closeDeleteWhere = function() {
         this.push('}\n');
     };
     

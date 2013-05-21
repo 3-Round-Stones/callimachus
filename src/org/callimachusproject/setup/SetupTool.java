@@ -94,6 +94,9 @@ public class SetupTool {
 
 	public SetupTool(String repositoryID, CalliRepository repository,
 			CallimachusConf conf) throws OpenRDFException {
+		assert repository != null;
+		assert repositoryID != null;
+		assert conf != null;
 		this.repositoryID = repositoryID;
 		this.repository = repository;
 		this.conf = conf;

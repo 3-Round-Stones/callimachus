@@ -897,8 +897,6 @@ public class CalliServer implements CalliServerMXBean {
 		CalliRepository repository = repositories.get(repositoryID);
 		if (repository != null && repository.isInitialized())
 			return repository;
-		if (origins.isEmpty())
-			return null;
 		Repository repo = manager.getRepository(repositoryID);
 		File dataDir = manager.getRepositoryDir(repositoryID);
 		if (repo == null)

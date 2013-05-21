@@ -54,7 +54,6 @@ INSERT {
         <../changes/>,
         <../getting-started-with-callimachus>,
         <../callimachus-for-web-developers>,
-        <../styles.css>,
         <../scripts.js>,
         <../library.xpl>,
         <../error.xpl>,
@@ -112,17 +111,6 @@ INSERT {
 	calli:reader </auth/groups/public> .
 } WHERE {
 	FILTER NOT EXISTS { <../callimachus-for-web-developers> a calli:PURL }
-};
-
-INSERT {
-<../styles.css> a <types/PURL>, calli:PURL ;
-	rdfs:label "styles.css";
-	calli:alternate ?alternate;
-	calli:administrator </auth/groups/super>;
-	calli:reader </auth/groups/public> .
-} WHERE {
-    BIND (str(<styles/callimachus.less?less>) as ?alternate)
-	FILTER NOT EXISTS { <../styles.css> a calli:PURL }
 };
 
 INSERT {

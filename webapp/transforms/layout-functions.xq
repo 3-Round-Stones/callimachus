@@ -67,7 +67,7 @@ declare function calli:add-href($a as element(), $link as element(), $label as x
 (: static markup functions :)
 declare function calli:styles-href($link as element()) as element() {
     element {node-name($link)} {
-        attribute href {resolve-uri('/callimachus/styles.css')},
+        attribute href {resolve-uri('../styles/callimachus.less?less')},
         $link/@*[name()!='href'],
         $link/node()
     }

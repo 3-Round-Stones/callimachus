@@ -250,7 +250,7 @@ function UpdateWriter() {
     };
     
     this.closeDeleteWhere = function() {
-        this.push('}\n');
+        this.push('};\n');
     };
     
     this.openInsert = function() {

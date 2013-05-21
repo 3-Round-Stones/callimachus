@@ -34,6 +34,7 @@ public final class CalliActivityFactory implements ActivityFactory {
 	private static final String ACTIVITY = "http://www.w3.org/ns/prov#Activity";
 	private static final String PREFIX = "PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
 			+ "PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>\n"
+			+ "PREFIX owl:<http://www.w3.org/2002/07/owl#>\n"
 			+ "PREFIX prov:<http://www.w3.org/ns/prov#>\n"
 			+ "PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>\n";
 	private static final String END_ACTIVITY = PREFIX
@@ -58,13 +59,9 @@ public final class CalliActivityFactory implements ActivityFactory {
 			+ "    } UNION {\n"
 			+ "        {SELECT DISTINCT ?type {\n"
 			+ "            [rdf:type ?type] prov:wasGeneratedBy $activity\n"
-			+ "        }} {\n"
-			+ "            ?type calli:subscriber ?reader\n"
-			+ "        } UNION {\n"
-			+ "            ?type calli:editor ?reader\n"
-			+ "        } UNION {\n"
-			+ "            ?type calli:administrator ?reader\n"
-			+ "}   }   }";
+			+ "        }}\n"
+			+ "        ?type ^owl:equivalentClass?/(calli:subscriber|calli:editor|calli:administrator) ?reader\n"
+			+ "}   }";
 	private static final String INSERT_FOLDER = PREFIX + "INSERT {\n"
 			+ "$parent calli:hasComponent $folder .\n"
 			+ "$folder a calli:Folder, $folderType;\n" + "rdfs:label $label;\n"

@@ -85,7 +85,7 @@ public class WebappArchiveImporter {
 			repository.setCompileRepository(true);
 			ObjectConnection con = repository.getConnection();
 			try {
-				con.setAutoCommit(false);
+				con.begin();
 				if (schemaGraphs != null && schemaGraphs.length > 0) {
 					con.clear(schemaGraphs);
 				}
@@ -101,7 +101,7 @@ public class WebappArchiveImporter {
 					throw new AssertionError(e);
 				}
 				repository.setCompileRepository(false);
-				con.setAutoCommit(true);
+				con.commit();
 			} finally {
 				con.close();
 				client.removeProxy(host, service);
@@ -162,7 +162,7 @@ public class WebappArchiveImporter {
 						vf.createURI(CALLI_HASCOMPONENT), uri))
 					return;
 
-				con.setAutoCommit(false);
+				con.begin();
 				con.add(vf.createURI(parent), vf.createURI(CALLI_HASCOMPONENT),
 						uri);
 				String label = folder.substring(parent.length())
@@ -171,7 +171,7 @@ public class WebappArchiveImporter {
 				con.add(uri, RDF.TYPE, vf.createURI(webapp + FOLDER_TYPE));
 				con.add(uri, RDFS.LABEL, vf.createLiteral(label));
 				setFolderPermissions(uri, con);
-				con.setAutoCommit(true);
+				con.commit();
 				return;
 			}
 		} finally {

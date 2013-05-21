@@ -271,7 +271,7 @@ public class CallimachusSetup {
 		validateEmail(email);
 		ObjectConnection con = repository.getConnection();
 		try {
-			con.setAutoCommit(false);
+			con.begin();
 			ValueFactory vf = con.getValueFactory();
 			URI folder = webapp(origin, INVITED_USERS);
 			URI subj = vf.createURI(folder.stringValue(), slugify(email));
@@ -291,7 +291,7 @@ public class CallimachusSetup {
 			if (email != null && email.length() > 2) {
 				con.add(subj, calliEmail, vf.createLiteral(email));
 			}
-			con.setAutoCommit(true);
+			con.commit();
 			return true;
 		} finally {
 			con.close();
@@ -303,7 +303,7 @@ public class CallimachusSetup {
 		validateEmail(email);
 		ObjectConnection con = repository.getConnection();
 		try {
-			con.setAutoCommit(false);
+			con.begin();
 			ValueFactory vf = con.getValueFactory();
 			boolean modified = false;
 			URI space = webapp(webappOrigin, INVITED_USERS);
@@ -313,7 +313,7 @@ public class CallimachusSetup {
 				con.add(group, vf.createURI(CALLI_MEMBER), subj);
 				modified = true;
 			}
-			con.setAutoCommit(true);
+			con.commit();
 			return modified;
 		} finally {
 			con.close();
@@ -326,7 +326,7 @@ public class CallimachusSetup {
 		validateName(username);
 		ObjectConnection con = repository.getConnection();
 		try {
-			con.setAutoCommit(false);
+			con.begin();
 			ValueFactory vf = con.getValueFactory();
 			boolean modified = false;
 			URI space = webapp(origin, INVITED_USERS);
@@ -358,7 +358,7 @@ public class CallimachusSetup {
 						digest.getCalliAuthName(), password);
 				modified |= setPassword(digestUser, encoded, origin, con);
 			}
-			con.setAutoCommit(true);
+			con.commit();
 			if (modified) {
 				logger.info("Changed password of {}", username);
 			}

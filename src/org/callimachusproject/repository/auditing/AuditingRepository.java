@@ -386,11 +386,11 @@ public class AuditingRepository extends ContextAwareRepository {
 		try {
 			Iterator<URI> iter = trim.iterator();
 			while (iter.hasNext()) {
-				con.setAutoCommit(false);
+				con.begin();
 				Update update = con.prepareUpdate(SPARQL, TRIM_RECENT_BUNDLE);
 				update.setBinding("bundle", iter.next());
 				update.execute();
-				con.setAutoCommit(true);
+				con.commit();
 				iter.remove();
 			}
 		} finally {

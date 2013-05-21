@@ -118,7 +118,7 @@ public class Callimachus_0_18_UpgradeProvider extends UpdateProvider {
 			throws OpenRDFException {
 		ObjectConnection con = repository.getConnection();
 		try {
-			con.setAutoCommit(false);
+			con.begin();
 			ValueFactory vf = con.getValueFactory();
 			TupleQueryResult results = con.prepareTupleQuery(
 					QueryLanguage.SPARQL, MOVED_FILE, webapp).evaluate();
@@ -136,7 +136,7 @@ public class Callimachus_0_18_UpgradeProvider extends UpdateProvider {
 			} finally {
 				results.close();
 			}
-			con.setAutoCommit(true);
+			con.commit();
 		} finally {
 			con.close();
 		}
@@ -190,7 +190,7 @@ public class Callimachus_0_18_UpgradeProvider extends UpdateProvider {
 			CalliRepository repository) throws OpenRDFException {
 		ObjectConnection con = repository.getConnection();
 		try {
-			con.setAutoCommit(false);
+			con.begin();
 			ValueFactory vf = con.getValueFactory();
 			for (String folderUri : folders) {
 				Object folder = con.getObject(folderUri);
@@ -217,7 +217,7 @@ public class Callimachus_0_18_UpgradeProvider extends UpdateProvider {
 					return;
 				}
 			}
-			con.setAutoCommit(true);
+			con.commit();
 		} catch (IllegalAccessException e) {
 			logger.warn(e.toString());
 		} catch (NoSuchMethodException e) {

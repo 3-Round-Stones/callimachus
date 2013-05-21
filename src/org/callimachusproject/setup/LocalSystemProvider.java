@@ -26,7 +26,7 @@ public class LocalSystemProvider extends UpdateProvider {
 				String group = origin + SYSTEM_GROUP;
 				ObjectConnection con = repository.getConnection();
 				try {
-					con.setAutoCommit(false);
+					con.begin();
 					ValueFactory vf = con.getValueFactory();
 					URI subj = vf.createURI(group);
 					URI pred = vf.createURI(CALLI_ANONYMOUSFROM);
@@ -37,7 +37,7 @@ public class LocalSystemProvider extends UpdateProvider {
 						con.add(subj, pred, obj);
 						modified = true;
 					}
-					con.setAutoCommit(true);
+					con.commit();
 					return modified;
 				} finally {
 					con.close();

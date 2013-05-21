@@ -183,18 +183,8 @@ public class AuditingRepositoryConnection extends ContextAwareConnection {
 
 	@Override
 	public void commit() throws RepositoryException {
-		Map<URI,URI> recentBundles;
-		boolean autoCommit = super.isAutoCommit();
-		try {
-			super.setAutoCommit(false);
-			recentBundles = finalizeBundles();
-			super.setAutoCommit(autoCommit);
-			super.commit();
-		} finally {
-			if (autoCommit) {
-				super.rollback();
-			}
-		}
+		Map<URI,URI> recentBundles = finalizeBundles();
+		super.commit();
 		closeBundle(recentBundles);
 	}
 
@@ -231,9 +221,11 @@ public class AuditingRepositoryConnection extends ContextAwareConnection {
 		return new Update(){
 			public void execute() throws UpdateExecutionException {
 				try {
-					boolean autoCommit = isAutoCommit();
+					boolean autoCommit = !isActive();
 					try {
-						setAutoCommit(false);
+						if (autoCommit) {
+							begin();
+						}
 						try {
 							BindingSet bindings = prepared.getBindings();
 							Dataset dataset = prepared.getDataset();
@@ -246,7 +238,9 @@ public class AuditingRepositoryConnection extends ContextAwareConnection {
 							// ignore
 						}
 						prepared.execute();
-						setAutoCommit(autoCommit);
+						if (autoCommit) {
+							commit();
+						}
 					} finally {
 						if (autoCommit) {
 							rollback();

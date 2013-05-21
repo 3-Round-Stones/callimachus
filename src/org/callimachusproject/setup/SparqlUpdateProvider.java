@@ -73,9 +73,9 @@ public class SparqlUpdateProvider extends UpdateProvider {
 					String ru = IOUtil.readString(reader);
 					ObjectConnection con = repository.getConnection();
 					try {
-						con.setAutoCommit(false);
+						con.begin();
 						con.prepareUpdate(SPARQL, ru, webapp).execute();
-						con.setAutoCommit(true);
+						con.commit();
 					} catch (MalformedQueryException e) {
 						throw new MalformedQueryException(e.getMessage()
 								.replaceAll("\n.*", "") + " in " + url, e);
@@ -106,12 +106,12 @@ public class SparqlUpdateProvider extends UpdateProvider {
 					String ru = IOUtil.readString(reader);
 					ObjectConnection con = repository.getConnection();
 					try {
-						con.setAutoCommit(false);
+						con.begin();
 						ValueFactory vf = con.getValueFactory();
 						Update update = con.prepareUpdate(SPARQL, ru, webapp);
 						update.setBinding("origin", vf.createURI(virtual + "/"));
 						update.execute();
-						con.setAutoCommit(true);
+						con.commit();
 					} catch (MalformedQueryException e) {
 						throw new MalformedQueryException(e.getMessage()
 								.replaceAll("\n.*", "") + " in " + url, e);
@@ -143,9 +143,9 @@ public class SparqlUpdateProvider extends UpdateProvider {
 					String ru = IOUtil.readString(reader);
 					ObjectConnection con = repository.getConnection();
 					try {
-						con.setAutoCommit(false);
+						con.begin();
 						con.prepareUpdate(SPARQL, ru, webapp).execute();
-						con.setAutoCommit(true);
+						con.commit();
 					} catch (MalformedQueryException e) {
 						throw new MalformedQueryException(e.getMessage()
 								.replaceAll("\n.*", "") + " in " + url, e);
@@ -175,9 +175,9 @@ public class SparqlUpdateProvider extends UpdateProvider {
 					String ru = IOUtil.readString(reader);
 					ObjectConnection con = repository.getConnection();
 					try {
-						con.setAutoCommit(false);
+						con.begin();
 						con.prepareUpdate(SPARQL, ru, webapp).execute();
-						con.setAutoCommit(true);
+						con.commit();
 					} catch (MalformedQueryException e) {
 						throw new MalformedQueryException(e.getMessage()
 								.replaceAll("\n.*", "") + " in " + url, e);

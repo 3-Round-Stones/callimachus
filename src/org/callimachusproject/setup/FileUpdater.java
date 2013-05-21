@@ -55,7 +55,7 @@ public abstract class FileUpdater implements Updater {
 			throws IOException, OpenRDFException {
 		ObjectConnection con = repository.getConnection();
 		try {
-			con.setAutoCommit(false);
+			con.begin();
 			URI article = createFileData(origin, webapp, con);
 			BlobObject blob = con.getBlobObject(article);
 			CharSequence current = blob.getCharContent(true);
@@ -75,7 +75,7 @@ public abstract class FileUpdater implements Updater {
 			} finally {
 				in.close();
 			}
-			con.setAutoCommit(true);
+			con.commit();
 		} finally {
 			con.close();
 		}

@@ -86,13 +86,13 @@ public class Callimachus_1_0_1_UpgradeProvider extends UpdateProvider {
 				repository.setCompileRepository(true);
 				ObjectConnection con = repository.getConnection();
 				try {
-					con.setAutoCommit(false);
+					con.begin();
 					RDFObject folder = (RDFObject) con.getObject(webapp);
 					Method DeleteComponents = findDeleteComponents(folder);
 					try {
 						logger.info("Removing {}", folder);
 						invokeAndRemove(DeleteComponents, folder, origin, con);
-						con.setAutoCommit(true);
+						con.commit();
 						return true;
 					} catch (InvocationTargetException e) {
 						try {
@@ -157,7 +157,7 @@ public class Callimachus_1_0_1_UpgradeProvider extends UpdateProvider {
 		ObjectConnection con = repository.getConnection();
 		try {
 			ValueFactory vf = con.getValueFactory();
-			con.setAutoCommit(false);
+			con.begin();
 			String folder = webapp;
 			TupleQueryResult results;
 			results = con.prepareTupleQuery(QueryLanguage.SPARQL,
@@ -193,7 +193,7 @@ public class Callimachus_1_0_1_UpgradeProvider extends UpdateProvider {
 			} finally {
 				results.close();
 			}
-			con.setAutoCommit(true);
+			con.commit();
 			return modified;
 		} finally {
 			con.rollback();
@@ -215,10 +215,10 @@ public class Callimachus_1_0_1_UpgradeProvider extends UpdateProvider {
 			throws RepositoryException {
 		ObjectConnection con = repository.getConnection();
 		try {
-			con.setAutoCommit(false);
+			con.begin();
 			boolean modified = false;
 			modified |= stopServingOther(con);
-			con.setAutoCommit(true);
+			con.commit();
 			return modified;
 		} finally {
 			con.close();

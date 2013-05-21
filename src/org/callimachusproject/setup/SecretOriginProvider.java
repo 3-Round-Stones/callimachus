@@ -29,7 +29,7 @@ public class SecretOriginProvider extends UpdateProvider {
 					throws IOException, OpenRDFException {
 				ObjectConnection con = repository.getConnection();
 				try {
-					con.setAutoCommit(false);
+					con.begin();
 					ValueFactory vf = con.getValueFactory();
 					URI subj = vf.createURI(origin + "/");
 					if (!con.hasStatement(subj, vf.createURI(CALLI_SECRET),
@@ -44,7 +44,7 @@ public class SecretOriginProvider extends UpdateProvider {
 							writer.close();
 						}
 						con.add(subj, vf.createURI(CALLI_SECRET), secret);
-						con.setAutoCommit(true);
+						con.commit();
 						return true;
 					}
 					return false;

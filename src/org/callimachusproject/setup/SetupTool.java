@@ -181,7 +181,7 @@ public class SetupTool {
 			throws OpenRDFException, IOException {
 		ObjectConnection con = repository.getConnection();
 		try {
-			con.setAutoCommit(false);
+			con.begin();
 			ValueFactory vf = con.getValueFactory();
 			URI s = vf.createURI(realm);
 			URI p = vf.createURI(CALLI_AUTHENTICATION);
@@ -189,7 +189,7 @@ public class SetupTool {
 			if (!con.hasStatement(s, p, o)) {
 				con.add(s, p, o);
 			}
-			con.setAutoCommit(true);
+			con.commit();
 		} finally {
 			con.close();
 		}
@@ -217,7 +217,7 @@ public class SetupTool {
 			URI target = vf.createURI(systemId);
 			URI folder = createFolder(getParentFolder(systemId), webappOrigin, con);
 			URI hasComponent = vf.createURI(CALLI_HASCOMPONENT);
-			con.setAutoCommit(false);
+			con.begin();
 			if (con.hasStatement(folder, hasComponent, target))
 				return false;
 			con.add(new StringReader(graph), systemId, RDFFormat.forMIMEType(type));
@@ -225,7 +225,7 @@ public class SetupTool {
 			Update perm = con.prepareUpdate(QueryLanguage.SPARQL, COPY_FILE_PERM);
 			perm.setBinding("file", target);
 			perm.execute();
-			con.setAutoCommit(true);
+			con.commit();
 			return true;
 		} finally {
 			con.close();

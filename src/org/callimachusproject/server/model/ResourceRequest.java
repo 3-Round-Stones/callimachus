@@ -160,7 +160,7 @@ public class ResourceRequest extends Request {
 			if (!this.isSafe()) {
 				initiateActivity();
 			}
-			con.setAutoCommit(false); // begin()
+			con.begin();
 			result = con.getObjects(VersionedObject.class, uri);
 			target = result.singleResult();
 		}
@@ -193,18 +193,11 @@ public class ResourceRequest extends Request {
 	}
 
 	public void rollback() throws RepositoryException {
-		ObjectConnection con = getObjectConnection();
-		con.rollback();
-		con.setAutoCommit(true); // rollback()
+		getObjectConnection().rollback();
 	}
 
 	public void commit() throws IOException, RepositoryException {
-		try {
-			ObjectConnection con = getObjectConnection();
-			con.setAutoCommit(true); // commit()
-		} catch (RepositoryException e) {
-			rollback();
-		}
+		getObjectConnection().commit();
 	}
 
 	/**

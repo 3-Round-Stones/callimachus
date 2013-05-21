@@ -60,7 +60,7 @@ public class CallimachusWebappImportProvider extends UpdateProvider {
 		Collection<URI> schemaGraphs = new LinkedHashSet<URI>();
 		ObjectConnection con = repository.getConnection();
 		try {
-			con.setAutoCommit(false);
+			con.begin();
 			CarInputStream carin = new CarInputStream(new FileInputStream(SystemProperties.getWebappCarFile()));
 			try {
 				String name;
@@ -81,7 +81,7 @@ public class CallimachusWebappImportProvider extends UpdateProvider {
 			} finally {
 				carin.close();
 			}
-			con.setAutoCommit(true);
+			con.commit();
 		} finally {
 			con.close();
 		}

@@ -110,7 +110,7 @@
             <div id="icon" dropzone="link s:text/uri-list" class="control-group"
                     ondrop="return calli.insertResource(event)">
                 <label class="control-label">Icon <a href="/?view" title="Browse"
-                        onclick="return calli.selectResource(event)" class="ui-icon ui-icon-folder-open" /></label>
+                        onclick="return calli.selectResource(event)" class="icon-folder-open" /></label>
                 <div rel="calli:icon" class="controls">
                     <span resource="?icon" typeof="foaf:Image" class="ui-state-highlight ui-corner-all">
                         <img src="{?icon}" />
@@ -129,7 +129,7 @@
             <div id="authors" dropzone="link s:text/uri-list" class="control-group"
                     ondrop="return calli.insertResource(event)">
                 <label class="control-label">Authors <a href="/auth/groups/" title="Select Group"
-                        onclick="return calli.selectResource(event)" class="ui-icon ui-icon-newwin" /></label>
+                        onclick="return calli.selectResource(event)" class="icon-folder-open" /></label>
                 <div rel="calli:author" class="vbox controls">
                     <span resource="?author" typeof="calli:Party" class="ui-state-highlight ui-corner-all">
                         <span property="rdfs:label" />
@@ -140,7 +140,7 @@
             <div id="subClassOf" dropzone="link s:text/uri-list" class="control-group"
                     ondrop="return calli.insertResource(event)">
                 <label class="control-label">Super <a href="/?view" title="Create"
-                        onclick="return calli.selectResource(event)" class="ui-icon ui-icon-newwin" /></label>
+                        onclick="return calli.selectResource(event)" class="icon-folder-open" /></label>
                 <div rel="rdfs:subClassOf" class="vbox controls">
                     <span resource="?subClassOf" typeof="owl:Class" class="ui-state-highlight ui-corner-all">
                         <span property="rdfs:label" />

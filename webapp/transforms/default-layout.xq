@@ -8,15 +8,11 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
     <meta name="viewport" content="width=device-width,height=device-height,initial-scale=1.0,target-densityDpi=device-dpi"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <link rel="icon" href="/favicon.ico" />
-    <!--[if gt IE 6]><!-->
     {calli:styles-href(<link rel="stylesheet" />)}
     {calli:scripts-src(<script type="text/javascript" />)}
     <!--[if lt IE 9]>
-        <script>document.documentElement.className+=' ie'</script>
-        <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
-        <script src="//cdn-delivery.commondatastorage.googleapis.com/spiders-design/theme/js/selectivizr.js"></script>
+        <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-    <!--<![endif]-->
     {calli:head-nodes()}
 </head>
 <body>

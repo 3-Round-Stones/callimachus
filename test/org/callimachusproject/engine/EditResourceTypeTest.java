@@ -183,7 +183,7 @@ public class EditResourceTypeTest extends TemporaryServerTestCase {
 				.getAppCollection().create("my-create.xhtml", "application/xhtml+xml", CREATE_TEMPLATE.getBytes());
 		WebResource MyClass = waitForCompile(new Callable<WebResource>() {
 			public WebResource call() throws Exception {
-				String createClass = "?create=/callimachus/1.0/types/Class&location=/MyClass";
+				String createClass = "?create=/callimachus/1.0/types/Class";
 				String turtle = CLASS_TURTLE + ";\ncalli:create <" + my_create_xhtml + ">.";
 				return getHomeFolder().ref(createClass).create("text/turtle", turtle.getBytes());
 			}
@@ -191,7 +191,7 @@ public class EditResourceTypeTest extends TemporaryServerTestCase {
 		WebResource types_ttl = getHomeFolder().link("contents", "application/atom+xml")
 				.getAppCollection()
 				.create("types.ttl", "text/turtle", TYPES_TURTLE.getBytes());
-		String createResource = "?create=" + MyClass + "&location=/my-resource";
+		String createResource = "?create=" + MyClass;
 		WebResource my_resource = null;
 		try {
 			my_resource = getHomeFolder().ref(createResource).create("text/turtle", RESOURCE_TURTLE.getBytes());
@@ -212,7 +212,7 @@ public class EditResourceTypeTest extends TemporaryServerTestCase {
 				.getAppCollection().create("my-create.xhtml", "application/xhtml+xml", CREATE_TEMPLATE.getBytes());
 		WebResource MyClass = waitForCompile(new Callable<WebResource>() {
 			public WebResource call() throws Exception {
-				String createClass = "?create=/callimachus/1.0/types/Class&location=/MyClass";
+				String createClass = "?create=/callimachus/1.0/types/Class";
 				String turtle = CLASS_TURTLE + ";\ncalli:create <" + my_create_xhtml + ">.";
 				return getHomeFolder().ref(createClass).create("text/turtle", turtle.getBytes());
 			}
@@ -220,7 +220,7 @@ public class EditResourceTypeTest extends TemporaryServerTestCase {
 		WebResource types_ttl = getHomeFolder().link("contents", "application/atom+xml")
 				.getAppCollection()
 				.create("types.ttl", "text/turtle", TYPES_TURTLE.getBytes());
-		String createResource = "?create=" + MyClass + "&location=/my-resource";
+		String createResource = "?create=" + MyClass;
 		WebResource my_resource = null;
 		try {
 			my_resource = getHomeFolder().ref(createResource).create("text/turtle", BAD_RESOURCE_TURTLE.getBytes());
@@ -246,7 +246,7 @@ public class EditResourceTypeTest extends TemporaryServerTestCase {
 				.getAppCollection().create("my-edit.xhtml", "application/xhtml+xml", EDIT_TEMPLATE.getBytes());
 		WebResource MyClass = waitForCompile(new Callable<WebResource>() {
 			public WebResource call() throws Exception {
-				String createClass = "?create=/callimachus/1.0/types/Class&location=/MyClass";
+				String createClass = "?create=/callimachus/1.0/types/Class";
 				String turtle = CLASS_TURTLE + ";\ncalli:create <" + my_create_xhtml + ">;\ncalli:edit <" + my_edit_xhtml + ">.";
 				return getHomeFolder().ref(createClass).create("text/turtle", turtle.getBytes());
 			}
@@ -254,7 +254,7 @@ public class EditResourceTypeTest extends TemporaryServerTestCase {
 		WebResource types_ttl = getHomeFolder().link("contents", "application/atom+xml")
 				.getAppCollection()
 				.create("types.ttl", "text/turtle", TYPES_TURTLE.getBytes());
-		String createResource = "?create=" + MyClass + "&location=my-resource";
+		String createResource = "?create=" + MyClass;
 		WebResource my_resource = getHomeFolder().ref(createResource).create("text/turtle", RESOURCE_TURTLE.getBytes());
 		try {
 			my_resource.ref("?edit").post("application/sparql-update", RESOURCE_UPDATE.getBytes(), "text/uri-list");
@@ -277,7 +277,7 @@ public class EditResourceTypeTest extends TemporaryServerTestCase {
 				.getAppCollection().create("my-edit.xhtml", "application/xhtml+xml", EDIT_TEMPLATE.getBytes());
 		WebResource MyClass = waitForCompile(new Callable<WebResource>() {
 			public WebResource call() throws Exception {
-				String createClass = "?create=/callimachus/1.0/types/Class&location=/MyClass";
+				String createClass = "?create=/callimachus/1.0/types/Class";
 				String turtle = CLASS_TURTLE + ";\ncalli:create <" + my_create_xhtml + ">;\ncalli:edit <" + my_edit_xhtml + ">.";
 				return getHomeFolder().ref(createClass).create("text/turtle", turtle.getBytes());
 			}
@@ -285,7 +285,7 @@ public class EditResourceTypeTest extends TemporaryServerTestCase {
 		WebResource types_ttl = getHomeFolder().link("contents", "application/atom+xml")
 				.getAppCollection()
 				.create("types.ttl", "text/turtle", TYPES_TURTLE.getBytes());
-		String createResource = "?create=" + MyClass + "&location=my-resource";
+		String createResource = "?create=" + MyClass;
 		WebResource my_resource = getHomeFolder().ref(createResource).create("text/turtle", RESOURCE_TURTLE.getBytes());
 		try {
 			my_resource.ref("?edit").create("application/sparql-update", BAD_RESOURCE_DELETE1.getBytes());
@@ -310,7 +310,7 @@ public class EditResourceTypeTest extends TemporaryServerTestCase {
 				.getAppCollection().create("my-edit.xhtml", "application/xhtml+xml", EDIT_TEMPLATE.getBytes());
 		WebResource MyClass = waitForCompile(new Callable<WebResource>() {
 			public WebResource call() throws Exception {
-				String createClass = "?create=/callimachus/1.0/types/Class&location=/MyClass";
+				String createClass = "?create=/callimachus/1.0/types/Class";
 				String turtle = CLASS_TURTLE + ";\ncalli:create <" + my_create_xhtml + ">;\ncalli:edit <" + my_edit_xhtml + ">.";
 				return getHomeFolder().ref(createClass).create("text/turtle", turtle.getBytes());
 			}
@@ -318,7 +318,7 @@ public class EditResourceTypeTest extends TemporaryServerTestCase {
 		WebResource types_ttl = getHomeFolder().link("contents", "application/atom+xml")
 				.getAppCollection()
 				.create("types.ttl", "text/turtle", TYPES_TURTLE.getBytes());
-		String createResource = "?create=" + MyClass + "&location=my-resource";
+		String createResource = "?create=" + MyClass;
 		WebResource my_resource = getHomeFolder().ref(createResource).create("text/turtle", RESOURCE_TURTLE.getBytes());
 		try {
 			my_resource.ref("?edit").create("application/sparql-update", BAD_RESOURCE_DELETE2.getBytes());
@@ -343,7 +343,7 @@ public class EditResourceTypeTest extends TemporaryServerTestCase {
 				.getAppCollection().create("my-edit.xhtml", "application/xhtml+xml", EDIT_TEMPLATE.getBytes());
 		WebResource MyClass = waitForCompile(new Callable<WebResource>() {
 			public WebResource call() throws Exception {
-				String createClass = "?create=/callimachus/1.0/types/Class&location=/MyClass";
+				String createClass = "?create=/callimachus/1.0/types/Class";
 				String turtle = CLASS_TURTLE + ";\ncalli:create <" + my_create_xhtml + ">;\ncalli:edit <" + my_edit_xhtml + ">.";
 				return getHomeFolder().ref(createClass).create("text/turtle", turtle.getBytes());
 			}
@@ -351,7 +351,7 @@ public class EditResourceTypeTest extends TemporaryServerTestCase {
 		WebResource types_ttl = getHomeFolder().link("contents", "application/atom+xml")
 				.getAppCollection()
 				.create("types.ttl", "text/turtle", TYPES_TURTLE.getBytes());
-		String createResource = "?create=" + MyClass + "&location=my-resource";
+		String createResource = "?create=" + MyClass;
 		WebResource my_resource = getHomeFolder().ref(createResource).create("text/turtle", RESOURCE_TURTLE.getBytes());
 		try {
 			my_resource.ref("?edit").create("application/sparql-update", BAD_RESOURCE_INSERT.getBytes());

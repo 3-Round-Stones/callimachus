@@ -1,11 +1,22 @@
 package org.callimachusproject.behaviours;
 
+import java.io.BufferedInputStream;
+import java.io.IOException;
+
 import org.callimachusproject.auth.AuthorizationService;
 import org.openrdf.OpenRDFException;
+import org.openrdf.model.Statement;
+import org.openrdf.model.URI;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.ObjectRepository;
 import org.openrdf.repository.object.RDFObject;
+import org.openrdf.rio.RDFFormat;
+import org.openrdf.rio.RDFHandlerException;
+import org.openrdf.rio.RDFParseException;
+import org.openrdf.rio.RDFParser;
+import org.openrdf.rio.RDFParserRegistry;
+import org.openrdf.rio.helpers.RDFHandlerBase;
 
 public abstract class CompositeSupport implements RDFObject {
 	private final AuthorizationService service = AuthorizationService.getInstance();
@@ -15,6 +26,30 @@ public abstract class CompositeSupport implements RDFObject {
 		ObjectConnection conn = this.getObjectConnection();
 		ObjectRepository repo = conn.getRepository();
 		return service.get(repo).isAuthorized(user, target, roles);
+	}
+
+	public String peekAtStatementSubject(BufferedInputStream in, String type, String base)
+			throws RDFParseException, IOException {
+		try {
+			in.mark(65536);
+			RDFFormat format = RDFFormat.forMIMEType(type);
+			RDFParserRegistry registry = RDFParserRegistry.getInstance();
+			RDFParser parser = registry.get(format).getParser();
+			parser.setRDFHandler(new RDFHandlerBase() {
+				public void handleStatement(Statement st)
+						throws RDFHandlerException {
+					if (st.getSubject() instanceof URI) {
+						throw new RDFHandlerException(st.getSubject().stringValue());
+					}
+				}
+			});
+			parser.parse(in, base);
+			return null;
+		} catch (RDFHandlerException e) {
+			return e.getMessage();
+		} finally {
+			in.reset();
+		}
 	}
 
 }

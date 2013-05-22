@@ -23,28 +23,32 @@ window.calli.saveResourceAs = function(event, fileName, create) {
     var resource = $(form).attr('about') || $(form).attr('resource');
     if (event.type == 'submit') {
         if (fileName && !nestedSubmit) {
-            // set resource attribute and go
-            var ns = calli.listResourceIRIs(calli.getPageUrl())[0];
+            // let's set the resource attribute and go
+            var about = calli.listResourceIRIs(calli.getPageUrl())[0];
+            var ns = null;
             if (resource) {
-                ns = resource.replace(/[^\/]*\/?$/, ''); // get parent folder
-            } else if (ns.lastIndexOf('/') != ns.length - 1
+                // use the already chosen folder
+                ns = resource.replace(/[^\/]*\/?$/, '');
+            } else if (about.lastIndexOf('/') != about.length - 1
                     && window.location.search.indexOf('?create=') == 0) {
-                ns += '/';
+                // creating nested resource
+                ns = about + '/';
             } else if (window.location.search == '?create') {
-                ns = null; // no location available
+                ns = null; // we have to prompt for a folder
             } else {
-                ns = ns.replace(/[^\/]*$/, ''); // get folder
+                // create resource in this same folder
+                ns = about.replace(/[^\/]*$/, '');
             }
             if (ns) {
                 var local = encodeURI(fileName).replace(/%25(\w\w)/g, '%$1').replace(/%20/g, '+');
                 resource = ns + local;
                 $(form).removeAttr('about');
                 $(form).attr('resource', resource);
+                overrideLocation(form, resource);
+                return true;
             }
-        }
-        if (resource) {
+        } else if (resource) {
             // resource attribute ready set, let's go
-            overrideLocation(form, resource);
             return true;
         }
     }
@@ -57,10 +61,10 @@ window.calli.saveResourceAs = function(event, fileName, create) {
         var resource = ns + local.toLowerCase();
         $(form).removeAttr('about');
         $(form).attr('resource', resource);
+        overrideLocation(form, resource);
         if (form.getAttribute("enctype") == "application/sparql-update") {
             form.setAttribute("enctype", "application/rdf+xml");
         }
-        overrideLocation(form, resource);
         try {
             nestedSubmit = true;
             $(form).submit(); // this time with a resource attribute

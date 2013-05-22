@@ -130,7 +130,7 @@
     calli:type "message/x-response";
     calli:header "cache-control:no-store,no-transform";
     calli:script """
-        return this.PostResult(queryGetParameters, null, null);
+        return this.PostResult(queryGetParameters, null, null, null);
     """.
 
 :queryGetParameters a owl:FunctionalProperty, owl:ObjectProperty;
@@ -152,7 +152,7 @@
     calli:script """
         var factory = PipelineFactory.newInstance();
         var pipeline = factory.createPipeline(this.openInputStream(), this.toString());
-        var pipe = pipeline.pipeStream(sourcePort, sourceLocation);
+        var pipe = pipeline.pipeStreamOf(sourcePort, sourceLocation, sourceType);
         try {
             var iterator = queryPostParameters.keySet().iterator();
             while(iterator.hasNext()){
@@ -188,5 +188,10 @@
 :sourcePort a owl:ObjectProperty; a owl:FunctionalProperty;
     rdfs:domain :PostResult;
     rdfs:range <java:java.io.InputStream>;
-    calli:type "application/xml".
+    calli:type "*/*".
+
+:sourceType a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:domain :PostResult;
+    rdfs:range xsd:string;
+    calli:header "Content-Type".
 

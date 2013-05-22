@@ -4,7 +4,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
@@ -192,7 +191,6 @@ public abstract class ExchangeActor {
 			return body.getBytes("UTF-8");
 		String target = req.getIRI();
 		try {
-			StringReader reader = new StringReader(body);
 			AuthorizationManager manager = service.get(repository.getDelegate());
 			if (manager == null)
 				return body.getBytes("UTF-8");
@@ -201,7 +199,7 @@ public abstract class ExchangeActor {
 				return body.getBytes("UTF-8");
 			ByteArrayOutputStream out = new ByteArrayOutputStream(8192);
 			OutputStreamWriter w = new OutputStreamWriter(out, "UTF-8");
-			realm.transformErrorPage(reader, w, target, req.getQueryString());
+			realm.transformErrorPage(body, w, target, req.getQueryString());
 			w.close();
 			return out.toByteArray();
 		} catch (Exception exc) {

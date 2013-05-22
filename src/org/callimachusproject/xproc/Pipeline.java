@@ -2,34 +2,43 @@ package org.callimachusproject.xproc;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Reader;
-import java.lang.reflect.Type;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.Enumeration;
+
+import javax.xml.parsers.ParserConfigurationException;
 
 import net.sf.saxon.s9api.SaxonApiException;
 import net.sf.saxon.s9api.XdmNode;
 
 import org.apache.http.client.HttpClient;
 import org.callimachusproject.client.HttpOriginClient;
-import org.callimachusproject.fluid.FluidBuilder;
-import org.callimachusproject.fluid.FluidException;
-import org.callimachusproject.fluid.FluidFactory;
+import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.server.exceptions.InternalServerError;
 import org.callimachusproject.xml.CloseableEntityResolver;
 import org.callimachusproject.xml.CloseableURIResolver;
+import org.callimachusproject.xml.DocumentFactory;
 import org.callimachusproject.xml.XdmNodeFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import com.xmlcalabash.core.XProcConfiguration;
+import com.xmlcalabash.core.XProcConstants;
 import com.xmlcalabash.core.XProcException;
 import com.xmlcalabash.core.XProcRuntime;
 import com.xmlcalabash.runtime.XPipeline;
+import com.xmlcalabash.util.Base64;
 
 public class Pipeline {
+	private static final String XPROC_STEP = XProcConstants.c_data.getNamespaceURI();
+	private static final String DATA = XProcConstants.c_data.getLocalName();
+	private static final int bufSize = 912 * 8; // A multiple of 3, 4, and 75 for base64 line breaking
+
 	private final XProcConfiguration config;
 	private final XdmNodeFactory resolver;
-	private final FluidBuilder fb = FluidFactory.getInstance().builder();
 	private final String systemId;
 	private final XdmNode pipeline;
 
@@ -69,7 +78,6 @@ public class Pipeline {
 	}
 
 	public Pipe pipe() throws SAXException, IOException {
-		HttpClient client = new HttpOriginClient(getSystemId());
 		XProcConfiguration config = this.config;
 		XdmNodeFactory resolver = this.resolver;
 		if (config == null) {
@@ -77,17 +85,24 @@ public class Pipeline {
 			resolver = new XdmNodeFactory(getSystemId(), config.getProcessor());
 			loadConfig(resolver, config);
 		}
-		return pipeSource(null, resolver, client, config);
+		return pipeSource(null, resolver, config);
 	}
 
-	public Pipe pipe(Object source, String systemId, Type type, String... media)
-			throws SAXException, IOException, XProcException {
-		return pipeReader(asReader(source, systemId, type, media), systemId);
+	public Pipe pipeStreamOf(InputStream source, String systemId, String media)
+			throws SAXException, IOException, XProcException, ParserConfigurationException {
+		XProcConfiguration config = this.config;
+		XdmNodeFactory resolver = this.resolver;
+		if (config == null) {
+			config = new XProcConfiguration("he", false);
+			resolver = new XdmNodeFactory(getSystemId(), config.getProcessor());
+			loadConfig(resolver, config);
+		}
+		XdmNode xml = parse(systemId, source, media, config);
+		return pipeSource(xml, resolver, config);
 	}
 
 	public Pipe pipeStream(InputStream source, String systemId)
 			throws SAXException, IOException, XProcException {
-		HttpClient client = new HttpOriginClient(getSystemId());
 		XProcConfiguration config = this.config;
 		XdmNodeFactory resolver = this.resolver;
 		if (config == null) {
@@ -95,11 +110,11 @@ public class Pipeline {
 			resolver = new XdmNodeFactory(getSystemId(), config.getProcessor());
 			loadConfig(resolver, config);
 		}
-		return pipeSource(resolver.parse(systemId, source), resolver, client, config);
+		XdmNode xml = resolver.parse(systemId, source);
+		return pipeSource(xml, resolver, config);
 	}
 
 	public Pipe pipeReader(Reader reader, String systemId) throws SAXException, IOException, XProcException {
-		HttpClient client = new HttpOriginClient(getSystemId());
 		XProcConfiguration config = this.config;
 		XdmNodeFactory resolver = this.resolver;
 		if (config == null) {
@@ -107,12 +122,13 @@ public class Pipeline {
 			resolver = new XdmNodeFactory(getSystemId(), config.getProcessor());
 			loadConfig(resolver, config);
 		}
-		return pipeSource(resolver.parse(systemId, reader), resolver, client, config);
+		XdmNode xml = resolver.parse(systemId, reader);
+		return pipeSource(xml, resolver, config);
 	}
 
 	private Pipe pipeSource(XdmNode source, XdmNodeFactory resolver,
-			HttpClient client, XProcConfiguration config) throws SAXException,
-			XProcException, IOException {
+			XProcConfiguration config) throws SAXException, IOException {
+		HttpClient client = new HttpOriginClient(getSystemId());
 		Pipe pipe = null;
 		XProcRuntime runtime = new XProcRuntime(config);
 		try {
@@ -156,12 +172,74 @@ public class Pipeline {
 		}
 	}
 
-	private Reader asReader(Object source, String systemId, Type type, String... media)
-			throws IOException {
+	private XdmNode parse(String systemId, InputStream source, String media, XProcConfiguration config)
+			throws IOException, SAXException, ParserConfigurationException {
+		if (source == null && media == null)
+			return null;
 		try {
-			return fb.consume(source, systemId, type, media).asReader();
-		} catch (FluidException e) {
-			throw new XProcException(e);
+			FluidType type = new FluidType(InputStream.class, media);
+			if (type.isXML())
+				return resolver.parse(systemId, source);
+			Document doc = DocumentFactory.newInstance().newDocument();
+			if (systemId != null) {
+				doc.setDocumentURI(systemId);
+			}
+			Element data = doc.createElementNS(XPROC_STEP, DATA);
+			data.setAttribute("content-type", media);
+			if (type.isText()) {
+				Charset charset = type.getCharset();
+				if (charset == null) {
+					charset = Charset.forName("UTF-8");
+				}
+				if (source != null) {
+					appendText(new InputStreamReader(source, charset), doc, data);
+				}
+			} else if (source != null) {
+				data.setAttribute("encoding", "base64");
+	            appendBase64(source, doc, data);
+			}
+	
+			doc.appendChild(data);
+	        return config.getProcessor().newDocumentBuilder().wrap(doc);
+		} finally {
+			if (source != null) {
+				source.close();
+			}
+		}
+	}
+
+	private void appendText(InputStreamReader reader, Document doc, Element data)
+			throws IOException {
+		char buf[] = new char[bufSize];
+		int len = reader.read(buf, 0, bufSize);
+		while (len >= 0) {
+		    data.appendChild(doc.createTextNode(new String(buf,0,len)));
+		    len = reader.read(buf, 0, bufSize);
+		}
+	}
+
+	private void appendBase64(InputStream source, Document doc, Element data)
+			throws IOException {
+		byte bytes[] = new byte[bufSize];
+		int pos = 0;
+		int readLen = bufSize;
+		int len = source.read(bytes, 0, bufSize);
+		while (len >= 0) {
+		    pos += len;
+		    readLen -= len;
+		    if (readLen == 0) {
+		    	data.appendChild(doc.createTextNode(Base64.encodeBytes(bytes)));
+		        pos = 0;
+		        readLen = bufSize;
+		    }
+
+		    len = source.read(bytes, pos, readLen);
+		}
+
+		if (pos > 0) {
+		    byte lastBytes[] = new byte[pos];
+		    System.arraycopy(bytes, 0, lastBytes, 0, pos);
+		    data.appendChild(doc.createTextNode(Base64.encodeBytes(lastBytes)));
 		}
 	}
 

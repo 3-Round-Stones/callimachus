@@ -5,6 +5,7 @@ import info.aduna.net.ParsedURI;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.URLDecoder;
@@ -203,7 +204,7 @@ public class DetachedRealm {
 		return false;
 	}
 
-	public void transformErrorPage(Reader reader, Writer writer, String target, String query) throws IOException {
+	public void transformErrorPage(String xhtml, Writer writer, String target, String query) throws IOException {
 		if (error != null && inError.get() == null
 				&& activeErrors.get() < MAX_PRETTY_CONCURRENT_ERRORS) {
 			String id = error.getSystemId();
@@ -211,7 +212,7 @@ public class DetachedRealm {
 				try {
 					inError.set(true);
 					activeErrors.incrementAndGet();
-					Pipe pb = error.pipeReader(reader, target);
+					Pipe pb = error.pipeReader(new StringReader(xhtml), target);
 					try {
 						pb.passOption("target", target);
 						pb.passOption("query", query);
@@ -229,11 +230,7 @@ public class DetachedRealm {
 				}
 			}
 		}
-		int read = 0;
-	    char[] buf = new char[4096];
-	    while ((read = reader.read(buf)) != -1) {
-	      writer.write(buf, 0, read);
-	    }
+		writer.write(xhtml);
 	}
 
 	public final HttpResponse forbidden(String method, Object resource,

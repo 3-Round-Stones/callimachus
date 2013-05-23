@@ -155,7 +155,7 @@ public class XPathIterator implements Iterator<Object> {
 			case org.w3c.dom.Node.CDATA_SECTION_NODE:
 				Text t = (Text)node;
 				if (text!=null) leaf = false;
-				text = t.getTextContent().trim();					
+				text = t.getTextContent();					
 			}
 		}
 		if (leaf) {
@@ -172,7 +172,7 @@ public class XPathIterator implements Iterator<Object> {
 			
 			// content and text
 			if (content!=null && text!=null) {
-				path = path + "[@content='"+content+"' and normalize-space(text())='"+text+"']";
+				path = path + "[@content='"+content+"' and text()='"+text+"']";
 			}
 			// no content or text
 			else if (content==null && (text==null || text.isEmpty())) {
@@ -180,11 +180,11 @@ public class XPathIterator implements Iterator<Object> {
 			}
 			// text but no content
 			else if (content==null && text!=null && !text.isEmpty()) {
-				path = path + "[@content='"+text+"' or normalize-space(text())='"+text+"']";				
+				path = path + "[@content='"+text+"' or text()='"+text+"']";				
 			}
 			// content but no text
 			else if (content!=null && !whitespace(content)) {
-				path = path + "[@content='"+content+"' or normalize-space(text())='"+content+"']";
+				path = path + "[@content='"+content+"' or text()='"+content+"']";
 			}
 				
 			if (!path.contains("\n")) {

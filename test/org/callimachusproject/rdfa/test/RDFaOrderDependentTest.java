@@ -113,7 +113,7 @@ public class RDFaOrderDependentTest {
 	static boolean show_results = false;
 
 	// this is the default test directory
-	static String test_dir = "RDFaGeneration/order-dependent-tests/";
+	static String test_dir = "RDFaGeneration/test-suite/order-dependent-tests/";
 	static {
 		// override default test-dir with VM arg
 		if (System.getProperty("dir")!=null)

@@ -36,7 +36,7 @@ calli.selectResource = function(event, src) {
             var last = sessionStorage.getItem("LastFolder");
             if (last) {
                 url = last;
-            } else if (last = localStorage.getItem("LastFolder")) {
+            } else if (window.localStorage && last = localStorage.getItem("LastFolder")) {
                 url = last;
             }
         } catch (e) {

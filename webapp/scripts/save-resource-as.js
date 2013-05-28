@@ -119,7 +119,7 @@ function openSaveAsDialog(form, label, create, callback) {
             var url = sessionStorage.getItem("LastFolder");
             if (url) {
                 src += '!' + url;
-            } else if (url = localStorage.setItem("LastFolder")) {
+            } else if (window.localStorage && url = localStorage.setItem("LastFolder")) {
                 src += '!' + url;
             }
         } catch (e) {

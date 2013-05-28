@@ -4,6 +4,8 @@
     try {
         if (window.sessionStorage) {
             sessionStorage.setItem("LastFolder", location.href);
+        }
+        if (window.localStorage) {
             localStorage.setItem("LastFolder", location.href);
         }
     } catch (e) {

@@ -9,10 +9,10 @@
 calli.createResource = function(event, href) {
     event = calli.fixEvent(event);
     var node = event.target;
-    if (!href && $(node).attr("href")) {
-        href = $(node).attr("href");
+    if (!href && $(node).closest("[href]").length) {
+        href = $(node).closest("[href]").attr("href");
     }
-    var list = $(node).filter('[dropzone]').add($(node).parents('[dropzone]'));
+    var list = $(node).closest('[dropzone]');
     if (!href)
         return true;
     var title = '';

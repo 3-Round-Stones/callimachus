@@ -13,7 +13,7 @@ calli.selectFile = function(node, src) {
 calli.selectResource = function(event, src) {
     event = calli.fixEvent(event);
     var node = event.target;
-    var list = $(node).filter('[dropzone]').add($(node).parents('[dropzone]'));
+    var list = $(node).closest('[dropzone]');
     if (!list.length)
         return true;
     var title = '';
@@ -25,8 +25,8 @@ calli.selectResource = function(event, src) {
     }
     var dialog = null;
     var url = null;
-    if (!src && $(node).attr('href')) {
-        src = $(node).attr('href');
+    if (!src && $(node).closest("[href]").length) {
+        src = $(node).closest("[href]").attr('href');
     }
     if (!src) {
         src = "/?view";

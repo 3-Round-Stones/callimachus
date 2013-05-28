@@ -19,7 +19,7 @@ Internet Explorer 9 and 10 cannot edit textual documents.
 Details of browser support may be found at:
   http://callimachusproject.org/docs/1.1/articles/browser-support.docbook?view
 
-The Callimachus server requires Java JDK 1.6.0_18+ on the server to run.
+The Callimachus server requires Java JDK 7 on the server to run.
 
 = NEW IN VERSION 1.1.1 =
 

@@ -141,7 +141,7 @@ if [ -z "$JDK_HOME" ] ; then
   fi
 fi
 
-echo "Callimachus requires Java 6 JDK (1.6.0_18+)"
+echo "Callimachus requires Java JDK 7"
 echo "Where is the JDK installed?"
 read -p "  [$JDK_HOME]:  " jhome
 if [ -n "$jhome" ] ; then

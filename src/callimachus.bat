@@ -104,7 +104,7 @@ for /d %%i in ("%BASEDIR%\jdk*") do set JAVA_HOME=%%i\jre
 
 rem Lookup the JDK in the registry
 if exist "%JAVA_HOME%" goto gotJavaHome
-set "KeyName=HKEY_LOCAL_MACHINE\SOFTWARE\JavaSoft\Java Development Kit\1.6"
+set "KeyName=HKEY_LOCAL_MACHINE\SOFTWARE\JavaSoft\Java Development Kit\1.7"
 set Cmd=reg query "%KeyName%" /s
 for /f "tokens=2*" %%i in ('%Cmd% ^| find "JavaHome"') do set JDK_HOME=%%j
 

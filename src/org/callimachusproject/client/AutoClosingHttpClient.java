@@ -6,59 +6,49 @@ import java.io.IOException;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
-import org.apache.http.ProtocolException;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.cache.ResourceFactory;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.conn.ClientConnectionManager;
-import org.apache.http.impl.client.RequestWrapper;
-import org.apache.http.impl.client.cache.CacheConfig;
-import org.apache.http.impl.client.cache.CachingHttpClient;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.cache.ManagedHttpCacheStorage;
 import org.apache.http.params.HttpParams;
-import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HttpCacheClient extends OverloadedHttpClient implements HttpClient {
-	final Logger logger = LoggerFactory.getLogger(HttpCacheClient.class);
-	private final HttpClient client;
+public class AutoClosingHttpClient extends CloseableHttpClient {
+	final Logger logger = LoggerFactory.getLogger(AutoClosingHttpClient.class);
+	private final CloseableHttpClient client;
 	private final ManagedHttpCacheStorage storage;
+	private int numberOfClientCalls = 0;
 
-	public HttpCacheClient(HttpClient client, ResourceFactory factory,
-			CacheConfig config) {
-		this.storage = new ManagedHttpCacheStorage(config);
-		this.client = new CachingHttpClient(client, factory,
-				this.storage, config);
+	public AutoClosingHttpClient(CloseableHttpClient client, ManagedHttpCacheStorage storage) {
+		this.client = client;
+		this.storage = storage;
 	}
 
 	@Override
 	protected void finalize() throws Throwable {
-		storage.shutdown();
+		close();
 	}
 
 	public void cleanResources() {
 		storage.cleanResources();
 	}
 
-	public void shutdown() {
+    public void close() throws IOException {
+		client.close();
 		storage.shutdown();
-	}
+    }
 
 	@Override
-	public HttpResponse execute(final HttpHost host, final HttpRequest request,
-			HttpContext ctx) throws IOException, ClientProtocolException {
-		if (ctx != null) {
-			try {
-				ctx.setAttribute(ExecutionContext.HTTP_TARGET_HOST, host);
-				ctx.setAttribute(ExecutionContext.HTTP_REQUEST, new RequestWrapper(request));
-			} catch (ProtocolException e) {
-				throw new ClientProtocolException(e);
-			}
+	protected CloseableHttpResponse doExecute(final HttpHost host, final HttpRequest request,
+            HttpContext ctx) throws IOException, ClientProtocolException {
+		if (++numberOfClientCalls % 100 == 0) {
+			// Deletes the (no longer used) temporary cache files from disk.
+			cleanResources();
 		}
-		HttpResponse resp = client.execute(host, request, ctx);
+		CloseableHttpResponse resp = client.execute(host, request, ctx);
 		HttpEntity entity = resp.getEntity();
 		if (entity != null) {
 			resp.setEntity(new CloseableEntity(entity, new Closeable() {

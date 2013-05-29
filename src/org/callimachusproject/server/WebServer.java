@@ -29,13 +29,6 @@
  */
 package org.callimachusproject.server;
 
-import static org.apache.http.params.CoreConnectionPNames.SOCKET_BUFFER_SIZE;
-import static org.apache.http.params.CoreConnectionPNames.SO_KEEPALIVE;
-import static org.apache.http.params.CoreConnectionPNames.SO_REUSEADDR;
-import static org.apache.http.params.CoreConnectionPNames.SO_TIMEOUT;
-import static org.apache.http.params.CoreConnectionPNames.STALE_CONNECTION_CHECK;
-import static org.apache.http.params.CoreConnectionPNames.TCP_NODELAY;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -54,32 +47,33 @@ import java.util.WeakHashMap;
 import javax.net.ssl.SSLContext;
 
 import org.apache.http.HttpException;
-import org.apache.http.HttpHost;
 import org.apache.http.HttpInetConnection;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestFactory;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.RequestDirector;
-import org.apache.http.impl.DefaultConnectionReuseStrategy;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpExecutionAware;
+import org.apache.http.client.methods.HttpRequestWrapper;
+import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.config.ConnectionConfig;
+import org.apache.http.conn.routing.HttpRoute;
+import org.apache.http.impl.execchain.ClientExecChain;
 import org.apache.http.impl.nio.DefaultHttpServerIODispatch;
 import org.apache.http.impl.nio.DefaultNHttpServerConnectionFactory;
 import org.apache.http.impl.nio.SSLNHttpServerConnectionFactory;
+import org.apache.http.impl.nio.codecs.DefaultHttpRequestParserFactory;
 import org.apache.http.impl.nio.reactor.DefaultListeningIOReactor;
 import org.apache.http.impl.nio.reactor.IOReactorConfig;
 import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.NHttpServerConnection;
-import org.apache.http.nio.protocol.HttpAsyncRequestHandlerRegistry;
 import org.apache.http.nio.protocol.HttpAsyncService;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpParams;
-import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.ImmutableHttpProcessor;
@@ -125,7 +119,7 @@ import org.slf4j.LoggerFactory;
  * @param <a>
  * 
  */
-public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, RequestDirector {
+public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, ClientExecChain {
 	protected static final String DEFAULT_NAME = Version.getInstance().getVersion();
 	private static final String ENVELOPE_TYPE = "message/x-response";
 	private static NamedThreadFactory executor = new NamedThreadFactory("WebServer", false);
@@ -144,7 +138,7 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Re
 	}
 
 	private final Logger logger = LoggerFactory.getLogger(WebServer.class);
-	private final Set<NHttpConnection> connections = new HashSet<NHttpConnection>();
+	private final Map<NHttpConnection, Boolean> connections = new WeakHashMap<NHttpConnection, Boolean>();
 	private final Map<CalliRepository, Boolean> repositories = new WeakHashMap<CalliRepository, Boolean>();
 	private final DefaultListeningIOReactor server;
 	private final IOEventDispatch dispatch;
@@ -239,11 +233,10 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Re
 			HttpRequestFactory requestFactory, ByteBufferAllocator allocator) {
 		HttpAsyncService handler;
 		DefaultNHttpServerConnectionFactory factory;
-		HttpParams params = getDefaultHttpParams();
-		params.setParameter("http.protocol.scheme", "http");
-		handler = createProtocolHandler(httpproc, service, params);
-		factory = new DefaultNHttpServerConnectionFactory(requestFactory,
-				allocator, params);
+		ConnectionConfig params = getDefaultConnectionConfig();
+		handler = createProtocolHandler(httpproc, service);
+		DefaultHttpRequestParserFactory rparser = new DefaultHttpRequestParserFactory(null, requestFactory);
+		factory = new DefaultNHttpServerConnectionFactory(allocator, rparser, params);
 		return new DefaultHttpServerIODispatch(handler, factory);
 	}
 
@@ -252,64 +245,49 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Re
 			ByteBufferAllocator allocator) {
 		HttpAsyncService handler;
 		SSLNHttpServerConnectionFactory factory;
-		HttpParams params = getDefaultHttpParams();
-		params.setParameter("http.protocol.scheme", "https");
-		handler = createProtocolHandler(httpproc, service, params);
+		ConnectionConfig params = getDefaultConnectionConfig();
+		handler = createProtocolHandler(httpproc, service);
+		DefaultHttpRequestParserFactory rparser = new DefaultHttpRequestParserFactory(null, requestFactory);
 		factory = new SSLNHttpServerConnectionFactory(sslcontext, null,
-				requestFactory, allocator, params);
+				rparser, allocator, params);
 		return new DefaultHttpServerIODispatch(handler, factory);
 	}
 
-	private HttpParams getDefaultHttpParams() {
-		HttpParams params = new BasicHttpParams();
-		params.setIntParameter(SO_TIMEOUT, timeout);
-		params.setBooleanParameter(SO_REUSEADDR, true);
-		params.setBooleanParameter(SO_KEEPALIVE, true);
-		params.setIntParameter(SOCKET_BUFFER_SIZE, 8 * 1024);
-		params.setBooleanParameter(STALE_CONNECTION_CHECK, false);
-		params.setBooleanParameter(TCP_NODELAY, false);
-		return params;
+	private ConnectionConfig getDefaultConnectionConfig() {
+		return ConnectionConfig.DEFAULT;
 	}
 
 	private IOReactorConfig createIOReactorConfig() {
-		IOReactorConfig config = new IOReactorConfig();
-		config.setConnectTimeout(timeout);
-		config.setIoThreadCount(Runtime.getRuntime().availableProcessors());
-		config.setSndBufSize(8 * 1024);
-		config.setSoKeepalive(true);
-		config.setSoReuseAddress(true);
-		config.setSoTimeout(timeout);
-		config.setTcpNoDelay(false);
-		return config;
+		return IOReactorConfig.custom().setConnectTimeout(timeout)
+				.setIoThreadCount(Runtime.getRuntime().availableProcessors())
+				.setSndBufSize(8 * 1024).setSoKeepAlive(true)
+				.setSoReuseAddress(true).setSoTimeout(timeout)
+				.setTcpNoDelay(false).build();
 	}
 
 	private HttpAsyncService createProtocolHandler(HttpProcessor httpproc,
-			HTTPObjectRequestHandler service, HttpParams params) {
-		// Create request handler registry
-        HttpAsyncRequestHandlerRegistry reqistry = new HttpAsyncRequestHandlerRegistry();
-        // Register the default handler for all URIs
-        reqistry.register("*", service);
-        // Create server-side HTTP protocol handler
-        HttpAsyncService protocolHandler = new HttpAsyncService(
-                httpproc, new DefaultConnectionReuseStrategy(), reqistry, params) {
+			HTTPObjectRequestHandler service) {
+		// Create server-side HTTP protocol handler
+		HttpAsyncService protocolHandler = new HttpAsyncService(httpproc,
+				service) {
 
-            @Override
-            public void connected(final NHttpServerConnection conn) {
-                super.connected(conn);
-                synchronized (connections) {
-                	connections.add(conn);
-                }
-            }
+			@Override
+			public void connected(final NHttpServerConnection conn) {
+				super.connected(conn);
+				synchronized (connections) {
+					connections.put(conn, true);
+				}
+			}
 
-            @Override
-            public void closed(final NHttpServerConnection conn) {
-            	synchronized (connections) {
-            		connections.remove(conn);
-            	}
-                super.closed(conn);
-            }
+			@Override
+			public void closed(final NHttpServerConnection conn) {
+				synchronized (connections) {
+					connections.remove(conn);
+				}
+				super.closed(conn);
+			}
 
-        };
+		};
 		return protocolHandler;
 	}
 
@@ -638,13 +616,14 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Re
 	}
 
 	@Override
-	public HttpResponse execute(HttpHost host, HttpRequest request,
-			HttpContext context) throws IOException, ClientProtocolException {
+	public CloseableHttpResponse execute(HttpRoute route,
+			HttpRequestWrapper request, HttpClientContext context,
+			HttpExecutionAware execAware) throws IOException, HttpException {
 		try {
 			if (context == null)
-				context = new BasicHttpContext();
+				context = HttpClientContext.create();
 			httpproc.process(request, context);
-			HttpResponse response = service.execute(host, request, context);
+			CloseableHttpResponse response = service.execute(route, request, context, execAware);
 			httpproc.process(response, context);
 			return response;
 		} catch (HttpException e) {
@@ -754,7 +733,7 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Re
 
 	private NHttpConnection[] getOpenConnections() {
 		synchronized (connections) {
-			return connections.toArray(new NHttpConnection[connections.size()]);
+			return connections.keySet().toArray(new NHttpConnection[connections.size()]);
 		}
 	}
 

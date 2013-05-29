@@ -3,17 +3,15 @@ package org.callimachusproject.client;
 import java.io.IOException;
 import java.net.InetAddress;
 
-import javax.net.ssl.SSLSession;
-
+import org.apache.http.HttpConnection;
 import org.apache.http.HttpConnectionMetrics;
 import org.apache.http.HttpHost;
-import org.apache.http.conn.HttpRoutedConnection;
-import org.apache.http.conn.routing.HttpRoute;
+import org.apache.http.HttpInetConnection;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.impl.conn.SchemeRegistryFactory;
 import org.callimachusproject.util.DomainNameSystemResolver;
 
-public class VirtualConnection implements HttpRoutedConnection {
+public class VirtualConnection implements HttpConnection, HttpInetConnection {
 	private final HttpHost host;
 	
 	public VirtualConnection(HttpHost host) {
@@ -78,20 +76,5 @@ public class VirtualConnection implements HttpRoutedConnection {
 	@Override
 	public InetAddress getLocalAddress() {
 		return DomainNameSystemResolver.getInstance().getLocalHost();
-	}
-	
-	@Override
-	public boolean isSecure() {
-		return "https".equalsIgnoreCase(host.getSchemeName());
-	}
-	
-	@Override
-	public SSLSession getSSLSession() {
-		return null;
-	}
-	
-	@Override
-	public HttpRoute getRoute() {
-		return new HttpRoute(host);
 	}
 }

@@ -35,21 +35,27 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 
+import org.apache.http.HttpConnection;
 import org.apache.http.HttpException;
-import org.apache.http.HttpHost;
 import org.apache.http.HttpInetConnection;
 import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.StatusLine;
-import org.apache.http.client.RequestDirector;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpExecutionAware;
+import org.apache.http.client.methods.HttpRequestWrapper;
+import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.conn.routing.HttpRoute;
+import org.apache.http.impl.execchain.ClientExecChain;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
 import org.apache.http.nio.protocol.HttpAsyncExchange;
 import org.apache.http.nio.protocol.HttpAsyncRequestConsumer;
 import org.apache.http.nio.protocol.HttpAsyncRequestHandler;
-import org.apache.http.protocol.ExecutionContext;
+import org.apache.http.nio.protocol.HttpAsyncRequestHandlerMapper;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HttpCoreContext;
+import org.callimachusproject.client.HttpUriResponse;
 import org.callimachusproject.repository.CalliRepository;
 import org.callimachusproject.server.model.Filter;
 import org.callimachusproject.server.model.Handler;
@@ -64,8 +70,8 @@ import org.slf4j.LoggerFactory;
  * @author James Leigh
  * 
  */
-public class HTTPObjectRequestHandler implements
-		HttpAsyncRequestHandler<HttpRequest>, RequestDirector {
+public class HTTPObjectRequestHandler implements HttpAsyncRequestHandlerMapper,
+		HttpAsyncRequestHandler<HttpRequest>, ClientExecChain {
 	private static final String SELF = HTTPObjectRequestHandler.class.getName();
 	private static final String EXCHANGE_ATTR = SELF + "#exchange";
 	private static final String PROCESSING_ATTR = SELF + "#processing";
@@ -122,6 +128,11 @@ public class HTTPObjectRequestHandler implements
 	}
 
 	@Override
+	public HttpAsyncRequestHandler<?> lookup(HttpRequest request) {
+		return this;
+	}
+
+	@Override
 	public HttpAsyncRequestConsumer<HttpRequest> processRequest(
 			HttpRequest request, HttpContext ctx) throws HttpException,
 			IOException {
@@ -147,9 +158,10 @@ public class HTTPObjectRequestHandler implements
 	}
 
 	@Override
-	public HttpResponse execute(HttpHost host, HttpRequest request,
-			HttpContext ctx) throws IOException, HttpException {
-		logger.debug("Request received {}", request.getRequestLine());
+	public CloseableHttpResponse execute(HttpRoute route,
+			HttpRequestWrapper request, HttpClientContext ctx,
+			HttpExecutionAware execAware) throws IOException, HttpException {
+		logger.debug("Internal request received {}", request.getRequestLine());
 		InetAddress remoteAddress = getRemoteAddress(ctx);
 		Request req = new Request(request, remoteAddress, true);
 		CalliRepository repository = getRepository(req.getOrigin());
@@ -157,7 +169,7 @@ public class HTTPObjectRequestHandler implements
 		HttpAsyncExchange trigger = new ForegroundAsyncExchange(request);
 		exchange.setHttpAsyncExchange(trigger);
 		execute(exchange);
-		return trigger.getResponse();
+		return new HttpUriResponse(req.getRequestURL(), trigger.getResponse());
 	}
 
 	public Exchange[] getPendingExchange(HttpContext ctx) {
@@ -206,11 +218,10 @@ public class HTTPObjectRequestHandler implements
 	private InetAddress getRemoteAddress(HttpContext context) {
 		if (context == null)
 			return LOCALHOST;
-		HttpInetConnection con = (HttpInetConnection) context
-				.getAttribute(ExecutionContext.HTTP_CONNECTION);
-		if (con == null)
-			return LOCALHOST;
-		return con.getRemoteAddress();
+		HttpConnection con = HttpCoreContext.adapt(context).getConnection();
+		if (con instanceof HttpInetConnection)
+			return ((HttpInetConnection) con).getRemoteAddress();
+		return LOCALHOST;
 	}
 
 }

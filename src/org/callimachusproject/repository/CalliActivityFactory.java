@@ -60,7 +60,11 @@ public final class CalliActivityFactory implements ActivityFactory {
 			+ "        {SELECT DISTINCT ?type {\n"
 			+ "            [rdf:type ?type] prov:wasGeneratedBy $activity\n"
 			+ "        }}\n"
-			+ "        ?type ^owl:equivalentClass?/(calli:subscriber|calli:editor|calli:administrator) ?reader\n"
+			+ "        {\n"
+			+ "            ?type (calli:subscriber|calli:editor|calli:administrator) ?reader\n"
+			+ "        } UNION {\n"
+			+ "            ?type ^owl:equivalentClass/(calli:subscriber|calli:editor|calli:administrator) ?reader\n"
+			+ "        }\n"
 			+ "}   }";
 	private static final String INSERT_FOLDER = PREFIX + "INSERT {\n"
 			+ "$parent calli:hasComponent $folder .\n"

@@ -20,6 +20,9 @@ public class GZipInterceptor implements HttpRequestInterceptor {
 	@Override
 	public void process(HttpRequest request, HttpContext context)
 			throws HttpException, IOException {
+		if (!request.containsHeader("Accept-Encoding")) {
+			request.setHeader("Accept-Encoding", "gzip");
+		}
 		if (request instanceof HttpEntityEnclosingRequest) {
 			compress((HttpEntityEnclosingRequest) request);
 		}

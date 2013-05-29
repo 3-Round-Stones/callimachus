@@ -10,11 +10,12 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.StatusLine;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
 import org.callimachusproject.engine.model.TermFactory;
 
-public class HttpUriResponse implements HttpResponse {
+public class HttpUriResponse implements CloseableHttpResponse {
 	private final HttpResponse delegate;
 	private final String systemId;
 
@@ -29,6 +30,13 @@ public class HttpUriResponse implements HttpResponse {
 
 	public URI getURI() {
 		return URI.create(systemId);
+	}
+
+	@Override
+	public void close() throws IOException {
+		if (delegate instanceof CloseableHttpResponse) {
+			((CloseableHttpResponse) delegate).close();
+		}
 	}
 
 	public String getRedirectLocation() throws IOException {

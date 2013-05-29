@@ -2,6 +2,7 @@ package org.callimachusproject.client;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -21,18 +22,23 @@ import org.apache.http.auth.params.AuthPNames;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.RequestDirector;
 import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpExecutionAware;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpRequestWrapper;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.params.AuthPolicy;
 import org.apache.http.client.params.ClientPNames;
 import org.apache.http.client.params.CookiePolicy;
 import org.apache.http.client.protocol.ClientContext;
+import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.execchain.ClientExecChain;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
 import org.apache.http.protocol.BasicHttpContext;
@@ -57,9 +63,10 @@ public class HttpOriginClientTest extends TestCase {
 	private final Queue<HttpResponse> responses = new LinkedList<HttpResponse>();
 	private final HttpOriginClient client = new HttpOriginClient(ORIGIN);
 	private final FluidBuilder builder = FluidFactory.getInstance().builder();
-	private final RequestDirector director = new RequestDirector() {
-		public HttpResponse execute(HttpHost host, HttpRequest request,
-				HttpContext ctx) throws HttpException, IOException {
+	private final ClientExecChain director = new ClientExecChain() {
+		public CloseableHttpResponse execute(HttpRoute route,
+				HttpRequestWrapper request, HttpClientContext clientContext,
+				HttpExecutionAware execAware) throws IOException, HttpException {
 			HttpResponse response = responses.poll();
 			byte[] http = asByteArray(request);
 			ByteArrayEntity entity = new ByteArrayEntity(http, ContentType.create("message/http"));
@@ -69,7 +76,13 @@ public class HttpOriginClientTest extends TestCase {
 				response.setHeader("Content-Length", Long.toString(length));
 			}
 			response.setEntity(entity);
-			return response;
+			HttpHost target = route.getTargetHost();
+			try {
+				URI root = new URI(target.getSchemeName(), null, target.getHostName(), target.getPort(), "/", null, null);
+				return new HttpUriResponse(root.resolve(request.getURI()).toASCIIString(), response);
+			} catch (URISyntaxException e) {
+				return new HttpUriResponse(request.getURI().toASCIIString(), response);
+			}
 		}
 	};
 
@@ -235,7 +248,7 @@ public class HttpOriginClientTest extends TestCase {
 			}, localContext);
 			HttpHost host = (HttpHost) localContext.getAttribute(ExecutionContext.HTTP_TARGET_HOST);
 			HttpUriRequest req = (HttpUriRequest) localContext.getAttribute(ExecutionContext.HTTP_REQUEST);
-			URI root = new URI(host.getSchemeName(), null, host.getHostName(), host.getPort(), "/", null, null);
+			URI root = new URI(host.getSchemeName(), null, host.getHostName(), -1, "/", null, null);
 			assertEquals("http://example.com/302", root.resolve(req.getURI()).toASCIIString());
 		} while (false);
 	}

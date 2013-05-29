@@ -7,29 +7,20 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.protocol.ExecutionContext;
+import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.protocol.HttpContext;
-import org.apache.http.protocol.HttpProcessor;
+import org.apache.http.protocol.HttpCoreContext;
 import org.callimachusproject.util.DomainNameSystemResolver;
 
-public class GUnzipInterceptor implements HttpProcessor {
+public class GUnzipInterceptor implements HttpResponseInterceptor {
 	private static final String hostname = DomainNameSystemResolver.getInstance().getLocalHostName();
 	private static final String WARN_214 = "214 " + hostname
 			+ " \"Transformation applied\"";
 
 	@Override
-	public void process(HttpRequest request, HttpContext context)
-			throws HttpException, IOException {
-		if (!request.containsHeader("Accept-Encoding")) {
-			request.setHeader("Accept-Encoding", "gzip");
-		}
-	}
-
-	@Override
 	public void process(HttpResponse resp, HttpContext context)
 			throws HttpException, IOException {
-		HttpRequest req = (HttpUriRequest) context.getAttribute(ExecutionContext.HTTP_REQUEST);
+		HttpRequest req = (HttpRequest) context.getAttribute(HttpCoreContext.HTTP_REQUEST);
 		HttpEntity entity = resp.getEntity();
 		if (entity == null)
 			return;

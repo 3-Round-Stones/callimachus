@@ -79,7 +79,6 @@
 :ResolveView rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Origin>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-    rdfs:subClassOf [owl:onProperty :diverted; owl:hasValue </diverted>];
     calli:method "GET";
     calli:query "go";
     calli:requires calli:reader;
@@ -118,10 +117,6 @@
                 return iri + '?view';
             } else if (authority) { //# Self resolving IRI w/o view template
                 return iri;
-            } else if (viewable) { //# Foreign IRI, but can be presented here
-                return diverted.toString() + ";" + URLEncoder.encode(iri).replace(/%2F/g, '/').replace(/%3A/g, ':') + '?view';
-            } else if (serviceable) { //# Foreign IRI, but can be served here
-                return diverted.toString() + ";" + URLEncoder.encode(iri).replace(/%2F/g, '/').replace(/%3A/g, ':');
             } else { //# Unknown resource
                 return null;
             }

@@ -64,7 +64,6 @@ public class CalliServer implements CalliServerMXBean {
 	private static final char COLON = ':';
 	private static final String CHANGES_PATH = "../changes/";
 	private static final String SCHEMA_GRAPH = "types/SchemaGraph";
-	private static final String INDIRECT_PATH = "/diverted;";
 	private static final String ORIGIN = "http://callimachusproject.org/rdf/2009/framework#Origin";
 	private static final String PREFIX = "PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>\n"
 			+ "PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>\n";
@@ -834,7 +833,6 @@ public class CalliServer implements CalliServerMXBean {
 			HttpClientManager.getInstance().setProxy(host, server);
 		}
 		server.setName(getServerName());
-		server.setIndirectIdentificationPrefix(getIndirectPrefixes());
 		server.listen(getPortArray(), getSSLPortArray());
 		return server;
 	}
@@ -967,25 +965,6 @@ public class CalliServer implements CalliServerMXBean {
 		return conf.getSslPorts();
 	}
 
-	private String[] getIndirectPrefixes() throws IOException, OpenRDFException {
-		Map<String, String> map = new LinkedHashMap<String, String>();
-		for (SetupRealm origin : getRealms()) {
-			String key = origin.getRepositoryID();
-			if (map.containsKey(key)) {
-				map.put(key, null);
-			} else {
-				map.put(key, origin.getWebappOrigin());
-			}
-		}
-		List<String> identities = new ArrayList<String>(map.size());
-		for (String origin : map.values()) {
-			if (origin != null) {
-				identities.add(origin + INDIRECT_PATH);
-			}
-		}
-		return identities.toArray(new String[identities.size()]);
-	}
-
 	synchronized void removeRepository(Set<String> removed) throws IOException,
 			RepositoryException, RepositoryConfigException {
 		Map<String, String> map = conf.getOriginRepositoryIDs();
@@ -1021,7 +1000,6 @@ public class CalliServer implements CalliServerMXBean {
 			java.net.URI uri = java.net.URI.create(realm);
 			String origin = uri.getScheme() + "://" + uri.getAuthority();
 			server.addOrigin(origin, getRepository(repositoryID));
-			server.setIndirectIdentificationPrefix(getIndirectPrefixes());
 			HttpHost host = URIUtils.extractHost(uri);
 			HttpClientManager.getInstance().setProxy(host, server);
 		}

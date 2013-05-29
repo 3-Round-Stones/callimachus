@@ -90,7 +90,6 @@ import org.callimachusproject.server.filters.GUnzipFilter;
 import org.callimachusproject.server.filters.GZipFilter;
 import org.callimachusproject.server.filters.HeadRequestFilter;
 import org.callimachusproject.server.filters.HttpResponseFilter;
-import org.callimachusproject.server.filters.IndirectRequestFilter;
 import org.callimachusproject.server.filters.MD5ValidationFilter;
 import org.callimachusproject.server.filters.ServerNameFilter;
 import org.callimachusproject.server.filters.TraceFilter;
@@ -147,7 +146,6 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 	private int[] ports = new int[0];
 	private int[] sslports = new int[0];
 	private final ServerNameFilter name;
-	private final IndirectRequestFilter indirect;
 	private final HttpResponseFilter env;
 	volatile boolean listening;
 	volatile boolean ssllistening;
@@ -176,7 +174,6 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 		filter = cache = new CachingFilter(filter, cacheDir, 1024);
 		filter = new GUnzipFilter(filter);
 		filter = new MD5ValidationFilter(filter);
-		filter = indirect = new IndirectRequestFilter(filter);
 		filter = new TraceFilter(filter);
 		filter = name = new ServerNameFilter(DEFAULT_NAME, filter);
 		filter = new HeadRequestFilter(filter);
@@ -299,10 +296,6 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 		this.name.setServerName(serverName);
 	}
 
-	public String[] getIndirectIdentificationPrefix() {
-		return indirect.getIndirectIdentificationPrefix();
-	}
-
 	/**
 	 * Defines the keep alive timeout in milliseconds, which is the timeout for
 	 * waiting for data. A timeout value of zero is interpreted as an infinite
@@ -319,10 +312,6 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 	 */
 	public void setTimeout(int timeout) {
 		this.timeout = timeout;
-	}
-
-	public void setIndirectIdentificationPrefix(String[] prefix) {
-		indirect.setIndirectIdentificationPrefix(prefix);
 	}
 
 	public String getEnvelopeType() {

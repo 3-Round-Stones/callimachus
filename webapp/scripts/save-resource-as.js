@@ -116,11 +116,10 @@ function openSaveAsDialog(form, label, create, callback) {
         src += '!' + page.substring(0, page.indexOf('?')) + '?view';
     } else if (window.sessionStorage) {
         try {
-            var url = sessionStorage.getItem("LastFolder");
-            if (url) {
-                src += '!' + url;
-            } else if (window.localStorage && url = localStorage.setItem("LastFolder")) {
-                src += '!' + url;
+            if (sessionStorage.getItem("LastFolder")) {
+                src += '!' + sessionStorage.getItem("LastFolder");
+            } else if (window.localStorage && localStorage.setItem("LastFolder")) {
+                src += '!' + localStorage.setItem("LastFolder");
             }
         } catch (e) {
             // ignore

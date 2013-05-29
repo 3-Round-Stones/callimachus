@@ -33,11 +33,10 @@ calli.selectResource = function(event, src) {
     }
     if (src.indexOf("/?view") >= 0 && window.sessionStorage) {
         try {
-            var last = sessionStorage.getItem("LastFolder");
-            if (last) {
-                url = last;
-            } else if (window.localStorage && last = localStorage.getItem("LastFolder")) {
-                url = last;
+            if (sessionStorage.getItem("LastFolder")) {
+                url = sessionStorage.getItem("LastFolder");
+            } else if (window.localStorage && localStorage.getItem("LastFolder")) {
+                url = localStorage.getItem("LastFolder");
             }
         } catch (e) {
             // ignore

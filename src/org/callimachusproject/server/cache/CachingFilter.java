@@ -193,13 +193,13 @@ public class CachingFilter extends Filter {
 					CachedRequest index = cache.findCachedRequest(url);
 					synchronized (index) {
 						cached = index.find(request);
-						if (cached == null && "HEAD".equals(request.getMethod()))
+						if ("HEAD".equals(request.getMethod()))
 							return request;
 						boolean stale = isStale(now, request, cached);
 						if (stale && !request.isOnlyIfCache()) {
 							List<CachedEntity> match = index
 									.findCachedETags(request);
-							request = createCachableRequest(request, cached, match);
+							return createCachableRequest(request, cached, match);
 						}
 					}
 				} finally {

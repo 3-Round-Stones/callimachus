@@ -51,7 +51,7 @@ function addTextAreaPropertyExpression(areas) {
     });
 }
 
-function propagate(node, expression, value) {
+function propagate(node, expression, value) {// Executed several times per field change, might benefit from refactoring
     var declaration = filter(node.parents().andSelf(), expression);
     if (declaration.length) {
         if (value) {
@@ -69,8 +69,10 @@ function propagate(node, expression, value) {
             disableRDFa(node);
         }
     }
-    // @value keeps its initial DOM getAttributeNode state after updates. Set it explicitly using DOM methods
-    if (node.is("input[value]")) {// node is an input field with a value attribute
+    // @value keeps its initial DOM getAttributeNode state after updates, which the current rdf extractor is based on.
+    // Have to set it explicitly using DOM methods on input fields with a value attribute,
+    // but only for non-empty values, otherwise pasting into empty input fields breaks.
+    if (value && node.is("input[value]")) {
         node[0].setAttribute('value', value); // use setAttribute (not jquery) to reach through to DOM
     }
 }

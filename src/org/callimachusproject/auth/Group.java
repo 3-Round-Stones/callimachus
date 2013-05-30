@@ -3,6 +3,7 @@ package org.callimachusproject.auth;
 import java.util.Collections;
 import java.util.TreeSet;
 
+import org.callimachusproject.util.PrefixMap;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.repository.RepositoryConnection;
@@ -18,15 +19,15 @@ public class Group {
 	private static final Group notGroup = new Group();
 	private static final Group publicGroup = new Group();
 	static {
-		publicGroup.anonymousFrom.add(".");
+		publicGroup.anonymousFrom.put(".", ".");
 	}
 
-	private final TreeSet<String> anonymousFrom = new TreeSet<String>();
-	private final TreeSet<String> everyoneFrom = new TreeSet<String>();
-	private final TreeSet<String> nobodyFrom = new TreeSet<String>();
+	private final PrefixMap<String> anonymousFrom = new PrefixMap<String>();
+	private final PrefixMap<String> everyoneFrom = new PrefixMap<String>();
+	private final PrefixMap<String> nobodyFrom = new PrefixMap<String>();
 	private final TreeSet<String> members = new TreeSet<String>();
 	@SuppressWarnings("unchecked")
-	private final TreeSet<String>[] sets = new TreeSet[]{anonymousFrom,
+	private final PrefixMap<String>[] sets = new PrefixMap[]{anonymousFrom,
 			everyoneFrom, nobodyFrom};
 
 	private Group() {
@@ -41,11 +42,14 @@ public class Group {
 				Statement st = stmts.next();
 				String pred = st.getPredicate().stringValue();
 				if (CALLI_ANONYMOUSFROM.equals(pred)) {
-					anonymousFrom.add(key(st.getObject().stringValue()));
+					String key = key(st.getObject().stringValue());
+					anonymousFrom.put(key, key);
 				} else if (CALLI_EVERYONEFROM.equals(pred)) {
-					everyoneFrom.add(key(st.getObject().stringValue()));
+					String key = key(st.getObject().stringValue());
+					everyoneFrom.put(key, key);
 				} else if (CALLI_NOBODYFROM.equals(pred)) {
-					nobodyFrom.add(key(st.getObject().stringValue()));
+					String key = key(st.getObject().stringValue());
+					nobodyFrom.put(key, key);
 				} else if (CALLI_MEMBER.equals(pred)) {
 					members.add(st.getObject().stringValue());
 				}
@@ -82,28 +86,21 @@ public class Group {
 		return members.contains(user);
 	}
 
-	private boolean isAllowed(String host, TreeSet<String> set) {
+	private boolean isAllowed(String host, PrefixMap<String> set) {
 		String key = key(host);
-		String allow = from(key, set);
+		String allow = set.getClosest(key);
 		return allow != null && allow.length() >= denyFrom(key).length();
 	}
 
 	private String denyFrom(String key) {
 		String deny = null;
-		for (TreeSet<String> set : sets) {
-			String from = from(key, set);
+		for (PrefixMap<String> set : sets) {
+			String from = set.getClosest(key);
 			if (deny == null || from != null && from.length() > deny.length()) {
 				deny = from;
 			}
 		}
 		return deny;
-	}
-
-	private String from(String key, TreeSet<String> from) {
-		String floor = from.floor(key);
-		if (floor != null && key.startsWith(floor))
-			return floor;
-		return null;
 	}
 
 	public String toString() {

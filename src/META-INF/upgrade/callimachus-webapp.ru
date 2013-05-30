@@ -120,7 +120,7 @@ INSERT {
 	calli:administrator </auth/groups/super>;
 	calli:reader </auth/groups/public> .
 } WHERE {
-    BIND (str(<scripts/index?source>) AS ?alternate)
+    BIND (str(<scripts/index?minified>) AS ?alternate)
 	FILTER NOT EXISTS { <../scripts.js> a calli:PURL }
 };
 

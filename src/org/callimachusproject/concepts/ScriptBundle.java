@@ -26,4 +26,10 @@ public interface ScriptBundle {
 	@type("text/javascript")
 	@requires("http://callimachusproject.org/rdf/2009/framework#reader")
 	String calliGetBundleSource() throws GatewayTimeout, IOException;
+
+	@method("GET")
+	@query("minified")
+	@type("text/javascript")
+	@requires("http://callimachusproject.org/rdf/2009/framework#reader")
+	String calliGetMinifiedBundle() throws GatewayTimeout, IOException;
 }

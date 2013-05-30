@@ -37,13 +37,25 @@ public abstract class ScriptBundleSupport implements ScriptBundle {
 			scripts.add(JSSourceFile.fromCode(url, code));
 		}
 
-		int minification = getMinification();
+		StringBuilder sb = new StringBuilder();
+		for (JSSourceFile script : scripts) {
+			sb.append(script.getCode()).append("\n");
+		}
+		return sb.toString();
+	}
+
+	@Override
+	public String calliGetMinifiedBundle() throws GatewayTimeout, IOException {
+		int minification = this.getMinification();
 		if (minification < 1) {
-			StringBuilder sb = new StringBuilder();
-			for (JSSourceFile script : scripts) {
-				sb.append(script.getCode()).append("\n");
-			}
-			return sb.toString();
+			return calliGetBundleSource();
+		}
+
+		List<JSSourceFile> scripts = new ArrayList<JSSourceFile>();
+		for (Object ext : getCalliScriptsAsList()) {
+			String url = ext.toString();
+			String code = getJavaScriptCode(url);
+			scripts.add(JSSourceFile.fromCode(url, code));
 		}
 
 		Compiler compiler = new Compiler();
@@ -59,7 +71,7 @@ public abstract class ScriptBundleSupport implements ScriptBundle {
 		if (result.errors != null && result.errors.length > 0) {
 			throw new InternalServerError(result.errors[0].toString());
 		}
-		return compiler.toSource();
+		return "// @source: " + this.toString() + "?source\n" + compiler.toSource();
 	}
 
 	@Sparql("PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>\n"

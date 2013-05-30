@@ -31,3 +31,13 @@ DELETE {
     FILTER EXISTS { </auth/groups/system> calli:anonymousFrom "localhost" }
 };
 
+DELETE {
+    <../scripts.js> calli:alternate ?source
+} INSERT {
+    <../scripts.js> calli:alternate ?minified
+} WHERE {
+    BIND (str(<scripts/index?minified>) AS ?minified)
+    <../scripts.js> calli:alternate ?source
+    FILTER (str(<scripts/index?source>) = ?source)
+};
+

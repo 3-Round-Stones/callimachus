@@ -11,6 +11,8 @@ import java.net.InetAddress;
 import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
@@ -48,25 +50,30 @@ public class WebResource {
 		con.setRequestMethod("OPTIONS");
 		Assert.assertEquals(con.getResponseMessage(), 204,
 				con.getResponseCode());
-		String header = con.getHeaderField("Link");
-		Assert.assertNotNull(header);
-		Matcher m = LINK.matcher(header);
-		while (m.find()) {
-			String href = m.group(1);
-			String a = m.group(2);
-			String r = m.group(3) != null ? m.group(3) : m.group(4);
-			String t = m.group(5) != null ? m.group(5) : m.group(6);
-			if (a != null
-					&& !TermFactoryImpl.newInstance(uri).resolve(a).equals(uri))
+		for (Map.Entry<String, List<String>> e : con.getHeaderFields().entrySet()) {
+			if (!"Link".equalsIgnoreCase(e.getKey()))
 				continue;
-			if (!rel.equals(r))
-				continue;
-			if (types.length == 0 || t == null)
-				return ref(href);
-			for (String type : types) {
-				for (String t1 : t.split("\\s+")) {
-					if (t1.length() > 0 && t1.startsWith(type)) {
+			for (String header : e.getValue()) {
+				Assert.assertNotNull(header);
+				Matcher m = LINK.matcher(header);
+				while (m.find()) {
+					String href = m.group(1);
+					String a = m.group(2);
+					String r = m.group(3) != null ? m.group(3) : m.group(4);
+					String t = m.group(5) != null ? m.group(5) : m.group(6);
+					if (a != null
+							&& !TermFactoryImpl.newInstance(uri).resolve(a).equals(uri))
+						continue;
+					if (!rel.equals(r))
+						continue;
+					if (types.length == 0 || t == null)
 						return ref(href);
+					for (String type : types) {
+						for (String t1 : t.split("\\s+")) {
+							if (t1.length() > 0 && t1.startsWith(type)) {
+								return ref(href);
+							}
+						}
 					}
 				}
 			}
@@ -79,7 +86,7 @@ public class WebResource {
 		}
 		sb.setLength(sb.length() - 1);
 		sb.append("\"");
-		Assert.assertEquals(sb.toString(), header);
+		Assert.assertEquals(sb.toString(), con.getHeaderField("Link"));
 		return null;
 	}
 

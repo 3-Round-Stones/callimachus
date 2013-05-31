@@ -16,30 +16,40 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class DomainNameSystemResolver {
-	private static final DomainNameSystemResolver instance;
-	static {
-		try {
-			instance = new DomainNameSystemResolver();
-		} catch (NamingException e) {
-			throw new AssertionError(e);
-		}
-	}
+	private static final DomainNameSystemResolver instance = new DomainNameSystemResolver();
 
 	public static DomainNameSystemResolver getInstance() {
 		return instance;
 	}
 
+	private final Logger logger = LoggerFactory.getLogger(DomainNameSystemResolver.class);
 	private final DirContext ictx;
 
-	private DomainNameSystemResolver() throws NamingException {
+	private DomainNameSystemResolver() {
 		Hashtable<String, String> env = new Hashtable<String, String>();
 		env.put("java.naming.factory.initial",
 				"com.sun.jndi.dns.DnsContextFactory");
-		ictx = new InitialDirContext(env);
+		InitialDirContext initialDirContext;
+		try {
+			initialDirContext = new InitialDirContext(env);
+		} catch (NumberFormatException e) {
+			logger.warn(e.toString(), e);
+			// can't parse IPv6
+			initialDirContext = null;
+		} catch (NamingException e) {
+			logger.warn(e.toString(), e);
+			initialDirContext = null;
+		}
+		ictx = initialDirContext;
 	}
 
 	public String lookup(String domain, String... type) throws NamingException {
+		if (ictx == null)
+			return null;
 		Attributes attrs = ictx.getAttributes(domain, type);
 		Enumeration e = attrs.getAll();
 		if (e.hasMoreElements()) {

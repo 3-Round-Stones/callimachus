@@ -39,9 +39,10 @@ import java.util.TreeSet;
 
 import org.callimachusproject.annotations.header;
 import org.callimachusproject.annotations.method;
+import org.callimachusproject.client.HttpUriResponse;
 import org.callimachusproject.server.model.Handler;
 import org.callimachusproject.server.model.ResourceOperation;
-import org.callimachusproject.server.model.Response;
+import org.callimachusproject.server.model.ResponseBuilder;
 
 /**
  * Responds for OPTIONS requests.
@@ -64,13 +65,13 @@ public class OptionsHandler implements Handler {
 		this.delegate = delegate;
 	}
 
-	public Response verify(ResourceOperation request) throws Exception {
+	public HttpUriResponse verify(ResourceOperation request) throws Exception {
 		if ("OPTIONS".equals(request.getMethod()))
 			return null;
 		return allow(delegate.verify(request));
 	}
 
-	public Response handle(ResourceOperation request) throws Exception {
+	public HttpUriResponse handle(ResourceOperation request) throws Exception {
 		if ("OPTIONS".equals(request.getMethod())) {
 			StringBuilder sb = new StringBuilder();
 			sb.append("OPTIONS, TRACE");
@@ -78,13 +79,13 @@ public class OptionsHandler implements Handler {
 				sb.append(", ").append(method);
 			}
 			String allow = sb.toString();
-			Response rb = new Response();
-			rb = rb.header("Allow", allow);
+			HttpUriResponse rb = new ResponseBuilder(request).noContent();
+			rb.addHeader("Allow", allow);
 			String m = request.getVaryHeader(REQUEST_METHOD);
 			if (m == null) {
-				rb = rb.header("Access-Control-Allow-Methods", allow);
+				rb.addHeader("Access-Control-Allow-Methods", allow);
 			} else {
-				rb = rb.header("Access-Control-Allow-Methods", m);
+				rb.addHeader("Access-Control-Allow-Methods", m);
 			}
 			StringBuilder headers = new StringBuilder();
 			for (String header : ALLOW_HEADERS) {
@@ -99,10 +100,10 @@ public class OptionsHandler implements Handler {
 					headers.append(header);
 				}
 			}
-			rb = rb.header("Access-Control-Allow-Headers", headers.toString());
+			rb.addHeader("Access-Control-Allow-Headers", headers.toString());
 			String max = getMaxAge(request.getRequestedResource().getClass());
 			if (max != null) {
-				rb = rb.header("Access-Control-Max-Age", max);
+				rb.addHeader("Access-Control-Max-Age", max);
 			}
 			return rb;
 		} else {
@@ -110,8 +111,8 @@ public class OptionsHandler implements Handler {
 		}
 	}
 
-	private Response allow(Response resp) {
-		if (resp != null && resp.getStatusCode() == 405) {
+	private HttpUriResponse allow(HttpUriResponse resp) {
+		if (resp != null && resp.getStatusLine().getStatusCode() == 405) {
 			if (resp.containsHeader("Allow")) {
 				String allow = resp.getFirstHeader("Allow").getValue();
 				resp.setHeader("Allow", allow + ",OPTIONS");

@@ -32,12 +32,13 @@ package org.callimachusproject.server.handlers;
 import java.lang.reflect.Method;
 
 import org.callimachusproject.annotations.query;
+import org.callimachusproject.client.HttpUriResponse;
 import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.server.exceptions.MethodNotAllowed;
 import org.callimachusproject.server.exceptions.NotAcceptable;
 import org.callimachusproject.server.model.Handler;
+import org.callimachusproject.server.model.ResponseBuilder;
 import org.callimachusproject.server.model.ResourceOperation;
-import org.callimachusproject.server.model.Response;
 import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.repository.RepositoryException;
 
@@ -54,44 +55,44 @@ public class AlternativeHandler implements Handler {
 		this.delegate = delegate;
 	}
 
-	public Response verify(ResourceOperation req) throws Exception {
+	public HttpUriResponse verify(ResourceOperation req) throws Exception {
 		try {
 			return delegate.verify(req);
 		} catch (MethodNotAllowed e) {
-			Response rb = findAlternate(req);
+			HttpUriResponse rb = findAlternate(req);
 			if (rb != null)
 				return rb;
 			throw e;
 		} catch (NotAcceptable e) {
-			Response rb = findAlternate(req);
+			HttpUriResponse rb = findAlternate(req);
 			if (rb != null)
 				return rb;
 			throw e;
 		} catch (BadRequest e) {
-			Response rb = findAlternate(req);
+			HttpUriResponse rb = findAlternate(req);
 			if (rb != null)
 				return rb;
 			throw e;
 		}
 	}
 
-	public Response handle(ResourceOperation req) throws Exception {
+	public HttpUriResponse handle(ResourceOperation req) throws Exception {
 		try {
 			return delegate.handle(req);
 		} catch (MethodNotAllowed e) {
-			Response rb = findAlternate(req);
+			HttpUriResponse rb = findAlternate(req);
 			if (rb != null)
 				return rb;
 			throw e;
 		} catch (NotAcceptable e) {
-			Response rb = findAlternate(req);
+			HttpUriResponse rb = findAlternate(req);
 			if (rb != null)
 				return rb;
 			throw e;
 		}
 	}
 
-	private Response findAlternate(ResourceOperation req)
+	private HttpUriResponse findAlternate(ResourceOperation req)
 			throws RepositoryException,
 			QueryEvaluationException {
 		String m = req.getMethod();
@@ -101,14 +102,14 @@ public class AlternativeHandler implements Handler {
 		Method operation;
 		if ((operation = req.getAlternativeMethod("alternate")) != null) {
 			String loc = req.getRequestURI() + "?" + getQuery(operation);
-			return new Response().status(302, "Found").location(loc);
+			return new ResponseBuilder(req).found(loc);
 		} else if ((operation = req.getAlternativeMethod("describedby")) != null) {
 			String loc = req.getRequestURI() + "?" + getQuery(operation);
-			return new Response().status(303, "See Other").location(loc);
+			return new ResponseBuilder(req).see(loc);
 		} else if (req.getOperation() == null && ("GET".equals(m) || "HEAD".equals(m))) {
-			return new Response().notFound();
+			return new ResponseBuilder(req).notFound();
 		} else if (req.findMethodHandlers().isEmpty() && ("GET".equals(m) || "HEAD".equals(m))) {
-			return new Response().notFound();
+			return new ResponseBuilder(req).notFound();
 		}
 		return null;
 	}

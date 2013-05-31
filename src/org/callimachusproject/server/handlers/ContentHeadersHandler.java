@@ -29,9 +29,9 @@
  */
 package org.callimachusproject.server.handlers;
 
+import org.callimachusproject.client.HttpUriResponse;
 import org.callimachusproject.server.model.Handler;
 import org.callimachusproject.server.model.ResourceOperation;
-import org.callimachusproject.server.model.Response;
 import org.callimachusproject.server.util.HTTPDateFormat;
 import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.repository.RepositoryException;
@@ -51,8 +51,8 @@ public class ContentHeadersHandler implements Handler {
 		this.delegate = delegate;
 	}
 
-	public Response verify(ResourceOperation request) throws Exception {
-		Response rb = delegate.verify(request);
+	public HttpUriResponse verify(ResourceOperation request) throws Exception {
+		HttpUriResponse rb = delegate.verify(request);
 		if (rb != null) {
 			String contentType = request.getResponseContentType();
 			String version = request.getContentVersion();
@@ -62,17 +62,17 @@ public class ContentHeadersHandler implements Handler {
 		return rb;
 	}
 
-	public Response handle(ResourceOperation request) throws Exception {
+	public HttpUriResponse handle(ResourceOperation request) throws Exception {
 		String contentType = request.getResponseContentType();
 		String derived = request.getContentVersion();
 		String cache = request.getResponseCacheControl();
-		Response rb = delegate.handle(request);
+		HttpUriResponse rb = delegate.handle(request);
 		addHeaders(request, contentType, derived, cache, rb);
 		return rb;
 	}
 
 	private void addHeaders(ResourceOperation request, String contentType,
-			String derived, String cache, Response rb)
+			String derived, String cache, HttpUriResponse rb)
 			throws RepositoryException, QueryEvaluationException {
 		// TODO
 		String version = request.isSafe() ? derived : request.getContentVersion();
@@ -83,7 +83,7 @@ public class ContentHeadersHandler implements Handler {
 		}
 		for (String vary : request.getVary()) {
 			if (!vary.equalsIgnoreCase("Authorization") && !vary.equalsIgnoreCase("Cookie")) {
-				rb.header("Vary", vary);
+				rb.addHeader("Vary", vary);
 			}
 		}
 		if (version != null && !rb.containsHeader("Content-Version")) {
@@ -96,11 +96,11 @@ public class ContentHeadersHandler implements Handler {
 		if (entityTag != null && !rb.containsHeader("ETag")) {
 			rb.setHeader("ETag", entityTag);
 		}
-		if (contentType != null && rb.isContent()) {
+		if (contentType != null && rb.getEntity() != null) {
 			rb.setHeader("Content-Type", contentType);
 		}
 		if (lastModified > 0) {
-			rb.lastModified(lastModified, format.format(lastModified));
+			rb.setHeader("Last-Modified", format.format(lastModified));
 		}
 	}
 

@@ -31,9 +31,10 @@ package org.callimachusproject.server.handlers;
 
 import java.util.Enumeration;
 
+import org.callimachusproject.client.HttpUriResponse;
 import org.callimachusproject.server.model.Handler;
 import org.callimachusproject.server.model.ResourceOperation;
-import org.callimachusproject.server.model.Response;
+import org.callimachusproject.server.model.ResponseBuilder;
 
 /**
  * Responds with 412 if the resource has been modified.
@@ -48,18 +49,18 @@ public class UnmodifiedSinceHandler implements Handler {
 		this.delegate = delegate;
 	}
 
-	public Response verify(ResourceOperation request) throws Exception {
+	public HttpUriResponse verify(ResourceOperation request) throws Exception {
 		String contentType = request.getResponseContentType();
 		String cache = request.getResponseCacheControl();
 		String entityTag = request.getEntityTag(request.getContentVersion(), cache, contentType);
 		if (unmodifiedSince(request, entityTag)) {
 			return delegate.verify(request);
 		} else {
-			return new Response().preconditionFailed("Resource has since been modified");
+			return new ResponseBuilder(request).preconditionFailed("Resource has since been modified");
 		}
 	}
 
-	public Response handle(ResourceOperation request) throws Exception {
+	public HttpUriResponse handle(ResourceOperation request) throws Exception {
 		return delegate.handle(request);
 	}
 

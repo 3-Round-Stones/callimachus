@@ -28,6 +28,8 @@
  */
 package org.callimachusproject.server.model;
 
+import org.callimachusproject.client.HttpUriResponse;
+
 /**
  * Interface used to stack request handlers.
  * 
@@ -35,7 +37,7 @@ package org.callimachusproject.server.model;
  * 
  */
 public interface Handler {
-	Response verify(ResourceOperation request) throws Exception;
+	HttpUriResponse verify(ResourceOperation request) throws Exception;
 
-	Response handle(ResourceOperation request) throws Exception;
+	HttpUriResponse handle(ResourceOperation request) throws Exception;
 }

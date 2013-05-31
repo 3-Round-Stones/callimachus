@@ -122,7 +122,12 @@ public class HttpUriResponse implements CloseableHttpResponse {
 		delegate.addHeader(name, value);
 	}
 
+	@Override
 	public void setEntity(HttpEntity entity) {
+		HttpEntity previously = getEntity();
+		if (entity == null && previously != null) {
+			EntityUtils.consumeQuietly(previously);
+		}
 		delegate.setEntity(entity);
 	}
 

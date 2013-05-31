@@ -7,30 +7,26 @@ import java.io.InputStream;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 
-import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpVersion;
-import org.apache.http.ProtocolVersion;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.util.EntityUtils;
 import org.callimachusproject.client.CloseableEntity;
+import org.callimachusproject.client.HttpUriResponse;
 import org.callimachusproject.concurrent.ManagedExecutors;
 import org.callimachusproject.io.ChannelUtil;
 import org.callimachusproject.repository.CalliRepository;
-import org.callimachusproject.server.exceptions.NotAcceptable;
+import org.callimachusproject.server.exceptions.InternalServerError;
 import org.callimachusproject.server.exceptions.ResponseException;
 import org.callimachusproject.server.exceptions.ServiceUnavailable;
-import org.callimachusproject.server.model.EntityRemovedHttpResponse;
 import org.callimachusproject.server.model.Filter;
 import org.callimachusproject.server.model.Handler;
 import org.callimachusproject.server.model.Request;
 import org.callimachusproject.server.model.ResourceOperation;
-import org.callimachusproject.server.model.Response;
+import org.callimachusproject.server.model.ResponseBuilder;
 
 public class RequestTransactionActor extends ExchangeActor {
 	private static final int ONE_PACKET = 1024;
-	private static final ProtocolVersion HTTP11 = HttpVersion.HTTP_1_1;
 	private final Filter filter;
 	private final Handler handler;
 
@@ -56,11 +52,11 @@ public class RequestTransactionActor extends ExchangeActor {
 		final ResourceOperation op = new ResourceOperation(req, repo);
 		try {
 			op.begin();
-			Response resp = handler.verify(op);
+			HttpUriResponse resp = handler.verify(op);
 			if (resp == null) {
 				exchange.verified(op.getCredential());
 				resp = handler.handle(op);
-				if (resp.getStatusCode() >= 400) {
+				if (resp.getStatusLine().getStatusCode() >= 400) {
 					op.rollback();
 				} else if (!op.isSafe()) {
 					op.commit();
@@ -87,55 +83,38 @@ public class RequestTransactionActor extends ExchangeActor {
 		return resp;
 	}
 
-	private HttpResponse createSafeHttpResponse(final ResourceOperation req,
-			Response resp, final Exchange exchange, final boolean fore)
+	private HttpUriResponse createSafeHttpResponse(final ResourceOperation req,
+			HttpUriResponse resp, final Exchange exchange, final boolean fore)
 			throws Exception {
 		boolean endNow = true;
-		HttpResponse response;
-		CalliRepository repository = exchange.getRepository();
 		try {
-			if (resp.isException())
-				return createErrorResponse(req, repository, resp.getException());
-			ProtocolVersion ver = HTTP11;
-			int code = resp.getStatus();
-			String phrase = resp.getMessage();
-			response = new EntityRemovedHttpResponse(ver, code, phrase);
-			for (Header hd : resp.getAllHeaders()) {
-				response.addHeader(hd);
-			}
-			if (resp.isContent()) {
-				HttpEntity entity = resp.asHttpEntity();
+			if (resp.getEntity() != null) {
+				HttpEntity entity = resp.getEntity();
 				long length = entity.getContentLength();
 				if (length < 0 || length > ONE_PACKET) {
 					// chunk stream entity, close store connection later
-					response.setEntity(endEntity(entity, exchange, req, fore));
+					resp.setEntity(endEntity(entity, exchange, req, fore));
 					endNow = false;
 				} else {
 					// copy entity, close store now
-					response.setEntity(copyEntity(entity, (int) length));
+					resp.setEntity(copyEntity(entity, (int) length));
 					endNow = true;
 				}
 			} else {
 				// no entity, close store now
-				response.setHeader("Content-Length", "0");
+				resp.setHeader("Content-Length", "0");
 				endNow = true;
 			}
+		} catch (ResponseException e) {
+			return new ResponseBuilder(req).exception(e);
 		} catch (Exception e) {
-			return createErrorResponse(req, repository, e);
+			return new ResponseBuilder(req).exception(new InternalServerError(e));
 		} finally {
 			if (endNow) {
 				req.endExchange();
 			}
 		}
-		return response;
-	}
-
-	@Override
-	protected ResponseException asResponseException(Request req, Exception e) {
-		// FIXME is this to general?
-		if (e instanceof IllegalArgumentException)
-			return new NotAcceptable(e);
-		return super.asResponseException(req, e);
+		return resp;
 	}
 
 	private ByteArrayEntity copyEntity(HttpEntity entity, int length) throws IOException {

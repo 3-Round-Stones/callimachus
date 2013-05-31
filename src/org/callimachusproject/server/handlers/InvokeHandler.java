@@ -38,27 +38,32 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
 
+import org.apache.http.HttpEntity;
 import org.callimachusproject.annotations.expect;
 import org.callimachusproject.annotations.header;
-import org.callimachusproject.fluid.AbstractFluid;
+import org.callimachusproject.client.HttpUriResponse;
 import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidException;
 import org.callimachusproject.fluid.FluidFactory;
 import org.callimachusproject.fluid.FluidType;
+import org.callimachusproject.server.exceptions.InternalServerError;
 import org.callimachusproject.server.exceptions.NotAcceptable;
+import org.callimachusproject.server.exceptions.ResponseException;
 import org.callimachusproject.server.model.Handler;
+import org.callimachusproject.server.model.Request;
 import org.callimachusproject.server.model.ResourceOperation;
-import org.callimachusproject.server.model.Response;
-import org.openrdf.repository.object.ObjectConnection;
+import org.callimachusproject.server.model.ResponseBuilder;
+import org.openrdf.repository.object.ObjectRepository;
+import org.openrdf.repository.object.exceptions.BehaviourException;
 import org.openrdf.repository.object.traits.RDFObjectBehaviour;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,24 +77,29 @@ import org.slf4j.LoggerFactory;
 public class InvokeHandler implements Handler {
 	private interface MapStringArray extends Map<String, String[]> {
 	}
+	private interface SetString extends Set<String> {
+	}
 
-	private static Type mapOfStringArrayType = MapStringArray.class
+	private static final Type setOfStringType = SetString.class
 			.getGenericInterfaces()[0];
-	private Logger logger = LoggerFactory.getLogger(InvokeHandler.class);
 
-	public Response verify(ResourceOperation request) throws Exception {
+	private static final Type mapOfStringArrayType = MapStringArray.class
+			.getGenericInterfaces()[0];
+	private final Logger logger = LoggerFactory.getLogger(InvokeHandler.class);
+
+	public HttpUriResponse verify(ResourceOperation request) throws Exception {
 		Method method = request.getJavaMethod();
 		assert method != null;
 		return null;
 	}
 
-	public Response handle(ResourceOperation request) throws Exception {
+	public HttpUriResponse handle(ResourceOperation request) throws Exception {
 		Method method = request.getJavaMethod();
 		assert method != null;
 		return invoke(request, method, request.isSafe());
 	}
 
-	private Response invoke(ResourceOperation req, Method method, boolean safe)
+	private HttpUriResponse invoke(ResourceOperation req, Method method, boolean safe)
 			throws Exception {
 		Fluid body = req.getBody();
 		try {
@@ -101,14 +111,14 @@ public class InvokeHandler implements Handler {
 			} catch (TransformerConfigurationException e) {
 				throw e;
 			} catch (Exception e) {
-				return new Response().badRequest(e);
+				return new ResponseBuilder(req).badRequest(e.getMessage());
 			}
 			try {
-				ResponseFluid entity = invoke(req, method, args, getResponseTypes(req, method));
+				HttpUriResponse response = invoke(req, method, args, getResponseTypes(req, method));
 				if (!safe) {
 					req.flush();
 				}
-				return createResponse(req, method, entity);
+				return response;
 			} finally {
 				for (Object arg : args) {
 					if (arg instanceof Closeable) {
@@ -131,13 +141,102 @@ public class InvokeHandler implements Handler {
 		}
 	}
 
-	private ResponseFluid invoke(ResourceOperation req, Method method,
-			Object[] args, String... responseTypes)
-			throws Exception {
+	private HttpUriResponse invoke(ResourceOperation req, Method method,
+			Object[] args, String[] responseTypes) throws Exception {
+		if (responseTypes == null || responseTypes.length < 1) {
+			responseTypes = new String[] { "*/*" };
+		}
+		Class<?> type = method.getReturnType();
+		FluidFactory ff = FluidFactory.getInstance();
+		FluidBuilder builder = ff.builder(req.getObjectConnection());
+		if (!builder.isConsumable(method.getGenericReturnType(), responseTypes))
+			throw new NotAcceptable(type.getSimpleName()
+					+ " cannot be converted into "
+					+ Arrays.asList(responseTypes));
+
 		Object result = method.invoke(req.getRequestedResource(), args);
-		ResponseFluid input = createResultEntity(req, result,
-				method.getReturnType(), method.getGenericReturnType(),
-				responseTypes);
+		if (result instanceof RDFObjectBehaviour) {
+			result = ((RDFObjectBehaviour) result).getBehaviourDelegate();
+		}
+		return createResponse(req, result, method, responseTypes);
+	}
+
+	private HttpUriResponse createResponse(ResourceOperation req,
+			Object result, Method method, String[] responseTypes)
+			throws IOException, FluidException {
+		int responseCode = 204;
+		String responsePhrase = "No Content";
+		Set<String> responseLocations = null;
+		FluidFactory ff = FluidFactory.getInstance();
+		FluidBuilder builder = ff.builder(req.getObjectConnection());
+		Fluid writer = builder.consume(result, req.getIRI(),
+				method.getGenericReturnType(), responseTypes);
+		Class<?> type = method.getReturnType();
+		boolean emptyResult = result == null || Set.class.equals(type)
+				&& ((Set<?>) result).isEmpty();
+		if (!emptyResult) {
+			responseCode = 200;
+			responsePhrase = "OK";
+		}
+		if (method.isAnnotationPresent(expect.class)) {
+			for (String expect : method.getAnnotation(expect.class).value()) {
+				String[] values = expect.split("[\\s\\-]+");
+				try {
+					StringBuilder sb = new StringBuilder();
+					for (int i = 1; i < values.length; i++) {
+						sb.append(values[i].substring(0, 1).toUpperCase());
+						sb.append(values[i].substring(1));
+						if (i < values.length - 1) {
+							sb.append(" ");
+						}
+					}
+					if (sb.length() > 1) {
+						int code = Integer.parseInt(values[0]);
+						String phrase = sb.toString();
+						if (code >= 300 && code <= 303 || code == 307
+								|| code == 201) {
+							FluidType ftype = new FluidType(setOfStringType,
+									"text/uri-list");
+							if (writer.toMedia(ftype) != null) {
+								responseLocations = (Set<String>) writer
+										.as(ftype);
+							}
+							if (responseLocations != null
+									&& !responseLocations.isEmpty()) {
+								responseCode = code;
+								responsePhrase = phrase;
+								break;
+							}
+						} else if (code == 204 || code == 205) {
+							if (emptyResult) {
+								responseCode = code;
+								responsePhrase = phrase;
+								break;
+							}
+						} else if (code >= 300 && code <= 399) {
+							responseCode = code;
+							responsePhrase = phrase;
+							FluidType ftype = new FluidType(setOfStringType,
+									"text/uri-list");
+							if (writer.toMedia(ftype) != null) {
+								responseLocations = (Set<String>) writer
+										.as(ftype);
+							}
+							break;
+						} else {
+							responseCode = code;
+							responsePhrase = phrase;
+						}
+					}
+				} catch (NumberFormatException e) {
+					logger.error(expect, e);
+				} catch (IndexOutOfBoundsException e) {
+					logger.error(expect, e);
+				}
+			}
+		}
+		HttpUriResponse response = createResponse(req, responseCode,
+				responsePhrase, responseLocations, emptyResult ? null : writer);
 		if (method.isAnnotationPresent(header.class)) {
 			for (String header : method.getAnnotation(header.class).value()) {
 				int idx = header.indexOf(':');
@@ -145,13 +244,32 @@ public class InvokeHandler implements Handler {
 					continue;
 				String name = header.substring(0, idx);
 				String value = header.substring(idx + 1);
-				input.addHeader(name, value);
+				response.addHeader(name, value);
 			}
 		}
-		if (method.isAnnotationPresent(expect.class)) {
-			input.addExpects(method.getAnnotation(expect.class).value());
+		return response;
+	}
+
+	private HttpUriResponse createResponse(ResourceOperation req,
+			int responseCode, String responsePhrase,
+			Set<String> responseLocations, Fluid writer) throws IOException,
+			FluidException {
+		HttpUriResponse response;
+		if (writer == null) {
+			response = new ResponseBuilder(req).noContent(responseCode,
+					responsePhrase);
+		} else {
+			HttpEntity entity = writer.asHttpEntity(req
+					.getResponseContentType());
+			response = new ResponseBuilder(req).content(responseCode,
+					responsePhrase, entity);
 		}
-		return input;
+		if (responseLocations != null && !responseLocations.isEmpty()) {
+			for (String location : responseLocations) {
+				response.addHeader("Location", location);
+			}
+		}
+		return response;
 	}
 
 	private String[] getResponseTypes(ResourceOperation req, Method method) {
@@ -255,183 +373,27 @@ public class InvokeHandler implements Handler {
 		return args;
 	}
 
-	private ResponseFluid createResultEntity(ResourceOperation req,
-			Object result, Class<?> ctype, Type gtype, String[] mimeTypes) {
-		if (result instanceof RDFObjectBehaviour) {
-			result = ((RDFObjectBehaviour) result).getBehaviourDelegate();
+	protected HttpUriResponse createErrorResponse(ResourceOperation req, ObjectRepository repository, Exception e) {
+		while (e instanceof BehaviourException
+				|| e instanceof InvocationTargetException
+				|| e instanceof ExecutionException
+				&& e.getCause() instanceof Exception) {
+			e = (Exception) e.getCause();
 		}
-		return new ResponseFluid(mimeTypes, result, ctype, gtype, req.getIRI(),
-				req.getObjectConnection());
+		ResponseException re = asResponseException(req, e);
+		try {
+			return new ResponseBuilder(req).exception(re);
+		} catch (Exception e1) {
+			logger.error(e1.toString(), e1);
+			return new ResponseBuilder(req).serverError();
+		}
 	}
 
-	public Response createResponse(ResourceOperation req, Method method,
-			ResponseFluid resp) throws Exception {
-		Response rb;
-		if (resp.isNoContent()) {
-			rb = new Response().noContent();
-		} else {
-			rb = new Response(resp.asHttpEntity(req.getResponseContentType()));
-		}
-		for (Map.Entry<String, String> e : resp.getOtherHeaders().entrySet()) {
-			rb.header(e.getKey(), e.getValue());
-		}
-		for (String expect : resp.getExpects()) {
-			String[] values = expect.split("[\\s\\-]+");
-			try {
-				StringBuilder sb = new StringBuilder();
-				for (int i = 1; i < values.length; i++) {
-					sb.append(values[i].substring(0, 1).toUpperCase());
-					sb.append(values[i].substring(1));
-					if (i < values.length - 1) {
-						sb.append(" ");
-					}
-				}
-				if (sb.length() > 1) {
-					int code = Integer.parseInt(values[0]);
-					String phrase = sb.toString();
-					if (code >= 300 && code <= 303 || code == 307
-							|| code == 201) {
-						Set<String> locations = resp.getLocations();
-						if (locations != null && !locations.isEmpty()) {
-							rb = rb.status(code, phrase);
-							for (String location : locations) {
-								rb.header("Location", location);
-							}
-							break;
-						}
-					} else if (code == 204 || code == 205) {
-						if (resp.isNoContent()) {
-							rb = rb.status(code, phrase);
-							break;
-						}
-					} else if (code >= 300 && code <= 399) {
-						rb = rb.status(code, phrase);
-						Set<String> locations = resp.getLocations();
-						if (locations != null && !locations.isEmpty()) {
-							for (String location : locations) {
-								rb = rb.header("Location", location);
-							}
-						}
-						break;
-					} else {
-						rb = rb.status(code, phrase);
-					}
-				}
-			} catch (NumberFormatException e) {
-				logger.error(expect, e);
-			} catch (IndexOutOfBoundsException e) {
-				logger.error(expect, e);
-			}
-		}
-		return rb;
-	}
-
-	/**
-	 * Wraps a message response to output to an HTTP response.
-	 */
-	private static class ResponseFluid extends AbstractFluid {
-		private interface SetString extends Set<String> {
-		}
-
-		private static Type setOfStringType = SetString.class
-				.getGenericInterfaces()[0];
-		private final FluidFactory ff = FluidFactory.getInstance();
-		private final Fluid writer;
-		private final Object result;
-		private final Class<?> type;
-		private final Map<String, String> headers = new HashMap<String, String>();
-		private final List<String> expects = new ArrayList<String>();
-
-		public ResponseFluid(String[] mimeTypes, Object result, Class<?> type,
-				Type genericType, String base, ObjectConnection con) {
-			this.result = result;
-			this.type = type;
-			if (mimeTypes == null || mimeTypes.length < 1) {
-				mimeTypes = new String[] { "*/*" };
-			}
-			FluidBuilder builder = ff.builder(con);
-			if (!builder.isConsumable(genericType, mimeTypes))
-				throw new NotAcceptable(type.getSimpleName()
-						+ " cannot be converted into " + Arrays.asList(mimeTypes));
-			this.writer = builder.consume(result, base, genericType, mimeTypes);
-		}
-
-		public String toString() {
-			return String.valueOf(writer);
-		}
-
-		public boolean isNoContent() {
-			return result == null || Set.class.equals(type)
-					&& ((Set<?>) result).isEmpty();
-		}
-
-		public Set<String> getLocations() throws IOException, FluidException {
-			FluidType ftype = new FluidType(setOfStringType, "text/uri-list");
-			if (writer.toMedia(ftype) == null)
-				return null;
-			return (Set<String>) writer.as(ftype);
-		}
-
-		public Map<String, String> getOtherHeaders() {
-			return headers;
-		}
-
-		public void addHeaders(Map<String, String> map) {
-			for (Map.Entry<String, String> e : map.entrySet()) {
-				addHeader(e.getKey(), e.getValue());
-			}
-		}
-
-		public void addHeader(String name, String value) {
-			if (headers.containsKey(name)) {
-				String string = headers.get(name);
-				if (!string.equals(value)) {
-					headers.put(name, string + ',' + value);
-				}
-			} else {
-				headers.put(name, value);
-			}
-		}
-
-		public List<String> getExpects() {
-			return expects;
-		}
-
-		public void addExpects(String... expects) {
-			addExpects(Arrays.asList(expects));
-		}
-
-		public void addExpects(List<String> expects) {
-			this.expects.addAll(expects);
-		}
-
-		@Override
-		public FluidType getFluidType() {
-			return writer.getFluidType();
-		}
-
-		@Override
-		public String getSystemId() {
-			return writer.getSystemId();
-		}
-
-		@Override
-		public void asVoid() throws IOException, FluidException {
-			writer.asVoid();
-		}
-
-		@Override
-		public String toMedia(FluidType ftype) {
-			return writer.toMedia(ftype);
-		}
-
-		@Override
-		public Object as(FluidType ftype) throws IOException, FluidException {
-			if (writer.toMedia(ftype) == null)
-				throw new ClassCastException(String.valueOf(result)
-						+ " cannot be converted into " + ftype);
-			return writer.as(ftype);
-		}
+	protected ResponseException asResponseException(Request req, Exception e) {
+		if (e instanceof ResponseException)
+			return (ResponseException) e;
+		logger.error("Internal Server Error while responding to " + req.getRequestLine().getUri(), e);
+		return new InternalServerError(e);
 	}
 
 }

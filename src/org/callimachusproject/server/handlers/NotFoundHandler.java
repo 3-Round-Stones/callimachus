@@ -28,9 +28,10 @@
  */
 package org.callimachusproject.server.handlers;
 
+import org.callimachusproject.client.HttpUriResponse;
 import org.callimachusproject.server.model.Handler;
 import org.callimachusproject.server.model.ResourceOperation;
-import org.callimachusproject.server.model.Response;
+import org.callimachusproject.server.model.ResponseBuilder;
 
 /**
  * Converts a 204 into a 404 for GET and HEAD requests.
@@ -45,15 +46,15 @@ public class NotFoundHandler implements Handler {
 		this.delegate = delegate;
 	}
 
-	public Response verify(ResourceOperation request) throws Exception {
+	public HttpUriResponse verify(ResourceOperation request) throws Exception {
 		return delegate.verify(request);
 	}
 
-	public Response handle(ResourceOperation request) throws Exception {
-		Response rb = delegate.handle(request);
+	public HttpUriResponse handle(ResourceOperation request) throws Exception {
+		HttpUriResponse rb = delegate.handle(request);
 		String method = request.getMethod();
-		if (("GET".equals(method) || "HEAD".equals(method)) && rb.isNoContent()) {
-			return new Response().notFound();
+		if (("GET".equals(method) || "HEAD".equals(method)) && rb.getEntity() == null) {
+			return new ResponseBuilder(request).notFound();
 		}
 		return rb;
 	}

@@ -31,9 +31,11 @@ package org.callimachusproject.server.handlers;
 
 import java.util.Enumeration;
 
+import org.apache.http.Header;
+import org.callimachusproject.client.HttpUriResponse;
 import org.callimachusproject.server.model.Handler;
 import org.callimachusproject.server.model.ResourceOperation;
-import org.callimachusproject.server.model.Response;
+import org.callimachusproject.server.model.ResponseBuilder;
 import org.callimachusproject.server.util.HTTPDateFormat;
 
 /**
@@ -55,7 +57,7 @@ public class ModifiedSinceHandler implements Handler {
 		reset = System.currentTimeMillis() / 1000 * 1000;
 	}
 
-	public Response verify(ResourceOperation req) throws Exception {
+	public HttpUriResponse verify(ResourceOperation req) throws Exception {
 		String method = req.getMethod();
 		String contentType = req.getResponseContentType();
 		String cache = req.getResponseCacheControl();
@@ -63,31 +65,33 @@ public class ModifiedSinceHandler implements Handler {
 		if (req.isSafe() && req.isNoValidate()) {
 			return delegate.verify(req);
 		} else {
-			Response resp;
+			HttpUriResponse resp;
 			String tag = modifiedSince(req, entityTag);
 			if ("GET".equals(method) || "HEAD".equals(method)) {
 				if (tag == null) {
 					return delegate.verify(req);
 				}
-				resp = new Response().notModified();
+				resp = new ResponseBuilder(req).notModified();
 			} else if (tag == null) {
 				return delegate.verify(req);
 			} else {
-				resp = new Response().preconditionFailed();
+				resp = new ResponseBuilder(req).preconditionFailed();
 			}
 			if (tag.length() == 0)
 				return resetModified(resp);
-			return resetModified(resp.header("ETag", tag));
+			resp.setHeader("ETag", tag);
+			return resetModified(resp);
 		}
 	}
 
-	public Response handle(ResourceOperation req) throws Exception {
+	public HttpUriResponse handle(ResourceOperation req) throws Exception {
 		return resetModified(delegate.handle(req));
 	}
 
-	private Response resetModified(Response resp) {
-		if (reset > 0 && reset > resp.lastModified()) {
-			resp.lastModified(reset, format.format(reset));
+	private HttpUriResponse resetModified(HttpUriResponse resp) {
+		Header lastHeader = resp.getLastHeader("Last-Modified");
+		if (reset > 0 && lastHeader != null && reset > format.parseDate(lastHeader.getValue())) {
+			resp.setHeader("Last-Modified", format.format(reset));
 		}
 		return resp;
 	}

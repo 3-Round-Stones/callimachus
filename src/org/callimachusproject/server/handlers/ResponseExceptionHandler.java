@@ -30,12 +30,13 @@ package org.callimachusproject.server.handlers;
 
 import java.util.Set;
 
+import org.callimachusproject.client.HttpUriResponse;
 import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.server.exceptions.MethodNotAllowed;
 import org.callimachusproject.server.exceptions.NotAcceptable;
 import org.callimachusproject.server.model.Handler;
 import org.callimachusproject.server.model.ResourceOperation;
-import org.callimachusproject.server.model.Response;
+import org.callimachusproject.server.model.ResponseBuilder;
 import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.repository.RepositoryException;
 
@@ -52,29 +53,29 @@ public class ResponseExceptionHandler implements Handler {
 		this.delegate = delegate;
 	}
 
-	public Response verify(ResourceOperation request) throws Exception {
+	public HttpUriResponse verify(ResourceOperation request) throws Exception {
 		try {
 			return delegate.verify(request);
 		} catch (MethodNotAllowed e) {
-			return methodNotAllowed(request, new Response().exception(e));
+			return methodNotAllowed(request, new ResponseBuilder(request).exception(e));
 		} catch (NotAcceptable e) {
-			return new Response().exception(e);
+			return new ResponseBuilder(request).exception(e);
 		} catch (BadRequest e) {
-			return new Response().exception(e);
+			return new ResponseBuilder(request).exception(e);
 		}
 	}
 
-	public Response handle(ResourceOperation request) throws Exception {
+	public HttpUriResponse handle(ResourceOperation request) throws Exception {
 		try {
 			return delegate.handle(request);
 		} catch (MethodNotAllowed e) {
-			return methodNotAllowed(request, new Response().exception(e));
+			return methodNotAllowed(request, new ResponseBuilder(request).exception(e));
 		} catch (NotAcceptable e) {
-			return new Response().exception(e);
+			return new ResponseBuilder(request).exception(e);
 		}
 	}
 
-	private Response methodNotAllowed(ResourceOperation request, Response resp)
+	private HttpUriResponse methodNotAllowed(ResourceOperation request, HttpUriResponse resp)
 			throws RepositoryException, QueryEvaluationException {
 		Set<String> allowed = request.getAllowedMethods();
 		if (allowed.isEmpty())
@@ -84,7 +85,8 @@ public class ResponseExceptionHandler implements Handler {
 			sb.append(method).append(",");
 		}
 		String allow = sb.substring(0, sb.length() - 1);
-		return resp.header("Allow", allow);
+		resp.addHeader("Allow", allow);
+		return resp;
 	}
 
 }

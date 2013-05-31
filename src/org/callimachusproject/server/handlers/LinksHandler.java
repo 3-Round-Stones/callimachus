@@ -42,9 +42,9 @@ import java.util.Set;
 import org.callimachusproject.annotations.rel;
 import org.callimachusproject.annotations.title;
 import org.callimachusproject.annotations.type;
+import org.callimachusproject.client.HttpUriResponse;
 import org.callimachusproject.server.model.Handler;
 import org.callimachusproject.server.model.ResourceOperation;
-import org.callimachusproject.server.model.Response;
 import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.repository.RepositoryException;
 
@@ -71,12 +71,12 @@ public class LinksHandler implements Handler {
 		this.envelopeType = envelopeType;
 	}
 
-	public Response verify(ResourceOperation request) throws Exception {
+	public HttpUriResponse verify(ResourceOperation request) throws Exception {
 		return delegate.verify(request);
 	}
 
-	public Response handle(ResourceOperation req) throws Exception {
-		Response rb = delegate.handle(req);
+	public HttpUriResponse handle(ResourceOperation req) throws Exception {
+		HttpUriResponse rb = delegate.handle(req);
 		if ("OPTIONS".equals(req.getMethod())) {
 			return addLinks(req, rb);
 		} else {
@@ -84,11 +84,11 @@ public class LinksHandler implements Handler {
 		}
 	}
 
-	private Response addLinks(ResourceOperation request, Response rb)
+	private HttpUriResponse addLinks(ResourceOperation request, HttpUriResponse rb)
 			throws RepositoryException, QueryEvaluationException {
 		if (!request.isQueryStringPresent()) {
 			for (String link : getLinks(request)) {
-				rb = rb.header("Link", link);
+				rb.addHeader("Link", link);
 			}
 		}
 		return rb;

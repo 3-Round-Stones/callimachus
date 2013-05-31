@@ -42,11 +42,12 @@ import org.apache.http.HttpResponse;
 import org.callimachusproject.auth.AuthorizationManager;
 import org.callimachusproject.auth.AuthorizationService;
 import org.callimachusproject.auth.Group;
+import org.callimachusproject.client.HttpUriResponse;
 import org.callimachusproject.repository.CalliRepository;
 import org.callimachusproject.server.exceptions.NotFound;
 import org.callimachusproject.server.model.Handler;
+import org.callimachusproject.server.model.ResponseBuilder;
 import org.callimachusproject.server.model.ResourceOperation;
-import org.callimachusproject.server.model.Response;
 import org.openrdf.OpenRDFException;
 import org.openrdf.repository.object.RDFObject;
 
@@ -88,7 +89,7 @@ public class AuthenticationHandler implements Handler {
 		}
 	}
 
-	public Response verify(ResourceOperation request) throws Exception {
+	public HttpUriResponse verify(ResourceOperation request) throws Exception {
 		AuthorizationManager manager = getManager(request);
 		String[] requires = request.getRequires();
 		if (requires != null && requires.length == 0) {
@@ -104,7 +105,7 @@ public class AuthenticationHandler implements Handler {
 				if (unauthorized != null) {
 					String allowed = getAllowedOrigin(request, manager);
 					HttpResponse rb = allow(request, manager, unauthorized, allowed);
-					return new Response(rb, request.getObjectConnection());
+					return new ResponseBuilder(request).respond(rb);
 				}
 			}
 		}
@@ -112,7 +113,7 @@ public class AuthenticationHandler implements Handler {
 		return allow(request, manager, delegate.verify(request), allowed);
 	}
 
-	public Response handle(ResourceOperation request) throws Exception {
+	public HttpUriResponse handle(ResourceOperation request) throws Exception {
 		AuthorizationManager manager = getManager(request);
 		String allowedOrigin = getAllowedOrigin(request, manager);
 		return allow(request, manager, delegate.handle(request), allowedOrigin);

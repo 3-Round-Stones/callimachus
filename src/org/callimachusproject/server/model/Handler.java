@@ -28,6 +28,7 @@
  */
 package org.callimachusproject.server.model;
 
+import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.client.HttpUriResponse;
 
 /**
@@ -37,7 +38,7 @@ import org.callimachusproject.client.HttpUriResponse;
  * 
  */
 public interface Handler {
-	HttpUriResponse verify(ResourceOperation request) throws Exception;
+	HttpUriResponse verify(ResourceOperation request, HttpContext context) throws Exception;
 
-	HttpUriResponse handle(ResourceOperation request) throws Exception;
+	HttpUriResponse handle(ResourceOperation request, HttpContext context) throws Exception;
 }

@@ -10,6 +10,7 @@ import java.util.concurrent.PriorityBlockingQueue;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 import org.callimachusproject.client.CloseableEntity;
 import org.callimachusproject.client.HttpUriResponse;
@@ -52,10 +53,11 @@ public class RequestTransactionActor extends ExchangeActor {
 		final ResourceOperation op = new ResourceOperation(req, repo);
 		try {
 			op.begin();
-			HttpUriResponse resp = handler.verify(op);
+			HttpContext context = exchange.getContext();
+			HttpUriResponse resp = handler.verify(op, context);
 			if (resp == null) {
 				exchange.verified(op.getCredential());
-				resp = handler.handle(op);
+				resp = handler.handle(op, context);
 				if (resp.getStatusLine().getStatusCode() >= 400) {
 					op.rollback();
 				} else if (!op.isSafe()) {
@@ -63,7 +65,7 @@ public class RequestTransactionActor extends ExchangeActor {
 				}
 			}
 			HttpResponse response = createSafeHttpResponse(op, resp, exchange, foreground);
-			exchange.submitResponse(filter(req, response));
+			exchange.submitResponse(filter(req, context, response));
 			success = true;
 		} finally {
 			if (!success) {
@@ -72,9 +74,9 @@ public class RequestTransactionActor extends ExchangeActor {
 		}
 	}
 
-	protected HttpResponse filter(Request request, HttpResponse response)
+	protected HttpResponse filter(Request request, HttpContext context, HttpResponse response)
 			throws IOException {
-		HttpResponse resp = filter.filter(request, response);
+		HttpResponse resp = filter.filter(request, context, response);
 		HttpEntity entity = resp.getEntity();
 		if ("HEAD".equals(request.getMethod()) && entity != null) {
 			EntityUtils.consume(entity);

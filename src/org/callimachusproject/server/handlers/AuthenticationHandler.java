@@ -39,6 +39,7 @@ import java.util.Set;
 import org.apache.http.Header;
 import org.apache.http.HttpMessage;
 import org.apache.http.HttpResponse;
+import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.auth.AuthorizationManager;
 import org.callimachusproject.auth.AuthorizationService;
 import org.callimachusproject.auth.Group;
@@ -89,7 +90,7 @@ public class AuthenticationHandler implements Handler {
 		}
 	}
 
-	public HttpUriResponse verify(ResourceOperation request) throws Exception {
+	public HttpUriResponse verify(ResourceOperation request, HttpContext context) throws Exception {
 		AuthorizationManager manager = getManager(request);
 		String[] requires = request.getRequires();
 		if (requires != null && requires.length == 0) {
@@ -110,13 +111,13 @@ public class AuthenticationHandler implements Handler {
 			}
 		}
 		String allowed = getAllowedOrigin(request, manager);
-		return allow(request, manager, delegate.verify(request), allowed);
+		return allow(request, manager, delegate.verify(request, context), allowed);
 	}
 
-	public HttpUriResponse handle(ResourceOperation request) throws Exception {
+	public HttpUriResponse handle(ResourceOperation request, HttpContext context) throws Exception {
 		AuthorizationManager manager = getManager(request);
 		String allowedOrigin = getAllowedOrigin(request, manager);
-		return allow(request, manager, delegate.handle(request), allowedOrigin);
+		return allow(request, manager, delegate.handle(request, context), allowedOrigin);
 	}
 
 	private synchronized AuthorizationManager getManager(

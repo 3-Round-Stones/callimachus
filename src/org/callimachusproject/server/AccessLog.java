@@ -14,6 +14,7 @@ import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.client.StreamingHttpEntity;
 import org.callimachusproject.io.ChannelUtil;
 import org.callimachusproject.server.model.Filter;
@@ -24,6 +25,7 @@ import org.slf4j.LoggerFactory;
 public class AccessLog extends Filter {
 	private static final String USERNAME = "username=";
 	private static final String NIL = "-";
+	private static final String FORENSIC_ATTR = AccessLog.class.getName() + "#forensicId";
 	private static final Pattern TOKENS_REGEX = Pattern
 			.compile("\\s*([\\w\\!\\#\\$\\%\\&\\'\\*\\+\\-\\.\\^\\_\\`\\~]+)(?:\\s*=\\s*(?:\"([^\"]*)\"|([^,\"]*)))?\\s*,?");
 	private final Logger logger = LoggerFactory.getLogger(AccessLog.class);
@@ -36,16 +38,16 @@ public class AccessLog extends Filter {
 	}
 
 	@Override
-	public HttpResponse intercept(Request req) throws IOException {
-		trace(req);
-		return super.intercept(req);
+	public HttpResponse intercept(Request req, HttpContext context) throws IOException {
+		trace(req, context);
+		return super.intercept(req, context);
 	}
 
 	@Override
-	public HttpResponse filter(Request req, HttpResponse resp)
+	public HttpResponse filter(Request req, HttpContext context, HttpResponse resp)
 			throws IOException {
-		resp = super.filter(req, resp);
-		trace(req, resp);
+		resp = super.filter(req, context, resp);
+		trace(req, context, resp);
 		if (req.isInternal())
 			return resp;
 		final int code = resp.getStatusLine().getStatusCode();
@@ -165,12 +167,12 @@ public class AccessLog extends Filter {
 		return NIL;
 	}
 
-	private void trace(Request req) {
+	private void trace(Request req, HttpContext context) {
 		if (logger.isDebugEnabled() && !req.isInternal() || logger.isTraceEnabled()) {
 			String id = uid + seq.getAndIncrement();
-			req.setForensicId(id);
+			setForensicId(context, id);
 			StringBuilder sb = new StringBuilder();
-			sb.append("+").append(req.getForensicId());
+			sb.append("+").append(getForensicId(context));
 			sb.append("|").append(req.getRequestLine().toString().replace('|', '_'));
 			for (Header hd : req.getAllHeaders()) {
 				sb.append("|").append(hd.getName().replace('|', '_'));
@@ -184,10 +186,18 @@ public class AccessLog extends Filter {
 		}
 	}
 
-	private void trace(Request req, HttpResponse resp) {
+	private String getForensicId(HttpContext context) {
+		return (String) context.getAttribute(FORENSIC_ATTR);
+	}
+
+	private void setForensicId(HttpContext context, String id) {
+		context.setAttribute(FORENSIC_ATTR, id);
+	}
+
+	private void trace(Request req, HttpContext context, HttpResponse resp) {
 		if (logger.isDebugEnabled() && !req.isInternal() || logger.isTraceEnabled()) {
 			StringBuilder sb = new StringBuilder();
-			sb.append("-").append(req.getForensicId());
+			sb.append("-").append(getForensicId(context));
 			sb.append("|").append(resp.getStatusLine().toString().replace('|', '_'));
 			if (req.isInternal()) {
 				logger.trace(sb.toString());

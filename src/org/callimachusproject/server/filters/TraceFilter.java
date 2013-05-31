@@ -37,6 +37,7 @@ import org.apache.http.ProtocolVersion;
 import org.apache.http.RequestLine;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.nio.entity.NStringEntity;
+import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpDateGenerator;
 import org.callimachusproject.server.model.EntityRemovedHttpResponse;
 import org.callimachusproject.server.model.Filter;
@@ -52,7 +53,7 @@ public class TraceFilter extends Filter {
 		super(delegate);
 	}
 
-	public HttpResponse intercept(Request req) throws IOException {
+	public HttpResponse intercept(Request req, HttpContext context) throws IOException {
 		RequestLine line = req.getRequestLine();
 		if ("TRACE".equals(req.getMethod())) {
 			String CRLF = "\r\n";
@@ -84,14 +85,14 @@ public class TraceFilter extends Filter {
 			resp.setHeader("Allow", "OPTIONS, TRACE, GET, HEAD, PUT, DELETE");
 			return resp;
 		} else {
-			return allow(super.intercept(req));
+			return allow(super.intercept(req, context));
 		}
 	}
 
 	@Override
-	public HttpResponse filter(Request request, HttpResponse response)
+	public HttpResponse filter(Request request, HttpContext context, HttpResponse response)
 			throws IOException {
-		return allow(super.filter(request, response));
+		return allow(super.filter(request, context, response));
 	}
 
 	private HttpResponse allow(HttpResponse resp) {

@@ -31,6 +31,7 @@ package org.callimachusproject.server.handlers;
 
 import java.lang.reflect.Method;
 
+import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.annotations.query;
 import org.callimachusproject.client.HttpUriResponse;
 import org.callimachusproject.server.exceptions.BadRequest;
@@ -55,9 +56,9 @@ public class AlternativeHandler implements Handler {
 		this.delegate = delegate;
 	}
 
-	public HttpUriResponse verify(ResourceOperation req) throws Exception {
+	public HttpUriResponse verify(ResourceOperation req, HttpContext context) throws Exception {
 		try {
-			return delegate.verify(req);
+			return delegate.verify(req, context);
 		} catch (MethodNotAllowed e) {
 			HttpUriResponse rb = findAlternate(req);
 			if (rb != null)
@@ -76,9 +77,9 @@ public class AlternativeHandler implements Handler {
 		}
 	}
 
-	public HttpUriResponse handle(ResourceOperation req) throws Exception {
+	public HttpUriResponse handle(ResourceOperation req, HttpContext context) throws Exception {
 		try {
-			return delegate.handle(req);
+			return delegate.handle(req, context);
 		} catch (MethodNotAllowed e) {
 			HttpUriResponse rb = findAlternate(req);
 			if (rb != null)

@@ -80,7 +80,6 @@ import org.slf4j.LoggerFactory;
  */
 public class ResourceOperation extends ResourceRequest {
 	private static final String SUB_CLASS_OF = "http://www.w3.org/2000/01/rdf-schema#subClassOf";
-	private static int MAX_TRANSFORM_DEPTH = 100;
 	private Logger logger = LoggerFactory.getLogger(ResourceOperation.class);
 
 	private Method method;
@@ -633,7 +632,7 @@ public class ResourceOperation extends ResourceRequest {
 		Fluid body = getBody();
 		loop: for (Method method : methods) {
 			Collection<String> readableTypes;
-			readableTypes = getReadableTypes(body, method, 0, messageBody);
+			readableTypes = getReadableTypes(body, method, messageBody);
 			if (readableTypes.isEmpty()) {
 				String contentType = body.getFluidType().preferred();
 				Annotation[][] anns = method.getParameterAnnotations();
@@ -657,7 +656,7 @@ public class ResourceOperation extends ResourceRequest {
 					continue loop;
 				}
 			}
-			if (isAcceptable(method, 0)) {
+			if (isAcceptable(method)) {
 				list.add(method);
 				continue loop;
 			}
@@ -764,7 +763,7 @@ public class ResourceOperation extends ResourceRequest {
 		return names;
 	}
 
-	private boolean isAcceptable(Method method, int depth) {
+	private boolean isAcceptable(Method method) {
 		if (method == null)
 			return false;
 		if (method.getReturnType().equals(Void.TYPE))
@@ -779,15 +778,11 @@ public class ResourceOperation extends ResourceRequest {
 					return true; // no content
 			}
 		}
-		if (depth > MAX_TRANSFORM_DEPTH) {
-			logger.error("Max transform depth exceeded: {}", method.getName());
-			return false;
-		}
 		return isAcceptable(method.getGenericReturnType(), getTypes(method));
 	}
 
 	private Collection<String> getReadableTypes(Fluid input, Annotation[] anns, Class<?> ptype,
-			Type gtype, int depth, boolean typeRequired) {
+			Type gtype, boolean typeRequired) {
 		if (getHeaderNames(anns) != null)
 			return Collections.singleton("*/*");
 		if (getParameterNames(anns) != null)
@@ -804,13 +799,9 @@ public class ResourceOperation extends ResourceRequest {
 	}
 
 	private Collection<String> getReadableTypes(Fluid input,
-			Method method, int depth, boolean typeRequired) {
+			Method method, boolean typeRequired) {
 		if (method == null)
 			return Collections.emptySet();
-		if (depth > MAX_TRANSFORM_DEPTH) {
-			logger.error("Max transform depth exceeded: {}", method.getName());
-			return Collections.emptySet();
-		}
 		Class<?>[] ptypes = method.getParameterTypes();
 		Annotation[][] anns = method.getParameterAnnotations();
 		Type[] gtypes = method.getGenericParameterTypes();
@@ -821,7 +812,7 @@ public class ResourceOperation extends ResourceRequest {
 		List<String> readable = new ArrayList<String>();
 		for (int i = 0; i < args.length; i++) {
 			Collection<String> set;
-			set = getReadableTypes(input, anns[i], ptypes[i], gtypes[i], depth,
+			set = getReadableTypes(input, anns[i], ptypes[i], gtypes[i],
 					typeRequired);
 			if (set.isEmpty()) {
 				empty++;

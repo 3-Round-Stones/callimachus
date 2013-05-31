@@ -47,6 +47,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
 
 import org.apache.http.HttpEntity;
+import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.annotations.expect;
 import org.callimachusproject.annotations.header;
 import org.callimachusproject.client.HttpUriResponse;
@@ -87,13 +88,13 @@ public class InvokeHandler implements Handler {
 			.getGenericInterfaces()[0];
 	private final Logger logger = LoggerFactory.getLogger(InvokeHandler.class);
 
-	public HttpUriResponse verify(ResourceOperation request) throws Exception {
+	public HttpUriResponse verify(ResourceOperation request, HttpContext context) throws Exception {
 		Method method = request.getJavaMethod();
 		assert method != null;
 		return null;
 	}
 
-	public HttpUriResponse handle(ResourceOperation request) throws Exception {
+	public HttpUriResponse handle(ResourceOperation request, HttpContext context) throws Exception {
 		Method method = request.getJavaMethod();
 		assert method != null;
 		return invoke(request, method, request.isSafe());

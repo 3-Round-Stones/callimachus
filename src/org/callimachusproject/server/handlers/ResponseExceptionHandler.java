@@ -30,6 +30,7 @@ package org.callimachusproject.server.handlers;
 
 import java.util.Set;
 
+import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.client.HttpUriResponse;
 import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.server.exceptions.MethodNotAllowed;
@@ -53,9 +54,9 @@ public class ResponseExceptionHandler implements Handler {
 		this.delegate = delegate;
 	}
 
-	public HttpUriResponse verify(ResourceOperation request) throws Exception {
+	public HttpUriResponse verify(ResourceOperation request, HttpContext context) throws Exception {
 		try {
-			return delegate.verify(request);
+			return delegate.verify(request, context);
 		} catch (MethodNotAllowed e) {
 			return methodNotAllowed(request, new ResponseBuilder(request).exception(e));
 		} catch (NotAcceptable e) {
@@ -65,9 +66,9 @@ public class ResponseExceptionHandler implements Handler {
 		}
 	}
 
-	public HttpUriResponse handle(ResourceOperation request) throws Exception {
+	public HttpUriResponse handle(ResourceOperation request, HttpContext context) throws Exception {
 		try {
-			return delegate.handle(request);
+			return delegate.handle(request, context);
 		} catch (MethodNotAllowed e) {
 			return methodNotAllowed(request, new ResponseBuilder(request).exception(e));
 		} catch (NotAcceptable e) {

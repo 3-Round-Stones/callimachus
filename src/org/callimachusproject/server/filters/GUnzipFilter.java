@@ -36,6 +36,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.message.BasicStatusLine;
+import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.client.CloseableEntity;
 import org.callimachusproject.client.GUnzipEntity;
 import org.callimachusproject.client.GZipEntity;
@@ -61,7 +62,7 @@ public class GUnzipFilter extends Filter {
 		super(delegate);
 	}
 
-	public Request filter(Request req) throws IOException {
+	public Request filter(Request req, HttpContext context) throws IOException {
 		if ("gzip".equals(req.getHeader("Content-Encoding"))) {
 			HttpEntity entity = req.getEntity();
 			if (entity != null) {
@@ -73,11 +74,11 @@ public class GUnzipFilter extends Filter {
 				req.setEntity(gunzip(entity));
 			}
 		}
-		return super.filter(req);
+		return super.filter(req, context);
 	}
 
-	public HttpResponse filter(Request req, HttpResponse resp) throws IOException {
-		resp = super.filter(req, resp);
+	public HttpResponse filter(Request req, HttpContext context, HttpResponse resp) throws IOException {
+		resp = super.filter(req, context, resp);
 		Header cache = resp.getFirstHeader("Cache-Control");
 		if (cache != null && cache.getValue().contains("no-transform"))
 			return resp;

@@ -38,6 +38,7 @@ import java.util.List;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 import org.callimachusproject.client.StreamingHttpEntity;
 import org.callimachusproject.fluid.MediaType;
@@ -87,20 +88,20 @@ public class HttpResponseFilter extends Filter {
 	}
 
 	@Override
-	public Request filter(Request request) throws IOException {
+	public Request filter(Request request, HttpContext context) throws IOException {
 		if (envelopeType != null && request.containsHeader("Accept")) {
 			String hd = request.getFirstHeader("Accept").getValue();
 			if (!hd.contains("*/*")) {
 				request.addHeader("Accept", accept);
 			}
 		}
-		return super.filter(request);
+		return super.filter(request, context);
 	}
 
 	@Override
-	public HttpResponse filter(Request request, HttpResponse response)
+	public HttpResponse filter(Request request, HttpContext context, HttpResponse response)
 			throws IOException {
-		response = super.filter(request, response);
+		response = super.filter(request, context, response);
 		if (envelopeType == null)
 			return response;
 		Header type = response.getFirstHeader("Content-Type");

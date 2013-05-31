@@ -28,6 +28,7 @@
  */
 package org.callimachusproject.server.handlers;
 
+import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.client.HttpUriResponse;
 import org.callimachusproject.server.model.Handler;
 import org.callimachusproject.server.model.ResourceOperation;
@@ -46,12 +47,12 @@ public class NotFoundHandler implements Handler {
 		this.delegate = delegate;
 	}
 
-	public HttpUriResponse verify(ResourceOperation request) throws Exception {
-		return delegate.verify(request);
+	public HttpUriResponse verify(ResourceOperation request, HttpContext context) throws Exception {
+		return delegate.verify(request, context);
 	}
 
-	public HttpUriResponse handle(ResourceOperation request) throws Exception {
-		HttpUriResponse rb = delegate.handle(request);
+	public HttpUriResponse handle(ResourceOperation request, HttpContext context) throws Exception {
+		HttpUriResponse rb = delegate.handle(request, context);
 		String method = request.getMethod();
 		if (("GET".equals(method) || "HEAD".equals(method)) && rb.getEntity() == null) {
 			return new ResponseBuilder(request).notFound();

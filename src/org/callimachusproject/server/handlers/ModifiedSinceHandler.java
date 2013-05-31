@@ -32,6 +32,7 @@ package org.callimachusproject.server.handlers;
 import java.util.Enumeration;
 
 import org.apache.http.Header;
+import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.client.HttpUriResponse;
 import org.callimachusproject.server.model.Handler;
 import org.callimachusproject.server.model.ResourceOperation;
@@ -57,23 +58,23 @@ public class ModifiedSinceHandler implements Handler {
 		reset = System.currentTimeMillis() / 1000 * 1000;
 	}
 
-	public HttpUriResponse verify(ResourceOperation req) throws Exception {
+	public HttpUriResponse verify(ResourceOperation req, HttpContext context) throws Exception {
 		String method = req.getMethod();
 		String contentType = req.getResponseContentType();
 		String cache = req.getResponseCacheControl();
 		String entityTag = req.getEntityTag(req.getContentVersion(), cache, contentType);
 		if (req.isSafe() && req.isNoValidate()) {
-			return delegate.verify(req);
+			return delegate.verify(req, context);
 		} else {
 			HttpUriResponse resp;
 			String tag = modifiedSince(req, entityTag);
 			if ("GET".equals(method) || "HEAD".equals(method)) {
 				if (tag == null) {
-					return delegate.verify(req);
+					return delegate.verify(req, context);
 				}
 				resp = new ResponseBuilder(req).notModified();
 			} else if (tag == null) {
-				return delegate.verify(req);
+				return delegate.verify(req, context);
 			} else {
 				resp = new ResponseBuilder(req).preconditionFailed();
 			}
@@ -84,8 +85,8 @@ public class ModifiedSinceHandler implements Handler {
 		}
 	}
 
-	public HttpUriResponse handle(ResourceOperation req) throws Exception {
-		return resetModified(delegate.handle(req));
+	public HttpUriResponse handle(ResourceOperation req, HttpContext context) throws Exception {
+		return resetModified(delegate.handle(req, context));
 	}
 
 	private HttpUriResponse resetModified(HttpUriResponse resp) {

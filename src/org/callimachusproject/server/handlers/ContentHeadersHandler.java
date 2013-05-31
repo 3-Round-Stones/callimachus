@@ -29,6 +29,7 @@
  */
 package org.callimachusproject.server.handlers;
 
+import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.client.HttpUriResponse;
 import org.callimachusproject.server.model.Handler;
 import org.callimachusproject.server.model.ResourceOperation;
@@ -51,8 +52,8 @@ public class ContentHeadersHandler implements Handler {
 		this.delegate = delegate;
 	}
 
-	public HttpUriResponse verify(ResourceOperation request) throws Exception {
-		HttpUriResponse rb = delegate.verify(request);
+	public HttpUriResponse verify(ResourceOperation request, HttpContext context) throws Exception {
+		HttpUriResponse rb = delegate.verify(request, context);
 		if (rb != null) {
 			String contentType = request.getResponseContentType();
 			String version = request.getContentVersion();
@@ -62,11 +63,11 @@ public class ContentHeadersHandler implements Handler {
 		return rb;
 	}
 
-	public HttpUriResponse handle(ResourceOperation request) throws Exception {
+	public HttpUriResponse handle(ResourceOperation request, HttpContext context) throws Exception {
 		String contentType = request.getResponseContentType();
 		String derived = request.getContentVersion();
 		String cache = request.getResponseCacheControl();
-		HttpUriResponse rb = delegate.handle(request);
+		HttpUriResponse rb = delegate.handle(request, context);
 		addHeaders(request, contentType, derived, cache, rb);
 		return rb;
 	}

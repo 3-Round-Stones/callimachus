@@ -23,6 +23,7 @@ import org.apache.http.ProtocolVersion;
 import org.apache.http.StatusLine;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
+import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.auth.AuthorizationManager;
 import org.callimachusproject.auth.AuthorizationService;
 import org.callimachusproject.auth.DetachedRealm;
@@ -115,7 +116,8 @@ public abstract class ExchangeActor {
 			processed = true;
 		} catch (Exception e) {
 			Request req = exchange.getRequest();
-			exchange.submitResponse(filterError(req, createErrorResponse(req, exchange.getRepository(), e)));
+			HttpContext context = exchange.getContext();
+			exchange.submitResponse(filterError(req, context, createErrorResponse(req, exchange.getRepository(), e)));
 			processed = true;
 		} finally {
 			if (!processed) {
@@ -147,12 +149,12 @@ public abstract class ExchangeActor {
 		return new InternalServerError(e);
 	}
 
-	protected abstract HttpResponse filter(Request request, HttpResponse response)
+	protected abstract HttpResponse filter(Request request, HttpContext context, HttpResponse response)
 			throws IOException;
 
-	private HttpResponse filterError(Request request, HttpResponse response) {
+	private HttpResponse filterError(Request request, HttpContext context, HttpResponse response) {
 		try {
-			return filter(request, response);
+			return filter(request, context, response);
 		} catch (Exception e) {
 			logger.error(e.toString(), e);
 			return new BasicHttpResponse(_500);

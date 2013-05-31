@@ -31,6 +31,7 @@ package org.callimachusproject.server.handlers;
 
 import java.util.Enumeration;
 
+import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.client.HttpUriResponse;
 import org.callimachusproject.server.model.Handler;
 import org.callimachusproject.server.model.ResourceOperation;
@@ -49,19 +50,19 @@ public class UnmodifiedSinceHandler implements Handler {
 		this.delegate = delegate;
 	}
 
-	public HttpUriResponse verify(ResourceOperation request) throws Exception {
+	public HttpUriResponse verify(ResourceOperation request, HttpContext context) throws Exception {
 		String contentType = request.getResponseContentType();
 		String cache = request.getResponseCacheControl();
 		String entityTag = request.getEntityTag(request.getContentVersion(), cache, contentType);
 		if (unmodifiedSince(request, entityTag)) {
-			return delegate.verify(request);
+			return delegate.verify(request, context);
 		} else {
 			return new ResponseBuilder(request).preconditionFailed("Resource has since been modified");
 		}
 	}
 
-	public HttpUriResponse handle(ResourceOperation request) throws Exception {
-		return delegate.handle(request);
+	public HttpUriResponse handle(ResourceOperation request, HttpContext context) throws Exception {
+		return delegate.handle(request, context);
 	}
 
 	private boolean unmodifiedSince(ResourceOperation request, String entityTag) {

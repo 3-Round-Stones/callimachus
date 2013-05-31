@@ -37,6 +37,7 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.annotations.header;
 import org.callimachusproject.annotations.method;
 import org.callimachusproject.client.HttpUriResponse;
@@ -65,13 +66,13 @@ public class OptionsHandler implements Handler {
 		this.delegate = delegate;
 	}
 
-	public HttpUriResponse verify(ResourceOperation request) throws Exception {
+	public HttpUriResponse verify(ResourceOperation request, HttpContext context) throws Exception {
 		if ("OPTIONS".equals(request.getMethod()))
 			return null;
-		return allow(delegate.verify(request));
+		return allow(delegate.verify(request, context));
 	}
 
-	public HttpUriResponse handle(ResourceOperation request) throws Exception {
+	public HttpUriResponse handle(ResourceOperation request, HttpContext context) throws Exception {
 		if ("OPTIONS".equals(request.getMethod())) {
 			StringBuilder sb = new StringBuilder();
 			sb.append("OPTIONS, TRACE");
@@ -107,7 +108,7 @@ public class OptionsHandler implements Handler {
 			}
 			return rb;
 		} else {
-			return allow(delegate.handle(request));
+			return allow(delegate.handle(request, context));
 		}
 	}
 

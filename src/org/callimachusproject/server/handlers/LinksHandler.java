@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.annotations.rel;
 import org.callimachusproject.annotations.title;
 import org.callimachusproject.annotations.type;
@@ -71,12 +72,12 @@ public class LinksHandler implements Handler {
 		this.envelopeType = envelopeType;
 	}
 
-	public HttpUriResponse verify(ResourceOperation request) throws Exception {
-		return delegate.verify(request);
+	public HttpUriResponse verify(ResourceOperation request, HttpContext context) throws Exception {
+		return delegate.verify(request, context);
 	}
 
-	public HttpUriResponse handle(ResourceOperation req) throws Exception {
-		HttpUriResponse rb = delegate.handle(req);
+	public HttpUriResponse handle(ResourceOperation req, HttpContext context) throws Exception {
+		HttpUriResponse rb = delegate.handle(req, context);
 		if ("OPTIONS".equals(req.getMethod())) {
 			return addLinks(req, rb);
 		} else {

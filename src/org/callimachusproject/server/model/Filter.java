@@ -31,6 +31,7 @@ package org.callimachusproject.server.model;
 import java.io.IOException;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.protocol.HttpContext;
 
 /**
  * Interface used to stack HTTP filters.
@@ -48,31 +49,34 @@ public class Filter {
 	/**
 	 * Validate request and possible issue an error condition or a cached
 	 * response.
+	 * @param context TODO
 	 */
-	public HttpResponse intercept(Request request) throws IOException {
+	public HttpResponse intercept(Request request, HttpContext context) throws IOException {
 		if (delegate == null)
 			return null;
-		return delegate.intercept(request);
+		return delegate.intercept(request, context);
 	}
 
 	/**
-	 * If {@link #intercept(Request)} returned null, process the request using
+	 * If {@link #intercept(Request, HttpContext)} returned null, process the request using
 	 * the returned request.
+	 * @param context TODO
 	 */
-	public Request filter(Request request) throws IOException {
+	public Request filter(Request request, HttpContext context) throws IOException {
 		if (delegate == null)
 			return request;
-		return delegate.filter(request);
+		return delegate.filter(request, context);
 	}
 
 	/**
 	 * Pass the returned response to the client.
+	 * @param context TODO
 	 */
-	public HttpResponse filter(Request request, HttpResponse response)
+	public HttpResponse filter(Request request, HttpContext context, HttpResponse response)
 			throws IOException {
 		if (delegate == null)
 			return response;
-		return delegate.filter(request, response);
+		return delegate.filter(request, context, response);
 	}
 
 }

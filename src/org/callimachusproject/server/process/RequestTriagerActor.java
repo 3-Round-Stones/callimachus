@@ -6,6 +6,7 @@ import java.util.concurrent.PriorityBlockingQueue;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 import org.callimachusproject.concurrent.ManagedExecutors;
 import org.callimachusproject.server.model.Filter;
@@ -32,22 +33,23 @@ public class RequestTriagerActor extends ExchangeActor {
 	protected void process(Exchange exchange, boolean foreground)
 			throws IOException, OpenRDFException, InterruptedException {
 		Request req = exchange.getRequest();
-		HttpResponse resp = filter.intercept(req);
+		HttpContext context = exchange.getContext();
+		HttpResponse resp = filter.intercept(req, context);
 		if (resp == null) {
-			exchange.setRequest(filter.filter(req));
+			exchange.setRequest(filter.filter(req, context));
 			if (foreground) {
 				handler.execute(exchange);
 			} else {
 				handler.submit(exchange);
 			}
 		} else {
-			exchange.submitResponse(filter(req, resp));
+			exchange.submitResponse(filter(req, context, resp));
 		}
 	}
 
-	protected HttpResponse filter(Request request, HttpResponse response)
+	protected HttpResponse filter(Request request, HttpContext context, HttpResponse response)
 			throws IOException {
-		HttpResponse resp = filter.filter(request, response);
+		HttpResponse resp = filter.filter(request, context, response);
 		HttpEntity entity = resp.getEntity();
 		if ("HEAD".equals(request.getMethod()) && entity != null) {
 			EntityUtils.consume(entity);

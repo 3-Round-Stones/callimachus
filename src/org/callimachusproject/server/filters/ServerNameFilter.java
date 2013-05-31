@@ -32,6 +32,7 @@ package org.callimachusproject.server.filters;
 import java.io.IOException;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.server.model.Filter;
 import org.callimachusproject.server.model.Request;
 import org.callimachusproject.util.DomainNameSystemResolver;
@@ -69,9 +70,9 @@ public class ServerNameFilter extends Filter {
 		setVia();
 	}
 
-	public HttpResponse filter(Request req, HttpResponse resp)
+	public HttpResponse filter(Request req, HttpContext context, HttpResponse resp)
 			throws IOException {
-		resp = super.filter(req, resp);
+		resp = super.filter(req, context, resp);
 		if (name != null) {
 			if (resp.containsHeader("Server")) {
 				resp.addHeader("Via", getVia());

@@ -34,6 +34,7 @@ import java.io.IOException;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.client.CloseableEntity;
 import org.callimachusproject.client.GUnzipEntity;
 import org.callimachusproject.client.GZipEntity;
@@ -49,8 +50,8 @@ public class GZipFilter extends Filter {
 		super(delegate);
 	}
 
-	public HttpResponse filter(Request req, HttpResponse resp) throws IOException {
-		resp = super.filter(req, resp);
+	public HttpResponse filter(Request req, HttpContext context, HttpResponse resp) throws IOException {
+		resp = super.filter(req, context, resp);
 		String method = req.getMethod();
 		int code = resp.getStatusLine().getStatusCode();
 		boolean safe = method.equals("HEAD") || method.equals("GET") || method.equals("PROFIND");

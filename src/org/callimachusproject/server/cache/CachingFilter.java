@@ -58,6 +58,7 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.nio.entity.NFileEntity;
+import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpDateGenerator;
 import org.apache.http.util.EntityUtils;
 import org.callimachusproject.io.AutoCloseChannel;
@@ -147,7 +148,7 @@ public class CachingFilter extends Filter {
 	}
 
 	@Override
-	public HttpResponse intercept(Request headers) throws IOException {
+	public HttpResponse intercept(Request headers, HttpContext context) throws IOException {
 		if (enabled && headers.isStorable()) {
 			try {
 				String url = headers.getRequestURL();
@@ -162,7 +163,7 @@ public class CachingFilter extends Filter {
 						if (cached != null && disconnected) {
 							return respondWithCache(now, headers, cached, null);
 						} else if (stale && !headers.isOnlyIfCache()) {
-							return super.intercept(headers);
+							return super.intercept(headers, context);
 						} else if (cached == null && headers.isOnlyIfCache()) {
 							return respond(504, "Gateway Timeout");
 						} else {
@@ -177,12 +178,12 @@ public class CachingFilter extends Filter {
 				return respond(504, "Gateway Timeout");
 			}
 		}
-		return super.intercept(headers);
+		return super.intercept(headers, context);
 	}
 
 	@Override
-	public Request filter(Request request) throws IOException {
-		request = super.filter(request);
+	public Request filter(Request request, HttpContext context) throws IOException {
+		request = super.filter(request, context);
 		try {
 			if (enabled && request.isStorable() && !(request instanceof CachableRequest)) {
 				String url = request.getRequestURL();
@@ -213,9 +214,9 @@ public class CachingFilter extends Filter {
 	}
 
 	@Override
-	public HttpResponse filter(Request request, HttpResponse resp)
+	public HttpResponse filter(Request request, HttpContext context, HttpResponse resp)
 			throws IOException {
-		resp = super.filter(request, resp);
+		resp = super.filter(request, context, resp);
 		try {
 			if (request instanceof CachableRequest && isCachable(request, resp)) {
 				String url = request.getRequestURL();

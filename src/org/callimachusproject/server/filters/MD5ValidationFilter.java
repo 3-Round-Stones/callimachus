@@ -30,6 +30,7 @@ package org.callimachusproject.server.filters;
 
 import java.io.IOException;
 
+import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.server.model.Filter;
 import org.callimachusproject.server.model.Request;
 
@@ -42,14 +43,14 @@ public class MD5ValidationFilter extends Filter {
 		super(delegate);
 	}
 
-	public Request filter(Request req) throws IOException {
+	public Request filter(Request req, HttpContext context) throws IOException {
 		if (req.getEntity() != null) {
 			String md5 = req.getHeader("Content-MD5");
 			if (md5 != null) {
 				req.setEntity(new MD5ValidationEntity(req.getEntity(), md5));
 			}
 		}
-		return super.filter(req);
+		return super.filter(req, context);
 	}
 
 }

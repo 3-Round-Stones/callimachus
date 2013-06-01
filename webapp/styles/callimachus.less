@@ -353,3 +353,46 @@ aside h3 {
     cursor: copy;
     background: #ddd !important;
 }
+
+/* responsive tweaks */
+
+@media (max-width: 767px) {
+
+    .sidebar {
+        position: relative;
+    }    
+    
+    .sidebar + div {
+        margin-right: 0;
+        clear: both;
+    }
+    
+}
+
+@media (max-width: 450px) {
+    nav.nav-tabs > a {
+        font-size: 0.9em;
+        padding-right: 6px;
+        padding-left: 6px;
+    }
+    
+    form.form-search input {
+        width: 100px;
+    }
+
+    .sidebar {
+        width: 100%;
+    }    
+
+    footer .navbar-text {
+        font-size: 0.8em;
+        line-height: 1rem;
+        text-align: center;
+    }
+    
+    footer .navbar-text.pull-right {
+        float: none;
+        margin-bottom: 10px;
+    }
+}
+

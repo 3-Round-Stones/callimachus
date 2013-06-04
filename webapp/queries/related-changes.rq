@@ -24,7 +24,7 @@ SELECT * {
             SELECT ?id (max(?title)  as ?title) (max(?updated) as ?updated) (max(?summary) as ?summary) (max(?icon) as ?icon)
                     (?id as ?content_src) (max(?content_type) as ?content_type) ("entry" as ?type)
                     (?id as ?link_edit_media_href) (concat(str(?id),"?view") as ?link_view_href) (concat(str(?id),"?history") as ?link_history_href)
-                    (concat(str(?revision),"?view") as ?link_href) (prov:wasGeneratedBy as ?link_rel) ("text/html" as ?link_type)
+                    (?revision as ?link_href) (prov:wasGeneratedBy as ?link_rel) ("text/html" as ?link_type)
                     (max(?contributor_uri) as ?contributor_uri) (max(?contributor_name) as ?contributor_name)  {
                 {
                     SELECT * {

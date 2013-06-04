@@ -22,7 +22,7 @@ SELECT * {
     } UNION {
         {
             SELECT ?id (max(?title) as ?title) (max(?updated) as ?updated) (max(?summary) as ?summary) (max(?icon) as ?icon)
-                    ("entry" as ?type) (concat(str(?id),"?view") as ?link_view_href)
+                    ("entry" as ?type) (?id as ?link_view_href)
                     (max(?contributor_uri) as ?contributor_uri) (max(?contributor_name) as ?contributor_name)  {
                 {
                     SELECT ?id ?updated {

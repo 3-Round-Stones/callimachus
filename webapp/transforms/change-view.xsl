@@ -62,7 +62,7 @@
                 </p>
                 <xsl:for-each-group select="sparql:sparql/sparql:results/sparql:result[sparql:binding/@name='subject']"
                         group-by="sparql:binding[@name='subject']/*">
-                    <a href="{sparql:binding[@name='subject']/*}?view">
+                    <a href="{sparql:binding[@name='subject']/*}">
                         <xsl:call-template name="iriref">
                             <xsl:with-param name="iri" select="sparql:binding[@name='subject']/*"/>
                         </xsl:call-template>
@@ -99,7 +99,7 @@
         <xsl:apply-templates select="*" />
     </xsl:template>
     <xsl:template match="sparql:uri">
-        <a href="{text()}?view" class="uri">
+        <a href="{text()}" class="uri">
             <xsl:attribute name="rel">
                 <xsl:call-template name="iriref">
                     <xsl:with-param name="iri" select="text()" />

@@ -29,6 +29,9 @@ window.calli.saveResourceAs = function(event, fileName, create) {
             if (resource) {
                 // use the already chosen folder
                 ns = resource.replace(/[^\/]*\/?$/, '');
+                if (!ns) {
+                    ns = about.replace(/[^\/]*$/, '');
+                }
             } else if (about.lastIndexOf('/') != about.length - 1
                     && window.location.search.indexOf('?create=') == 0) {
                 // creating nested resource

@@ -2,15 +2,11 @@
 
 (function($, jQuery){
     try {
-        if (window.sessionStorage) {
-            sessionStorage.setItem("LastFolder", location.href);
-        }
-        if (window.localStorage) {
-            localStorage.setItem("LastFolder", location.href);
-        }
-    } catch (e) {
-        // ignore
-    }
+        window.sessionStorage.setItem("LastFolder", location.href);
+    } catch(e) {}
+    try {
+        window.localStorage.setItem("LastFolder", location.href);
+    } catch(e) {}
     function createTextCell(text, url, type, src) {
         if (!src) {
             src = calli.getCallimachusUrl('images/rdf-icon.png');

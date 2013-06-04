@@ -31,12 +31,12 @@ calli.selectResource = function(event, src) {
     if (!src) {
         src = "/?view";
     }
-    if (src.indexOf("/?view") >= 0 && window.sessionStorage) {
+    if (src.indexOf("/?view") >= 0) {
         try {
-            if (sessionStorage.getItem("LastFolder")) {
-                url = sessionStorage.getItem("LastFolder");
-            } else if (window.localStorage && localStorage.getItem("LastFolder")) {
-                url = localStorage.getItem("LastFolder");
+            if (window.sessionStorage.getItem("LastFolder")) {
+                url = window.sessionStorage.getItem("LastFolder");
+            } else if (window.localStorage.getItem("LastFolder")) {
+                url = window.localStorage.getItem("LastFolder");
             }
         } catch (e) {
             // ignore

@@ -7,8 +7,8 @@
             var url = calli.getPageUrl();
             var posts = $(".comment").parent().find("time").map(function(){ return $(this).attr("content"); });
             try {
-                if (window.localStorage && posts.length) {
-                    localStorage.setItem(url, posts.get().join(','));
+                if (posts.length) {
+                    window.localStorage.setItem(url, posts.get().join(','));
                 }
             } catch (e) { }
         }
@@ -24,19 +24,23 @@
     function handleDiscussion(tab, url, data) {
         var posts = $(".comment", data).parent().find("time").map(function(){ return $(this).text(); });
         if (posts.length) {
-            if (window.localStorage && localStorage.getItem(url)) {
-                var seen = localStorage.getItem(url).split(',');
-                var newer = posts.filter(function(){
-                    for (var i=0; i<seen.length; i++) {
-                        if (seen[i] == this)
-                            return false;
+            try {
+                if (window.localStorage.getItem(url)) {
+                    var seen = window.localStorage.getItem(url).split(',');
+                    var newer = posts.filter(function(){
+                        for (var i=0; i<seen.length; i++) {
+                            if (seen[i] == this)
+                                return false;
+                        }
+                        return true;
+                    });
+                    if (newer.size()) {
+                        tab.text(tab.text() + " (" + newer.size() + ")");
                     }
-                    return true;
-                });
-                if (newer.size()) {
-                    tab.text(tab.text() + " (" + newer.size() + ")");
+                } else {
+                    tab.text(tab.text() + " (" + posts.size() + ")");
                 }
-            } else {
+            } catch(e) {
                 tab.text(tab.text() + " (" + posts.size() + ")");
             }
             tab.css('font-weight', "bold");

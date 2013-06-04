@@ -14,11 +14,11 @@ function logout(url) {
     jQuery.ajax({ type: 'POST', url: url,
         username: '-', password: 'logout',
         success: function(data) {
-            if (window.localStorage) {
-                localStorage.removeItem('username');
-                localStorage.removeItem('userIri');
-                localStorage.removeItem("digestPassword");
-            }
+            try {
+                window.localStorage.removeItem('username');
+                window.localStorage.removeItem('userIri');
+                window.localStorage.removeItem("digestPassword");
+            } catch(e) {}
             $(document).trigger("calliLoggedOut");
             window.location = "/";
         }
@@ -30,11 +30,11 @@ if (!window.calli) {
 }
 window.calli.getUserIri = function() {
     var iri = null;
-    if (window.localStorage) {
-        iri = localStorage.getItem('userIri');
+    try {
+        iri = window.localStorage.getItem('userIri');
         if (iri)
             return iri;
-    }
+    } catch(e) {}
     if (isLoggedIn()) {
         jQuery.ajax({ url: "/?profile", async: false,
             beforeSend: calli.withCredentials,
@@ -48,11 +48,11 @@ window.calli.getUserIri = function() {
 };
 
 $(document).bind("calliLogin", function(event) {
-    if (window.localStorage) {
-        localStorage.removeItem('username');
-        localStorage.removeItem('userIri');
-        localStorage.removeItem("digestPassword");
-    }
+    try {
+        window.localStorage.removeItem('username');
+        window.localStorage.removeItem('userIri');
+        window.localStorage.removeItem("digestPassword");
+    } catch(e) {}
     var return_to = window.location.href;
     window.location = "/?login&return_to=" + encodeURIComponent(return_to);
     event.preventDefault();
@@ -81,7 +81,7 @@ $(document).bind("calliLoggedOut", function(event) {
     $(document.documentElement).removeClass('login');
 });
 
-if (window.localStorage) {
+try {
     var broadcastLoggedIn = false;
     $(document).bind("calliLoggedIn", function(event) {
         broadcastLoggedIn = true;
@@ -101,36 +101,44 @@ if (window.localStorage) {
     };
     $(window).bind('storage', storageChanged);
     $(document).bind('storage', storageChanged); // IE
-}
+} catch(e) {}
 
 if (isLoggedIn()) {
     // logged in already
     nowLoggedIn();
-} else if (window.localStorage && localStorage.getItem("digestPassword")) {
-    // stay signed in with a digest password
-    jQuery.ajax({ url: "/?profile",
-        username: localStorage.getItem("username"),
-        password: localStorage.getItem("digestPassword"),
-        success: function(doc) {
-            loadProfile(doc);
-            nowLoggedIn();
-        },
-        error: nowLoggedOut
-    });
-} else if (getUsername()) {
-    activelyLogin();
 } else {
-    nowLoggedOut();
-    // hasn't logged in using the login form; is this page protected?
-    var xhr = jQuery.ajax({type: 'GET', url: calli.getPageUrl(),
-        beforeSend: calli.withCredentials,
-        success: function() {
-            var cc = xhr.getResponseHeader("Cache-Control");
-            if (cc && cc.indexOf("public") < 0) {
-                activelyLogin();
+    var digestPassword;
+    try {
+        digestPassword = window.localStorage.getItem("digestPassword");
+    } catch(e) {
+        digestPassword = null;
+    }
+    if (digestPassword) {
+        // stay signed in with a digest password
+        jQuery.ajax({ url: "/?profile",
+            username: window.localStorage.getItem("username"),
+            password: window.localStorage.getItem("digestPassword"),
+            success: function(doc) {
+                loadProfile(doc);
+                nowLoggedIn();
+            },
+            error: nowLoggedOut
+        });
+    } else if (getUsername()) {
+        activelyLogin();
+    } else {
+        nowLoggedOut();
+        // hasn't logged in using the login form; is this page protected?
+        var xhr = jQuery.ajax({type: 'GET', url: calli.getPageUrl(),
+            beforeSend: calli.withCredentials,
+            success: function() {
+                var cc = xhr.getResponseHeader("Cache-Control");
+                if (cc && cc.indexOf("public") < 0) {
+                    activelyLogin();
+                }
             }
-        }
-    });
+        });
+    }
 }
 
 function activelyLogin() {
@@ -147,9 +155,9 @@ function activelyLogin() {
 function nowLoggedIn() {
     var name = getUsername();
     if (name) {
-        if (window.localStorage) {
-            localStorage.setItem("username", name);
-        }
+        try {
+            window.localStorage.setItem("username", name);
+        } catch(e) {}
         var e = jQuery.Event("calliLoggedIn");
         e.title = name;
         $(document).ready(function() {
@@ -164,17 +172,22 @@ function nowLoggedOut() {
     try {
         document.cookie = getUserCookieName() + '=;max-age=0';
     } catch (e) {}
-    if (window.localStorage) {
-        localStorage.removeItem("username");
-        localStorage.removeItem("digestPassword");
-    }
+    try {
+        window.localStorage.removeItem("username");
+        window.localStorage.removeItem("digestPassword");
+    } catch(e) {}
     $(document).ready(function() {
         $(document).trigger("calliLoggedOut");
     });
 }
 
 function isLoggedIn() {
-    return getUsername() && (!window.localStorage || window.localStorage.getItem("username"));
+    var username = getUsername();
+    try {
+        return username && window.localStorage.getItem("username");
+    } catch(e) {
+        return username;
+    }
 }
 
 function getUsername() {
@@ -194,10 +207,10 @@ function getUserCookieName() {
 function loadProfile(doc) {
     var iri = /resource="([^" >]*)"/i.exec(doc);
     if (iri) {
-        if (window.localStorage) {
+        try {
             // now logged in
-            localStorage.setItem("userIri", iri[1]);
-        }
+            window.localStorage.setItem("userIri", iri[1]);
+        } catch(e) {}
     }
 }
 

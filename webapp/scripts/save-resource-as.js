@@ -114,12 +114,12 @@ function openSaveAsDialog(form, label, create, callback) {
     if (location.search.search(/\?create=/) == 0) {
         var page = calli.getPageUrl();
         src += '!' + page.substring(0, page.indexOf('?')) + '?view';
-    } else if (window.sessionStorage) {
+    } else {
         try {
-            if (sessionStorage.getItem("LastFolder")) {
-                src += '!' + sessionStorage.getItem("LastFolder");
-            } else if (window.localStorage && localStorage.setItem("LastFolder")) {
-                src += '!' + localStorage.setItem("LastFolder");
+            if (window.sessionStorage.getItem("LastFolder")) {
+                src += '!' + window.sessionStorage.getItem("LastFolder");
+            } else if (window.localStorage.setItem("LastFolder")) {
+                src += '!' + window.localStorage.setItem("LastFolder");
             }
         } catch (e) {
             // ignore

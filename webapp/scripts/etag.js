@@ -2,7 +2,7 @@
 
 window.calli = window.calli || {};
 
-if (window.sessionStorage) {
+try {
     window.calli.etag = function(url, value) {
         var uri = url;
         if (uri.indexOf('http') != 0) {
@@ -25,6 +25,9 @@ if (window.sessionStorage) {
             return window.sessionStorage.getItem(uri + " ETag");
         }
     };
-} else {
+    if (!window.sessionStorage) {
+        window.calli.etag = function(){return null;};
+    }
+} catch(e) {
     window.calli.etag = function(){return null;};
 }

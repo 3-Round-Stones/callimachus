@@ -195,8 +195,8 @@
                 var disposition = headers.get("content-disposition");
                 if (disposition && disposition.indexOf("filename=") >= 0) {
                     ftype = headers.get("content-type");
-                    var xml = ftype == "text/xml" || ftype == "application/xml";
-                    if (xml || ftype == "application/octet-stream" || ftype.indexOf("application/x-") == 0) {
+                    var xml = ftype.indexOf("text/xml") == 0 || ftype.indexOf("application/xml") == 0;
+                    if (xml || ftype.indexOf("application/octet-stream") == 0 || ftype.indexOf("application/x-") == 0) {
                         var fileName = disposition.replace(/.*filename="/g, '').replace(/".*/g, '');
                         var mimetypes = new javax.activation.MimetypesFileTypeMap();
                         var mtype = mimetypes.getContentType(fileName);
@@ -214,7 +214,7 @@
             }
             if (!ftype) {
                 ftype = "application/octet-stream";
-            } else if (ftype == "text/xml" || ftype == "application/xml" ||
+            } else if (ftype.indexOf("text/xml") == 0 || ftype.indexOf("application/xml") == 0 ||
                     ftype.indexOf("+xml") > 0) {
                 bio.mark(65536);
                 var xmlFactory = XMLEventReaderFactory.newInstance();
@@ -258,7 +258,7 @@
             throw new BadRequest("Fragement or name resources are not supported: " + createdUri);
         if (this.calliHasComponent.contains(location))
             throw new Conflict("Resource " + location + " already exists");
-        var construct = create.LookupConstructor(documentTag, ftype);
+        var construct = create.LookupConstructor(documentTag, ftype.replace(/\\s*;.*/,''));
         var newCopy = construct.PostCreate(bio, location, ftype);
         if (!newCopy) throw new InternalServerError("Could not create " + location + " using " + construct);
         if (newCopy != location && this.calliHasComponent.contains(newCopy))

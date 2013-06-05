@@ -72,15 +72,6 @@ public class RangeTest extends MetadataServerTestCase {
 		assertEquals("Hey World!", web.header("If-Range", tag).header("Range", "bytes=0-4").get(String.class));
 	}
 
-	@Ignore
-	public void testIfRangeDate() throws Exception {
-		WebResource web = client.path("/hello");
-		ClientResponse resp = web.type("application/string").put(ClientResponse.class, "Hello World!");
-		String m = resp.getHeaders().getFirst("Last-Modified");
-		assertNotNull(m);
-		assertEquals("Hello", web.header("If-Range", m).header("Range", "bytes=0-4").get(String.class));
-	}
-
 	public void testIfRangeDateFail() throws Exception {
 		WebResource web = client.path("/hello");
 		ClientResponse resp = web.type("application/string").put(ClientResponse.class, "Hello World!");

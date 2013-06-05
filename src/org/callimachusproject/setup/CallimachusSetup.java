@@ -166,6 +166,10 @@ public class CallimachusSetup {
 		vf = repository.getValueFactory();
 	}
 
+	public String getWebappURL(String origin) throws OpenRDFException {
+		return webapp(origin, "").stringValue();
+	}
+
 	public RepositoryConnection openConnection() throws RepositoryException {
 		return repository.getConnection();
 	}

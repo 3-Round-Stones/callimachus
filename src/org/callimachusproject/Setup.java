@@ -34,6 +34,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -82,6 +83,8 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class Setup {
+	private static final String STYLES_CSS = "styles/callimachus.less?less";
+	private static final String SCRIPTS_JS = "../scripts.js";
 	private static final String ADMIN_GROUP = "/auth/groups/admin";
 
 	public static final String NAME = Version.getInstance().getVersion();
@@ -225,20 +228,21 @@ public class Setup {
 		final CallimachusConf conf = new CallimachusConf(confFile);
 		final LocalRepositoryManager manager = RepositoryProvider
 				.getRepositoryManager(basedir);
+		Set<String> webapps = new LinkedHashSet<String>();
 		final List<String> links = new ArrayList<String>();
 		try {
 			Map<String, String> idByOrigin = conf.getOriginRepositoryIDs();
 			Set<String> repositoryIDs = new HashSet<String>(idByOrigin.values());
-			List<Future<Boolean>> tasks = new ArrayList<Future<Boolean>>();
+			List<Future<Set<String>>> tasks = new ArrayList<Future<Set<String>>>();
 			for (final String id : repositoryIDs) {
-				tasks.add(executor.submit(new Callable<Boolean>() {
-					public Boolean call() throws Exception {
+				tasks.add(executor.submit(new Callable<Set<String>>() {
+					public Set<String> call() throws Exception {
 						return setupRepository(id, manager, conf, links);
 					}
 				}));
 			}
-			for (Future<Boolean> task : tasks) {
-				task.get();
+			for (Future<Set<String>> task : tasks) {
+				webapps.addAll(task.get());
 			}
 			conf.setAppVersion(Version.getInstance().getVersionCode());
 		} finally {
@@ -262,8 +266,8 @@ public class Setup {
 		if (cmd != null) {
 			if (cmd.length() > 0) {
 				launch(cmd);
-				//Thread.sleep(5000);
-				waitUntilServing(conf);
+				Thread.sleep(5000);
+				waitUntilServing(webapps);
 			}
 			openWebBrowser(links);
 		}
@@ -278,7 +282,7 @@ public class Setup {
 		executor.shutdownNow();
 	}
 
-	Boolean setupRepository(String repositoryID,
+	Set<String> setupRepository(String repositoryID,
 			LocalRepositoryManager manager, CallimachusConf conf,
 			Collection<String> links) throws IOException,
 			MalformedURLException, OpenRDFException, NoSuchAlgorithmException {
@@ -287,33 +291,36 @@ public class Setup {
 		if (backup != null && dataDir.isDirectory()) {
 			backup.backup(repositoryID, conf.getAppVersion(), dataDir);
 		}
-		boolean changed = updateRepositoryConfig(manager, repositoryID);
+		updateRepositoryConfig(manager, repositoryID);
 		Repository repo = manager.getRepository(repositoryID);
 		if (repo == null)
 			throw new RepositoryConfigException(
 					"Missing repository configuration for "
 							+ dataDir.getAbsolutePath());
+		Set<String> webapps = new LinkedHashSet<String>();
 		CalliRepository repository = new CalliRepository(repo, dataDir);
 		try {
 			CallimachusSetup setup = new CallimachusSetup(repository);
 			for (String origin : webappOrigins) {
-				changed |= setup.prepareWebappOrigin(origin);
+				setup.prepareWebappOrigin(origin);
 			}
 			for (String origin : webappOrigins) {
-				changed |= setup.createWebappOrigin(origin);
+				setup.createWebappOrigin(origin);
 			}
 			for (String origin : webappOrigins) {
-				changed |= setup.finalizeWebappOrigin(origin);
+				setup.finalizeWebappOrigin(origin);
+			}
+			for (String origin : webappOrigins) {
+				webapps.add(setup.getWebappURL(origin));
 			}
 			if (email != null || defaultEmail != null) {
 				for (String origin : webappOrigins) {
 					if (email != null || !setup.isRegisteredAdmin(origin)) {
 						String e = email == null ? defaultEmail : email;
-						changed |= setup.inviteUser(e, origin);
-						changed |= setup.addInvitedUserToGroup(e, ADMIN_GROUP, origin);
+						setup.inviteUser(e, origin);
+						setup.addInvitedUserToGroup(e, ADMIN_GROUP, origin);
 						for (String group : groups) {
-							changed |= setup.addInvitedUserToGroup(e, group,
-									origin);
+							setup.addInvitedUserToGroup(e, group, origin);
 						}
 						if (password == null || password.length < 1
 								|| username == null || username.length() < 1) {
@@ -323,8 +330,7 @@ public class Setup {
 								links.addAll(reg);
 							}
 						} else {
-							changed |= setup.registerDigestUser(e, username,
-									password, origin);
+							setup.registerDigestUser(e, username, password, origin);
 						}
 					}
 				}
@@ -332,7 +338,7 @@ public class Setup {
 		} finally {
 			repository.shutDown();
 		}
-		return changed;
+		return webapps;
 	}
 
 	private Set<String> getWebappsInRepository(String repositoryID,
@@ -463,13 +469,13 @@ public class Setup {
 		}.start();
 	}
 
-	private void waitUntilServing(final CallimachusConf conf)
+	private void waitUntilServing(Set<String> webapps)
 			throws InterruptedException {
 		for (int i = 0; i < 120; i++) {
 			try {
-				for (String origin : conf.getWebappOrigins()) {
-					readContent(new URL(origin + "/callimachus/scripts.js"));
-					readContent(new URL(origin + "/callimachus/styles.css"));
+				for (String webapp : webapps) {
+					readContent(URI.create(webapp).resolve(SCRIPTS_JS).toURL());
+					readContent(URI.create(webapp).resolve(STYLES_CSS).toURL());
 				}
 				break;
 			} catch (ConnectException e) {

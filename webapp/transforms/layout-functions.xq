@@ -74,7 +74,7 @@ declare function calli:styles-href($link as element()) as element() {
 };
 declare function calli:scripts-src($script as element()) as element() {
     element {node-name($script)} {
-        attribute src {resolve-uri('/callimachus/scripts.js')},
+        attribute src {resolve-uri('../../scripts.js')},
         $script/@*[name()!='src'],
         $script/node()
     }
@@ -104,7 +104,7 @@ declare function calli:generator-p($p as element()) as element() {
         $p/@*,
         $p/node(), 
         <a href="http://callimachusproject.org/" title="Callimachus">
-            <img src="{resolve-uri('/callimachus/callimachus-powered.png')}" alt="Callimachus" width="98" height="35" />
+            <img src="{resolve-uri('../../callimachus-powered.png')}" alt="Callimachus" width="98" height="35" />
         </a>
     }
 };

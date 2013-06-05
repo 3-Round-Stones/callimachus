@@ -2,9 +2,9 @@ Callimachus Project Release Notes
 
 http://callimachusproject.org/
 
-8 May 2013
+5 June 2013
 
-= REQUIREMENTS FOR CALLIMACHUS 1.1 (Open Source) =
+= REQUIREMENTS FOR CALLIMACHUS 1.1.2 (Open Source) =
 
 Callimachus works best on browsers that are closely tracking the development
 of HTML5.  At the time of this writing, Callimachus works best on Chrome and
@@ -19,7 +19,15 @@ Internet Explorer 9 and 10 cannot edit textual documents.
 Details of browser support may be found at:
   http://callimachusproject.org/docs/1.1/articles/browser-support.docbook?view
 
-The Callimachus server requires Java JDK 7 on the server to run.
+The Callimachus server requires Java JDK 1.6.0_18+ on the server to run.
+
+= NEW IN VERSION 1.1.2 =
+
+ * Improved support for IE9
+ * Don't require calli.saveResourceAs to be called in all cases
+ * Wrap all access to window.localStorage is try/catch blocks
+ * Fix input field paste operation
+ * Resolve some platform setup issues
 
 = NEW IN VERSION 1.1.1 =
 
@@ -40,44 +48,27 @@ The Callimachus server requires Java JDK 7 on the server to run.
  * Context specific Help links added to most pages.
  * Diverted URLs are deprecated and their usages reduced.
 
-= KNOWN ISSUES IN 1.1.1 =
+= KNOWN ISSUES IN 1.1.2 =
 
  * All possible options in check boxes must have a label.
  * rdf:XMLLiteral on form create auto adds xmlns to elements.
  * When resource labels are updated, referencing resource may not display new
    label until they are modified as well or the callimachus-reset script is run.
- * Safari does not support logging in with email address via digest access.
- * Safari does not retain the login state in all cases.
- * Safari does not support dragging files in the folder view.
  * Template variables are only bound if there is at least one triple binding after them.
-
-The setup script may say the following, which can be ignored.
-SEVERE: Error processing http://callimachusproject.org/callimachus/1.0/types/GraphDocument
-SEVERE: Error processing http://callimachusproject.org/callimachus/1.0/types/NamedGraph
 
 In some environments, Callimachus may log "An exception has occurred in the
 compiler...FilePermission" exceptions. This is often due to an issue in the
 embedded Java compiler and if so has no impact on the run time behaviour of
 Callimachus.
 
-= HOWTO UPGRADE FROM 1.1 =
+= HOWTO UPGRADE FROM 1.0.1, 1.1, and 1.1.1 =
 
-Stop the 1.1 server using the callimachus-stop script in the bin directory.
+Stop the server using the callimachus-stop script in the bin directory.
 Remove the lib, bin, tmp, src directories.
 
-Download and unzip the callimachus-1.1.1.zip file in the install directory of
-the Callimachus 1.1 instance. Run the bin/callimachus-setup.sh/.bat script to
+Download and unzip the callimachus-1.1.2.zip file in the install directory of
+the Callimachus instance to be upgraded. Run the bin/callimachus-setup script to
 upgrade the repositories directory. Use the "-K" flag to disabled automatic
-backup. Run the bin/callimachus-start.sh/.bat script to start Callimachus.
-
-= HOWTO UPGRADE FROM 1.0.1 =
-
-Stop the 1.0.1 server using the callimachus-stop script in the bin directory.
-Remove the lib, bin, tmp, src directories.
-
-Download and unzip the callimachus-1.1.1.zip file in the install directory of
-the Callimachus 1.0 instance. Run the bin/callimachus-setup.sh/.bat script to
-upgrade the repositories directory. Use the "-K" flag to disabled automatic
-backup. Run the bin/callimachus-start.sh/.bat script to start Callimachus.
+backup.
 
 

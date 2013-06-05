@@ -591,7 +591,7 @@ do_start()
       log_failure_msg "The server is not running, see log files for details. Start aborted."
       return 7
     fi
-    if [ -n "$LSOF" ] && "$LSOF" $LSOF_OPTS |grep -e ":$PORT\b" |grep -qe "\b$ID\b"; then
+    if [ -n "$LSOF" ] && "$LSOF" $LSOF_OPTS |grep -qe "\b$ID\b"; then
       sleep 4
       break
     elif [ -n "$PORT" ]; then

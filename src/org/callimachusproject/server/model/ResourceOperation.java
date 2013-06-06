@@ -611,13 +611,16 @@ public class ResourceOperation {
 		if (qs == null)
 			return null;
 		int a = qs.indexOf('&');
+		int s = qs.indexOf(';');
 		int e = qs.indexOf('=');
 		try {
-			if (a < 0 && e < 0)
+			if (a < 0 && s < 0 && e < 0)
 				return URLDecoder.decode(qs, "UTF-8");
-			if (a > 0 && (a < e || e < 0))
+			if (a > 0 && (a < s || s < 0) && (a < e || e < 0))
 				return URLDecoder.decode(qs.substring(0, a), "UTF-8");
-			if (e > 0 && (e < a || a < 0))
+			if (s > 0 && (s < e || e < 0))
+				return URLDecoder.decode(qs.substring(0, s), "UTF-8");
+			if (e > 0)
 				return URLDecoder.decode(qs.substring(0, e), "UTF-8");
 		} catch (UnsupportedEncodingException exc) {
 			throw new AssertionError(exc);

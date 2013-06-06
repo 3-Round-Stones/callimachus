@@ -92,7 +92,7 @@ public final class FormMapMessageReader implements Producer {
 			}
 			Map<Object,Collection<Object>> parameters = new LinkedHashMap<Object,Collection<Object>>();
 			Scanner scanner = new Scanner(in, charset.name());
-			scanner.useDelimiter("&");
+			scanner.useDelimiter("[&;]");
 			while (scanner.hasNext()) {
 				String[] nameValue = scanner.next().split("=", 2);
 				if (nameValue.length == 0 || nameValue.length > 2)

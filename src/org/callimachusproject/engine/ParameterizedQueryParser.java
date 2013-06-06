@@ -156,7 +156,7 @@ public class ParameterizedQueryParser {
 		private void addParameter(String name, Value value) throws MalformedQueryException {
 			if (parameters.containsKey(name) && !value.equals(parameters.get(name)))
 				throw new MalformedQueryException("Multiple bindings for: " + name + " " + parameters.get(name) + " and " + value);
-			if (name.indexOf('$') >= 0 || name.indexOf('?') >= 0 || name.indexOf('&') >= 0 || name.indexOf('=') >= 0)
+			if (name.indexOf('$') >= 0 || name.indexOf('?') >= 0 || name.indexOf('&') >= 0 || name.indexOf(';') >= 0 || name.indexOf('=') >= 0)
 				throw new MalformedQueryException("Invalide parameter name: " + name);
 			try {
 				if (!name.equals(URLEncoder.encode(name, "UTF-8")))

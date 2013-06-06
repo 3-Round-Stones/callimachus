@@ -82,7 +82,7 @@ public class ResponseBuilder {
 	private final String systemId;
 	private final ObjectRepository repository;
 
-	public ResponseBuilder(ResourceRequest request) {
+	public ResponseBuilder(ResourceOperation request) {
 		this.systemId = request.getRequestURL();
 		this.repository = request.getObjectConnection().getRepository();
 	}

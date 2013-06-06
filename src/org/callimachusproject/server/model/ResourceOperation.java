@@ -31,15 +31,21 @@ package org.callimachusproject.server.model;
 
 import static java.lang.Integer.toHexString;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.net.InetAddress;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -48,8 +54,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.tools.FileObject;
 import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.XMLGregorianCalendar;
 
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpRequest;
+import org.apache.http.RequestLine;
+import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.annotations.expect;
 import org.callimachusproject.annotations.header;
 import org.callimachusproject.annotations.method;
@@ -57,18 +70,30 @@ import org.callimachusproject.annotations.query;
 import org.callimachusproject.annotations.rel;
 import org.callimachusproject.annotations.requires;
 import org.callimachusproject.annotations.type;
+import org.callimachusproject.concepts.Activity;
 import org.callimachusproject.fluid.Fluid;
+import org.callimachusproject.fluid.FluidBuilder;
+import org.callimachusproject.fluid.FluidFactory;
 import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.repository.CalliRepository;
+import org.callimachusproject.repository.auditing.ActivityFactory;
+import org.callimachusproject.repository.auditing.AuditingRepositoryConnection;
 import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.server.exceptions.MethodNotAllowed;
 import org.callimachusproject.server.exceptions.NotAcceptable;
 import org.callimachusproject.server.exceptions.UnsupportedMediaType;
+import org.callimachusproject.traits.VersionedObject;
 import org.openrdf.annotations.Iri;
 import org.openrdf.annotations.ParameterTypes;
+import org.openrdf.model.URI;
+import org.openrdf.model.ValueFactory;
 import org.openrdf.query.QueryEvaluationException;
+import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
+import org.openrdf.repository.base.RepositoryConnectionWrapper;
+import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.RDFObject;
+import org.openrdf.result.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,10 +103,24 @@ import org.slf4j.LoggerFactory;
  * @author James Leigh
  * 
  */
-public class ResourceOperation extends ResourceRequest {
+public class ResourceOperation {
 	private static final String SUB_CLASS_OF = "http://www.w3.org/2000/01/rdf-schema#subClassOf";
 	private Logger logger = LoggerFactory.getLogger(ResourceOperation.class);
 
+	private final Request request;
+	private final HttpContext context;
+	private final FluidFactory ff = FluidFactory.getInstance();
+	private final ValueFactory vf;
+	private final ObjectConnection con;
+	private VersionedObject target;
+	private final URI uri;
+	private final FluidBuilder writer;
+	private Fluid body;
+	private final FluidType accepter;
+	private final Set<String> vary = new LinkedHashSet<String>();
+	private Result<VersionedObject> result;
+	private boolean closed;
+	private String credential;
 	private Method method;
 	private MethodNotAllowed notAllowed;
 	private BadRequest badRequest;
@@ -89,17 +128,51 @@ public class ResourceOperation extends ResourceRequest {
 	private UnsupportedMediaType unsupportedMediaType;
 	private boolean isPublic;
 
-	public ResourceOperation(Request request, CalliRepository repository)
+	public ResourceOperation(HttpRequest request, HttpContext context, CalliRepository repository)
 			throws QueryEvaluationException, RepositoryException {
-		super(request, repository);
+		this.request = request instanceof Request ? (Request) request : new Request(request);
+		this.context = context;
+		List<String> headers = getVaryHeaders("Accept");
+		if (headers.isEmpty()) {
+			accepter = new FluidType(HttpEntity.class);
+		} else {
+			StringBuilder sb = new StringBuilder();
+			for (String hd : headers) {
+				if (sb.length() > 0) {
+					sb.append(",");
+				}
+				sb.append(hd);
+			}
+			accepter = new FluidType(HttpEntity.class, sb.toString().split("\\s*,\\s*"));
+		}
+		this.con = repository.getConnection();
+		this.vf = con.getValueFactory();
+		this.writer = ff.builder(con);
+		String iri = this.request.getIRI();
+		try {
+			this.uri = vf.createURI(iri);
+		} catch (IllegalArgumentException e) {
+			throw new BadRequest(e);
+		}
 	}
 
-	public void begin() throws RepositoryException,
-			QueryEvaluationException, DatatypeConfigurationException {
-		super.begin();
+	public long getReceivedOn() {
+		return CalliContext.adapt(context).getReceivedOn();
+	}
+
+	public void begin() throws RepositoryException, QueryEvaluationException,
+			DatatypeConfigurationException {
+		if (target == null) {
+			if (!request.isSafe()) {
+				initiateActivity();
+			}
+			con.begin();
+			result = con.getObjects(VersionedObject.class, uri);
+			target = result.singleResult();
+		}
 		if (method == null) {
 			try {
-				String m = getMethod();
+				String m = request.getMethod();
 				if ("GET".equals(m) || "HEAD".equals(m)) {
 					method = findMethod("GET", true);
 				} else if ("PUT".equals(m) || "DELETE".equals(m)) {
@@ -130,7 +203,7 @@ public class ResourceOperation extends ResourceRequest {
 		Method m = this.method;
 		int headers = getHeaderCodeFor(m);
 		boolean strong = cache != null && cache.contains("cache-range");
-		String method = getMethod();
+		String method = request.getMethod();
 		if (contentType != null) {
 			return variantTag(version, strong, contentType, headers);
 		} else if ("GET".equals(method) || "HEAD".equals(method)) {
@@ -151,7 +224,7 @@ public class ResourceOperation extends ResourceRequest {
 		} else {
 			String putContentType = null;
 			if ("PUT".equals(method)) {
-				putContentType = getHeader("Content-Type");
+				putContentType = request.getHeader("Content-Type");
 			}
 			Method get;
 			try {
@@ -180,36 +253,6 @@ public class ResourceOperation extends ResourceRequest {
 			}
 		}
 		return null;
-	}
-
-	public boolean isNoValidate() {
-		String method = getMethod();
-		Method m = this.method;
-		if (m != null && !"PUT".equals(method) && !"DELETE".equals(method)
-				&& !"OPTIONS".equals(method)) {
-			if (m.isAnnotationPresent(header.class)) {
-				for (String value : m.getAnnotation(header.class).value()) {
-					int idx = value.indexOf(':');
-					if (idx < 0)
-						continue;
-					String name = value.substring(0, idx);
-					if (!name.equalsIgnoreCase("cache-control"))
-						continue;
-					if (value.contains("must-reevaluate"))
-						return true;
-					if (value.contains("no-validate"))
-						return true;
-				}
-			}
-		}
-		RDFObject target = getRequestedResource();
-		return noValidate(target.getClass());
-	}
-
-	public long getLastModified() {
-		if (isNoValidate())
-			return System.currentTimeMillis() / 1000 * 1000;
-		return super.getLastModified();
 	}
 
 	public String getResponseCacheControl() throws QueryEvaluationException,
@@ -443,6 +486,266 @@ public class ResourceOperation extends ResourceRequest {
 		return map;
 	}
 
+	public String getCredential() {
+		return credential;
+	}
+
+	public void setCredential(String cred) {
+		this.credential = cred;
+	}
+
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		Object credential = getCredential();
+		if (credential == null) {
+			sb.append('-');
+		} else {
+			String relative = credential.toString();
+			if (relative.startsWith(request.getScheme())) {
+				String origin = request.getScheme() + "://" + request.getAuthority() + "/";
+				if (relative.startsWith(origin)) {
+					relative = relative.substring(origin.length() - 1);
+				}
+			}
+			sb.append(relative);
+		}
+		sb.append('\t');
+		sb.append('"').append(request.getRequestLine().toString()).append('"');
+		return sb.toString();
+	}
+
+	public String getVaryHeader(String name) {
+		if (!vary.contains(name)) {
+			vary.add(name);
+		}
+		return request.getHeader(name);
+	}
+
+	public List<String> getVaryHeaders(String... name) {
+		vary.addAll(Arrays.asList(name));
+		List<String> values = new ArrayList<String>();
+		for (Header hd : request.getAllHeaders()) {
+			for (String name1 : name) {
+				if (name1.equalsIgnoreCase(hd.getName())) {
+					values.add(hd.getValue());
+				}
+			}
+		}
+		return values;
+	}
+
+	public Collection<String> getVary() {
+		return vary;
+	}
+
+	public URI createURI(String uriSpec) {
+		return vf.createURI(request.resolve(uriSpec));
+	}
+
+	public void flush() throws RepositoryException, QueryEvaluationException,
+			IOException {
+		ObjectConnection con = getObjectConnection();
+		this.target = con.getObject(VersionedObject.class, getRequestedResource().getResource());
+	}
+
+	public void rollback() throws RepositoryException {
+		getObjectConnection().rollback();
+	}
+
+	public void commit() throws IOException, RepositoryException {
+		getObjectConnection().commit();
+	}
+
+	/**
+	 * Request has been fully read and response has been fully written.
+	 */
+	public void endExchange() {
+		if (!closed) {
+			closed = true;
+			ObjectConnection con = getObjectConnection();
+			try {
+				con.rollback();
+				con.close();
+			} catch (RepositoryException e) {
+				logger.error(e.toString(), e);
+			}
+		}
+	}
+
+	public Fluid getBody() {
+		if (body != null)
+			return body;
+		String mediaType = request.getHeader("Content-Type");
+		String location = request.getResolvedHeader("Content-Location");
+		if (location == null) {
+			location = request.getIRI();
+		} else {
+			location = createURI(location).stringValue();
+		}
+		FluidType ftype = new FluidType(HttpEntity.class, mediaType);
+		return getFluidBuilder().consume(request.getEntity(), location, ftype);
+	}
+
+	public String getContentType(Method method) {
+		Type genericType = method.getGenericReturnType();
+		String[] mediaTypes = getTypes(method);
+		return writer.nil(new FluidType(genericType, mediaTypes)).toMedia(accepter);
+	}
+
+	public String[] getTypes(Method method) {
+		if (method.isAnnotationPresent(type.class))
+			return method.getAnnotation(type.class).value();
+		return new String[0];
+	}
+
+	public ObjectConnection getObjectConnection() {
+		return con;
+	}
+
+	public FluidBuilder getFluidBuilder() {
+		return FluidFactory.getInstance().builder(con);
+	}
+
+	public String getOperation() {
+		String qs = request.getQueryString();
+		if (qs == null)
+			return null;
+		int a = qs.indexOf('&');
+		int e = qs.indexOf('=');
+		try {
+			if (a < 0 && e < 0)
+				return URLDecoder.decode(qs, "UTF-8");
+			if (a > 0 && (a < e || e < 0))
+				return URLDecoder.decode(qs.substring(0, a), "UTF-8");
+			if (e > 0 && (e < a || a < 0))
+				return URLDecoder.decode(qs.substring(0, e), "UTF-8");
+		} catch (UnsupportedEncodingException exc) {
+			throw new AssertionError(exc);
+		}
+		return "";
+	}
+
+	public Fluid getHeader(String... names) {
+		List<String> list = getVaryHeaders(names);
+		String[] values = list.toArray(new String[list.size()]);
+		FluidType ftype = new FluidType(String[].class, "text/plain", "text/*");
+		FluidBuilder fb = FluidFactory.getInstance().builder(con);
+		return fb.consume(values, request.getIRI(), ftype);
+	}
+
+	public Fluid getQueryStringParameter() {
+		String value = request.getQueryString();
+		FluidType ftype = new FluidType(String.class, "application/x-www-form-urlencoded", "text/*");
+		FluidBuilder fb = FluidFactory.getInstance().builder(con);
+		return fb.consume(value, request.getIRI(), ftype);
+	}
+
+	public RDFObject getRequestedResource() {
+		return target;
+	}
+
+	public boolean isNoValidate() {
+		String method = request.getMethod();
+		Method m = this.method;
+		if (m != null && !"PUT".equals(method) && !"DELETE".equals(method)
+				&& !"OPTIONS".equals(method)) {
+			if (m.isAnnotationPresent(header.class)) {
+				for (String value : m.getAnnotation(header.class).value()) {
+					int idx = value.indexOf(':');
+					if (idx < 0)
+						continue;
+					String name = value.substring(0, idx);
+					if (!name.equalsIgnoreCase("cache-control"))
+						continue;
+					if (value.contains("must-reevaluate"))
+						return true;
+					if (value.contains("no-validate"))
+						return true;
+				}
+			}
+		}
+		RDFObject target = getRequestedResource();
+		return noValidate(target.getClass());
+	}
+
+	public long getLastModified() {
+		if (isNoValidate())
+			return System.currentTimeMillis() / 1000 * 1000;
+		if (target instanceof FileObject) {
+			long lastModified = ((FileObject) target).getLastModified();
+			if (lastModified > 0)
+				return lastModified / 1000 * 1000;
+		}
+		try {
+			Activity trans = target.getProvWasGeneratedBy();
+			if (trans != null) {
+				XMLGregorianCalendar xgc = trans.getProvEndedAtTime();
+				if (xgc != null) {
+					GregorianCalendar cal = xgc.toGregorianCalendar();
+					cal.set(Calendar.MILLISECOND, 0);
+					return cal.getTimeInMillis() / 1000 * 1000;
+				}
+			}
+		} catch (ClassCastException e) {
+			logger.warn(e.toString(), e);
+		}
+		return 0;
+	}
+
+	public String getContentVersion() {
+		try {
+			Activity activity = target.getProvWasGeneratedBy();
+			if (activity == null)
+				return null;
+			String uri = ((RDFObject) activity).getResource().stringValue();
+			int f = uri.indexOf('#');
+			if (f >= 0) {
+				uri = uri.substring(0, f);
+			}
+			String origin = request.getOrigin();
+			if (uri.startsWith(origin) && '/' == uri.charAt(origin.length()))
+				return uri.substring(origin.length());
+			return uri;
+		} catch (ClassCastException e) {
+			return null;
+		}
+	}
+
+	public FluidType getAcceptable() {
+		return accepter;
+	}
+
+	public boolean isAcceptable(Type genericType, String... mediaType) {
+		FluidType ftype = new FluidType(genericType, mediaType);
+		return writer.isConsumable(ftype) && writer.nil(ftype).toMedia(accepter) != null;
+	}
+
+	public boolean isQueryStringPresent() {
+		return request.getQueryString() != null;
+	}
+
+	private void initiateActivity() throws RepositoryException,
+			DatatypeConfigurationException {
+		AuditingRepositoryConnection audit = findAuditing(con);
+		if (audit != null) {
+			ActivityFactory delegate = audit.getActivityFactory();
+			URI bundle = con.getVersionBundle();
+			assert bundle != null;
+			URI activity = delegate.createActivityURI(bundle, vf);
+			con.setVersionBundle(bundle); // use the same URI for blob version
+			audit.setActivityFactory(new RequestActivityFactory(activity, delegate, this));
+		}
+	}
+
+	private AuditingRepositoryConnection findAuditing(
+			RepositoryConnection con) throws RepositoryException {
+		if (con instanceof AuditingRepositoryConnection)
+			return (AuditingRepositoryConnection) con;
+		if (con instanceof RepositoryConnectionWrapper)
+			return findAuditing(((RepositoryConnectionWrapper) con).getDelegate());
+		return null;
+	}
+
 	private boolean isRequestBody(Method method) {
 		for (Annotation[] anns : method.getParameterAnnotations()) {
 			if (getParameterNames(anns) == null && getHeaderNames(anns) == null)
@@ -492,7 +795,7 @@ public class ResourceOperation extends ResourceRequest {
 	}
 
 	private Method findMethod() throws RepositoryException {
-		Method method = findMethodIfPresent(getMethod(), isMessageBody(), null);
+		Method method = findMethodIfPresent(request.getMethod(), request.isMessageBody(), null);
 		if (method == null)
 			throw new MethodNotAllowed("No such method for this resource");
 		return method;
@@ -500,7 +803,7 @@ public class ResourceOperation extends ResourceRequest {
 
 	private Method findMethod(String req_method, Boolean isResponsePresent)
 			throws RepositoryException {
-		Method method = findMethodIfPresent(req_method, isMessageBody(), isResponsePresent);
+		Method method = findMethodIfPresent(req_method, request.isMessageBody(), isResponsePresent);
 		if (method == null)
 			throw new MethodNotAllowed("No such method for this resource");
 		return method;
@@ -738,7 +1041,7 @@ public class ResourceOperation extends ResourceRequest {
 			return 0;
 		Map<String, String> headers = new HashMap<String, String>();
 		for (String name : names) {
-			Enumeration e = getHeaderEnumeration(name);
+			Enumeration e = request.getHeaderEnumeration(name);
 			while (e.hasMoreElements()) {
 				String value = e.nextElement().toString();
 				if (headers.containsKey(name)) {
@@ -888,6 +1191,74 @@ public class ResourceOperation extends ResourceRequest {
 			}
 			list.add(m);
 		}
+	}
+
+	public String getRequestURL() {
+		return request.getRequestURL();
+	}
+
+	public HttpEntity getEntity() {
+		return request.getEntity();
+	}
+
+	public boolean containsHeader(String name) {
+		return request.containsHeader(name);
+	}
+
+	public Header getFirstHeader(String name) {
+		return request.getFirstHeader(name);
+	}
+
+	public long getDateHeader(String name) {
+		return request.getDateHeader(name);
+	}
+
+	public Header[] getHeaders(String name) {
+		return request.getHeaders(name);
+	}
+
+	public final boolean isSafe() {
+		return request.isSafe();
+	}
+
+	public String getMethod() {
+		return request.getMethod();
+	}
+
+	public String getIRI() {
+		return request.getIRI();
+	}
+
+	public String getOrigin() {
+		return request.getOrigin();
+	}
+
+	public String getRequestURI() {
+		return request.getRequestURI();
+	}
+
+	public String resolve(String url) {
+		return request.resolve(url);
+	}
+
+	public boolean isMessageBody() {
+		return request.isMessageBody();
+	}
+
+	public String getScheme() {
+		return request.getScheme();
+	}
+
+	public Enumeration getHeaderEnumeration(String name) {
+		return request.getHeaderEnumeration(name);
+	}
+
+	public InetAddress getRemoteAddr() {
+		return CalliContext.adapt(context).getClientAddr();
+	}
+
+	public RequestLine getRequestLine() {
+		return request.getRequestLine();
 	}
 
 }

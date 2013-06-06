@@ -2,7 +2,7 @@ package org.callimachusproject.server.process;
 
 import java.io.IOException;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -19,7 +19,7 @@ public class RequestTriagerActor extends ExchangeActor {
 	private final RequestTransactionActor handler;
 
 	public RequestTriagerActor(Filter filter, RequestTransactionActor handler) {
-		this(new PriorityBlockingQueue<Runnable>(), filter, handler);
+		this(new LinkedBlockingDeque<Runnable>(), filter, handler);
 	}
 
 	private RequestTriagerActor(BlockingQueue<Runnable> queue, Filter filter,

@@ -358,7 +358,7 @@ public class AuthorizationManager {
 			throws IOException {
 		long now = request.getReceivedOn();
 		Map<String, String[]> map = new HashMap<String, String[]>();
-		map.put("request-target", new String[] { request.getRequestTarget() });
+		map.put("request-target", new String[] { request.getRequestLine().getUri() });
 		map.put("request-scheme", new String[] { request.getScheme() });
 		map.put("date", new String[] { DateUtil.formatDate(new Date(now)) });
 		Header[] au = request.getHeaders("Authorization");

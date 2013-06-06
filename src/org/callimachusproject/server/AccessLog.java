@@ -17,6 +17,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.client.StreamingHttpEntity;
 import org.callimachusproject.io.ChannelUtil;
+import org.callimachusproject.server.model.CalliContext;
 import org.callimachusproject.server.model.Filter;
 import org.callimachusproject.server.model.Request;
 import org.slf4j.Logger;
@@ -48,12 +49,12 @@ public class AccessLog extends Filter {
 			throws IOException {
 		resp = super.filter(req, context, resp);
 		trace(req, context, resp);
-		if (req.isInternal())
+		if (CalliContext.adapt(context).isInternal())
 			return resp;
 		final int code = resp.getStatusLine().getStatusCode();
 		if (logger.isInfoEnabled() || logger.isWarnEnabled() && code >= 400
 				|| logger.isErrorEnabled() && code >= 500) {
-			final String addr = req.getRemoteAddr().getHostAddress();
+			final String addr = CalliContext.adapt(context).getClientAddr().getHostAddress();
 			final String username = getUsername(req).replaceAll("\\s+",
 					"_");
 			final String line = req.getRequestLine().toString();
@@ -168,7 +169,7 @@ public class AccessLog extends Filter {
 	}
 
 	private void trace(Request req, HttpContext context) {
-		if (logger.isDebugEnabled() && !req.isInternal() || logger.isTraceEnabled()) {
+		if (logger.isDebugEnabled() && !CalliContext.adapt(context).isInternal() || logger.isTraceEnabled()) {
 			String id = uid + seq.getAndIncrement();
 			setForensicId(context, id);
 			StringBuilder sb = new StringBuilder();
@@ -178,7 +179,7 @@ public class AccessLog extends Filter {
 				sb.append("|").append(hd.getName().replace('|', '_'));
 				sb.append(":").append(hd.getValue().replace('|', '_'));
 			}
-			if (req.isInternal()) {
+			if (CalliContext.adapt(context).isInternal()) {
 				logger.trace(sb.toString());
 			} else {
 				logger.debug(sb.toString());
@@ -195,11 +196,11 @@ public class AccessLog extends Filter {
 	}
 
 	private void trace(Request req, HttpContext context, HttpResponse resp) {
-		if (logger.isDebugEnabled() && !req.isInternal() || logger.isTraceEnabled()) {
+		if (logger.isDebugEnabled() && !CalliContext.adapt(context).isInternal() || logger.isTraceEnabled()) {
 			StringBuilder sb = new StringBuilder();
 			sb.append("-").append(getForensicId(context));
 			sb.append("|").append(resp.getStatusLine().toString().replace('|', '_'));
-			if (req.isInternal()) {
+			if (CalliContext.adapt(context).isInternal()) {
 				logger.trace(sb.toString());
 			} else {
 				logger.debug(sb.toString());

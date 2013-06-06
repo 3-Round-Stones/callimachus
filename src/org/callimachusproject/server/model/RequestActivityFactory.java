@@ -20,10 +20,10 @@ public class RequestActivityFactory implements ActivityFactory {
 	private final URI activity;
 	private final ActivityFactory delegate;
 	private final DatatypeFactory df;
-	private final ResourceRequest req;
+	private final ResourceOperation req;
 
 	public RequestActivityFactory(URI activity, ActivityFactory delegate,
-			ResourceRequest req) throws DatatypeConfigurationException {
+			ResourceOperation req) throws DatatypeConfigurationException {
 		this.activity = activity;
 		this.delegate = delegate;
 		this.req = req;

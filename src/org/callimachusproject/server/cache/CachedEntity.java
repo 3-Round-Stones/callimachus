@@ -40,10 +40,13 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -103,7 +106,7 @@ public class CachedEntity {
 	private String statusText;
 	private Long contentLength;
 	private final String url;
-	private String[] vary;
+	private List<String> vary;
 	private String warning;
 	private Map<String, String> headers = new HashMap<String, String>();
 	private LockCleanupManager matchingLocks = new LockCleanupManager(false);
@@ -518,7 +521,7 @@ public class CachedEntity {
 		} else if ("ETag".equalsIgnoreCase(name)) {
 			eTag = single(value);
 		} else if ("Vary".equalsIgnoreCase(name)) {
-			setVary(value);
+			addVary(value);
 		} else if ("Date".equalsIgnoreCase(name)) {
 			date = dateformat.parseDate(value);
 		} else if ("Age".equalsIgnoreCase(name)) {
@@ -561,12 +564,12 @@ public class CachedEntity {
 		}
 	}
 
-	private void setVary(String value) {
-		if (value == null) {
-			vary = null;
-			headers.remove("vary");
-		} else {
-			vary = single(value).split("\\s*,\\s*");
+	private void addVary(String value) {
+		if (value != null) {
+			if (vary == null) {
+				vary = new ArrayList<String>();
+			}
+			vary.addAll(Arrays.asList(single(value).split("\\s*,\\s*")));
 			headers.put("vary", single(value));
 		}
 	}
@@ -608,11 +611,11 @@ public class CachedEntity {
 			}
 			if (vary != null) {
 				writer.print("Vary:");
-				for (int i = 0; i < vary.length; i++) {
+				for (int i = 0, n = vary.size(); i < n; i++) {
 					if (i > 0) {
 						writer.print(",");
 					}
-					writer.print(vary[i]);
+					writer.print(vary.get(i));
 				}
 				writer.println();
 			}

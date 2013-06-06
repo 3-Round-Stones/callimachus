@@ -31,11 +31,8 @@ package org.callimachusproject.server.model;
 
 import info.aduna.net.ParsedURI;
 
-import java.net.InetAddress;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.List;
 import java.util.Vector;
 
 import org.apache.commons.httpclient.util.DateParseException;
@@ -54,58 +51,32 @@ import org.callimachusproject.server.exceptions.BadRequest;
  * 
  */
 public class Request extends EditableHttpEntityEnclosingRequest {
-	private long received = System.currentTimeMillis();
-	private final boolean safe;
-	private final boolean storable;
-	private final InetAddress remoteAddr;
-	private final boolean internal;
 	private final String origin;
 	private final String iri;
 
-	public Request(Request request) {
-		this(request, request.getRemoteAddr(), request.isInternal());
-	}
-
-	public Request(HttpRequest request, InetAddress remoteAddr, boolean internal) {
+	public Request(HttpRequest request) {
 		super(request);
-		assert remoteAddr != null;
-		this.remoteAddr = remoteAddr;
-		this.internal = internal;
-		String method = getMethod();
-		safe = method.equals("HEAD") || method.equals("GET")
-				|| method.equals("OPTIONS") || method.equals("PROFIND");
-		storable = safe && !isMessageBody()
-				&& getCacheControl("no-store", 0) == 0;
-		if (request instanceof Request) {
-			iri = ((Request) request).getIRI();
-			origin = ((Request) request).origin;
-		} else {
-			try {
-				String path = request.getRequestLine().getUri();
-				int qx = path.indexOf('?');
-				if (qx > 0) {
-					path = path.substring(0, qx);
-				}
-				if (path.startsWith("/")) {
-					String scheme = getScheme().toLowerCase();
-					String host = getAuthority().toLowerCase();
-					ParsedURI parsed = new ParsedURI(scheme, host, path, null, null);
-					String uri = parsed.toString();
-					iri = TermFactory.newInstance(uri).getSystemId();
-					origin = scheme + "://" + host;
-				} else {
-					iri = canonicalize(path);
-					ParsedURI parsed = new ParsedURI(iri);
-					origin = parsed.getScheme() + "://" + parsed.getAuthority();
-				}
-			} catch (IllegalArgumentException e) {
-				throw new BadRequest(e);
+		try {
+			String path = request.getRequestLine().getUri();
+			int qx = path.indexOf('?');
+			if (qx > 0) {
+				path = path.substring(0, qx);
 			}
+			if (path.startsWith("/")) {
+				String scheme = getScheme().toLowerCase();
+				String host = getAuthority().toLowerCase();
+				ParsedURI parsed = new ParsedURI(scheme, host, path, null, null);
+				String uri = parsed.toString();
+				iri = TermFactory.newInstance(uri).getSystemId();
+				origin = scheme + "://" + host;
+			} else {
+				iri = canonicalize(path);
+				ParsedURI parsed = new ParsedURI(iri);
+				origin = parsed.getScheme() + "://" + parsed.getAuthority();
+			}
+		} catch (IllegalArgumentException e) {
+			throw new BadRequest(e);
 		}
-	}
-
-	public boolean isInternal() {
-		return internal;
 	}
 
 	/**
@@ -121,19 +92,9 @@ public class Request extends EditableHttpEntityEnclosingRequest {
 		}
 	}
 
-	public final long getReceivedOn() {
-		return received;
-	}
-
-	public void setReceivedOn(long received) {
-		this.received = received;
-	}
-
 	@Override
 	public Request clone() {
-		Request clone = (Request) super.clone();
-		clone.received = received;
-		return clone;
+		return (Request) super.clone();
 	}
 
 	public String getHeader(String name) {
@@ -161,38 +122,15 @@ public class Request extends EditableHttpEntityEnclosingRequest {
 		return resolve(value);
 	}
 
-	public InetAddress getRemoteAddr() {
-		return remoteAddr;
-	}
-
-	public int getMaxAge() {
-		return getCacheControl("max-age", Integer.MAX_VALUE);
-	}
-
-	public int getMinFresh() {
-		return getCacheControl("min-fresh", 0);
-	}
-
-	public int getMaxStale() {
-		return getCacheControl("max-stale", 0);
-	}
-
 	public final boolean isStorable() {
-		return storable;
+		return isSafe() && !isMessageBody()
+				&& getCacheControl("no-store", 0) == 0;
 	}
 
 	public final boolean isSafe() {
-		return safe;
-	}
-
-	public boolean invalidatesCache() {
 		String method = getMethod();
-		return !isSafe() && !method.equals("TRACE") && !method.equals("COPY")
-				&& !method.equals("LOCK") && !method.equals("UNLOCK");
-	}
-
-	public boolean isNoCache() {
-		return isStorable() && getCacheControl("no-cache", 0) > 0;
+		return method.equals("HEAD") || method.equals("GET")
+				|| method.equals("OPTIONS") || method.equals("PROFIND");
 	}
 
 	public boolean isOnlyIfCache() {
@@ -201,10 +139,6 @@ public class Request extends EditableHttpEntityEnclosingRequest {
 
 	public String getMethod() {
 		return getRequestLine().getMethod();
-	}
-
-	public String getRequestTarget() {
-		return getRequestLine().getUri();
 	}
 
 	public String getQueryString() {
@@ -217,26 +151,22 @@ public class Request extends EditableHttpEntityEnclosingRequest {
 
 	public String getRequestURL() {
 		String uri = getRequestLine().getUri();
-		return getURLFromRequestTarget(uri);
-	}
-
-	public String getURLFromRequestTarget(String path) {
-		if (path.equals("*"))
+		if (uri.equals("*"))
 			return "*";
-		if (!path.startsWith("/")) {
-			return canonicalize(path);
+		if (!uri.startsWith("/")) {
+			return canonicalize(uri);
 		}
 		String qs = null;
-		int qx = path.indexOf('?');
+		int qx = uri.indexOf('?');
 		if (qx > 0) {
-			qs = path.substring(qx + 1);
-			path = path.substring(0, qx);
+			qs = uri.substring(qx + 1);
+			uri = uri.substring(0, qx);
 		}
 		String scheme = getScheme().toLowerCase();
 		String host = getAuthority().toLowerCase();
 		// path is already encoded, so use ParsedURI to concat
 		// note that java.net.URI would double encode the path here
-		return canonicalize(new ParsedURI(scheme, host, path, qs, null).toString());
+		return canonicalize(new ParsedURI(scheme, host, uri, qs, null).toString());
 	}
 
 	public String getIRI() {
@@ -282,16 +212,7 @@ public class Request extends EditableHttpEntityEnclosingRequest {
 	}
 
 	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		InetAddress addr = getRemoteAddr();
-		if (addr == null) {
-			sb.append('-');
-		} else {
-			sb.append(addr.getHostAddress());
-		}
-		sb.append("\t?\t");
-		sb.append('"').append(getRequestLine().toString()).append('"');
-		return sb.toString();
+		return getRequestLine().toString();
 	}
 
 	public String getAuthority() {
@@ -337,18 +258,6 @@ public class Request extends EditableHttpEntityEnclosingRequest {
 		return values.elements();
 	}
 
-	protected List<String> getHeaderValues(String... names) {
-		List<String> values = new ArrayList<String>();
-		for (Header hd : getAllHeaders()) {
-			for (String name : names) {
-				if (name.equalsIgnoreCase(hd.getName())) {
-					values.add(hd.getValue());
-				}
-			}
-		}
-		return values;
-	}
-
 	private String canonicalize(String url) {
 		try {
 			return TermFactory.newInstance(url).getSystemId();
@@ -357,7 +266,7 @@ public class Request extends EditableHttpEntityEnclosingRequest {
 		}
 	}
 
-	private int getCacheControl(String directive, int def) {
+	public int getCacheControl(String directive, int def) {
 		Enumeration headers = getHeaderEnumeration("Cache-Control");
 		while (headers.hasMoreElements()) {
 			String value = (String) headers.nextElement();

@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.Queue;
 
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
@@ -67,9 +68,9 @@ public class Exchange implements Cancellable {
 		this.repository = repository;
 		this.context = context;
 		this.queue = queue;
-		String expect = request.getHeader("Expect");
+		Header expect = request.getFirstHeader("Expect");
 		setExpectContinue(expect != null
-				&& expect.equalsIgnoreCase("100-continue"));
+				&& expect.getValue().equalsIgnoreCase("100-continue"));
 		synchronized (queue) {
 			queue.add(this);
 		}

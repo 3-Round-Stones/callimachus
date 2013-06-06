@@ -64,6 +64,7 @@ import org.apache.http.util.EntityUtils;
 import org.callimachusproject.io.AutoCloseChannel;
 import org.callimachusproject.io.CatReadableByteChannel;
 import org.callimachusproject.io.ChannelUtil;
+import org.callimachusproject.server.model.CalliContext;
 import org.callimachusproject.server.model.EntityRemovedHttpResponse;
 import org.callimachusproject.server.model.FileHttpEntity;
 import org.callimachusproject.server.model.Filter;
@@ -154,7 +155,7 @@ public class CachingFilter extends Filter {
 				String url = headers.getRequestURL();
 				Lock reset = cache.getReadLock(url);
 				try {
-					long now = headers.getReceivedOn();
+					long now = CalliContext.adapt(context).getReceivedOn();
 					CachedEntity cached = null;
 					CachedRequest index = cache.findCachedRequest(url);
 					synchronized (index) {
@@ -189,7 +190,7 @@ public class CachingFilter extends Filter {
 				String url = request.getRequestURL();
 				Lock lock = cache.getReadLock(url);
 				try {
-					long now = request.getReceivedOn();
+					long now = CalliContext.adapt(context).getReceivedOn();
 					CachedEntity cached = null;
 					CachedRequest index = cache.findCachedRequest(url);
 					synchronized (index) {
@@ -222,7 +223,7 @@ public class CachingFilter extends Filter {
 				String url = request.getRequestURL();
 				Lock lock = cache.getReadLock(url);
 				try {
-					long now = request.getReceivedOn();
+					long now = CalliContext.adapt(context).getReceivedOn();
 					CachedRequest dx = cache.findCachedRequest(url);
 					synchronized (dx) {
 						CachedEntity cached = dx.find(request);
@@ -362,13 +363,13 @@ public class CachingFilter extends Filter {
 
 	private boolean isStale(long now, Request headers, CachedEntity cached)
 			throws IOException {
-		if (cached == null || headers.isNoCache() || cached.isStale())
+		if (cached == null || headers.isStorable() && headers.getCacheControl("no-cache", 0) > 0 || cached.isStale())
 			return true;
 		int age = cached.getAge(now);
 		int lifeTime = cached.getLifeTime(now);
-		int maxage = headers.getMaxAge();
-		int minFresh = headers.getMinFresh();
-		int maxStale = headers.getMaxStale();
+		int maxage = headers.getCacheControl("max-age", Integer.MAX_VALUE);
+		int minFresh = headers.getCacheControl("min-fresh", 0);
+		int maxStale = headers.getCacheControl("max-stale", 0);
 		boolean fresh = age - lifeTime + minFresh <= maxStale;
 		return age > maxage || !fresh;
 	}

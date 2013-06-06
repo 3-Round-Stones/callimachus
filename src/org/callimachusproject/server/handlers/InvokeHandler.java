@@ -60,7 +60,6 @@ import org.callimachusproject.server.exceptions.InternalServerError;
 import org.callimachusproject.server.exceptions.NotAcceptable;
 import org.callimachusproject.server.exceptions.ResponseException;
 import org.callimachusproject.server.model.Handler;
-import org.callimachusproject.server.model.Request;
 import org.callimachusproject.server.model.ResourceOperation;
 import org.callimachusproject.server.model.ResponseBuilder;
 import org.openrdf.repository.object.ObjectRepository;
@@ -381,7 +380,7 @@ public class InvokeHandler implements Handler {
 				&& e.getCause() instanceof Exception) {
 			e = (Exception) e.getCause();
 		}
-		ResponseException re = asResponseException(req, e);
+		ResponseException re = asResponseException(req.getRequestURL(), e);
 		try {
 			return new ResponseBuilder(req).exception(re);
 		} catch (Exception e1) {
@@ -390,10 +389,10 @@ public class InvokeHandler implements Handler {
 		}
 	}
 
-	protected ResponseException asResponseException(Request req, Exception e) {
+	protected ResponseException asResponseException(String url, Exception e) {
 		if (e instanceof ResponseException)
 			return (ResponseException) e;
-		logger.error("Internal Server Error while responding to " + req.getRequestLine().getUri(), e);
+		logger.error("Internal Server Error while responding to " + url, e);
 		return new InternalServerError(e);
 	}
 

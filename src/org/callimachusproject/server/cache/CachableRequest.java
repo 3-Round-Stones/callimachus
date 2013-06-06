@@ -57,7 +57,6 @@ public class CachableRequest extends Request {
 		super(request.clone());
 		this.originalRequest = request;
 		locks.add(cacheLock);
-		setReceivedOn(request.getReceivedOn());
 		RequestLine rl = getRequestLine();
 		if ("HEAD".equals(rl.getMethod())) {
 			ProtocolVersion ver = rl.getProtocolVersion();

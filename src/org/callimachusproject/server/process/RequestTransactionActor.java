@@ -5,7 +5,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -20,6 +20,7 @@ import org.callimachusproject.repository.CalliRepository;
 import org.callimachusproject.server.exceptions.InternalServerError;
 import org.callimachusproject.server.exceptions.ResponseException;
 import org.callimachusproject.server.exceptions.ServiceUnavailable;
+import org.callimachusproject.server.model.CalliContext;
 import org.callimachusproject.server.model.Filter;
 import org.callimachusproject.server.model.Handler;
 import org.callimachusproject.server.model.Request;
@@ -32,7 +33,7 @@ public class RequestTransactionActor extends ExchangeActor {
 	private final Handler handler;
 
 	public RequestTransactionActor(Filter filter, Handler handler) {
-		this(new PriorityBlockingQueue<Runnable>(), filter, handler);
+		this(new LinkedBlockingDeque<Runnable>(), filter, handler);
 	}
 
 	private RequestTransactionActor(BlockingQueue<Runnable> queue,
@@ -50,17 +51,18 @@ public class RequestTransactionActor extends ExchangeActor {
 		CalliRepository repo = exchange.getRepository();
 		if (repo == null || !repo.isInitialized())
 			throw new ServiceUnavailable("This origin is not configured");
-		final ResourceOperation op = new ResourceOperation(req, repo);
+		CalliContext context = CalliContext.adapt(exchange.getContext());
+		final ResourceOperation op = new ResourceOperation(req, context, repo);
 		try {
+			context.setResourceTransaction(op);
 			op.begin();
-			HttpContext context = exchange.getContext();
 			HttpUriResponse resp = handler.verify(op, context);
 			if (resp == null) {
 				exchange.verified(op.getCredential());
 				resp = handler.handle(op, context);
 				if (resp.getStatusLine().getStatusCode() >= 400) {
 					op.rollback();
-				} else if (!op.isSafe()) {
+				} else if (!exchange.getRequest().isSafe()) {
 					op.commit();
 				}
 			}
@@ -71,6 +73,7 @@ public class RequestTransactionActor extends ExchangeActor {
 			if (!success) {
 				op.endExchange();
 			}
+			context.setResourceTransaction(null);
 		}
 	}
 

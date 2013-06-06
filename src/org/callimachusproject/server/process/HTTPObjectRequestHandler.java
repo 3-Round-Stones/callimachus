@@ -57,6 +57,7 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpCoreContext;
 import org.callimachusproject.client.HttpUriResponse;
 import org.callimachusproject.repository.CalliRepository;
+import org.callimachusproject.server.model.CalliContext;
 import org.callimachusproject.server.model.Filter;
 import org.callimachusproject.server.model.Handler;
 import org.callimachusproject.server.model.Request;
@@ -138,7 +139,11 @@ public class HTTPObjectRequestHandler implements HttpAsyncRequestHandlerMapper,
 			IOException {
 		logger.debug("Request received {}", request.getRequestLine());
 		InetAddress remoteAddress = getRemoteAddress(ctx);
-		Request req = new Request(request, remoteAddress, false);
+		Request req = new Request(request);
+		CalliContext cc = CalliContext.adapt(ctx);
+		cc.setReceivedOn(System.currentTimeMillis());
+		cc.setClientAddr(remoteAddress);
+		cc.setInternal(false);
 		final Queue<Exchange> queue = getOrCreateProcessingQueue(ctx);
 		CalliRepository repository = getRepository(req.getOrigin());
 		Exchange exchange = new Exchange(req, repository, ctx, queue);
@@ -163,7 +168,11 @@ public class HTTPObjectRequestHandler implements HttpAsyncRequestHandlerMapper,
 			HttpExecutionAware execAware) throws IOException, HttpException {
 		logger.debug("Internal request received {}", request.getRequestLine());
 		InetAddress remoteAddress = getRemoteAddress(ctx);
-		Request req = new Request(request, remoteAddress, true);
+		Request req = new Request(request);
+		CalliContext cc = CalliContext.adapt(ctx);
+		cc.setReceivedOn(System.currentTimeMillis());
+		cc.setClientAddr(remoteAddress);
+		cc.setInternal(true);
 		CalliRepository repository = getRepository(req.getOrigin());
 		Exchange exchange = new Exchange(req, repository, ctx);
 		HttpAsyncExchange trigger = new ForegroundAsyncExchange(request);

@@ -65,13 +65,37 @@ xmlns="http://www.w3.org/1999/xhtml" xmlns:xhtml="http://www.w3.org/1999/xhtml" 
     </xsl:if>
 </xsl:template>
 
+<xsl:template mode="toc" match="node()" />
+
+<xsl:template mode="toc" match="d:chapter|d:part|d:article|d:appendix|d:chapter/d:section">
+    <xsl:variable name="text">
+        <xsl:value-of select="d:info/d:title|d:title" />
+    </xsl:variable>
+    <xsl:variable name="id">
+        <xsl:call-template name="id">
+            <xsl:with-param name="target" select="." />
+        </xsl:call-template>
+    </xsl:variable>
+    <li>
+        <xsl:apply-templates mode="heading-prefix" select="d:info/d:title|d:title" />
+        <a href="#{$id}">
+            <xsl:value-of select="$text" />
+        </a>
+        <xsl:if test="d:chapter|d:part|d:article|d:appendix or self::d:chapter/d:section">
+            <ul class="toc">
+                <xsl:apply-templates mode="toc" />
+            </ul>
+        </xsl:if>
+    </li>
+</xsl:template>
+
 <xsl:template match="d:chapter">
     <xsl:apply-templates select="@xml:id" />
     <xsl:apply-templates select="d:info|d:title" />
     <nav>
         <h3>Contents</h3>
         <ul class="toc">
-            <xsl:apply-templates mode="toc" />
+            <xsl:apply-templates mode="chapter-toc" />
         </ul>
     </nav>
     <xsl:apply-templates select="*[not(self::d:info|self::d:title)]" />
@@ -85,30 +109,25 @@ xmlns="http://www.w3.org/1999/xhtml" xmlns:xhtml="http://www.w3.org/1999/xhtml" 
     <xsl:apply-templates select="d:abstract" />
 </xsl:template>
 
-<xsl:template mode="toc" match="node()" />
+<xsl:template mode="chapter-toc" match="node()" />
 
-<xsl:template mode="toc" match="d:chapter|d:part|d:article|d:appendix|d:chapter/d:section">
+<xsl:template mode="chapter-toc" match="d:chapter|d:part|d:article|d:appendix|d:chapter/d:section|d:chapter/d:section/d:section">
     <xsl:variable name="text">
         <xsl:value-of select="d:info/d:title|d:title" />
     </xsl:variable>
     <xsl:variable name="id">
-        <xsl:choose>
-            <xsl:when test="@xml:id">
-                <xsl:value-of select="@xml:id" />
-            </xsl:when>
-            <xsl:otherwise>
-                <xsl:value-of select="replace(normalize-space($text), '\W','_')" />
-            </xsl:otherwise>
-        </xsl:choose>
+        <xsl:call-template name="id">
+            <xsl:with-param name="target" select="." />
+        </xsl:call-template>
     </xsl:variable>
     <li>
         <xsl:apply-templates mode="heading-prefix" select="d:info/d:title|d:title" />
         <a href="#{$id}">
             <xsl:value-of select="$text" />
         </a>
-        <xsl:if test="d:chapter|d:part|d:article|d:appendix or self::d:chapter/d:section">
+        <xsl:if test="d:chapter|d:part|d:article|d:appendix or d:section and (self::d:chapter or parent::d:chapter)">
             <ul class="toc">
-                <xsl:apply-templates mode="toc" />
+                <xsl:apply-templates mode="chapter-toc" />
             </ul>
         </xsl:if>
     </li>
@@ -158,8 +177,15 @@ xmlns="http://www.w3.org/1999/xhtml" xmlns:xhtml="http://www.w3.org/1999/xhtml" 
             <xsl:when test="../@xml:id">
                 <xsl:value-of select="../@xml:id" />
             </xsl:when>
+            <xsl:when test="parent::d:info">
+                <xsl:call-template name="id">
+                    <xsl:with-param name="target" select="parent::d:info/.." />
+                </xsl:call-template>
+            </xsl:when>
             <xsl:otherwise>
-                <xsl:value-of select="replace(normalize-space(), '\W','_')" />
+                <xsl:call-template name="id">
+                    <xsl:with-param name="target" select=".." />
+                </xsl:call-template>
             </xsl:otherwise>
         </xsl:choose>
     </xsl:variable>
@@ -175,6 +201,11 @@ xmlns="http://www.w3.org/1999/xhtml" xmlns:xhtml="http://www.w3.org/1999/xhtml" 
 </xsl:template>
 
 <xsl:template mode="heading-prefix" match="node()" />
+
+<xsl:template mode="heading-prefix" match="*/d:chapter/d:section/d:section/d:title|*/d:chapter/d:section/d:section/d:info/d:title">
+    <xsl:number format="1." level="any" count="d:chapter" />
+    <xsl:number format="1. " level="multiple" count="d:section" />
+</xsl:template>
 
 <xsl:template mode="heading-prefix" match="*/d:chapter/d:section/d:title|*/d:chapter/d:section/d:info/d:title">
     <xsl:number format="1." level="any" count="d:chapter" />
@@ -221,6 +252,28 @@ xmlns="http://www.w3.org/1999/xhtml" xmlns:xhtml="http://www.w3.org/1999/xhtml" 
         <xsl:apply-templates select="@*[name()!='linkend' and name()!='xml:id']" />
         <xsl:apply-templates />
     </a>
+</xsl:template>
+
+<xsl:template name="id">
+    <xsl:param name="target" />
+    <xsl:variable name="id" select="$target/@xml:id" />
+    <xsl:variable name="title" select="replace(normalize-space($target/d:title|$target/d:info/d:title),'\W','_')" />
+    <xsl:variable name="precedingTitle" select="count($target/preceding::d:title[replace(normalize-space(),'\W','_')=$title])" />
+
+    <xsl:choose>
+        <xsl:when test="$id">
+            <xsl:value-of select="$id" />
+        </xsl:when>
+        <xsl:when test="$title and 0!=$precedingTitle">
+            <xsl:value-of select="concat($title, $precedingTitle)" />
+        </xsl:when>
+        <xsl:when test="$title">
+            <xsl:value-of select="$title" />
+        </xsl:when>
+        <xsl:otherwise>
+            <xsl:value-of select="generate-id($target)" />
+        </xsl:otherwise>
+    </xsl:choose>
 </xsl:template>
 
 </xsl:stylesheet>

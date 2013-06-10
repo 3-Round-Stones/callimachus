@@ -30,25 +30,35 @@
 package org.callimachusproject.server.handlers;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Future;
 
 import org.apache.http.Header;
+import org.apache.http.HttpException;
 import org.apache.http.HttpMessage;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpExecutionAware;
+import org.apache.http.client.methods.HttpRequestWrapper;
+import org.apache.http.concurrent.FutureCallback;
+import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.auth.AuthorizationManager;
 import org.callimachusproject.auth.AuthorizationService;
 import org.callimachusproject.auth.Group;
-import org.callimachusproject.client.HttpUriResponse;
 import org.callimachusproject.repository.CalliRepository;
 import org.callimachusproject.server.exceptions.NotFound;
-import org.callimachusproject.server.model.Handler;
-import org.callimachusproject.server.model.ResponseBuilder;
+import org.callimachusproject.server.model.AsyncExecChain;
+import org.callimachusproject.server.model.CalliContext;
+import org.callimachusproject.server.model.CompletedResponse;
 import org.callimachusproject.server.model.ResourceOperation;
+import org.callimachusproject.server.model.ResponseBuilder;
+import org.callimachusproject.server.model.ResponseCallback;
 import org.openrdf.OpenRDFException;
 import org.openrdf.repository.object.RDFObject;
 
@@ -58,7 +68,7 @@ import org.openrdf.repository.object.RDFObject;
  * @author James Leigh
  * 
  */
-public class AuthenticationHandler implements Handler {
+public class AuthenticationHandler implements AsyncExecChain {
 	private static final String ALLOW_ORIGIN = "Access-Control-Allow-Origin";
 	private static final String ALLOW_CREDENTIALS = "Access-Control-Allow-Credentials";
 	private static final String EXPOSE_HEADERS = "Access-Control-Expose-Headers";
@@ -67,9 +77,9 @@ public class AuthenticationHandler implements Handler {
 	private static final Set<String> PRIVATE_HEADERS = new HashSet<String>(
 			Arrays.asList("set-cookie", "set-cookie2"));
 	private final Map<String, AuthorizationManager> managers = new LinkedHashMap<String, AuthorizationManager>();
-	private final Handler delegate;
+	private final AsyncExecChain delegate;
 
-	public AuthenticationHandler(Handler delegate) {
+	public AuthenticationHandler(AsyncExecChain delegate) {
 		this.delegate = delegate;
 	}
 
@@ -90,34 +100,49 @@ public class AuthenticationHandler implements Handler {
 		}
 	}
 
-	public HttpUriResponse verify(ResourceOperation request, HttpContext context) throws Exception {
-		AuthorizationManager manager = getManager(request);
-		String[] requires = request.getRequires();
-		if (requires != null && requires.length == 0) {
-			request.setPublic(true);
-		} else {
-			RDFObject target = request.getRequestedResource();
-			Set<Group> groups = manager.getAuthorizedParties(target, requires);
-			if (manager.isPublic(groups) || groups.isEmpty()
-					&& request.getJavaMethod() == null) {
-				request.setPublic(true);
+	@Override
+	public Future<CloseableHttpResponse> execute(HttpRoute route,
+			HttpRequestWrapper request, HttpContext context,
+			HttpExecutionAware execAware,
+			FutureCallback<CloseableHttpResponse> callback) throws IOException,
+			HttpException {
+		CalliContext ctx = CalliContext.adapt(context);
+		final InetAddress clientAddr = ctx.getClientAddr();
+		final long now = ctx.getReceivedOn();
+		final ResourceOperation trans = ctx.getResourceTransaction();
+		final AuthorizationManager manager = getManager(trans);
+		try {
+			final String allowed = getAllowedOrigin(trans, manager);
+			callback = new ResponseCallback(callback) {public void completed(CloseableHttpResponse result) {
+				try {
+					allow(trans, manager, result, allowed, now, clientAddr);
+					super.completed(result);
+				} catch (OpenRDFException ex) {
+					super.failed(ex);
+				} catch (IOException ex) {
+					super.failed(ex);
+				}
+			}};
+			String[] requires = trans.getRequires();
+			if (requires != null && requires.length == 0) {
+				trans.setPublic(true);
 			} else {
-				HttpResponse unauthorized = manager.authorize(request, groups);
-				if (unauthorized != null) {
-					String allowed = getAllowedOrigin(request, manager);
-					HttpResponse rb = allow(request, manager, unauthorized, allowed);
-					return new ResponseBuilder(request).respond(rb);
+				RDFObject target = trans.getRequestedResource();
+				Set<Group> groups = manager.getAuthorizedParties(target, requires);
+				if (manager.isPublic(groups) || groups.isEmpty()
+						&& trans.getJavaMethod() == null) {
+					trans.setPublic(true);
+				} else {
+					HttpResponse unauthorized = manager.authorize(trans, groups, now, clientAddr);
+					if (unauthorized != null) {
+						return new CompletedResponse(callback, new ResponseBuilder(trans).respond(unauthorized));
+					}
 				}
 			}
+		} catch (OpenRDFException ex) {
+			callback.failed(ex);
 		}
-		String allowed = getAllowedOrigin(request, manager);
-		return allow(request, manager, delegate.verify(request, context), allowed);
-	}
-
-	public HttpUriResponse handle(ResourceOperation request, HttpContext context) throws Exception {
-		AuthorizationManager manager = getManager(request);
-		String allowedOrigin = getAllowedOrigin(request, manager);
-		return allow(request, manager, delegate.handle(request, context), allowedOrigin);
+		return delegate.execute(route, request, context, execAware, callback);
 	}
 
 	private synchronized AuthorizationManager getManager(
@@ -150,10 +175,8 @@ public class AuthenticationHandler implements Handler {
 		return sb.toString();
 	}
 
-	private <R extends HttpMessage> R allow(ResourceOperation request, AuthorizationManager manager, R rb,
-			String allowedOrigin) throws OpenRDFException, IOException {
-		if (rb == null)
-			return null;
+	void allow(ResourceOperation request, AuthorizationManager manager, HttpResponse rb,
+			String allowedOrigin, long now, InetAddress clientAddr) throws OpenRDFException, IOException {
 		if (allowedOrigin != null && !rb.containsHeader(ALLOW_ORIGIN)) {
 			rb.setHeader(ALLOW_ORIGIN, allowedOrigin);
 		}
@@ -167,7 +190,7 @@ public class AuthenticationHandler implements Handler {
 				}
 			}
 		}
-		HttpMessage msg = manager.authenticationInfo(request);
+		HttpMessage msg = manager.authenticationInfo(request, now, clientAddr);
 		if (msg != null) {
 			for (Header hd : msg.getAllHeaders()) {
 				rb.addHeader(hd);
@@ -179,7 +202,6 @@ public class AuthenticationHandler implements Handler {
 				rb.setHeader(EXPOSE_HEADERS, exposed);
 			}
 		}
-		return rb;
 	}
 
 	private String exposeHeaders(HttpMessage rb) {

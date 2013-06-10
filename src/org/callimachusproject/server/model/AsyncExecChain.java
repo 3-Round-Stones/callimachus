@@ -1,5 +1,5 @@
 /*
- * Copyright 2009-2010, James Leigh and Zepheira LLC Some rights reserved.
+ * Copyright 2013, 3 Round Stones Inc., Some rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -26,7 +26,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-package org.callimachusproject.server.filters;
+package org.callimachusproject.server.model;
 
 import java.io.IOException;
 import java.util.concurrent.Future;
@@ -38,33 +38,25 @@ import org.apache.http.client.methods.HttpRequestWrapper;
 import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.protocol.HttpContext;
-import org.callimachusproject.server.model.AsyncExecChain;
-import org.callimachusproject.server.model.Request;
 
 /**
- * If the request has Content-MD5 header, ensure the request body matches.
+ * This interface represents an element in the HTTP request execution chain.
+ * Each element can either be a decorator around another element that implements
+ * a cross cutting aspect or a self-contained executor capable of producing a
+ * response for the given request.
+ * <p/>
+ * Important: please note it is required for decorators that implement post
+ * execution aspects or response post-processing of any sort to release
+ * resources associated with the response by calling
+ * {@link CloseableHttpResponse#close()} methods in case of an I/O, protocol or
+ * runtime exception, or in case the response is not propagated to the caller.
  */
-public class MD5ValidationFilter implements AsyncExecChain {
-	private final AsyncExecChain delegate;
+public interface AsyncExecChain {
 
-	public MD5ValidationFilter(AsyncExecChain delegate) {
-		this.delegate = delegate;
-	}
-
-	@Override
-	public Future<CloseableHttpResponse> execute(HttpRoute route,
+	Future<CloseableHttpResponse> execute(HttpRoute route,
 			HttpRequestWrapper request, HttpContext context,
 			HttpExecutionAware execAware,
 			FutureCallback<CloseableHttpResponse> callback) throws IOException,
-			HttpException {
-		Request req = new Request(request);
-		if (req.containsHeader("Content-MD5") && req.getEntity() != null) {
-			String md5 = req.getHeader("Content-MD5");
-			req.setEntity(new MD5ValidationEntity(req.getEntity(), md5));
-			return delegate.execute(route, HttpRequestWrapper.wrap(req), context, execAware, callback);
-		} else {
-			return delegate.execute(route, request, context, execAware, callback);
-		}
-	}
+			HttpException;
 
 }

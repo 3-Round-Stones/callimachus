@@ -37,7 +37,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import java.net.InetAddress;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -62,7 +61,6 @@ import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpRequest;
 import org.apache.http.RequestLine;
-import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.annotations.expect;
 import org.callimachusproject.annotations.header;
 import org.callimachusproject.annotations.method;
@@ -107,9 +105,8 @@ public class ResourceOperation {
 	private static final String SUB_CLASS_OF = "http://www.w3.org/2000/01/rdf-schema#subClassOf";
 	private Logger logger = LoggerFactory.getLogger(ResourceOperation.class);
 
-	private final Request request;
-	private final HttpContext context;
 	private final FluidFactory ff = FluidFactory.getInstance();
+	private final Request request;
 	private final ValueFactory vf;
 	private final ObjectConnection con;
 	private VersionedObject target;
@@ -128,10 +125,9 @@ public class ResourceOperation {
 	private UnsupportedMediaType unsupportedMediaType;
 	private boolean isPublic;
 
-	public ResourceOperation(HttpRequest request, HttpContext context, CalliRepository repository)
+	public ResourceOperation(Request request, CalliRepository repository)
 			throws QueryEvaluationException, RepositoryException {
-		this.request = request instanceof Request ? (Request) request : new Request(request);
-		this.context = context;
+		this.request = request;
 		List<String> headers = getVaryHeaders("Accept");
 		if (headers.isEmpty()) {
 			accepter = new FluidType(HttpEntity.class);
@@ -148,23 +144,18 @@ public class ResourceOperation {
 		this.con = repository.getConnection();
 		this.vf = con.getValueFactory();
 		this.writer = ff.builder(con);
-		String iri = this.request.getIRI();
 		try {
-			this.uri = vf.createURI(iri);
+			this.uri = vf.createURI(request.getIRI());
 		} catch (IllegalArgumentException e) {
 			throw new BadRequest(e);
 		}
 	}
 
-	public long getReceivedOn() {
-		return CalliContext.adapt(context).getReceivedOn();
-	}
-
-	public void begin() throws RepositoryException, QueryEvaluationException,
+	public void begin(long now, String m, boolean safe) throws RepositoryException, QueryEvaluationException,
 			DatatypeConfigurationException {
 		if (target == null) {
-			if (!request.isSafe()) {
-				initiateActivity();
+			if (!safe) {
+				initiateActivity(now);
 			}
 			con.begin();
 			result = con.getObjects(VersionedObject.class, uri);
@@ -172,7 +163,6 @@ public class ResourceOperation {
 		}
 		if (method == null) {
 			try {
-				String m = request.getMethod();
 				if ("GET".equals(m) || "HEAD".equals(m)) {
 					method = findMethod("GET", true);
 				} else if ("PUT".equals(m) || "DELETE".equals(m)) {
@@ -198,19 +188,16 @@ public class ResourceOperation {
 		return getContentType(method);
 	}
 
-	public String getEntityTag(String version, String cache, String contentType)
-			throws RepositoryException, QueryEvaluationException {
+	public String getEntityTag(HttpRequest request, String version, String cache, String contentType) {
 		Method m = this.method;
 		int headers = getHeaderCodeFor(m);
 		boolean strong = cache != null && cache.contains("cache-range");
-		String method = request.getMethod();
+		String method = request.getRequestLine().getMethod();
 		if (contentType != null) {
 			return variantTag(version, strong, contentType, headers);
 		} else if ("GET".equals(method) || "HEAD".equals(method)) {
-			if (m != null && contentType == null)
-				return revisionTag(version, strong, headers);
 			if (m != null)
-				return variantTag(version, strong, contentType, headers);
+				return revisionTag(version, strong, headers);
 			Method operation;
 			if ((operation = getAlternativeMethod("alternate")) != null) {
 				String type = getContentType(operation);
@@ -222,9 +209,9 @@ public class ResourceOperation {
 				return variantTag(version,strong,  type, headers);
 			}
 		} else {
-			String putContentType = null;
+			Header putContentType = null;
 			if ("PUT".equals(method)) {
-				putContentType = request.getHeader("Content-Type");
+				putContentType = request.getFirstHeader("Content-Type");
 			}
 			Method get;
 			try {
@@ -245,7 +232,7 @@ public class ResourceOperation {
 			if (get == null && putContentType == null) {
 				return revisionTag(version, strong, headers);
 			} else if (get == null) {
-				return variantTag(version, strong, putContentType, headers);
+				return variantTag(version, strong, putContentType.getValue(), headers);
 			} else {
 				String get_cache = getResponseCacheControlFor(get);
 				boolean get_strong = get_cache != null && get_cache.contains("cache-range");
@@ -255,13 +242,11 @@ public class ResourceOperation {
 		return null;
 	}
 
-	public String getResponseCacheControl() throws QueryEvaluationException,
-			RepositoryException {
+	public String getResponseCacheControl() {
 		return getResponseCacheControlFor(method);
 	}
 
-	private String getResponseCacheControlFor(Method m)
-			throws QueryEvaluationException, RepositoryException {
+	private String getResponseCacheControlFor(Method m) {
 		StringBuilder sb = new StringBuilder();
 		if (m != null && m.isAnnotationPresent(header.class)) {
 			for (String value : m.getAnnotation(header.class).value()) {
@@ -326,7 +311,7 @@ public class ResourceOperation {
 		return isPublic;
 	}
 
-	public Set<String> getAllowedMethods() throws RepositoryException {
+	public Set<String> getAllowedMethods() {
 		Set<String> set = new LinkedHashSet<String>();
 		String name = getOperation();
 		RDFObject target = getRequestedResource();
@@ -495,23 +480,7 @@ public class ResourceOperation {
 	}
 
 	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		Object credential = getCredential();
-		if (credential == null) {
-			sb.append('-');
-		} else {
-			String relative = credential.toString();
-			if (relative.startsWith(request.getScheme())) {
-				String origin = request.getScheme() + "://" + request.getAuthority() + "/";
-				if (relative.startsWith(origin)) {
-					relative = relative.substring(origin.length() - 1);
-				}
-			}
-			sb.append(relative);
-		}
-		sb.append('\t');
-		sb.append('"').append(request.getRequestLine().toString()).append('"');
-		return sb.toString();
+		return uri.toString();
 	}
 
 	public String getVaryHeader(String name) {
@@ -727,7 +696,7 @@ public class ResourceOperation {
 		return request.getQueryString() != null;
 	}
 
-	private void initiateActivity() throws RepositoryException,
+	private void initiateActivity(long now) throws RepositoryException,
 			DatatypeConfigurationException {
 		AuditingRepositoryConnection audit = findAuditing(con);
 		if (audit != null) {
@@ -736,7 +705,7 @@ public class ResourceOperation {
 			assert bundle != null;
 			URI activity = delegate.createActivityURI(bundle, vf);
 			con.setVersionBundle(bundle); // use the same URI for blob version
-			audit.setActivityFactory(new RequestActivityFactory(activity, delegate, this));
+			audit.setActivityFactory(new RequestActivityFactory(activity, delegate, this, now));
 		}
 	}
 
@@ -1254,10 +1223,6 @@ public class ResourceOperation {
 
 	public Enumeration getHeaderEnumeration(String name) {
 		return request.getHeaderEnumeration(name);
-	}
-
-	public InetAddress getRemoteAddr() {
-		return CalliContext.adapt(context).getClientAddr();
 	}
 
 	public RequestLine getRequestLine() {

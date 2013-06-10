@@ -3,28 +3,26 @@ package org.callimachusproject.server.filters;
 import java.io.IOException;
 
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpException;
+import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HttpCoreContext;
 import org.apache.http.util.EntityUtils;
-import org.callimachusproject.server.model.Filter;
-import org.callimachusproject.server.model.Request;
 
-public class HeadRequestFilter extends Filter {
-
-	public HeadRequestFilter(Filter delegate) {
-		super(delegate);
-	}
+public class HeadRequestFilter implements HttpResponseInterceptor {
 
 	@Override
-	public HttpResponse filter(Request request, HttpContext context, HttpResponse response)
-			throws IOException {
-		HttpResponse resp = super.filter(request, context, response);
-		HttpEntity entity = resp.getEntity();
-		if ("HEAD".equals(request.getMethod()) && entity != null) {
-			EntityUtils.consume(entity);
-			resp.setEntity(null);
+	public void process(HttpResponse response, HttpContext context)
+			throws HttpException, IOException {
+		HttpRequest request = HttpCoreContext.adapt(context).getRequest();
+		HttpEntity entity = response.getEntity();
+		if ("HEAD".equals(request.getRequestLine().getMethod())
+				&& entity != null) {
+			EntityUtils.consumeQuietly(entity);
+			response.setEntity(null);
 		}
-		return resp;
 	}
 
 }

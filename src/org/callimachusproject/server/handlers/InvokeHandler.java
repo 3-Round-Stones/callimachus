@@ -41,13 +41,18 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
 
 import org.apache.http.HttpEntity;
-import org.apache.http.protocol.HttpContext;
+import org.apache.http.HttpException;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpExecutionAware;
+import org.apache.http.client.methods.HttpRequestWrapper;
+import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.conn.routing.HttpRoute;
+import org.apache.http.impl.execchain.ClientExecChain;
 import org.callimachusproject.annotations.expect;
 import org.callimachusproject.annotations.header;
 import org.callimachusproject.client.HttpUriResponse;
@@ -58,12 +63,10 @@ import org.callimachusproject.fluid.FluidFactory;
 import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.server.exceptions.InternalServerError;
 import org.callimachusproject.server.exceptions.NotAcceptable;
-import org.callimachusproject.server.exceptions.ResponseException;
-import org.callimachusproject.server.model.Handler;
+import org.callimachusproject.server.model.CalliContext;
+import org.callimachusproject.server.model.Request;
 import org.callimachusproject.server.model.ResourceOperation;
 import org.callimachusproject.server.model.ResponseBuilder;
-import org.openrdf.repository.object.ObjectRepository;
-import org.openrdf.repository.object.exceptions.BehaviourException;
 import org.openrdf.repository.object.traits.RDFObjectBehaviour;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,7 +77,7 @@ import org.slf4j.LoggerFactory;
  * @author James Leigh
  * 
  */
-public class InvokeHandler implements Handler {
+public class InvokeHandler implements ClientExecChain {
 	private interface MapStringArray extends Map<String, String[]> {
 	}
 	private interface SetString extends Set<String> {
@@ -87,16 +90,27 @@ public class InvokeHandler implements Handler {
 			.getGenericInterfaces()[0];
 	private final Logger logger = LoggerFactory.getLogger(InvokeHandler.class);
 
-	public HttpUriResponse verify(ResourceOperation request, HttpContext context) throws Exception {
-		Method method = request.getJavaMethod();
+	@Override
+	public CloseableHttpResponse execute(HttpRoute route,
+			HttpRequestWrapper request, HttpClientContext clientContext,
+			HttpExecutionAware execAware) throws IOException, HttpException {
+		CalliContext context = CalliContext.adapt(clientContext);
+		ResourceOperation trans = context.getResourceTransaction();
+		Method method = trans.getJavaMethod();
 		assert method != null;
-		return null;
-	}
-
-	public HttpUriResponse handle(ResourceOperation request, HttpContext context) throws Exception {
-		Method method = request.getJavaMethod();
-		assert method != null;
-		return invoke(request, method, request.isSafe());
+		try {
+			return invoke(trans, method, new Request(request).isSafe());
+		} catch (Error e) {
+			throw e;
+		} catch (RuntimeException e) {
+			throw e;
+		} catch (IOException e) {
+			throw e;
+		} catch (HttpException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new InternalServerError(e);
+		}
 	}
 
 	private HttpUriResponse invoke(ResourceOperation req, Method method, boolean safe)
@@ -111,7 +125,11 @@ public class InvokeHandler implements Handler {
 			} catch (TransformerConfigurationException e) {
 				throw e;
 			} catch (Exception e) {
-				return new ResponseBuilder(req).badRequest(e.getMessage());
+				String message = e.getMessage();
+				if (message == null) {
+					message = e.toString();
+				}
+				return new ResponseBuilder(req).badRequest(message);
 			}
 			try {
 				HttpUriResponse response = invoke(req, method, args, getResponseTypes(req, method));
@@ -371,29 +389,6 @@ public class InvokeHandler implements Handler {
 			}
 		}
 		return args;
-	}
-
-	protected HttpUriResponse createErrorResponse(ResourceOperation req, ObjectRepository repository, Exception e) {
-		while (e instanceof BehaviourException
-				|| e instanceof InvocationTargetException
-				|| e instanceof ExecutionException
-				&& e.getCause() instanceof Exception) {
-			e = (Exception) e.getCause();
-		}
-		ResponseException re = asResponseException(req.getRequestURL(), e);
-		try {
-			return new ResponseBuilder(req).exception(re);
-		} catch (Exception e1) {
-			logger.error(e1.toString(), e1);
-			return new ResponseBuilder(req).serverError();
-		}
-	}
-
-	protected ResponseException asResponseException(String url, Exception e) {
-		if (e instanceof ResponseException)
-			return (ResponseException) e;
-		logger.error("Internal Server Error while responding to " + url, e);
-		return new InternalServerError(e);
 	}
 
 }

@@ -34,18 +34,27 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Future;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpException;
+import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpExecutionAware;
+import org.apache.http.client.methods.HttpRequestWrapper;
+import org.apache.http.concurrent.FutureCallback;
+import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 import org.callimachusproject.client.StreamingHttpEntity;
 import org.callimachusproject.fluid.MediaType;
 import org.callimachusproject.fluid.producers.HttpMessageReader;
 import org.callimachusproject.io.ChannelUtil;
-import org.callimachusproject.server.model.Filter;
-import org.callimachusproject.server.model.Request;
+import org.callimachusproject.server.model.AsyncExecChain;
+import org.callimachusproject.server.model.DelegatingFuture;
+import org.callimachusproject.server.model.ResponseBuilder;
 
 /**
  * Response body of {@link HttpResponse} and a configured content type
@@ -54,16 +63,18 @@ import org.callimachusproject.server.model.Request;
  * @author James Leigh
  * 
  */
-public class HttpResponseFilter extends Filter {
+public class HttpResponseFilter implements AsyncExecChain {
 	private static final List<String> CONTENT_HD = Arrays.asList(
 			"Content-Type", "Content-Length", "Transfer-Encoding");
 	private static final HttpMessageReader reader = new HttpMessageReader();
+
+	private final AsyncExecChain delegate;
 	private MediaType envelopeType;
 	private String core;
 	private String accept;
 
-	public HttpResponseFilter(Filter delegate) {
-		super(delegate);
+	public HttpResponseFilter(AsyncExecChain delegate) {
+		this.delegate = delegate;
 	}
 
 	public String getEnvelopeType() {
@@ -88,38 +99,42 @@ public class HttpResponseFilter extends Filter {
 	}
 
 	@Override
-	public Request filter(Request request, HttpContext context) throws IOException {
-		if (envelopeType != null && request.containsHeader("Accept")) {
+	public Future<CloseableHttpResponse> execute(HttpRoute route,
+			final HttpRequestWrapper request, final HttpContext context,
+			HttpExecutionAware execAware,
+			final FutureCallback<CloseableHttpResponse> callback) throws IOException,
+			HttpException {
+		if (envelopeType == null)
+			return delegate.execute(route, request, context, execAware, callback);
+		if (request.containsHeader("Accept")) {
 			String hd = request.getFirstHeader("Accept").getValue();
 			if (!hd.contains("*/*")) {
 				request.addHeader("Accept", accept);
 			}
 		}
-		return super.filter(request, context);
-	}
-
-	@Override
-	public HttpResponse filter(Request request, HttpContext context, HttpResponse response)
-			throws IOException {
-		response = super.filter(request, context, response);
-		if (envelopeType == null)
-			return response;
-		Header type = response.getFirstHeader("Content-Type");
-		if (type != null && type.getValue().startsWith(core)) {
-			try {
-				if (envelopeType.match(type.getValue())) {
-					return unwrap(request, type.getValue(), response);
+		final DelegatingFuture future = new DelegatingFuture(callback) {
+			public void completed(CloseableHttpResponse result) {
+				try {
+					Header type = result.getFirstHeader("Content-Type");
+					if (type != null && type.getValue().startsWith(core)
+							&& envelopeType.match(type.getValue())) {
+						result = new ResponseBuilder(request, context)
+								.respond(unwrap(request, type.getValue(),
+										result));
+					}
+					super.completed(result);
+				} catch (IllegalArgumentException ex) {
+					super.failed(ex);
+				} catch (IOException ex) {
+					super.failed(ex);
 				}
-			} catch (IllegalArgumentException e) {
-				return response;
-			} catch (IOException e) {
-				return response;
 			}
-		}
-		return response;
+		};
+		future.setDelegate(delegate.execute(route, request, context, execAware, future));
+		return future;
 	}
 
-	private HttpResponse unwrap(Request request, String type, HttpResponse resp)
+	HttpResponse unwrap(HttpRequest request, String type, HttpResponse resp)
 			throws IOException {
 		final HttpEntity entity = resp.getEntity();
 		if (entity == null)

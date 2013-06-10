@@ -100,8 +100,7 @@ public class CacheIndex {
 		return map.size();
 	}
 
-	public void invalidate(String... locations) throws IOException,
-			InterruptedException {
+	public void invalidate(String... locations) throws IOException {
 		List<String> urls = new ArrayList<String>(locations.length);
 		if (locations.length == 0) {
 			File[] files = dir.listFiles();

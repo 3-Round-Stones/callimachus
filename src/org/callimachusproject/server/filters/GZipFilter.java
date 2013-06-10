@@ -33,26 +33,34 @@ import java.io.IOException;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
-import org.apache.http.protocol.HttpContext;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpExecutionAware;
+import org.apache.http.client.methods.HttpRequestWrapper;
+import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.conn.routing.HttpRoute;
+import org.apache.http.impl.execchain.ClientExecChain;
 import org.callimachusproject.client.CloseableEntity;
 import org.callimachusproject.client.GUnzipEntity;
 import org.callimachusproject.client.GZipEntity;
-import org.callimachusproject.server.model.Filter;
-import org.callimachusproject.server.model.Request;
 
 /**
  * Compresses safe responses.
  */
-public class GZipFilter extends Filter {
+public class GZipFilter implements ClientExecChain {
+	private final ClientExecChain delegate;
 
-	public GZipFilter(Filter delegate) {
-		super(delegate);
+	public GZipFilter(ClientExecChain delegate) {
+		this.delegate = delegate;
 	}
 
-	public HttpResponse filter(Request req, HttpContext context, HttpResponse resp) throws IOException {
-		resp = super.filter(req, context, resp);
-		String method = req.getMethod();
+	@Override
+	public CloseableHttpResponse execute(HttpRoute route,
+			HttpRequestWrapper request, HttpClientContext context,
+			HttpExecutionAware execAware) throws IOException, HttpException {
+		CloseableHttpResponse resp = delegate.execute(route, request, context, execAware);
+		String method = request.getRequestLine().getMethod();
 		int code = resp.getStatusLine().getStatusCode();
 		boolean safe = method.equals("HEAD") || method.equals("GET") || method.equals("PROFIND");
 		boolean compressed = isAlreadyCompressed(resp.getEntity());

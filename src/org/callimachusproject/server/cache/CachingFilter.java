@@ -45,15 +45,22 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolVersion;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpExecutionAware;
+import org.apache.http.client.methods.HttpRequestWrapper;
+import org.apache.http.concurrent.FutureCallback;
+import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHttpResponse;
@@ -61,15 +68,19 @@ import org.apache.http.nio.entity.NFileEntity;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpDateGenerator;
 import org.apache.http.util.EntityUtils;
+import org.callimachusproject.client.HttpUriResponse;
 import org.callimachusproject.io.AutoCloseChannel;
 import org.callimachusproject.io.CatReadableByteChannel;
 import org.callimachusproject.io.ChannelUtil;
+import org.callimachusproject.server.model.AsyncExecChain;
 import org.callimachusproject.server.model.CalliContext;
+import org.callimachusproject.server.model.CompletedResponse;
+import org.callimachusproject.server.model.DelegatingFuture;
 import org.callimachusproject.server.model.EntityRemovedHttpResponse;
 import org.callimachusproject.server.model.FileHttpEntity;
-import org.callimachusproject.server.model.Filter;
 import org.callimachusproject.server.model.ReadableHttpEntityChannel;
 import org.callimachusproject.server.model.Request;
+import org.callimachusproject.server.model.ResponseCallback;
 import org.callimachusproject.server.util.LockCleanupManager;
 import org.callimachusproject.util.DomainNameSystemResolver;
 import org.slf4j.Logger;
@@ -80,7 +91,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author James Leigh
  */
-public class CachingFilter extends Filter {
+public class CachingFilter implements AsyncExecChain {
 	private static final AtomicLong seq = new AtomicLong(0);
 	private static final HttpDateGenerator DATE_GENERATOR = new HttpDateGenerator();
 	private static final String hostname = DomainNameSystemResolver.getInstance().getLocalHostName();
@@ -91,16 +102,18 @@ public class CachingFilter extends Filter {
 	private static final String WARN_112 = "112 " + hostname
 			+ " \"Disconnected operation\"";
 	private final Logger logger = LoggerFactory.getLogger(CachingFilter.class);
+
+	private final AsyncExecChain delegate;
 	private CacheIndex cache;
 	private boolean enabled = true;
 	private boolean disconnected;
 
-	public CachingFilter(Filter delegate, File dataDir, int maxCapacity) {
+	public CachingFilter(AsyncExecChain delegate, File dataDir, int maxCapacity) {
 		this(delegate, new CacheIndex(dataDir, maxCapacity, new LockCleanupManager(false)));
 	}
 
-	private CachingFilter(Filter delegate, CacheIndex cache) {
-		super(delegate);
+	private CachingFilter(AsyncExecChain delegate, CacheIndex cache) {
+		this.delegate = delegate;
 		this.cache = cache;
 	}
 
@@ -149,77 +162,110 @@ public class CachingFilter extends Filter {
 	}
 
 	@Override
-	public HttpResponse intercept(Request headers, HttpContext context) throws IOException {
-		if (enabled && headers.isStorable()) {
-			try {
-				String url = headers.getRequestURL();
-				Lock reset = cache.getReadLock(url);
-				try {
-					long now = CalliContext.adapt(context).getReceivedOn();
-					CachedEntity cached = null;
-					CachedRequest index = cache.findCachedRequest(url);
-					synchronized (index) {
-						cached = index.find(headers);
-						boolean stale = isStale(now, headers, cached);
-						if (cached != null && disconnected) {
-							return respondWithCache(now, headers, cached, null);
-						} else if (stale && !headers.isOnlyIfCache()) {
-							return super.intercept(headers, context);
-						} else if (cached == null && headers.isOnlyIfCache()) {
-							return respond(504, "Gateway Timeout");
-						} else {
-							return respondWithCache(now, headers, cached, null);
-						}
+	public Future<CloseableHttpResponse> execute(HttpRoute route,
+			HttpRequestWrapper request, HttpContext context,
+			HttpExecutionAware execAware,
+			FutureCallback<CloseableHttpResponse> callback) throws IOException,
+			HttpException {
+		final Request headers = new Request(request);
+		if (!headers.isSafe()) {
+			callback = new ResponseCallback(callback) {
+				public void completed(CloseableHttpResponse result) {
+					try {
+						invalidate(headers);
+					} catch (IOException e) {
+						logger.error(e.toString(), e);
+					} finally {
+						super.completed(result);
 					}
-				} finally {
-					reset.release();
 				}
-			} catch (InterruptedException e) {
-				logger.warn(e.getMessage(), e);
-				return respond(504, "Gateway Timeout");
-			}
+			};
 		}
-		return super.intercept(headers, context);
+		if (!enabled || !headers.isStorable()) {
+			return delegate.execute(route, request, context, execAware, callback);
+		}
+		try {
+			String url = headers.getRequestURL();
+			Lock reset = cache.getReadLock(url);
+			try {
+				long now = CalliContext.adapt(context).getReceivedOn();
+				CachedEntity cached = null;
+				CachedRequest index = cache.findCachedRequest(url);
+				synchronized (index) {
+					cached = index.find(headers);
+					boolean stale = isStale(now, headers, cached);
+					CompletedResponse ret = new CompletedResponse(callback);
+					if (cached != null && disconnected) {
+						ret.completed(respondWithCache(now, headers, cached, null));
+					} else if (stale && !headers.isOnlyIfCache()) {
+						return handleCacheMiss(route, request, context, execAware, callback);
+					} else if (cached == null && headers.isOnlyIfCache()) {
+						ret.completed(respond(headers, 504, "Gateway Timeout"));
+					} else {
+						ret.completed(respondWithCache(now, headers, cached, null));
+					}
+					return ret;
+				}
+			} finally {
+				reset.release();
+			}
+		} catch (InterruptedException e) {
+			logger.warn(e.getMessage(), e);
+			return new CompletedResponse(callback, respond(headers, 504, "Gateway Timeout"));
+		}
 	}
 
-	@Override
-	public Request filter(Request request, HttpContext context) throws IOException {
-		request = super.filter(request, context);
+	private Future<CloseableHttpResponse> handleCacheMiss(HttpRoute route,
+			HttpRequestWrapper request, final HttpContext context,
+			HttpExecutionAware execAware,
+			final FutureCallback<CloseableHttpResponse> callback) throws IOException,
+			HttpException {
+		Request headers = new Request(request);
 		try {
-			if (enabled && request.isStorable() && !(request instanceof CachableRequest)) {
-				String url = request.getRequestURL();
-				Lock lock = cache.getReadLock(url);
-				try {
-					long now = CalliContext.adapt(context).getReceivedOn();
-					CachedEntity cached = null;
-					CachedRequest index = cache.findCachedRequest(url);
-					synchronized (index) {
-						cached = index.find(request);
-						if ("HEAD".equals(request.getMethod()))
-							return request;
-						boolean stale = isStale(now, request, cached);
-						if (stale && !request.isOnlyIfCache()) {
-							List<CachedEntity> match = index
-									.findCachedETags(request);
-							return createCachableRequest(request, cached, match);
-						}
+			String url = headers.getRequestURL();
+			Lock lock = cache.getReadLock(url);
+			try {
+				long now = CalliContext.adapt(context).getReceivedOn();
+				CachedEntity cached = null;
+				CachedRequest index = cache.findCachedRequest(url);
+				synchronized (index) {
+					cached = index.find(headers);
+					if ("HEAD".equals(request.getRequestLine().getMethod()))
+						return delegate.execute(route, request, context, execAware, callback);
+					boolean stale = isStale(now, headers, cached);
+					if (stale && !headers.isOnlyIfCache()) {
+						List<CachedEntity> match = index
+								.findCachedETags(headers);
+						final CachableRequest cachable = createCachableRequest(headers, cached, match);
+						HttpRequestWrapper req = HttpRequestWrapper.wrap(cachable);
+						DelegatingFuture future = new DelegatingFuture(callback) {
+							public void completed(CloseableHttpResponse result) {
+								try {
+									super.completed(filter(cachable, context,
+											result));
+								} catch (IOException ex) {
+									super.failed(ex);
+								}
+							}
+						};
+						future.setDelegate(delegate.execute(route, req,
+								context, execAware, future));
+						return future;
 					}
-				} finally {
-					lock.release();
 				}
+			} finally {
+				lock.release();
 			}
 		} catch (InterruptedException e) {
 			logger.warn(e.getMessage(), e);
 		}
-		return request;
+		return delegate.execute(route, request, context, execAware, callback);
 	}
 
-	@Override
-	public HttpResponse filter(Request request, HttpContext context, HttpResponse resp)
+	CloseableHttpResponse filter(CachableRequest request, HttpContext context, CloseableHttpResponse resp)
 			throws IOException {
-		resp = super.filter(request, context, resp);
 		try {
-			if (request instanceof CachableRequest && isCachable(request, resp)) {
+			if (isCachable(request, resp)) {
 				String url = request.getRequestURL();
 				Lock lock = cache.getReadLock(url);
 				try {
@@ -237,7 +283,7 @@ public class CachingFilter extends Filter {
 							return resp;
 						} else {
 							EntityUtils.consume(resp.getEntity());
-							HttpResponse result = respondWithCache(now, request, cached, resp);
+							HttpUriResponse result = respondWithCache(now, request, cached, resp);
 							result.addHeader("Warning", WARN_111);
 							logger.warn(resp.getStatusLine().getReasonPhrase());
 							return result;
@@ -246,15 +292,11 @@ public class CachingFilter extends Filter {
 				} finally {
 					lock.release();
 				}
-			} else if (!request.isSafe()) {
-				invalidate(request);
 			}
 		} catch (InterruptedException e) {
 			logger.warn(e.getMessage(), e);
 		} finally {
-			if (request instanceof CachableRequest) {
-				((CachableRequest) request).releaseCachedEntities();
-			}
+			request.releaseCachedEntities();
 		}
 		return resp;
 	}
@@ -267,12 +309,12 @@ public class CachingFilter extends Filter {
 		return new CachableRequest(request, cached, match, lock);
 	}
 
-	private HttpResponse respond(int code, String reason) {
+	private HttpUriResponse respond(Request req, int code, String reason) {
 		ProtocolVersion ver = HttpVersion.HTTP_1_1;
 		BasicHttpResponse resp = new BasicHttpResponse(ver, code, reason);
 		resp.setHeader("Date", DATE_GENERATOR.getCurrentDate());
 		resp.setHeader("Content-Length", "0");
-		return resp;
+		return new HttpUriResponse(req.getRequestURL(), resp);
 	}
 
 	private File saveMessageBody(HttpResponse res, File dir, String url)
@@ -374,7 +416,7 @@ public class CachingFilter extends Filter {
 		return age > maxage || !fresh;
 	}
 
-	private HttpResponse respondWithCache(long now, Request req,
+	private HttpUriResponse respondWithCache(long now, Request req,
 			CachedEntity cached, HttpResponse upstream) throws IOException, InterruptedException {
 		if (req instanceof CachableRequest) {
 			req = ((CachableRequest) req).getOriginalRequest();
@@ -415,7 +457,7 @@ public class CachingFilter extends Filter {
 		} else {
 			res.setHeader("Content-Length", "0");
 		}
-		return res;
+		return new HttpUriResponse(req.getRequestURL(), res);
 	}
 
 	private boolean unmodifiedSince(Request req, CachedEntity cached) {
@@ -744,8 +786,7 @@ public class CachingFilter extends Filter {
 		}
 	}
 
-	private void invalidate(Request headers) throws IOException,
-			InterruptedException {
+	private void invalidate(Request headers) throws IOException {
 		String loc = headers.getResolvedHeader("Location");
 		String cloc = headers.getResolvedHeader("Content-Location");
 		cache.invalidate(headers.getRequestURL(), loc, cloc);

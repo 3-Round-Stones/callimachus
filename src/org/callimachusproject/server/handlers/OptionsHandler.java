@@ -29,6 +29,7 @@
  */
 package org.callimachusproject.server.handlers;
 
+import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -36,14 +37,24 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.Future;
 
+import org.apache.http.HttpException;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpExecutionAware;
+import org.apache.http.client.methods.HttpRequestWrapper;
+import org.apache.http.concurrent.BasicFuture;
+import org.apache.http.concurrent.FutureCallback;
+import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.annotations.header;
 import org.callimachusproject.annotations.method;
 import org.callimachusproject.client.HttpUriResponse;
-import org.callimachusproject.server.model.Handler;
+import org.callimachusproject.server.model.AsyncExecChain;
+import org.callimachusproject.server.model.CalliContext;
 import org.callimachusproject.server.model.ResourceOperation;
 import org.callimachusproject.server.model.ResponseBuilder;
+import org.callimachusproject.server.model.ResponseCallback;
 
 /**
  * Responds for OPTIONS requests.
@@ -51,7 +62,7 @@ import org.callimachusproject.server.model.ResponseBuilder;
  * @author James Leigh
  * 
  */
-public class OptionsHandler implements Handler {
+public class OptionsHandler implements AsyncExecChain {
 	private static final String REQUEST_METHOD = "Access-Control-Request-Method";
 	private static final Set<String> ALLOW_HEADERS = new TreeSet<String>(
 			Arrays.asList("Authorization", "Cache-Control", "Location",
@@ -60,29 +71,29 @@ public class OptionsHandler implements Handler {
 					"Content-Length", "Content-Location", "Content-MD5",
 					"Content-Type", "If-Match", "If-Modified-Since",
 					"If-None-Match", "If-Range", "If-Unmodified-Since"));
-	private final Handler delegate;
+	private final AsyncExecChain delegate;
 
-	public OptionsHandler(Handler delegate) {
+	public OptionsHandler(AsyncExecChain delegate) {
 		this.delegate = delegate;
 	}
 
-	public HttpUriResponse verify(ResourceOperation request, HttpContext context) throws Exception {
-		if ("OPTIONS".equals(request.getMethod()))
-			return null;
-		return allow(delegate.verify(request, context));
-	}
-
-	public HttpUriResponse handle(ResourceOperation request, HttpContext context) throws Exception {
-		if ("OPTIONS".equals(request.getMethod())) {
+	@Override
+	public Future<CloseableHttpResponse> execute(HttpRoute route,
+			HttpRequestWrapper request, HttpContext context,
+			HttpExecutionAware execAware,
+			final FutureCallback<CloseableHttpResponse> callback) throws IOException,
+			HttpException {
+		if ("OPTIONS".equals(request.getRequestLine().getMethod())) {
+			ResourceOperation trans = CalliContext.adapt(context).getResourceTransaction();
 			StringBuilder sb = new StringBuilder();
 			sb.append("OPTIONS, TRACE");
-			for (String method : request.getAllowedMethods()) {
+			for (String method : trans.getAllowedMethods()) {
 				sb.append(", ").append(method);
 			}
 			String allow = sb.toString();
-			HttpUriResponse rb = new ResponseBuilder(request).noContent();
+			HttpUriResponse rb = new ResponseBuilder(trans).noContent();
 			rb.addHeader("Allow", allow);
-			String m = request.getVaryHeader(REQUEST_METHOD);
+			String m = trans.getVaryHeader(REQUEST_METHOD);
 			if (m == null) {
 				rb.addHeader("Access-Control-Allow-Methods", allow);
 			} else {
@@ -95,24 +106,33 @@ public class OptionsHandler implements Handler {
 				}
 				headers.append(header);
 			}
-			for (String header : getAllowedHeaders(m, request)) {
+			for (String header : getAllowedHeaders(m, trans)) {
 				if (!ALLOW_HEADERS.contains(header)) {
 					headers.append(",");
 					headers.append(header);
 				}
 			}
 			rb.addHeader("Access-Control-Allow-Headers", headers.toString());
-			String max = getMaxAge(request.getRequestedResource().getClass());
+			String max = getMaxAge(trans.getRequestedResource().getClass());
 			if (max != null) {
 				rb.addHeader("Access-Control-Max-Age", max);
 			}
-			return rb;
+			BasicFuture<CloseableHttpResponse> future;
+			future = new BasicFuture<CloseableHttpResponse>(callback);
+			future.completed(rb);
+			return future;
 		} else {
-			return allow(delegate.handle(request, context));
+			return delegate.execute(route, request, context, execAware,
+					new ResponseCallback(callback) {
+						public void completed(CloseableHttpResponse result) {
+							allow(result);
+							super.completed(result);
+						}
+					});
 		}
 	}
 
-	private HttpUriResponse allow(HttpUriResponse resp) {
+	CloseableHttpResponse allow(CloseableHttpResponse resp) {
 		if (resp != null && resp.getStatusLine().getStatusCode() == 405) {
 			if (resp.containsHeader("Allow")) {
 				String allow = resp.getFirstHeader("Allow").getValue();

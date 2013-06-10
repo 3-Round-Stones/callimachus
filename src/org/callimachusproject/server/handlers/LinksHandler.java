@@ -28,6 +28,7 @@
  */
 package org.callimachusproject.server.handlers;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,16 +39,22 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Future;
 
+import org.apache.http.HttpException;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpExecutionAware;
+import org.apache.http.client.methods.HttpRequestWrapper;
+import org.apache.http.concurrent.FutureCallback;
+import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.annotations.rel;
 import org.callimachusproject.annotations.title;
 import org.callimachusproject.annotations.type;
-import org.callimachusproject.client.HttpUriResponse;
-import org.callimachusproject.server.model.Handler;
+import org.callimachusproject.server.model.AsyncExecChain;
+import org.callimachusproject.server.model.CalliContext;
 import org.callimachusproject.server.model.ResourceOperation;
-import org.openrdf.query.QueryEvaluationException;
-import org.openrdf.repository.RepositoryException;
+import org.callimachusproject.server.model.ResponseCallback;
 
 /**
  * Add an HTTP Header called 'Link' with other operations available to this
@@ -56,11 +63,11 @@ import org.openrdf.repository.RepositoryException;
  * @author James Leigh
  * 
  */
-public class LinksHandler implements Handler {
-	private final Handler delegate;
+public class LinksHandler implements AsyncExecChain {
+	private final AsyncExecChain delegate;
 	private String envelopeType;
 
-	public LinksHandler(Handler delegate) {
+	public LinksHandler(AsyncExecChain delegate) {
 		this.delegate = delegate;
 	}
 
@@ -72,31 +79,33 @@ public class LinksHandler implements Handler {
 		this.envelopeType = envelopeType;
 	}
 
-	public HttpUriResponse verify(ResourceOperation request, HttpContext context) throws Exception {
-		return delegate.verify(request, context);
-	}
-
-	public HttpUriResponse handle(ResourceOperation req, HttpContext context) throws Exception {
-		HttpUriResponse rb = delegate.handle(req, context);
-		if ("OPTIONS".equals(req.getMethod())) {
-			return addLinks(req, rb);
+	public Future<CloseableHttpResponse> execute(HttpRoute route,
+			HttpRequestWrapper request, HttpContext context,
+			HttpExecutionAware execAware,
+			FutureCallback<CloseableHttpResponse> callback) throws IOException,
+			HttpException {
+		if ("OPTIONS".equals(request.getRequestLine().getMethod())) {
+			final ResourceOperation req = CalliContext.adapt(context).getResourceTransaction();
+			return delegate.execute(route, request, context, execAware, new ResponseCallback(callback) {
+				public void completed(CloseableHttpResponse result) {
+					addLinks(req, result);
+					super.completed(result);
+				}
+			});
 		} else {
-			return rb;
+			return delegate.execute(route, request, context, execAware, callback);
 		}
 	}
 
-	private HttpUriResponse addLinks(ResourceOperation request, HttpUriResponse rb)
-			throws RepositoryException, QueryEvaluationException {
+	void addLinks(ResourceOperation request, CloseableHttpResponse rb) {
 		if (!request.isQueryStringPresent()) {
 			for (String link : getLinks(request)) {
 				rb.addHeader("Link", link);
 			}
 		}
-		return rb;
 	}
 
-	private List<String> getLinks(ResourceOperation request)
-			throws RepositoryException, QueryEvaluationException {
+	private List<String> getLinks(ResourceOperation request) {
 		String uri = request.getRequestURI();
 		Map<String, List<Method>> map = request
 				.getOperationMethods("GET", true);

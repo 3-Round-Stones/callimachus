@@ -21,12 +21,14 @@ public class RequestActivityFactory implements ActivityFactory {
 	private final ActivityFactory delegate;
 	private final DatatypeFactory df;
 	private final ResourceOperation req;
+	private final long receivedOn;
 
 	public RequestActivityFactory(URI activity, ActivityFactory delegate,
-			ResourceOperation req) throws DatatypeConfigurationException {
+			ResourceOperation req, long receivedOn) throws DatatypeConfigurationException {
 		this.activity = activity;
 		this.delegate = delegate;
 		this.req = req;
+		this.receivedOn = receivedOn;
 		this.df = DatatypeFactory.newInstance();
 	}
 
@@ -41,7 +43,7 @@ public class RequestActivityFactory implements ActivityFactory {
 		ValueFactory vf = con.getValueFactory();
 		GregorianCalendar cal = new GregorianCalendar(1970, 0, 1);
 		cal.setTimeZone(UTC);
-		cal.setTimeInMillis(req.getReceivedOn());
+		cal.setTimeInMillis(receivedOn);
 		XMLGregorianCalendar now = df.newXMLGregorianCalendar(cal);
 		con.add(prov, vf.createURI(STARTED_AT), vf.createLiteral(now), graph);
 		String cred = req.getCredential();

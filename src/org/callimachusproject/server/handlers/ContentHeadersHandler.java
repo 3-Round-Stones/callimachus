@@ -29,13 +29,23 @@
  */
 package org.callimachusproject.server.handlers;
 
+import java.io.IOException;
+import java.util.concurrent.Future;
+
+import org.apache.http.HttpException;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpExecutionAware;
+import org.apache.http.client.methods.HttpRequestWrapper;
+import org.apache.http.concurrent.FutureCallback;
+import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.protocol.HttpContext;
-import org.callimachusproject.client.HttpUriResponse;
-import org.callimachusproject.server.model.Handler;
+import org.callimachusproject.server.model.AsyncExecChain;
+import org.callimachusproject.server.model.CalliContext;
 import org.callimachusproject.server.model.ResourceOperation;
+import org.callimachusproject.server.model.ResponseCallback;
 import org.callimachusproject.server.util.HTTPDateFormat;
-import org.openrdf.query.QueryEvaluationException;
-import org.openrdf.repository.RepositoryException;
 
 /**
  * Adds the HTTP headers: Cache-Control, Vary, ETag, Content-Type,
@@ -44,45 +54,43 @@ import org.openrdf.repository.RepositoryException;
  * @author James Leigh
  * 
  */
-public class ContentHeadersHandler implements Handler {
-	private final Handler delegate;
+public class ContentHeadersHandler implements AsyncExecChain {
+	private final AsyncExecChain delegate;
 	private final HTTPDateFormat format = new HTTPDateFormat();
 
-	public ContentHeadersHandler(Handler delegate) {
+	public ContentHeadersHandler(AsyncExecChain delegate) {
 		this.delegate = delegate;
 	}
 
-	public HttpUriResponse verify(ResourceOperation request, HttpContext context) throws Exception {
-		HttpUriResponse rb = delegate.verify(request, context);
-		if (rb != null) {
-			String contentType = request.getResponseContentType();
-			String version = request.getContentVersion();
-			String cache = request.getResponseCacheControl();
-			addHeaders(request, contentType, version, cache, rb);
-		}
-		return rb;
+	@Override
+	public Future<CloseableHttpResponse> execute(HttpRoute route,
+			final HttpRequestWrapper request, HttpContext context,
+			HttpExecutionAware execAware,
+			FutureCallback<CloseableHttpResponse> callback) throws IOException,
+			HttpException {
+		final ResourceOperation trans = CalliContext.adapt(context)
+				.getResourceTransaction();
+		final String contentType = trans.getResponseContentType();
+		final String derived = trans.getContentVersion();
+		final String cache = trans.getResponseCacheControl();
+		return delegate.execute(route, request, context, execAware,
+				new ResponseCallback(callback) {
+					public void completed(CloseableHttpResponse result) {
+						addHeaders(request, trans, contentType, derived, cache, result);
+						super.completed(result);
+					}
+				});
 	}
 
-	public HttpUriResponse handle(ResourceOperation request, HttpContext context) throws Exception {
-		String contentType = request.getResponseContentType();
-		String derived = request.getContentVersion();
-		String cache = request.getResponseCacheControl();
-		HttpUriResponse rb = delegate.handle(request, context);
-		addHeaders(request, contentType, derived, cache, rb);
-		return rb;
-	}
-
-	private void addHeaders(ResourceOperation request, String contentType,
-			String derived, String cache, HttpUriResponse rb)
-			throws RepositoryException, QueryEvaluationException {
-		// TODO
-		String version = request.isSafe() ? derived : request.getContentVersion();
-		String entityTag = request.getEntityTag(version, cache, contentType);
-		long lastModified = request.getLastModified();
+	void addHeaders(HttpRequest req, ResourceOperation trans, String contentType,
+			String derived, String cache, HttpResponse rb) {
+		String version = trans.isSafe() ? derived : trans.getContentVersion();
+		String entityTag = trans.getEntityTag(req, version, cache, contentType);
+		long lastModified = trans.getLastModified();
 		if (cache != null) {
 			rb.setHeader("Cache-Control", cache);
 		}
-		for (String vary : request.getVary()) {
+		for (String vary : trans.getVary()) {
 			if (!vary.equalsIgnoreCase("Authorization") && !vary.equalsIgnoreCase("Cookie")) {
 				rb.addHeader("Vary", vary);
 			}

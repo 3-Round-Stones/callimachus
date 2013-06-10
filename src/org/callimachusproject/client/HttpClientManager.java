@@ -248,7 +248,7 @@ public class HttpClientManager implements Closeable {
 
 	private CacheConfig getDefaultCacheConfig() {
 		return CacheConfig.custom().setSharedCache(false)
-				.set303CachingEnabled(true)
+//				.set303CachingEnabled(true) TODO
 				.setHeuristicCachingEnabled(true)
 				.setHeuristicDefaultLifetime(60 * 60 * 24)
 				.setMaxObjectSize(64000).build();

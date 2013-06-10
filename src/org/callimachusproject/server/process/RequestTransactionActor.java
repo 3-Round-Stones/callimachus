@@ -4,101 +4,134 @@ import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingDeque;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Future;
+import java.util.concurrent.RejectedExecutionException;
+
+import javax.xml.datatype.DatatypeConfigurationException;
 
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpExecutionAware;
+import org.apache.http.client.methods.HttpRequestWrapper;
+import org.apache.http.concurrent.FutureCallback;
+import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.protocol.HttpContext;
-import org.apache.http.util.EntityUtils;
 import org.callimachusproject.client.CloseableEntity;
-import org.callimachusproject.client.HttpUriResponse;
-import org.callimachusproject.concurrent.ManagedExecutors;
 import org.callimachusproject.io.ChannelUtil;
 import org.callimachusproject.repository.CalliRepository;
 import org.callimachusproject.server.exceptions.InternalServerError;
-import org.callimachusproject.server.exceptions.ResponseException;
 import org.callimachusproject.server.exceptions.ServiceUnavailable;
+import org.callimachusproject.server.model.AsyncExecChain;
 import org.callimachusproject.server.model.CalliContext;
-import org.callimachusproject.server.model.Filter;
-import org.callimachusproject.server.model.Handler;
 import org.callimachusproject.server.model.Request;
 import org.callimachusproject.server.model.ResourceOperation;
-import org.callimachusproject.server.model.ResponseBuilder;
+import org.callimachusproject.server.model.ResponseCallback;
+import org.openrdf.OpenRDFException;
+import org.openrdf.repository.RepositoryException;
 
-public class RequestTransactionActor extends ExchangeActor {
+public class RequestTransactionActor implements AsyncExecChain {
 	private static final int ONE_PACKET = 1024;
-	private final Filter filter;
-	private final Handler handler;
 
-	public RequestTransactionActor(Filter filter, Handler handler) {
-		this(new LinkedBlockingDeque<Runnable>(), filter, handler);
-	}
+	private final Map<String, CalliRepository> repositories = new LinkedHashMap<String, CalliRepository>();
+	private final AsyncExecChain handler;
+	final Executor executor;
 
-	private RequestTransactionActor(BlockingQueue<Runnable> queue,
-			Filter filter, Handler handler) {
-		super(ManagedExecutors.getInstance().newAntiDeadlockThreadPool(queue,
-				"HttpTransaction"), queue);
-		this.filter = filter;
+	public RequestTransactionActor(AsyncExecChain handler, Executor executor) {
 		this.handler = handler;
+		this.executor = executor;
 	}
 
-	protected void process(Exchange exchange, boolean foreground)
-			throws Exception {
-		Request req = exchange.getRequest();
-		boolean success = false;
-		CalliRepository repo = exchange.getRepository();
+	public synchronized void addOrigin(String origin, CalliRepository repository) {
+		repositories.put(origin, repository);
+	}
+
+	public synchronized void removeOrigin(String origin) {
+		repositories.remove(origin);
+	}
+
+	@Override
+	public Future<CloseableHttpResponse> execute(HttpRoute route,
+			HttpRequestWrapper request, HttpContext ctx,
+			HttpExecutionAware execAware,
+			FutureCallback<CloseableHttpResponse> callback) throws IOException,
+			HttpException {
+		final Request req = new Request(request);
+		CalliRepository repo = getRepository(req.getOrigin());
 		if (repo == null || !repo.isInitialized())
 			throw new ServiceUnavailable("This origin is not configured");
-		CalliContext context = CalliContext.adapt(exchange.getContext());
-		final ResourceOperation op = new ResourceOperation(req, context, repo);
+		final CalliContext context = CalliContext.adapt(ctx);
 		try {
+			final ResourceOperation op = new ResourceOperation(req, repo);
 			context.setResourceTransaction(op);
-			op.begin();
-			HttpUriResponse resp = handler.verify(op, context);
-			if (resp == null) {
-				exchange.verified(op.getCredential());
-				resp = handler.handle(op, context);
-				if (resp.getStatusLine().getStatusCode() >= 400) {
-					op.rollback();
-				} else if (!exchange.getRequest().isSafe()) {
-					op.commit();
+			op.begin(context.getReceivedOn(), req.getMethod(), req.isSafe());
+			boolean success = false;
+			try {
+				Future<CloseableHttpResponse> future = handler.execute(route, request, context, execAware,
+						new ResponseCallback(callback) {
+							public void completed(CloseableHttpResponse result) {
+								int code = result.getStatusLine()
+										.getStatusCode();
+								try {
+									if (!req.isSafe() && code < 300) {
+										op.commit();
+									}
+									createSafeHttpEntity(op, result);
+									super.completed(result);
+								} catch (RepositoryException ex) {
+									failed(ex);
+								} catch (IOException ex) {
+									failed(ex);
+								} finally {
+									context.removeResourceTransaction(op);
+								}
+							}
+
+							public void failed(Exception ex) {
+								op.endExchange();
+								context.removeResourceTransaction(op);
+								super.failed(ex);
+							}
+
+							public void cancelled() {
+								op.endExchange();
+								context.removeResourceTransaction(op);
+								super.cancelled();
+							}
+						});
+				success = true;
+				return future;
+			} finally {
+				if (!success) {
+					op.endExchange();
 				}
 			}
-			HttpResponse response = createSafeHttpResponse(op, resp, exchange, foreground);
-			exchange.submitResponse(filter(req, context, response));
-			success = true;
-		} finally {
-			if (!success) {
-				op.endExchange();
-			}
-			context.setResourceTransaction(null);
+		} catch (OpenRDFException ex) {
+			throw new InternalServerError(ex);
+		} catch (DatatypeConfigurationException ex) {
+			throw new InternalServerError(ex);
 		}
 	}
 
-	protected HttpResponse filter(Request request, HttpContext context, HttpResponse response)
-			throws IOException {
-		HttpResponse resp = filter.filter(request, context, response);
-		HttpEntity entity = resp.getEntity();
-		if ("HEAD".equals(request.getMethod()) && entity != null) {
-			EntityUtils.consume(entity);
-			resp.setEntity(null);
-		}
-		return resp;
+	private synchronized CalliRepository getRepository(String origin) {
+		return repositories.get(origin);
 	}
 
-	private HttpUriResponse createSafeHttpResponse(final ResourceOperation req,
-			HttpUriResponse resp, final Exchange exchange, final boolean fore)
-			throws Exception {
+	void createSafeHttpEntity(ResourceOperation req, HttpResponse resp) throws IOException {
 		boolean endNow = true;
 		try {
 			if (resp.getEntity() != null) {
+				int code = resp.getStatusLine().getStatusCode();
 				HttpEntity entity = resp.getEntity();
 				long length = entity.getContentLength();
-				if (length < 0 || length > ONE_PACKET) {
+				if (code < 300 && (length < 0 || length > ONE_PACKET)) {
 					// chunk stream entity, close store connection later
-					resp.setEntity(endEntity(entity, exchange, req, fore));
+					resp.setEntity(endEntity(entity, req));
 					endNow = false;
 				} else {
 					// copy entity, close store now
@@ -110,21 +143,19 @@ public class RequestTransactionActor extends ExchangeActor {
 				resp.setHeader("Content-Length", "0");
 				endNow = true;
 			}
-		} catch (ResponseException e) {
-			return new ResponseBuilder(req).exception(e);
-		} catch (Exception e) {
-			return new ResponseBuilder(req).exception(new InternalServerError(e));
 		} finally {
 			if (endNow) {
 				req.endExchange();
 			}
 		}
-		return resp;
 	}
 
 	private ByteArrayEntity copyEntity(HttpEntity entity, int length) throws IOException {
 		InputStream in = entity.getContent();
 		try {
+			if (length < 0) {
+				length = ONE_PACKET;
+			}
 			ByteArrayOutputStream baos = new ByteArrayOutputStream(length);
 			ChannelUtil.transfer(in, baos);
 			ByteArrayEntity bae = new ByteArrayEntity(baos.toByteArray());
@@ -137,18 +168,17 @@ public class RequestTransactionActor extends ExchangeActor {
 	}
 
 	private CloseableEntity endEntity(HttpEntity entity,
-			final Exchange exchange, final ResourceOperation req,
-			final boolean foreground) {
+			final ResourceOperation req) {
 		return new CloseableEntity(entity, new Closeable() {
 			public void close() {
-				if (foreground) {
-					req.endExchange();
-				} else {
-					submitEndExchange(new ExchangeTask(exchange) {
+				try {
+					executor.execute(new Runnable() {
 						public void run() {
 							req.endExchange();
 						}
 					});
+				} catch (RejectedExecutionException ex) {
+					req.endExchange();
 				}
 			}
 		});

@@ -1,5 +1,5 @@
 /*
- * Copyright 2009-2010, James Leigh and Zepheira LLC Some rights reserved.
+ * Copyright 2013, 3 Round Stones Inc., Some rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -26,45 +26,26 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-package org.callimachusproject.server.filters;
+package org.callimachusproject.server.model;
 
-import java.io.IOException;
-import java.util.concurrent.Future;
-
-import org.apache.http.HttpException;
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpExecutionAware;
-import org.apache.http.client.methods.HttpRequestWrapper;
+import org.apache.http.concurrent.BasicFuture;
 import org.apache.http.concurrent.FutureCallback;
-import org.apache.http.conn.routing.HttpRoute;
-import org.apache.http.protocol.HttpContext;
-import org.callimachusproject.server.model.AsyncExecChain;
-import org.callimachusproject.server.model.Request;
 
-/**
- * If the request has Content-MD5 header, ensure the request body matches.
- */
-public class MD5ValidationFilter implements AsyncExecChain {
-	private final AsyncExecChain delegate;
+public class CompletedResponse extends BasicFuture<CloseableHttpResponse> {
 
-	public MD5ValidationFilter(AsyncExecChain delegate) {
-		this.delegate = delegate;
+	public CompletedResponse(FutureCallback<CloseableHttpResponse> callback) {
+		super(callback);
 	}
 
-	@Override
-	public Future<CloseableHttpResponse> execute(HttpRoute route,
-			HttpRequestWrapper request, HttpContext context,
-			HttpExecutionAware execAware,
-			FutureCallback<CloseableHttpResponse> callback) throws IOException,
-			HttpException {
-		Request req = new Request(request);
-		if (req.containsHeader("Content-MD5") && req.getEntity() != null) {
-			String md5 = req.getHeader("Content-MD5");
-			req.setEntity(new MD5ValidationEntity(req.getEntity(), md5));
-			return delegate.execute(route, HttpRequestWrapper.wrap(req), context, execAware, callback);
-		} else {
-			return delegate.execute(route, request, context, execAware, callback);
-		}
+	public CompletedResponse(FutureCallback<CloseableHttpResponse> callback, CloseableHttpResponse result) {
+		super(callback);
+		this.completed(result);
+	}
+
+	public CompletedResponse(FutureCallback<CloseableHttpResponse> callback, Exception ex) {
+		super(callback);
+		this.failed(ex);
 	}
 
 }

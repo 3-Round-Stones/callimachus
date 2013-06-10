@@ -29,14 +29,26 @@
  */
 package org.callimachusproject.server.handlers;
 
+import java.io.IOException;
 import java.util.Enumeration;
+import java.util.concurrent.Future;
 
 import org.apache.http.Header;
+import org.apache.http.HttpException;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpExecutionAware;
+import org.apache.http.client.methods.HttpRequestWrapper;
+import org.apache.http.concurrent.BasicFuture;
+import org.apache.http.concurrent.FutureCallback;
+import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.client.HttpUriResponse;
-import org.callimachusproject.server.model.Handler;
+import org.callimachusproject.server.model.AsyncExecChain;
+import org.callimachusproject.server.model.CalliContext;
 import org.callimachusproject.server.model.ResourceOperation;
 import org.callimachusproject.server.model.ResponseBuilder;
+import org.callimachusproject.server.model.ResponseCallback;
 import org.callimachusproject.server.util.HTTPDateFormat;
 
 /**
@@ -45,12 +57,12 @@ import org.callimachusproject.server.util.HTTPDateFormat;
  * @author James Leigh
  * 
  */
-public class ModifiedSinceHandler implements Handler {
-	private final Handler delegate;
+public class ModifiedSinceHandler implements AsyncExecChain {
+	private final AsyncExecChain delegate;
 	private long reset = System.currentTimeMillis() / 1000 * 1000;
 	private HTTPDateFormat format = new HTTPDateFormat();
 
-	public ModifiedSinceHandler(Handler delegate) {
+	public ModifiedSinceHandler(AsyncExecChain delegate) {
 		this.delegate = delegate;
 	}
 
@@ -58,43 +70,53 @@ public class ModifiedSinceHandler implements Handler {
 		reset = System.currentTimeMillis() / 1000 * 1000;
 	}
 
-	public HttpUriResponse verify(ResourceOperation req, HttpContext context) throws Exception {
+	@Override
+	public Future<CloseableHttpResponse> execute(HttpRoute route,
+			HttpRequestWrapper request, HttpContext context,
+			HttpExecutionAware execAware,
+			FutureCallback<CloseableHttpResponse> callback) throws IOException,
+			HttpException {
+		callback = new ResponseCallback(callback) {
+			public void completed(CloseableHttpResponse result) {
+				resetModified(result);
+				super.completed(result);
+			}
+		};
+		ResourceOperation req = CalliContext.adapt(context).getResourceTransaction();
 		String method = req.getMethod();
 		String contentType = req.getResponseContentType();
 		String cache = req.getResponseCacheControl();
-		String entityTag = req.getEntityTag(req.getContentVersion(), cache, contentType);
+		String entityTag = req.getEntityTag(request, req.getContentVersion(), cache, contentType);
 		if (req.isSafe() && req.isNoValidate()) {
-			return delegate.verify(req, context);
+			return delegate.execute(route, request, context, execAware, callback);
 		} else {
 			HttpUriResponse resp;
 			String tag = modifiedSince(req, entityTag);
 			if ("GET".equals(method) || "HEAD".equals(method)) {
 				if (tag == null) {
-					return delegate.verify(req, context);
+					return delegate.execute(route, request, context, execAware, callback);
 				}
 				resp = new ResponseBuilder(req).notModified();
 			} else if (tag == null) {
-				return delegate.verify(req, context);
+				return delegate.execute(route, request, context, execAware, callback);
 			} else {
 				resp = new ResponseBuilder(req).preconditionFailed();
 			}
-			if (tag.length() == 0)
-				return resetModified(resp);
-			resp.setHeader("ETag", tag);
-			return resetModified(resp);
+			if (tag.length() > 0) {
+				resp.setHeader("ETag", tag);
+			}
+			BasicFuture<CloseableHttpResponse> future;
+			future = new BasicFuture<CloseableHttpResponse>(callback);
+			future.completed(resp);
+			return future;
 		}
 	}
 
-	public HttpUriResponse handle(ResourceOperation req, HttpContext context) throws Exception {
-		return resetModified(delegate.handle(req, context));
-	}
-
-	private HttpUriResponse resetModified(HttpUriResponse resp) {
+	void resetModified(HttpResponse resp) {
 		Header lastHeader = resp.getLastHeader("Last-Modified");
 		if (reset > 0 && lastHeader != null && reset > format.parseDate(lastHeader.getValue())) {
 			resp.setHeader("Last-Modified", format.format(reset));
 		}
-		return resp;
 	}
 
 	private String modifiedSince(ResourceOperation req, String entityTag) {

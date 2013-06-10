@@ -103,12 +103,12 @@ public class AuthorizationManager {
 		return false;
 	}
 
-	public HttpResponse authorize(ResourceOperation request, Set<Group> groups)
+	public HttpResponse authorize(ResourceOperation request, Set<Group> groups, long now, InetAddress clientAddr)
 			throws OpenRDFException, IOException {
 		String m = request.getMethod();
 		RDFObject target = request.getRequestedResource();
 		String or = request.getVaryHeader("Origin");
-		Map<String, String[]> map = getAuthorizationMap(request);
+		Map<String, String[]> map = getAuthorizationMap(request, now, clientAddr);
 		List<String> from = getAgentFrom(map.get("via"));
 		if (isAnonymousAllowed(from, groups))
 			return null;
@@ -161,14 +161,14 @@ public class AuthorizationManager {
 		return resp;
 	}
 
-	public HttpMessage authenticationInfo(ResourceOperation request)
+	public HttpMessage authenticationInfo(ResourceOperation request, long now, InetAddress clientAddr)
 			throws IOException, OpenRDFException {
 		DetachedRealm realm = getRealm(request);
 		if (realm == null)
 			return null;
 		String m = request.getMethod();
 		RDFObject target = request.getRequestedResource();
-		Map<String, String[]> map = getAuthorizationMap(request);
+		Map<String, String[]> map = getAuthorizationMap(request, now, clientAddr);
 		return realm.authenticationInfo(m, target, map, request.getObjectConnection());
 	}
 
@@ -354,9 +354,8 @@ public class AuthorizationManager {
 		}
 	}
 
-	private Map<String, String[]> getAuthorizationMap(ResourceOperation request)
+	private Map<String, String[]> getAuthorizationMap(ResourceOperation request, long now, InetAddress clientAddr)
 			throws IOException {
-		long now = request.getReceivedOn();
 		Map<String, String[]> map = new HashMap<String, String[]>();
 		map.put("request-target", new String[] { request.getRequestLine().getUri() });
 		map.put("request-scheme", new String[] { request.getScheme() });
@@ -373,7 +372,7 @@ public class AuthorizationManager {
 		if (ho != null && ho.length > 0) {
 			map.put("host", toStringArray(ho));
 		}
-		String via = getRequestSource(request);
+		String via = getRequestSource(request, clientAddr);
 		map.put("via", via.split("\\s*,\\s*"));
 		return map;
 	}
@@ -386,7 +385,7 @@ public class AuthorizationManager {
 		return result;
 	}
 
-	private String getRequestSource(ResourceOperation request) {
+	private String getRequestSource(ResourceOperation request, InetAddress clientAddr) {
 		StringBuilder via = new StringBuilder();
 		for (String hd : request.getVaryHeaders("X-Forwarded-For")) {
 			for (String ip : hd.split("\\s*,\\s*")) {
@@ -402,11 +401,10 @@ public class AuthorizationManager {
 			}
 			via.append(hd);
 		}
-		InetAddress remoteAddr = request.getRemoteAddr();
 		if (via.length() > 0) {
 			via.append(",");
 		}
-		via.append("1.1 ").append(dnsResolver.reverse(remoteAddr));
+		via.append("1.1 ").append(dnsResolver.reverse(clientAddr));
 		return via.toString();
 	}
 

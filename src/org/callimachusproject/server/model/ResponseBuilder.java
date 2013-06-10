@@ -41,6 +41,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolVersion;
@@ -49,6 +50,7 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
+import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.auth.AuthorizationManager;
 import org.callimachusproject.auth.AuthorizationService;
 import org.callimachusproject.auth.DetachedRealm;
@@ -81,6 +83,10 @@ public class ResponseBuilder {
 	private final AuthorizationService service = AuthorizationService.getInstance();
 	private final String systemId;
 	private final ObjectRepository repository;
+
+	public ResponseBuilder(HttpRequest request, HttpContext context) {
+		this(CalliContext.adapt(context).getResourceTransaction());
+	}
 
 	public ResponseBuilder(ResourceOperation request) {
 		this.systemId = request.getRequestURL();

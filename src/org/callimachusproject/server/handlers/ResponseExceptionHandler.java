@@ -1,4 +1,5 @@
 /*
+ * Copyright 2013, 3 Round Stones Inc., Some rights reserved.
  * Copyright 2010, Zepheira LLC Some rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -28,18 +29,28 @@
  */
 package org.callimachusproject.server.handlers;
 
+import java.io.IOException;
 import java.util.Set;
+import java.util.concurrent.Future;
 
+import org.apache.http.HttpException;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpExecutionAware;
+import org.apache.http.client.methods.HttpRequestWrapper;
+import org.apache.http.concurrent.FutureCallback;
+import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.client.HttpUriResponse;
-import org.callimachusproject.server.exceptions.BadRequest;
-import org.callimachusproject.server.exceptions.MethodNotAllowed;
-import org.callimachusproject.server.exceptions.NotAcceptable;
-import org.callimachusproject.server.model.Handler;
+import org.callimachusproject.server.exceptions.InternalServerError;
+import org.callimachusproject.server.exceptions.ResponseException;
+import org.callimachusproject.server.model.AsyncExecChain;
+import org.callimachusproject.server.model.CalliContext;
+import org.callimachusproject.server.model.CompletedResponse;
 import org.callimachusproject.server.model.ResourceOperation;
 import org.callimachusproject.server.model.ResponseBuilder;
-import org.openrdf.query.QueryEvaluationException;
-import org.openrdf.repository.RepositoryException;
+import org.callimachusproject.server.model.ResponseCallback;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Converts MethodNotAllowed, NotAcceptable, and BadRequest into HTTP responses.
@@ -47,38 +58,48 @@ import org.openrdf.repository.RepositoryException;
  * @author James Leigh
  * 
  */
-public class ResponseExceptionHandler implements Handler {
-	private final Handler delegate;
+public class ResponseExceptionHandler implements AsyncExecChain {
+	private final Logger logger = LoggerFactory
+			.getLogger(ResponseExceptionHandler.class);
+	private final AsyncExecChain delegate;
 
-	public ResponseExceptionHandler(Handler delegate) {
+	public ResponseExceptionHandler(AsyncExecChain delegate) {
 		this.delegate = delegate;
 	}
 
-	public HttpUriResponse verify(ResourceOperation request, HttpContext context) throws Exception {
+	@Override
+	public Future<CloseableHttpResponse> execute(HttpRoute route,
+			final HttpRequestWrapper request, final HttpContext context,
+			HttpExecutionAware execAware,
+			FutureCallback<CloseableHttpResponse> callback) throws IOException,
+			HttpException {
+		callback = new ResponseCallback(callback) {
+			public void failed(Exception ex) {
+				try {
+					throw ex;
+				} catch (ResponseException e) {
+					super.completed(handle(request, context, e));
+				} catch (Exception e) {
+					String uri = request.getRequestLine().getUri();
+					logger.error("Internal Server Error while responding to "
+							+ uri, e);
+					super.completed(handle(request, context, new InternalServerError(e)));
+				}
+			}
+		};
 		try {
-			return delegate.verify(request, context);
-		} catch (MethodNotAllowed e) {
-			return methodNotAllowed(request, new ResponseBuilder(request).exception(e));
-		} catch (NotAcceptable e) {
-			return new ResponseBuilder(request).exception(e);
-		} catch (BadRequest e) {
-			return new ResponseBuilder(request).exception(e);
+			return delegate.execute(route, request, context, execAware,
+					callback);
+		} catch (Exception ex) {
+			return new CompletedResponse(callback, ex);
 		}
 	}
 
-	public HttpUriResponse handle(ResourceOperation request, HttpContext context) throws Exception {
-		try {
-			return delegate.handle(request, context);
-		} catch (MethodNotAllowed e) {
-			return methodNotAllowed(request, new ResponseBuilder(request).exception(e));
-		} catch (NotAcceptable e) {
-			return new ResponseBuilder(request).exception(e);
-		}
-	}
-
-	private HttpUriResponse methodNotAllowed(ResourceOperation request, HttpUriResponse resp)
-			throws RepositoryException, QueryEvaluationException {
-		Set<String> allowed = request.getAllowedMethods();
+	HttpUriResponse handle(final HttpRequestWrapper request,
+			final HttpContext context, ResponseException e) {
+		ResourceOperation trans = CalliContext.adapt(context).getResourceTransaction();
+		HttpUriResponse resp = new ResponseBuilder(trans).exception(e);
+		Set<String> allowed = trans.getAllowedMethods();
 		if (allowed.isEmpty())
 			return resp;
 		StringBuilder sb = new StringBuilder();

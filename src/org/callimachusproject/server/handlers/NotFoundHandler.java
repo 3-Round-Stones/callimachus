@@ -28,10 +28,15 @@
  */
 package org.callimachusproject.server.handlers;
 
-import org.apache.http.protocol.HttpContext;
-import org.callimachusproject.client.HttpUriResponse;
-import org.callimachusproject.server.model.Handler;
-import org.callimachusproject.server.model.ResourceOperation;
+import java.io.IOException;
+
+import org.apache.http.HttpException;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpExecutionAware;
+import org.apache.http.client.methods.HttpRequestWrapper;
+import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.conn.routing.HttpRoute;
+import org.apache.http.impl.execchain.ClientExecChain;
 import org.callimachusproject.server.model.ResponseBuilder;
 
 /**
@@ -40,22 +45,21 @@ import org.callimachusproject.server.model.ResponseBuilder;
  * @author James Leigh
  *
  */
-public class NotFoundHandler implements Handler {
-	private final Handler delegate;
+public class NotFoundHandler implements ClientExecChain {
+	private final ClientExecChain delegate;
 
-	public NotFoundHandler(Handler delegate) {
+	public NotFoundHandler(ClientExecChain delegate) {
 		this.delegate = delegate;
 	}
 
-	public HttpUriResponse verify(ResourceOperation request, HttpContext context) throws Exception {
-		return delegate.verify(request, context);
-	}
-
-	public HttpUriResponse handle(ResourceOperation request, HttpContext context) throws Exception {
-		HttpUriResponse rb = delegate.handle(request, context);
-		String method = request.getMethod();
+	@Override
+	public CloseableHttpResponse execute(HttpRoute route,
+			HttpRequestWrapper request, HttpClientContext context,
+			HttpExecutionAware execAware) throws IOException, HttpException {
+		CloseableHttpResponse rb = delegate.execute(route, request, context, execAware);
+		String method = request.getRequestLine().getMethod();
 		if (("GET".equals(method) || "HEAD".equals(method)) && rb.getEntity() == null) {
-			return new ResponseBuilder(request).notFound();
+			return new ResponseBuilder(request, context).notFound();
 		}
 		return rb;
 	}

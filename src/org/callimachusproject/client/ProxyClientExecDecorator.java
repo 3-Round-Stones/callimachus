@@ -7,14 +7,12 @@ import java.util.concurrent.ConcurrentMap;
 
 import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
-import org.apache.http.client.AuthenticationStrategy;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpExecutionAware;
 import org.apache.http.client.methods.HttpRequestWrapper;
 import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.conn.UnsupportedSchemeException;
 import org.apache.http.conn.routing.HttpRoute;
-import org.apache.http.impl.client.ProxyAuthenticationStrategy;
-import org.apache.http.impl.client.TargetAuthenticationStrategy;
 import org.apache.http.impl.conn.DefaultSchemePortResolver;
 import org.apache.http.impl.execchain.ClientExecChain;
 
@@ -63,8 +61,12 @@ public class ProxyClientExecDecorator {
 
 	private HttpHost key(HttpHost host) {
 		if (host != null && host.getPort() < 0) {
-			int port = DefaultSchemePortResolver.INSTANCE.resolve(host);
-			host = new HttpHost(host.getHostName(), port, host.getSchemeName());
+			try {
+				int port = DefaultSchemePortResolver.INSTANCE.resolve(host);
+				host = new HttpHost(host.getHostName(), port, host.getSchemeName());
+			} catch (UnsupportedSchemeException e) {
+				throw new AssertionError(e);
+			}
 		}
 		return host;
 	}

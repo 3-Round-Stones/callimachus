@@ -1,5 +1,5 @@
 /*
- * Copyright 2009-2010, James Leigh and Zepheira LLC Some rights reserved.
+ * Copyright 2013, 3 Round Stones Inc., Some rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -31,23 +31,27 @@ package org.callimachusproject.server.filters;
 import java.io.IOException;
 import java.util.concurrent.Future;
 
+import org.apache.http.Header;
 import org.apache.http.HttpException;
+import org.apache.http.HttpVersion;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpExecutionAware;
 import org.apache.http.client.methods.HttpRequestWrapper;
 import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.conn.routing.HttpRoute;
+import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.server.model.AsyncExecChain;
-import org.callimachusproject.server.model.Request;
+import org.callimachusproject.server.model.CalliContext;
+import org.callimachusproject.server.process.Exchange;
 
-/**
- * If the request has Content-MD5 header, ensure the request body matches.
- */
-public class MD5ValidationFilter implements AsyncExecChain {
+public class ExpectContinueHandler implements AsyncExecChain {
+	private static final BasicHttpResponse _100 = new BasicHttpResponse(
+			HttpVersion.HTTP_1_1, 100, "Continue");
+
 	private final AsyncExecChain delegate;
 
-	public MD5ValidationFilter(AsyncExecChain delegate) {
+	public ExpectContinueHandler(AsyncExecChain delegate) {
 		this.delegate = delegate;
 	}
 
@@ -57,14 +61,14 @@ public class MD5ValidationFilter implements AsyncExecChain {
 			HttpExecutionAware execAware,
 			FutureCallback<CloseableHttpResponse> callback) throws IOException,
 			HttpException {
-		Request req = new Request(request);
-		if (req.containsHeader("Content-MD5") && req.getEntity() != null) {
-			String md5 = req.getHeader("Content-MD5");
-			req.setEntity(new MD5ValidationEntity(req.getEntity(), md5));
-			return delegate.execute(route, HttpRequestWrapper.wrap(req), context, execAware, callback);
-		} else {
-			return delegate.execute(route, request, context, execAware, callback);
+		Exchange exchange = CalliContext.adapt(context).getExchange();
+		if (exchange != null) {
+			Header expect = request.getFirstHeader("Expect");
+			if(expect != null && expect.getValue().equalsIgnoreCase("100-continue")) {
+				exchange.submitContinue(_100);
+			}
 		}
+		return delegate.execute(route, request, context, execAware, callback);
 	}
 
 }

@@ -24,6 +24,10 @@ public class HttpUriResponse implements CloseableHttpResponse {
 		this.systemId = systemId;
 	}
 
+	public String toString() {
+		return delegate.toString();
+	}
+
 	public String getSystemId() {
 		return systemId;
 	}

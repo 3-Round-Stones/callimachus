@@ -1,5 +1,5 @@
 /*
- * Copyright 2009-2010, James Leigh and Zepheira LLC Some rights reserved.
+ * Copyright 2013, 3 Round Stones Inc., Some rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -26,7 +26,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-package org.callimachusproject.server.filters;
+package org.callimachusproject.server.process;
 
 import java.io.IOException;
 import java.util.concurrent.Future;
@@ -35,36 +35,44 @@ import org.apache.http.HttpException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpExecutionAware;
 import org.apache.http.client.methods.HttpRequestWrapper;
+import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.concurrent.BasicFuture;
 import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.conn.routing.HttpRoute;
+import org.apache.http.impl.execchain.ClientExecChain;
 import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.server.model.AsyncExecChain;
-import org.callimachusproject.server.model.Request;
 
-/**
- * If the request has Content-MD5 header, ensure the request body matches.
- */
-public class MD5ValidationFilter implements AsyncExecChain {
-	private final AsyncExecChain delegate;
+public class BlockingExecChain implements AsyncExecChain {
+	private final ClientExecChain delegate;
 
-	public MD5ValidationFilter(AsyncExecChain delegate) {
+	public BlockingExecChain(ClientExecChain delegate) {
 		this.delegate = delegate;
 	}
 
 	@Override
-	public Future<CloseableHttpResponse> execute(HttpRoute route,
-			HttpRequestWrapper request, HttpContext context,
-			HttpExecutionAware execAware,
-			FutureCallback<CloseableHttpResponse> callback) throws IOException,
-			HttpException {
-		Request req = new Request(request);
-		if (req.containsHeader("Content-MD5") && req.getEntity() != null) {
-			String md5 = req.getHeader("Content-MD5");
-			req.setEntity(new MD5ValidationEntity(req.getEntity(), md5));
-			return delegate.execute(route, HttpRequestWrapper.wrap(req), context, execAware, callback);
-		} else {
-			return delegate.execute(route, request, context, execAware, callback);
+	public Future<CloseableHttpResponse> execute(final HttpRoute route,
+			final HttpRequestWrapper request, final HttpContext context,
+			final HttpExecutionAware execAware,
+			final FutureCallback<CloseableHttpResponse> callback) {
+		final BasicFuture<CloseableHttpResponse> future;
+		future = new BasicFuture<CloseableHttpResponse>(callback);
+		try {
+			CloseableHttpResponse ret;
+			ret = delegate.execute(route, request, HttpClientContext.adapt(context), execAware);
+			future.completed(ret);
+		} catch (HttpException ex) {
+			future.failed(ex);
+		} catch (IOException ex) {
+			future.failed(ex);
+		} catch (RuntimeException ex) {
+			future.failed(ex);
+		} finally {
+			if (!future.isDone()) {
+				future.cancel();
+			}
 		}
+		return future;
 	}
 
 }

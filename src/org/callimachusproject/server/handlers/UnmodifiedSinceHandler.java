@@ -29,11 +29,20 @@
  */
 package org.callimachusproject.server.handlers;
 
+import java.io.IOException;
 import java.util.Enumeration;
+import java.util.concurrent.Future;
 
+import org.apache.http.HttpException;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpExecutionAware;
+import org.apache.http.client.methods.HttpRequestWrapper;
+import org.apache.http.concurrent.BasicFuture;
+import org.apache.http.concurrent.FutureCallback;
+import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.protocol.HttpContext;
-import org.callimachusproject.client.HttpUriResponse;
-import org.callimachusproject.server.model.Handler;
+import org.callimachusproject.server.model.AsyncExecChain;
+import org.callimachusproject.server.model.CalliContext;
 import org.callimachusproject.server.model.ResourceOperation;
 import org.callimachusproject.server.model.ResponseBuilder;
 
@@ -43,26 +52,31 @@ import org.callimachusproject.server.model.ResponseBuilder;
  * @author James Leigh
  * 
  */
-public class UnmodifiedSinceHandler implements Handler {
-	private final Handler delegate;
+public class UnmodifiedSinceHandler implements AsyncExecChain {
+	private final AsyncExecChain delegate;
 
-	public UnmodifiedSinceHandler(Handler delegate) {
+	public UnmodifiedSinceHandler(AsyncExecChain delegate) {
 		this.delegate = delegate;
 	}
 
-	public HttpUriResponse verify(ResourceOperation request, HttpContext context) throws Exception {
-		String contentType = request.getResponseContentType();
-		String cache = request.getResponseCacheControl();
-		String entityTag = request.getEntityTag(request.getContentVersion(), cache, contentType);
-		if (unmodifiedSince(request, entityTag)) {
-			return delegate.verify(request, context);
+	@Override
+	public Future<CloseableHttpResponse> execute(HttpRoute route,
+			HttpRequestWrapper request, HttpContext context,
+			HttpExecutionAware execAware,
+			FutureCallback<CloseableHttpResponse> callback) throws IOException,
+			HttpException {
+		ResourceOperation trans = CalliContext.adapt(context).getResourceTransaction();
+		String contentType = trans.getResponseContentType();
+		String cache = trans.getResponseCacheControl();
+		String entityTag = trans.getEntityTag(request, trans.getContentVersion(), cache, contentType);
+		if (unmodifiedSince(trans, entityTag)) {
+			return delegate.execute(route, request, context, execAware, callback);
 		} else {
-			return new ResponseBuilder(request).preconditionFailed("Resource has since been modified");
+			BasicFuture<CloseableHttpResponse> future;
+			future = new BasicFuture<CloseableHttpResponse>(callback);
+			future.completed(new ResponseBuilder(trans).preconditionFailed("Resource has since been modified"));
+			return future;
 		}
-	}
-
-	public HttpUriResponse handle(ResourceOperation request, HttpContext context) throws Exception {
-		return delegate.handle(request, context);
 	}
 
 	private boolean unmodifiedSince(ResourceOperation request, String entityTag) {

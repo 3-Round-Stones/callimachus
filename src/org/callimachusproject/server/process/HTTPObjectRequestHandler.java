@@ -30,37 +30,34 @@ package org.callimachusproject.server.process;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.Map;
+import java.net.URI;
 import java.util.Queue;
 
 import org.apache.http.HttpConnection;
 import org.apache.http.HttpException;
+import org.apache.http.HttpHost;
 import org.apache.http.HttpInetConnection;
 import org.apache.http.HttpRequest;
-import org.apache.http.HttpVersion;
-import org.apache.http.StatusLine;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpExecutionAware;
 import org.apache.http.client.methods.HttpRequestWrapper;
-import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.client.utils.URIUtils;
+import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.conn.routing.HttpRoute;
-import org.apache.http.impl.execchain.ClientExecChain;
-import org.apache.http.message.BasicHttpResponse;
-import org.apache.http.message.BasicStatusLine;
 import org.apache.http.nio.protocol.HttpAsyncExchange;
 import org.apache.http.nio.protocol.HttpAsyncRequestConsumer;
 import org.apache.http.nio.protocol.HttpAsyncRequestHandler;
 import org.apache.http.nio.protocol.HttpAsyncRequestHandlerMapper;
+import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpCoreContext;
 import org.callimachusproject.client.HttpUriResponse;
-import org.callimachusproject.repository.CalliRepository;
+import org.callimachusproject.server.exceptions.InternalServerError;
+import org.callimachusproject.server.exceptions.ResponseException;
+import org.callimachusproject.server.model.AsyncExecChain;
 import org.callimachusproject.server.model.CalliContext;
-import org.callimachusproject.server.model.Filter;
-import org.callimachusproject.server.model.Handler;
 import org.callimachusproject.server.model.Request;
+import org.callimachusproject.server.model.ResponseBuilder;
 import org.callimachusproject.util.DomainNameSystemResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,60 +69,15 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class HTTPObjectRequestHandler implements HttpAsyncRequestHandlerMapper,
-		HttpAsyncRequestHandler<HttpRequest>, ClientExecChain {
-	private static final String SELF = HTTPObjectRequestHandler.class.getName();
-	private static final String EXCHANGE_ATTR = SELF + "#exchange";
-	private static final String PROCESSING_ATTR = SELF + "#processing";
-	private static final StatusLine _503 = new BasicStatusLine(HttpVersion.HTTP_1_1, 503, "Invalid Service State");
+		HttpAsyncRequestHandler<HttpRequest> {
 	private static final InetAddress LOCALHOST = DomainNameSystemResolver.getInstance().getLocalHost();
 
 	private final Logger logger = LoggerFactory
 			.getLogger(HTTPObjectRequestHandler.class);
-	private final Map<String, CalliRepository> repositories = new LinkedHashMap<String, CalliRepository>();
-	private final Filter filter;
-	private final Handler handler;
-	private RequestTriagerActor requestTriager;
-	private RequestTransactionActor requestHandler;
+	private final AsyncExecChain handler;
 
-	public HTTPObjectRequestHandler(Filter filter, Handler handler) {
-		this.filter = filter;
+	public HTTPObjectRequestHandler(AsyncExecChain handler) {
 		this.handler = handler;
-	}
-
-	public synchronized void addOrigin(String origin, CalliRepository repository) {
-		repositories.put(origin, repository);
-	}
-
-	public synchronized void removeOrigin(String origin) {
-		repositories.remove(origin);
-	}
-
-	public synchronized void start() throws IOException {
-		if (requestHandler != null)
-			throw new IllegalStateException("Stop must be called first");
-		requestHandler = new RequestTransactionActor(filter, handler);
-		requestTriager = new RequestTriagerActor(filter, requestHandler);
-	}
-
-	public synchronized void stop() {
-		if (requestTriager != null) {
-			requestTriager.shutdown();
-			requestHandler.shutdown();
-			requestTriager = null;
-			requestHandler = null;
-		}
-	}
-
-	public synchronized boolean isShutdown() {
-		if (requestHandler == null)
-			return true;
-		return requestTriager.isShutdown() && requestHandler.isShutdown();
-	}
-
-	public synchronized boolean isTerminated() {
-		if (requestHandler == null)
-			return true;
-		return requestTriager.isTerminated() && requestHandler.isTerminated();
 	}
 
 	@Override
@@ -135,93 +87,74 @@ public class HTTPObjectRequestHandler implements HttpAsyncRequestHandlerMapper,
 
 	@Override
 	public HttpAsyncRequestConsumer<HttpRequest> processRequest(
-			HttpRequest request, HttpContext ctx) throws HttpException,
+			HttpRequest request, HttpContext context) throws HttpException,
 			IOException {
 		logger.debug("Request received {}", request.getRequestLine());
-		InetAddress remoteAddress = getRemoteAddress(ctx);
-		Request req = new Request(request);
-		CalliContext cc = CalliContext.adapt(ctx);
-		cc.setReceivedOn(System.currentTimeMillis());
-		cc.setClientAddr(remoteAddress);
-		cc.setInternal(false);
-		final Queue<Exchange> queue = getOrCreateProcessingQueue(ctx);
-		CalliRepository repository = getRepository(req.getOrigin());
-		Exchange exchange = new Exchange(req, repository, ctx, queue);
-		ctx.setAttribute(EXCHANGE_ATTR, exchange);
-		submit(exchange);
+		CalliContext cc = CalliContext.adapt(context);
+		final Request req = new Request(request);
+		final Queue<Exchange> queue = cc.getOrCreateProcessingQueue();
+		final Exchange exchange = new Exchange(req, queue);
+		cc.setExchange(exchange);
+		handle(req, context, exchange);
 		return exchange.getConsumer();
 	}
 
 	@Override
 	public void handle(HttpRequest request, HttpAsyncExchange trigger,
-			HttpContext ctx) throws HttpException, IOException {
+			HttpContext context) throws HttpException, IOException {
 		logger.debug("Request consumed {}", request.getRequestLine());
-		Exchange exchange = (Exchange) ctx.getAttribute(EXCHANGE_ATTR);
+		CalliContext ctx = CalliContext.adapt(context);
+		Exchange exchange = ctx.getExchange();
 		assert exchange != null;
 		exchange.setHttpAsyncExchange(trigger);
-		ctx.removeAttribute(EXCHANGE_ATTR);
+		ctx.setExchange(null);
 	}
 
-	@Override
-	public CloseableHttpResponse execute(HttpRoute route,
-			HttpRequestWrapper request, HttpClientContext ctx,
-			HttpExecutionAware execAware) throws IOException, HttpException {
-		logger.debug("Internal request received {}", request.getRequestLine());
-		InetAddress remoteAddress = getRemoteAddress(ctx);
-		Request req = new Request(request);
+	private void handle(final Request req, HttpContext context,
+			final Exchange exchange) {
+		InetAddress remoteAddress = getRemoteAddress(context);
+		// fork HttpContext so it can be used in other threads
+		HttpContext ctx = new BasicHttpContext(context);
 		CalliContext cc = CalliContext.adapt(ctx);
 		cc.setReceivedOn(System.currentTimeMillis());
 		cc.setClientAddr(remoteAddress);
-		cc.setInternal(true);
-		CalliRepository repository = getRepository(req.getOrigin());
-		Exchange exchange = new Exchange(req, repository, ctx);
-		HttpAsyncExchange trigger = new ForegroundAsyncExchange(request);
-		exchange.setHttpAsyncExchange(trigger);
-		execute(exchange);
-		return new HttpUriResponse(req.getRequestURL(), trigger.getResponse());
-	}
+		HttpHost host = URIUtils.extractHost(URI.create(req.getOrigin() + "/"));
+		HttpRoute route = new HttpRoute(host);
+		HttpExecutionAware execAware = null;
+		try {
+			handler.execute(route, HttpRequestWrapper.wrap(req), ctx,
+					execAware, new FutureCallback<CloseableHttpResponse>() {
+						public void completed(CloseableHttpResponse result) {
+							exchange.submitResponse(result);
+						}
 
-	public Exchange[] getPendingExchange(HttpContext ctx) {
-		Queue<Exchange> queue = (Queue<Exchange>) ctx.getAttribute(PROCESSING_ATTR);
-		if (queue == null)
-			return null;
-		synchronized (queue) {
-			return queue.toArray(new Exchange[queue.size()]);
+						public void failed(Exception ex) {
+							logger.error(ex.toString(), ex);
+							ResponseException e;
+							if (ex instanceof ResponseException) {
+								e = (ResponseException) ex;
+							} else {
+								e = new InternalServerError(ex);
+							}
+							HttpUriResponse result = new ResponseBuilder(req)
+									.exception(e);
+							exchange.submitResponse(result);
+						}
+
+						public void cancelled() {
+							exchange.cancel();
+						}
+					});
+		} catch (ResponseException ex) {
+			logger.error(ex.toString(), ex);
+			HttpUriResponse result = new ResponseBuilder(req).exception(ex);
+			exchange.submitResponse(result);
+		} catch (Exception ex) {
+			logger.error(ex.toString(), ex);
+			HttpUriResponse result = new ResponseBuilder(req)
+					.exception(new InternalServerError(ex));
+			exchange.submitResponse(result);
 		}
-	}
-
-	private synchronized CalliRepository getRepository(String origin) {
-		return repositories.get(origin);
-	}
-
-	private void submit(Exchange exchange) {
-		RequestTriagerActor requestTriager = getRequestTriager();
-		if (requestTriager == null) {
-			exchange.submitResponse(new BasicHttpResponse(_503));
-		} else {
-			requestTriager.submit(exchange);
-		}
-	}
-
-	private void execute(Exchange exchange) {
-		RequestTriagerActor requestTriager = getRequestTriager();
-		if (requestTriager == null) {
-			exchange.submitResponse(new BasicHttpResponse(_503));
-		} else {
-			requestTriager.execute(exchange);
-		}
-	}
-
-	private synchronized RequestTriagerActor getRequestTriager() {
-		return requestTriager;
-	}
-
-	private Queue<Exchange> getOrCreateProcessingQueue(HttpContext ctx) {
-		Queue<Exchange> queue = (Queue<Exchange>) ctx.getAttribute(PROCESSING_ATTR);
-		if (queue == null) {
-			ctx.setAttribute(PROCESSING_ATTR, queue = new LinkedList<Exchange>());
-		}
-		return queue;
 	}
 
 	private InetAddress getRemoteAddress(HttpContext context) {

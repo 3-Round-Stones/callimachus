@@ -31,24 +31,24 @@ package org.callimachusproject.server.filters;
 
 import java.io.IOException;
 
+import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.protocol.HttpContext;
-import org.callimachusproject.server.model.Filter;
-import org.callimachusproject.server.model.Request;
 import org.callimachusproject.util.DomainNameSystemResolver;
 
 /**
  * Add a Server header to the response.
  */
-public class ServerNameFilter extends Filter {
+public class ServerNameFilter implements HttpResponseInterceptor {
 	private static final String PROTOCOL = "1.1";
 	private static final String HOSTNAME = DomainNameSystemResolver.getInstance().getLocalHostName();
+
 	private String name;
 	private String via;
 	private Integer port;
 
-	public ServerNameFilter(String name, Filter delegate) {
-		super(delegate);
+	public ServerNameFilter(String name) {
 		setServerName(name);
 	}
 
@@ -70,17 +70,16 @@ public class ServerNameFilter extends Filter {
 		setVia();
 	}
 
-	public HttpResponse filter(Request req, HttpContext context, HttpResponse resp)
-			throws IOException {
-		resp = super.filter(req, context, resp);
+	@Override
+	public void process(HttpResponse response, HttpContext context)
+			throws HttpException, IOException {
 		if (name != null) {
-			if (resp.containsHeader("Server")) {
-				resp.addHeader("Via", getVia());
+			if (response.containsHeader("Server")) {
+				response.addHeader("Via", getVia());
 			} else {
-				resp.setHeader("Server", name);
+				response.setHeader("Server", name);
 			}
 		}
-		return resp;
 	}
 
 	private synchronized String getVia() {

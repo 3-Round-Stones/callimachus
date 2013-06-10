@@ -1,5 +1,5 @@
 /*
- * Copyright 2010, Zepheira LLC Some rights reserved.
+ * Copyright 2013, 3 Round Stones Inc., Some rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,17 +28,29 @@
  */
 package org.callimachusproject.server.model;
 
-import org.apache.http.protocol.HttpContext;
-import org.callimachusproject.client.HttpUriResponse;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.concurrent.FutureCallback;
 
-/**
- * Interface used to stack request handlers.
- * 
- * @author James Leigh
- * 
- */
-public interface Handler {
-	HttpUriResponse verify(ResourceOperation request, HttpContext context) throws Exception;
+public class ResponseCallback implements FutureCallback<CloseableHttpResponse> {
+	private final FutureCallback<CloseableHttpResponse> delegate;
 
-	HttpUriResponse handle(ResourceOperation request, HttpContext context) throws Exception;
+	public ResponseCallback(FutureCallback<CloseableHttpResponse> delegate) {
+		this.delegate = delegate;
+	}
+
+	@Override
+	public void completed(CloseableHttpResponse result) {
+		delegate.completed(result);
+	}
+
+	@Override
+	public void failed(Exception ex) {
+		delegate.failed(ex);
+	}
+
+	@Override
+	public void cancelled() {
+		delegate.cancelled();
+	}
+
 }

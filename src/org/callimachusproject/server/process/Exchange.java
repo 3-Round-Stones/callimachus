@@ -11,9 +11,7 @@ import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpVersion;
 import org.apache.http.concurrent.Cancellable;
-import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
@@ -27,46 +25,29 @@ import org.apache.http.util.EntityUtils;
 import org.callimachusproject.client.StreamingHttpEntity;
 import org.callimachusproject.io.AsyncPipe;
 import org.callimachusproject.io.ChannelUtil;
-import org.callimachusproject.repository.CalliRepository;
 import org.callimachusproject.server.model.Request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Exchange implements Cancellable {
 	final Logger logger = LoggerFactory.getLogger(Exchange.class);
-	private static final BasicHttpResponse _100 = new BasicHttpResponse(
-			HttpVersion.HTTP_1_1, 100, "Continue");
 	private Request request;
-	private final HttpContext context;
 	private final Queue<Exchange> queue;
 	private final Consumer consumer;
-	private final CalliRepository repository;
 	private HttpAsyncExchange exchange;
 	private HttpResponse response;
 	private HttpAsyncContentProducer producer;
 	private int timeout = -1;
 	private boolean expectContinue;
-	private boolean submitContinue;
+	private HttpResponse submitContinue;
 	private boolean ready;
 	private boolean cancelled;
 
-	public Exchange(Request request, CalliRepository repository, HttpContext context) throws IOException {
-		assert request != null;
-		this.request = request;
-		this.repository = repository;
-		this.context = context;
-		this.queue = null;
-		this.consumer = null;
-		setExpectContinue(false);
-	}
-
-	public Exchange(Request request, CalliRepository repository, HttpContext context, Queue<Exchange> queue)
+	public Exchange(Request request, Queue<Exchange> queue)
 			throws IOException {
 		assert request != null;
 		assert queue != null;
 		this.request = request;
-		this.repository = repository;
-		this.context = context;
 		this.queue = queue;
 		Header expect = request.getFirstHeader("Expect");
 		setExpectContinue(expect != null
@@ -93,17 +74,9 @@ public class Exchange implements Cancellable {
 		this.request = request;
 	}
 
-	public CalliRepository getRepository() {
-		return repository;
-	}
-
-	public HttpContext getContext() {
-		return context;
-	}
-
-	public synchronized void verified(String credential) {
-		setSubmitContinue(true);
-		if (isSubmitContinue() && exchange != null) {
+	public synchronized void submitContinue(HttpResponse response) {
+		setSubmitContinue(response);
+		if (expectContinue && exchange != null) {
 			exchange.submitResponse(new Producer());
 			ready = true;
 		}
@@ -119,14 +92,14 @@ public class Exchange implements Cancellable {
 		if (timeout != -1) {
 			exchange.setTimeout(timeout);
 		}
-		if (response != null || isSubmitContinue()) {
+		if (response != null || getSubmitContinue() != null) {
 			exchange.submitResponse(new Producer());
 			ready = true;
 		}
 	}
 
 	public synchronized boolean isPendingVerification() {
-		return !submitContinue && expectContinue;
+		return submitContinue == null && expectContinue;
 	}
 
 	public synchronized boolean isReadingRequest() {
@@ -214,11 +187,13 @@ public class Exchange implements Cancellable {
 		this.expectContinue = expectContinue;
 	}
 
-	private synchronized boolean isSubmitContinue() {
-		return submitContinue && expectContinue;
+	private synchronized HttpResponse getSubmitContinue() {
+		if (expectContinue)
+			return submitContinue;
+		return null;
 	}
 
-	private synchronized void setSubmitContinue(boolean submitContinue) {
+	private synchronized void setSubmitContinue(HttpResponse submitContinue) {
 		this.submitContinue = submitContinue;
 	}
 
@@ -338,7 +313,8 @@ public class Exchange implements Cancellable {
 		@Override
 		public synchronized HttpResponse generateResponse() {
 			while (response == null) {
-				if (isSubmitContinue())
+				HttpResponse _100 = getSubmitContinue();
+				if (_100 != null)
 					return _100;
 				try {
 					wait();

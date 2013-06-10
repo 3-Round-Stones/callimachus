@@ -8,7 +8,6 @@ import java.util.List;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.URICollection;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -17,6 +16,8 @@ import org.apache.http.client.utils.URIUtils;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.DefaultRedirectStrategy;
+import org.apache.http.impl.client.RedirectLocations;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.engine.model.TermFactory;
@@ -57,7 +58,7 @@ public class HttpOriginClient extends CloseableHttpClient implements HttpUriClie
 			try {
 				URI original = request.getURI();
 				HttpHost target = ctx.getTargetHost();
-				URICollection redirects = ctx.getRedirectLocations();
+				RedirectLocations redirects = (RedirectLocations) ctx.getAttribute(DefaultRedirectStrategy.REDIRECT_LOCATIONS);
 				List<URI> list = redirects == null ? null : redirects.getAll();
 				URI absolute = URIUtils.resolve(original, target, list);
 				systemId = new URI(TermFactory.newInstance(absolute.toASCIIString()).getSystemId());

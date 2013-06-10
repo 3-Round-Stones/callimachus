@@ -29,39 +29,56 @@
 package org.callimachusproject.server.filters;
 
 import java.io.IOException;
+import java.util.concurrent.Future;
 
 import org.apache.http.Header;
+import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.RequestLine;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpExecutionAware;
+import org.apache.http.client.methods.HttpRequestWrapper;
+import org.apache.http.concurrent.FutureCallback;
+import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.nio.entity.NStringEntity;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpDateGenerator;
+import org.callimachusproject.client.HttpUriResponse;
+import org.callimachusproject.server.model.AsyncExecChain;
+import org.callimachusproject.server.model.CompletedResponse;
 import org.callimachusproject.server.model.EntityRemovedHttpResponse;
-import org.callimachusproject.server.model.Filter;
-import org.callimachusproject.server.model.Request;
+import org.callimachusproject.server.model.ResponseBuilder;
+import org.callimachusproject.server.model.ResponseCallback;
 
 /**
  * Handles the TRACE and OPTIONS * requests.
  */
-public class TraceFilter extends Filter {
+public class TraceFilter implements AsyncExecChain {
     private static final HttpDateGenerator DATE_GENERATOR = new HttpDateGenerator();
 
-	public TraceFilter(Filter delegate) {
-		super(delegate);
+    private final AsyncExecChain delegate;
+
+	public TraceFilter(AsyncExecChain delegate) {
+		this.delegate = delegate;
 	}
 
-	public HttpResponse intercept(Request req, HttpContext context) throws IOException {
-		RequestLine line = req.getRequestLine();
-		if ("TRACE".equals(req.getMethod())) {
+	@Override
+	public Future<CloseableHttpResponse> execute(HttpRoute route,
+			HttpRequestWrapper request, HttpContext context,
+			HttpExecutionAware execAware,
+			FutureCallback<CloseableHttpResponse> callback) throws IOException,
+			HttpException {
+		RequestLine line = request.getRequestLine();
+		if ("TRACE".equals(request.getRequestLine().getMethod())) {
 			String CRLF = "\r\n";
 			StringBuilder sb = new StringBuilder();
 			sb.append("TRACE ").append(line.getUri()).append(" ");
 			sb.append(line.getProtocolVersion());
 
-			for (Header hd : req.getAllHeaders()) {
+			for (Header hd : request.getAllHeaders()) {
 				sb.append(CRLF).append(hd.getName());
 				sb.append(": ").append(hd.getValue());
 			}
@@ -76,26 +93,26 @@ public class TraceFilter extends Filter {
 			resp.setEntity(entity);
 			resp.setHeader("Content-Length", Long.toString(entity.getContentLength()));
 			resp.setHeader(entity.getContentType());
-			return resp;
-		} else if ("OPTIONS".equals(req.getMethod())
+			return new CompletedResponse(callback, new ResponseBuilder(request, context).respond(resp));
+		} else if ("OPTIONS".equals(request.getRequestLine().getMethod())
 				&& "*".equals(line.getUri())) {
 			ProtocolVersion ver = HttpVersion.HTTP_1_1;
 			BasicHttpResponse resp = new BasicHttpResponse(ver, 204, "No Content");
 			resp.setHeader("Date", DATE_GENERATOR.getCurrentDate());
 			resp.setHeader("Allow", "OPTIONS, TRACE, GET, HEAD, PUT, DELETE");
-			return resp;
+			return new CompletedResponse(callback, new HttpUriResponse("*", resp));
 		} else {
-			return allow(super.intercept(req, context));
+			return delegate.execute(route, request, context, execAware,
+					new ResponseCallback(callback) {
+						public void completed(CloseableHttpResponse result) {
+							allow(result);
+							super.completed(result);
+						}
+					});
 		}
 	}
 
-	@Override
-	public HttpResponse filter(Request request, HttpContext context, HttpResponse response)
-			throws IOException {
-		return allow(super.filter(request, context, response));
-	}
-
-	private HttpResponse allow(HttpResponse resp) {
+	void allow(HttpResponse resp) {
 		if (resp != null && resp.getStatusLine().getStatusCode() == 405) {
 			if (resp.containsHeader("Allow")) {
 				String allow = resp.getFirstHeader("Allow").getValue();
@@ -104,7 +121,6 @@ public class TraceFilter extends Filter {
 				resp.setHeader("Allow", "TRACE");
 			}
 		}
-		return resp;
 	}
 
 }

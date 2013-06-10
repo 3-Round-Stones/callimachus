@@ -29,19 +29,25 @@
  */
 package org.callimachusproject.server.handlers;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 
+import org.apache.http.HttpException;
+import org.apache.http.HttpRequest;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpExecutionAware;
+import org.apache.http.client.methods.HttpRequestWrapper;
+import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.conn.routing.HttpRoute;
+import org.apache.http.impl.execchain.ClientExecChain;
 import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.annotations.query;
 import org.callimachusproject.client.HttpUriResponse;
-import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.server.exceptions.MethodNotAllowed;
 import org.callimachusproject.server.exceptions.NotAcceptable;
-import org.callimachusproject.server.model.Handler;
-import org.callimachusproject.server.model.ResponseBuilder;
+import org.callimachusproject.server.model.CalliContext;
 import org.callimachusproject.server.model.ResourceOperation;
-import org.openrdf.query.QueryEvaluationException;
-import org.openrdf.repository.RepositoryException;
+import org.callimachusproject.server.model.ResponseBuilder;
 
 /**
  * If a GET request cannot be satisfied send a redirect to another operation.
@@ -49,53 +55,34 @@ import org.openrdf.repository.RepositoryException;
  * @author James Leigh
  * 
  */
-public class AlternativeHandler implements Handler {
-	private final Handler delegate;
+public class AlternativeHandler implements ClientExecChain {
+	private final ClientExecChain delegate;
 
-	public AlternativeHandler(Handler delegate) {
+	public AlternativeHandler(ClientExecChain delegate) {
 		this.delegate = delegate;
 	}
 
-	public HttpUriResponse verify(ResourceOperation req, HttpContext context) throws Exception {
+	@Override
+	public CloseableHttpResponse execute(HttpRoute route,
+			HttpRequestWrapper request, HttpClientContext context,
+			HttpExecutionAware execAware) throws IOException, HttpException {
 		try {
-			return delegate.verify(req, context);
+			return delegate.execute(route, request, context, execAware);
 		} catch (MethodNotAllowed e) {
-			HttpUriResponse rb = findAlternate(req);
+			HttpUriResponse rb = findAlternate(request, context);
 			if (rb != null)
 				return rb;
 			throw e;
 		} catch (NotAcceptable e) {
-			HttpUriResponse rb = findAlternate(req);
-			if (rb != null)
-				return rb;
-			throw e;
-		} catch (BadRequest e) {
-			HttpUriResponse rb = findAlternate(req);
+			HttpUriResponse rb = findAlternate(request, context);
 			if (rb != null)
 				return rb;
 			throw e;
 		}
 	}
 
-	public HttpUriResponse handle(ResourceOperation req, HttpContext context) throws Exception {
-		try {
-			return delegate.handle(req, context);
-		} catch (MethodNotAllowed e) {
-			HttpUriResponse rb = findAlternate(req);
-			if (rb != null)
-				return rb;
-			throw e;
-		} catch (NotAcceptable e) {
-			HttpUriResponse rb = findAlternate(req);
-			if (rb != null)
-				return rb;
-			throw e;
-		}
-	}
-
-	private HttpUriResponse findAlternate(ResourceOperation req)
-			throws RepositoryException,
-			QueryEvaluationException {
+	private HttpUriResponse findAlternate(HttpRequest request, HttpContext context) {
+		ResourceOperation req = CalliContext.adapt(context).getResourceTransaction();
 		String m = req.getMethod();
 		if (req.getOperation() != null
 				|| !("GET".equals(m) || "HEAD".equals(m)))

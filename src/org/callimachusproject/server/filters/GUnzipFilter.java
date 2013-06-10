@@ -30,18 +30,27 @@
 package org.callimachusproject.server.filters;
 
 import java.io.IOException;
+import java.util.concurrent.Future;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpException;
+import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpExecutionAware;
+import org.apache.http.client.methods.HttpRequestWrapper;
+import org.apache.http.concurrent.FutureCallback;
+import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.message.BasicStatusLine;
 import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.client.CloseableEntity;
 import org.callimachusproject.client.GUnzipEntity;
 import org.callimachusproject.client.GZipEntity;
-import org.callimachusproject.server.model.Filter;
+import org.callimachusproject.server.model.AsyncExecChain;
 import org.callimachusproject.server.model.Request;
+import org.callimachusproject.server.model.ResponseCallback;
 import org.callimachusproject.util.DomainNameSystemResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,20 +59,28 @@ import org.slf4j.LoggerFactory;
  * Uncompresses the response if the requesting client does not explicitly say it
  * accepts gzip.
  */
-public class GUnzipFilter extends Filter {
+public class GUnzipFilter implements AsyncExecChain {
 	private static final BasicStatusLine STATUS_203 = new BasicStatusLine(
 			HttpVersion.HTTP_1_1, 203, "Non-Authoritative Information");
 	private static final String hostname = DomainNameSystemResolver.getInstance().getLocalHostName();
 	private static final String WARN_214 = "214 " + hostname
 			+ " \"Transformation applied\"";
 	private final Logger logger = LoggerFactory.getLogger(GUnzipFilter.class);
+	private final AsyncExecChain delegate;
 
-	public GUnzipFilter(Filter delegate) {
-		super(delegate);
+	public GUnzipFilter(AsyncExecChain delegate) {
+		this.delegate = delegate;
 	}
 
-	public Request filter(Request req, HttpContext context) throws IOException {
-		if ("gzip".equals(req.getHeader("Content-Encoding"))) {
+	@Override
+	public Future<CloseableHttpResponse> execute(HttpRoute route,
+			HttpRequestWrapper request, final HttpContext context,
+			HttpExecutionAware execAware,
+			FutureCallback<CloseableHttpResponse> callback) throws IOException,
+			HttpException {
+		Header hd = request.getFirstHeader("Content-Encoding");
+		if (hd != null && "gzip".equals(hd.getValue())) {
+			Request req = new Request(request);
 			HttpEntity entity = req.getEntity();
 			if (entity != null) {
 				// Keep original MD5 (if present) for digest auth
@@ -72,16 +89,23 @@ public class GUnzipFilter extends Filter {
 				req.setHeader("Transfer-Encoding", "chunked");
 				req.addHeader("Warning", WARN_214);
 				req.setEntity(gunzip(entity));
+				request = HttpRequestWrapper.wrap(req);
 			}
 		}
-		return super.filter(req, context);
+		final HttpRequest req = request;
+		return delegate.execute(route, request, context, execAware,
+				new ResponseCallback(callback) {
+					public void completed(CloseableHttpResponse result) {
+						filter(req, context, result);
+						super.completed(result);
+					}
+				});
 	}
 
-	public HttpResponse filter(Request req, HttpContext context, HttpResponse resp) throws IOException {
-		resp = super.filter(req, context, resp);
+	void filter(HttpRequest req, HttpContext context, final HttpResponse resp) {
 		Header cache = resp.getFirstHeader("Cache-Control");
 		if (cache != null && cache.getValue().contains("no-transform"))
-			return resp;
+			return;
 		Boolean gzip = null;
 		boolean encode = false; // gunzip by default
 		for (Header header : req.getHeaders("Accept-Encoding")) {
@@ -105,7 +129,7 @@ public class GUnzipFilter extends Filter {
 			}
 		}
 		if (gzip == null ? encode : gzip)
-			return resp;
+			return;
 		Header encoding = resp.getFirstHeader("Content-Encoding");
 		if (encoding != null && "gzip".equals(encoding.getValue())) {
 			HttpEntity entity = resp.getEntity();
@@ -126,7 +150,7 @@ public class GUnzipFilter extends Filter {
 				}
 			}
 		}
-		return resp;
+		return;
 	}
 
 	private HttpEntity gunzip(HttpEntity entity) {

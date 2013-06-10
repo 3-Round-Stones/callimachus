@@ -40,7 +40,7 @@ import java.util.List;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.RequestLine;
 import org.apache.http.message.BasicRequestLine;
-import org.callimachusproject.server.model.Request;
+import org.callimachusproject.server.helpers.Request;
 
 /**
  * Clones a request that will have its response cached for later use.

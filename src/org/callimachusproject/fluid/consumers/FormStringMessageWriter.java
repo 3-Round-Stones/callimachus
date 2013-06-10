@@ -49,7 +49,7 @@ import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.io.ChannelUtil;
-import org.callimachusproject.server.model.ReadableHttpEntityChannel;
+import org.callimachusproject.server.helpers.ReadableHttpEntityChannel;
 import org.openrdf.OpenRDFException;
 import org.xml.sax.SAXException;
 

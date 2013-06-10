@@ -92,34 +92,33 @@ import org.callimachusproject.concurrent.ManagedExecutors;
 import org.callimachusproject.concurrent.NamedThreadFactory;
 import org.callimachusproject.repository.CalliRepository;
 import org.callimachusproject.server.cache.CachingFilter;
+import org.callimachusproject.server.chain.AlternativeHandler;
+import org.callimachusproject.server.chain.AuthenticationHandler;
+import org.callimachusproject.server.chain.ContentHeadersFilter;
+import org.callimachusproject.server.chain.ExpectContinueHandler;
+import org.callimachusproject.server.chain.GUnzipFilter;
+import org.callimachusproject.server.chain.GZipFilter;
+import org.callimachusproject.server.chain.HeadRequestFilter;
+import org.callimachusproject.server.chain.HttpResponseFilter;
+import org.callimachusproject.server.chain.InvokeHandler;
+import org.callimachusproject.server.chain.LinksFilter;
+import org.callimachusproject.server.chain.MD5ValidationFilter;
+import org.callimachusproject.server.chain.ModifiedSinceHandler;
+import org.callimachusproject.server.chain.NotFoundHandler;
+import org.callimachusproject.server.chain.OptionsHandler;
+import org.callimachusproject.server.chain.ResourceTransactionInjector;
+import org.callimachusproject.server.chain.ResponseExceptionHandler;
+import org.callimachusproject.server.chain.ServerNameFilter;
+import org.callimachusproject.server.chain.TraceHandler;
+import org.callimachusproject.server.chain.UnmodifiedSinceHandler;
 import org.callimachusproject.server.exceptions.BadGateway;
 import org.callimachusproject.server.exceptions.GatewayTimeout;
-import org.callimachusproject.server.filters.ExpectContinueHandler;
-import org.callimachusproject.server.filters.GUnzipFilter;
-import org.callimachusproject.server.filters.GZipFilter;
-import org.callimachusproject.server.filters.HeadRequestFilter;
-import org.callimachusproject.server.filters.HttpResponseFilter;
-import org.callimachusproject.server.filters.MD5ValidationFilter;
-import org.callimachusproject.server.filters.ServerNameFilter;
-import org.callimachusproject.server.filters.TraceFilter;
-import org.callimachusproject.server.handlers.AlternativeHandler;
-import org.callimachusproject.server.handlers.AuthenticationHandler;
-import org.callimachusproject.server.handlers.ContentHeadersHandler;
-import org.callimachusproject.server.handlers.InvokeHandler;
-import org.callimachusproject.server.handlers.LinksHandler;
-import org.callimachusproject.server.handlers.ModifiedSinceHandler;
-import org.callimachusproject.server.handlers.NotFoundHandler;
-import org.callimachusproject.server.handlers.OptionsHandler;
-import org.callimachusproject.server.handlers.ResponseExceptionHandler;
-import org.callimachusproject.server.handlers.UnmodifiedSinceHandler;
-import org.callimachusproject.server.model.AsyncExecChain;
-import org.callimachusproject.server.model.CalliContext;
-import org.callimachusproject.server.process.Exchange;
-import org.callimachusproject.server.process.HTTPObjectRequestHandler;
-import org.callimachusproject.server.process.InlineExecutorService;
-import org.callimachusproject.server.process.PoolledExecChain;
-import org.callimachusproject.server.process.RequestTransactionActor;
+import org.callimachusproject.server.helpers.AsyncRequestHandler;
+import org.callimachusproject.server.helpers.CalliContext;
+import org.callimachusproject.server.helpers.Exchange;
+import org.callimachusproject.server.helpers.PooledExecChain;
 import org.callimachusproject.server.util.AnyHttpMethodRequestFactory;
+import org.callimachusproject.server.util.InlineExecutorService;
 import org.callimachusproject.util.DomainNameSystemResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -156,14 +155,18 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 	private final Map<NHttpConnection, Boolean> connections = new WeakHashMap<NHttpConnection, Boolean>();
 	private final Map<CalliRepository, Boolean> repositories = new WeakHashMap<CalliRepository, Boolean>();
 	private final ThreadLocal<Boolean> foreground = new ThreadLocal<Boolean>();
-	private final ExecutorService triaging = new InlineExecutorService(foreground, ManagedExecutors.getInstance()
-			.newFixedThreadPool(N,
+	private final ExecutorService triaging = new InlineExecutorService(
+			foreground, ManagedExecutors.getInstance().newFixedThreadPool(N,
 					new ArrayBlockingQueue<Runnable>(MAX_QUEUE_SIZE),
 					"HttpTriaging"));
-	private final ExecutorService handling = new InlineExecutorService(foreground, ManagedExecutors.getInstance()
-			.newAntiDeadlockThreadPool(
-					new ArrayBlockingQueue<Runnable>(MAX_QUEUE_SIZE),
-					"HttpHandling"));;
+	private final ExecutorService handling = new InlineExecutorService(
+			foreground, ManagedExecutors.getInstance()
+					.newAntiDeadlockThreadPool(
+							new ArrayBlockingQueue<Runnable>(MAX_QUEUE_SIZE),
+							"HttpHandling"));
+	private final ExecutorService closing = new InlineExecutorService(
+			foreground, ManagedExecutors.getInstance().newFixedThreadPool(1,
+					"HttpTransactionClosing"));
 	private final DefaultListeningIOReactor server;
 	private final IOEventDispatch dispatch;
 	private DefaultListeningIOReactor sslserver;
@@ -174,10 +177,10 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 	private final HttpResponseFilter env;
 	volatile boolean listening;
 	volatile boolean ssllistening;
-	private final HTTPObjectRequestHandler service;
-	private final RequestTransactionActor transaction;
+	private final AsyncRequestHandler service;
+	private final ResourceTransactionInjector transaction;
 	private final AsyncExecChain chain;
-	private final LinksHandler links;
+	private final LinksFilter links;
 	private final AuthenticationHandler authCache;
 	private final ModifiedSinceHandler remoteCache;
 	private final CachingFilter cache;
@@ -192,24 +195,24 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 		handler = new AlternativeHandler(handler);
 		handler = new GZipFilter(handler);
 		// exec in triaging thread
-		AsyncExecChain filter = new PoolledExecChain(handler, handling);
+		AsyncExecChain filter = new PooledExecChain(handler, handling);
 		filter = new ExpectContinueHandler(filter);
 		filter = new OptionsHandler(filter);
-		filter = links = new LinksHandler(filter);
+		filter = links = new LinksFilter(filter);
 		filter = remoteCache = new ModifiedSinceHandler(filter);
 		filter = new UnmodifiedSinceHandler(filter);
-		filter = new ContentHeadersHandler(filter);
+		filter = new ContentHeadersFilter(filter);
 		filter = authCache = new AuthenticationHandler(filter);
 		filter = new ResponseExceptionHandler(filter);
-		filter = transaction = new RequestTransactionActor(filter, handling);
+		filter = transaction = new ResourceTransactionInjector(filter, closing);
 		filter = env = new HttpResponseFilter(filter);
-		filter = new TraceFilter(filter);
+		filter = new TraceHandler(filter);
 		// exec in i/o thread
-		filter = new PoolledExecChain(filter, triaging);
+		filter = new PooledExecChain(filter, triaging);
 		filter = cache = new CachingFilter(filter, cacheDir, 1024);
 		filter = new GUnzipFilter(filter);
 		chain = filter = new MD5ValidationFilter(filter);
-		service = new HTTPObjectRequestHandler(chain);
+		service = new AsyncRequestHandler(chain);
 		httpproc = new ImmutableHttpProcessor(
 				new HttpRequestInterceptor[] { new AccessLog() },
 				new HttpResponseInterceptor[] { new ResponseDate(),
@@ -297,7 +300,7 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 	}
 
 	private HttpAsyncService createProtocolHandler(HttpProcessor httpproc,
-			HTTPObjectRequestHandler service) {
+			AsyncRequestHandler service) {
 		// Create server-side HTTP protocol handler
 		HttpAsyncService protocolHandler = new HttpAsyncService(httpproc,
 				service) {

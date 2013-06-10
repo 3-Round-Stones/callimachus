@@ -38,7 +38,7 @@ import java.util.List;
 
 import org.apache.http.HttpResponse;
 import org.callimachusproject.server.exceptions.InternalServerError;
-import org.callimachusproject.server.model.Request;
+import org.callimachusproject.server.helpers.Request;
 import org.callimachusproject.server.util.LockCleanupManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

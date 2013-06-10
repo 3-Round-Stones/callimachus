@@ -7,7 +7,7 @@ import org.apache.http.HttpEntity;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.fluid.Producer;
-import org.callimachusproject.server.model.ReadableHttpEntityChannel;
+import org.callimachusproject.server.helpers.ReadableHttpEntityChannel;
 
 public class HttpEntityReader implements Producer {
 

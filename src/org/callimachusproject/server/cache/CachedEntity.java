@@ -54,7 +54,7 @@ import java.util.regex.Pattern;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
-import org.callimachusproject.server.model.Request;
+import org.callimachusproject.server.helpers.Request;
 import org.callimachusproject.server.util.HTTPDateFormat;
 import org.callimachusproject.server.util.LockCleanupManager;
 

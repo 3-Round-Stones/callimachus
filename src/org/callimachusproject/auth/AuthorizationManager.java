@@ -27,9 +27,9 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
 import org.apache.http.util.EntityUtils;
+import org.callimachusproject.server.chain.AuthenticationHandler;
 import org.callimachusproject.server.exceptions.ResponseException;
-import org.callimachusproject.server.handlers.AuthenticationHandler;
-import org.callimachusproject.server.model.ResourceOperation;
+import org.callimachusproject.server.helpers.ResourceTransaction;
 import org.callimachusproject.util.DomainNameSystemResolver;
 import org.openrdf.OpenRDFException;
 import org.openrdf.annotations.Iri;
@@ -103,7 +103,7 @@ public class AuthorizationManager {
 		return false;
 	}
 
-	public HttpResponse authorize(ResourceOperation request, Set<Group> groups, long now, InetAddress clientAddr)
+	public HttpResponse authorize(ResourceTransaction request, Set<Group> groups, long now, InetAddress clientAddr)
 			throws OpenRDFException, IOException {
 		String m = request.getMethod();
 		RDFObject target = request.getRequestedResource();
@@ -161,7 +161,7 @@ public class AuthorizationManager {
 		return resp;
 	}
 
-	public HttpMessage authenticationInfo(ResourceOperation request, long now, InetAddress clientAddr)
+	public HttpMessage authenticationInfo(ResourceTransaction request, long now, InetAddress clientAddr)
 			throws IOException, OpenRDFException {
 		DetachedRealm realm = getRealm(request);
 		if (realm == null)
@@ -172,13 +172,13 @@ public class AuthorizationManager {
 		return realm.authenticationInfo(m, target, map, request.getObjectConnection());
 	}
 
-	public boolean withAgentCredentials(ResourceOperation request,
+	public boolean withAgentCredentials(ResourceTransaction request,
 			String origin) throws OpenRDFException, IOException {
 		DetachedRealm realm = getRealm(request);
 		return realm != null && realm.withAgentCredentials(origin);
 	}
 
-	public Set<String> allowOrigin(ResourceOperation request)
+	public Set<String> allowOrigin(ResourceTransaction request)
 			throws OpenRDFException, IOException {
 		Set<String> set = new LinkedHashSet<String>();
 		DetachedRealm realm = getRealm(request);
@@ -257,7 +257,7 @@ public class AuthorizationManager {
 		}
 	}
 
-	private DetachedRealm getRealm(ResourceOperation request)
+	private DetachedRealm getRealm(ResourceTransaction request)
 			throws OpenRDFException, IOException {
 		DetachedRealm realm = getRealm(request.getIRI());
 		if (realm == null)
@@ -354,7 +354,7 @@ public class AuthorizationManager {
 		}
 	}
 
-	private Map<String, String[]> getAuthorizationMap(ResourceOperation request, long now, InetAddress clientAddr)
+	private Map<String, String[]> getAuthorizationMap(ResourceTransaction request, long now, InetAddress clientAddr)
 			throws IOException {
 		Map<String, String[]> map = new HashMap<String, String[]>();
 		map.put("request-target", new String[] { request.getRequestLine().getUri() });
@@ -385,7 +385,7 @@ public class AuthorizationManager {
 		return result;
 	}
 
-	private String getRequestSource(ResourceOperation request, InetAddress clientAddr) {
+	private String getRequestSource(ResourceTransaction request, InetAddress clientAddr) {
 		StringBuilder via = new StringBuilder();
 		for (String hd : request.getVaryHeaders("X-Forwarded-For")) {
 			for (String ip : hd.split("\\s*,\\s*")) {

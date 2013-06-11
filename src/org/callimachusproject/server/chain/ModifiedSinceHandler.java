@@ -29,19 +29,15 @@
  */
 package org.callimachusproject.server.chain;
 
-import java.io.IOException;
 import java.util.Enumeration;
 import java.util.concurrent.Future;
 
 import org.apache.http.Header;
-import org.apache.http.HttpException;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpExecutionAware;
-import org.apache.http.client.methods.HttpRequestWrapper;
 import org.apache.http.concurrent.BasicFuture;
 import org.apache.http.concurrent.FutureCallback;
-import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.client.HttpUriResponse;
 import org.callimachusproject.server.AsyncExecChain;
@@ -71,13 +67,11 @@ public class ModifiedSinceHandler implements AsyncExecChain {
 	}
 
 	@Override
-	public Future<CloseableHttpResponse> execute(HttpRoute route,
-			HttpRequestWrapper request, HttpContext context,
-			HttpExecutionAware execAware,
-			FutureCallback<CloseableHttpResponse> callback) throws IOException,
-			HttpException {
+	public Future<HttpResponse> execute(HttpHost target,
+			HttpRequest request, HttpContext context,
+			FutureCallback<HttpResponse> callback) {
 		callback = new ResponseCallback(callback) {
-			public void completed(CloseableHttpResponse result) {
+			public void completed(HttpResponse result) {
 				resetModified(result);
 				super.completed(result);
 			}
@@ -88,25 +82,25 @@ public class ModifiedSinceHandler implements AsyncExecChain {
 		String cache = req.getResponseCacheControl();
 		String entityTag = req.getEntityTag(request, req.getContentVersion(), cache, contentType);
 		if (req.isSafe() && req.isNoValidate()) {
-			return delegate.execute(route, request, context, execAware, callback);
+			return delegate.execute(target, request, context, callback);
 		} else {
 			HttpUriResponse resp;
 			String tag = modifiedSince(req, entityTag);
 			if ("GET".equals(method) || "HEAD".equals(method)) {
 				if (tag == null) {
-					return delegate.execute(route, request, context, execAware, callback);
+					return delegate.execute(target, request, context, callback);
 				}
 				resp = new ResponseBuilder(req).notModified();
 			} else if (tag == null) {
-				return delegate.execute(route, request, context, execAware, callback);
+				return delegate.execute(target, request, context, callback);
 			} else {
 				resp = new ResponseBuilder(req).preconditionFailed();
 			}
 			if (tag.length() > 0) {
 				resp.setHeader("ETag", tag);
 			}
-			BasicFuture<CloseableHttpResponse> future;
-			future = new BasicFuture<CloseableHttpResponse>(callback);
+			BasicFuture<HttpResponse> future;
+			future = new BasicFuture<HttpResponse>(callback);
 			future.completed(resp);
 			return future;
 		}

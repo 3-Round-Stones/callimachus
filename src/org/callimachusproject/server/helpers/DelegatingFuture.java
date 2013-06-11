@@ -33,16 +33,16 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.HttpResponse;
 import org.apache.http.concurrent.FutureCallback;
 
-public class DelegatingFuture implements Future<CloseableHttpResponse>, FutureCallback<CloseableHttpResponse> {
-	private final FutureCallback<CloseableHttpResponse> callback;
+public class DelegatingFuture implements Future<HttpResponse>, FutureCallback<HttpResponse> {
+	private final FutureCallback<HttpResponse> callback;
 	private Future<?> delegate;
-	private CloseableHttpResponse result;
+	private HttpResponse result;
 	private Throwable thrown;
 
-	public DelegatingFuture(FutureCallback<CloseableHttpResponse> callback) {
+	public DelegatingFuture(FutureCallback<HttpResponse> callback) {
 		this.callback = callback;
 	}
 
@@ -64,11 +64,11 @@ public class DelegatingFuture implements Future<CloseableHttpResponse>, FutureCa
 		}
 	}
 
-	private synchronized CloseableHttpResponse getResult() {
+	private synchronized HttpResponse getResult() {
 		return result;
 	}
 
-	private synchronized void setResult(CloseableHttpResponse result) {
+	private synchronized void setResult(HttpResponse result) {
 		this.result = result;
 	}
 
@@ -90,27 +90,27 @@ public class DelegatingFuture implements Future<CloseableHttpResponse>, FutureCa
 		return delegate != null && getDelegate().isDone();
 	}
 
-	public CloseableHttpResponse get() throws InterruptedException,
+	public HttpResponse get() throws InterruptedException,
 			ExecutionException {
 		getDelegate().get();
-		CloseableHttpResponse result = getResult();
+		HttpResponse result = getResult();
 		Throwable thrown = getThrown();
 		if (thrown != null)
 			throw new ExecutionException(thrown);
 		return result;
 	}
 
-	public CloseableHttpResponse get(long timeout, TimeUnit unit)
+	public HttpResponse get(long timeout, TimeUnit unit)
 			throws InterruptedException, ExecutionException, TimeoutException {
 		getDelegate().get(timeout, unit);
-		CloseableHttpResponse result = getResult();
+		HttpResponse result = getResult();
 		Throwable thrown = getThrown();
 		if (thrown != null)
 			throw new ExecutionException(thrown);
 		return result;
 	}
 
-    public void completed(final CloseableHttpResponse result) {
+    public void completed(final HttpResponse result) {
         setResult(result);
         if (this.callback != null) {
             this.callback.completed(result);

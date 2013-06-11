@@ -32,11 +32,15 @@ import java.io.IOException;
 import java.util.concurrent.Future;
 
 import org.apache.http.HttpException;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpExecutionAware;
 import org.apache.http.client.methods.HttpRequestWrapper;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.concurrent.BasicFuture;
+import org.apache.http.concurrent.Cancellable;
 import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.impl.execchain.ClientExecChain;
@@ -51,15 +55,24 @@ public class BlockingExecChain implements AsyncExecChain {
 	}
 
 	@Override
-	public Future<CloseableHttpResponse> execute(final HttpRoute route,
-			final HttpRequestWrapper request, final HttpContext context,
-			final HttpExecutionAware execAware,
-			final FutureCallback<CloseableHttpResponse> callback) {
-		final BasicFuture<CloseableHttpResponse> future;
-		future = new BasicFuture<CloseableHttpResponse>(callback);
+	public Future<HttpResponse> execute(final HttpHost target,
+			final HttpRequest request, final HttpContext context,
+			final FutureCallback<HttpResponse> callback) {
+		final BasicFuture<HttpResponse> future;
+		future = new BasicFuture<HttpResponse>(callback);
 		try {
 			CloseableHttpResponse ret;
-			ret = delegate.execute(route, request, HttpClientContext.adapt(context), execAware);
+			HttpExecutionAware execAware = new HttpExecutionAware() {
+				public void setCancellable(Cancellable arg0) {
+					throw new UnsupportedOperationException();
+				}
+
+				public boolean isAborted() {
+					return false;
+				}
+			};
+			ret = delegate.execute(new HttpRoute(target), HttpRequestWrapper.wrap(request),
+					HttpClientContext.adapt(context), execAware);
 			future.completed(ret);
 		} catch (HttpException ex) {
 			future.failed(ex);

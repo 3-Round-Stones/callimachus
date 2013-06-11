@@ -28,7 +28,6 @@
  */
 package org.callimachusproject.server.chain;
 
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,12 +40,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Future;
 
-import org.apache.http.HttpException;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpExecutionAware;
-import org.apache.http.client.methods.HttpRequestWrapper;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
 import org.apache.http.concurrent.FutureCallback;
-import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.annotations.rel;
 import org.callimachusproject.annotations.title;
@@ -79,25 +76,23 @@ public class LinksFilter implements AsyncExecChain {
 		this.envelopeType = envelopeType;
 	}
 
-	public Future<CloseableHttpResponse> execute(HttpRoute route,
-			HttpRequestWrapper request, HttpContext context,
-			HttpExecutionAware execAware,
-			FutureCallback<CloseableHttpResponse> callback) throws IOException,
-			HttpException {
+	public Future<HttpResponse> execute(HttpHost target,
+			HttpRequest request, HttpContext context,
+			FutureCallback<HttpResponse> callback) {
 		if ("OPTIONS".equals(request.getRequestLine().getMethod())) {
 			final ResourceTransaction req = CalliContext.adapt(context).getResourceTransaction();
-			return delegate.execute(route, request, context, execAware, new ResponseCallback(callback) {
-				public void completed(CloseableHttpResponse result) {
+			return delegate.execute(target, request, context, new ResponseCallback(callback) {
+				public void completed(HttpResponse result) {
 					addLinks(req, result);
 					super.completed(result);
 				}
 			});
 		} else {
-			return delegate.execute(route, request, context, execAware, callback);
+			return delegate.execute(target, request, context, callback);
 		}
 	}
 
-	void addLinks(ResourceTransaction request, CloseableHttpResponse rb) {
+	void addLinks(ResourceTransaction request, HttpResponse rb) {
 		if (!request.isQueryStringPresent()) {
 			for (String link : getLinks(request)) {
 				rb.addHeader("Link", link);

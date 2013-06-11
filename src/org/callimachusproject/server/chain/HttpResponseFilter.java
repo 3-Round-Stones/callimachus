@@ -38,14 +38,10 @@ import java.util.concurrent.Future;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpException;
+import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpExecutionAware;
-import org.apache.http.client.methods.HttpRequestWrapper;
 import org.apache.http.concurrent.FutureCallback;
-import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 import org.callimachusproject.client.StreamingHttpEntity;
@@ -99,13 +95,11 @@ public class HttpResponseFilter implements AsyncExecChain {
 	}
 
 	@Override
-	public Future<CloseableHttpResponse> execute(HttpRoute route,
-			final HttpRequestWrapper request, final HttpContext context,
-			HttpExecutionAware execAware,
-			final FutureCallback<CloseableHttpResponse> callback) throws IOException,
-			HttpException {
+	public Future<HttpResponse> execute(HttpHost target,
+			final HttpRequest request, final HttpContext context,
+			final FutureCallback<HttpResponse> callback) {
 		if (envelopeType == null)
-			return delegate.execute(route, request, context, execAware, callback);
+			return delegate.execute(target, request, context, callback);
 		if (request.containsHeader("Accept")) {
 			String hd = request.getFirstHeader("Accept").getValue();
 			if (!hd.contains("*/*")) {
@@ -113,7 +107,7 @@ public class HttpResponseFilter implements AsyncExecChain {
 			}
 		}
 		final DelegatingFuture future = new DelegatingFuture(callback) {
-			public void completed(CloseableHttpResponse result) {
+			public void completed(HttpResponse result) {
 				try {
 					Header type = result.getFirstHeader("Content-Type");
 					if (type != null && type.getValue().startsWith(core)
@@ -130,7 +124,7 @@ public class HttpResponseFilter implements AsyncExecChain {
 				}
 			}
 		};
-		future.setDelegate(delegate.execute(route, request, context, execAware, future));
+		future.setDelegate(delegate.execute(target, request, context, future));
 		return future;
 	}
 

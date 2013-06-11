@@ -28,15 +28,12 @@
  */
 package org.callimachusproject.server.chain;
 
-import java.io.IOException;
 import java.util.concurrent.Future;
 
-import org.apache.http.HttpException;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpExecutionAware;
-import org.apache.http.client.methods.HttpRequestWrapper;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
 import org.apache.http.concurrent.FutureCallback;
-import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.server.AsyncExecChain;
 import org.callimachusproject.server.helpers.Request;
@@ -52,18 +49,16 @@ public class MD5ValidationFilter implements AsyncExecChain {
 	}
 
 	@Override
-	public Future<CloseableHttpResponse> execute(HttpRoute route,
-			HttpRequestWrapper request, HttpContext context,
-			HttpExecutionAware execAware,
-			FutureCallback<CloseableHttpResponse> callback) throws IOException,
-			HttpException {
+	public Future<HttpResponse> execute(HttpHost target,
+			HttpRequest request, HttpContext context,
+			FutureCallback<HttpResponse> callback) {
 		Request req = new Request(request);
 		if (req.containsHeader("Content-MD5") && req.getEntity() != null) {
 			String md5 = req.getHeader("Content-MD5");
 			req.setEntity(new MD5ValidationEntity(req.getEntity(), md5));
-			return delegate.execute(route, HttpRequestWrapper.wrap(req), context, execAware, callback);
+			return delegate.execute(target, req, context, callback);
 		} else {
-			return delegate.execute(route, request, context, execAware, callback);
+			return delegate.execute(target, request, context, callback);
 		}
 	}
 

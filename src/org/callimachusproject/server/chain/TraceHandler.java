@@ -28,20 +28,17 @@
  */
 package org.callimachusproject.server.chain;
 
-import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.concurrent.Future;
 
 import org.apache.http.Header;
-import org.apache.http.HttpException;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.RequestLine;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpExecutionAware;
-import org.apache.http.client.methods.HttpRequestWrapper;
 import org.apache.http.concurrent.FutureCallback;
-import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.nio.entity.NStringEntity;
 import org.apache.http.protocol.HttpContext;
@@ -66,11 +63,9 @@ public class TraceHandler implements AsyncExecChain {
 	}
 
 	@Override
-	public Future<CloseableHttpResponse> execute(HttpRoute route,
-			HttpRequestWrapper request, HttpContext context,
-			HttpExecutionAware execAware,
-			FutureCallback<CloseableHttpResponse> callback) throws IOException,
-			HttpException {
+	public Future<HttpResponse> execute(HttpHost target,
+			HttpRequest request, HttpContext context,
+			FutureCallback<HttpResponse> callback) {
 		RequestLine line = request.getRequestLine();
 		if ("TRACE".equals(request.getRequestLine().getMethod())) {
 			String CRLF = "\r\n";
@@ -87,7 +82,7 @@ public class TraceHandler implements AsyncExecChain {
 			ProtocolVersion ver = HttpVersion.HTTP_1_1;
 			BasicHttpResponse resp = new EntityRemovedHttpResponse(ver, 200, "OK");
 			resp.setHeader("Date", DATE_GENERATOR.getCurrentDate());
-			NStringEntity entity = new NStringEntity(sb.toString(), "ISO-8859-1");
+			NStringEntity entity = new NStringEntity(sb.toString(), Charset.forName("ISO-8859-1"));
 			entity.setContentType("message/http");
 			entity.setChunked(false);
 			resp.setEntity(entity);
@@ -102,13 +97,12 @@ public class TraceHandler implements AsyncExecChain {
 			resp.setHeader("Allow", "OPTIONS, TRACE, GET, HEAD, PUT, DELETE");
 			return new CompletedResponse(callback, new HttpUriResponse("*", resp));
 		} else {
-			return delegate.execute(route, request, context, execAware,
-					new ResponseCallback(callback) {
-						public void completed(CloseableHttpResponse result) {
-							allow(result);
-							super.completed(result);
-						}
-					});
+			return delegate.execute(target, request, context, new ResponseCallback(callback) {
+				public void completed(HttpResponse result) {
+					allow(result);
+					super.completed(result);
+				}
+			});
 		}
 	}
 

@@ -1,6 +1,5 @@
 package org.callimachusproject.concepts;
 
-import java.io.IOException;
 import java.util.List;
 
 import org.callimachusproject.auth.DetachedAuthenticationManager;
@@ -12,5 +11,5 @@ import org.openrdf.annotations.Iri;
 public interface AuthenticationManager {
 
 	DetachedAuthenticationManager detachAuthenticationManager(String path,
-			List<String> domains, RealmManager manager) throws OpenRDFException, IOException;
+			List<String> domains, RealmManager manager) throws OpenRDFException;
 }

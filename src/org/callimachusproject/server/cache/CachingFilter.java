@@ -51,16 +51,12 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpException;
+import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolVersion;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpExecutionAware;
-import org.apache.http.client.methods.HttpRequestWrapper;
 import org.apache.http.concurrent.FutureCallback;
-import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHttpResponse;
@@ -162,15 +158,13 @@ public class CachingFilter implements AsyncExecChain {
 	}
 
 	@Override
-	public Future<CloseableHttpResponse> execute(HttpRoute route,
-			HttpRequestWrapper request, HttpContext context,
-			HttpExecutionAware execAware,
-			FutureCallback<CloseableHttpResponse> callback) throws IOException,
-			HttpException {
+	public Future<HttpResponse> execute(HttpHost target,
+			HttpRequest request, HttpContext context,
+			FutureCallback<HttpResponse> callback) {
 		final Request headers = new Request(request);
 		if (!headers.isSafe()) {
 			callback = new ResponseCallback(callback) {
-				public void completed(CloseableHttpResponse result) {
+				public void completed(HttpResponse result) {
 					try {
 						invalidate(headers);
 					} catch (IOException e) {
@@ -182,7 +176,7 @@ public class CachingFilter implements AsyncExecChain {
 			};
 		}
 		if (!enabled || !headers.isStorable()) {
-			return delegate.execute(route, request, context, execAware, callback);
+			return delegate.execute(target, request, context, callback);
 		}
 		try {
 			String url = headers.getRequestURL();
@@ -198,7 +192,7 @@ public class CachingFilter implements AsyncExecChain {
 					if (cached != null && disconnected) {
 						ret.completed(respondWithCache(now, headers, cached, null));
 					} else if (stale && !headers.isOnlyIfCache()) {
-						return handleCacheMiss(route, request, context, execAware, callback);
+						return handleCacheMiss(target, request, context, callback);
 					} else if (cached == null && headers.isOnlyIfCache()) {
 						ret.completed(respond(headers, 504, "Gateway Timeout"));
 					} else {
@@ -206,20 +200,22 @@ public class CachingFilter implements AsyncExecChain {
 					}
 					return ret;
 				}
+			} catch (IOException e) {
+				logger.error(e.getMessage(), e);
+				return delegate.execute(target, request, context, callback);
 			} finally {
 				reset.release();
 			}
 		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
 			logger.warn(e.getMessage(), e);
 			return new CompletedResponse(callback, respond(headers, 504, "Gateway Timeout"));
 		}
 	}
 
-	private Future<CloseableHttpResponse> handleCacheMiss(HttpRoute route,
-			HttpRequestWrapper request, final HttpContext context,
-			HttpExecutionAware execAware,
-			final FutureCallback<CloseableHttpResponse> callback) throws IOException,
-			HttpException {
+	private Future<HttpResponse> handleCacheMiss(HttpHost target,
+			HttpRequest request, final HttpContext context,
+			final FutureCallback<HttpResponse> callback) throws IOException {
 		Request headers = new Request(request);
 		try {
 			String url = headers.getRequestURL();
@@ -231,15 +227,14 @@ public class CachingFilter implements AsyncExecChain {
 				synchronized (index) {
 					cached = index.find(headers);
 					if ("HEAD".equals(request.getRequestLine().getMethod()))
-						return delegate.execute(route, request, context, execAware, callback);
+						return delegate.execute(target, request, context, callback);
 					boolean stale = isStale(now, headers, cached);
 					if (stale && !headers.isOnlyIfCache()) {
 						List<CachedEntity> match = index
 								.findCachedETags(headers);
 						final CachableRequest cachable = createCachableRequest(headers, cached, match);
-						HttpRequestWrapper req = HttpRequestWrapper.wrap(cachable);
 						DelegatingFuture future = new DelegatingFuture(callback) {
-							public void completed(CloseableHttpResponse result) {
+							public void completed(HttpResponse result) {
 								try {
 									super.completed(filter(cachable, context,
 											result));
@@ -248,8 +243,8 @@ public class CachingFilter implements AsyncExecChain {
 								}
 							}
 						};
-						future.setDelegate(delegate.execute(route, req,
-								context, execAware, future));
+						future.setDelegate(delegate.execute(target, cachable,
+								context, future));
 						return future;
 					}
 				}
@@ -259,10 +254,10 @@ public class CachingFilter implements AsyncExecChain {
 		} catch (InterruptedException e) {
 			logger.warn(e.getMessage(), e);
 		}
-		return delegate.execute(route, request, context, execAware, callback);
+		return delegate.execute(target, request, context, callback);
 	}
 
-	CloseableHttpResponse filter(CachableRequest request, HttpContext context, CloseableHttpResponse resp)
+	HttpResponse filter(CachableRequest request, HttpContext context, HttpResponse resp)
 			throws IOException {
 		try {
 			if (isCachable(request, resp)) {

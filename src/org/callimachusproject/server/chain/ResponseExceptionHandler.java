@@ -29,16 +29,13 @@
  */
 package org.callimachusproject.server.chain;
 
-import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.Future;
 
-import org.apache.http.HttpException;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpExecutionAware;
-import org.apache.http.client.methods.HttpRequestWrapper;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
 import org.apache.http.concurrent.FutureCallback;
-import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.client.HttpUriResponse;
 import org.callimachusproject.server.AsyncExecChain;
@@ -68,11 +65,9 @@ public class ResponseExceptionHandler implements AsyncExecChain {
 	}
 
 	@Override
-	public Future<CloseableHttpResponse> execute(HttpRoute route,
-			final HttpRequestWrapper request, final HttpContext context,
-			HttpExecutionAware execAware,
-			FutureCallback<CloseableHttpResponse> callback) throws IOException,
-			HttpException {
+	public Future<HttpResponse> execute(HttpHost target,
+			final HttpRequest request, final HttpContext context,
+			FutureCallback<HttpResponse> callback) {
 		callback = new ResponseCallback(callback) {
 			public void failed(Exception ex) {
 				try {
@@ -88,14 +83,13 @@ public class ResponseExceptionHandler implements AsyncExecChain {
 			}
 		};
 		try {
-			return delegate.execute(route, request, context, execAware,
-					callback);
+			return delegate.execute(target, request, context, callback);
 		} catch (Exception ex) {
 			return new CompletedResponse(callback, ex);
 		}
 	}
 
-	HttpUriResponse handle(final HttpRequestWrapper request,
+	HttpUriResponse handle(final HttpRequest request,
 			final HttpContext context, ResponseException e) {
 		ResourceTransaction trans = CalliContext.adapt(context).getResourceTransaction();
 		HttpUriResponse resp = new ResponseBuilder(trans).exception(e);

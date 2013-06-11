@@ -36,6 +36,8 @@ import java.io.PrintWriter;
 import java.net.BindException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -51,6 +53,7 @@ import java.util.concurrent.TimeUnit;
 import javax.net.ssl.SSLContext;
 
 import org.apache.http.HttpException;
+import org.apache.http.HttpHost;
 import org.apache.http.HttpInetConnection;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestFactory;
@@ -62,6 +65,7 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpExecutionAware;
 import org.apache.http.client.methods.HttpRequestWrapper;
 import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.client.utils.URIUtils;
 import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.config.ConnectionConfig;
 import org.apache.http.conn.routing.HttpRoute;
@@ -86,8 +90,10 @@ import org.apache.http.protocol.ImmutableHttpProcessor;
 import org.apache.http.protocol.ResponseConnControl;
 import org.apache.http.protocol.ResponseContent;
 import org.apache.http.protocol.ResponseDate;
+import org.apache.http.util.EntityUtils;
 import org.callimachusproject.Version;
 import org.callimachusproject.client.HttpClientManager;
+import org.callimachusproject.client.HttpUriResponse;
 import org.callimachusproject.concurrent.ManagedExecutors;
 import org.callimachusproject.concurrent.NamedThreadFactory;
 import org.callimachusproject.repository.CalliRepository;
@@ -117,6 +123,7 @@ import org.callimachusproject.server.helpers.AsyncRequestHandler;
 import org.callimachusproject.server.helpers.CalliContext;
 import org.callimachusproject.server.helpers.Exchange;
 import org.callimachusproject.server.helpers.PooledExecChain;
+import org.callimachusproject.server.helpers.ResponseBuilder;
 import org.callimachusproject.server.util.AnyHttpMethodRequestFactory;
 import org.callimachusproject.server.util.InlineExecutorService;
 import org.callimachusproject.util.DomainNameSystemResolver;
@@ -653,6 +660,7 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 	public CloseableHttpResponse execute(HttpRoute route,
 			HttpRequestWrapper request, HttpClientContext context,
 			HttpExecutionAware execAware) throws IOException, HttpException {
+		HttpResponse response = null;
 		Boolean previously = foreground.get();
 		try {
 			if (previously == null) {
@@ -664,23 +672,24 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 			cc.setClientAddr(LOCALHOST);
 			httpproc.process(request, cc);
 			try {
-				CloseableHttpResponse response = chain.execute(route, request, cc, execAware, new FutureCallback<CloseableHttpResponse>() {
-					public void failed(Exception ex) {
-						if (ex instanceof RuntimeException) {
-							throw (RuntimeException) ex;
-						} else {
-							throw new BadGateway(ex);
-						}
-					}
-					public void completed(CloseableHttpResponse result) {
-						// yay!
-					}
-					public void cancelled() {
-						// TODO handle this
-					}
-				}).get();
-				httpproc.process(response, cc);
-				return response;
+				response = chain.execute(route.getTargetHost(), request, cc,
+						new FutureCallback<HttpResponse>() {
+							public void failed(Exception ex) {
+								if (ex instanceof RuntimeException) {
+									throw (RuntimeException) ex;
+								} else {
+									throw new BadGateway(ex);
+								}
+							}
+
+							public void completed(HttpResponse result) {
+								// yay!
+							}
+
+							public void cancelled() {
+								// TODO handle this
+							}
+						}).get();
 			} catch (InterruptedException ex) {
 				logger.error(ex.toString(), ex);
 				throw new GatewayTimeout(ex);
@@ -695,7 +704,32 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 					throw new BadGateway(ex);
 				}
 			}
+			if (response == null) {
+				response = new ResponseBuilder(request, context).exception(new BadGateway());
+			}
+			httpproc.process(response, cc);
+			if (response instanceof CloseableHttpResponse)
+				return (CloseableHttpResponse) response;
+			String systemId;
+			String uri = request.getRequestLine().getUri();
+			if (uri.startsWith("/")) {
+				URI net = URI.create(uri);
+				HttpHost target = route.getTargetHost();
+				URI rewriten = URIUtils.rewriteURI(net, target, true);
+				systemId = rewriten.toASCIIString();
+			} else {
+				systemId = uri;
+			}
+			return new HttpUriResponse(systemId, response);
+		} catch (URISyntaxException e) {
+			if (response != null) {
+				EntityUtils.consumeQuietly(response.getEntity());
+			}
+			throw new ClientProtocolException(e);
 		} catch (HttpException e) {
+			if (response != null) {
+				EntityUtils.consumeQuietly(response.getEntity());
+			}
 			throw new ClientProtocolException(e);
 		} finally {
 			if (previously == null) {

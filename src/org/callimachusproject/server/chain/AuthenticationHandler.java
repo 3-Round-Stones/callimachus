@@ -39,14 +39,11 @@ import java.util.Set;
 import java.util.concurrent.Future;
 
 import org.apache.http.Header;
-import org.apache.http.HttpException;
+import org.apache.http.HttpHost;
 import org.apache.http.HttpMessage;
+import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpExecutionAware;
-import org.apache.http.client.methods.HttpRequestWrapper;
 import org.apache.http.concurrent.FutureCallback;
-import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.auth.AuthorizationManager;
 import org.callimachusproject.auth.AuthorizationService;
@@ -101,11 +98,9 @@ public class AuthenticationHandler implements AsyncExecChain {
 	}
 
 	@Override
-	public Future<CloseableHttpResponse> execute(HttpRoute route,
-			HttpRequestWrapper request, HttpContext context,
-			HttpExecutionAware execAware,
-			FutureCallback<CloseableHttpResponse> callback) throws IOException,
-			HttpException {
+	public Future<HttpResponse> execute(HttpHost host,
+			HttpRequest request, HttpContext context,
+			FutureCallback<HttpResponse> callback) {
 		CalliContext ctx = CalliContext.adapt(context);
 		final InetAddress clientAddr = ctx.getClientAddr();
 		final long now = ctx.getReceivedOn();
@@ -113,16 +108,18 @@ public class AuthenticationHandler implements AsyncExecChain {
 		final AuthorizationManager manager = getManager(trans);
 		try {
 			final String allowed = getAllowedOrigin(trans, manager);
-			callback = new ResponseCallback(callback) {public void completed(CloseableHttpResponse result) {
-				try {
-					allow(trans, manager, result, allowed, now, clientAddr);
-					super.completed(result);
-				} catch (OpenRDFException ex) {
-					super.failed(ex);
-				} catch (IOException ex) {
-					super.failed(ex);
+			callback = new ResponseCallback(callback) {
+				public void completed(HttpResponse result) {
+					try {
+						allow(trans, manager, result, allowed, now, clientAddr);
+						super.completed(result);
+					} catch (OpenRDFException ex) {
+						super.failed(ex);
+					} catch (IOException ex) {
+						super.failed(ex);
+					}
 				}
-			}};
+			};
 			String[] requires = trans.getRequires();
 			if (requires != null && requires.length == 0) {
 				trans.setPublic(true);
@@ -142,7 +139,7 @@ public class AuthenticationHandler implements AsyncExecChain {
 		} catch (OpenRDFException ex) {
 			callback.failed(ex);
 		}
-		return delegate.execute(route, request, context, execAware, callback);
+		return delegate.execute(host, request, context, callback);
 	}
 
 	private synchronized AuthorizationManager getManager(
@@ -156,7 +153,7 @@ public class AuthenticationHandler implements AsyncExecChain {
 	}
 
 	private String getAllowedOrigin(ResourceTransaction request,
-			AuthorizationManager manager) throws OpenRDFException, IOException {
+			AuthorizationManager manager) throws OpenRDFException {
 		Set<String> origins = manager.allowOrigin(request);
 		if (origins == null || origins.isEmpty())
 			return null;

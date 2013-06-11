@@ -85,7 +85,14 @@ public class ResponseBuilder {
 	private final ObjectRepository repository;
 
 	public ResponseBuilder(HttpRequest request, HttpContext context) {
-		this(CalliContext.adapt(context).getResourceTransaction());
+		ResourceTransaction trans = CalliContext.adapt(context).getResourceTransaction();
+		if (trans == null) {
+			this.systemId = new Request(request).getRequestURL();
+			this.repository = null;
+		} else {
+			this.systemId = trans.getRequestURL();
+			this.repository = trans.getObjectConnection().getRepository();
+		}
 	}
 
 	public ResponseBuilder(ResourceTransaction request) {

@@ -29,17 +29,12 @@
  */
 package org.callimachusproject.server.chain;
 
-import java.io.IOException;
 import java.util.concurrent.Future;
 
-import org.apache.http.HttpException;
+import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpExecutionAware;
-import org.apache.http.client.methods.HttpRequestWrapper;
 import org.apache.http.concurrent.FutureCallback;
-import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.server.AsyncExecChain;
 import org.callimachusproject.server.helpers.CalliContext;
@@ -63,23 +58,20 @@ public class ContentHeadersFilter implements AsyncExecChain {
 	}
 
 	@Override
-	public Future<CloseableHttpResponse> execute(HttpRoute route,
-			final HttpRequestWrapper request, HttpContext context,
-			HttpExecutionAware execAware,
-			FutureCallback<CloseableHttpResponse> callback) throws IOException,
-			HttpException {
+	public Future<HttpResponse> execute(HttpHost target,
+			final HttpRequest request, HttpContext context,
+			FutureCallback<HttpResponse> callback) {
 		final ResourceTransaction trans = CalliContext.adapt(context)
 				.getResourceTransaction();
 		final String contentType = trans.getResponseContentType();
 		final String derived = trans.getContentVersion();
 		final String cache = trans.getResponseCacheControl();
-		return delegate.execute(route, request, context, execAware,
-				new ResponseCallback(callback) {
-					public void completed(CloseableHttpResponse result) {
-						addHeaders(request, trans, contentType, derived, cache, result);
-						super.completed(result);
-					}
-				});
+		return delegate.execute(target, request, context, new ResponseCallback(callback) {
+			public void completed(HttpResponse result) {
+				addHeaders(request, trans, contentType, derived, cache, result);
+				super.completed(result);
+			}
+		});
 	}
 
 	void addHeaders(HttpRequest req, ResourceTransaction trans, String contentType,

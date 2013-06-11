@@ -29,20 +29,15 @@
  */
 package org.callimachusproject.server.chain;
 
-import java.io.IOException;
 import java.util.concurrent.Future;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpException;
+import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpExecutionAware;
-import org.apache.http.client.methods.HttpRequestWrapper;
 import org.apache.http.concurrent.FutureCallback;
-import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.message.BasicStatusLine;
 import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.client.CloseableEntity;
@@ -73,11 +68,9 @@ public class GUnzipFilter implements AsyncExecChain {
 	}
 
 	@Override
-	public Future<CloseableHttpResponse> execute(HttpRoute route,
-			HttpRequestWrapper request, final HttpContext context,
-			HttpExecutionAware execAware,
-			FutureCallback<CloseableHttpResponse> callback) throws IOException,
-			HttpException {
+	public Future<HttpResponse> execute(HttpHost target,
+			HttpRequest request, final HttpContext context,
+			FutureCallback<HttpResponse> callback) {
 		Header hd = request.getFirstHeader("Content-Encoding");
 		if (hd != null && "gzip".equals(hd.getValue())) {
 			Request req = new Request(request);
@@ -89,17 +82,16 @@ public class GUnzipFilter implements AsyncExecChain {
 				req.setHeader("Transfer-Encoding", "chunked");
 				req.addHeader("Warning", WARN_214);
 				req.setEntity(gunzip(entity));
-				request = HttpRequestWrapper.wrap(req);
+				request = req;
 			}
 		}
 		final HttpRequest req = request;
-		return delegate.execute(route, request, context, execAware,
-				new ResponseCallback(callback) {
-					public void completed(CloseableHttpResponse result) {
-						filter(req, context, result);
-						super.completed(result);
-					}
-				});
+		return delegate.execute(target, request, context, new ResponseCallback(callback) {
+			public void completed(HttpResponse result) {
+				filter(req, context, result);
+				super.completed(result);
+			}
+		});
 	}
 
 	void filter(HttpRequest req, HttpContext context, final HttpResponse resp) {

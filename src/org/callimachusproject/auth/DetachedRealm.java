@@ -127,7 +127,7 @@ public class DetachedRealm {
 	}
 
 	public void init(ObjectConnection con, RealmManager manager)
-			throws OpenRDFException, IOException {
+			throws OpenRDFException {
 		Map<Resource, String> protects = new LinkedHashMap<Resource, String>();
 		ValueFactory vf = con.getValueFactory();
 		TupleQuery query = con.prepareTupleQuery(SPARQL, SELECT_REALM);
@@ -465,7 +465,7 @@ public class DetachedRealm {
 
 	private DetachedAuthenticationManager detach(Resource resource,
 			String protects, RealmManager manager, ObjectConnection con)
-			throws OpenRDFException, IOException {
+			throws OpenRDFException {
 		List<String> domains = getDistinctRealm(protects);
 		String path = getCommonPath(domains);
 		Object am = con.getObject(resource);

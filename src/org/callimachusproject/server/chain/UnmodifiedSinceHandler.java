@@ -29,17 +29,14 @@
  */
 package org.callimachusproject.server.chain;
 
-import java.io.IOException;
 import java.util.Enumeration;
 import java.util.concurrent.Future;
 
-import org.apache.http.HttpException;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpExecutionAware;
-import org.apache.http.client.methods.HttpRequestWrapper;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
 import org.apache.http.concurrent.BasicFuture;
 import org.apache.http.concurrent.FutureCallback;
-import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.server.AsyncExecChain;
 import org.callimachusproject.server.helpers.CalliContext;
@@ -60,20 +57,18 @@ public class UnmodifiedSinceHandler implements AsyncExecChain {
 	}
 
 	@Override
-	public Future<CloseableHttpResponse> execute(HttpRoute route,
-			HttpRequestWrapper request, HttpContext context,
-			HttpExecutionAware execAware,
-			FutureCallback<CloseableHttpResponse> callback) throws IOException,
-			HttpException {
+	public Future<HttpResponse> execute(HttpHost target,
+			HttpRequest request, HttpContext context,
+			FutureCallback<HttpResponse> callback) {
 		ResourceTransaction trans = CalliContext.adapt(context).getResourceTransaction();
 		String contentType = trans.getResponseContentType();
 		String cache = trans.getResponseCacheControl();
 		String entityTag = trans.getEntityTag(request, trans.getContentVersion(), cache, contentType);
 		if (unmodifiedSince(trans, entityTag)) {
-			return delegate.execute(route, request, context, execAware, callback);
+			return delegate.execute(target, request, context, callback);
 		} else {
-			BasicFuture<CloseableHttpResponse> future;
-			future = new BasicFuture<CloseableHttpResponse>(callback);
+			BasicFuture<HttpResponse> future;
+			future = new BasicFuture<HttpResponse>(callback);
 			future.completed(new ResponseBuilder(trans).preconditionFailed("Resource has since been modified"));
 			return future;
 		}

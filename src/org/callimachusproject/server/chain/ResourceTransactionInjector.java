@@ -13,13 +13,10 @@ import java.util.concurrent.RejectedExecutionException;
 import javax.xml.datatype.DatatypeConfigurationException;
 
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpException;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpExecutionAware;
-import org.apache.http.client.methods.HttpRequestWrapper;
 import org.apache.http.concurrent.FutureCallback;
-import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.client.CloseableEntity;
@@ -56,11 +53,9 @@ public class ResourceTransactionInjector implements AsyncExecChain {
 	}
 
 	@Override
-	public Future<CloseableHttpResponse> execute(HttpRoute route,
-			HttpRequestWrapper request, HttpContext ctx,
-			HttpExecutionAware execAware,
-			FutureCallback<CloseableHttpResponse> callback) throws IOException,
-			HttpException {
+	public Future<HttpResponse> execute(HttpHost target,
+			HttpRequest request, HttpContext ctx,
+			FutureCallback<HttpResponse> callback) {
 		final Request req = new Request(request);
 		CalliRepository repo = getRepository(req.getOrigin());
 		if (repo == null || !repo.isInitialized())
@@ -72,38 +67,37 @@ public class ResourceTransactionInjector implements AsyncExecChain {
 			op.begin(context.getReceivedOn(), req.getMethod(), req.isSafe());
 			boolean success = false;
 			try {
-				Future<CloseableHttpResponse> future = handler.execute(route, request, context, execAware,
-						new ResponseCallback(callback) {
-							public void completed(CloseableHttpResponse result) {
-								int code = result.getStatusLine()
-										.getStatusCode();
-								try {
-									if (!req.isSafe() && code < 300) {
-										op.commit();
-									}
-									createSafeHttpEntity(op, result);
-									super.completed(result);
-								} catch (RepositoryException ex) {
-									failed(ex);
-								} catch (IOException ex) {
-									failed(ex);
-								} finally {
-									context.removeResourceTransaction(op);
-								}
+				Future<HttpResponse> future = handler.execute(target, request, context, new ResponseCallback(callback) {
+					public void completed(HttpResponse result) {
+						int code = result.getStatusLine()
+								.getStatusCode();
+						try {
+							if (!req.isSafe() && code < 300) {
+								op.commit();
 							}
+							createSafeHttpEntity(op, result);
+							super.completed(result);
+						} catch (RepositoryException ex) {
+							failed(ex);
+						} catch (IOException ex) {
+							failed(ex);
+						} finally {
+							context.removeResourceTransaction(op);
+						}
+					}
 
-							public void failed(Exception ex) {
-								op.endExchange();
-								context.removeResourceTransaction(op);
-								super.failed(ex);
-							}
+					public void failed(Exception ex) {
+						op.endExchange();
+						context.removeResourceTransaction(op);
+						super.failed(ex);
+					}
 
-							public void cancelled() {
-								op.endExchange();
-								context.removeResourceTransaction(op);
-								super.cancelled();
-							}
-						});
+					public void cancelled() {
+						op.endExchange();
+						context.removeResourceTransaction(op);
+						super.cancelled();
+					}
+				});
 				success = true;
 				return future;
 			} finally {

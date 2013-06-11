@@ -28,17 +28,14 @@
  */
 package org.callimachusproject.server.helpers;
 
-import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 
-import org.apache.http.HttpException;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpExecutionAware;
-import org.apache.http.client.methods.HttpRequestWrapper;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
 import org.apache.http.concurrent.FutureCallback;
-import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.impl.execchain.ClientExecChain;
 import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.server.AsyncExecChain;
@@ -57,10 +54,9 @@ public class PooledExecChain implements AsyncExecChain {
 	}
 
 	@Override
-	public Future<CloseableHttpResponse> execute(final HttpRoute route,
-			final HttpRequestWrapper request, final HttpContext context,
-			final HttpExecutionAware execAware,
-			final FutureCallback<CloseableHttpResponse> callback) {
+	public Future<HttpResponse> execute(final HttpHost target,
+			final HttpRequest request, final HttpContext context,
+			final FutureCallback<HttpResponse> callback) {
 		try {
 			final DelegatingFuture future = new DelegatingFuture(callback);
 			final Future<?> first = executor.submit(new Runnable() {
@@ -69,13 +65,9 @@ public class PooledExecChain implements AsyncExecChain {
 						if (future.isCancelled()) {
 							future.cancelled();
 						} else {
-							future.setDelegate(delegate.execute(route, request,
-									context, execAware, future));
+							future.setDelegate(delegate.execute(target, request,
+									context, future));
 						}
-					} catch (HttpException ex) {
-						future.failed(ex);
-					} catch (IOException ex) {
-						future.failed(ex);
 					} catch (RuntimeException ex) {
 						future.failed(ex);
 					} catch (Error ex) {

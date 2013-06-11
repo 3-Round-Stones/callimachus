@@ -40,7 +40,7 @@ public class RealmManager {
 		realms = null;
 	}
 
-	public DetachedRealm getRealm(String target) throws OpenRDFException, IOException {
+	public DetachedRealm getRealm(String target) throws OpenRDFException {
 		return getRealms().getClosest(target);
 	}
 
@@ -55,7 +55,7 @@ public class RealmManager {
 	}
 
 	private synchronized PrefixMap<DetachedRealm> getRealms()
-			throws OpenRDFException, IOException {
+			throws OpenRDFException {
 		if (realms != null && revision == cache)
 			return realms;
 		revision = cache;
@@ -72,7 +72,7 @@ public class RealmManager {
 	}
 
 	private PrefixMap<DetachedRealm> loadRealms(ObjectConnection con)
-			throws OpenRDFException, IOException {
+			throws OpenRDFException {
 		PrefixMap<DetachedRealm> realms = new PrefixMap<DetachedRealm>();
 		ValueFactory vf = con.getValueFactory();
 		addRealmsOfType(vf.createURI(CALLI_REALM), realms, con);
@@ -81,7 +81,7 @@ public class RealmManager {
 	}
 
 	private void addRealmsOfType(URI type, PrefixMap<DetachedRealm> realms,
-			ObjectConnection con) throws OpenRDFException, IOException {
+			ObjectConnection con) throws OpenRDFException {
 		ObjectQuery qry = con.prepareObjectQuery(SPARQL, SELECT_BY_TYPE);
 		qry.setBinding("type", type);
 		for (Object o : qry.evaluate(Object.class).asList()) {

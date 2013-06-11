@@ -28,18 +28,18 @@
  */
 package org.callimachusproject.server.helpers;
 
-import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.HttpResponse;
 import org.apache.http.concurrent.FutureCallback;
 
-public class ResponseCallback implements FutureCallback<CloseableHttpResponse> {
-	private final FutureCallback<CloseableHttpResponse> delegate;
+public class ResponseCallback implements FutureCallback<HttpResponse> {
+	private final FutureCallback<HttpResponse> delegate;
 
-	public ResponseCallback(FutureCallback<CloseableHttpResponse> delegate) {
+	public ResponseCallback(FutureCallback<HttpResponse> delegate) {
 		this.delegate = delegate;
 	}
 
 	@Override
-	public void completed(CloseableHttpResponse result) {
+	public void completed(HttpResponse result) {
 		delegate.completed(result);
 	}
 

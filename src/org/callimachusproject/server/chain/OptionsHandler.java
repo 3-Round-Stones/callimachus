@@ -29,7 +29,6 @@
  */
 package org.callimachusproject.server.chain;
 
-import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -39,13 +38,11 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.Future;
 
-import org.apache.http.HttpException;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpExecutionAware;
-import org.apache.http.client.methods.HttpRequestWrapper;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
 import org.apache.http.concurrent.BasicFuture;
 import org.apache.http.concurrent.FutureCallback;
-import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.annotations.header;
 import org.callimachusproject.annotations.method;
@@ -78,11 +75,9 @@ public class OptionsHandler implements AsyncExecChain {
 	}
 
 	@Override
-	public Future<CloseableHttpResponse> execute(HttpRoute route,
-			HttpRequestWrapper request, HttpContext context,
-			HttpExecutionAware execAware,
-			final FutureCallback<CloseableHttpResponse> callback) throws IOException,
-			HttpException {
+	public Future<HttpResponse> execute(HttpHost target,
+			HttpRequest request, HttpContext context,
+			final FutureCallback<HttpResponse> callback) {
 		if ("OPTIONS".equals(request.getRequestLine().getMethod())) {
 			ResourceTransaction trans = CalliContext.adapt(context).getResourceTransaction();
 			StringBuilder sb = new StringBuilder();
@@ -117,22 +112,21 @@ public class OptionsHandler implements AsyncExecChain {
 			if (max != null) {
 				rb.addHeader("Access-Control-Max-Age", max);
 			}
-			BasicFuture<CloseableHttpResponse> future;
-			future = new BasicFuture<CloseableHttpResponse>(callback);
+			BasicFuture<HttpResponse> future;
+			future = new BasicFuture<HttpResponse>(callback);
 			future.completed(rb);
 			return future;
 		} else {
-			return delegate.execute(route, request, context, execAware,
-					new ResponseCallback(callback) {
-						public void completed(CloseableHttpResponse result) {
-							allow(result);
-							super.completed(result);
-						}
-					});
+			return delegate.execute(target, request, context, new ResponseCallback(callback) {
+				public void completed(HttpResponse result) {
+					allow(result);
+					super.completed(result);
+				}
+			});
 		}
 	}
 
-	CloseableHttpResponse allow(CloseableHttpResponse resp) {
+	void allow(HttpResponse resp) {
 		if (resp != null && resp.getStatusLine().getStatusCode() == 405) {
 			if (resp.containsHeader("Allow")) {
 				String allow = resp.getFirstHeader("Allow").getValue();
@@ -141,7 +135,6 @@ public class OptionsHandler implements AsyncExecChain {
 				resp.setHeader("Allow", "OPTIONS");
 			}
 		}
-		return resp;
 	}
 
 	private Collection<String> getAllowedHeaders(String m, ResourceTransaction request) {

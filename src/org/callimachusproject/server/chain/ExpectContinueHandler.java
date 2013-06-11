@@ -28,17 +28,14 @@
  */
 package org.callimachusproject.server.chain;
 
-import java.io.IOException;
 import java.util.concurrent.Future;
 
 import org.apache.http.Header;
-import org.apache.http.HttpException;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpExecutionAware;
-import org.apache.http.client.methods.HttpRequestWrapper;
 import org.apache.http.concurrent.FutureCallback;
-import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.server.AsyncExecChain;
@@ -56,11 +53,9 @@ public class ExpectContinueHandler implements AsyncExecChain {
 	}
 
 	@Override
-	public Future<CloseableHttpResponse> execute(HttpRoute route,
-			HttpRequestWrapper request, HttpContext context,
-			HttpExecutionAware execAware,
-			FutureCallback<CloseableHttpResponse> callback) throws IOException,
-			HttpException {
+	public Future<HttpResponse> execute(HttpHost target,
+			HttpRequest request, HttpContext context,
+			FutureCallback<HttpResponse> callback) {
 		Exchange exchange = CalliContext.adapt(context).getExchange();
 		if (exchange != null) {
 			Header expect = request.getFirstHeader("Expect");
@@ -68,7 +63,7 @@ public class ExpectContinueHandler implements AsyncExecChain {
 				exchange.submitContinue(_100);
 			}
 		}
-		return delegate.execute(route, request, context, execAware, callback);
+		return delegate.execute(target, request, context, callback);
 	}
 
 }

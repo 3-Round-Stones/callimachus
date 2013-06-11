@@ -28,15 +28,12 @@
  */
 package org.callimachusproject.server;
 
-import java.io.IOException;
 import java.util.concurrent.Future;
 
-import org.apache.http.HttpException;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpExecutionAware;
-import org.apache.http.client.methods.HttpRequestWrapper;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
 import org.apache.http.concurrent.FutureCallback;
-import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.protocol.HttpContext;
 
 /**
@@ -44,19 +41,11 @@ import org.apache.http.protocol.HttpContext;
  * Each element can either be a decorator around another element that implements
  * a cross cutting aspect or a self-contained executor capable of producing a
  * response for the given request.
- * <p/>
- * Important: please note it is required for decorators that implement post
- * execution aspects or response post-processing of any sort to release
- * resources associated with the response by calling
- * {@link CloseableHttpResponse#close()} methods in case of an I/O, protocol or
- * runtime exception, or in case the response is not propagated to the caller.
  */
 public interface AsyncExecChain {
 
-	Future<CloseableHttpResponse> execute(HttpRoute route,
-			HttpRequestWrapper request, HttpContext context,
-			HttpExecutionAware execAware,
-			FutureCallback<CloseableHttpResponse> callback) throws IOException,
-			HttpException;
+	Future<HttpResponse> execute(HttpHost target,
+			HttpRequest request, HttpContext context,
+			FutureCallback<HttpResponse> callback);
 
 }

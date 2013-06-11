@@ -118,7 +118,7 @@ public abstract class DigestManagerSupport extends AuthenticationManagerSupport
 	@Override
 	public DetachedAuthenticationManager detachAuthenticationManager(
 			String path, List<String> domains, RealmManager manager)
-			throws OpenRDFException, IOException {
+			throws OpenRDFException {
 		DigestAccessor accessor = createDigestAccessor(manager);
 		if (accessor == null)
 			return null;

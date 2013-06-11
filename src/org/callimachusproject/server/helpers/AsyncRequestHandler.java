@@ -38,12 +38,9 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpInetConnection;
 import org.apache.http.HttpRequest;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpExecutionAware;
-import org.apache.http.client.methods.HttpRequestWrapper;
+import org.apache.http.HttpResponse;
 import org.apache.http.client.utils.URIUtils;
 import org.apache.http.concurrent.FutureCallback;
-import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.nio.protocol.HttpAsyncExchange;
 import org.apache.http.nio.protocol.HttpAsyncRequestConsumer;
 import org.apache.http.nio.protocol.HttpAsyncRequestHandler;
@@ -117,12 +114,10 @@ public class AsyncRequestHandler implements HttpAsyncRequestHandlerMapper,
 		cc.setReceivedOn(System.currentTimeMillis());
 		cc.setClientAddr(remoteAddress);
 		HttpHost host = URIUtils.extractHost(URI.create(req.getOrigin() + "/"));
-		HttpRoute route = new HttpRoute(host);
-		HttpExecutionAware execAware = null;
 		try {
-			handler.execute(route, HttpRequestWrapper.wrap(req), ctx,
-					execAware, new FutureCallback<CloseableHttpResponse>() {
-						public void completed(CloseableHttpResponse result) {
+			handler.execute(host, req, ctx,
+					new FutureCallback<HttpResponse>() {
+						public void completed(HttpResponse result) {
 							exchange.submitResponse(result);
 						}
 

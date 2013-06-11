@@ -8,11 +8,11 @@ import org.xml.sax.SAXException;
 
 public class PipelineFactory {
 
-	public static PipelineFactory newInstance() throws IOException {
+	public static PipelineFactory newInstance() {
 		return new PipelineFactory();
 	}
 
-	private PipelineFactory() throws IOException {
+	private PipelineFactory() {
 		super();
 	}
 

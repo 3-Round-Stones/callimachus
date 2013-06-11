@@ -28,22 +28,22 @@
  */
 package org.callimachusproject.server.helpers;
 
-import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.HttpResponse;
 import org.apache.http.concurrent.BasicFuture;
 import org.apache.http.concurrent.FutureCallback;
 
-public class CompletedResponse extends BasicFuture<CloseableHttpResponse> {
+public class CompletedResponse extends BasicFuture<HttpResponse> {
 
-	public CompletedResponse(FutureCallback<CloseableHttpResponse> callback) {
+	public CompletedResponse(FutureCallback<HttpResponse> callback) {
 		super(callback);
 	}
 
-	public CompletedResponse(FutureCallback<CloseableHttpResponse> callback, CloseableHttpResponse result) {
+	public CompletedResponse(FutureCallback<HttpResponse> callback, HttpResponse result) {
 		super(callback);
 		this.completed(result);
 	}
 
-	public CompletedResponse(FutureCallback<CloseableHttpResponse> callback, Exception ex) {
+	public CompletedResponse(FutureCallback<HttpResponse> callback, Exception ex) {
 		super(callback);
 		this.failed(ex);
 	}

@@ -5,6 +5,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -78,8 +79,7 @@ public class AuthorizationManager {
 		return isPublic(groups) || isMember(user, groups);
 	}
 
-	public DetachedRealm getRealm(String target) throws OpenRDFException,
-			IOException {
+	public DetachedRealm getRealm(String target) throws OpenRDFException {
 		return realmManager.getRealm(target);
 	}
 
@@ -104,7 +104,7 @@ public class AuthorizationManager {
 	}
 
 	public HttpResponse authorize(ResourceTransaction request, Set<Group> groups, long now, InetAddress clientAddr)
-			throws OpenRDFException, IOException {
+			throws OpenRDFException {
 		String m = request.getMethod();
 		RDFObject target = request.getRequestedResource();
 		String or = request.getVaryHeader("Origin");
@@ -139,7 +139,7 @@ public class AuthorizationManager {
 				}
 			} catch (ResponseException exc) {
 				if (unauth != null) {
-					EntityUtils.consume(unauth.getEntity());
+					EntityUtils.consumeQuietly(unauth.getEntity());
 				}
 				throw exc;
 			} catch (Exception exc) {
@@ -153,7 +153,7 @@ public class AuthorizationManager {
 		} else if (!validOrigin) {
 			logger.info("Origin {} not allowed for {}", or, request);
 		}
-		StringEntity body = new StringEntity("Forbidden", "UTF-8");
+		StringEntity body = new StringEntity("Forbidden", Charset.forName("UTF-8"));
 		body.setContentType("text/plain");
 		HttpResponse resp = new BasicHttpResponse(_403);
 		resp.setHeader("Content-Type", "text/plain;charset=UTF-8");
@@ -179,7 +179,7 @@ public class AuthorizationManager {
 	}
 
 	public Set<String> allowOrigin(ResourceTransaction request)
-			throws OpenRDFException, IOException {
+			throws OpenRDFException {
 		Set<String> set = new LinkedHashSet<String>();
 		DetachedRealm realm = getRealm(request);
 		if (realm == null && request.isPublic()) {
@@ -258,7 +258,7 @@ public class AuthorizationManager {
 	}
 
 	private DetachedRealm getRealm(ResourceTransaction request)
-			throws OpenRDFException, IOException {
+			throws OpenRDFException {
 		DetachedRealm realm = getRealm(request.getIRI());
 		if (realm == null)
 			return getRealm(request.getRequestURI());
@@ -354,8 +354,7 @@ public class AuthorizationManager {
 		}
 	}
 
-	private Map<String, String[]> getAuthorizationMap(ResourceTransaction request, long now, InetAddress clientAddr)
-			throws IOException {
+	private Map<String, String[]> getAuthorizationMap(ResourceTransaction request, long now, InetAddress clientAddr) {
 		Map<String, String[]> map = new HashMap<String, String[]>();
 		map.put("request-target", new String[] { request.getRequestLine().getUri() });
 		map.put("request-scheme", new String[] { request.getScheme() });

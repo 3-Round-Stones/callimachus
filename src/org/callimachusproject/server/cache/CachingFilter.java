@@ -153,8 +153,12 @@ public class CachingFilter implements AsyncExecChain {
 		cache.invalidate();
 	}
 
-	public void reset() throws IOException, InterruptedException {
-		cache.clear();
+	public void reset() {
+		try {
+			cache.clear();
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+		}
 	}
 
 	@Override

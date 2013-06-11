@@ -69,6 +69,7 @@ import org.apache.http.client.utils.URIUtils;
 import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.config.ConnectionConfig;
 import org.apache.http.conn.routing.HttpRoute;
+import org.apache.http.impl.client.cache.CacheConfig;
 import org.apache.http.impl.execchain.ClientExecChain;
 import org.apache.http.impl.nio.DefaultHttpServerIODispatch;
 import org.apache.http.impl.nio.DefaultNHttpServerConnectionFactory;
@@ -119,6 +120,7 @@ import org.callimachusproject.server.chain.TraceHandler;
 import org.callimachusproject.server.chain.UnmodifiedSinceHandler;
 import org.callimachusproject.server.exceptions.BadGateway;
 import org.callimachusproject.server.exceptions.GatewayTimeout;
+import org.callimachusproject.server.exceptions.ResponseException;
 import org.callimachusproject.server.helpers.AsyncRequestHandler;
 import org.callimachusproject.server.helpers.CalliContext;
 import org.callimachusproject.server.helpers.Exchange;
@@ -270,68 +272,6 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 		authCache.removeOrigin(origin);
 	}
 
-	private DefaultHttpServerIODispatch createIODispatch(
-			HttpRequestFactory requestFactory, ByteBufferAllocator allocator) {
-		HttpAsyncService handler;
-		DefaultNHttpServerConnectionFactory factory;
-		ConnectionConfig params = getDefaultConnectionConfig();
-		handler = createProtocolHandler(httpproc, service);
-		DefaultHttpRequestParserFactory rparser = new DefaultHttpRequestParserFactory(null, requestFactory);
-		factory = new DefaultNHttpServerConnectionFactory(allocator, rparser, params);
-		return new DefaultHttpServerIODispatch(handler, factory);
-	}
-
-	private DefaultHttpServerIODispatch createSSLDispatch(
-			SSLContext sslcontext, HttpRequestFactory requestFactory,
-			ByteBufferAllocator allocator) {
-		HttpAsyncService handler;
-		SSLNHttpServerConnectionFactory factory;
-		ConnectionConfig params = getDefaultConnectionConfig();
-		handler = createProtocolHandler(httpproc, service);
-		DefaultHttpRequestParserFactory rparser = new DefaultHttpRequestParserFactory(null, requestFactory);
-		factory = new SSLNHttpServerConnectionFactory(sslcontext, null,
-				rparser, allocator, params);
-		return new DefaultHttpServerIODispatch(handler, factory);
-	}
-
-	private ConnectionConfig getDefaultConnectionConfig() {
-		return ConnectionConfig.DEFAULT;
-	}
-
-	private IOReactorConfig createIOReactorConfig() {
-		return IOReactorConfig.custom().setConnectTimeout(timeout)
-				.setIoThreadCount(Runtime.getRuntime().availableProcessors())
-				.setSndBufSize(8 * 1024).setSoKeepAlive(true)
-				.setSoReuseAddress(true).setSoTimeout(timeout)
-				.setTcpNoDelay(false).build();
-	}
-
-	private HttpAsyncService createProtocolHandler(HttpProcessor httpproc,
-			AsyncRequestHandler service) {
-		// Create server-side HTTP protocol handler
-		HttpAsyncService protocolHandler = new HttpAsyncService(httpproc,
-				service) {
-
-			@Override
-			public void connected(final NHttpServerConnection conn) {
-				super.connected(conn);
-				synchronized (connections) {
-					connections.put(conn, true);
-				}
-			}
-
-			@Override
-			public void closed(final NHttpServerConnection conn) {
-				synchronized (connections) {
-					connections.remove(conn);
-				}
-				super.closed(conn);
-			}
-
-		};
-		return protocolHandler;
-	}
-
 	public String getName() {
 		return name.getServerName();
 	}
@@ -367,54 +307,12 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 		links.setEnvelopeType(type);
 	}
 
-	public boolean isCacheAggressive() {
-		return cache.isAggressive();
-	}
-
-	public boolean isCacheDisconnected() {
-		return cache.isDisconnected();
-	}
-
-	public boolean isCacheEnabled() {
-		return cache.isEnabled();
-	}
-
-	public void setCacheAggressive(boolean cacheAggressive) {
-		cache.setAggressive(cacheAggressive);
-	}
-
-	public void setCacheDisconnected(boolean cacheDisconnected) {
-		cache.setDisconnected(cacheDisconnected);
-	}
-
-	public void setCacheEnabled(boolean cacheEnabled) {
-		cache.setEnabled(cacheEnabled);
-	}
-
-	public int getCacheCapacity() {
-		return cache.getMaxCapacity();
-	}
-
-	public void setCacheCapacity(int capacity) {
-		cache.setMaxCapacity(capacity);
-	}
-
-	public int getCacheSize() {
-		return cache.getSize();
-	}
-
 	public String getFrom() {
 		return null;
 	}
 
 	public void setFrom(String from) {
 		throw new UnsupportedOperationException();
-	}
-
-	public void invalidateCache() throws IOException, InterruptedException {
-		cache.invalidate();
-		HttpClientManager.invalidateCache();
-		remoteCache.invalidate();
 	}
 
 	public void resetCache() {
@@ -433,10 +331,6 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 					logger.error(e.toString(), e);
 				} catch (RuntimeException e) {
 					logger.error(e.toString(), e);
-				} catch (IOException e) {
-					logger.error(e.toString(), e);
-				} catch (InterruptedException e) {
-					logger.info(e.toString(), e);
 				}
 			}
 		});
@@ -687,22 +581,26 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 							}
 
 							public void cancelled() {
-								// TODO handle this
+								// oops!
 							}
 						}).get();
 			} catch (InterruptedException ex) {
 				logger.error(ex.toString(), ex);
-				throw new GatewayTimeout(ex);
+				response = new ResponseBuilder(request, context).exception(new GatewayTimeout(ex));
 			} catch (ExecutionException e) {
 				Throwable ex = e.getCause();
 				logger.error(ex.toString(), ex);
 				if (ex instanceof Error) {
 					throw (Error) ex;
-				} else if (ex instanceof RuntimeException) {
-					throw (RuntimeException) ex;
+				} else if (ex instanceof ResponseException) {
+					response = new ResponseBuilder(request, context).exception((ResponseException) ex);
 				} else {
-					throw new BadGateway(ex);
+					response = new ResponseBuilder(request, context).exception(new BadGateway(ex));
 				}
+			} catch (ResponseException ex) {
+				response = new ResponseBuilder(request, context).exception(ex);
+			} catch (RuntimeException ex) {
+				response = new ResponseBuilder(request, context).exception(new BadGateway(ex));
 			}
 			if (response == null) {
 				response = new ResponseBuilder(request, context).exception(new BadGateway());
@@ -825,6 +723,76 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 			writer.close();
 		}
 		logger.info("Connection dump: {}", outputFile);
+	}
+
+	private DefaultHttpServerIODispatch createIODispatch(
+			HttpRequestFactory requestFactory, ByteBufferAllocator allocator) {
+		HttpAsyncService handler;
+		DefaultNHttpServerConnectionFactory factory;
+		ConnectionConfig params = getDefaultConnectionConfig();
+		handler = createProtocolHandler(httpproc, service);
+		DefaultHttpRequestParserFactory rparser = new DefaultHttpRequestParserFactory(null, requestFactory);
+		factory = new DefaultNHttpServerConnectionFactory(allocator, rparser, params);
+		return new DefaultHttpServerIODispatch(handler, factory);
+	}
+
+	private DefaultHttpServerIODispatch createSSLDispatch(
+			SSLContext sslcontext, HttpRequestFactory requestFactory,
+			ByteBufferAllocator allocator) {
+		HttpAsyncService handler;
+		SSLNHttpServerConnectionFactory factory;
+		ConnectionConfig params = getDefaultConnectionConfig();
+		handler = createProtocolHandler(httpproc, service);
+		DefaultHttpRequestParserFactory rparser = new DefaultHttpRequestParserFactory(null, requestFactory);
+		factory = new SSLNHttpServerConnectionFactory(sslcontext, null,
+				rparser, allocator, params);
+		return new DefaultHttpServerIODispatch(handler, factory);
+	}
+
+	private ConnectionConfig getDefaultConnectionConfig() {
+		return ConnectionConfig.DEFAULT;
+	}
+
+	private IOReactorConfig createIOReactorConfig() {
+		return IOReactorConfig.custom().setConnectTimeout(timeout)
+				.setIoThreadCount(Runtime.getRuntime().availableProcessors())
+				.setSndBufSize(8 * 1024).setSoKeepAlive(true)
+				.setSoReuseAddress(true).setSoTimeout(timeout)
+				.setTcpNoDelay(false).build();
+	}
+
+	private CacheConfig getDefaultCacheConfig() {
+		return CacheConfig.custom().setSharedCache(true)
+//				.set303CachingEnabled(true) TODO
+				.setHeuristicCachingEnabled(true)
+				.setHeuristicDefaultLifetime(60 * 60 * 24)
+				.setMaxObjectSize(64000).build();
+	}
+
+	private HttpAsyncService createProtocolHandler(HttpProcessor httpproc,
+			AsyncRequestHandler service) {
+		// Create server-side HTTP protocol handler
+		HttpAsyncService protocolHandler = new HttpAsyncService(httpproc,
+				service) {
+	
+			@Override
+			public void connected(final NHttpServerConnection conn) {
+				super.connected(conn);
+				synchronized (connections) {
+					connections.put(conn, true);
+				}
+			}
+	
+			@Override
+			public void closed(final NHttpServerConnection conn) {
+				synchronized (connections) {
+					connections.remove(conn);
+				}
+				super.closed(conn);
+			}
+	
+		};
+		return protocolHandler;
 	}
 
 	private Set<Integer> diff(int[] existingPorts, int[] ports) {

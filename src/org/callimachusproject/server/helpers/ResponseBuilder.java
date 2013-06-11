@@ -320,7 +320,7 @@ public class ResponseBuilder {
 			w.close();
 			return out.toByteArray();
 		} catch (Exception exc) {
-			logger.error("Could not creating error page: " + systemId, exc);
+			logger.error("Could not create error page: " + systemId, exc);
 			return body.getBytes(UTF8);
 		}
 	}

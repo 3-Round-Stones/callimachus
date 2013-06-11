@@ -52,27 +52,7 @@ public interface WebServerMXBean {
 
 	void connectionDumpToFile(String outputFile) throws IOException;
 
-	boolean isCacheEnabled();
-
-	void setCacheEnabled(boolean cacheEnabled);
-
-	boolean isCacheAggressive();
-
-	void setCacheAggressive(boolean cacheAggressive);
-
-	boolean isCacheDisconnected();
-
-	void setCacheDisconnected(boolean cacheDisconnected);
-
-	int getCacheCapacity();
-
-	void setCacheCapacity(int capacity);
-
-	int getCacheSize();
-
 	void poke();
-
-	void invalidateCache() throws Exception;
 
 	void resetCache() throws Exception;
 

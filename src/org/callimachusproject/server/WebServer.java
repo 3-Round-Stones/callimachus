@@ -198,6 +198,7 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 
 	public WebServer(File cacheDir)
 			throws IOException, NoSuchAlgorithmException {
+		cacheDir.mkdirs();
 		// exec in handling thread
 		ClientExecChain handler = new InvokeHandler();
 		handler = new NotFoundHandler(handler);
@@ -331,6 +332,9 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 					logger.error(e.toString(), e);
 				} catch (RuntimeException e) {
 					logger.error(e.toString(), e);
+				} finally {
+					System.gc();
+					System.runFinalization();
 				}
 			}
 		});

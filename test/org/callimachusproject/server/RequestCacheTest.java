@@ -141,18 +141,6 @@ public class RequestCacheTest extends MetadataServerTestCase {
 				String.class)));
 	}
 
-	public void testMaxStale() throws Exception {
-		clock.queryParam("time", "").put("earlier");
-		WebResource date = display.queryParam("time", "");
-		String now = date.get(String.class);
-		Thread.sleep(1000);
-		clock.queryParam("time", "").put("later");
-		ClientResponse resp = date.header("cache-control", "max-stale").get(
-				ClientResponse.class);
-		assertEquals(now, resp.getEntity(String.class));
-		assertTrue(resp.getHeaders().get("Warning").toString().contains("110"));
-	}
-
 	public void testMinFresh() throws Exception {
 		clock.queryParam("date", "").put("earlier");
 		WebResource date = display.queryParam("date", "");
@@ -194,17 +182,6 @@ public class RequestCacheTest extends MetadataServerTestCase {
 		assertEquals("application/rdf+xml", graph.getType().toString());
 		String graphTag = graph.getEntityTag().toString();
 		assertFalse(tupleTag.equals(graphTag));
-	}
-
-	public void testInvalidate() throws Exception {
-		clock.queryParam("date", "").type("text/plain").put("earlier");
-		WebResource date = display.queryParam("date", "");
-		String earlier = date.get(String.class);
-		clock.queryParam("date", "").type("text/plain").put("later");
-		clock.queryParam("display", "").header("Content-Location",
-				display.getURI()).type("text/uri-list").put(display.getURI().toASCIIString());
-		String later = date.get(String.class);
-		assertFalse(earlier.equals(later));
 	}
 
 }

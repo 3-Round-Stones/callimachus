@@ -158,15 +158,6 @@ public class AuthenticationTest extends MetadataServerTestCase {
 		assertNotNull(resp.getHeaders().get("Authentication-Info").get(0));
 	}
 
-	public void testPostVaryAuth() throws Exception {
-		ClientResponse resp;
-		resp = web("/resource", "bob").post(ClientResponse.class, "input");
-		assertTrue(resp.getEntity(String.class).contains("username=\"bob\""));
-		assertEquals("private", resp.getHeaders().getFirst("Cache-Control"));
-		assertNotNull(resp.getHeaders().get("ETag"));
-		assertFalse(resp.getHeaders().get("Vary").toString().contains("Authorization"));
-	}
-
 	public void testGetVaryAuth() throws Exception {
 		ClientResponse resp;
 		resp = web("/resource", "bob").get(ClientResponse.class);

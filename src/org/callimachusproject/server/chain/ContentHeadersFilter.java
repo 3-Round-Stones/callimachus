@@ -79,12 +79,15 @@ public class ContentHeadersFilter implements AsyncExecChain {
 		String version = trans.isSafe() ? derived : trans.getContentVersion();
 		String entityTag = trans.getEntityTag(req, version, cache, contentType);
 		long lastModified = trans.getLastModified();
-		if (cache != null) {
-			rb.setHeader("Cache-Control", cache);
-		}
-		for (String vary : trans.getVary()) {
-			if (!vary.equalsIgnoreCase("Authorization") && !vary.equalsIgnoreCase("Cookie")) {
-				rb.addHeader("Vary", vary);
+		int code = rb.getStatusLine().getStatusCode();
+		if (code != 412 && code != 304 && trans.isSafe()) {
+			if (cache != null) {
+				rb.setHeader("Cache-Control", cache);
+			}
+			for (String vary : trans.getVary()) {
+				if (!vary.equalsIgnoreCase("Authorization") && !vary.equalsIgnoreCase("Cookie")) {
+					rb.addHeader("Vary", vary);
+				}
 			}
 		}
 		if (version != null && !rb.containsHeader("Content-Version")) {

@@ -115,7 +115,7 @@ public class AsyncRequestHandler implements HttpAsyncRequestHandlerMapper,
 		cc.setClientAddr(remoteAddress);
 		HttpHost host = URIUtils.extractHost(URI.create(req.getOrigin() + "/"));
 		try {
-			handler.execute(host, req, ctx,
+			handler.execute(host, req.getEnclosingRequest(), ctx,
 					new FutureCallback<HttpResponse>() {
 						public void completed(HttpResponse result) {
 							exchange.submitResponse(result);

@@ -67,7 +67,7 @@ public class ContentNegotiationTest extends MetadataServerTestCase {
 
 		@query("my")
 		@requires("urn:test:grant")
-		public void setMyBoolean(@type("*/*") boolean bool) {
+		public void setMyBoolean(@type("application/sparql-results+xml") boolean bool) {
 		}
 
 		@query("my")

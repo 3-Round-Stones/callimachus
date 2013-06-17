@@ -70,6 +70,7 @@ import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.config.ConnectionConfig;
 import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.impl.client.cache.CacheConfig;
+import org.apache.http.impl.client.cache.FileResourceFactory;
 import org.apache.http.impl.execchain.ClientExecChain;
 import org.apache.http.impl.nio.DefaultHttpServerIODispatch;
 import org.apache.http.impl.nio.DefaultNHttpServerConnectionFactory;
@@ -98,9 +99,9 @@ import org.callimachusproject.client.HttpUriResponse;
 import org.callimachusproject.concurrent.ManagedExecutors;
 import org.callimachusproject.concurrent.NamedThreadFactory;
 import org.callimachusproject.repository.CalliRepository;
-import org.callimachusproject.server.cache.CachingFilter;
 import org.callimachusproject.server.chain.AlternativeHandler;
 import org.callimachusproject.server.chain.AuthenticationHandler;
+import org.callimachusproject.server.chain.CacheHandler;
 import org.callimachusproject.server.chain.ContentHeadersFilter;
 import org.callimachusproject.server.chain.ExpectContinueHandler;
 import org.callimachusproject.server.chain.GUnzipFilter;
@@ -192,7 +193,7 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 	private final LinksFilter links;
 	private final AuthenticationHandler authCache;
 	private final ModifiedSinceHandler remoteCache;
-	private final CachingFilter cache;
+	private final CacheHandler cache;
 	private int timeout = 0;
 	private final HttpProcessor httpproc;
 
@@ -219,7 +220,7 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 		filter = new TraceHandler(filter);
 		// exec in i/o thread
 		filter = new PooledExecChain(filter, triaging);
-		filter = cache = new CachingFilter(filter, cacheDir, 1024);
+		filter = cache = new CacheHandler(filter, new FileResourceFactory(cacheDir), getDefaultCacheConfig());
 		filter = new GUnzipFilter(filter);
 		chain = filter = new MD5ValidationFilter(filter);
 		service = new AsyncRequestHandler(chain);
@@ -767,7 +768,8 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 
 	private CacheConfig getDefaultCacheConfig() {
 		return CacheConfig.custom().setSharedCache(true)
-//				.set303CachingEnabled(true) TODO
+				.setAllow303Caching(true)
+				.setWeakETagOnPutDeleteAllowed(true)
 				.setHeuristicCachingEnabled(true)
 				.setHeuristicDefaultLifetime(60 * 60 * 24)
 				.setMaxObjectSize(64000).build();

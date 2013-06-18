@@ -208,9 +208,9 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 		filter = new ExpectContinueHandler(filter);
 		filter = new OptionsHandler(filter);
 		filter = links = new LinksFilter(filter);
+		filter = new ContentHeadersFilter(filter);
 		filter = remoteCache = new ModifiedSinceHandler(filter);
 		filter = new UnmodifiedSinceHandler(filter);
-		filter = new ContentHeadersFilter(filter);
 		filter = authCache = new AuthenticationHandler(filter);
 		filter = new ResponseExceptionHandler(filter);
 		filter = transaction = new TransactionHandler(filter, closing);

@@ -246,7 +246,6 @@ fi
 exec "$JAVA_HOME/bin/java" \
     -Djava.mail.properties="$MAIL" \
     -Dorg.callimachusproject.config.repository="$REPOSITORY_CONFIG" \
-    -Dorg.callimachusproject.config.webapp="$(ls $BASEDIR/lib/$NAME-webapp*.car)" \
     -classpath "$CLASSPATH" \
     -XX:OnOutOfMemoryError="kill -9 %p" \
     $JAVA_OPTS "$MAINCLASS" \

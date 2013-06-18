@@ -165,6 +165,18 @@ if [ ! -e "$JDK_HOME/bin/javac" ] ; then
     exit 5
 fi
 
+if [ ! -e "$JDK_HOME/bin/jrunscript" ] ; then
+    echo "$JDK_HOME/bin/jrunscript is not executable" 1>&2
+    echo "This file is needed to run this program" 1>&2
+    exit 5
+fi
+
+if [ "$("$JDK_HOME/bin/jrunscript" -e 'if(Array.isArray)println(true)')" != "true" ] ; then
+    echo "$JDK_HOME does not include ECMAScript 5 support" 1>&2
+    echo "A newer JDK version (with at least ECMAScript 5 support) is required" 1>&2
+    exit 5
+fi
+
 # Update JAVA_HOME in $CONFIG
 sed -i "s:#\?\s*JAVA_HOME=.*:JAVA_HOME=\"$JAVA_HOME\":" "$CONFIG"
 sed -i "s:#\?\s*JDK_HOME=.*:JDK_HOME=\"$JDK_HOME\":" "$CONFIG"

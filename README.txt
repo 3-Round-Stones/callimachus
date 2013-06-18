@@ -29,7 +29,8 @@ installation directory.
 | prerequisites |
 -----------------
 
-You must have at least Java JDK 7 installed and available.
+You must have at least Java JDK 7 installed and available with ECMAScript 5
+support. Oracle introduced EMCAScript 5 support in Java™ SE 7 Update 1.
 
 Callimachus is expected to work on the following server platforms:
 * Linux i386

@@ -19,14 +19,14 @@ function flashButton(event) {
     setTimeout(function() {
         if (!button.attr('disabled')) {
             button.attr('disabled', 'disabled');
-            button.addClass("disabbled");
+            button.addClass("disabled");
             setTimeout(function() {
                 button.removeAttr('disabled');
-                button.removeClass("disabbled");
+                button.removeClass("disabled");
             }, 5000);
             button.focus(function() {
                 button.removeAttr('disabled');
-                button.removeClass("disabbled");
+                button.removeClass("disabled");
                 return true;
             });
         }

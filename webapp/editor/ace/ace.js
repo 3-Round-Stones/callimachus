@@ -411,7 +411,6 @@ define('ace/lib/es5-shim', ['require', 'exports', 'module' ], function(require, 
  * Annotated ES5: http://es5.github.com/ (specific links below)
  * ES5 Spec: http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-262.pdf
  *
- * @module
  */
 
 /*whatsupdoc*/
@@ -15473,7 +15472,7 @@ StateHandler.prototype = {
     }
 }
 
-/*
+/**
  * This is a useful matching function and therefore is defined here so that
  * users of KeyboardStateMapper can use it.
  *

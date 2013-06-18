@@ -300,7 +300,6 @@ define('ace/lib/es5-shim', ['require', 'exports', 'module' ], function(require, 
  * Annotated ES5: http://es5.github.com/ (specific links below)
  * ES5 Spec: http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-262.pdf
  *
- * @module
  */
 
 /*whatsupdoc*/
@@ -3694,7 +3693,7 @@ org.antlr.runtime.BitSet.prototype = {
 		else if ( elements instanceof org.antlr.runtime.IntervalSet ) {
 			other = elements;
 			// walk set and add each interval
-            /* @todo after implementing intervalset
+            /* TODO after implementing intervalset
 			for (Iterator iter = other.intervals.iterator(); iter.hasNext();) {
 				Interval I = (Interval) iter.next();
 				this.orInPlace(BitSet.range(I.a,I.b));
@@ -4013,7 +4012,6 @@ org.antlr.runtime.BitSet.prototype = {
      * Grows the internal bits array to include at least nwords numbers.
      * @private
      * @param {Number} nwords how many words the new set should be
-     * @private
      */
     setSize: function(nwords) {
         var n = nwords - this.bits.length;

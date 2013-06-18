@@ -54,7 +54,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.tools.FileObject;
-import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.apache.http.Header;
@@ -73,9 +72,6 @@ import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidFactory;
 import org.callimachusproject.fluid.FluidType;
-import org.callimachusproject.repository.CalliRepository;
-import org.callimachusproject.repository.auditing.ActivityFactory;
-import org.callimachusproject.repository.auditing.AuditingRepositoryConnection;
 import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.server.exceptions.MethodNotAllowed;
 import org.callimachusproject.server.exceptions.NotAcceptable;
@@ -86,12 +82,9 @@ import org.openrdf.annotations.ParameterTypes;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.query.QueryEvaluationException;
-import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.base.RepositoryConnectionWrapper;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.RDFObject;
-import org.openrdf.result.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -101,9 +94,9 @@ import org.slf4j.LoggerFactory;
  * @author James Leigh
  * 
  */
-public class ResourceTransaction {
+public class ResourceOperation {
 	private static final String SUB_CLASS_OF = "http://www.w3.org/2000/01/rdf-schema#subClassOf";
-	private Logger logger = LoggerFactory.getLogger(ResourceTransaction.class);
+	private final Logger logger = LoggerFactory.getLogger(ResourceOperation.class);
 
 	private final FluidFactory ff = FluidFactory.getInstance();
 	private final Request request;
@@ -112,20 +105,15 @@ public class ResourceTransaction {
 	private VersionedObject target;
 	private final URI uri;
 	private final FluidBuilder writer;
-	private Fluid body;
 	private final FluidType accepter;
 	private final Set<String> vary = new LinkedHashSet<String>();
-	private Result<VersionedObject> result;
-	private boolean closed;
-	private String credential;
 	private Method method;
 	private MethodNotAllowed notAllowed;
 	private BadRequest badRequest;
 	private NotAcceptable notAcceptable;
 	private UnsupportedMediaType unsupportedMediaType;
-	private boolean isPublic;
 
-	public ResourceTransaction(Request request, CalliRepository repository)
+	public ResourceOperation(Request request, ObjectConnection con)
 			throws QueryEvaluationException, RepositoryException {
 		this.request = request;
 		List<String> headers = getVaryHeaders("Accept");
@@ -141,7 +129,7 @@ public class ResourceTransaction {
 			}
 			accepter = new FluidType(HttpEntity.class, sb.toString().split("\\s*,\\s*"));
 		}
-		this.con = repository.getConnection();
+		this.con = con;
 		this.vf = con.getValueFactory();
 		this.writer = ff.builder(con);
 		try {
@@ -149,36 +137,24 @@ public class ResourceTransaction {
 		} catch (IllegalArgumentException e) {
 			throw new BadRequest(e);
 		}
-	}
-
-	public void begin(long now, String m, boolean safe) throws RepositoryException, QueryEvaluationException,
-			DatatypeConfigurationException {
-		if (target == null) {
-			if (!safe) {
-				initiateActivity(now);
+		target = con.getObjects(VersionedObject.class, uri).singleResult();
+		try {
+			String m = request.getMethod();
+			if ("GET".equals(m) || "HEAD".equals(m)) {
+				method = findMethod("GET", true);
+			} else if ("PUT".equals(m) || "DELETE".equals(m)) {
+				method = findMethod(m, null);
+			} else {
+				method = findMethod();
 			}
-			con.begin();
-			result = con.getObjects(VersionedObject.class, uri);
-			target = result.singleResult();
-		}
-		if (method == null) {
-			try {
-				if ("GET".equals(m) || "HEAD".equals(m)) {
-					method = findMethod("GET", true);
-				} else if ("PUT".equals(m) || "DELETE".equals(m)) {
-					method = findMethod(m, null);
-				} else {
-					method = findMethod();
-				}
-			} catch (MethodNotAllowed e) {
-				notAllowed = e;
-			} catch (BadRequest e) {
-				badRequest = e;
-			} catch (NotAcceptable e) {
-				notAcceptable = e;
-			} catch (UnsupportedMediaType e) {
-				unsupportedMediaType = e;
-			}
+		} catch (MethodNotAllowed e) {
+			notAllowed = e;
+		} catch (BadRequest e) {
+			badRequest = e;
+		} catch (NotAcceptable e) {
+			notAcceptable = e;
+		} catch (UnsupportedMediaType e) {
+			unsupportedMediaType = e;
 		}
 	}
 
@@ -263,23 +239,11 @@ public class ResourceTransaction {
 			}
 		}
 		setCacheControl(getRequestedResource().getClass(), sb);
-		if (sb.indexOf("private") < 0 && sb.indexOf("public") < 0) {
-			if (isPrivate(m)) {
-				if (sb.length() > 0) {
-					sb.append(", ");
-				}
-				sb.append("private");
-			} else if (!isPublic() && sb.indexOf("s-maxage") < 0) {
-				if (sb.length() > 0) {
-					sb.append(", ");
-				}
-				sb.append("s-maxage=0");
-			} else if (isPublic()) {
-				if (sb.length() > 0) {
-					sb.append(", ");
-				}
-				sb.append("public");
+		if (sb.indexOf("private") < 0 && sb.indexOf("public") < 0 && isPrivate(m)) {
+			if (sb.length() > 0) {
+				sb.append(", ");
 			}
+			sb.append("private");
 		}
 		if (sb.length() > 0)
 			return sb.toString();
@@ -301,14 +265,6 @@ public class ResourceTransaction {
 		if (ann == null)
 			return null;
 		return ann.value();
-	}
-
-	public void setPublic(boolean isPublic) {
-		this.isPublic = isPublic;
-	}
-
-	public boolean isPublic() {
-		return isPublic;
 	}
 
 	public Set<String> getAllowedMethods() {
@@ -471,16 +427,8 @@ public class ResourceTransaction {
 		return map;
 	}
 
-	public String getCredential() {
-		return credential;
-	}
-
-	public void setCredential(String cred) {
-		this.credential = cred;
-	}
-
 	public String toString() {
-		return uri.toString();
+		return request.toString();
 	}
 
 	public String getVaryHeader(String name) {
@@ -513,37 +461,10 @@ public class ResourceTransaction {
 
 	public void flush() throws RepositoryException, QueryEvaluationException,
 			IOException {
-		ObjectConnection con = getObjectConnection();
 		this.target = con.getObject(VersionedObject.class, getRequestedResource().getResource());
 	}
 
-	public void rollback() throws RepositoryException {
-		getObjectConnection().rollback();
-	}
-
-	public void commit() throws IOException, RepositoryException {
-		getObjectConnection().commit();
-	}
-
-	/**
-	 * Request has been fully read and response has been fully written.
-	 */
-	public void endExchange() {
-		if (!closed) {
-			closed = true;
-			ObjectConnection con = getObjectConnection();
-			try {
-				con.rollback();
-				con.close();
-			} catch (RepositoryException e) {
-				logger.error(e.toString(), e);
-			}
-		}
-	}
-
 	public Fluid getBody() {
-		if (body != null)
-			return body;
 		String mediaType = request.getHeader("Content-Type");
 		String location = request.getResolvedHeader("Content-Location");
 		if (location == null) {
@@ -565,10 +486,6 @@ public class ResourceTransaction {
 		if (method.isAnnotationPresent(type.class))
 			return method.getAnnotation(type.class).value();
 		return new String[0];
-	}
-
-	public ObjectConnection getObjectConnection() {
-		return con;
 	}
 
 	public FluidBuilder getFluidBuilder() {
@@ -694,28 +611,6 @@ public class ResourceTransaction {
 
 	public boolean isQueryStringPresent() {
 		return request.getQueryString() != null;
-	}
-
-	private void initiateActivity(long now) throws RepositoryException,
-			DatatypeConfigurationException {
-		AuditingRepositoryConnection audit = findAuditing(con);
-		if (audit != null) {
-			ActivityFactory delegate = audit.getActivityFactory();
-			URI bundle = con.getVersionBundle();
-			assert bundle != null;
-			URI activity = delegate.createActivityURI(bundle, vf);
-			con.setVersionBundle(bundle); // use the same URI for blob version
-			audit.setActivityFactory(new RequestActivityFactory(activity, delegate, this, now));
-		}
-	}
-
-	private AuditingRepositoryConnection findAuditing(
-			RepositoryConnection con) throws RepositoryException {
-		if (con instanceof AuditingRepositoryConnection)
-			return (AuditingRepositoryConnection) con;
-		if (con instanceof RepositoryConnectionWrapper)
-			return findAuditing(((RepositoryConnectionWrapper) con).getDelegate());
-		return null;
 	}
 
 	private boolean isRequestBody(Method method) {

@@ -50,7 +50,7 @@ import org.callimachusproject.annotations.title;
 import org.callimachusproject.annotations.type;
 import org.callimachusproject.server.AsyncExecChain;
 import org.callimachusproject.server.helpers.CalliContext;
-import org.callimachusproject.server.helpers.ResourceTransaction;
+import org.callimachusproject.server.helpers.ResourceOperation;
 import org.callimachusproject.server.helpers.ResponseCallback;
 
 /**
@@ -80,7 +80,7 @@ public class LinksFilter implements AsyncExecChain {
 			HttpRequest request, HttpContext context,
 			FutureCallback<HttpResponse> callback) {
 		if ("OPTIONS".equals(request.getRequestLine().getMethod())) {
-			final ResourceTransaction req = CalliContext.adapt(context).getResourceTransaction();
+			final ResourceOperation req = CalliContext.adapt(context).getResourceTransaction();
 			return delegate.execute(target, request, context, new ResponseCallback(callback) {
 				public void completed(HttpResponse result) {
 					addLinks(req, result);
@@ -92,7 +92,7 @@ public class LinksFilter implements AsyncExecChain {
 		}
 	}
 
-	void addLinks(ResourceTransaction request, HttpResponse rb) {
+	void addLinks(ResourceOperation request, HttpResponse rb) {
 		if (!request.isQueryStringPresent()) {
 			for (String link : getLinks(request)) {
 				rb.addHeader("Link", link);
@@ -100,7 +100,7 @@ public class LinksFilter implements AsyncExecChain {
 		}
 	}
 
-	private List<String> getLinks(ResourceTransaction request) {
+	private List<String> getLinks(ResourceOperation request) {
 		String uri = request.getRequestURI();
 		Map<String, List<Method>> map = request
 				.getOperationMethods("GET", true);
@@ -164,7 +164,7 @@ public class LinksFilter implements AsyncExecChain {
 	}
 
 	private Collection<String> getMethodResponseTypes(Method method,
-			ResourceTransaction request) {
+			ResourceOperation request) {
 		Collection<String> values = getResponseType(request, method);
 		if (values != null && !values.isEmpty()) {
 			if (envelopeType != null) {
@@ -179,7 +179,7 @@ public class LinksFilter implements AsyncExecChain {
 		return values;
 	}
 
-	private Collection<String> getResponseType(ResourceTransaction request,
+	private Collection<String> getResponseType(ResourceOperation request,
 			Method m) {
 		Collection<String> set = new LinkedHashSet<String>();
 		type ann = m.getAnnotation(type.class);

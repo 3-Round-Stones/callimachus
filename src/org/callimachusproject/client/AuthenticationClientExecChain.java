@@ -28,9 +28,6 @@ public class AuthenticationClientExecChain implements ClientExecChain {
 			HttpException {
 		final RequestConfig config = context.getRequestConfig();
 
-		context.setAttribute(HttpClientContext.HTTP_CONNECTION,
-				new VirtualConnection(route.getTargetHost()));
-
 		CloseableHttpResponse response = null;
 		while (true) {
 			if (execAware != null && execAware.isAborted()) {

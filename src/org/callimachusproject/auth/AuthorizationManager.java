@@ -30,7 +30,8 @@ import org.apache.http.message.BasicStatusLine;
 import org.apache.http.util.EntityUtils;
 import org.callimachusproject.server.chain.AuthenticationHandler;
 import org.callimachusproject.server.exceptions.ResponseException;
-import org.callimachusproject.server.helpers.ResourceTransaction;
+import org.callimachusproject.server.helpers.CalliContext;
+import org.callimachusproject.server.helpers.ResourceOperation;
 import org.callimachusproject.util.DomainNameSystemResolver;
 import org.openrdf.OpenRDFException;
 import org.openrdf.annotations.Iri;
@@ -103,8 +104,10 @@ public class AuthorizationManager {
 		return false;
 	}
 
-	public HttpResponse authorize(ResourceTransaction request, Set<Group> groups, long now, InetAddress clientAddr)
+	public HttpResponse authorize(ResourceOperation request, Set<Group> groups, CalliContext ctx)
 			throws OpenRDFException {
+		InetAddress clientAddr = ctx.getClientAddr();
+		long now = ctx.getReceivedOn();
 		String m = request.getMethod();
 		RDFObject target = request.getRequestedResource();
 		String or = request.getVaryHeader("Origin");
@@ -121,10 +124,10 @@ public class AuthorizationManager {
 			String cred = null;
 			Collection<String> allowed = realm.allowOrigin();
 			if (or == null || isOriginAllowed(allowed, or)) {
-				ObjectConnection con = request.getObjectConnection();
+				ObjectConnection con = ctx.getObjectConnection();
 				cred = realm.authenticateRequest(m, target, map, con);
 				if (cred != null && isMember(cred, from, groups)) {
-					request.setCredential(cred);
+					ctx.setCredential(cred);
 					return null; // this request is good
 				}
 			}
@@ -161,30 +164,30 @@ public class AuthorizationManager {
 		return resp;
 	}
 
-	public HttpMessage authenticationInfo(ResourceTransaction request, long now, InetAddress clientAddr)
+	public HttpMessage authenticationInfo(ResourceOperation request, CalliContext ctx)
 			throws IOException, OpenRDFException {
 		DetachedRealm realm = getRealm(request);
 		if (realm == null)
 			return null;
+		InetAddress clientAddr = ctx.getClientAddr();
+		long now = ctx.getReceivedOn();
 		String m = request.getMethod();
 		RDFObject target = request.getRequestedResource();
 		Map<String, String[]> map = getAuthorizationMap(request, now, clientAddr);
-		return realm.authenticationInfo(m, target, map, request.getObjectConnection());
+		return realm.authenticationInfo(m, target, map, ctx.getObjectConnection());
 	}
 
-	public boolean withAgentCredentials(ResourceTransaction request,
+	public boolean withAgentCredentials(ResourceOperation request,
 			String origin) throws OpenRDFException, IOException {
 		DetachedRealm realm = getRealm(request);
 		return realm != null && realm.withAgentCredentials(origin);
 	}
 
-	public Set<String> allowOrigin(ResourceTransaction request)
+	public Set<String> allowOrigin(ResourceOperation request)
 			throws OpenRDFException {
 		Set<String> set = new LinkedHashSet<String>();
 		DetachedRealm realm = getRealm(request);
-		if (realm == null && request.isPublic()) {
-			return Collections.singleton("*");
-		} else if (realm != null) {
+		if (realm != null) {
 			set.addAll(realm.allowOrigin());
 		}
 		return set;
@@ -257,7 +260,7 @@ public class AuthorizationManager {
 		}
 	}
 
-	private DetachedRealm getRealm(ResourceTransaction request)
+	private DetachedRealm getRealm(ResourceOperation request)
 			throws OpenRDFException {
 		DetachedRealm realm = getRealm(request.getIRI());
 		if (realm == null)
@@ -354,7 +357,7 @@ public class AuthorizationManager {
 		}
 	}
 
-	private Map<String, String[]> getAuthorizationMap(ResourceTransaction request, long now, InetAddress clientAddr) {
+	private Map<String, String[]> getAuthorizationMap(ResourceOperation request, long now, InetAddress clientAddr) {
 		Map<String, String[]> map = new HashMap<String, String[]>();
 		map.put("request-target", new String[] { request.getRequestLine().getUri() });
 		map.put("request-scheme", new String[] { request.getScheme() });
@@ -384,7 +387,7 @@ public class AuthorizationManager {
 		return result;
 	}
 
-	private String getRequestSource(ResourceTransaction request, InetAddress clientAddr) {
+	private String getRequestSource(ResourceOperation request, InetAddress clientAddr) {
 		StringBuilder via = new StringBuilder();
 		for (String hd : request.getVaryHeaders("X-Forwarded-For")) {
 			for (String ip : hd.split("\\s*,\\s*")) {

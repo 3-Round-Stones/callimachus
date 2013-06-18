@@ -40,7 +40,7 @@ import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.server.AsyncExecChain;
 import org.callimachusproject.server.helpers.CalliContext;
-import org.callimachusproject.server.helpers.ResourceTransaction;
+import org.callimachusproject.server.helpers.ResourceOperation;
 import org.callimachusproject.server.helpers.ResponseBuilder;
 
 /**
@@ -60,7 +60,7 @@ public class UnmodifiedSinceHandler implements AsyncExecChain {
 	public Future<HttpResponse> execute(HttpHost target,
 			HttpRequest request, HttpContext context,
 			FutureCallback<HttpResponse> callback) {
-		ResourceTransaction trans = CalliContext.adapt(context).getResourceTransaction();
+		ResourceOperation trans = CalliContext.adapt(context).getResourceTransaction();
 		String contentType = trans.getResponseContentType();
 		String cache = trans.getResponseCacheControl();
 		String entityTag = trans.getEntityTag(request, trans.getContentVersion(), cache, contentType);
@@ -69,12 +69,12 @@ public class UnmodifiedSinceHandler implements AsyncExecChain {
 		} else {
 			BasicFuture<HttpResponse> future;
 			future = new BasicFuture<HttpResponse>(callback);
-			future.completed(new ResponseBuilder(trans).preconditionFailed("Resource has since been modified"));
+			future.completed(new ResponseBuilder(request, context).preconditionFailed("Resource has since been modified"));
 			return future;
 		}
 	}
 
-	private boolean unmodifiedSince(ResourceTransaction request, String entityTag) {
+	private boolean unmodifiedSince(ResourceOperation request, String entityTag) {
 		long lastModified = request.getLastModified();
 		Enumeration matchs = request.getHeaderEnumeration("If-Match");
 		boolean mustMatch = matchs.hasMoreElements();

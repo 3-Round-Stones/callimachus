@@ -38,9 +38,7 @@ import java.util.Vector;
 import org.apache.commons.httpclient.util.DateParseException;
 import org.apache.commons.httpclient.util.DateUtil;
 import org.apache.http.Header;
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpRequest;
-import org.apache.http.util.EntityUtils;
 import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.server.exceptions.BadRequest;
 
@@ -77,24 +75,6 @@ public class Request extends EditableHttpEntityEnclosingRequest {
 		} catch (IllegalArgumentException e) {
 			throw new BadRequest(e);
 		}
-	}
-
-	/**
-	 * Response has been created, but may not yet be written.
-	 */
-	public void closeRequest() {
-		HttpEntity entity = getEntity();
-		if (entity != null) {
-			EntityUtils.consumeQuietly(entity);
-		}
-		if (getEnclosingRequest() instanceof Request) {
-			((Request) getEnclosingRequest()).closeRequest();
-		}
-	}
-
-	@Override
-	public Request clone() {
-		return (Request) super.clone();
 	}
 
 	public String getHeader(String name) {
@@ -266,7 +246,7 @@ public class Request extends EditableHttpEntityEnclosingRequest {
 		}
 	}
 
-	public int getCacheControl(String directive, int def) {
+	private int getCacheControl(String directive, int def) {
 		Enumeration headers = getHeaderEnumeration("Cache-Control");
 		while (headers.hasMoreElements()) {
 			String value = (String) headers.nextElement();

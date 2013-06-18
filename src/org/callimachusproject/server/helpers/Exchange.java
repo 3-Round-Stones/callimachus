@@ -176,10 +176,10 @@ public class Exchange implements Cancellable {
 	}
 
 	synchronized void closeRequest() {
-		request.closeRequest();
 		if (consumer != null) {
 			consumer.close();
 		}
+		EntityUtils.consumeQuietly(request.getEntity());
 		if (queue != null) {
 			synchronized (queue) {
 				queue.remove(this);

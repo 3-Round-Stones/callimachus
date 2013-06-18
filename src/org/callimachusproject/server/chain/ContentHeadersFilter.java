@@ -38,7 +38,7 @@ import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.server.AsyncExecChain;
 import org.callimachusproject.server.helpers.CalliContext;
-import org.callimachusproject.server.helpers.ResourceTransaction;
+import org.callimachusproject.server.helpers.ResourceOperation;
 import org.callimachusproject.server.helpers.ResponseCallback;
 import org.callimachusproject.server.util.HTTPDateFormat;
 
@@ -59,30 +59,49 @@ public class ContentHeadersFilter implements AsyncExecChain {
 
 	@Override
 	public Future<HttpResponse> execute(HttpHost target,
-			final HttpRequest request, HttpContext context,
+			final HttpRequest request, final HttpContext context,
 			FutureCallback<HttpResponse> callback) {
-		final ResourceTransaction trans = CalliContext.adapt(context)
+		final ResourceOperation trans = CalliContext.adapt(context)
 				.getResourceTransaction();
 		final String contentType = trans.getResponseContentType();
 		final String derived = trans.getContentVersion();
 		final String cache = trans.getResponseCacheControl();
 		return delegate.execute(target, request, context, new ResponseCallback(callback) {
 			public void completed(HttpResponse result) {
-				addHeaders(request, trans, contentType, derived, cache, result);
+				addHeaders(request, context, trans, contentType, derived, cache, result);
 				super.completed(result);
 			}
 		});
 	}
 
-	void addHeaders(HttpRequest req, ResourceTransaction trans, String contentType,
-			String derived, String cache, HttpResponse rb) {
+	void addHeaders(HttpRequest req, HttpContext context,
+			ResourceOperation trans, String contentType, String derived,
+			String cache, HttpResponse rb) {
 		String version = trans.isSafe() ? derived : trans.getContentVersion();
 		String entityTag = trans.getEntityTag(req, version, cache, contentType);
 		long lastModified = trans.getLastModified();
 		int code = rb.getStatusLine().getStatusCode();
 		if (code != 412 && code != 304 && trans.isSafe()) {
+			StringBuilder sb = new StringBuilder();
 			if (cache != null) {
-				rb.setHeader("Cache-Control", cache);
+				sb.append(cache);
+			}
+			if (sb.indexOf("private") < 0 && sb.indexOf("public") < 0) {
+				CalliContext ctx = CalliContext.adapt(context);
+				if (!ctx.isPublic() && sb.indexOf("s-maxage") < 0) {
+					if (sb.length() > 0) {
+						sb.append(", ");
+					}
+					sb.append("s-maxage=0");
+				} else if (ctx.isPublic()) {
+					if (sb.length() > 0) {
+						sb.append(", ");
+					}
+					sb.append("public");
+				}
+			}
+			if (sb.length() > 0) {
+				rb.setHeader("Cache-Control", sb.toString());
 			}
 			for (String vary : trans.getVary()) {
 				if (!vary.equalsIgnoreCase("Authorization") && !vary.equalsIgnoreCase("Cookie")) {

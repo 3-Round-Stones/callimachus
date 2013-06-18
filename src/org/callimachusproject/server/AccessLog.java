@@ -6,6 +6,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -13,19 +14,20 @@ import java.util.regex.Pattern;
 import org.apache.http.Header;
 import org.apache.http.HttpConnection;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpException;
+import org.apache.http.HttpHost;
 import org.apache.http.HttpInetConnection;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpCoreContext;
-import org.apache.http.protocol.HttpProcessor;
 import org.callimachusproject.client.StreamingHttpEntity;
 import org.callimachusproject.io.ChannelUtil;
+import org.callimachusproject.server.helpers.ResponseCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AccessLog implements HttpProcessor {
+public class AccessLog implements AsyncExecChain {
 	private static final String USERNAME = "username=";
 	private static final String NIL = "-";
 	private static final String FORENSIC_ATTR = AccessLog.class.getName() + "#forensicId";
@@ -35,23 +37,40 @@ public class AccessLog implements HttpProcessor {
 	private final String uid = "t"
 			+ Long.toHexString(System.currentTimeMillis()) + "x";
 	private final AtomicLong seq = new AtomicLong(0);
+	private final AsyncExecChain delegate;
 
-	@Override
-	public void process(HttpRequest request, HttpContext context)
-			throws HttpException, IOException {
-		String addr = getClientAddress(context);
-		trace(request, context, addr == null);
+	public AccessLog(AsyncExecChain delegate) {
+		this.delegate = delegate;
 	}
 
 	@Override
-	public void process(HttpResponse response, HttpContext context)
-			throws HttpException, IOException {
-		filter(HttpCoreContext.adapt(context).getRequest(), context, response);
-	}
-
-	private void filter(HttpRequest req, HttpContext context, final HttpResponse resp) {
+	public Future<HttpResponse> execute(HttpHost target,
+			final HttpRequest request, final HttpContext context,
+			FutureCallback<HttpResponse> callback) {
 		final String addr = getClientAddress(context);
-		trace(req, context, resp, addr == null);
+		traceRequest(request, context, addr == null);
+		return delegate.execute(target, request, context, new ResponseCallback(
+				callback) {
+			public void completed(HttpResponse result) {
+				logResponse(request, context, result);
+				super.completed(result);
+			}
+
+			public void failed(Exception ex) {
+				logCancel(addr, request);
+				super.failed(ex);
+			}
+
+			public void cancelled() {
+				logCancel(addr, request);
+				super.cancelled();
+			}
+		});
+	}
+
+	void logResponse(HttpRequest req, HttpContext context, final HttpResponse resp) {
+		final String addr = getClientAddress(context);
+		traceResponse(req, context, resp, addr == null);
 		if (addr == null)
 			return;
 		final int code = resp.getStatusLine().getStatusCode();
@@ -97,7 +116,7 @@ public class AccessLog implements HttpProcessor {
 					complete = true;
 					if (error) {
 						log(addr, username, line, 599, size, referer, agent);
-					} else if (size < length || length < 0) {
+					} else if (size < length) {
 						log(addr, username, line, 499, size, referer, agent);
 					} else {
 						log(addr, username, line, code, size, referer, agent);
@@ -118,6 +137,14 @@ public class AccessLog implements HttpProcessor {
 				return read;
 			}
 		});
+	}
+
+	void logCancel(final String addr, final HttpRequest request) {
+		String username = getUsername(request).replaceAll("\\s+", "_");
+		String line = request.getRequestLine().toString();
+		Header referer = request.getFirstHeader("Referer");
+		Header agent = request.getFirstHeader("User-Agent");
+		log(addr, username, line, 599, 0, referer, agent);
 	}
 
 	void log(String addr, String username, String line, int code, long length,
@@ -169,7 +196,7 @@ public class AccessLog implements HttpProcessor {
 		return NIL;
 	}
 
-	private void trace(HttpRequest req, HttpContext context, boolean trace) {
+	private void traceRequest(HttpRequest req, HttpContext context, boolean trace) {
 		if (logger.isDebugEnabled() && !trace || logger.isTraceEnabled()) {
 			String id = uid + seq.getAndIncrement();
 			setForensicId(context, id);
@@ -196,7 +223,7 @@ public class AccessLog implements HttpProcessor {
 		context.setAttribute(FORENSIC_ATTR, id);
 	}
 
-	private void trace(HttpRequest req, HttpContext context, HttpResponse resp, boolean trace) {
+	private void traceResponse(HttpRequest req, HttpContext context, HttpResponse resp, boolean trace) {
 		if (logger.isDebugEnabled() && !trace || logger.isTraceEnabled()) {
 			StringBuilder sb = new StringBuilder();
 			sb.append("-").append(getForensicId(context));

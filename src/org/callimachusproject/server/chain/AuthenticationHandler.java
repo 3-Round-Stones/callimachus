@@ -30,7 +30,6 @@
 package org.callimachusproject.server.chain;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -53,7 +52,7 @@ import org.callimachusproject.server.AsyncExecChain;
 import org.callimachusproject.server.exceptions.NotFound;
 import org.callimachusproject.server.helpers.CalliContext;
 import org.callimachusproject.server.helpers.CompletedResponse;
-import org.callimachusproject.server.helpers.ResourceTransaction;
+import org.callimachusproject.server.helpers.ResourceOperation;
 import org.callimachusproject.server.helpers.ResponseBuilder;
 import org.callimachusproject.server.helpers.ResponseCallback;
 import org.openrdf.OpenRDFException;
@@ -101,17 +100,15 @@ public class AuthenticationHandler implements AsyncExecChain {
 	public Future<HttpResponse> execute(HttpHost host,
 			HttpRequest request, HttpContext context,
 			FutureCallback<HttpResponse> callback) {
-		CalliContext ctx = CalliContext.adapt(context);
-		final InetAddress clientAddr = ctx.getClientAddr();
-		final long now = ctx.getReceivedOn();
-		final ResourceTransaction trans = ctx.getResourceTransaction();
+		final CalliContext ctx = CalliContext.adapt(context);
+		final ResourceOperation trans = ctx.getResourceTransaction();
 		final AuthorizationManager manager = getManager(trans);
 		try {
 			final String allowed = getAllowedOrigin(trans, manager);
 			callback = new ResponseCallback(callback) {
 				public void completed(HttpResponse result) {
 					try {
-						allow(trans, manager, result, allowed, now, clientAddr);
+						allow(trans, manager, result, allowed, ctx);
 						super.completed(result);
 					} catch (OpenRDFException ex) {
 						super.failed(ex);
@@ -122,17 +119,17 @@ public class AuthenticationHandler implements AsyncExecChain {
 			};
 			String[] requires = trans.getRequires();
 			if (requires != null && requires.length == 0) {
-				trans.setPublic(true);
+				ctx.setPublic(true);
 			} else {
 				RDFObject target = trans.getRequestedResource();
 				Set<Group> groups = manager.getAuthorizedParties(target, requires);
 				if (manager.isPublic(groups) || groups.isEmpty()
 						&& trans.getJavaMethod() == null) {
-					trans.setPublic(true);
+					ctx.setPublic(true);
 				} else {
-					HttpResponse unauthorized = manager.authorize(trans, groups, now, clientAddr);
+					HttpResponse unauthorized = manager.authorize(trans, groups, ctx);
 					if (unauthorized != null) {
-						return new CompletedResponse(callback, new ResponseBuilder(trans).respond(unauthorized));
+						return new CompletedResponse(callback, new ResponseBuilder(request, context).respond(unauthorized));
 					}
 				}
 			}
@@ -143,7 +140,7 @@ public class AuthenticationHandler implements AsyncExecChain {
 	}
 
 	private synchronized AuthorizationManager getManager(
-			ResourceTransaction request) throws NotFound {
+			ResourceOperation request) throws NotFound {
 		String origin = request.getOrigin();
 		if (managers.containsKey(origin))
 			return managers.get(origin);
@@ -152,7 +149,7 @@ public class AuthenticationHandler implements AsyncExecChain {
 		return managers.values().iterator().next();
 	}
 
-	private String getAllowedOrigin(ResourceTransaction request,
+	private String getAllowedOrigin(ResourceOperation request,
 			AuthorizationManager manager) throws OpenRDFException {
 		Set<String> origins = manager.allowOrigin(request);
 		if (origins == null || origins.isEmpty())
@@ -172,8 +169,8 @@ public class AuthenticationHandler implements AsyncExecChain {
 		return sb.toString();
 	}
 
-	void allow(ResourceTransaction request, AuthorizationManager manager, HttpResponse rb,
-			String allowedOrigin, long now, InetAddress clientAddr) throws OpenRDFException, IOException {
+	void allow(ResourceOperation request, AuthorizationManager manager, HttpResponse rb,
+			String allowedOrigin, CalliContext ctx) throws OpenRDFException, IOException {
 		if (allowedOrigin != null && !rb.containsHeader(ALLOW_ORIGIN)) {
 			rb.setHeader(ALLOW_ORIGIN, allowedOrigin);
 		}
@@ -187,7 +184,7 @@ public class AuthenticationHandler implements AsyncExecChain {
 				}
 			}
 		}
-		HttpMessage msg = manager.authenticationInfo(request, now, clientAddr);
+		HttpMessage msg = manager.authenticationInfo(request, ctx);
 		if (msg != null) {
 			for (Header hd : msg.getAllHeaders()) {
 				rb.addHeader(hd);

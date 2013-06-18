@@ -43,7 +43,7 @@ import org.callimachusproject.server.exceptions.InternalServerError;
 import org.callimachusproject.server.exceptions.ResponseException;
 import org.callimachusproject.server.helpers.CalliContext;
 import org.callimachusproject.server.helpers.CompletedResponse;
-import org.callimachusproject.server.helpers.ResourceTransaction;
+import org.callimachusproject.server.helpers.ResourceOperation;
 import org.callimachusproject.server.helpers.ResponseBuilder;
 import org.callimachusproject.server.helpers.ResponseCallback;
 import org.slf4j.Logger;
@@ -91,8 +91,8 @@ public class ResponseExceptionHandler implements AsyncExecChain {
 
 	HttpUriResponse handle(final HttpRequest request,
 			final HttpContext context, ResponseException e) {
-		ResourceTransaction trans = CalliContext.adapt(context).getResourceTransaction();
-		HttpUriResponse resp = new ResponseBuilder(trans).exception(e);
+		ResourceOperation trans = CalliContext.adapt(context).getResourceTransaction();
+		HttpUriResponse resp = new ResponseBuilder(request, context).exception(e);
 		Set<String> allowed = trans.getAllowedMethods();
 		if (allowed.isEmpty())
 			return resp;

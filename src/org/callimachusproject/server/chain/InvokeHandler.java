@@ -59,13 +59,12 @@ import org.callimachusproject.client.HttpUriResponse;
 import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidException;
-import org.callimachusproject.fluid.FluidFactory;
 import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.server.exceptions.InternalServerError;
 import org.callimachusproject.server.exceptions.NotAcceptable;
 import org.callimachusproject.server.helpers.CalliContext;
 import org.callimachusproject.server.helpers.Request;
-import org.callimachusproject.server.helpers.ResourceTransaction;
+import org.callimachusproject.server.helpers.ResourceOperation;
 import org.callimachusproject.server.helpers.ResponseBuilder;
 import org.openrdf.repository.object.traits.RDFObjectBehaviour;
 import org.slf4j.Logger;
@@ -95,11 +94,11 @@ public class InvokeHandler implements ClientExecChain {
 			HttpRequestWrapper request, HttpClientContext clientContext,
 			HttpExecutionAware execAware) throws IOException, HttpException {
 		CalliContext context = CalliContext.adapt(clientContext);
-		ResourceTransaction trans = context.getResourceTransaction();
+		ResourceOperation trans = context.getResourceTransaction();
 		Method method = trans.getJavaMethod();
 		assert method != null;
 		try {
-			return invoke(trans, method, new Request(request).isSafe());
+			return invoke(trans, method, new Request(request).isSafe(), new ResponseBuilder(request, context));
 		} catch (Error e) {
 			throw e;
 		} catch (RuntimeException e) {
@@ -113,7 +112,7 @@ public class InvokeHandler implements ClientExecChain {
 		}
 	}
 
-	private HttpUriResponse invoke(ResourceTransaction req, Method method, boolean safe)
+	private HttpUriResponse invoke(ResourceOperation req, Method method, boolean safe, ResponseBuilder builder)
 			throws Exception {
 		Fluid body = req.getBody();
 		try {
@@ -129,10 +128,10 @@ public class InvokeHandler implements ClientExecChain {
 				if (message == null) {
 					message = e.toString();
 				}
-				return new ResponseBuilder(req).badRequest(message);
+				return builder.badRequest(message);
 			}
 			try {
-				HttpUriResponse response = invoke(req, method, args, getResponseTypes(req, method));
+				HttpUriResponse response = invoke(req, method, args, getResponseTypes(req, method), builder);
 				if (!safe) {
 					req.flush();
 				}
@@ -159,14 +158,13 @@ public class InvokeHandler implements ClientExecChain {
 		}
 	}
 
-	private HttpUriResponse invoke(ResourceTransaction req, Method method,
-			Object[] args, String[] responseTypes) throws Exception {
+	private HttpUriResponse invoke(ResourceOperation req, Method method,
+			Object[] args, String[] responseTypes, ResponseBuilder rbuilder) throws Exception {
 		if (responseTypes == null || responseTypes.length < 1) {
 			responseTypes = new String[] { "*/*" };
 		}
 		Class<?> type = method.getReturnType();
-		FluidFactory ff = FluidFactory.getInstance();
-		FluidBuilder builder = ff.builder(req.getObjectConnection());
+		FluidBuilder builder = req.getFluidBuilder();
 		if (!builder.isConsumable(method.getGenericReturnType(), responseTypes))
 			throw new NotAcceptable(type.getSimpleName()
 					+ " cannot be converted into "
@@ -176,17 +174,16 @@ public class InvokeHandler implements ClientExecChain {
 		if (result instanceof RDFObjectBehaviour) {
 			result = ((RDFObjectBehaviour) result).getBehaviourDelegate();
 		}
-		return createResponse(req, result, method, responseTypes);
+		return createResponse(req, result, method, responseTypes, rbuilder);
 	}
 
-	private HttpUriResponse createResponse(ResourceTransaction req,
-			Object result, Method method, String[] responseTypes)
+	private HttpUriResponse createResponse(ResourceOperation req,
+			Object result, Method method, String[] responseTypes, ResponseBuilder rbuilder)
 			throws IOException, FluidException {
 		int responseCode = 204;
 		String responsePhrase = "No Content";
 		Set<String> responseLocations = null;
-		FluidFactory ff = FluidFactory.getInstance();
-		FluidBuilder builder = ff.builder(req.getObjectConnection());
+		FluidBuilder builder = req.getFluidBuilder();
 		Fluid writer = builder.consume(result, req.getIRI(),
 				method.getGenericReturnType(), responseTypes);
 		Class<?> type = method.getReturnType();
@@ -254,7 +251,8 @@ public class InvokeHandler implements ClientExecChain {
 			}
 		}
 		HttpUriResponse response = createResponse(req, responseCode,
-				responsePhrase, responseLocations, emptyResult ? null : writer);
+				responsePhrase, responseLocations, emptyResult ? null : writer,
+				rbuilder);
 		if (method.isAnnotationPresent(header.class)) {
 			for (String header : method.getAnnotation(header.class).value()) {
 				int idx = header.indexOf(':');
@@ -268,19 +266,17 @@ public class InvokeHandler implements ClientExecChain {
 		return response;
 	}
 
-	private HttpUriResponse createResponse(ResourceTransaction req,
+	private HttpUriResponse createResponse(ResourceOperation req,
 			int responseCode, String responsePhrase,
-			Set<String> responseLocations, Fluid writer) throws IOException,
-			FluidException {
+			Set<String> responseLocations, Fluid writer, ResponseBuilder builder)
+			throws IOException, FluidException {
 		HttpUriResponse response;
 		if (writer == null) {
-			response = new ResponseBuilder(req).noContent(responseCode,
-					responsePhrase);
+			response = builder.noContent(responseCode, responsePhrase);
 		} else {
 			HttpEntity entity = writer.asHttpEntity(req
 					.getResponseContentType());
-			response = new ResponseBuilder(req).content(responseCode,
-					responsePhrase, entity);
+			response = builder.content(responseCode, responsePhrase, entity);
 		}
 		if (responseLocations != null && !responseLocations.isEmpty()) {
 			for (String location : responseLocations) {
@@ -290,7 +286,7 @@ public class InvokeHandler implements ClientExecChain {
 		return response;
 	}
 
-	private String[] getResponseTypes(ResourceTransaction req, Method method) {
+	private String[] getResponseTypes(ResourceOperation req, Method method) {
 		String preferred = req.getContentType(method);
 		String[] types = req.getTypes(method);
 		if (preferred == null)
@@ -301,7 +297,7 @@ public class InvokeHandler implements ClientExecChain {
 		return result;
 	}
 
-	private Fluid getParameter(ResourceTransaction req, Annotation[] anns,
+	private Fluid getParameter(ResourceOperation req, Annotation[] anns,
 			Class<?> ptype, Fluid input) throws Exception {
 		String[] names = req.getParameterNames(anns);
 		String[] headers = req.getHeaderNames(anns);
@@ -321,7 +317,7 @@ public class InvokeHandler implements ClientExecChain {
 		}
 	}
 
-	private Fluid getHeaderAndQuery(ResourceTransaction req, String[] headers,
+	private Fluid getHeaderAndQuery(ResourceOperation req, String[] headers,
 			String[] queries) {
 		String[] qvalues = getParameterValues(req, queries);
 		if (qvalues == null)
@@ -339,14 +335,14 @@ public class InvokeHandler implements ClientExecChain {
 		return fb.consume(values, req.getIRI(), ftype);
 	}
 
-	private Fluid getParameter(ResourceTransaction req, String... names) {
+	private Fluid getParameter(ResourceOperation req, String... names) {
 		String[] values = getParameterValues(req, names);
 		FluidType ftype = new FluidType(String[].class, "text/plain", "text/*");
 		FluidBuilder fb = req.getFluidBuilder();
 		return fb.consume(values, req.getIRI(), ftype);
 	}
 
-	private String[] getParameterValues(ResourceTransaction req, String... names) {
+	private String[] getParameterValues(ResourceOperation req, String... names) {
 		if (names.length == 0) {
 			return new String[0];
 		} else {
@@ -365,7 +361,7 @@ public class InvokeHandler implements ClientExecChain {
 		}
 	}
 
-	public Map<String, String[]> getParameterMap(ResourceTransaction req) {
+	public Map<String, String[]> getParameterMap(ResourceOperation req) {
 		try {
 			return (Map<String, String[]>) req.getQueryStringParameter().as(
 					new FluidType(mapOfStringArrayType,
@@ -375,7 +371,7 @@ public class InvokeHandler implements ClientExecChain {
 		}
 	}
 
-	private Object[] getParameters(ResourceTransaction req, Method method,
+	private Object[] getParameters(ResourceOperation req, Method method,
 			Fluid input) throws Exception {
 		Class<?>[] ptypes = method.getParameterTypes();
 		Annotation[][] anns = method.getParameterAnnotations();

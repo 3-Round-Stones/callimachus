@@ -46,7 +46,7 @@ import org.callimachusproject.client.HttpUriResponse;
 import org.callimachusproject.server.exceptions.MethodNotAllowed;
 import org.callimachusproject.server.exceptions.NotAcceptable;
 import org.callimachusproject.server.helpers.CalliContext;
-import org.callimachusproject.server.helpers.ResourceTransaction;
+import org.callimachusproject.server.helpers.ResourceOperation;
 import org.callimachusproject.server.helpers.ResponseBuilder;
 
 /**
@@ -82,7 +82,7 @@ public class AlternativeHandler implements ClientExecChain {
 	}
 
 	private HttpUriResponse findAlternate(HttpRequest request, HttpContext context) {
-		ResourceTransaction req = CalliContext.adapt(context).getResourceTransaction();
+		ResourceOperation req = CalliContext.adapt(context).getResourceTransaction();
 		String m = req.getMethod();
 		if (req.getOperation() != null
 				|| !("GET".equals(m) || "HEAD".equals(m)))
@@ -90,14 +90,14 @@ public class AlternativeHandler implements ClientExecChain {
 		Method operation;
 		if ((operation = req.getAlternativeMethod("alternate")) != null) {
 			String loc = req.getRequestURI() + "?" + getQuery(operation);
-			return new ResponseBuilder(req).found(loc);
+			return new ResponseBuilder(request, context).found(loc);
 		} else if ((operation = req.getAlternativeMethod("describedby")) != null) {
 			String loc = req.getRequestURI() + "?" + getQuery(operation);
-			return new ResponseBuilder(req).see(loc);
+			return new ResponseBuilder(request, context).see(loc);
 		} else if (req.getOperation() == null && ("GET".equals(m) || "HEAD".equals(m))) {
-			return new ResponseBuilder(req).notFound();
+			return new ResponseBuilder(request, context).notFound();
 		} else if (req.findMethodHandlers().isEmpty() && ("GET".equals(m) || "HEAD".equals(m))) {
-			return new ResponseBuilder(req).notFound();
+			return new ResponseBuilder(request, context).notFound();
 		}
 		return null;
 	}

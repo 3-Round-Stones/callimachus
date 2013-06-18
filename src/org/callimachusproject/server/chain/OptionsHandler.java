@@ -49,7 +49,7 @@ import org.callimachusproject.annotations.method;
 import org.callimachusproject.client.HttpUriResponse;
 import org.callimachusproject.server.AsyncExecChain;
 import org.callimachusproject.server.helpers.CalliContext;
-import org.callimachusproject.server.helpers.ResourceTransaction;
+import org.callimachusproject.server.helpers.ResourceOperation;
 import org.callimachusproject.server.helpers.ResponseBuilder;
 import org.callimachusproject.server.helpers.ResponseCallback;
 
@@ -79,14 +79,14 @@ public class OptionsHandler implements AsyncExecChain {
 			HttpRequest request, HttpContext context,
 			final FutureCallback<HttpResponse> callback) {
 		if ("OPTIONS".equals(request.getRequestLine().getMethod())) {
-			ResourceTransaction trans = CalliContext.adapt(context).getResourceTransaction();
+			ResourceOperation trans = CalliContext.adapt(context).getResourceTransaction();
 			StringBuilder sb = new StringBuilder();
 			sb.append("OPTIONS, TRACE");
 			for (String method : trans.getAllowedMethods()) {
 				sb.append(", ").append(method);
 			}
 			String allow = sb.toString();
-			HttpUriResponse rb = new ResponseBuilder(trans).noContent();
+			HttpUriResponse rb = new ResponseBuilder(request, context).noContent();
 			rb.addHeader("Allow", allow);
 			String m = trans.getVaryHeader(REQUEST_METHOD);
 			if (m == null) {
@@ -137,7 +137,7 @@ public class OptionsHandler implements AsyncExecChain {
 		}
 	}
 
-	private Collection<String> getAllowedHeaders(String m, ResourceTransaction request) {
+	private Collection<String> getAllowedHeaders(String m, ResourceOperation request) {
 		Collection<String> result = null;
 		Class<?> type = request.getRequestedResource().getClass();
 		for (Method method : type.getMethods()) {

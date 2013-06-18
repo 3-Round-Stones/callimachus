@@ -42,7 +42,7 @@ import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.client.HttpUriResponse;
 import org.callimachusproject.server.AsyncExecChain;
 import org.callimachusproject.server.helpers.CalliContext;
-import org.callimachusproject.server.helpers.ResourceTransaction;
+import org.callimachusproject.server.helpers.ResourceOperation;
 import org.callimachusproject.server.helpers.ResponseBuilder;
 import org.callimachusproject.server.helpers.ResponseCallback;
 import org.callimachusproject.server.util.HTTPDateFormat;
@@ -76,7 +76,7 @@ public class ModifiedSinceHandler implements AsyncExecChain {
 				super.completed(result);
 			}
 		};
-		ResourceTransaction req = CalliContext.adapt(context).getResourceTransaction();
+		ResourceOperation req = CalliContext.adapt(context).getResourceTransaction();
 		String method = req.getMethod();
 		String contentType = req.getResponseContentType();
 		String cache = req.getResponseCacheControl();
@@ -90,11 +90,11 @@ public class ModifiedSinceHandler implements AsyncExecChain {
 				if (tag == null) {
 					return delegate.execute(target, request, context, callback);
 				}
-				resp = new ResponseBuilder(req).notModified();
+				resp = new ResponseBuilder(request, context).notModified();
 			} else if (tag == null) {
 				return delegate.execute(target, request, context, callback);
 			} else {
-				resp = new ResponseBuilder(req).preconditionFailed();
+				resp = new ResponseBuilder(request, context).preconditionFailed();
 			}
 			if (tag.length() > 0) {
 				resp.setHeader("ETag", tag);
@@ -113,7 +113,7 @@ public class ModifiedSinceHandler implements AsyncExecChain {
 		}
 	}
 
-	private String modifiedSince(ResourceTransaction req, String entityTag) {
+	private String modifiedSince(ResourceOperation req, String entityTag) {
 		long lastModified = Math.max(reset, req.getLastModified());
 		boolean notModified = false;
 		try {

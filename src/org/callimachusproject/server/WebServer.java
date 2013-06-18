@@ -57,9 +57,7 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpInetConnection;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestFactory;
-import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpExecutionAware;
@@ -114,10 +112,10 @@ import org.callimachusproject.server.chain.MD5ValidationFilter;
 import org.callimachusproject.server.chain.ModifiedSinceHandler;
 import org.callimachusproject.server.chain.NotFoundHandler;
 import org.callimachusproject.server.chain.OptionsHandler;
-import org.callimachusproject.server.chain.ResourceTransactionInjector;
 import org.callimachusproject.server.chain.ResponseExceptionHandler;
 import org.callimachusproject.server.chain.ServerNameFilter;
 import org.callimachusproject.server.chain.TraceHandler;
+import org.callimachusproject.server.chain.TransactionHandler;
 import org.callimachusproject.server.chain.UnmodifiedSinceHandler;
 import org.callimachusproject.server.exceptions.BadGateway;
 import org.callimachusproject.server.exceptions.GatewayTimeout;
@@ -188,7 +186,7 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 	volatile boolean listening;
 	volatile boolean ssllistening;
 	private final AsyncRequestHandler service;
-	private final ResourceTransactionInjector transaction;
+	private final TransactionHandler transaction;
 	private final AsyncExecChain chain;
 	private final LinksFilter links;
 	private final AuthenticationHandler authCache;
@@ -215,21 +213,20 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 		filter = new ContentHeadersFilter(filter);
 		filter = authCache = new AuthenticationHandler(filter);
 		filter = new ResponseExceptionHandler(filter);
-		filter = transaction = new ResourceTransactionInjector(filter, closing);
+		filter = transaction = new TransactionHandler(filter, closing);
 		filter = env = new HttpResponseFilter(filter);
 		filter = new TraceHandler(filter);
 		// exec in i/o thread
 		filter = new PooledExecChain(filter, triaging);
 		filter = cache = new CacheHandler(filter, new FileResourceFactory(cacheDir), getDefaultCacheConfig());
 		filter = new GUnzipFilter(filter);
-		chain = filter = new MD5ValidationFilter(filter);
+		filter = new MD5ValidationFilter(filter);
+		chain = filter = new AccessLog(filter);
 		service = new AsyncRequestHandler(chain);
-		httpproc = new ImmutableHttpProcessor(
-				new HttpRequestInterceptor[] { new AccessLog() },
-				new HttpResponseInterceptor[] { new ResponseDate(),
-						new ResponseContent(true), new ResponseConnControl(),
-						name = new ServerNameFilter(DEFAULT_NAME),
-						new HeadRequestFilter(), new AccessLog() });
+		httpproc = new ImmutableHttpProcessor(new ResponseDate(),
+				new ResponseContent(true), new ResponseConnControl(),
+				name = new ServerNameFilter(DEFAULT_NAME),
+				new HeadRequestFilter());
 		HttpRequestFactory rfactory = new AnyHttpMethodRequestFactory();
 		HeapByteBufferAllocator allocator = new HeapByteBufferAllocator();
 		IOReactorConfig config = createIOReactorConfig();

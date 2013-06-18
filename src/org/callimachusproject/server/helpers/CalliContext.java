@@ -34,15 +34,19 @@ import java.util.Queue;
 
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
+import org.openrdf.repository.object.ObjectConnection;
 
 public class CalliContext implements HttpContext {
 
-    private static final String NS = CalliContext.class.getName() + "#";
-    private static final String RECEIVED_ATTR = NS + "receivedOn";
+	private static final String NS = CalliContext.class.getName() + "#";
     private static final String CLIENT_ATTR = NS + "clientAddr";
-    private static final String TRANSACTION_ATTR = NS + "resourceTransaction";
-	private static final String EXCHANGE_ATTR = NS + "#exchange";
+    private static final String CONNECTION_ATTR = NS + "#connection";
+    private static final String CREDENTIAL_ATTR = NS + "#credential";
+    private static final String EXCHANGE_ATTR = NS + "#exchange";
 	private static final String PROCESSING_ATTR = NS + "#processing";
+	private static final String PUBLIC_ATTR = NS + "#public";
+	private static final String RECEIVED_ATTR = NS + "receivedOn";
+	private static final String TRANSACTION_ATTR = NS + "resourceTransaction";
 
     public static CalliContext adapt(final HttpContext context) {
         if (context instanceof CalliContext) {
@@ -58,13 +62,32 @@ public class CalliContext implements HttpContext {
 
     private final HttpContext context;
 
+    public CalliContext() {
+        this.context = new BasicHttpContext();
+    }
+
     public CalliContext(final HttpContext context) {
         this.context = context;
     }
 
-    public CalliContext() {
-        this.context = new BasicHttpContext();
+    public String toString() {
+    	return context.toString();
     }
+
+	@Override
+	public Object getAttribute(String id) {
+		return context.getAttribute(id);
+	}
+
+	@Override
+	public Object removeAttribute(String id) {
+		return context.removeAttribute(id);
+	}
+
+	@Override
+	public void setAttribute(String id, Object obj) {
+		context.setAttribute(id, obj);
+	}
 
 	public long getReceivedOn() {
 		Long ret = getAttribute(RECEIVED_ATTR, Long.class);
@@ -83,18 +106,37 @@ public class CalliContext implements HttpContext {
 		setAttribute(CLIENT_ATTR, addr);
 	}
 
-	public ResourceTransaction getResourceTransaction() {
-		return getAttribute(TRANSACTION_ATTR, ResourceTransaction.class);
+	public synchronized String getCredential() {
+		return getAttribute(CREDENTIAL_ATTR, String.class);
 	}
 
-	public void setResourceTransaction(ResourceTransaction trans) {
-		assert trans != null;
+	public synchronized void setCredential(String credential) {
+		setAttribute(CREDENTIAL_ATTR, credential);
+	}
+
+	public synchronized boolean isPublic() {
+		Boolean bool = getAttribute(PUBLIC_ATTR, Boolean.class);
+		return bool != null && bool;
+	}
+
+	public synchronized void setPublic(boolean bool) {
+		setAttribute(PUBLIC_ATTR, bool);
+	}
+
+	public synchronized ObjectConnection getObjectConnection() {
+		return getAttribute(CONNECTION_ATTR, ObjectConnection.class);
+	}
+
+	public synchronized void setObjectConnection(ObjectConnection con) {
+		setAttribute(CONNECTION_ATTR, con);
+	}
+
+	public ResourceOperation getResourceTransaction() {
+		return getAttribute(TRANSACTION_ATTR, ResourceOperation.class);
+	}
+
+	public void setResourceTransaction(ResourceOperation trans) {
 		setAttribute(TRANSACTION_ATTR, trans);
-	}
-
-	public synchronized void removeResourceTransaction(ResourceTransaction trans) {
-		Object removed = removeAttribute(TRANSACTION_ATTR);
-		assert removed == trans;
 	}
 
 	public Exchange getExchange() {
@@ -126,26 +168,11 @@ public class CalliContext implements HttpContext {
 		return queue;
 	}
 
-    @Override
-	public Object getAttribute(String id) {
-		return context.getAttribute(id);
-	}
-
-	@Override
-	public void setAttribute(String id, Object obj) {
-		context.setAttribute(id, obj);
-	}
-
-	@Override
-	public Object removeAttribute(String id) {
-		return context.removeAttribute(id);
-	}
-
 	private <T> T getAttribute(final String attribname, final Class<T> clazz) {
-        final Object obj = getAttribute(attribname);
-        if (obj == null) {
-            return null;
-        }
-        return clazz.cast(obj);
-    }
+	    final Object obj = getAttribute(attribname);
+	    if (obj == null) {
+	        return null;
+	    }
+	    return clazz.cast(obj);
+	}
 }

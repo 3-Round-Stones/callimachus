@@ -22,24 +22,34 @@ import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.client.CloseableEntity;
 import org.callimachusproject.io.ChannelUtil;
 import org.callimachusproject.repository.CalliRepository;
+import org.callimachusproject.repository.auditing.ActivityFactory;
+import org.callimachusproject.repository.auditing.AuditingRepositoryConnection;
 import org.callimachusproject.server.AsyncExecChain;
 import org.callimachusproject.server.exceptions.InternalServerError;
 import org.callimachusproject.server.exceptions.ServiceUnavailable;
 import org.callimachusproject.server.helpers.CalliContext;
 import org.callimachusproject.server.helpers.Request;
-import org.callimachusproject.server.helpers.ResourceTransaction;
+import org.callimachusproject.server.helpers.RequestActivityFactory;
+import org.callimachusproject.server.helpers.ResourceOperation;
 import org.callimachusproject.server.helpers.ResponseCallback;
 import org.openrdf.OpenRDFException;
+import org.openrdf.model.URI;
+import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
+import org.openrdf.repository.base.RepositoryConnectionWrapper;
+import org.openrdf.repository.object.ObjectConnection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class ResourceTransactionInjector implements AsyncExecChain {
+public class TransactionHandler implements AsyncExecChain {
 	private static final int ONE_PACKET = 1024;
 
+	private final Logger logger = LoggerFactory.getLogger(ResourceOperation.class);
 	private final Map<String, CalliRepository> repositories = new LinkedHashMap<String, CalliRepository>();
 	private final AsyncExecChain handler;
 	final Executor executor;
 
-	public ResourceTransactionInjector(AsyncExecChain handler, Executor executor) {
+	public TransactionHandler(AsyncExecChain handler, Executor executor) {
 		this.handler = handler;
 		this.executor = executor;
 	}
@@ -57,14 +67,21 @@ public class ResourceTransactionInjector implements AsyncExecChain {
 			HttpRequest request, HttpContext ctx,
 			FutureCallback<HttpResponse> callback) {
 		final Request req = new Request(request);
+		final boolean unsafe = !req.isSafe();
 		CalliRepository repo = getRepository(req.getOrigin());
 		if (repo == null || !repo.isInitialized())
 			throw new ServiceUnavailable("This origin is not configured");
 		final CalliContext context = CalliContext.adapt(ctx);
 		try {
-			final ResourceTransaction op = new ResourceTransaction(req, repo);
+			final ObjectConnection con = repo.getConnection();
+			con.begin();
+			long now = context.getReceivedOn();
+			if (unsafe) {
+				initiateActivity(now, con, context);
+			}
+			context.setObjectConnection(con);
+			final ResourceOperation op = new ResourceOperation(req, con);
 			context.setResourceTransaction(op);
-			op.begin(context.getReceivedOn(), req.getMethod(), req.isSafe());
 			boolean success = false;
 			try {
 				Future<HttpResponse> future = handler.execute(target, request, context, new ResponseCallback(callback) {
@@ -72,29 +89,29 @@ public class ResourceTransactionInjector implements AsyncExecChain {
 						int code = result.getStatusLine()
 								.getStatusCode();
 						try {
-							if (!req.isSafe() && code < 300) {
-								op.commit();
-							}
-							createSafeHttpEntity(op, result);
+							createSafeHttpEntity(result, unsafe && code < 300, con);
 							super.completed(result);
 						} catch (RepositoryException ex) {
 							failed(ex);
 						} catch (IOException ex) {
 							failed(ex);
 						} finally {
-							context.removeResourceTransaction(op);
+							context.setResourceTransaction(null);
+							context.setObjectConnection(null);
 						}
 					}
 
 					public void failed(Exception ex) {
-						op.endExchange();
-						context.removeResourceTransaction(op);
+						endTransaction(con);
+						context.setResourceTransaction(null);
+						context.setObjectConnection(null);
 						super.failed(ex);
 					}
 
 					public void cancelled() {
-						op.endExchange();
-						context.removeResourceTransaction(op);
+						endTransaction(con);
+						context.setResourceTransaction(null);
+						context.setObjectConnection(null);
 						super.cancelled();
 					}
 				});
@@ -102,7 +119,7 @@ public class ResourceTransactionInjector implements AsyncExecChain {
 				return future;
 			} finally {
 				if (!success) {
-					op.endExchange();
+					endTransaction(con);
 				}
 			}
 		} catch (OpenRDFException ex) {
@@ -116,16 +133,18 @@ public class ResourceTransactionInjector implements AsyncExecChain {
 		return repositories.get(origin);
 	}
 
-	void createSafeHttpEntity(ResourceTransaction req, HttpResponse resp) throws IOException {
+	void createSafeHttpEntity(HttpResponse resp, boolean commit,
+			ObjectConnection con) throws IOException, RepositoryException {
 		boolean endNow = true;
 		try {
 			if (resp.getEntity() != null) {
 				int code = resp.getStatusLine().getStatusCode();
 				HttpEntity entity = resp.getEntity();
 				long length = entity.getContentLength();
-				if (code < 300 && (length < 0 || length > ONE_PACKET)) {
+				if ((code == 200 || code == 203)
+						&& (length < 0 || length > ONE_PACKET)) {
 					// chunk stream entity, close store connection later
-					resp.setEntity(endEntity(entity, req));
+					resp.setEntity(endEntity(entity, con));
 					endNow = false;
 				} else {
 					// copy entity, close store now
@@ -138,9 +157,26 @@ public class ResourceTransactionInjector implements AsyncExecChain {
 				endNow = true;
 			}
 		} finally {
-			if (endNow) {
-				req.endExchange();
+			if (commit) {
+				con.commit();
 			}
+			if (endNow) {
+				endTransaction(con);
+			}
+		}
+	}
+
+	/**
+	 * Request has been fully read and response has been fully written.
+	 */
+	public void endTransaction(ObjectConnection con) {
+		try {
+			if (con.isOpen()) {
+				con.rollback();
+				con.close();
+			}
+		} catch (RepositoryException e) {
+			logger.error(e.toString(), e);
 		}
 	}
 
@@ -162,20 +198,42 @@ public class ResourceTransactionInjector implements AsyncExecChain {
 	}
 
 	private CloseableEntity endEntity(HttpEntity entity,
-			final ResourceTransaction req) {
+			final ObjectConnection con) {
 		return new CloseableEntity(entity, new Closeable() {
 			public void close() {
 				try {
 					executor.execute(new Runnable() {
 						public void run() {
-							req.endExchange();
+							endTransaction(con);
 						}
 					});
 				} catch (RejectedExecutionException ex) {
-					req.endExchange();
+					endTransaction(con);
 				}
 			}
 		});
+	}
+
+	private void initiateActivity(long now, ObjectConnection con, CalliContext ctx) throws RepositoryException,
+			DatatypeConfigurationException {
+		AuditingRepositoryConnection audit = findAuditing(con);
+		if (audit != null) {
+			ActivityFactory delegate = audit.getActivityFactory();
+			URI bundle = con.getVersionBundle();
+			assert bundle != null;
+			URI activity = delegate.createActivityURI(bundle, con.getValueFactory());
+			con.setVersionBundle(bundle); // use the same URI for blob version
+			audit.setActivityFactory(new RequestActivityFactory(activity, delegate, ctx, now));
+		}
+	}
+
+	private AuditingRepositoryConnection findAuditing(
+			RepositoryConnection con) throws RepositoryException {
+		if (con instanceof AuditingRepositoryConnection)
+			return (AuditingRepositoryConnection) con;
+		if (con instanceof RepositoryConnectionWrapper)
+			return findAuditing(((RepositoryConnectionWrapper) con).getDelegate());
+		return null;
 	}
 
 }

@@ -170,7 +170,7 @@ public class SparqlStep implements XProcStep {
 			FluidException, SAXException {
 		ParameterizedQueryParser parser = ParameterizedQueryParser.newInstance();
 		ParameterizedQuery qry = parser.parseQuery(queryString, queryBaseURI);
-		XdmNodeFactory factory = new XdmNodeFactory(queryBaseURI, runtime.getProcessor());
+		XdmNodeFactory factory = new XdmNodeFactory(runtime.getProcessor(), runtime.getHttpClient());
 		String baseURI = getBaseURI(queryBaseURI);
 		TupleQueryResult results = qry.evaluate(parameters, con);
 		try {

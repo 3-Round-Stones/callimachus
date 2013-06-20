@@ -21,6 +21,14 @@ import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
+import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.callimachusproject.auth.AuthorizationManager;
+import org.callimachusproject.auth.DetachedRealm;
+import org.callimachusproject.auth.RealmManager;
+import org.callimachusproject.behaviours.CalliObjectSupport;
+import org.callimachusproject.client.HttpClientFactory;
+import org.callimachusproject.client.HttpUriClient;
 import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.io.ArrangedWriter;
 import org.callimachusproject.repository.auditing.ActivityFactory;
@@ -83,6 +91,9 @@ public class CalliRepository extends RepositoryWrapper implements CalliRepositor
 
 	private final org.slf4j.Logger logger = LoggerFactory.getLogger(CalliRepository.class);
 	private final TracerService service = TracerService.newInstance();
+	private final Map<String, CloseableHttpClient> clients = new HashMap<String, CloseableHttpClient>();
+	private final RealmManager realms;
+	private final AuthorizationManager auth;
 	private final AuditingRepository auditing;
 	private final ObjectRepository object;
 	private String changeFolder;
@@ -99,6 +110,52 @@ public class CalliRepository extends RepositoryWrapper implements CalliRepositor
 		}
 		trace(wrapper);
 		setDelegate(object);
+		CalliObjectSupport.associate(this, object);
+		realms = new RealmManager(this);
+		auth = new AuthorizationManager(realms, object);
+	}
+
+	@Override
+	public void shutDown() throws RepositoryException {
+		super.shutDown();
+		for (CloseableHttpClient client : clients.values()) {
+			try {
+				client.close();
+			} catch (IOException e) {
+				logger.error(e.toString(), e);
+			}
+		}
+	}
+
+	public AuthorizationManager getAuthorizationManager() {
+		return auth;
+	}
+
+	public void resetCache() {
+		getAuthorizationManager().resetCache();
+		realms.resetCache();
+		clients.clear();
+	}
+
+	public DetachedRealm getRealm(String url) throws OpenRDFException {
+		return realms.getRealm(url);
+	}
+
+	public HttpUriClient getHttpClient(String source) throws OpenRDFException {
+		final String realm = getRealm(source).getResource().stringValue();
+		return new HttpUriClient() {
+			protected HttpClient getDelegate() {
+				synchronized (clients) {
+					CloseableHttpClient client = clients.get(realm);
+					if (client == null) {
+						client = HttpClientFactory.getInstance()
+								.createHttpClient(realm);
+						clients.put(realm, client);
+					}
+					return client;
+				}
+			}
+		};
 	}
 
 	@Override

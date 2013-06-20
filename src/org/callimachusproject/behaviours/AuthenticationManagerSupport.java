@@ -4,27 +4,22 @@ import java.io.IOException;
 import java.util.Collection;
 
 import org.callimachusproject.auth.AuthorizationManager;
-import org.callimachusproject.auth.AuthorizationService;
 import org.callimachusproject.auth.DetachedAuthenticationManager;
 import org.callimachusproject.concepts.AuthenticationManager;
+import org.callimachusproject.repository.CalliRepository;
+import org.callimachusproject.traits.CalliObject;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Resource;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.ObjectConnection;
-import org.openrdf.repository.object.ObjectRepository;
-import org.openrdf.repository.object.RDFObject;
 
-public abstract class AuthenticationManagerSupport implements RDFObject,
+public abstract class AuthenticationManagerSupport implements CalliObject,
 		AuthenticationManager {
-	private final AuthorizationService service = AuthorizationService
-			.getInstance();
 
 	public void resetCache() throws RepositoryException {
-		ObjectConnection conn = this.getObjectConnection();
-		conn.commit();
-		ObjectRepository repo = conn.getRepository();
-		service.get(repo).resetCache();
+		this.getObjectConnection().commit();
+		getCalliRepository().resetCache();
 	}
 
 	public boolean isProtected(String url) throws OpenRDFException, IOException {
@@ -41,6 +36,7 @@ public abstract class AuthenticationManagerSupport implements RDFObject,
 		DetachedAuthenticationManager mgr = getManager();
 		mgr.registerUser(invitedUser, vf.createURI(digestUser), email,
 				fullname, con);
+		getCalliRepository().resetCache();
 	}
 
 	/**
@@ -79,10 +75,9 @@ public abstract class AuthenticationManagerSupport implements RDFObject,
 
 	protected DetachedAuthenticationManager getManager()
 			throws OpenRDFException, IOException {
-		Resource self = this.getResource();
-		ObjectRepository repo = this.getObjectConnection().getRepository();
-		AuthorizationManager manager = service.get(repo);
-		return manager.getAuthenticationManager(self);
+		CalliRepository repo = getCalliRepository();
+		AuthorizationManager manager = repo.getAuthorizationManager();
+		return manager.getAuthenticationManager(this.getResource());
 	}
 
 }

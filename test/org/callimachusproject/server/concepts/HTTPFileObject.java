@@ -32,7 +32,7 @@ package org.callimachusproject.server.concepts;
 import javax.tools.FileObject;
 
 import org.callimachusproject.annotations.grant;
-import org.callimachusproject.traits.VersionedObject;
+import org.callimachusproject.traits.CalliObject;
 import org.openrdf.annotations.Matching;
 
 /**
@@ -41,5 +41,5 @@ import org.openrdf.annotations.Matching;
  */
 @Matching( { "http://*", "https://*" })
 @grant("urn:test:anybody")
-public interface HTTPFileObject extends VersionedObject, FileObject {
+public interface HTTPFileObject extends CalliObject, FileObject {
 }

@@ -39,8 +39,10 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpInetConnection;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpVersion;
 import org.apache.http.client.utils.URIUtils;
 import org.apache.http.concurrent.FutureCallback;
+import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.nio.protocol.HttpAsyncExchange;
 import org.apache.http.nio.protocol.HttpAsyncRequestConsumer;
 import org.apache.http.nio.protocol.HttpAsyncRequestHandler;
@@ -66,6 +68,7 @@ public class AsyncRequestHandler implements HttpAsyncRequestHandlerMapper,
 		HttpAsyncRequestHandler<HttpRequest> {
 	private static final InetAddress LOCALHOST = DomainNameSystemResolver
 			.getInstance().getLocalHost();
+	private static final HttpResponse _500 = new BasicHttpResponse(HttpVersion.HTTP_1_1, 500, "Internal Server Error");
 
 	private final Logger logger = LoggerFactory
 			.getLogger(AsyncRequestHandler.class);
@@ -135,7 +138,7 @@ public class AsyncRequestHandler implements HttpAsyncRequestHandlerMapper,
 						}
 
 						public void cancelled() {
-							exchange.cancel();
+							exchange.submitResponse(_500);
 						}
 					});
 		} catch (ResponseException ex) {

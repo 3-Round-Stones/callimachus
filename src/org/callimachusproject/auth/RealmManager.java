@@ -3,8 +3,10 @@ package org.callimachusproject.auth;
 import static org.openrdf.query.QueryLanguage.SPARQL;
 
 import java.io.IOException;
+import java.util.Map;
 
 import org.callimachusproject.concepts.Realm;
+import org.callimachusproject.repository.CalliRepository;
 import org.callimachusproject.util.PrefixMap;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Resource;
@@ -12,7 +14,6 @@ import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.ObjectQuery;
-import org.openrdf.repository.object.ObjectRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,10 +30,10 @@ public class RealmManager {
 
 	private final Logger logger = LoggerFactory.getLogger(RealmManager.class);
 	private int revision = cache;
-	private final ObjectRepository repo;
+	private final CalliRepository repo;
 	private PrefixMap<DetachedRealm> realms;
 
-	public RealmManager(ObjectRepository repository) {
+	public RealmManager(CalliRepository repository) {
 		this.repo = repository;
 	}
 
@@ -62,8 +63,8 @@ public class RealmManager {
 		ObjectConnection con = repo.getConnection();
 		try {
 			realms = loadRealms(con);
-			for (DetachedRealm realm : realms.values()) {
-				realm.init(con, this);
+			for (Map.Entry<String, DetachedRealm> e : realms.entrySet()) {
+				e.getValue().init(con, this, repo.getHttpClient(e.getKey()));
 			}
 			return realms;
 		} finally {

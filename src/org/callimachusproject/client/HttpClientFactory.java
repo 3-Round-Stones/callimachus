@@ -6,21 +6,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.HttpHost;
-import org.apache.http.HttpRequest;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.cache.ResourceFactory;
 import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.config.ConnectionConfig;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.config.SocketConfig;
-import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.ConnectionKeepAliveStrategy;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.LayeredConnectionSocketFactory;
@@ -36,41 +30,35 @@ import org.apache.http.impl.client.cache.ManagedHttpCacheStorage;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.impl.execchain.ClientExecChain;
 import org.apache.http.message.BasicHeader;
-import org.apache.http.params.HttpParams;
-import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.Version;
 import org.callimachusproject.io.FileUtil;
 import org.callimachusproject.util.MailProperties;
 
 /**
- * Manages the connections and cache for outgoing requests.
+ * Manages the connections and cache entries for outgoing requests.
  * 
  * @author James Leigh
  * 
  */
-public class HttpClientManager implements Closeable {
+public class HttpClientFactory implements Closeable {
 	private static final String DEFAULT_NAME = Version.getInstance()
 			.getVersion();
-	private static HttpClientManager instance;
+	private static HttpClientFactory instance;
 	static {
 		try {
 			File dir = File.createTempFile("http-client-cache", "");
 			dir.delete();
 			FileUtil.deleteOnExit(dir);
 			setCacheDirectory(dir);
-			instance = new HttpClientManager(dir);
+			instance = new HttpClientFactory(dir);
 		} catch (IOException e) {
 			throw new AssertionError(e);
 		}
 		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
 			public void run() {
-				synchronized (HttpClientManager.class) {
+				synchronized (HttpClientFactory.class) {
 					if (instance != null) {
-						try {
-							instance.close();
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
+						instance.close();
 						instance = null;
 					}
 				}
@@ -78,7 +66,7 @@ public class HttpClientManager implements Closeable {
 		}));
 	}
 
-	public static synchronized HttpClientManager getInstance() {
+	public static synchronized HttpClientFactory getInstance() {
 		return instance;
 	}
 
@@ -87,11 +75,7 @@ public class HttpClientManager implements Closeable {
 		if (instance != null) {
 			instance.close();
 		}
-		instance = new HttpClientManager(dir);
-	}
-
-	public static synchronized void invalidateCache() {
-		instance.resetCache();
+		instance = new HttpClientFactory(dir);
 	}
 
 	private final ProxyClientExecDecorator decorator;
@@ -99,9 +83,8 @@ public class HttpClientManager implements Closeable {
 	private final PoolingHttpClientConnectionManager connManager;
 	private final ConnectionReuseStrategy reuseStrategy;
 	private final ConnectionKeepAliveStrategy keepAliveStrategy;
-	private final Map<String, CloseableHttpClient> clients = new HashMap<String, CloseableHttpClient>();
 
-	private HttpClientManager(File cacheDir) throws IOException {
+	private HttpClientFactory(File cacheDir) throws IOException {
 		cacheDir.mkdirs();
 		entryFactory = new FileResourceFactory(cacheDir);
 		decorator = new ProxyClientExecDecorator();
@@ -118,38 +101,10 @@ public class HttpClientManager implements Closeable {
 		connManager.setMaxTotal(2 * max);
 		reuseStrategy = DefaultConnectionReuseStrategy.INSTANCE;
 		keepAliveStrategy = DefaultConnectionKeepAliveStrategy.INSTANCE;
-		resetCache();
 	}
 
-	public synchronized void resetCache() {
-		clients.clear();
-	}
-
-	public synchronized CloseableHttpClient createHttpClient(String source) {
-		final String origin = getOrigin(source);
-		return new CloseableHttpClient() {
-			public void close() throws IOException {
-				// no-op
-			}
-			public HttpParams getParams() {
-				return client(origin).getParams();
-			}
-			public ClientConnectionManager getConnectionManager() {
-				return client(origin).getConnectionManager();
-			}
-			protected CloseableHttpResponse doExecute(HttpHost target,
-					HttpRequest request, HttpContext context) throws IOException,
-					ClientProtocolException {
-				return client(origin).execute(target, request, context);
-			}
-		};
-	}
-
-	public synchronized void close() throws IOException {
+	public synchronized void close() {
 		connManager.shutdown();
-		for (CloseableHttpClient client : clients.values()) {
-			client.close();
-		}
 	}
 
 	public synchronized ClientExecChain getProxy(HttpHost destination) {
@@ -170,31 +125,27 @@ public class HttpClientManager implements Closeable {
 		return decorator.removeProxy(proxy);
 	}
 
-	synchronized CloseableHttpClient client(String origin) {
-		CloseableHttpClient client = clients.get(origin);
-		if (client == null) {
-			ManagedHttpCacheStorage storage = new ManagedHttpCacheStorage(
-					getDefaultCacheConfig());
-			List<BasicHeader> headers = new ArrayList<BasicHeader>();
-			headers.add(new BasicHeader("Origin", origin));
-			headers.addAll(getAdditionalRequestHeaders());
-			client = new AutoClosingHttpClient(new CachingHttpClientBuilder() {
-				protected ClientExecChain decorateMainExec(ClientExecChain mainExec) {
-					return super.decorateMainExec(decorator.decorateMainExec(mainExec));
-				}
-			}.setResourceFactory(entryFactory).setHttpCacheStorage(storage)
-					.setConnectionManager(connManager)
-					.setConnectionReuseStrategy(reuseStrategy)
-					.setKeepAliveStrategy(keepAliveStrategy).useSystemProperties()
-					.disableContentCompression()
-					.setDefaultRequestConfig(getDefaultRequestConfig())
-					.addInterceptorFirst(new GZipInterceptor())
-					.addInterceptorFirst(new GUnzipInterceptor())
-					.setDefaultHeaders(headers)
-					.setUserAgent(DEFAULT_NAME).build(), storage);
-			clients.put(origin, client);
-		}
-		return client;
+	public synchronized CloseableHttpClient createHttpClient(String source) {
+		ManagedHttpCacheStorage storage = new ManagedHttpCacheStorage(
+				getDefaultCacheConfig());
+		List<BasicHeader> headers = new ArrayList<BasicHeader>();
+		headers.add(new BasicHeader("Origin", getOrigin(source)));
+		headers.addAll(getAdditionalRequestHeaders());
+		return new AutoClosingHttpClient(new CachingHttpClientBuilder() {
+			protected ClientExecChain decorateMainExec(ClientExecChain mainExec) {
+				return super.decorateMainExec(decorator
+						.decorateMainExec(mainExec));
+			}
+		}.setResourceFactory(entryFactory).setHttpCacheStorage(storage)
+				.setConnectionManager(connManager)
+				.setConnectionReuseStrategy(reuseStrategy)
+				.setKeepAliveStrategy(keepAliveStrategy).useSystemProperties()
+				.disableContentCompression()
+				.setDefaultRequestConfig(getDefaultRequestConfig())
+				.addInterceptorFirst(new GZipInterceptor())
+				.addInterceptorFirst(new GUnzipInterceptor())
+				.setDefaultHeaders(headers).setUserAgent(DEFAULT_NAME).build(),
+				storage);
 	}
 
 	private String getOrigin(String source) {

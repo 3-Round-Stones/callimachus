@@ -22,6 +22,7 @@ import org.apache.http.auth.params.AuthPNames;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpExecutionAware;
@@ -52,7 +53,7 @@ import org.junit.Before;
 import org.junit.ComparisonFailure;
 import org.junit.Test;
 
-public class HttpOriginClientTest extends TestCase {
+public class HttpClientFactoryTest extends TestCase {
 	private static final String ORIGIN = "http://example.com";
 	private static final BasicStatusLine _200 = new BasicStatusLine(
 			HttpVersion.HTTP_1_1, 200, "OK");
@@ -61,7 +62,7 @@ public class HttpOriginClientTest extends TestCase {
 	private static final BasicStatusLine _401 = new BasicStatusLine(
 			HttpVersion.HTTP_1_1, 401, "Unauthorized");
 	private final Queue<HttpResponse> responses = new LinkedList<HttpResponse>();
-	private final HttpOriginClient client = new HttpOriginClient(ORIGIN);
+	private final HttpClient client = HttpClientFactory.getInstance().createHttpClient(ORIGIN);
 	private final FluidBuilder builder = FluidFactory.getInstance().builder();
 	private final ClientExecChain director = new ClientExecChain() {
 		public CloseableHttpResponse execute(HttpRoute route,
@@ -89,14 +90,13 @@ public class HttpOriginClientTest extends TestCase {
 	@Before
 	public void setUp() throws Exception {
 		responses.clear();
-		HttpClientManager.getInstance().resetCache();
-		HttpClientManager.getInstance().setProxy(
+		HttpClientFactory.getInstance().setProxy(
 				new HttpHost("example.com", -1, "http"), director);
 	}
 
 	@After
 	public void tearDown() throws Exception {
-		HttpClientManager.getInstance().removeProxy(
+		HttpClientFactory.getInstance().removeProxy(
 				new HttpHost("example.com", -1, "http"), director);
 	}
 

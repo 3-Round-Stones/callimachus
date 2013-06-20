@@ -4,19 +4,15 @@ import java.io.IOException;
 import java.util.Collection;
 
 import org.apache.http.HttpResponse;
-import org.callimachusproject.auth.AuthorizationService;
 import org.callimachusproject.auth.DetachedRealm;
 import org.callimachusproject.auth.RealmManager;
 import org.callimachusproject.concepts.Realm;
 import org.callimachusproject.server.WebServer;
+import org.callimachusproject.traits.CalliObject;
 import org.openrdf.OpenRDFException;
 import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.object.ObjectConnection;
-import org.openrdf.repository.object.ObjectRepository;
-import org.openrdf.repository.object.RDFObject;
 
-public abstract class RealmSupport implements RDFObject, Realm {
-	private final AuthorizationService service = AuthorizationService.getInstance();
+public abstract class RealmSupport implements CalliObject, Realm {
 
 	/**
 	 * Called from realm.ttl on logout
@@ -24,17 +20,13 @@ public abstract class RealmSupport implements RDFObject, Realm {
 	public HttpResponse logout(Collection<String> tokens,
 			String logoutContinue) throws IOException,
 			OpenRDFException {
-		String uri = this.getResource().stringValue();
-		ObjectRepository repo = this.getObjectConnection().getRepository();
-		DetachedRealm realm = service.get(repo).getRealm(uri);
+		DetachedRealm realm = this.getRealm();
 		return realm.logout(tokens, logoutContinue);
 	}
 
 	public void resetCache() throws RepositoryException {
-		ObjectConnection conn = this.getObjectConnection();
-        conn.commit();
-		ObjectRepository repo = conn.getRepository();
-		service.get(repo).resetCache();
+		this.getObjectConnection().commit();
+		getCalliRepository().resetCache();
 		WebServer.resetAllCache();
 	}
 
@@ -44,7 +36,7 @@ public abstract class RealmSupport implements RDFObject, Realm {
 	}
 
 	@Override
-	public DetachedRealm detachRealm(RealmManager manager) throws OpenRDFException {
+	public DetachedRealm detachRealm(RealmManager manager) {
 		return new DetachedRealm(this.getResource());
 	}
 

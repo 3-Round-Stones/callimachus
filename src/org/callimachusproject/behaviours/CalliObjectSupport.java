@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2009, James Leigh, Some rights reserved.
- * Copyright (c) 2012 3 Round Stones Inc., Some rights reserved.
+ * Copyright (c) 2009, James Leigh All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -31,10 +30,18 @@ package org.callimachusproject.behaviours;
 
 import static java.lang.Integer.toHexString;
 
+import java.lang.ref.WeakReference;
+import java.util.Map;
+import java.util.WeakHashMap;
+
+import org.callimachusproject.auth.DetachedRealm;
+import org.callimachusproject.client.HttpUriClient;
 import org.callimachusproject.concepts.Activity;
+import org.callimachusproject.repository.CalliRepository;
 import org.callimachusproject.repository.auditing.ActivityFactory;
 import org.callimachusproject.repository.auditing.AuditingRepositoryConnection;
-import org.callimachusproject.traits.VersionedObject;
+import org.callimachusproject.traits.CalliObject;
+import org.openrdf.OpenRDFException;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
@@ -43,12 +50,38 @@ import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.base.RepositoryConnectionWrapper;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.ObjectFactory;
+import org.openrdf.repository.object.ObjectRepository;
 import org.openrdf.repository.object.RDFObject;
 
 /**
- * Causes this object's revision to be increased, even if no triples are modified.
+ * Provides access to CalliRepository and revision hash tag.
  */
-public abstract class VersionedObjectSupport implements VersionedObject, RDFObject {
+public abstract class CalliObjectSupport implements CalliObject {
+	private final static Map<ObjectRepository, WeakReference<CalliRepository>> repositories = new WeakHashMap<ObjectRepository, WeakReference<CalliRepository>>();
+
+	public static void associate(CalliRepository repository, ObjectRepository repo) {
+		synchronized (repositories) {
+			repositories.put(repo, new WeakReference<CalliRepository>(repository));
+		}
+	}
+
+	public CalliRepository getCalliRepository() {
+		ObjectRepository key = getObjectConnection().getRepository();
+		synchronized (repositories) {
+			WeakReference<CalliRepository> ref = repositories.get(key);
+			assert ref != null;
+			assert ref.get() != null;
+			return ref.get();
+		}
+	}
+
+	public DetachedRealm getRealm() throws OpenRDFException {
+		return getCalliRepository().getRealm(this.getResource().stringValue());
+	}
+
+	public HttpUriClient getHttpClient() throws OpenRDFException {
+		return getCalliRepository().getHttpClient(this.getResource().stringValue());
+	}
 
 	public void touchRevision() throws RepositoryException {
 		Resource resource = getResource();
@@ -57,7 +90,7 @@ public abstract class VersionedObjectSupport implements VersionedObject, RDFObje
 			ObjectConnection con = getObjectConnection();
 			ObjectFactory of = con.getObjectFactory();
 			if (self.contains("#")) {
-				VersionedObject parent = (VersionedObject) of.createObject(self.substring(0, self.indexOf('#')));
+				CalliObject parent = (CalliObject) of.createObject(self.substring(0, self.indexOf('#')));
 				parent.touchRevision();
 			} else {
 				URI bundle = con.getVersionBundle();

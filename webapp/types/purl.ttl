@@ -48,7 +48,6 @@
     calli:type "message/x-response";
     calli:imports <java:org.apache.http.client.methods.HttpGet>;
     calli:imports <java:org.callimachusproject.rewrite.Substitution>;
-    calli:imports <java:org.callimachusproject.client.HttpOriginClient>;
     calli:imports <java:org.callimachusproject.server.exceptions.ResponseException>;
     calli:script """
         var cacheControl = this.calliCacheControl.toArray();
@@ -78,15 +77,14 @@
                 var location = split[0];
                 if (queryString && location.indexOf('?') < 0) {
                     location = location + '?' + queryString;
-                }   
-                var client = new HttpOriginClient(this.toString());
+                }
                 var systemId = new java.net.URI(this.toString()).resolve(location).normalize().toASCIIString();
                 var req = new HttpGet(systemId);
                 for (var i=1; i<split.length; i++) {
                     var header = split[i].split(':');
                     req.addHeader(header[0], header[1]);
                 }
-                var resp = client.getResponse(req);
+                var resp = this.httpClient.getResponse(req);
                 var headers = {'content-location': systemId,'cache-control':cacheControl};
                 if (resp.getFirstHeader('last-modified')) {
                     headers['last-modified'] = resp.getFirstHeader('last-modified').value;

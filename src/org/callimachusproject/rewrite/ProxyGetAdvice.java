@@ -7,27 +7,27 @@ import java.lang.reflect.Method;
 import org.apache.http.Header;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
-import org.callimachusproject.client.HttpOriginClient;
 import org.callimachusproject.client.HttpUriResponse;
 import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidException;
 import org.callimachusproject.fluid.FluidType;
-import org.callimachusproject.server.exceptions.GatewayTimeout;
+import org.callimachusproject.repository.CalliRepository;
+import org.callimachusproject.server.exceptions.ResponseException;
+import org.callimachusproject.traits.CalliObject;
+import org.openrdf.OpenRDFException;
 import org.openrdf.repository.object.traits.ObjectMessage;
 
 public class ProxyGetAdvice extends RewriteAdvice {
-	private final HttpOriginClient client;
 
 	public ProxyGetAdvice(String[] bindingNames, FluidType[] bindingTypes,
 			Substitution[] replacers, Method method) {
 		super(bindingNames, bindingTypes, replacers, method);
-		this.client = new HttpOriginClient(getSystemId());
 	}
 
 	protected Fluid service(String location, Header[] headers,
-			ObjectMessage message, FluidBuilder fb) throws GatewayTimeout,
-			IOException, FluidException {
+			ObjectMessage message, FluidBuilder fb) throws IOException,
+			FluidException, ResponseException, OpenRDFException {
 		String[] returnMedia = getReturnMedia();
 		if (location == null)
 			return fb.media(returnMedia);
@@ -38,7 +38,9 @@ public class ProxyGetAdvice extends RewriteAdvice {
 			}
 			req.addHeader("Accept", "*/*;q=0.1");
 		}
-		HttpUriResponse resp = client.getResponse(req);
+		assert message.getTarget() instanceof CalliObject;
+		CalliRepository repository = ((CalliObject) message.getTarget()).getCalliRepository();
+		HttpUriResponse resp = repository.getHttpClient(getSystemId()).getResponse(req);
 		String systemId = resp.getSystemId();
 		String contentType = "*/*";
 		InputStream content = null;

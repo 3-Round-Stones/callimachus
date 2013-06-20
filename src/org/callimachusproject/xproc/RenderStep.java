@@ -50,7 +50,7 @@ public class RenderStep implements XProcStep {
 		this.step = step;
 		URI docId = step.getNode().getDocumentURI();
 		assert docId != null;
-		engine = TemplateEngine.newInstance(docId.toASCIIString());
+		engine = TemplateEngine.newInstance(runtime.getHttpClient());
 	}
 
 	@Override

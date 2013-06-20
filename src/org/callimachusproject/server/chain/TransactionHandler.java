@@ -73,6 +73,7 @@ public class TransactionHandler implements AsyncExecChain {
 			throw new ServiceUnavailable("This origin is not configured");
 		final CalliContext context = CalliContext.adapt(ctx);
 		try {
+			context.setCalliRepository(repo);
 			final ObjectConnection con = repo.getConnection();
 			con.begin();
 			long now = context.getReceivedOn();
@@ -98,6 +99,7 @@ public class TransactionHandler implements AsyncExecChain {
 						} finally {
 							context.setResourceTransaction(null);
 							context.setObjectConnection(null);
+							context.setCalliRepository(null);
 						}
 					}
 
@@ -105,6 +107,7 @@ public class TransactionHandler implements AsyncExecChain {
 						endTransaction(con);
 						context.setResourceTransaction(null);
 						context.setObjectConnection(null);
+						context.setCalliRepository(null);
 						super.failed(ex);
 					}
 
@@ -112,6 +115,7 @@ public class TransactionHandler implements AsyncExecChain {
 						endTransaction(con);
 						context.setResourceTransaction(null);
 						context.setObjectConnection(null);
+						context.setCalliRepository(null);
 						super.cancelled();
 					}
 				});

@@ -26,7 +26,7 @@
     foaf:primaryTopic <Pipeline>.
 
 <Pipeline> a <Creatable>, owl:Class;
-    rdfs:subClassOf <File>;
+    rdfs:subClassOf <File>, calli:Pipeline;
     rdfs:label "Pipeline";
     rdfs:comment "XML Processing XProc file";
     owl:equivalentClass </callimachus/Pipeline>;
@@ -130,7 +130,26 @@
     calli:type "message/x-response";
     calli:header "cache-control:no-store,no-transform";
     calli:script """
-        return this.PostResult(queryGetParameters, null, null, null);
+        var pipe = this.pipe();
+        try {
+            var iterator = queryGetParameters.keySet().iterator();
+            while(iterator.hasNext()){
+                var key = iterator.next();
+                var value = queryGetParameters.get(key);
+                if (key != "result" && value && value.length){
+                    pipe.passOption(key, value[0]);
+                } else if (value && value.length > 1) {
+                    pipe.passOption(key, value[1]);
+                }
+            }
+            return {
+                status: 200, message: "OK",
+                headers: {"content-type": pipe.getMediaType()},
+                body: pipe.asStream()
+            };
+        } finally {
+            pipe.close();
+        }
     """.
 
 :queryGetParameters a owl:FunctionalProperty, owl:ObjectProperty;
@@ -148,11 +167,8 @@
     calli:requires calli:reader;
     calli:type "message/x-response";
     calli:header "cache-control:no-store,no-transform";
-    calli:imports <java:org.callimachusproject.xproc.PipelineFactory>;
     calli:script """
-        var factory = PipelineFactory.newInstance();
-        var pipeline = factory.createPipeline(this.openInputStream(), this.toString());
-        var pipe = pipeline.pipeStreamOf(sourcePort, sourceLocation, sourceType);
+        var pipe = this.pipeStreamOf(sourcePort, sourceLocation, sourceType);
         try {
             var iterator = queryPostParameters.keySet().iterator();
             while(iterator.hasNext()){

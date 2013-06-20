@@ -23,7 +23,8 @@ import javax.xml.transform.stream.StreamSource;
 import net.sf.saxon.lib.ModuleURIResolver;
 import net.sf.saxon.trans.XPathException;
 
-import org.callimachusproject.client.HttpOriginClient;
+import org.apache.http.client.HttpClient;
+import org.callimachusproject.client.HttpUriClient;
 import org.callimachusproject.client.HttpUriEntity;
 import org.callimachusproject.server.exceptions.NotFound;
 import org.xml.sax.EntityResolver;
@@ -32,12 +33,16 @@ import org.xml.sax.InputSource;
 public class InputSourceResolver implements EntityResolver, URIResolver, ModuleURIResolver {
 	private static final Pattern CHARSET = Pattern
 			.compile("\\bcharset\\s*=\\s*([\\w-:]+)");
-	private final HttpOriginClient client;
+	private final HttpUriClient client;
 	private final String accept;
 
-	public InputSourceResolver(String systemId, String accept) {
+	public InputSourceResolver(String accept, final HttpClient client) {
 		this.accept = accept;
-		this.client = new HttpOriginClient(systemId);
+		this.client = new HttpUriClient() {
+			protected HttpClient getDelegate() {
+				return client;
+			}
+		};
 	}
 
 	@Override

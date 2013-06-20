@@ -28,21 +28,32 @@
  */
 package org.callimachusproject.traits;
 
+import org.callimachusproject.auth.DetachedRealm;
+import org.callimachusproject.client.HttpUriClient;
 import org.callimachusproject.concepts.Activity;
+import org.callimachusproject.repository.CalliRepository;
+import org.openrdf.OpenRDFException;
 import org.openrdf.annotations.Iri;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.RDFObject;
 
 /**
- * An interface that exposes the auditing SAIL's revision.
+ * An interface that exposes the auditing SAIL's revision and provides access to
+ * CalliRepository and HttpClient.
  */
-public interface VersionedObject extends RDFObject {
+public interface CalliObject extends RDFObject {
 
 	@Iri("http://www.w3.org/ns/prov#wasGeneratedBy")
 	Activity getProvWasGeneratedBy();
 
 	@Iri("http://www.w3.org/ns/prov#wasGeneratedBy")
 	void setProvWasGeneratedBy(Activity activity);
+
+	CalliRepository getCalliRepository();
+
+	DetachedRealm getRealm() throws OpenRDFException;
+
+	HttpUriClient getHttpClient() throws OpenRDFException;
 
 	void touchRevision() throws RepositoryException;
 

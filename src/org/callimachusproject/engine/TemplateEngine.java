@@ -9,7 +9,8 @@ import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerException;
 
-import org.callimachusproject.client.HttpOriginClient;
+import org.apache.http.client.HttpClient;
+import org.callimachusproject.client.HttpUriClient;
 import org.callimachusproject.client.HttpUriEntity;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidException;
@@ -17,14 +18,18 @@ import org.callimachusproject.fluid.FluidFactory;
 
 public class TemplateEngine {
 
-	public static TemplateEngine newInstance(String origin) {
-		return new TemplateEngine(origin);
+	public static TemplateEngine newInstance(HttpClient client) {
+		return new TemplateEngine(client);
 	}
 
-	private final HttpOriginClient client;
+	private final HttpUriClient client;
 
-	public TemplateEngine(String origin) {
-		this.client = new HttpOriginClient(origin);
+	public TemplateEngine(final HttpClient client) {
+		this.client = new HttpUriClient() {
+			protected HttpClient getDelegate() {
+				return client;
+			}
+		};
 	}
 
 	public Template getTemplate(String systemId) throws IOException,

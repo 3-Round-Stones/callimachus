@@ -9,11 +9,15 @@ import java.util.Arrays;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+import org.apache.http.client.HttpClient;
+import org.callimachusproject.client.HttpClientFactory;
 import org.callimachusproject.xproc.Pipeline;
 import org.callimachusproject.xproc.PipelineFactory;
 
 public class ArticleRoundTripTest extends TestCase {
 	private static final File testDir = new File("test/docbook/tests/");
+
+	private final HttpClient client = HttpClientFactory.getInstance().createHttpClient("http://example.com/");
 
 	public static TestSuite suite() {
 		if (testDir.isDirectory()) {
@@ -69,7 +73,7 @@ public class ArticleRoundTripTest extends TestCase {
 		PipelineFactory pf = PipelineFactory.newInstance();
 		String systemId = new File("test/docbook/test-harness.xpl").toURI()
 				.toASCIIString();
-		Pipeline pipeline = pf.createPipeline(systemId);
+		Pipeline pipeline = pf.createPipeline(systemId, client);
 		String file = testDir.toURI().resolve(getName()).toASCIIString();
 		Reader source = new StringReader(
 				"<html xmlns='http://www.w3.org/1999/xhtml'><body><details><summary>test</summary><p><a rel='source' href='"

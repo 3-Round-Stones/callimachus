@@ -39,8 +39,11 @@ import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.impl.execchain.ClientExecChain;
 import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.server.AsyncExecChain;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PooledExecChain implements AsyncExecChain {
+	final Logger logger = LoggerFactory.getLogger(PooledExecChain.class);
 	final AsyncExecChain delegate;
 	private final ExecutorService executor;
 
@@ -71,6 +74,7 @@ public class PooledExecChain implements AsyncExecChain {
 					} catch (RuntimeException ex) {
 						future.failed(ex);
 					} catch (Error ex) {
+						logger.error(ex.toString(), ex);
 						future.cancelled();
 						throw ex;
 					}

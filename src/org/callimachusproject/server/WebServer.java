@@ -92,7 +92,6 @@ import org.apache.http.protocol.ResponseContent;
 import org.apache.http.protocol.ResponseDate;
 import org.apache.http.util.EntityUtils;
 import org.callimachusproject.Version;
-import org.callimachusproject.client.HttpClientManager;
 import org.callimachusproject.client.HttpUriResponse;
 import org.callimachusproject.concurrent.ManagedExecutors;
 import org.callimachusproject.concurrent.NamedThreadFactory;
@@ -253,16 +252,18 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 	public synchronized void addOrigin(String origin, CalliRepository repository) {
 		transaction.addOrigin(origin, repository);
 		authCache.addOrigin(origin, repository);
-		if (repositories.put(repository, true) == null) {
-			repository.addSchemaListener(new Runnable() {
-				public String toString() {
-					return "reset cache";
-				}
-	
-				public void run() {
-					resetCache();
-				}
-			});
+		synchronized(repositories) {
+			if (repositories.put(repository, true) == null) {
+				repository.addSchemaListener(new Runnable() {
+					public String toString() {
+						return "reset cache";
+					}
+		
+					public void run() {
+						resetCache();
+					}
+				});
+			}
 		}
 	}
 
@@ -323,9 +324,12 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 			public void run() {
 				try {
 					cache.reset();
-					HttpClientManager.invalidateCache();
 					remoteCache.invalidate();
-					authCache.resetCache();
+					synchronized (repositories) {
+						for (CalliRepository repository : repositories.keySet()) {
+							repository.resetCache();
+						}
+					}
 				} catch (Error e) {
 					logger.error(e.toString(), e);
 				} catch (RuntimeException e) {

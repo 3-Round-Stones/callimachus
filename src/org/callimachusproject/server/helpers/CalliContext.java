@@ -34,6 +34,7 @@ import java.util.Queue;
 
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
+import org.callimachusproject.repository.CalliRepository;
 import org.openrdf.repository.object.ObjectConnection;
 
 public class CalliContext implements HttpContext {
@@ -46,6 +47,7 @@ public class CalliContext implements HttpContext {
 	private static final String PROCESSING_ATTR = NS + "#processing";
 	private static final String PUBLIC_ATTR = NS + "#public";
 	private static final String RECEIVED_ATTR = NS + "receivedOn";
+	private static final String REPOSITORY_ATTR = NS + "repository";
 	private static final String TRANSACTION_ATTR = NS + "resourceTransaction";
 
     public static CalliContext adapt(final HttpContext context) {
@@ -121,6 +123,14 @@ public class CalliContext implements HttpContext {
 
 	public synchronized void setPublic(boolean bool) {
 		setAttribute(PUBLIC_ATTR, bool);
+	}
+
+	public synchronized CalliRepository getCalliRepository() {
+		return getAttribute(REPOSITORY_ATTR, CalliRepository.class);
+	}
+
+	public synchronized void setCalliRepository(CalliRepository repository) {
+		setAttribute(REPOSITORY_ATTR, repository);
 	}
 
 	public synchronized ObjectConnection getObjectConnection() {

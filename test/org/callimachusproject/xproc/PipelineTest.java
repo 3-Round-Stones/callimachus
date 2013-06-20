@@ -5,12 +5,15 @@ import java.io.StringReader;
 
 import junit.framework.TestCase;
 
+import org.apache.http.client.HttpClient;
+import org.callimachusproject.client.HttpClientFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
 public class PipelineTest extends TestCase {
+	private final HttpClient client = HttpClientFactory.getInstance().createHttpClient("http://example.com/");
 
 	private static final String IDENTITY = "<p:pipeline version='1.0' xmlns:p='http://www.w3.org/ns/xproc'>\n" +
 			"<p:identity/></p:pipeline>";
@@ -57,7 +60,7 @@ public class PipelineTest extends TestCase {
 	private String pipe(String source, String pipeline) throws IOException,
 			SAXException {
 		PipelineFactory pf = PipelineFactory.newInstance();
-		Pipeline pipe = pf.createPipeline(new StringReader(pipeline), "http://example.com/");
+		Pipeline pipe = pf.createPipeline(new StringReader(pipeline), "http://example.com/", client);
 		if (source == null)
 			return pipe.pipe().asString();
 		return pipe.pipeReader(new StringReader(source), "http://example.com/").asString();

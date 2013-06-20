@@ -45,7 +45,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.auth.AuthorizationManager;
-import org.callimachusproject.auth.AuthorizationService;
 import org.callimachusproject.auth.Group;
 import org.callimachusproject.repository.CalliRepository;
 import org.callimachusproject.server.AsyncExecChain;
@@ -80,20 +79,13 @@ public class AuthenticationHandler implements AsyncExecChain {
 	}
 
 	public synchronized void addOrigin(String origin, CalliRepository repository) {
-		AuthorizationService service = AuthorizationService.getInstance();
-		AuthorizationManager manager = service.get(repository.getDelegate());
+		AuthorizationManager manager = repository.getAuthorizationManager();
 		managers.put(origin, manager);
 		manager.resetCache();
 	}
 
 	public synchronized void removeOrigin(String origin) {
 		managers.remove(origin);
-	}
-
-	public synchronized void resetCache() {
-		for (AuthorizationManager manager : managers.values()) {
-			manager.resetCache();
-		}
 	}
 
 	@Override

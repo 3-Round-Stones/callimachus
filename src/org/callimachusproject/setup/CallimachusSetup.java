@@ -34,7 +34,10 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.callimachusproject.auth.DetachedRealm;
 import org.callimachusproject.behaviours.DigestManagerSupport;
+import org.callimachusproject.client.HttpUriClient;
+import org.callimachusproject.concepts.Activity;
 import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.repository.CalliRepository;
 import org.openrdf.OpenRDFException;
@@ -335,7 +338,7 @@ public class CallimachusSetup {
 			boolean modified = false;
 			URI space = webapp(origin, INVITED_USERS);
 			URI invitedUser = vf.createURI(space.stringValue(), slugify(email));
-			for (DigestManagerSupport digest : getDigestManagers(origin, con)) {
+			for (DigestManagerSupport digest : getDigestManagers(origin, con, repository)) {
 				String users = digest.getCalliAuthNamespace().getResource().stringValue();
 				URI digestUser = vf.createURI(users, username);
 				digest.registerUser(invitedUser, digestUser.stringValue(), email, null);
@@ -500,7 +503,7 @@ public class CallimachusSetup {
 	}
 
 	private List<DigestManagerSupport> getDigestManagers(String origin,
-			final ObjectConnection con) throws OpenRDFException {
+			final ObjectConnection con, final CalliRepository repository) throws OpenRDFException {
 		List<DigestManagerSupport> list = new ArrayList<DigestManagerSupport>();
 		TupleQueryResult results = con.prepareTupleQuery(QueryLanguage.SPARQL,
 				SELECT_DIGEST, webapp(origin, "").stringValue()).evaluate();
@@ -513,12 +516,29 @@ public class CallimachusSetup {
 				final Resource authNamespace = (Resource) result
 						.getValue("authNamespace");
 				list.add(new DigestManagerSupport() {
-					public void setCalliAuthName(String authName) {
-						throw new UnsupportedOperationException();
-					}
 
 					public String getCalliAuthName() {
 						return authName;
+					}
+
+					public Resource getResource() {
+						return digest;
+					}
+
+					public ObjectConnection getObjectConnection() {
+						return con;
+					}
+
+					public CalliRepository getCalliRepository() {
+						return repository;
+					}
+
+					public DetachedRealm getRealm() throws OpenRDFException {
+						return repository.getRealm(digest.stringValue());
+					}
+
+					public HttpUriClient getHttpClient() throws OpenRDFException {
+						return repository.getHttpClient(digest.stringValue());
 					}
 
 					public RDFObject getCalliAuthNamespace() {
@@ -530,12 +550,24 @@ public class CallimachusSetup {
 						throw new UnsupportedOperationException();
 					}
 
-					public Resource getResource() {
-						return digest;
+					public void setCalliAuthName(String authName) {
+						throw new UnsupportedOperationException();
 					}
 
-					public ObjectConnection getObjectConnection() {
-						return con;
+					public Activity getProvWasGeneratedBy() {
+						throw new UnsupportedOperationException();
+					}
+
+					public void setProvWasGeneratedBy(Activity activity) {
+						throw new UnsupportedOperationException();
+					}
+
+					public void touchRevision() throws RepositoryException {
+						throw new UnsupportedOperationException();
+					}
+
+					public String revision() {
+						throw new UnsupportedOperationException();
 					}
 				});
 			}

@@ -8,11 +8,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.http.HttpEntity;
-import org.callimachusproject.client.HttpOriginClient;
 import org.callimachusproject.client.HttpUriClient;
 import org.callimachusproject.concepts.ScriptBundle;
 import org.callimachusproject.server.exceptions.GatewayTimeout;
 import org.callimachusproject.server.exceptions.InternalServerError;
+import org.callimachusproject.traits.CalliObject;
+import org.openrdf.OpenRDFException;
 import org.openrdf.annotations.Sparql;
 
 import com.google.javascript.jscomp.CheckLevel;
@@ -26,10 +27,10 @@ import com.google.javascript.jscomp.JSSourceFile;
 import com.google.javascript.jscomp.Result;
 import com.google.javascript.jscomp.SourceFile;
 
-public abstract class ScriptBundleSupport implements ScriptBundle {
+public abstract class ScriptBundleSupport implements ScriptBundle, CalliObject {
 
 	@Override
-	public String calliGetBundleSource() throws GatewayTimeout, IOException {
+	public String calliGetBundleSource() throws GatewayTimeout, IOException, OpenRDFException {
 		List<JSSourceFile> scripts = new ArrayList<JSSourceFile>();
 		for (Object ext : getCalliScriptsAsList()) {
 			String url = ext.toString();
@@ -45,7 +46,7 @@ public abstract class ScriptBundleSupport implements ScriptBundle {
 	}
 
 	@Override
-	public String calliGetMinifiedBundle() throws GatewayTimeout, IOException {
+	public String calliGetMinifiedBundle() throws GatewayTimeout, IOException, OpenRDFException {
 		int minification = this.getMinification();
 		if (minification < 1) {
 			return calliGetBundleSource();
@@ -103,8 +104,8 @@ public abstract class ScriptBundleSupport implements ScriptBundle {
 		return CompilationLevel.ADVANCED_OPTIMIZATIONS;
 	}
 
-	private String getJavaScriptCode(String url) throws IOException {
-		HttpOriginClient client = new HttpOriginClient(this.toString());
+	private String getJavaScriptCode(String url) throws IOException, OpenRDFException {
+		HttpUriClient client = this.getHttpClient();
 		Reader reader = openJavaScriptReader(url, 10, client);
 		try {
 			StringWriter writer = new StringWriter();

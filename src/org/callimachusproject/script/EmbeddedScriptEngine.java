@@ -46,7 +46,9 @@ import javax.script.ScriptException;
 import javax.script.SimpleBindings;
 
 import org.apache.http.HttpEntity;
-import org.callimachusproject.client.HttpOriginClient;
+import org.callimachusproject.client.HttpUriClient;
+import org.callimachusproject.traits.CalliObject;
+import org.openrdf.OpenRDFException;
 import org.openrdf.repository.object.exceptions.BehaviourException;
 import org.openrdf.repository.object.traits.ObjectMessage;
 import org.slf4j.Logger;
@@ -207,7 +209,6 @@ public class EmbeddedScriptEngine {
 	private EmbeddedScript engine;
 	private final String systemId;
 	private final String filename;
-	private final HttpOriginClient client;
 	private final EmbeddedScriptFactory factory;
 	private final EmbeddedScriptContext context;
 
@@ -220,7 +221,6 @@ public class EmbeddedScriptEngine {
 		this.context = new EmbeddedScriptContext();
 		this.factory = new EmbeddedScriptFactory(cl, context);
 		this.scripts = scripts;
-		this.client = new HttpOriginClient(systemId);
 	}
 
 	@Override
@@ -250,7 +250,7 @@ public class EmbeddedScriptEngine {
 	public ScriptResult eval(ObjectMessage msg, SimpleBindings bindings) {
 		Class<?> context = enter();
 		try {
-			Object ret = getCompiledScript().eval(msg, bindings);
+			Object ret = getCompiledScript(msg.getTarget()).eval(msg, bindings);
 			if (ret instanceof BehaviourException) {
 				BehaviourException exc = (BehaviourException) ret;
 				if (exc.getCause() instanceof RuntimeException)
@@ -325,21 +325,22 @@ public class EmbeddedScriptEngine {
 		}
 	}
 
-	private synchronized EmbeddedScript getCompiledScript() throws IOException,
-			ScriptException {
+	private synchronized EmbeddedScript getCompiledScript(Object target) throws IOException,
+			ScriptException, OpenRDFException {
 		if (engine != null)
 			return engine;
-		Reader in = getScriptReader();
+		Reader in = getScriptReader(target);
 		return engine = factory.create(filename, in);
 	}
 
-	private Reader getScriptReader() throws IOException {
+	private Reader getScriptReader(Object target) throws IOException, OpenRDFException {
 		if (scripts.length == 1 && !isAbsoluteUri(scripts[0]))
 			return new StringReader(scripts[0]);
 		CharArrayWriter writer = new CharArrayWriter(65536);
 		for (String src : scripts) {
 			if (isAbsoluteUri(src)) {
-				readUrlInto(src, writer);
+				assert target instanceof CalliObject;
+				readUrlInto(src, writer, ((CalliObject) target).getHttpClient());
 			} else {
 				writer.append(src);
 			}
@@ -357,7 +358,7 @@ public class EmbeddedScriptEngine {
 		}
 	}
 
-	private void readUrlInto(String systemId, CharArrayWriter writer)
+	private void readUrlInto(String systemId, CharArrayWriter writer, HttpUriClient client)
 			throws IOException, UnsupportedEncodingException {
 		HttpEntity entity = client.getEntity(systemId,
 				"text/javascript;charset=UTF-8, application/javascript;charset=UTF-8");

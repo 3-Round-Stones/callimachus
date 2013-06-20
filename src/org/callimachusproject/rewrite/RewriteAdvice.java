@@ -20,6 +20,8 @@ import org.callimachusproject.fluid.FluidException;
 import org.callimachusproject.fluid.FluidFactory;
 import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.server.exceptions.GatewayTimeout;
+import org.callimachusproject.server.exceptions.ResponseException;
+import org.openrdf.OpenRDFException;
 import org.openrdf.annotations.Iri;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.RDFObject;
@@ -45,7 +47,7 @@ public abstract class RewriteAdvice implements Advice {
 	}
 
 	public Object intercept(ObjectMessage message) throws GatewayTimeout,
-			IOException, FluidException {
+			IOException, FluidException, OpenRDFException {
 		Object target = message.getTarget();
 		String uri;
 		ObjectConnection con = null;
@@ -75,7 +77,7 @@ public abstract class RewriteAdvice implements Advice {
 
 	protected abstract Fluid service(String location, Header[] headers,
 			ObjectMessage message, FluidBuilder fb) throws GatewayTimeout,
-			IOException, FluidException;
+			IOException, FluidException, ResponseException, OpenRDFException;
 
 	private String getSystemId(Method m) {
 		if (m.isAnnotationPresent(Iri.class))

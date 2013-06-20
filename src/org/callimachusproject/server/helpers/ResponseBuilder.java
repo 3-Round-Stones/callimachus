@@ -51,13 +51,11 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
 import org.apache.http.protocol.HttpContext;
-import org.callimachusproject.auth.AuthorizationManager;
-import org.callimachusproject.auth.AuthorizationService;
 import org.callimachusproject.auth.DetachedRealm;
 import org.callimachusproject.client.HttpUriResponse;
 import org.callimachusproject.io.ChannelUtil;
+import org.callimachusproject.repository.CalliRepository;
 import org.callimachusproject.server.exceptions.ResponseException;
-import org.openrdf.repository.object.ObjectRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,19 +78,17 @@ public class ResponseBuilder {
 			.compile("\\w+://(?:\\.?[^\\s}>\\)\\]\\.])+");
 
 	private final Logger logger = LoggerFactory.getLogger(ResponseBuilder.class);
-	private final AuthorizationService service = AuthorizationService.getInstance();
 	private final String systemId;
-	private final ObjectRepository repository;
+	private final CalliRepository repository;
 
 	public ResponseBuilder(HttpRequest request, HttpContext context) {
 		CalliContext ctx = CalliContext.adapt(context);
+		this.repository = ctx.getCalliRepository();
 		ResourceOperation trans = ctx.getResourceTransaction();
 		if (trans == null) {
 			this.systemId = new Request(request).getRequestURL();
-			this.repository = null;
 		} else {
 			this.systemId = trans.getRequestURL();
-			this.repository = ctx.getObjectConnection().getRepository();
 		}
 	}
 
@@ -302,10 +298,7 @@ public class ResponseBuilder {
 		if (repository == null)
 			return body.getBytes(UTF8);
 		try {
-			AuthorizationManager manager = service.get(repository);
-			if (manager == null)
-				return body.getBytes(UTF8);
-			DetachedRealm realm = manager.getRealm(systemId);
+			DetachedRealm realm = repository.getRealm(systemId);
 			if (realm == null)
 				return body.getBytes(UTF8);
 			ByteArrayOutputStream out = new ByteArrayOutputStream(8192);

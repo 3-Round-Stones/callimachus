@@ -8,7 +8,7 @@ import org.callimachusproject.annotations.query;
 import org.callimachusproject.annotations.requires;
 import org.callimachusproject.annotations.type;
 import org.callimachusproject.server.base.MetadataServerTestCase;
-import org.callimachusproject.traits.VersionedObject;
+import org.callimachusproject.traits.CalliObject;
 import org.openrdf.annotations.Iri;
 import org.openrdf.repository.object.ObjectConnection;
 
@@ -20,7 +20,7 @@ public class ContentVersionTest extends MetadataServerTestCase {
 	private static CountDownLatch willRespond;
 
 	@Iri("urn:test:MyEntity")
-	public interface MyEntity extends VersionedObject {
+	public interface MyEntity extends CalliObject {
 		@Iri("urn:test:label")
 		String getLabel();
 

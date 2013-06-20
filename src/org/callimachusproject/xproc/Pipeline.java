@@ -14,7 +14,6 @@ import net.sf.saxon.s9api.SaxonApiException;
 import net.sf.saxon.s9api.XdmNode;
 
 import org.apache.http.client.HttpClient;
-import org.callimachusproject.client.HttpOriginClient;
 import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.server.exceptions.InternalServerError;
 import org.callimachusproject.xml.CloseableEntityResolver;
@@ -37,31 +36,35 @@ public class Pipeline {
 	private static final String DATA = XProcConstants.c_data.getLocalName();
 	private static final int bufSize = 912 * 8; // A multiple of 3, 4, and 75 for base64 line breaking
 
+	private final HttpClient client;
 	private final XProcConfiguration config;
 	private final XdmNodeFactory resolver;
 	private final String systemId;
 	private final XdmNode pipeline;
 
-	Pipeline(String systemId) {
+	Pipeline(String systemId, HttpClient client) {
 		assert systemId != null;
 		this.systemId = systemId;
+		this.client = client;
 		this.config = null;
 		this.resolver = null;
 		this.pipeline = null;
 	}
 
-	Pipeline(InputStream in, String systemId) throws SAXException, IOException {
+	Pipeline(InputStream in, String systemId, HttpClient client) throws SAXException, IOException {
 		this.systemId = systemId;
+		this.client = client;
 		this.config = new XProcConfiguration("he", false);
-		this.resolver = new XdmNodeFactory(systemId, config.getProcessor());
+		this.resolver = new XdmNodeFactory(config.getProcessor(), client);
 		loadConfig(resolver, config);
 		this.pipeline = resolver.parse(systemId, in);
 	}
 
-	Pipeline(Reader in, String systemId) throws SAXException, IOException {
+	Pipeline(Reader in, String systemId, HttpClient client) throws SAXException, IOException {
 		this.systemId = systemId;
+		this.client = client;
 		this.config = new XProcConfiguration("he", false);
-		this.resolver = new XdmNodeFactory(systemId, config.getProcessor());
+		this.resolver = new XdmNodeFactory(config.getProcessor(), client);
 		loadConfig(resolver, config);
 		this.pipeline = resolver.parse(systemId, in);
 	}
@@ -82,7 +85,7 @@ public class Pipeline {
 		XdmNodeFactory resolver = this.resolver;
 		if (config == null) {
 			config = new XProcConfiguration("he", false);
-			resolver = new XdmNodeFactory(getSystemId(), config.getProcessor());
+			resolver = new XdmNodeFactory(config.getProcessor(), client);
 			loadConfig(resolver, config);
 		}
 		return pipeSource(null, resolver, config);
@@ -94,7 +97,7 @@ public class Pipeline {
 		XdmNodeFactory resolver = this.resolver;
 		if (config == null) {
 			config = new XProcConfiguration("he", false);
-			resolver = new XdmNodeFactory(getSystemId(), config.getProcessor());
+			resolver = new XdmNodeFactory(config.getProcessor(), client);
 			loadConfig(resolver, config);
 		}
 		XdmNode xml = parse(systemId, source, media, config);
@@ -107,7 +110,7 @@ public class Pipeline {
 		XdmNodeFactory resolver = this.resolver;
 		if (config == null) {
 			config = new XProcConfiguration("he", false);
-			resolver = new XdmNodeFactory(getSystemId(), config.getProcessor());
+			resolver = new XdmNodeFactory(config.getProcessor(), client);
 			loadConfig(resolver, config);
 		}
 		XdmNode xml = resolver.parse(systemId, source);
@@ -119,7 +122,7 @@ public class Pipeline {
 		XdmNodeFactory resolver = this.resolver;
 		if (config == null) {
 			config = new XProcConfiguration("he", false);
-			resolver = new XdmNodeFactory(getSystemId(), config.getProcessor());
+			resolver = new XdmNodeFactory(config.getProcessor(), client);
 			loadConfig(resolver, config);
 		}
 		XdmNode xml = resolver.parse(systemId, reader);
@@ -128,7 +131,6 @@ public class Pipeline {
 
 	private Pipe pipeSource(XdmNode source, XdmNodeFactory resolver,
 			XProcConfiguration config) throws SAXException, IOException {
-		HttpClient client = new HttpOriginClient(getSystemId());
 		Pipe pipe = null;
 		XProcRuntime runtime = new XProcRuntime(config);
 		try {

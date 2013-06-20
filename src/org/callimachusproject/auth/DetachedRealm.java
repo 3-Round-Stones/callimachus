@@ -36,7 +36,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
 import org.apache.http.util.EntityUtils;
-import org.callimachusproject.client.HttpOriginClient;
+import org.callimachusproject.client.HttpUriClient;
 import org.callimachusproject.concepts.AuthenticationManager;
 import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.xproc.Pipe;
@@ -114,8 +114,8 @@ public class DetachedRealm {
 	private Logger logger = LoggerFactory.getLogger(DetachedRealm.class);
 	private final Map<Resource, DetachedAuthenticationManager> authentication = new HashMap<Resource, DetachedAuthenticationManager>();
 	private final Collection<String> allowOrigin = new LinkedHashSet<String>();
-	private final HttpOriginClient client;
 	private final Resource self;
+	private HttpUriClient client;
 	private String secret;
 	private Pipeline error;
 	private String forbidden;
@@ -123,11 +123,11 @@ public class DetachedRealm {
 
 	public DetachedRealm(Resource self) {
 		this.self = self;
-		this.client = new HttpOriginClient(self.stringValue());
 	}
 
-	public void init(ObjectConnection con, RealmManager manager)
+	public void init(ObjectConnection con, RealmManager manager, HttpUriClient client)
 			throws OpenRDFException {
+		this.client = client;
 		Map<Resource, String> protects = new LinkedHashMap<Resource, String>();
 		ValueFactory vf = con.getValueFactory();
 		TupleQuery query = con.prepareTupleQuery(SPARQL, SELECT_REALM);
@@ -144,7 +144,7 @@ public class DetachedRealm {
 				}
 				if (result.hasBinding("error")) {
 					String url = result.getValue("error").stringValue();
-					error = PipelineFactory.newInstance().createPipeline(url);
+					error = PipelineFactory.newInstance().createPipeline(url, client);
 				}
 				if (result.hasBinding("forbidden")) {
 					forbidden = result.getValue("forbidden").stringValue();

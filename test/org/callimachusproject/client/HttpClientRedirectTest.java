@@ -15,6 +15,7 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.URICollection;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpExecutionAware;
@@ -46,7 +47,7 @@ public class HttpClientRedirectTest extends TestCase {
 	private static final String ORIGIN = "http://example.com";
 	private static final BasicStatusLine _200 = new BasicStatusLine(
 			HttpVersion.HTTP_1_1, 200, "OK");
-	private final HttpOriginClient httpclient = new HttpOriginClient(ORIGIN);
+	private final HttpClient httpclient = HttpClientFactory.getInstance().createHttpClient(ORIGIN);
 	private final Map<String, HttpRequestHandler> handlers = new HashMap<String, HttpRequestHandler>();
 	private final ClientExecChain director = new ClientExecChain() {
 		public CloseableHttpResponse execute(HttpRoute route,
@@ -74,18 +75,14 @@ public class HttpClientRedirectTest extends TestCase {
 	@Before
 	public void setUp() throws Exception {
 		handlers.clear();
-		HttpClientManager.getInstance().resetCache();
-		HttpClientManager.getInstance().setProxy(
+		HttpClientFactory.getInstance().setProxy(
 				getServerHttp(), director);
 	}
 
 	@After
 	public void tearDown() throws Exception {
-		HttpClientManager.getInstance().removeProxy(
+		HttpClientFactory.getInstance().removeProxy(
 				getServerHttp(), director);
-        if (this.httpclient != null) {
-            this.httpclient.close();
-        }
 	}
 
     /**

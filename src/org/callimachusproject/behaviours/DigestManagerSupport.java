@@ -10,8 +10,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
-import org.callimachusproject.auth.AuthorizationManager;
-import org.callimachusproject.auth.AuthorizationService;
 import org.callimachusproject.auth.DetachedAuthenticationManager;
 import org.callimachusproject.auth.DigestAccessor;
 import org.callimachusproject.auth.DigestAuthenticationManager;
@@ -19,19 +17,16 @@ import org.callimachusproject.auth.DigestPasswordAccessor;
 import org.callimachusproject.auth.RealmManager;
 import org.callimachusproject.concepts.DigestManager;
 import org.callimachusproject.repository.CalliRepository;
+import org.callimachusproject.traits.CalliObject;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Resource;
 import org.openrdf.repository.object.ObjectConnection;
-import org.openrdf.repository.object.ObjectRepository;
 import org.openrdf.repository.object.RDFObject;
 
 public abstract class DigestManagerSupport extends AuthenticationManagerSupport
-		implements RDFObject, DigestManager {
+		implements CalliObject, DigestManager {
 	private static final BasicStatusLine _204 = new BasicStatusLine(
 			HttpVersion.HTTP_1_1, 204, "No Content");
-
-	private final AuthorizationService service = AuthorizationService
-			.getInstance();
 
 	/**
 	 * Called from digest.ttl
@@ -80,10 +75,7 @@ public abstract class DigestManagerSupport extends AuthenticationManagerSupport
 		DigestPasswordAccessor digest = getAccessor();
 		if (digest == null)
 			return null;
-		ObjectRepository repo = obj.getObjectConnection().getRepository();
-		AuthorizationManager manager = service.get(repo);
-		String uri = obj.getResource().stringValue();
-		String secret = manager.getRealm(uri).getOriginSecret();
+		String secret = this.getRealm().getOriginSecret();
 		return digest.getDaypass(email, secret);
 	}
 

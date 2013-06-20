@@ -110,6 +110,18 @@ calli:Page a owl:Class;
     rdfs:comment "A Callimachus XHTML page";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
+calli:Pipeline a owl:Class;
+    rdfs:subClassOf foaf:Document;
+    rdfs:label "Pipeline";
+    rdfs:comment "A Callimachus XProc file";
+    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
+calli:XQuery a owl:Class;
+    rdfs:subClassOf foaf:Document;
+    rdfs:label "XQuery";
+    rdfs:comment "A Callimachus XQuery file";
+    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
 ################################
 # Annotation
 ################################
@@ -377,6 +389,7 @@ calli:cacheControl a owl:DatatypeProperty;
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:hasComponent a owl:ObjectProperty;
+    rdfs:subPropertyOf rdfs:member;
     rdfs:label "has component";
     rdfs:comment "A nested resource with a URI that starts with this resource URI with one additional path, fragement, or component segment";
     rdfs:domain calli:Composite;

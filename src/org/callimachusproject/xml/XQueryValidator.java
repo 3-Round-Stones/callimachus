@@ -27,6 +27,7 @@ import net.sf.saxon.trans.XPathException;
 import net.sf.saxon.tree.util.Navigator;
 import net.sf.saxon.type.ValidationException;
 
+import org.callimachusproject.client.HttpUriClient;
 import org.xml.sax.SAXException;
 
 public class XQueryValidator implements ErrorListener {
@@ -42,9 +43,9 @@ public class XQueryValidator implements ErrorListener {
 	private final List<String> messages = new ArrayList<String>();
 	private boolean module;
 
-	public XQueryValidator(String baseURI) {
+	public XQueryValidator(String baseURI, HttpUriClient client) {
 		this.baseURI = baseURI;
-		resolver = new InputSourceResolver(baseURI, XQUERY_MEDIA);
+		resolver = new InputSourceResolver(XQUERY_MEDIA, client);
 	}
 
 	public void parse(InputStream queryStream) throws IOException {

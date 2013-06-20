@@ -59,16 +59,15 @@ public class AuthorizationManager {
 	private final GroupManager groupManager;
 	private final RealmManager realmManager;
 
-	public AuthorizationManager(ObjectRepository repository) {
-		properties = new AnnotationPropertyInferencer(repository);
-		groupManager = new GroupManager(repository);
-		realmManager = new RealmManager(repository);
+	public AuthorizationManager(RealmManager realmManager, ObjectRepository repository) {
+		this.realmManager = realmManager;
+		this.properties = new AnnotationPropertyInferencer(repository);
+		this.groupManager = new GroupManager(repository);
 	}
 
 	public void resetCache() {
 		properties.resetCache();
 		groupManager.resetCache();
-		realmManager.resetCache();
 	}
 
 	/**
@@ -78,10 +77,6 @@ public class AuthorizationManager {
 			throws OpenRDFException {
 		Set<Group> groups = getAuthorizedParties(target, roles);
 		return isPublic(groups) || isMember(user, groups);
-	}
-
-	public DetachedRealm getRealm(String target) throws OpenRDFException {
-		return realmManager.getRealm(target);
 	}
 
 	public DetachedAuthenticationManager getAuthenticationManager(Resource uri)
@@ -262,9 +257,9 @@ public class AuthorizationManager {
 
 	private DetachedRealm getRealm(ResourceOperation request)
 			throws OpenRDFException {
-		DetachedRealm realm = getRealm(request.getIRI());
+		DetachedRealm realm = realmManager.getRealm(request.getIRI());
 		if (realm == null)
-			return getRealm(request.getRequestURI());
+			return realmManager.getRealm(request.getRequestURI());
 		return realm;
 	}
 

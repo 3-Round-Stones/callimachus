@@ -18,6 +18,7 @@ import net.sf.saxon.s9api.SaxonApiException;
 import net.sf.saxon.s9api.XdmNode;
 import net.sf.saxon.trans.XPathException;
 
+import org.apache.http.client.HttpClient;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -31,10 +32,10 @@ public class XdmNodeFactory implements EntityResolver, URIResolver, ModuleURIRes
 	private final InputSourceResolver xmlResolver;
 	private final ModuleURIResolver xqueryResolver;
 
-	public XdmNodeFactory(String systemId, Processor processor) {
+	public XdmNodeFactory(Processor processor, HttpClient client) {
 		this.processor = processor;
-		this.xmlResolver = new InputSourceResolver(systemId, XML_MEDIA);
-		this.xqueryResolver = new InputSourceResolver(systemId, XQUERY_MEDIA);
+		this.xmlResolver = new InputSourceResolver(XML_MEDIA, client);
+		this.xqueryResolver = new InputSourceResolver(XQUERY_MEDIA, client);
 	}
 
 	public StreamSource resolve(String href, String base) throws TransformerException {

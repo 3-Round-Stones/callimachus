@@ -26,7 +26,7 @@
     foaf:primaryTopic <XQuery>.
 
 <XQuery> a <Creatable>, owl:Class;
-    rdfs:subClassOf <File>;
+    rdfs:subClassOf <File>, calli:XQuery;
     rdfs:label "XQuery";
     rdfs:comment "XQueries files";
     owl:equivalentClass </callimachus/XQuery>;
@@ -84,7 +84,6 @@
     calli:requires calli:editor;
     calli:imports <java:org.callimachusproject.server.exceptions.ServiceUnavailable>;
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    calli:imports <java:org.callimachusproject.xml.XQueryValidator>;
     calli:imports <java:org.callimachusproject.server.WebServer>;
     calli:script """
         if (!stream)
@@ -101,11 +100,9 @@
         }
         this.touchRevision();
 
-        var validator = new XQueryValidator(this.toString());
         var queryStream = this.openInputStream();
         try {
-            validator.parse(queryStream);
-            var errors = validator.errorMessages;
+            var errors = this.getXQueryValidationErrors(queryStream);
             if (errors && errors.length > 0)
                 throw new BadRequest(errors[0], errors.join('\\n'));
             if (this.IsLayout()) {

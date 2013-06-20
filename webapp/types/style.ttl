@@ -122,7 +122,6 @@
     calli:requires calli:reader;
     calli:type "text/css";
     calli:imports <java:org.apache.http.client.methods.HttpGet>;
-    calli:imports <java:org.callimachusproject.client.HttpOriginClient>;
     calli:imports <java:org.callimachusproject.server.exceptions.NotFound>;
     calli:imports <java:org.callimachusproject.server.exceptions.ResponseException>;
     calli:script ("""
@@ -138,7 +137,7 @@
     """
     <../scripts/less.js>
     """
-        var client = new HttpOriginClient(this.toString());
+        var client = this.httpClient;
         var contents = {};
         window.less.Parser.importer = function(path, paths, callback, env) {
             if (path != null) {

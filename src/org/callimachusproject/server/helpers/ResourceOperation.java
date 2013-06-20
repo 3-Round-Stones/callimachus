@@ -76,7 +76,7 @@ import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.server.exceptions.MethodNotAllowed;
 import org.callimachusproject.server.exceptions.NotAcceptable;
 import org.callimachusproject.server.exceptions.UnsupportedMediaType;
-import org.callimachusproject.traits.VersionedObject;
+import org.callimachusproject.traits.CalliObject;
 import org.openrdf.annotations.Iri;
 import org.openrdf.annotations.ParameterTypes;
 import org.openrdf.model.URI;
@@ -102,7 +102,7 @@ public class ResourceOperation {
 	private final Request request;
 	private final ValueFactory vf;
 	private final ObjectConnection con;
-	private VersionedObject target;
+	private CalliObject target;
 	private final URI uri;
 	private final FluidBuilder writer;
 	private final FluidType accepter;
@@ -137,7 +137,7 @@ public class ResourceOperation {
 		} catch (IllegalArgumentException e) {
 			throw new BadRequest(e);
 		}
-		target = con.getObjects(VersionedObject.class, uri).singleResult();
+		target = con.getObjects(CalliObject.class, uri).singleResult();
 		try {
 			String m = request.getMethod();
 			if ("GET".equals(m) || "HEAD".equals(m)) {
@@ -461,7 +461,7 @@ public class ResourceOperation {
 
 	public void flush() throws RepositoryException, QueryEvaluationException,
 			IOException {
-		this.target = con.getObject(VersionedObject.class, getRequestedResource().getResource());
+		this.target = con.getObject(CalliObject.class, getRequestedResource().getResource());
 	}
 
 	public Fluid getBody() {

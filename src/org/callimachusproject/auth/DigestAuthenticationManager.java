@@ -45,7 +45,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
 import org.callimachusproject.server.exceptions.BadRequest;
-import org.callimachusproject.traits.VersionedObject;
+import org.callimachusproject.traits.CalliObject;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Resource;
@@ -97,8 +97,6 @@ public class DigestAuthenticationManager implements DetachedAuthenticationManage
 	private final List<String> domains;
 	private final FailManager fail = new FailManager();
 	private final Set<String> userCookies = new LinkedHashSet<String>();
-	private final AuthorizationService service = AuthorizationService
-			.getInstance();
 	private final DigestAccessor accessor;
 
 	public DigestAuthenticationManager(String authName, String path,
@@ -397,7 +395,6 @@ public class DigestAuthenticationManager implements DetachedAuthenticationManage
 		add(digestUser, vf.createURI(DERIVED_FROM), invitedUser, con);
 		con.remove(invitedUser, null, null);
 		con.commit();
-		service.get(con.getRepository()).resetCache();
 	}
 
 	private void moveTo(URI link, Statement st, ObjectConnection con)
@@ -477,8 +474,8 @@ public class DigestAuthenticationManager implements DetachedAuthenticationManage
 	}
 
 	private String getRevisionOf(Object resource) {
-		if (resource instanceof VersionedObject) {
-			String revision = ((VersionedObject) resource).revision();
+		if (resource instanceof CalliObject) {
+			String revision = ((CalliObject) resource).revision();
 			if (revision != null)
 				return revision;
 		}

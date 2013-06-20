@@ -27,8 +27,6 @@ import java.net.URLEncoder;
 import java.util.Collection;
 import java.util.Set;
 
-import org.callimachusproject.auth.AuthorizationManager;
-import org.callimachusproject.auth.AuthorizationService;
 import org.callimachusproject.auth.DetachedRealm;
 import org.callimachusproject.engine.RDFEventReader;
 import org.callimachusproject.engine.RDFParseException;
@@ -52,7 +50,7 @@ import org.callimachusproject.form.helpers.TripleInserter;
 import org.callimachusproject.form.helpers.TripleVerifier;
 import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.server.exceptions.Conflict;
-import org.callimachusproject.traits.VersionedObject;
+import org.callimachusproject.traits.CalliObject;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
@@ -79,14 +77,14 @@ import org.openrdf.rio.helpers.StatementCollector;
  * @author James Leigh
  * 
  */
-public abstract class PageSupport implements RDFObject {
+public abstract class PageSupport implements CalliObject {
 	private static final String CHANGE_NOTE = "http://www.w3.org/2004/02/skos/core#changeNote";
 	private static final String HAS_COMPONENT = "http://callimachusproject.org/rdf/2009/framework#" + "hasComponent";
 
 	/**
 	 * Called from page.ttl
 	 */
-	public Template getTemplate() throws IOException, TemplateException {
+	public Template getTemplate() throws IOException, TemplateException, OpenRDFException {
 		return getEngine().getTemplate(this.getResource().stringValue());
 	}
 
@@ -95,12 +93,11 @@ public abstract class PageSupport implements RDFObject {
 	 */
 	public Template getTemplateFor(String uri) throws IOException, TemplateException, OpenRDFException {
 		assert uri != null;
-		AuthorizationManager auth = AuthorizationService.getInstance().get(this.getObjectConnection().getRepository());
 		String self = this.getResource().stringValue();
 		String target = TermFactory.newInstance(self).resolve(uri);
-		DetachedRealm realm = auth.getRealm(target);
+		DetachedRealm realm = getCalliRepository().getRealm(target);
 		if (realm == null) {
-			realm = auth.getRealm(self);
+			realm = this.getRealm();
 		}
 		String url = self + "?layout&realm=" + URLEncoder.encode(realm.toString(), "UTF-8");
 		return getEngine().getTemplate(url);
@@ -136,7 +133,7 @@ public abstract class PageSupport implements RDFObject {
 			ObjectFactory of = con.getObjectFactory();
 			for (URI partner : tracker.getPartners()) {
 				if (!partner.toString().equals(base)) {
-					of.createObject(partner, VersionedObject.class).touchRevision();
+					of.createObject(partner, CalliObject.class).touchRevision();
 				}
 			}
 			Set<URI> types = tracker.getTypes(created);
@@ -170,10 +167,10 @@ public abstract class PageSupport implements RDFObject {
 	
 			ObjectFactory of = con.getObjectFactory();
 			for (URI partner : update.getPartners()) {
-				of.createObject(partner, VersionedObject.class).touchRevision();
+				of.createObject(partner, CalliObject.class).touchRevision();
 			}
-			if (target instanceof VersionedObject) {
-				((VersionedObject) target).touchRevision();
+			if (target instanceof CalliObject) {
+				((CalliObject) target).touchRevision();
 			}
 		} catch (RDFHandlerException e) {
 			throw new BadRequest(e);
@@ -284,13 +281,13 @@ public abstract class PageSupport implements RDFObject {
 	}
 
 	private RDFEventReader openPatternReader(String about)
-			throws IOException, TemplateException {
+			throws IOException, TemplateException, OpenRDFException {
 		String base = toString();
 		return getEngine().getTemplate(base).openQuery();
 	}
 
-	private TemplateEngine getEngine() {
-		return TemplateEngine.newInstance(this.getResource().stringValue());
+	private TemplateEngine getEngine() throws OpenRDFException {
+		return TemplateEngine.newInstance(this.getHttpClient());
 	}
 
 	private TriplePattern changeNoteOf(URI resource) {

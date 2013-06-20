@@ -51,6 +51,8 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
 
+import org.apache.http.client.HttpClient;
+import org.callimachusproject.client.HttpClientFactory;
 import org.callimachusproject.engine.RDFaReader;
 import org.callimachusproject.engine.Template;
 import org.callimachusproject.engine.TemplateEngine;
@@ -86,7 +88,8 @@ public class RDFaGenerationTest extends TestCase {
 	private static final String SOURCE_FILE_SUFFIX = "-source.xhtml";
 	private static final String EXPECTED_FILE_SUFFIX = ".xhtml";
 	private static final String DATA_ATTRIBUTE_TEST_BASE = "http://example.org/test";
-			
+
+	private final HttpClient client = HttpClientFactory.getInstance().createHttpClient("http://example.com/");
 	// private static properties defined in @BeforeClass setUp()
 	private XMLInputFactory xmlInputFactory;
 	private XPathFactory xPathFactory;
@@ -376,7 +379,7 @@ public class RDFaGenerationTest extends TestCase {
 			write(readDocument(template),System.out);
 		}
 		// produce SPARQL from the RDFa template
-		TemplateEngine engine = TemplateEngine.newInstance(template.toURI().toASCIIString());
+		TemplateEngine engine = TemplateEngine.newInstance(client);
 		Template temp = engine.getTemplate(new FileInputStream(template), base);
 
 		//XMLEventReader xml = xmlInputFactory.createXMLEventReader(src); 

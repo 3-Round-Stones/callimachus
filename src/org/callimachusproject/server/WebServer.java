@@ -96,6 +96,7 @@ import org.callimachusproject.client.HttpUriResponse;
 import org.callimachusproject.concurrent.ManagedExecutors;
 import org.callimachusproject.concurrent.NamedThreadFactory;
 import org.callimachusproject.repository.CalliRepository;
+import org.callimachusproject.repository.SparqlServiceCredentialManager;
 import org.callimachusproject.server.chain.AlternativeHandler;
 import org.callimachusproject.server.chain.AuthenticationHandler;
 import org.callimachusproject.server.chain.CacheHandler;
@@ -127,6 +128,7 @@ import org.callimachusproject.server.helpers.ResponseBuilder;
 import org.callimachusproject.server.util.AnyHttpMethodRequestFactory;
 import org.callimachusproject.server.util.InlineExecutorService;
 import org.callimachusproject.util.DomainNameSystemResolver;
+import org.openrdf.query.algebra.evaluation.federation.FederatedServiceManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -250,6 +252,12 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 	}
 
 	public synchronized void addOrigin(String origin, CalliRepository repository) {
+		FederatedServiceManager manager = FederatedServiceManager.getInstance();
+		if (!(manager instanceof SparqlServiceCredentialManager)) {
+			FederatedServiceManager.setImplementationClass(SparqlServiceCredentialManager.class);
+			manager = FederatedServiceManager.getInstance();
+		}
+		((SparqlServiceCredentialManager) manager).addOrigin(origin, repository);
 		transaction.addOrigin(origin, repository);
 		authCache.addOrigin(origin, repository);
 		synchronized(repositories) {
@@ -268,6 +276,12 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 	}
 
 	public synchronized void removeOrigin(String origin) {
+		FederatedServiceManager manager = FederatedServiceManager.getInstance();
+		if (!(manager instanceof SparqlServiceCredentialManager)) {
+			FederatedServiceManager.setImplementationClass(SparqlServiceCredentialManager.class);
+			manager = FederatedServiceManager.getInstance();
+		}
+		((SparqlServiceCredentialManager) manager).removeOrigin(origin);
 		transaction.removeOrigin(origin);
 		authCache.removeOrigin(origin);
 	}

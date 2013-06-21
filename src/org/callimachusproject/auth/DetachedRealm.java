@@ -190,7 +190,7 @@ public class DetachedRealm {
 		this.client = new HttpUriClient() {
 			private final CloseableHttpClient delegate = HttpClientFactory
 					.getInstance().createHttpClient(self.stringValue(),
-							credentials);
+							getCredentialsProvider());
 
 			protected HttpClient getDelegate() throws IOException {
 				return delegate;
@@ -227,6 +227,10 @@ public class DetachedRealm {
 
 	public HttpUriClient getHttpClient() {
 		return client;
+	}
+
+	public CredentialsProvider getCredentialsProvider() {
+		return credentials;
 	}
 
 	public Collection<String> allowOrigin() {

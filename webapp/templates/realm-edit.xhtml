@@ -9,7 +9,8 @@
 <head>
     <title resource="?this">{rdfs:label}</title>
     <link rel="help" href="../../callimachus-for-web-developers" target="_blank" title="Help" />
-    <link rel="layout-sample" href="../../default-layout.xq" />
+    <link id="layout-sample" href="../../default-layout.xq" />
+    <link id="credentials-folder" href="/auth/credentials/" />
     <script type="text/javascript">
     // <![CDATA[
     jQuery(function($){
@@ -60,64 +61,93 @@
 </head>
 <body resource="?this">
     <h1 property="rdfs:label" />
+    <div id="sidebar">
+        <aside>
+            <p>Layout is the extra markup that is applied to every xhtml template within this releam</p>
+            <p>Allow origins are the origins of scripts that can make requests to resources within this realm</p>
+            <p>Credentials are the username and passwords that should be used for outgoing requests from scripts within this realm</p>
+        </aside>
+        <aside>
+            <p>Directory index determines how requests directly to this folder should be handled</p>
+            <p>The type is the response code that is sent</p>
+            <p>Content location is what should be returned to the browser</p>
+            <p>Cache control explains how frequently this is expected to change</p>
+        </aside>
+    </div>
     <form id='form' method="POST" action="" enctype="application/sparql-update" resource="?this">
-        <fieldset>
-            <div dropzone="link s:text/uri-list" class="control-group"
-                    ondrop="return calli.insertResource(event)">
-              <label class="control-label">Layout <a href="../types/XQuery?create" title="Customize"
-                  onclick="return calli.createResource(event, this.href + '#!' + $('[rel=layout-sample]').attr('href'))" class="icon-list-alt" /></label>
-              <div id="layout" rel="calli:layout" class="controls vbox">
-                <span resource="?layout" class="ui-state-highlight ui-corner-all">
-                  <span property="rdfs:label" />
-                </span>
-              </div>
-            </div>
-            <div class="control-group">
-                <label for="allowOrigin" class="control-label">Allow Origins</label>
-                <div class="controls">
-                    <input type="text" id="allowOrigin" property="calli:allowOrigin" content="?allowOrigin" value="{?allowOrigin}" />
-                    <a href="javascript:void(0)" title="More" onclick="return calli.addResource(event)" class="icon-plus" />
+        <div class="hbox">
+            <fieldset>
+                <legend>Realm settings</legend>
+                <div dropzone="link s:text/uri-list" class="control-group"
+                        ondrop="return calli.insertResource(event)">
+                  <label class="control-label">Layout <a href="../types/XQuery?create" title="Customize"
+                      onclick="return calli.createResource(event, this.href + '#!' + $('#layout-sample').attr('href'))" class="icon-list-alt" /></label>
+                  <div id="layout" rel="calli:layout" class="controls vbox">
+                    <span resource="?layout" class="ui-state-highlight ui-corner-all">
+                      <span property="rdfs:label" />
+                    </span>
+                  </div>
                 </div>
-            </div>
-        </fieldset>
-        <fieldset>
-            <legend>Directory index</legend>
-            <div class="control-group">
-                <label for="type" class="control-label">Type</label>
-                <div class="controls">
-                    <select id="type">
-                        <option value="calli:copy">Copy (200)</option>
-                        <option value="calli:canonical">Canonical (301)</option>
-                        <option value="calli:alternate">Alternate (302)</option>
-                        <option value="calli:describedby" selected="selected">Described by (303)</option>
-                        <option value="calli:resides">Resides (307)</option>
-                        <option value="calli:moved">Moved (308)</option>
-                        <option value="calli:missing">Missing (404)</option>
-                        <option value="calli:gone">Gone (410)</option>
-                    </select>
+                <div class="control-group">
+                    <label for="allowOrigin" class="control-label">Allowed origins</label>
+                    <div class="controls">
+                        <div property="calli:allowOrigin" content="?allowOrigin">
+                            <input type="text" value="{?allowOrigin}" class="input-medium" />
+                        </div>
+                        <a href="javascript:void(0)" title="More" onclick="return calli.addResource(event)" class="icon-plus" />
+                    </div>
                 </div>
-            </div>
-            <div class="control-group">
-                <label for="pattern" class="control-label">Content location</label>
-                <div class="controls">
-                    <input type="text" id="pattern" size="40" value="" />
-                    <span class="pattern" property="calli:copy" content="?copy" />
-                    <span class="pattern" property="calli:canonical" content="?canonical" />
-                    <span class="pattern" property="calli:alternate" content="?alternate" />
-                    <span class="pattern" property="calli:describedby" content="?describedby" />
-                    <span class="pattern" property="calli:resides" content="?resides" />
-                    <span class="pattern" property="calli:moved" content="?moved" />
-                    <span class="pattern" property="calli:missing" content="?missing" />
-                    <span class="pattern" property="calli:gone" content="?gone" />
+                <div dropzone="link s:text/uri-list" class="control-group"
+                        ondrop="return calli.insertResource(event)">
+                  <label class="control-label">Credentials <a href="../types/Credential" title="Create credential"
+                      onclick="return calli.createResource(event, $('#credentials-folder').attr('href') + '?create=' + encodeURIComponent(this.href))" class="icon-list-alt" /></label>
+                  <div id="credentials" rel="calli:credentials" class="controls vbox">
+                    <span resource="?credential" typeof="calli:Credential" class="ui-state-highlight ui-corner-all">
+                        <span property="rdfs:label" />
+                        <a href="{?credential}" title="Don't use this credential here" onclick="return calli.removeResource(event)" class="icon-remove" />
+                    </span>
+                  </div>
                 </div>
-            </div>
-            <div class="control-group">
-                <label for="cache" class="control-label">Cache Control</label>
-                <div class="controls">
-            		<input type="text"  id="cache" value="{calli:cacheControl}" placeholder="max-age=3600" />
+            </fieldset>
+            <fieldset>
+                <legend>Directory index</legend>
+                <div class="control-group">
+                    <label for="type" class="control-label">Type</label>
+                    <div class="controls">
+                        <select id="type">
+                            <option value="calli:copy">Copy (200)</option>
+                            <option value="calli:canonical">Canonical (301)</option>
+                            <option value="calli:alternate">Alternate (302)</option>
+                            <option value="calli:describedby" selected="selected">Described by (303)</option>
+                            <option value="calli:resides">Resides (307)</option>
+                            <option value="calli:moved">Moved (308)</option>
+                            <option value="calli:missing">Missing (404)</option>
+                            <option value="calli:gone">Gone (410)</option>
+                        </select>
+                    </div>
                 </div>
-            </div>
-        </fieldset>
+                <div class="control-group">
+                    <label for="pattern" class="control-label">Content location</label>
+                    <div class="controls">
+                        <input type="text" id="pattern" size="40" value="" />
+                        <span class="pattern" property="calli:copy" content="?copy" />
+                        <span class="pattern" property="calli:canonical" content="?canonical" />
+                        <span class="pattern" property="calli:alternate" content="?alternate" />
+                        <span class="pattern" property="calli:describedby" content="?describedby" />
+                        <span class="pattern" property="calli:resides" content="?resides" />
+                        <span class="pattern" property="calli:moved" content="?moved" />
+                        <span class="pattern" property="calli:missing" content="?missing" />
+                        <span class="pattern" property="calli:gone" content="?gone" />
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label for="cache" class="control-label">Cache control</label>
+                    <div class="controls">
+                		<input type="text"  id="cache" value="{calli:cacheControl}" placeholder="max-age=3600" />
+                    </div>
+                </div>
+            </fieldset>
+        </div>
         <fieldset class="form-actions">
             <button id="save" type="submit" class="btn btn-primary">Save</button>
             <button id="cancel" type="button" onclick="window.location.replace('?view')" class="btn">Cancel</button>

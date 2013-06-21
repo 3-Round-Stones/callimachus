@@ -13,3 +13,4 @@ org.callimachusproject.behaviours.CompositeSupport = http://callimachusproject.o
 org.callimachusproject.behaviours.UserSupport
 org.callimachusproject.behaviours.PipelineSupport	= http://callimachusproject.org/rdf/2009/framework#Pipeline
 org.callimachusproject.behaviours.XQuerySupport		= http://callimachusproject.org/rdf/2009/framework#XQuery
+org.callimachusproject.behaviours.CredentialSupport	= http://callimachusproject.org/rdf/2009/framework#Credential

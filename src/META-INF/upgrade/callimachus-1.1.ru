@@ -41,3 +41,12 @@ DELETE {
     FILTER (str(<scripts/index?source>) = ?source)
 };
 
+INSERT {
+</auth/> calli:hasComponent </auth/credentials/>.
+</auth/credentials/> a <types/Folder>, calli:Folder;
+    rdfs:label "credentials";
+    calli:editor </auth/groups/admin>.
+} WHERE {
+	FILTER NOT EXISTS { </auth/credentials/> a calli:Folder }
+};
+

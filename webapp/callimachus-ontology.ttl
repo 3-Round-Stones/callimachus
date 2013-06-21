@@ -66,6 +66,11 @@ calli:Origin a owl:Class;
     rdfs:comment "A URI with a '/' path that is served by a Callimachus system";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
+calli:Credential a owl:Class;
+    rdfs:label "Credential";
+    rdfs:comment "Client Web credential";
+    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
 calli:AuthenticationManager a owl:Class;
     rdfs:label "Authentication Manager";
     rdfs:comment "A managed set of users that can authenticate using HTTP digest credentials";
@@ -279,10 +284,32 @@ calli:gone a owl:AnnotationProperty;
 # Property
 ################################
 
+calli:authority a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:label "authority";
+    rdfs:comment "An hostname, possiblely followed by a colon and port";
+    rdfs:domain calli:Credential;
+    rdfs:range rdf:PlainLiteral;
+    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
+calli:username a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:label "username";
+    rdfs:comment "The username to login using";
+    rdfs:domain calli:Credential;
+    rdfs:range rdf:PlainLiteral;
+    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
+calli:passwordFile a owl:FunctionalProperty, owl:OjectProperty;
+    rdfs:label "password file";
+    rdfs:comment "Location of a text file containing the password in BASE64";
+    rdfs:domain calli:Credential;
+    rdfs:range foaf:Document;
+    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
 calli:passwordDigest a owl:ObjectProperty;
     rdfs:label "password digest";
     rdfs:comment "A document of the MD5 sum of email:authName:password in HEX encoding";
     rdfs:domain calli:User;
+    rdfs:range foaf:Document;
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:name a owl:DatatypeProperty, owl:FunctionalProperty;
@@ -323,6 +350,14 @@ calli:secret a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:label "secret";
     rdfs:comment "A document of random bits in Base 64 encoding";
     rdfs:domain calli:Origin;
+    rdfs:range foaf:Document;
+    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
+calli:credentials a owl:ObjectProperty;
+    rdfs:label "credentials";
+    rdfs:comment "Credentials that can be used by resources hosted in this realm";
+    rdfs:domain calli:Realm;
+    rdfs:range calli:Credential;
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:error a owl:ObjectProperty;

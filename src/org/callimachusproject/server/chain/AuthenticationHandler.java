@@ -125,6 +125,8 @@ public class AuthenticationHandler implements AsyncExecChain {
 					}
 				}
 			}
+		} catch (IOException ex) {
+			callback.failed(ex);
 		} catch (OpenRDFException ex) {
 			callback.failed(ex);
 		}
@@ -142,7 +144,7 @@ public class AuthenticationHandler implements AsyncExecChain {
 	}
 
 	private String getAllowedOrigin(ResourceOperation request,
-			AuthorizationManager manager) throws OpenRDFException {
+			AuthorizationManager manager) throws OpenRDFException, IOException {
 		Set<String> origins = manager.allowOrigin(request);
 		if (origins == null || origins.isEmpty())
 			return null;

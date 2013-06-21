@@ -533,7 +533,7 @@ public class CallimachusSetup {
 						return repository;
 					}
 
-					public DetachedRealm getRealm() throws OpenRDFException {
+					public DetachedRealm getRealm() throws OpenRDFException, IOException {
 						return repository.getRealm(digest.stringValue());
 					}
 

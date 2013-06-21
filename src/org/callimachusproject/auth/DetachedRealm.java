@@ -26,16 +26,25 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.tools.FileObject;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
 import org.apache.http.HttpMessage;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolVersion;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.NTCredentials;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.HttpClient;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.SystemDefaultCredentialsProvider;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
 import org.apache.http.util.EntityUtils;
+import org.callimachusproject.client.HttpClientFactory;
 import org.callimachusproject.client.HttpUriClient;
 import org.callimachusproject.concepts.AuthenticationManager;
 import org.callimachusproject.engine.model.TermFactory;
@@ -52,6 +61,7 @@ import org.openrdf.query.TupleQuery;
 import org.openrdf.query.TupleQueryResult;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.ObjectConnection;
+import org.openrdf.store.blob.BlobObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,14 +70,15 @@ public class DetachedRealm {
 	private static final String PREFIX = "PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>\n"
 			+ "PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>\n";
 	private static final String SELECT_REALM = PREFIX
-			+ "SELECT ?secret ?error ?forbidden ?unauthorized ?domain ?authentication (group_concat(?protected;separator=' ') as ?protected) {\n"
-			+ "{ $this calli:authentication ?authentication . ?protected calli:authentication ?authentication }\n"
+			+ "SELECT ?secret ?error ?forbidden ?unauthorized ?domain ?authentication ?protected ?username ?passwordFile ?authority {\n"
+			+ "{ $this calli:credentials [calli:username ?username; calli:passwordFile ?passwordFile; calli:authority ?authority] }\n"
+			+ "UNION { $this calli:authentication ?authentication . ?protected calli:authentication ?authentication }\n"
 			+ "UNION { $origin calli:secret ?secret }\n"
 			+ "UNION { $this calli:error ?error }\n"
 			+ "UNION { $this calli:forbidden ?forbidden }\n"
 			+ "UNION { $this calli:unauthorized ?unauthorized }\n"
 			+ "UNION { $this calli:allowOrigin ?domain }\n"
-			+ "} GROUP BY ?secret ?error ?forbidden ?unauthorized ?domain ?authentication";
+			+ "}";
 	private static final ThreadLocal<Boolean> inForbidden = new ThreadLocal<Boolean>();
 	private static final ThreadLocal<Boolean> inUnauthorized = new ThreadLocal<Boolean>();
 	private static final int MAX_PRETTY_CONCURRENT_ERRORS = Runtime.getRuntime().availableProcessors();
@@ -114,6 +125,7 @@ public class DetachedRealm {
 	private Logger logger = LoggerFactory.getLogger(DetachedRealm.class);
 	private final Map<Resource, DetachedAuthenticationManager> authentication = new HashMap<Resource, DetachedAuthenticationManager>();
 	private final Collection<String> allowOrigin = new LinkedHashSet<String>();
+	private final CredentialsProvider credentials = new SystemDefaultCredentialsProvider();
 	private final Resource self;
 	private HttpUriClient client;
 	private String secret;
@@ -125,10 +137,11 @@ public class DetachedRealm {
 		this.self = self;
 	}
 
-	public void init(ObjectConnection con, RealmManager manager, HttpUriClient client)
-			throws OpenRDFException {
-		this.client = client;
-		Map<Resource, String> protects = new LinkedHashMap<Resource, String>();
+	public void init(ObjectConnection con, RealmManager manager)
+			throws OpenRDFException, IOException {
+		credentials.clear();
+		String errorPipelineUrl = null;
+		Map<Value, String> protects = new LinkedHashMap<Value, String>();
 		ValueFactory vf = con.getValueFactory();
 		TupleQuery query = con.prepareTupleQuery(SPARQL, SELECT_REALM);
 		query.setBinding("this", self);
@@ -143,8 +156,7 @@ public class DetachedRealm {
 					secret = readString(con.getBlobObject(uri));
 				}
 				if (result.hasBinding("error")) {
-					String url = result.getValue("error").stringValue();
-					error = PipelineFactory.newInstance().createPipeline(url, client);
+					errorPipelineUrl = result.getValue("error").stringValue();
 				}
 				if (result.hasBinding("forbidden")) {
 					forbidden = result.getValue("forbidden").stringValue();
@@ -155,20 +167,44 @@ public class DetachedRealm {
 				}
 				if (result.hasBinding("authentication")) {
 					Value uri = result.getValue("authentication");
-					protects.put((Resource) uri, result.getValue("protected").stringValue());
+					String value = result.getValue("protected").stringValue();
+					if (protects.containsKey(uri)) {
+						protects.put(uri, protects.get(uri) + ' ' + value);
+					} else {
+						protects.put(uri, value);
+					}
 				}
 				if (result.hasBinding("domain")) {
 					allowOrigin.add(result.getValue("domain").stringValue());
+				}
+				if (result.hasBinding("username")) {
+					String username = result.getValue("username").stringValue();
+					String authority = result.getValue("authority").stringValue();
+					String passwordFile = result.getValue("passwordFile").stringValue();
+					setCredential(username, authority, passwordFile, con);
 				}
 			}
 		} finally {
 			results.close();
 		}
-		for (Map.Entry<Resource, String> e : protects.entrySet()) {
-			DetachedAuthenticationManager dam = detach(e.getKey(),
-					e.getValue(), manager, con);
+		this.client = new HttpUriClient() {
+			private final CloseableHttpClient delegate = HttpClientFactory
+					.getInstance().createHttpClient(self.stringValue(),
+							credentials);
+
+			protected HttpClient getDelegate() throws IOException {
+				return delegate;
+			}
+		};
+		if (errorPipelineUrl != null) {
+			error = PipelineFactory.newInstance().createPipeline(errorPipelineUrl, client);
+		}
+		for (Map.Entry<Value, String> e : protects.entrySet()) {
+			Resource uri = (Resource) e.getKey();
+			DetachedAuthenticationManager dam = detach(uri, e.getValue(),
+					manager, con);
 			if (dam != null) {
-				authentication.put(e.getKey(), dam);
+				authentication.put(uri, dam);
 			}
 		}
 	}
@@ -187,6 +223,10 @@ public class DetachedRealm {
 
 	public String getOriginSecret() {
 		return secret;
+	}
+
+	public HttpUriClient getHttpClient() {
+		return client;
 	}
 
 	public Collection<String> allowOrigin() {
@@ -346,6 +386,24 @@ public class DetachedRealm {
 			resp.setHeader("Location", "/");
 		}
 		return resp;
+	}
+
+	private void setCredential(String username, String authority,
+			String passwordFile, ObjectConnection con) throws IOException,
+			RepositoryException, UnsupportedEncodingException {
+		BlobObject file = con.getBlobObject(passwordFile);
+		String encoded = file.getCharContent(true).toString();
+		String password = new String(Base64.decodeBase64(encoded), "UTF-8");
+		String host = authority;
+		int port = -1;
+		int index = authority.indexOf(':');
+		if (index >= 0) {
+			host = authority.substring(0, index);
+			port = Integer.parseInt(authority.substring(index + 1));
+		}
+		AuthScope scope = new AuthScope(new HttpHost(host, port));
+		NTCredentials credential = new NTCredentials(username + ':' + password);
+		credentials.setCredentials(scope, credential);
 	}
 
 	private String readString(FileObject file) {

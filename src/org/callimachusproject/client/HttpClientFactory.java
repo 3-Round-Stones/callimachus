@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.HttpHost;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.cache.ResourceFactory;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.config.ConnectionConfig;
@@ -23,6 +24,7 @@ import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultConnectionKeepAliveStrategy;
+import org.apache.http.impl.client.SystemDefaultCredentialsProvider;
 import org.apache.http.impl.client.cache.CacheConfig;
 import org.apache.http.impl.client.cache.CachingHttpClientBuilder;
 import org.apache.http.impl.client.cache.FileResourceFactory;
@@ -125,7 +127,11 @@ public class HttpClientFactory implements Closeable {
 		return decorator.removeProxy(proxy);
 	}
 
-	public synchronized CloseableHttpClient createHttpClient(String source) {
+	public CloseableHttpClient createHttpClient(String source) {
+		return createHttpClient(source, new SystemDefaultCredentialsProvider());
+	}
+
+	public synchronized CloseableHttpClient createHttpClient(String source, CredentialsProvider credentials) {
 		ManagedHttpCacheStorage storage = new ManagedHttpCacheStorage(
 				getDefaultCacheConfig());
 		List<BasicHeader> headers = new ArrayList<BasicHeader>();
@@ -144,6 +150,7 @@ public class HttpClientFactory implements Closeable {
 				.setDefaultRequestConfig(getDefaultRequestConfig())
 				.addInterceptorFirst(new GZipInterceptor())
 				.addInterceptorFirst(new GUnzipInterceptor())
+				.setDefaultCredentialsProvider(credentials)
 				.setDefaultHeaders(headers).setUserAgent(DEFAULT_NAME).build(),
 				storage);
 	}

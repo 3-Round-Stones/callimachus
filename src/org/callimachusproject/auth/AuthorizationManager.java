@@ -100,7 +100,7 @@ public class AuthorizationManager {
 	}
 
 	public HttpResponse authorize(ResourceOperation request, Set<Group> groups, CalliContext ctx)
-			throws OpenRDFException {
+			throws OpenRDFException, IOException {
 		InetAddress clientAddr = ctx.getClientAddr();
 		long now = ctx.getReceivedOn();
 		String m = request.getMethod();
@@ -179,7 +179,7 @@ public class AuthorizationManager {
 	}
 
 	public Set<String> allowOrigin(ResourceOperation request)
-			throws OpenRDFException {
+			throws OpenRDFException, IOException {
 		Set<String> set = new LinkedHashSet<String>();
 		DetachedRealm realm = getRealm(request);
 		if (realm != null) {
@@ -256,7 +256,7 @@ public class AuthorizationManager {
 	}
 
 	private DetachedRealm getRealm(ResourceOperation request)
-			throws OpenRDFException {
+			throws OpenRDFException, IOException {
 		DetachedRealm realm = realmManager.getRealm(request.getIRI());
 		if (realm == null)
 			return realmManager.getRealm(request.getRequestURI());

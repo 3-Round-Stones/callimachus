@@ -41,7 +41,7 @@ public class RealmManager {
 		realms = null;
 	}
 
-	public DetachedRealm getRealm(String target) throws OpenRDFException {
+	public DetachedRealm getRealm(String target) throws OpenRDFException, IOException {
 		return getRealms().getClosest(target);
 	}
 
@@ -56,7 +56,7 @@ public class RealmManager {
 	}
 
 	private synchronized PrefixMap<DetachedRealm> getRealms()
-			throws OpenRDFException {
+			throws OpenRDFException, IOException {
 		if (realms != null && revision == cache)
 			return realms;
 		revision = cache;
@@ -64,7 +64,7 @@ public class RealmManager {
 		try {
 			realms = loadRealms(con);
 			for (Map.Entry<String, DetachedRealm> e : realms.entrySet()) {
-				e.getValue().init(con, this, repo.getHttpClient(e.getKey()));
+				e.getValue().init(con, this);
 			}
 			return realms;
 		} finally {

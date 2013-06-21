@@ -114,6 +114,7 @@ public class CallimachusPolicy extends Policy {
 		plugins.add(new SocketPermission("*", "connect,resolve"));
 		plugins.add(new SocketPermission("*", "accept"));
 		plugins.add(new NetPermission("getProxySelector"));
+		plugins.add(new NetPermission("requestPasswordAuthentication"));
 		plugins.add(new ReflectPermission("suppressAccessChecks"));
 		plugins.add(new SecurityPermission("putProviderProperty.*"));
 		plugins.add(new RuntimePermission("accessDeclaredMembers"));

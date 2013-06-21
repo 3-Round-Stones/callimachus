@@ -28,6 +28,8 @@
  */
 package org.callimachusproject.traits;
 
+import java.io.IOException;
+
 import org.callimachusproject.auth.DetachedRealm;
 import org.callimachusproject.client.HttpUriClient;
 import org.callimachusproject.concepts.Activity;
@@ -51,7 +53,7 @@ public interface CalliObject extends RDFObject {
 
 	CalliRepository getCalliRepository();
 
-	DetachedRealm getRealm() throws OpenRDFException;
+	DetachedRealm getRealm() throws OpenRDFException, IOException;
 
 	HttpUriClient getHttpClient() throws OpenRDFException;
 

@@ -24,10 +24,13 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.server.exceptions.ResponseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class HttpUriClient extends CloseableHttpClient implements HttpClient {
+	private final Logger logger = LoggerFactory.getLogger(HttpUriClient.class);
 
-	protected abstract HttpClient getDelegate();
+	protected abstract HttpClient getDelegate() throws IOException;
 
 	public HttpUriEntity getEntity(String url, String accept)
 			throws IOException, ResponseException {
@@ -88,12 +91,22 @@ public abstract class HttpUriClient extends CloseableHttpClient implements HttpC
 
 	@Override
 	public HttpParams getParams() {
-		return getDelegate().getParams();
+		try {
+			return getDelegate().getParams();
+		} catch (IOException e) {
+			logger.error(e.toString(), e);
+			return null;
+		}
 	}
 
 	@Override
 	public ClientConnectionManager getConnectionManager() {
-		return getDelegate().getConnectionManager();
+		try {
+			return getDelegate().getConnectionManager();
+		} catch (IOException e) {
+			logger.error(e.toString(), e);
+			return null;
+		}
 	}
 
 	private URI getSystemId(HttpClientContext ctx) {

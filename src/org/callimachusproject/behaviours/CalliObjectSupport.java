@@ -30,6 +30,7 @@ package org.callimachusproject.behaviours;
 
 import static java.lang.Integer.toHexString;
 
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -75,7 +76,7 @@ public abstract class CalliObjectSupport implements CalliObject {
 		}
 	}
 
-	public DetachedRealm getRealm() throws OpenRDFException {
+	public DetachedRealm getRealm() throws OpenRDFException, IOException {
 		return getCalliRepository().getRealm(this.getResource().stringValue());
 	}
 

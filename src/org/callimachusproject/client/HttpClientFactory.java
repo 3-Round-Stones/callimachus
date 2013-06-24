@@ -176,7 +176,8 @@ public class HttpClientFactory implements Closeable {
 		return RequestConfig.custom().setSocketTimeout(0)
 				.setConnectTimeout(10000).setStaleConnectionCheckEnabled(false)
 				.setExpectContinueEnabled(true).setMaxRedirects(20)
-				.setCircularRedirectsAllowed(false).build();
+				.setRedirectsEnabled(true).setCircularRedirectsAllowed(false)
+				.build();
 	}
 
 	private ConnectionConfig getDefaultConnectionConfig() {

@@ -25,6 +25,9 @@ window.calli.saveResourceAs = function(event, fileName, create) {
         if (fileName && !nestedSubmit) {
             // let's set the resource attribute and go
             var about = calli.listResourceIRIs(calli.getPageUrl())[0];
+            if (about.indexOf('?') > 0) {
+                about = about.substring(0, about.indexOf('?'));
+            }
             var ns = null;
             if (resource) {
                 // use the already chosen folder

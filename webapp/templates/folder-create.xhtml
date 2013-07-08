@@ -15,7 +15,7 @@
         </aside>
     </div>
     <form method="POST" action="" enctype="application/rdf+xml" typeof="calli:Folder"
-            onsubmit="return calli.saveResourceAs(event,$('#label').val().replace(/\s+/g,'-')+'/')">
+            onsubmit="return calli.saveResourceAs(event,$('#label').val().replace(/[\s\/]*$/,'/').replace(/(\S)\s+(?=\S)/g, '$1-'))">
         <fieldset>
             <div class="control-group">
                 <label for="label" class="control-label">Name</label>

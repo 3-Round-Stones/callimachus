@@ -43,7 +43,7 @@ window.calli.saveResourceAs = function(event, fileName, create) {
                 ns = about.replace(/[^\/]*$/, '');
             }
             if (ns) {
-                var local = encodeURI(fileName).replace(/%25(\w\w)/g, '%$1').replace(/%20/g, '+');
+                var local = encodeURI(fileName.replace(/^\s+/,'').replace(/\s+$/,'').replace(/\s+/g, '+')).replace(/%25(\w\w)/g, '%$1');
                 resource = ns + local;
                 $(form).removeAttr('about');
                 $(form).attr('resource', resource);

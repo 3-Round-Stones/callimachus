@@ -28,7 +28,12 @@
     calli:script """
         var iter = this.calliPasswordDigest.iterator();
         while (iter.hasNext()) {
-            iter.next()['delete']();
+            var file = iter.next();
+            if (file.DeleteIfNotUsed) {
+                file.DeleteIfNotUsed();
+            } else {
+                file['delete']();
+            }
         }
         return proceed();
     """.

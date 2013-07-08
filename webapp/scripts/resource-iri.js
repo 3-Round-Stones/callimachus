@@ -79,8 +79,8 @@ window.calli.listResourceIRIs = function (text) {
                 uri = url.substring(0, url.indexOf('/callimachus/go?q=')) + uri;
             }
             return uri;
-        } else if (url.indexOf('?') >= 0) {
-            return url.substring(0, url.indexOf('?'));
+        } else if (url.indexOf('?view') >= 0) {
+            return url.substring(0, url.indexOf('?view'));
         }
         return url.substring(0);
     });

@@ -74,7 +74,7 @@ public class DomainNameSystemResolver {
 		try {
 			return InetAddress.getLocalHost().getHostName();
 		} catch (UnknownHostException e) {
-			throw new AssertionError(e);
+			return "localhost";
 		}
 	}
 

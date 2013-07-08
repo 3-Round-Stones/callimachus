@@ -11,6 +11,11 @@ import net.sf.saxon.s9api.SaxonApiException;
 import net.sf.saxon.s9api.Serializer;
 import net.sf.saxon.s9api.XdmNode;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.auth.Credentials;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.methods.HttpHead;
+import org.apache.http.client.protocol.HttpClientContext;
 import org.callimachusproject.engine.ParameterizedQuery;
 import org.callimachusproject.engine.ParameterizedQueryParser;
 import org.callimachusproject.engine.model.TermFactory;
@@ -25,6 +30,7 @@ import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.sail.SailRepository;
+import org.openrdf.repository.sparql.SPARQLRepository;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.sail.memory.MemoryStore;
 import org.xml.sax.SAXException;
@@ -52,6 +58,7 @@ public class SparqlStep implements XProcStep {
 	private ReadablePipe sourcePipe = null;
 	private ReadablePipe queryPipe = null;
 	private WritablePipe resultPipe = null;
+	private String endpoint;
 	private String outputBase;
 
 	public SparqlStep(XProcRuntime runtime, XAtomicStep step) {
@@ -73,6 +80,8 @@ public class SparqlStep implements XProcStep {
 	public void setOption(QName name, RuntimeValue value) {
 		if ("output-base-uri".equals(name.getClarkName())) {
 			outputBase = value.getString();
+		} else if ("endpoint".equals(name.getClarkName())) {
+			endpoint = value.getString();
 		}
 	}
 
@@ -105,7 +114,12 @@ public class SparqlStep implements XProcStep {
 		}
 		try {
 
-			RepositoryConnection con = createConnection();
+			RepositoryConnection con;
+			if (endpoint == null) {
+				con = createConnection();
+			} else {
+				con = createConnection(resolve(endpoint));
+			}
 			try {
 				while (sourcePipe != null && sourcePipe.moreDocuments()) {
 					importData(sourcePipe.read(), con);
@@ -120,7 +134,9 @@ public class SparqlStep implements XProcStep {
 			} finally {
 				Repository repo = con.getRepository();
 				con.close();
-				repo.shutDown();
+				if (endpoint == null) {
+					repo.shutDown();
+				}
 			}
 		} catch (SAXException e) {
 			throw new XProcException(e);
@@ -137,6 +153,27 @@ public class SparqlStep implements XProcStep {
 
 	private RepositoryConnection createConnection() throws RepositoryException {
 		Repository repository = new SailRepository(new MemoryStore());
+		repository.initialize();
+		RepositoryConnection con = repository.getConnection();
+		return con;
+	}
+
+	private RepositoryConnection createConnection(String endpoint)
+			throws RepositoryException, IOException {
+		final SPARQLRepository repository = new SPARQLRepository(endpoint);
+		final HttpClientContext ctx = HttpClientContext.create();
+		ResponseHandler<Void> handler = new ResponseHandler<Void>() {
+			public Void handleResponse(HttpResponse response) {
+				Credentials cred = ctx.getTargetAuthState().getCredentials();
+				if (cred != null) {
+					String username = cred.getUserPrincipal().getName();
+					String password = cred.getPassword();
+					repository.setUsernameAndPassword(username, password);
+				}
+				return null;
+			}
+		};
+		runtime.getHttpClient().execute(new HttpHead(endpoint), handler, ctx);
 		repository.initialize();
 		RepositoryConnection con = repository.getConnection();
 		return con;

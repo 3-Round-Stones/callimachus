@@ -20,6 +20,7 @@
         <p:input port="query" sequence="true" />
         <p:input port="parameters" kind="parameter" primary="true"/>
         <p:option name="output-base-uri" />
+        <p:option name="endpoint" />
         <p:output port="result" sequence="true" />
     </p:declare-step>
 

@@ -81,6 +81,7 @@
     <target name="dependencies" depends="dist-dependencies,test-dependencies" description="Download all dependencies" />
 
     <target name="dist-dependencies" depends="init">
+        <basename file="${sesame.url}" property="openrdf-sesame.jar" />
         <basename file="${alibaba.url}" property="openrdf-alibaba.zip" />
         <basename file="${jchardet.url}" property="jchardet.zip" />
         <basename file="${daemon.url}" property="daemon.zip" />
@@ -94,8 +95,10 @@
         <basename file="${httpclient.url}" property="httpclient.zip" />
         <basename file="${daemon-darwin.url}" property="daemon-darwin.tar.gz" />
         <basename file="${tagsoup.url}" property="tagsoup.jar" />
+        <basename file="${htmlparser.url}" property="htmlparser.zip" />
         <mkdir dir="${downloads}" />
         <get usetimestamp="true" skipexisting="${lib.present}" dest="${downloads}">
+            <url url="${sesame.url}" />
             <url url="${alibaba.url}" />
             <url url="${jchardet.url}" />
             <url url="${daemon.url}" />
@@ -108,17 +111,27 @@
             <url url="${jing.url}" />
             <url url="${daemon-darwin.url}" />
             <url url="${tagsoup.url}" />
+            <url url="${htmlparser.url}" />
             <url url="${httpclient.url}" />
         </get>
         <mkdir dir="${lib}" />
         <mkdir dir="${bin}" />
+        <copy file="${downloads}/${openrdf-sesame.jar}" tofile="${lib}/${openrdf-sesame.jar}" />
         <copy file="${downloads}/${mail.jar}" tofile="${lib}/${mail.jar}" />
         <copy file="${downloads}/${tagsoup.jar}" tofile="${lib}/${tagsoup.jar}" />
+        <unzip overwrite="false" src="${downloads}/${htmlparser.zip}" dest="${lib}">
+            <patternset>
+                <include name="*/htmlparser*.jar" />
+                <exclude name="*/htmlparser*-with-transitions.jar" />
+            </patternset>
+            <mapper type="flatten" />
+        </unzip>
         <unzip overwrite="false" src="${downloads}/${openrdf-alibaba.zip}" dest="${lib}">
             <patternset>
                 <include name="lib/*.jar" />
                 <include name="dist/*.jar" />
                 <exclude name="lib/commons-codec-*.jar" />
+                <exclude name="lib/openrdf-sesame*.jar" />
             </patternset>
             <mapper type="flatten" />
         </unzip>

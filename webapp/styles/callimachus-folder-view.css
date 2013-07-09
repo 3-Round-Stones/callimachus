@@ -1,6 +1,29 @@
 /* folder-view.css */
 
-.tab-content { overflow: visible; }
+#folder-box .ui-grid-header,
+#folder-box .ui-grid-footer {
+    border: 0;
+    #gradient.vertical(#f9f9f9, #eee);    
+}
+
+#folder-box table {
+    border: 0;
+}
+
+#folder-box table th {
+    padding: 0.2rem 1rem;
+}
+
+#folder-box tr th:first-child,
+#folder-box tr td:first-child {
+   border-left: 0; 
+}
+
+#folder-box tr th:last-child,
+#folder-box tr td:last-child {
+   border-right: 0; 
+}
+
 .dropup .dropdown-menu { top: auto; bottom: -2px; }
 .dropup>.dropdown-submenu>.dropdown-menu { bottom: -7px; }
 

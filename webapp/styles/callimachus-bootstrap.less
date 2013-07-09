@@ -161,6 +161,13 @@ menu {
 }
 
 // Common styles
+.nav-tabs,
+.nav-pills {
+  &:after {
+    clear: left;
+  }
+}
+
 .tabs-left > .nav-tabs > a,
 .tabs-right > .nav-tabs > a {
   float: none;
@@ -339,4 +346,18 @@ q::before {
 
 q::after {
     content: close-quote;
+}
+
+// ----------------------------------------------------------------------------
+// responsive.less overrides
+// ----------------------------------------------------------------------------
+
+#grid {
+    .core (@gridColumnWidth, @gridGutterWidth) {
+        .span (@columns) {
+          width: (@gridColumnWidth * @columns) + (@gridGutterWidth * (@columns - 1));
+        }
+        // Set the container width, and override it for fixed navbars in media queries
+        .navbar-relative-bottom .container { .span(@gridColumns); }
+    }
 }

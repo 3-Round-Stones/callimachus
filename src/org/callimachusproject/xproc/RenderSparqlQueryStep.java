@@ -109,7 +109,7 @@ public class RenderSparqlQueryStep implements XProcStep {
 			XdmNode template = templatePipe.read();
 			XdmNode xml = render(template, sourcePipe);
 			if (resultPipe != null && xml != null) {
-				if (outputBase != null) {
+				if (outputBase != null && outputBase.length() > 0) {
 					xml.getUnderlyingNode().setSystemId(resolve(outputBase));
 				}
 				resultPipe.write(xml);

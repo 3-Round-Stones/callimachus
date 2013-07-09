@@ -132,7 +132,7 @@ public class RenderStep implements XProcStep {
 		XdmNode xformed = xdmBuilder.build(new StreamSource(result));
 
 		if (xformed != null
-				&& outputBase != null
+				&& outputBase != null && outputBase.length() > 0
 				&& (xformed.getBaseURI() == null || "".equals(xformed
 						.getBaseURI().toASCIIString()))) {
 			xformed.getUnderlyingNode().setSystemId(resolve(outputBase));

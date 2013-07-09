@@ -115,7 +115,7 @@ public class SparqlStep implements XProcStep {
 		try {
 
 			RepositoryConnection con;
-			if (endpoint == null) {
+			if (endpoint == null || endpoint.length() == 0) {
 				con = createConnection();
 			} else {
 				con = createConnection(resolve(endpoint));
@@ -134,7 +134,7 @@ public class SparqlStep implements XProcStep {
 			} finally {
 				Repository repo = con.getRepository();
 				con.close();
-				if (endpoint == null) {
+				if (endpoint == null || endpoint.length() == 0) {
 					repo.shutDown();
 				}
 			}
@@ -219,7 +219,7 @@ public class SparqlStep implements XProcStep {
 	}
 
 	private String getBaseURI(String queryBaseURI) {
-		if (outputBase == null)
+		if (outputBase == null || outputBase.length() == 0)
 			return queryBaseURI;
 		return resolve(outputBase);
 	}

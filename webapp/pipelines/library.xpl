@@ -44,6 +44,7 @@
         <p:output port="result" sequence="true" primary="true" />
 
         <p:option name="output-base-uri" select="''" />
+        <p:option name="endpoint" select="''" />
 
         <p:variable name="resultId" select="if (string-length($output-base-uri) &gt; 0) then p:resolve-uri($output-base-uri) else p:base-uri()">
             <p:pipe step="render-html" port="template" />
@@ -80,6 +81,7 @@
             </calli:render-sparql-query>
 
             <calli:sparql name="sparql">
+                <p:with-option name="endpoint" select="$endpoint" />
                 <p:input port="query">
                     <p:pipe step="query" port="result" />
                 </p:input>

@@ -7,8 +7,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.http.ConnectionReuseStrategy;
+import org.apache.http.HttpClientConnection;
 import org.apache.http.HttpHost;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.cache.ResourceFactory;
@@ -17,6 +19,9 @@ import org.apache.http.config.ConnectionConfig;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.config.SocketConfig;
 import org.apache.http.conn.ConnectionKeepAliveStrategy;
+import org.apache.http.conn.ConnectionRequest;
+import org.apache.http.conn.HttpClientConnectionManager;
+import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.LayeredConnectionSocketFactory;
 import org.apache.http.conn.socket.PlainSocketFactory;
@@ -32,6 +37,7 @@ import org.apache.http.impl.client.cache.ManagedHttpCacheStorage;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.impl.execchain.ClientExecChain;
 import org.apache.http.message.BasicHeader;
+import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.Version;
 import org.callimachusproject.io.FileUtil;
 import org.callimachusproject.util.MailProperties;
@@ -82,7 +88,7 @@ public class HttpClientFactory implements Closeable {
 
 	private final ProxyClientExecDecorator decorator;
 	private final ResourceFactory entryFactory;
-	private final PoolingHttpClientConnectionManager connManager;
+	final PoolingHttpClientConnectionManager connManager;
 	private final ConnectionReuseStrategy reuseStrategy;
 	private final ConnectionKeepAliveStrategy keepAliveStrategy;
 
@@ -143,7 +149,7 @@ public class HttpClientFactory implements Closeable {
 						.decorateMainExec(mainExec));
 			}
 		}.setResourceFactory(entryFactory).setHttpCacheStorage(storage)
-				.setConnectionManager(connManager)
+				.setConnectionManager(getConnectionManager())
 				.setConnectionReuseStrategy(reuseStrategy)
 				.setKeepAliveStrategy(keepAliveStrategy).useSystemProperties()
 				.disableContentCompression()
@@ -153,6 +159,48 @@ public class HttpClientFactory implements Closeable {
 				.setDefaultCredentialsProvider(credentials)
 				.setDefaultHeaders(headers).setUserAgent(DEFAULT_NAME).build(),
 				storage);
+	}
+
+	private HttpClientConnectionManager getConnectionManager() {
+		return new HttpClientConnectionManager() {
+			public ConnectionRequest requestConnection(HttpRoute route,
+					Object state) {
+				return connManager.requestConnection(route, state);
+			}
+
+			public void releaseConnection(HttpClientConnection conn,
+					Object newState, long validDuration, TimeUnit timeUnit) {
+				connManager.releaseConnection(conn, newState, validDuration,
+						timeUnit);
+			}
+
+			public void connect(HttpClientConnection conn, HttpRoute route,
+					int connectTimeout, HttpContext context) throws IOException {
+				connManager.connect(conn, route, connectTimeout, context);
+			}
+
+			public void upgrade(HttpClientConnection conn, HttpRoute route,
+					HttpContext context) throws IOException {
+				connManager.upgrade(conn, route, context);
+			}
+
+			public void routeComplete(HttpClientConnection conn,
+					HttpRoute route, HttpContext context) throws IOException {
+				connManager.routeComplete(conn, route, context);
+			}
+
+			public void closeIdleConnections(long idletime, TimeUnit tunit) {
+				connManager.closeIdleConnections(idletime, tunit);
+			}
+
+			public void closeExpiredConnections() {
+				connManager.closeExpiredConnections();
+			}
+
+			public void shutdown() {
+				// connection manager is closed elsewhere
+			}
+		};
 	}
 
 	private String getOrigin(String source) {

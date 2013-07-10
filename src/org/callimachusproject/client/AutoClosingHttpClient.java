@@ -16,6 +16,14 @@ import org.apache.http.protocol.HttpContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * This class allows an HttpClient to be shared among managers that each think
+ * it is just for them. By ignoring calls to {@link CloseableHttpClient#close()}
+ * and waiting for object finalisation this allows this object to shared.
+ * 
+ * @author James Leigh
+ * 
+ */
 public class AutoClosingHttpClient extends CloseableHttpClient {
 	final Logger logger = LoggerFactory.getLogger(AutoClosingHttpClient.class);
 	private final CloseableHttpClient client;
@@ -29,7 +37,8 @@ public class AutoClosingHttpClient extends CloseableHttpClient {
 
 	@Override
 	protected void finalize() throws Throwable {
-		close();
+		client.close();
+		storage.shutdown();
 	}
 
 	public void cleanResources() {
@@ -37,8 +46,8 @@ public class AutoClosingHttpClient extends CloseableHttpClient {
 	}
 
     public void close() throws IOException {
-		client.close();
-		storage.shutdown();
+		// ignore close request and wait for finalisation
+		storage.cleanResources();
     }
 
 	@Override

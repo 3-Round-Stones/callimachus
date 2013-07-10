@@ -155,6 +155,7 @@ public class Pipeline {
 			throw new SAXException(e);
 		} finally {
 			if (pipe == null) {
+				runtime.setHttpClient(null);
 				runtime.close();
 			}
 		}

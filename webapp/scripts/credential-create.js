@@ -1,23 +1,20 @@
-// credential-edit.js
+// credential-create.js
 
 jQuery(function($){
 
-$('form[typeof~="calli:Credential"]').submit(function(event){
-    var form = this;
-    var resource = $(form).attr('resource');
+$('form[typeof~="calli:Credential"]').bind('calliRedirect', function(event){
     var password = $('#password').val();
-    if (password) {
+    if (password && event.cause.type == 'calliSubmit') {
         event.preventDefault();
         $.ajax({
             type: 'POST',
-            url: resource + '?password',
+            url: event.resource + '?password',
             contentType: 'text/plain',
             data: rstr2b64(str2rstr_utf8(password)),
             beforeSend: calli.withCredentials,
             dataType: "text",
             success: function(url) {
-                $('#password').val('');
-                $(form).submit();
+                window.location.replace(url);
             }
         });
     }

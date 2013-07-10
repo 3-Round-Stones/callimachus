@@ -72,8 +72,12 @@ public class ModifiedSinceHandler implements AsyncExecChain {
 			FutureCallback<HttpResponse> callback) {
 		callback = new ResponseCallback(callback) {
 			public void completed(HttpResponse result) {
-				resetModified(result);
-				super.completed(result);
+				try {
+					resetModified(result);
+					super.completed(result);
+				} catch (RuntimeException ex) {
+					super.failed(ex);
+				}
 			}
 		};
 		ResourceOperation req = CalliContext.adapt(context).getResourceTransaction();

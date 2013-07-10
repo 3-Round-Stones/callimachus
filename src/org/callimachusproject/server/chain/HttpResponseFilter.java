@@ -121,6 +121,8 @@ public class HttpResponseFilter implements AsyncExecChain {
 					super.failed(ex);
 				} catch (IOException ex) {
 					super.failed(ex);
+				} catch (RuntimeException ex) {
+					super.failed(ex);
 				}
 			}
 		};

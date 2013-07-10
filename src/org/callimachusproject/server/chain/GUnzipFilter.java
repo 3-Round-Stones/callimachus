@@ -88,8 +88,12 @@ public class GUnzipFilter implements AsyncExecChain {
 		final HttpRequest req = request;
 		return delegate.execute(target, request, context, new ResponseCallback(callback) {
 			public void completed(HttpResponse result) {
-				filter(req, context, result);
-				super.completed(result);
+				try {
+					filter(req, context, result);
+					super.completed(result);
+				} catch (RuntimeException ex) {
+					super.failed(ex);
+				}
 			}
 		});
 	}

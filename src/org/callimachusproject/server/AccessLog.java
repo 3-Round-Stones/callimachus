@@ -52,8 +52,12 @@ public class AccessLog implements AsyncExecChain {
 		return delegate.execute(target, request, context, new ResponseCallback(
 				callback) {
 			public void completed(HttpResponse result) {
-				logResponse(request, context, result);
-				super.completed(result);
+				try {
+					logResponse(request, context, result);
+					super.completed(result);
+				} catch (RuntimeException ex) {
+					super.failed(ex);
+				}
 			}
 
 			public void failed(Exception ex) {

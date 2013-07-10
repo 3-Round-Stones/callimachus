@@ -121,7 +121,11 @@ public class AsyncRequestHandler implements HttpAsyncRequestHandlerMapper,
 			handler.execute(host, req.getEnclosingRequest(), ctx,
 					new FutureCallback<HttpResponse>() {
 						public void completed(HttpResponse result) {
-							exchange.submitResponse(result);
+							try {
+								exchange.submitResponse(result);
+							} catch (RuntimeException ex) {
+								failed(ex);
+							}
 						}
 
 						public void failed(Exception ex) {

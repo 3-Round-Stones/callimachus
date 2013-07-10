@@ -83,8 +83,12 @@ public class LinksFilter implements AsyncExecChain {
 			final ResourceOperation req = CalliContext.adapt(context).getResourceTransaction();
 			return delegate.execute(target, request, context, new ResponseCallback(callback) {
 				public void completed(HttpResponse result) {
-					addLinks(req, result);
-					super.completed(result);
+					try {
+						addLinks(req, result);
+						super.completed(result);
+					} catch (RuntimeException ex) {
+						super.failed(ex);
+					}
 				}
 			});
 		} else {

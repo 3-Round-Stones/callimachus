@@ -66,12 +66,7 @@ public class CacheHandler implements AsyncExecChain {
 		public Future<HttpResponse> execute(HttpHost target,
 				HttpRequest request, HttpContext context,
 				FutureCallback<HttpResponse> callback) {
-			return delegate.execute(target, request, context,
-					new ResponseCallback(callback) {
-						public void completed(HttpResponse result) {
-							super.completed(result);
-						}
-					});
+			return delegate.execute(target, request, context, callback);
 		}
 	}
 

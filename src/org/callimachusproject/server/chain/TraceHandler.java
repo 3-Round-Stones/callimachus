@@ -99,8 +99,12 @@ public class TraceHandler implements AsyncExecChain {
 		} else {
 			return delegate.execute(target, request, context, new ResponseCallback(callback) {
 				public void completed(HttpResponse result) {
-					allow(result);
-					super.completed(result);
+					try {
+						allow(result);
+						super.completed(result);
+					} catch (RuntimeException ex) {
+						super.failed(ex);
+					}
 				}
 			});
 		}

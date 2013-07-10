@@ -100,17 +100,21 @@ public class AutoClosingAsyncClient extends CloseableHttpAsyncClient {
 		}
 		return new ResponseCallback(callback) {
 			public void completed(HttpResponse result) {
-				HttpEntity entity = result.getEntity();
-				if (entity != null) {
-					result.setEntity(new CloseableEntity(entity, new Closeable() {
-						public void close() throws IOException {
-							// this also keeps this object from being finalized
-							// until all its response entities are consumed
-							logger.trace("Response entity closed");
-						}
-					}));
+				try {
+					HttpEntity entity = result.getEntity();
+					if (entity != null) {
+						result.setEntity(new CloseableEntity(entity, new Closeable() {
+							public void close() throws IOException {
+								// this also keeps this object from being finalized
+								// until all its response entities are consumed
+								logger.trace("Response entity closed");
+							}
+						}));
+					}
+					super.completed(result);
+				} catch (RuntimeException ex) {
+					super.failed(ex);
 				}
-				super.completed(result);
 			}
 		};
 	}

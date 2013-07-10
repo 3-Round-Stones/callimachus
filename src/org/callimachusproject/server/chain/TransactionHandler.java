@@ -96,6 +96,8 @@ public class TransactionHandler implements AsyncExecChain {
 							failed(ex);
 						} catch (IOException ex) {
 							failed(ex);
+						} catch (RuntimeException ex) {
+							failed(ex);
 						} finally {
 							context.setResourceTransaction(null);
 							context.setObjectConnection(null);

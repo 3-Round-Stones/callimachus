@@ -42,6 +42,23 @@ public class HttpEntityWriter implements Consumer<HttpEntity> {
 			}
 
 			@Override
+			protected String toHttpEntityMedia(FluidType media) {
+				if (result == null)
+					return ftype.as(media).preferred();
+				Header hd = result.getContentType();
+				if (hd == null)
+					return ftype.as(media).preferred();
+				return ftype.as(hd.getValue()).as(media).preferred();
+			}
+
+			@Override
+			protected HttpEntity asHttpEntity(FluidType media) throws Exception {
+				if (result == null)
+					return null;
+				return result;
+			}
+
+			@Override
 			protected String toChannelMedia(FluidType media) {
 				if (result == null)
 					return ftype.as(media).preferred();

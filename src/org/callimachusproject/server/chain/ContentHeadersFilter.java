@@ -68,8 +68,12 @@ public class ContentHeadersFilter implements AsyncExecChain {
 		final String cache = trans.getResponseCacheControl();
 		return delegate.execute(target, request, context, new ResponseCallback(callback) {
 			public void completed(HttpResponse result) {
-				addHeaders(request, context, trans, contentType, derived, cache, result);
-				super.completed(result);
+				try {
+					addHeaders(request, context, trans, contentType, derived, cache, result);
+					super.completed(result);
+				} catch (RuntimeException ex) {
+					super.failed(ex);
+				}
 			}
 		});
 	}
@@ -119,7 +123,7 @@ public class ContentHeadersFilter implements AsyncExecChain {
 		if (entityTag != null && !rb.containsHeader("ETag")) {
 			rb.setHeader("ETag", entityTag);
 		}
-		if (contentType != null && rb.getEntity() != null) {
+		if (contentType != null && rb.getEntity() != null && !rb.containsHeader("Content-Type")) {
 			rb.setHeader("Content-Type", contentType);
 		}
 		if (lastModified > 0) {

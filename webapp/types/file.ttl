@@ -45,3 +45,13 @@
         SELECT DISTINCT ?type { $this a [calli:mediaType ?type] }
     """.
 
+:DeleteFileIfNotUsed rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <File>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
+    calli:method "DELETE";
+    calli:requires calli:editor;
+    calli:type "message/x-response";
+    calli:script """
+        return this.DeleteIfNotUsed();
+    """.
+

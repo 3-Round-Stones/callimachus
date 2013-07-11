@@ -27,9 +27,6 @@ window.calli.deleteResource = function(event, redirect) {
     } else {
         form = $(document);
     }
-    if (url.indexOf('?') > 0) {
-        url = url.substring(0, url.indexOf('?'));
-    }
     try {
         var de = jQuery.Event("calliDelete");
         de.resource = url.replace(/\?.*/,'');

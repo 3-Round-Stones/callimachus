@@ -147,3 +147,14 @@
     rdfs:range <java:java.io.InputStream>;
     calli:type "application/xhtml+xml".
 
+:DeleteArticleIfNotUsed rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Article>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
+    calli:method "DELETE";
+    calli:query "xhtml";
+    calli:requires calli:editor;
+    calli:type "message/x-response";
+    calli:script """
+        return this.DeleteIfNotUsed();
+    """.
+

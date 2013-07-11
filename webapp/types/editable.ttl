@@ -155,6 +155,7 @@
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Editable>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
     calli:method "DELETE";
+    calli:query "edit", "describe";
     calli:requires calli:editor;
     calli:type "message/x-response";
     calli:imports <java:org.openrdf.model.BNode>;

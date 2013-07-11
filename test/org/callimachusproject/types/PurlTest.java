@@ -32,7 +32,7 @@ public class PurlTest extends TemporaryServerTestCase {
 		try {
 			assertEquals(new String(file.get("text/plain")), new String(purl.get("text/plain")));
 		} finally {
-			purl.delete();
+			purl.link("describedby").delete();
 		}
 	}
 
@@ -42,7 +42,7 @@ public class PurlTest extends TemporaryServerTestCase {
 			assertEquals("http://www.google.ca/", purl.getRedirectLocation());
 			assertEquals(301, purl.headCode());
 		} finally {
-			purl.delete();
+			purl.link("describedby").delete();
 		}
 	}
 
@@ -52,7 +52,7 @@ public class PurlTest extends TemporaryServerTestCase {
 			assertEquals("http://www.google.ca/", purl.getRedirectLocation());
 			assertEquals(302, purl.headCode());
 		} finally {
-			purl.delete();
+			purl.link("describedby").delete();
 		}
 	}
 
@@ -62,7 +62,7 @@ public class PurlTest extends TemporaryServerTestCase {
 			assertEquals("http://www.google.ca/", purl.getRedirectLocation());
 			assertEquals(303, purl.headCode());
 		} finally {
-			purl.delete();
+			purl.link("describedby").delete();
 		}
 	}
 
@@ -72,7 +72,7 @@ public class PurlTest extends TemporaryServerTestCase {
 			assertEquals("http://www.google.ca/", purl.getRedirectLocation());
 			assertEquals(307, purl.headCode());
 		} finally {
-			purl.delete();
+			purl.link("describedby").delete();
 		}
 	}
 
@@ -82,7 +82,7 @@ public class PurlTest extends TemporaryServerTestCase {
 			assertEquals("http://www.google.ca/", purl.getRedirectLocation());
 			assertEquals(308, purl.headCode());
 		} finally {
-			purl.delete();
+			purl.link("describedby").delete();
 		}
 	}
 
@@ -91,7 +91,7 @@ public class PurlTest extends TemporaryServerTestCase {
 		try {
 			assertEquals(404, purl.headCode());
 		} finally {
-			purl.delete();
+			purl.link("describedby").delete();
 		}
 	}
 
@@ -100,7 +100,7 @@ public class PurlTest extends TemporaryServerTestCase {
 		try {
 			assertEquals(410, purl.headCode());
 		} finally {
-			purl.delete();
+			purl.link("describedby").delete();
 		}
 	}
 
@@ -111,7 +111,7 @@ public class PurlTest extends TemporaryServerTestCase {
 			WebResource url = purl.ref("?search=callimachus");
 			assertEquals(302, url.headCode());
 		} finally {
-			purl.delete();
+			purl.link("describedby").delete();
 		}
 	}
 
@@ -122,7 +122,7 @@ public class PurlTest extends TemporaryServerTestCase {
 			assertEquals("http://www.google.ca/search?q=callimachus", url.getRedirectLocation());
 			assertEquals(302, url.headCode());
 		} finally {
-			purl.delete();
+			purl.link("describedby").delete();
 		}
 	}
 
@@ -132,8 +132,8 @@ public class PurlTest extends TemporaryServerTestCase {
 		try {
 			assertEquals(404, missing.headCode());
 		} finally {
-			missing.delete();
-			alt.delete();
+			missing.link("describedby").delete();
+			alt.link("describedby").delete();
 		}
 	}
 
@@ -158,9 +158,9 @@ public class PurlTest extends TemporaryServerTestCase {
 			assertEquals(rdfxml, new String(rdf.get("*/*")));
 			assertEquals(turtle, new String(ttl.get("*/*")));
 		} finally {
-			ttl.delete();
-			rdf.delete();
-			concept.delete();
+			ttl.link("describedby").delete();
+			rdf.link("describedby").delete();
+			concept.link("describedby").delete();
 		}
 	}
 

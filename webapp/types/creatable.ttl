@@ -38,6 +38,7 @@
 :DeleteCreatable owl:intersectionOf ( <editable.ttl#DeleteIfNotUsed>
         [owl:onProperty msg:target; owl:allValuesFrom [owl:intersectionOf (<Editable> <Creatable>)]]);
     calli:method "DELETE";
+    calli:query "edit", "describe";
     calli:requires calli:editor;
     calli:type "message/x-response";
     calli:imports <java:org.callimachusproject.server.exceptions.Conflict>;

@@ -245,6 +245,16 @@ calli:post a owl:AnnotationProperty;
     rdfs:comment "This request handler should delegate a POST request to the given template URL";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
+calli:put a owl:AnnotationProperty;
+    rdfs:label "put";
+    rdfs:comment "This request handler should delegate a PUT request to the given template URL";
+    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
+calli:delete a owl:AnnotationProperty;
+    rdfs:label "delete";
+    rdfs:comment "This request handler should delegate a DELETE request to the given template URL";
+    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
 calli:canonical a owl:AnnotationProperty;
     rdfs:label "canonical";
     rdfs:comment "Target template URI that this request handler (301) redirects to";

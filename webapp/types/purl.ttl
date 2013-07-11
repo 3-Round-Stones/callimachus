@@ -42,50 +42,79 @@
 
 :Redirect rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <PURL>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource].
+
+:queryString a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:domain :Redirect;
+    rdfs:range xsd:string;
+    calli:type "application/x-www-form-urlencoded";
+    calli:query "*".
+
+:Proxy rdfs:subClassOf :Redirect.
+
+:contentType a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:domain :Proxy;
+    rdfs:range xsd:string;
+    calli:type "text/plain";
+    calli:header "Content-Type".
+
+:contentLocation a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:domain :Proxy;
+    rdfs:range xsd:string;
+    calli:type "text/plain";
+    calli:header "Content-Location".
+
+:contentEntity a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :Proxy;
+    rdfs:range <java:org.apache.http.HttpEntity>;
+    calli:type "*/*".
+
+:GetRedirect rdfs:subClassOf :Redirect;
     calli:method "GET";
     calli:requires calli:reader;
     calli:type "message/x-response";
     calli:imports <java:org.apache.http.client.methods.HttpGet>;
-    calli:imports <java:org.callimachusproject.rewrite.Substitution>;
     calli:imports <java:org.callimachusproject.server.exceptions.ResponseException>;
     calli:script """
         var cacheControl = this.calliCacheControl.toArray();
-        var iter = this.FindPurlPattern().iterator();
+        var iter = this.FindPurlGetPattern().iterator();
         while (iter.hasNext()) {
             var row = iter.next();
             var status = row[0];
             var phrase = row[1];
             var pattern = row[2];
-            var substitution = Substitution.compile(pattern);
-            var result = substitution.replace(this.toString(), query);
+            var result = this.processUriTemplate(pattern, queryString);
             if (result) {
+                var split = result.split("\\n");
+                var location = split[0];
                 if (300 <= status && status < 400 ) {
                     // 301, 302, 303, 307, or 308 responses
-                    if (queryString && result.indexOf('?') < 0) {
-                        result = result + '?' + queryString;
-                    }
                     return {
                         status:status,
                         message:phrase,
-                        headers:{'location':result,'cache-control':cacheControl,'content-type':"text/plain"},
+                        headers:{'location':location,'cache-control':cacheControl,'content-type':"text/plain"},
                         body:[phrase]
                     };
                 }
                 // 200, 203, 404, or 410 responses
-                var split = result.split("\\n");
-                var location = split[0];
-                if (queryString && location.indexOf('?') < 0) {
-                    location = location + '?' + queryString;
-                }
                 var systemId = new java.net.URI(this.toString()).resolve(location).normalize().toASCIIString();
                 var req = new HttpGet(systemId);
                 for (var i=1; i<split.length; i++) {
-                    var header = split[i].split(':');
+                    var header = split[i].split(':', 2);
                     req.addHeader(header[0], header[1]);
                 }
-                var resp = this.httpClient.getResponse(req);
+                var resp = this.httpClient.getAnyResponse(req);
+                if (status < 300) {
+                    status = resp.statusLine.statusCode;
+                    phrase = resp.statusLine.reasonPhrase;
+                }
                 var headers = {'content-location': systemId,'cache-control':cacheControl};
+                if (resp.getFirstHeader('location')) {
+                    headers['location'] = resp.getFirstHeader('location').value;
+                }
+                if (resp.getFirstHeader('content-location')) {
+                    headers['content-location'] = resp.getFirstHeader('content-location').value;
+                }
                 if (resp.getFirstHeader('last-modified')) {
                     headers['last-modified'] = resp.getFirstHeader('last-modified').value;
                 }
@@ -116,17 +145,206 @@
         }
     """.
 
-:query a owl:FunctionalProperty, owl:ObjectProperty;
-    rdfs:domain :Redirect;
-    rdfs:range <java:java.util.Map>;
-    calli:type "application/x-www-form-urlencoded";
-    calli:query "*".
+:PostRedirect rdfs:subClassOf :Proxy;
+    calli:method "POST";
+    calli:requires calli:reader;
+    calli:type "message/x-response";
+    calli:imports <java:org.apache.http.client.methods.HttpPost>;
+    calli:imports <java:org.callimachusproject.server.exceptions.ResponseException>;
+    calli:script """
+        var iter = this.FindPurlPostPattern().iterator();
+        while (iter.hasNext()) {
+            var row = iter.next();
+            var status = row[0];
+            var phrase = row[1];
+            var pattern = row[2];
+            var result = this.processUriTemplate(pattern, queryString);
+            if (result) {
+                var split = result.split("\\n");
+                var location = split[0];
+                if (300 <= status && status < 400 ) {
+                    // 301, 302, 303, 307, or 308 responses
+                    return {
+                        status:status,
+                        message:phrase,
+                        headers:{'location':location,'content-type':"text/plain"},
+                        body:[phrase]
+                    };
+                }
+                // 200, 203, 404, or 410 responses
+                var systemId = new java.net.URI(this.toString()).resolve(location).normalize().toASCIIString();
+                var req = new HttpPost(systemId);
+                if (contentType) {
+                    req.setHeader('content-type', contentType);
+                }
+                if (contentLocation) {
+                    req.setHeader('content-location', contentLocation);
+                }
+                if (contentEntity) {
+                    req.setEntity(contentEntity);
+                }
+                for (var i=1; i<split.length; i++) {
+                    var header = split[i].split(':', 2);
+                    req.addHeader(header[0], header[1]);
+                }
+                var resp = this.httpClient.getAnyResponse(req);
+                if (status < 300) {
+                    status = resp.statusLine.statusCode;
+                    phrase = resp.statusLine.reasonPhrase;
+                }
+                var headers = {};
+                if (resp.getFirstHeader('location')) {
+                    headers['location'] = resp.getFirstHeader('location').value;
+                }
+                if (resp.getFirstHeader('content-location')) {
+                    headers['content-location'] = resp.getFirstHeader('content-location').value;
+                }
+                if (resp.getFirstHeader('content-version')) {
+                    headers['content-version'] = resp.getFirstHeader('content-version').value;
+                }
+                return {
+                    status:status,
+                    message:phrase,
+                    headers:headers,
+                    body:resp.entity
+                };
+            }
+        }
+        throw new org.callimachusproject.server.exceptions.MethodNotAllowed();
+    """.
 
-:queryString a owl:FunctionalProperty, owl:DatatypeProperty;
-    rdfs:domain :Redirect;
-    rdfs:range xsd:string;
-    calli:type "application/x-www-form-urlencoded";
-    calli:query "*".
+:PutRedirect rdfs:subClassOf :Proxy;
+    calli:method "PUT";
+    calli:requires calli:reader;
+    calli:type "message/x-response";
+    calli:imports <java:org.apache.http.client.methods.HttpPut>;
+    calli:imports <java:org.callimachusproject.server.exceptions.ResponseException>;
+    calli:script """
+        var iter = this.FindPurlPutPattern().iterator();
+        while (iter.hasNext()) {
+            var row = iter.next();
+            var status = row[0];
+            var phrase = row[1];
+            var pattern = row[2];
+            var result = this.processUriTemplate(pattern, queryString);
+            if (result) {
+                var split = result.split("\\n");
+                var location = split[0];
+                if (300 <= status && status < 400 ) {
+                    // 301, 302, 303, 307, or 308 responses
+                    return {
+                        status:status,
+                        message:phrase,
+                        headers:{'location':location,'content-type':"text/plain"},
+                        body:[phrase]
+                    };
+                }
+                // 200, 203, 404, or 410 responses
+                var systemId = new java.net.URI(this.toString()).resolve(location).normalize().toASCIIString();
+                var req = new HttpPut(systemId);
+                if (contentType) {
+                    req.setHeader('content-type', contentType);
+                }
+                if (contentLocation) {
+                    req.setHeader('content-location', contentLocation);
+                }
+                if (contentEntity) {
+                    req.setEntity(contentEntity);
+                }
+                for (var i=1; i<split.length; i++) {
+                    var header = split[i].split(':', 2);
+                    req.addHeader(header[0], header[1]);
+                }
+                var resp = this.httpClient.getAnyResponse(req);
+                if (status < 300) {
+                    status = resp.statusLine.statusCode;
+                    phrase = resp.statusLine.reasonPhrase;
+                }
+                var headers = {};
+                if (resp.getFirstHeader('location')) {
+                    headers['location'] = resp.getFirstHeader('location').value;
+                }
+                if (resp.getFirstHeader('content-location')) {
+                    headers['content-location'] = resp.getFirstHeader('content-location').value;
+                }
+                if (resp.getFirstHeader('content-version')) {
+                    headers['content-version'] = resp.getFirstHeader('content-version').value;
+                }
+                return {
+                    status:status,
+                    message:phrase,
+                    headers:headers,
+                    body:resp.entity
+                };
+            }
+        }
+        throw new org.callimachusproject.server.exceptions.MethodNotAllowed();
+    """.
+
+:DeleteRedirect rdfs:subClassOf :Redirect;
+    calli:method "DELETE";
+    calli:requires calli:reader;
+    calli:type "message/x-response";
+    calli:imports <java:org.apache.http.client.methods.HttpDelete>;
+    calli:imports <java:org.callimachusproject.server.exceptions.ResponseException>;
+    calli:script """
+        var iter = this.FindPurlGetPattern().iterator();
+        while (iter.hasNext()) {
+            var row = iter.next();
+            var status = row[0];
+            var phrase = row[1];
+            var pattern = row[2];
+            var result = this.processUriTemplate(pattern, queryString);
+            if (result) {
+                var split = result.split("\\n");
+                var location = split[0];
+                if (300 <= status && status < 400 ) {
+                    // 301, 302, 303, 307, or 308 responses
+                    return {
+                        status:status,
+                        message:phrase,
+                        headers:{'location':location,'content-type':"text/plain"},
+                        body:[phrase]
+                    };
+                }
+                // 200, 203, 404, or 410 responses
+                var systemId = new java.net.URI(this.toString()).resolve(location).normalize().toASCIIString();
+                var req = new HttpDelete(systemId);
+                for (var i=1; i<split.length; i++) {
+                    var header = split[i].split(':', 2);
+                    req.addHeader(header[0], header[1]);
+                }
+                var resp = this.httpClient.getAnyResponse(req);
+                if (status < 300) {
+                    status = resp.statusLine.statusCode;
+                    phrase = resp.statusLine.reasonPhrase;
+                }
+                var headers = {};
+                if (resp.getFirstHeader('location')) {
+                    headers['location'] = resp.getFirstHeader('location').value;
+                }
+                if (resp.getFirstHeader('content-location')) {
+                    headers['content-location'] = resp.getFirstHeader('content-location').value;
+                }
+                if (resp.getFirstHeader('last-modified')) {
+                    headers['last-modified'] = resp.getFirstHeader('last-modified').value;
+                }
+                if (resp.getFirstHeader('etag')) {
+                    headers['etag'] = resp.getFirstHeader('etag').value;
+                }
+                if (resp.getFirstHeader('content-version')) {
+                    headers['content-version'] = resp.getFirstHeader('content-version').value;
+                }
+                return {
+                    status:status,
+                    message:phrase,
+                    headers:headers,
+                    body:resp.entity
+                };
+            }
+        }
+        throw new org.callimachusproject.server.exceptions.MethodNotAllowed();
+    """.
 
 :GetViewPage owl:intersectionOf (<viewable.ttl#GetViewPage>
         [owl:onProperty msg:target; owl:allValuesFrom <PURL> ]);
@@ -140,7 +358,7 @@
         return proceed();
     """.
 
-:FindPurlPattern rdfs:subClassOf msg:Message;
+:FindPurlGetPattern rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <PURL>];
     rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom rdfs:Resource];
     msg:sparql """
@@ -162,6 +380,96 @@
                 $this calli:describedby ?resource
                 BIND (303 AS ?status)
                 BIND ("Described by" AS ?phrase)
+            } UNION {
+                $this calli:resides ?resource
+                BIND (307 AS ?status)
+                BIND ("Resides" AS ?phrase)
+            } UNION {
+                $this calli:moved ?resource
+                BIND (308 AS ?status)
+                BIND ("Moved" AS ?phrase)
+            } UNION {
+                $this calli:missing ?resource
+                BIND (404 AS ?status)
+                BIND ("Not found" AS ?phrase)
+            } UNION {
+                $this calli:gone ?resource
+                BIND (410 AS ?status)
+                BIND ("Gone" AS ?phrase)
+            }
+        }
+    """.
+
+:FindPurlPostPattern rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <PURL>];
+    rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom rdfs:Resource];
+    msg:sparql """
+        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
+        SELECT ?status ?phrase (str(?resource) AS ?pattern) {
+            {
+                $this calli:post ?resource
+                BIND (200 AS ?status)
+                BIND ("OK" AS ?phrase)
+            } UNION {
+                $this calli:resides ?resource
+                BIND (307 AS ?status)
+                BIND ("Resides" AS ?phrase)
+            } UNION {
+                $this calli:moved ?resource
+                BIND (308 AS ?status)
+                BIND ("Moved" AS ?phrase)
+            } UNION {
+                $this calli:missing ?resource
+                BIND (404 AS ?status)
+                BIND ("Not found" AS ?phrase)
+            } UNION {
+                $this calli:gone ?resource
+                BIND (410 AS ?status)
+                BIND ("Gone" AS ?phrase)
+            }
+        }
+    """.
+
+:FindPurlPutPattern rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <PURL>];
+    rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom rdfs:Resource];
+    msg:sparql """
+        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
+        SELECT ?status ?phrase (str(?resource) AS ?pattern) {
+            {
+                $this calli:put ?resource
+                BIND (204 AS ?status)
+                BIND ("No Content" AS ?phrase)
+            } UNION {
+                $this calli:resides ?resource
+                BIND (307 AS ?status)
+                BIND ("Resides" AS ?phrase)
+            } UNION {
+                $this calli:moved ?resource
+                BIND (308 AS ?status)
+                BIND ("Moved" AS ?phrase)
+            } UNION {
+                $this calli:missing ?resource
+                BIND (404 AS ?status)
+                BIND ("Not found" AS ?phrase)
+            } UNION {
+                $this calli:gone ?resource
+                BIND (410 AS ?status)
+                BIND ("Gone" AS ?phrase)
+            }
+        }
+    """.
+
+:FindPurlDeletePattern rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <PURL>];
+    rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom rdfs:Resource];
+    msg:sparql """
+        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
+        SELECT ?status ?phrase (str(?resource) AS ?pattern) {
+            {
+                $this calli:delete ?resource
+                BIND (204 AS ?status)
+                BIND ("No Content" AS ?phrase)
             } UNION {
                 $this calli:resides ?resource
                 BIND (307 AS ?status)

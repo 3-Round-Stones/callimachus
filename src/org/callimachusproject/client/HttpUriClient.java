@@ -41,6 +41,15 @@ public abstract class HttpUriClient extends CloseableHttpClient implements HttpC
 
 	public HttpUriResponse getResponse(HttpUriRequest request)
 			throws IOException, ResponseException {
+		HttpUriResponse response = getAnyResponse(request);
+		int code = response.getStatusLine().getStatusCode();
+		if (code < 200 || code >= 300)
+			throw ResponseException.create(response, response.getSystemId());
+		return response;
+	}
+
+	public HttpUriResponse getAnyResponse(HttpUriRequest request)
+			throws IOException, ResponseException {
 		HttpClientContext ctx = HttpClientContext.create();
 		ctx.setCookieStore(new BasicCookieStore());
 		CloseableHttpResponse response = execute(request, ctx);
@@ -50,9 +59,6 @@ public abstract class HttpUriClient extends CloseableHttpClient implements HttpC
 		} else {
 			systemId = getSystemId(ctx);
 		}
-		int code = response.getStatusLine().getStatusCode();
-		if (code < 200 || code >= 300)
-			throw ResponseException.create(response, systemId.toASCIIString());
 		if (response instanceof HttpUriResponse) {
 			return (HttpUriResponse) response;
 		} else {

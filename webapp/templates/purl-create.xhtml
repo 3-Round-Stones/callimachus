@@ -40,55 +40,83 @@
     </div>
     <form id="form" method="POST" action="" enctype="application/rdf+xml" typeof="calli:PURL"
             onsubmit="return calli.saveResourceAs(event,$('#local').val())">
-        <fieldset>
-            <div class="control-group">
+        <fieldset class="row">
+            <div class="control-group span3">
                 <label for="local" class="control-label">Local name</label>
                 <div class="controls">
-                    <input type="text" id="local" value="{rdfs:label}" class="auto-expand" required="required" autofocus="autofocus" />
+                    <input type="text" id="local" value="{rdfs:label}" class="auto-expand span3" required="required" autofocus="autofocus" />
                 </div>
             </div>
-            <div class="control-group">
+        </fieldset>
+        <fieldset class="row">
+            <div class="control-group span6">
                 <label for="comment" class="control-label">Comment</label>
                 <div class="controls">
-                    <textarea id="comment" class="auto-expand">{rdfs:comment}</textarea>
+                    <textarea id="comment" class="auto-expand span6">{rdfs:comment}</textarea>
                 </div>
             </div>
-            <div class="control-group">
-                <label for="type" class="control-label">Type</label>
-                <div class="controls">
-					<select id="type">
-    					<option value="calli:copy">Copy (200)</option>
-						<option value="calli:canonical">Canonical (301)</option>
-						<option value="calli:alternate" selected="selected">Alternate (302)</option>
-						<option value="calli:describedby">Described by (303)</option>
-    					<option value="calli:resides">Resides (307)</option>
-    					<option value="calli:moved">Moved (308)</option>
-                		<option value="calli:missing">Missing (404)</option>
-            			<option value="calli:gone">Gone (410)</option>
-					</select>
+        </fieldset>
+        <div class="row">
+            <fieldset class="span3">
+                <div class="control-group">
+                    <label for="type" class="control-label">Type</label>
+                    <div class="controls">
+                        <select id="type" class="span3">
+                            <option value="calli:copy">Copy (200)</option>
+                            <option value="calli:canonical">Canonical (301)</option>
+                            <option value="calli:alternate" selected="selected">Alternate (302)</option>
+                            <option value="calli:describedby">Described by (303)</option>
+                            <option value="calli:resides">Resides (307)</option>
+                            <option value="calli:moved">Moved (308)</option>
+                            <option value="calli:missing">Missing (404)</option>
+                            <option value="calli:gone">Gone (410)</option>
+                        </select>
+                    </div>
                 </div>
-            </div>
-            <div class="control-group">
-                <label for="pattern" class="control-label">Content location</label>
-                <div class="controls">
-        			<input type="text" id="pattern" size="40" value="" />
-    				<span class="pattern" property="calli:copy" content="?copy" />
-					<span class="pattern" property="calli:canonical" content="?canonical" />
-					<span class="pattern" property="calli:alternate" content="?alternate" />
-    				<span class="pattern" property="calli:describedby" content="?describedby" />
-    				<span class="pattern" property="calli:resides" content="?resides" />
-    				<span class="pattern" property="calli:moved" content="?moved" />
-        			<span class="pattern" property="calli:missing" content="?missing" />
-        			<span class="pattern" property="calli:gone" content="?gone" />
+                <div class="control-group">
+                    <label for="pattern" class="control-label">Content location</label>
+                    <div class="controls">
+                        <input type="text" id="pattern" size="40" value="" class="span3" />
+                        <span class="pattern" property="calli:copy" content="?copy" />
+                        <span class="pattern" property="calli:canonical" content="?canonical" />
+                        <span class="pattern" property="calli:alternate" content="?alternate" />
+                        <span class="pattern" property="calli:describedby" content="?describedby" />
+                        <span class="pattern" property="calli:resides" content="?resides" />
+                        <span class="pattern" property="calli:moved" content="?moved" />
+                        <span class="pattern" property="calli:missing" content="?missing" />
+                        <span class="pattern" property="calli:gone" content="?gone" />
+                    </div>
                 </div>
-            </div>
-            <div class="control-group">
-                <label for="cache" class="control-label">Cache Control</label>
-                <div class="controls">
-                	<input type="text"  id="cache" value="{calli:cacheControl}" placeholder="max-age=3600" />
+                <div class="control-group">
+                    <label for="cache" class="control-label">Cache Control</label>
+                    <div class="controls">
+                    	<input type="text"  id="cache" value="{calli:cacheControl}" placeholder="max-age=3600" class="span3" />
+                    </div>
                 </div>
-            </div>
-            <div class="form-actions">
+            </fieldset>
+            <fieldset class="span3">
+                <div class="control-group">
+                    <label for="post" class="control-label">POST request target</label>
+                    <div class="controls">
+                        <input type="text" id="post" value="{calli:post}" class="span3" />
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label for="put" class="control-label">PUT request target</label>
+                    <div class="controls">
+                        <input type="text" id="put" value="{calli:put}" class="span3" />
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label for="delete" class="control-label">DELETE request target</label>
+                    <div class="controls">
+                        <input type="text" id="delete" value="{calli:delete}" class="span3" />
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+        <fieldset class="row">
+            <div class="form-actions span6">
                 <button id="create" type="submit" class="btn btn-success">Create</button>
             </div>
         </fieldset>

@@ -79,49 +79,65 @@
     </xsl:template>
 
     <xsl:template match="xhtml:nav[@id='calli-breadcrumb']">
-        <xsl:if test="string-length($target) &gt; 0">
-            <xsl:apply-templates mode="breadcrumbs" select="*[1]" />
+        <xsl:variable name="last" select="*[last()]" />
+        <xsl:if test="string-length($target) &gt; 0 and count(*) = 1">
+            <xsl:apply-templates mode="breadcrumbs" select="$last" />
+        </xsl:if>
+        <xsl:if test="string-length($target) &gt; 0 and count(*) &gt; 1">
+            <xsl:call-template name="breadcrumbs">
+                <xsl:with-param name="breadcrumb" select="$last/preceding-sibling::node()" />
+                <xsl:with-param name="active" select="$last" />
+            </xsl:call-template>
         </xsl:if>
     </xsl:template>
 
     <xsl:template mode="breadcrumbs" match="*">
         <xsl:variable name="url" select="concat('../queries/page-info.rq?results&amp;target=',encode-for-uri($target))" />
         <xsl:variable name="active" select="*[last()]" />
-        <xsl:variable name="breadcrumb" select="$active/preceding-sibling::node()" />
         <xsl:if test="count(document($url)//sparql:result[sparql:binding/@name='iri']) > 1">
             <xsl:copy>
                 <xsl:apply-templates select="@*" />
-                <xsl:for-each select="document($url)//sparql:result[sparql:binding/@name='iri']">
-                    <xsl:if test="position()!=last()">
-                        <xsl:call-template name="breadcrumb">
-                            <xsl:with-param name="copy" select="$breadcrumb" />
-                            <xsl:with-param name="href" select="sparql:binding[@name='iri']/*" />
-                            <xsl:with-param name="label">
-                                <xsl:value-of select="sparql:binding[@name='label']/*" />
-                                <xsl:if test="not(sparql:binding[@name='label']/*)">
-                                    <xsl:call-template name="substring-after-last">
-                                        <xsl:with-param name="arg" select="sparql:binding[@name='iri']/*" />
-                                        <xsl:with-param name="delim" select="'/'" />
-                                    </xsl:call-template>
-                                </xsl:if>
-                            </xsl:with-param>
-                        </xsl:call-template>
-                    </xsl:if>
-                    <xsl:if test="position()=last()">
-                        <xsl:element name="{name($active)}">
-                            <xsl:apply-templates select="$active/@*" />
-                            <xsl:value-of select="sparql:binding[@name='label']/*" />
-                            <xsl:if test="not(sparql:binding[@name='label']/*)">
-                                <xsl:call-template name="substring-after-last">
-                                    <xsl:with-param name="arg" select="sparql:binding[@name='iri']/*" />
-                                    <xsl:with-param name="delim" select="'/'" />
-                                </xsl:call-template>
-                            </xsl:if>
-                        </xsl:element>
-                    </xsl:if>
-                </xsl:for-each>
+                <xsl:call-template name="breadcrumbs">
+                    <xsl:with-param name="breadcrumb" select="$active/preceding-sibling::node()" />
+                    <xsl:with-param name="active" select="$active" />
+                </xsl:call-template>
             </xsl:copy>
         </xsl:if>
+    </xsl:template>
+
+    <xsl:template name="breadcrumbs">
+        <xsl:param name="breadcrumb" />
+        <xsl:param name="active" />
+        <xsl:variable name="url" select="concat('../queries/page-info.rq?results&amp;target=',encode-for-uri($target))" />
+        <xsl:for-each select="document($url)//sparql:result[sparql:binding/@name='iri']">
+            <xsl:if test="position()!=last()">
+                <xsl:call-template name="breadcrumb">
+                    <xsl:with-param name="copy" select="$breadcrumb" />
+                    <xsl:with-param name="href" select="sparql:binding[@name='iri']/*" />
+                    <xsl:with-param name="label">
+                        <xsl:value-of select="sparql:binding[@name='label']/*" />
+                        <xsl:if test="not(sparql:binding[@name='label']/*)">
+                            <xsl:call-template name="substring-after-last">
+                                <xsl:with-param name="arg" select="sparql:binding[@name='iri']/*" />
+                                <xsl:with-param name="delim" select="'/'" />
+                            </xsl:call-template>
+                        </xsl:if>
+                    </xsl:with-param>
+                </xsl:call-template>
+            </xsl:if>
+            <xsl:if test="position()=last() and position() &gt; 1">
+                <xsl:element name="{name($active)}">
+                    <xsl:apply-templates select="$active/@*" />
+                    <xsl:value-of select="sparql:binding[@name='label']/*" />
+                    <xsl:if test="not(sparql:binding[@name='label']/*)">
+                        <xsl:call-template name="substring-after-last">
+                            <xsl:with-param name="arg" select="sparql:binding[@name='iri']/*" />
+                            <xsl:with-param name="delim" select="'/'" />
+                        </xsl:call-template>
+                    </xsl:if>
+                </xsl:element>
+            </xsl:if>
+        </xsl:for-each>
     </xsl:template>
 
     <xsl:template name="breadcrumb">

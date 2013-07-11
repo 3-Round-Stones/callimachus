@@ -56,25 +56,23 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
             </header>
         </div>
         <div class="container">
-            {calli:breadcrumb-nav(<nav class="breadcrumb hidden-iframe"><a class="muted"/><span class="divider">&#187;</span><span class="active"/></nav>)}
+            <nav class="breadcrumb hidden-iframe">{calli:breadcrumb-links(<a class="muted"/>, <span class="divider">&#187;</span>, <span class="active"/>)}</nav>
             {calli:body-hgroup()}
             {calli:body-sidebar(<div class="sidebar pull-right" />)}
-            <div>
-                {calli:activate-nav(<nav class="hidden-logout hidden-iframe nav-tabs">
-                    {calli:view-href(<a tabindex="1" onclick="location.replace(href);return false">View</a>)}
-                    {calli:edit-href(<a tabindex="2" onclick="location.replace(href);return false">Edit</a>)}
-                    {calli:discussion-href(<a tabindex="3" onclick="location.replace(href);return false">Discussion</a>)}
-                    {calli:describe-href(<a tabindex="4" onclick="location.replace(href);return false">Describe</a>)}
-                    {calli:history-href(<a tabindex="5" onclick="location.replace(href);return false">History</a>)}
-                </nav>)}
+            {calli:activate-nav(<nav class="hidden-logout hidden-iframe nav-tabs">
+                {calli:view-href(<a tabindex="1" onclick="location.replace(href);return false">View</a>)}
+                {calli:edit-href(<a tabindex="2" onclick="location.replace(href);return false">Edit</a>)}
+                {calli:discussion-href(<a tabindex="3" onclick="location.replace(href);return false">Discussion</a>)}
+                {calli:describe-href(<a tabindex="4" onclick="location.replace(href);return false">Describe</a>)}
+                {calli:history-href(<a tabindex="5" onclick="location.replace(href);return false">History</a>)}
+            </nav>)}
 
-                <div class="tab-content">
-                    {calli:error-alert(<div class="alert alert-error alert-block">
-                        <button type="button" class="close" data-dismiss="alert">×</button>
-                        <h4>Oops!</h4>
-                    </div>)}
-                    {calli:body-nodes()}
-                </div>
+            <div class="tab-content">
+                {calli:error-alert(<div class="alert alert-error alert-block">
+                    <button type="button" class="close" data-dismiss="alert">×</button>
+                    <h4>Oops!</h4>
+                </div>)}
+                {calli:body-nodes()}
             </div>
         </div>
     </div>

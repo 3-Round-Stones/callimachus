@@ -85,8 +85,11 @@ declare function calli:lookup-form($placeholder as xs:string) as element(form) {
     </form>
 };
 
-declare function calli:breadcrumb-nav($breadcrumb as element()) as element(nav) {
-    <nav id="calli-breadcrumb">{$breadcrumb}</nav>
+declare function calli:breadcrumb-links($breadcrumb as element(), $divider as item(), $active as element()) as element(nav) {
+    <nav id="calli-breadcrumb">{$breadcrumb}{$divider}{$active}</nav>
+};
+declare function calli:breadcrumb-links($breadcrumb as item()*, $active as element()) as element(nav) {
+    <nav id="calli-breadcrumb">{$breadcrumb}{$active}</nav>
 };
 declare function calli:activate-nav($nav as node()*) as element(nav) {
     <nav id="calli-access">{$nav}</nav>
@@ -217,6 +220,11 @@ declare function calli:logout-href($a as element()) as element() {
         $a/@*[name()!='href' and name()!='id'],
         $a/node()
     }
+};
+
+(: deprecated since 1.2 :)
+declare function calli:breadcrumb-nav($breadcrumb as element()) as element(nav) {
+    <nav id="calli-breadcrumb">{$breadcrumb}</nav>
 };
 
 (: deprecated since 1.0.1 :)

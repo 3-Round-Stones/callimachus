@@ -83,10 +83,9 @@
             var status = row[0];
             var phrase = row[1];
             var pattern = row[2];
-            var result = this.processUriTemplate(pattern, queryString);
-            if (result) {
-                var split = result.split("\\n");
-                var location = split[0];
+            var request = this.buildRequest("GET", pattern, queryString);
+            if (request) {
+                var location = request.getURI().toASCIIString();
                 if (300 <= status && status < 400 ) {
                     // 301, 302, 303, 307, or 308 responses
                     return {
@@ -97,18 +96,12 @@
                     };
                 }
                 // 200, 203, 404, or 410 responses
-                var systemId = new java.net.URI(this.toString()).resolve(location).normalize().toASCIIString();
-                var req = new HttpGet(systemId);
-                for (var i=1; i<split.length; i++) {
-                    var header = split[i].split(':', 2);
-                    req.addHeader(header[0], header[1]);
-                }
-                var resp = this.httpClient.getAnyResponse(req);
+                var resp = this.executeRequest(request);
                 if (status < 300) {
                     status = resp.statusLine.statusCode;
                     phrase = resp.statusLine.reasonPhrase;
                 }
-                var headers = {'content-location': systemId,'cache-control':cacheControl};
+                var headers = {'content-location': resp.getURI().toASCIIString(),'cache-control':cacheControl};
                 if (resp.getFirstHeader('location')) {
                     headers['location'] = resp.getFirstHeader('location').value;
                 }
@@ -158,10 +151,9 @@
             var status = row[0];
             var phrase = row[1];
             var pattern = row[2];
-            var result = this.processUriTemplate(pattern, queryString);
-            if (result) {
-                var split = result.split("\\n");
-                var location = split[0];
+            var request = this.buildRequest("POST", pattern, queryString);
+            if (request) {
+                var location = request.getURI().toASCIIString();
                 if (300 <= status && status < 400 ) {
                     // 301, 302, 303, 307, or 308 responses
                     return {
@@ -172,22 +164,16 @@
                     };
                 }
                 // 200, 203, 404, or 410 responses
-                var systemId = new java.net.URI(this.toString()).resolve(location).normalize().toASCIIString();
-                var req = new HttpPost(systemId);
-                if (contentType) {
-                    req.setHeader('content-type', contentType);
+                if (contentType && !request.containsHeader('content-type')) {
+                    request.setHeader('content-type', contentType);
                 }
-                if (contentLocation) {
-                    req.setHeader('content-location', contentLocation);
+                if (contentLocation && !request.containsHeader('content-location')) {
+                    request.setHeader('content-location', contentLocation);
                 }
-                if (contentEntity) {
-                    req.setEntity(contentEntity);
+                if (contentEntity && !request.entity) {
+                    request.entity = contentEntity;
                 }
-                for (var i=1; i<split.length; i++) {
-                    var header = split[i].split(':', 2);
-                    req.addHeader(header[0], header[1]);
-                }
-                var resp = this.httpClient.getAnyResponse(req);
+                var resp = this.executeRequest(request);
                 if (status < 300) {
                     status = resp.statusLine.statusCode;
                     phrase = resp.statusLine.reasonPhrase;
@@ -226,10 +212,9 @@
             var status = row[0];
             var phrase = row[1];
             var pattern = row[2];
-            var result = this.processUriTemplate(pattern, queryString);
-            if (result) {
-                var split = result.split("\\n");
-                var location = split[0];
+            var request = this.buildRequest("PUT", pattern, queryString);
+            if (request) {
+                var location = request.getURI().toASCIIString();
                 if (300 <= status && status < 400 ) {
                     // 301, 302, 303, 307, or 308 responses
                     return {
@@ -240,22 +225,16 @@
                     };
                 }
                 // 200, 203, 404, or 410 responses
-                var systemId = new java.net.URI(this.toString()).resolve(location).normalize().toASCIIString();
-                var req = new HttpPut(systemId);
-                if (contentType) {
-                    req.setHeader('content-type', contentType);
+                if (contentType && !request.containsHeader('content-type')) {
+                    request.setHeader('content-type', contentType);
                 }
-                if (contentLocation) {
-                    req.setHeader('content-location', contentLocation);
+                if (contentLocation && !request.containsHeader('content-location')) {
+                    request.setHeader('content-location', contentLocation);
                 }
-                if (contentEntity) {
-                    req.setEntity(contentEntity);
+                if (contentEntity && !request.entity) {
+                    request.entity = contentEntity;
                 }
-                for (var i=1; i<split.length; i++) {
-                    var header = split[i].split(':', 2);
-                    req.addHeader(header[0], header[1]);
-                }
-                var resp = this.httpClient.getAnyResponse(req);
+                var resp = this.executeRequest(request);
                 if (status < 300) {
                     status = resp.statusLine.statusCode;
                     phrase = resp.statusLine.reasonPhrase;
@@ -294,10 +273,9 @@
             var status = row[0];
             var phrase = row[1];
             var pattern = row[2];
-            var result = this.processUriTemplate(pattern, queryString);
-            if (result) {
-                var split = result.split("\\n");
-                var location = split[0];
+            var request = this.buildRequest("DELETE", pattern, queryString);
+            if (request) {
+                var location = request.getURI().toASCIIString();
                 if (300 <= status && status < 400 ) {
                     // 301, 302, 303, 307, or 308 responses
                     return {
@@ -308,13 +286,7 @@
                     };
                 }
                 // 200, 203, 404, or 410 responses
-                var systemId = new java.net.URI(this.toString()).resolve(location).normalize().toASCIIString();
-                var req = new HttpDelete(systemId);
-                for (var i=1; i<split.length; i++) {
-                    var header = split[i].split(':', 2);
-                    req.addHeader(header[0], header[1]);
-                }
-                var resp = this.httpClient.getAnyResponse(req);
+                var resp = this.executeRequest(request);
                 if (status < 300) {
                     status = resp.statusLine.statusCode;
                     phrase = resp.statusLine.reasonPhrase;

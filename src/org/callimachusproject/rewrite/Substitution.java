@@ -33,8 +33,8 @@ public class Substitution {
 		if (end < 0) {
 			end = command.length();
 		}
-		int split = command.lastIndexOf(' ', end);
-		if (split >= 0) {
+		int split = command.indexOf(' ');
+		if (split >= 0 && split < end) {
 			String pattern = command.substring(0, split);
 			String replacement = command.substring(split + 1);
 			return Substitution.compile(pattern, replacement);

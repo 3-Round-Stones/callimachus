@@ -267,7 +267,7 @@
     calli:imports <java:org.apache.http.client.methods.HttpDelete>;
     calli:imports <java:org.callimachusproject.server.exceptions.ResponseException>;
     calli:script """
-        var iter = this.FindPurlGetPattern().iterator();
+        var iter = this.FindPurlDeletePattern().iterator();
         while (iter.hasNext()) {
             var row = iter.next();
             var status = row[0];

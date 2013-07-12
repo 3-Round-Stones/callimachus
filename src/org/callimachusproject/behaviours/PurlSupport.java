@@ -21,7 +21,7 @@ import org.openrdf.OpenRDFException;
 
 public abstract class PurlSupport implements CalliObject {
 	private static final Pattern HTTP_LINE = Pattern
-			.compile("^(\\S+ +)?(\\S+)( +HTTP/\\d\\.\\d)?");
+			.compile("^(?:(\\S+) +)?(\\S+)( +HTTP/\\d\\.\\d)?");
 	private static final Pattern HTTP_HEAD = Pattern
 			.compile("(?<!\n)\r?\n(\\S+)\\s*:\\s*(.*)");
 	private static final Pattern HTTP_BODY = Pattern

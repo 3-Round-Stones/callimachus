@@ -1,5 +1,7 @@
 package org.callimachusproject.types;
 
+import java.io.FileNotFoundException;
+
 import org.callimachusproject.test.TemporaryServerTestCase;
 import org.callimachusproject.test.WebResource;
 
@@ -161,6 +163,39 @@ public class PurlTest extends TemporaryServerTestCase {
 			ttl.link("describedby").delete();
 			rdf.link("describedby").delete();
 			concept.link("describedby").delete();
+		}
+	}
+
+	public void testPost() throws Exception {
+		WebResource purl = getHomeFolder().createPURL("humans.txt", "post", ".* PUT " + file.toString());
+		try {
+			byte[] bytes = "post via purl".getBytes();
+			purl.post("text/plain", bytes);
+			assertEquals(new String(bytes), new String(file.get("text/plain")));
+		} finally {
+			purl.link("describedby").delete();
+		}
+	}
+
+	public void testPut() throws Exception {
+		WebResource purl = getHomeFolder().createPURL("humans.txt", "put", file.toString());
+		try {
+			byte[] bytes = "put via purl".getBytes();
+			purl.put("text/plain", bytes);
+			assertEquals(new String(bytes), new String(file.get("text/plain")));
+		} finally {
+			purl.link("describedby").delete();
+		}
+	}
+
+	public void testDelete() throws Exception {
+		WebResource purl = getHomeFolder().createPURL("humans.txt", "delete", file.toString());
+		try {
+			purl.delete();
+			assertEquals(404, file.headCode());
+			file = null;
+		} finally {
+			purl.link("describedby").delete();
 		}
 	}
 

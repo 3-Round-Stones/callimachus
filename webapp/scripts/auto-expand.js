@@ -63,16 +63,19 @@ function expandTextArea(area, contentWidth, innerHeight) {
     var lines = area.value.split("\n");
     var cols = 20;
     var rows = Math.max(1, lines.length);
-    for (var i = 0; i < lines.length; i++) {
-        var len = lines[i].replace(/\t/g, "        ").length;
-        if (cols < len + 1) {
-            cols = len + 1;
+    if ($(area).css("white-space") != "pre") {
+        for (var i = 0; i < lines.length; i++) {
+            var len = lines[i].replace(/\t/g, "        ").length;
+            if (cols < len + 1) {
+                cols = len + 1;
+            }
+            rows += Math.floor(len / maxCols);
         }
-        rows += Math.floor(len / maxCols);
+        rows += 1;
     }
     if (area.type == "textarea") {
         area.cols = Math.min(maxCols, cols + 1);
-        area.rows = Math.min(maxRows, rows + 1);
+        area.rows = Math.min(maxRows, rows);
     } else {
         area.size = Math.min(maxCols, cols + 1);
     }

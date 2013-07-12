@@ -8,21 +8,22 @@
     <title>New Persistent Uniform Resource Locator</title>
     <link rel="help" href="../../callimachus-for-web-developers#PURL" target="_blank" title="Help" />
     <style>
-        form#form.pattern .hidden-pattern { display:none; }
-        form#form.disabled .hidden-disabled { display:none; }
-        form#form.deleted .hidden-deleted { display:none; }
+        form#form textarea {
+            white-space: pre;
+            word-wrap: normal;
+        }
     </style>
     <script type="text/javascript">
     // <![CDATA[
     jQuery(function($){
         $('#pattern').change(function(){
-             $('span.pattern').attr('content', this.value);
+             $('pre.pattern').text(this.value);
         });
         $('#type').change(function(){
             if (this.value) {
-                $('span.pattern').remove();
-                $('#pattern').parent().append('<span class="pattern" />');
-                $('span.pattern').attr('property', this.value);
+                $('pre.pattern').remove();
+                $('#pattern').parent().append('<pre class="hide pattern" />');
+                $('pre.pattern').attr('property', this.value);
                 $('#pattern').change();
             }
         }).change();
@@ -76,15 +77,15 @@
                 <div class="control-group">
                     <label for="pattern" class="control-label">Content location</label>
                     <div class="controls">
-                        <input type="text" id="pattern" size="40" value="" class="span3" />
-                        <span class="pattern" property="calli:copy" content="?copy" />
-                        <span class="pattern" property="calli:canonical" content="?canonical" />
-                        <span class="pattern" property="calli:alternate" content="?alternate" />
-                        <span class="pattern" property="calli:describedby" content="?describedby" />
-                        <span class="pattern" property="calli:resides" content="?resides" />
-                        <span class="pattern" property="calli:moved" content="?moved" />
-                        <span class="pattern" property="calli:missing" content="?missing" />
-                        <span class="pattern" property="calli:gone" content="?gone" />
+                        <textarea id="pattern" class="span3 auto-expand" rows="1"></textarea>
+                        <pre class="hide pattern" property="calli:copy" />
+                        <pre class="hide pattern" property="calli:canonical" />
+                        <pre class="hide pattern" property="calli:alternate" />
+                        <pre class="hide pattern" property="calli:describedby" />
+                        <pre class="hide pattern" property="calli:resides" />
+                        <pre class="hide pattern" property="calli:moved" />
+                        <pre class="hide pattern" property="calli:missing" />
+                        <pre class="hide pattern" property="calli:gone" />
                     </div>
                 </div>
                 <div class="control-group">
@@ -98,19 +99,19 @@
                 <div class="control-group">
                     <label for="post" class="control-label">POST request target</label>
                     <div class="controls">
-                        <input type="text" id="post" value="{calli:post}" class="span3" />
+                        <textarea id="post" class="span3 auto-expand" rows="1">{calli:post}</textarea>
                     </div>
                 </div>
                 <div class="control-group">
                     <label for="put" class="control-label">PUT request target</label>
                     <div class="controls">
-                        <input type="text" id="put" value="{calli:put}" class="span3" />
+                        <textarea id="post" class="span3 auto-expand" rows="1">{calli:put}</textarea>
                     </div>
                 </div>
                 <div class="control-group">
                     <label for="delete" class="control-label">DELETE request target</label>
                     <div class="controls">
-                        <input type="text" id="delete" value="{calli:delete}" class="span3" />
+                        <textarea id="post" class="span3 auto-expand" rows="1">{calli:delete}</textarea>
                     </div>
                 </div>
             </fieldset>

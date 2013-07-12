@@ -19,6 +19,17 @@ function findFrameElement(iframe) {
     return iframe.frameElement;
 }
 
+function maxZIndex() {
+    var result = 1;
+    $('div, header, section, footer').each(function() {
+        var z = parseInt($(this).css("z-index"), 10);
+        if (z >= result) {
+            result = z + 1;
+        }
+    });
+    return result;
+}
+
 function asName(title) {
     if (!title)
         return "iframe";
@@ -75,7 +86,8 @@ window.calli.openDialog = function(url, title, options) {
         autoResize: true,
         position: ['center', 'center'],
         width: '90%',
-        height: 0.9 * $(window).height()
+        height: 0.9 * $(window).height(),
+        zIndex: maxZIndex()
     }, options);
     var iframe = $("<iframe></iframe>");
     iframe.attr('src', 'about:blank');

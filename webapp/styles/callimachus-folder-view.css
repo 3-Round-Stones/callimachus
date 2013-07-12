@@ -1,14 +1,5 @@
 /* folder-view.css */
 
-/* FIXME use a different menu and remove this */		
-.navbar + .container {
-    min-height: 600px; /* make sure the create-menu doesn't trigger scrollbars */
-}
-
-html.iframe .navbar + .container {
-    min-height: 500px; /* less space needed for the create-menu in iframes */
-}
-
 #folder-box .ui-grid-header,
 #folder-box .ui-grid-footer {
     border: 0;

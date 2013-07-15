@@ -113,37 +113,6 @@ CYGWIN*) cygwin=true;;
 Darwin*) darwin=true;;
 esac
 
-if $darwin; then
-  DAEMON="$PRGDIR/$NAME-darwin"
-elif [ `uname -m` = "x86_64" ]; then
-  DAEMON="$PRGDIR/$NAME-linux-x86_64"
-elif [ `uname -m` = "i686" ]; then
-  DAEMON="$PRGDIR/$NAME-linux-i686"
-else
-  DAEMON=`command -v jsvc`
-fi
-if [ ! -f "$DAEMON" ]; then
-  DAEMON=`command -v jsvc`
-fi
-
-# Check that target executable exists
-if [ ! -f "$DAEMON" ]; then
-  log_failure_msg "Cannot find jsvc daemon"
-  log_failure_msg "This file is needed to run this program"
-  exit 5
-fi
-
-# Check that target is executable
-if [ ! -x "$DAEMON" ]; then
-  chmod a+x "$DAEMON"
-  # Check that target is executable
-  if [ ! -x "$DAEMON" ]; then
-    log_failure_msg "$DAEMON is not executable"
-    log_failure_msg "This file is needed to run this program"
-    exit 5
-  fi
-fi
-
 # For Cygwin, ensure paths are in UNIX format before anything is touched
 if $cygwin; then
   [ -n "$JAVA_HOME" ] && JAVA_HOME=`cygpath --unix "$JAVA_HOME"`
@@ -285,8 +254,18 @@ for JAR in "$BASEDIR"/lib/*.jar ; do
   CLASSPATH="$CLASSPATH:$JAR"
 done
 
+if [ -z "$OPTS" ] ; then
+  if [ "$SECURITY_MANAGER" = "false" ]; then
+    OPTS="--trust"
+  fi
+fi
+
 if [ -z "$JAVA_OPTS" ] ; then
   JAVA_OPTS="-Xmx512m"
+fi
+
+if [ -z "$JSVC_OPTS" ] ; then
+  JSVC_OPTS="$JAVA_OPTS"
 fi
 
 if [ -z "$DAEMON_GROUP" ] ; then
@@ -301,13 +280,32 @@ if [ -z "$DAEMON_USER" ] ; then
   DAEMON_USER="$USER"
 fi
 
-if [ -z "$JSVC_OPTS" ] ; then
-  JSVC_OPTS="$JAVA_OPTS"
+if [ "false" = $darwin -a `uname -m` = "x86_64" ]; then
+  JSVC="$PRGDIR/$NAME-linux-x86_64"
+elif [ "false" = $darwin -a `uname -m` = "i686" ]; then
+  JSVC="$PRGDIR/$NAME-linux-i686"
+fi
+if [ ! -f "$JSVC" ]; then
+  JSVC=`command -v jsvc`
 fi
 
-if [ -z "$OPTS" ] ; then
-  if [ "$SECURITY_MANAGER" = "false" ]; then
-    OPTS="--trust"
+# Check that target executable exists
+if [ -f "$JSVC" -a -n "$DAEMON_USER" -a "$USER" != "$DAEMON_USER" ]; then
+  DAEMON="$JSVC"
+  DAEMON_OPTS="$JSVC_OPTS"
+else
+  DAEMON="$JAVA_HOME/bin/java"
+  DAEMON_OPTS="$JAVA_OPTS"
+fi
+
+# Check that target is executable
+if [ ! -x "$DAEMON" ]; then
+  chmod a+x "$DAEMON"
+  # Check that target is executable
+  if [ ! -x "$DAEMON" ]; then
+    log_failure_msg "$DAEMON is not executable"
+    log_failure_msg "This file is needed to run this program"
+    exit 5
   fi
 fi
 
@@ -419,6 +417,9 @@ if [ ! -z "$DAEMON_USER" ] ; then
   chown -R "$DAEMON_USER" "$BASEDIR/backups"
   chown "$DAEMON_USER" "$MAIL"
   chown "$DAEMON_USER" "$CONFIG"
+  if [ "$DAEMON" != "$JSVC" ] ; then
+    chown "$DAEMON_USER" "$(dirname "$PIDFILE")"
+  fi
   if [ ! -z "$DAEMON_GROUP" ] ; then
     chown ":$DAEMON_GROUP" "$BASEDIR"
     chown -R ":$DAEMON_GROUP" "$BASEDIR/log"
@@ -426,6 +427,9 @@ if [ ! -z "$DAEMON_USER" ] ; then
     chown -R ":$DAEMON_GROUP" "$BASEDIR/backups"
     chown ":$DAEMON_GROUP" "$MAIL"
     chown ":$DAEMON_GROUP" "$CONFIG"
+    if [ "$DAEMON" != "$JSVC" ] ; then
+      chown ":$DAEMON_GROUP" "$(dirname "$PIDFILE")"
+    fi
   fi
   if [ -r "$SSL" ]; then
     KEYSTORE=$(grep -E '^javax.net.ssl.keyStore=' $SSL |perl -pe 's/^javax.net.ssl.keyStore=(.*)/$1/' 2>/dev/null)
@@ -465,6 +469,69 @@ if [ ! -z "$DAEMON_USER" ] ; then
     fi
   fi
 fi
+
+STDOUT_LOG="$BASEDIR/log/$NAME-stdout.log"
+
+daemon_start()
+{
+  if [ "$DAEMON" = "$JSVC" ] ; then
+    "$DAEMON" -jvm server \
+      -outfile "$STDOUT_LOG" -errfile '&1' \
+      -procname "$NAME" \
+      -user "$DAEMON_USER" \
+      -pidfile "$PIDFILE" \
+      -home "$JAVA_HOME" "$@"
+    return $?
+  elif [ -n "$DAEMON_USER" -a "$(id -u)" = "0" ]; then
+    nohup su "$DAEMON_USER" -c '"$0" "$@"' -- "$DAEMON" -server "$@" --pid "$PIDFILE" > "$STDOUT_LOG" 2>&1 &
+    return 0
+  else
+    nohup "$DAEMON" -server "$@" --pid "$PIDFILE" > "$STDOUT_LOG" 2>&1 &
+    return 0
+  fi
+}
+
+daemon_stop()
+{
+  if [ "$DAEMON" = "$JSVC" ] ; then
+    "$DAEMON" -stop \
+      -user "$DAEMON_USER" \
+      -pidfile "$PIDFILE" \
+      -home "$JAVA_HOME" "$@"
+    return $?
+  elif [ -n "$DAEMON_USER" -a "$(id -u)" = "0" ]; then
+    su "$DAEMON_USER" -c '"$0" "$@"' -- "$DAEMON" -server "$@"
+    return $?
+  else
+    "$DAEMON" -server "$@"
+    return $?
+  fi
+}
+
+daemon_run()
+{
+  if [ "$DAEMON" = "$JSVC" ] ; then
+    JSVC_LOG="$BASEDIR/log/$NAME-run.log"
+    if [ -e "$JSVC_LOG" ]; then
+      rm "$JSVC_LOG"
+    fi
+    "$DAEMON" -nodetach -jvm server \
+      -outfile "$JSVC_LOG" -errfile '&1' \
+      -procname "$NAME" \
+      -user "$DAEMON_USER" \
+      -pidfile "$BASEDIR/run/$NAME-run.pid" \
+      -home "$JAVA_HOME" "$@"
+    RETURN_VAL=$?
+    cat "$JSVC_LOG"
+    return $RETURN_VAL
+  elif [ -n "$DAEMON_USER" -a "$(id -u)" = "0" ]; then
+    su "$DAEMON_USER" -c '"$0" "$@"' -- "$DAEMON" -server "$@"
+    return $?
+  else
+    "$DAEMON" -server "$@"
+    return $?
+  fi
+}
 
 #
 # Function that starts the daemon/service
@@ -551,24 +618,19 @@ do_start()
     rm "$SSL.password"
   fi
 
-  JSVC_LOG="$BASEDIR/log/$NAME-stdout.log"
-  if [ -e "$JSVC_LOG" ]; then
-    test -e "$JSVC_LOG.8" && mv "$JSVC_LOG.8" "$JSVC_LOG.9"
-    test -e "$JSVC_LOG.7" && mv "$JSVC_LOG.7" "$JSVC_LOG.8"
-    test -e "$JSVC_LOG.6" && mv "$JSVC_LOG.6" "$JSVC_LOG.7"
-    test -e "$JSVC_LOG.5" && mv "$JSVC_LOG.5" "$JSVC_LOG.6"
-    test -e "$JSVC_LOG.4" && mv "$JSVC_LOG.4" "$JSVC_LOG.5"
-    test -e "$JSVC_LOG.3" && mv "$JSVC_LOG.3" "$JSVC_LOG.4"
-    test -e "$JSVC_LOG.2" && mv "$JSVC_LOG.2" "$JSVC_LOG.3"
-    test -e "$JSVC_LOG.1" && mv "$JSVC_LOG.1" "$JSVC_LOG.2"
-    test -e "$JSVC_LOG.0" && mv "$JSVC_LOG.0" "$JSVC_LOG.1"
-    test -e "$JSVC_LOG" && mv "$JSVC_LOG" "$JSVC_LOG.0"
+  if [ -e "$STDOUT_LOG" ]; then
+    test -e "$STDOUT_LOG.8" && mv "$STDOUT_LOG.8" "$STDOUT_LOG.9"
+    test -e "$STDOUT_LOG.7" && mv "$STDOUT_LOG.7" "$STDOUT_LOG.8"
+    test -e "$STDOUT_LOG.6" && mv "$STDOUT_LOG.6" "$STDOUT_LOG.7"
+    test -e "$STDOUT_LOG.5" && mv "$STDOUT_LOG.5" "$STDOUT_LOG.6"
+    test -e "$STDOUT_LOG.4" && mv "$STDOUT_LOG.4" "$STDOUT_LOG.5"
+    test -e "$STDOUT_LOG.3" && mv "$STDOUT_LOG.3" "$STDOUT_LOG.4"
+    test -e "$STDOUT_LOG.2" && mv "$STDOUT_LOG.2" "$STDOUT_LOG.3"
+    test -e "$STDOUT_LOG.1" && mv "$STDOUT_LOG.1" "$STDOUT_LOG.2"
+    test -e "$STDOUT_LOG.0" && mv "$STDOUT_LOG.0" "$STDOUT_LOG.1"
+    test -e "$STDOUT_LOG" && mv "$STDOUT_LOG" "$STDOUT_LOG.0"
   fi
-  "$DAEMON" -jvm server \
-    -outfile "$JSVC_LOG" -errfile '&1' \
-    -procname "$NAME" \
-    -home "$JAVA_HOME" \
-    -pidfile "$PIDFILE" \
+  daemon_start \
     -Duser.home="$BASEDIR" \
     -Djava.io.tmpdir="$TMPDIR" \
     -Djava.util.logging.config.file="$LOGGING" \
@@ -576,14 +638,13 @@ do_start()
     -Dorg.callimachusproject.config.repository="$REPOSITORY_CONFIG" \
     -Dorg.callimachusproject.config.backups="$BASEDIR/backups" \
     -classpath "$CLASSPATH" \
-    -user "$DAEMON_USER" \
     -Djava.awt.headless=true \
     -XX:OnOutOfMemoryError="kill %p" \
-    $JSVC_OPTS $SSL_OPTS $JMXRMI_OPTS "$MAINCLASS" -q -b "$BASEDIR" -c "$CONFIG" $OPTS "$@"
+    $DAEMON_OPTS $SSL_OPTS $JMXRMI_OPTS "$MAINCLASS" -q -b "$BASEDIR" -c "$CONFIG" $OPTS "$@"
 
   RETURN_VAL=$?
   sleep 1
-  cat "$JSVC_LOG"
+  cat "$STDOUT_LOG"
 
   if [ $RETURN_VAL -gt 0 -o ! -f "$PIDFILE" ]; then
     if [ "$(ls -A "$BASEDIR/log")" ]; then
@@ -606,12 +667,12 @@ do_start()
       sleep 4
       break
     elif [ -n "$PORT" ]; then
-      if netstat -ltpn 2>/dev/null |grep -e ":$PORT\b" |grep -qe "\b$ID\b"; then
+      if netstat -ltpn 2>/dev/null |grep -qe ":$PORT\b"; then
         sleep 4
         break
       fi
     elif [ -n "$SSLPORT" ]; then
-      if netstat -ltpn 2>/dev/null |grep -e ":$SSLPORT\b" |grep -qe "\b$ID\b"; then
+      if netstat -ltpn 2>/dev/null |grep -qe ":$SSLPORT\b"; then
         sleep 4
         break
       fi
@@ -636,8 +697,12 @@ do_stop()
 {
   ID=`cat "$PIDFILE"`
 
-  "$DAEMON" -home "$JAVA_HOME" -stop \
-    -pidfile "$PIDFILE" "$MAINCLASS"
+  daemon_stop \
+    -Duser.home="$BASEDIR" \
+    -Djava.io.tmpdir="$TMPDIR" \
+    -Djava.mail.properties="$MAIL" \
+    -classpath "$CLASSPATH:$JDK_HOME/lib/tools.jar:$JDK_HOME/../Classes/classes.jar" \
+    $DAEMON_OPTS $SSL_OPTS "$MONITORCLASS" --pid "$PIDFILE" --stop "$@"
 
   SLEEP=180
   while [ $SLEEP -ge 0 ]; do 
@@ -684,54 +749,37 @@ do_dump() {
     fi
   fi
 
-  JSVC_LOG="$BASEDIR/log/$NAME-dump.log"
-  if [ -e "$JSVC_LOG" ]; then
-    rm "$JSVC_LOG"
-  fi
-  "$DAEMON" -nodetach -outfile "$JSVC_LOG" -errfile '&1' -home "$JAVA_HOME" -jvm server -procname "$NAME" \
-    -pidfile "$BASEDIR/run/$NAME-dump.pid" \
+  daemon_run \
     -Duser.home="$BASEDIR" \
     -Djava.io.tmpdir="$TMPDIR" \
     -Djava.mail.properties="$MAIL" \
     -Djava.awt.headless=true \
     -XX:OnOutOfMemoryError="kill -9 %p" \
     -classpath "$CLASSPATH:$JDK_HOME/lib/tools.jar:$JDK_HOME/../Classes/classes.jar" \
-    -user "$DAEMON_USER" \
-    $JSVC_OPTS $SSL_OPTS "$MONITORCLASS" --pid "$PIDFILE" --dump "$DIR"
-  RETURN_VAL=$?
-  cat "$JSVC_LOG"
-  return $RETURN_VAL
+    $DAEMON_OPTS $SSL_OPTS "$MONITORCLASS" --pid "$PIDFILE" --dump "$DIR" "$@"
+  return $?
 }
 
 #
 # Function that resets the internal cache
 #
 do_reset() {
-  JSVC_LOG="$BASEDIR/log/$NAME-reset.log"
-  if [ -e "$JSVC_LOG" ]; then
-    rm "$JSVC_LOG"
-  fi
-  "$DAEMON" -nodetach -outfile "$JSVC_LOG" -errfile '&1' -home "$JAVA_HOME" -jvm server -procname "$NAME" \
-    -pidfile "$BASEDIR/run/$NAME-dump.pid" \
+  daemon_run \
     -Duser.home="$BASEDIR" \
     -Djava.io.tmpdir="$TMPDIR" \
     -Djava.mail.properties="$MAIL" \
     -Djava.awt.headless=true \
     -XX:OnOutOfMemoryError="kill -9 %p" \
     -classpath "$CLASSPATH:$JDK_HOME/lib/tools.jar:$JDK_HOME/../Classes/classes.jar" \
-    -user "$DAEMON_USER" \
-    $JSVC_OPTS $SSL_OPTS "$MONITORCLASS" --pid "$PIDFILE" --reset
-  RETURN_VAL=$?
-  cat "$JSVC_LOG"
-  return $RETURN_VAL
+    $DAEMON_OPTS $SSL_OPTS "$MONITORCLASS" --pid "$PIDFILE" --reset "$@"
+  return $?
 }
 
 #
 # Function that runs the daemon in the foreground
 #
 do_run() {
-  exec "$DAEMON" -debug -showversion -nodetach -home "$JAVA_HOME" -jvm server -procname "$NAME" \
-    -pidfile "$PIDFILE" \
+  daemon_run \
     -Duser.home="$BASEDIR" \
     -Djava.io.tmpdir="$TMPDIR" \
     -Djava.util.logging.config.file="$LOGGING" \
@@ -741,8 +789,7 @@ do_run() {
     -Djava.awt.headless=true \
     -XX:OnOutOfMemoryError="kill %p" \
     -classpath "$CLASSPATH" \
-    -user "$DAEMON_USER" \
-    $JSVC_OPTS $SSL_OPTS $JMXRMI_OPTS "$MAINCLASS" -q -b "$BASEDIR" -c "$CONFIG" "$@"
+    $DAEMON_OPTS $SSL_OPTS $JMXRMI_OPTS "$MAINCLASS" -q -b "$BASEDIR" -c "$CONFIG" --pid "$PIDFILE" "$@"
 }
 
 case "$1" in
@@ -762,8 +809,15 @@ case "$1" in
     #  150-199    reserved for application use
     #  200-254    reserved
     if [ ! -z "$PIDFILE" ]; then
+      if [ -f "$PIDFILE" -a -r "$PIDFILE" ]; then
+        kill -0 `cat "$PIDFILE"` >/dev/null 2>&1
+        if [ $? -gt 0 ]; then
+          log_warning_msg "PID file ($PIDFILE) found, but no matching process was found."
+          rm -f "$PIDFILE"
+        fi
+      fi
       if [ -f "$PIDFILE" ]; then
-        log_warning_msg "PID file ($PIDFILE) found. Is the server still running? Start aborted."
+        log_failure_msg "PID file ($PIDFILE) found. Is the server still running? Start aborted."
         exit 0
       fi
     fi

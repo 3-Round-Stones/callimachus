@@ -213,10 +213,6 @@ if [ -z "$JAVA_OPTS" ] ; then
   JAVA_OPTS="-Xmx512m"
 fi
 
-if [ -z "$JSVC_OPTS" ] ; then
-  JSVC_OPTS="$JAVA_OPTS"
-fi
-
 # For Cygwin, switch paths to Windows format before running java
 if $cygwin; then
   JAVA_HOME=`cygpath --absolute --windows "$JAVA_HOME"`

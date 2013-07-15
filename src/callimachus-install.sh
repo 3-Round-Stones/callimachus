@@ -181,14 +181,22 @@ fi
 sed -i "s:#\?\s*JAVA_HOME=.*:JAVA_HOME=\"$JAVA_HOME\":" "$CONFIG"
 sed -i "s:#\?\s*JDK_HOME=.*:JDK_HOME=\"$JDK_HOME\":" "$CONFIG"
 
-if [ -z "$DAEMON_GROUP" ] ; then
-  DAEMON_GROUP=callimachus
-  sed -i "s:#\?\s*DAEMON_GROUP=.*:DAEMON_GROUP=$DAEMON_GROUP:" "$CONFIG"
-fi
-
 if [ -z "$DAEMON_USER" ] ; then
   DAEMON_USER=callimachus
   sed -i "s:#\?\s*DAEMON_USER=.*:DAEMON_USER=$DAEMON_USER:" "$CONFIG"
+  if ! grep -qe '^DAEMON_USER=callimachus$' "$CONFIG" ; then
+    echo >> "$CONFIG"
+    echo "DAEMON_USER=callimachus" >> "$CONFIG"
+  fi
+fi
+
+if [ -z "$DAEMON_GROUP" ] ; then
+  DAEMON_GROUP=callimachus
+  sed -i "s:#\?\s*DAEMON_GROUP=.*:DAEMON_GROUP=$DAEMON_GROUP:" "$CONFIG"
+  if ! grep -qe '^DAEMON_GROUP=callimachus$' "$CONFIG" ; then
+    echo >> "$CONFIG"
+    echo "DAEMON_GROUP=callimachus" >> "$CONFIG"
+  fi
 fi
 
 # install daemon user/group
@@ -290,11 +298,11 @@ if [ $? -gt 0 ]; then
 fi
 
 if [ -x /usr/lib/lsb/install_initd ]; then
-  exec /usr/lib/lsb/install_initd "/etc/init.d/$NAME"
+  /usr/lib/lsb/install_initd "/etc/init.d/$NAME"
 elif [ -x /sbin/chkconfig ]; then
-  exec /sbin/chkconfig --add "$NAME"
+  /sbin/chkconfig --add "$NAME"
 elif [ -x /usr/sbin/update-rc.d ]; then
-  exec /usr/sbin/update-rc.d "$NAME" defaults 90 10
+  /usr/sbin/update-rc.d "$NAME" defaults 90 10
 else
    for i in 2 3 4 5; do
         ln -sf "/etc/init.d/$NAME" "/etc/rc.d/rc${i}.d/S90$NAME"
@@ -303,3 +311,6 @@ else
         ln -sf "/etc/init.d/$NAME" "/etc/rc.d/rc${i}.d/K10$NAME"
    done
 fi
+
+exec /bin/sh "$PRGDIR/$NAME-setup.sh"
+

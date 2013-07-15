@@ -223,7 +223,11 @@ fi
 
 if [ -z "$PORT" -a -z "$SSLPORT" ] ; then
   PORT="8080"
-  sed -i "s:#\?\s*PORT=.*:PORT=$PORT:" "$CONFIG"
+  sed "s:#\?\s*PORT=.*:PORT=$PORT:" "$CONFIG" > "$CONFIG.tmp"
+  if [ $(cat "$CONFIG.tmp" |wc -l) = $(cat "$CONFIG" |wc -l) ] ; then
+    cat "$CONFIG.tmp" > "$CONFIG"
+    rm "$CONFIG.tmp"
+  fi
 fi
 
 if [ -z "$ORIGIN" ] ; then
@@ -240,7 +244,11 @@ if [ -z "$ORIGIN" ] ; then
       ORIGIN="$ORIGIN:$SSLPORT"
     fi
   fi
-  sed -i "s%#\?\s*ORIGIN=.*%ORIGIN=$ORIGIN%" "$CONFIG"
+  sed "s%#\?\s*ORIGIN=.*%ORIGIN=$ORIGIN%" "$CONFIG" > "$CONFIG.tmp"
+  if [ $(cat "$CONFIG.tmp" |wc -l) = $(cat "$CONFIG" |wc -l) ] ; then
+    cat "$CONFIG.tmp" > "$CONFIG"
+    rm "$CONFIG.tmp"
+  fi
 fi
 
 if [ "$VERBOSE" != no ]; then

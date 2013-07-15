@@ -178,12 +178,19 @@ if [ "$("$JDK_HOME/bin/jrunscript" -e 'if(Array.isArray)println(true)')" != "tru
 fi
 
 # Update JAVA_HOME in $CONFIG
-sed -i "s:#\?\s*JAVA_HOME=.*:JAVA_HOME=\"$JAVA_HOME\":" "$CONFIG"
-sed -i "s:#\?\s*JDK_HOME=.*:JDK_HOME=\"$JDK_HOME\":" "$CONFIG"
+sed "s:#\?\s*JAVA_HOME=.*:JAVA_HOME=\"$JAVA_HOME\":;s:#\?\s*JDK_HOME=.*:JDK_HOME=\"$JDK_HOME\":" "$CONFIG" > "$CONFIG.tmp"
+if [ $(cat "$CONFIG.tmp" |wc -l) = $(cat "$CONFIG" |wc -l) ] ; then
+  cat "$CONFIG.tmp" > "$CONFIG"
+  rm "$CONFIG.tmp"
+fi
 
 if [ -z "$DAEMON_USER" ] ; then
   DAEMON_USER=callimachus
-  sed -i "s:#\?\s*DAEMON_USER=.*:DAEMON_USER=$DAEMON_USER:" "$CONFIG"
+  sed "s:#\?\s*DAEMON_USER=.*:DAEMON_USER=$DAEMON_USER:" "$CONFIG" > "$CONFIG.tmp"
+  if [ $(cat "$CONFIG.tmp" |wc -l) = $(cat "$CONFIG" |wc -l) ] ; then
+    cat "$CONFIG.tmp" > "$CONFIG"
+    rm "$CONFIG.tmp"
+  fi
   if ! grep -qe '^DAEMON_USER=callimachus$' "$CONFIG" ; then
     echo >> "$CONFIG"
     echo "DAEMON_USER=callimachus" >> "$CONFIG"
@@ -192,7 +199,11 @@ fi
 
 if [ -z "$DAEMON_GROUP" ] ; then
   DAEMON_GROUP=callimachus
-  sed -i "s:#\?\s*DAEMON_GROUP=.*:DAEMON_GROUP=$DAEMON_GROUP:" "$CONFIG"
+  sed "s:#\?\s*DAEMON_GROUP=.*:DAEMON_GROUP=$DAEMON_GROUP:" "$CONFIG" > "$CONFIG.tmp"
+  if [ $(cat "$CONFIG.tmp" |wc -l) = $(cat "$CONFIG" |wc -l) ] ; then
+    cat "$CONFIG.tmp" > "$CONFIG"
+    rm "$CONFIG.tmp"
+  fi
   if ! grep -qe '^DAEMON_GROUP=callimachus$' "$CONFIG" ; then
     echo >> "$CONFIG"
     echo "DAEMON_GROUP=callimachus" >> "$CONFIG"

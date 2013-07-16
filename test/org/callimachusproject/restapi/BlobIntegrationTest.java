@@ -5,10 +5,10 @@ import java.util.Map;
 
 import junit.framework.TestSuite;
 
-import org.callimachusproject.test.TemporaryServerTestCase;
+import org.callimachusproject.test.TemporaryServerIntegrationTestCase;
 import org.callimachusproject.test.WebResource;
 
-public class BlobTest extends TemporaryServerTestCase {
+public class BlobIntegrationTest extends TemporaryServerIntegrationTestCase {
 	
 	private static Map<String, String[]> parameters = new LinkedHashMap<String, String[]>() {
         private static final long serialVersionUID = -4308917786147773821L;
@@ -161,9 +161,9 @@ public class BlobTest extends TemporaryServerTestCase {
     };
 
     public static TestSuite suite() throws Exception {
-        TestSuite suite = new TestSuite(BlobTest.class.getName());
+        TestSuite suite = new TestSuite(BlobIntegrationTest.class.getName());
         for (String name : parameters.keySet()) {
-            suite.addTest(new BlobTest(name));
+            suite.addTest(new BlobIntegrationTest(name));
         }
         return suite;
     }
@@ -173,7 +173,7 @@ public class BlobTest extends TemporaryServerTestCase {
 	private String outputString;
 	private String updateOutputString;
 
-	public BlobTest(String name) throws Exception {
+	public BlobIntegrationTest(String name) throws Exception {
 		super(name);
 		String [] args = parameters.get(name);
 		requestSlug = args[0];

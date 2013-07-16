@@ -4,10 +4,10 @@ import java.util.concurrent.Callable;
 
 import junit.framework.AssertionFailedError;
 
-import org.callimachusproject.test.TemporaryServerTestCase;
+import org.callimachusproject.test.TemporaryServerIntegrationTestCase;
 import org.callimachusproject.test.WebResource;
 
-public class EditResourceTypeTest extends TemporaryServerTestCase {
+public class EditResourceTypeIntegrationTest extends TemporaryServerIntegrationTestCase {
 	private static String TYPES_TURTLE = cat(
 			"@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.",
 			"@prefix owl:<http://www.w3.org/2002/07/owl#>.",
@@ -173,7 +173,7 @@ public class EditResourceTypeTest extends TemporaryServerTestCase {
 			"</body>",
 			"</html>");
 
-	public EditResourceTypeTest(String name) throws Exception {
+	public EditResourceTypeIntegrationTest(String name) throws Exception {
 		super(name);
 	}
 

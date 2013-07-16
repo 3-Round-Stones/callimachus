@@ -1,10 +1,10 @@
 package org.callimachusproject.types;
 
-import org.callimachusproject.test.TemporaryServerTestCase;
+import org.callimachusproject.test.TemporaryServerIntegrationTestCase;
 import org.callimachusproject.test.WebResource;
 import org.junit.Test;
 
-public class NamedQueryTest extends TemporaryServerTestCase {
+public class NamedQueryIntegrationTest extends TemporaryServerIntegrationTestCase {
 	private static final String RQ = "SELECT ?title WHERE { \n" +
 			"<http://example.org/book/book1> <http://purl.org/dc/elements/1.1/title> ?title . \n" +
 			"}";

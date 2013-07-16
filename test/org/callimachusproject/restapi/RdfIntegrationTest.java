@@ -5,10 +5,10 @@ import java.util.Map;
 
 import junit.framework.TestSuite;
 
-import org.callimachusproject.test.TemporaryServerTestCase;
+import org.callimachusproject.test.TemporaryServerIntegrationTestCase;
 import org.callimachusproject.test.WebResource;
 
-public class RdfTest extends TemporaryServerTestCase {
+public class RdfIntegrationTest extends TemporaryServerIntegrationTestCase {
 	
 	private static Map<String, String[]> parameters = new LinkedHashMap<String, String[]>() {
         private static final long serialVersionUID = -4308917786147773821L;
@@ -67,9 +67,9 @@ public class RdfTest extends TemporaryServerTestCase {
     };
 
 	public static TestSuite suite() throws Exception{
-        TestSuite suite = new TestSuite(RdfTest.class.getName());
+        TestSuite suite = new TestSuite(RdfIntegrationTest.class.getName());
         for (String name : parameters.keySet()) {
-            suite.addTest(new RdfTest(name));
+            suite.addTest(new RdfIntegrationTest(name));
         }
         return suite;
     }
@@ -77,7 +77,7 @@ public class RdfTest extends TemporaryServerTestCase {
 	private String create;
 	private String update;
 
-	public RdfTest(String name) throws Exception {
+	public RdfIntegrationTest(String name) throws Exception {
 		super(name);
 		String [] args = parameters.get(name);
 		create = args[0];

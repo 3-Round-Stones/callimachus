@@ -298,7 +298,7 @@
         </copy>
     </target>
 
-    <target name="test" depends="dist,test-compile" description="run the tests">
+    <target name="unittest" depends="dist,test-compile" description="run the unit tests">
         <mkdir dir="${reports.tests}" />
         <junit printsummary="on" haltonfailure="on" tempdir="${tmp}">
             <classpath>
@@ -317,12 +317,41 @@
             <batchtest fork="yes" todir="${reports.tests}">
             <fileset dir="${src.tests}">
                 <include name="**/*Test*.java"/>
+                <exclude name="**/*Integration*.java"/>
                 <exclude name="**/*TestCase.java"/>
                 <exclude name="**/AllTests.java"/>
             </fileset>
             </batchtest>
         </junit>
     </target>
+
+    <target name="integrationtest" depends="dist,test-compile" description="run the integration tests">
+        <mkdir dir="${reports.tests}" />
+        <junit printsummary="on" haltonfailure="on" tempdir="${tmp}">
+            <classpath>
+                <pathelement location="${build.tests}/" />
+                <pathelement location="${build}/" />
+                <fileset dir="${lib.tests}">
+                    <include name="**/*.jar" />
+                </fileset>
+                <fileset dir="${lib}">
+                    <include name="**/*.jar" />
+                </fileset>
+            </classpath>
+
+            <formatter type="brief"/>
+
+            <batchtest fork="yes" todir="${reports.tests}">
+            <fileset dir="${src.tests}">
+                <include name="**/*IntegrationTest*.java"/>
+                <exclude name="**/*TestCase.java"/>
+                <exclude name="**/AllTests.java"/>
+            </fileset>
+            </batchtest>
+        </junit>
+    </target>
+
+    <target name="test" depends="unittest,integrationtest" description="run all the tests" />
 
     <target name="package" depends="clean,dist,test" description="Create a package ready for release">
         <echo>Artifact ready: ${dist}/${artifact.name}-${Version}.zip</echo>

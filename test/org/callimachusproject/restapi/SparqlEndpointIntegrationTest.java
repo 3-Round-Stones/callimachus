@@ -2,11 +2,11 @@ package org.callimachusproject.restapi;
 
 import java.net.URLEncoder;
 
-import org.callimachusproject.test.TemporaryServerTestCase;
+import org.callimachusproject.test.TemporaryServerIntegrationTestCase;
 import org.junit.Ignore;
 import org.junit.Test;
 
-public class SparqlEndpointTest extends TemporaryServerTestCase {
+public class SparqlEndpointIntegrationTest extends TemporaryServerIntegrationTestCase {
 
 	private static final String QUERY = "application/sparql-query";
 	private static final String UPDATE = "application/sparql-update";

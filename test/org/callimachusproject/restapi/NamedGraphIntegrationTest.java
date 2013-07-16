@@ -2,10 +2,10 @@ package org.callimachusproject.restapi;
 
 import java.net.MalformedURLException;
 
-import org.callimachusproject.test.TemporaryServerTestCase;
+import org.callimachusproject.test.TemporaryServerIntegrationTestCase;
 import org.callimachusproject.test.WebResource;
 
-public class NamedGraphTest extends TemporaryServerTestCase {
+public class NamedGraphIntegrationTest extends TemporaryServerIntegrationTestCase {
 
 	private String requestSlug = "namedGraph.rdf";
 	private String requestContentType = "application/rdf+xml";

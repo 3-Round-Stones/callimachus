@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.callimachusproject.test.TemporaryServerTestCase;
+import org.callimachusproject.test.TemporaryServerIntegrationTestCase;
 import org.callimachusproject.test.WebResource;
 import org.junit.ComparisonFailure;
 import org.junit.Ignore;
@@ -14,7 +14,7 @@ import org.openrdf.model.ValueFactory;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.repository.object.ObjectConnection;
 
-public class FormInterface extends TemporaryServerTestCase {
+public class FormInterfaceIntegrationTest extends TemporaryServerIntegrationTestCase {
 	private static final String SKOS = "http://www.w3.org/2004/02/skos/core#";
 	private final String requestSlug = "form-page.xhtml";
 	private final String requestContentType = "application/xhtml+xml";

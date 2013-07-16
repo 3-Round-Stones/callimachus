@@ -3,9 +3,9 @@ package org.callimachusproject.server;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import org.callimachusproject.test.TemporaryServerTestCase;
+import org.callimachusproject.test.TemporaryServerIntegrationTestCase;
 
-public class HeadTest extends TemporaryServerTestCase {
+public class HeadIntegrationTest extends TemporaryServerIntegrationTestCase {
 
 	public void testHeadRoot() throws Exception {
 		URL url = new java.net.URL(getHomeFolder().toString());

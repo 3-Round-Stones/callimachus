@@ -16,16 +16,16 @@ import org.junit.After;
 import org.junit.Before;
 import org.openrdf.OpenRDFException;
 
-public abstract class TemporaryServerTestCase extends TestCase {
+public abstract class TemporaryServerIntegrationTestCase extends TestCase {
     private static final TemporaryServerFactory factory = TemporaryServerFactory.getInstance();
     private static final Map<Class<?>, TemporaryServer> servers = new HashMap<Class<?>, TemporaryServer>();
 	private final TemporaryServer server;
 
-	public TemporaryServerTestCase() {
+	public TemporaryServerIntegrationTestCase() {
 		this(null);
 	}
 
-	public TemporaryServerTestCase(String name) {
+	public TemporaryServerIntegrationTestCase(String name) {
 		super(name);
 		synchronized (servers) {
 			if (servers.containsKey(getClass())) {

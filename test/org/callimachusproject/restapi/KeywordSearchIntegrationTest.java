@@ -1,10 +1,10 @@
 package org.callimachusproject.restapi;
 
-import org.callimachusproject.test.TemporaryServerTestCase;
+import org.callimachusproject.test.TemporaryServerIntegrationTestCase;
 
-public class KeywordSearchTest extends TemporaryServerTestCase {
+public class KeywordSearchIntegrationTest extends TemporaryServerIntegrationTestCase {
 
-	public KeywordSearchTest(String name) throws Exception {
+	public KeywordSearchIntegrationTest(String name) throws Exception {
 		super(name);
 	}
 

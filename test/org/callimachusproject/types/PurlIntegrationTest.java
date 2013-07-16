@@ -2,10 +2,10 @@ package org.callimachusproject.types;
 
 import java.io.FileNotFoundException;
 
-import org.callimachusproject.test.TemporaryServerTestCase;
+import org.callimachusproject.test.TemporaryServerIntegrationTestCase;
 import org.callimachusproject.test.WebResource;
 
-public class PurlTest extends TemporaryServerTestCase {
+public class PurlIntegrationTest extends TemporaryServerIntegrationTestCase {
 	private static int count = 0;
 	private WebResource file;
 

@@ -1,10 +1,10 @@
 package org.callimachusproject.types;
 
-import org.callimachusproject.test.TemporaryServerTestCase;
+import org.callimachusproject.test.TemporaryServerIntegrationTestCase;
 import org.callimachusproject.test.WebResource;
 import org.junit.Test;
 
-public class StyleTest extends TemporaryServerTestCase {
+public class StyleIntegrationTest extends TemporaryServerIntegrationTestCase {
 	private static final String CSS = "hr {color:sienna;} \n" +
 		    "p {margin-left:20px;} \n" +
 		    "body {background-color:blue}";

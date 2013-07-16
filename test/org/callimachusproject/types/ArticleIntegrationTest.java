@@ -1,10 +1,10 @@
 package org.callimachusproject.types;
 
-import org.callimachusproject.test.TemporaryServerTestCase;
+import org.callimachusproject.test.TemporaryServerIntegrationTestCase;
 import org.callimachusproject.test.WebResource;
 import org.junit.Test;
 
-public class ArticleTest extends TemporaryServerTestCase {
+public class ArticleIntegrationTest extends TemporaryServerIntegrationTestCase {
 	private static final String DOCBOOK = "<article version='5.0'  xmlns='http://docbook.org/ns/docbook' xmlns:xl='http://www.w3.org/1999/xlink'> \n" +
 			"<title>LS command</title> \n " +
 			"<para>This command is a synonym for command. \n" +

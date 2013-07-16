@@ -293,6 +293,7 @@
                 <pathelement location="${build}/" />
                 <fileset dir="${lib.tests}">
                     <include name="**/*.jar" />
+                    <exclude name="${selenium.jar}" />
                 </fileset>
                 <fileset dir="${lib}">
                     <include name="**/*.jar" />
@@ -312,6 +313,7 @@
                 <pathelement location="${build}/" />
                 <fileset dir="${lib.tests}">
                     <include name="**/*.jar" />
+                    <exclude name="${selenium.jar}" />
                 </fileset>
                 <fileset dir="${lib}">
                     <include name="**/*.jar" />
@@ -339,6 +341,7 @@
                 <pathelement location="${build}/" />
                 <fileset dir="${lib.tests}">
                     <include name="**/*.jar" />
+                    <exclude name="${selenium.jar}" />
                 </fileset>
                 <fileset dir="${lib}">
                     <include name="**/*.jar" />
@@ -382,7 +385,6 @@
         <get src="http://localhost:8081/callimachus/1.0/styles/callimachus.less?less" dest="${tmp}/styles.css" />
         <delete file="${tmp}/styles.css" />
         <!-- selenium -->
-        <basename file="${selenium.url}" property="selenium.jar" />
         <java jar="${lib.tests}/${selenium.jar}" fork="true">
             <jvmarg line="${jvmargs}" />
             <arg value="-userExtensions" />
@@ -395,9 +397,8 @@
         </java>
     </target>
 
-    <target name="functionaltest-run">
+    <target name="functionaltest-run" depends="test-dependencies">
         <!-- selenium -->
-        <basename file="${selenium.url}" property="selenium.jar" />
         <java jar="${lib.tests}/${selenium.jar}" fork="true">
             <jvmarg line="${jvmargs}" />
             <arg value="-userExtensions" />

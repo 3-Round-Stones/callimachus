@@ -90,7 +90,7 @@ public class FormInterfaceIntegrationTest extends TemporaryServerIntegrationTest
 
 	@Test
 	@Ignore
-	public void testOptions4() throws Exception {
+	public void ignoretestOptions4() throws Exception {
 		ValueFactory vf = con.getValueFactory();
 		con.add(vf.createURI("urn:test:concept1"), RDF.TYPE, vf.createURI(SKOS, "Concept"));
 		con.add(vf.createURI("urn:test:concept1"), vf.createURI(SKOS, "prefLabel"), vf.createLiteral("label-option-1"));

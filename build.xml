@@ -265,18 +265,24 @@
         <basename file="${jersey-client.url}" property="jersey-client.jar" />
         <basename file="${jersey-core.url}" property="jersey-core.jar" />
         <basename file="${jsr311-api.url}" property="jsr311-api.jar" />
+        <basename file="${selenium.url}" property="selenium.jar" />
+        <basename file="${selenium-implicit-wait.url}" property="selenium-implicit-wait.zip" />
         <mkdir dir="${downloads}" />
         <get usetimestamp="true" skipexisting="${lib.tests.present}" dest="${downloads}">
             <url url="${junit.url}" />
             <url url="${jersey-client.url}" />
             <url url="${jersey-core.url}" />
             <url url="${jsr311-api.url}" />
+            <url url="${selenium.url}" />
+            <url url="${selenium-implicit-wait.url}" />
         </get>
         <mkdir dir="${lib.tests}" />
         <copy file="${downloads}/${junit.jar}" tofile="${lib.tests}/${junit.jar}" />
         <copy file="${downloads}/${jersey-client.jar}" tofile="${lib.tests}/${jersey-client.jar}" />
         <copy file="${downloads}/${jersey-core.jar}" tofile="${lib.tests}/${jersey-core.jar}" />
         <copy file="${downloads}/${jsr311-api.jar}" tofile="${lib.tests}/${jsr311-api.jar}" />
+        <copy file="${downloads}/${selenium.jar}" tofile="${lib.tests}/${selenium.jar}" />
+        <unzip overwrite="false" src="${downloads}/${selenium-implicit-wait.zip}" dest="${lib.tests}" />
     </target>
 
     <target name="test-compile" depends="compile,test-dependencies">
@@ -351,7 +357,74 @@
         </junit>
     </target>
 
-    <target name="test" depends="unittest,integrationtest" description="run all the tests" />
+    <target name="functionaltest-setup" depends="dist,test-compile">
+        <mkdir dir="${tmp}/functionaltest" />
+        <unzip src="${dist}/${artifact.name}-${Version}.zip" dest="${tmp}/functionaltest" />
+        <copy file="${tmp}/functionaltest/etc/callimachus-defaults.conf" tofile="${tmp}/functionaltest/etc/callimachus.conf" />
+        <replace file="${tmp}/functionaltest/etc/callimachus.conf" token="#PORT=8080" value="PORT=8081" />
+        <replace file="${tmp}/functionaltest/etc/callimachus.conf" token="#ORIGIN=http://localhost:8080" value="ORIGIN=http://localhost:8081" />
+        <!-- setup script -->
+        <exec executable="/bin/sh" dir="${tmp}/functionaltest" outputproperty="register.url" logError="true" failonerror="true" osfamily="unix">
+            <arg line="bin/callimachus-setup.sh -L" />
+        </exec>
+        <exec executable="cmd" dir="${tmp}/functionaltest" outputproperty="register.url" logError="true" failonerror="true" osfamily="windows">
+            <arg line="/c bin\callimachus-setup.bat -L" />
+        </exec>
+        <!-- start script -->
+        <exec executable="/bin/sh" dir="${tmp}/functionaltest" logError="true" failonerror="true" osfamily="unix">
+            <arg line="bin/callimachus-start.sh" />
+        </exec>
+        <exec executable="cmd" dir="${tmp}/functionaltest" logError="true" failonerror="true" osfamily="windows">
+            <arg line="/c bin\callimachus-start.bat" />
+        </exec>
+        <get src="http://localhost:8081/callimachus/scripts.js" dest="${tmp}/scripts.js" />
+        <delete file="${tmp}/scripts.js" />
+        <get src="http://localhost:8081/callimachus/1.0/styles/callimachus.less?less" dest="${tmp}/styles.css" />
+        <delete file="${tmp}/styles.css" />
+        <!-- selenium -->
+        <basename file="${selenium.url}" property="selenium.jar" />
+        <java jar="${lib.tests}/${selenium.jar}" fork="true">
+            <jvmarg line="${jvmargs}" />
+            <arg value="-userExtensions" />
+            <arg value="${lib.tests}/user-extensions.js" />
+            <arg value="-htmlSuite" />
+            <arg value="*googlechrome" />
+            <arg value="${register.url}" />
+            <arg value="${src.tests}/selenese/setup.xhtml" />
+            <arg value="${reports.tests}/functionaltest-setup.html" />
+        </java>
+    </target>
+
+    <target name="functionaltest-run">
+        <!-- selenium -->
+        <basename file="${selenium.url}" property="selenium.jar" />
+        <java jar="${lib.tests}/${selenium.jar}" fork="true">
+            <jvmarg line="${jvmargs}" />
+            <arg value="-userExtensions" />
+            <arg value="${lib.tests}/user-extensions.js" />
+            <arg value="-htmlSuite" />
+            <arg value="*googlechrome" />
+            <arg value="http://localhost:8081/" />
+            <arg value="${src.tests}/selenese/alltests.xhtml" />
+            <arg value="${reports.tests}/functionaltest.html" />
+        </java>
+    </target>
+
+    <target name="functionaltest-teardown">
+        <!-- stop script -->
+        <exec executable="/bin/sh" dir="${tmp}/functionaltest" logError="true" failonerror="true" osfamily="unix">
+            <arg line="bin/callimachus-stop.sh" />
+        </exec>
+        <exec executable="cmd" dir="${tmp}/functionaltest" logError="true" failonerror="true" osfamily="windows">
+            <arg line="/c bin\callimachus-stop.bat" />
+        </exec>
+        <delete file="${tmp}/functionaltest.uri" />
+        <delete dir="${tmp}/functionaltest" />
+    </target>
+
+    <target name="functionaltest" depends="functionaltest-setup,functionaltest-run,functionaltest-teardown" description="run the functional tests" />
+
+    <target name="test" depends="unittest,integrationtest,functionaltest" description="run all the tests" />
 
     <target name="package" depends="clean,dist,test" description="Create a package ready for release">
         <echo>Artifact ready: ${dist}/${artifact.name}-${Version}.zip</echo>

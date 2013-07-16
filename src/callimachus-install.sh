@@ -57,6 +57,16 @@ fi
 # Read relative config paths from BASEDIR
 cd "$BASEDIR"
 
+# Read configuration variable file if it is present
+[ -r "/etc/default/$NAME" ] && . "/etc/default/$NAME"
+
+# Load the VERBOSE setting and other rcS variables
+[ -r /lib/init/vars.sh ] && . /lib/init/vars.sh
+
+if [ "`tty`" != "not a tty" ]; then
+  VERBOSE="yes"
+fi
+
 if [ -z "$CONFIG" ] ; then
   CONFIG="$BASEDIR/etc/$NAME.conf"
 fi
@@ -68,6 +78,18 @@ fi
 if [ -r "$CONFIG" ]; then
   . "$CONFIG" 2>/dev/null
 fi
+
+# check for help text
+for arg in "$@" ; do
+  case $1 in
+    -h)
+      exec /bin/sh "$PRGDIR/$NAME-setup.sh" "$@" ;;
+    -help)
+      exec /bin/sh "$PRGDIR/$NAME-setup.sh" "$@" ;;
+    --help)
+      exec /bin/sh "$PRGDIR/$NAME-setup.sh" "$@" ;;
+  esac
+done
 
 # check the base dir for possible java candidates
 if [ -z "$JDK_HOME" ] && ls "$BASEDIR"/*/lib/tools.jar >/dev/null 2>&1
@@ -141,16 +163,18 @@ if [ -z "$JDK_HOME" ] ; then
   fi
 fi
 
-echo "Callimachus requires Java JDK 7"
-echo "Where is the JDK installed?"
-read -p "  [$JDK_HOME]:  " jhome
-if [ -n "$jhome" ] ; then
-  JDK_HOME="$jhome"
-fi
-echo "Where is the JRE installed?"
-read -p "  [$JAVA_HOME]:  " jhome
-if [ -n "$jhome" ] ; then
-  JAVA_HOME="$jhome"
+if [ "$VERBOSE" != no ]; then
+  read -p "Callimachus requires Java JDK 7
+Where is the JDK installed?
+  [$JDK_HOME]:  " jhome
+  if [ -n "$jhome" ] ; then
+    JDK_HOME="$jhome"
+  fi
+  read -p "Where is the JRE installed?
+  [$JAVA_HOME]:  " jhome
+  if [ -n "$jhome" ] ; then
+    JAVA_HOME="$jhome"
+  fi
 fi
 
 if [ ! -e "$JAVA_HOME/bin/java" ] ; then
@@ -228,26 +252,26 @@ fi
 if [ -r "$SSL" ] ; then
   KEYTOOL_OPTS=$(perl -pe 's/\s*\#.*$//g' "$SSL" 2>/dev/null |perl -pe 's/(\S+)=(.*)/-J-D$1=$2/' 2>/dev/null |tr -s '\n' ' ')
 fi
-if [ ! -e "$SSL" ] || ( [ -r "$SSL" ] && ! grep -q "keyStore" "$SSL" ) ; then
-  echo "Would you like to generate a server certificate now? (type 'yes' or 'no')"
-  read -p "  [no]:  " genkey
-elif [ -r "$SSL" ]; then
+if [ ! -e "$SSL" -a "$VERBOSE" != no ] || ( [ -r "$SSL" -a "$VERBOSE" != no ] && ! grep -q "keyStore" "$SSL" ) ; then
+  read -p "Would you like to generate a server certificate now? (type 'yes' or 'no')
+  [no]:  " genkey
+elif [ -r "$SSL" -a "$VERBOSE" != no ]; then
   grep -E '^javax.net.ssl.keyStorePassword=' "$SSL" |perl -pe 's/^javax.net.ssl.keyStorePassword=(.*)/$1/' 2>/dev/null > "$SSL.password"
   KEYSTORE=$(grep -E '^javax.net.ssl.keyStore=' $SSL |perl -pe 's/^javax.net.ssl.keyStore=(.*)/$1/' 2>/dev/null)
   cname=$("$KEYTOOL" -list -v -keystore "$KEYSTORE" -storepass "$(cat "$SSL.password")" $KEYTOOL_OPTS |grep -B 2 PrivateKeyEntry |grep 'Alias' |head -n 1 |awk '{print $3}')
   until=$("$KEYTOOL" -list -v -keystore "$KEYSTORE" -storepass "$(cat "$SSL.password")" $KEYTOOL_OPTS |grep -A 8 "$cname" |grep "until:" |tail -n 1 |sed 's/.*until: //')
   expires=$(expr $(date --date="$until" +%s) '-' 60 '*' 60 '*' 24 '*' 31)
   if [ $(date +%s) -ge "$expires" ] ; then
-    echo "The certificate $cname will expire on $until."
-    echo "Would you like to generate a new server certificate now? (type 'yes' or 'no')"
-    read -p "  [no]:  " genkey
+    read -p "The certificate $cname will expire on $until.
+Would you like to generate a new server certificate now? (type 'yes' or 'no')
+  [no]:  " genkey
     if [ "$genkey" = "yes" ] ; then
       "$KEYTOOL" -delete -alias "$cname" -keystore "$KEYSTORE" -storepass "$(cat "$SSL.password")" $KEYTOOL_OPTS
       rm "$cname.cer" "$cname.csr"
     fi
   fi
 fi
-if [ "$genkey" = "yes" ] ; then
+if [ "$genkey" = "yes" -a "$VERBOSE" != no ] ; then
   if [ -z "$cname" ] ; then
     cname=$(hostname -f |tr '[A-Z]' '[a-z]')
   fi
@@ -258,18 +282,18 @@ if [ "$genkey" = "yes" ] ; then
   country="Unknown"
   cont="no"
   while [ "$cont" != "yes" ] ; do
-    echo "What is the secure domain or server name?"
-    read -p "  [$cname]:  " pcname
-    echo "What is the name of your organizational unit?"
-    read -p "  [$orgunit]:  " porgunit
-    echo "What is the name of your organization?"
-    read -p "  [$orgname]:  " porgname
-    echo "What is the name of your City or Locality?"
-    read -p "  [$city]:  " pcity
-    echo "What is the name of your State or Province?"
-    read -p "  [$state]:  " pstate
-    echo "What is the two-letter country code for this unit?"
-    read -p "  [$country]:  " pcountry
+    read -p "What is the secure domain or server name?
+  [$cname]:  " pcname
+    read -p "What is the name of your organizational unit?
+  [$orgunit]:  " porgunit
+    read -p "What is the name of your organization?
+  [$orgname]:  " porgname
+    read -p "What is the name of your City or Locality?
+  [$city]:  " pcity
+    read -p "What is the name of your State or Province?
+  [$state]:  " pstate
+    read -p "What is the two-letter country code for this unit?
+  [$country]:  " pcountry
     cname="${pcname:-$cname}"
     orgunit="${porgunit:-$orgunit}"
     orgname="${porgname:-$orgname}"
@@ -277,8 +301,8 @@ if [ "$genkey" = "yes" ] ; then
     state="${pstate:-$state}"
     country="${pcountry:-$country}"
     dname="CN=$(echo "$cname" |sed 's/,/\\,/g'), OU=$(echo "$orgunit" |sed 's/,/\\,/g'), O=$(echo "$orgname" |sed 's/,/\\,/g'), L=$(echo "$city" |sed 's/,/\\,/g'), ST=$(echo "$state" |sed 's/,/\\,/g'), C=$(echo "$country" |sed 's/,/\\,/g')"
-    echo "Is $dname correct? (type 'yes' or 'no')"
-    read -p "  [no]:  " cont
+    read -p "Is $dname correct? (type 'yes' or 'no')
+  [no]:  " cont
   done
   if [ -z "$KEYSTORE" ] ; then
     KEYSTORE=".keystore"
@@ -309,11 +333,11 @@ if [ $? -gt 0 ]; then
 fi
 
 if [ -x /usr/lib/lsb/install_initd ]; then
-  /usr/lib/lsb/install_initd "/etc/init.d/$NAME"
+  /usr/lib/lsb/install_initd "/etc/init.d/$NAME" 1>&2
 elif [ -x /sbin/chkconfig ]; then
-  /sbin/chkconfig --add "$NAME"
+  /sbin/chkconfig --add "$NAME" 1>&2
 elif [ -x /usr/sbin/update-rc.d ]; then
-  /usr/sbin/update-rc.d "$NAME" defaults 90 10
+  /usr/sbin/update-rc.d "$NAME" defaults 90 10 1>&2
 else
    for i in 2 3 4 5; do
         ln -sf "/etc/init.d/$NAME" "/etc/rc.d/rc${i}.d/S90$NAME"
@@ -323,5 +347,5 @@ else
    done
 fi
 
-exec /bin/sh "$PRGDIR/$NAME-setup.sh"
+exec /bin/sh "$PRGDIR/$NAME-setup.sh" "$@"
 

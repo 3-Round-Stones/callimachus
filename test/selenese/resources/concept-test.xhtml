@@ -4,38 +4,48 @@
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <link rel="selenium.base" href="" />
-<title>folder-create</title>
+<title>concept-test</title>
 </head>
 <body>
 <table cellpadding="1" cellspacing="1" border="1">
 <thead>
-<tr><td rowspan="1" colspan="3">folder-create</td></tr>
+<tr><td rowspan="1" colspan="3">concept-test</td></tr>
 </thead><tbody>
 <tr>
-	<td>click</td>
-	<td>id=create-menu</td>
+	<td>loadTestData</td>
+	<td>resources/concept-names.xml</td>
 	<td></td>
 </tr>
 <tr>
-	<td>clickAndWait</td>
-	<td>link=Folder</td>
+	<td>while</td>
+	<td>!testdata.EOF()</td>
 	<td></td>
 </tr>
 <tr>
-	<td>type</td>
-	<td>id=label</td>
-	<td>${folderName}</td>
-</tr>
+	<td>nextTestData</td>
+	<td></td>
+	<td></td>
+</tr> 
 <tr>
-	<td>clickAndWait</td>
-	<td>css=button.btn.btn-success</td>
+	<td>include</td>
+	<td>resources/goto-home-folder.xhtml</td>
 	<td></td>
 </tr>
 <tr>
-	<td>verifyTextPresent</td>
-	<td>${folderName}</td>
+	<td>include</td>
+	<td>resources/concept-create.xhtml</td>
 	<td></td>
 </tr>
+<tr>
+	<td>include</td>
+	<td>resources/concept-delete.xhtml</td>
+	<td></td>
+</tr>
+<tr>
+	<td>endWhile</td>
+	<td></td>
+	<td></td>
+</tr> 
 
 </tbody></table>
 </body>

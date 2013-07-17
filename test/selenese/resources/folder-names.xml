@@ -1,6 +1,6 @@
 <testdata>
-	<test foldername="rdf"/>
-	<test foldername="my folder"/>
-	<test foldername="Bob's%20Folder"/>
-	<test foldername="R&amp;D"/>
+	<test folderName="rdf"/>
+	<test folderName="my folder"/>
+	<test folderName="Bob's%20Folder"/>
+	<test folderName="R&amp;D"/>
 </testdata>

@@ -4,12 +4,12 @@
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <link rel="selenium.base" href="" />
-<title>folder-create</title>
+<title>concept-create</title>
 </head>
 <body>
 <table cellpadding="1" cellspacing="1" border="1">
 <thead>
-<tr><td rowspan="1" colspan="3">folder-create</td></tr>
+<tr><td rowspan="1" colspan="3">concept-create</td></tr>
 </thead><tbody>
 <tr>
 	<td>click</td>
@@ -18,22 +18,32 @@
 </tr>
 <tr>
 	<td>clickAndWait</td>
-	<td>link=Folder</td>
+	<td>link=Concept</td>
 	<td></td>
 </tr>
 <tr>
 	<td>type</td>
 	<td>id=label</td>
-	<td>${folderName}</td>
+	<td>${conceptName}</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=definition</td>
+	<td>${conceptDefinition}</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=example</td>
+	<td>${conceptExample}</td>
 </tr>
 <tr>
 	<td>clickAndWait</td>
-	<td>css=button.btn.btn-success</td>
+	<td>id=create</td>
 	<td></td>
 </tr>
 <tr>
 	<td>verifyTextPresent</td>
-	<td>${folderName}</td>
+	<td>${conceptName}</td>
 	<td></td>
 </tr>
 

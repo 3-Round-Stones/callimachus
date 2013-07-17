@@ -4,36 +4,36 @@
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <link rel="selenium.base" href="" />
-<title>folder-create</title>
+<title>concept-delete</title>
 </head>
 <body>
 <table cellpadding="1" cellspacing="1" border="1">
 <thead>
-<tr><td rowspan="1" colspan="3">folder-create</td></tr>
+<tr><td rowspan="1" colspan="3">concept-delete</td></tr>
 </thead><tbody>
 <tr>
-	<td>click</td>
-	<td>id=create-menu</td>
-	<td></td>
-</tr>
-<tr>
-	<td>clickAndWait</td>
-	<td>link=Folder</td>
-	<td></td>
-</tr>
-<tr>
-	<td>type</td>
-	<td>id=label</td>
-	<td>${folderName}</td>
-</tr>
-<tr>
-	<td>clickAndWait</td>
-	<td>css=button.btn.btn-success</td>
-	<td></td>
-</tr>
-<tr>
 	<td>verifyTextPresent</td>
-	<td>${folderName}</td>
+	<td>${conceptName}</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=Edit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=delete</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertConfirmation</td>
+	<td>Are you sure you want to delete ${conceptName}?</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForPageToLoad</td>
+	<td></td>
 	<td></td>
 </tr>
 

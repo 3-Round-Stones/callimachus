@@ -45,6 +45,7 @@
         <!-- Delete the directory trees -->
         <delete dir="${reports.tests}" />
         <delete dir="${build.tests}" />
+        <delete dir="${lib.tests}" />
         <delete dir="${build}" />
         <delete dir="${dist}" />
         <delete dir="${lib}" />
@@ -53,7 +54,6 @@
     </target>
 
     <target name="dist-clean" depends="clean">
-        <delete dir="${lib.tests}" />
         <delete dir="${downloads}" />
     </target>
 
@@ -410,7 +410,7 @@
             <arg value="-htmlSuite" />
             <arg value="*googlechrome" />
             <arg value="${register.url}" />
-            <arg value="${src.tests}/selenese/setup.xhtml" />
+            <arg value="${src.tests}/selenese/rc-setup.xhtml" />
             <arg value="${reports.tests}/functionaltest-setup.html" />
         </java>
     </target>
@@ -424,7 +424,7 @@
             <arg value="-htmlSuite" />
             <arg value="*googlechrome" />
             <arg value="${functionaltest.origin}/" />
-            <arg value="${src.tests}/selenese/alltests.xhtml" />
+            <arg value="${src.tests}/selenese/rc-alltests.xhtml" />
             <arg value="${reports.tests}/functionaltest-googlechrome.html" />
         </java>
     </target>
@@ -438,7 +438,7 @@
             <arg value="-htmlSuite" />
             <arg value="*firefox" />
             <arg value="${functionaltest.origin}/" />
-            <arg value="${src.tests}/selenese/alltests.xhtml" />
+            <arg value="${src.tests}/selenese/rc-alltests.xhtml" />
             <arg value="${reports.tests}/functionaltest-firefox.html" />
         </java>
     </target>
@@ -452,7 +452,7 @@
             <arg value="-htmlSuite" />
             <arg value="*iexplore" />
             <arg value="${functionaltest.origin}/" />
-            <arg value="${src.tests}/selenese/alltests.xhtml" />
+            <arg value="${src.tests}/selenese/rc-alltests.xhtml" />
             <arg value="${reports.tests}/functionaltest-iexplore.html" />
         </java>
     </target>
@@ -466,7 +466,7 @@
             <arg value="-htmlSuite" />
             <arg value="*safari" />
             <arg value="${functionaltest.origin}/" />
-            <arg value="${src.tests}/selenese/alltests.xhtml" />
+            <arg value="${src.tests}/selenese/rc-alltests.xhtml" />
             <arg value="${reports.tests}/functionaltest-safari.html" />
         </java>
     </target>

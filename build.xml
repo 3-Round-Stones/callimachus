@@ -266,7 +266,10 @@
         <basename file="${jersey-core.url}" property="jersey-core.jar" />
         <basename file="${jsr311-api.url}" property="jsr311-api.jar" />
         <basename file="${selenium.url}" property="selenium.jar" />
+        <basename file="${includeCommand4IDE.url}" property="includeCommand4IDE.zip" />
+        <basename file="${datadriven.url}" property="datadriven.zip" />
         <basename file="${selenium-implicit-wait.url}" property="selenium-implicit-wait.zip" />
+        <basename file="${globalStoreCommand.url}" property="globalStoreCommand.zip" />
         <mkdir dir="${downloads}" />
         <get usetimestamp="true" skipexisting="${lib.tests.present}" dest="${downloads}">
             <url url="${junit.url}" />
@@ -274,15 +277,43 @@
             <url url="${jersey-core.url}" />
             <url url="${jsr311-api.url}" />
             <url url="${selenium.url}" />
+            <url url="${includeCommand4IDE.url}" />
+            <url url="${datadriven.url}" />
             <url url="${selenium-implicit-wait.url}" />
+            <url url="${globalStoreCommand.url}" />
         </get>
+        <get usetimestamp="true" skipexisting="${lib.tests.present}" src="${goto.url}" dest="${downloads}/goto_sel08.js" />
         <mkdir dir="${lib.tests}" />
         <copy file="${downloads}/${junit.jar}" tofile="${lib.tests}/${junit.jar}" />
         <copy file="${downloads}/${jersey-client.jar}" tofile="${lib.tests}/${jersey-client.jar}" />
         <copy file="${downloads}/${jersey-core.jar}" tofile="${lib.tests}/${jersey-core.jar}" />
         <copy file="${downloads}/${jsr311-api.jar}" tofile="${lib.tests}/${jsr311-api.jar}" />
         <copy file="${downloads}/${selenium.jar}" tofile="${lib.tests}/${selenium.jar}" />
-        <unzip overwrite="false" src="${downloads}/${selenium-implicit-wait.zip}" dest="${lib.tests}" />
+        <copy file="${downloads}/goto_sel08.js" tofile="${lib.tests}/goto_sel08.js" />
+        <unzip overwrite="false" src="${downloads}/${includeCommand4IDE.zip}" dest="${lib.tests}">
+            <patternset>
+                <include name="**/*.js*" />
+            </patternset>
+            <mapper type="glob" from="*" to="includeCommand4IDE.js"/>
+        </unzip>
+        <unzip overwrite="false" src="${downloads}/${datadriven.zip}" dest="${lib.tests}">
+            <patternset>
+                <include name="**/*.js*" />
+            </patternset>
+            <mapper type="glob" from="*" to="datadriven.js"/>
+        </unzip>
+        <unzip overwrite="false" src="${downloads}/${selenium-implicit-wait.zip}" dest="${lib.tests}">
+            <patternset>
+                <include name="**/*.js*" />
+            </patternset>
+            <mapper type="glob" from="*" to="selenium-implicit-wait.js"/>
+        </unzip>
+        <unzip overwrite="false" src="${downloads}/${globalStoreCommand.zip}" dest="${lib.tests}">
+            <patternset>
+                <include name="**/*.js*" />
+            </patternset>
+            <mapper type="glob" from="*" to="globalStoreCommand.js"/>
+        </unzip>
     </target>
 
     <target name="test-compile" depends="compile,test-dependencies">
@@ -303,6 +334,9 @@
         <copy todir="${build.tests}">
             <fileset dir="${src.tests}" excludes="**/*.java"/>
         </copy>
+        <concat destfile="${build.tests}/user-extensions.js" fixlastline="yes">
+            <filelist dir="${lib.tests}" files="globalStoreCommand.js"/>
+        </concat>
     </target>
 
     <target name="unittest" depends="dist,test-compile" description="run the unit tests">
@@ -388,7 +422,7 @@
         <java jar="${lib.tests}/${selenium.jar}" fork="true">
             <jvmarg line="${jvmargs}" />
             <arg value="-userExtensions" />
-            <arg value="${lib.tests}/user-extensions.js" />
+            <arg value="${build.tests}/user-extensions.js" />
             <arg value="-htmlSuite" />
             <arg value="*googlechrome" />
             <arg value="${register.url}" />
@@ -402,7 +436,7 @@
         <java jar="${lib.tests}/${selenium.jar}" fork="true">
             <jvmarg line="${jvmargs}" />
             <arg value="-userExtensions" />
-            <arg value="${lib.tests}/user-extensions.js" />
+            <arg value="${build.tests}/user-extensions.js" />
             <arg value="-htmlSuite" />
             <arg value="*googlechrome" />
             <arg value="http://localhost:8081/" />

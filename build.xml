@@ -32,6 +32,8 @@
     <property name="curl.args" value="-fSs --digest http://localhost:8080/callimachus/1.0/?archive" />
     <property name="setup.args" value="-c etc/callimachus.conf -g /auth/groups/super" />
     <property name="args" value="--pid ${pid} -c etc/callimachus.conf" />
+    <property name="functionaltest.port" value="8081" />
+    <property name="functionaltest.origin" value="http://localhost:8081" />
 
     <target name="help">
         <exec executable="ant">
@@ -398,8 +400,8 @@
         <mkdir dir="${tmp}/functionaltest" />
         <unzip src="${dist}/${artifact.name}-${Version}.zip" dest="${tmp}/functionaltest" />
         <copy file="${tmp}/functionaltest/etc/callimachus-defaults.conf" tofile="${tmp}/functionaltest/etc/callimachus.conf" />
-        <replace file="${tmp}/functionaltest/etc/callimachus.conf" token="#PORT=8080" value="PORT=8081" />
-        <replace file="${tmp}/functionaltest/etc/callimachus.conf" token="#ORIGIN=http://localhost:8080" value="ORIGIN=http://localhost:8081" />
+        <replace file="${tmp}/functionaltest/etc/callimachus.conf" token="#PORT=8080" value="PORT=${functionaltest.port}" />
+        <replace file="${tmp}/functionaltest/etc/callimachus.conf" token="#ORIGIN=http://localhost:8080" value="ORIGIN=${functionaltest.origin}" />
         <!-- setup script -->
         <exec executable="/bin/sh" dir="${tmp}/functionaltest" outputproperty="register.url" logError="true" failonerror="true" osfamily="unix">
             <arg line="bin/callimachus-setup.sh -L" />
@@ -431,7 +433,7 @@
         </java>
     </target>
 
-    <target name="functionaltest-run" depends="test-dependencies">
+    <target name="functionaltest-googlechrome" depends="test-dependencies">
         <!-- selenium -->
         <java jar="${lib.tests}/${selenium.jar}" fork="true">
             <jvmarg line="${jvmargs}" />
@@ -439,11 +441,55 @@
             <arg value="${build.tests}/user-extensions.js" />
             <arg value="-htmlSuite" />
             <arg value="*googlechrome" />
-            <arg value="http://localhost:8081/" />
+            <arg value="${functionaltest.origin}/" />
             <arg value="${src.tests}/selenese/alltests.xhtml" />
-            <arg value="${reports.tests}/functionaltest.html" />
+            <arg value="${reports.tests}/functionaltest-googlechrome.html" />
         </java>
     </target>
+
+    <target name="functionaltest-firefox" depends="test-dependencies">
+        <!-- selenium -->
+        <java jar="${lib.tests}/${selenium.jar}" fork="true">
+            <jvmarg line="${jvmargs}" />
+            <arg value="-userExtensions" />
+            <arg value="${build.tests}/user-extensions.js" />
+            <arg value="-htmlSuite" />
+            <arg value="*firefox" />
+            <arg value="${functionaltest.origin}/" />
+            <arg value="${src.tests}/selenese/alltests.xhtml" />
+            <arg value="${reports.tests}/functionaltest-firefox.html" />
+        </java>
+    </target>
+
+    <target name="functionaltest-iexplore" depends="test-dependencies" if="os.windows">
+        <!-- selenium -->
+        <java jar="${lib.tests}/${selenium.jar}" fork="true">
+            <jvmarg line="${jvmargs}" />
+            <arg value="-userExtensions" />
+            <arg value="${build.tests}/user-extensions.js" />
+            <arg value="-htmlSuite" />
+            <arg value="*iexplore" />
+            <arg value="${functionaltest.origin}/" />
+            <arg value="${src.tests}/selenese/alltests.xhtml" />
+            <arg value="${reports.tests}/functionaltest-iexplore.html" />
+        </java>
+    </target>
+
+    <target name="functionaltest-safari" depends="test-dependencies" if="os.mac">
+        <!-- selenium -->
+        <java jar="${lib.tests}/${selenium.jar}" fork="true">
+            <jvmarg line="${jvmargs}" />
+            <arg value="-userExtensions" />
+            <arg value="${build.tests}/user-extensions.js" />
+            <arg value="-htmlSuite" />
+            <arg value="*safari" />
+            <arg value="${functionaltest.origin}/" />
+            <arg value="${src.tests}/selenese/alltests.xhtml" />
+            <arg value="${reports.tests}/functionaltest-safari.html" />
+        </java>
+    </target>
+
+    <target name="functionaltest-run" depends="functionaltest-googlechrome,functionaltest-firefox,functionaltest-iexplore,functionaltest-safari" />
 
     <target name="functionaltest-teardown">
         <!-- stop script -->

@@ -4,13 +4,23 @@
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <link rel="selenium.base" href="" />
-<title>register</title>
+<title>init</title>
 </head>
 <body>
 <table cellpadding="1" cellspacing="1" border="1">
 <thead>
-<tr><td rowspan="1" colspan="3">register</td></tr>
+<tr><td rowspan="1" colspan="3">init</td></tr>
 </thead><tbody>
+<tr>
+	<td>setImplicitWaitLocator</td>
+	<td>1000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>setImplicitWaitCondition</td>
+	<td>1000</td>
+	<td>(typeof window.jQuery=='undefined') ? true : window.jQuery.active==0</td>
+</tr>
 <tr>
 	<td>storeGlobal</td>
 	<td>Tester</td>

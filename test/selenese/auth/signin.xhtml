@@ -12,6 +12,26 @@
 <tr><td rowspan="1" colspan="3">signin</td></tr>
 </thead><tbody>
 <tr>
+	<td>storeElementPositionTop</td>
+	<td>link=Callimachus</td>
+	<td>brandTop</td>
+</tr>
+<tr>
+	<td>storeElementHeight</td>
+	<td>link=Callimachus</td>
+	<td>brandHeight</td>
+</tr>
+<tr>
+	<td>storeElementPositionTop</td>
+	<td>id=login-link</td>
+	<td>loginTop</td>
+</tr>
+<tr>
+	<td>assertEval</td>
+	<td>0 + storedVars['brandTop'] + storedVars['brandHeight'] &gt; 0 + storedVars['loginTop']</td>
+	<td>true</td>
+</tr>
+<tr>
 	<td>clickAndWait</td>
 	<td>id=login-link</td>
 	<td></td>

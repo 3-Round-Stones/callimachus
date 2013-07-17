@@ -268,8 +268,6 @@
         <basename file="${jersey-core.url}" property="jersey-core.jar" />
         <basename file="${jsr311-api.url}" property="jsr311-api.jar" />
         <basename file="${selenium.url}" property="selenium.jar" />
-        <basename file="${includeCommand4IDE.url}" property="includeCommand4IDE.zip" />
-        <basename file="${datadriven.url}" property="datadriven.zip" />
         <basename file="${selenium-implicit-wait.url}" property="selenium-implicit-wait.zip" />
         <basename file="${globalStoreCommand.url}" property="globalStoreCommand.zip" />
         <mkdir dir="${downloads}" />
@@ -279,31 +277,15 @@
             <url url="${jersey-core.url}" />
             <url url="${jsr311-api.url}" />
             <url url="${selenium.url}" />
-            <url url="${includeCommand4IDE.url}" />
-            <url url="${datadriven.url}" />
             <url url="${selenium-implicit-wait.url}" />
             <url url="${globalStoreCommand.url}" />
         </get>
-        <get usetimestamp="true" skipexisting="${lib.tests.present}" src="${goto.url}" dest="${downloads}/goto_sel08.js" />
         <mkdir dir="${lib.tests}" />
         <copy file="${downloads}/${junit.jar}" tofile="${lib.tests}/${junit.jar}" />
         <copy file="${downloads}/${jersey-client.jar}" tofile="${lib.tests}/${jersey-client.jar}" />
         <copy file="${downloads}/${jersey-core.jar}" tofile="${lib.tests}/${jersey-core.jar}" />
         <copy file="${downloads}/${jsr311-api.jar}" tofile="${lib.tests}/${jsr311-api.jar}" />
         <copy file="${downloads}/${selenium.jar}" tofile="${lib.tests}/${selenium.jar}" />
-        <copy file="${downloads}/goto_sel08.js" tofile="${lib.tests}/goto_sel08.js" />
-        <unzip overwrite="false" src="${downloads}/${includeCommand4IDE.zip}" dest="${lib.tests}">
-            <patternset>
-                <include name="**/*.js*" />
-            </patternset>
-            <mapper type="glob" from="*" to="includeCommand4IDE.js"/>
-        </unzip>
-        <unzip overwrite="false" src="${downloads}/${datadriven.zip}" dest="${lib.tests}">
-            <patternset>
-                <include name="**/*.js*" />
-            </patternset>
-            <mapper type="glob" from="*" to="datadriven.js"/>
-        </unzip>
         <unzip overwrite="false" src="${downloads}/${selenium-implicit-wait.zip}" dest="${lib.tests}">
             <patternset>
                 <include name="**/*.js*" />
@@ -337,7 +319,7 @@
             <fileset dir="${src.tests}" excludes="**/*.java"/>
         </copy>
         <concat destfile="${build.tests}/user-extensions.js" fixlastline="yes">
-            <filelist dir="${lib.tests}" files="globalStoreCommand.js"/>
+            <filelist dir="${lib.tests}" files="selenium-implicit-wait.js,globalStoreCommand.js,${src.tests}/selenese/goto_sel08.js,${src.tests}/selenese/includeCommand.js,${src.tests}/selenese/datadriven.js"/>
         </concat>
     </target>
 
@@ -433,7 +415,7 @@
         </java>
     </target>
 
-    <target name="functionaltest-googlechrome" depends="test-dependencies">
+    <target name="functionaltest-googlechrome" depends="test-compile">
         <!-- selenium -->
         <java jar="${lib.tests}/${selenium.jar}" fork="true">
             <jvmarg line="${jvmargs}" />
@@ -447,7 +429,7 @@
         </java>
     </target>
 
-    <target name="functionaltest-firefox" depends="test-dependencies">
+    <target name="functionaltest-firefox" depends="test-compile">
         <!-- selenium -->
         <java jar="${lib.tests}/${selenium.jar}" fork="true">
             <jvmarg line="${jvmargs}" />
@@ -461,7 +443,7 @@
         </java>
     </target>
 
-    <target name="functionaltest-iexplore" depends="test-dependencies" if="os.windows">
+    <target name="functionaltest-iexplore" depends="test-compile" if="os.windows">
         <!-- selenium -->
         <java jar="${lib.tests}/${selenium.jar}" fork="true">
             <jvmarg line="${jvmargs}" />
@@ -475,7 +457,7 @@
         </java>
     </target>
 
-    <target name="functionaltest-safari" depends="test-dependencies" if="os.mac">
+    <target name="functionaltest-safari" depends="test-compile" if="os.mac">
         <!-- selenium -->
         <java jar="${lib.tests}/${selenium.jar}" fork="true">
             <jvmarg line="${jvmargs}" />

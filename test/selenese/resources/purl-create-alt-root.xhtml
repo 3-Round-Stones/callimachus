@@ -4,27 +4,42 @@
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <link rel="selenium.base" href="" />
-<title>test-folders</title>
+<title>purl-create-alt-root</title>
 </head>
 <body>
 <table cellpadding="1" cellspacing="1" border="1">
 <thead>
-<tr><td rowspan="1" colspan="3">test-folders</td></tr>
+<tr><td rowspan="1" colspan="3">purl-create-alt-root</td></tr>
 </thead><tbody>
 <tr>
-	<td>include</td>
-	<td>resources/goto-home-folder.xhtml</td>
+	<td>click</td>
+	<td>id=create-menu</td>
 	<td></td>
 </tr>
 <tr>
-	<td>include</td>
-	<td>resources/create-folder.xhtml</td>
-	<td>folder-name=my folder</td>
+	<td>clickAndWait</td>
+	<td>link=PURL</td>
+	<td></td>
 </tr>
 <tr>
-	<td>include</td>
-	<td>resources/delete-folder.xhtml</td>
-	<td>folder-name=my folder</td>
+	<td>type</td>
+	<td>id=local</td>
+	<td>${purlName}</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=comment</td>
+	<td>${purlComment}</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=pattern</td>
+	<td>/</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>id=create</td>
+	<td></td>
 </tr>
 
 </tbody></table>

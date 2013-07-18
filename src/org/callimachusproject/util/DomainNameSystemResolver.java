@@ -66,7 +66,22 @@ public class DomainNameSystemResolver {
 		try {
 			return InetAddress.getByName(null);
 		} catch (UnknownHostException e) {
-			throw new AssertionError(e);
+			try {
+				final Enumeration<NetworkInterface> interfaces = NetworkInterface
+						.getNetworkInterfaces();
+				while (interfaces != null && interfaces.hasMoreElements()) {
+					final Enumeration<InetAddress> addresses = interfaces
+							.nextElement().getInetAddresses();
+					while (addresses != null && addresses.hasMoreElements()) {
+						InetAddress address = addresses.nextElement();
+						if (address != null) {
+							return address;
+						}
+					}
+				}
+			} catch (SocketException se) {
+			}
+			throw new AssertionError("Unknown hostname: add the hostname of the machine to your /etc/hosts file.");
 		}
 	}
 
@@ -118,7 +133,7 @@ public class DomainNameSystemResolver {
 		try {
 			addAllNames(InetAddress.getLocalHost(), set);
 		} catch (UnknownHostException e) {
-			throw new AssertionError(e);
+			set.add(getLocalHostName());
 		}
 		addAllNames(getLocalHost(), set);
 		return set;
@@ -133,6 +148,8 @@ public class DomainNameSystemResolver {
 	}
 
 	public String reverse(InetAddress netAddr) {
+		if (netAddr == null)
+			return null;
 		String name = netAddr.getCanonicalHostName();
 		try {
 			if (!name.equals(netAddr.getHostAddress())
@@ -148,6 +165,8 @@ public class DomainNameSystemResolver {
 	}
 
 	private void addAllNames(InetAddress addr, Set<String> set) {
+		if (addr == null)
+			return;
 		set.add(addr.getHostAddress());
 		set.add(addr.getHostName());
 		set.add(addr.getCanonicalHostName());

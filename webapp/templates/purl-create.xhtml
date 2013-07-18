@@ -27,6 +27,11 @@
                 $('#pattern').change();
             }
         }).change();
+        $('#form').bind('calliRedirect', function(event){
+            if (event.resource == event.location) {
+                event.location = event.resource + '?view';
+            }
+        });
     });
     // ]]>
     </script>

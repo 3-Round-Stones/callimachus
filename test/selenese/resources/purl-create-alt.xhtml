@@ -12,6 +12,11 @@
 <tr><td rowspan="1" colspan="3">purl-create-alt-root</td></tr>
 </thead><tbody>
 <tr>
+	<td>open</td>
+	<td>./?view</td>
+	<td></td>
+</tr>
+<tr>
 	<td>click</td>
 	<td>id=create-menu</td>
 	<td></td>
@@ -34,11 +39,16 @@
 <tr>
 	<td>type</td>
 	<td>id=pattern</td>
-	<td>/</td>
+	<td>${purlTarget}</td>
 </tr>
 <tr>
 	<td>clickAndWait</td>
 	<td>id=create</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyTextPresent</td>
+	<td>${purlName}</td>
 	<td></td>
 </tr>
 

@@ -10,7 +10,7 @@
 </head>
 <body>
     <form id="form" method="PUT" action="?" enctype="application/docbook+xml">
-        <iframe id="iframe" class="flex" src="../../xml-editor.html" onload="calli.loadEditor(event,'?')"> </iframe>
+        <iframe id="editor-iframe" name="editor-iframe" class="flex" src="../../xml-editor.html" onload="calli.loadEditor(event,'?')"> </iframe>
         <fieldset class="form-actions">
             <button type="submit" class="btn btn-primary">Save</button>
             <button type="button" onclick="calli.saveResourceAs(event, 'untitled book.docbook', calli.getCallimachusUrl('types/Book'))" class="btn btn-info">Save as...</button>

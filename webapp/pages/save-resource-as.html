@@ -6,7 +6,7 @@
         html,body { padding:0;margin:0;overflow:hidden; }
         label { height:1.5em;display:block;width:100%; }
         #label { float:right; }
-        iframe { clear:right; border:none; }
+        #saveas-iframe { clear:right; border:none; }
         #form { padding:0; }
     </style>
     <script src="../../scripts.js" type="text/javascript"> </script>
@@ -23,24 +23,24 @@
                 if (i > 0) {
                     var url = window.location.hash.substring(i + 1);
                     if (url) {
-                        $('#iframe')[0].src = url;
+                        $('#saveas-iframe')[0].src = url;
                     } else {
-                        $('#iframe')[0].src = "/?view";
+                        $('#saveas-iframe')[0].src = "/?view";
                     }
                     var label = decodeURIComponent(window.location.hash.substring(1, i));
                     $('#label').val(label);
                 } else {
                     var label = decodeURIComponent(window.location.hash.substring(1));
                     $('#label').val(label);
-                    $('#iframe')[0].src = "/?view";
+                    $('#saveas-iframe')[0].src = "/?view";
                 }
             } else {
-                $('#iframe')[0].src = "/?view";
+                $('#saveas-iframe')[0].src = "/?view";
             }
-            var src = $('#iframe')[0].src;
+            var src = $('#saveas-iframe')[0].src;
             $(window).bind('message', function(event) {
                 var data = event.originalEvent.data;
-                if (event.originalEvent.source == $('#iframe')[0].contentWindow && data.indexOf('PUT src\n\n') == 0) {
+                if (event.originalEvent.source == $('#saveas-iframe')[0].contentWindow && data.indexOf('PUT src\n\n') == 0) {
                     src = data.substring(data.indexOf('\n\n') + 2);
                 } else if (event.originalEvent.source == parent && data == 'GET label') {
                     parent.postMessage('OK\n\nGET label\n\n' + $('#label').val(), '*');
@@ -65,7 +65,7 @@
 <body>
     <form id="form">
         <label for="label"><input class="auto-expand" id="label" type="text" autofocus="autofocus" />Name: </label>
-        <iframe id="iframe" class="flex"></iframe>
+        <iframe id="saveas-iframe" name="saveas-iframe" class="flex"></iframe>
     </form>
 </body>
 </html>

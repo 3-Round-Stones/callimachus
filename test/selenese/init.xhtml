@@ -13,13 +13,13 @@
 </thead><tbody>
 <tr>
 	<td>setImplicitWaitLocator</td>
-	<td>1000</td>
+	<td>10000</td>
 	<td></td>
 </tr>
 <tr>
 	<td>setImplicitWaitCondition</td>
-	<td>1000</td>
-	<td>(typeof window.jQuery=='undefined') ? true : window.jQuery.active==0</td>
+	<td>10000</td>
+	<td>window.document.body &amp;&amp; 0 &gt; window.document.documentElement.className.indexOf('wait') &amp;&amp; (typeof window.jQuery=='undefined' || window.jQuery.active==0)</td>
 </tr>
 <tr>
 	<td>storeGlobal</td>

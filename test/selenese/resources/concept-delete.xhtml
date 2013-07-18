@@ -22,6 +22,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>verifyTextPresent</td>
+	<td>${conceptName}</td>
+	<td></td>
+</tr>
+<tr>
 	<td>click</td>
 	<td>id=delete</td>
 	<td></td>
@@ -32,9 +37,19 @@
 	<td></td>
 </tr>
 <tr>
+	<td>waitForNotEval</td>
+	<td>window.document.documentElement.className</td>
+	<td>*wait*</td>
+</tr>
+<tr>
 	<td>waitForPageToLoad</td>
+	<td>10000</td>
 	<td></td>
-	<td></td>
+</tr>
+<tr>
+	<td>waitForEval</td>
+	<td>!window.document.body</td>
+	<td>false</td>
 </tr>
 
 </tbody></table>

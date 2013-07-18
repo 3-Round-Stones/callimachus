@@ -12,8 +12,13 @@
 <tr><td rowspan="1" colspan="3">article-create</td></tr>
 </thead><tbody>
 <tr>
+	<td>storeEval</td>
+	<td>window.location.href.replace(/([^\?]*\/).*?$/,'$1')</td>
+	<td>folderUri</td>
+</tr>
+<tr>
 	<td>open</td>
-	<td>./?view</td>
+	<td>${folderUri}?view</td>
 	<td></td>
 </tr>
 <tr>
@@ -42,9 +47,19 @@
 	<td>10000</td>
 </tr>
 <tr>
+	<td>waitForNotEval</td>
+	<td>window.document.documentElement.className</td>
+	<td>*wait*</td>
+</tr>
+<tr>
 	<td>waitForFrameToLoad</td>
 	<td>name=save-as___</td>
 	<td>10000</td>
+</tr>
+<tr>
+	<td>waitForEval</td>
+	<td>!window.document.body</td>
+	<td>false</td>
 </tr>
 <tr>
 	<td>selectFrame</td>
@@ -52,9 +67,19 @@
 	<td></td>
 </tr>
 <tr>
+	<td>waitForNotEval</td>
+	<td>window.document.documentElement.className</td>
+	<td>*wait*</td>
+</tr>
+<tr>
 	<td>waitForFrameToLoad</td>
 	<td>name=save-as-iframe</td>
 	<td>10000</td>
+</tr>
+<tr>
+	<td>waitForEval</td>
+	<td>!window.document.body</td>
+	<td>false</td>
 </tr>
 <tr>
 	<td>type</td>

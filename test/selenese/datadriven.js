@@ -52,7 +52,7 @@ xmlTestData.prototype.load = function(xmlloc) {
 	var xmlHttpReq = IncludeCommand.getIncludeDocumentBySynchronRequest(xmlloc);
 	this.xmlDoc = xmlHttpReq.responseXML;
 		
-	this.index = 0;
+	this.index = -1;
 	this.testdata = this.xmlDoc.getElementsByTagName("test");
 
 	if (this.testdata == null || this.testdata.length == 0) {
@@ -61,7 +61,7 @@ xmlTestData.prototype.load = function(xmlloc) {
 }
 
 xmlTestData.prototype.EOF = function() {
-	if (this.index != null && this.index < this.testdata.length) return false;
+	if (this.index != null && this.index < this.testdata.length - 1) return false;
 	return true;
 }
 
@@ -69,7 +69,7 @@ xmlTestData.prototype.more = function() {
 	return !this.EOF();
 }
 
-xmlTestData.prototype.next = function() {
+xmlTestData.prototype.store = function() {
 	if (this.EOF()) {
 		LOG.error("No test data.");
 		return;
@@ -90,19 +90,40 @@ xmlTestData.prototype.next = function() {
 
 		selenium.doStore(this.testdata[this.index].attributes[i].nodeValue, this.testdata[this.index].attributes[i].nodeName);
 	}
-
-	this.index++;
 }
 
+xmlTestData.prototype.next = function() {
+	if (this.EOF()) {
+		LOG.error("No test data.");
+		return;
+	}
+
+	this.index++;
+	
+	this.store();
+}
+
+Selenium.prototype.testdataStack = [];
 Selenium.prototype.testdata = null;
 
 Selenium.prototype.doLoadTestData = function(xmlloc) {
-	testdata = new xmlTestData();
-	testdata.load(xmlloc);
+	if (this.testdata) {
+	    this.testdataStack.push(this.testdata);
+	}
+	this.testdata = new xmlTestData();
+	this.testdata.load(xmlloc);
 };
 
 Selenium.prototype.doNextTestData = function() {
-	testdata.next();
+	this.testdata.next();
+};
+
+Selenium.prototype.doStoreTestData = function() {
+	this.testdata.store();
+};
+
+Selenium.prototype.doUnloadTestData = function() {
+	this.testdata = this.testdataStack.pop();
 };
 
 /************************************ DATADRIVEN EXTENSION END **********************************************/

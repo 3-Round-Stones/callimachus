@@ -379,6 +379,7 @@
     </target>
 
     <target name="functionaltest-setup" depends="dist,test-compile">
+        <delete dir="${tmp}/functionaltest" />
         <mkdir dir="${tmp}/functionaltest" />
         <unzip src="${dist}/${artifact.name}-${Version}.zip" dest="${tmp}/functionaltest" />
         <copy file="${tmp}/functionaltest/etc/callimachus-defaults.conf" tofile="${tmp}/functionaltest/etc/callimachus.conf" />
@@ -481,7 +482,6 @@
         <exec executable="cmd" dir="${tmp}/functionaltest" logError="true" failonerror="true" osfamily="windows">
             <arg line="/c bin\callimachus-stop.bat" />
         </exec>
-        <delete file="${tmp}/functionaltest.uri" />
         <delete dir="${tmp}/functionaltest" />
     </target>
 

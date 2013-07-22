@@ -74,7 +74,7 @@ public class DomainNameSystemResolver {
 							.nextElement().getInetAddresses();
 					while (addresses != null && addresses.hasMoreElements()) {
 						InetAddress address = addresses.nextElement();
-						if (address != null) {
+						if (address != null && address.isLoopbackAddress()) {
 							return address;
 						}
 					}

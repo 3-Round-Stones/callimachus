@@ -1,0 +1,85 @@
+
+/* reset bootstrap and callimachus styles where needed */
+
+.navbar-relative-bottom {
+    z-index: 0;
+}
+
+.google-visualization-charteditor-dialog div {
+    -moz-box-sizing: content-box;
+    -webkit-box-sizing: content-box;
+    box-sizing: content-box;
+}    
+
+.google-visualization-charteditor-dialog table {
+    border-collapse: separate;
+}
+
+#google-visualization-charteditor-input-chart-name {
+    box-shadow: none;
+    -moz-box-shadow: none;
+    -webkit-box-shadow: none;
+    font-size: 13px;
+    width: 400px;
+    height: 14px;
+    padding: 4px;
+    font-family: Arial,sans-serif;
+    border: 1px solid rgba(0, 0, 0, 0);
+    border-radius: 0;
+    -moz-border-radius: 0;
+    -webkit-border-radius: 0;
+}
+
+#google-visualization-charteditor-input-chart-name:hover, #google-visualization-charteditor-input-chart-name:focus {
+    border: 1px solid #E4E4E4;
+}
+
+.google-visualization-charteditor-dialog input[type="text"] {
+    -webkit-border-radius: 1px;
+    -moz-border-radius: 1px;
+    border-radius: 1px;
+    border: 1px solid #D9D9D9;
+    border-top: 1px solid #C0C0C0;
+    font-size: 13px;
+    height: 16px;
+    padding: 5px 2px;
+    -webkit-box-sizing: content-box;
+    -moz-box-sizing: content-box;
+    box-sizing: content-box;
+}
+
+/* chart editor options widget */
+
+#chart-options-container .chart-options {
+    display: none;
+}
+
+.chart-options .params {
+    padding: 10px 10px 0 10px;
+}
+
+.chart-options .params.active {
+    background-color: #f3f3f3;
+    margin-bottom: 10px;
+}
+
+.chart-options .params input {
+    width: 234px;
+}
+
+/* save-messages */
+
+.google-visualization-charteditor-dialog .save-success {
+    display:inline-block;
+    font-size:13px;
+    line-height:30px;
+    padding-left:10px;
+}
+
+.google-visualization-charteditor-dialog .save-error {
+    display:inline-block;
+    font-size:13px;
+    line-height:30px;
+    padding-left:10px;
+    color: #c00;
+}

@@ -55,6 +55,7 @@ INSERT {
         <../getting-started-with-callimachus>,
         <../callimachus-for-web-developers>,
         <../scripts.js>,
+        <../query-view.js>,
         <../library.xpl>,
         <../error.xpl>,
         <../forbidden.html>,
@@ -122,6 +123,17 @@ INSERT {
 } WHERE {
     BIND (str(<scripts/index?minified>) AS ?alternate)
 	FILTER NOT EXISTS { <../scripts.js> a calli:PURL }
+};
+
+INSERT {
+<../query-view.js> a <types/PURL>, calli:PURL ;
+	rdfs:label "query-view.js";
+	calli:alternate ?alternate;
+	calli:administrator </auth/groups/super>;
+	calli:reader </auth/groups/public> .
+} WHERE {
+    BIND (str(<scripts/query-view.js>) AS ?alternate)
+	FILTER NOT EXISTS { <../query-view.js> a calli:PURL }
 };
 
 INSERT {

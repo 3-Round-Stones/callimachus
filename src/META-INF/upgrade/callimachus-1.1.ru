@@ -50,3 +50,15 @@ INSERT {
 	FILTER NOT EXISTS { </auth/credentials/> a calli:Folder }
 };
 
+INSERT {
+<../> calli:hasComponent <../query-view.js>.
+<../query-view.js> a <types/PURL>, calli:PURL ;
+	rdfs:label "query-view.js";
+	calli:alternate ?alternate;
+	calli:administrator </auth/groups/super>;
+	calli:reader </auth/groups/public> .
+} WHERE {
+    BIND (str(<scripts/query-view.js>) AS ?alternate)
+	FILTER NOT EXISTS { <../query-view.js> a calli:PURL }
+};
+

@@ -70,11 +70,6 @@ xmlTestData.prototype.more = function() {
 }
 
 xmlTestData.prototype.store = function() {
-	if (this.EOF()) {
-		LOG.error("No test data.");
-		return;
-	}
-	
 	LOG.info(XMLserialize(this.testdata[this.index]));	// Log should anything go wrong while testing with this data.
 
 	if (this.testdata[this.index].attributes.length != this.testdata[0].attributes.length) {
@@ -118,12 +113,11 @@ Selenium.prototype.doNextTestData = function() {
 	this.testdata.next();
 };
 
-Selenium.prototype.doStoreTestData = function() {
-	this.testdata.store();
-};
-
 Selenium.prototype.doUnloadTestData = function() {
-	this.testdata = this.testdataStack.pop();
+	if (this.testdataStack.length) {
+    	this.testdata = this.testdataStack.pop();
+	    this.testdata.store();
+	}
 };
 
 /************************************ DATADRIVEN EXTENSION END **********************************************/

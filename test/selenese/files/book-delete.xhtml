@@ -4,12 +4,12 @@
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <link rel="selenium.base" href="" />
-<title>purl-delete</title>
+<title>book-delete</title>
 </head>
 <body>
 <table cellpadding="1" cellspacing="1" border="1">
 <thead>
-<tr><td rowspan="1" colspan="3">purl-delete</td></tr>
+<tr><td rowspan="1" colspan="3">book-delete</td></tr>
 </thead><tbody>
 <tr>
 	<td>storeEval</td>
@@ -18,12 +18,12 @@
 </tr>
 <tr>
 	<td>open</td>
-	<td>${folderUri}${purlName}?view</td>
+	<td>${folderUri}${bookName}?view</td>
 	<td></td>
 </tr>
 <tr>
 	<td>verifyTextPresent</td>
-	<td>${purlName}</td>
+	<td>${bookTitle}</td>
 	<td></td>
 </tr>
 <tr>
@@ -32,9 +32,9 @@
 	<td></td>
 </tr>
 <tr>
-	<td>verifyTextPresent</td>
-	<td>${purlName}</td>
-	<td></td>
+	<td>waitForNotEval</td>
+	<td>window.document.documentElement.className</td>
+	<td>*wait*</td>
 </tr>
 <tr>
 	<td>click</td>
@@ -43,7 +43,7 @@
 </tr>
 <tr>
 	<td>assertConfirmation</td>
-	<td>Are you sure you want to delete ${purlName}?</td>
+	<td>Are you sure you want to delete *?</td>
 	<td></td>
 </tr>
 <tr>
@@ -61,7 +61,6 @@
 	<td>!window.document.body</td>
 	<td>false</td>
 </tr>
-
 </tbody></table>
 </body>
 </html>

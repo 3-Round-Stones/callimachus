@@ -1,0 +1,3 @@
+<testdata>
+	<test bookName="callimachus-quotes.docbook" bookTitle="Callimachus Quotes" bookXml="&lt;xi:include href=&quot;ionica.docbook&quot; /&gt;&#10;&lt;xi:include href=&quot;anthologia-polyglotta.docbook&quot; /&gt;" />
+</testdata>

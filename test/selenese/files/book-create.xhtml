@@ -3,13 +3,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<link rel="selenium.base" href="" />
-<title>article-create</title>
+<link rel="selenium.base" href="http://localhost:8081/" />
+<title>book-create</title>
 </head>
 <body>
 <table cellpadding="1" cellspacing="1" border="1">
 <thead>
-<tr><td rowspan="1" colspan="3">article-create</td></tr>
+<tr><td rowspan="1" colspan="3">book-create</td></tr>
 </thead><tbody>
 <tr>
 	<td>storeEval</td>
@@ -28,12 +28,12 @@
 </tr>
 <tr>
 	<td>clickAndWait</td>
-	<td>link=Article</td>
+	<td>link=Book</td>
 	<td></td>
 </tr>
 <tr>
 	<td>runScript</td>
-	<td>window.frames['editor-iframe'].CKEDITOR.instances[&quot;editor&quot;].setData('&lt;h1&gt;' + window.opener.storedVars['articleTitle'] + '&lt;/h1&gt;' + window.opener.storedVars['articleHtml']);</td>
+	<td>window.frames['editor-iframe'].postMessage('PUT text\n\n&lt;?xml version="1.0" encoding="UTF-8" ?&gt;\n&lt;book xmlns="http://docbook.org/ns/docbook" xmlns:xl="http://www.w3.org/1999/xlink" xmlns:xi="http://www.w3.org/2001/XInclude" version="5.0"&gt;\n&lt;title&gt;' + window.opener.storedVars['bookTitle'] + '&lt;/title&gt;\n' + window.opener.storedVars['bookXml'] + '\n&lt;/book&gt;', '*');</td>
 	<td></td>
 </tr>
 <tr>
@@ -84,7 +84,7 @@
 <tr>
 	<td>type</td>
 	<td>id=label</td>
-	<td>${articleName}</td>
+	<td>${bookName}</td>
 </tr>
 <tr>
 	<td>selectFrame</td>
@@ -98,7 +98,7 @@
 </tr>
 <tr>
 	<td>verifyTextPresent</td>
-	<td>${articleTitle}</td>
+	<td>${bookTitle}</td>
 	<td></td>
 </tr>
 </tbody></table>

@@ -12,8 +12,18 @@
 <tr><td rowspan="1" colspan="3">concept-delete</td></tr>
 </thead><tbody>
 <tr>
+	<td>storeEval</td>
+	<td>window.location.href.replace(/([^\?]*\/).*?$/,'$1')</td>
+	<td>folderUri</td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>${folderUri}${conceptName}?view</td>
+	<td></td>
+</tr>
+<tr>
 	<td>verifyTextPresent</td>
-	<td>${conceptName}</td>
+	<td>${conceptLabel}</td>
 	<td></td>
 </tr>
 <tr>
@@ -23,7 +33,7 @@
 </tr>
 <tr>
 	<td>verifyTextPresent</td>
-	<td>${conceptName}</td>
+	<td>${conceptLabel}</td>
 	<td></td>
 </tr>
 <tr>
@@ -33,7 +43,7 @@
 </tr>
 <tr>
 	<td>assertConfirmation</td>
-	<td>Are you sure you want to delete ${conceptName}?</td>
+	<td>Are you sure you want to delete ${conceptLabel}?</td>
 	<td></td>
 </tr>
 <tr>

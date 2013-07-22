@@ -12,6 +12,16 @@
 <tr><td rowspan="1" colspan="3">article-delete</td></tr>
 </thead><tbody>
 <tr>
+	<td>storeEval</td>
+	<td>window.location.href.replace(/([^\?]*\/).*?$/,'$1')</td>
+	<td>folderUri</td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>${folderUri}${articleName}?view</td>
+	<td></td>
+</tr>
+<tr>
 	<td>verifyTextPresent</td>
 	<td>${articleTitle}</td>
 	<td></td>

@@ -17,7 +17,7 @@
     <form id="form" method="POST" action="" enctype="application/docbook+xml">
         <iframe id="editor-iframe" name="editor-iframe" class="flex" src="../../xml-editor.html" onload="calli.initEditor(event,$('#template').text()||$('#template').html().replace(/^\s+/,''))"> </iframe>
         <fieldset class="form-actions">
-            <button type="submit" onclick="return calli.saveResourceAs(event, 'untitled book.docbook')" class="btn btn-success">Create</button>
+            <button id="create-book" type="submit" onclick="return calli.saveResourceAs(event, 'untitled book.docbook')" class="btn btn-success">Create</button>
         </fieldset>
     </form>
 </body>

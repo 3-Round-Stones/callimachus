@@ -99,7 +99,7 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 						return new SafariDriver();
 					} else {
 						DesiredCapabilities caps = DesiredCapabilities.safari();
-						caps.setVersion("6.1");
+						caps.setVersion("6");
 						caps.setPlatform(Platform.MAC);
 						return new RemoteWebDriver(url, caps);
 					}

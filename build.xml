@@ -27,13 +27,11 @@
     <property name="setup" value="org.callimachusproject.Setup" />
     <property name="server" value="org.callimachusproject.Server" />
     <property name="main-monitor" value="org.callimachusproject.ServerMonitor" />
-    <property name="jvmargs" value="-ea -server -mx512m -Dfile.encoding=UTF-8 -Duser.home=${home} -Djava.mail.properties=${mail} -Djava.awt.headless=true -Dcom.sun.management.jmxremote" />
+    <property name="jvmargs" value="-ea -server -mx512m -Dfile.encoding=UTF-8 -Duser.home=${home} -Djava.mail.properties=${mail} -Djava.awt.headless=true -Dcom.sun.management.jmxremote -Djava.io.tmpdir=${tmp}" />
     <property name="curl" value="curl" />
     <property name="curl.args" value="-fSs --digest http://localhost:8080/callimachus/1.0/?archive" />
     <property name="setup.args" value="-c etc/callimachus.conf -g /auth/groups/super" />
     <property name="args" value="--pid ${pid} -c etc/callimachus.conf" />
-    <property name="functionaltest.port" value="8081" />
-    <property name="functionaltest.origin" value="http://localhost:8081" />
 
     <target name="help">
         <exec executable="ant">
@@ -45,7 +43,6 @@
         <!-- Delete the directory trees -->
         <delete dir="${reports.tests}" />
         <delete dir="${build.tests}" />
-        <delete dir="${lib.tests}" />
         <delete dir="${build}" />
         <delete dir="${dist}" />
         <delete dir="${lib}" />
@@ -53,7 +50,15 @@
         <delete dir="${tmp}" />
     </target>
 
-    <target name="dist-clean" depends="clean">
+    <target name="test-clean" description="clean up temporary test files">
+        <!-- Delete the directory trees -->
+        <delete dir="${reports.tests}" />
+        <delete dir="${build.tests}" />
+        <delete dir="${lib.tests}" />
+        <delete dir="${tmp}" />
+    </target>
+
+    <target name="dist-clean" depends="clean,test-clean">
         <delete dir="${downloads}" />
     </target>
 
@@ -267,9 +272,8 @@
         <basename file="${jersey-client.url}" property="jersey-client.jar" />
         <basename file="${jersey-core.url}" property="jersey-core.jar" />
         <basename file="${jsr311-api.url}" property="jsr311-api.jar" />
-        <basename file="${selenium.url}" property="selenium.jar" />
-        <basename file="${selenium-implicit-wait.url}" property="selenium-implicit-wait.zip" />
-        <basename file="${globalStoreCommand.url}" property="globalStoreCommand.zip" />
+        <basename file="${selenium.url}" property="selenium.zip" />
+        <basename file="${selenium-server.url}" property="selenium-server.jar" />
         <mkdir dir="${downloads}" />
         <get usetimestamp="true" skipexisting="${lib.tests.present}" dest="${downloads}">
             <url url="${junit.url}" />
@@ -277,27 +281,28 @@
             <url url="${jersey-core.url}" />
             <url url="${jsr311-api.url}" />
             <url url="${selenium.url}" />
-            <url url="${selenium-implicit-wait.url}" />
-            <url url="${globalStoreCommand.url}" />
+            <url url="${selenium-server.url}" />
         </get>
         <mkdir dir="${lib.tests}" />
         <copy file="${downloads}/${junit.jar}" tofile="${lib.tests}/${junit.jar}" />
         <copy file="${downloads}/${jersey-client.jar}" tofile="${lib.tests}/${jersey-client.jar}" />
         <copy file="${downloads}/${jersey-core.jar}" tofile="${lib.tests}/${jersey-core.jar}" />
         <copy file="${downloads}/${jsr311-api.jar}" tofile="${lib.tests}/${jsr311-api.jar}" />
-        <copy file="${downloads}/${selenium.jar}" tofile="${lib.tests}/${selenium.jar}" />
-        <unzip overwrite="false" src="${downloads}/${selenium-implicit-wait.zip}" dest="${lib.tests}">
+        <unzip overwrite="false" src="${downloads}/${selenium.zip}" dest="${lib.tests}">
             <patternset>
-                <include name="**/*.js*" />
+                <include name="**/*.jar" />
+                <exclude name="**/commons-codec*.jar" />
+                <exclude name="**/commons-io*.jar" />
+                <exclude name="**/commons-logging*.jar" />
+                <exclude name="**/httpclient*.jar" />
+                <exclude name="**/httpcore*.jar" />
+                <exclude name="**/selenium-java*.jar" />
             </patternset>
-            <mapper type="glob" from="*" to="selenium-implicit-wait.js"/>
+            <mapper type="flatten" />
         </unzip>
-        <unzip overwrite="false" src="${downloads}/${globalStoreCommand.zip}" dest="${lib.tests}">
-            <patternset>
-                <include name="**/*.js*" />
-            </patternset>
-            <mapper type="glob" from="*" to="globalStoreCommand.js"/>
-        </unzip>
+        <zip destfile="${lib.tests}/selenium-java.jar">
+            <zipfileset src="${downloads}/${selenium-server.jar}" includes="org/openqa/selenium/** com/thoughtworks/**" />
+        </zip>
     </target>
 
     <target name="test-compile" depends="compile,test-dependencies">
@@ -308,7 +313,6 @@
                 <pathelement location="${build}/" />
                 <fileset dir="${lib.tests}">
                     <include name="**/*.jar" />
-                    <exclude name="${selenium.jar}" />
                 </fileset>
                 <fileset dir="${lib}">
                     <include name="**/*.jar" />
@@ -318,20 +322,17 @@
         <copy todir="${build.tests}">
             <fileset dir="${src.tests}" excludes="**/*.java"/>
         </copy>
-        <concat destfile="${build.tests}/user-extensions.js" fixlastline="yes">
-            <filelist dir="${lib.tests}" files="selenium-implicit-wait.js,globalStoreCommand.js,${src.tests}/selenese/goto_sel08.js,${src.tests}/selenese/includeCommand.js,${src.tests}/selenese/datadriven.js"/>
-        </concat>
     </target>
 
     <target name="unittest" depends="dist,test-compile" description="run the unit tests">
         <mkdir dir="${reports.tests}" />
-        <junit printsummary="on" haltonfailure="on" tempdir="${tmp}">
+        <junit printsummary="on" haltonfailure="off" tempdir="${tmp}" fork="yes" forkmode="perBatch">
+            <jvmarg line="${jvmargs}" />
             <classpath>
                 <pathelement location="${build.tests}/" />
                 <pathelement location="${build}/" />
                 <fileset dir="${lib.tests}">
                     <include name="**/*.jar" />
-                    <exclude name="${selenium.jar}" />
                 </fileset>
                 <fileset dir="${lib}">
                     <include name="**/*.jar" />
@@ -340,10 +341,11 @@
 
             <formatter type="brief"/>
 
-            <batchtest fork="yes" todir="${reports.tests}">
+            <batchtest todir="${reports.tests}">
             <fileset dir="${src.tests}">
                 <include name="**/*Test*.java"/>
                 <exclude name="**/*Integration*.java"/>
+                <exclude name="**/*FunctionalTest*.java"/>
                 <exclude name="**/*TestCase.java"/>
                 <exclude name="**/AllTests.java"/>
             </fileset>
@@ -353,13 +355,13 @@
 
     <target name="integrationtest" depends="dist,test-compile" description="run the integration tests">
         <mkdir dir="${reports.tests}" />
-        <junit printsummary="on" haltonfailure="on" tempdir="${tmp}">
+        <junit printsummary="on" haltonfailure="off" tempdir="${tmp}" fork="yes" forkmode="perBatch">
+            <jvmarg line="${jvmargs} -Dorg.callimachusproject.config.webapp=${dist}/${artifact.name}-webapp-${Version}.car" />
             <classpath>
                 <pathelement location="${build.tests}/" />
                 <pathelement location="${build}/" />
                 <fileset dir="${lib.tests}">
                     <include name="**/*.jar" />
-                    <exclude name="${selenium.jar}" />
                 </fileset>
                 <fileset dir="${lib}">
                     <include name="**/*.jar" />
@@ -368,9 +370,10 @@
 
             <formatter type="brief"/>
 
-            <batchtest fork="yes" todir="${reports.tests}">
+            <batchtest todir="${reports.tests}">
             <fileset dir="${src.tests}">
                 <include name="**/*IntegrationTest*.java"/>
+                <exclude name="**/*FunctionalTest*.java"/>
                 <exclude name="**/*TestCase.java"/>
                 <exclude name="**/AllTests.java"/>
             </fileset>
@@ -378,114 +381,38 @@
         </junit>
     </target>
 
-    <target name="functionaltest-setup" depends="dist,test-compile">
-        <delete dir="${tmp}/functionaltest" />
-        <mkdir dir="${tmp}/functionaltest" />
-        <unzip src="${dist}/${artifact.name}-${Version}.zip" dest="${tmp}/functionaltest" />
-        <copy file="${tmp}/functionaltest/etc/callimachus-defaults.conf" tofile="${tmp}/functionaltest/etc/callimachus.conf" />
-        <replace file="${tmp}/functionaltest/etc/callimachus.conf" token="#PORT=8080" value="PORT=${functionaltest.port}" />
-        <replace file="${tmp}/functionaltest/etc/callimachus.conf" token="#ORIGIN=http://localhost:8080" value="ORIGIN=${functionaltest.origin}" />
-        <!-- setup script -->
-        <exec executable="/bin/sh" dir="${tmp}/functionaltest" outputproperty="register.url" logError="true" failonerror="true" osfamily="unix">
-            <arg line="bin/callimachus-setup.sh -L" />
-        </exec>
-        <exec executable="cmd" dir="${tmp}/functionaltest" outputproperty="register.url" logError="true" failonerror="true" osfamily="windows">
-            <arg line="/c bin\callimachus-setup.bat -L" />
-        </exec>
-        <!-- start script -->
-        <exec executable="/bin/sh" dir="${tmp}/functionaltest" logError="true" failonerror="true" osfamily="unix">
-            <arg line="bin/callimachus-start.sh" />
-        </exec>
-        <exec executable="cmd" dir="${tmp}/functionaltest" logError="true" failonerror="true" osfamily="windows">
-            <arg line="/c bin\callimachus-start.bat" />
-        </exec>
-        <get src="http://localhost:8081/callimachus/scripts.js" dest="${tmp}/scripts.js" />
-        <delete file="${tmp}/scripts.js" />
-        <get src="http://localhost:8081/callimachus/1.0/styles/callimachus.less?less" dest="${tmp}/styles.css" />
-        <delete file="${tmp}/styles.css" />
-        <!-- selenium -->
-        <java jar="${lib.tests}/${selenium.jar}" fork="true">
-            <jvmarg line="${jvmargs}" />
-            <arg value="-userExtensions" />
-            <arg value="${build.tests}/user-extensions.js" />
-            <arg value="-htmlSuite" />
-            <arg value="*googlechrome" />
-            <arg value="${register.url}" />
-            <arg value="${src.tests}/selenese/rc-setup.xhtml" />
-            <arg value="${reports.tests}/functionaltest-setup.html" />
-        </java>
+    <target name="functionaltest" depends="dist,test-compile" description="run the functional tests">
+        <mkdir dir="${reports.tests}" />
+        <condition property="remotewebdriver.arg" value="-Dorg.callimachusproject.test.remotewebdriver=${remotewebdriver.url}" else="">
+            <isset property="remotewebdriver.url" />
+        </condition>
+        <condition property="test.line" value="-Dorg.callimachusproject.test.service=${test.url} -Dorg.callimachusproject.test.username=${test.username} -Dorg.callimachusproject.test.password=${test.password}" else="">
+            <isset property="test.url" />
+        </condition>
+        <junit printsummary="on" haltonfailure="on" tempdir="${tmp}" fork="yes" forkmode="perBatch">
+            <jvmarg line="${jvmargs} -Dorg.callimachusproject.config.webapp=${dist}/${artifact.name}-webapp-${Version}.car ${remotewebdriver.arg} ${test.line}" />
+            <classpath>
+                <pathelement location="${build.tests}/" />
+                <pathelement location="${build}/" />
+                <fileset dir="${lib.tests}">
+                    <include name="**/*.jar" />
+                </fileset>
+                <fileset dir="${lib}">
+                    <include name="**/*.jar" />
+                </fileset>
+            </classpath>
+
+            <formatter type="brief"/>
+
+            <batchtest todir="${reports.tests}">
+            <fileset dir="${src.tests}">
+                <include name="**/*FunctionalTest*.java"/>
+                <exclude name="**/*TestCase.java"/>
+                <exclude name="**/AllTests.java"/>
+            </fileset>
+            </batchtest>
+        </junit>
     </target>
-
-    <target name="functionaltest-googlechrome" depends="test-compile">
-        <!-- selenium -->
-        <java jar="${lib.tests}/${selenium.jar}" fork="true">
-            <jvmarg line="${jvmargs}" />
-            <arg value="-userExtensions" />
-            <arg value="${build.tests}/user-extensions.js" />
-            <arg value="-htmlSuite" />
-            <arg value="*googlechrome" />
-            <arg value="${functionaltest.origin}/" />
-            <arg value="${src.tests}/selenese/rc-alltests.xhtml" />
-            <arg value="${reports.tests}/functionaltest-googlechrome.html" />
-        </java>
-    </target>
-
-    <target name="functionaltest-firefox" depends="test-compile">
-        <!-- selenium -->
-        <java jar="${lib.tests}/${selenium.jar}" fork="true">
-            <jvmarg line="${jvmargs}" />
-            <arg value="-userExtensions" />
-            <arg value="${build.tests}/user-extensions.js" />
-            <arg value="-htmlSuite" />
-            <arg value="*firefox" />
-            <arg value="${functionaltest.origin}/" />
-            <arg value="${src.tests}/selenese/rc-alltests.xhtml" />
-            <arg value="${reports.tests}/functionaltest-firefox.html" />
-        </java>
-    </target>
-
-    <target name="functionaltest-iexplore" depends="test-compile" if="os.windows">
-        <!-- selenium -->
-        <java jar="${lib.tests}/${selenium.jar}" fork="true">
-            <jvmarg line="${jvmargs}" />
-            <arg value="-userExtensions" />
-            <arg value="${build.tests}/user-extensions.js" />
-            <arg value="-htmlSuite" />
-            <arg value="*iexplore" />
-            <arg value="${functionaltest.origin}/" />
-            <arg value="${src.tests}/selenese/rc-alltests.xhtml" />
-            <arg value="${reports.tests}/functionaltest-iexplore.html" />
-        </java>
-    </target>
-
-    <target name="functionaltest-safari" depends="test-compile" if="os.mac">
-        <!-- selenium -->
-        <java jar="${lib.tests}/${selenium.jar}" fork="true">
-            <jvmarg line="${jvmargs}" />
-            <arg value="-userExtensions" />
-            <arg value="${build.tests}/user-extensions.js" />
-            <arg value="-htmlSuite" />
-            <arg value="*safari" />
-            <arg value="${functionaltest.origin}/" />
-            <arg value="${src.tests}/selenese/rc-alltests.xhtml" />
-            <arg value="${reports.tests}/functionaltest-safari.html" />
-        </java>
-    </target>
-
-    <target name="functionaltest-run" depends="functionaltest-googlechrome,functionaltest-firefox,functionaltest-iexplore,functionaltest-safari" />
-
-    <target name="functionaltest-teardown">
-        <!-- stop script -->
-        <exec executable="/bin/sh" dir="${tmp}/functionaltest" logError="true" failonerror="true" osfamily="unix">
-            <arg line="bin/callimachus-stop.sh" />
-        </exec>
-        <exec executable="cmd" dir="${tmp}/functionaltest" logError="true" failonerror="true" osfamily="windows">
-            <arg line="/c bin\callimachus-stop.bat" />
-        </exec>
-        <delete dir="${tmp}/functionaltest" />
-    </target>
-
-    <target name="functionaltest" depends="functionaltest-setup,functionaltest-run,functionaltest-teardown" description="run the functional tests" />
 
     <target name="test" depends="unittest,integrationtest,functionaltest" description="run all the tests" />
 

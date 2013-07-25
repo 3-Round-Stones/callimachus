@@ -227,7 +227,7 @@ public class TemporaryServerFactory {
 	}
 
 	private File createCallimachus(String origin) throws Exception {
-		String name = TemporaryServer.class.getSimpleName() + Integer.toHexString(WEBAPP_CAR.getAbsolutePath().hashCode());
+		String name = TemporaryServer.class.getSimpleName() + Integer.toHexString(origin.hashCode() + WEBAPP_CAR.getAbsolutePath().hashCode());
 		File dir = createDirectory(name);
 		if (!dir.isDirectory() || WEBAPP_CAR.lastModified() > dir.lastModified()) {
 			if (dir.isDirectory()) {

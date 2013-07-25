@@ -1,4 +1,0 @@
-<testdata>
-	<test purlName="index.html" purlTarget="/" purlComment="Redirects to home page" />
-	<test purlName="default.htm" purlTarget="/" purlComment="" />
-</testdata>

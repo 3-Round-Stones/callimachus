@@ -18,7 +18,7 @@ import org.openrdf.OpenRDFException;
 
 public abstract class TemporaryServerIntegrationTestCase extends TestCase {
     private static final TemporaryServerFactory factory = TemporaryServerFactory.getInstance();
-    private static final Map<Class<?>, TemporaryServer> servers = new HashMap<Class<?>, TemporaryServer>();
+    private static final Map<Object, TemporaryServer> servers = new HashMap<Object, TemporaryServer>();
 	private final TemporaryServer server;
 
 	public TemporaryServerIntegrationTestCase() {
@@ -28,12 +28,17 @@ public abstract class TemporaryServerIntegrationTestCase extends TestCase {
 	public TemporaryServerIntegrationTestCase(String name) {
 		super(name);
 		synchronized (servers) {
-			if (servers.containsKey(getClass())) {
-				server = servers.get(getClass());
+			Object key = getUniqueServerKey();
+			if (servers.containsKey(key)) {
+				server = servers.get(key);
 			} else {
-				servers.put(getClass(), server = factory.createServer());
+				servers.put(key, server = factory.createServer());
 			}
 		}
+	}
+
+	public Object getUniqueServerKey() {
+		return getClass();
 	}
 
 	@Before

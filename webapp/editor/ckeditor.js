@@ -23,7 +23,7 @@ jQuery(function($) {
         coreStyles_bold: { element: 'strong' }, // convert bold to <strong>
         coreStyles_italic: { element: 'em' },   // convert italic to <em>
         
-        removeButtons: 'Underline,Strike,ShowBlocks,Iframe',
+        removeButtons: 'Underline,Strike,ShowBlocks,Iframe,About',
         
         format_tags: 'p;h1;h2;h3;h4;h5;h6',
         

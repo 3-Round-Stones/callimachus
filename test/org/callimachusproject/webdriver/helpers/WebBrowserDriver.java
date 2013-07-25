@@ -43,8 +43,33 @@ public class WebBrowserDriver {
 		driver.switchTo().window(driver.getWindowHandle());
 	}
 
-	public void focusInFrame(String frameName) {
-		driver.switchTo().frame(frameName);
+	public void focusInFrame(final String frameName) {
+		new WebDriverWait(driver, 10).until(new ExpectedCondition<WebDriver>() {
+			public WebDriver apply(WebDriver driver) {
+				try {
+					return driver.switchTo().frame(frameName);
+				} catch (NoSuchFrameException e) {
+					return null;
+				}
+			}
+		});
+	
+	}
+
+	public void focusInFrame(int... frames) {
+		driver.switchTo().window(driver.getWindowHandle());
+		for (final int frame : frames) {
+			new WebDriverWait(driver, 10)
+					.until(new ExpectedCondition<WebDriver>() {
+						public WebDriver apply(WebDriver driver) {
+							try {
+								return driver.switchTo().frame(frame);
+							} catch (NoSuchFrameException e) {
+								return null;
+							}
+						}
+					});
+		}
 	}
 
 	public void click(By locator) {
@@ -52,10 +77,7 @@ public class WebBrowserDriver {
 	}
 
 	public void clickInFrame(By locator, int... frames) {
-		WebDriver driver = this.driver.switchTo().window(this.driver.getWindowHandle());
-		for (int frame : frames) {
-			driver = driver.switchTo().frame(frame);
-		}
+		focusInFrame(frames);
 		WebElement element = driver.findElement(locator);
 	    this.driver.executeScript("arguments[0].click();", element);
 	}
@@ -74,19 +96,7 @@ public class WebBrowserDriver {
 	}
 
 	public WebElement getActiveFrameElement(int... frames) {
-		WebDriver driver = this.driver.switchTo().window(this.driver.getWindowHandle());
-		for (final int frame : frames) {
-			driver = new WebDriverWait(driver, 10)
-					.until(new ExpectedCondition<WebDriver>() {
-						public WebDriver apply(WebDriver driver) {
-							try {
-								return driver.switchTo().frame(frame);
-							} catch (NoSuchFrameException e) {
-								return null;
-							}
-						}
-					});
-		}
+		focusInFrame(frames);
 		return driver.switchTo().activeElement();
 	}
 

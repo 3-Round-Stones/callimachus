@@ -484,9 +484,11 @@ daemon_start()
     return $?
   elif [ -n "$DAEMON_USER" -a "$(id -u)" = "0" ]; then
     nohup su "$DAEMON_USER" -c '"$0" "$@"' -- "$DAEMON" -server "$@" --pid "$PIDFILE" > "$STDOUT_LOG" 2>&1 &
+    sleep 1
     return 0
   else
     nohup "$DAEMON" -server "$@" --pid "$PIDFILE" > "$STDOUT_LOG" 2>&1 &
+    sleep 1
     return 0
   fi
 }

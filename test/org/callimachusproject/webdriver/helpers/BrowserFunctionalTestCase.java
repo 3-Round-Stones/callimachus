@@ -100,7 +100,7 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 					} else {
 						DesiredCapabilities caps = DesiredCapabilities.safari();
 						caps.setVersion("6");
-						caps.setPlatform(Platform.MAC);
+						caps.setCapability("platform", "OS X 10.8");
 						return new RemoteWebDriver(url, caps);
 					}
 				}

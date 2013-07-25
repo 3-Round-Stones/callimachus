@@ -56,7 +56,7 @@ public class ArticleFunctionalTest extends BrowserFunctionalTestCase {
 		super.tearDown();
 	}
 
-	public void testCreate() {
+	public void testCreateArticle() {
 		String[] article = articles.get(getVariation());
 		driver.createArticle(article[0], article[1], article[2]);
 		driver.deleteArticle(article[0], article[1]);

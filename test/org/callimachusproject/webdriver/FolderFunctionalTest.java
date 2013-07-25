@@ -42,21 +42,21 @@ public class FolderFunctionalTest extends BrowserFunctionalTestCase {
 		super.tearDown();
 	}
 
-	public void testCreate() {
+	public void testCreateFolder() {
 		String folderName = folders.get(getVariation());
 		driver.createFolder(folderName);
 		driver.deleteFolder(folderName);
 	}
 
-	public void testEscaping() {
+	public void testFolderEscaping() {
 		String folderName = folders.get(getVariation());
 		driver.createFolder(folderName);
 		for (String concept : ConceptFunctionalTest.concepts.keySet()) {
-			new ConceptFunctionalTest(concept, driver).testCreate();
+			new ConceptFunctionalTest(concept, driver).testCreateConcept();
 		}
-		new BookFunctionalTest(driver).testInclude();
+		new BookFunctionalTest(driver).testIncludeArticles();
 		for (String purl : PurlFunctionalTest.purls.keySet()) {
-			new PurlFunctionalTest(purl, driver).testCreate();
+			new PurlFunctionalTest(purl, driver).testCreatePurlAlt();
 		}
 		driver.deleteFolder(folderName);
 	}

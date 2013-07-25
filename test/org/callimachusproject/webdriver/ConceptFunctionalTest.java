@@ -51,7 +51,7 @@ public class ConceptFunctionalTest extends BrowserFunctionalTestCase {
 		super.tearDown();
 	}
 
-	public void testCreate() {
+	public void testCreateConcept() {
 		String[] concept = concepts.get(getVariation());
 		driver.createConcept(concept[0], concept[1], concept[2], concept[3]);
 		driver.deleteConcept(concept[0], concept[1]);

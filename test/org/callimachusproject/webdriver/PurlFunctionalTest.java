@@ -43,7 +43,7 @@ public class PurlFunctionalTest extends BrowserFunctionalTestCase {
 		super.tearDown();
 	}
 
-	public void testCreate() {
+	public void testCreatePurlAlt() {
 		String[] purl = purls.get(getVariation());
 		driver.createPurlAlt(purl[0], purl[1], purl[2]);
 		driver.deletePurl(purl[0]);

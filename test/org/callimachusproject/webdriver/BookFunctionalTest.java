@@ -41,12 +41,12 @@ public class BookFunctionalTest extends BrowserFunctionalTestCase {
 		super.tearDown();
 	}
 
-	public void testCreate() {
+	public void testCreateBook() {
 		driver.createBook(book[0], book[1], book[2]);
 		driver.deleteBook(book[0], book[1]);
 	}
 
-	public void testInclude() {
+	public void testIncludeArticles() {
 		for (String[] article : ArticleFunctionalTest.articles.values()) {
 			driver.createArticle(article[0], article[1], article[2]);
 		}

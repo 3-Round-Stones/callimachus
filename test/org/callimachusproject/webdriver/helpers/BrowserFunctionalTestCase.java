@@ -29,8 +29,6 @@ import org.openrdf.OpenRDFException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Supplier;
-
 public abstract class BrowserFunctionalTestCase extends TestCase {
 	private static final char DELIM1 = ' ';
 	private static final char DELIM2 = '*';
@@ -42,7 +40,7 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 			.getInstance().getCanonicalLocalHostName();
 	private static final String ORIGIN = "http://" + HOSTNAME + ":" + PORT;
 	private static final TemporaryServer server;
-	private static final Map<String, Supplier<RemoteWebDriver>> suppliers = new LinkedHashMap<String, Supplier<RemoteWebDriver>>();
+	private static final Map<String, RemoteWebDriverFactory> factories = new LinkedHashMap<String, RemoteWebDriverFactory>();
 	static {
 		String service = System
 				.getProperty("org.callimachusproject.test.service");
@@ -55,56 +53,70 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 		String remotewebdriver = System
 				.getProperty("org.callimachusproject.test.remotewebdriver");
 		try {
-			final URL url = remotewebdriver == null || remotewebdriver.length() == 0 ? null : new URL(remotewebdriver);
-			checkAndStore("chrome", new Supplier<RemoteWebDriver>() {
-				public RemoteWebDriver get() {
-					if (url == null) {
+			final URL url = remotewebdriver == null
+					|| remotewebdriver.length() == 0 ? null : new URL(
+					remotewebdriver);
+			if (url == null) {
+				checkAndStore("chrome", new RemoteWebDriverFactory() {
+					public RemoteWebDriver create(String name) {
 						return new ChromeDriver();
-					} else {
+					}
+				});
+				checkAndStore("firefox", new RemoteWebDriverFactory() {
+					public RemoteWebDriver create(String name) {
+						return new FirefoxDriver();
+					}
+				});
+				checkAndStore("ie", new RemoteWebDriverFactory() {
+					public RemoteWebDriver create(String name) {
+						return new InternetExplorerDriver();
+					}
+				});
+				checkAndStore("safari", new RemoteWebDriverFactory() {
+					public RemoteWebDriver create(String name) {
+						return new SafariDriver();
+					}
+				});
+			} else {
+				factories.put("chrome", new RemoteWebDriverFactory() {
+					public RemoteWebDriver create(String name) {
 						DesiredCapabilities caps = DesiredCapabilities.chrome();
 						caps.setVersion("27");
 						caps.setPlatform(Platform.ANY);
+						caps.setCapability("name", name);
 						return new RemoteWebDriver(url, caps);
 					}
-				}
-			});
-			checkAndStore("firefox", new Supplier<RemoteWebDriver>() {
-				public RemoteWebDriver get() {
-					if (url == null) {
-						return new FirefoxDriver();
-					} else {
-						DesiredCapabilities caps = DesiredCapabilities.firefox();
+				});
+				factories.put("firefox", new RemoteWebDriverFactory() {
+					public RemoteWebDriver create(String name) {
+						DesiredCapabilities caps = DesiredCapabilities
+								.firefox();
 						caps.setVersion("21");
 						caps.setPlatform(Platform.ANY);
+						caps.setCapability("name", name);
 						return new RemoteWebDriver(url, caps);
 					}
-				}
-			});
-			checkAndStore("ie", new Supplier<RemoteWebDriver>() {
-				public RemoteWebDriver get() {
-					if (url == null) {
-						return new InternetExplorerDriver();
-					} else {
+				});
+				factories.put("ie", new RemoteWebDriverFactory() {
+					public RemoteWebDriver create(String name) {
 						DesiredCapabilities caps = DesiredCapabilities
 								.internetExplorer();
 						caps.setVersion("9");
 						caps.setCapability("platform", "Windows 7");
+						caps.setCapability("name", name);
 						return new RemoteWebDriver(url, caps);
 					}
-				}
-			});
-			checkAndStore("safari", new Supplier<RemoteWebDriver>() {
-				public RemoteWebDriver get() {
-					if (url == null) {
-						return new SafariDriver();
-					} else {
+				});
+				factories.put("safari", new RemoteWebDriverFactory() {
+					public RemoteWebDriver create(String name) {
 						DesiredCapabilities caps = DesiredCapabilities.safari();
 						caps.setVersion("6");
 						caps.setCapability("platform", "OS X 10.8");
+						caps.setCapability("name", name);
 						return new RemoteWebDriver(url, caps);
 					}
-				}
-			});
+				});
+			}
 		} catch (MalformedURLException e) {
 			throw new AssertionError(e);
 		}
@@ -115,10 +127,10 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 	}
 
 	private static void checkAndStore(String browser,
-			Supplier<RemoteWebDriver> supplier) {
+			RemoteWebDriverFactory supplier) {
 		try {
-			supplier.get().quit();
-			suppliers.put(browser, supplier);
+			supplier.create("availability").quit();
+			factories.put(browser, supplier);
 		} catch (IllegalStateException e) {
 			logger.warn("Local {} web driver not available", browser);
 		} catch (WebDriverException e) {
@@ -136,10 +148,10 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 			Class<? extends BrowserFunctionalTestCase> testcase,
 			Collection<String> variations) throws Exception {
 		TestSuite suite = new TestSuite(testcase.getName());
-		for (Map.Entry<String, Supplier<RemoteWebDriver>> e : getInstalledWebDrivers()
+		for (Map.Entry<String, RemoteWebDriverFactory> e : getInstalledWebDrivers()
 				.entrySet()) {
 			String browser = e.getKey();
-			Supplier<RemoteWebDriver> supplier = e.getValue();
+			RemoteWebDriverFactory supplier = e.getValue();
 			for (String name : variations) {
 				for (Method method : testcase.getMethods()) {
 					if (method.getName().startsWith("test")
@@ -148,7 +160,7 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 						BrowserFunctionalTestCase test = testcase.newInstance();
 						test.setName(method.getName() + DELIM1 + name + DELIM2
 								+ browser);
-						test.setWebDriverSupplier(supplier);
+						test.setRemoteWebDriverFactory(supplier);
 						suite.addTest(test);
 					}
 				}
@@ -161,11 +173,11 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 		return suite;
 	}
 
-	private static Map<String, Supplier<RemoteWebDriver>> getInstalledWebDrivers() {
-		return suppliers;
+	private static Map<String, RemoteWebDriverFactory> getInstalledWebDrivers() {
+		return factories;
 	}
 
-	private Supplier<RemoteWebDriver> supplier;
+	private RemoteWebDriverFactory driverFactory;
 	protected CallimachusDriver driver;
 
 	public BrowserFunctionalTestCase() {
@@ -177,8 +189,8 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 		this.driver = driver;
 	}
 
-	public void setWebDriverSupplier(Supplier<RemoteWebDriver> supplier) {
-		this.supplier = supplier;
+	public void setRemoteWebDriverFactory(RemoteWebDriverFactory factory) {
+		this.driverFactory = factory;
 	}
 
 	public String getUsername() {
@@ -215,14 +227,15 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 		}
 		String url = getStartUrl();
 		WebResource home = new WebResource(url);
+		home.get("text/html");
 		home.ref("/callimachus/scripts.js").get("text/javascript");
 		home.ref("/callimachus/1.0/styles/callimachus.less?less").get(
 				"text/css");
 		if (driver == null) {
-			if (supplier == null) {
-				supplier = getInstalledWebDrivers().get(getBrowserName());
+			if (driverFactory == null) {
+				driverFactory = getInstalledWebDrivers().get(getBrowserName());
 			}
-			driver = new CallimachusDriver(supplier.get(), url);
+			driver = new CallimachusDriver(driverFactory.create(getName()), url);
 		}
 	}
 
@@ -236,11 +249,11 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 
 	@Override
 	public void tearDown() throws Exception {
+		driver.quit();
+		driver = null;
 		if (server != null) {
 			server.pause();
 		}
-		driver.quit();
-		driver = null;
 	}
 
 	@Override

@@ -383,14 +383,14 @@
 
     <target name="functionaltest" depends="dist,test-compile" description="run the functional tests">
         <mkdir dir="${reports.tests}" />
-        <condition property="remotewebdriver.arg" value="-Dorg.callimachusproject.test.remotewebdriver=${remotewebdriver.url}" else="">
-            <isset property="remotewebdriver.url" />
+        <condition property="remotewebdriver.arg" value="-Dorg.callimachusproject.test.remotewebdriver=${callimachus.webdriver}" else="">
+            <isset property="callimachus.webdriver" />
         </condition>
-        <condition property="test.line" value="-Dorg.callimachusproject.test.service=${test.url} -Dorg.callimachusproject.test.username=${test.username} -Dorg.callimachusproject.test.password=${test.password}" else="">
-            <isset property="test.url" />
+        <condition property="test.arg" value="-Dorg.callimachusproject.test.service=${callimachus.url}" else="">
+            <isset property="callimachus.url" />
         </condition>
         <junit printsummary="on" haltonfailure="on" tempdir="${tmp}" fork="yes" forkmode="perBatch">
-            <jvmarg line="${jvmargs} -Dorg.callimachusproject.config.webapp=${dist}/${artifact.name}-webapp-${Version}.car ${remotewebdriver.arg} ${test.line}" />
+            <jvmarg line="${jvmargs} -Dorg.callimachusproject.config.webapp=${dist}/${artifact.name}-webapp-${Version}.car -Dorg.callimachusproject.test.username=${callimachus.username} -Dorg.callimachusproject.test.email=${callimachus.email} -Dorg.callimachusproject.test.password=${callimachus.password} ${remotewebdriver.arg} ${test.arg}" />
             <classpath>
                 <pathelement location="${build.tests}/" />
                 <pathelement location="${build}/" />

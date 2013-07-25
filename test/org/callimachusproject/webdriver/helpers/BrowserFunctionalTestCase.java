@@ -24,7 +24,6 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
-import org.openqa.selenium.safari.SafariDriver;
 import org.openrdf.OpenRDFException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +31,7 @@ import org.slf4j.LoggerFactory;
 public abstract class BrowserFunctionalTestCase extends TestCase {
 	private static final char DELIM1 = ' ';
 	private static final char DELIM2 = '*';
-	private static final char[] PASSWORD = "testPassword1".toCharArray();
+	private static final String PASSWORD = "testPassword1";
 	private static final String EMAIL = "test@example.com";
 	private static final int PORT = 8081;
 	private static final Logger logger = LoggerFactory.getLogger(BrowserFunctionalTestCase.class);
@@ -45,7 +44,15 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 		String service = System
 				.getProperty("org.callimachusproject.test.service");
 		if (service == null || service.length() == 0) {
-			server = new TemporaryServerFactory(ORIGIN, PORT, EMAIL, PASSWORD)
+			String email = System.getProperty("org.callimachusproject.test.email");
+			if (email == null || email.length() == 0) {
+				email = EMAIL;
+			}
+			String password = System.getProperty("org.callimachusproject.test.password");
+			if (password == null || password.length() == 0) {
+				password = PASSWORD;
+			}
+			server = new TemporaryServerFactory(ORIGIN, PORT, email, password.toCharArray())
 					.createServer();
 		} else {
 			server = null;
@@ -70,11 +77,6 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 				checkAndStore("ie", new RemoteWebDriverFactory() {
 					public RemoteWebDriver create(String name) {
 						return new InternetExplorerDriver();
-					}
-				});
-				checkAndStore("safari", new RemoteWebDriverFactory() {
-					public RemoteWebDriver create(String name) {
-						return new SafariDriver();
 					}
 				});
 			} else {
@@ -103,15 +105,6 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 								.internetExplorer();
 						caps.setVersion("9");
 						caps.setCapability("platform", "Windows 7");
-						caps.setCapability("name", name);
-						return new RemoteWebDriver(url, caps);
-					}
-				});
-				factories.put("safari", new RemoteWebDriverFactory() {
-					public RemoteWebDriver create(String name) {
-						DesiredCapabilities caps = DesiredCapabilities.safari();
-						caps.setVersion("6");
-						caps.setCapability("platform", "OS X 10.8");
 						caps.setCapability("name", name);
 						return new RemoteWebDriver(url, caps);
 					}
@@ -148,15 +141,15 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 			Class<? extends BrowserFunctionalTestCase> testcase,
 			Collection<String> variations) throws Exception {
 		TestSuite suite = new TestSuite(testcase.getName());
-		for (Map.Entry<String, RemoteWebDriverFactory> e : getInstalledWebDrivers()
-				.entrySet()) {
-			String browser = e.getKey();
-			RemoteWebDriverFactory supplier = e.getValue();
-			for (String name : variations) {
-				for (Method method : testcase.getMethods()) {
-					if (method.getName().startsWith("test")
-							&& method.getParameterTypes().length == 0
-							&& method.getReturnType().equals(Void.TYPE)) {
+		for (Method method : testcase.getMethods()) {
+			if (method.getName().startsWith("test")
+					&& method.getParameterTypes().length == 0
+					&& method.getReturnType().equals(Void.TYPE)) {
+				for (String name : variations) {
+					for (Map.Entry<String, RemoteWebDriverFactory> e : getInstalledWebDrivers()
+							.entrySet()) {
+						String browser = e.getKey();
+						RemoteWebDriverFactory supplier = e.getValue();
 						BrowserFunctionalTestCase test = testcase.newInstance();
 						test.setName(method.getName() + DELIM1 + name + DELIM2
 								+ browser);

@@ -76,12 +76,6 @@ public class WebBrowserDriver {
 		driver.findElement(locator).click();
 	}
 
-	public void clickInFrame(By locator, int... frames) {
-		focusInFrame(frames);
-		WebElement element = driver.findElement(locator);
-	    this.driver.executeScript("arguments[0].click();", element);
-	}
-
 	public void type(By locator, String text) {
 		WebElement element = driver.findElement(locator);
 		element.clear();
@@ -104,11 +98,11 @@ public class WebBrowserDriver {
 	    new Actions(driver).moveToElement(driver.findElement(locator)).build().perform();
 	}
 
-	public void sendKeys(By locator, CharSequence... keys) {
-		sendKeys(driver.findElement(locator), keys);
+	public void sendKeys(CharSequence... keys) {
+		sendKeys(driver.switchTo().activeElement(), keys);
 	}
 
-	public void sendKeys(WebElement element, CharSequence... keys) {
+	private void sendKeys(WebElement element, CharSequence... keys) {
 		List<CharSequence> list = new ArrayList<CharSequence>(keys.length);
 		for (CharSequence key : keys) {
 			if (key instanceof String && ((String) key).contains("-")) {

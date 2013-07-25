@@ -22,7 +22,7 @@ public class UpdateService extends UpdateProvider {
 			if (webapp != null)
 				return webapp;
 		}
-		throw new AssertionError("Cannot determine Callimachus webapp folder");
+		throw new AssertionError("Cannot determine default Callimachus webapp folder");
 	}
 
 	@Override

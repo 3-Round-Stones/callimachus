@@ -35,7 +35,7 @@ public class SparqlUpdateProvider extends UpdateProvider {
 		Enumeration<URL> resources = getClass().getClassLoader().getResources(WEBAPP_RU);
 		if (!resources.hasMoreElements())
 			logger.warn("Missing {}", WEBAPP_RU);
-		String root = origin + "/";
+		String root = origin.toLowerCase() + "/";
 		TermFactory tf = TermFactory.newInstance(root);
 		while (resources.hasMoreElements()) {
 			InputStream in = resources.nextElement().openStream();

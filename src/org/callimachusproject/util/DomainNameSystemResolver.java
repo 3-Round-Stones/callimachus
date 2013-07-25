@@ -96,11 +96,11 @@ public class DomainNameSystemResolver {
 	public String getCanonicalLocalHostName() {
 		try {
 			// attempt for the host canonical host name
-			return InetAddress.getLocalHost().getCanonicalHostName();
+			return InetAddress.getLocalHost().getCanonicalHostName().toLowerCase();
 		} catch (UnknownHostException uhe) {
 			try {
 				// attempt to get the loop back address
-				return InetAddress.getByName(null).getCanonicalHostName();
+				return InetAddress.getByName(null).getCanonicalHostName().toLowerCase();
 			} catch (UnknownHostException uhe2) {
 				// default to a standard loop back IP
 				return "127.0.0.1";
@@ -150,7 +150,7 @@ public class DomainNameSystemResolver {
 	public String reverse(InetAddress netAddr) {
 		if (netAddr == null)
 			return null;
-		String name = netAddr.getCanonicalHostName();
+		String name = netAddr.getCanonicalHostName().toLowerCase();
 		try {
 			if (!name.equals(netAddr.getHostAddress())
 					&& netAddr.equals(InetAddress.getByName(name)))

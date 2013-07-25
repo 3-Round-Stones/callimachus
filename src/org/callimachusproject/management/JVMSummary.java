@@ -24,6 +24,7 @@ import java.io.StringWriter;
 import java.lang.management.ClassLoadingMXBean;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
+import java.lang.management.OperatingSystemMXBean;
 import java.lang.management.RuntimeMXBean;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,12 +33,9 @@ import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.TimeUnit;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
-
-import com.sun.management.OperatingSystemMXBean;
 
 public class JVMSummary implements JVMSummaryMXBean {
 
@@ -111,8 +109,7 @@ public class JVMSummary implements JVMSummaryMXBean {
 	private String getOSUsage() throws Exception {
 		StringWriter sw = new StringWriter();
 		PrintWriter w = new PrintWriter(sw, true);
-		OperatingSystemMXBean mx = (OperatingSystemMXBean) ManagementFactory
-				.getOperatingSystemMXBean();
+		OperatingSystemMXBean mx = ManagementFactory.getOperatingSystemMXBean();
 		w.print("Name:\t");
 		w.println(mx.getName());
 		w.print("Arch:\t");
@@ -121,29 +118,6 @@ public class JVMSummary implements JVMSummaryMXBean {
 		w.println(mx.getVersion());
 		w.print("Load average:\t");
 		w.println(mx.getSystemLoadAverage());
-		w.print("Committed memory:\t");
-		w.println((mx.getCommittedVirtualMemorySize() / 1024 / 1024) + "m");
-		w.print("Swap size:\t");
-		w.println((mx.getTotalSwapSpaceSize() / 1024 / 1024) + "m");
-		w.print("Free swap size:\t");
-		w.println((mx.getFreeSwapSpaceSize() / 1024 / 1024) + "m");
-		w.print("Free memory:\t");
-		w.println((mx.getFreePhysicalMemorySize() / 1024 / 1024) + "m");
-		w.print("Total memory:\t");
-		w.println((mx.getTotalPhysicalMemorySize() / 1024 / 1024) + "m");
-		w.print("Process time:\t");
-		long nanoseconds = mx.getProcessCpuTime();
-		long seconds = TimeUnit.SECONDS.convert(nanoseconds,
-				TimeUnit.NANOSECONDS);
-		long minutes = TimeUnit.MINUTES.convert(nanoseconds,
-				TimeUnit.NANOSECONDS);
-		long hours = TimeUnit.HOURS.convert(nanoseconds, TimeUnit.NANOSECONDS);
-		w.print(hours);
-		w.print(":");
-		w.print(minutes - hours * 60);
-		w.print(":");
-		w.print(seconds - minutes * 60);
-		w.println();
 		return sw.toString();
 	}
 

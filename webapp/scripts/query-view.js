@@ -456,7 +456,7 @@
             $('#' + containerId)
                 .height(h)
                 .width('100%')
-                .css('overflow', isIframe ? 'hidden' : 'auto') // avoid scrollbars when embedded in iframe
+                .css('overflow', 'hidden') // avoid scrollbars
                 .html("")
             ;
         },

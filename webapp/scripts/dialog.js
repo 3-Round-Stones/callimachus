@@ -90,6 +90,7 @@ window.calli.openDialog = function(url, title, options) {
         zIndex: maxZIndex()
     }, options);
     var iframe = $("<iframe></iframe>");
+    iframe.load(calli.wait().end);
     iframe.attr('src', 'about:blank');
     iframe.attr('name', asUniqueName(title));
     iframe.addClass('dialog');

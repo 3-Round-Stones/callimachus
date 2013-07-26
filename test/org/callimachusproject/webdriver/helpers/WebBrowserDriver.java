@@ -15,6 +15,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedCondition;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Wait;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -44,6 +45,7 @@ public class WebBrowserDriver {
 	}
 
 	public void focusInFrame(final String frameName) {
+		waitForCursor();
 		new WebDriverWait(driver, 10).until(new ExpectedCondition<WebDriver>() {
 			public WebDriver apply(WebDriver driver) {
 				try {
@@ -53,11 +55,12 @@ public class WebBrowserDriver {
 				}
 			}
 		});
-	
+		waitForCursor();
 	}
 
 	public void focusInFrame(int... frames) {
 		driver.switchTo().window(driver.getWindowHandle());
+		waitForCursor();
 		for (final int frame : frames) {
 			new WebDriverWait(driver, 10)
 					.until(new ExpectedCondition<WebDriver>() {
@@ -70,9 +73,11 @@ public class WebBrowserDriver {
 						}
 					});
 		}
+		waitForCursor();
 	}
 
 	public void click(By locator) {
+		waitForCursor();
 		driver.findElement(locator).click();
 	}
 
@@ -89,17 +94,17 @@ public class WebBrowserDriver {
 	    waitForCursor();
 	}
 
-	public WebElement getActiveFrameElement(int... frames) {
-		focusInFrame(frames);
-		return driver.switchTo().activeElement();
-	}
-
 	public void mouseOver(By locator) {
+		waitForCursor();
 	    new Actions(driver).moveToElement(driver.findElement(locator)).build().perform();
 	}
 
 	public void sendKeys(CharSequence... keys) {
 		sendKeys(driver.switchTo().activeElement(), keys);
+	}
+
+	public void sendKeys(By locator, CharSequence... keys) {
+		sendKeys(driver.findElement(locator), keys);
 	}
 
 	private void sendKeys(WebElement element, CharSequence... keys) {
@@ -118,17 +123,23 @@ public class WebBrowserDriver {
 		element.sendKeys(list.toArray(new CharSequence[list.size()]));
 	}
 
-	public void waitUntilTextPresent(final String needle) {
-	    waitForCursor();
+	public void waitUntilElementPresent(final By locator) {
+		waitForCursor();
+		new WebDriverWait(driver, 10).until(ExpectedConditions
+				.presenceOfElementLocated(locator));
+	}
+
+	public void waitUntilTextPresent(final By locator, final String needle) {
+		waitForCursor();
 		Wait<WebDriver> wait = new WebDriverWait(driver, 30);
 		Boolean present = wait.until(new ExpectedCondition<Boolean>() {
 			public Boolean apply(WebDriver driver) {
-				if (driver.findElement(By.cssSelector("BODY")).getText()
-						.contains(needle)) {
-					return true;
-				} else {
-					return null;
+				for (WebElement element : driver.findElements(locator)) {
+					if (element.getText().contains(needle)) {
+						return true;
+					}
 				}
+				return null;
 			}
 		});
 		assertTrue(present);

@@ -13,6 +13,7 @@ import java.util.Map;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+import org.callimachusproject.Version;
 import org.callimachusproject.test.TemporaryServer;
 import org.callimachusproject.test.TemporaryServerFactory;
 import org.callimachusproject.test.WebResource;
@@ -86,6 +87,7 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 						caps.setVersion("27");
 						caps.setPlatform(Platform.ANY);
 						caps.setCapability("name", name);
+						caps.setCapability("build", Version.getInstance().getVersion());
 						return new RemoteWebDriver(url, caps);
 					}
 				});
@@ -96,6 +98,7 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 						caps.setVersion("21");
 						caps.setPlatform(Platform.ANY);
 						caps.setCapability("name", name);
+						caps.setCapability("build", Version.getInstance().getVersion());
 						return new RemoteWebDriver(url, caps);
 					}
 				});
@@ -106,6 +109,7 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 						caps.setVersion("9");
 						caps.setCapability("platform", "Windows 7");
 						caps.setCapability("name", name);
+						caps.setCapability("build", Version.getInstance().getVersion());
 						return new RemoteWebDriver(url, caps);
 					}
 				});

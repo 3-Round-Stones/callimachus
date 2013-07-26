@@ -68,7 +68,7 @@ jQuery(function($) {
 
     // messaging
     function handleMessage(header, body) {
-        if (header.match(/^PUT text(\n|$)/) && body) {
+        if (header.match(/^PUT text(\n|$)/)) {
             if (header.match(/\nIf-None-Match: */)) {
                 if (!editor.getSession().getValue()) {
                     editor.insert(body);

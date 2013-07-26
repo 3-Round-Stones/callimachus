@@ -2,9 +2,13 @@
 
 (function($) {
 
+var waiting = null;
 var calli = window.calli || (window.calli={});
 
 calli.initEditor = function(event, text) {
+    if (!waiting) {
+        waiting = calli.wait();
+    }
     event = calli.fixEvent(event);
     var iframe = $(event.target);
     var editor = iframe[0].contentWindow;
@@ -16,6 +20,9 @@ calli.initEditor = function(event, text) {
 };
 
 calli.loadEditor = function(event, url) {
+    if (!waiting) {
+        waiting = calli.wait();
+    }
     event = calli.fixEvent(event);
     var iframe = $(event.target);
     var editor = iframe[0].contentWindow;
@@ -36,6 +43,11 @@ $(window).bind('message', function(event) {
             for (var i=0; i<callbacks.length; i++) {
                 callbacks[i](text);
             }
+        }
+    } else if (msg.indexOf('OK\n\nPUT text') == 0) {
+        if (waiting) {
+            waiting.end();
+            waiting = null;
         }
     }
 });

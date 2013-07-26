@@ -6,6 +6,14 @@ document.documentElement.className += ' wait';
 var requestCount = 1;
 var lastWait = 0;
 
+var calli = window.calli || (window.calli={});
+
+calli.wait = function() {
+    requestCount++;
+    $(document.documentElement).addClass("wait");
+    return {end: removeWait};
+};
+
 function removeWait() {
     $(function() {
         setTimeout(function() {
@@ -23,7 +31,7 @@ function removeWait() {
     });
 }
 
-$(removeWait);
+$(window).load(removeWait);
 
 $(window).bind("beforeunload", function() {
     requestCount++;

@@ -44,13 +44,13 @@ public class TransformFunctionalTest extends BrowserFunctionalTestCase {
 		super.tearDown();
 	}
 
-	public void testCreateHtml() {
+	public void testCreateTransform() {
 		String name = transform[0];
 		logger.info("Create transform {}", name);
 		String markup = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
 				+ "<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" version=\"1.0\">\n"
 				+ transform[1] + "\n</xsl:stylesheet>";
-		page.openCurrentFolder().openSubTextCreate("Transform").clear()
+		page.openCurrentFolder().openTextCreate("Transform").clear()
 				.type(markup).end().saveAs(name);
 		logger.info("Delete transform {}", name);
 		page.open(name + "?view").openEdit(TextEditor.class).delete();

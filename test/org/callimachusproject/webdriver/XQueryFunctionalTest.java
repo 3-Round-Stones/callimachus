@@ -46,10 +46,10 @@ public class XQueryFunctionalTest extends BrowserFunctionalTestCase {
 		super.tearDown();
 	}
 
-	public void testCreateHtml() {
+	public void testCreateXQuery() {
 		String name = xquery[0];
 		logger.info("Create xquery {}", name);
-		page.openCurrentFolder().openSubTextCreate("XQuery").clear()
+		page.openCurrentFolder().openTextCreate("XQuery").clear()
 				.type(xquery[1]).end().saveAs(name);
 		logger.info("Delete xquery {}", name);
 		page.open(name + "?view").openEdit(TextEditor.class).delete();

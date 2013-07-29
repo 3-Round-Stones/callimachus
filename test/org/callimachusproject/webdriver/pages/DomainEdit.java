@@ -3,9 +3,9 @@ package org.callimachusproject.webdriver.pages;
 import org.callimachusproject.webdriver.helpers.WebBrowserDriver;
 import org.openqa.selenium.By;
 
-public class ConceptEdit extends CalliPage {
+public class DomainEdit extends CalliPage {
 
-	public ConceptEdit(WebBrowserDriver driver) {
+	public DomainEdit(WebBrowserDriver driver) {
 		super(driver);
 	}
 

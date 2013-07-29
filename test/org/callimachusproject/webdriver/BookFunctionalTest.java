@@ -53,7 +53,7 @@ public class BookFunctionalTest extends BrowserFunctionalTestCase {
 		String markup = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
 				+ bookElement + "<title>" + bookTitle + "</title>\n" + book[2]
 				+ "\n</book>";
-		page.openCurrentFolder().openSubTextCreate("Book").clear().type(markup)
+		page.openCurrentFolder().openTextCreate("Book").clear().type(markup)
 				.end().saveAs(bookName).waitUntilTitle(bookTitle);
 		String bookName1 = book[0];
 		logger.info("Delete book {}", bookName1);
@@ -77,7 +77,7 @@ public class BookFunctionalTest extends BrowserFunctionalTestCase {
 		String markup = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
 				+ bookElement + "<title>" + bookTitle + "</title>\n"
 				+ includes[2] + "\n</book>";
-		page.openCurrentFolder().openSubTextCreate("Book").clear().type(markup)
+		page.openCurrentFolder().openTextCreate("Book").clear().type(markup)
 				.end().saveAs(bookName).waitUntilTitle(bookTitle);
 		logger.info("Delete book {}", bookName);
 		page.open(bookName + "?view").waitUntilTitle(includes[1])

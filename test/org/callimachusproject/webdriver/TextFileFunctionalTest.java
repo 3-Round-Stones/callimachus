@@ -36,10 +36,10 @@ public class TextFileFunctionalTest extends BrowserFunctionalTestCase {
 		super.tearDown();
 	}
 
-	public void testCreateHtml() {
+	public void testCreateTextFile() {
 		String name = text[0];
 		logger.info("Create text {}", name);
-		page.openCurrentFolder().openSubTextCreate("Text File").clear()
+		page.openCurrentFolder().openTextCreate("Text File").clear()
 				.type(text[1]).end().saveAs(name);
 		logger.info("Delete text {}", name);
 		page.open(name + "?view").openEdit(TextEditor.class).delete();

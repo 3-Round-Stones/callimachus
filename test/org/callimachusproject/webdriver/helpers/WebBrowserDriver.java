@@ -9,11 +9,12 @@ import org.callimachusproject.engine.model.TermFactory;
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
-import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.NoSuchFrameException;
+import org.openqa.selenium.Point;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.interactions.MoveTargetOutOfBoundsException;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -80,8 +81,13 @@ public class WebBrowserDriver {
 	public void click(By locator) {
 		waitForCursor();
 		WebElement element = driver.findElement(locator);
-		new Actions(driver).moveToElement(element).click(element).build()
-				.perform();
+		try {
+			new Actions(driver).moveToElement(element).click(element).build()
+					.perform();
+		} catch (MoveTargetOutOfBoundsException e) {
+			// firefox can't scroll to reveal element
+			driver.executeScript("arguments[0].click()", element);
+		}
 	}
 
 	public void type(By locator, String text) {
@@ -99,17 +105,26 @@ public class WebBrowserDriver {
 
 	public void mouseOverAndClick(By hover, By click) {
 		waitForCursor();
-		WebElement hoverElement = driver.findElement(hover);
-		try {
-			WebElement clickElement = driver.findElement(click);
-			new Actions(driver).moveToElement(hoverElement).click(clickElement)
-					.build().perform();
-		} catch (NoSuchElementException e) {
-			// firefox can't keep hovering long enough to complete the action
-			new Actions(driver).moveToElement(hoverElement).build().perform();
-			WebElement clickElement = driver.findElement(click);
-			driver.executeScript("arguments[0].click()", clickElement);
-		}
+		int elementCount = 0;
+		List<WebElement> elements = driver.findElements(hover);
+		do {
+			elementCount = elements.size();
+			Actions actions = new Actions(driver);
+			Point location = null;
+			for (WebElement hoverElement : elements) {
+				if (location != null) {
+					actions = actions.moveByOffset(
+							hoverElement.getLocation().x - location.x, 0);
+				}
+				actions = actions.moveToElement(hoverElement);
+				location = hoverElement.getLocation();
+			}
+			actions.build().perform();
+			elements = driver.findElements(hover);
+		} while (elements.size() != elementCount);
+		// firefox can't hover long enough to complete a multiple step action
+		WebElement clickElement = driver.findElement(click);
+		driver.executeScript("arguments[0].click()", clickElement);
 	}
 
 	public void sendKeys(CharSequence... keys) {
@@ -159,7 +174,7 @@ public class WebBrowserDriver {
 	}
 
 	public void waitForCursor() {
-		Wait<WebDriver> wait = new WebDriverWait(driver, 30);
+		Wait<WebDriver> wait = new WebDriverWait(driver, 120);
 		Boolean present = wait.until(new ExpectedCondition<Boolean>() {
 			public Boolean apply(WebDriver wd) {
 				String className = (String) driver.executeScript("if (document.body) return window.document.documentElement.className; else return 'wait';");

@@ -40,10 +40,10 @@ public class StyleFunctionalTest extends BrowserFunctionalTestCase {
 		super.tearDown();
 	}
 
-	public void testCreateHtml() {
+	public void testCreateStyle() {
 		String name = style[0];
 		logger.info("Create style {}", name);
-		page.openCurrentFolder().openSubTextCreate("Style").clear()
+		page.openCurrentFolder().openTextCreate("Style").clear()
 				.type(style[1]).end().saveAs(name);
 		logger.info("Delete style {}", name);
 		page.open(name + "?view").openEdit(TextEditor.class).delete();

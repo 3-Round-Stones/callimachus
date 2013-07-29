@@ -5,22 +5,20 @@ import junit.framework.TestSuite;
 import org.callimachusproject.webdriver.helpers.BrowserFunctionalTestCase;
 import org.callimachusproject.webdriver.pages.TextEditor;
 
-public class ScriptFunctionalTest extends BrowserFunctionalTestCase {
-	public static final String[] script = new String[] {
-			"script.js",
-			"function factorial(n) {\n" + "    if (n === 0) {\n"
-					+ "        return 1;\n" + "    }\n"
-					+ "    return n * factorial(n - 1);\n" + "}" };
+public class TurtleFunctionalTest extends BrowserFunctionalTestCase {
+	public static final String[] turtle = new String[] {
+			"test.ttl",
+			"<> a <Test> ." };
 
 	public static TestSuite suite() throws Exception {
-		return BrowserFunctionalTestCase.suite(ScriptFunctionalTest.class);
+		return BrowserFunctionalTestCase.suite(TurtleFunctionalTest.class);
 	}
 
-	public ScriptFunctionalTest() {
+	public TurtleFunctionalTest() {
 		super();
 	}
 
-	public ScriptFunctionalTest(BrowserFunctionalTestCase parent) {
+	public TurtleFunctionalTest(BrowserFunctionalTestCase parent) {
 		super("", parent);
 	}
 
@@ -39,12 +37,12 @@ public class ScriptFunctionalTest extends BrowserFunctionalTestCase {
 		super.tearDown();
 	}
 
-	public void testCreateScript() {
-		String name = script[0];
-		logger.info("Create script {}", name);
-		page.openCurrentFolder().openTextCreate("Script").clear()
-				.type(script[1]).end().saveAs(name);
-		logger.info("Delete script {}", name);
+	public void testCreateTurtle() {
+		String name = turtle[0];
+		logger.info("Create turtle {}", name);
+		page.openCurrentFolder().openTextCreate("Graph Document").clear()
+				.type(turtle[1]).end().saveAs(name);
+		logger.info("Delete turtle {}", name);
 		page.open(name + "?view").openEdit(TextEditor.class).delete();
 	}
 

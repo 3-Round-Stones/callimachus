@@ -41,7 +41,7 @@ public class PipelineFunctionalTest extends BrowserFunctionalTestCase {
 		super.tearDown();
 	}
 
-	public void testCreateHtml() {
+	public void testCreatePipeline() {
 		String name = pipeline[0];
 		logger.info("Create pipeline {}", name);
 		String markup = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
@@ -49,7 +49,7 @@ public class PipelineFunctionalTest extends BrowserFunctionalTestCase {
 				+ name
 				+ "\" xmlns:p=\"http://www.w3.org/ns/xproc\" xmlns:c=\"http://www.w3.org/ns/xproc-step\" xmlns:l=\"http://xproc.org/library\">\n"
 				+ pipeline[1] + "\n</p:pipeline>";
-		page.openCurrentFolder().openSubTextCreate("Pipeline").clear()
+		page.openCurrentFolder().openTextCreate("Pipeline").clear()
 				.type(markup).end().saveAs(name);
 		logger.info("Delete pipeline {}", name);
 		page.open(name + "?view").openEdit(TextEditor.class).delete();

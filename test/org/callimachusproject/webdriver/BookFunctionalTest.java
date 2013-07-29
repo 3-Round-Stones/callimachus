@@ -3,7 +3,8 @@ package org.callimachusproject.webdriver;
 import junit.framework.TestSuite;
 
 import org.callimachusproject.webdriver.helpers.BrowserFunctionalTestCase;
-import org.callimachusproject.webdriver.helpers.CallimachusDriver;
+import org.callimachusproject.webdriver.pages.DocEditor;
+import org.callimachusproject.webdriver.pages.TextEditor;
 
 public class BookFunctionalTest extends BrowserFunctionalTestCase {
 	public static final String[] book = new String[] {
@@ -11,11 +12,11 @@ public class BookFunctionalTest extends BrowserFunctionalTestCase {
 			"Big Book",
 			"<article>\n" + "<title>Callimachus</title>\n"
 					+ "<para>Big Bore</para>\n" + "</article>" };
-	public static final String[] includes = new String[]{
-		"callimachus-quotes.docbook",
-		"Callimachus Quotes",
-		"<xi:include href=\"ionica.docbook\" />\n"
-				+ "<xi:include href=\"anthologia-polyglotta.docbook\" />"};
+	public static final String[] includes = new String[] {
+			"callimachus-quotes.docbook",
+			"Callimachus Quotes",
+			"<xi:include href=\"ionica.docbook\" />\n"
+					+ "<xi:include href=\"anthologia-polyglotta.docbook\" />" };
 
 	public static TestSuite suite() throws Exception {
 		return BrowserFunctionalTestCase.suite(BookFunctionalTest.class);
@@ -25,35 +26,67 @@ public class BookFunctionalTest extends BrowserFunctionalTestCase {
 		super();
 	}
 
-	public BookFunctionalTest(CallimachusDriver driver) {
-		super("", driver);
+	public BookFunctionalTest(BrowserFunctionalTestCase parent) {
+		super("", parent);
 	}
 
 	@Override
 	public void setUp() throws Exception {
 		super.setUp();
-		driver.login(getUsername(), getPassword());
+		String username = getUsername();
+		logger.info("Login {}", username);
+		page.openLogin().with(username, getPassword()).login();
 	}
 
 	@Override
 	public void tearDown() throws Exception {
-		driver.logout();
+		logger.info("Logout");
+		page.logout();
 		super.tearDown();
 	}
 
 	public void testCreateBook() {
-		driver.createBook(book[0], book[1], book[2]);
-		driver.deleteBook(book[0], book[1]);
+		String bookName = book[0];
+		String bookTitle = book[1];
+		logger.info("Create book {}", bookName);
+		String bookElement = "<book xmlns=\"http://docbook.org/ns/docbook\" xmlns:xl=\"http://www.w3.org/1999/xlink\" xmlns:xi=\"http://www.w3.org/2001/XInclude\" version=\"5.0\">\n";
+		String markup = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+				+ bookElement + "<title>" + bookTitle + "</title>\n" + book[2]
+				+ "\n</book>";
+		page.openCurrentFolder().openSubTextCreate("Book").clear().type(markup)
+				.end().saveAs(bookName).waitUntilTitle(bookTitle);
+		String bookName1 = book[0];
+		logger.info("Delete book {}", bookName1);
+		page.open(bookName1 + "?view").waitUntilTitle(book[1])
+				.openEdit(TextEditor.class).delete();
 	}
 
 	public void testIncludeArticles() {
 		for (String[] article : ArticleFunctionalTest.articles.values()) {
-			driver.createArticle(article[0], article[1], article[2]);
+			String articleName = article[0];
+			String articleTitle = article[1];
+			logger.info("Create article {}", articleName);
+			page.openCurrentFolder().openArticleCreate().clear()
+					.type(articleTitle).heading1().type("\n").type(article[2])
+					.saveAs(articleName).waitUntilTitle(articleTitle);
 		}
-		driver.createBook(includes[0], includes[1], includes[2]);
-		driver.deleteBook(includes[0], includes[1]);
+		String bookName = includes[0];
+		String bookTitle = includes[1];
+		logger.info("Create book {}", bookName);
+		String bookElement = "<book xmlns=\"http://docbook.org/ns/docbook\" xmlns:xl=\"http://www.w3.org/1999/xlink\" xmlns:xi=\"http://www.w3.org/2001/XInclude\" version=\"5.0\">\n";
+		String markup = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+				+ bookElement + "<title>" + bookTitle + "</title>\n"
+				+ includes[2] + "\n</book>";
+		page.openCurrentFolder().openSubTextCreate("Book").clear().type(markup)
+				.end().saveAs(bookName).waitUntilTitle(bookTitle);
+		logger.info("Delete book {}", bookName);
+		page.open(bookName + "?view").waitUntilTitle(includes[1])
+				.openEdit(TextEditor.class).delete();
 		for (String[] article : ArticleFunctionalTest.articles.values()) {
-			driver.deleteArticle(article[0], article[1]);
+			String articleName = article[0];
+			logger.info("Delete article {}", articleName);
+			page.open(articleName + "?view").waitUntilTitle(article[1])
+					.openEdit(DocEditor.class).delete();
 		}
 	}
 

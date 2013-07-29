@@ -3,7 +3,7 @@ package org.callimachusproject.webdriver;
 import junit.framework.TestSuite;
 
 import org.callimachusproject.webdriver.helpers.BrowserFunctionalTestCase;
-import org.callimachusproject.webdriver.helpers.CallimachusDriver;
+import org.callimachusproject.webdriver.pages.TextEditor;
 
 public class StyleFunctionalTest extends BrowserFunctionalTestCase {
 	public static final String[] style = new String[] {
@@ -21,25 +21,32 @@ public class StyleFunctionalTest extends BrowserFunctionalTestCase {
 		super();
 	}
 
-	public StyleFunctionalTest(CallimachusDriver driver) {
-		super("", driver);
+	public StyleFunctionalTest(BrowserFunctionalTestCase parent) {
+		super("", parent);
 	}
 
 	@Override
 	public void setUp() throws Exception {
 		super.setUp();
-		driver.login(getUsername(), getPassword());
+		String username = getUsername();
+		logger.info("Login {}", username);
+		page.openLogin().with(username, getPassword()).login();
 	}
 
 	@Override
 	public void tearDown() throws Exception {
-		driver.logout();
+		logger.info("Logout");
+		page.logout();
 		super.tearDown();
 	}
 
 	public void testCreateHtml() {
-		driver.createStyle(style[0], style[1]);
-		driver.deleteStyle(style[0]);
+		String name = style[0];
+		logger.info("Create style {}", name);
+		page.openCurrentFolder().openSubTextCreate("Style").clear()
+				.type(style[1]).end().saveAs(name);
+		logger.info("Delete style {}", name);
+		page.open(name + "?view").openEdit(TextEditor.class).delete();
 	}
 
 }

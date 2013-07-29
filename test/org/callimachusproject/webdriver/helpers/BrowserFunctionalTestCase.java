@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -18,6 +19,7 @@ import org.callimachusproject.test.TemporaryServer;
 import org.callimachusproject.test.TemporaryServerFactory;
 import org.callimachusproject.test.WebResource;
 import org.callimachusproject.util.DomainNameSystemResolver;
+import org.callimachusproject.webdriver.pages.CalliPage;
 import org.openqa.selenium.Platform;
 import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -35,7 +37,7 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 	private static final String PASSWORD = "testPassword1";
 	private static final String EMAIL = "test@example.com";
 	private static final int PORT = 8081;
-	private static final Logger logger = LoggerFactory.getLogger(BrowserFunctionalTestCase.class);
+	protected static final Logger logger = LoggerFactory.getLogger(BrowserFunctionalTestCase.class);
 	private static final String HOSTNAME = DomainNameSystemResolver
 			.getInstance().getCanonicalLocalHostName();
 	private static final String ORIGIN = "http://" + HOSTNAME + ":" + PORT;
@@ -175,15 +177,16 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 	}
 
 	private RemoteWebDriverFactory driverFactory;
-	protected CallimachusDriver driver;
+	private RemoteWebDriver driver;
+	protected CalliPage page;
 
 	public BrowserFunctionalTestCase() {
 		super();
 	}
 
-	public BrowserFunctionalTestCase(String variation, CallimachusDriver driver) {
-		super("test" + DELIM1 + variation + DELIM2 + driver.getRemoteWebDriver().getCapabilities().getBrowserName());
-		this.driver = driver;
+	public BrowserFunctionalTestCase(String variation, BrowserFunctionalTestCase parent) {
+		super("test" + DELIM1 + variation + DELIM2 + parent.driver.getCapabilities().getBrowserName());
+		this.driver = parent.driver;
 	}
 
 	public void setRemoteWebDriverFactory(RemoteWebDriverFactory factory) {
@@ -232,8 +235,12 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 			if (driverFactory == null) {
 				driverFactory = getInstalledWebDrivers().get(getBrowserName());
 			}
-			driver = new CallimachusDriver(driverFactory.create(getName()), url);
+			driver = driverFactory.create(getName());
+			driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+			driver.manage().timeouts().setScriptTimeout(30, TimeUnit.SECONDS);
+			driver.navigate().to(url);
 		}
+		page = new CalliPage(new WebBrowserDriver(driver));
 	}
 
 	private String getStartUrl() throws OpenRDFException {

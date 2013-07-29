@@ -9,6 +9,7 @@ import org.callimachusproject.engine.model.TermFactory;
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.NoSuchFrameException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -78,7 +79,9 @@ public class WebBrowserDriver {
 
 	public void click(By locator) {
 		waitForCursor();
-		driver.findElement(locator).click();
+		WebElement element = driver.findElement(locator);
+		new Actions(driver).moveToElement(element).click(element).build()
+				.perform();
 	}
 
 	public void type(By locator, String text) {
@@ -94,9 +97,19 @@ public class WebBrowserDriver {
 	    waitForCursor();
 	}
 
-	public void mouseOver(By locator) {
+	public void mouseOverAndClick(By hover, By click) {
 		waitForCursor();
-	    new Actions(driver).moveToElement(driver.findElement(locator)).build().perform();
+		WebElement hoverElement = driver.findElement(hover);
+		try {
+			WebElement clickElement = driver.findElement(click);
+			new Actions(driver).moveToElement(hoverElement).click(clickElement)
+					.build().perform();
+		} catch (NoSuchElementException e) {
+			// firefox can't keep hovering long enough to complete the action
+			new Actions(driver).moveToElement(hoverElement).build().perform();
+			WebElement clickElement = driver.findElement(click);
+			driver.executeScript("arguments[0].click()", clickElement);
+		}
 	}
 
 	public void sendKeys(CharSequence... keys) {

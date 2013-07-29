@@ -6,7 +6,7 @@ import java.util.Map;
 import junit.framework.TestSuite;
 
 import org.callimachusproject.webdriver.helpers.BrowserFunctionalTestCase;
-import org.callimachusproject.webdriver.helpers.CallimachusDriver;
+import org.callimachusproject.webdriver.pages.DocEditor;
 
 public class ArticleFunctionalTest extends BrowserFunctionalTestCase {
 	public static Map<String, String[]> articles = new LinkedHashMap<String, String[]>() {
@@ -16,18 +16,18 @@ public class ArticleFunctionalTest extends BrowserFunctionalTestCase {
 					new String[] {
 							"ionica.docbook",
 							"Ionica",
-							"They told me, Heraclitus, they told me you were dead,\n" +
-							"They brought me bitter news to hear and bitter tears to shed.\n" +
-							"I wept, as I remembered, how often you and I\n" +
-							"Had tired the sun with talking and sent him down the sky." });
+							"They told me, Heraclitus, they told me you were dead,\n"
+									+ "They brought me bitter news to hear and bitter tears to shed.\n"
+									+ "I wept, as I remembered, how often you and I\n"
+									+ "Had tired the sun with talking and sent him down the sky." });
 			put("anthologia-polyglotta",
 					new String[] {
 							"anthologia-polyglotta.docbook",
 							"Anthologia Polyglotta",
-							"Two goddesses now must Cyprus adore;\n" +
-							"The Muses are ten, the Graces are four;\n" +
-							"Stella's wit is so charming, so sweet her fair face;\n" +
-							"She shines a new Venus, a Muse, and a Grace." });
+							"Two goddesses now must Cyprus adore;\n"
+									+ "The Muses are ten, the Graces are four;\n"
+									+ "Stella's wit is so charming, so sweet her fair face;\n"
+									+ "She shines a new Venus, a Muse, and a Grace." });
 		}
 	};
 
@@ -40,26 +40,36 @@ public class ArticleFunctionalTest extends BrowserFunctionalTestCase {
 		super();
 	}
 
-	public ArticleFunctionalTest(String name, CallimachusDriver driver) {
-		super(name, driver);
+	public ArticleFunctionalTest(String name, BrowserFunctionalTestCase parent) {
+		super(name, parent);
 	}
 
 	@Override
 	public void setUp() throws Exception {
 		super.setUp();
-		driver.login(getUsername(), getPassword());
+		String username = getUsername();
+		logger.info("Login {}", username);
+		page.openLogin().with(username, getPassword()).login();
 	}
 
 	@Override
 	public void tearDown() throws Exception {
-		driver.logout();
+		logger.info("Logout");
+		page.logout();
 		super.tearDown();
 	}
 
 	public void testCreateArticle() {
 		String[] article = articles.get(getVariation());
-		driver.createArticle(article[0], article[1], article[2]);
-		driver.deleteArticle(article[0], article[1]);
+		String articleName = article[0];
+		String articleTitle = article[1];
+		logger.info("Create article {}", articleName);
+		page.openCurrentFolder().openArticleCreate().clear().type(articleTitle)
+				.heading1().type("\n").type(article[2]).saveAs(articleName)
+				.waitUntilTitle(articleTitle);
+		logger.info("Delete article {}", articleName);
+		page.open(articleName + "?view").waitUntilTitle(article[1])
+				.openEdit(DocEditor.class).delete();
 	}
 
 }

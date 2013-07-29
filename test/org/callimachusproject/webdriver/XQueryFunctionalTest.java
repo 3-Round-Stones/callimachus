@@ -3,7 +3,7 @@ package org.callimachusproject.webdriver;
 import junit.framework.TestSuite;
 
 import org.callimachusproject.webdriver.helpers.BrowserFunctionalTestCase;
-import org.callimachusproject.webdriver.helpers.CallimachusDriver;
+import org.callimachusproject.webdriver.pages.TextEditor;
 
 public class XQueryFunctionalTest extends BrowserFunctionalTestCase {
 	public static final String[] xquery = new String[] {
@@ -27,25 +27,32 @@ public class XQueryFunctionalTest extends BrowserFunctionalTestCase {
 		super();
 	}
 
-	public XQueryFunctionalTest(CallimachusDriver driver) {
-		super("", driver);
+	public XQueryFunctionalTest(BrowserFunctionalTestCase parent) {
+		super("", parent);
 	}
 
 	@Override
 	public void setUp() throws Exception {
 		super.setUp();
-		driver.login(getUsername(), getPassword());
+		String username = getUsername();
+		logger.info("Login {}", username);
+		page.openLogin().with(username, getPassword()).login();
 	}
 
 	@Override
 	public void tearDown() throws Exception {
-		driver.logout();
+		logger.info("Logout");
+		page.logout();
 		super.tearDown();
 	}
 
 	public void testCreateHtml() {
-		driver.createXQuery(xquery[0], xquery[1]);
-		driver.deleteXQuery(xquery[0]);
+		String name = xquery[0];
+		logger.info("Create xquery {}", name);
+		page.openCurrentFolder().openSubTextCreate("XQuery").clear()
+				.type(xquery[1]).end().saveAs(name);
+		logger.info("Delete xquery {}", name);
+		page.open(name + "?view").openEdit(TextEditor.class).delete();
 	}
 
 }

@@ -3,7 +3,7 @@ package org.callimachusproject.webdriver;
 import junit.framework.TestSuite;
 
 import org.callimachusproject.webdriver.helpers.BrowserFunctionalTestCase;
-import org.callimachusproject.webdriver.helpers.CallimachusDriver;
+import org.callimachusproject.webdriver.pages.TextEditor;
 
 public class TransformFunctionalTest extends BrowserFunctionalTestCase {
 	public static final String[] transform = new String[] {
@@ -25,25 +25,35 @@ public class TransformFunctionalTest extends BrowserFunctionalTestCase {
 		super();
 	}
 
-	public TransformFunctionalTest(CallimachusDriver driver) {
-		super("", driver);
+	public TransformFunctionalTest(BrowserFunctionalTestCase parent) {
+		super("", parent);
 	}
 
 	@Override
 	public void setUp() throws Exception {
 		super.setUp();
-		driver.login(getUsername(), getPassword());
+		String username = getUsername();
+		logger.info("Login {}", username);
+		page.openLogin().with(username, getPassword()).login();
 	}
 
 	@Override
 	public void tearDown() throws Exception {
-		driver.logout();
+		logger.info("Logout");
+		page.logout();
 		super.tearDown();
 	}
 
 	public void testCreateHtml() {
-		driver.createTransform(transform[0], transform[1]);
-		driver.deleteTransform(transform[0]);
+		String name = transform[0];
+		logger.info("Create transform {}", name);
+		String markup = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+				+ "<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" version=\"1.0\">\n"
+				+ transform[1] + "\n</xsl:stylesheet>";
+		page.openCurrentFolder().openSubTextCreate("Transform").clear()
+				.type(markup).end().saveAs(name);
+		logger.info("Delete transform {}", name);
+		page.open(name + "?view").openEdit(TextEditor.class).delete();
 	}
 
 }

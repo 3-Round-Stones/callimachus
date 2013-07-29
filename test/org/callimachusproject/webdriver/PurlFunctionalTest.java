@@ -6,7 +6,7 @@ import java.util.Map;
 import junit.framework.TestSuite;
 
 import org.callimachusproject.webdriver.helpers.BrowserFunctionalTestCase;
-import org.callimachusproject.webdriver.helpers.CallimachusDriver;
+import org.callimachusproject.webdriver.pages.PurlEdit;
 
 public class PurlFunctionalTest extends BrowserFunctionalTestCase {
 	public static Map<String, String[]> purls = new LinkedHashMap<String, String[]>() {
@@ -27,26 +27,35 @@ public class PurlFunctionalTest extends BrowserFunctionalTestCase {
 		super();
 	}
 
-	public PurlFunctionalTest(String variation, CallimachusDriver driver) {
-		super(variation, driver);
+	public PurlFunctionalTest(String variation, BrowserFunctionalTestCase parent) {
+		super(variation, parent);
 	}
 
 	@Override
 	public void setUp() throws Exception {
 		super.setUp();
-		driver.login(getUsername(), getPassword());
+		String username = getUsername();
+		logger.info("Login {}", username);
+		page.openLogin().with(username, getPassword()).login();
 	}
 
 	@Override
 	public void tearDown() throws Exception {
-		driver.logout();
+		logger.info("Logout");
+		page.logout();
 		super.tearDown();
 	}
 
 	public void testCreatePurlAlt() {
 		String[] purl = purls.get(getVariation());
-		driver.createPurlAlt(purl[0], purl[1], purl[2]);
-		driver.deletePurl(purl[0]);
+		String purlName = purl[0];
+		logger.info("Create purl {}", purlName);
+		page.openCurrentFolder().openPurlCreate()
+				.with(purlName, purl[1], purl[2]).create()
+				.waitUntilTitle(purlName);
+		logger.info("Delete purl {}", purlName);
+		page.open(purlName + "?view").waitUntilTitle(purlName)
+				.openEdit(PurlEdit.class).delete(purlName);
 	}
 
 }

@@ -6,7 +6,7 @@ import java.util.Map;
 import junit.framework.TestSuite;
 
 import org.callimachusproject.webdriver.helpers.BrowserFunctionalTestCase;
-import org.callimachusproject.webdriver.helpers.CallimachusDriver;
+import org.callimachusproject.webdriver.pages.ConceptEdit;
 
 public class ConceptFunctionalTest extends BrowserFunctionalTestCase {
 	public static Map<String, String[]> concepts = new LinkedHashMap<String, String[]>() {
@@ -22,7 +22,8 @@ public class ConceptFunctionalTest extends BrowserFunctionalTestCase {
 							"The moving Moon went up the sky, And nowhere did abide; Softly she was going up, And a star or two beside." });
 			put("stars",
 					new String[] { "stars", "Stars",
-							"Surely the stars are images of love." ,"The stars are golden fruit upon a tree, All out of reach." });
+							"Surely the stars are images of love.",
+							"The stars are golden fruit upon a tree, All out of reach." });
 		}
 	};
 
@@ -35,26 +36,37 @@ public class ConceptFunctionalTest extends BrowserFunctionalTestCase {
 		super();
 	}
 
-	public ConceptFunctionalTest(String variation, CallimachusDriver driver) {
-		super(variation, driver);
+	public ConceptFunctionalTest(String variation,
+			BrowserFunctionalTestCase parent) {
+		super(variation, parent);
 	}
 
 	@Override
 	public void setUp() throws Exception {
 		super.setUp();
-		driver.login(getUsername(), getPassword());
+		String username = getUsername();
+		logger.info("Login {}", username);
+		page.openLogin().with(username, getPassword()).login();
 	}
 
 	@Override
 	public void tearDown() throws Exception {
-		driver.logout();
+		logger.info("Logout");
+		page.logout();
 		super.tearDown();
 	}
 
 	public void testCreateConcept() {
 		String[] concept = concepts.get(getVariation());
-		driver.createConcept(concept[0], concept[1], concept[2], concept[3]);
-		driver.deleteConcept(concept[0], concept[1]);
+		String conceptName = concept[0];
+		String conceptLabel = concept[1];
+		logger.info("Create concept {}", conceptName);
+		page.openCurrentFolder().openConceptCreate()
+				.with(conceptName, conceptLabel, concept[2], concept[3])
+				.create().waitUntilTitle(conceptLabel);
+		logger.info("Delete concept {}", conceptName);
+		page.open(conceptName + "?view").waitUntilTitle(conceptLabel)
+				.openEdit(ConceptEdit.class).delete(conceptLabel);
 	}
 
 }

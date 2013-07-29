@@ -6,7 +6,6 @@ import java.util.Map;
 import junit.framework.TestSuite;
 
 import org.callimachusproject.webdriver.helpers.BrowserFunctionalTestCase;
-import org.callimachusproject.webdriver.helpers.CallimachusDriver;
 
 public class FolderFunctionalTest extends BrowserFunctionalTestCase {
 	public static Map<String, String> folders = new LinkedHashMap<String, String>() {
@@ -19,46 +18,59 @@ public class FolderFunctionalTest extends BrowserFunctionalTestCase {
 	};
 
 	public static TestSuite suite() throws Exception {
-		return BrowserFunctionalTestCase.suite(FolderFunctionalTest.class, folders.keySet());
+		return BrowserFunctionalTestCase.suite(FolderFunctionalTest.class,
+				folders.keySet());
 	}
 
 	public FolderFunctionalTest() {
 		super();
 	}
 
-	public FolderFunctionalTest(String variation, CallimachusDriver driver) {
-		super(variation, driver);
+	public FolderFunctionalTest(String variation,
+			BrowserFunctionalTestCase parent) {
+		super(variation, parent);
 	}
 
 	@Override
 	public void setUp() throws Exception {
 		super.setUp();
-		driver.login(getUsername(), getPassword());
+		String username = getUsername();
+		logger.info("Login {}", username);
+		page.openLogin().with(username, getPassword()).login();
 	}
 
 	@Override
 	public void tearDown() throws Exception {
-		driver.logout();
+		logger.info("Logout");
+		page.logout();
 		super.tearDown();
 	}
 
 	public void testCreateFolder() {
 		String folderName = folders.get(getVariation());
-		driver.createFolder(folderName);
-		driver.deleteFolder(folderName);
+		logger.info("Create folder {}", folderName);
+		page.openCurrentFolder().openFolderCreate().with(folderName).create()
+				.waitUntilFolderOpen(folderName);
+		logger.info("Delete folder {}", folderName);
+		page.openCurrentFolder().waitUntilFolderOpen(folderName).openEdit()
+				.waitUntilTitle(folderName).delete();
 	}
 
 	public void testFolderEscaping() {
 		String folderName = folders.get(getVariation());
-		driver.createFolder(folderName);
+		logger.info("Create folder {}", folderName);
+		page.openCurrentFolder().openFolderCreate().with(folderName).create()
+				.waitUntilFolderOpen(folderName);
 		for (String concept : ConceptFunctionalTest.concepts.keySet()) {
-			new ConceptFunctionalTest(concept, driver).testCreateConcept();
+			new ConceptFunctionalTest(concept, this).testCreateConcept();
 		}
-		new BookFunctionalTest(driver).testIncludeArticles();
+		new BookFunctionalTest(this).testIncludeArticles();
 		for (String purl : PurlFunctionalTest.purls.keySet()) {
-			new PurlFunctionalTest(purl, driver).testCreatePurlAlt();
+			new PurlFunctionalTest(purl, this).testCreatePurlAlt();
 		}
-		driver.deleteFolder(folderName);
+		logger.info("Delete folder {}", folderName);
+		page.openCurrentFolder().waitUntilFolderOpen(folderName).openEdit()
+				.waitUntilTitle(folderName).delete();
 	}
 
 }

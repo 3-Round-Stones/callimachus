@@ -3,11 +3,10 @@ package org.callimachusproject.webdriver;
 import junit.framework.TestSuite;
 
 import org.callimachusproject.webdriver.helpers.BrowserFunctionalTestCase;
-import org.callimachusproject.webdriver.helpers.CallimachusDriver;
+import org.callimachusproject.webdriver.pages.TextEditor;
 
 public class TextFileFunctionalTest extends BrowserFunctionalTestCase {
-	public static final String[] text = new String[] {
-			"text.txt",
+	public static final String[] text = new String[] { "text.txt",
 			"plain text file" };
 
 	public static TestSuite suite() throws Exception {
@@ -18,25 +17,32 @@ public class TextFileFunctionalTest extends BrowserFunctionalTestCase {
 		super();
 	}
 
-	public TextFileFunctionalTest(CallimachusDriver driver) {
-		super("", driver);
+	public TextFileFunctionalTest(BrowserFunctionalTestCase parent) {
+		super("", parent);
 	}
 
 	@Override
 	public void setUp() throws Exception {
 		super.setUp();
-		driver.login(getUsername(), getPassword());
+		String username = getUsername();
+		logger.info("Login {}", username);
+		page.openLogin().with(username, getPassword()).login();
 	}
 
 	@Override
 	public void tearDown() throws Exception {
-		driver.logout();
+		logger.info("Logout");
+		page.logout();
 		super.tearDown();
 	}
 
 	public void testCreateHtml() {
-		driver.createTextFile(text[0], text[1]);
-		driver.deleteTextFile(text[0]);
+		String name = text[0];
+		logger.info("Create text {}", name);
+		page.openCurrentFolder().openSubTextCreate("Text File").clear()
+				.type(text[1]).end().saveAs(name);
+		logger.info("Delete text {}", name);
+		page.open(name + "?view").openEdit(TextEditor.class).delete();
 	}
 
 }

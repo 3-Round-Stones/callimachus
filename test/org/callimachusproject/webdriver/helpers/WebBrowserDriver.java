@@ -3,6 +3,7 @@ package org.callimachusproject.webdriver.helpers;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.callimachusproject.engine.model.TermFactory;
@@ -105,9 +106,10 @@ public class WebBrowserDriver {
 
 	public void mouseOverAndClick(By hover, By click) {
 		waitForCursor();
-		int elementCount = 0;
+		int elementCount = -1;
+		List<WebElement> clickElements = driver.findElements(click);
 		List<WebElement> elements = driver.findElements(hover);
-		do {
+		while (clickElements.isEmpty() && elements.size() > elementCount) {
 			elementCount = elements.size();
 			Actions actions = new Actions(driver);
 			Point location = null;
@@ -120,11 +122,14 @@ public class WebBrowserDriver {
 				location = hoverElement.getLocation();
 			}
 			actions.build().perform();
+			clickElements = driver.findElements(click);
 			elements = driver.findElements(hover);
-		} while (elements.size() > elementCount);
+		};
+		if (clickElements.isEmpty()) {
+			clickElements = Collections.singletonList(driver.findElement(click));
+		}
 		// firefox can't hover long enough to complete a multiple step action
-		WebElement clickElement = driver.findElement(click);
-		driver.executeScript("arguments[0].click()", clickElement);
+		driver.executeScript("arguments[0].click()", clickElements.get(0));
 	}
 
 	public void sendKeys(CharSequence... keys) {

@@ -15,4 +15,14 @@ public class ConceptEdit extends CalliPage {
 		return page();
 	}
 
+	public ConceptEdit definition(String value) {
+		driver.type(By.id("definition"), value);
+		return this;
+	}
+
+	public CalliPage save() {
+		driver.click(By.id("save"));
+		return page();
+	}
+
 }

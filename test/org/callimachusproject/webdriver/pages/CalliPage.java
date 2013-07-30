@@ -50,11 +50,23 @@ public class CalliPage {
 		return page(pageClass);
 	}
 
+	public HistoryPage openHistory() {
+		driver.click(By.linkText("History"));
+		return page(HistoryPage.class);
+	}
+
+	public CalliPage back() {
+		driver.navigateBack();
+		return page();
+	}
+
 	public CalliPage page() {
+		driver.waitForScript();
 		return new CalliPage(driver);
 	}
 
 	public <P> P page(Class<P> pageClass) {
+		driver.waitForScript();
 		try {
 			try {
 				return pageClass.getConstructor(WebBrowserDriver.class).newInstance(driver);

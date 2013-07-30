@@ -7,23 +7,17 @@ import junit.framework.TestSuite;
 
 import org.callimachusproject.webdriver.helpers.BrowserFunctionalTestCase;
 import org.callimachusproject.webdriver.pages.ConceptEdit;
+import org.openqa.selenium.By;
 
 public class ConceptFunctionalTest extends BrowserFunctionalTestCase {
 	public static Map<String, String[]> concepts = new LinkedHashMap<String, String[]>() {
 		private static final long serialVersionUID = -5837562534292090399L;
 		{
-			put("sun", new String[] { "sun", "Sun", "The lamp of day",
-					"The sun is the king of torches." });
-			put("moon",
-					new String[] {
-							"moon",
-							"Moon",
-							"The moon is a silver pin-head vast, That holds the heaven's tent-hangings fast.",
-							"The moving Moon went up the sky, And nowhere did abide; Softly she was going up, And a star or two beside." });
 			put("stars",
 					new String[] { "stars", "Stars",
 							"Surely the stars are images of love.",
-							"The stars are golden fruit upon a tree, All out of reach." });
+							"The stars are golden fruit upon a tree, All out of reach.",
+							"These blessed candles of the night."});
 		}
 	};
 
@@ -66,6 +60,27 @@ public class ConceptFunctionalTest extends BrowserFunctionalTestCase {
 		logger.info("Delete concept {}", conceptName);
 		page.open(conceptName + "?view").waitUntilTitle(conceptLabel)
 				.openEdit(ConceptEdit.class).delete(conceptLabel);
+	}
+
+	public void testConceptHistory(String variation) {
+		String[] concept = concepts.get(variation);
+		String conceptName = concept[0];
+		String conceptLabel = concept[1];
+		String def = concept[2];
+		String example = concept[3];
+		String altDef = concept[4];
+		logger.info("Create concept {}", conceptName);
+		page.openCurrentFolder().openConceptCreate()
+				.with(conceptName, conceptLabel, def, example).create()
+				.waitUntilTitle(conceptLabel);
+		logger.info("Modify concept {}", conceptName);
+		page.openEdit(ConceptEdit.class).definition(altDef).save()
+				.waitUntilTitle(conceptLabel).openHistory().openLastModified()
+				.waitUntilText(By.cssSelector(".tab-content .literal"), def)
+				.waitUntilText(By.cssSelector(".tab-content .literal"), altDef)
+				.back();
+		logger.info("Delete concept {}", conceptName);
+		page.openEdit(ConceptEdit.class).delete(conceptLabel);
 	}
 
 }

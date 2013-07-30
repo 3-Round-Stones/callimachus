@@ -40,7 +40,12 @@ public class WebBrowserDriver {
 	public void navigateTo(String ref) {
 		String url = TermFactory.newInstance(driver.getCurrentUrl()).resolve(ref);
 		driver.navigate().to(url);
-	    waitForCursor();
+	    waitForScript();
+	}
+
+	public void navigateBack() {
+		driver.navigate().back();
+		waitForScript();
 	}
 
 	public void focusInTopWindow() {
@@ -48,7 +53,7 @@ public class WebBrowserDriver {
 	}
 
 	public void focusInFrame(final String frameName) {
-		waitForCursor();
+		waitForScript();
 		new WebDriverWait(driver, 10).until(new ExpectedCondition<WebDriver>() {
 			public WebDriver apply(WebDriver driver) {
 				try {
@@ -58,12 +63,12 @@ public class WebBrowserDriver {
 				}
 			}
 		});
-		waitForCursor();
+		waitForScript();
 	}
 
 	public void focusInFrame(int... frames) {
 		driver.switchTo().window(driver.getWindowHandle());
-		waitForCursor();
+		waitForScript();
 		for (final int frame : frames) {
 			new WebDriverWait(driver, 10)
 					.until(new ExpectedCondition<WebDriver>() {
@@ -76,35 +81,38 @@ public class WebBrowserDriver {
 						}
 					});
 		}
-		waitForCursor();
+		waitForScript();
 	}
 
 	public void click(By locator) {
-		waitForCursor();
+		waitForScript();
 		WebElement element = driver.findElement(locator);
 		try {
-			new Actions(driver).moveToElement(element).build().perform();
+			new Actions(driver).moveToElement(element).click().build().perform();
 		} catch (MoveTargetOutOfBoundsException e) {
 			// firefox can't scroll to reveal element
+			driver.executeScript("arguments[0].click()", element);
 		}
-		driver.executeScript("arguments[0].click()", element);
 	}
 
 	public void type(By locator, String text) {
+		waitForScript();
 		WebElement element = driver.findElement(locator);
 		element.clear();
 		sendKeys(element, text);
+		// tab to the next element to fire onchange event
+		sendKeys(element, Keys.TAB);
 	}
 
 	public void confirm(String msg) {
 		Alert alert = driver.switchTo().alert();
 		assertTrue(alert.getText().contains(msg));
 	    alert.accept();
-	    waitForCursor();
+	    waitForScript();
 	}
 
 	public void mouseOverAndClick(By hover, By click) {
-		waitForCursor();
+		waitForScript();
 		int elementCount = -1;
 		List<WebElement> clickElements = driver.findElements(click);
 		List<WebElement> elements = driver.findElements(hover);
@@ -156,13 +164,13 @@ public class WebBrowserDriver {
 	}
 
 	public void waitUntilElementPresent(final By locator) {
-		waitForCursor();
+		waitForScript();
 		new WebDriverWait(driver, 10).until(ExpectedConditions
 				.presenceOfElementLocated(locator));
 	}
 
 	public void waitUntilTextPresent(final By locator, final String needle) {
-		waitForCursor();
+		waitForScript();
 		Wait<WebDriver> wait = new WebDriverWait(driver, 30);
 		Boolean present = wait.until(new ExpectedCondition<Boolean>() {
 			public Boolean apply(WebDriver driver) {
@@ -177,7 +185,7 @@ public class WebBrowserDriver {
 		assertTrue(present);
 	}
 
-	public void waitForCursor() {
+	public void waitForScript() {
 		Wait<WebDriver> wait = new WebDriverWait(driver, 120);
 		Boolean present = wait.until(new ExpectedCondition<Boolean>() {
 			public Boolean apply(WebDriver wd) {

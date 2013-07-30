@@ -17,7 +17,7 @@ public class Login extends CalliPage {
 
 	public CalliPage login() {
 		driver.click(By.cssSelector("button.btn.btn-primary"));
-		driver.waitForCursor();
+		driver.waitForScript();
 		return page();
 	}
 

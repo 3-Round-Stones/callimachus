@@ -45,14 +45,14 @@ public class TextEditor extends CalliPage {
 		driver.type(By.id("label"), name);
 		driver.focusInTopWindow();
 		driver.click(By.xpath("(//button[@type='button'])[2]"));
-		driver.waitForCursor();
+		driver.waitForScript();
 		return page();
 	}
 
 	public CalliPage delete() {
 		driver.click(By.cssSelector("button.btn.btn-danger"));
 		driver.confirm("Are you sure you want to delete");
-		driver.waitForCursor();
+		driver.waitForScript();
 		return page();
 	}
 

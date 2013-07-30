@@ -484,7 +484,7 @@
         <condition property="test.arg" value="-Dorg.callimachusproject.test.service=${callimachus.url}" else="-Dorg.callimachusproject.test.service=http://${hostname}:${functionaltest.port}/">
             <isset property="callimachus.url" />
         </condition>
-        <foreach target="functionaltest-single" maxthreads="5" inheritall="true" inheritrefs="true" parallel="true" param="test.file">
+        <foreach target="functionaltest-single" maxthreads="3" inheritall="true" inheritrefs="true" parallel="true" param="test.file">
             <path>
                 <fileset dir="${src.tests}">
                     <include name="**/*FunctionalTest*.java"/>

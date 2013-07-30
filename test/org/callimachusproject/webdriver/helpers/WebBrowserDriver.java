@@ -83,12 +83,11 @@ public class WebBrowserDriver {
 		waitForCursor();
 		WebElement element = driver.findElement(locator);
 		try {
-			new Actions(driver).moveToElement(element).click(element).build()
-					.perform();
+			new Actions(driver).moveToElement(element).build().perform();
 		} catch (MoveTargetOutOfBoundsException e) {
 			// firefox can't scroll to reveal element
-			driver.executeScript("arguments[0].click()", element);
 		}
+		driver.executeScript("arguments[0].click()", element);
 	}
 
 	public void type(By locator, String text) {

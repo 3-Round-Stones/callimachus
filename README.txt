@@ -87,6 +87,7 @@ stop the server. To start the server again use the provided start script.
 
 On Linux server run (as root):
  # bin/callimachus-install.sh
+ # bin/callimachus-setup.sh
 
 On Linux or Mac desktop run:
  $ bin/callimachus-setup.sh

@@ -79,18 +79,6 @@ if [ -r "$CONFIG" ]; then
   . "$CONFIG" 2>/dev/null
 fi
 
-# check for help text
-for arg in "$@" ; do
-  case $1 in
-    -h)
-      exec /bin/sh "$PRGDIR/$NAME-setup.sh" "$@" ;;
-    -help)
-      exec /bin/sh "$PRGDIR/$NAME-setup.sh" "$@" ;;
-    --help)
-      exec /bin/sh "$PRGDIR/$NAME-setup.sh" "$@" ;;
-  esac
-done
-
 # check the base dir for possible java candidates
 if [ -z "$JDK_HOME" ] && ls "$BASEDIR"/*/lib/tools.jar >/dev/null 2>&1
 then
@@ -346,6 +334,4 @@ else
         ln -sf "/etc/init.d/$NAME" "/etc/rc.d/rc${i}.d/K10$NAME"
    done
 fi
-
-exec /bin/sh "$PRGDIR/$NAME-setup.sh" "$@"
 

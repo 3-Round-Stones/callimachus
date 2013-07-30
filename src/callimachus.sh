@@ -690,6 +690,7 @@ do_start()
     fi
     SLEEP=`expr $SLEEP - 1 `
   done
+  sleep 2
 }
 
 #

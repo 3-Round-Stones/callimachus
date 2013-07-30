@@ -15,8 +15,8 @@ public class BookFunctionalTest extends BrowserFunctionalTestCase {
 	public static final String[] includes = new String[] {
 			"callimachus-quotes.docbook",
 			"Callimachus Quotes",
-			"<xi:include href=\"ionica.docbook\" />\n"
-					+ "<xi:include href=\"anthologia-polyglotta.docbook\" />" };
+			"<xi:include href=\"bionica.docbook\" />\n"
+					+ "<xi:include href=\"banthologia-polyglotta.docbook\" />" };
 
 	public static TestSuite suite() throws Exception {
 		return BrowserFunctionalTestCase.suite(BookFunctionalTest.class);
@@ -63,7 +63,7 @@ public class BookFunctionalTest extends BrowserFunctionalTestCase {
 
 	public void testIncludeArticles() {
 		for (String[] article : ArticleFunctionalTest.articles.values()) {
-			String articleName = article[0];
+			String articleName = "b" + article[0];
 			String articleTitle = article[1];
 			logger.info("Create article {}", articleName);
 			page.openCurrentFolder().openArticleCreate().clear()
@@ -83,7 +83,7 @@ public class BookFunctionalTest extends BrowserFunctionalTestCase {
 		page.open(bookName + "?view").waitUntilTitle(includes[1])
 				.openEdit(TextEditor.class).delete();
 		for (String[] article : ArticleFunctionalTest.articles.values()) {
-			String articleName = article[0];
+			String articleName = "b" + article[0];
 			logger.info("Delete article {}", articleName);
 			page.open(articleName + "?view").waitUntilTitle(article[1])
 					.openEdit(DocEditor.class).delete();

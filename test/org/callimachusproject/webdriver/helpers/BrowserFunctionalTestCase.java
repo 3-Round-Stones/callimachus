@@ -36,7 +36,7 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 	private static final char DELIM2 = '*';
 	private static final String PASSWORD = "testPassword1";
 	private static final String EMAIL = "test@example.com";
-	private static final int PORT = 8081;
+	private static final int PORT = 8088;
 	protected static final Logger logger = LoggerFactory.getLogger(BrowserFunctionalTestCase.class);
 	private static final String HOSTNAME = DomainNameSystemResolver
 			.getInstance().getCanonicalLocalHostName();

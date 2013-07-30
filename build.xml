@@ -32,6 +32,7 @@
     <property name="curl.args" value="-fSs --digest http://localhost:8080/callimachus/1.0/?archive" />
     <property name="setup.args" value="-c etc/callimachus.conf -g /auth/groups/super" />
     <property name="args" value="--pid ${pid} -c etc/callimachus.conf" />
+    <property name="functionaltest.port" value="8081" />
 
     <target name="help">
         <exec executable="ant">
@@ -83,6 +84,16 @@
                 </not>
             </and>
         </condition>
+        <script language="javascript">
+            var property = project.createTask("property");
+            property.name = "hostname";
+            try {
+                property.value = java.net.InetAddress.getLocalHost().getHostName().toLowerCase();
+            } catch (e) {
+                property.value = "localhost";
+            }
+            property.perform();
+        </script>
     </target>
 
     <target name="dependencies" depends="dist-dependencies,test-dependencies" description="Download all dependencies" />
@@ -274,6 +285,7 @@
         <basename file="${jsr311-api.url}" property="jsr311-api.jar" />
         <basename file="${selenium.url}" property="selenium.zip" />
         <basename file="${selenium-server.url}" property="selenium-server.jar" />
+        <basename file="${ant-contrib.url}" property="ant-contrib.zip" />
         <mkdir dir="${downloads}" />
         <get usetimestamp="true" skipexisting="${lib.tests.present}" dest="${downloads}">
             <url url="${junit.url}" />
@@ -282,6 +294,7 @@
             <url url="${jsr311-api.url}" />
             <url url="${selenium.url}" />
             <url url="${selenium-server.url}" />
+            <url url="${ant-contrib.url}" />
         </get>
         <mkdir dir="${lib.tests}" />
         <copy file="${downloads}/${junit.jar}" tofile="${lib.tests}/${junit.jar}" />
@@ -303,6 +316,24 @@
         <zip destfile="${lib.tests}/selenium-java.jar">
             <zipfileset src="${downloads}/${selenium-server.jar}" includes="org/openqa/selenium/** com/thoughtworks/**" />
         </zip>
+        <unzip overwrite="false" src="${downloads}/${ant-contrib.zip}" dest="${lib.tests}">
+            <patternset>
+                <include name="**/*.jar" />
+                <exclude name="**/commons-httpclient*.jar" />
+                <exclude name="**/commons-logging*.jar" />
+            </patternset>
+            <mapper type="flatten" />
+        </unzip>
+        <taskdef resource="net/sf/antcontrib/antcontrib.properties">
+            <classpath>
+                <fileset dir="${lib.tests}">
+                    <include name="**/*.jar" />
+                </fileset>
+                <fileset dir="${lib}">
+                    <include name="**/*.jar" />
+                </fileset>
+            </classpath>
+        </taskdef>
     </target>
 
     <target name="test-compile" depends="compile,test-dependencies">
@@ -342,13 +373,13 @@
             <formatter type="brief"/>
 
             <batchtest todir="${reports.tests}">
-            <fileset dir="${src.tests}">
-                <include name="**/*Test*.java"/>
-                <exclude name="**/*Integration*.java"/>
-                <exclude name="**/*FunctionalTest*.java"/>
-                <exclude name="**/*TestCase.java"/>
-                <exclude name="**/AllTests.java"/>
-            </fileset>
+                <fileset dir="${src.tests}">
+                    <include name="**/*Test*.java"/>
+                    <exclude name="**/*Integration*.java"/>
+                    <exclude name="**/*FunctionalTest*.java"/>
+                    <exclude name="**/*TestCase.java"/>
+                    <exclude name="**/AllTests.java"/>
+                </fileset>
             </batchtest>
         </junit>
     </target>
@@ -371,26 +402,60 @@
             <formatter type="brief"/>
 
             <batchtest todir="${reports.tests}">
-            <fileset dir="${src.tests}">
-                <include name="**/*IntegrationTest*.java"/>
-                <exclude name="**/*FunctionalTest*.java"/>
-                <exclude name="**/*TestCase.java"/>
-                <exclude name="**/AllTests.java"/>
-            </fileset>
+                <fileset dir="${src.tests}">
+                    <include name="**/*IntegrationTest*.java"/>
+                    <exclude name="**/*FunctionalTest*.java"/>
+                    <exclude name="**/*TestCase.java"/>
+                    <exclude name="**/AllTests.java"/>
+                </fileset>
             </batchtest>
         </junit>
     </target>
 
-    <target name="functionaltest" depends="dist,test-compile" description="run the functional tests">
-        <mkdir dir="${reports.tests}" />
-        <condition property="remotewebdriver.arg" value="-Dorg.callimachusproject.test.remotewebdriver=${callimachus.webdriver}" else="">
-            <isset property="callimachus.webdriver" />
-        </condition>
-        <condition property="test.arg" value="-Dorg.callimachusproject.test.service=${callimachus.url}" else="">
+    <target name="functionaltest-setup" depends="dist,test-compile" unless="callimachus.url">
+        <delete dir="${tmp}/functionaltest" />
+        <mkdir dir="${tmp}/functionaltest" />
+        <unzip src="${dist}/${artifact.name}-${Version}.zip" dest="${tmp}/functionaltest" />
+        <copy file="${tmp}/functionaltest/etc/callimachus-defaults.conf" tofile="${tmp}/functionaltest/etc/callimachus.conf" />
+        <replace file="${tmp}/functionaltest/etc/callimachus.conf" token="#PORT=8080" value="PORT=${functionaltest.port}" />
+        <replace file="${tmp}/functionaltest/etc/callimachus.conf" token="#ORIGIN=http://localhost:8080" value="ORIGIN=http://${hostname}:${functionaltest.port}" />
+        <!-- setup script -->
+        <exec executable="/bin/sh" dir="${tmp}/functionaltest" logError="true" failonerror="true" osfamily="unix">
+            <arg line="bin/callimachus-setup.sh -L -u ${callimachus.username}:${callimachus.password} -e ${callimachus.email}" />
+        </exec>
+        <exec executable="cmd" dir="${tmp}/functionaltest" logError="true" failonerror="true" osfamily="windows">
+            <arg line="/c bin\callimachus-setup.bat -L -u ${callimachus.username}:${callimachus.password} -e ${callimachus.email}" />
+        </exec>
+        <!-- start script -->
+        <exec executable="/bin/sh" dir="${tmp}/functionaltest" logError="true" failonerror="true" osfamily="unix">
+            <arg line="bin/callimachus-start.sh" />
+        </exec>
+        <exec executable="cmd" dir="${tmp}/functionaltest" logError="true" failonerror="true" osfamily="windows">
+            <arg line="/c bin\callimachus-start.bat" />
+        </exec>
+        <get src="http://${hostname}:${functionaltest.port}/callimachus/scripts.js" dest="${tmp}/scripts.js" />
+        <delete file="${tmp}/scripts.js" />
+        <get src="http://${hostname}:${functionaltest.port}/callimachus/1.0/styles/callimachus.less?less" dest="${tmp}/styles.css" />
+        <delete file="${tmp}/styles.css" />
+    </target>
+
+    <target name="functionaltest-teardown" unless="callimachus.url">
+        <!-- stop script -->
+        <exec executable="/bin/sh" dir="${tmp}/functionaltest" logError="true" failonerror="true" osfamily="unix">
+            <arg line="bin/callimachus-stop.sh" />
+        </exec>
+        <exec executable="cmd" dir="${tmp}/functionaltest" logError="true" failonerror="true" osfamily="windows">
+            <arg line="/c bin\callimachus-stop.bat" />
+        </exec>
+        <delete dir="${tmp}/functionaltest" />
+    </target>
+
+    <target name="functionaltest-all" unless="callimachus.webdriver">
+        <condition property="test.arg" value="-Dorg.callimachusproject.test.service=${callimachus.url}" else="-Dorg.callimachusproject.test.service=http://${hostname}:${functionaltest.port}/">
             <isset property="callimachus.url" />
         </condition>
-        <junit printsummary="on" haltonfailure="on" tempdir="${tmp}" fork="yes" forkmode="perBatch">
-            <jvmarg line="${jvmargs} -Dorg.callimachusproject.config.webapp=${dist}/${artifact.name}-webapp-${Version}.car -Dorg.callimachusproject.test.username=${callimachus.username} -Dorg.callimachusproject.test.email=${callimachus.email} -Dorg.callimachusproject.test.password=${callimachus.password} ${remotewebdriver.arg} ${test.arg}" />
+        <junit printsummary="on" haltonfailure="off" tempdir="${tmp}" fork="yes" forkmode="perBatch">
+            <jvmarg line="${jvmargs} -Dorg.callimachusproject.config.webapp=${dist}/${artifact.name}-webapp-${Version}.car -Dorg.callimachusproject.test.username=${callimachus.username} -Dorg.callimachusproject.test.email=${callimachus.email} -Dorg.callimachusproject.test.password=${callimachus.password} ${test.arg}" />
             <classpath>
                 <pathelement location="${build.tests}/" />
                 <pathelement location="${build}/" />
@@ -405,14 +470,61 @@
             <formatter type="brief"/>
 
             <batchtest todir="${reports.tests}">
-            <fileset dir="${src.tests}">
-                <include name="**/*FunctionalTest*.java"/>
-                <exclude name="**/*TestCase.java"/>
-                <exclude name="**/AllTests.java"/>
-            </fileset>
+                <fileset dir="${src.tests}">
+                    <include name="**/*FunctionalTest*.java"/>
+                    <exclude name="**/*TestCase.java"/>
+                    <exclude name="**/AllTests.java"/>
+                </fileset>
             </batchtest>
         </junit>
     </target>
+
+    <target name="functionaltest-run" depends="dist,test-compile" if="callimachus.webdriver">
+        <mkdir dir="${reports.tests}" />
+        <condition property="test.arg" value="-Dorg.callimachusproject.test.service=${callimachus.url}" else="-Dorg.callimachusproject.test.service=http://${hostname}:${functionaltest.port}/">
+            <isset property="callimachus.url" />
+        </condition>
+        <foreach target="functionaltest-single" maxthreads="5" inheritall="true" inheritrefs="true" parallel="true" param="test.file">
+            <path>
+                <fileset dir="${src.tests}">
+                    <include name="**/*FunctionalTest*.java"/>
+                    <exclude name="**/*TestCase.java"/>
+                    <exclude name="**/AllTests.java"/>
+                </fileset>
+            </path>
+        </foreach>
+    </target>
+
+    <target name="functionaltest-single">
+        <!-- we need to have relative path -->
+        <pathconvert property="test.file.relative">
+            <fileset file="${test.file}" />
+            <map from="${src.tests}/" to="" />
+        </pathconvert>
+        <junit printsummary="on" haltonfailure="off" tempdir="${tmp}" fork="yes" forkmode="perBatch">
+            <jvmarg line="${jvmargs} -Dorg.callimachusproject.config.webapp=${dist}/${artifact.name}-webapp-${Version}.car -Dorg.callimachusproject.test.username=${callimachus.username} -Dorg.callimachusproject.test.email=${callimachus.email} -Dorg.callimachusproject.test.password=${callimachus.password} -Dorg.callimachusproject.test.remotewebdriver=${callimachus.webdriver} ${test.arg}" />
+            <classpath>
+                <pathelement location="${build.tests}/" />
+                <pathelement location="${build}/" />
+                <fileset dir="${lib.tests}">
+                    <include name="**/*.jar" />
+                </fileset>
+                <fileset dir="${lib}">
+                    <include name="**/*.jar" />
+                </fileset>
+            </classpath>
+
+            <formatter type="brief"/>
+
+            <batchtest todir="${reports.tests}">
+                <fileset dir="${src.tests}">
+                    <filename name="${test.file.relative}" />
+                </fileset>
+            </batchtest>
+        </junit>
+    </target>
+
+    <target name="functionaltest" depends="functionaltest-setup,functionaltest-run,functionaltest-all,functionaltest-teardown" description="run the functional tests" />
 
     <target name="test" depends="unittest,integrationtest,functionaltest" description="run all the tests" />
 

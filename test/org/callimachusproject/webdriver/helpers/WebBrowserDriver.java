@@ -121,7 +121,7 @@ public class WebBrowserDriver {
 			}
 			actions.build().perform();
 			elements = driver.findElements(hover);
-		} while (elements.size() != elementCount);
+		} while (elements.size() > elementCount);
 		// firefox can't hover long enough to complete a multiple step action
 		WebElement clickElement = driver.findElement(click);
 		driver.executeScript("arguments[0].click()", clickElement);
@@ -186,6 +186,32 @@ public class WebBrowserDriver {
 			}
 		});
 		assertTrue(present);
+	}
+
+	public int getPositionTop(By locator) {
+		return driver.findElement(locator).getLocation().getY();
+	}
+
+	public int getPositionBottom(By locator) {
+		WebElement element = driver.findElement(locator);
+		return element.getLocation().getY() + element.getSize().getHeight();
+	}
+
+	public String getText(By locator) {
+		return driver.findElement(locator).getText();
+	}
+
+	public int getElementCount(By locator) {
+		return driver.findElements(locator).size();
+	}
+
+	public List<String> getTextOfElements(By locator) {
+		List<WebElement> elements = driver.findElements(locator);
+		List<String> texts = new ArrayList<String>(elements.size());
+		for (WebElement element : elements) {
+			texts.add(element.getText());
+		}
+		return texts;
 	}
 
 }

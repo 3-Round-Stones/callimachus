@@ -26,7 +26,7 @@ public class TransformFunctionalTest extends BrowserFunctionalTestCase {
 	}
 
 	public TransformFunctionalTest(BrowserFunctionalTestCase parent) {
-		super("", parent);
+		super(parent);
 	}
 
 	@Override

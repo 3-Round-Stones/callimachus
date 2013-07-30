@@ -36,9 +36,8 @@ public class ConceptFunctionalTest extends BrowserFunctionalTestCase {
 		super();
 	}
 
-	public ConceptFunctionalTest(String variation,
-			BrowserFunctionalTestCase parent) {
-		super(variation, parent);
+	public ConceptFunctionalTest(BrowserFunctionalTestCase parent) {
+		super(parent);
 	}
 
 	@Override
@@ -56,8 +55,8 @@ public class ConceptFunctionalTest extends BrowserFunctionalTestCase {
 		super.tearDown();
 	}
 
-	public void testCreateConcept() {
-		String[] concept = concepts.get(getVariation());
+	public void testCreateConcept(String variation) {
+		String[] concept = concepts.get(variation);
 		String conceptName = concept[0];
 		String conceptLabel = concept[1];
 		logger.info("Create concept {}", conceptName);

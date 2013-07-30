@@ -23,7 +23,7 @@ public class PipelineFunctionalTest extends BrowserFunctionalTestCase {
 	}
 
 	public PipelineFunctionalTest(BrowserFunctionalTestCase parent) {
-		super("", parent);
+		super(parent);
 	}
 
 	@Override

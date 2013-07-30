@@ -40,8 +40,8 @@ public class ArticleFunctionalTest extends BrowserFunctionalTestCase {
 		super();
 	}
 
-	public ArticleFunctionalTest(String name, BrowserFunctionalTestCase parent) {
-		super(name, parent);
+	public ArticleFunctionalTest(BrowserFunctionalTestCase parent) {
+		super(parent);
 	}
 
 	@Override
@@ -59,8 +59,8 @@ public class ArticleFunctionalTest extends BrowserFunctionalTestCase {
 		super.tearDown();
 	}
 
-	public void testCreateArticle() {
-		String[] article = articles.get(getVariation());
+	public void testCreateArticle(String variation) {
+		String[] article = articles.get(variation);
 		String articleName = article[0];
 		String articleTitle = article[1];
 		logger.info("Create article {}", articleName);

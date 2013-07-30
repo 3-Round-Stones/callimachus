@@ -18,7 +18,7 @@ public class PageFunctionalTest extends BrowserFunctionalTestCase {
 	}
 
 	public PageFunctionalTest(BrowserFunctionalTestCase parent) {
-		super("", parent);
+		super(parent);
 	}
 
 	@Override

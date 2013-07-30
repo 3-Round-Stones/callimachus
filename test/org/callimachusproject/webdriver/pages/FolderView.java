@@ -1,6 +1,7 @@
 package org.callimachusproject.webdriver.pages;
 
 import org.callimachusproject.webdriver.helpers.WebBrowserDriver;
+import org.junit.Assert;
 import org.openqa.selenium.By;
 
 public class FolderView extends CalliPage {
@@ -64,6 +65,19 @@ public class FolderView extends CalliPage {
 
 	public FolderEdit openEdit() {
 		return openEdit(FolderEdit.class);
+	}
+
+	public void assertLayout() {
+		int bottom = driver.getPositionBottom(By.linkText("Callimachus"));
+		int cogTop = driver.getPositionTop(By.cssSelector("i.icon-cog"));
+		Assert.assertTrue(bottom > cogTop);
+		Assert.assertEquals(driver.getText(By.id("totalEntries")), driver.getText(By.id("totalResults")));
+		Assert.assertEquals(Integer.parseInt(driver.getText(By.id("totalEntries"))), driver.getElementCount(By.cssSelector("table tbody tr")));
+		for (String text : driver.getTextOfElements(By.cssSelector("table tbody tr td:last-child"))) {
+			if (!"super".equals(text)) {
+				Assert.assertEquals("admin", text);
+			}
+		}
 	}
 
 }

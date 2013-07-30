@@ -18,7 +18,7 @@ public class HypertextFunctionalTest extends BrowserFunctionalTestCase {
 	}
 
 	public HypertextFunctionalTest(BrowserFunctionalTestCase parent) {
-		super("", parent);
+		super(parent);
 	}
 
 	@Override

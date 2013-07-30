@@ -15,9 +15,8 @@ public class ClassFunctionalTest extends BrowserFunctionalTestCase {
 		super();
 	}
 
-	public ClassFunctionalTest(String variation,
-			BrowserFunctionalTestCase parent) {
-		super(variation, parent);
+	public ClassFunctionalTest(BrowserFunctionalTestCase parent) {
+		super(parent);
 	}
 
 	@Override

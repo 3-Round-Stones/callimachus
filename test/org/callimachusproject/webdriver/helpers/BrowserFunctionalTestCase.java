@@ -149,18 +149,13 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 		TestSuite suite = new TestSuite(testcase.getName());
 		for (Method method : testcase.getMethods()) {
 			if (method.getName().startsWith("test")
-					&& method.getParameterTypes().length == 0
 					&& method.getReturnType().equals(Void.TYPE)) {
-				for (String name : variations) {
-					for (Map.Entry<String, RemoteWebDriverFactory> e : getInstalledWebDrivers()
-							.entrySet()) {
-						String browser = e.getKey();
-						RemoteWebDriverFactory supplier = e.getValue();
-						BrowserFunctionalTestCase test = testcase.newInstance();
-						test.setName(method.getName() + DELIM1 + name + DELIM2
-								+ browser);
-						test.setRemoteWebDriverFactory(supplier);
-						suite.addTest(test);
+				if (method.getParameterTypes().length == 0) {
+					addTests(testcase, suite, method, "");
+				} else if (method.getParameterTypes().length == 1
+						&& String.class.equals(method.getParameterTypes()[0])) {
+					for (String name : variations) {
+						addTests(testcase, suite, method, name);
 					}
 				}
 			}
@@ -170,6 +165,22 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 					+ " has no public test methods"));
 		}
 		return suite;
+	}
+
+	private static void addTests(
+			Class<? extends BrowserFunctionalTestCase> testcase,
+			TestSuite suite, Method method, String name)
+			throws InstantiationException, IllegalAccessException {
+		for (Map.Entry<String, RemoteWebDriverFactory> e : getInstalledWebDrivers()
+				.entrySet()) {
+			String browser = e.getKey();
+			RemoteWebDriverFactory supplier = e.getValue();
+			BrowserFunctionalTestCase test = testcase.newInstance();
+			test.setName(method.getName() + DELIM1 + name + DELIM2
+					+ browser);
+			test.setRemoteWebDriverFactory(supplier);
+			suite.addTest(test);
+		}
 	}
 
 	private static Map<String, RemoteWebDriverFactory> getInstalledWebDrivers() {
@@ -184,8 +195,8 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 		super();
 	}
 
-	public BrowserFunctionalTestCase(String variation, BrowserFunctionalTestCase parent) {
-		super("test" + DELIM1 + variation + DELIM2 + parent.driver.getCapabilities().getBrowserName());
+	public BrowserFunctionalTestCase(BrowserFunctionalTestCase parent) {
+		super();
 		this.driver = parent.driver;
 	}
 
@@ -212,12 +223,6 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 		} else {
 			return server.getPassword();
 		}
-	}
-
-	public String getVariation() {
-		String name = getName();
-		return name.substring(name.indexOf(DELIM1) + 1,
-				name.lastIndexOf(DELIM2));
 	}
 
 	@Override
@@ -267,14 +272,23 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 			runMethod = this.getClass().getMethod(getMethodName(),
 					(Class[]) null);
 		} catch (NoSuchMethodException e) {
-			fail("Method \"" + getMethodName() + "\" not found");
+			try {
+				runMethod = this.getClass().getMethod(getMethodName(),
+						String.class);
+			} catch (NoSuchMethodException ex) {
+				fail("Method \"" + getMethodName() + "\" not found");
+			}
 		}
 		if (!Modifier.isPublic(runMethod.getModifiers())) {
 			fail("Method \"" + getMethodName() + "\" should be public");
 		}
 
 		try {
-			runMethod.invoke(this, (Object[]) new Class[0]);
+			if (runMethod.getParameterTypes().length == 0) {
+				runMethod.invoke(this, (Object[]) new Class[0]);
+			} else {
+				runMethod.invoke(this, getVariation());
+			}
 		} catch (InvocationTargetException e) {
 			e.fillInStackTrace();
 			throw e.getTargetException();
@@ -292,5 +306,11 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 	private String getBrowserName() {
 		String name = getName();
 		return name.substring(name.lastIndexOf(DELIM2) + 1);
+	}
+
+	private String getVariation() {
+		String name = getName();
+		return name.substring(name.indexOf(DELIM1) + 1,
+				name.lastIndexOf(DELIM2));
 	}
 }

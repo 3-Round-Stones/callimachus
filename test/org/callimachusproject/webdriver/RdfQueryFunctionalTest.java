@@ -19,7 +19,7 @@ public class RdfQueryFunctionalTest extends BrowserFunctionalTestCase {
 	}
 
 	public RdfQueryFunctionalTest(BrowserFunctionalTestCase parent) {
-		super("", parent);
+		super(parent);
 	}
 
 	@Override

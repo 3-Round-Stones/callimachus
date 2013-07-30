@@ -27,7 +27,7 @@ public class BookFunctionalTest extends BrowserFunctionalTestCase {
 	}
 
 	public BookFunctionalTest(BrowserFunctionalTestCase parent) {
-		super("", parent);
+		super(parent);
 	}
 
 	@Override

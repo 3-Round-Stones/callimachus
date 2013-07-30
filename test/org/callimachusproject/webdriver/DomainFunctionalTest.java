@@ -15,9 +15,8 @@ public class DomainFunctionalTest extends BrowserFunctionalTestCase {
 		super();
 	}
 
-	public DomainFunctionalTest(String variation,
-			BrowserFunctionalTestCase parent) {
-		super(variation, parent);
+	public DomainFunctionalTest(BrowserFunctionalTestCase parent) {
+		super(parent);
 	}
 
 	@Override

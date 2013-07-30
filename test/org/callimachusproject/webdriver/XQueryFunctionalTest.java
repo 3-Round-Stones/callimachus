@@ -28,7 +28,7 @@ public class XQueryFunctionalTest extends BrowserFunctionalTestCase {
 	}
 
 	public XQueryFunctionalTest(BrowserFunctionalTestCase parent) {
-		super("", parent);
+		super(parent);
 	}
 
 	@Override

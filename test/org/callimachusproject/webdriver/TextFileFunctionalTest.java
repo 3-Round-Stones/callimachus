@@ -18,7 +18,7 @@ public class TextFileFunctionalTest extends BrowserFunctionalTestCase {
 	}
 
 	public TextFileFunctionalTest(BrowserFunctionalTestCase parent) {
-		super("", parent);
+		super(parent);
 	}
 
 	@Override

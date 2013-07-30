@@ -22,7 +22,7 @@ public class StyleFunctionalTest extends BrowserFunctionalTestCase {
 	}
 
 	public StyleFunctionalTest(BrowserFunctionalTestCase parent) {
-		super("", parent);
+		super(parent);
 	}
 
 	@Override

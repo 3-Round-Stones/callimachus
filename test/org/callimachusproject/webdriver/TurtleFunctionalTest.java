@@ -19,7 +19,7 @@ public class TurtleFunctionalTest extends BrowserFunctionalTestCase {
 	}
 
 	public TurtleFunctionalTest(BrowserFunctionalTestCase parent) {
-		super("", parent);
+		super(parent);
 	}
 
 	@Override

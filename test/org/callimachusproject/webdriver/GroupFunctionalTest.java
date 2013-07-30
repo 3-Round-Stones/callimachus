@@ -15,9 +15,8 @@ public class GroupFunctionalTest extends BrowserFunctionalTestCase {
 		super();
 	}
 
-	public GroupFunctionalTest(String variation,
-			BrowserFunctionalTestCase parent) {
-		super(variation, parent);
+	public GroupFunctionalTest(BrowserFunctionalTestCase parent) {
+		super(parent);
 	}
 
 	@Override

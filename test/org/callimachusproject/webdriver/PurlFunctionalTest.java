@@ -27,8 +27,8 @@ public class PurlFunctionalTest extends BrowserFunctionalTestCase {
 		super();
 	}
 
-	public PurlFunctionalTest(String variation, BrowserFunctionalTestCase parent) {
-		super(variation, parent);
+	public PurlFunctionalTest(BrowserFunctionalTestCase parent) {
+		super(parent);
 	}
 
 	@Override
@@ -46,8 +46,8 @@ public class PurlFunctionalTest extends BrowserFunctionalTestCase {
 		super.tearDown();
 	}
 
-	public void testCreatePurlAlt() {
-		String[] purl = purls.get(getVariation());
+	public void testCreatePurlAlt(String variation) {
+		String[] purl = purls.get(variation);
 		String purlName = purl[0];
 		logger.info("Create purl {}", purlName);
 		page.openCurrentFolder().openPurlCreate()

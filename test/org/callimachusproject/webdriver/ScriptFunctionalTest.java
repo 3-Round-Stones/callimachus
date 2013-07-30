@@ -21,7 +21,7 @@ public class ScriptFunctionalTest extends BrowserFunctionalTestCase {
 	}
 
 	public ScriptFunctionalTest(BrowserFunctionalTestCase parent) {
-		super("", parent);
+		super(parent);
 	}
 
 	@Override

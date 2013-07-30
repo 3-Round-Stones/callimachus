@@ -26,9 +26,8 @@ public class FolderFunctionalTest extends BrowserFunctionalTestCase {
 		super();
 	}
 
-	public FolderFunctionalTest(String variation,
-			BrowserFunctionalTestCase parent) {
-		super(variation, parent);
+	public FolderFunctionalTest(BrowserFunctionalTestCase parent) {
+		super(parent);
 	}
 
 	@Override
@@ -46,8 +45,12 @@ public class FolderFunctionalTest extends BrowserFunctionalTestCase {
 		super.tearDown();
 	}
 
-	public void testCreateFolder() {
-		String folderName = folders.get(getVariation());
+	public void testHomeFolderView() {
+		page.openHomeFolder().assertLayout();
+	}
+
+	public void testCreateFolder(String variation) {
+		String folderName = folders.get(variation);
 		logger.info("Create folder {}", folderName);
 		page.openCurrentFolder().openFolderCreate().with(folderName).create()
 				.waitUntilFolderOpen(folderName);
@@ -56,17 +59,17 @@ public class FolderFunctionalTest extends BrowserFunctionalTestCase {
 				.waitUntilTitle(folderName).delete();
 	}
 
-	public void testFolderEscaping() {
-		String folderName = folders.get(getVariation());
+	public void testFolderEscaping(String variation) {
+		String folderName = folders.get(variation);
 		logger.info("Create folder {}", folderName);
 		page.openCurrentFolder().openFolderCreate().with(folderName).create()
 				.waitUntilFolderOpen(folderName);
 		for (String concept : ConceptFunctionalTest.concepts.keySet()) {
-			new ConceptFunctionalTest(concept, this).testCreateConcept();
+			new ConceptFunctionalTest(this).testCreateConcept(concept);
 		}
 		new BookFunctionalTest(this).testIncludeArticles();
 		for (String purl : PurlFunctionalTest.purls.keySet()) {
-			new PurlFunctionalTest(purl, this).testCreatePurlAlt();
+			new PurlFunctionalTest(this).testCreatePurlAlt(purl);
 		}
 		logger.info("Delete folder {}", folderName);
 		page.openCurrentFolder().waitUntilFolderOpen(folderName).openEdit()

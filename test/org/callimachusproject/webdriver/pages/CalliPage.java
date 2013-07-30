@@ -29,6 +29,12 @@ public class CalliPage {
 		return page();
 	}
 
+	public FolderView openHomeFolder() {
+		driver.click(By.cssSelector("i.icon-cog"));
+		driver.click(By.linkText("Home folder"));
+		return page(FolderView.class);
+	}
+
 	public FolderView openCurrentFolder() {
 		driver.navigateTo("./?view");
 		return page(FolderView.class);

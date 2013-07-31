@@ -3,7 +3,6 @@ package org.callimachusproject.webdriver.helpers;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.callimachusproject.engine.model.TermFactory;
@@ -11,7 +10,6 @@ import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.NoSuchFrameException;
-import org.openqa.selenium.Point;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
@@ -96,6 +94,11 @@ public class WebBrowserDriver {
 		}
 	}
 
+	public void submit(By locator) {
+		waitForScript();
+		driver.findElement(locator).submit();
+	}
+
 	public void type(By locator, String text) {
 		waitForScript();
 		WebElement element = driver.findElement(locator);
@@ -112,32 +115,8 @@ public class WebBrowserDriver {
 	    waitForScript();
 	}
 
-	public void mouseOverAndClick(By hover, By click) {
-		waitForScript();
-		int elementCount = -1;
-		List<WebElement> clickElements = driver.findElements(click);
-		List<WebElement> elements = driver.findElements(hover);
-		while (clickElements.isEmpty() && elements.size() > elementCount) {
-			elementCount = elements.size();
-			Actions actions = new Actions(driver);
-			Point location = null;
-			for (WebElement hoverElement : elements) {
-				if (location != null) {
-					actions = actions.moveByOffset(
-							hoverElement.getLocation().x - location.x, 0);
-				}
-				actions = actions.moveToElement(hoverElement);
-				location = hoverElement.getLocation();
-			}
-			actions.build().perform();
-			clickElements = driver.findElements(click);
-			elements = driver.findElements(hover);
-		};
-		if (clickElements.isEmpty()) {
-			clickElements = Collections.singletonList(driver.findElement(click));
-		}
-		// firefox can't hover long enough to complete a multiple step action
-		driver.executeScript("arguments[0].click()", clickElements.get(0));
+	public void clickHiddenLink(String cssSelector) {
+		driver.executeScript("document.querySelector(arguments[0]).click()", cssSelector);
 	}
 
 	public void sendKeys(CharSequence... keys) {

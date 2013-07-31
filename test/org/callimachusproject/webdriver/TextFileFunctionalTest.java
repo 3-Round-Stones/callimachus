@@ -39,7 +39,7 @@ public class TextFileFunctionalTest extends BrowserFunctionalTestCase {
 	public void testCreateTextFile() {
 		String name = text[0];
 		logger.info("Create text {}", name);
-		page.openCurrentFolder().openTextCreate("Text File").clear()
+		page.openCurrentFolder().openTextCreate("TextFile").clear()
 				.type(text[1]).end().saveAs(name);
 		logger.info("Delete text {}", name);
 		page.open(name + "?view").openEdit(TextEditor.class).delete();

@@ -27,6 +27,7 @@ import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.config.SocketConfig;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCredentialsProvider;
@@ -107,8 +108,8 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 						caps.setVersion("27");
 						caps.setPlatform(Platform.ANY);
 						caps.setCapability("name", name);
-						caps.setCapability("build", Version.getInstance().getVersion());
-						caps.setCapability("tags", URI.create(getStartUrl()).getAuthority());
+						caps.setCapability("build", Version.getInstance().getVersionCode());
+						caps.setCapability("tags", getTag());
 						return new RemoteWebDriver(url, caps);
 					}
 				});
@@ -119,8 +120,8 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 						caps.setVersion("21");
 						caps.setPlatform(Platform.ANY);
 						caps.setCapability("name", name);
-						caps.setCapability("build", Version.getInstance().getVersion());
-						caps.setCapability("tags", URI.create(getStartUrl()).getAuthority());
+						caps.setCapability("build", Version.getInstance().getVersionCode());
+						caps.setCapability("tags", getTag());
 						return new RemoteWebDriver(url, caps);
 					}
 				});
@@ -131,8 +132,8 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 						caps.setVersion("9");
 						caps.setCapability("platform", "Windows 7");
 						caps.setCapability("name", name);
-						caps.setCapability("build", Version.getInstance().getVersion());
-						caps.setCapability("tags", URI.create(getStartUrl()).getAuthority());
+						caps.setCapability("build", Version.getInstance().getVersionCode());
+						caps.setCapability("tags", getTag());
 						return new RemoteWebDriver(url, caps);
 					}
 				});
@@ -143,8 +144,8 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 						caps.setVersion("10");
 						caps.setCapability("platform", "Windows 8");
 						caps.setCapability("name", name);
-						caps.setCapability("build", Version.getInstance().getVersion());
-						caps.setCapability("tags", URI.create(getStartUrl()).getAuthority());
+						caps.setCapability("build", Version.getInstance().getVersionCode());
+						caps.setCapability("tags", getTag());
 						return new RemoteWebDriver(url, caps);
 					}
 				});
@@ -226,6 +227,17 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 				logger.error(e.toString(), e);
 				return ORIGIN + "/";
 			}
+		}
+	}
+
+	private static String getTag() {
+		String authority = URI.create(getStartUrl()).getAuthority();
+		if (authority.contains(".")) {
+			return authority.substring(0, authority.indexOf('.'));
+		} else if (authority.contains(":")) {
+			return authority.substring(0, authority.indexOf(':'));
+		} else {
+			return authority;
 		}
 	}
 
@@ -349,16 +361,15 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 
 	private void recordPass(String jobId) throws IOException {
 		recordTest(jobId, "{\"name\": \"" + getName() + "\", \"build\": \""
-				+ Version.getInstance().getVersion() + "\", \"tags\": [\""
-				+ URI.create(getStartUrl()).getAuthority()
+				+ Version.getInstance().getVersionCode() + "\", \"tags\": [\""
+				+ getTag()
 				+ "\"], \"video-upload-on-pass\": false, \"passed\": true}");
 	}
 
 	private void recordFailure(String jobId, Throwable e) throws IOException {
 		recordTest(jobId, "{\"name\": \"" + getName() + "\", \"build\": \""
-				+ Version.getInstance().getVersion() + "\", \"tags\": [\""
-				+ URI.create(getStartUrl()).getAuthority() + "\", \""
-				+ e.getClass().getSimpleName()
+				+ Version.getInstance().getVersionCode() + "\", \"tags\": [\""
+				+ getTag() + "\", \"" + e.getClass().getSimpleName()
 				+ "\"], \"passed\": false}");
 	}
 
@@ -368,8 +379,12 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 		if (remotewebdriver != null
 				&& remotewebdriver.contains("saucelabs.com")) {
 			URI uri = URI.create(remotewebdriver);
-			CloseableHttpClient client = HttpClientBuilder.create()
-					.useSystemProperties().build();
+			CloseableHttpClient client = HttpClientBuilder
+					.create()
+					.useSystemProperties()
+					.setDefaultSocketConfig(
+							SocketConfig.custom().setSoTimeout(5000).build())
+					.build();
 			try {
 				String info = uri.getUserInfo();
 				putTestData(info, jobId, data, client);

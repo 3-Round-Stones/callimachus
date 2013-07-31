@@ -16,7 +16,7 @@ public class ClassEdit extends CalliPage {
 	}
 
 	public CalliPage create() {
-		driver.click(By.id("create"));
+		driver.submit(By.id("create"));
 		return page();
 	}
 

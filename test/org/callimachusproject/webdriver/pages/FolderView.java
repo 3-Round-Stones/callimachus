@@ -36,25 +36,25 @@ public class FolderView extends CalliPage {
 
 	public ClassEdit openClassCreate() {
 		driver.click(By.id("create-menu"));
-		driver.mouseOverAndClick(By.linkText("More options"), By.linkText("Class"));
+		driver.clickHiddenLink(".dropdown-menu a[href$=\"Class\"]");
 		return page(ClassEdit.class);
 	}
 
 	public DomainCreate openDomainCreate() {
 		driver.click(By.id("create-menu"));
-		driver.mouseOverAndClick(By.linkText("More options"), By.linkText("Domain"));
+		driver.clickHiddenLink(".dropdown-menu a[href$=\"Domain\"]");
 		return page(DomainCreate.class);
 	}
 
 	public GroupCreate openGroupCreate() {
 		driver.click(By.id("create-menu"));
-		driver.mouseOverAndClick(By.linkText("More options"), By.linkText("Group"));
+		driver.clickHiddenLink(".dropdown-menu a[href$=\"Group\"]");
 		return page(GroupCreate.class);
 	}
 
-	public TextEditor openTextCreate(String link) {
+	public TextEditor openTextCreate(String hrefEndsWith) {
 		driver.click(By.id("create-menu"));
-		driver.mouseOverAndClick(By.linkText("More options"), By.linkText(link));
+		driver.clickHiddenLink(".dropdown-menu a[href$=\""+ hrefEndsWith + "\"]");
 		return page(TextEditor.class);
 	}
 

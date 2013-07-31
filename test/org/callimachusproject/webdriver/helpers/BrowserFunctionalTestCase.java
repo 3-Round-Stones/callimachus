@@ -1,16 +1,15 @@
 package org.callimachusproject.webdriver.helpers;
 
+import static java.net.URLDecoder.decode;
+
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.net.URLDecoder;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -20,6 +19,19 @@ import java.util.concurrent.TimeUnit;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.callimachusproject.Version;
 import org.callimachusproject.test.TemporaryServer;
 import org.callimachusproject.test.TemporaryServerFactory;
@@ -129,7 +141,7 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 						DesiredCapabilities caps = DesiredCapabilities
 								.internetExplorer();
 						caps.setVersion("10");
-						caps.setCapability("platform", "Windows 7");
+						caps.setCapability("platform", "Windows 8");
 						caps.setCapability("name", name);
 						caps.setCapability("build", Version.getInstance().getVersion());
 						caps.setCapability("tags", URI.create(getStartUrl()).getAuthority());
@@ -192,14 +204,10 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 			Class<? extends BrowserFunctionalTestCase> testcase,
 			TestSuite suite, Method method, String name)
 			throws InstantiationException, IllegalAccessException {
-		for (Map.Entry<String, RemoteWebDriverFactory> e : getInstalledWebDrivers()
-				.entrySet()) {
-			String browser = e.getKey();
-			RemoteWebDriverFactory supplier = e.getValue();
+		for (String browser : getInstalledWebDrivers().keySet()) {
 			BrowserFunctionalTestCase test = testcase.newInstance();
 			test.setName(method.getName() + DELIM1 + name + DELIM2
 					+ browser);
-			test.setRemoteWebDriverFactory(supplier);
 			suite.addTest(test);
 		}
 	}
@@ -221,8 +229,6 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 		}
 	}
 
-	private RemoteWebDriverFactory driverFactory;
-	private RemoteWebDriver driver;
 	protected CalliPage page;
 
 	public BrowserFunctionalTestCase() {
@@ -231,11 +237,7 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 
 	public BrowserFunctionalTestCase(BrowserFunctionalTestCase parent) {
 		super();
-		this.driver = parent.driver;
-	}
-
-	public void setRemoteWebDriverFactory(RemoteWebDriverFactory factory) {
-		this.driverFactory = factory;
+		this.page = parent.page;
 	}
 
 	public String getUsername() {
@@ -260,34 +262,48 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 	}
 
 	@Override
-	public void setUp() throws Exception {
+	public void runBare() throws Throwable {
 		if (server != null) {
 			server.resume();
+			String url = getStartUrl();
+			WebResource home = new WebResource(url);
+			home.get("text/html");
+			home.ref("/callimachus/scripts.js").get("text/javascript");
+			home.ref("/callimachus/1.0/styles/callimachus.less?less").get(
+					"text/css");
 		}
-		String url = getStartUrl();
-		WebResource home = new WebResource(url);
-		home.get("text/html");
-		home.ref("/callimachus/scripts.js").get("text/javascript");
-		home.ref("/callimachus/1.0/styles/callimachus.less?less").get(
-				"text/css");
-		if (driver == null) {
-			if (driverFactory == null) {
-				driverFactory = getInstalledWebDrivers().get(getBrowserName());
+		RemoteWebDriverFactory driverFactory = getInstalledWebDrivers().get(
+				getBrowserName());
+		RemoteWebDriver driver = driverFactory.create(getName());
+		try {
+			init(driver);
+			Throwable exception = null;
+			setUp();
+			try {
+				runTest();
+			} catch (Throwable running) {
+				exception = running;
+			} finally {
+				try {
+					tearDown();
+				} catch (Throwable tearingDown) {
+					if (exception == null)
+						exception = tearingDown;
+				}
 			}
-			driver = driverFactory.create(getName());
-			driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
-			driver.manage().timeouts().setScriptTimeout(30, TimeUnit.SECONDS);
-			driver.navigate().to(url);
-		}
-		page = new CalliPage(new WebBrowserDriver(driver));
-	}
-
-	@Override
-	public void tearDown() throws Exception {
-		driver.quit();
-		driver = null;
-		if (server != null) {
-			server.pause();
+			String jobId = driver.getSessionId().toString();
+			if (exception == null) {
+				recordPass(jobId);
+			} else {
+				recordFailure(jobId, exception);
+				throw exception;
+			}
+		} finally {
+			driver.quit();
+			driver = null;
+			if (server != null) {
+				server.pause();
+			}
 		}
 	}
 
@@ -315,10 +331,8 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 			} else {
 				runMethod.invoke(this, getVariation());
 			}
-			recordPass();
 		} catch (InvocationTargetException e) {
 			e.fillInStackTrace();
-			recordFailure(e);
 			throw e.getTargetException();
 		} catch (IllegalAccessException e) {
 			e.fillInStackTrace();
@@ -326,58 +340,73 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 		}
 	}
 
-	private void recordPass() {
-		recordTest("{\"name\": \"" + getName() + "\", \"build\": \""
-				+ Version.getInstance().getVersion() + "\", \"tags\": [\""
-				+ URI.create(getStartUrl()).getAuthority()
-				+ "\"], \"passed\": true}");
+	private void init(RemoteWebDriver driver) {
+		driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+		driver.manage().timeouts().setScriptTimeout(30, TimeUnit.SECONDS);
+		driver.navigate().to(getStartUrl());
+		page = new CalliPage(new WebBrowserDriver(driver));
 	}
 
-	private void recordFailure(InvocationTargetException e) {
-		recordTest("{\"name\": \"" + getName() + "\", \"build\": \""
+	private void recordPass(String jobId) throws IOException {
+		recordTest(jobId, "{\"name\": \"" + getName() + "\", \"build\": \""
+				+ Version.getInstance().getVersion() + "\", \"tags\": [\""
+				+ URI.create(getStartUrl()).getAuthority()
+				+ "\"], \"video-upload-on-pass\": false, \"passed\": true}");
+	}
+
+	private void recordFailure(String jobId, Throwable e) throws IOException {
+		recordTest(jobId, "{\"name\": \"" + getName() + "\", \"build\": \""
 				+ Version.getInstance().getVersion() + "\", \"tags\": [\""
 				+ URI.create(getStartUrl()).getAuthority() + "\", \""
-				+ e.getCause().getClass().getSimpleName()
+				+ e.getClass().getSimpleName()
 				+ "\"], \"passed\": false}");
 	}
 
-	private void recordTest(String data) {
+	private void recordTest(String jobId, String data) throws IOException {
 		String remotewebdriver = System
 				.getProperty("org.callimachusproject.test.remotewebdriver");
 		if (remotewebdriver != null
 				&& remotewebdriver.contains("saucelabs.com")) {
-			String jobId = driver.getSessionId().toString();
 			URI uri = URI.create(remotewebdriver);
-			String username = uri.getUserInfo();
-			if (username.contains(":")) {
-				username = username.substring(0, username.indexOf(':'));
-			}
+			CloseableHttpClient client = HttpClientBuilder.create()
+					.useSystemProperties().build();
 			try {
-				username = URLDecoder.decode(username, "UTF-8");
-				URL url = new URL("http://" + uri.getRawUserInfo()
-						+ "@saucelabs.com/rest/v1/" + username + "/jobs/"
-						+ jobId);
-				HttpURLConnection connection = (HttpURLConnection) url
-						.openConnection();
-				connection.setRequestMethod("PUT");
-				connection.setRequestProperty("Content-Type",
-						"text/json;charset=UTF-8");
-				connection.setDoInput(false);
-				connection.setDoOutput(true);
-				OutputStream out = connection.getOutputStream();
-				try {
-					out.write(data.getBytes("UTF-8"));
-				} finally {
-					out.close();
-				}
+				String info = uri.getUserInfo();
+				putTestData(info, jobId, data, client);
 			} catch (MalformedURLException ex) {
 				logger.error(ex.toString(), ex);
 			} catch (UnsupportedEncodingException ex) {
 				logger.error(ex.toString(), ex);
-			} catch (IOException ex) {
+			} catch (RuntimeException ex) {
 				logger.error(ex.toString(), ex);
+			} finally {
+				client.close();
 			}
 		}
+	}
+
+	private void putTestData(String info, String jobId, String data,
+			CloseableHttpClient client) throws IOException,
+			ClientProtocolException {
+		String username = decode(info.substring(0, info.indexOf(':')), "UTF-8");
+		String password = decode(info.substring(info.indexOf(':') + 1), "UTF-8");
+		UsernamePasswordCredentials cred = new UsernamePasswordCredentials(
+				username, password);
+		AuthScope scope = new AuthScope("saucelabs.com", 80);
+		CredentialsProvider credsProvider = new BasicCredentialsProvider();
+		credsProvider.setCredentials(scope, cred);
+		HttpClientContext ctx = HttpClientContext.create();
+		ctx.setCredentialsProvider(credsProvider);
+		HttpPut put = new HttpPut("http://saucelabs.com/rest/v1/" + username
+				+ "/jobs/" + jobId);
+		put.setEntity(new StringEntity(data, ContentType.APPLICATION_JSON));
+		client.execute(put, new ResponseHandler<Void>() {
+			public Void handleResponse(HttpResponse response)
+					throws ClientProtocolException, IOException {
+				assertTrue(300 > response.getStatusLine().getStatusCode());
+				return null;
+			}
+		}, ctx);
 	}
 
 	private String getMethodName() {

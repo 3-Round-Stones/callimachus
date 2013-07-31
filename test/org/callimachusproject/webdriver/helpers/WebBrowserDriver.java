@@ -88,7 +88,8 @@ public class WebBrowserDriver {
 		waitForScript();
 		WebElement element = driver.findElement(locator);
 		try {
-			new Actions(driver).moveToElement(element).click().build().perform();
+			new Actions(driver).moveToElement(element).build().perform();
+			element.click();
 		} catch (MoveTargetOutOfBoundsException e) {
 			// firefox can't scroll to reveal element
 			driver.executeScript("arguments[0].click()", element);

@@ -1,10 +1,16 @@
 package org.callimachusproject.webdriver.helpers;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -90,6 +96,7 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 						caps.setPlatform(Platform.ANY);
 						caps.setCapability("name", name);
 						caps.setCapability("build", Version.getInstance().getVersion());
+						caps.setCapability("tags", URI.create(getStartUrl()).getAuthority());
 						return new RemoteWebDriver(url, caps);
 					}
 				});
@@ -101,6 +108,7 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 						caps.setPlatform(Platform.ANY);
 						caps.setCapability("name", name);
 						caps.setCapability("build", Version.getInstance().getVersion());
+						caps.setCapability("tags", URI.create(getStartUrl()).getAuthority());
 						return new RemoteWebDriver(url, caps);
 					}
 				});
@@ -112,6 +120,7 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 						caps.setCapability("platform", "Windows 7");
 						caps.setCapability("name", name);
 						caps.setCapability("build", Version.getInstance().getVersion());
+						caps.setCapability("tags", URI.create(getStartUrl()).getAuthority());
 						return new RemoteWebDriver(url, caps);
 					}
 				});
@@ -187,6 +196,19 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 		return factories;
 	}
 
+	private static String getStartUrl() {
+		if (server == null) {
+			return System.getProperty("org.callimachusproject.test.service");
+		} else {
+			try {
+				return server.getRepository().getCallimachusUrl(server.getOrigin(), "/");
+			} catch (OpenRDFException e) {
+				logger.error(e.toString(), e);
+				return ORIGIN + "/";
+			}
+		}
+	}
+
 	private RemoteWebDriverFactory driverFactory;
 	private RemoteWebDriver driver;
 	protected CalliPage page;
@@ -248,14 +270,6 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 		page = new CalliPage(new WebBrowserDriver(driver));
 	}
 
-	private String getStartUrl() throws OpenRDFException {
-		if (server == null) {
-			return System.getProperty("org.callimachusproject.test.service");
-		} else {
-			return server.getRepository().getCallimachusUrl(server.getOrigin(), "/");
-		}
-	}
-
 	@Override
 	public void tearDown() throws Exception {
 		driver.quit();
@@ -289,12 +303,68 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 			} else {
 				runMethod.invoke(this, getVariation());
 			}
+			recordPass();
 		} catch (InvocationTargetException e) {
 			e.fillInStackTrace();
+			recordFailure(e);
 			throw e.getTargetException();
 		} catch (IllegalAccessException e) {
 			e.fillInStackTrace();
 			throw e;
+		}
+	}
+
+	private void recordPass() {
+		recordTest("{\"name\": \"" + getName() + "\", \"build\": \""
+				+ Version.getInstance().getVersion() + "\", \"tags\": [\""
+				+ URI.create(getStartUrl()).getAuthority()
+				+ "\"], \"passed\": \"true\"}");
+	}
+
+	private void recordFailure(InvocationTargetException e) {
+		recordTest("{\"name\": \"" + getName() + "\", \"build\": \""
+				+ Version.getInstance().getVersion() + "\", \"tags\": [\""
+				+ URI.create(getStartUrl()).getAuthority() + "\", \""
+				+ e.getCause().getClass().getSimpleName()
+				+ "\"], \"passed\": \"false\"}");
+	}
+
+	private void recordTest(String data) {
+		String remotewebdriver = System
+				.getProperty("org.callimachusproject.test.remotewebdriver");
+		if (remotewebdriver != null
+				&& remotewebdriver.contains("saucelabs.com")) {
+			String jobId = driver.getSessionId().toString();
+			URI uri = URI.create(remotewebdriver);
+			String username = uri.getUserInfo();
+			if (username.contains(":")) {
+				username = username.substring(0, username.indexOf(':'));
+			}
+			try {
+				username = URLDecoder.decode(username, "UTF-8");
+				URL url = uri
+						.resolve("/rest/v1/" + username + "/jobs/" + jobId)
+						.toURL();
+				HttpURLConnection connection = (HttpURLConnection) url
+						.openConnection();
+				connection.setRequestMethod("PUT");
+				connection.setRequestProperty("Content-Type",
+						"text/json;charset=UTF-8");
+				connection.setDoInput(false);
+				connection.setDoOutput(true);
+				OutputStream out = connection.getOutputStream();
+				try {
+					out.write(data.getBytes("UTF-8"));
+				} finally {
+					out.close();
+				}
+			} catch (MalformedURLException ex) {
+				logger.error(ex.toString(), ex);
+			} catch (UnsupportedEncodingException ex) {
+				logger.error(ex.toString(), ex);
+			} catch (IOException ex) {
+				logger.error(ex.toString(), ex);
+			}
 		}
 	}
 

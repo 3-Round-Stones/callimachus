@@ -13,7 +13,7 @@ public class TextEditor extends CalliPage {
 	public TextEditor clear() {
 		driver.focusInFrame(0);
 		// shift/control does not appear to work in IE
-		CharSequence[] keys = new CharSequence[512];
+		CharSequence[] keys = new CharSequence[1024];
 		for (int i = 0; i < keys.length; i++) {
 			keys[i] = Keys.BACK_SPACE;
 		}
@@ -30,7 +30,7 @@ public class TextEditor extends CalliPage {
 	public TextEditor end() {
 		driver.focusInFrame(0);
 		// shift/control does not appear to work in IE
-		CharSequence[] keys = new CharSequence[128];
+		CharSequence[] keys = new CharSequence[1024];
 		for (int i = 0; i < keys.length; i++) {
 			keys[i] = Keys.DELETE;
 		}

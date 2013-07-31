@@ -40,7 +40,7 @@ public class RdfQueryFunctionalTest extends BrowserFunctionalTestCase {
 	public void testCreateRdfQuery() {
 		String name = query[0];
 		logger.info("Create rdf query {}", name);
-		page.openCurrentFolder().openTextCreate("Query").clear()
+		page.openCurrentFolder().openTextCreate("NamedQuery").clear()
 				.type(query[1]).end().saveAs(name);
 		logger.info("Delete rdf query {}", name);
 		page.open(name + "?view").openEdit(TextEditor.class).delete();

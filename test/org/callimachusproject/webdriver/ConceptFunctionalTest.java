@@ -83,4 +83,22 @@ public class ConceptFunctionalTest extends BrowserFunctionalTestCase {
 		page.openEdit(ConceptEdit.class).delete(conceptLabel);
 	}
 
+	public void testConceptDiscussion(String variation) {
+		String[] concept = concepts.get(variation);
+		String conceptName = concept[0];
+		String conceptLabel = concept[1];
+		String def = concept[2];
+		String example = concept[3];
+		String altDef = concept[4];
+		logger.info("Create concept {}", conceptName);
+		page.openCurrentFolder().openConceptCreate()
+				.with(conceptName, conceptLabel, def, example).create()
+				.waitUntilTitle(conceptLabel);
+		logger.info("Discuss concept {}", conceptName);
+		page.openDiscussion().with(altDef).post()
+				.waitUntilText(By.cssSelector(".wiki"), altDef);
+		logger.info("Delete concept {}", conceptName);
+		page.openEdit(ConceptEdit.class).delete(conceptLabel);
+	}
+
 }

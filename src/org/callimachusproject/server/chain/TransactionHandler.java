@@ -90,7 +90,7 @@ public class TransactionHandler implements AsyncExecChain {
 						int code = result.getStatusLine()
 								.getStatusCode();
 						try {
-							createSafeHttpEntity(result, unsafe && code < 300, con);
+							createSafeHttpEntity(result, unsafe && code < 400, con);
 							super.completed(result);
 						} catch (RepositoryException ex) {
 							failed(ex);

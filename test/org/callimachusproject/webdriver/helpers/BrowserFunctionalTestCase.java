@@ -112,11 +112,23 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 						return new RemoteWebDriver(url, caps);
 					}
 				});
-				factories.put("ie", new RemoteWebDriverFactory() {
+				factories.put("ie9", new RemoteWebDriverFactory() {
 					public RemoteWebDriver create(String name) {
 						DesiredCapabilities caps = DesiredCapabilities
 								.internetExplorer();
 						caps.setVersion("9");
+						caps.setCapability("platform", "Windows 7");
+						caps.setCapability("name", name);
+						caps.setCapability("build", Version.getInstance().getVersion());
+						caps.setCapability("tags", URI.create(getStartUrl()).getAuthority());
+						return new RemoteWebDriver(url, caps);
+					}
+				});
+				factories.put("ie10", new RemoteWebDriverFactory() {
+					public RemoteWebDriver create(String name) {
+						DesiredCapabilities caps = DesiredCapabilities
+								.internetExplorer();
+						caps.setVersion("10");
 						caps.setCapability("platform", "Windows 7");
 						caps.setCapability("name", name);
 						caps.setCapability("build", Version.getInstance().getVersion());
@@ -318,7 +330,7 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 		recordTest("{\"name\": \"" + getName() + "\", \"build\": \""
 				+ Version.getInstance().getVersion() + "\", \"tags\": [\""
 				+ URI.create(getStartUrl()).getAuthority()
-				+ "\"], \"passed\": \"true\"}");
+				+ "\"], \"passed\": true}");
 	}
 
 	private void recordFailure(InvocationTargetException e) {
@@ -326,7 +338,7 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 				+ Version.getInstance().getVersion() + "\", \"tags\": [\""
 				+ URI.create(getStartUrl()).getAuthority() + "\", \""
 				+ e.getCause().getClass().getSimpleName()
-				+ "\"], \"passed\": \"false\"}");
+				+ "\"], \"passed\": false}");
 	}
 
 	private void recordTest(String data) {
@@ -342,9 +354,9 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 			}
 			try {
 				username = URLDecoder.decode(username, "UTF-8");
-				URL url = uri
-						.resolve("/rest/v1/" + username + "/jobs/" + jobId)
-						.toURL();
+				URL url = new URL("http://" + uri.getRawUserInfo()
+						+ "@saucelabs.com/rest/v1/" + username + "/jobs/"
+						+ jobId);
 				HttpURLConnection connection = (HttpURLConnection) url
 						.openConnection();
 				connection.setRequestMethod("PUT");

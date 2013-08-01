@@ -25,4 +25,20 @@ public class ConceptEdit extends CalliPage {
 		return page();
 	}
 
+	public ConceptCreate openNarrowDialogue() {
+		driver.click(By.cssSelector("#narrower label.control-label a"));
+		driver.waitForScript();
+		driver.focusInFrame("narrower");
+		driver.waitForScript();
+		final ConceptEdit edit = this;
+		return new ConceptCreate(driver) {
+			@Override
+			public ConceptEdit create() {
+				super.create();
+				driver.focusInTopWindow();
+				return edit;
+			}
+		};
+	}
+
 }

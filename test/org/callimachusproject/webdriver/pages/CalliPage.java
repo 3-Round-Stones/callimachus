@@ -75,6 +75,20 @@ public class CalliPage {
 		return page(RecentChanges.class);
 	}
 
+	public RecentChanges openRelatedChanges() {
+		driver.focusInTopWindow();
+		driver.click(By.cssSelector("i.icon-cog"));
+		driver.click(By.linkText("Related changes"));
+		return page(RecentChanges.class);
+	}
+
+	public SearchResults openWhatLinksHere() {
+		driver.focusInTopWindow();
+		driver.click(By.cssSelector("i.icon-cog"));
+		driver.click(By.linkText("What links here"));
+		return page(SearchResults.class);
+	}
+
 	public SearchResults searchFor(String conceptLabel) {
 		driver.focusInTopWindow();
 		driver.type(By.xpath("//input[@name='q']"), conceptLabel);

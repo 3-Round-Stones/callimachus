@@ -11,6 +11,8 @@ public class ConceptFunctionalTest extends BrowserFunctionalTestCase {
 							"Surely the stars are images of love.",
 							"The stars are golden fruit upon a tree, All out of reach.",
 							"These blessed candles of the night."};
+	public static String[] sun = { "sun", "Sun", "The lamp of day",
+			"The sun is the king of torches." };
 
 	public static TestSuite suite() throws Exception {
 		return BrowserFunctionalTestCase.suite(ConceptFunctionalTest.class);
@@ -91,6 +93,28 @@ public class ConceptFunctionalTest extends BrowserFunctionalTestCase {
 				.waitUntilText(By.cssSelector(".wiki"), altDef);
 		logger.info("Delete concept {}", conceptName);
 		page.openEdit(ConceptEdit.class).delete(conceptLabel);
+	}
+
+	public void testNarrowConcept() {
+		String conceptName = stars[0];
+		String conceptLabel = stars[1];
+		String def = stars[2];
+		String example = stars[3];
+		logger.info("Create concept {}", conceptName);
+		page.openCurrentFolder().openConceptCreate()
+				.with(conceptName, conceptLabel, def, example).create()
+				.waitUntilTitle(conceptLabel);
+		logger.info("Create concept {}", sun[0]);
+		ConceptEdit edit = page.openEdit(ConceptEdit.class);
+		edit.openNarrowDialogue().with(sun[0], sun[1], sun[2], sun[3]).create();
+		edit.save().openRelatedChanges().openResource(sun[1])
+				.waitUntilTitle(sun[1]).openWhatLinksHere()
+				.openResult(conceptLabel);
+		logger.info("Delete concept {}", conceptName);
+		page.openEdit(ConceptEdit.class).delete(conceptLabel);
+		logger.info("Delete concept {}", sun[0]);
+		page.open(sun[0] + "?view").waitUntilTitle(sun[1])
+				.openEdit(ConceptEdit.class).delete(sun[1]);
 	}
 
 }

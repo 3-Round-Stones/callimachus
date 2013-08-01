@@ -67,10 +67,6 @@ public class FolderFunctionalTest extends BrowserFunctionalTestCase {
 		for (String concept : ConceptFunctionalTest.concepts.keySet()) {
 			new ConceptFunctionalTest(this).testCreateConcept(concept);
 		}
-		new BookFunctionalTest(this).testIncludeArticles();
-		for (String purl : PurlFunctionalTest.purls.keySet()) {
-			new PurlFunctionalTest(this).testCreatePurlAlt(purl);
-		}
 		logger.info("Delete folder {}", folderName);
 		page.openCurrentFolder().waitUntilFolderOpen(folderName).openEdit()
 				.waitUntilTitle(folderName).delete();

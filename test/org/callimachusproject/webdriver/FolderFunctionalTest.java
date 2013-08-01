@@ -1,25 +1,13 @@
 package org.callimachusproject.webdriver;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import junit.framework.TestSuite;
 
 import org.callimachusproject.webdriver.helpers.BrowserFunctionalTestCase;
 
 public class FolderFunctionalTest extends BrowserFunctionalTestCase {
-	public static Map<String, String> folders = new LinkedHashMap<String, String>() {
-		private static final long serialVersionUID = -5837562534292090399L;
-		{
-			put("amp", "R&D");
-			put("percent", "Bob's%20Folder");
-			put("plus", "my+folder");
-		}
-	};
 
 	public static TestSuite suite() throws Exception {
-		return BrowserFunctionalTestCase.suite(FolderFunctionalTest.class,
-				folders.keySet());
+		return BrowserFunctionalTestCase.suite(FolderFunctionalTest.class);
 	}
 
 	public FolderFunctionalTest() {
@@ -49,8 +37,8 @@ public class FolderFunctionalTest extends BrowserFunctionalTestCase {
 		page.openHomeFolder().assertLayout();
 	}
 
-	public void testCreateFolder(String variation) {
-		String folderName = folders.get(variation);
+	public void testCreateFolder() {
+		String folderName = "Bob's%20R&D+Folder";
 		logger.info("Create folder {}", folderName);
 		page.openCurrentFolder().openFolderCreate().with(folderName).create()
 				.waitUntilFolderOpen(folderName);
@@ -59,8 +47,8 @@ public class FolderFunctionalTest extends BrowserFunctionalTestCase {
 				.waitUntilTitle(folderName).delete();
 	}
 
-	public void testFolderEscaping(String variation) {
-		String folderName = folders.get(variation);
+	public void testFolderEscaping() {
+		String folderName = "Bob's%20R&D+Folder";
 		logger.info("Create folder {}", folderName);
 		page.openCurrentFolder().openFolderCreate().with(folderName).create()
 				.waitUntilFolderOpen(folderName);

@@ -5,13 +5,19 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 
 public class TextEditor extends CalliPage {
+	private String topFrameName;
 
 	public TextEditor(WebBrowserDriver driver) {
 		super(driver);
 	}
 
+	public TextEditor(String topFrameName, WebBrowserDriver driver) {
+		super(driver);
+		this.topFrameName = topFrameName;
+	}
+
 	public TextEditor clear() {
-		driver.focusInFrame(0);
+		driver.focusInSubFrame(topFrameName, 0);
 		// shift/control does not appear to work in IE
 		CharSequence[] keys = new CharSequence[1024];
 		for (int i = 0; i < keys.length; i++) {
@@ -22,13 +28,13 @@ public class TextEditor extends CalliPage {
 	}
 
 	public TextEditor type(String text) {
-		driver.focusInFrame(0);
+		driver.focusInSubFrame(topFrameName, 0);
 		driver.sendKeys(By.tagName("textarea"), text);
 		return this;
 	}
 
 	public TextEditor end() {
-		driver.focusInFrame(0);
+		driver.focusInSubFrame(topFrameName, 0);
 		// shift/control does not appear to work in IE
 		CharSequence[] keys = new CharSequence[1024];
 		for (int i = 0; i < keys.length; i++) {
@@ -39,11 +45,11 @@ public class TextEditor extends CalliPage {
 	}
 
 	public CalliPage saveAs(String name) {
-		driver.focusInTopWindow();
+		driver.focusInFrame(topFrameName);
 		driver.click(By.cssSelector("button.btn-success"));
-		driver.focusInFrame("save-as___");
+		driver.focusInFrame(topFrameName, "save-as___");
 		driver.type(By.id("label"), name);
-		driver.focusInTopWindow();
+		driver.focusInFrame(topFrameName);
 		driver.click(By.xpath("(//button[@type='button'])[2]"));
 		driver.waitForScript();
 		return page();

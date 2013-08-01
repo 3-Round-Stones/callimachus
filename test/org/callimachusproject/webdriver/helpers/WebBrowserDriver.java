@@ -50,23 +50,36 @@ public class WebBrowserDriver {
 		driver.switchTo().window(driver.getWindowHandle());
 	}
 
-	public void focusInFrame(final String frameName) {
+	public void focusInFrame(String... frameNames) {
+		driver.switchTo().window(driver.getWindowHandle());
 		waitForScript();
-		new WebDriverWait(driver, 10).until(new ExpectedCondition<WebDriver>() {
-			public WebDriver apply(WebDriver driver) {
-				try {
-					return driver.switchTo().frame(frameName);
-				} catch (NoSuchFrameException e) {
-					return null;
-				}
+		for (final String frameName : frameNames) {
+			if (frameName != null) {
+				new WebDriverWait(driver, 10)
+						.until(new ExpectedCondition<WebDriver>() {
+							public WebDriver apply(WebDriver driver) {
+								try {
+									return driver.switchTo().frame(frameName);
+								} catch (NoSuchFrameException e) {
+									return null;
+								}
+							}
+						});
 			}
-		});
+		}
 		waitForScript();
 	}
 
 	public void focusInFrame(int... frames) {
+		focusInSubFrame(null, frames);
+	}
+
+	public void focusInSubFrame(String topFrameName, int... frames) {
 		driver.switchTo().window(driver.getWindowHandle());
 		waitForScript();
+		if (topFrameName != null) {
+			driver.switchTo().frame(topFrameName);
+		}
 		for (final int frame : frames) {
 			new WebDriverWait(driver, 10)
 					.until(new ExpectedCondition<WebDriver>() {

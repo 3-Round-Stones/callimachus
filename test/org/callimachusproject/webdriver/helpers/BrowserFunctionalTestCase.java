@@ -105,7 +105,7 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 				factories.put("chrome", new RemoteWebDriverFactory() {
 					public RemoteWebDriver create(String name) {
 						DesiredCapabilities caps = DesiredCapabilities.chrome();
-						caps.setVersion("27");
+						caps.setVersion(""); // Any version
 						caps.setPlatform(Platform.ANY);
 						caps.setCapability("name", name);
 						caps.setCapability("build", Version.getInstance().getVersionCode());
@@ -117,7 +117,7 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 					public RemoteWebDriver create(String name) {
 						DesiredCapabilities caps = DesiredCapabilities
 								.firefox();
-						caps.setVersion("21");
+						caps.setVersion("22");
 						caps.setPlatform(Platform.ANY);
 						caps.setCapability("name", name);
 						caps.setCapability("build", Version.getInstance().getVersionCode());
@@ -142,7 +142,29 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 						DesiredCapabilities caps = DesiredCapabilities
 								.internetExplorer();
 						caps.setVersion("10");
-						caps.setCapability("platform", "Windows 8");
+						caps.setPlatform(Platform.WIN8);
+						caps.setCapability("name", name);
+						caps.setCapability("build", Version.getInstance().getVersionCode());
+						caps.setCapability("tags", getTag());
+						return new RemoteWebDriver(url, caps);
+					}
+				});
+				factories.put("android", new RemoteWebDriverFactory() {
+					public RemoteWebDriver create(String name) {
+						DesiredCapabilities caps = DesiredCapabilities.android();
+						caps.setVersion("4.0");
+						caps.setPlatform(Platform.LINUX);
+						caps.setCapability("name", name);
+						caps.setCapability("build", Version.getInstance().getVersionCode());
+						caps.setCapability("tags", getTag());
+						return new RemoteWebDriver(url, caps);
+					}
+				});
+				factories.put("iphone", new RemoteWebDriverFactory() {
+					public RemoteWebDriver create(String name) {
+						DesiredCapabilities caps = DesiredCapabilities.iphone();
+						caps.setVersion("6");
+						caps.setCapability("platform", "OS X 10.8");
 						caps.setCapability("name", name);
 						caps.setCapability("build", Version.getInstance().getVersionCode());
 						caps.setCapability("tags", getTag());
@@ -286,7 +308,11 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 		}
 		RemoteWebDriverFactory driverFactory = getInstalledWebDrivers().get(
 				getBrowserName());
-		RemoteWebDriver driver = driverFactory.create(getName());
+		String testname = getName();
+		if (testname.lastIndexOf(DELIM2) > 0) {
+			testname = testname.substring(0, testname.lastIndexOf(DELIM2)).trim();
+		}
+		RemoteWebDriver driver = driverFactory.create(testname);
 		try {
 			init(driver);
 			Throwable exception = null;

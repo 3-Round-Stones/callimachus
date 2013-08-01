@@ -64,9 +64,7 @@ public class FolderFunctionalTest extends BrowserFunctionalTestCase {
 		logger.info("Create folder {}", folderName);
 		page.openCurrentFolder().openFolderCreate().with(folderName).create()
 				.waitUntilFolderOpen(folderName);
-		for (String concept : ConceptFunctionalTest.concepts.keySet()) {
-			new ConceptFunctionalTest(this).testCreateConcept(concept);
-		}
+		new ConceptFunctionalTest(this).testCreateConcept();
 		logger.info("Delete folder {}", folderName);
 		page.openCurrentFolder().waitUntilFolderOpen(folderName).openEdit()
 				.waitUntilTitle(folderName).delete();

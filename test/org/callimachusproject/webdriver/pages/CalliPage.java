@@ -68,6 +68,20 @@ public class CalliPage {
 		return page(DiscussionPage.class);
 	}
 
+	public RecentChanges openRecentChanges() {
+		driver.focusInTopWindow();
+		driver.click(By.cssSelector("i.icon-cog"));
+		driver.click(By.linkText("Recent changes"));
+		return page(RecentChanges.class);
+	}
+
+	public SearchResults searchFor(String conceptLabel) {
+		driver.focusInTopWindow();
+		driver.type(By.xpath("//input[@name='q']"), conceptLabel);
+		driver.submit(By.xpath("//input[@name='q']"));
+		return page(SearchResults.class);
+	}
+
 	public CalliPage back() {
 		driver.navigateBack();
 		return page();

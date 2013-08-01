@@ -1,8 +1,5 @@
 package org.callimachusproject.webdriver;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import junit.framework.TestSuite;
 
 import org.callimachusproject.webdriver.helpers.BrowserFunctionalTestCase;
@@ -10,20 +7,13 @@ import org.callimachusproject.webdriver.pages.ConceptEdit;
 import org.openqa.selenium.By;
 
 public class ConceptFunctionalTest extends BrowserFunctionalTestCase {
-	public static Map<String, String[]> concepts = new LinkedHashMap<String, String[]>() {
-		private static final long serialVersionUID = -5837562534292090399L;
-		{
-			put("stars",
-					new String[] { "stars", "Stars",
+	public static String[] stars = { "stars", "Stars",
 							"Surely the stars are images of love.",
 							"The stars are golden fruit upon a tree, All out of reach.",
-							"These blessed candles of the night."});
-		}
-	};
+							"These blessed candles of the night."};
 
 	public static TestSuite suite() throws Exception {
-		return BrowserFunctionalTestCase.suite(ConceptFunctionalTest.class,
-				concepts.keySet());
+		return BrowserFunctionalTestCase.suite(ConceptFunctionalTest.class);
 	}
 
 	public ConceptFunctionalTest() {
@@ -49,26 +39,25 @@ public class ConceptFunctionalTest extends BrowserFunctionalTestCase {
 		super.tearDown();
 	}
 
-	public void testCreateConcept(String variation) {
-		String[] concept = concepts.get(variation);
-		String conceptName = concept[0];
-		String conceptLabel = concept[1];
+	public void testCreateConcept() {
+		String conceptName = stars[0];
+		String conceptLabel = stars[1];
 		logger.info("Create concept {}", conceptName);
 		page.openCurrentFolder().openConceptCreate()
-				.with(conceptName, conceptLabel, concept[2], concept[3])
+				.with(conceptName, conceptLabel, stars[2], stars[3])
 				.create().waitUntilTitle(conceptLabel);
+		page.searchFor(conceptLabel).openResult(conceptLabel);
 		logger.info("Delete concept {}", conceptName);
 		page.open(conceptName + "?view").waitUntilTitle(conceptLabel)
 				.openEdit(ConceptEdit.class).delete(conceptLabel);
 	}
 
-	public void testConceptHistory(String variation) {
-		String[] concept = concepts.get(variation);
-		String conceptName = concept[0];
-		String conceptLabel = concept[1];
-		String def = concept[2];
-		String example = concept[3];
-		String altDef = concept[4];
+	public void testConceptHistory() {
+		String conceptName = stars[0];
+		String conceptLabel = stars[1];
+		String def = stars[2];
+		String example = stars[3];
+		String altDef = stars[4];
 		logger.info("Create concept {}", conceptName);
 		page.openCurrentFolder().openConceptCreate()
 				.with(conceptName, conceptLabel, def, example).create()
@@ -79,17 +68,20 @@ public class ConceptFunctionalTest extends BrowserFunctionalTestCase {
 				.waitUntilText(By.cssSelector(".tab-content .literal"), def)
 				.waitUntilText(By.cssSelector(".tab-content .literal"), altDef)
 				.back();
+		page.openRecentChanges().openChange(conceptLabel)
+				.waitUntilText(By.cssSelector(".tab-content .literal"), def)
+				.waitUntilText(By.cssSelector(".tab-content .literal"), altDef)
+				.back().back();
 		logger.info("Delete concept {}", conceptName);
 		page.openEdit(ConceptEdit.class).delete(conceptLabel);
 	}
 
-	public void testConceptDiscussion(String variation) {
-		String[] concept = concepts.get(variation);
-		String conceptName = concept[0];
-		String conceptLabel = concept[1];
-		String def = concept[2];
-		String example = concept[3];
-		String altDef = concept[4];
+	public void testConceptDiscussion() {
+		String conceptName = stars[0];
+		String conceptLabel = stars[1];
+		String def = stars[2];
+		String example = stars[3];
+		String altDef = stars[4];
 		logger.info("Create concept {}", conceptName);
 		page.openCurrentFolder().openConceptCreate()
 				.with(conceptName, conceptLabel, def, example).create()

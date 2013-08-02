@@ -274,10 +274,7 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 		}
 		RemoteWebDriverFactory driverFactory = getInstalledWebDrivers().get(
 				getBrowserName());
-		String testname = getName();
-		if (testname.lastIndexOf(DELIM) > 0) {
-			testname = testname.substring(0, testname.lastIndexOf(DELIM)).trim();
-		}
+		String testname = getMethodName();
 		driver = driverFactory.create(testname);
 		try {
 			init(driver);

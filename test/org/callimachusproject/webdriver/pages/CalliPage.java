@@ -50,6 +50,12 @@ public class CalliPage {
 		return page();
 	}
 
+	public <P> P open(String ref, Class<P> pageClass) {
+		driver.focusInTopWindow();
+		driver.navigateTo(ref);
+		return page(pageClass);
+	}
+
 	public <P> P openEdit(Class<P> pageClass) {
 		driver.focusInTopWindow();
 		driver.click(By.linkText("Edit"));

@@ -18,8 +18,8 @@ public class Register extends CalliPage {
 		return this;
 	}
 
-	public CalliPage signup() {
+	public Login signup() {
 		driver.click(By.id("signup"));
-		return page();
+		return page(Login.class);
 	}
 }

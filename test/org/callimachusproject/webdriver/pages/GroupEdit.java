@@ -15,4 +15,26 @@ public class GroupEdit extends CalliPage {
 		return page();
 	}
 
+	public CalliPage save() {
+		driver.click(By.id("save"));
+		return page();
+	}
+
+	public InviteUser openInviteUser() {
+		driver.click(By.cssSelector("#members label.control-label a"));
+		driver.waitForScript();
+		driver.focusInFrame(0);
+		driver.waitForScript();
+		final GroupEdit edit = this;
+		return new InviteUser(driver) {
+			@Override
+			public GroupEdit invite() {
+				driver.click(By.id("invite"));
+				driver.focusInTopWindow();
+				driver.waitForScript();
+				return edit;
+			}
+		};
+	}
+
 }

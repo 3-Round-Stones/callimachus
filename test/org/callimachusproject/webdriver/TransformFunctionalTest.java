@@ -29,21 +29,6 @@ public class TransformFunctionalTest extends BrowserFunctionalTestCase {
 		super(parent);
 	}
 
-	@Override
-	public void setUp() throws Exception {
-		super.setUp();
-		String username = getUsername();
-		logger.info("Login {}", username);
-		page.openLogin().with(username, getPassword()).login();
-	}
-
-	@Override
-	public void tearDown() throws Exception {
-		logger.info("Logout");
-		page.logout();
-		super.tearDown();
-	}
-
 	public void testCreateTransform() {
 		String name = transform[0];
 		logger.info("Create transform {}", name);

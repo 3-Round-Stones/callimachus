@@ -10,6 +10,7 @@ import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -39,6 +40,7 @@ import org.callimachusproject.test.TemporaryServerFactory;
 import org.callimachusproject.test.WebResource;
 import org.callimachusproject.util.DomainNameSystemResolver;
 import org.callimachusproject.webdriver.pages.CalliPage;
+import org.callimachusproject.webdriver.pages.FolderEdit;
 import org.openqa.selenium.Platform;
 import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -149,28 +151,6 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 						return new RemoteWebDriver(url, caps);
 					}
 				});
-				factories.put("android", new RemoteWebDriverFactory() {
-					public RemoteWebDriver create(String name) {
-						DesiredCapabilities caps = DesiredCapabilities.android();
-						caps.setVersion("4.0");
-						caps.setPlatform(Platform.LINUX);
-						caps.setCapability("name", name);
-						caps.setCapability("build", Version.getInstance().getVersionCode());
-						caps.setCapability("tags", getTag());
-						return new RemoteWebDriver(url, caps);
-					}
-				});
-				factories.put("iphone", new RemoteWebDriverFactory() {
-					public RemoteWebDriver create(String name) {
-						DesiredCapabilities caps = DesiredCapabilities.iphone();
-						caps.setVersion("6");
-						caps.setCapability("platform", "OS X 10.8");
-						caps.setCapability("name", name);
-						caps.setCapability("build", Version.getInstance().getVersionCode());
-						caps.setCapability("tags", getTag());
-						return new RemoteWebDriver(url, caps);
-					}
-				});
 			}
 		} catch (MalformedURLException e) {
 			throw new AssertionError(e);
@@ -264,6 +244,8 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 	}
 
 	protected CalliPage page;
+	private String folderUrl;
+	private RemoteWebDriver driver;
 
 	public BrowserFunctionalTestCase() {
 		super();
@@ -312,7 +294,7 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 		if (testname.lastIndexOf(DELIM2) > 0) {
 			testname = testname.substring(0, testname.lastIndexOf(DELIM2)).trim();
 		}
-		RemoteWebDriver driver = driverFactory.create(testname);
+		driver = driverFactory.create(testname);
 		try {
 			init(driver);
 			Throwable exception = null;
@@ -343,6 +325,32 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 				server.pause();
 			}
 		}
+	}
+
+	@Override
+	protected void setUp() throws Exception {
+		folderUrl = null;
+		String username = getUsername();
+		logger.info("Login {}", username);
+		page.openLogin().with(username, getPassword()).login();
+		String folderName = getFolderName();
+		logger.info("Create folder {}", folderName);
+		page.openCurrentFolder().openFolderCreate().with(folderName).create()
+				.waitUntilFolderOpen(folderName);
+		folderUrl = driver.getCurrentUrl();
+	}
+
+	@Override
+	protected void tearDown() throws Exception {
+		if (folderUrl != null) {
+			String folderName = getFolderName();
+			logger.info("Delete folder {}", folderName);
+			page.open(folderUrl).openEdit(FolderEdit.class)
+					.waitUntilTitle(folderName).delete();
+		}
+		logger.info("Logout");
+		page.logout();
+		super.tearDown();
 	}
 
 	@Override
@@ -458,6 +466,14 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 	private String getBrowserName() {
 		String name = getName();
 		return name.substring(name.lastIndexOf(DELIM2) + 1);
+	}
+
+	private String getFolderName() {
+		try {
+			return URLEncoder.encode(getName(), "UTF-8") + "'s+Folder";
+		} catch (UnsupportedEncodingException e) {
+			throw new AssertionError(e);
+		}
 	}
 
 	private String getVariation() {

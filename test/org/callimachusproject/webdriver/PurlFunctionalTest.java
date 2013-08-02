@@ -31,21 +31,6 @@ public class PurlFunctionalTest extends BrowserFunctionalTestCase {
 		super(parent);
 	}
 
-	@Override
-	public void setUp() throws Exception {
-		super.setUp();
-		String username = getUsername();
-		logger.info("Login {}", username);
-		page.openLogin().with(username, getPassword()).login();
-	}
-
-	@Override
-	public void tearDown() throws Exception {
-		logger.info("Logout");
-		page.logout();
-		super.tearDown();
-	}
-
 	public void testCreatePurlAlt(String variation) {
 		String[] purl = purls.get(variation);
 		String purlName = purl[0];

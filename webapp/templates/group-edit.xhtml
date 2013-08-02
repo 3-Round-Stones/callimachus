@@ -27,7 +27,7 @@
                     <textarea id="comment" class="auto-expand">{rdfs:comment}</textarea>
                 </div>
             </div>
-            <div dropzone="link s:text/uri-list" class="control-group"
+            <div id="members" dropzone="link s:text/uri-list" class="control-group"
                     ondrop="return calli.insertResource(event)">
                 <label class="control-label">Members <a href="../types/InvitedUser?create" title="Invite"
                         onmousedown="href=calli.getCallimachusUrl('/auth/invited-users/') + '?create=' + encodeURIComponent(calli.getCallimachusUrl('types/InvitedUser'))"

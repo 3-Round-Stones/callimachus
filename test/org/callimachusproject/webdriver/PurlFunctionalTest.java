@@ -1,26 +1,15 @@
 package org.callimachusproject.webdriver;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import junit.framework.TestSuite;
 
 import org.callimachusproject.webdriver.helpers.BrowserFunctionalTestCase;
 import org.callimachusproject.webdriver.pages.PurlEdit;
 
 public class PurlFunctionalTest extends BrowserFunctionalTestCase {
-	public static Map<String, String[]> purls = new LinkedHashMap<String, String[]>() {
-		private static final long serialVersionUID = -5837562534292090399L;
-		{
-			put("index", new String[] { "index.html", "Redirects to home page",
-					"/" });
-			put("default", new String[] { "default.htm", "", "/" });
-		}
-	};
+	public static String[] purl = { "index.html", "Redirects to home page", "/" };
 
 	public static TestSuite suite() throws Exception {
-		return BrowserFunctionalTestCase.suite(PurlFunctionalTest.class,
-				purls.keySet());
+		return BrowserFunctionalTestCase.suite(PurlFunctionalTest.class);
 	}
 
 	public PurlFunctionalTest() {
@@ -31,8 +20,7 @@ public class PurlFunctionalTest extends BrowserFunctionalTestCase {
 		super(parent);
 	}
 
-	public void testCreatePurlAlt(String variation) {
-		String[] purl = purls.get(variation);
+	public void testCreatePurlAlt() {
 		String purlName = purl[0];
 		logger.info("Create purl {}", purlName);
 		page.openCurrentFolder().openPurlCreate()

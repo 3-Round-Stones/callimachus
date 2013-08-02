@@ -13,10 +13,8 @@ public class BookFunctionalTest extends BrowserFunctionalTestCase {
 			"<article>\n" + "<title>Callimachus</title>\n"
 					+ "<para>Big Bore</para>\n" + "</article>" };
 	public static final String[] includes = new String[] {
-			"callimachus-quotes.docbook",
-			"Callimachus Quotes",
-			"<xi:include href=\"bionica.docbook\" />\n"
-					+ "<xi:include href=\"banthologia-polyglotta.docbook\" />" };
+			"callimachus-quotes.docbook", "Callimachus Quotes",
+			"<xi:include href=\"ionica.docbook\" />" };
 
 	public static TestSuite suite() throws Exception {
 		return BrowserFunctionalTestCase.suite(BookFunctionalTest.class);
@@ -47,14 +45,13 @@ public class BookFunctionalTest extends BrowserFunctionalTestCase {
 	}
 
 	public void testIncludeArticles() {
-		for (String[] article : ArticleFunctionalTest.articles.values()) {
-			String articleName = "b" + article[0];
-			String articleTitle = article[1];
-			logger.info("Create article {}", articleName);
-			page.openCurrentFolder().openArticleCreate().clear()
-					.type(articleTitle).heading1().type("\n").type(article[2])
-					.saveAs(articleName).waitUntilTitle(articleTitle);
-		}
+		String articleName = "ionica.docbook";
+		String articleTitle = ArticleFunctionalTest.article[1];
+		String articleText = ArticleFunctionalTest.article[2];
+		logger.info("Create article {}", articleName);
+		page.openCurrentFolder().openArticleCreate().clear().type(articleTitle)
+				.heading1().type("\n").type(articleText).saveAs(articleName)
+				.waitUntilTitle(articleTitle);
 		String bookName = includes[0];
 		String bookTitle = includes[1];
 		logger.info("Create book {}", bookName);
@@ -67,12 +64,9 @@ public class BookFunctionalTest extends BrowserFunctionalTestCase {
 		logger.info("Delete book {}", bookName);
 		page.open(bookName + "?view").waitUntilTitle(includes[1])
 				.openEdit(TextEditor.class).delete();
-		for (String[] article : ArticleFunctionalTest.articles.values()) {
-			String articleName = "b" + article[0];
-			logger.info("Delete article {}", articleName);
-			page.open(articleName + "?view").waitUntilTitle(article[1])
-					.openEdit(DocEditor.class).delete();
-		}
+		logger.info("Delete article {}", articleName);
+		page.open(articleName + "?view").waitUntilTitle(articleTitle)
+				.openEdit(DocEditor.class).delete();
 	}
 
 }

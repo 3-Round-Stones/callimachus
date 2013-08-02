@@ -11,8 +11,6 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -53,8 +51,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class BrowserFunctionalTestCase extends TestCase {
-	private static final char DELIM1 = ' ';
-	private static final char DELIM2 = '*';
+	private static final char DELIM = ' ';
 	private static final String PASSWORD = "testPassword1";
 	private static final String EMAIL = "test@example.com";
 	private static final int PORT = 8088;
@@ -176,24 +173,12 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 	public static TestSuite suite(
 			Class<? extends BrowserFunctionalTestCase> testcase)
 			throws Exception {
-		return suite(testcase, Collections.singleton(""));
-	}
-
-	public static TestSuite suite(
-			Class<? extends BrowserFunctionalTestCase> testcase,
-			Collection<String> variations) throws Exception {
 		TestSuite suite = new TestSuite(testcase.getName());
 		for (Method method : testcase.getMethods()) {
 			if (method.getName().startsWith("test")
+					&& method.getParameterTypes().length == 0
 					&& method.getReturnType().equals(Void.TYPE)) {
-				if (method.getParameterTypes().length == 0) {
-					addTests(testcase, suite, method, "");
-				} else if (method.getParameterTypes().length == 1
-						&& String.class.equals(method.getParameterTypes()[0])) {
-					for (String name : variations) {
-						addTests(testcase, suite, method, name);
-					}
-				}
+				addTests(testcase, suite, method);
 			}
 		}
 		if (suite.countTestCases() == 0) {
@@ -205,12 +190,11 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 
 	private static void addTests(
 			Class<? extends BrowserFunctionalTestCase> testcase,
-			TestSuite suite, Method method, String name)
-			throws InstantiationException, IllegalAccessException {
+			TestSuite suite, Method method) throws InstantiationException,
+			IllegalAccessException {
 		for (String browser : getInstalledWebDrivers().keySet()) {
 			BrowserFunctionalTestCase test = testcase.newInstance();
-			test.setName(method.getName() + DELIM1 + name + DELIM2
-					+ browser);
+			test.setName(method.getName() + DELIM + browser);
 			suite.addTest(test);
 		}
 	}
@@ -291,8 +275,8 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 		RemoteWebDriverFactory driverFactory = getInstalledWebDrivers().get(
 				getBrowserName());
 		String testname = getName();
-		if (testname.lastIndexOf(DELIM2) > 0) {
-			testname = testname.substring(0, testname.lastIndexOf(DELIM2)).trim();
+		if (testname.lastIndexOf(DELIM) > 0) {
+			testname = testname.substring(0, testname.lastIndexOf(DELIM)).trim();
 		}
 		driver = driverFactory.create(testname);
 		try {
@@ -360,23 +344,14 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 			runMethod = this.getClass().getMethod(getMethodName(),
 					(Class[]) null);
 		} catch (NoSuchMethodException e) {
-			try {
-				runMethod = this.getClass().getMethod(getMethodName(),
-						String.class);
-			} catch (NoSuchMethodException ex) {
-				fail("Method \"" + getMethodName() + "\" not found");
-			}
+			fail("Method \"" + getMethodName() + "\" not found");
 		}
 		if (!Modifier.isPublic(runMethod.getModifiers())) {
 			fail("Method \"" + getMethodName() + "\" should be public");
 		}
 
 		try {
-			if (runMethod.getParameterTypes().length == 0) {
-				runMethod.invoke(this, (Object[]) new Class[0]);
-			} else {
-				runMethod.invoke(this, getVariation());
-			}
+			runMethod.invoke(this, (Object[]) new Class[0]);
 		} catch (InvocationTargetException e) {
 			e.fillInStackTrace();
 			throw e.getTargetException();
@@ -460,25 +435,19 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 
 	private String getMethodName() {
 		String name = getName();
-		return name.substring(0, name.indexOf(DELIM1));
+		return name.substring(0, name.indexOf(DELIM));
 	}
 
 	private String getBrowserName() {
 		String name = getName();
-		return name.substring(name.lastIndexOf(DELIM2) + 1);
+		return name.substring(name.lastIndexOf(DELIM) + 1);
 	}
 
 	private String getFolderName() {
 		try {
-			return URLEncoder.encode(getName(), "UTF-8") + "'s+Folder";
+			return URLEncoder.encode(getName(), "UTF-8") + "'s%20Folder";
 		} catch (UnsupportedEncodingException e) {
 			throw new AssertionError(e);
 		}
-	}
-
-	private String getVariation() {
-		String name = getName();
-		return name.substring(name.indexOf(DELIM1) + 1,
-				name.lastIndexOf(DELIM2));
 	}
 }

@@ -419,6 +419,7 @@
         <copy file="${tmp}/functionaltest/etc/callimachus-defaults.conf" tofile="${tmp}/functionaltest/etc/callimachus.conf" />
         <replace file="${tmp}/functionaltest/etc/callimachus.conf" token="#PORT=8080" value="PORT=${functionaltest.port}" />
         <replace file="${tmp}/functionaltest/etc/callimachus.conf" token="#ORIGIN=http://localhost:8080" value="ORIGIN=http://${hostname}:${functionaltest.port}" />
+        <replace file="${tmp}/functionaltest/etc/jmxremote.properties" token="com.sun.management.jmxremote=true" value="com.sun.management.jmxremote=false" />
         <!-- setup script -->
         <exec executable="/bin/sh" dir="${tmp}/functionaltest" logError="true" failonerror="true" osfamily="unix">
             <arg line="bin/callimachus-setup.sh -L -u ${callimachus.username}:${callimachus.password} -e ${callimachus.email}" />

@@ -276,9 +276,9 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 				getBrowserName());
 		String testname = getMethodName();
 		driver = driverFactory.create(testname);
+		Throwable exception = null;
 		try {
 			init(driver);
-			Throwable exception = null;
 			setUp();
 			try {
 				runTest();
@@ -300,8 +300,13 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 				throw exception;
 			}
 		} finally {
-			driver.quit();
-			driver = null;
+			try {
+				driver.quit();
+				driver = null;
+			} catch (Throwable ex) {
+				if (exception == null)
+					throw ex;
+			}
 			if (server != null) {
 				server.pause();
 			}
@@ -442,7 +447,7 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 
 	private String getFolderName() {
 		try {
-			return URLEncoder.encode(getName(), "UTF-8") + "'s%20Folder";
+			return URLEncoder.encode(getName(), "UTF-8").replace("+", "&") + "'s%20Folder";
 		} catch (UnsupportedEncodingException e) {
 			throw new AssertionError(e);
 		}

@@ -54,6 +54,13 @@ public class HttpClientFactory implements Closeable {
 	private static HttpClientFactory instance;
 	static {
 		try {
+			String tmpDirStr = System.getProperty("java.io.tmpdir");
+			if (tmpDirStr != null) {
+				File tmpDir = new File(tmpDirStr);
+				if (!tmpDir.exists()) {
+					tmpDir.mkdirs();
+				}
+			}
 			File dir = File.createTempFile("http-client-cache", "");
 			dir.delete();
 			FileUtil.deleteOnExit(dir);

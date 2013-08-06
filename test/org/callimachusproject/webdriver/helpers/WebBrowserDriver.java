@@ -64,6 +64,10 @@ public class WebBrowserDriver {
 									return null;
 								}
 							}
+
+							public String toString() {
+								return "frame " + frameName + " to be present";
+							}
 						});
 			}
 		}
@@ -89,6 +93,10 @@ public class WebBrowserDriver {
 							} catch (NoSuchFrameException e) {
 								return null;
 							}
+						}
+
+						public String toString() {
+							return "frame index " + frame + " to be present";
 						}
 					});
 		}
@@ -141,19 +149,50 @@ public class WebBrowserDriver {
 	}
 
 	private void sendKeys(WebElement element, CharSequence... keys) {
-		List<CharSequence> list = new ArrayList<CharSequence>(keys.length);
+		StringBuilder sb = new StringBuilder();
+		List<CharSequence> list = new ArrayList<CharSequence>(keys.length * 2);
 		for (CharSequence key : keys) {
-			if (key instanceof String && ((String) key).contains("-")) {
-				for (String text : ((String) key).split("-")) {
-					list.add(text);
-					list.add(Keys.SUBTRACT);
+			if (key instanceof String) {
+				for (char chr : ((String) key).toCharArray()) {
+					switch (chr) {
+					case '-':
+						sendKeys(element, list, sb);
+						list.add(Keys.SUBTRACT);
+						break;
+					case '\n':
+					case '(':
+					case ')':
+					case '{':
+					case '}':
+					case '<':
+					case '>':
+					case '[':
+					case ']':
+						sendKeys(element, list, sb);
+						sb.append(chr);
+						sendKeys(element, list, sb);
+						break;
+					default:
+						sb.append(chr);
+					}
 				}
-				list.remove(list.size() - 1);
 			} else {
 				list.add(key);
 			}
 		}
-		element.sendKeys(list.toArray(new CharSequence[list.size()]));
+		sendKeys(element, list, sb);
+	}
+
+	private void sendKeys(WebElement element, List<CharSequence> keys,
+			StringBuilder words) {
+		if (words.length() > 0) {
+			keys.add(words.toString());
+			words.setLength(0);
+		}
+		if (!keys.isEmpty()) {
+			element.sendKeys(keys.toArray(new CharSequence[keys.size()]));
+			keys.clear();
+		}
 	}
 
 	public void waitUntilElementPresent(final By locator) {
@@ -174,6 +213,10 @@ public class WebBrowserDriver {
 				}
 				return null;
 			}
+
+			public String toString() {
+				return "text " + needle + " to be present in " + locator;
+			}
 		});
 		assertTrue(present);
 	}
@@ -191,6 +234,10 @@ public class WebBrowserDriver {
 				} else {
 					return null;
 				}
+			}
+
+			public String toString() {
+				return "script to be ready";
 			}
 		});
 		assertTrue(present);

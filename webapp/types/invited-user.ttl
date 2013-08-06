@@ -14,7 +14,6 @@
 <InvitedUser> a <Creatable>, owl:Class;
     rdfs:subClassOf <Viewable>, <Editable>, calli:User;
     rdfs:label "Invited User";
-    rdfs:comment "Invited user account with an email address";
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/admin>;

@@ -84,6 +84,13 @@
                 </not>
             </and>
         </condition>
+		<condition property="curl.available">
+			<or>
+				<available file="${curl}" filepath="${env.PATH}"/>
+				<available file="${curl}" filepath="${env.Path}"/>
+				<available file="${curl}" filepath="${env.PATH}"/>
+			</or>
+		</condition>
         <script language="javascript">
             var property = project.createTask("property");
             property.name = "hostname";
@@ -563,7 +570,7 @@
         </java>
     </target>
 
-    <target name="pull" depends="init" description="Pull down the callimachus folder from the running server">
+    <target name="pull" depends="init" description="Pull down the callimachus folder from the running server using the curl program" if="curl.available">
         <fail message="build.properties is not setup properly, please read README.txt" unless="callimachus.username" />
         <fail message="build.properties is missing password, please read README.txt" unless="callimachus.password" />
         <mkdir dir="${downloads}" />
@@ -576,7 +583,7 @@
         <touch file="${triples.file}" />
     </target>
 
-    <target name="stop" depends="pull" description="Stop the server">
+    <target name="stop" depends="dist,pull" description="Stop the server">
         <java classname="${main-monitor}" fork="true" resultproperty="ret">
             <jvmarg line="${jvmargs}" />
             <arg line="--stop --pid ${pid}" />

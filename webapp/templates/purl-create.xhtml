@@ -65,7 +65,7 @@
         <div class="row">
             <fieldset class="span3">
                 <div class="control-group">
-                    <label for="type" class="control-label">Type</label>
+                    <label for="type" class="control-label">GET status</label>
                     <div class="controls">
                         <select id="type" class="span3">
                             <option value="calli:copy">Copy (200)</option>
@@ -80,7 +80,7 @@
                     </div>
                 </div>
                 <div class="control-group">
-                    <label for="pattern" class="control-label">Content location</label>
+                    <label for="pattern" class="control-label">GET content location</label>
                     <div class="controls">
                         <textarea id="pattern" class="span3 auto-expand" rows="1"></textarea>
                         <pre class="hide pattern" property="calli:copy" />
@@ -94,7 +94,7 @@
                     </div>
                 </div>
                 <div class="control-group">
-                    <label for="cache" class="control-label">Cache Control</label>
+                    <label for="cache" class="control-label">GET cache control</label>
                     <div class="controls">
                     	<input type="text"  id="cache" value="{calli:cacheControl}" placeholder="max-age=3600" class="span3" />
                     </div>
@@ -110,13 +110,19 @@
                 <div class="control-group">
                     <label for="put" class="control-label">PUT request target</label>
                     <div class="controls">
-                        <textarea id="post" class="span3 auto-expand" rows="1">{calli:put}</textarea>
+                        <textarea id="put" class="span3 auto-expand" rows="1">{calli:put}</textarea>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label for="patch" class="control-label">PATCH request target</label>
+                    <div class="controls">
+                        <textarea id="patch" class="span3 auto-expand" rows="1">{calli:patch}</textarea>
                     </div>
                 </div>
                 <div class="control-group">
                     <label for="delete" class="control-label">DELETE request target</label>
                     <div class="controls">
-                        <textarea id="post" class="span3 auto-expand" rows="1">{calli:delete}</textarea>
+                        <textarea id="delete" class="span3 auto-expand" rows="1">{calli:delete}</textarea>
                     </div>
                 </div>
             </fieldset>

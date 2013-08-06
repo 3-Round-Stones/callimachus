@@ -260,6 +260,67 @@
         throw new org.callimachusproject.server.exceptions.MethodNotAllowed();
     """.
 
+:PatchRedirect rdfs:subClassOf :Proxy;
+    calli:method "PATCH";
+    calli:requires calli:reader;
+    calli:type "message/x-response";
+    calli:imports <java:org.apache.http.client.methods.HttpPut>;
+    calli:imports <java:org.callimachusproject.server.exceptions.ResponseException>;
+    calli:script """
+        var iter = this.FindPurlPatchPattern().iterator();
+        while (iter.hasNext()) {
+            var row = iter.next();
+            var status = row[0];
+            var phrase = row[1];
+            var pattern = row[2];
+            var request = this.buildRequest("PATCH", pattern, queryString);
+            if (request) {
+                var location = request.getURI().toASCIIString();
+                if (300 <= status && status < 400 ) {
+                    // 301, 302, 303, 307, or 308 responses
+                    return {
+                        status:status,
+                        message:phrase,
+                        headers:{'location':location,'content-type':"text/plain"},
+                        body:[phrase]
+                    };
+                }
+                // 200, 203, 404, or 410 responses
+                if (contentType && !request.containsHeader('content-type')) {
+                    request.setHeader('content-type', contentType);
+                }
+                if (contentLocation && !request.containsHeader('content-location')) {
+                    request.setHeader('content-location', contentLocation);
+                }
+                if (contentEntity && !request.entity) {
+                    request.entity = contentEntity;
+                }
+                var resp = this.executeRequest(request);
+                if (status < 300) {
+                    status = resp.statusLine.statusCode;
+                    phrase = resp.statusLine.reasonPhrase;
+                }
+                var headers = {};
+                if (resp.getFirstHeader('location')) {
+                    headers['location'] = resp.getFirstHeader('location').value;
+                }
+                if (resp.getFirstHeader('content-location')) {
+                    headers['content-location'] = resp.getFirstHeader('content-location').value;
+                }
+                if (resp.getFirstHeader('content-version')) {
+                    headers['content-version'] = resp.getFirstHeader('content-version').value;
+                }
+                return {
+                    status:status,
+                    message:phrase,
+                    headers:headers,
+                    body:resp.entity
+                };
+            }
+        }
+        throw new org.callimachusproject.server.exceptions.MethodNotAllowed();
+    """.
+
 :DeleteRedirect rdfs:subClassOf :Redirect;
     calli:method "DELETE";
     calli:requires calli:reader;
@@ -410,6 +471,36 @@
         SELECT ?status ?phrase (str(?resource) AS ?pattern) {
             {
                 $this calli:put ?resource
+                BIND (204 AS ?status)
+                BIND ("No Content" AS ?phrase)
+            } UNION {
+                $this calli:resides ?resource
+                BIND (307 AS ?status)
+                BIND ("Resides" AS ?phrase)
+            } UNION {
+                $this calli:moved ?resource
+                BIND (308 AS ?status)
+                BIND ("Moved" AS ?phrase)
+            } UNION {
+                $this calli:missing ?resource
+                BIND (404 AS ?status)
+                BIND ("Not found" AS ?phrase)
+            } UNION {
+                $this calli:gone ?resource
+                BIND (410 AS ?status)
+                BIND ("Gone" AS ?phrase)
+            }
+        }
+    """.
+
+:FindPurlPatchPattern rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <PURL>];
+    rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom rdfs:Resource];
+    msg:sparql """
+        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
+        SELECT ?status ?phrase (str(?resource) AS ?pattern) {
+            {
+                $this calli:patch ?resource
                 BIND (204 AS ?status)
                 BIND ("No Content" AS ?phrase)
             } UNION {

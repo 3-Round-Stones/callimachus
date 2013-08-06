@@ -250,6 +250,11 @@ calli:put a owl:AnnotationProperty;
     rdfs:comment "This request handler should delegate a PUT request to the given template URL";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
+calli:patch a owl:AnnotationProperty;
+    rdfs:label "patch";
+    rdfs:comment "This request handler should delegate a PATCH request to the given template URL";
+    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
 calli:delete a owl:AnnotationProperty;
     rdfs:label "delete";
     rdfs:comment "This request handler should delegate a DELETE request to the given template URL";

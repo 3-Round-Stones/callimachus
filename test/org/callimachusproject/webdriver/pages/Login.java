@@ -10,8 +10,12 @@ public class Login extends CalliPage {
 	}
 
 	public Login with(String username, char[] password) {
+		return with(username, new String(password));
+	}
+
+	public Login with(String username, String password) {
 		driver.type(By.id("username"), username);
-		driver.type(By.id("password"), new String(password));
+		driver.type(By.id("password"), password);
 		return this;
 	}
 

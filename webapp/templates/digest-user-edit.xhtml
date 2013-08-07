@@ -60,7 +60,7 @@
                     <input id="label" value="{rdfs:label}" type="text" class="auto-expand" required="required" />
                 </div>
              </div>
-             <div dropzone="link s:text/uri-list" class="control-group" ondrop="return calli.insertResource(event)">
+             <div id="photo" dropzone="link s:text/uri-list" class="control-group" ondrop="return calli.insertResource(event)">
                 <label class="control-label">Photo <a href="../types/Photo?create" title="Upload"
                         onclick="return calli.createResource(event)" class="icon-list-alt" /></label>
                 <div rel="foaf:depiction" class="controls">

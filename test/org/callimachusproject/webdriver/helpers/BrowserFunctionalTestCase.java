@@ -45,6 +45,7 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.remote.LocalFileDetector;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openrdf.OpenRDFException;
 import org.slf4j.Logger;
@@ -231,10 +232,9 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 		return Version.getInstance().getVersionCode();
 	}
 
-	protected CalliPage page;
+	public RemoteWebDriver driver;
+	public CalliPage page;
 	private String folderUrl;
-	private RemoteWebDriver driver;
-
 	public BrowserFunctionalTestCase() {
 		super();
 	}
@@ -267,22 +267,9 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 
 	@Override
 	public void runBare() throws Throwable {
-		if (server != null) {
-			server.resume();
-			String url = getStartUrl();
-			WebResource home = new WebResource(url);
-			home.get("text/html");
-			home.ref("/callimachus/scripts.js").get("text/javascript");
-			home.ref("/callimachus/1.0/styles/callimachus.less?less").get(
-					"text/css");
-		}
-		RemoteWebDriverFactory driverFactory = getInstalledWebDrivers().get(
-				getBrowserName());
-		String testname = getMethodName();
-		driver = driverFactory.create(testname);
+		init();
 		Throwable exception = null;
 		try {
-			init(driver);
 			setUp();
 			try {
 				runTest();
@@ -305,24 +292,36 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 			}
 		} finally {
 			try {
-				driver.quit();
-				driver = null;
+				destroy();
 			} catch (Throwable ex) {
 				if (exception == null)
 					throw ex;
 			}
-			if (server != null) {
-				server.pause();
-			}
 		}
 	}
 
+	public void init() throws Exception, IOException {
+		if (server != null) {
+			server.resume();
+			String url = getStartUrl();
+			WebResource home = new WebResource(url);
+			home.get("text/html");
+			home.ref("/callimachus/scripts.js").get("text/javascript");
+			home.ref("/callimachus/1.0/styles/callimachus.less?less").get(
+					"text/css");
+		}
+		driver = createWebDriver();
+		page = new CalliPage(new WebBrowserDriver(driver));
+	}
+
 	@Override
-	protected void setUp() throws Exception {
+	public void setUp() throws Exception {
 		folderUrl = null;
 		String username = getUsername();
-		logger.info("Login {}", username);
-		page.openLogin().with(username, getPassword()).login();
+		if (username != null) {
+			logger.info("Login {}", username);
+			page.openLogin().with(username, getPassword()).login();
+		}
 		String folderName = getFolderName();
 		logger.info("Create folder {}", folderName);
 		page.openCurrentFolder().openFolderCreate().with(folderName).create()
@@ -331,20 +330,7 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 	}
 
 	@Override
-	protected void tearDown() throws Exception {
-		if (folderUrl != null) {
-			String folderName = getFolderName();
-			logger.info("Delete folder {}", folderName);
-			page.open(folderUrl).openEdit(FolderEdit.class)
-					.waitUntilTitle(folderName).delete();
-		}
-		logger.info("Logout");
-		page.logout();
-		super.tearDown();
-	}
-
-	@Override
-	protected void runTest() throws Throwable {
+	public void runTest() throws Throwable {
 		Method runMethod = null;
 		try {
 			runMethod = this.getClass().getMethod(getMethodName(),
@@ -355,7 +341,7 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 		if (!Modifier.isPublic(runMethod.getModifiers())) {
 			fail("Method \"" + getMethodName() + "\" should be public");
 		}
-
+	
 		try {
 			runMethod.invoke(this, (Object[]) new Class[0]);
 		} catch (InvocationTargetException e) {
@@ -367,11 +353,48 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 		}
 	}
 
+	@Override
+	public void tearDown() throws Exception {
+		if (folderUrl != null) {
+			String folderName = getFolderName();
+			logger.info("Delete folder {}", folderName);
+			page.open(folderUrl).openEdit(FolderEdit.class)
+					.waitUntilTitle(folderName).delete();
+		}
+		logger.info("Logout");
+		page.logout();
+		super.tearDown();
+	}
+
+	public void destroy() throws Throwable, Exception {
+		try {
+			if (driver != null) {
+				driver.quit();
+			}
+		} finally {
+			driver = null;
+			if (server != null) {
+				server.pause();
+			}
+		}
+	}
+
+	private RemoteWebDriver createWebDriver() {
+		RemoteWebDriverFactory driverFactory = getInstalledWebDrivers().get(
+				getBrowserName());
+		if (driverFactory == null)
+			return null;
+		String testname = getMethodName();
+		RemoteWebDriver driver = driverFactory.create(testname);
+		init(driver);
+		return driver;
+	}
+
 	private void init(RemoteWebDriver driver) {
+		driver.setFileDetector(new LocalFileDetector());
 		driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
 		driver.manage().timeouts().setScriptTimeout(30, TimeUnit.SECONDS);
 		driver.navigate().to(getStartUrl());
-		page = new CalliPage(new WebBrowserDriver(driver));
 	}
 
 	private void recordPass(String jobId) throws IOException {
@@ -439,17 +462,29 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 
 	private String getMethodName() {
 		String name = getName();
+		if (name == null)
+			return "test";
 		return name.substring(0, name.indexOf(DELIM));
 	}
 
 	private String getBrowserName() {
 		String name = getName();
+		if (name == null) {
+			Map<String, RemoteWebDriverFactory> map = getInstalledWebDrivers();
+			if (map.isEmpty())
+				return "";
+			return map.keySet().iterator().next();
+		}
 		return name.substring(name.lastIndexOf(DELIM) + 1);
 	}
 
 	private String getFolderName() {
+		String name = getName();
+		if (name == null) {
+			name = "test";
+		}
 		try {
-			return URLEncoder.encode(getName(), "UTF-8").replace("+", "&") + "'s%20Folder";
+			return URLEncoder.encode(name, "UTF-8").replace("+", "&") + "'s%20Folder";
 		} catch (UnsupportedEncodingException e) {
 			throw new AssertionError(e);
 		}

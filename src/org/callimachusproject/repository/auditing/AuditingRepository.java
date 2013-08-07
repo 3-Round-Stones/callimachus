@@ -30,6 +30,7 @@ package org.callimachusproject.repository.auditing;
 
 import static org.openrdf.query.QueryLanguage.SPARQL;
 
+import java.lang.ref.WeakReference;
 import java.math.BigDecimal;
 import java.util.ArrayDeque;
 import java.util.Collection;
@@ -38,9 +39,8 @@ import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
@@ -72,6 +72,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class AuditingRepository extends ContextAwareRepository {
+	private static class PureTask implements Runnable {
+		private WeakReference<AuditingRepository> ref;
+		public PureTask(AuditingRepository repository) {
+			ref = new WeakReference<AuditingRepository>(repository);
+		}
+		public void run() {
+			AuditingRepository repository = ref.get();
+			if (repository != null && repository.isInitialized()) {
+				repository.purge(true);
+			}
+		}
+	}
+
 	private static final String SELECT_RECENT = "PREFIX prov:<http://www.w3.org/ns/prov#>\n"
 			+ "PREFIX audit:<http://www.openrdf.org/rdf/2012/auditing#>\n"
 			+ "SELECT REDUCED ?recent { ?recent a audit:RecentBundle\n\t"
@@ -130,8 +143,8 @@ public class AuditingRepository extends ContextAwareRepository {
 			+ "OPTIONAL { ?e1 audit:with ?triple }\n\t"
 			+ "OPTIONAL { ?triple rdf:subject ?s ; rdf:predicate ?p ; rdf:object ?o }\n"
 			+ "}";
-	private static final ScheduledExecutorService executor = Executors
-			.newSingleThreadScheduledExecutor(new ThreadFactory() {
+	private static final ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(
+			1, new ThreadFactory() {
 				public Thread newThread(Runnable r) {
 					String name = AuditingRepository.class.getSimpleName()
 							+ "-"
@@ -258,11 +271,8 @@ public class AuditingRepository extends ContextAwareRepository {
 				purgeAfter.multiply(BigDecimal.valueOf(0.25)).addTo(next);
 				long delay = next.getTime() - now;
 				if (delay > 60000) {
-					puringTask = executor.scheduleWithFixedDelay(new Runnable() {
-						public void run() {
-							purge(true);
-						}
-					}, delay, delay, TimeUnit.MILLISECONDS);
+					puringTask = executor.scheduleWithFixedDelay(new PureTask(
+							this), delay, delay, TimeUnit.MILLISECONDS);
 				} else {
 					puringTask = null;
 				}
@@ -297,6 +307,7 @@ public class AuditingRepository extends ContextAwareRepository {
 					Thread.currentThread().interrupt();
 				}
 			}
+			executor.purge();
 		}
 		super.shutDown();
 	}

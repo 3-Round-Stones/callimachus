@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.WeakHashMap;
 
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
@@ -28,7 +29,7 @@ public class SparqlServiceCredentialManager extends FederatedServiceManager {
 	private final Map<String, CalliRepository> repositories = new LinkedHashMap<String, CalliRepository>();
 	private final Map<String, SoftReference<SPARQLCredentialService>> services = new HashMap<String, SoftReference<SPARQLCredentialService>>();
 	private final Map<Credentials, Map<String, SoftReference<SPARQLCredentialService>>> protectedServices = new HashMap<Credentials, Map<String, SoftReference<SPARQLCredentialService>>>();
-	private final Map<CalliRepository, Set<Credentials>> credentials = new HashMap<CalliRepository, Set<Credentials>>();
+	private final Map<CalliRepository, Set<Credentials>> credentials = new WeakHashMap<CalliRepository, Set<Credentials>>();
 
 	public synchronized void addOrigin(String origin, CalliRepository repository) {
 		repositories.put(origin, repository);

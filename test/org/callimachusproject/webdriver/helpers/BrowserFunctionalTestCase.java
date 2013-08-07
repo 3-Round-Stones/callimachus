@@ -107,7 +107,7 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 						caps.setVersion(""); // Any version
 						caps.setPlatform(Platform.ANY);
 						caps.setCapability("name", name);
-						caps.setCapability("build", Version.getInstance().getVersionCode());
+						caps.setCapability("build", getBuild());
 						caps.setCapability("tags", getTag());
 						return new RemoteWebDriver(url, caps);
 					}
@@ -119,7 +119,7 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 						caps.setVersion("22");
 						caps.setPlatform(Platform.ANY);
 						caps.setCapability("name", name);
-						caps.setCapability("build", Version.getInstance().getVersionCode());
+						caps.setCapability("build", getBuild());
 						caps.setCapability("tags", getTag());
 						return new RemoteWebDriver(url, caps);
 					}
@@ -131,7 +131,7 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 						caps.setVersion("9");
 						caps.setCapability("platform", "Windows 7");
 						caps.setCapability("name", name);
-						caps.setCapability("build", Version.getInstance().getVersionCode());
+						caps.setCapability("build", getBuild());
 						caps.setCapability("tags", getTag());
 						return new RemoteWebDriver(url, caps);
 					}
@@ -143,7 +143,7 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 						caps.setVersion("10");
 						caps.setPlatform(Platform.WIN8);
 						caps.setCapability("name", name);
-						caps.setCapability("build", Version.getInstance().getVersionCode());
+						caps.setCapability("build", getBuild());
 						caps.setCapability("tags", getTag());
 						return new RemoteWebDriver(url, caps);
 					}
@@ -225,6 +225,10 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 		} else {
 			return authority;
 		}
+	}
+
+	private static String getBuild() {
+		return Version.getInstance().getVersionCode();
 	}
 
 	protected CalliPage page;
@@ -372,16 +376,14 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 
 	private void recordPass(String jobId) throws IOException {
 		recordTest(jobId, "{\"name\": \"" + getName() + "\", \"build\": \""
-				+ Version.getInstance().getVersionCode() + "\", \"tags\": [\""
-				+ getTag()
+				+ getBuild() + "\", \"tags\": [\"" + getTag()
 				+ "\"], \"video-upload-on-pass\": false, \"passed\": true}");
 	}
 
 	private void recordFailure(String jobId, Throwable e) throws IOException {
 		recordTest(jobId, "{\"name\": \"" + getName() + "\", \"build\": \""
-				+ Version.getInstance().getVersionCode() + "\", \"tags\": [\""
-				+ getTag() + "\", \"" + e.getClass().getSimpleName()
-				+ "\"], \"passed\": false}");
+				+ getBuild() + "\", \"tags\": [\"" + getTag() + "\", \""
+				+ e.getClass().getSimpleName() + "\"], \"passed\": false}");
 	}
 
 	private void recordTest(String jobId, String data) throws IOException {

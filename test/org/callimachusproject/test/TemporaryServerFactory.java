@@ -142,14 +142,15 @@ public class TemporaryServerFactory {
 	private synchronized TemporaryServer createTemporaryServer() {
 		try {
 			final File dir = createCallimachus(origin);
-			final LocalRepositoryManager manager = RepositoryProvider.getRepositoryManager(dir);
-			final File dataDir = manager.getRepositoryDir("callimachus");
 			return new TemporaryServer(){
-				private final WebServer server = new WebServer(new File(dataDir, "cache/server"));
+				private LocalRepositoryManager manager;
+				private WebServer server;
 				private CalliRepository repository;
 				private boolean stopped;
 
 				public synchronized void start() throws InterruptedException, Exception {
+					manager = RepositoryProvider.getRepositoryManager(dir);
+					File dataDir = manager.getRepositoryDir("callimachus");
 					Repository repo = manager.getRepository("callimachus");
 					repository = new CalliRepository(repo, dataDir);
 					String url = repository.getCallimachusUrl(origin, CHANGES_PATH);
@@ -157,6 +158,7 @@ public class TemporaryServerFactory {
 					repository.addSchemaGraphType(schema);
 					repository.setChangeFolder(url);
 					repository.setCompileRepository(true);
+					server = new WebServer(new File(dataDir, "cache/server"));
 					server.addOrigin(origin, repository);
 					server.listen(new int[]{port}, new int[0]);
 					server.start();
@@ -185,14 +187,18 @@ public class TemporaryServerFactory {
 					if (!stopped) {
 						server.stop();
 						server.destroy();
+						server = null;
+						repository = null;
+						manager.shutDown();
 						stopped = true;
 						Thread.sleep(100);
+						System.gc();
+						System.runFinalization();
 					}
 				}
 
 				public synchronized void destroy() throws Exception {
 					stop();
-					manager.shutDown();
 					FileUtil.deltree(dir);
 				}
 

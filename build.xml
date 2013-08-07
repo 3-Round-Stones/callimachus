@@ -84,11 +84,12 @@
                 </not>
             </and>
         </condition>
+        <property environment="env" />
 		<condition property="curl.available">
 			<or>
 				<available file="${curl}" filepath="${env.PATH}"/>
-				<available file="${curl}" filepath="${env.Path}"/>
-				<available file="${curl}" filepath="${env.PATH}"/>
+				<available file="${curl}.exe" filepath="${env.Path}"/>
+				<available file="${curl}.exe" filepath="${env.PATH}"/>
 			</or>
 		</condition>
         <script language="javascript">

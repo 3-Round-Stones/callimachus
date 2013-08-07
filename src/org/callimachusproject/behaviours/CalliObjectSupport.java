@@ -32,6 +32,7 @@ import static java.lang.Integer.toHexString;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.WeakHashMap;
 
@@ -62,6 +63,13 @@ public abstract class CalliObjectSupport implements CalliObject {
 
 	public static void associate(CalliRepository repository, ObjectRepository repo) {
 		synchronized (repositories) {
+			Iterator<ObjectRepository> iter = repositories.keySet().iterator();
+			while (iter.hasNext()) {
+				ObjectRepository key = iter.next();
+				if (!key.isInitialized()) {
+					iter.remove();
+				}
+			}
 			repositories.put(repo, new WeakReference<CalliRepository>(repository));
 		}
 	}

@@ -163,6 +163,7 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 	private final Logger logger = LoggerFactory.getLogger(WebServer.class);
 	private final Map<NHttpConnection, Boolean> connections = new WeakHashMap<NHttpConnection, Boolean>();
 	private final Map<CalliRepository, Boolean> repositories = new WeakHashMap<CalliRepository, Boolean>();
+	private final Set<String> origins = new HashSet<String>();
 	private final ThreadLocal<Boolean> foreground = new ThreadLocal<Boolean>();
 	private final ExecutorService triaging = new InlineExecutorService(
 			foreground, ManagedExecutors.getInstance().newFixedThreadPool(N,
@@ -195,6 +196,7 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 	private final CacheHandler cache;
 	private int timeout = 0;
 	private final HttpProcessor httpproc;
+	private final Runnable schemaListener;
 
 	public WebServer(File cacheDir)
 			throws IOException, NoSuchAlgorithmException {
@@ -249,9 +251,19 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 			}
 		}
 		this.setEnvelopeType(ENVELOPE_TYPE);
+		schemaListener = new Runnable() {
+			public String toString() {
+				return "reset cache";
+			}
+
+			public void run() {
+				resetCache();
+			}
+		};
 	}
 
 	public synchronized void addOrigin(String origin, CalliRepository repository) {
+		origins.add(origin);
 		FederatedServiceManager manager = FederatedServiceManager.getInstance();
 		if (!(manager instanceof SparqlServiceCredentialManager)) {
 			FederatedServiceManager.setImplementationClass(SparqlServiceCredentialManager.class);
@@ -262,15 +274,7 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 		authCache.addOrigin(origin, repository);
 		synchronized(repositories) {
 			if (repositories.put(repository, true) == null) {
-				repository.addSchemaListener(new Runnable() {
-					public String toString() {
-						return "reset cache";
-					}
-		
-					public void run() {
-						resetCache();
-					}
-				});
+				repository.addSchemaListener(schemaListener);
 			}
 		}
 	}
@@ -284,6 +288,7 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 		((SparqlServiceCredentialManager) manager).removeOrigin(origin);
 		transaction.removeOrigin(origin);
 		authCache.removeOrigin(origin);
+		origins.remove(origin);
 	}
 
 	public String getName() {
@@ -497,6 +502,15 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 		server.shutdown();
 		if (sslserver != null) {
 			sslserver.shutdown();
+		}
+		for (String origin : origins) {
+			removeOrigin(origin);
+		}
+		synchronized(repositories) {
+			for (CalliRepository repository : repositories.keySet()) {
+				repository.removeSchemaListener(schemaListener);
+			}
+			repositories.clear();
 		}
 		resetConnections();
 		try {

@@ -45,6 +45,11 @@ public class WebBrowserDriver {
 		driver.navigate().back();
 		waitForScript();
 	}
+	
+	public String getCurrentUrl() {
+		String url = driver.getCurrentUrl();
+		return url;
+	}
 
 	public void focusInTopWindow() {
 		driver.switchTo().window(driver.getWindowHandle());
@@ -138,6 +143,16 @@ public class WebBrowserDriver {
 
 	public void clickHiddenLink(String cssSelector) {
 		driver.executeScript("document.querySelector(arguments[0]).click()", cssSelector);
+	}
+	
+	public void select(By locator, String value) {
+		List<WebElement> optionList = driver.findElement(locator).findElements(By.tagName("option"));
+		for (WebElement option : optionList) {
+			if (value.equalsIgnoreCase(option.getText())){
+				option.click();
+				break;
+			}
+		}
 	}
 
 	public void sendKeys(CharSequence... keys) {

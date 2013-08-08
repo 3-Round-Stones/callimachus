@@ -30,6 +30,11 @@ public class CalliPage {
 		driver.click(By.id("logout-link"));
 		return page();
 	}
+	
+	public String getCurrentUrl() {
+		String url = driver.getCurrentUrl();
+		return url;
+	}
 
 	public FolderView openHomeFolder() {
 		driver.focusInTopWindow();

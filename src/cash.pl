@@ -543,6 +543,7 @@ sub getContentType {
         when (/xhtml$/) { return "application/xhtml+xml"; }
         when (/xpl$/) { return "application/xproc+xml"; }
         when (/xsl$/) { return "text/xsl"; }
+        when (/xq$/) { return "application/xquery"; }
     }    
     $exitstatus++;
     return 0;

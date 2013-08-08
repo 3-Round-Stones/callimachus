@@ -56,6 +56,12 @@ public class CalliPage {
 		return page(pageClass);
 	}
 
+	public CalliPage openView() {
+		driver.focusInTopWindow();
+		driver.click(By.linkText("View"));
+		return page();
+	}
+
 	public <P> P openEdit(Class<P> pageClass) {
 		driver.focusInTopWindow();
 		driver.click(By.linkText("Edit"));
@@ -72,6 +78,12 @@ public class CalliPage {
 		driver.focusInTopWindow();
 		driver.click(By.linkText("Discussion"));
 		return page(DiscussionPage.class);
+	}
+
+	public DescribePage openDescribe() {
+		driver.focusInTopWindow();
+		driver.click(By.linkText("Describe"));
+		return page(DescribePage.class);
 	}
 
 	public RecentChanges openRecentChanges() {
@@ -93,6 +105,14 @@ public class CalliPage {
 		driver.click(By.cssSelector("i.icon-cog"));
 		driver.click(By.linkText("What links here"));
 		return page(SearchResults.class);
+	}
+
+	public CalliPage openProfile() {
+		driver.focusInTopWindow();
+		driver.click(By.cssSelector("i.icon-cog"));
+		driver.click(By.id("profile-link"));
+		return page();
+	
 	}
 
 	public SearchResults searchFor(String conceptLabel) {

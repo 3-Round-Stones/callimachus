@@ -273,7 +273,7 @@ public class ResponseBuilder {
 			while (m.find()) {
 				String url = m.group();
 				sb.append(enc(string.substring(end, m.start())));
-				sb.append("<a href='").append(enc(url)).append("'>");
+				sb.append("<a href=\"").append(enc(url)).append("\">");
 				int path = url.indexOf('/', url.indexOf("://") + 3);
 				String label = path > 0 ? url.substring(path) : url;
 				sb.append(enc(label));

@@ -60,7 +60,7 @@ public class WebBrowserDriver {
 		waitForScript();
 		for (final String frameName : frameNames) {
 			if (frameName != null) {
-				new WebDriverWait(driver, 10)
+				new WebDriverWait(driver, 60)
 						.until(new ExpectedCondition<WebDriver>() {
 							public WebDriver apply(WebDriver driver) {
 								try {
@@ -90,7 +90,7 @@ public class WebBrowserDriver {
 			driver.switchTo().frame(topFrameName);
 		}
 		for (final int frame : frames) {
-			new WebDriverWait(driver, 10)
+			new WebDriverWait(driver, 60)
 					.until(new ExpectedCondition<WebDriver>() {
 						public WebDriver apply(WebDriver driver) {
 							try {
@@ -183,6 +183,8 @@ public class WebBrowserDriver {
 					case '>':
 					case '[':
 					case ']':
+					case '"':
+					case '\'':
 						sendKeys(element, list, sb);
 						sb.append(chr);
 						sendKeys(element, list, sb);

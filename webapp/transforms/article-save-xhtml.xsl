@@ -57,6 +57,10 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
     <xsl:apply-templates />
 </xsl:template>
 
+<xsl:template match="xhtml:br">
+    <xsl:text>&#xA;</xsl:text>
+</xsl:template>
+
 <xsl:template match="xhtml:html">
     <article version="5.0">
         <xsl:choose>

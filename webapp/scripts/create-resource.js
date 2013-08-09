@@ -38,10 +38,7 @@ calli.createResource = function(event, href) {
         },
         onclose: function() {
             list.unbind('calliLinked', onlinked);
-            var event = document.createEvent("Event");
-  	    event.initEvent("customDialogBoxCloseEvent", true, true);
-  	    window.dispatchEvent(event);
-	    try {
+            try {
                 $(node)[0].focus();
             } catch (e) {
                 // ignore

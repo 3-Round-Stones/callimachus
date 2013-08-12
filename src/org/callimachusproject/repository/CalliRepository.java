@@ -231,7 +231,7 @@ public class CalliRepository extends RepositoryWrapper implements CalliRepositor
 
 	@Override
 	public boolean isLoggingCalls() {
-		return isTracingCalls() && service.getLogger(Repository.class).isTraceEnabled();
+		return isTracingCalls() && service.getLogger(RepositoryConnection.class).isTraceEnabled();
 	}
 
 	@Override

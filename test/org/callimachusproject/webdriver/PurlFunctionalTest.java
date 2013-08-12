@@ -2,6 +2,7 @@ package org.callimachusproject.webdriver;
 
 import junit.framework.TestSuite;
 
+import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.webdriver.helpers.BrowserFunctionalTestCase;
 import org.callimachusproject.webdriver.pages.PurlEdit;
 
@@ -32,7 +33,7 @@ public class PurlFunctionalTest extends BrowserFunctionalTestCase {
 				.waitUntilTitle(purlName);
 		String url = page.getCurrentUrl();
 		url = url.replace("?view", "");
-		sendGet(url);
+		sendGet(url, 200, "/main-article.docbook?view", purl[3]);
 		logger.info("Delete purl {}", purlName);
 		page.open(purlName + "?view").waitUntilTitle(purlName)
 				.openEdit(PurlEdit.class).delete(purlName);
@@ -47,7 +48,7 @@ public class PurlFunctionalTest extends BrowserFunctionalTestCase {
 				.waitUntilTitle(purlName);
 		String url = page.getCurrentUrl();
 		url = url.replace("?view", "");
-		sendGet(url);
+		sendGet(url, 301, purl[2], purl[3]);
 		logger.info("Delete purl {}", purlName);
 		page.open(purlName + "?view").waitUntilTitle(purlName)
 				.openEdit(PurlEdit.class).delete(purlName);
@@ -62,7 +63,7 @@ public class PurlFunctionalTest extends BrowserFunctionalTestCase {
 				.waitUntilTitle(purlName);
 		String url = page.getCurrentUrl();
 		url = url.replace("?view", "");
-		sendGet(url);
+		sendGet(url, 302, purl[2], purl[3]);
 		logger.info("Delete purl {}", purlName);
 		page.open(purlName + "?view").waitUntilTitle(purlName)
 				.openEdit(PurlEdit.class).delete(purlName);
@@ -77,7 +78,7 @@ public class PurlFunctionalTest extends BrowserFunctionalTestCase {
 				.waitUntilTitle(purlName);
 		String url = page.getCurrentUrl();
 		url = url.replace("?view", "");
-		sendGet(url);
+		sendGet(url, 303, purl[2], purl[3]);
 		logger.info("Delete purl {}", purlName);
 		page.open(purlName + "?view").waitUntilTitle(purlName)
 				.openEdit(PurlEdit.class).delete(purlName);
@@ -92,7 +93,7 @@ public class PurlFunctionalTest extends BrowserFunctionalTestCase {
 				.waitUntilTitle(purlName);
 		String url = page.getCurrentUrl();
 		url = url.replace("?view", "");
-		sendGet(url);
+		sendGet(url, 307, purl[2], purl[3]);
 		logger.info("Delete purl {}", purlName);
 		page.open(purlName + "?view").waitUntilTitle(purlName)
 				.openEdit(PurlEdit.class).delete(purlName);
@@ -107,7 +108,7 @@ public class PurlFunctionalTest extends BrowserFunctionalTestCase {
 				.waitUntilTitle(purlName);
 		String url = page.getCurrentUrl();
 		url = url.replace("?view", "");
-		sendGet(url);
+		sendGet(url, 308, purl[2], purl[3]);
 		logger.info("Delete purl {}", purlName);
 		page.open(purlName + "?view").waitUntilTitle(purlName)
 				.openEdit(PurlEdit.class).delete(purlName);
@@ -122,7 +123,7 @@ public class PurlFunctionalTest extends BrowserFunctionalTestCase {
 				.waitUntilTitle(purlName);
 		String url = page.getCurrentUrl();
 		url = url.replace("?view", "");
-		sendGet(url);
+		sendGet(url, 404, "/main-article.docbook?view", purl[3]);
 		logger.info("Delete purl {}", purlName);
 		page.open(purlName + "?view").waitUntilTitle(purlName)
 				.openEdit(PurlEdit.class).delete(purlName);
@@ -137,30 +138,32 @@ public class PurlFunctionalTest extends BrowserFunctionalTestCase {
 				.waitUntilTitle(purlName);
 		String url = page.getCurrentUrl();
 		url = url.replace("?view", "");
-		sendGet(url);
+		sendGet(url, 410, "/main-article.docbook?view", purl[3]);
 		logger.info("Delete purl {}", purlName);
 		page.open(purlName + "?view").waitUntilTitle(purlName)
 				.openEdit(PurlEdit.class).delete(purlName);
 	}
 	
-	public void sendGet(String url) throws Exception {
+	public void sendGet(String url, int code, String location, String cc) throws Exception {
  
 		logger.info("Sending 'GET' request to {}", url);
 		URL obj = new URL(url);
 		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+		con.setInstanceFollowRedirects(false);
 		con.setRequestMethod("GET");
 		
 		// Retrieve Status Code response header and assert
-		int responseCode = con.getResponseCode();
-		assertEquals(responseCode, 200);
+		assertEquals(url, code, con.getResponseCode());
 		
 		// Retrieve Location response header and print
-		String location = con.getHeaderField("Content-Location");
-		assertEquals(location, "http://megakakon.3roundstones.net/main-article.docbook?view");
+		String hd = con.getHeaderField("Location");
+		if (hd == null) {
+			hd = con.getHeaderField("Content-Location");
+		}
+		assertEquals(url, TermFactory.newInstance(url).resolve(location), hd);
 		
 		// Retrieve Cache-Control response header and print
-		String cacheControl = con.getHeaderField("Cache-Control");
-		assertEquals(cacheControl, "max-age=3600");
+		assertEquals(url, cc, con.getHeaderField("Cache-Control"));
 	}
 
 }

@@ -174,9 +174,46 @@ public class WebBrowserDriver {
 						sendKeys(element, list, sb);
 						list.add(Keys.SUBTRACT);
 						break;
-					case '\n':
+					case '!':
+						sendKeys(element, list, sb);
+						list.add(Keys.chord(Keys.SHIFT, "1"));
+						break;
+					case '@':
+						sendKeys(element, list, sb);
+						list.add(Keys.chord(Keys.SHIFT, "2"));
+						break;
+					case '#':
+						sendKeys(element, list, sb);
+						list.add(Keys.chord(Keys.SHIFT, "3"));
+						break;
+					case '$':
+						sendKeys(element, list, sb);
+						list.add(Keys.chord(Keys.SHIFT, "4"));
+						break;
+					case '%':
+						sendKeys(element, list, sb);
+						list.add(Keys.chord(Keys.SHIFT, "5"));
+						break;
+					case '^':
+						sendKeys(element, list, sb);
+						list.add(Keys.chord(Keys.SHIFT, "6"));
+						break;
+					case '&':
+						sendKeys(element, list, sb);
+						list.add(Keys.chord(Keys.SHIFT, "7"));
+						break;
+					case '*':
+						sendKeys(element, list, sb);
+						list.add(Keys.chord(Keys.SHIFT, "8"));
+						break;
 					case '(':
+						sendKeys(element, list, sb);
+						list.add(Keys.chord(Keys.SHIFT, "9"));
+						break;
 					case ')':
+						sendKeys(element, list, sb);
+						list.add(Keys.chord(Keys.SHIFT, "0"));
+						break;
 					case '{':
 					case '}':
 					case '<':
@@ -185,6 +222,7 @@ public class WebBrowserDriver {
 					case ']':
 					case '"':
 					case '\'':
+					case '\n':
 						sendKeys(element, list, sb);
 						sb.append(chr);
 						sendKeys(element, list, sb);

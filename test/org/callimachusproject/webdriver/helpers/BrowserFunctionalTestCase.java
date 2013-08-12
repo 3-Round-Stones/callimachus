@@ -125,18 +125,6 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 						return new RemoteWebDriver(url, caps);
 					}
 				});
-				factories.put("ie9", new RemoteWebDriverFactory() {
-					public RemoteWebDriver create(String name) {
-						DesiredCapabilities caps = DesiredCapabilities
-								.internetExplorer();
-						caps.setVersion("9");
-						caps.setCapability("platform", "Windows 7");
-						caps.setCapability("name", name);
-						caps.setCapability("build", getBuild());
-						caps.setCapability("tags", getTag());
-						return new RemoteWebDriver(url, caps);
-					}
-				});
 				factories.put("ie10", new RemoteWebDriverFactory() {
 					public RemoteWebDriver create(String name) {
 						DesiredCapabilities caps = DesiredCapabilities
@@ -218,7 +206,7 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 	}
 
 	private static String getTag() {
-		String authority = URI.create(getStartUrl()).getAuthority();
+		String authority = HOSTNAME;
 		if (authority.contains(".")) {
 			return authority.substring(0, authority.indexOf('.'));
 		} else if (authority.contains(":")) {
@@ -391,22 +379,28 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 	}
 
 	private void init(RemoteWebDriver driver) {
-		driver.setFileDetector(new LocalFileDetector());
+		try {
+			driver.setFileDetector(new LocalFileDetector());
+		} catch (WebDriverException e) {
+			// ignore
+		}
 		driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
 		driver.manage().timeouts().setScriptTimeout(30, TimeUnit.SECONDS);
 		driver.navigate().to(getStartUrl());
 	}
 
 	private void recordPass(String jobId) throws IOException {
-		recordTest(jobId, "{\"name\": \"" + getName() + "\", \"build\": \""
-				+ getBuild() + "\", \"tags\": [\"" + getTag()
+		recordTest(jobId, "{\"name\": \"" + getMethodName()
+				+ "\", \"build\": \"" + getBuild() + "\", \"tags\": [\""
+				+ getTag()
 				+ "\"], \"video-upload-on-pass\": false, \"passed\": true}");
 	}
 
 	private void recordFailure(String jobId, Throwable e) throws IOException {
-		recordTest(jobId, "{\"name\": \"" + getName() + "\", \"build\": \""
-				+ getBuild() + "\", \"tags\": [\"" + getTag() + "\", \""
-				+ e.getClass().getSimpleName() + "\"], \"passed\": false}");
+		recordTest(jobId, "{\"name\": \"" + getMethodName()
+				+ "\", \"build\": \"" + getBuild() + "\", \"tags\": [\""
+				+ getTag() + "\", \"" + e.getClass().getSimpleName()
+				+ "\"], \"passed\": false}");
 	}
 
 	private void recordTest(String jobId, String data) throws IOException {

@@ -12,8 +12,13 @@ public class DocEditor extends CalliPage {
 
 	public DocEditor clear() {
 		driver.focusInFrame(0, 0);
-		driver.sendKeys(Keys.chord(Keys.CONTROL, "a"), Keys.DELETE,
-				Keys.BACK_SPACE, Keys.BACK_SPACE);
+		driver.sendKeys(Keys.chord(Keys.CONTROL, "a"));
+		driver.sendKeys(Keys.DELETE);
+		CharSequence[] keys = new CharSequence[32];
+		for (int i = 0; i < keys.length; i++) {
+			keys[i] = Keys.BACK_SPACE;
+		}
+		driver.sendKeys(keys);
 		return this;
 	}
 

@@ -141,8 +141,23 @@ public class WebBrowserDriver {
 	    waitForScript();
 	}
 
-	public void clickHiddenLink(String cssSelector) {
-		driver.executeScript("document.querySelector(arguments[0]).click()", cssSelector);
+	public void clickHiddenLink(final String cssSelector) {
+		Wait<WebDriver> wait = new WebDriverWait(driver, 120);
+		Boolean present = wait.until(new ExpectedCondition<Boolean>() {
+			public Boolean apply(WebDriver wd) {
+				return (Boolean) driver
+						.executeScript(
+								"return document.querySelector(arguments[0]) && true || false",
+								cssSelector);
+			}
+
+			public String toString() {
+				return "hidden " + cssSelector + " to load";
+			}
+		});
+		assertTrue(present);
+		driver.executeScript("document.querySelector(arguments[0]).click()",
+				cssSelector);
 	}
 	
 	public void select(By locator, String value) {

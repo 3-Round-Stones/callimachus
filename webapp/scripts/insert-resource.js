@@ -24,9 +24,6 @@ calli.insertResource = function(event) {
 };
 
 function select(node, selector) {
-    var set = $(node).closest(selector);
-    if (set.length)
-        return set;
     set = $(node).find(selector).first();
     if (set.length)
         return set;

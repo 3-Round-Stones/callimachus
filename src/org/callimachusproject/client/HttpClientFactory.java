@@ -24,8 +24,8 @@ import org.apache.http.conn.HttpClientConnectionManager;
 import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.LayeredConnectionSocketFactory;
-import org.apache.http.conn.socket.PlainSocketFactory;
-import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.conn.socket.PlainConnectionSocketFactory;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultConnectionKeepAliveStrategy;
@@ -103,11 +103,11 @@ public class HttpClientFactory implements Closeable {
 		cacheDir.mkdirs();
 		entryFactory = new FileResourceFactory(cacheDir);
 		decorator = new ProxyClientExecDecorator();
-		LayeredConnectionSocketFactory sslSocketFactory = SSLSocketFactory
+		LayeredConnectionSocketFactory sslSocketFactory = SSLConnectionSocketFactory
 				.getSystemSocketFactory();
 		connManager = new PoolingHttpClientConnectionManager(RegistryBuilder
 				.<ConnectionSocketFactory> create()
-				.register("http", PlainSocketFactory.getSocketFactory())
+				.register("http", PlainConnectionSocketFactory.getSocketFactory())
 				.register("https", sslSocketFactory).build());
 		connManager.setDefaultSocketConfig(getDefaultSocketConfig());
 		connManager.setDefaultConnectionConfig(getDefaultConnectionConfig());

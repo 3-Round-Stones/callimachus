@@ -12,11 +12,8 @@ import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.impl.client.cache.CachingHttpAsyncClient;
 import org.apache.http.impl.client.cache.ManagedHttpCacheStorage;
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
-import org.apache.http.nio.conn.ClientAsyncConnectionManager;
 import org.apache.http.nio.protocol.HttpAsyncRequestProducer;
 import org.apache.http.nio.protocol.HttpAsyncResponseConsumer;
-import org.apache.http.nio.reactor.IOReactorStatus;
-import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.client.CloseableEntity;
 import org.slf4j.Logger;
@@ -43,41 +40,17 @@ public class AutoClosingAsyncClient extends CloseableHttpAsyncClient {
 	}
 
     public void shutdown() {
-		try {
-			client.shutdown();
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-		}
 		storage.shutdown();
     }
 
 	@Override
-	public IOReactorStatus getStatus() {
-		return client.getStatus();
-	}
-
-	@Override
 	public void close() throws IOException {
-		try {
-			client.shutdown();
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-		}
+		// no-op
 	}
 
 	@Override
 	public void start() {
-		client.start();
-	}
-
-	@Override
-	public ClientAsyncConnectionManager getConnectionManager() {
-		return client.getConnectionManager();
-	}
-
-	@Override
-	public HttpParams getParams() {
-		return client.getParams();
+		// no-op
 	}
 
 	@Override

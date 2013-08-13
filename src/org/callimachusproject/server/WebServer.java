@@ -766,7 +766,7 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 		ConnectionConfig params = getDefaultConnectionConfig();
 		handler = createProtocolHandler(httpproc, service);
 		DefaultHttpRequestParserFactory rparser = new DefaultHttpRequestParserFactory(null, requestFactory);
-		factory = new DefaultNHttpServerConnectionFactory(allocator, rparser, params);
+		factory = new DefaultNHttpServerConnectionFactory(allocator, rparser, null, params);
 		return new DefaultHttpServerIODispatch(handler, factory);
 	}
 
@@ -778,8 +778,7 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 		ConnectionConfig params = getDefaultConnectionConfig();
 		handler = createProtocolHandler(httpproc, service);
 		DefaultHttpRequestParserFactory rparser = new DefaultHttpRequestParserFactory(null, requestFactory);
-		factory = new SSLNHttpServerConnectionFactory(sslcontext, null,
-				rparser, allocator, params);
+		factory = new SSLNHttpServerConnectionFactory(sslcontext, null, rparser, null, allocator, params);
 		return new DefaultHttpServerIODispatch(handler, factory);
 	}
 

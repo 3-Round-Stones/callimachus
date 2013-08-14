@@ -219,6 +219,8 @@
                 bio.mark(65536);
                 var xmlFactory = XMLEventReaderFactory.newInstance();
                 var xml = xmlFactory.createXMLEventReader(createdUri, bio);
+                if (!xml)
+                    throw new BadRequest("Document cannot be empty");
                 while (!xml.peek().isStartElement()) {
                     xml.next();
                 }

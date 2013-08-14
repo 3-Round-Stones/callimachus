@@ -23,15 +23,14 @@ public class GroupEdit extends CalliPage {
 	public InviteUser openInviteUser() {
 		driver.click(By.cssSelector("#members label.control-label a"));
 		driver.waitForScript();
-		driver.focusInFrame(0);
+		driver.focusInFrame("members");
 		driver.waitForScript();
 		final GroupEdit edit = this;
 		return new InviteUser(driver) {
 			@Override
 			public GroupEdit invite() {
 				driver.click(By.id("invite"));
-				driver.focusInTopWindow();
-				driver.waitForScript();
+				driver.waitForFrameToClose("members");
 				return edit;
 			}
 		};

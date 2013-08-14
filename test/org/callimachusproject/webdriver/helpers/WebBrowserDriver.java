@@ -4,6 +4,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.callimachusproject.engine.model.TermFactory;
 import org.openqa.selenium.Alert;
@@ -12,7 +13,6 @@ import org.openqa.selenium.ElementNotVisibleException;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.NoSuchFrameException;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.interactions.MoveTargetOutOfBoundsException;
@@ -106,6 +106,35 @@ public class WebBrowserDriver {
 							return "frame index " + frame + " to be present";
 						}
 					});
+		}
+		waitForScript();
+	}
+
+	public void waitForFrameToClose(final String frameName) {
+		driver.switchTo().window(driver.getWindowHandle());
+		if (frameName != null) {
+			try {
+				driver.manage().timeouts().implicitlyWait(0, TimeUnit.SECONDS);
+				new WebDriverWait(driver, 60)
+						.until(new ExpectedCondition<Boolean>() {
+							public Boolean apply(WebDriver driver) {
+								List<WebElement> iframes = driver
+										.findElements(By.tagName("iframe"));
+								for (WebElement iframe : iframes) {
+									if (iframe.getAttribute("name").equals(
+											frameName))
+										return false;
+								}
+								return true;
+							}
+
+							public String toString() {
+								return "frame " + frameName + " to be present";
+							}
+						});
+			} finally {
+				driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+			}
 		}
 		waitForScript();
 	}

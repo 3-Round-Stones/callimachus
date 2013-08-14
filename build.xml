@@ -292,7 +292,6 @@
         <basename file="${jersey-core.url}" property="jersey-core.jar" />
         <basename file="${jsr311-api.url}" property="jsr311-api.jar" />
         <basename file="${selenium.url}" property="selenium.zip" />
-        <basename file="${selenium-server.url}" property="selenium-server.jar" />
         <basename file="${ant-contrib.url}" property="ant-contrib.zip" />
         <mkdir dir="${downloads}" />
         <get usetimestamp="true" skipexisting="${lib.tests.present}" dest="${downloads}">
@@ -301,7 +300,6 @@
             <url url="${jersey-core.url}" />
             <url url="${jsr311-api.url}" />
             <url url="${selenium.url}" />
-            <url url="${selenium-server.url}" />
             <url url="${ant-contrib.url}" />
         </get>
         <mkdir dir="${lib.tests}" />
@@ -317,13 +315,9 @@
                 <exclude name="**/commons-logging*.jar" />
                 <exclude name="**/httpclient*.jar" />
                 <exclude name="**/httpcore*.jar" />
-                <exclude name="**/selenium-java*.jar" />
             </patternset>
             <mapper type="flatten" />
         </unzip>
-        <zip destfile="${lib.tests}/selenium-java.jar">
-            <zipfileset src="${downloads}/${selenium-server.jar}" includes="org/openqa/selenium/** com/thoughtworks/**" />
-        </zip>
         <unzip overwrite="false" src="${downloads}/${ant-contrib.zip}" dest="${lib.tests}">
             <patternset>
                 <include name="**/*.jar" />

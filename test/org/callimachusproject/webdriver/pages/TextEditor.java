@@ -51,7 +51,7 @@ public class TextEditor extends CalliPage {
 		driver.type(By.id("label"), name);
 		driver.focusInFrame(topFrameName);
 		driver.click(By.xpath("(//button[@type='button'])[2]"));
-		driver.waitForScript();
+		driver.waitForFrameToClose(topFrameName);
 		return page();
 	}
 

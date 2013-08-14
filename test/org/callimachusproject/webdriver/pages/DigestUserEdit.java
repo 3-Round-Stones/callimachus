@@ -23,6 +23,7 @@ public class DigestUserEdit extends CalliPage {
 				driver.type(By.id("label"), fileName);
 				driver.focusInFrame("photo");
 				driver.click(By.xpath("(//button[@type='button'])[2]"));
+				driver.waitForFrameToClose("photo");
 				return edit;
 			}
 		};

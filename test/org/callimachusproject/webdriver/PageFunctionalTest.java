@@ -25,7 +25,11 @@ public class PageFunctionalTest extends BrowserFunctionalTestCase {
 		String name = xhtml[0];
 		logger.info("Create page {}", name);
 		String markup = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-				+ "<html xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema#\" xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\" xmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\">\n"
+				+ "<html\n"
+				+ " xmlns=\"http://www.w3.org/1999/xhtml\"\n"
+				+ " xmlns:xsd=\"http://www.w3.org/2001/XMLSchema#\"\n"
+				+ " xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n"
+				+ " xmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\">\n"
 				+ "<head>\n" + "<title>" + xhtml[1] + "</title>\n"
 				+ "</head>\n" + "<body>\n" + xhtml[2] + "\n</body>\n</html>";
 		page.openCurrentFolder().openTextCreate("Page").clear().type(markup)

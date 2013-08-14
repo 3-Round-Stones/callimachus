@@ -12,6 +12,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.ElementNotVisibleException;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.NoSuchFrameException;
+import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
@@ -121,9 +122,14 @@ public class WebBrowserDriver {
 								List<WebElement> iframes = driver
 										.findElements(By.tagName("iframe"));
 								for (WebElement iframe : iframes) {
-									if (iframe.getAttribute("name").equals(
-											frameName))
-										return false;
+									try {
+										if (iframe.getAttribute("name").equals(
+												frameName))
+											return false;
+									} catch (StaleElementReferenceException e) {
+										// iframe is gone
+										continue;
+									}
 								}
 								return true;
 							}

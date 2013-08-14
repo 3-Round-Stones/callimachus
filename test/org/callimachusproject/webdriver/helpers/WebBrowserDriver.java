@@ -301,9 +301,12 @@ public class WebBrowserDriver {
 		Boolean present = wait.until(new ExpectedCondition<Boolean>() {
 			public Boolean apply(WebDriver wd) {
 				String className = (String) driver
-						.executeScript("if (document.body && window.document.documentElement) return window.document.documentElement.className;\n"
-								+ "else if (document.body) return '';\n"
-								+ "else return 'wait';");
+						.executeScript("try {\n"
+								+ "if (document.body && window.document.documentElement)\n"
+								+ "    return window.document.documentElement.className;\n"
+								+ "else if (document.body)\n"
+								+ "    return '';\n" + "} catch(e) {}\n"
+								+ "    return 'wait';");
 				if (!className.contains("wait")) {
 					return true;
 				} else {

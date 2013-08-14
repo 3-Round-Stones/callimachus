@@ -38,7 +38,7 @@ public class DocEditor extends CalliPage {
 
 	public CalliPage saveAs(String articleName) {
 		driver.focusInTopWindow();
-		driver.click(By.id("create-article"));
+		driver.click(By.cssSelector("button.btn-success"));
 		driver.focusInFrame("save-as___");
 		driver.type(By.id("label"), articleName);
 		driver.focusInTopWindow();

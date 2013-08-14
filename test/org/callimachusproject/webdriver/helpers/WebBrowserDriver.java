@@ -8,9 +8,11 @@ import java.util.List;
 import org.callimachusproject.engine.model.TermFactory;
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
+import org.openqa.selenium.ElementNotVisibleException;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.NoSuchFrameException;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.interactions.MoveTargetOutOfBoundsException;
@@ -115,6 +117,9 @@ public class WebBrowserDriver {
 			new Actions(driver).moveToElement(element).build().perform();
 			element.click();
 		} catch (MoveTargetOutOfBoundsException e) {
+			// firefox can't scroll to reveal element
+			driver.executeScript("arguments[0].click()", element);
+		} catch (ElementNotVisibleException e) {
 			// firefox can't scroll to reveal element
 			driver.executeScript("arguments[0].click()", element);
 		}

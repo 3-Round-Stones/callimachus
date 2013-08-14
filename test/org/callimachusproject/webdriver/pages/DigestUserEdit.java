@@ -29,6 +29,7 @@ public class DigestUserEdit extends CalliPage {
 	}
 
 	public CalliPage save() {
+		driver.focusInTopWindow();
 		driver.click(By.id("save"));
 		return page();
 	}

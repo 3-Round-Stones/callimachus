@@ -225,9 +225,13 @@ public final class TripleVerifier implements Cloneable {
 
 	public void verify(Resource subj, URI pred, Value obj)
 			throws RDFHandlerException {
-		if (!accept(subj, pred, obj))
-			throw new RDFHandlerException("Invalid triple: " + subj + " "
-					+ pred + " " + obj);
+		Set<TriplePattern> alternatives = findAlternatives(subj, pred, obj);
+		if (alternatives != null && alternatives.isEmpty())
+			throw new RDFHandlerException("Triple pattern " + subj + " "
+					+ pred + " " + obj + " must be present in template to use it");
+		if (alternatives != null)
+			throw new RDFHandlerException("Triple " + subj + " "
+					+ pred + " " + obj + " must match one of " + alternatives);
 		if (subj instanceof URI) {
 			addSubject((URI) subj);
 		}
@@ -242,9 +246,9 @@ public final class TripleVerifier implements Cloneable {
 		empty = false;
 	}
 
-	private boolean accept(Resource subj, URI pred, Value obj) throws RDFHandlerException {
+	private Set<TriplePattern> findAlternatives(Resource subj, URI pred, Value obj) throws RDFHandlerException {
 		if (patterns == null)
-			return true;
+			return null;
 		Term sterm = asTerm(subj);
 		Term pterm = asTerm(pred);
 		Term oterm = asTerm(obj);
@@ -263,9 +267,20 @@ public final class TripleVerifier implements Cloneable {
 			}
 			if (tp.isInverse())
 				throw new RDFHandlerException("Inverse relationships cannot be used here");
-			return true;
+			return null;
 		}
-		return false;
+		Set<TriplePattern> alt1 = new LinkedHashSet<TriplePattern>();
+		Set<TriplePattern> alt2 = new LinkedHashSet<TriplePattern>();
+		for (TriplePattern tp : patterns) {
+			if (tp.getPredicate().equals(pterm)) {
+				alt1.add(tp);
+				if (tp.getSubject().equals(sterm)
+						|| tp.getObject().equals(oterm)) {
+					alt2.add(tp);
+				}
+			}
+		}
+		return alt2.isEmpty() ? alt1 : alt2;
 	}
 
 	private Term asTerm(Value obj) {

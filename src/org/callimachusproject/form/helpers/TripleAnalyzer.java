@@ -240,17 +240,29 @@ public class TripleAnalyzer extends QueryModelVisitorBase<RDFHandlerException> {
 		TripleVerifier previous = verifier;
 		if (node.getDeleteExpr() != null) {
 			verifier = deleteVerifier.clone();
-			node.getDeleteExpr().visit(this);
+			try {
+				node.getDeleteExpr().visit(this);
+			} catch (RDFHandlerException e) {
+				throw new RDFHandlerException(e.getMessage() + " in DELETE clause", e);
+			}
 			verifiers.add(verifier);
 		}
 		if (node.getInsertExpr() != null) {
 			verifier = insertVerifier.clone();
-			node.getInsertExpr().visit(this);
+			try {
+				node.getInsertExpr().visit(this);
+			} catch (RDFHandlerException e) {
+				throw new RDFHandlerException(e.getMessage() + " in INSERT clause", e);
+			}
 			verifiers.add(verifier);
 		}
 		if (node.getWhereExpr() != null) {
 			verifier = deleteVerifier.clone();
-			node.getWhereExpr().visit(this);
+			try {
+				node.getWhereExpr().visit(this);
+			} catch (RDFHandlerException e) {
+				throw new RDFHandlerException(e.getMessage() + " in WHERE clause", e);
+			}
 			verifiers.add(verifier);
 			connections.addAll(verifier.getConnections());
 		}

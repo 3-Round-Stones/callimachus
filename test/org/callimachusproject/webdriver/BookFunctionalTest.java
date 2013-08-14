@@ -32,7 +32,11 @@ public class BookFunctionalTest extends BrowserFunctionalTestCase {
 		String bookName = book[0];
 		String bookTitle = book[1];
 		logger.info("Create book {}", bookName);
-		String bookElement = "<book xmlns=\"http://docbook.org/ns/docbook\" xmlns:xl=\"http://www.w3.org/1999/xlink\" xmlns:xi=\"http://www.w3.org/2001/XInclude\" version=\"5.0\">\n";
+		String bookElement = "<book\n"
+				+ " xmlns=\"http://docbook.org/ns/docbook\"\n"
+				+ " xmlns:xl=\"http://www.w3.org/1999/xlink\"\n"
+				+ " xmlns:xi=\"http://www.w3.org/2001/XInclude\"\n"
+				+ " version=\"5.0\">\n";
 		String markup = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
 				+ bookElement + "<title>" + bookTitle + "</title>\n" + book[2]
 				+ "\n</book>";
@@ -55,7 +59,11 @@ public class BookFunctionalTest extends BrowserFunctionalTestCase {
 		String bookName = includes[0];
 		String bookTitle = includes[1];
 		logger.info("Create book {}", bookName);
-		String bookElement = "<book xmlns=\"http://docbook.org/ns/docbook\" xmlns:xl=\"http://www.w3.org/1999/xlink\" xmlns:xi=\"http://www.w3.org/2001/XInclude\" version=\"5.0\">\n";
+		String bookElement = "<book\n"
+				+ " xmlns=\"http://docbook.org/ns/docbook\"\n"
+				+ " xmlns:xl=\"http://www.w3.org/1999/xlink\"\n"
+				+ " xmlns:xi=\"http://www.w3.org/2001/XInclude\"\n"
+				+ " version=\"5.0\">\n";
 		String markup = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
 				+ bookElement + "<title>" + bookTitle + "</title>\n"
 				+ includes[2] + "\n</book>";

@@ -645,7 +645,7 @@ do_start()
     $DAEMON_OPTS $SSL_OPTS $JMXRMI_OPTS "$MAINCLASS" -q -b "$BASEDIR" -c "$CONFIG" $OPTS "$@"
 
   RETURN_VAL=$?
-  sleep 3
+  sleep 4
   cat "$STDOUT_LOG"
 
   if [ $RETURN_VAL -gt 0 -o ! -f "$PIDFILE" ]; then

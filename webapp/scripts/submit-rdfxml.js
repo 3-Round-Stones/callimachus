@@ -23,6 +23,7 @@ $('form').submit(function(event) {
 });
 
 function submitRDFForm(form, uri) {
+    var waiting = calli.wait();
     try {
         var se = $.Event("calliSubmit");
         se.resource = uri;
@@ -56,6 +57,8 @@ function submitRDFForm(form, uri) {
         }
     } catch(e) {
         throw calli.error(e);
+    } finally {
+        waiting.over();
     }
 }
 

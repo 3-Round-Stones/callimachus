@@ -46,7 +46,7 @@ $(window).bind('message', function(event) {
         }
     } else if (msg.indexOf('OK\n\nPUT text') == 0) {
         if (waiting) {
-            waiting.end();
+            waiting.over();
             waiting = null;
         }
     }

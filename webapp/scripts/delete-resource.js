@@ -10,24 +10,25 @@ if (!window.calli) {
     window.calli = {};
 }
 window.calli.deleteResource = function(event, redirect) {
-    var form = $(calli.fixEvent(event).target).closest('form');
-
-    if (event && event.type) {
-        var prompt = event.message;
-        if (typeof prompt === "undefined") {
-            prompt = "Are you sure you want to delete " + document.title + "?";
-        }
-        if (prompt && !confirm(prompt))
-            return;
-    }
-
-    var url = calli.getPageUrl();
-    if (form.length) {
-        url = calli.getFormAction(form[0]);
-    } else {
-        form = $(document);
-    }
+    var waiting = calli.wait();
     try {
+        var form = $(calli.fixEvent(event).target).closest('form');
+    
+        if (event && event.type) {
+            var prompt = event.message;
+            if (typeof prompt === "undefined") {
+                prompt = "Are you sure you want to delete " + document.title + "?";
+            }
+            if (prompt && !confirm(prompt))
+                return;
+        }
+    
+        var url = calli.getPageUrl();
+        if (form.length) {
+            url = calli.getFormAction(form[0]);
+        } else {
+            form = $(document);
+        }
         var de = jQuery.Event("calliDelete");
         de.resource = url.replace(/\?.*/,'');
         de.location = url;
@@ -70,6 +71,8 @@ window.calli.deleteResource = function(event, redirect) {
         }
     } catch(e) {
         calli.error(e);
+    } finally {
+        waiting.over();
     }
 }
 

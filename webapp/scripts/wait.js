@@ -11,7 +11,7 @@ var calli = window.calli || (window.calli={});
 calli.wait = function() {
     requestCount++;
     $(document.documentElement).addClass("wait");
-    return {end: function() {
+    return {over: function() {
         if (!this.closed) {
             this.closed = true;
             removeWait();

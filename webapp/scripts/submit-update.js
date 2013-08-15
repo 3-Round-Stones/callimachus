@@ -44,6 +44,7 @@ $('form[enctype="application/sparql-update"]').each(function() {
 });
 
 function submitRDFForm(form, resource, stored) {
+    var waiting = calli.wait();
     try {
         var revised = readRDF(form);
         var diff = diffTriples(stored, revised);
@@ -91,6 +92,8 @@ function submitRDFForm(form, resource, stored) {
         }
     } catch(e) {
         throw calli.error(e);
+    } finally {
+        waiting.over();
     }
     return false;
 }

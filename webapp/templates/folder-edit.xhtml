@@ -28,29 +28,31 @@
         $('#type').change();
         window.deleteFolder = function(event) {
             var waiting = calli.wait();
-            try {
-                if (!confirm("Are you sure you want to delete this folder and all the contents of this folder?"))
-                    return false;
-                var xhr = $.ajax({
-                    type: 'DELETE',
-                    url: '?archive',
-        			dataType: "text",
-                    global: false,
-                    beforeSend: function(xhr){
-                        var etag = calli.etag('?archive');
-                        if (etag) {
-                            xhr.setRequestHeader("If-Match", etag);
-                        }
-                        calli.withCredentials(xhr);
-                    },
-                    complete: function(data, textStatus) {
+            if (!confirm("Are you sure you want to delete this folder and all the contents of this folder?")) {
+                waiting.over();
+                return false;
+            }
+            var xhr = $.ajax({
+                type: 'DELETE',
+                url: '?archive',
+    			dataType: "text",
+                global: false,
+                beforeSend: function(xhr){
+                    var etag = calli.etag('?archive');
+                    if (etag) {
+                        xhr.setRequestHeader("If-Match", etag);
+                    }
+                    calli.withCredentials(xhr);
+                },
+                complete: function(data, textStatus) {
+                    try {
                         event.message = '';
                         calli.deleteResource(event);
+                    } finally {
+                        waiting.over();
                     }
-                });
-            } finally {
-                waiting.over();
-            }
+                }
+            });
         };
     });
     // ]]>

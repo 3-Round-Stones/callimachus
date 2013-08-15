@@ -148,6 +148,7 @@
             type: 'GET',
             url: slug,
             global: false,
+            complete: calli.wait().over,
             success: function() {
                 if (confirm(slug + " already exists. Do you want to replace it?")) {
                     var contentType = file.type;

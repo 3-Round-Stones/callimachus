@@ -30,10 +30,11 @@ public class PipelineFunctionalTest extends BrowserFunctionalTestCase {
 		String name = pipeline[0];
 		logger.info("Create pipeline {}", name);
 		String markup = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-				+ "<p:pipeline version=\"1.0\" name=\""
-				+ name
-				+ "\" xmlns:p=\"http://www.w3.org/ns/xproc\" xmlns:c=\"http://www.w3.org/ns/xproc-step\" xmlns:l=\"http://xproc.org/library\">\n"
-				+ pipeline[1] + "\n</p:pipeline>";
+				+ "<p:pipeline version=\"1.0\" name=\"" + name + "\"\n"
+				+ " xmlns:p=\"http://www.w3.org/ns/xproc\"\n"
+				+ " xmlns:c=\"http://www.w3.org/ns/xproc-step\"\n"
+				+ " xmlns:l=\"http://xproc.org/library\">\n" + pipeline[1]
+				+ "\n</p:pipeline>";
 		page.openCurrentFolder().openTextCreate("Pipeline").clear()
 				.type(markup).end().saveAs(name);
 		logger.info("Delete pipeline {}", name);

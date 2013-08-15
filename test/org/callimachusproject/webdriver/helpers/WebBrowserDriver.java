@@ -317,8 +317,12 @@ public class WebBrowserDriver {
 		Boolean present = wait.until(new ExpectedCondition<Boolean>() {
 			public Boolean apply(WebDriver driver) {
 				for (WebElement element : driver.findElements(locator)) {
-					if (element.getText().contains(needle)) {
-						return true;
+					try {
+						if (element.getText().contains(needle)) {
+							return true;
+						}
+					} catch (StaleElementReferenceException e) {
+						continue;
 					}
 				}
 				return null;
@@ -366,7 +370,11 @@ public class WebBrowserDriver {
 	}
 
 	public String getText(By locator) {
-		return driver.findElement(locator).getText();
+		try {
+			return driver.findElement(locator).getText();
+		} catch (StaleElementReferenceException e) {
+			return null;
+		}
 	}
 
 	public int getElementCount(By locator) {
@@ -377,7 +385,11 @@ public class WebBrowserDriver {
 		List<WebElement> elements = driver.findElements(locator);
 		List<String> texts = new ArrayList<String>(elements.size());
 		for (WebElement element : elements) {
-			texts.add(element.getText());
+			try {
+				texts.add(element.getText());
+			} catch (StaleElementReferenceException e) {
+				continue;
+			}
 		}
 		return texts;
 	}

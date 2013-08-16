@@ -229,7 +229,12 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 	}
 
 	private static String getBuild() {
-		return Version.getInstance().getVersionCode();
+		String build = System.getProperty("org.callimachusproject.test.build");
+		if (build == null) {
+			return Version.getInstance().getVersionCode();
+		} else {
+			return build;
+		}
 	}
 
 	public RemoteWebDriver driver;

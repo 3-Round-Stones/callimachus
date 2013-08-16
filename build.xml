@@ -456,8 +456,11 @@
         <condition property="test.arg" value="-Dorg.callimachusproject.test.service=${callimachus.url}" else="-Dorg.callimachusproject.test.service=http://${hostname}:${functionaltest.port}/">
             <isset property="callimachus.url" />
         </condition>
+        <condition property="build.arg" value="-Dorg.callimachusproject.test.build=${callimachus.build}" else="">
+            <isset property="callimachus.build" />
+        </condition>
         <junit printsummary="on" haltonfailure="off" tempdir="${tmp}" fork="yes" forkmode="perBatch">
-            <jvmarg line="${jvmargs} -Dorg.callimachusproject.config.webapp=${dist}/${artifact.name}-webapp-${Version}.car -Dorg.callimachusproject.test.username=${callimachus.username} -Dorg.callimachusproject.test.email=${callimachus.email} -Dorg.callimachusproject.test.password=${callimachus.password} ${test.arg}" />
+            <jvmarg line="${jvmargs} -Dorg.callimachusproject.config.webapp=${dist}/${artifact.name}-webapp-${Version}.car -Dorg.callimachusproject.test.username=${callimachus.username} -Dorg.callimachusproject.test.email=${callimachus.email} -Dorg.callimachusproject.test.password=${callimachus.password} ${test.arg} ${build.arg}" />
             <classpath>
                 <pathelement location="${build.tests}/" />
                 <pathelement location="${build}/" />

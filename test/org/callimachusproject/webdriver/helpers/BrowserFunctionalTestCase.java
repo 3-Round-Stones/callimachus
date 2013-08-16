@@ -106,7 +106,7 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 					public RemoteWebDriver create(String name) {
 						DesiredCapabilities caps = DesiredCapabilities.chrome();
 						caps.setVersion(""); // Any version
-						caps.setPlatform(Platform.ANY);
+						caps.setPlatform(Platform.WINDOWS);
 						caps.setCapability("name", name);
 						caps.setCapability("build", getBuild());
 						caps.setCapability("tags", getTag());
@@ -118,7 +118,7 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 						DesiredCapabilities caps = DesiredCapabilities
 								.firefox();
 						caps.setVersion("22");
-						caps.setPlatform(Platform.ANY);
+						caps.setPlatform(Platform.WINDOWS);
 						caps.setCapability("name", name);
 						caps.setCapability("build", getBuild());
 						caps.setCapability("tags", getTag());
@@ -393,17 +393,17 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 		recordTest(jobId, "{\"name\": \"" + getMethodName()
 				+ "\", \"build\": \"" + getBuild() + "\", \"tags\": [\""
 				+ getTag()
-				+ "\"], \"video-upload-on-pass\": false, \"passed\": true}");
+				+ "\"], \"video-upload-on-pass\": false, \"passed\": true}", 3);
 	}
 
 	private void recordFailure(String jobId, Throwable e) throws IOException {
 		recordTest(jobId, "{\"name\": \"" + getMethodName()
 				+ "\", \"build\": \"" + getBuild() + "\", \"tags\": [\""
 				+ getTag() + "\", \"" + e.getClass().getSimpleName()
-				+ "\"], \"passed\": false}");
+				+ "\"], \"passed\": false}", 3);
 	}
 
-	private void recordTest(String jobId, String data) throws IOException {
+	private void recordTest(String jobId, String data, int retry) {
 		String remotewebdriver = System
 				.getProperty("org.callimachusproject.test.remotewebdriver");
 		if (remotewebdriver != null
@@ -416,16 +416,21 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 							SocketConfig.custom().setSoTimeout(5000).build())
 					.build();
 			try {
-				String info = uri.getUserInfo();
-				putTestData(info, jobId, data, client);
-			} catch (MalformedURLException ex) {
-				logger.error(ex.toString(), ex);
-			} catch (UnsupportedEncodingException ex) {
-				logger.error(ex.toString(), ex);
+				try {
+					String info = uri.getUserInfo();
+					putTestData(info, jobId, data, client);
+				} finally {
+					client.close();
+				}
+			} catch (IOException ex) {
+				if (retry > 0) {
+					logger.warn(ex.toString(), ex);
+					recordTest(jobId, data, retry - 1);
+				} else {
+					logger.error(ex.toString(), ex);
+				}
 			} catch (RuntimeException ex) {
 				logger.error(ex.toString(), ex);
-			} finally {
-				client.close();
 			}
 		}
 	}

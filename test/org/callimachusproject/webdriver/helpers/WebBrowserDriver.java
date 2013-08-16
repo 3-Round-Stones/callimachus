@@ -14,6 +14,7 @@ import org.openqa.selenium.Keys;
 import org.openqa.selenium.NoSuchFrameException;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.interactions.MoveTargetOutOfBoundsException;
@@ -63,20 +64,7 @@ public class WebBrowserDriver {
 		waitForScript();
 		for (final String frameName : frameNames) {
 			if (frameName != null) {
-				new WebDriverWait(driver, 60)
-						.until(new ExpectedCondition<WebDriver>() {
-							public WebDriver apply(WebDriver driver) {
-								try {
-									return driver.switchTo().frame(frameName);
-								} catch (NoSuchFrameException e) {
-									return null;
-								}
-							}
-
-							public String toString() {
-								return "frame " + frameName + " to be present";
-							}
-						});
+				driver.switchTo().frame(driver.findElement(By.name(frameName)));
 			}
 		}
 		waitForScript();
@@ -90,7 +78,7 @@ public class WebBrowserDriver {
 		driver.switchTo().window(driver.getWindowHandle());
 		waitForScript();
 		if (topFrameName != null) {
-			driver.switchTo().frame(topFrameName);
+			driver.switchTo().frame(driver.findElement(By.name(topFrameName)));
 		}
 		for (final int frame : frames) {
 			new WebDriverWait(driver, 60)
@@ -119,23 +107,12 @@ public class WebBrowserDriver {
 				new WebDriverWait(driver, 60)
 						.until(new ExpectedCondition<Boolean>() {
 							public Boolean apply(WebDriver driver) {
-								List<WebElement> iframes = driver
-										.findElements(By.tagName("iframe"));
-								for (WebElement iframe : iframes) {
-									try {
-										if (iframe.getAttribute("name").equals(
-												frameName))
-											return false;
-									} catch (StaleElementReferenceException e) {
-										// iframe is gone
-										continue;
-									}
-								}
-								return true;
+								return driver.findElements(By.name(frameName))
+										.isEmpty();
 							}
 
 							public String toString() {
-								return "frame " + frameName + " to be present";
+								return "frame " + frameName + " to be absent";
 							}
 						});
 			} finally {
@@ -185,10 +162,12 @@ public class WebBrowserDriver {
 		Wait<WebDriver> wait = new WebDriverWait(driver, 120);
 		Boolean present = wait.until(new ExpectedCondition<Boolean>() {
 			public Boolean apply(WebDriver wd) {
-				return (Boolean) driver
-						.executeScript(
-								"return document.querySelector(arguments[0]) && true || false",
-								cssSelector);
+				String js = "return document.querySelector(arguments[0]) && true || false";
+				try {
+					return (Boolean) driver.executeScript(js, cssSelector);
+				} catch (WebDriverException e) {
+					return null;
+				}
 			}
 
 			public String toString() {
@@ -339,16 +318,14 @@ public class WebBrowserDriver {
 		Wait<WebDriver> wait = new WebDriverWait(driver, 120);
 		Boolean present = wait.until(new ExpectedCondition<Boolean>() {
 			public Boolean apply(WebDriver wd) {
-				String className = (String) driver
-						.executeScript("try {\n"
-								+ "if (document.body && window.document.documentElement)\n"
-								+ "    return window.document.documentElement.className;\n"
-								+ "else if (document.body)\n"
-								+ "    return '';\n" + "} catch(e) {}\n"
-								+ "    return 'wait';");
-				if (!className.contains("wait")) {
-					return true;
-				} else {
+				String js = "try {\n" + "if (document.documentElement)\n"
+						+ "    return document.documentElement.className;\n"
+						+ "else if (document.body)\n" + "    return '';\n"
+						+ "} catch(e) {}\n" + "    return 'wait';";
+				try {
+					Object className = driver.executeScript(js);
+					return !String.valueOf(className).contains("wait");
+				} catch (WebDriverException e) {
 					return null;
 				}
 			}

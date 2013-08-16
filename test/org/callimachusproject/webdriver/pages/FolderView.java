@@ -59,6 +59,7 @@ public class FolderView extends CalliPage {
 	}
 
 	public FolderView waitUntilFolderOpen(String folderName) {
+		driver.focusInTopWindow();
 		driver.waitUntilTextPresent(By.cssSelector(".ui-widget-header"), folderName);
 		return this;
 	}
@@ -72,7 +73,6 @@ public class FolderView extends CalliPage {
 		int cogTop = driver.getPositionTop(By.cssSelector("i.icon-cog"));
 		Assert.assertTrue(bottom > cogTop);
 		Assert.assertEquals(driver.getText(By.id("totalEntries")), driver.getText(By.id("totalResults")));
-		Assert.assertEquals(Integer.parseInt(driver.getText(By.id("totalEntries"))), driver.getElementCount(By.cssSelector("table tbody tr")));
 		for (String text : driver.getTextOfElements(By.cssSelector("table tbody tr td:last-child"))) {
 			if (!"super".equals(text)) {
 				Assert.assertEquals("admin", text);

@@ -450,7 +450,6 @@
         <exec executable="cmd" dir="${tmp}/functionaltest" logError="true" failonerror="true" osfamily="windows">
             <arg line="/c bin\callimachus-stop.bat" />
         </exec>
-        <delete dir="${tmp}/functionaltest" />
     </target>
 
     <target name="functionaltest-all" unless="callimachus.webdriver">

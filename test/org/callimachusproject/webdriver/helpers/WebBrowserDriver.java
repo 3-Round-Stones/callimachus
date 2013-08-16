@@ -292,7 +292,7 @@ public class WebBrowserDriver {
 
 	public void waitUntilTextPresent(final By locator, final String needle) {
 		waitForScript();
-		Wait<WebDriver> wait = new WebDriverWait(driver, 30);
+		Wait<WebDriver> wait = new WebDriverWait(driver, 60);
 		Boolean present = wait.until(new ExpectedCondition<Boolean>() {
 			public Boolean apply(WebDriver driver) {
 				for (WebElement element : driver.findElements(locator)) {

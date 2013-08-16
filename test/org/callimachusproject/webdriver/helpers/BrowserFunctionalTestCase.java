@@ -137,6 +137,18 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 						return new RemoteWebDriver(url, caps);
 					}
 				});
+				factories.put("ie9", new RemoteWebDriverFactory() {
+					public RemoteWebDriver create(String name) {
+						DesiredCapabilities caps = DesiredCapabilities
+								.internetExplorer();
+						caps.setVersion("9");
+						caps.setCapability("platform", "Windows 7");
+						caps.setCapability("name", name);
+						caps.setCapability("build", getBuild());
+						caps.setCapability("tags", getTag());
+						return new RemoteWebDriver(url, caps);
+					}
+				});
 			}
 		} catch (MalformedURLException e) {
 			throw new AssertionError(e);
@@ -384,8 +396,8 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 		} catch (WebDriverException e) {
 			// ignore
 		}
-		driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
-		driver.manage().timeouts().setScriptTimeout(30, TimeUnit.SECONDS);
+		driver.manage().timeouts().implicitlyWait(60, TimeUnit.SECONDS);
+		driver.manage().timeouts().setScriptTimeout(60, TimeUnit.SECONDS);
 		driver.navigate().to(getStartUrl());
 	}
 

@@ -14,6 +14,7 @@ public class CalliPage {
 	}
 
 	public CalliPage waitUntilTitle(String title) {
+		driver.focusInTopWindow();
 		driver.waitUntilTextPresent(By.tagName("h1"), title);
 		return this;
 	}

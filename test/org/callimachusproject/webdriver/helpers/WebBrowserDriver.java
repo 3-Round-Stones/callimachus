@@ -315,7 +315,7 @@ public class WebBrowserDriver {
 	}
 
 	public void waitForScript() {
-		Wait<WebDriver> wait = new WebDriverWait(driver, 120);
+		Wait<WebDriver> wait = new WebDriverWait(driver, 240);
 		Boolean present = wait.until(new ExpectedCondition<Boolean>() {
 			public Boolean apply(WebDriver wd) {
 				String js = "try {\n" + "if (document.documentElement)\n"

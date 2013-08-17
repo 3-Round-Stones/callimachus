@@ -90,7 +90,6 @@ window.calli.openDialog = function(url, title, options) {
         zIndex: maxZIndex()
     }, options);
     var iframe = $("<iframe></iframe>");
-    iframe.load(calli.wait().over);
     iframe.attr('src', 'about:blank');
     iframe.attr('name', asUniqueName(title));
     iframe.addClass('dialog');
@@ -137,6 +136,7 @@ window.calli.openDialog = function(url, title, options) {
         iframe.dialog("open");
         iframe.css('padding-left', '1em');
         iframe.css('width', '100%');
+        iframe.load(calli.wait().over);
         iframe[0].src = url;
         if (typeof settings.onlookup == 'function') {
             var dialogTitle = iframe.parents(".ui-dialog").find(".ui-dialog-title");

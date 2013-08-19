@@ -36,8 +36,8 @@ import org.callimachusproject.webdriver.pages.Register;
 /**
  * This test requires a etc/mail.properties file to be present.
  * <pre>
- * mail.store.protocol=pop3s
- * mail.pop3s.port=995
+ * mail.store.protocol=imaps
+ * mail.imaps.port=993
  * mail.transport.protocol=smtps
  * mail.smtps.port=465
  * mail.smtps.auth=true

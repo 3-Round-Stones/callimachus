@@ -25,6 +25,7 @@ import org.openqa.selenium.support.ui.Wait;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class WebBrowserDriver {
+	public static final int IMPLICITLY_WAIT = 60;
 	public RemoteWebDriver driver;
 
 	public WebBrowserDriver(RemoteWebDriver driver) {
@@ -71,15 +72,8 @@ public class WebBrowserDriver {
 	}
 
 	public void focusInFrame(int... frames) {
-		focusInSubFrame(null, frames);
-	}
-
-	public void focusInSubFrame(String topFrameName, int... frames) {
 		driver.switchTo().window(driver.getWindowHandle());
 		waitForScript();
-		if (topFrameName != null) {
-			driver.switchTo().frame(driver.findElement(By.name(topFrameName)));
-		}
 		for (final int frame : frames) {
 			new WebDriverWait(driver, 60)
 					.until(new ExpectedCondition<WebDriver>() {
@@ -116,7 +110,7 @@ public class WebBrowserDriver {
 							}
 						});
 			} finally {
-				driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+				driver.manage().timeouts().implicitlyWait(IMPLICITLY_WAIT, TimeUnit.SECONDS);
 			}
 		}
 		waitForScript();

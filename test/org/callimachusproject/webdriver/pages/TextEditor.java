@@ -17,7 +17,7 @@ public class TextEditor extends CalliPage {
 	}
 
 	public TextEditor clear() {
-		driver.focusInSubFrame(topFrameName, 0);
+		driver.focusInFrame(topFrameName, "editor-iframe");
 		// shift/control does not appear to work in IE
 		CharSequence[] keys = new CharSequence[1024];
 		for (int i = 0; i < keys.length; i++) {
@@ -28,13 +28,13 @@ public class TextEditor extends CalliPage {
 	}
 
 	public TextEditor type(String text) {
-		driver.focusInSubFrame(topFrameName, 0);
+		driver.focusInFrame(topFrameName, "editor-iframe");
 		driver.sendKeys(By.tagName("textarea"), text);
 		return this;
 	}
 
 	public TextEditor end() {
-		driver.focusInSubFrame(topFrameName, 0);
+		driver.focusInFrame(topFrameName, "editor-iframe");
 		// shift/control does not appear to work in IE
 		CharSequence[] keys = new CharSequence[1024];
 		for (int i = 0; i < keys.length; i++) {

@@ -135,10 +135,14 @@ public class CalliPage {
 
 	public CalliPage page() {
 		driver.waitForScript();
+		driver.focusInTopWindow();
+		driver.waitForScript();
 		return new CalliPage(driver);
 	}
 
 	public <P> P page(Class<P> pageClass) {
+		driver.waitForScript();
+		driver.focusInTopWindow();
 		driver.waitForScript();
 		try {
 			try {

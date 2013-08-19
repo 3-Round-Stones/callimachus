@@ -401,8 +401,9 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 		} catch (WebDriverException e) {
 			// ignore
 		}
-		driver.manage().timeouts().implicitlyWait(60, TimeUnit.SECONDS);
-		driver.manage().timeouts().setScriptTimeout(60, TimeUnit.SECONDS);
+		int wait = WebBrowserDriver.IMPLICITLY_WAIT;
+		driver.manage().timeouts().implicitlyWait(wait, TimeUnit.SECONDS);
+		driver.manage().timeouts().setScriptTimeout(wait, TimeUnit.SECONDS);
 		driver.navigate().to(getStartUrl());
 	}
 

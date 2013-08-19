@@ -360,7 +360,8 @@ public class Setup {
 			MalformedURLException, OpenRDFException {
 		File repositoryConfig = SystemProperties.getRepositoryConfigFile();
 		String configString = readContent(repositoryConfig.toURI().toURL());
-		RepositoryConfig config = getRepositoryConfig(configString);
+		String systemId = repositoryConfig.toURI().toASCIIString();
+		RepositoryConfig config = getRepositoryConfig(configString, systemId);
 		if (repositoryID.equals(config.getID())) {
 			return updateRepositoryConfig(manager, config);
 		} else {
@@ -397,21 +398,20 @@ public class Setup {
 		return true;
 	}
 
-	private RepositoryConfig getRepositoryConfig(String configString)
+	private RepositoryConfig getRepositoryConfig(String configString, String base)
 			throws IOException, RDFParseException, RDFHandlerException,
 			GraphUtilException, RepositoryConfigException {
-		Graph graph = parseTurtleGraph(configString);
+		Graph graph = parseTurtleGraph(configString, base);
 		Resource node = GraphUtil.getUniqueSubject(graph, RDF.TYPE,
 				RepositoryConfigSchema.REPOSITORY);
 		return RepositoryConfig.create(graph, node);
 	}
 
-	private Graph parseTurtleGraph(String configString) throws IOException,
+	private Graph parseTurtleGraph(String configString, String base) throws IOException,
 			RDFParseException, RDFHandlerException {
 		Graph graph = new GraphImpl();
 		RDFParser rdfParser = Rio.createParser(RDFFormat.TURTLE);
 		rdfParser.setRDFHandler(new StatementCollector(graph));
-		String base = new File(".").getAbsoluteFile().toURI().toASCIIString();
 		rdfParser.parse(new StringReader(configString), base);
 		return graph;
 	}

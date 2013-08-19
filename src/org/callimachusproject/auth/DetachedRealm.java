@@ -527,7 +527,7 @@ public class DetachedRealm {
 
 	private DetachedAuthenticationManager detach(Resource resource,
 			String protects, RealmManager manager, ObjectConnection con)
-			throws OpenRDFException {
+			throws OpenRDFException, IOException {
 		List<String> domains = getDistinctRealm(protects);
 		String path = getCommonPath(domains);
 		Object am = con.getObject(resource);

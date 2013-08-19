@@ -359,7 +359,7 @@
 
     <target name="unittest" depends="dist,test-compile" description="run the unit tests">
         <mkdir dir="${reports.tests}" />
-        <junit printsummary="on" haltonfailure="off" tempdir="${tmp}" fork="yes" forkmode="perBatch">
+        <junit printsummary="on" haltonfailure="on" tempdir="${tmp}" fork="yes" forkmode="perBatch">
             <jvmarg line="${jvmargs}" />
             <classpath>
                 <pathelement location="${build.tests}/" />
@@ -388,7 +388,7 @@
 
     <target name="integrationtest" depends="dist,test-compile" description="run the integration tests">
         <mkdir dir="${reports.tests}" />
-        <junit printsummary="on" haltonfailure="off" tempdir="${tmp}" fork="yes" forkmode="perBatch">
+        <junit printsummary="on" haltonfailure="on" tempdir="${tmp}" fork="yes" forkmode="perBatch">
             <jvmarg line="${jvmargs} -Dorg.callimachusproject.config.webapp=${dist}/${artifact.name}-webapp-${Version}.car" />
             <classpath>
                 <pathelement location="${build.tests}/" />
@@ -459,7 +459,7 @@
         <condition property="build.arg" value="-Dorg.callimachusproject.test.build=${callimachus.build}" else="">
             <isset property="callimachus.build" />
         </condition>
-        <junit printsummary="on" haltonfailure="off" tempdir="${tmp}" fork="yes" forkmode="perBatch">
+        <junit printsummary="on" showoutput="yes" haltonfailure="off" tempdir="${tmp}" fork="yes" forkmode="perBatch">
             <jvmarg line="${jvmargs} -Dorg.callimachusproject.config.webapp=${dist}/${artifact.name}-webapp-${Version}.car -Dorg.callimachusproject.test.username=${callimachus.username} -Dorg.callimachusproject.test.email=${callimachus.email} -Dorg.callimachusproject.test.password=${callimachus.password} ${test.arg} ${build.arg}" />
             <classpath>
                 <pathelement location="${build.tests}/" />
@@ -509,7 +509,7 @@
             <fileset file="${test.file}" />
             <map from="${src.tests}/" to="" />
         </pathconvert>
-        <junit printsummary="on" haltonfailure="off" tempdir="${tmp}" fork="yes" forkmode="perBatch">
+        <junit printsummary="on" showoutput="yes" haltonfailure="off" tempdir="${tmp}" fork="yes" forkmode="perBatch">
             <jvmarg line="${jvmargs} -Dorg.callimachusproject.config.webapp=${dist}/${artifact.name}-webapp-${Version}.car -Dorg.callimachusproject.test.username=${callimachus.username} -Dorg.callimachusproject.test.email=${callimachus.email} -Dorg.callimachusproject.test.password=${callimachus.password} -Dorg.callimachusproject.test.remotewebdriver=${callimachus.webdriver} ${test.arg} ${build.arg}" />
             <classpath>
                 <pathelement location="${build.tests}/" />

@@ -21,6 +21,7 @@ import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
 import org.callimachusproject.auth.AuthorizationManager;
 import org.callimachusproject.auth.DetachedRealm;
@@ -61,6 +62,27 @@ import org.openrdf.store.blob.file.FileBlobStoreProvider;
 import org.slf4j.LoggerFactory;
 
 public class CalliRepository extends RepositoryWrapper implements CalliRepositoryMXBean {
+	public class HttpRepositoryClient extends HttpUriClient {
+		private final String source;
+
+		private HttpRepositoryClient(String source) {
+			this.source = source;
+		}
+
+		public CredentialsProvider getCredentialsProvider()
+				throws OpenRDFException, IOException {
+			return getRealm(source).getCredentialsProvider();
+		}
+
+		protected HttpClient getDelegate() throws IOException {
+			try {
+				return getRealm(source).getHttpClient();
+			} catch (OpenRDFException e) {
+				throw new IOException(e);
+			}
+		}
+	}
+
 	private static final String SLASH_ORIGIN = "/types/Origin";
 	private static final String CHANGE_TYPE = "types/Change";
 	private static final String FOLDER_TYPE = "types/Folder";
@@ -126,15 +148,7 @@ public class CalliRepository extends RepositoryWrapper implements CalliRepositor
 	}
 
 	public HttpUriClient getHttpClient(final String source) {
-		return new HttpUriClient() {
-			protected HttpClient getDelegate() throws IOException {
-				try {
-					return getRealm(source).getHttpClient();
-				} catch (OpenRDFException e) {
-					throw new IOException(e);
-				}
-			}
-		};
+		return new HttpRepositoryClient(source);
 	}
 
 	@Override

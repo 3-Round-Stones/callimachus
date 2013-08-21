@@ -3,6 +3,7 @@ package org.callimachusproject.xproc;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -11,11 +12,12 @@ import net.sf.saxon.s9api.SaxonApiException;
 import net.sf.saxon.s9api.Serializer;
 import net.sf.saxon.s9api.XdmNode;
 
-import org.apache.http.HttpResponse;
+import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.methods.HttpHead;
-import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.utils.URIUtils;
 import org.callimachusproject.engine.ParameterizedQuery;
 import org.callimachusproject.engine.ParameterizedQueryParser;
 import org.callimachusproject.engine.model.TermFactory;
@@ -23,6 +25,7 @@ import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidException;
 import org.callimachusproject.fluid.FluidFactory;
+import org.callimachusproject.repository.CalliRepository.HttpRepositoryClient;
 import org.callimachusproject.xml.XdmNodeFactory;
 import org.openrdf.OpenRDFException;
 import org.openrdf.query.TupleQueryResult;
@@ -33,6 +36,8 @@ import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.repository.sparql.SPARQLRepository;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.sail.memory.MemoryStore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import com.xmlcalabash.core.XProcConstants;
@@ -51,6 +56,7 @@ public class SparqlStep implements XProcStep {
 	private static final QName _content_type = new QName("content-type");
 	public static final QName _encoding = new QName("", "encoding");
 	private static final FluidFactory FF = FluidFactory.getInstance();
+	private final Logger logger = LoggerFactory.getLogger(SparqlStep.class);
 	private final FluidBuilder fb = FF.builder();
 	private final Map<String, String> parameters = new LinkedHashMap<String, String>();
 	private final XProcRuntime runtime;
@@ -159,21 +165,23 @@ public class SparqlStep implements XProcStep {
 	}
 
 	private RepositoryConnection createConnection(String endpoint)
-			throws RepositoryException, IOException {
+			throws OpenRDFException, IOException {
 		final SPARQLRepository repository = new SPARQLRepository(endpoint);
-		final HttpClientContext ctx = HttpClientContext.create();
-		ResponseHandler<Void> handler = new ResponseHandler<Void>() {
-			public Void handleResponse(HttpResponse response) {
-				Credentials cred = ctx.getTargetAuthState().getCredentials();
-				if (cred != null) {
-					String username = cred.getUserPrincipal().getName();
-					String password = cred.getPassword();
-					repository.setUsernameAndPassword(username, password);
-				}
-				return null;
+		HttpClient client = runtime.getHttpClient();
+		if (client instanceof HttpRepositoryClient) {
+			HttpRepositoryClient rclient = (HttpRepositoryClient) client;
+			CredentialsProvider provider = rclient.getCredentialsProvider();
+			HttpHost authority = URIUtils.extractHost(URI.create(endpoint));
+			AuthScope scope = new AuthScope(authority);
+			if (provider != null && provider.getCredentials(scope) != null) {
+				Credentials cred = provider.getCredentials(scope);
+				String username = cred.getUserPrincipal().getName();
+				String password = cred.getPassword();
+				repository.setUsernameAndPassword(username, password);
 			}
-		};
-		runtime.getHttpClient().execute(new HttpHead(endpoint), handler, ctx);
+		} else {
+			logger.warn("Repository credentials could not be read");
+		}
 		repository.initialize();
 		RepositoryConnection con = repository.getConnection();
 		return con;

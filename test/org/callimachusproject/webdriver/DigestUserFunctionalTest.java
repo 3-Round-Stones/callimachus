@@ -70,18 +70,23 @@ public class DigestUserFunctionalTest extends BrowserFunctionalTestCase {
 		String email = props.getProperty("mail.from");
 		assertNotNull(email);
 		logger.info("Inviting {}", email);
+		String fullname = "Test User " + getUniqueToken();
 		page.open("/auth/groups/users").openEdit(GroupEdit.class)
-				.openInviteUser().with("Test User", email).subject(unique)
+				.openInviteUser().with(fullname, email).subject(unique)
 				.invite().save();
 		page.logout();
-		logger.info("Login {}", "test-user");
-		page.open(getRegistrationUrlByEmailSubject(unique), Register.class)
-				.with("test-user", "Password1", "Test User", email).signup()
-				.with("test-user", "Password1".toCharArray()).login();
+		String testuser = getUniqueToken() + "-test-user";
+		logger.info("Login {}", testuser);
+		String profile = page
+				.open(getRegistrationUrlByEmailSubject(unique), Register.class)
+				.with(testuser, "Password1", fullname, email).signup()
+				.with(testuser, "Password1".toCharArray()).login()
+				.openProfile().getCurrentUrl();
 		page.logout();
 		String username = getUsername();
 		logger.info("Login {}", username);
 		page.openLogin().with(username, getPassword()).login();
+		page.open(profile).openEdit(DigestUserEdit.class).delete(fullname);
 	}
 
 	public void testUserProfilePhoto() throws Exception {

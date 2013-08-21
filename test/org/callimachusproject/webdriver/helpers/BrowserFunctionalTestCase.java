@@ -270,6 +270,10 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 		}
 	}
 
+	public String getUniqueToken() {
+		return getBrowserName();
+	}
+
 	@Override
 	public void runBare() throws Throwable {
 		init();

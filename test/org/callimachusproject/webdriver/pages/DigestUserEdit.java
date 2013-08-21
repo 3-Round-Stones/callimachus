@@ -35,4 +35,11 @@ public class DigestUserEdit extends CalliPage {
 		return page();
 	}
 
+	public FolderView delete(String label) {
+		driver.focusInTopWindow();
+		driver.click(By.id("delete"));
+		driver.confirm("Are you sure you want to delete " + label);
+		return page(FolderView.class);
+	}
+
 }

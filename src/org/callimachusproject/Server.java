@@ -237,7 +237,9 @@ public class Server {
 
 	public void destroy() throws Exception {
 		try {
-			node.destroy();
+			if (node != null) {
+				node.destroy();
+			}
 		} finally {
 			unregisterMBean(CalliServer.class);
 			unregisterMBean(JVMSummary.class);

@@ -332,7 +332,7 @@ if [ -n "$DAEMON_USER" -a "$USER" != "$DAEMON_USER" -a "$(id -u)" != "0" ]; then
  echo "This script must be run as root" 1>&2
  exit 4
 elif [ "$(id -u)" = "0" ] ; then
-  if [ -n "$DAEMON_USER" -a "$USER" != "$DAEMON_USER" -x "$DAEMON" -a -x "$(command -v getcap)" -a -x "$(command -v setcap)" ] && ! getcap "$DAEMON" | grep -q "cap_net_bind_service" ; then
+  if [ -n "$DAEMON_USER" -a "$USER" != "$DAEMON_USER" -a -x "$DAEMON" -a -x "$(command -v getcap)" -a -x "$(command -v setcap)" ] && ! getcap "$DAEMON" | grep -q "cap_net_bind_service" ; then
     setcap cap_net_bind_service=ep "$DAEMON"
   fi
   if [ $(ulimit -n) -lt 4096 ]; then

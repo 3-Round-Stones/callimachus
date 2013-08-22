@@ -49,7 +49,8 @@ $('form[method="PUT"]').each(function(event){
                 success: function() {
                     try {
                         var redirect = null;
-                        if (xhr.getResponseHeader('Content-Type') == 'text/uri-list') {
+                        var contentType = xhr.getResponseHeader('Content-Type');
+                        if (contentType != null && contentType.indexOf('text/uri-list') == 0) {
                             redirect = xhr.responseText;
                         }
                         if (!redirect) {

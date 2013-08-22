@@ -65,7 +65,8 @@ function submitRDFForm(form, resource, stored) {
             patchData(form, se.payload, function(data, textStatus, xhr) {
                 try {
                     var redirect = null;
-                    if (xhr.getResponseHeader('Content-Type') == 'text/uri-list') {
+                    var contentType = xhr.getResponseHeader('Content-Type');
+                    if (contentType != null && contentType.indexOf('text/uri-list') == 0) {
                         redirect = xhr.responseText;
                     }
                     if (!redirect) {

@@ -11,4 +11,7 @@
 <implementation type="calli:sparql"
 		class-name="org.callimachusproject.xproc.SparqlStep" />
 
+<implementation type="calli:decode-text"
+		class-name="org.callimachusproject.xproc.DecodeTextStep" />
+
 </xproc-config>

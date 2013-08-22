@@ -145,15 +145,15 @@ public class SparqlStep implements XProcStep {
 				}
 			}
 		} catch (SAXException e) {
-			throw new XProcException(e);
+			throw new XProcException(step.getNode(), e);
 		} catch (SaxonApiException sae) {
-			throw new XProcException(sae);
+			throw new XProcException(step.getNode(), sae);
 		} catch (FluidException e) {
-			throw new XProcException(e);
+			throw new XProcException(step.getNode(), e);
 		} catch (IOException e) {
-			throw new XProcException(e);
+			throw new XProcException(step.getNode(), e);
 		} catch (OpenRDFException e) {
-			throw new XProcException(e);
+			throw new XProcException(step.getNode(), e);
 		}
 	}
 

@@ -110,13 +110,13 @@ public class RenderStep implements XProcStep {
 				}
 			}
 		} catch (SaxonApiException sae) {
-			throw new XProcException(sae);
+			throw new XProcException(step.getNode(), sae);
 		} catch (FluidException e) {
-			throw new XProcException(e);
+			throw new XProcException(step.getNode(), e);
 		} catch (IOException e) {
-			throw new XProcException(e);
+			throw new XProcException(step.getNode(), e);
 		} catch (TemplateException e) {
-			throw new XProcException(e);
+			throw new XProcException(step.getNode(), e);
 		}
 	}
 

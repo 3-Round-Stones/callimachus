@@ -346,6 +346,7 @@ public class SetupTool {
 		CallimachusSetup setup = new CallimachusSetup(repository);
 		setup.prepareWebappOrigin(origin);
 		boolean created = setup.createWebappOrigin(origin);
+		setup.updateWebapp(origin);
 		setup.finalizeWebappOrigin(origin);
 		if (conf.getAppVersion() == null) {
 			conf.setAppVersion(Version.getInstance().getVersionCode());

@@ -253,6 +253,7 @@ public class TemporaryServerFactory {
 			CallimachusSetup setup = new CallimachusSetup(repository);
 			setup.prepareWebappOrigin(origin);
 			setup.createWebappOrigin(origin);
+			setup.updateWebapp(origin);
 			setup.finalizeWebappOrigin(origin);
 			String username = email.substring(0, email.indexOf('@'));
 			setup.inviteUser(email, origin);

@@ -222,8 +222,22 @@ public class CallimachusSetup {
 			String newVersion = upgradeStore(origin);
 			modified |= !newVersion.equals(version);
 		}
+		return modified;
+	}
+
+	/**
+	 * Upgrades the Callimachus webapp.
+	 * 
+	 * @param origin of a Callimachus webapp
+	 * @return if the RDF store was modified
+	 * @throws OpenRDFException 
+	 * @throws IOException 
+	 * @throws Exception
+	 */
+	public boolean updateWebapp(String origin)
+			throws IOException, OpenRDFException {
 		Updater updater = updateProvider.updateCallimachusWebapp(origin);
-		modified |= updater.update(webapp(origin, "").stringValue(), repository);
+		boolean modified = updater.update(webapp(origin, "").stringValue(), repository);
 		updateWebappContext(origin);
 		return modified;
 	}

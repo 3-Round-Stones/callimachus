@@ -34,6 +34,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -55,7 +56,7 @@ import org.callimachusproject.util.SystemProperties;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Graph;
 import org.openrdf.model.Resource;
-import org.openrdf.model.impl.GraphImpl;
+import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.model.util.GraphUtil;
 import org.openrdf.model.util.GraphUtilException;
 import org.openrdf.model.util.ModelUtil;
@@ -99,6 +100,7 @@ public class Setup {
 		commands.option("k", "backups").arg("directory")
 				.desc("Backup directory");
 		commands.option("K", "no-backup").desc("Disable automatic backup");
+		commands.option("G", "no-upgrade").desc("Disables upgrading stored data (new users and repository config may still be modified)");
 		commands.option("u", "user").optional("name")
 				.desc("Create the given user");
 		commands.option("g", "group").arg("group path")
@@ -151,6 +153,7 @@ public class Setup {
 	private File confFile;
 	private File basedir;
 	private BackupTool backup;
+	private boolean upgrade;
 	private String email;
 	private String defaultEmail;
 	private String username;
@@ -186,6 +189,7 @@ public class Setup {
 				if (line.has("backups") && !line.has("no-backup")) {
 					backup = new BackupTool(new File(line.get("backups")));
 				}
+				upgrade = !line.has("no-upgrade");
 				if (line.has("user") || line.has("email")) {
 					this.email = line.get("email");
 					String u = line.get("user");
@@ -233,15 +237,15 @@ public class Setup {
 		try {
 			Map<String, String> idByOrigin = conf.getOriginRepositoryIDs();
 			Set<String> repositoryIDs = new HashSet<String>(idByOrigin.values());
-			List<Future<Set<String>>> tasks = new ArrayList<Future<Set<String>>>();
+			List<Future<Collection<String>>> tasks = new ArrayList<Future<Collection<String>>>();
 			for (final String id : repositoryIDs) {
-				tasks.add(executor.submit(new Callable<Set<String>>() {
-					public Set<String> call() throws Exception {
+				tasks.add(executor.submit(new Callable<Collection<String>>() {
+					public Collection<String> call() throws Exception {
 						return setupRepository(id, manager, conf, links);
 					}
 				}));
 			}
-			for (Future<Set<String>> task : tasks) {
+			for (Future<Collection<String>> task : tasks) {
 				webapps.addAll(task.get());
 			}
 			conf.setAppVersion(Version.getInstance().getVersionCode());
@@ -282,7 +286,7 @@ public class Setup {
 		executor.shutdownNow();
 	}
 
-	Set<String> setupRepository(String repositoryID,
+	Collection<String> setupRepository(String repositoryID,
 			LocalRepositoryManager manager, CallimachusConf conf,
 			Collection<String> links) throws IOException,
 			MalformedURLException, OpenRDFException, NoSuchAlgorithmException {
@@ -297,24 +301,22 @@ public class Setup {
 			throw new RepositoryConfigException(
 					"Missing repository configuration for "
 							+ dataDir.getAbsolutePath());
-		Set<String> webapps = new LinkedHashSet<String>();
+		Map<String, String> webapps = new LinkedHashMap<String, String>();
 		CalliRepository repository = new CalliRepository(repo, dataDir);
 		try {
 			CallimachusSetup setup = new CallimachusSetup(repository);
-			for (String origin : webappOrigins) {
-				setup.prepareWebappOrigin(origin);
+			if (upgrade) {
+				upgradeRepository(setup, webappOrigins, links);
 			}
 			for (String origin : webappOrigins) {
-				setup.createWebappOrigin(origin);
-			}
-			for (String origin : webappOrigins) {
-				setup.finalizeWebappOrigin(origin);
-			}
-			for (String origin : webappOrigins) {
-				webapps.add(setup.getWebappURL(origin));
+				try {
+					webapps.put(origin, setup.getWebappURL(origin));
+				} catch (IllegalStateException e) {
+					logger.warn(e.getMessage());
+				}
 			}
 			if (email != null || defaultEmail != null) {
-				for (String origin : webappOrigins) {
+				for (String origin : webapps.keySet()) {
 					if (email != null || !setup.isRegisteredAdmin(origin)) {
 						String e = email == null ? defaultEmail : email;
 						setup.inviteUser(e, origin);
@@ -330,7 +332,8 @@ public class Setup {
 								links.addAll(reg);
 							}
 						} else {
-							setup.registerDigestUser(e, username, password, origin);
+							setup.registerDigestUser(e, username, password,
+									origin);
 						}
 					}
 				}
@@ -338,7 +341,24 @@ public class Setup {
 		} finally {
 			repository.shutDown();
 		}
-		return webapps;
+		return webapps.values();
+	}
+
+	private void upgradeRepository(CallimachusSetup setup,
+			Set<String> webappOrigins, Collection<String> links)
+			throws OpenRDFException, IOException, NoSuchAlgorithmException {
+		for (String origin : webappOrigins) {
+			setup.prepareWebappOrigin(origin);
+		}
+		for (String origin : webappOrigins) {
+			setup.createWebappOrigin(origin);
+		}
+		for (String origin : webappOrigins) {
+			setup.updateWebapp(origin);
+		}
+		for (String origin : webappOrigins) {
+			setup.finalizeWebappOrigin(origin);
+		}
 	}
 
 	private Set<String> getWebappsInRepository(String repositoryID,
@@ -409,7 +429,7 @@ public class Setup {
 
 	private Graph parseTurtleGraph(String configString, String base) throws IOException,
 			RDFParseException, RDFHandlerException {
-		Graph graph = new GraphImpl();
+		Graph graph = new LinkedHashModel();
 		RDFParser rdfParser = Rio.createParser(RDFFormat.TURTLE);
 		rdfParser.setRDFHandler(new StatementCollector(graph));
 		rdfParser.parse(new StringReader(configString), base);
@@ -417,8 +437,8 @@ public class Setup {
 	}
 
 	private boolean equal(RepositoryConfig c1, RepositoryConfig c2) {
-		GraphImpl g1 = new GraphImpl();
-		GraphImpl g2 = new GraphImpl();
+		Graph g1 = new LinkedHashModel();
+		Graph g2 = new LinkedHashModel();
 		c1.export(g1);
 		c2.export(g2);
 		return ModelUtil.equals(g1, g2);

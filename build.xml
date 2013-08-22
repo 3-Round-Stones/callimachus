@@ -268,7 +268,7 @@
             <zipfileset dir="${webapp}" prefix="src/webapp" />
             <zipfileset dir="${bin}" prefix="bin" includes="*.sh,*.pl,callimachus-linux*" filemode="755" />
             <zipfileset dir="${bin}" prefix="bin" excludes="*.sh,*.pl,callimachus-linux*" />
-            <zipfileset dir="${etc}" prefix="etc" excludes="mail.properties ssl.properties jmxremote.password callimachus.conf" />
+            <zipfileset dir="${etc}" prefix="etc" excludes="mail.properties ssl.properties jmxremote.password callimachus.conf truststore" />
             <zipfileset dir="${lib}" prefix="lib" />
             <zipfileset file="${jar.file}" prefix="lib" />
             <zipfileset file="${dist}/${artifact.name}-webapp-${Version}.car" prefix="lib" />

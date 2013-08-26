@@ -91,9 +91,6 @@ public class Exchange implements Cancellable {
 		if (timeout != -1) {
 			exchange.setTimeout(timeout);
 		}
-		if (response != null) {
-			closeRequest();
-		}
 		if (response != null || getSubmitContinue() != null) {
 			exchange.submitResponse(new Producer());
 			ready = true;
@@ -134,9 +131,7 @@ public class Exchange implements Cancellable {
 	}
 
 	public synchronized void submitResponse(HttpResponse response) {
-		if (exchange != null) {
-			closeRequest();
-		}
+		closeRequest();
 		assert response != null;
 		if (this.response != null && this.exchange != null) {
 			consume(response);

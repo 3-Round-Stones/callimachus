@@ -709,7 +709,7 @@ public class ResourceOperation {
 			methods.add(m);
 		}
 		if (!methods.isEmpty()) {
-			Method method = findBestMethod(methods);
+			Method method = findBestMethod(findAcceptableMethods(methods, messageBody));
 			if (method != null)
 				return method;
 		}

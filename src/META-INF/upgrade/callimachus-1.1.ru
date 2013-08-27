@@ -62,3 +62,12 @@ INSERT {
 	FILTER NOT EXISTS { <../query-view.js> a calli:PURL }
 };
 
+DELETE WHERE {
+	</> calli:hasComponent </sparql>.
+	</sparql> a <types/SparqlService>; ?p ?o
+};
+
+DELETE WHERE {
+	</> calli:hasComponent </describe>.
+	</describe> a <types/DescribeService>; ?p ?o
+};

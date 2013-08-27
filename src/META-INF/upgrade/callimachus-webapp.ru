@@ -408,32 +408,3 @@ INSERT {
 } WHERE {
 	FILTER NOT EXISTS { </auth/groups/> a calli:Folder }
 };
-
-################################
-# Services
-################################
-
-INSERT {
-</> calli:hasComponent </sparql>.
-</sparql> a <types/SparqlService>, sd:Service;
-    rdfs:label "sparql";
-    calli:reader </auth/groups/power>;
-    calli:administrator </auth/groups/admin>;
-    sd:endpoint </sparql>;
-    sd:supportedLanguage sd:SPARQL11Query, sd:SPARQL11Update;
-    sd:feature sd:UnionDefaultGraph, sd:BasicFederatedQuery;
-    sd:inputFormat <http://www.w3.org/ns/formats/RDF_XML>, <http://www.w3.org/ns/formats/Turtle>;
-    sd:resultFormat <http://www.w3.org/ns/formats/RDF_XML>, <http://www.w3.org/ns/formats/SPARQL_Results_XML>.
-} WHERE {
-	FILTER NOT EXISTS { </> calli:hasComponent </sparql> }
-};
-
-INSERT {
-</> calli:hasComponent </describe>.
-</describe> a <types/DescribeService>, sd:Service;
-    rdfs:label "describe";
-    calli:reader </auth/groups/power>;
-    calli:administrator </auth/groups/admin>.
-} WHERE {
-	FILTER NOT EXISTS { </> calli:hasComponent </describe> }
-};

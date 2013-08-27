@@ -228,7 +228,6 @@ public class TransactionHandler implements AsyncExecChain {
 			URI bundle = con.getVersionBundle();
 			assert bundle != null;
 			URI activity = delegate.createActivityURI(bundle, con.getValueFactory());
-			con.setVersionBundle(bundle); // use the same URI for blob version
 			audit.setActivityFactory(new RequestActivityFactory(activity, delegate, ctx, now));
 		}
 	}

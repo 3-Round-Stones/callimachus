@@ -1,6 +1,7 @@
 org.callimachusproject.setup.Callimachus_0_18_UpgradeProvider
 org.callimachusproject.setup.Callimachus_1_0_1_UpgradeProvider
 org.callimachusproject.setup.SparqlUpdateProvider
+org.callimachusproject.setup.SparqlEndpointProvider
 org.callimachusproject.setup.MainArticleProvider
 org.callimachusproject.setup.FaviconProvider
 org.callimachusproject.setup.LocalSystemProvider

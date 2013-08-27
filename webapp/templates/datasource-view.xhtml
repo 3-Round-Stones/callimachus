@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
 <head>
-    <title>SPARQL Query</title>
+    <title resource="?this">{rdfs:label}</title>
     <link rel="comments" href="?discussion" />
     <link rel="version-history" href="?history" />
     <link rel="help" href="../../callimachus-for-web-developers" target="_blank" title="Help" />
 </head>
 <body resource="?this">
-    <h1>SPARQL Query</h1>
+    <h1 property="rdfs:label" />
     <div id="sidebar">
         <aside>
             <p>Query the database using the SPARQL language</p>
@@ -24,6 +27,7 @@ LIMIT 50
 </pre>
         </aside>
     </div>
+    <pre class="wiki" property="rdfs:comment" />
     <form id="form" action="{?this}" method="GET">
         <textarea id="sparql" name="query" class="flex" required="required"
             onchange="$(form).find('button').removeAttr('disabled')"></textarea>

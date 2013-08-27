@@ -31,6 +31,7 @@ import org.callimachusproject.client.HttpClientFactory;
 import org.callimachusproject.io.FileUtil;
 import org.callimachusproject.logging.LoggingProperties;
 import org.callimachusproject.repository.CalliRepository;
+import org.callimachusproject.repository.DatasourceManager;
 import org.callimachusproject.server.WebServer;
 import org.callimachusproject.setup.SetupRealm;
 import org.callimachusproject.setup.SetupTool;
@@ -888,7 +889,26 @@ public class CalliServer implements CalliServerMXBean {
 		File dataDir = manager.getRepositoryDir(repositoryID);
 		if (repo == null)
 			throw new IllegalArgumentException("Unknown repositoryID: " + repositoryID);
-		repository = new CalliRepository(repo, dataDir);
+		repository = new CalliRepository(repo, dataDir, new DatasourceManager(manager, repositoryID) {
+			protected CalliRepository createCalliRepository(URI uri,
+					Repository repository, File dataDir) throws OpenRDFException,
+					IOException {
+				CalliRepository calli = new CalliRepository(repository, dataDir, null);
+				if (listener != null) {
+					listener.repositoryInitialized(getRepositoryId(uri), calli);
+				}
+				return calli;
+			}
+
+			@Override
+			public synchronized void shutDownDatasource(URI uri)
+					throws OpenRDFException {
+				super.shutDownDatasource(uri);
+				if (listener != null) {
+					listener.repositoryShutDown(getRepositoryId(uri));
+				}
+			}
+		});
 		if (!origins.isEmpty()) {
 			String changes = repository.getCallimachusUrl(origins.get(0), CHANGES_PATH);
 			if (changes != null) {
@@ -920,21 +940,26 @@ public class CalliServer implements CalliServerMXBean {
 		if (repo == null)
 			throw new IllegalArgumentException("Unknown repositoryID: "
 					+ repositoryID);
-		CalliRepository repository = new CalliRepository(repo, dataDir);
+		DatasourceManager datasources = new DatasourceManager(manager, repositoryID);
+		CalliRepository repository = new CalliRepository(repo, dataDir, datasources);
 		repositories.put(repositoryID, repository);
 		return repository;
 	}
 
-	synchronized void refreshRepository(String repositoryID) throws RepositoryException {
+	synchronized void refreshRepository(String repositoryID) throws OpenRDFException {
 		CalliRepository repository = repositories.get(repositoryID);
-		if (repository != null && repository.isInitialized()) {
-			repository.shutDown();
+		if (repository != null) {
+			repository.getDatasourceManager().shutDown();
+			if (repository.isInitialized()) {
+				repository.shutDown();
+			}
 		}
 		repositories.remove(repositoryID);
 	}
 
 	private synchronized void shutDownRepositories() throws OpenRDFException {
 		for (Map.Entry<String, CalliRepository> e : repositories.entrySet()) {
+			e.getValue().getDatasourceManager().shutDown();
 			e.getValue().shutDown();
 			if (listener != null) {
 				listener.repositoryShutDown(e.getKey());
@@ -955,7 +980,7 @@ public class CalliServer implements CalliServerMXBean {
 	}
 
 	synchronized void removeRepository(Set<String> removed) throws IOException,
-			RepositoryException, RepositoryConfigException {
+			OpenRDFException {
 		Map<String, String> map = conf.getOriginRepositoryIDs();
 		if (isWebServiceRunning()) {
 			for (Map.Entry<String, String> e : map.entrySet()) {

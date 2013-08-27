@@ -15,12 +15,13 @@ import org.apache.http.HttpHost;
 import org.apache.http.client.utils.URIUtils;
 import org.callimachusproject.client.HttpClientFactory;
 import org.callimachusproject.repository.CalliRepository;
+import org.callimachusproject.repository.DatasourceManager;
 import org.callimachusproject.server.WebServer;
 import org.callimachusproject.setup.CallimachusSetup;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Graph;
 import org.openrdf.model.Resource;
-import org.openrdf.model.impl.GraphImpl;
+import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.model.util.GraphUtil;
 import org.openrdf.model.util.GraphUtilException;
 import org.openrdf.model.vocabulary.RDF;
@@ -152,7 +153,8 @@ public class TemporaryServerFactory {
 					manager = RepositoryProvider.getRepositoryManager(dir);
 					File dataDir = manager.getRepositoryDir("callimachus");
 					Repository repo = manager.getRepository("callimachus");
-					repository = new CalliRepository(repo, dataDir);
+					DatasourceManager datasets = new DatasourceManager(manager, "callimachus");
+					repository = new CalliRepository(repo, dataDir, datasets);
 					String url = repository.getCallimachusUrl(origin, CHANGES_PATH);
 					String schema = repository.getCallimachusUrl(origin, SCHEMA_GRAPH);
 					repository.addSchemaGraphType(schema);
@@ -249,7 +251,8 @@ public class TemporaryServerFactory {
 				throw new RepositoryConfigException(
 						"Missing repository configuration");
 			File dataDir = manager.getRepositoryDir(config.getID());
-			CalliRepository repository = new CalliRepository(repo, dataDir);
+			DatasourceManager datasets = new DatasourceManager(manager, config.getID());
+			CalliRepository repository = new CalliRepository(repo, dataDir, datasets);
 			CallimachusSetup setup = new CallimachusSetup(repository);
 			setup.prepareWebappOrigin(origin);
 			setup.createWebappOrigin(origin);
@@ -293,7 +296,7 @@ public class TemporaryServerFactory {
 
 	private Graph parseTurtleGraph(String configString) throws IOException,
 			RDFParseException, RDFHandlerException {
-		Graph graph = new GraphImpl();
+		Graph graph = new LinkedHashModel();
 		RDFParser rdfParser = Rio.createParser(RDFFormat.TURTLE);
 		rdfParser.setRDFHandler(new StatementCollector(graph));
 		String base = new File(".").getAbsoluteFile().toURI().toASCIIString();

@@ -374,7 +374,7 @@ if [ ! -e "$JMXRIMACCESS" -a -r "$JMXRMI" ] ; then
   if [ -r "$JAVA_HOME/lib/management/jmxremote.access" ] ; then
     cp "$JAVA_HOME/lib/management/jmxremote.access" "$JMXRIMACCESS"
   fi
-  if ! grep "^monitorRole" "$JMXRIMACCESS" | grep -q "read" ; then
+  if [ ! -e "$JMXRIMACCESS" ] || ! grep "^monitorRole" "$JMXRIMACCESS" | grep -q "read" ; then
     echo >> "$JMXRIMACCESS"
     echo "monitorRole   readonly" >> "$JMXRIMACCESS"
   fi

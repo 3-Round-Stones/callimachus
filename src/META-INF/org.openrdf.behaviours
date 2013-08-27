@@ -15,3 +15,4 @@ org.callimachusproject.behaviours.PipelineSupport	= http://callimachusproject.or
 org.callimachusproject.behaviours.XQuerySupport		= http://callimachusproject.org/rdf/2009/framework#XQuery
 org.callimachusproject.behaviours.CredentialSupport	= http://callimachusproject.org/rdf/2009/framework#Credential
 org.callimachusproject.behaviours.PurlSupport		= http://callimachusproject.org/rdf/2009/framework#PURL
+org.callimachusproject.behaviours.DatasourceSupport	= http://callimachusproject.org/rdf/2009/framework#Datasource

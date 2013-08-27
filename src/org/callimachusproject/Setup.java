@@ -48,6 +48,7 @@ import org.callimachusproject.cli.Command;
 import org.callimachusproject.cli.CommandSet;
 import org.callimachusproject.concurrent.ManagedExecutors;
 import org.callimachusproject.repository.CalliRepository;
+import org.callimachusproject.repository.DatasourceManager;
 import org.callimachusproject.setup.CallimachusSetup;
 import org.callimachusproject.util.BackupTool;
 import org.callimachusproject.util.CallimachusConf;
@@ -305,7 +306,8 @@ public class Setup {
 					"Missing repository configuration for "
 							+ dataDir.getAbsolutePath());
 		Map<String, String> webapps = new LinkedHashMap<String, String>();
-		CalliRepository repository = new CalliRepository(repo, dataDir);
+		DatasourceManager datasources = new DatasourceManager(manager, repositoryID);
+		CalliRepository repository = new CalliRepository(repo, dataDir, datasources);
 		try {
 			CallimachusSetup setup = new CallimachusSetup(repository);
 			if (upgrade) {
@@ -343,6 +345,7 @@ public class Setup {
 			}
 		} finally {
 			repository.shutDown();
+			datasources.shutDown();
 		}
 		return webapps.values();
 	}

@@ -111,6 +111,7 @@ public class CalliRepository extends RepositoryWrapper implements CalliRepositor
 
 	private final org.slf4j.Logger logger = LoggerFactory.getLogger(CalliRepository.class);
 	private final TracerService service = TracerService.newInstance();
+	private final DatasourceManager datasources;
 	private final RealmManager realms;
 	private final AuthorizationManager auth;
 	private final AuditingRepository auditing;
@@ -118,6 +119,12 @@ public class CalliRepository extends RepositoryWrapper implements CalliRepositor
 	private String changeFolder;
 
 	public CalliRepository(Repository repository, File dataDir)
+			throws RepositoryConfigException, RepositoryException,
+			IOException {
+		this(repository, dataDir, null);
+	}
+
+	public CalliRepository(Repository repository, File dataDir, DatasourceManager datasources)
 			throws RepositoryConfigException, RepositoryException,
 			IOException {
 		assert repository != null;
@@ -130,12 +137,17 @@ public class CalliRepository extends RepositoryWrapper implements CalliRepositor
 		trace(wrapper);
 		setDelegate(object);
 		CalliObjectSupport.associate(this, object);
+		this.datasources = datasources;
 		realms = new RealmManager(this);
 		auth = new AuthorizationManager(realms, object);
 	}
 
 	public AuthorizationManager getAuthorizationManager() {
 		return auth;
+	}
+
+	public DatasourceManager getDatasourceManager() {
+		return datasources;
 	}
 
 	public void resetCache() {

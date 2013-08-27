@@ -204,7 +204,10 @@ public class Setup {
 					}
 					if (email == null || email.length() < 1) {
 						email = null;
-						defaultEmail = System.getProperty("user.name") + "@" + DomainNameSystemResolver.getInstance().getCanonicalLocalHostName();
+						String hostname = DomainNameSystemResolver
+								.getInstance().getCanonicalLocalHostName();
+						defaultEmail = System.getProperty("user.name") + "@"
+								+ hostname;
 						CallimachusSetup.validateEmail(defaultEmail);
 					}
 					if (line.has("group")) {

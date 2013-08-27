@@ -51,7 +51,7 @@ public class DomainNameSystemResolver {
 		if (ictx == null)
 			return null;
 		Attributes attrs = ictx.getAttributes(domain, type);
-		Enumeration e = attrs.getAll();
+		Enumeration<? extends Attribute> e = attrs.getAll();
 		if (e.hasMoreElements()) {
 			Attribute a = (Attribute) e.nextElement();
 			int size = a.size();
@@ -133,7 +133,7 @@ public class DomainNameSystemResolver {
 		try {
 			addAllNames(InetAddress.getLocalHost(), set);
 		} catch (UnknownHostException e) {
-			set.add(getLocalHostName());
+			set.add(getLocalHostName().toLowerCase());
 		}
 		addAllNames(getLocalHost(), set);
 		return set;
@@ -151,6 +151,14 @@ public class DomainNameSystemResolver {
 		if (netAddr == null)
 			return null;
 		String name = netAddr.getCanonicalHostName().toLowerCase();
+		try {
+			if (!name.equals(netAddr.getHostAddress())
+					&& netAddr.equals(InetAddress.getByName(name)))
+				return name;
+		} catch (UnknownHostException e) {
+			// use reverse name
+		}
+		name = netAddr.getHostName().toLowerCase();
 		try {
 			if (!name.equals(netAddr.getHostAddress())
 					&& netAddr.equals(InetAddress.getByName(name)))

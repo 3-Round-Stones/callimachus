@@ -28,12 +28,7 @@
                 </xsl:call-template>
             </span>
             <xsl:text> </xsl:text>
-            <span class="plain literal">
-                <xsl:attribute name="property">
-                    <xsl:call-template name="iriref">
-                        <xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
-                    </xsl:call-template>
-                </xsl:attribute>
+            <span class="plain literal" property="{concat(namespace-uri(),local-name())}">
                 <xsl:apply-templates />
             </span>
         </li>
@@ -46,12 +41,7 @@
                 </xsl:call-template>
             </span>
             <xsl:text> </xsl:text>
-            <a href="#{@rdf:nodeID}" class="bnode">
-                <xsl:attribute name="rel">
-                    <xsl:call-template name="iriref">
-                        <xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
-                    </xsl:call-template>
-                </xsl:attribute>
+            <a href="#{@rdf:nodeID}" class="bnode" rel="{concat(namespace-uri(),local-name())}">
                 <xsl:text>_:</xsl:text>
                 <xsl:value-of select="@rdf:nodeID" />
             </a>
@@ -65,12 +55,7 @@
                 </xsl:call-template>
             </span>
             <xsl:text> </xsl:text>
-            <a href="{@rdf:resource}" class="uri">
-                <xsl:attribute name="rel">
-                    <xsl:call-template name="iriref">
-                        <xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
-                    </xsl:call-template>
-                </xsl:attribute>
+            <a href="{@rdf:resource}" class="uri" rel="{concat(namespace-uri(),local-name())}">
                 <xsl:call-template name="resource">
                     <xsl:with-param name="iri" select="@rdf:resource"/>
                 </xsl:call-template>
@@ -87,17 +72,7 @@
                 </xsl:call-template>
             </span>
             <xsl:text> </xsl:text>
-            <span class="typed literal">
-                <xsl:attribute name="property">
-                    <xsl:call-template name="iriref">
-                        <xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
-                    </xsl:call-template>
-                </xsl:attribute>
-                <xsl:attribute name="datatype">
-                    <xsl:call-template name="iriref">
-                        <xsl:with-param name="iri" select="@rdf:datatype" />
-                    </xsl:call-template>
-                </xsl:attribute>
+            <span class="typed literal" property="{concat(namespace-uri(),local-name())}" datatype="{@rdf:datatype}">
                 <xsl:apply-templates />
                 <span class="datatype">
                     <span>^^</span>
@@ -116,12 +91,7 @@
                 </xsl:call-template>
             </span>
             <xsl:text> </xsl:text>
-            <span class="plain literal">
-                <xsl:attribute name="property">
-                    <xsl:call-template name="iriref">
-                        <xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
-                    </xsl:call-template>
-                </xsl:attribute>
+            <span class="plain literal" property="{concat(namespace-uri(),local-name())}">
                 <xsl:attribute name="xml:lang">
                     <xsl:value-of select="@xml:lang" />
                 </xsl:attribute>
@@ -141,12 +111,7 @@
                 </xsl:call-template>
             </span>
             <xsl:text> </xsl:text>
-            <span class="typed literal">
-                <xsl:attribute name="property">
-                    <xsl:call-template name="iriref">
-                        <xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
-                    </xsl:call-template>
-                </xsl:attribute>
+            <span class="typed literal" property="{concat(namespace-uri(),local-name())}">
                 <xsl:copy-of select="node()" />
             </span>
         </li>
@@ -158,12 +123,7 @@
                     <xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
                 </xsl:call-template>
             </span>
-            <ul class="properties sorted">
-                <xsl:attribute name="rel">
-                    <xsl:call-template name="iriref">
-                        <xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
-                    </xsl:call-template>
-                </xsl:attribute>
+            <ul class="properties sorted" rel="{concat(namespace-uri(),local-name())}">
                 <xsl:apply-templates />
             </ul>
         </li>
@@ -218,12 +178,7 @@
             <xsl:for-each select="rdf:type[@rdf:resource]">
                 <xsl:sort select="@rdf:resource" />
                 <xsl:text> </xsl:text>
-                <a href="{@rdf:resource}" class="uri">
-                    <xsl:attribute name="rel">
-                        <xsl:call-template name="iriref">
-                            <xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
-                        </xsl:call-template>
-                    </xsl:attribute>
+                <a href="{@rdf:resource}" class="uri" rel="{concat(namespace-uri(),local-name())}">
                     <xsl:call-template name="resource">
                         <xsl:with-param name="iri" select="@rdf:resource"/>
                     </xsl:call-template>

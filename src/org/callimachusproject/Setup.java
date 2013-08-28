@@ -67,6 +67,7 @@ import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.config.RepositoryConfig;
 import org.openrdf.repository.config.RepositoryConfigException;
 import org.openrdf.repository.config.RepositoryConfigSchema;
+import org.openrdf.repository.config.RepositoryImplConfig;
 import org.openrdf.repository.manager.LocalRepositoryManager;
 import org.openrdf.repository.manager.RepositoryProvider;
 import org.openrdf.rio.RDFFormat;
@@ -240,7 +241,7 @@ public class Setup {
 		final List<String> links = new ArrayList<String>();
 		try {
 			Map<String, String> idByOrigin = conf.getOriginRepositoryIDs();
-			Set<String> repositoryIDs = new HashSet<String>(idByOrigin.values());
+			Set<String> repositoryIDs = new LinkedHashSet<String>(idByOrigin.values());
 			List<Future<Collection<String>>> tasks = new ArrayList<Future<Collection<String>>>();
 			for (final String id : repositoryIDs) {
 				tasks.add(executor.submit(new Callable<Collection<String>>() {
@@ -391,7 +392,10 @@ public class Setup {
 		if (repositoryID.equals(config.getID())) {
 			return updateRepositoryConfig(manager, config);
 		} else {
-			return false;
+			RepositoryConfig stored = manager.getRepositoryConfig(repositoryID);
+			RepositoryImplConfig impl = config.getRepositoryImplConfig();
+			config = new RepositoryConfig(stored.getID(), stored.getTitle(), impl);
+			return updateRepositoryConfig(manager, config);
 		}
 	}
 

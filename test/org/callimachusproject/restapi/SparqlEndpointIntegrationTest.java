@@ -3,7 +3,6 @@ package org.callimachusproject.restapi;
 import java.net.URLEncoder;
 
 import org.callimachusproject.test.TemporaryServerIntegrationTestCase;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class SparqlEndpointIntegrationTest extends TemporaryServerIntegrationTestCase {
@@ -30,12 +29,10 @@ public class SparqlEndpointIntegrationTest extends TemporaryServerIntegrationTes
 		assertTrue(results.contains("true"));
 	}
 
-	@Ignore
 	@Test
-	public void ignore_testPostQueryDirectly() throws Exception {
+	public void testPostQueryDirectly() throws Exception {
 		String sparql = "ASK { ?s ?p ?o }";
-		String encoded = URLEncoder.encode(sparql, "UTF-8");
-		String results = new String(getHomeFolder().sparqlEndpoint().post(QUERY, encoded.getBytes(), RESULTS_XML));
+		String results = new String(getHomeFolder().sparqlEndpoint().post(QUERY, sparql.getBytes(), RESULTS_XML));
 		assertTrue(results.contains("true"));
 	}
 
@@ -47,12 +44,10 @@ public class SparqlEndpointIntegrationTest extends TemporaryServerIntegrationTes
 		getHomeFolder().sparqlEndpoint().post(URLENCODED, form.getBytes());
 	}
 
-	@Ignore
 	@Test
-	public void ignore_testPostUpdateDirectly() throws Exception {
+	public void testPostUpdateDirectly() throws Exception {
 		String sparql = "INSERT DATA { </> a </> }";
-		String encoded = URLEncoder.encode(sparql, "UTF-8");
-		getHomeFolder().sparqlEndpoint().post(UPDATE, encoded.getBytes());
+		getHomeFolder().sparqlEndpoint().post(UPDATE, sparql.getBytes());
 	}
 
 }

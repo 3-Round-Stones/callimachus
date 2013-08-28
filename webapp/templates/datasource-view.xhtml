@@ -2,16 +2,31 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:sd="http://www.w3.org/ns/sparql-service-description#">
 <head>
     <title resource="?this">{rdfs:label}</title>
     <link rel="comments" href="?discussion" />
     <link rel="version-history" href="?history" />
     <link rel="help" href="../../callimachus-for-web-developers" target="_blank" title="Help" />
+    <script type="text/javascript">
+        $(function(){
+            var sd = "http://www.w3.org/ns/sparql-service-description#";
+            if (!$('span[rel="sd:supportedLanguage"][resource="' + sd + 'SPARQL11Query"]').length) {
+                $('.SPARQL11Query').hide();
+            }
+            if (!$('span[rel="sd:supportedLanguage"][resource="' + sd + 'SPARQL11Update"]').length) {
+                $('.SPARQL11Update').hide();
+            }
+        });
+    </script>
 </head>
 <body resource="?this">
     <h1 property="rdfs:label" />
     <div id="sidebar">
+        <aside>
+            <pre class="wiki" property="rdfs:comment" />
+        </aside>
         <aside>
             <p>Query the database using the SPARQL language</p>
             <p>Namespace prefixes are optional and if omitted the default <a href="../../profile?view">SPARQL Profile</a> will be used</p>
@@ -27,15 +42,25 @@ LIMIT 50
 </pre>
         </aside>
     </div>
-    <pre class="wiki" property="rdfs:comment" />
     <form id="form" action="{?this}" method="GET">
-        <textarea id="sparql" name="query" class="flex" required="required"
-            onchange="$(form).find('button').removeAttr('disabled')"></textarea>
-        <div>
-            <button type="submit" class="btn btn-primary" onclick="$('#form').attr('method','GET');$('#sparql').attr('name', 'query')">Evaluate Query</button>
-            <button type="submit" class="btn btn-primary" onclick="$('#form').attr('method','POST');$('#sparql').attr('name', 'update')">Execute Update</button>
-            <button type="button" onclick="history.back()" class="btn">Cancel</button>
-        </div>
+        <fieldset>
+            <textarea id="sparql" name="query" class="flex" required="required"
+                onchange="$(form).find('button').removeAttr('disabled')"></textarea>
+            <div resource="?this" typeof="sd:Service">
+                <span rel="sd:endpoint" resource="?endpoint" />
+                <span rel="sd:feature" resource="?feature" />
+                <span rel="sd:inputFormat" resource="?inputFormat" />
+                <span rel="sd:resultFormat" resource="?resultFormat" />
+                <span rel="sd:supportedLanguage" resource="?support" />
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary SPARQL11Query"
+                    onclick="$('#form').attr('method','GET');$('#sparql').attr('name', 'query')">Evaluate Query</button>
+                <button type="submit" class="btn btn-primary SPARQL11Update"
+                    onclick="$('#form').attr('method','POST');$('#sparql').attr('name', 'update')">Execute Update</button>
+                <button type="button" onclick="history.back()" class="btn">Cancel</button>
+            </div>
+        </fieldset>
     </form>
 </body>
 </html>

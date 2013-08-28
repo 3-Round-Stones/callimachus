@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:sd="http://www.w3.org/ns/sparql-service-description#">
+<head>
+    <title>New Datasource</title>
+</head>
+<body>
+    <h1>New Datasource</h1>
+    <form method="POST" action="" enctype="application/rdf+xml" typeof="sd:Service"
+            onsubmit="if (calli.saveResourceAs(event,calli.slugify($('#label').val()))){$('[rel=&quot;sd:endpoint&quot;]').attr('resource',$(this).attr('resource'));return true;} else return false">
+        <fieldset>
+            <div class="control-group">
+                <label for="label" class="control-label">Label</label>
+                <div class="controls">
+                    <input type="text" id="label" value="{rdfs:label}" required="required" autofocus="autofocus" />
+                </div>
+            </div>
+            <div class="control-group">
+                <label for="comment" class="control-label">Comment</label>
+                <div class="controls">
+                    <textarea id="comment" class="auto-expand">{rdfs:comment}</textarea>
+                </div>
+            </div>
+            <div>
+                <span rel="sd:endpoint" />
+                <span rel="sd:feature" resource="http://www.w3.org/ns/sparql-service-description#BasicFederatedQuery" />
+                <span rel="sd:feature" resource="http://www.w3.org/ns/sparql-service-description#UnionDefaultGraph" />
+                <span rel="sd:inputFormat" resource="http://www.w3.org/ns/formats/RDF_XML" />
+                <span rel="sd:inputFormat" resource="http://www.w3.org/ns/formats/Turtle" />
+                <span rel="sd:resultFormat" resource="http://www.w3.org/ns/formats/RDF_XML" />
+                <span rel="sd:resultFormat" resource="http://www.w3.org/ns/formats/SPARQL_Results_XML" />
+            </div>
+            <div class="control-group">
+            	<label for="support" class="control-label">Support</label>
+        		<div id="suppord" class="controls">
+        			<label class="checkbox" rel="sd:supportedLanguage" resource="http://www.w3.org/ns/sparql-service-description#SPARQL11Query">
+        				<input type="checkbox" name="support" checked="checked" />
+        				SPARQL Query
+        			</label>
+            		<label class="checkbox" rel="sd:supportedLanguage" resource="http://www.w3.org/ns/sparql-service-description#SPARQL11Update">
+        				<input type="checkbox" name="support" checked="checked" />
+        				SPARQL Update
+        			</label>
+        		</div>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-success">Create</button>
+            </div>
+        </fieldset>
+    </form>
+</body>
+</html>

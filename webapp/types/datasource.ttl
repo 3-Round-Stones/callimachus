@@ -28,11 +28,24 @@
 <> a <SchemaGraph>;
     foaf:primaryTopic <Datasource>.
 
-<Datasource> a owl:Class;
-    rdfs:subClassOf <Viewable>, calli:Datasource;
+<Datasource> a <Creatable>, owl:Class;
+    rdfs:subClassOf <Viewable>, <Editable>, calli:Datasource;
     rdfs:label "Datasource";
+    rdfs:comment "A SPARQL endpoint service for a mutable dataset";
     rdfs:isDefinedBy <../../ontology>;
-    calli:view <../templates/datasource-view.xhtml>.
+    calli:administrator </auth/groups/super>;
+    calli:author </auth/groups/admin>;
+    calli:icon <../images/datasource.png>;
+    calli:view <../templates/datasource-view.xhtml>;
+    calli:edit <../templates/datasource-edit.xhtml>;
+    calli:create <../templates/datasource-create.xhtml>.
+
+:DeleteDatasource owl:intersectionOf ( <editable.ttl#Delete>
+        [owl:onProperty msg:target; owl:allValuesFrom <Datasource>]);
+    calli:script """
+        this.getCalliRepository().getDatasourceManager().purgeDatasource(this.resource);
+        return proceed();
+    """.
 
 # POST application/sparql-query
 :PostQuery rdfs:subClassOf msg:Message;
@@ -69,7 +82,7 @@
         if (!update)
             throw new BadRequest("Missing update body");
         try {
-            this.executeSparql(update);
+            this.executeSparql(new java.lang.String(update, "UTF-8"));
         } catch (e if e.javaException instanceof MalformedQueryException) {
             throw new BadRequest(e.javaException.toString());
         }

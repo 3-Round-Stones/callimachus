@@ -21,6 +21,7 @@ import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.server.exceptions.InternalServerError;
 import org.callimachusproject.traits.CalliObject;
 import org.openrdf.OpenRDFException;
+import org.openrdf.annotations.Sparql;
 import org.openrdf.model.Namespace;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
@@ -48,20 +49,33 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class DatasourceSupport implements CalliObject {
-	private static final Pattern PREFIX = Pattern.compile("^[^#]*\\bPREFIX\\b",
+	private static final String PREFIX = "PREFIX sd:<http://www.w3.org/ns/sparql-service-description#>\n";
+	private static final Pattern HAS_PREFIX = Pattern.compile("^[^#]*\\bPREFIX\\b",
 			Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
 
 	private final Logger logger = LoggerFactory.getLogger(DatasourceSupport.class);
 
-	public GraphQueryResult describeResource(final URI resource)
+	@Sparql(PREFIX + "ASK { $this sd:supportedLanguage sd:SPARQL11Query }")
+	public abstract boolean isQuerySupported();
+
+	@Sparql(PREFIX + "ASK { $this sd:supportedLanguage sd:SPARQL11Update }")
+	public abstract boolean isUpdateSupported();
+
+	public GraphQueryResult describeResource(final URI uri)
 			throws OpenRDFException, IOException {
-		return new DescribeResult(resource, openConnection());
+		if (uri == null)
+			throw new BadRequest("Missing uri");
+		if (!isQuerySupported())
+			throw new BadRequest("SPARQL Query is not supported on this service");
+		return new DescribeResult(uri, openConnection());
 	}
 
 	public HttpEntity evaluateSparql(String qry) throws OpenRDFException,
 			IOException, FluidException {
 		if (qry == null || qry.length() == 0)
 			throw new BadRequest("Missing query");
+		if (!isQuerySupported())
+			throw new BadRequest("SPARQL Query is not supported on this service");
 		String query = addPrefix(qry);
 		final RepositoryConnection con = openConnection();
 		try {
@@ -118,6 +132,8 @@ public abstract class DatasourceSupport implements CalliObject {
 	}
 
 	public void executeSparql(String ru) throws OpenRDFException, IOException {
+		if (!isUpdateSupported())
+			throw new BadRequest("SPARQL Update is not supported on this service");
 		String update = addPrefix(ru);
 		RepositoryConnection con = openConnection();
 		try {
@@ -130,7 +146,7 @@ public abstract class DatasourceSupport implements CalliObject {
 	}
 
 	private String addPrefix(String inputString) throws RepositoryException {
-		if (PREFIX.matcher(inputString).find())
+		if (HAS_PREFIX.matcher(inputString).find())
 			return inputString;
 		StringBuilder sb = new StringBuilder();
 		ObjectConnection con = this.getObjectConnection();

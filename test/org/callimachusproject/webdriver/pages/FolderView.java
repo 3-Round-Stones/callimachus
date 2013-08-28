@@ -52,6 +52,12 @@ public class FolderView extends CalliPage {
 		return page(GroupCreate.class);
 	}
 
+	public DatasourceCreate openDatasourceCreate() {
+		driver.click(By.id("create-menu"));
+		driver.clickHiddenLink(".dropdown-menu a[href$=\"Datasource\"]");
+		return page(DatasourceCreate.class);
+	}
+
 	public TextEditor openTextCreate(String hrefEndsWith) {
 		driver.click(By.id("create-menu"));
 		driver.clickHiddenLink(".dropdown-menu a[href$=\""+ hrefEndsWith + "\"]");

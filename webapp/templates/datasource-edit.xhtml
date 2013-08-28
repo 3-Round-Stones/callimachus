@@ -68,9 +68,11 @@
         		</div>
             </div>
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary">Save</button>
-                <button type="button" onclick="window.location.replace('?view')" class="btn">Cancel</button>
-                <button type="button" onclick="calli.deleteResource(event)" class="btn btn-danger">Delete</button>
+                <button id="save-datasource" type="submit" class="btn btn-primary">Save</button>
+                <button id="cancel-datasource" type="button" class="btn"
+                    onclick="window.location.replace('?view')">Cancel</button>
+                <button id="delete-datasource" type="button" class="btn btn-danger"
+                    onclick="calli.deleteResource(event)">Delete</button>
             </div>
         </fieldset>
     </form>

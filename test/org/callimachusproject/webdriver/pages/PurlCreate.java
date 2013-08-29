@@ -14,9 +14,9 @@ public class PurlCreate extends CalliPage {
 		driver.type(By.id("local"), purlName);
 		driver.type(By.id("comment"), purlComment);
 		driver.select(By.id("type"), purlType);
-		driver.type(By.id("pattern"), purlTarget);
+		driver.type(By.cssSelector("textarea.pattern"), purlTarget);
 		driver.type(By.id("cache"), purlCache);
-		return this;
+		return page(PurlCreate.class);
 	}
 
 	public CalliPage create() {

@@ -16,25 +16,14 @@
     <script type="text/javascript">
     // <![CDATA[
     jQuery(function($){
-        $('#pattern').change(function(){
-             $('pre.pattern').text(this.value);
+        $('textarea.pattern.hide').remove();
+        $('textarea.pattern[property]').each(function(){
+            $('#type').val(this.getAttribute('property'));
         });
         $('#type').change(function(){
-            if (this.value) {
-                $('pre.pattern').remove();
-                $('#pattern').parent().append('<pre class="hide pattern" />');
-                $('pre.pattern').attr('property', this.value);
-                $('#pattern').change();
-            }
-        });
-        $('pre.pattern[property]').each(function(){
-            var value = $(this).text();
-            if (value) {
-                $('#pattern').val(value);
-                $('#type').val(this.getAttribute('property'));
-            }
-        });
-        $('#type').change();
+            $('textarea.pattern').attr('data-text-expression', this.value);
+            $('textarea.pattern').attr('property', this.value);
+        }).change();
         $('#form').bind('calliRedirect', function(event){
             if (event.resource == event.location) {
                 event.location = event.resource + '?view';
@@ -75,15 +64,14 @@
                 <div class="control-group">
                     <label for="pattern" class="control-label">GET content location</label>
                     <div class="controls">
-                        <textarea id="pattern" class="span3 auto-expand" rows="1"></textarea>
-                        <pre class="hide pattern" property="calli:copy" />
-                        <pre class="hide pattern" property="calli:canonical" />
-                        <pre class="hide pattern" property="calli:alternate" />
-                        <pre class="hide pattern" property="calli:describedby" />
-                        <pre class="hide pattern" property="calli:resides" />
-                        <pre class="hide pattern" property="calli:moved" />
-                        <pre class="hide pattern" property="calli:missing" />
-                        <pre class="hide pattern" property="calli:gone" />
+                        <textarea class="pattern span3 auto-expand" rows="1" property="calli:copy"></textarea>
+                        <textarea class="pattern span3 auto-expand" rows="1" property="calli:canonical"></textarea>
+                        <textarea class="pattern span3 auto-expand" rows="1" property="calli:alternate"></textarea>
+                        <textarea class="pattern span3 auto-expand" rows="1" property="calli:describedby"></textarea>
+                        <textarea class="pattern span3 auto-expand" rows="1" property="calli:resides"></textarea>
+                        <textarea class="pattern span3 auto-expand" rows="1" property="calli:moved"></textarea>
+                        <textarea class="pattern span3 auto-expand" rows="1" property="calli:missing"></textarea>
+                        <textarea class="pattern span3 auto-expand" rows="1" property="calli:gone"></textarea>
                     </div>
                 </div>
                 <div class="control-group">

@@ -10,7 +10,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class PurlFunctionalTest extends BrowserFunctionalTestCase {
-	public static String[] purl = { "index.html", "Redirects to home page", "/", "max-age=3600" };
 
 	public static TestSuite suite() throws Exception {
 		return BrowserFunctionalTestCase.suite(PurlFunctionalTest.class);
@@ -24,121 +23,124 @@ public class PurlFunctionalTest extends BrowserFunctionalTestCase {
 		super(parent);
 	}
 	
-	public void testCreatePurlCopy() throws Exception {
-		String purlName = purl[0];
+	public void testCreatePurl() throws Exception {
+		testCreatePurlCopy("copy");
+		testCreatePurlCanonical("canonical");
+		testCreatePurlAlt("alt");
+		testCreatePurlDescribedBy("describedBy");
+		testCreatePurlResides("resides");
+		testCreatePurlMoved("moved");
+		testCreatePurlMissing("missing");
+		testCreatePurlGone("gone");
+	}
+	
+	public void testCreatePurlCopy(String purlName) throws Exception {
 		String purlType = "Copy (200)";
 		logger.info("Create purl {}", purlName);
 		page.openCurrentFolder().openPurlCreate()
-				.with(purlName, purl[1], purlType, purl[2], purl[3]).create()
+				.with(purlName, "Redirects to home page", purlType, "/", "max-age=3600").create()
 				.waitUntilTitle(purlName);
 		String url = page.getCurrentUrl();
 		url = url.replace("?view", "");
-		sendGet(url, 200, "/main-article.docbook?view", purl[3]);
+		sendGet(url, 200, "/main-article.docbook?view", "max-age=3600");
 		logger.info("Delete purl {}", purlName);
 		page.open(purlName + "?view").waitUntilTitle(purlName)
 				.openEdit(PurlEdit.class).delete(purlName);
 	}
 	
-	public void testCreatePurlCanonical() throws Exception {
-		String purlName = purl[0];
+	public void testCreatePurlCanonical(String purlName) throws Exception {
 		String purlType = "Canonical (301)";
 		logger.info("Create purl {}", purlName);
 		page.openCurrentFolder().openPurlCreate()
-				.with(purlName, purl[1], purlType, purl[2], purl[3]).create()
+				.with(purlName, "Redirects to home page", purlType, "/", "max-age=3600").create()
 				.waitUntilTitle(purlName);
 		String url = page.getCurrentUrl();
 		url = url.replace("?view", "");
-		sendGet(url, 301, purl[2], purl[3]);
+		sendGet(url, 301, "/", "max-age=3600");
 		logger.info("Delete purl {}", purlName);
 		page.open(purlName + "?view").waitUntilTitle(purlName)
 				.openEdit(PurlEdit.class).delete(purlName);
 	}
 
-	public void testCreatePurlAlt() throws Exception {
-		String purlName = purl[0];
+	public void testCreatePurlAlt(String purlName) throws Exception {
 		String purlType = "Alternate (302)";
 		logger.info("Create purl {}", purlName);
 		page.openCurrentFolder().openPurlCreate()
-				.with(purlName, purl[1], purlType, purl[2], purl[3]).create()
+				.with(purlName, "Redirects to home page", purlType, "/", "max-age=3600").create()
 				.waitUntilTitle(purlName);
 		String url = page.getCurrentUrl();
 		url = url.replace("?view", "");
-		sendGet(url, 302, purl[2], purl[3]);
+		sendGet(url, 302, "/", "max-age=3600");
 		logger.info("Delete purl {}", purlName);
 		page.open(purlName + "?view").waitUntilTitle(purlName)
 				.openEdit(PurlEdit.class).delete(purlName);
 	}
 	
-	public void testCreatePurlDescribedBy() throws Exception {
-		String purlName = purl[0];
+	public void testCreatePurlDescribedBy(String purlName) throws Exception {
 		String purlType = "Described by (303)";
 		logger.info("Create purl {}", purlName);
 		page.openCurrentFolder().openPurlCreate()
-				.with(purlName, purl[1], purlType, purl[2], purl[3]).create()
+				.with(purlName, "Redirects to home page", purlType, "/", "max-age=3600").create()
 				.waitUntilTitle(purlName);
 		String url = page.getCurrentUrl();
 		url = url.replace("?view", "");
-		sendGet(url, 303, purl[2], purl[3]);
+		sendGet(url, 303, "/", "max-age=3600");
 		logger.info("Delete purl {}", purlName);
 		page.open(purlName + "?view").waitUntilTitle(purlName)
 				.openEdit(PurlEdit.class).delete(purlName);
 	}
 	
-	public void testCreatePurlResides() throws Exception {
-		String purlName = purl[0];
+	public void testCreatePurlResides(String purlName) throws Exception {
 		String purlType = "Resides (307)";
 		logger.info("Create purl {}", purlName);
 		page.openCurrentFolder().openPurlCreate()
-				.with(purlName, purl[1], purlType, purl[2], purl[3]).create()
+				.with(purlName, "Redirects to home page", purlType, "/", "max-age=3600").create()
 				.waitUntilTitle(purlName);
 		String url = page.getCurrentUrl();
 		url = url.replace("?view", "");
-		sendGet(url, 307, purl[2], purl[3]);
+		sendGet(url, 307, "/", "max-age=3600");
 		logger.info("Delete purl {}", purlName);
 		page.open(purlName + "?view").waitUntilTitle(purlName)
 				.openEdit(PurlEdit.class).delete(purlName);
 	}
 	
-	public void testCreatePurlMoved() throws Exception {
-		String purlName = purl[0];
+	public void testCreatePurlMoved(String purlName) throws Exception {
 		String purlType = "Moved (308)";
 		logger.info("Create purl {}", purlName);
 		page.openCurrentFolder().openPurlCreate()
-				.with(purlName, purl[1], purlType, purl[2], purl[3]).create()
+				.with(purlName, "Redirects to home page", purlType, "/", "max-age=3600").create()
 				.waitUntilTitle(purlName);
 		String url = page.getCurrentUrl();
 		url = url.replace("?view", "");
-		sendGet(url, 308, purl[2], purl[3]);
+		sendGet(url, 308, "/", "max-age=3600");
 		logger.info("Delete purl {}", purlName);
 		page.open(purlName + "?view").waitUntilTitle(purlName)
 				.openEdit(PurlEdit.class).delete(purlName);
 	}
 	
-	public void testCreatePurlMissing() throws Exception {
-		String purlName = purl[0];
+	public void testCreatePurlMissing(String purlName) throws Exception {
 		String purlType = "Missing (404)";
 		logger.info("Create purl {}", purlName);
 		page.openCurrentFolder().openPurlCreate()
-				.with(purlName, purl[1], purlType, purl[2], purl[3]).create()
+				.with(purlName, "Redirects to home page", purlType, "/", "max-age=3600").create()
 				.waitUntilTitle(purlName);
 		String url = page.getCurrentUrl();
 		url = url.replace("?view", "");
-		sendGet(url, 404, "/main-article.docbook?view", purl[3]);
+		sendGet(url, 404, "/main-article.docbook?view", "max-age=3600");
 		logger.info("Delete purl {}", purlName);
 		page.open(purlName + "?view").waitUntilTitle(purlName)
 				.openEdit(PurlEdit.class).delete(purlName);
 	}
 	
-	public void testCreatePurlGone() throws Exception {
-		String purlName = purl[0];
+	public void testCreatePurlGone(String purlName) throws Exception {
 		String purlType = "Gone (410)";
 		logger.info("Create purl {}", purlName);
 		page.openCurrentFolder().openPurlCreate()
-				.with(purlName, purl[1], purlType, purl[2], purl[3]).create()
+				.with(purlName, "Redirects to home page", purlType, "/", "max-age=3600").create()
 				.waitUntilTitle(purlName);
 		String url = page.getCurrentUrl();
 		url = url.replace("?view", "");
-		sendGet(url, 410, "/main-article.docbook?view", purl[3]);
+		sendGet(url, 410, "/main-article.docbook?view", "max-age=3600");
 		logger.info("Delete purl {}", purlName);
 		page.open(purlName + "?view").waitUntilTitle(purlName)
 				.openEdit(PurlEdit.class).delete(purlName);

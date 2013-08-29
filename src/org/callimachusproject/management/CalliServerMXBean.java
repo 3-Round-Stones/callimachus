@@ -58,27 +58,18 @@ public interface CalliServerMXBean {
 	void setLoggingProperties(Map<String, String> lines) throws IOException,
 			MessagingException;
 
-	String[] getRepositoryIDs() throws OpenRDFException;
-
-	String[] getAvailableRepositoryTypes() throws IOException, OpenRDFException;
-
-	Map<String, String> getRepositoryProperties() throws IOException,
-			OpenRDFException;
-
-	void setRepositoryProperties(Map<String, String> properties)
-			throws Exception;
-
 	String[] getWebappOrigins() throws IOException;
+
+	void setWebappOrigins(String[] WebappOrigins) throws Exception;
 
 	SetupRealm[] getRealms() throws IOException, OpenRDFException;
 
 	Map<String, String> getAuthenticationManagers() throws OpenRDFException,
 			IOException;
 
-	void setupWebappOrigin(String webappOrigin, String repositoryID)
-			throws Exception;
-
 	void setupRealm(String realm, String webappOrigin) throws Exception;
+
+	void replaceDatasourceConfig(String uri, String config) throws Exception;
 
 	void createResource(String rdf, String systemId, String type)
 			throws Exception;

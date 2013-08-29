@@ -393,8 +393,12 @@ public class Setup {
 			return updateRepositoryConfig(manager, config);
 		} else {
 			RepositoryConfig stored = manager.getRepositoryConfig(repositoryID);
+			String title = null;
+			if (stored != null) {
+				title = stored.getTitle();
+			}
 			RepositoryImplConfig impl = config.getRepositoryImplConfig();
-			config = new RepositoryConfig(stored.getID(), stored.getTitle(), impl);
+			config = new RepositoryConfig(repositoryID, title, impl);
 			return updateRepositoryConfig(manager, config);
 		}
 	}

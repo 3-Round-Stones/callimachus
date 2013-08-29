@@ -177,7 +177,7 @@ public abstract class DatasourceSupport implements CalliObject {
 			throw new IllegalArgumentException(
 					"Datasources are not configured correctly");
 		if (!manager.isDatasourcePresent(uri)) {
-			manager.createDatasource(uri, getDefaultConfig());
+			manager.replaceDatasourceConfig(uri, getDefaultConfig());
 		}
 		CalliRepository repository = manager.getDatasource(uri);
 		ObjectConnection con = repository.getConnection();

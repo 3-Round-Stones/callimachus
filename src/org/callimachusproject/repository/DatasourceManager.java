@@ -33,7 +33,7 @@ public class DatasourceManager {
 		return repositoryId;
 	}
 
-	public synchronized CalliRepository createDatasource(URI uri,
+	public synchronized CalliRepository replaceDatasourceConfig(URI uri,
 			RepositoryImplConfig config) throws OpenRDFException, IOException {
 		String repositoryId = getRepositoryId(uri);
 		if (repositories.containsKey(uri)) {

@@ -16,12 +16,12 @@ import org.apache.http.impl.execchain.ClientExecChain;
 import org.apache.http.message.BasicHttpResponse;
 
 public class UnavailableRequestDirector implements ClientExecChain {
-	private static final BasicHttpResponse _503 = new BasicHttpResponse(HttpVersion.HTTP_1_1, 503, "Service Disconnected");
 
 	@Override
 	public CloseableHttpResponse execute(HttpRoute route,
 			HttpRequestWrapper request, HttpClientContext clientContext,
 			HttpExecutionAware execAware) throws IOException, HttpException {
+		BasicHttpResponse _503 = new BasicHttpResponse(HttpVersion.HTTP_1_1, 503, "Service Disconnected");
 		HttpHost target = route.getTargetHost();
 		try {
 			URI root = new URI(target.getSchemeName(), null, target.getHostName(), target.getPort(), "/", null, null);

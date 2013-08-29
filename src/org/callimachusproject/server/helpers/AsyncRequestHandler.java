@@ -68,7 +68,6 @@ public class AsyncRequestHandler implements HttpAsyncRequestHandlerMapper,
 		HttpAsyncRequestHandler<HttpRequest> {
 	private static final InetAddress LOCALHOST = DomainNameSystemResolver
 			.getInstance().getLocalHost();
-	private static final HttpResponse _500 = new BasicHttpResponse(HttpVersion.HTTP_1_1, 500, "Internal Server Error");
 
 	private final Logger logger = LoggerFactory
 			.getLogger(AsyncRequestHandler.class);
@@ -142,6 +141,9 @@ public class AsyncRequestHandler implements HttpAsyncRequestHandlerMapper,
 						}
 
 						public void cancelled() {
+							HttpResponse _500 = new BasicHttpResponse(
+									HttpVersion.HTTP_1_1, 500,
+									"Internal Server Error");
 							exchange.submitResponse(_500);
 						}
 					});

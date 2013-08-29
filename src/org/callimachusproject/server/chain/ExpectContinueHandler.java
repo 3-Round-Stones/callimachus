@@ -43,8 +43,6 @@ import org.callimachusproject.server.helpers.CalliContext;
 import org.callimachusproject.server.helpers.Exchange;
 
 public class ExpectContinueHandler implements AsyncExecChain {
-	private static final BasicHttpResponse _100 = new BasicHttpResponse(
-			HttpVersion.HTTP_1_1, 100, "Continue");
 
 	private final AsyncExecChain delegate;
 
@@ -53,13 +51,15 @@ public class ExpectContinueHandler implements AsyncExecChain {
 	}
 
 	@Override
-	public Future<HttpResponse> execute(HttpHost target,
-			HttpRequest request, HttpContext context,
-			FutureCallback<HttpResponse> callback) {
+	public Future<HttpResponse> execute(HttpHost target, HttpRequest request,
+			HttpContext context, FutureCallback<HttpResponse> callback) {
 		Exchange exchange = CalliContext.adapt(context).getExchange();
 		if (exchange != null) {
 			Header expect = request.getFirstHeader("Expect");
-			if(expect != null && expect.getValue().equalsIgnoreCase("100-continue")) {
+			if (expect != null
+					&& expect.getValue().equalsIgnoreCase("100-continue")) {
+				BasicHttpResponse _100 = new BasicHttpResponse(
+						HttpVersion.HTTP_1_1, 100, "Continue");
 				exchange.submitContinue(_100);
 			}
 		}

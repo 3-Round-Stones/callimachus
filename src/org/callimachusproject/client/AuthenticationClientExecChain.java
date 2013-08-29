@@ -23,9 +23,10 @@ public class AuthenticationClientExecChain implements ClientExecChain {
 	}
 
 	public CloseableHttpResponse execute(final HttpRoute route,
-			final HttpRequestWrapper request, final HttpClientContext context,
+			final HttpRequestWrapper original, final HttpClientContext context,
 			final HttpExecutionAware execAware) throws IOException,
 			HttpException {
+		final HttpRequestWrapper request = HttpRequestWrapper.wrap(original);
 		final RequestConfig config = context.getRequestConfig();
 
 		CloseableHttpResponse response = null;

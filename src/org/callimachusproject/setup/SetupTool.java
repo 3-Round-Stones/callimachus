@@ -1,13 +1,16 @@
 package org.callimachusproject.setup;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.Set;
 
 import javax.mail.MessagingException;
@@ -18,9 +21,13 @@ import org.callimachusproject.repository.CalliRepository;
 import org.callimachusproject.util.CallimachusConf;
 import org.callimachusproject.util.Mailer;
 import org.openrdf.OpenRDFException;
+import org.openrdf.model.Graph;
+import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
+import org.openrdf.model.impl.LinkedHashModel;
+import org.openrdf.model.util.GraphUtil;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.model.vocabulary.RDFS;
 import org.openrdf.query.BindingSet;
@@ -30,10 +37,18 @@ import org.openrdf.query.QueryLanguage;
 import org.openrdf.query.TupleQuery;
 import org.openrdf.query.TupleQueryResult;
 import org.openrdf.query.Update;
+import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
+import org.openrdf.repository.config.RepositoryConfig;
+import org.openrdf.repository.config.RepositoryConfigSchema;
+import org.openrdf.repository.manager.RepositoryManager;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.rio.RDFFormat;
+import org.openrdf.rio.RDFHandlerException;
+import org.openrdf.rio.RDFParser;
+import org.openrdf.rio.Rio;
+import org.openrdf.rio.helpers.StatementCollector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,6 +101,38 @@ public class SetupTool {
 			+ "} GROUP BY ?realm ORDER BY ?realm";
 	private static final String SELECT_EMAIL = PREFIX + "SELECT ?label ?email { </> calli:authentication [calli:authNamespace [calli:hasComponent [rdfs:label ?label; calli:email ?email]]] }";
 	private static final String SELECT_USERNAME = PREFIX + "SELECT ?username { </> calli:authentication [calli:authNamespace [calli:hasComponent [calli:name ?username; calli:email $email]]] }";
+
+	public static RepositoryConfig getRepositoryConfig(RepositoryManager manager, String configString, String base)
+			throws IOException, OpenRDFException {
+		Graph graph = parseTurtleGraph(manager, configString, base);
+		Resource node = GraphUtil.getUniqueSubject(graph, RDF.TYPE,
+				RepositoryConfigSchema.REPOSITORY);
+		return RepositoryConfig.create(graph, node);
+	}
+
+	public static Graph parseTurtleGraph(RepositoryManager manager, String configString, String base)
+			throws IOException, OpenRDFException {
+		Graph graph = new LinkedHashModel();
+		RDFParser rdfParser = Rio.createParser(RDFFormat.TURTLE);
+		Repository repo = manager.getSystemRepository();
+		final RepositoryConnection con = repo.getConnection();
+		try {
+			rdfParser.setRDFHandler(new StatementCollector(graph) {
+				public void handleNamespace(String prefix, String uri)
+						throws RDFHandlerException {
+					try {
+						con.setNamespace(prefix, uri);
+					} catch (RepositoryException e) {
+						throw new RDFHandlerException(e);
+					}
+				}
+			});
+			rdfParser.parse(new StringReader(configString), base);
+		} finally {
+			con.close();
+		}
+		return graph;
+	}
 
 	private final Logger logger = LoggerFactory.getLogger(SetupTool.class);
 	private final String repositoryID;

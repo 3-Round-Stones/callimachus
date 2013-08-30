@@ -22,7 +22,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.StringReader;
 import java.net.ConnectException;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -50,32 +49,22 @@ import org.callimachusproject.concurrent.ManagedExecutors;
 import org.callimachusproject.repository.CalliRepository;
 import org.callimachusproject.repository.DatasourceManager;
 import org.callimachusproject.setup.CallimachusSetup;
+import org.callimachusproject.setup.SetupTool;
 import org.callimachusproject.util.BackupTool;
 import org.callimachusproject.util.CallimachusConf;
 import org.callimachusproject.util.DomainNameSystemResolver;
 import org.callimachusproject.util.SystemProperties;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Graph;
-import org.openrdf.model.Resource;
 import org.openrdf.model.impl.LinkedHashModel;
-import org.openrdf.model.util.GraphUtil;
-import org.openrdf.model.util.GraphUtilException;
 import org.openrdf.model.util.ModelUtil;
-import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.config.RepositoryConfig;
 import org.openrdf.repository.config.RepositoryConfigException;
-import org.openrdf.repository.config.RepositoryConfigSchema;
 import org.openrdf.repository.config.RepositoryImplConfig;
 import org.openrdf.repository.manager.LocalRepositoryManager;
 import org.openrdf.repository.manager.RepositoryProvider;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFHandlerException;
-import org.openrdf.rio.RDFParseException;
-import org.openrdf.rio.RDFParser;
-import org.openrdf.rio.Rio;
-import org.openrdf.rio.helpers.StatementCollector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -388,7 +377,7 @@ public class Setup {
 		File repositoryConfig = SystemProperties.getRepositoryConfigFile();
 		String configString = readContent(repositoryConfig.toURI().toURL());
 		String systemId = repositoryConfig.toURI().toASCIIString();
-		RepositoryConfig config = getRepositoryConfig(configString, systemId);
+		RepositoryConfig config = SetupTool.getRepositoryConfig(manager, configString, systemId);
 		if (repositoryID.equals(config.getID())) {
 			return updateRepositoryConfig(manager, config);
 		} else {
@@ -400,15 +389,6 @@ public class Setup {
 			RepositoryImplConfig impl = config.getRepositoryImplConfig();
 			config = new RepositoryConfig(repositoryID, title, impl);
 			return updateRepositoryConfig(manager, config);
-		}
-	}
-
-	private String readContent(URL config) throws IOException {
-		InputStream in = config.openStream();
-		try {
-			return new Scanner(in).useDelimiter("\\Z").next();
-		} finally {
-			in.close();
 		}
 	}
 
@@ -430,24 +410,6 @@ public class Setup {
 			manager.getRepository(id).shutDown();
 		}
 		return true;
-	}
-
-	private RepositoryConfig getRepositoryConfig(String configString, String base)
-			throws IOException, RDFParseException, RDFHandlerException,
-			GraphUtilException, RepositoryConfigException {
-		Graph graph = parseTurtleGraph(configString, base);
-		Resource node = GraphUtil.getUniqueSubject(graph, RDF.TYPE,
-				RepositoryConfigSchema.REPOSITORY);
-		return RepositoryConfig.create(graph, node);
-	}
-
-	private Graph parseTurtleGraph(String configString, String base) throws IOException,
-			RDFParseException, RDFHandlerException {
-		Graph graph = new LinkedHashModel();
-		RDFParser rdfParser = Rio.createParser(RDFFormat.TURTLE);
-		rdfParser.setRDFHandler(new StatementCollector(graph));
-		rdfParser.parse(new StringReader(configString), base);
-		return graph;
 	}
 
 	private boolean equal(RepositoryConfig c1, RepositoryConfig c2) {
@@ -518,6 +480,15 @@ public class Setup {
 			} catch (IOException e) {
 				break;
 			}
+		}
+	}
+
+	private String readContent(URL config) throws IOException {
+		InputStream in = config.openStream();
+		try {
+			return new Scanner(in).useDelimiter("\\Z").next();
+		} finally {
+			in.close();
 		}
 	}
 

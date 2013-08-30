@@ -3,9 +3,10 @@ package org.callimachusproject.management;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringReader;
+import java.io.StringWriter;
 import java.lang.management.ManagementFactory;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
@@ -30,6 +31,7 @@ import org.apache.http.client.utils.URIUtils;
 import org.callimachusproject.Version;
 import org.callimachusproject.client.HttpClientFactory;
 import org.callimachusproject.io.FileUtil;
+import org.callimachusproject.io.TurtleStreamWriterFactory;
 import org.callimachusproject.logging.LoggingProperties;
 import org.callimachusproject.repository.CalliRepository;
 import org.callimachusproject.repository.DatasourceManager;
@@ -40,13 +42,11 @@ import org.callimachusproject.util.CallimachusConf;
 import org.callimachusproject.util.MailProperties;
 import org.callimachusproject.util.SystemProperties;
 import org.openrdf.OpenRDFException;
-import org.openrdf.model.Graph;
-import org.openrdf.model.Resource;
+import org.openrdf.model.Namespace;
+import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.LinkedHashModel;
-import org.openrdf.model.util.GraphUtil;
-import org.openrdf.model.util.GraphUtilException;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.QueryLanguage;
@@ -54,18 +54,13 @@ import org.openrdf.query.TupleQueryResult;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
+import org.openrdf.repository.RepositoryResult;
 import org.openrdf.repository.config.RepositoryConfig;
 import org.openrdf.repository.config.RepositoryConfigException;
-import org.openrdf.repository.config.RepositoryConfigSchema;
 import org.openrdf.repository.config.RepositoryImplConfig;
 import org.openrdf.repository.manager.LocalRepositoryManager;
 import org.openrdf.repository.object.ObjectConnection;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFHandlerException;
-import org.openrdf.rio.RDFParseException;
-import org.openrdf.rio.RDFParser;
-import org.openrdf.rio.Rio;
-import org.openrdf.rio.helpers.StatementCollector;
+import org.openrdf.rio.RDFWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,6 +70,8 @@ public class CalliServer implements CalliServerMXBean {
 	private static final String ORIGIN = "http://callimachusproject.org/rdf/2009/framework#Origin";
 	private static final String PREFIX = "PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>\n"
 			+ "PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>\n";
+	private static final String SEL_DATASOURCE_LABEL = PREFIX
+			+ "SELECT ?datasource ?label { ?datasource a calli:Datasource; rdfs:label ?label }";
 	private static final String SEL_AUTH_MANAGER_LABEL = PREFIX
 			+ "SELECT ?manager ?label { ?manager a calli:AuthenticationManager; rdfs:label ?label }";
 	private static final ThreadFactory THREADFACTORY = new ThreadFactory() {
@@ -443,6 +440,74 @@ public class CalliServer implements CalliServerMXBean {
 		return list.toArray(new SetupRealm[list.size()]);
 	}
 
+	public void setupRealm(final String realm, final String webappOrigin)
+			throws Exception {
+		submit(new Callable<Void>() {
+			public Void call() throws Exception {
+				SetupTool tool = getSetupTool(webappOrigin);
+				tool.setupRealm(realm, webappOrigin);
+				serveRealm(realm, tool.getRepositoryID());
+				return null;
+			}
+		});
+	}
+
+	public Map<String, String> getDatasources() 
+			throws OpenRDFException, IOException {
+		Map<String, String> datasources = new LinkedHashMap<String, String>();
+		Map<String, String> map = conf.getOriginRepositoryIDs();
+		for (String repositoryID : new LinkedHashSet<String>(map.values())) {
+			if (!manager.hasRepositoryConfig(repositoryID))
+				continue;
+			CalliRepository repository = getRepository(repositoryID);
+			ObjectConnection con = repository.getConnection();
+			try {
+				TupleQueryResult results = con.prepareTupleQuery(
+						QueryLanguage.SPARQL, SEL_DATASOURCE_LABEL)
+						.evaluate();
+				try {
+					while (results.hasNext()) {
+						BindingSet result = results.next();
+						String datasource = result.getValue("datasource")
+								.stringValue();
+						String label = result.getValue("label").stringValue();
+						datasources.put(datasource, label);
+					}
+				} finally {
+					results.close();
+				}
+			} finally {
+				con.close();
+			}
+		}
+		return datasources;
+	}
+
+	public String getDatasourceConfig(String uri) throws Exception {
+		String webappOrigin = getWebappOrigin(uri);
+		SetupTool tool = getSetupTool(webappOrigin);
+		CalliRepository repository = tool.getRepository();
+		ValueFactory vf = repository.getValueFactory();
+		DatasourceManager manager = repository.getDatasourceManager();
+		URI iri = vf.createURI(uri);
+		RepositoryImplConfig rci = manager.getDatasourceConfig(iri);
+		if (rci == null)
+			return null;
+		RepositoryConfig rc = new RepositoryConfig(iri.getLocalName(), uri, rci);
+		return exportToString(rc, uri);
+	}
+
+	public synchronized void setDatasourceConfig(final String uri, final String config) throws Exception {
+		String webappOrigin = getWebappOrigin(uri);
+		SetupTool tool = getSetupTool(webappOrigin);
+		CalliRepository repository = tool.getRepository();
+		ValueFactory vf = repository.getValueFactory();
+		DatasourceManager manager = repository.getDatasourceManager();
+		RepositoryConfig rc = SetupTool.getRepositoryConfig(this.manager, config, uri);
+		RepositoryImplConfig rci = rc.getRepositoryImplConfig();
+		manager.setDatasourceConfig(vf.createURI(uri), rci);
+	}
+
 	public Map<String, String> getAuthenticationManagers()
 			throws OpenRDFException, IOException {
 		Map<String, String> managers = new LinkedHashMap<String, String>();
@@ -472,34 +537,6 @@ public class CalliServer implements CalliServerMXBean {
 			}
 		}
 		return managers;
-	}
-
-	public void setupRealm(final String realm, final String webappOrigin)
-			throws Exception {
-		submit(new Callable<Void>() {
-			public Void call() throws Exception {
-				SetupTool tool = getSetupTool(webappOrigin);
-				tool.setupRealm(realm, webappOrigin);
-				serveRealm(realm, tool.getRepositoryID());
-				return null;
-			}
-		});
-	}
-
-	public void replaceDatasourceConfig(final String uri, final String config) throws Exception {
-		submit(new Callable<Void>() {
-			public Void call() throws Exception {
-				String webappOrigin = getWebappOrigin(uri);
-				SetupTool tool = getSetupTool(webappOrigin);
-				CalliRepository repository = tool.getRepository();
-				ValueFactory vf = repository.getValueFactory();
-				DatasourceManager manager = repository.getDatasourceManager();
-				RepositoryConfig rc = getRepositoryConfig(config, uri);
-				RepositoryImplConfig rci = rc.getRepositoryImplConfig();
-				manager.replaceDatasourceConfig(vf.createURI(uri), rci);
-				return null;
-			}
-		});
 	}
 
 	public void createResource(final String rdf, final String systemId, final String type) throws Exception {
@@ -818,12 +855,11 @@ public class CalliServer implements CalliServerMXBean {
 	}
 
 	private RepositoryConfig createRepositoryConfig(String id, String title)
-			throws IOException, MalformedURLException, RDFParseException,
-			RDFHandlerException, GraphUtilException, RepositoryConfigException {
+			throws IOException, MalformedURLException, OpenRDFException {
 		File repositoryConfig = SystemProperties.getRepositoryConfigFile();
 		String configString = readContent(repositoryConfig.toURI().toURL());
 		String systemId = repositoryConfig.toURI().toASCIIString();
-		RepositoryConfig config = getRepositoryConfig(configString, systemId);
+		RepositoryConfig config = SetupTool.getRepositoryConfig(manager, configString, systemId);
 		RepositoryImplConfig impl = config.getRepositoryImplConfig();
 		config = new RepositoryConfig(id, title, impl);
 		config.validate();
@@ -839,22 +875,35 @@ public class CalliServer implements CalliServerMXBean {
 		}
 	}
 
-	private RepositoryConfig getRepositoryConfig(String configString, String base)
-			throws IOException, RDFParseException, RDFHandlerException,
-			GraphUtilException, RepositoryConfigException {
-		Graph graph = parseTurtleGraph(configString, base);
-		Resource node = GraphUtil.getUniqueSubject(graph, RDF.TYPE,
-				RepositoryConfigSchema.REPOSITORY);
-		return RepositoryConfig.create(graph, node);
-	}
-
-	private Graph parseTurtleGraph(String configString, String base) throws IOException,
-			RDFParseException, RDFHandlerException {
-		Graph graph = new LinkedHashModel();
-		RDFParser rdfParser = Rio.createParser(RDFFormat.TURTLE);
-		rdfParser.setRDFHandler(new StatementCollector(graph));
-		rdfParser.parse(new StringReader(configString), base);
-		return graph;
+	private String exportToString(RepositoryConfig rc, String base)
+			throws URISyntaxException, OpenRDFException {
+		LinkedHashModel model = new LinkedHashModel();
+		rc.export(model);
+		StringWriter writer = new StringWriter();
+		RDFWriter rdfWriter = new TurtleStreamWriterFactory().createWriter(writer, base);
+		for (Namespace ns : model.getNamespaces()) {
+			rdfWriter.handleNamespace(ns.getPrefix(), ns.getName());
+		}
+		RepositoryConnection con = manager.getSystemRepository().getConnection();
+		try {
+			RepositoryResult<Namespace> namespaces = con.getNamespaces();
+			try {
+				while (namespaces.hasNext()) {
+					Namespace ns = namespaces.next();
+					rdfWriter.handleNamespace(ns.getPrefix(), ns.getName());
+				}
+			} finally {
+				namespaces.close();
+			}
+		} finally {
+			con.close();
+		}
+		rdfWriter.startRDF();
+		for (Statement st : model) {
+			rdfWriter.handleStatement(st);
+		}
+		rdfWriter.endRDF();
+		return writer.toString();
 	}
 
 	private synchronized void shutDownRepositories() throws OpenRDFException {

@@ -64,12 +64,16 @@ public interface CalliServerMXBean {
 
 	SetupRealm[] getRealms() throws IOException, OpenRDFException;
 
-	Map<String, String> getAuthenticationManagers() throws OpenRDFException,
-			IOException;
-
 	void setupRealm(String realm, String webappOrigin) throws Exception;
 
-	void replaceDatasourceConfig(String uri, String config) throws Exception;
+	Map<String, String> getDatasources() throws OpenRDFException, IOException;
+
+	String getDatasourceConfig(String uri) throws Exception;
+
+	void setDatasourceConfig(String uri, String config) throws Exception;
+
+	Map<String, String> getAuthenticationManagers() throws OpenRDFException,
+			IOException;
 
 	void createResource(String rdf, String systemId, String type)
 			throws Exception;

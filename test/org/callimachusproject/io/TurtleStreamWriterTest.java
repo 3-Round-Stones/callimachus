@@ -5,8 +5,6 @@ import java.io.Writer;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.net.URISyntaxException;
 
-import javax.xml.stream.XMLStreamException;
-
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFWriter;
 import org.openrdf.rio.RDFWriterFactory;
@@ -24,8 +22,6 @@ public class TurtleStreamWriterTest extends RDFWriterTest {
 				try {
 					return new TurtleStreamWriterFactory().createWriter(out,
 							"http://example.org/");
-				} catch (XMLStreamException e) {
-					throw new UndeclaredThrowableException(e);
 				} catch (URISyntaxException e) {
 					throw new UndeclaredThrowableException(e);
 				}
@@ -35,8 +31,6 @@ public class TurtleStreamWriterTest extends RDFWriterTest {
 				try {
 					return new TurtleStreamWriterFactory().createWriter(writer,
 							"http://example.org/");
-				} catch (XMLStreamException e) {
-					throw new UndeclaredThrowableException(e);
 				} catch (URISyntaxException e) {
 					throw new UndeclaredThrowableException(e);
 				}

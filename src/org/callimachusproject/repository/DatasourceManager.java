@@ -33,7 +33,16 @@ public class DatasourceManager {
 		return repositoryId;
 	}
 
-	public synchronized CalliRepository replaceDatasourceConfig(URI uri,
+	public synchronized RepositoryImplConfig getDatasourceConfig(URI uri)
+			throws OpenRDFException {
+		String repositoryId = getRepositoryId(uri);
+		RepositoryConfig config = manager.getRepositoryConfig(repositoryId);
+		if (config == null)
+			return null;
+		return config.getRepositoryImplConfig();
+	}
+
+	public synchronized void setDatasourceConfig(URI uri,
 			RepositoryImplConfig config) throws OpenRDFException, IOException {
 		String repositoryId = getRepositoryId(uri);
 		if (repositories.containsKey(uri)) {
@@ -41,7 +50,6 @@ public class DatasourceManager {
 		}
 		manager.addRepositoryConfig(new RepositoryConfig(repositoryId, uri
 				.stringValue(), config));
-		return getDatasource(uri);
 	}
 
 	public boolean isDatasourcePresent(URI uri) throws OpenRDFException {

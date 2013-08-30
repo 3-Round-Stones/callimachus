@@ -34,7 +34,7 @@ public class SparqlEndpointProvider extends UpdateProvider {
 				DatasourceManager datasources = repository.getDatasourceManager();
 				if (datasources != null && !datasources.isDatasourcePresent(uri)) {
 					String proxiedID = datasources.getRepositoryId();
-					datasources.replaceDatasourceConfig(uri, new ProxyRepositoryConfig(
+					datasources.setDatasourceConfig(uri, new ProxyRepositoryConfig(
 							proxiedID));
 					ObjectConnection con = repository.getConnection();
 					try {

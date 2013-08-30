@@ -128,8 +128,9 @@ public class ServerMonitor {
 			e.printStackTrace(System.err);
 		} else if (cause != null) {
 			println(cause);
+		} else {
+			e.printStackTrace(System.err);
 		}
-		System.err.println(e.toString());
 	}
 
 	private Object vm;
@@ -352,16 +353,18 @@ public class ServerMonitor {
 	private void summaryDump(MBeanServerConnection mbsc, String filename)
 			throws Throwable {
 		try {
-			String[] summary = this.summary.showVMSummary();
-			PrintWriter w = new PrintWriter(filename);
-			try {
-				for (String line : summary) {
-					w.println(line);
+			if (this.summary != null) {
+				String[] summary = this.summary.showVMSummary();
+				PrintWriter w = new PrintWriter(filename);
+				try {
+					for (String line : summary) {
+						w.println(line);
+					}
+				} finally {
+					w.close();
 				}
-			} finally {
-				w.close();
+				info(filename);
 			}
-			info(filename);
 		} catch (UndeclaredThrowableException e) {
 			throw e.getCause();
 		}

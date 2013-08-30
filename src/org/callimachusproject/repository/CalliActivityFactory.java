@@ -172,7 +172,7 @@ public final class CalliActivityFactory implements ActivityFactory {
 		}
 	}
 
-	private boolean createFolder(URI folder, RepositoryConnection con)
+	boolean createFolder(URI folder, RepositoryConnection con)
 			throws RepositoryException {
 		ValueFactory vf = con.getValueFactory();
 		if (uriSpace.equals(folder.stringValue()))

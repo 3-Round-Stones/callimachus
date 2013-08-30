@@ -22,8 +22,6 @@ import java.io.Writer;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 
-import javax.xml.stream.XMLStreamException;
-
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFWriter;
 
@@ -33,12 +31,12 @@ public class TurtleStreamWriterFactory {
 		return RDFFormat.TURTLE;
 	}
 
-	public RDFWriter createWriter(OutputStream out, String systemId) throws XMLStreamException, URISyntaxException {
+	public RDFWriter createWriter(OutputStream out, String systemId) throws URISyntaxException {
 		OutputStreamWriter writer = new OutputStreamWriter(out, Charset.forName("UTF-8"));
 		return createWriter(writer, systemId);
 	}
 
-	public RDFWriter createWriter(Writer writer, String systemId) throws XMLStreamException, URISyntaxException {
+	public RDFWriter createWriter(Writer writer, String systemId) throws URISyntaxException {
 		return new ArrangedWriter(new TurtleStreamWriter(writer, systemId));
 	}
 

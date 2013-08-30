@@ -1,5 +1,6 @@
 #
 # Sesame configuration for a callimachus repository
+# Changes take effect the next time the setup script is run
 #
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
@@ -10,7 +11,7 @@
 @prefix audit: <http://www.openrdf.org/config/repository/auditing#>.
 @prefix opt: <http://www.openrdf.org/config/sail/optimistic#>.
 
-[] a rep:Repository ;
+<#callimachus> a rep:Repository ;
     rep:repositoryID "callimachus" ;
     rdfs:label "Callimachus Sesame Native Repository" ;
     rep:repositoryImpl [

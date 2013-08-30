@@ -18,16 +18,23 @@ package org.callimachusproject.io;
 
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Deque;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import org.openrdf.model.BNode;
+import org.openrdf.model.Literal;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
+import org.openrdf.model.URI;
+import org.openrdf.model.Value;
+import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFWriter;
@@ -38,18 +45,34 @@ public class ArrangedWriter implements RDFWriter {
 	private static int MAX_QUEUE_SIZE = 100;
 	private final RDFWriter delegate;
 	private int queueSize = 0;
+	private final Deque<Resource> stack = new LinkedList<Resource>();
 	private final Map<String, String> prefixes = new TreeMap<String, String>();
 	private final Map<Resource, Set<Statement>> statements = new LinkedHashMap<Resource, Set<Statement>>();
 	private final Comparator<Statement> comparator = new Comparator<Statement>() {
 		public int compare(Statement s1, Statement s2) {
-			String p1 = s1.getPredicate().stringValue();
-			String p2 = s2.getPredicate().stringValue();
-			int cmp = p1.compareTo(p2);
+			URI p1 = s1.getPredicate();
+			URI p2 = s2.getPredicate();
+			if (p1.equals(RDF.TYPE) && !p2.equals(RDF.TYPE)) {
+				return -1;
+			} else if (!p1.equals(RDF.TYPE) && p2.equals(RDF.TYPE)) {
+				return 1;
+			}
+			Value o1 = s1.getObject();
+			Value o2 = s2.getObject();
+			if (!(o1 instanceof BNode) && o2 instanceof BNode) {
+				return -1;
+			} else if (o1 instanceof BNode && !(o2 instanceof BNode)) {
+				return 1;
+			}
+			if (!(o1 instanceof URI) && o2 instanceof URI) {
+				return -1;
+			} else if (o1 instanceof URI && !(o2 instanceof URI)) {
+				return 1;
+			}
+			int cmp = p1.stringValue().compareTo(p2.stringValue());
 			if (cmp != 0)
 				return cmp;
-			String o1 = s1.getObject().stringValue();
-			String o2 = s2.getObject().stringValue();
-			return o1.compareTo(o2);
+			return o1.stringValue().compareTo(o2.stringValue());
 		}
 	};
 
@@ -100,17 +123,41 @@ public class ArrangedWriter implements RDFWriter {
 			throws RDFHandlerException {
 		store(st);
 		while (queueSize > MAX_QUEUE_SIZE) {
-			Iterator<Statement> set = statements.values().iterator().next()
-					.iterator();
-			Statement next = set.next();
 			flushNamespaces();
-			delegate.handleStatement(next);
-			queueSize--;
-			set.remove();
-			if (!set.hasNext()) {
-				statements.remove(next.getSubject());
+			delegate.handleStatement(nextStatement());
+		}
+	}
+
+	private synchronized Statement nextStatement() {
+		if (statements.isEmpty())
+			return null;
+		Iterator<Statement> set = null;
+		while (set == null) {
+			Set<Statement> stmts = statements.get(stack.peekLast());
+			if (stmts == null) {
+				stack.pollLast();
+			} else {
+				set = stmts.iterator();
+			}
+			if (stack.isEmpty()) {
+				set = statements.values().iterator().next().iterator();
 			}
 		}
+		Statement next = set.next();
+		queueSize--;
+		set.remove();
+		if (set.hasNext()) {
+			if (!next.getSubject().equals(stack.peekLast())) {
+				stack.addLast(next.getSubject());
+			}
+		} else {
+			statements.remove(next.getSubject());
+		}
+		Value obj = next.getObject();
+		if (obj instanceof BNode && statements.containsKey(obj)) {
+			stack.addLast((BNode) obj);
+		}
+		return next;
 	}
 
 	private synchronized void store(Statement st) {
@@ -126,13 +173,11 @@ public class ArrangedWriter implements RDFWriter {
 	private synchronized void flushStatements() throws RDFHandlerException {
 		if (!statements.isEmpty()) {
 			flushNamespaces();
-			for (Set<Statement> set : statements.values()) {
-				for (Statement st : set) {
-					delegate.handleStatement(st);
-				}
+			Statement st;
+			while ((st = nextStatement()) != null) {
+				delegate.handleStatement(st);
 			}
 			queueSize = 0;
-			statements.clear();
 		}
 	}
 
@@ -149,6 +194,12 @@ public class ArrangedWriter implements RDFWriter {
 			for (Set<Statement> set : statements.values()) {
 				for (Statement st : set) {
 					used.add(st.getPredicate().getNamespace());
+					if (st.getObject() instanceof Literal) {
+						Literal lit = (Literal) st.getObject();
+						if (lit.getDatatype() != null) {
+							used.add(lit.getDatatype().getNamespace());
+						}
+					}
 				}
 			}
 			prefixes.keySet().retainAll(used);

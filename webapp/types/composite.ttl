@@ -324,7 +324,7 @@
     calli:imports <Class>;
     calli:script """
         var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
-        var xf = new org.callimachusproject.io.RDFXMLStreamWriterFactory();
+        var xf = new org.callimachusproject.io.TurtleStreamWriterFactory();
         function writeTo(triples, entryStream) {
             try {
                 var writer = xf.createWriter(entryStream, component.toString());
@@ -374,7 +374,7 @@
                     //# Export Folder Triples
                     var triples = component.GetRdfFolderDescription();
                     try {
-                        writeTo(triples, carStream.writeResourceEntry(name, time, "application/rdf+xml"));
+                        writeTo(triples, carStream.writeResourceEntry(name, time, "text/turtle;charset=UTF-8"));
                     } finally {
                         triples.close();
                     }
@@ -409,7 +409,7 @@
                 //# Export Schema
                 var triples = component.GetRdfDescription();
                 try {
-                    writeTo(triples, carStream.writeSchemaEntry(name, time, "application/rdf+xml"));
+                    writeTo(triples, carStream.writeSchemaEntry(name, time, "text/turtle;charset=UTF-8"));
                 } finally {
                     triples.close();
                 }
@@ -417,7 +417,7 @@
                 //# Export Triples
                 var triples = component.GetRdfDescription();
                 try {
-                    writeTo(triples, carStream.writeResourceEntry(name, time, "application/rdf+xml"));
+                    writeTo(triples, carStream.writeResourceEntry(name, time, "text/turtle;charset=UTF-8"));
                 } finally {
                     triples.close();
                 }

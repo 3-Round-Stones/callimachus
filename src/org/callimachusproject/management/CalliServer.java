@@ -71,7 +71,7 @@ public class CalliServer implements CalliServerMXBean {
 	private static final String PREFIX = "PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>\n"
 			+ "PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>\n";
 	private static final String SEL_DATASOURCE_LABEL = PREFIX
-			+ "SELECT ?datasource ?label { ?datasource a calli:Datasource; rdfs:label ?label }";
+			+ "SELECT ?datasource ?label { ?datasource a calli:Datasource; rdfs:label ?label } ORDER BY ?datasource";
 	private static final String SEL_AUTH_MANAGER_LABEL = PREFIX
 			+ "SELECT ?manager ?label { ?manager a calli:AuthenticationManager; rdfs:label ?label }";
 	private static final ThreadFactory THREADFACTORY = new ThreadFactory() {

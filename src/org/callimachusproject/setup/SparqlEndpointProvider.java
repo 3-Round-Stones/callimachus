@@ -40,8 +40,9 @@ public class SparqlEndpointProvider extends UpdateProvider {
 					try {
 						con.begin();
 						TermFactory tf = TermFactory.newInstance(webapp);
-						addMetadata(origin, tf, uri, vf, con);
-						con.commit();
+						if (addMetadata(origin, tf, uri, vf, con)) {
+							con.commit();
+						}
 					} finally {
 						con.close();
 					}
@@ -51,11 +52,15 @@ public class SparqlEndpointProvider extends UpdateProvider {
 		};
 	}
 
-	void addMetadata(String origin, TermFactory tf, URI uri, ValueFactory vf,
+	boolean addMetadata(String origin, TermFactory tf, URI uri, ValueFactory vf,
 			ObjectConnection con) throws RepositoryException {
 		URI root = vf.createURI(origin + "/");
+		URI Datasource = vf.createURI(CALLI, "Datasource");
+		if (con.hasStatement(uri, RDF.TYPE, Datasource))
+			return false;
 		con.add(root, vf.createURI(HASCOMPONENT), uri);
 		con.add(uri, RDF.TYPE, vf.createURI(tf.resolve("types/Datasource")));
+		con.add(uri, RDF.TYPE, Datasource);
 		con.add(uri, RDF.TYPE, vf.createURI(SD, "Service"));
 		con.add(uri, RDFS.LABEL, vf.createLiteral("SPARQL"));
 		con.add(uri, RDFS.COMMENT, vf.createLiteral("SPARQL endpoint to default dataset"));
@@ -72,6 +77,7 @@ public class SparqlEndpointProvider extends UpdateProvider {
 		con.add(uri, vf.createURI(SD, "inputFormat"), vf.createURI("http://www.w3.org/ns/formats/Turtle"));
 		con.add(uri, vf.createURI(SD, "resultFormat"), vf.createURI("http://www.w3.org/ns/formats/RDF_XML"));
 		con.add(uri, vf.createURI(SD, "resultFormat"), vf.createURI("http://www.w3.org/ns/formats/SPARQL_Results_XML"));
+		return true;
 	}
 
 }

@@ -63,8 +63,24 @@ INSERT {
 };
 
 DELETE WHERE {
-	</> calli:hasComponent </sparql>.
-	</sparql> a <types/SparqlService>; ?p ?o
+</sparql> a <types/SparqlService>;
+    rdfs:label "sparql".
+} INSERT {
+</sparql a <types/Datasource>, calli:Datatsource;
+    rdfs:label "SPARQL";
+    rdfs:comment "SPARQL endpoint to default dataset";
+} WHERE {
+</> calli:hasComponent </sparql>.
+</sparql> a <types/SparqlService>, sd:Service;
+    rdfs:label "sparql";
+    calli:reader </auth/groups/power>;
+    calli:administrator </auth/groups/admin>;
+    sd:endpoint </sparql>;
+    sd:supportedLanguage sd:SPARQL11Query, sd:SPARQL11Update;
+    sd:feature sd:UnionDefaultGraph, sd:BasicFederatedQuery;
+    sd:inputFormat <http://www.w3.org/ns/formats/RDF_XML>, <http://www.w3.org/ns/formats/Turtle>;
+    sd:resultFormat <http://www.w3.org/ns/formats/RDF_XML>, <http://www.w3.org/ns/formats/SPARQL_Results_XML>.
+
 };
 
 DELETE WHERE {

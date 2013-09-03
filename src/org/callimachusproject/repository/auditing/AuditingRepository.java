@@ -166,6 +166,7 @@ public class AuditingRepository extends ContextAwareRepository {
 	private int maxRecent;
 	private Boolean transactional;
 	private ActivityFactory activityFactory;
+	private boolean auditingRemoval = true;
 
 	public AuditingRepository() {
 		super();
@@ -251,6 +252,14 @@ public class AuditingRepository extends ContextAwareRepository {
 		this.activityFactory = activityFactory;
 	}
 
+	public boolean isAuditingRemoval() {
+		return auditingRemoval;
+	}
+
+	public void setAuditingRemoval(boolean auditingRemoval) {
+		this.auditingRemoval = auditingRemoval;
+	}
+
 	@Override
 	public synchronized void initialize() throws RepositoryException {
 		super.initialize();
@@ -327,6 +336,7 @@ public class AuditingRepository extends ContextAwareRepository {
 		con.setArchiveContexts(getArchiveContexts());
 		con.setInsertContext(getInsertContext());
 		con.setActivityFactory(getActivityFactory());
+		con.setAuditingRemoval(isAuditingRemoval());
 		return con;
 	}
 

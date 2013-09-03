@@ -135,6 +135,7 @@ public class AuditingRepositoryConnection extends ContextAwareConnection {
 	private ActivityFactory activityFactory;
 	private URI insertContext;
 	private URI activityURI;
+	private boolean auditingRemoval = true;
 
 	public AuditingRepositoryConnection(AuditingRepository repository,
 			RepositoryConnection connection) throws RepositoryException {
@@ -156,6 +157,14 @@ public class AuditingRepositoryConnection extends ContextAwareConnection {
 	@Override
 	public AuditingRepository getRepository() {
 		return repository;
+	}
+
+	public boolean isAuditingRemoval() {
+		return auditingRemoval;
+	}
+
+	public void setAuditingRemoval(boolean auditingRemoval) {
+		this.auditingRemoval = auditingRemoval;
 	}
 
 	@Override
@@ -302,7 +311,7 @@ public class AuditingRepositoryConnection extends ContextAwareConnection {
 
 	@Override
 	protected boolean isDelegatingRemove() throws RepositoryException {
-		return getInsertContext() == null;
+		return !isAuditingRemoval() || getInsertContext() == null;
 	}
 
 	@Override
@@ -325,8 +334,10 @@ public class AuditingRepositoryConnection extends ContextAwareConnection {
 				activity(activityGraph, false, ctx);
 			}
 			getDelegate().remove(subject, predicate, object, defRemove);
-		} else {
+		} else if (isAuditingRemoval()) {
 			executeDelete(subject, predicate, object);
+		} else {
+			getDelegate().remove(subject, predicate, object, contexts);
 		}
 	}
 
@@ -335,16 +346,13 @@ public class AuditingRepositoryConnection extends ContextAwareConnection {
 		StringBuilder sb = new StringBuilder();
 		if (subject instanceof URI && predicate instanceof URI
 				&& (object instanceof URI || object instanceof Literal)) {
-			sb.append("DELETE DATA { ");
-			append(subject, predicate, object, sb);
-			sb.append(" }");
+			sb.append("DELETE DATA");
 		} else {
-			sb.append("DELETE { ");
-			append(subject, predicate, object, sb);
-			sb.append(" } WHERE { ");
-			append(subject, predicate, object, sb);
-			sb.append(" }");
+			sb.append("DELETE WHERE");
 		}
+		sb.append(" { ");
+		append(subject, predicate, object, sb);
+		sb.append(" }");
 		String operation = sb.toString();
 		try {
 			Update update = prepareUpdate(QueryLanguage.SPARQL, operation);

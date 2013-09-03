@@ -11,12 +11,15 @@ import org.callimachusproject.client.HttpClientFactory;
 import org.callimachusproject.client.UnavailableRequestDirector;
 import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.repository.CalliRepository;
+import org.callimachusproject.repository.auditing.AuditingRepositoryConnection;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.model.vocabulary.RDFS;
+import org.openrdf.repository.DelegatingRepositoryConnection;
+import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
 import org.openrdf.repository.object.ObjectConnection;
@@ -85,6 +88,7 @@ public class WebappArchiveImporter {
 			repository.setCompileRepository(true);
 			ObjectConnection con = repository.getConnection();
 			try {
+				disableAuditingRemoval(con);
 				con.begin();
 				if (schemaGraphs != null && schemaGraphs.length > 0) {
 					con.clear(schemaGraphs);
@@ -109,6 +113,18 @@ public class WebappArchiveImporter {
 		} finally {
 			repository.setCompileRepository(false);
 		}
+	}
+
+	private boolean disableAuditingRemoval(RepositoryConnection con)
+			throws RepositoryException {
+		if (con instanceof AuditingRepositoryConnection) {
+			((AuditingRepositoryConnection) con).setAuditingRemoval(false);
+			return true;
+		}
+		if (con instanceof DelegatingRepositoryConnection)
+			return disableAuditingRemoval(((DelegatingRepositoryConnection) con)
+					.getDelegate());
+		return false;
 	}
 
 	private Method findUploadFolderComponents(Object folder)

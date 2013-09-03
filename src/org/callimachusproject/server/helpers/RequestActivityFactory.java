@@ -32,6 +32,11 @@ public class RequestActivityFactory implements ActivityFactory {
 		this.df = DatatypeFactory.newInstance();
 	}
 
+	@Override
+	public String toString() {
+		return activity.stringValue();
+	}
+
 	public URI createActivityURI(URI bundle, ValueFactory vf) {
 		return activity;
 	}

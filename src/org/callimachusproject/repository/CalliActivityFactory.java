@@ -1,5 +1,7 @@
 package org.callimachusproject.repository;
 
+import info.aduna.net.ParsedURI;
+
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
@@ -113,6 +115,11 @@ public final class CalliActivityFactory implements ActivityFactory {
 		assert uriSpace.endsWith("/");
 	}
 
+	@Override
+	public String toString() {
+		return getNamespace();
+	}
+
 	public URI createActivityURI(URI bundle, ValueFactory vf) {
 		if (bundle != null)
 			return vf.createURI(bundle.stringValue() + PROV_SUFFIX);
@@ -147,7 +154,9 @@ public final class CalliActivityFactory implements ActivityFactory {
 		} catch (MalformedQueryException e) {
 			throw new RepositoryException(e);
 		}
-		createFolder(graph);
+		if (new ParsedURI(graph.stringValue()).isHierarchical()) {
+			createFolder(graph);
+		}
 	}
 
 	private synchronized void createFolder(URI bundle)

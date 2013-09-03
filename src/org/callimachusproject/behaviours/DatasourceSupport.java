@@ -185,6 +185,8 @@ public abstract class DatasourceSupport implements CalliObject {
 		if (audit1 != null && audit2 != null && bundle != null) {
 			audit2.setActivityFactory(audit1.getActivityFactory());
 		}
+		con.setVersionBundle(con1.getVersionBundle());
+		con.setInsertContext(con1.getInsertContext());
 		return con;
 	}
 

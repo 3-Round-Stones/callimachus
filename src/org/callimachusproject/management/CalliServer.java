@@ -822,6 +822,7 @@ public class CalliServer implements CalliServerMXBean {
 		Repository repo = getOrCreateRepsitory(repositoryID, title);
 		File dataDir = manager.getRepositoryDir(repositoryID);
 		CalliRepository repository = new CalliRepository(repo, dataDir);
+		repository.setDatasourceManager(new DatasourceManager(manager, repositoryID));
 		repositories.put(repositoryID, repository);
 		return repository;
 	}

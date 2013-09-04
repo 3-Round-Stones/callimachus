@@ -62,24 +62,16 @@ INSERT {
 	FILTER NOT EXISTS { <../query-view.js> a calli:PURL }
 };
 
-DELETE WHERE {
+DELETE {
 </sparql> a <types/SparqlService>;
     rdfs:label "sparql".
 } INSERT {
-</sparql a <types/Datasource>, calli:Datatsource;
+</sparql> a <types/Datasource>, calli:Datasource;
     rdfs:label "SPARQL";
     rdfs:comment "SPARQL endpoint to default dataset";
 } WHERE {
-</> calli:hasComponent </sparql>.
-</sparql> a <types/SparqlService>, sd:Service;
-    rdfs:label "sparql";
-    calli:reader </auth/groups/power>;
-    calli:administrator </auth/groups/admin>;
-    sd:endpoint </sparql>;
-    sd:supportedLanguage sd:SPARQL11Query, sd:SPARQL11Update;
-    sd:feature sd:UnionDefaultGraph, sd:BasicFederatedQuery;
-    sd:inputFormat <http://www.w3.org/ns/formats/RDF_XML>, <http://www.w3.org/ns/formats/Turtle>;
-    sd:resultFormat <http://www.w3.org/ns/formats/RDF_XML>, <http://www.w3.org/ns/formats/SPARQL_Results_XML>.
+</sparql> a <types/SparqlService>;
+    rdfs:label "sparql".
 
 };
 

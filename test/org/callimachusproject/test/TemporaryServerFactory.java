@@ -267,6 +267,7 @@ public class TemporaryServerFactory {
 						"Missing repository configuration");
 			File dataDir = manager.getRepositoryDir(config.getID());
 			CalliRepository repository = new CalliRepository(repo, dataDir);
+			repository.setDatasourceManager(new DatasourceManager(manager, config.getID()));
 			CallimachusSetup setup = new CallimachusSetup(repository);
 			setup.prepareWebappOrigin(origin);
 			setup.createWebappOrigin(origin);

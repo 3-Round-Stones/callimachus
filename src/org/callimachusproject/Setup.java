@@ -47,6 +47,7 @@ import org.callimachusproject.cli.Command;
 import org.callimachusproject.cli.CommandSet;
 import org.callimachusproject.concurrent.ManagedExecutors;
 import org.callimachusproject.repository.CalliRepository;
+import org.callimachusproject.repository.DatasourceManager;
 import org.callimachusproject.setup.CallimachusSetup;
 import org.callimachusproject.setup.SetupTool;
 import org.callimachusproject.util.BackupTool;
@@ -295,8 +296,10 @@ public class Setup {
 					"Missing repository configuration for "
 							+ dataDir.getAbsolutePath());
 		Map<String, String> webapps = new LinkedHashMap<String, String>();
+		DatasourceManager datasources = new DatasourceManager(manager, repositoryID);
 		CalliRepository repository = new CalliRepository(repo, dataDir);
 		try {
+			repository.setDatasourceManager(datasources);
 			CallimachusSetup setup = new CallimachusSetup(repository);
 			if (upgrade) {
 				upgradeRepository(setup, webappOrigins, links);
@@ -333,6 +336,7 @@ public class Setup {
 			}
 		} finally {
 			repository.shutDown();
+			datasources.shutDown();
 		}
 		return webapps.values();
 	}
@@ -395,9 +399,13 @@ public class Setup {
 		config.validate();
 		String id = config.getID();
 		if (manager.hasRepositoryConfig(id)) {
-			RepositoryConfig oldConfig = manager.getRepositoryConfig(id);
-			if (equal(config, oldConfig))
-				return false;
+			try {
+				RepositoryConfig oldConfig = manager.getRepositoryConfig(id);
+				if (equal(config, oldConfig))
+					return false;
+			} catch (RepositoryConfigException e) {
+				logger.warn("Could not read repository configuration");
+			}
 			logger.warn("Replacing repository configuration");
 		} else {
 			logger.info("Creating repository: {}", id);

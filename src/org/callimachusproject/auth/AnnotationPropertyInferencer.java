@@ -17,7 +17,7 @@ import org.openrdf.repository.RepositoryConnection;
 
 public class AnnotationPropertyInferencer {
 	private static final String SELECT_SUBPROPERTIES = "PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>\n"
-			+ "SELECT ?sub { ?sub rdfs:subPropertyOf* ?property }";
+			+ "SELECT ?sub { ?sub rdfs:subPropertyOf* $property }";
 	private static volatile int cache = 0;
 
 	public static void reset() {
@@ -70,6 +70,7 @@ public class AnnotationPropertyInferencer {
 
 	private Set<String> findSubPropertiesOf(URI property,
 			RepositoryConnection con) throws OpenRDFException {
+		assert property != null;
 		Set<String> set = new HashSet<String>();
 		set.add(property.stringValue());
 		TupleQuery qry = con.prepareTupleQuery(QueryLanguage.SPARQL,

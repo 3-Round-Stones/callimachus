@@ -12,7 +12,7 @@ import org.openrdf.rio.RDFWriter;
 import org.openrdf.rio.RDFWriterFactory;
 import org.openrdf.rio.rdfxml.RDFXMLParserFactory;
 
-public class RDFXMLStreamWriterTest extends RDFWriterTest {
+public class RDFXMLStreamWriterTest extends RDFWriterTestCase {
 
 	public RDFXMLStreamWriterTest() {
 		super(new RDFWriterFactory() {

@@ -10,7 +10,7 @@ import org.openrdf.rio.RDFWriter;
 import org.openrdf.rio.RDFWriterFactory;
 import org.openrdf.rio.turtle.TurtleParserFactory;
 
-public class TurtleStreamWriterTest extends RDFWriterTest {
+public class TurtleStreamWriterTest extends RDFWriterTestCase {
 
 	public TurtleStreamWriterTest() {
 		super(new RDFWriterFactory() {

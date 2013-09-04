@@ -64,13 +64,13 @@ import org.openrdf.sail.memory.MemoryStore;
 /**
  * @author Arjohn Kampman
  */
-public abstract class RDFWriterTest {
+public abstract class RDFWriterTestCase {
 
 	protected RDFWriterFactory rdfWriterFactory;
 
 	protected RDFParserFactory rdfParserFactory;
 
-	protected RDFWriterTest(RDFWriterFactory writerF, RDFParserFactory parserF) {
+	protected RDFWriterTestCase(RDFWriterFactory writerF, RDFParserFactory parserF) {
 		rdfWriterFactory = writerF;
 		rdfParserFactory = parserF;
 	}

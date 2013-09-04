@@ -761,18 +761,36 @@ public class CalliServer implements CalliServerMXBean {
 				origins.add(e.getKey());
 			}
 		}
-		CalliRepository repository = repositories.get(repositoryID);
-		if (repository != null && repository.isInitialized())
-			return repository;
+		CalliRepository get = repositories.get(repositoryID);
+		if (get != null && get.isInitialized())
+			return get;
 		Repository repo = manager.getRepository(repositoryID);
 		File dataDir = manager.getRepositoryDir(repositoryID);
 		if (repo == null)
 			throw new IllegalArgumentException("Unknown repositoryID: " + repositoryID);
-		repository = new CalliRepository(repo, dataDir, new DatasourceManager(manager, repositoryID) {
+		final CalliRepository primary = new CalliRepository(repo, dataDir);
+		if (!origins.isEmpty()) {
+			String changes = primary.getCallimachusUrl(origins.get(0), CHANGES_PATH);
+			if (changes != null) {
+				primary.setChangeFolder(changes);
+			}
+		}
+		for (String origin : origins) {
+			String schema = primary.getCallimachusUrl(origin, SCHEMA_GRAPH);
+			if (schema != null) {
+				primary.addSchemaGraphType(schema);
+			}
+		}
+		primary.setCompileRepository(true);
+		primary.setDatasourceManager(new DatasourceManager(manager,
+				repositoryID) {
 			protected CalliRepository createCalliRepository(URI uri,
-					Repository repository, File dataDir) throws OpenRDFException,
+					Repository delegate, File dataDir) throws OpenRDFException,
 					IOException {
-				CalliRepository calli = new CalliRepository(repository, dataDir, null);
+				CalliRepository calli = new CalliRepository(delegate, dataDir);
+				String uriSpace = primary.getChangeFolder();
+				String webapp = primary.getCallimachusWebapp(uriSpace);
+				calli.setChangeFolder(uriSpace, webapp);
 				if (listener != null) {
 					listener.repositoryInitialized(getRepositoryId(uri), calli);
 				}
@@ -788,27 +806,14 @@ public class CalliServer implements CalliServerMXBean {
 				}
 			}
 		});
-		if (!origins.isEmpty()) {
-			String changes = repository.getCallimachusUrl(origins.get(0), CHANGES_PATH);
-			if (changes != null) {
-				repository.setChangeFolder(changes);
-			}
-		}
-		for (String origin : origins) {
-			String schema = repository.getCallimachusUrl(origin, SCHEMA_GRAPH);
-			if (schema != null) {
-				repository.addSchemaGraphType(schema);
-			}
-		}
-		repository.setCompileRepository(true);
 		if (listener != null && repositories.containsKey(repositoryID)) {
 			listener.repositoryShutDown(repositoryID);
 		}
-		repositories.put(repositoryID, repository);
+		repositories.put(repositoryID, primary);
 		if (listener != null) {
-			listener.repositoryInitialized(repositoryID, repository);
+			listener.repositoryInitialized(repositoryID, primary);
 		}
-		return repository;
+		return primary;
 	}
 
 	synchronized CalliRepository getSetupRepository(String repositoryID,
@@ -816,10 +821,7 @@ public class CalliServer implements CalliServerMXBean {
 		refreshRepository(repositoryID);
 		Repository repo = getOrCreateRepsitory(repositoryID, title);
 		File dataDir = manager.getRepositoryDir(repositoryID);
-		DatasourceManager datasources = new DatasourceManager(manager,
-				repositoryID);
-		CalliRepository repository = new CalliRepository(repo, dataDir,
-				datasources);
+		CalliRepository repository = new CalliRepository(repo, dataDir);
 		repositories.put(repositoryID, repository);
 		return repository;
 	}

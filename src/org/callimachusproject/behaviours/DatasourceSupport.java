@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import javax.xml.datatype.DatatypeConfigurationException;
+
 import org.apache.http.HttpEntity;
 import org.callimachusproject.client.CloseableEntity;
 import org.callimachusproject.fluid.FluidBuilder;
@@ -16,9 +18,11 @@ import org.callimachusproject.fluid.FluidException;
 import org.callimachusproject.fluid.FluidFactory;
 import org.callimachusproject.repository.CalliRepository;
 import org.callimachusproject.repository.DatasourceManager;
+import org.callimachusproject.repository.auditing.ActivityFactory;
 import org.callimachusproject.repository.auditing.AuditingRepositoryConnection;
 import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.server.exceptions.InternalServerError;
+import org.callimachusproject.server.helpers.RequestActivityFactory;
 import org.callimachusproject.traits.CalliObject;
 import org.openrdf.OpenRDFException;
 import org.openrdf.annotations.Sparql;
@@ -62,7 +66,7 @@ public abstract class DatasourceSupport implements CalliObject {
 	public abstract boolean isUpdateSupported();
 
 	public GraphQueryResult describeResource(final URI uri)
-			throws OpenRDFException, IOException {
+			throws OpenRDFException, IOException, DatatypeConfigurationException {
 		if (uri == null)
 			throw new BadRequest("Missing uri");
 		if (!isQuerySupported())
@@ -71,7 +75,7 @@ public abstract class DatasourceSupport implements CalliObject {
 	}
 
 	public HttpEntity evaluateSparql(String qry) throws OpenRDFException,
-			IOException, FluidException {
+			IOException, FluidException, DatatypeConfigurationException {
 		if (qry == null || qry.length() == 0)
 			throw new BadRequest("Missing query");
 		if (!isQuerySupported())
@@ -131,7 +135,7 @@ public abstract class DatasourceSupport implements CalliObject {
 		}
 	}
 
-	public void executeSparql(String ru) throws OpenRDFException, IOException {
+	public void executeSparql(String ru) throws OpenRDFException, IOException, DatatypeConfigurationException {
 		if (!isUpdateSupported())
 			throw new BadRequest("SPARQL Update is not supported on this service");
 		String update = addPrefix(ru);
@@ -167,7 +171,8 @@ public abstract class DatasourceSupport implements CalliObject {
 		}
 	}
 
-	private RepositoryConnection openConnection() throws OpenRDFException, IOException {
+	private RepositoryConnection openConnection() throws OpenRDFException,
+			IOException, DatatypeConfigurationException {
 		URI uri = (URI) this.getResource();
 		ObjectConnection con1 = this.getObjectConnection();
 		URI bundle = con1.getVersionBundle();
@@ -182,11 +187,16 @@ public abstract class DatasourceSupport implements CalliObject {
 		CalliRepository repo2 = manager.getDatasource(uri);
 		ObjectConnection con2 = repo2.getDelegate().getConnection();
 		AuditingRepositoryConnection audit2 = findAuditing(con2);
-		if (audit1 != null && audit2 != null && bundle != null) {
-			audit2.setActivityFactory(audit1.getActivityFactory());
+		if (bundle != null && audit1 != null && audit2 != null) {
+			ActivityFactory af1 = audit1.getActivityFactory();
+			ActivityFactory af2 = audit2.getActivityFactory();
+			if (af1 instanceof RequestActivityFactory && af2 != null) {
+				RequestActivityFactory raf = (RequestActivityFactory) af1;
+				RequestActivityFactory af = new RequestActivityFactory(raf, af2);
+				audit2.setActivityFactory(af);
+			}
 		}
 		con2.setVersionBundle(con1.getVersionBundle());
-		con2.setInsertContext(con1.getInsertContext());
 		return con2;
 	}
 

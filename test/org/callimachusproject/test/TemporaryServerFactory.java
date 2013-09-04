@@ -21,6 +21,7 @@ import org.callimachusproject.setup.CallimachusSetup;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Graph;
 import org.openrdf.model.Resource;
+import org.openrdf.model.URI;
 import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.model.util.GraphUtil;
 import org.openrdf.model.util.GraphUtilException;
@@ -153,8 +154,22 @@ public class TemporaryServerFactory {
 					manager = RepositoryProvider.getRepositoryManager(dir);
 					File dataDir = manager.getRepositoryDir("callimachus");
 					Repository repo = manager.getRepository("callimachus");
-					DatasourceManager datasets = new DatasourceManager(manager, "callimachus");
-					repository = new CalliRepository(repo, dataDir, datasets);
+					repository = new CalliRepository(repo, dataDir);
+					repository.setDatasourceManager(new DatasourceManager(
+							manager, "callimachus") {
+						protected CalliRepository createCalliRepository(
+								URI uri, Repository delegate, File dataDir)
+								throws OpenRDFException, IOException {
+							CalliRepository secondary;
+							secondary = super.createCalliRepository(uri,
+									delegate, dataDir);
+							String uriSpace = repository.getChangeFolder();
+							String webapp = repository
+									.getCallimachusWebapp(uriSpace);
+							secondary.setChangeFolder(uriSpace, webapp);
+							return secondary;
+						}
+					});
 					String url = repository.getCallimachusUrl(origin, CHANGES_PATH);
 					String schema = repository.getCallimachusUrl(origin, SCHEMA_GRAPH);
 					repository.addSchemaGraphType(schema);
@@ -251,8 +266,7 @@ public class TemporaryServerFactory {
 				throw new RepositoryConfigException(
 						"Missing repository configuration");
 			File dataDir = manager.getRepositoryDir(config.getID());
-			DatasourceManager datasets = new DatasourceManager(manager, config.getID());
-			CalliRepository repository = new CalliRepository(repo, dataDir, datasets);
+			CalliRepository repository = new CalliRepository(repo, dataDir);
 			CallimachusSetup setup = new CallimachusSetup(repository);
 			setup.prepareWebappOrigin(origin);
 			setup.createWebappOrigin(origin);

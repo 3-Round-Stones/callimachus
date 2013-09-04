@@ -665,7 +665,7 @@ public class CallimachusSetup {
 		synchronized (webapps) {
 			if (webapps.containsKey(origin))
 				return vf.createURI(webapps.get(origin).resolve(path));
-			String webapp = repository.getCallimachusUrl(origin, "");
+			String webapp = repository.getCallimachusWebapp(origin);
 			if (webapp == null) {
 				webapp = webappIfPresent(origin);
 				if (webapp == null)
@@ -679,7 +679,7 @@ public class CallimachusSetup {
 
 	private String webappIfPresent(String origin) throws OpenRDFException {
 		// check >=1.0 webapp context
-		String webapp = repository.getCallimachusUrl(origin, "");
+		String webapp = repository.getCallimachusWebapp(origin);
 		if (webapp == null) {
 			// check <1.0 webapp context
 			String root = origin + "/";

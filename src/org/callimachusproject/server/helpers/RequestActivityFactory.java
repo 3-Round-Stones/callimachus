@@ -32,6 +32,11 @@ public class RequestActivityFactory implements ActivityFactory {
 		this.df = DatatypeFactory.newInstance();
 	}
 
+	public RequestActivityFactory(RequestActivityFactory copyOf,
+			ActivityFactory delegate) throws DatatypeConfigurationException {
+		this(copyOf.activity, delegate, copyOf.ctx, copyOf.receivedOn);
+	}
+
 	@Override
 	public String toString() {
 		return activity.stringValue();

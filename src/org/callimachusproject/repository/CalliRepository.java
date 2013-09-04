@@ -111,20 +111,14 @@ public class CalliRepository extends RepositoryWrapper implements CalliRepositor
 
 	private final org.slf4j.Logger logger = LoggerFactory.getLogger(CalliRepository.class);
 	private final TracerService service = TracerService.newInstance();
-	private final DatasourceManager datasources;
 	private final RealmManager realms;
 	private final AuthorizationManager auth;
 	private final AuditingRepository auditing;
 	private final ObjectRepository object;
+	private DatasourceManager datasources;
 	private String changeFolder;
 
 	public CalliRepository(Repository repository, File dataDir)
-			throws RepositoryConfigException, RepositoryException,
-			IOException {
-		this(repository, dataDir, null);
-	}
-
-	public CalliRepository(Repository repository, File dataDir, DatasourceManager datasources)
 			throws RepositoryConfigException, RepositoryException,
 			IOException {
 		assert repository != null;
@@ -137,7 +131,6 @@ public class CalliRepository extends RepositoryWrapper implements CalliRepositor
 		trace(wrapper);
 		setDelegate(object);
 		CalliObjectSupport.associate(this, object);
-		this.datasources = datasources;
 		realms = new RealmManager(this);
 		auth = new AuthorizationManager(realms, object);
 	}
@@ -148,6 +141,10 @@ public class CalliRepository extends RepositoryWrapper implements CalliRepositor
 
 	public DatasourceManager getDatasourceManager() {
 		return datasources;
+	}
+
+	public void setDatasourceManager(DatasourceManager datasources) {
+		this.datasources = datasources;
 	}
 
 	public void resetCache() {
@@ -174,7 +171,7 @@ public class CalliRepository extends RepositoryWrapper implements CalliRepositor
 	}
 
 	public void setChangeFolder(String uriSpace) throws OpenRDFException {
-		setChangeFolder(uriSpace, getCallimachusUrl(uriSpace, ""));
+		setChangeFolder(uriSpace, getCallimachusWebapp(uriSpace));
 	}
 
 	public void setChangeFolder(String uriSpace, String webapp)
@@ -182,13 +179,14 @@ public class CalliRepository extends RepositoryWrapper implements CalliRepositor
 		this.changeFolder = uriSpace;
 		if (auditing != null) {
 			if (webapp == null) {
-				auditing.setActivityFactory(new CalliActivityFactory(uriSpace));
+				auditing.setActivityFactory(new CalliActivityFactory(object,
+						uriSpace));
 			} else {
 				ValueFactory vf = object.getValueFactory();
 				URI bundle = vf.createURI(webapp + CHANGE_TYPE);
 				URI folder = vf.createURI(webapp + FOLDER_TYPE);
-				auditing.setActivityFactory(new CalliActivityFactory(uriSpace,
-						bundle, folder));
+				auditing.setActivityFactory(new CalliActivityFactory(object,
+						uriSpace, bundle, folder));
 			}
 		}
 	}
@@ -431,7 +429,7 @@ public class CalliRepository extends RepositoryWrapper implements CalliRepositor
 	 * @return folder of the Callimachus webapp (or null)
 	 * @throws OpenRDFException
 	 */
-	private String getCallimachusWebapp(String url) throws OpenRDFException {
+	public String getCallimachusWebapp(String url) throws OpenRDFException {
 		RepositoryConnection con = this.getConnection();
 		try {
 			return getCallimachusWebapp(url, con);

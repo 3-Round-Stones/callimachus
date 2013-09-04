@@ -91,6 +91,7 @@ public final class CalliActivityFactory implements ActivityFactory {
 	private final String uid = "t"
 			+ Long.toHexString(System.currentTimeMillis()) + "x";
 	private final AtomicLong seq = new AtomicLong(0);
+	private final Repository repository;
 	private final String uriSpace;
 	private final URI changeType;
 	private final URI folderType;
@@ -98,13 +99,15 @@ public final class CalliActivityFactory implements ActivityFactory {
 	private GregorianCalendar date;
 	private String folder;
 
-	public CalliActivityFactory(String uriSpace) {
-		this(uriSpace, null, null);
+	public CalliActivityFactory(Repository repository, String uriSpace) {
+		this(repository, uriSpace, null, null);
 	}
 
-	public CalliActivityFactory(String uriSpace, URI changeType,
+	public CalliActivityFactory(Repository repository, String uriSpace, URI changeType,
 			URI folderType) {
+		assert repository != null;
 		assert uriSpace != null;
+		this.repository = repository;
 		this.uriSpace = uriSpace;
 		this.changeType = changeType;
 		this.folderType = folderType;
@@ -150,23 +153,21 @@ public final class CalliActivityFactory implements ActivityFactory {
 		} catch (MalformedQueryException e) {
 			throw new RepositoryException(e);
 		}
-		createFolder(graph, con.getRepository());
+		createFolder(graph);
 	}
 
-	private synchronized void createFolder(final URI bundle,
-			final Repository repository) throws RepositoryException {
-		if (!bundle.getNamespace().equals(folder)
-				&& bundle.getNamespace().endsWith("/")
-				&& new ParsedURI(bundle.stringValue()).isHierarchical()) {
-			folder = bundle.getNamespace();
+	private synchronized void createFolder(URI bundle) throws RepositoryException {
+		final String space = bundle.getNamespace();
+		if (!space.equals(folder) && space.endsWith("/")
+				&& new ParsedURI(space).isHierarchical()) {
+			folder = space;
 			executor.execute(new Runnable() {
 				public void run() {
 					try {
 						RepositoryConnection con = repository.getConnection();
 						try {
 							ValueFactory vf = con.getValueFactory();
-							createFolder(vf.createURI(bundle.getNamespace()),
-									con);
+							createFolder(vf.createURI(space), con);
 						} finally {
 							con.close();
 						}

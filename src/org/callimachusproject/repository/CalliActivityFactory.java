@@ -91,7 +91,6 @@ public final class CalliActivityFactory implements ActivityFactory {
 	private final String uid = "t"
 			+ Long.toHexString(System.currentTimeMillis()) + "x";
 	private final AtomicLong seq = new AtomicLong(0);
-	private final Repository repository;
 	private final String uriSpace;
 	private final URI changeType;
 	private final URI folderType;
@@ -99,19 +98,16 @@ public final class CalliActivityFactory implements ActivityFactory {
 	private GregorianCalendar date;
 	private String folder;
 
-	public CalliActivityFactory(Repository repository, String uriSpace) {
-		this(repository, uriSpace, null, null);
+	public CalliActivityFactory(String uriSpace) {
+		this(uriSpace, null, null);
 	}
 
-	public CalliActivityFactory(Repository repository, String uriSpace,
-			String changeType, String folderType) {
-		assert repository != null;
+	public CalliActivityFactory(String uriSpace, URI changeType,
+			URI folderType) {
 		assert uriSpace != null;
-		ValueFactory vf = repository.getValueFactory();
-		this.repository = repository;
 		this.uriSpace = uriSpace;
-		this.changeType = changeType == null ? null : vf.createURI(changeType);
-		this.folderType = folderType == null ? null : vf.createURI(folderType);
+		this.changeType = changeType;
+		this.folderType = folderType;
 		assert uriSpace.endsWith("/");
 	}
 
@@ -154,14 +150,14 @@ public final class CalliActivityFactory implements ActivityFactory {
 		} catch (MalformedQueryException e) {
 			throw new RepositoryException(e);
 		}
-		if (new ParsedURI(graph.stringValue()).isHierarchical()) {
-			createFolder(graph);
-		}
+		createFolder(graph, con.getRepository());
 	}
 
-	private synchronized void createFolder(URI bundle)
-			throws RepositoryException {
-		if (!bundle.getNamespace().equals(folder)) {
+	private synchronized void createFolder(final URI bundle,
+			final Repository repository) throws RepositoryException {
+		if (!bundle.getNamespace().equals(folder)
+				&& bundle.getNamespace().endsWith("/")
+				&& new ParsedURI(bundle.stringValue()).isHierarchical()) {
 			folder = bundle.getNamespace();
 			executor.execute(new Runnable() {
 				public void run() {
@@ -169,7 +165,8 @@ public final class CalliActivityFactory implements ActivityFactory {
 						RepositoryConnection con = repository.getConnection();
 						try {
 							ValueFactory vf = con.getValueFactory();
-							createFolder(vf.createURI(folder), con);
+							createFolder(vf.createURI(bundle.getNamespace()),
+									con);
 						} finally {
 							con.close();
 						}

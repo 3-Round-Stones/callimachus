@@ -177,17 +177,18 @@ public class CalliRepository extends RepositoryWrapper implements CalliRepositor
 		setChangeFolder(uriSpace, getCallimachusUrl(uriSpace, ""));
 	}
 
-	public void setChangeFolder(String uriSpace, String webapp) throws OpenRDFException {
+	public void setChangeFolder(String uriSpace, String webapp)
+			throws OpenRDFException {
 		this.changeFolder = uriSpace;
 		if (auditing != null) {
 			if (webapp == null) {
-				auditing.setActivityFactory(new CalliActivityFactory(object,
-						uriSpace));
+				auditing.setActivityFactory(new CalliActivityFactory(uriSpace));
 			} else {
-				String bundle = webapp + CHANGE_TYPE;
-				String folder = webapp + FOLDER_TYPE;
-				auditing.setActivityFactory(new CalliActivityFactory(object,
-						uriSpace, bundle, folder));
+				ValueFactory vf = object.getValueFactory();
+				URI bundle = vf.createURI(webapp + CHANGE_TYPE);
+				URI folder = vf.createURI(webapp + FOLDER_TYPE);
+				auditing.setActivityFactory(new CalliActivityFactory(uriSpace,
+						bundle, folder));
 			}
 		}
 	}

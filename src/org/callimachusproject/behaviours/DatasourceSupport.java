@@ -179,15 +179,15 @@ public abstract class DatasourceSupport implements CalliObject {
 		if (!manager.isDatasourcePresent(uri)) {
 			manager.setDatasourceConfig(uri, getDefaultConfig());
 		}
-		CalliRepository repository = manager.getDatasource(uri);
-		ObjectConnection con = repository.getConnection();
-		AuditingRepositoryConnection audit2 = findAuditing(con);
+		CalliRepository repo2 = manager.getDatasource(uri);
+		ObjectConnection con2 = repo2.getDelegate().getConnection();
+		AuditingRepositoryConnection audit2 = findAuditing(con2);
 		if (audit1 != null && audit2 != null && bundle != null) {
 			audit2.setActivityFactory(audit1.getActivityFactory());
 		}
-		con.setVersionBundle(con1.getVersionBundle());
-		con.setInsertContext(con1.getInsertContext());
-		return con;
+		con2.setVersionBundle(con1.getVersionBundle());
+		con2.setInsertContext(con1.getInsertContext());
+		return con2;
 	}
 
 	private SailRepositoryConfig getDefaultConfig() {

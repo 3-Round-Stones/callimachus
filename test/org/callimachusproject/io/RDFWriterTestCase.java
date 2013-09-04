@@ -21,6 +21,8 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
@@ -231,9 +233,9 @@ public abstract class RDFWriterTestCase {
 
 		RepositoryConnection con1 = rep1.getConnection();
 
-		InputStream config = this.getClass().getResourceAsStream("/callimachus-repository.ttl");
+		InputStream config = new FileInputStream("src/callimachus-repository.ttl");
 
-		con1.add(config, this.getClass().getResource("/callimachus-repository.ttl").toExternalForm(), RDFFormat.TURTLE);
+		con1.add(config, new File("src/callimachus-repository.ttl").toURI().toASCIIString(), RDFFormat.TURTLE);
 
 		StringWriter writer = new StringWriter();
 		RDFWriter rdfWriter = rdfWriterFactory.getWriter(writer);

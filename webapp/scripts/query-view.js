@@ -299,7 +299,7 @@
                         url: location.pathname + '?',
                         type: 'PUT',
                         data: data,
-                        mimeType: 'application/sparql-query',
+                        contentType: 'application/sparql-query',
                         success: function() {
                             $('<span class="save-success">Updated the query\'s view template.</span>')
                                 .appendTo('.google-visualization-charteditor-dialog .modal-dialog-buttons')

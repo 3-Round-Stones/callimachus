@@ -1,5 +1,5 @@
 
-/* charts.js */
+/* query-vizeditor.js */
 
 (function($) {
     
@@ -87,8 +87,6 @@
          */ 
         loadGoogleEditor: function(cb) {
             if (!lib.googleEditor) {
-                // css
-                $('<link rel="stylesheet" type="text/css" href="' + calli.getCallimachusUrl('styles/callimachus-query-view.css') + '" />').appendTo('head');
                 // editor
                 lib.loadGoogleApi(function() {
                     google.load('visualization', '1.0', {packages: ['charteditor'], callback: function() {
@@ -120,19 +118,11 @@
             $('.chart-options').on('change', '.params input', lib.onParameterChange);
             cb.call();
         },
-                
-        /**
-         * Extends the Menu with a chart launcher
-         */ 
-        initMenu: function() {
-            $(document).on('click', 'a[rel="create-chart"]', lib.onCreateChart);
-        },
         
         /**
          * Launches the chart editor with a clean chart wrapper and new container ID
          */ 
-        onCreateChart: function(e) {
-            e.preventDefault();
+        initMenu: function() {
             var containerId = lib.getNextChartContainerId();
             // html containers
             if (!$('#' + containerId).length) {
@@ -159,7 +149,7 @@
                     })
                 ;
                 lib.chartConfigs['calli'][containerId] = {query: query, params: {}};
-                lib.injectParameters(query, e.params || null);
+                lib.injectParameters(query, null);
                 lib.replaceButtons();
                 lib.backupWidget();
             });
@@ -201,13 +191,32 @@
             lib.backupWidget();
             lib.googleEditor.chartWrapper = lib.googleEditor.getChartWrapper();
             var containerId = lib.googleEditor.chartWrapper.getContainerId();
+            var chartType = lib.googleEditor.chartWrapper.getChartType();
             var slug = location.pathname.replace(/.*\//,'').replace(/\.rq$/, '.xhtml');
             // open save-as dialog
             lib.getSaveTarget(slug, function(path, fname) {
                 var title = document.title;
                 // config with support for query string parameters and just ?results as URI for re-usability by other queries
-                var config = lib.getChartConfig(containerId, true)
-                    .replace(/("dataSourceUrl": ")[^\?]*(\?results[^\"]+")/, '$1$2 + location.search.replace(/^\\\?(view\\\&)?/, \'&\')')
+                var indent = function(v,i,a){
+                    var indent = a.reduce(function(indent,v,j){
+                        var m = v.match(/\{|\[/g);
+                        return indent + (j<i && m ? m.length : 0);
+                    }, 0);
+                    var outdent = a.reduce(function(outdent,v,j){
+                        var m = v.match(/\}|\]/g);
+                        return outdent + (j<i && m ? m.length : 0);
+                    }, 0);
+                    if (v.indexOf('}') == 0) {
+                        outdent++;
+                    }
+                    return '\n' + new Array(8 + 4 * (indent - outdent)).join(' ') + v;
+                };
+                var config = lib.googleEditor.chartWrapper.toJSON()
+                    .split(/(?=\})/g).map(indent).join('')
+                    .split(/,(?=")/g).map(indent).join(',')
+                    .split(/\{(?!\})/g).map(function(v,i,a){return v+(i<a.length-1?'{':'')}).map(indent).join('')
+                    .replace(/("dataSourceUrl":\s*)"[^\"\?]*\?results[^\"]+"/, '$1 window.location.href.replace("?view","?results")')
+                    .trim()
                 ;
                 var content = '' + 
                     '<?xml version="1.0" encoding="UTF-8" ?>\n' +
@@ -220,18 +229,20 @@
                     '    <link rel="edit-form" href="?edit" />\n' +
                     '    <link rel="comments" href="?discussion" />\n' +
                     '    <link rel="version-history" href="?history" />\n' +
-                    '    <link rel="create-chart" href="#" title="Edit visualization" />\n' +
+                    '    <link href="?vizeditor" title="Edit visualization" />\n' +
                     '    <link rel="edit-media" href="?" title="Raw SPARQL file" type="application/sparql-query" />\n' +
                     '    <link href="?results" title="Results document" type="application/sparql-results+xml" />\n' +
-                    '    <script type="text/javascript" src="/callimachus/query-view.js"></script>\n' +
+                    '    <script type="text/javascript" src="https://www.google.com/jsapi"></script>\n' +
+                    '    <script type="text/javascript"><![CDATA[\n' +
+                    '      google.load("visualization", "1.0");\n' +
+                    '      google.setOnLoadCallback(function() {\n' +
+                    '        google.visualization.drawChart(' + config + ');\n' +
+                    '      });\n' +
+                    '    ]]></script>\n' +
                     '</head>\n' +
-                    '   <body>' + "\n" + 
-                    '       <script class="chart" data-chart="' + containerId + '" type="text/javascript">' + "\n" + 
-                    '       //<![CDATA[' + "\n" +
-                    '           if (charts) charts.render(' + config + ');' + "\n" +
-                    '       //]]>' + "\n" + 
-                    '       </script>' + "\n" +
-                    '   </body>' + "\n" + 
+                    '<body>\n' +
+                    '    <div id="' + containerId + '" />\n' +
+                    '</body>\n' +
                     '</html>' + "\n" + 
                 '';
                 lib.saveFile(path, fname, content, 'application/xhtml+xml', function(data, status, xhr) {
@@ -307,7 +318,7 @@
                                     $(this).remove();
                                 })
                             ;
-                            window.location.reload();
+                            window.location = window.location.href.replace(/\?\w+/,'?view');
                         },
                         error: function() {
                             $('<span class="save-error">Could not set view template</span>')

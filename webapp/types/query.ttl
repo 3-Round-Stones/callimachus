@@ -86,6 +86,16 @@
     calli:query "*";
     calli:type "application/x-www-form-urlencoded".
 
+# GET /queries/my-query.rq?vizeditor
+:GetVizEditor rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <NamedQuery>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom <java:java.io.Reader>];
+    calli:method "GET";
+    calli:query "vizeditor";
+    calli:requires calli:editor;
+    calli:type "text/html";
+    calli:copy "../pages/query-vizeditor.xhtml?view".
+
 # GET /queries/my-query.rq?sparql
 :GetSparql rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <NamedQuery>];

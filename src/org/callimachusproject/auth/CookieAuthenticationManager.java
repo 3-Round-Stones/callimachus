@@ -46,16 +46,8 @@ import org.apache.http.message.BasicStatusLine;
 import org.callimachusproject.server.exceptions.BadGateway;
 import org.callimachusproject.server.exceptions.BadRequest;
 import org.openrdf.OpenRDFException;
-import org.openrdf.model.Literal;
 import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.model.vocabulary.RDF;
-import org.openrdf.model.vocabulary.RDFS;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.RepositoryResult;
 import org.openrdf.repository.object.ObjectConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,13 +57,6 @@ import org.slf4j.LoggerFactory;
  */
 public class CookieAuthenticationManager implements
 		DetachedAuthenticationManager {
-	private static final String DERIVED_FROM = "http://www.w3.org/ns/prov#wasDerivedFrom";
-	private static final String FOAF_DEPICTION = "http://xmlns.com/foaf/0.1/depiction";
-	private static final String HAS_COMPONENT = "http://callimachusproject.org/rdf/2009/framework#hasComponent";
-	private static final String PARTY = "http://callimachusproject.org/rdf/2009/framework#Party";
-	private static final String USER = "http://callimachusproject.org/rdf/2009/framework#User";
-	private static final String EMAIL = "http://callimachusproject.org/rdf/2009/framework#email";
-	private static final String PROV = "http://www.w3.org/ns/prov#";
 	private static final BasicStatusLine _204 = new BasicStatusLine(
 			HttpVersion.HTTP_1_1, 204, "No Content");
 	private static final BasicStatusLine _303 = new BasicStatusLine(
@@ -224,84 +209,10 @@ public class CookieAuthenticationManager implements
 		return cookie.group(LOGIN_GRP);
 	}
 
-	public void registerUser(Resource invitedUser, URI digestUser,
-			String email, String fullname, ObjectConnection con)
-			throws OpenRDFException, IOException {
-		ValueFactory vf = con.getValueFactory();
-		RepositoryResult<Statement> stmts;
-		stmts = con.getStatements((Resource) null, null, invitedUser);
-		try {
-			while (stmts.hasNext()) {
-				moveTo(digestUser, stmts.next(), con);
-			}
-		} finally {
-			stmts.close();
-		}
-		stmts = con.getStatements(invitedUser, RDFS.COMMENT, null);
-		try {
-			while (stmts.hasNext()) {
-				Statement st = stmts.next();
-				add(digestUser, st.getPredicate(), st.getObject(), con);
-			}
-		} finally {
-			stmts.close();
-		}
-		stmts = con.getStatements(invitedUser, vf.createURI(FOAF_DEPICTION),
-				null);
-		try {
-			while (stmts.hasNext()) {
-				Statement st = stmts.next();
-				add(digestUser, st.getPredicate(), st.getObject(), con);
-			}
-		} finally {
-			stmts.close();
-		}
-		if (fullname == null) {
-			stmts = con.getStatements(invitedUser, RDFS.LABEL, null);
-			try {
-				while (stmts.hasNext()) {
-					Value label = stmts.next().getObject();
-					if (!con.hasStatement(digestUser, RDFS.LABEL, label)) {
-						con.remove(digestUser, RDFS.LABEL, null);
-						con.add(digestUser, RDFS.LABEL, label);
-					}
-				}
-			} finally {
-				stmts.close();
-			}
-		} else {
-			Literal label = vf.createLiteral(fullname);
-			if (!con.hasStatement(digestUser, RDFS.LABEL, label)) {
-				con.remove(digestUser, RDFS.LABEL, null);
-				con.add(digestUser, RDFS.LABEL, label);
-			}
-		}
-		URI hasEmail = vf.createURI(EMAIL);
-		if (email == null) {
-			stmts = con.getStatements(invitedUser, hasEmail, null);
-			try {
-				while (stmts.hasNext()) {
-					Value obj = stmts.next().getObject();
-					if (!con.hasStatement(digestUser, hasEmail, obj)) {
-						con.remove(digestUser, hasEmail, null);
-						con.add(digestUser, hasEmail, obj);
-					}
-				}
-			} finally {
-				stmts.close();
-			}
-		} else {
-			Literal mailto = vf.createLiteral(email);
-			if (!con.hasStatement(digestUser, hasEmail, mailto)) {
-				con.remove(digestUser, hasEmail, null);
-				con.add(digestUser, hasEmail, mailto);
-			}
-		}
-		add(digestUser, RDF.TYPE, vf.createURI(PARTY), con);
-		add(digestUser, RDF.TYPE, vf.createURI(USER), con);
-		add(digestUser, vf.createURI(DERIVED_FROM), invitedUser, con);
-		con.remove(invitedUser, null, null);
-		con.commit();
+	@Override
+	public void registered(Resource invitedUser, URI registeredUser,
+			ObjectConnection con) throws OpenRDFException {
+		// welcome
 	}
 
 	private HttpResponse getLoginResponse(boolean loggedIn, String method,
@@ -491,27 +402,6 @@ public class CookieAuthenticationManager implements
 		baos.write(iri.getBytes("UTF-8"));
 		baos.write(nonce.getBytes("UTF-8"));
 		return new String(Hex.encodeHex(DigestUtils.md5(baos.toByteArray())));
-	}
-
-	private void moveTo(URI link, Statement st, ObjectConnection con)
-			throws RepositoryException {
-		URI pred = st.getPredicate();
-		if (RDF.NAMESPACE.equals(pred.getNamespace()))
-			return;
-		if (PROV.equals(pred.getNamespace()))
-			return;
-		Resource subj = st.getSubject();
-		con.remove(subj, pred, st.getObject());
-		if (HAS_COMPONENT.equals(pred.stringValue()))
-			return;
-		add(subj, pred, link, con);
-	}
-
-	private void add(Resource subj, URI pred, Value obj, ObjectConnection con)
-			throws RepositoryException {
-		if (con.hasStatement(subj, pred, obj))
-			return;
-		con.add(subj, pred, obj);
 	}
 
 	private String getRequestUrl(Map<String, String[]> request) {

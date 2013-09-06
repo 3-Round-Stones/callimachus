@@ -162,9 +162,8 @@ public interface DetachedAuthenticationManager {
 
 	boolean isProtected(String url);
 
-	void registerUser(Resource invitedUser, URI createURI, String email,
-			String fullname, ObjectConnection con) throws OpenRDFException,
-			IOException;
+	void registered(Resource invitedUser, URI registeredUser,
+			ObjectConnection con) throws OpenRDFException, IOException;
 
 	String getUserIdentifier(String method, Collection<String> tokens,
 			ObjectConnection objectConnection) throws OpenRDFException,

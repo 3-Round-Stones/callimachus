@@ -43,6 +43,61 @@
     """.
 
 ################################
+# OpenID Provider
+################################
+
+:GetOpenIdProvider rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <DigestManager>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
+    calli:method "GET";
+    calli:requires calli:reader;
+    calli:type "message/x-response";
+    calli:script """
+        return this.openIDProvider(openIdQueryParameters);
+    """.
+
+:openIdQueryParameters a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:domain :GetOpenIdProvider;
+    rdfs:range xsd:string;
+    calli:query "*".
+
+:GetOpenIdProviderReturn rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <DigestManager>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
+    calli:method "GET";
+    calli:query "checkid";
+    calli:requires calli:subscriber;
+    calli:type "message/x-response";
+    calli:script """
+        return this.openIDProviderReturn(openIdReturnParameters, this.getUserIdentifier("GET", openIdCookies));
+    """.
+
+:openIdReturnParameters a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:domain :GetOpenIdProviderReturn;
+    rdfs:range xsd:string;
+    calli:query "*".
+
+:openIdCookies a owl:DatatypeProperty;
+    rdfs:domain :GetOpenIdProviderReturn;
+    rdfs:range xsd:string;
+    calli:header "Authorization", "Cookie".
+
+:PostOpenIdProvider rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <DigestManager>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
+    calli:method "POST";
+    calli:requires calli:reader;
+    calli:type "message/x-response";
+    calli:script """
+        return this.openIDProvider(openIdPostParameters);
+    """.
+
+:openIdPostParameters a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:domain :PostOpenIdProvider;
+    rdfs:range xsd:string;
+    calli:type "application/x-www-form-urlencoded".
+
+################################
 # login
 ################################
 

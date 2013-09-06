@@ -54,13 +54,11 @@ import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.model.vocabulary.XMLSchema;
 import org.openrdf.query.BindingSet;
-import org.openrdf.query.MalformedQueryException;
 import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.QueryLanguage;
 import org.openrdf.query.TupleQuery;
 import org.openrdf.query.TupleQueryResult;
 import org.openrdf.query.Update;
-import org.openrdf.query.UpdateExecutionException;
 import org.openrdf.query.algebra.evaluation.util.ValueComparator;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.ObjectConnection;
@@ -183,8 +181,7 @@ public class DigestPasswordAccessor implements DigestAccessor {
 	}
 
 	public void registerUser(Resource invitedUser, URI registeredUser,
-			ObjectConnection con) throws MalformedQueryException,
-			RepositoryException, UpdateExecutionException {
+			ObjectConnection con) throws OpenRDFException {
 		Update update = con.prepareUpdate(QueryLanguage.SPARQL, COPY_PERM);
 		update.setBinding("src", invitedUser);
 		update.setBinding("dst", registeredUser);

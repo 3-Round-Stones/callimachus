@@ -10,6 +10,7 @@
     <title resource="?this">{rdfs:label}</title>
     <link rel="help" href="../../callimachus-for-web-developers" target="_blank" title="Help" />
     <link id="layout-sample" href="../../default-layout.xq" />
+    <link id="auth-folder" href="/auth/" />
     <link id="credentials-folder" href="/auth/credentials/" />
     <script type="text/javascript">
     // <![CDATA[
@@ -96,6 +97,17 @@
                         </div>
                         <a href="javascript:void(0)" title="More" onclick="return calli.addResource(event)" class="icon-plus" />
                     </div>
+                </div>
+                <div dropzone="link s:text/uri-list" class="control-group"
+                        ondrop="return calli.insertResource(event)">
+                  <label class="control-label">Authentication <a href="../types/AuthManager" title="Create authentication manager"
+                      onclick="return calli.createResource(event, $('#auth-folder').attr('href') + '?create=' + encodeURIComponent(this.href) + '#' + $('#form').attr('resource'))" class="icon-list-alt" /></label>
+                  <div id="authentication" rel="calli:authentication" class="controls vbox">
+                    <span resource="?authentication" typeof="calli:AuthenticationManager" class="ui-state-highlight ui-corner-all">
+                        <span property="rdfs:label" />
+                        <a href="{?authentication}" title="Don't use this authentication here" onclick="return calli.removeResource(event)" class="icon-remove" />
+                    </span>
+                  </div>
                 </div>
                 <div dropzone="link s:text/uri-list" class="control-group"
                         ondrop="return calli.insertResource(event)">

@@ -16,3 +16,5 @@ org.callimachusproject.behaviours.XQuerySupport		= http://callimachusproject.org
 org.callimachusproject.behaviours.CredentialSupport	= http://callimachusproject.org/rdf/2009/framework#Credential
 org.callimachusproject.behaviours.PurlSupport		= http://callimachusproject.org/rdf/2009/framework#PURL
 org.callimachusproject.behaviours.DatasourceSupport	= http://callimachusproject.org/rdf/2009/framework#Datasource
+org.callimachusproject.behaviours.FacebookManagerSupport
+org.callimachusproject.behaviours.OpenIDManagerSupport

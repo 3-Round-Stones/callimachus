@@ -5,3 +5,5 @@ org.callimachusproject.concepts.Activity
 org.callimachusproject.concepts.DigestManager
 org.callimachusproject.concepts.Realm
 org.callimachusproject.concepts.AuthenticationManager
+org.callimachusproject.concepts.FacebookManager
+org.callimachusproject.concepts.OpenIDManager

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
+<head>
+    <title>New Facebook Manager</title>
+    <script type="text/javascript"> // <![CDATA[
+    jQuery(function($){
+        $('#label').val('Facebook accounts').change();
+        $('#comment').val('Sign in with your Facebook account').change();
+    }); // ]]>
+    </script>
+</head>
+<body>
+    <h1>New Facebook Manager</h1>
+    <div id="sidebar">
+        <aside>
+            <p>Provide the Facebook appId here; later in it's edit tab
+                provide the Facebook secret. Both are required before use.</p>
+        </aside>
+    </div>
+    <form id="form" method="POST" action="" enctype="application/rdf+xml" typeof="calli:FacebookManager calli:AuthenticationManager"
+            onsubmit="return calli.saveResourceAs(event,calli.slugify($('#label').val()))">
+        <span rel="calli:authButton" resource="../images/facebook_64.png" />
+        <fieldset>
+            <div class="control-group">
+                <label for="label" class="control-label">Label</label>
+                <div class="controls">
+                    <input type="text" id="label" value="{rdfs:label}" required="required" />
+                </div>
+            </div>
+            <div class="control-group">
+                <label for="appId" class="control-label">appId</label>
+                <div class="controls">
+                    <input type="text" id="appId" value="{calli:facebookAppId}" required="required" />
+                </div>
+            </div>
+            <div class="control-group">
+                <label for="comment" class="control-label">Comment</label>
+                <div class="controls">
+                    <textarea id="comment" class="auto-expand" required="required">{rdfs:comment}</textarea>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn">Add</button>
+            </div>
+        </fieldset>
+    </form>
+</body>
+</html>

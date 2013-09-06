@@ -1,0 +1,218 @@
+# 
+#    Portions Copyright (c) 2012 James Leigh, Some Rights Reserved
+# 
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+# 
+#        http://www.apache.org/licenses/LICENSE-2.0
+# 
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+#
+@prefix xsd:<http://www.w3.org/2001/XMLSchema#>.
+@prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
+@prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
+@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+@prefix :<#>.
+
+<> a <SchemaGraph>.
+
+################################
+# OpenID Manager
+################################
+
+<OpenIDManager> a <Creatable>, owl:Class;
+    rdfs:subClassOf <AuthManager>, calli:OpenIDManager;
+    rdfs:label "OpenID Manager";
+    rdfs:isDefinedBy <../../ontology>;
+    calli:administrator </auth/groups/super>;
+    calli:author </auth/groups/admin>;
+    calli:view <../templates/openid-view.xhtml>;
+    calli:edit <../templates/openid-edit.xhtml>;
+    calli:create <../templates/openid-create.xhtml>.
+
+################################
+# Facebook Manager
+################################
+
+<FacebookManager> a <Creatable>, owl:Class;
+    rdfs:subClassOf <AuthManager>, calli:FacebookManager;
+    rdfs:label "Facebook Manager";
+    rdfs:isDefinedBy <../../ontology>;
+    calli:administrator </auth/groups/super>;
+    calli:author </auth/groups/admin>;
+    calli:view <../templates/facebook-view.xhtml>;
+    calli:edit <../templates/facebook-edit.xhtml>;
+    calli:create <../templates/facebook-create.xhtml>.
+
+################################
+# Cookie Auth Manager
+################################
+
+<AuthManager> a <Creatable>, owl:Class;
+    rdfs:subClassOf <Viewable>, <Editable>, calli:CookieAuthManager;
+    rdfs:label "Auth Manager";
+    rdfs:isDefinedBy <../../ontology>;
+    calli:administrator </auth/groups/super>;
+    calli:create <../templates/authmanager-create.xhtml>.
+
+:PostEditDigest owl:intersectionOf (<editable.ttl#PostEdit>
+        [owl:onProperty msg:target; owl:allValuesFrom <AuthManager>]);
+    calli:method "POST";
+    calli:query "edit";
+    calli:requires calli:editor;
+    calli:expect "201-modified";
+    calli:type "text/uri-list";
+    calli:script """
+        var ret = proceed();
+        this.resetCache();
+        return ret;
+    """.
+
+################################
+# login
+################################
+
+:RedirectReturnTo rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <AuthManager>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
+    calli:method "GET", "POST";
+    calli:query "login";
+    calli:requires calli:subscriber;
+    calli:type "message/x-response";
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:script """
+        if (!this.isProtected(returnTo))
+            throw new BadRequest("Unprotected return_to: " + returnTo);
+        var cookie = this.getUsernameSetCookie(loginCookies);
+        return {
+            status: 303, message: "See Other",
+            headers:{location:returnTo,'content-type':"text/plain",'set-cookie':cookie},
+            body:[returnTo]
+        };
+    """.
+
+:returnTo a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:domain :RedirectReturnTo;
+    rdfs:range xsd:string;
+    calli:query "return_to";
+    calli:type "text/uri-list".
+
+:authForm a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:domain :RedirectReturnTo;
+    rdfs:range xsd:string;
+    calli:type "application/x-www-form-urlencoded".
+
+:loginCookies a owl:DatatypeProperty;
+    rdfs:domain :RedirectReturnTo;
+    rdfs:range xsd:string;
+    calli:header "Authorization", "Cookie".
+
+################################
+# Registration
+################################
+
+# link from invite email
+:GetRegisterUserPage rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <AuthManager>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    rdfs:subClassOf [owl:onProperty :register_xhtml; owl:hasValue <../pages/register.xhtml>];
+    calli:method "GET";
+    calli:query "register";
+    calli:requires calli:subscriber;
+    calli:type "text/html";
+    calli:header "cache-control:no-store";
+    calli:imports <java:org.apache.commons.codec.digest.DigestUtils>;
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:script """
+        if (!token)
+            throw new BadRequest("This is not a valid registration URL");
+        var iter = this.FindInvitedUsersByEmail(registeringUserEmail).iterator();
+        while (iter.hasNext()) {
+            var registeringUser = iter.next();
+            if (token == registeringUser.getSecretToken(nonce))
+                return register_xhtml.Construct(this, 'register');
+        }
+        throw new BadRequest("Invitation is No Longer Valid");
+    """.
+
+:nonce a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:domain :GetRegisterUserPage;
+    rdfs:range xsd:string;
+    calli:query "nonce".
+
+:token a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:domain :GetRegisterUserPage;
+    rdfs:range xsd:string;
+    calli:query "token".
+
+:registeringUserEmail a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:domain :GetRegisterUserPage;
+    rdfs:range xsd:string;
+    calli:query "email".
+
+:register_xhtml a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :GetRegisterUserPage.
+
+# subitted from the digest-register.xhtml page
+:PostUserRegistration rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <AuthManager>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+    calli:method "POST";
+    calli:query "register";
+    calli:requires calli:subscriber;
+    calli:script """
+        var nonce = regForm.get("nonce")[0];
+        var token = regForm.get("token")[0];
+        var email = regForm.get("email")[0];
+        if (!token)
+            throw new BadRequest("This is not a valid registration URL");
+        var iter = this.FindInvitedUsersByEmail(email).iterator();
+        while (iter.hasNext()) {
+            var user = iter.next();
+            if (token == user.getSecretToken(nonce)) {
+                var loggedInUser = this.getUserIdentifier("POST", regCookies);
+                var email = this.getUserLogin(regCookies);
+                if (!email || email.indexOf('@') < 0) {
+                    email = null;
+                }
+                this.registerUser(user.resource, loggedInUser, email, null);
+                return;
+            }
+        }
+        throw new BadRequest("Invitation is No Longer Valid");
+    """.
+
+:regCookies a owl:DatatypeProperty;
+    rdfs:domain :PostUserRegistration;
+    rdfs:range xsd:string;
+    calli:header "Authorization", "Cookie".
+
+:regForm a owl:ObjectProperty, owl:FunctionalProperty;
+    rdfs:domain :PostUserRegistration;
+    rdfs:range <java:java.util.Map>;
+    calli:type "application/x-www-form-urlencoded".
+
+# Looks up user by email address
+# Used to request password reset
+:FindInvitedUsersByEmail rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <AuthManager>];
+    rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom calli:User];
+    msg:sparql  """
+        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
+        SELECT REDUCED ?user
+        WHERE {
+            ?user a <InvitedUser>; calli:email $email .
+        }
+    """.
+
+:email a owl:DatatypeProperty, owl:FunctionalProperty;
+    rdfs:domain :FindInvitedUsersByEmail;
+    rdfs:range xsd:string.
+

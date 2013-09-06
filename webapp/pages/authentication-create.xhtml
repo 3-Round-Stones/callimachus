@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+<head>
+    <title>Create Authentication Manager</title>
+    <link rel="edit-form" href="?edit" />
+    <link rel="comments" href="?discussion" />
+    <link rel="describedby" href="?describe" />
+    <link rel="version-history" href="?history" />
+</head>
+<body>
+    <h1 class="click-hidden">Create Authentication Manager</h1>
+    <p class="click-hidden">Click the form of authentication</p>
+    <ul class="click-hidden">
+        <li>
+            <a href="../types/DigestManager" resource="../types/DigestManager"
+            		onmousedown="this.href='/auth/?create=' + encodeURIComponent(this.getAttribute('resource'))">
+                <img src="../images/digest_64.png" />
+                Digest password authentication
+            </a>
+        </li>
+        <li>
+            <a href="../types/FacebookManager" resource="../types/FacebookManager"
+            		onmousedown="this.href='/auth/?create=' + encodeURIComponent(this.getAttribute('resource'))">
+                <img src="../images/facebook_64.png" />
+                Facebook authentication
+            </a>
+        </li>
+        <li>
+            <a href="../types/OpenIDManager" resource="../types/OpenIDManager"
+            		data-options="label=Google+accounts&amp;comment=Sign+in+with+your+Google+account&amp;endpoint=https://www.google.com/accounts/o8/ud&amp;"
+            		onmousedown="this.href='/auth/?create=' + encodeURIComponent(this.getAttribute('resource')) + '#' + this.getAttribute('data-options') + 'button=' + encodeURIComponent(document.getElementById('google-image').src)">
+                <img id="google-image" src="../images/google_64.png" />
+                Google authentication
+            </a>
+        </li>
+        <li>
+            <a href="../types/OpenIDManager" resource="../types/OpenIDManager"
+            		data-options="label=Yahoo!+accounts&amp;comment=Sign+in+with+your+Yahoo!+account&amp;endpoint=https://open.login.yahooapis.com/openid/op/auth&amp;"
+            		onmousedown="this.href='/auth/?create=' + encodeURIComponent(this.getAttribute('resource')) + '#' + this.getAttribute('data-options') + 'button=' + encodeURIComponent(document.getElementById('yahoo-image').src)">
+                <img id="yahoo-image" src="../images/yahoo_64.png" />
+                Yahoo! authentication
+            </a>
+        </li>
+        <li>
+            <a href="../types/OpenIDManager" resource="../types/OpenIDManager"
+            		onmousedown="this.href='/auth/?create=' + encodeURIComponent(this.getAttribute('resource')) + '#button=' + encodeURIComponent(document.getElementById('openid-image').src)">
+                <img id="openid-image" src="../images/openid_64.png" />
+                Other OpenID provider
+            </a>
+        </li>
+    </ul>
+</body>
+</html>

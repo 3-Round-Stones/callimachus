@@ -184,6 +184,13 @@ if [ ! -e "$JDK_HOME/bin/javac" ] ; then
   exit 5
 fi
 
+if [ ! -r "$JDK_HOME/lib/tools.jar" ] ; then
+    echo "$JDK_HOME/lib/tools.jar is not present" 1>&2
+    echo "Check that you have the correct value for JDK_HOME in $CONFIG" 1>&2
+    echo "This file is needed to run this program" 1>&2
+    exit 5
+fi
+
 if [ ! -e "$JDK_HOME/bin/jrunscript" ] ; then
     echo "$JDK_HOME/bin/jrunscript is not executable" 1>&2
     echo "This file is needed to run this program" 1>&2

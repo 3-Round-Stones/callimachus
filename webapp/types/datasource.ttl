@@ -75,7 +75,7 @@
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Datasource>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     calli:method "POST";
-    calli:requires calli:administrator;
+    calli:requires calli:editor;
     calli:imports <java:org.openrdf.query.MalformedQueryException>;
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
     calli:script """
@@ -142,7 +142,7 @@
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Datasource>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
     calli:method "POST";
-    calli:requires calli:administrator;
+    calli:requires calli:editor;
     calli:type "message/x-response";
     calli:imports <java:org.openrdf.query.MalformedQueryException>;
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
@@ -173,7 +173,7 @@
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Datasource>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
     calli:method "POST";
-    calli:requires calli:administrator;
+    calli:requires calli:editor;
     calli:type "text/html";
     calli:script """
         var resp = this.PostPercentEncoded(formMap);

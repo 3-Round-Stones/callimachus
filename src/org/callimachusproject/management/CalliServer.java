@@ -372,6 +372,7 @@ public class CalliServer implements CalliServerMXBean {
 		final Map<String, String> newOrigins = new LinkedHashMap<String, String>();
 		for (String origin : origins) {
 			if (!previously.containsKey(origin)) {
+				verifyOrigin(origin);
 				newOrigins.put(origin, getRepositoryId(origin));
 			}
 		}
@@ -836,6 +837,18 @@ public class CalliServer implements CalliServerMXBean {
 			}
 		}
 		repositories.remove(repositoryID);
+	}
+
+	private void verifyOrigin(String origin) {
+		java.net.URI uri = java.net.URI.create(origin + "/");
+		String scheme = String.valueOf(uri.getScheme()).toLowerCase();
+		String auth = uri.getAuthority();
+		String path = uri.getPath();
+		if (!"http".equals(scheme) && !"https".equals(scheme) || auth == null) {
+			throw new IllegalArgumentException("Origin must start with http:// or https://");
+		} else if (!"/".equals(path)) {
+			throw new IllegalArgumentException("Origin must not include a path (no trailing slash)");
+		}
 	}
 
 	private String getRepositoryId(final String webappOrigin) throws IOException {

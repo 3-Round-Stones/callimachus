@@ -91,7 +91,8 @@ public class Setup {
 		commands.option("k", "backups").arg("directory")
 				.desc("Backup directory");
 		commands.option("K", "no-backup").desc("Disable automatic backup");
-		commands.option("G", "no-upgrade").desc("Disables upgrading stored data (new users and repository config may still be modified)");
+		commands.option("G", "no-upgrade")
+				.desc("Disables upgrading stored data (new users and repository config may still be modified)");
 		commands.option("u", "user").optional("name")
 				.desc("Create the given user");
 		commands.option("g", "group").arg("group path")
@@ -320,16 +321,16 @@ public class Setup {
 						for (String group : groups) {
 							setup.addInvitedUserToGroup(e, group, origin);
 						}
-						if (password == null || password.length < 1
-								|| username == null || username.length() < 1) {
+						if (password != null && password.length > 0
+								&& username != null && username.length() > 0) {
+							setup.registerDigestUser(e, username, password,
+									origin);
+						} else {
 							Set<String> reg = setup.getUserRegistrationLinks(e,
 									origin);
 							synchronized (links) {
 								links.addAll(reg);
 							}
-						} else {
-							setup.registerDigestUser(e, username, password,
-									origin);
 						}
 					}
 				}

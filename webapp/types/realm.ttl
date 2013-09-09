@@ -52,7 +52,7 @@
 :GetRegisterUserPage rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Realm>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
-    rdfs:subClassOf [owl:onProperty :register_xhtml; owl:hasValue <../pages/register.xhtml>];
+    rdfs:subClassOf [owl:onProperty :realm_register_xhtml; owl:hasValue <../pages/realm-register.xhtml>];
     calli:method "GET";
     calli:query "register";
     calli:requires calli:reader;
@@ -86,7 +86,7 @@
         return {
             status:200,message:"OK",
             headers:{'content-type':"text/html"},
-            body:[register_xhtml.Construct(this, 'register')]
+            body:[realm_register_xhtml.Construct(this, 'register')]
         };
     """.
 
@@ -101,7 +101,7 @@
     rdfs:range xsd:string;
     calli:query "*".
 
-:register_xhtml a owl:FunctionalProperty, owl:ObjectProperty;
+:realm_register_xhtml a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :GetRegisterUserPage.
 
 ################################

@@ -85,9 +85,11 @@ rdfs:label a rdf:Property.
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom calli:User];
     msg:sparql  """
         PREFIX prov:<http://www.w3.org/ns/prov#>
+        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
         SELECT ?contributor
         WHERE {
-            $this prov:wasGeneratedBy [prov:wasAssociatedWith ?contributor]
+            $this prov:wasGeneratedBy [prov:wasAssociatedWith ?contributor] .
+            ?contributor a calli:User
         } LIMIT 1
     """.
 

@@ -122,7 +122,7 @@
 :GetRegisterUserPage rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <AuthManager>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-    rdfs:subClassOf [owl:onProperty :register_xhtml; owl:hasValue <../pages/register.xhtml>];
+    rdfs:subClassOf [owl:onProperty :openid_register_xhtml; owl:hasValue <../pages/openid-register.xhtml>];
     calli:method "GET";
     calli:query "register";
     calli:requires calli:subscriber;
@@ -137,7 +137,7 @@
         while (iter.hasNext()) {
             var registeringUser = iter.next();
             if (token == registeringUser.getSecretToken(nonce))
-                return register_xhtml.Construct(this, 'register');
+                return openid_register_xhtml.Construct(this, 'register');
         }
         throw new BadRequest("Invitation is No Longer Valid");
     """.
@@ -157,10 +157,10 @@
     rdfs:range xsd:string;
     calli:query "email".
 
-:register_xhtml a owl:FunctionalProperty, owl:ObjectProperty;
+:openid_register_xhtml a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :GetRegisterUserPage.
 
-# subitted from the digest-register.xhtml page
+# subitted from the openid-register.xhtml page
 :PostUserRegistration rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <AuthManager>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];

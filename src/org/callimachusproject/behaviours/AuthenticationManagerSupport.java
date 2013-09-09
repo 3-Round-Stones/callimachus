@@ -5,6 +5,8 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
+import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
@@ -15,6 +17,10 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TimeZone;
+
+import javax.crypto.Mac;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpResponse;
@@ -58,7 +64,9 @@ public abstract class AuthenticationManagerSupport implements CalliObject,
 			"PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>\n";
 	private static final String IDENTITY_NAME_EMAIL = PREFIX + "SELECT ?name ?email { $identity rdfs:label ?name; calli:email ?email }";
 
-	public HttpResponse openIDProvider(String parameters) throws UnsupportedEncodingException, NoSuchAlgorithmException, ParseException {
+	public HttpResponse openIDProvider(String parameters)
+			throws ParseException, OpenRDFException, IOException,
+			GeneralSecurityException {
 		Map<String, String> map = keyByName(parameters);
 		String mode = map.get("openid.mode");
 		if ("associate".equals(mode)) {
@@ -146,8 +154,7 @@ public abstract class AuthenticationManagerSupport implements CalliObject,
 	}
 
 	public HttpResponse openIDProviderReturn(String parameters, String identity)
-			throws UnsupportedEncodingException, NoSuchAlgorithmException,
-			OpenRDFException {
+			throws OpenRDFException, IOException, GeneralSecurityException {
 		Map<String, String> map = keyByName(parameters);
 		String return_to = map.get("openid.return_to");
 		StringBuilder sb = new StringBuilder();
@@ -259,9 +266,20 @@ public abstract class AuthenticationManagerSupport implements CalliObject,
 		return manager.getAuthenticationManager(this.getResource());
 	}
 
-	private String sig(String text) throws NoSuchAlgorithmException {
-		MessageDigest md = MessageDigest.getInstance("SHA-256");
-		return Base64.encodeBase64String(md.digest(text.getBytes()));
+	private String sig(String text) throws OpenRDFException, IOException,
+			GeneralSecurityException {
+		String secret = this.getRealm().getOriginSecret();
+		SecretKey key = new SecretKeySpec(readBytes(secret), "HmacSHA256");
+		Mac m = Mac.getInstance("HmacSHA256");
+		m.init(key);
+		m.update(text.getBytes("UTF-8"));
+		return Base64.encodeBase64String(m.doFinal());
+	}
+
+	private byte[] readBytes(String string) {
+		if (Base64.isBase64(string))
+			return Base64.decodeBase64(string);
+		return string.getBytes(Charset.forName("UTF-8"));
 	}
 
 	private String[] getNameEmail(String identity) throws OpenRDFException {

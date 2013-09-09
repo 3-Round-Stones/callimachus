@@ -137,6 +137,7 @@ public class CallimachusSetup {
 
 	private static final String CALLI = "http://callimachusproject.org/rdf/2009/framework#";
 	private static final String CALLI_HASCOMPONENT = CALLI + "hasComponent";
+	private static final String CALLI_AUTHENTICATION = CALLI + "authentication";
 	private static final String CALLI_ADMINISTRATOR = CALLI + "administrator";
 	private static final String CALLI_EDITOR = CALLI + "editor";
 	private static final String CALLI_SUBSCRIBER = CALLI + "subscriber";
@@ -156,6 +157,10 @@ public class CallimachusSetup {
 			+ "SELECT REDUCED ?digest ?authName ?authNamespace\n"
 			+ "WHERE { </> calli:authentication ?digest .\n" +
 			"?digest a calli:DigestManager; calli:authName ?authName; calli:authNamespace ?authNamespace }";
+	private static final String ENABLE_DIGEST = PREFIX
+			+ "SELECT ?realm ?digest { ?realm a calli:Realm . ?digest a <types/DigestManager>\n"
+			+ "FILTER strstarts(str(?digest), replace(str(?realm), \"^(.*://[^/]*/).*\", \"$1\"))\n"
+			+ "FILTER NOT EXISTS { ?realm calli:authentication ?digest } }";
 
 	private final Logger logger = LoggerFactory.getLogger(CallimachusSetup.class);
 	private final UpdateProvider updateProvider = new UpdateService(getClass().getClassLoader());
@@ -349,7 +354,12 @@ public class CallimachusSetup {
 		try {
 			con.begin();
 			ValueFactory vf = con.getValueFactory();
-			boolean modified = false;
+			boolean modified = enableDigestAuth(origin, con);
+			if (modified) {
+				con.commit();
+				repository.resetCache();
+				con.begin();
+			}
 			URI space = webapp(origin, INVITED_USERS);
 			URI invitedUser = vf.createURI(space.stringValue(), slugify(email));
 			for (DigestManagerSupport digest : getDigestManagers(origin, con, repository)) {
@@ -589,6 +599,28 @@ public class CallimachusSetup {
 			results.close();
 		}
 		return list;
+	}
+
+	private boolean enableDigestAuth(String origin, ObjectConnection con)
+			throws OpenRDFException {
+		boolean modified = false;
+		ValueFactory vf = con.getValueFactory();
+		String base = webapp(origin, "").stringValue();
+		TupleQueryResult results = con.prepareTupleQuery(QueryLanguage.SPARQL,
+				ENABLE_DIGEST, base).evaluate();
+		try {
+			while (results.hasNext()) {
+				BindingSet result = results.next();
+				Resource realm = (Resource) result.getValue("realm");
+				Value digest = result.getValue("digest");
+				modified = true;
+				logger.info("Enabling digest authentication in {}", realm);
+				con.add(realm, vf.createURI(CALLI_AUTHENTICATION), digest);
+			}
+		} finally {
+			results.close();
+		}
+		return modified;
 	}
 
 	private String[] encodePassword(String username, String email,

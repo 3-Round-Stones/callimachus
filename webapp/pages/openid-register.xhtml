@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+        xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+        xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+        xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
+<head>
+    <title resource="?this">{rdfs:label} Sign Up</title>
+    <script type="text/javascript">//<![CDATA[
+        jQuery(function($) {
+            function parameter(name) {
+                var regex = new RegExp("[\\?&]"+name+"=([^&#]*)");
+                var m = regex.exec(window.location.search);
+                return m ? decodeURIComponent(m[1]) : null;
+            }
+            $("#form").submit(function(form) {
+                jQuery.ajax({type: 'POST', url: form.action,
+                    traditional: true,
+                    data: {
+                        nonce: parameter("nonce"),
+                        token: parameter("token"),
+                        email: parameter("email")
+                    },
+                    success: function() {
+                        window.location.replace('?login&return_to=' + encodeURIComponent(parameter('return_to')));
+                    }
+                });
+                return false;
+               });
+        });
+        // ]]>
+    </script>
+</head>
+<body resource="?this">
+    <h1>{rdfs:label} Sign Up</h1>
+    <p>Are you sure you want to accept this invitation?</p>
+    <form id="form" method="POST" action="?register">
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Yes, sign me up!</button>
+            <button type="button" onclick="window.location.replace('/')">I'll come back later</button>
+        </div>
+    </form>
+</body>
+</html>

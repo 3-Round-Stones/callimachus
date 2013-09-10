@@ -22,7 +22,7 @@ public class CalliPage {
 	public Login openLogin() {
 		driver.focusInTopWindow();
 		driver.click(By.id("login-link"));
-		return page(Login.class);
+		return page(SignIn.class).loginWithDigest();
 	}
 
 	public CalliPage logout() {

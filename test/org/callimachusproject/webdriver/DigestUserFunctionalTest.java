@@ -31,7 +31,7 @@ import org.callimachusproject.util.MailProperties;
 import org.callimachusproject.webdriver.helpers.BrowserFunctionalTestCase;
 import org.callimachusproject.webdriver.pages.DigestUserEdit;
 import org.callimachusproject.webdriver.pages.GroupEdit;
-import org.callimachusproject.webdriver.pages.Register;
+import org.callimachusproject.webdriver.pages.SignIn;
 
 /**
  * This test requires a etc/mail.properties file to be present.
@@ -78,7 +78,8 @@ public class DigestUserFunctionalTest extends BrowserFunctionalTestCase {
 		String testuser = getUniqueToken() + "-test-user";
 		logger.info("Login {}", testuser);
 		String profile = page
-				.open(getRegistrationUrlByEmailSubject(unique), Register.class)
+				.open(getRegistrationUrlByEmailSubject(unique), SignIn.class)
+				.registerWithDigest()
 				.with(testuser, "Password1", fullname, email).signup()
 				.with(testuser, "Password1".toCharArray()).login()
 				.openProfile().getCurrentUrl();

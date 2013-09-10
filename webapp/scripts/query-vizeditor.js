@@ -241,7 +241,7 @@
                     '    ]]></script>\n' +
                     '</head>\n' +
                     '<body>\n' +
-                    '    <div id="' + containerId + '" />\n' +
+                    '    <div id="' + containerId + '" class="flex" />\n' +
                     '</body>\n' +
                     '</html>' + "\n" + 
                 '';

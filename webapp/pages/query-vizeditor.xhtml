@@ -4,14 +4,14 @@
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
 <head>
-    <title>Query Visualization Editor</title>
+    <title resource="?this">{rdfs:label}</title>
     <link rel="edit-form" href="?edit" />
     <link rel="comments" href="?discussion" />
     <link rel="version-history" href="?history" />
     <link rel="stylesheet" type="text/css" href="../styles/callimachus-query-vizeditor.css" />
     <script type="text/javascript" src="../scripts/query-vizeditor.js"></script>
 </head>
-<body>
-    <h1>Query Visualization Editor</h1>
+<body resource="?this">
+    <h1 property="rdfs:label" />
 </body>
 </html>

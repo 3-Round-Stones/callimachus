@@ -57,7 +57,9 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpInetConnection;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestFactory;
+import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpExecutionAware;
@@ -85,6 +87,7 @@ import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
 import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.ImmutableHttpProcessor;
 import org.apache.http.protocol.ResponseConnControl;
@@ -195,7 +198,7 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 	private final ModifiedSinceHandler remoteCache;
 	private final CacheHandler cache;
 	private int timeout = 0;
-	private final HttpProcessor httpproc;
+	private final HttpResponseInterceptor[] interceptors;
 	private final Runnable schemaListener;
 
 	public WebServer(File cacheDir)
@@ -226,10 +229,10 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 		filter = new MD5ValidationFilter(filter);
 		chain = filter = new AccessLog(filter);
 		service = new AsyncRequestHandler(chain);
-		httpproc = new ImmutableHttpProcessor(new ResponseDate(),
+		interceptors = new HttpResponseInterceptor[] { new ResponseDate(),
 				new ResponseContent(true), new ResponseConnControl(),
 				name = new ServerNameFilter(DEFAULT_NAME),
-				new HeadRequestFilter());
+				new HeadRequestFilter() };
 		HttpRequestFactory rfactory = new AnyHttpMethodRequestFactory();
 		HeapByteBufferAllocator allocator = new HeapByteBufferAllocator();
 		IOReactorConfig config = createIOReactorConfig();
@@ -594,13 +597,15 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 			if (previously == null) {
 				foreground.set(true);
 			}
+			HttpHost target = route.getTargetHost();
+			HttpProcessor httpproc = getHttpProcessor(target.getSchemeName());
 			logger.debug("Internal request received {}", request.getRequestLine());
 			CalliContext cc = CalliContext.adapt(new BasicHttpContext(context));
 			cc.setReceivedOn(System.currentTimeMillis());
 			cc.setClientAddr(LOCALHOST);
 			httpproc.process(request, cc);
 			try {
-				response = chain.execute(route.getTargetHost(), request, cc,
+				response = chain.execute(target, request, cc,
 						new FutureCallback<HttpResponse>() {
 							public void failed(Exception ex) {
 								if (ex instanceof RuntimeException) {
@@ -646,7 +651,6 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 			String uri = request.getRequestLine().getUri();
 			if (uri.startsWith("/")) {
 				URI net = URI.create(uri);
-				HttpHost target = route.getTargetHost();
 				URI rewriten = URIUtils.rewriteURI(net, target, true);
 				systemId = rewriten.toASCIIString();
 			} else {
@@ -764,7 +768,7 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 		HttpAsyncService handler;
 		DefaultNHttpServerConnectionFactory factory;
 		ConnectionConfig params = getDefaultConnectionConfig();
-		handler = createProtocolHandler(httpproc, service);
+		handler = createProtocolHandler(getHttpProcessor("http"), service);
 		DefaultHttpRequestParserFactory rparser = new DefaultHttpRequestParserFactory(null, requestFactory);
 		factory = new DefaultNHttpServerConnectionFactory(allocator, rparser, null, params);
 		return new DefaultHttpServerIODispatch(handler, factory);
@@ -776,10 +780,20 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 		HttpAsyncService handler;
 		SSLNHttpServerConnectionFactory factory;
 		ConnectionConfig params = getDefaultConnectionConfig();
-		handler = createProtocolHandler(httpproc, service);
+		handler = createProtocolHandler(getHttpProcessor("https"), service);
 		DefaultHttpRequestParserFactory rparser = new DefaultHttpRequestParserFactory(null, requestFactory);
 		factory = new SSLNHttpServerConnectionFactory(sslcontext, null, rparser, null, allocator, params);
 		return new DefaultHttpServerIODispatch(handler, factory);
+	}
+
+	private ImmutableHttpProcessor getHttpProcessor(final String protocol) {
+		return new ImmutableHttpProcessor(
+				new HttpRequestInterceptor[] { new HttpRequestInterceptor() {
+					public void process(HttpRequest request, HttpContext context)
+							throws HttpException, IOException {
+						CalliContext.adapt(context).setProtocolScheme(protocol);
+					}
+				} }, interceptors);
 	}
 
 	private ConnectionConfig getDefaultConnectionConfig() {

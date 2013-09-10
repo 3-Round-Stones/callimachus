@@ -68,7 +68,7 @@ public class TransactionHandler implements AsyncExecChain {
 	public Future<HttpResponse> execute(HttpHost target,
 			HttpRequest request, HttpContext ctx,
 			FutureCallback<HttpResponse> callback) {
-		final Request req = new Request(request);
+		final Request req = new Request(request, ctx);
 		final boolean unsafe = !req.isSafe();
 		String origin = req.getOrigin();
 		CalliRepository repo = getRepository(origin);

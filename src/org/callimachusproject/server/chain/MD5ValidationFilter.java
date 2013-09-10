@@ -52,7 +52,7 @@ public class MD5ValidationFilter implements AsyncExecChain {
 	public Future<HttpResponse> execute(HttpHost target,
 			HttpRequest request, HttpContext context,
 			FutureCallback<HttpResponse> callback) {
-		Request req = new Request(request);
+		Request req = new Request(request, context);
 		if (req.containsHeader("Content-MD5") && req.getEntity() != null) {
 			String md5 = req.getHeader("Content-MD5");
 			req.setEntity(new MD5ValidationEntity(req.getEntity(), md5));

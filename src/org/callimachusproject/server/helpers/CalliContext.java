@@ -91,6 +91,14 @@ public class CalliContext implements HttpContext {
 		context.setAttribute(id, obj);
 	}
 
+	public String getProtocolScheme() {
+		return getAttribute("http.protocol.scheme", String.class);
+	}
+
+	public void setProtocolScheme(String scheme) {
+		setAttribute("http.protocol.scheme", scheme);
+	}
+
 	public long getReceivedOn() {
 		Long ret = getAttribute(RECEIVED_ATTR, Long.class);
 		return ret == null ? 0 : ret;

@@ -86,7 +86,7 @@ public class ResponseBuilder {
 		this.repository = ctx.getCalliRepository();
 		ResourceOperation trans = ctx.getResourceTransaction();
 		if (trans == null) {
-			this.systemId = new Request(request).getRequestURL();
+			this.systemId = new Request(request, ctx).getRequestURL();
 		} else {
 			this.systemId = trans.getRequestURL();
 		}

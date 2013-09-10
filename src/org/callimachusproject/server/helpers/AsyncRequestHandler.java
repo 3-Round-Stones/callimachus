@@ -88,7 +88,7 @@ public class AsyncRequestHandler implements HttpAsyncRequestHandlerMapper,
 			IOException {
 		logger.debug("Request received {}", request.getRequestLine());
 		CalliContext cc = CalliContext.adapt(context);
-		final Request req = new Request(request);
+		final Request req = new Request(request, context);
 		final Queue<Exchange> queue = cc.getOrCreateProcessingQueue();
 		final Exchange exchange = new Exchange(req, queue);
 		cc.setExchange(exchange);

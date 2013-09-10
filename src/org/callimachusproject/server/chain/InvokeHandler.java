@@ -98,7 +98,7 @@ public class InvokeHandler implements ClientExecChain {
 		Method method = trans.getJavaMethod();
 		assert method != null;
 		try {
-			return invoke(trans, method, new Request(request).isSafe(), new ResponseBuilder(request, context));
+			return invoke(trans, method, new Request(request, context).isSafe(), new ResponseBuilder(request, context));
 		} catch (Error e) {
 			throw e;
 		} catch (RuntimeException e) {

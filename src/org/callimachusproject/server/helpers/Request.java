@@ -39,6 +39,7 @@ import org.apache.commons.httpclient.util.DateParseException;
 import org.apache.commons.httpclient.util.DateUtil;
 import org.apache.http.Header;
 import org.apache.http.HttpRequest;
+import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.server.exceptions.BadRequest;
 
@@ -49,11 +50,17 @@ import org.callimachusproject.server.exceptions.BadRequest;
  * 
  */
 public class Request extends EditableHttpEntityEnclosingRequest {
+	private final String protocol;
 	private final String origin;
 	private final String iri;
 
-	public Request(HttpRequest request) {
+	public Request(HttpRequest request, HttpContext context) {
+		this(request, CalliContext.adapt(context).getProtocolScheme());
+	}
+
+	public Request(HttpRequest request, String protocol) {
 		super(request);
+		this.protocol = protocol;
 		try {
 			String path = request.getRequestLine().getUri();
 			int qx = path.indexOf('?');
@@ -223,11 +230,9 @@ public class Request extends EditableHttpEntityEnclosingRequest {
 				// try the host header
 			}
 		}
-		// Set by WebServer
-		Object scheme = getParams().getParameter("http.protocol.scheme");
-		if (scheme == null)
+		if (protocol == null)
 			return "http";
-		return (String) scheme;
+		return protocol;
 	}
 
 	public Enumeration getHeaderEnumeration(String name) {

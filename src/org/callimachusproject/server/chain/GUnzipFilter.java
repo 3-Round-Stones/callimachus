@@ -73,7 +73,7 @@ public class GUnzipFilter implements AsyncExecChain {
 			FutureCallback<HttpResponse> callback) {
 		Header hd = request.getFirstHeader("Content-Encoding");
 		if (hd != null && "gzip".equals(hd.getValue())) {
-			Request req = new Request(request);
+			Request req = new Request(request, context);
 			HttpEntity entity = req.getEntity();
 			if (entity != null) {
 				// Keep original MD5 (if present) for digest auth

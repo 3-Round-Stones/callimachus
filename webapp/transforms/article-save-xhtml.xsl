@@ -186,7 +186,7 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
 <xsl:template match="xhtml:p">
     <para>
         <xsl:call-template name="id" />
-        <xsl:apply-templates select="@*" />
+        <xsl:apply-templates select="@*[name()!= 'style']" />
         <xsl:apply-templates />
     </para>
 </xsl:template>
@@ -199,14 +199,14 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
     </blockquote>
 </xsl:template>
 
-<xsl:template match="xhtml:pre[@class='programlisting']">
+<xsl:template match="xhtml:pre[@class='programlisting' or @class='prettyprint']">
     <programlisting>
         <xsl:call-template name="id" />
         <xsl:apply-templates />
     </programlisting>
 </xsl:template>
 
-<xsl:template match="xhtml:pre[not(@class='programlisting')]">
+<xsl:template match="xhtml:pre[not(@class='programlisting' or @class='prettyprint')]">
     <screen>
         <xsl:call-template name="id" />
         <xsl:apply-templates select="@*" />

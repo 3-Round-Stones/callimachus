@@ -54,6 +54,7 @@ INSERT {
         <../changes/>,
         <../getting-started-with-callimachus>,
         <../callimachus-for-web-developers>,
+        <../callimachus-reference>,
         <../scripts.js>,
         <../library.xpl>,
         <../error.xpl>,
@@ -96,7 +97,7 @@ INSERT {
 INSERT {
     <../getting-started-with-callimachus> a <types/PURL>, calli:PURL ;
 	rdfs:label "getting-started-with-callimachus";
-	calli:alternate <http://callimachusproject.org/docs/1.1/getting-started-with-callimachus.docbook?view>;
+	calli:alternate <http://callimachusproject.org/docs/1.2/getting-started-with-callimachus.docbook?view>;
 	calli:administrator </auth/groups/super>;
 	calli:reader </auth/groups/public> .
 } WHERE {
@@ -106,11 +107,21 @@ INSERT {
 INSERT {
     <../callimachus-for-web-developers> a <types/PURL>, calli:PURL ;
 	rdfs:label "callimachus-for-web-developers";
-	calli:alternate <http://callimachusproject.org/docs/1.1/callimachus-for-web-developers.docbook?view>;
+	calli:alternate <http://callimachusproject.org/docs/1.2/callimachus-for-web-developers.docbook?view>;
 	calli:administrator </auth/groups/super>;
 	calli:reader </auth/groups/public> .
 } WHERE {
 	FILTER NOT EXISTS { <../callimachus-for-web-developers> a calli:PURL }
+};
+
+INSERT {
+    <../callimachus-reference> a <types/PURL>, calli:PURL ;
+	rdfs:label "callimachus-reference";
+	calli:alternate <http://callimachusproject.org/docs/1.2/callimachus-reference.docbook?view>;
+	calli:administrator </auth/groups/super>;
+	calli:reader </auth/groups/public> .
+} WHERE {
+	FILTER NOT EXISTS { <../callimachus-reference> a calli:PURL }
 };
 
 INSERT {

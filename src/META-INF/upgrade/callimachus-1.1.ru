@@ -76,3 +76,39 @@ DELETE WHERE {
 	</> calli:hasComponent </describe>.
 	</describe> a <types/DescribeService>; ?p ?o
 };
+
+DELETE {
+    <../getting-started-with-callimachus> calli:alternate <http://callimachusproject.org/docs/1.1/getting-started-with-callimachus.docbook?view>.
+} INSERT {
+    <../getting-started-with-callimachus> calli:alternate <http://callimachusproject.org/docs/1.2/getting-started-with-callimachus.docbook?view>.
+} WHERE {
+    <../getting-started-with-callimachus> calli:alternate <http://callimachusproject.org/docs/1.1/getting-started-with-callimachus.docbook?view>.
+};
+
+DELETE {
+    <../callimachus-for-web-developers> calli:alternate <http://callimachusproject.org/docs/1.1/callimachus-for-web-developers.docbook?view>.
+} INSERT {
+    <../callimachus-for-web-developers> calli:alternate <http://callimachusproject.org/docs/1.2/callimachus-for-web-developers.docbook?view>.
+} WHERE {
+    <../callimachus-for-web-developers> calli:alternate <http://callimachusproject.org/docs/1.1/callimachus-for-web-developers.docbook?view>.
+};
+
+INSERT {
+    <../> calli:hasComponent <../callimachus-reference> .
+    <../callimachus-reference> a <types/PURL>, calli:PURL ;
+	rdfs:label "callimachus-reference";
+	calli:alternate <http://callimachusproject.org/docs/1.2/callimachus-reference.docbook?view>;
+	calli:administrator </auth/groups/super>;
+	calli:reader </auth/groups/public> .
+} WHERE {
+	FILTER NOT EXISTS { <../callimachus-reference> a calli:PURL }
+};
+
+DELETE {
+	</callimachus/ontology> owl:versionInfo "1.1"
+} INSERT {
+	</callimachus/ontology> owl:versionInfo "1.2"
+} WHERE {
+	</callimachus/ontology> owl:versionInfo "1.1"
+};
+

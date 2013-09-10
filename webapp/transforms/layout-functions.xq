@@ -45,7 +45,7 @@ declare function calli:add-href($a as element(), $link as element(), $label as x
     if (local-name($a)='a') then
         element {node-name($a)} {
             $a/@*[name()!='class'],
-            for $attr in $link/@*
+            for $attr in $link/@*[name()!='id']
             return if ($a/@*[name()=name($attr)]) then ()
             else $attr,
             if ($a/@class and $link/@class) then attribute class {concat($a/@class,' ',$link/@class)}

@@ -18,10 +18,17 @@ xmlns="http://www.w3.org/1999/xhtml" xmlns:xhtml="http://www.w3.org/1999/xhtml" 
         <link rel="version-history" href="?history" />
         <link rel="alternate" href="?docbook" title="Download Docbook" />
         <xsl:apply-templates mode="rel" />
+        <link href="{resolve-uri('../styles/prettify.css')}" type="text/css" rel="stylesheet" />
         <style type="text/css">
             .anchor { font-size: smaller; }
             ul.toc { list-style: none; }
         </style>
+        <script type="text/javascript" src="{resolve-uri('../scripts/prettify.js')}"></script>
+        <script type="text/javascript">
+            jQuery(function($) {
+                prettyPrint();
+            });
+        </script>
     </head>
     <body>
         <xsl:apply-templates />

@@ -171,7 +171,7 @@
 </xsl:template>
 
 <xsl:template match="d:programlisting">
-    <pre class="programlisting">
+    <pre class="prettyprint">
         <xsl:apply-templates select="@*" />
         <xsl:apply-templates mode="anchor" select="@xml:id" />
         <xsl:apply-templates />

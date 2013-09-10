@@ -199,14 +199,14 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
     </blockquote>
 </xsl:template>
 
-<xsl:template match="xhtml:pre[@class='programlisting' or @class='prettyprint']">
+<xsl:template match="xhtml:pre[@class='prettyprint']">
     <programlisting>
         <xsl:call-template name="id" />
         <xsl:apply-templates />
     </programlisting>
 </xsl:template>
 
-<xsl:template match="xhtml:pre[not(@class='programlisting' or @class='prettyprint')]">
+<xsl:template match="xhtml:pre[not(@class='prettyprint')]">
     <screen>
         <xsl:call-template name="id" />
         <xsl:apply-templates select="@*" />

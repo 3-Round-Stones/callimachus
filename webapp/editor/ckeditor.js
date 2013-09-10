@@ -25,7 +25,7 @@ jQuery(function($) {
         
         removeButtons: 'Underline,Strike,ShowBlocks,Iframe,About',
         
-        format_tags: 'p;h1;h2;h3;h4;h5;h6',
+        format_tags: 'p;h1;h2;h3;h4;h5;h6;pre',
         
         stylesSet: [
             { name: 'Cited Work',       element: 'cite' },

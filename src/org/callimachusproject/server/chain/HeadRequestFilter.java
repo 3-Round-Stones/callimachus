@@ -18,7 +18,8 @@ public class HeadRequestFilter implements HttpResponseInterceptor {
 			throws HttpException, IOException {
 		HttpRequest request = HttpCoreContext.adapt(context).getRequest();
 		HttpEntity entity = response.getEntity();
-		if ("HEAD".equals(request.getRequestLine().getMethod())
+		if (request != null
+				&& "HEAD".equals(request.getRequestLine().getMethod())
 				&& entity != null) {
 			EntityUtils.consumeQuietly(entity);
 			response.setEntity(null);

@@ -4,8 +4,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
@@ -68,9 +70,10 @@ public class TransactionHandler implements AsyncExecChain {
 			FutureCallback<HttpResponse> callback) {
 		final Request req = new Request(request);
 		final boolean unsafe = !req.isSafe();
-		CalliRepository repo = getRepository(req.getOrigin());
+		String origin = req.getOrigin();
+		CalliRepository repo = getRepository(origin);
 		if (repo == null || !repo.isInitialized())
-			throw new ServiceUnavailable("This origin is not configured");
+			throw notSetup(origin);
 		final CalliContext context = CalliContext.adapt(ctx);
 		try {
 			context.setCalliRepository(repo);
@@ -137,6 +140,37 @@ public class TransactionHandler implements AsyncExecChain {
 
 	private synchronized CalliRepository getRepository(String origin) {
 		return repositories.get(origin);
+	}
+
+	private synchronized ServiceUnavailable notSetup(String origin) {
+		if (repositories.isEmpty())
+			return new ServiceUnavailable("No origins are configured");
+		String closest = closest(origin, repositories.keySet());
+		return new ServiceUnavailable("Origin " + origin
+				+ " is not configured, perhaps you wanted " + closest);
+	}
+
+	private String closest(String origin, Set<String> origins) {
+		Set<Character> base = toSet(origin.toCharArray());
+		String closest = null;
+		Set<Character> common = null;
+		for (String o : origins) {
+			Set<Character> set = toSet(o.toCharArray());
+			set.retainAll(base);
+			if (common == null || set.size() > common.size()) {
+				common = set;
+				closest = o;
+			}
+		}
+		return closest;
+	}
+
+	private Set<Character> toSet(char[] charArray) {
+		Set<Character> set = new HashSet<Character>(charArray.length);
+		for (int i = 0; i < charArray.length; i++) {
+			set.add(charArray[i]);
+		}
+		return set;
 	}
 
 	void createSafeHttpEntity(HttpResponse resp, boolean commit,

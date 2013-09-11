@@ -397,6 +397,7 @@ if [ ! -e "$JMXRIMPASS" -a -r "$JMXRMI" ] ; then
   elif [ -r "$JAVA_HOME/lib/management/jmxremote.password.template" ] ; then
     cp "$JAVA_HOME/lib/management/jmxremote.password.template" "$JMXRIMPASS"
   fi
+  chmod 600 "$JMXRIMPASS"
   echo >> "$JMXRIMPASS"
   if [ -x "$(command -v md5sum)" ] ; then
     echo 2$$$(date +%s)$RANDOM | md5sum | awk '{print "monitorRole " $1}' >> "$JMXRIMPASS"
@@ -405,7 +406,6 @@ if [ ! -e "$JMXRIMPASS" -a -r "$JMXRMI" ] ; then
     echo $$$(date +%s)$RANDOM | awk '{print "monitorRole " $1}' >> "$JMXRIMPASS"
     echo $$$(date +%s)$RANDOM | awk '{print "controlRole " $1}' >> "$JMXRIMPASS"
   fi
-  chmod 600 "$JMXRIMPASS"
 fi
 
 if [ ! -z "$DAEMON_USER" ] ; then

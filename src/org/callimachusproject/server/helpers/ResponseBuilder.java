@@ -232,7 +232,7 @@ public class ResponseBuilder {
 				print1.close();
 				print.append(enc(sw.toString()));
 				print.append("</pre>\n");
-			} else if (exception.getStatusCode() > 500) {
+			} else if (exception.getStatusCode() >= 500) {
 				print.append("<pre>");
 				print.append(enc(exception.getDetailMessage()));
 				print.append("</pre>\n");

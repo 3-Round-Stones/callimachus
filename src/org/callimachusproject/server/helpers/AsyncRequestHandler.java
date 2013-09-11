@@ -128,11 +128,20 @@ public class AsyncRequestHandler implements HttpAsyncRequestHandlerMapper,
 						}
 
 						public void failed(Exception ex) {
-							logger.error(ex.toString(), ex);
 							ResponseException e;
 							if (ex instanceof ResponseException) {
 								e = (ResponseException) ex;
+								if (e.getCause() == null) {
+									if (e.getStatusCode() < 500) {
+										logger.warn(e.getDetailMessage());
+									} else {
+										logger.error(e.getDetailMessage());
+									}
+								} else {
+									logger.error(e.getLongMessage(), e);
+								}
 							} else {
+								logger.error(ex.toString(), ex);
 								e = new InternalServerError(ex);
 							}
 							HttpUriResponse result = new ResponseBuilder(req)

@@ -6,6 +6,7 @@ jQuery(function($) {
     var jQuery = $;
     
     CKEDITOR.replace('editor', {
+        baseHref: window.location.href,
         resize_enabled: false,                  // disable resize handle
         fullPage: true,                         // enable editing of complete documents
         basicEntities: true,                    // enable basic entities
@@ -63,7 +64,6 @@ jQuery(function($) {
 
     var editor = CKEDITOR.instances.editor;
     var saved = null;
-    var systemId = window.location.href;
     
     /**
      * Turns img style rules into attributes for docbook compatibility.
@@ -310,8 +310,7 @@ jQuery(function($) {
             'body.cke_editable.cke_show_blocks > * { background-color: #fff; padding-bottom: 5px;}'
         ];
         return html
-            .replace('</head>', '<style type="text/css">' + styles.join("\n") + "\n" + '</style></head>')
-            .replace('<head>', '<head><base href="' + systemId + '" />'); // inject base href
+            .replace('</head>', '<style type="text/css">' + styles.join("\n") + "\n" + '</style></head>');
     }
     
     /**
@@ -381,7 +380,9 @@ jQuery(function($) {
     function handleMessage(header, body) {
         if (header.match(/^PUT text(\n|$)/)) {
             var m = header.match(/\nContent-Location:\s*(.*)(\n|$)/i);
-            systemId = m ? m[1] : null; // used as base-uri
+            if (m) {
+                editor.config.baseHref = m[1]; // used as base-uri
+            }
             if (header.match(/\nIf-None-Match: */) || !body) {
                 if (!editor.getData()) {
                     if (body) {

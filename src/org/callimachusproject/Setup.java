@@ -383,10 +383,14 @@ public class Setup {
 		if (repositoryID.equals(config.getID())) {
 			return updateRepositoryConfig(manager, config);
 		} else {
-			RepositoryConfig stored = manager.getRepositoryConfig(repositoryID);
 			String title = null;
-			if (stored != null) {
-				title = stored.getTitle();
+			try {
+				RepositoryConfig stored = manager.getRepositoryConfig(repositoryID);
+				if (stored != null) {
+					title = stored.getTitle();
+				}
+			} catch (RepositoryConfigException e) {
+				logger.warn("Could not read repository configuration");
 			}
 			RepositoryImplConfig impl = config.getRepositoryImplConfig();
 			config = new RepositoryConfig(repositoryID, title, impl);

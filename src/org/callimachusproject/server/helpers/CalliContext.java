@@ -39,6 +39,7 @@ import org.openrdf.repository.object.ObjectConnection;
 
 public class CalliContext implements HttpContext {
 
+	private static final String PROTOCOL_SCHEME = "http.protocol.scheme";
 	private static final String NS = CalliContext.class.getName() + "#";
     private static final String CLIENT_ATTR = NS + "clientAddr";
     private static final String CONNECTION_ATTR = NS + "#connection";
@@ -92,11 +93,11 @@ public class CalliContext implements HttpContext {
 	}
 
 	public String getProtocolScheme() {
-		return getAttribute("http.protocol.scheme", String.class);
+		return getAttribute(PROTOCOL_SCHEME, String.class);
 	}
 
 	public void setProtocolScheme(String scheme) {
-		setAttribute("http.protocol.scheme", scheme);
+		setAttribute(PROTOCOL_SCHEME, scheme);
 	}
 
 	public long getReceivedOn() {

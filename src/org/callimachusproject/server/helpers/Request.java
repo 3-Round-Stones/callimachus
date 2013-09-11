@@ -42,6 +42,8 @@ import org.apache.http.HttpRequest;
 import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.server.exceptions.BadRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Utility class for {@link HttpServletRequest}.
@@ -50,6 +52,7 @@ import org.callimachusproject.server.exceptions.BadRequest;
  * 
  */
 public class Request extends EditableHttpEntityEnclosingRequest {
+	private final Logger logger = LoggerFactory.getLogger(Request.class);
 	private final String protocol;
 	private final String origin;
 	private final String iri;
@@ -230,8 +233,10 @@ public class Request extends EditableHttpEntityEnclosingRequest {
 				// try the host header
 			}
 		}
-		if (protocol == null)
+		if (protocol == null) {
+			logger.warn("Could not determine protocol for {}", uri);
 			return "http";
+		}
 		return protocol;
 	}
 

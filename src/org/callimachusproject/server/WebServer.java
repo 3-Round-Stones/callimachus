@@ -116,6 +116,7 @@ import org.callimachusproject.server.chain.ModifiedSinceHandler;
 import org.callimachusproject.server.chain.NotFoundHandler;
 import org.callimachusproject.server.chain.OptionsHandler;
 import org.callimachusproject.server.chain.ResponseExceptionHandler;
+import org.callimachusproject.server.chain.SecureChannelFilter;
 import org.callimachusproject.server.chain.ServerNameFilter;
 import org.callimachusproject.server.chain.TraceHandler;
 import org.callimachusproject.server.chain.TransactionHandler;
@@ -227,6 +228,7 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 		filter = cache = new CacheHandler(filter, new FileResourceFactory(cacheDir), getDefaultCacheConfig());
 		filter = new GUnzipFilter(filter);
 		filter = new MD5ValidationFilter(filter);
+		filter = new SecureChannelFilter(filter);
 		chain = filter = new AccessLog(filter);
 		service = new AsyncRequestHandler(chain);
 		interceptors = new HttpResponseInterceptor[] { new ResponseDate(),

@@ -29,22 +29,34 @@ jQuery(function($) {
         format_tags: 'p;h1;h2;h3;h4;h5;h6;pre',
         
         stylesSet: [
-            { name: 'Cited Work',       element: 'cite' },
-            { name: 'Inline Quotation', element: 'q' },
+            { name: 'Cited work',       element: 'cite' },
+            { name: 'Inline quotation', element: 'q' },
 
-            { name: 'Sample Text',      element: 'samp' },
+            { name: 'Sample output',    element: 'samp' },
             { name: 'Variable',         element: 'var' },
 
-            { name: 'Computer Code',    element: 'code' },
-            { name: 'Class Name',       element: 'code', attributes: { 'class': 'classname' } },
+            { name: 'Class name',       element: 'code', attributes: { 'class': 'classname' } },
+            { name: 'Command',          element: 'code', attributes: { 'class': 'command' } },
+            { name: 'Enviroment var',   element: 'code', attributes: { 'class': 'envar' } },
+            { name: 'Exception name',   element: 'code', attributes: { 'class': 'exceptionname' } },
+            { name: 'File name',        element: 'code', attributes: { 'class': 'filename' } },
+            { name: 'Function',         element: 'code', attributes: { 'class': 'function' } },
+            { name: 'Initializer',      element: 'code', attributes: { 'class': 'initializer' } },
+            { name: 'Interface name',   element: 'code', attributes: { 'class': 'interfacename' } },
+            { name: 'Literal',          element: 'code', attributes: { 'class': 'literal' } },
+            { name: 'Method name',      element: 'code', attributes: { 'class': 'methodname' } },
+            { name: 'Modifier',         element: 'code', attributes: { 'class': 'modifier' } },
+            { name: 'Parameter',        element: 'code', attributes: { 'class': 'parameter' } },
+            { name: 'Prompt',           element: 'code', attributes: { 'class': 'prompt' } },
             { name: 'Property',         element: 'code', attributes: { 'class': 'property' } },
+            { name: 'Return value',     element: 'code', attributes: { 'class': 'returnvalue' } },
             { name: 'Symbol',           element: 'code', attributes: { 'class': 'symbol' } },
             { name: 'Token',            element: 'code', attributes: { 'class': 'token' } },
-            { name: 'Parameter',        element: 'code', attributes: { 'class': 'parameter' } },
-            { name: 'File Name',        element: 'code', attributes: { 'class': 'filename' } },
-            { name: 'Function',         element: 'code', attributes: { 'class': 'function' } },
+            { name: 'Type',             element: 'code', attributes: { 'class': 'type' } },
             { name: 'URI',              element: 'code', attributes: { 'class': 'uri' } },
-            { name: 'Literal',          element: 'code', attributes: { 'class': 'literal' } }
+            { name: 'User input',       element: 'code', attributes: { 'class': 'userinput' } },
+
+            { name: 'Computer Code',    element: 'code' }
         ],
         
         on: {

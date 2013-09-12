@@ -613,14 +613,6 @@
 
 <!-- inline formatting -->
 
-<xsl:template match="d:literal">
-    <code class="literal">
-        <xsl:apply-templates select="@*" />
-        <xsl:apply-templates mode="anchor" select="@xml:id" />
-        <xsl:apply-templates />
-    </code>
-</xsl:template>
-
 <xsl:template match="d:code">
     <code>
         <xsl:apply-templates select="@*" />
@@ -637,8 +629,136 @@
     </code>
 </xsl:template>
 
+<xsl:template match="d:command">
+    <code class="command">
+        <xsl:apply-templates select="@*" />
+        <xsl:apply-templates mode="anchor" select="@xml:id" />
+        <xsl:apply-templates />
+    </code>
+</xsl:template>
+
+<xsl:template match="d:envar">
+    <code class="envar">
+        <xsl:apply-templates select="@*" />
+        <xsl:apply-templates mode="anchor" select="@xml:id" />
+        <xsl:apply-templates />
+    </code>
+</xsl:template>
+
+<xsl:template match="d:exceptionname">
+    <code class="exceptionname">
+        <xsl:apply-templates select="@*" />
+        <xsl:apply-templates mode="anchor" select="@xml:id" />
+        <xsl:apply-templates />
+    </code>
+</xsl:template>
+
+<xsl:template match="d:filename">
+    <code class="filename">
+        <xsl:apply-templates select="@*" />
+        <xsl:apply-templates mode="anchor" select="@xml:id" />
+        <xsl:apply-templates />
+    </code>
+</xsl:template>
+
+<xsl:template match="d:function">
+    <code class="function">
+        <xsl:apply-templates select="@*" />
+        <xsl:apply-templates mode="anchor" select="@xml:id" />
+        <xsl:apply-templates />
+    </code>
+</xsl:template>
+
+<xsl:template match="d:initializer">
+    <code class="initializer">
+        <xsl:apply-templates select="@*" />
+        <xsl:apply-templates mode="anchor" select="@xml:id" />
+        <xsl:apply-templates />
+    </code>
+</xsl:template>
+
+<xsl:template match="d:interfacename">
+    <code class="interfacename">
+        <xsl:apply-templates select="@*" />
+        <xsl:apply-templates mode="anchor" select="@xml:id" />
+        <xsl:apply-templates />
+    </code>
+</xsl:template>
+
+<xsl:template match="d:literal">
+    <code class="literal">
+        <xsl:apply-templates select="@*" />
+        <xsl:apply-templates mode="anchor" select="@xml:id" />
+        <xsl:apply-templates />
+    </code>
+</xsl:template>
+
+<xsl:template match="d:methodname">
+    <code class="methodname">
+        <xsl:apply-templates select="@*" />
+        <xsl:apply-templates mode="anchor" select="@xml:id" />
+        <xsl:apply-templates />
+    </code>
+</xsl:template>
+
+<xsl:template match="d:modifier">
+    <code class="modifier">
+        <xsl:apply-templates select="@*" />
+        <xsl:apply-templates mode="anchor" select="@xml:id" />
+        <xsl:apply-templates />
+    </code>
+</xsl:template>
+
+<xsl:template match="d:ooclass">
+    <code class="ooclass">
+        <xsl:apply-templates select="@*" />
+        <xsl:apply-templates mode="anchor" select="@xml:id" />
+        <xsl:apply-templates />
+    </code>
+</xsl:template>
+
+<xsl:template match="d:ooexception">
+    <code class="ooexception">
+        <xsl:apply-templates select="@*" />
+        <xsl:apply-templates mode="anchor" select="@xml:id" />
+        <xsl:apply-templates />
+    </code>
+</xsl:template>
+
+<xsl:template match="d:oointerface">
+    <code class="oointerface">
+        <xsl:apply-templates select="@*" />
+        <xsl:apply-templates mode="anchor" select="@xml:id" />
+        <xsl:apply-templates />
+    </code>
+</xsl:template>
+
+<xsl:template match="d:parameter">
+    <code class="parameter">
+        <xsl:apply-templates select="@*" />
+        <xsl:apply-templates mode="anchor" select="@xml:id" />
+        <xsl:apply-templates />
+    </code>
+</xsl:template>
+
+<xsl:template match="d:prompt">
+    <code class="prompt">
+        <xsl:apply-templates select="@*" />
+        <xsl:apply-templates mode="anchor" select="@xml:id" />
+        <xsl:apply-templates />
+    </code>
+</xsl:template>
+
 <xsl:template match="d:property">
     <code class="property">
+        <xsl:apply-templates select="@*" />
+        <xsl:apply-templates mode="anchor" select="@xml:id" />
+        <xsl:apply-templates />
+    </code>
+</xsl:template>
+
+<xsl:template match="d:returnvalue">
+    <code class="returnvalue">
         <xsl:apply-templates select="@*" />
         <xsl:apply-templates mode="anchor" select="@xml:id" />
         <xsl:apply-templates />
@@ -661,24 +781,24 @@
     </code>
 </xsl:template>
 
-<xsl:template match="d:filename">
-    <code class="filename">
+<xsl:template match="d:type">
+    <code class="type">
         <xsl:apply-templates select="@*" />
         <xsl:apply-templates mode="anchor" select="@xml:id" />
         <xsl:apply-templates />
     </code>
 </xsl:template>
 
-<xsl:template match="d:parameter">
-    <code class="parameter">
+<xsl:template match="d:uri">
+    <code class="uri">
         <xsl:apply-templates select="@*" />
         <xsl:apply-templates mode="anchor" select="@xml:id" />
         <xsl:apply-templates />
     </code>
 </xsl:template>
 
-<xsl:template match="d:function">
-    <code class="function">
+<xsl:template match="d:userinput">
+    <code class="userinput">
         <xsl:apply-templates select="@*" />
         <xsl:apply-templates mode="anchor" select="@xml:id" />
         <xsl:apply-templates />

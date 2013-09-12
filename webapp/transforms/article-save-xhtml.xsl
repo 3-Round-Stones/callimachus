@@ -488,32 +488,25 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
     </classname>
 </xsl:template>
 
-<xsl:template match="xhtml:code[@class='property']">
-    <property>
+<xsl:template match="xhtml:code[@class='command']">
+    <command>
         <xsl:call-template name="id" />
         <xsl:apply-templates />
-    </property>
+    </command>
 </xsl:template>
 
-<xsl:template match="xhtml:code[@class='symbol']">
-    <symbol>
+<xsl:template match="xhtml:code[@class='envar']">
+    <envar>
         <xsl:call-template name="id" />
         <xsl:apply-templates />
-    </symbol>
+    </envar>
 </xsl:template>
 
-<xsl:template match="xhtml:code[@class='token']">
-    <token>
+<xsl:template match="xhtml:code[@class='exceptionname']">
+    <exceptionname>
         <xsl:call-template name="id" />
         <xsl:apply-templates />
-    </token>
-</xsl:template>
-
-<xsl:template match="xhtml:code[@class='parameter']">
-    <parameter>
-        <xsl:call-template name="id" />
-        <xsl:apply-templates />
-    </parameter>
+    </exceptionname>
 </xsl:template>
 
 <xsl:template match="xhtml:code[@class='filename']">
@@ -530,11 +523,109 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
     </function>
 </xsl:template>
 
-<xsl:template match="xhtml:var|xhtml:code[@class='varname']">
-    <varname>
+<xsl:template match="xhtml:code[@class='initializer']">
+    <initializer>
         <xsl:call-template name="id" />
         <xsl:apply-templates />
-    </varname>
+    </initializer>
+</xsl:template>
+
+<xsl:template match="xhtml:code[@class='interfacename']">
+    <interfacename>
+        <xsl:call-template name="id" />
+        <xsl:apply-templates />
+    </interfacename>
+</xsl:template>
+
+<xsl:template match="xhtml:code[@class='literal']">
+    <literal>
+        <xsl:call-template name="id" />
+        <xsl:apply-templates />
+    </literal>
+</xsl:template>
+
+<xsl:template match="xhtml:code[@class='methodname']">
+    <methodname>
+        <xsl:call-template name="id" />
+        <xsl:apply-templates />
+    </methodname>
+</xsl:template>
+
+<xsl:template match="xhtml:code[@class='modifier']">
+    <modifier>
+        <xsl:call-template name="id" />
+        <xsl:apply-templates />
+    </modifier>
+</xsl:template>
+
+<xsl:template match="xhtml:code[@class='ooclass']">
+    <ooclass>
+        <xsl:call-template name="id" />
+        <xsl:apply-templates />
+    </ooclass>
+</xsl:template>
+
+<xsl:template match="xhtml:code[@class='ooexception']">
+    <ooexception>
+        <xsl:call-template name="id" />
+        <xsl:apply-templates />
+    </ooexception>
+</xsl:template>
+
+<xsl:template match="xhtml:code[@class='oointerface']">
+    <oointerface>
+        <xsl:call-template name="id" />
+        <xsl:apply-templates />
+    </oointerface>
+</xsl:template>
+
+<xsl:template match="xhtml:code[@class='parameter']">
+    <parameter>
+        <xsl:call-template name="id" />
+        <xsl:apply-templates />
+    </parameter>
+</xsl:template>
+
+<xsl:template match="xhtml:code[@class='prompt']">
+    <prompt>
+        <xsl:call-template name="id" />
+        <xsl:apply-templates />
+    </prompt>
+</xsl:template>
+
+<xsl:template match="xhtml:code[@class='property']">
+    <property>
+        <xsl:call-template name="id" />
+        <xsl:apply-templates />
+    </property>
+</xsl:template>
+
+<xsl:template match="xhtml:code[@class='returnvalue']">
+    <returnvalue>
+        <xsl:call-template name="id" />
+        <xsl:apply-templates />
+    </returnvalue>
+</xsl:template>
+
+<xsl:template match="xhtml:code[@class='symbol']">
+    <symbol>
+        <xsl:call-template name="id" />
+        <xsl:apply-templates />
+    </symbol>
+</xsl:template>
+
+<xsl:template match="xhtml:code[@class='token']">
+    <token>
+        <xsl:call-template name="id" />
+        <xsl:apply-templates />
+    </token>
+</xsl:template>
+
+<xsl:template match="xhtml:code[@class='type']">
+    <type>
+        <xsl:call-template name="id" />
+        <xsl:apply-templates />
+    </type>
 </xsl:template>
 
 <xsl:template match="xhtml:code[@class='uri']">
@@ -544,11 +635,18 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
     </uri>
 </xsl:template>
 
-<xsl:template match="xhtml:code[@class='literal']">
-    <literal>
+<xsl:template match="xhtml:code[@class='userinput']">
+    <userinput>
         <xsl:call-template name="id" />
         <xsl:apply-templates />
-    </literal>
+    </userinput>
+</xsl:template>
+
+<xsl:template match="xhtml:var|xhtml:code[@class='varname']">
+    <varname>
+        <xsl:call-template name="id" />
+        <xsl:apply-templates />
+    </varname>
 </xsl:template>
 
 <xsl:template match="xhtml:samp">

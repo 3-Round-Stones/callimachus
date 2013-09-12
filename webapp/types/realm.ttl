@@ -52,7 +52,7 @@
 :GetRegisterUserPage rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Realm>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
-    rdfs:subClassOf [owl:onProperty :realm_register_xhtml; owl:hasValue <../pages/realm-register.xhtml>];
+    rdfs:subClassOf [owl:onProperty :realm_register_xhtml; owl:hasValue <../pages/realm-login.xhtml>];
     calli:method "GET";
     calli:query "register";
     calli:requires calli:reader;
@@ -111,7 +111,7 @@
 :GetLogin rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Realm>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
-    rdfs:subClassOf [owl:onProperty :login_xhtml; owl:hasValue <../pages/login.xhtml>];
+    rdfs:subClassOf [owl:onProperty :realm_login_xhtml; owl:hasValue <../pages/realm-login.xhtml>];
     calli:method "GET";
     calli:query "login";
     calli:requires calli:reader;
@@ -166,7 +166,7 @@
         return {
             status:200,message:"OK",
             headers:{'content-type':"text/html"},
-            body:[login_xhtml.Construct(this, 'login')]
+            body:[realm_login_xhtml.Construct(this, 'login')]
         };
     """.
 
@@ -186,7 +186,7 @@
     calli:query "choice";
     calli:type "text/uri-list".
 
-:login_xhtml a owl:FunctionalProperty, owl:ObjectProperty;
+:realm_login_xhtml a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :GetLogin.
 
 :GetProfile rdfs:subClassOf msg:Message;

@@ -11,6 +11,15 @@
     </script>
     <script type="text/javascript">
     // <![CDATA[
+    $(document).bind("calliLoggedIn", function(event) {
+        var return_to = /&return_to=([^&]*)/.exec(window.location.search);
+        if (return_to && return_to[1]) {
+            return_to = decodeURIComponent(return_to[1]);
+        } else {
+            return_to = '/';
+        }
+        window.location.replace(return_to);
+    });
     $(function(){
         $('#form').submit(function(event){
             var username = $("#username").val();
@@ -31,12 +40,6 @@
                         localStorage.setItem("digestPassword", digestPassword);
                     }
                     $(document).trigger("calliLoggedIn");
-                    var return_to = /&return_to=([^&]*)/.exec(window.location.search);
-                    if (return_to && return_to[1]) {
-                        window.location.replace(decodeURIComponent(return_to[1]));
-                    } else {
-                        window.location.replace('/');
-                    }
                 }
             };
             try {

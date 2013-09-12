@@ -5,10 +5,13 @@
         xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
         xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
-    <title resource="?this">{rdfs:label} Sign Up</title>
+    <title resource="?this">{rdfs:label} Sign in</title>
     <link rel="help" href="../../callimachus-for-web-developers" target="_blank" title="Help" />
     <script type="text/javascript">
     // <![CDATA[
+        $(document).bind("calliLoggedIn", function(event) {
+            $(document).trigger("calliLogout");
+        });
         $(function(){
             var links = $('.add-query');
             links.each(function(){
@@ -19,7 +22,7 @@
     </script>
 </head>
 <body resource="?this">
-    <h1>{rdfs:label} Sign Up</h1>
+    <h1>{rdfs:label} Sign in</h1>
     <ul>
         <li rel="calli:authentication" resource="?auth">
             <a href="{?auth}" class="add-query" title="{rdfs:label}">

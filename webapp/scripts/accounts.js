@@ -4,13 +4,13 @@
 
 $(document).ready(function(){
     $('a#logout-link').click(function(event) {
-        logout(this.href);
+        logout(this.href, '/');
         event.preventDefault();
         return false;
     });
 });
 
-function logout(url) {
+function logout(url, return_to) {
     jQuery.ajax({ type: 'POST', url: url,
         username: '-', password: 'logout',
         success: function(data) {
@@ -20,7 +20,9 @@ function logout(url) {
                 window.localStorage.removeItem("digestPassword");
             } catch(e) {}
             $(document).trigger("calliLoggedOut");
-            window.location = "/";
+            if (return_to) {
+                window.location = return_to;
+            }
         }
     });
 }
@@ -72,7 +74,7 @@ $(document).bind("calliLoggedIn", function(event) {
 });
 
 $(document).bind("calliLogout", function(event) {
-    logout("/?logout");
+    logout("/?logout", event.location);
     event.preventDefault();
 });
 

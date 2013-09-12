@@ -17,11 +17,11 @@
  */
 package org.callimachusproject.auth;
 
+import static org.callimachusproject.util.PercentCodec.encode;
 import info.aduna.net.ParsedURI;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -505,14 +505,6 @@ public class DigestAuthenticationManager implements DetachedAuthenticationManage
 			}
 		}
 		return Long.toString(code, Character.MAX_RADIX);
-	}
-
-	private String encode(String username) {
-		try {
-			return URLEncoder.encode(username, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			throw new AssertionError(e);
-		}
 	}
 
 }

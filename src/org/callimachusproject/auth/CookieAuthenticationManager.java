@@ -17,11 +17,11 @@
  */
 package org.callimachusproject.auth;
 
+import static org.callimachusproject.util.PercentCodec.decode;
+import static org.callimachusproject.util.PercentCodec.encode;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.security.SecureRandom;
 import java.util.Arrays;
@@ -77,13 +77,15 @@ public class CookieAuthenticationManager implements
 	private final String identifier;
 	private final byte[] secret;
 	private final String redirect_prefix;
+	private final String fullname_prefix;
 	private final String secureCookie;
 	private final String sid;
 	private final ParameterAuthReader reader;
 
 	public CookieAuthenticationManager(String identifier, String redirect_uri,
-			String path, List<String> domains, RealmManager realms,
-			ParameterAuthReader reader) throws OpenRDFException, IOException {
+			String fullname_prefix, String path, List<String> domains,
+			RealmManager realms, ParameterAuthReader reader)
+			throws OpenRDFException, IOException {
 		assert domains != null;
 		assert domains.size() > 0;
 		this.domains = domains;
@@ -106,6 +108,7 @@ public class CookieAuthenticationManager implements
 		this.reader = reader;
 		this.identifier = identifier;
 		this.redirect_prefix = redirect_uri + "&return_to=";
+		this.fullname_prefix = fullname_prefix;
 		assert redirect_uri.contains("?");
 		boolean secureOnly = identifier.startsWith("https");
 		this.protectedPath = path;
@@ -277,6 +280,18 @@ public class CookieAuthenticationManager implements
 
 	private HttpResponse redirectReturnTo(String url, String parameters)
 			throws IOException {
+		if (url.startsWith(fullname_prefix)) {
+			// if this is a registration URL, update the fullname
+			String fullname = reader.getUserFullName(parameters);
+			String param = "&fullname=" + encode(fullname);
+			if(url.contains("&fullname=")) {
+				url.replaceAll("\\&fullname=[^\\&]*", param);
+			} else if (url.contains("#")) {
+				url.replaceFirst("#", param + "#");
+			} else {
+				url = url + param;
+			}
+		}
 		String username = reader.getUserLogin(parameters);
 		String iri = reader.getUserIdentifier(parameters);
 		String userInfo = getSidCookieValue(username, iri);
@@ -417,22 +432,6 @@ public class CookieAuthenticationManager implements
 		if (array == null)
 			return null;
 		return Arrays.asList(array);
-	}
-
-	private String encode(String username) {
-		try {
-			return URLEncoder.encode(username, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			throw new AssertionError(e);
-		}
-	}
-
-	private String decode(String username) {
-		try {
-			return URLDecoder.decode(username, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			throw new AssertionError(e);
-		}
 	}
 
 }

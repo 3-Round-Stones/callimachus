@@ -1,8 +1,8 @@
 package org.callimachusproject.rewrite;
 
-import java.io.UnsupportedEncodingException;
+import static org.callimachusproject.util.PercentCodec.encode;
+
 import java.lang.reflect.Array;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -158,14 +158,6 @@ public class Substitution {
 		if (encode)
 			return encode(value);
 		return value;
-	}
-
-	private String encode(String value) {
-		try {
-			return URLEncoder.encode(value, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			throw new AssertionError(e);
-		}
 	}
 
 	private List<String> extractGroupNames(String namedPattern) {

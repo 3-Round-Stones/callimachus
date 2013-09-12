@@ -17,13 +17,13 @@
  */
 package org.callimachusproject.behaviours;
 
+import static org.callimachusproject.util.PercentCodec.encode;
 import static org.openrdf.query.QueryLanguage.SPARQL;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
-import java.net.URLEncoder;
 import java.util.Collection;
 import java.util.Set;
 
@@ -99,7 +99,7 @@ public abstract class PageSupport implements CalliObject {
 		if (realm == null) {
 			realm = this.getRealm();
 		}
-		String url = self + "?layout&realm=" + URLEncoder.encode(realm.toString(), "UTF-8");
+		String url = self + "?layout&realm=" + encode(realm.toString());
 		return getEngine().getTemplate(url);
 	}
 

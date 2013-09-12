@@ -171,6 +171,7 @@
         var nonce = regForm.get("nonce")[0];
         var token = regForm.get("token")[0];
         var email = regForm.get("email")[0];
+        var fullname = regForm.get("fullname")[0];
         if (!token)
             throw new BadRequest("This is not a valid registration URL");
         var iter = this.FindInvitedUsersByEmail(email).iterator();
@@ -182,7 +183,7 @@
                 if (!email || email.indexOf('@') < 0) {
                     email = null;
                 }
-                this.registerUser(user.resource, loggedInUser, email, null);
+                this.registerUser(user.resource, loggedInUser, email, fullname);
                 return;
             }
         }

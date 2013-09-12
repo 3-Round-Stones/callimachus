@@ -1,10 +1,10 @@
 package org.callimachusproject.behaviours;
 
+import static org.callimachusproject.util.PercentCodec.decode;
+import static org.callimachusproject.util.PercentCodec.encode;
+
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
@@ -423,22 +423,6 @@ public abstract class AuthenticationManagerSupport implements CalliObject,
 			}
 		}
 		return map;
-	}
-
-	private String decode(String username) {
-		try {
-			return URLDecoder.decode(username, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			throw new AssertionError(e);
-		}
-	}
-
-	private String encode(String username) {
-		try {
-			return URLEncoder.encode(username, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			throw new AssertionError(e);
-		}
 	}
 
 }

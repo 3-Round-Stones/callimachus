@@ -16,10 +16,10 @@
  */
 package org.callimachusproject.auth;
 
+import static org.callimachusproject.util.PercentCodec.decode;
+import static org.callimachusproject.util.PercentCodec.encode;
+
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -206,22 +206,6 @@ public class OpenIDAuthReader implements ParameterAuthReader {
 			end = cookie.length();
 		}
 		return decode(cookie.substring(start, end));
-	}
-
-	private String encode(String username) {
-		try {
-			return URLEncoder.encode(username, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			throw new AssertionError(e);
-		}
-	}
-
-	private String decode(String username) {
-		try {
-			return URLDecoder.decode(username, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			throw new AssertionError(e);
-		}
 	}
 
 }

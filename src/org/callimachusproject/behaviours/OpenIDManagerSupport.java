@@ -20,11 +20,12 @@ public abstract class OpenIDManagerSupport extends AuthenticationManagerSupport
 			throws OpenRDFException, IOException {
 		String uri = this.getResource().stringValue();
 		String url = uri + "?login";
+		String reg = uri + "?register&";
 		String realm = getOpenIdRealm();
 		if (realm == null || realm.length() == 0) {
 			realm = manager.getRealm(uri).getResource().stringValue();
 		}
-		return new CookieAuthenticationManager(uri, url, path, domains,
+		return new CookieAuthenticationManager(uri, url, reg, path, domains,
 				manager, new OpenIDAuthReader(uri, getOpenIdEndpointUrl(),
 						realm, getHttpClient()));
 	}

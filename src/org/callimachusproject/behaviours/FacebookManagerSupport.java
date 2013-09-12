@@ -22,12 +22,13 @@ public abstract class FacebookManagerSupport extends
 			throws OpenRDFException, IOException {
 		String uri = this.getResource().stringValue();
 		String url = uri + "?login";
+		String reg = uri + "?register&";
 		String appId = getCalliFacebookAppId();
 		FileObject secretFile = getCalliFacebookSecret();
 		if (secretFile == null)
 			return null;
 		CharSequence secret = secretFile.getCharContent(false);
-		return new CookieAuthenticationManager(uri, url, path, domains,
+		return new CookieAuthenticationManager(uri, url, reg, path, domains,
 				manager, new FacebookAuthReader(uri, appId, secret, getHttpClient()));
 	}
 

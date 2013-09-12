@@ -19,7 +19,8 @@
                     data: {
                         nonce: parameter("nonce"),
                         token: parameter("token"),
-                        email: parameter("email")
+                        email: parameter("email"),
+                        fullname: parameter("fullname") || parameter("email").replace(/@.*/,'')
                     },
                     success: function() {
                         window.location.replace('?login&return_to=' + encodeURIComponent(parameter('return_to')));

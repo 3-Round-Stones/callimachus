@@ -16,6 +16,8 @@
  */
 package org.callimachusproject.setup;
 
+import static org.callimachusproject.util.PercentCodec.encode;
+
 import java.io.IOException;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
@@ -295,6 +297,7 @@ public class CallimachusSetup {
 	public boolean inviteUser(String email, String origin)
 			throws OpenRDFException, IOException {
 		validateEmail(email);
+		String username = email.substring(0, email.indexOf('@'));
 		ObjectConnection con = repository.getConnection();
 		try {
 			con.begin();
@@ -310,13 +313,11 @@ public class CallimachusSetup {
 			con.add(subj, RDF.TYPE, webapp(origin, INVITED_USER_TYPE));
 			con.add(subj, RDF.TYPE, vf.createURI(CALLI_PARTY));
 			con.add(subj, RDF.TYPE, vf.createURI(CALLI_USER));
-			con.add(subj, RDFS.LABEL, vf.createLiteral(email));
+			con.add(subj, RDFS.LABEL, vf.createLiteral(username));
 			con.add(subj, vf.createURI(CALLI_SUBSCRIBER), power);
 			con.add(subj, vf.createURI(CALLI_ADMINISTRATOR), admin);
 			con.add(folder, vf.createURI(CALLI_HASCOMPONENT), subj);
-			if (email != null && email.length() > 2) {
-				con.add(subj, calliEmail, vf.createLiteral(email));
-			}
+			con.add(subj, calliEmail, vf.createLiteral(email));
 			con.commit();
 			return true;
 		} finally {
@@ -459,14 +460,6 @@ public class CallimachusSetup {
 
 	private String slugify(String email) {
 		return email.replaceAll("\\s+", "+").replaceAll("[^\\w\\+\\-\\_\\.\\!\\~\\*\\'\\(\\);\\,\\&\\=\\$\\[\\]]+","_");
-	}
-
-	private String encode(String string) {
-		try {
-			return URLEncoder.encode(string, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			throw new AssertionError(e);
-		}
 	}
 
 	private String createWebappUrl(String origin) throws IOException {

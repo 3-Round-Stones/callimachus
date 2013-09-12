@@ -16,13 +16,13 @@
  */
 package org.callimachusproject.auth;
 
+import static org.callimachusproject.util.PercentCodec.decode;
+import static org.callimachusproject.util.PercentCodec.encode;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -213,22 +213,6 @@ public class FacebookAuthReader implements ParameterAuthReader {
 			end = parameters.length();
 		}
 		return decode(parameters.substring(start, end));
-	}
-
-	private String encode(String username) {
-		try {
-			return URLEncoder.encode(username, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			throw new AssertionError(e);
-		}
-	}
-
-	private String decode(String username) {
-		try {
-			return URLDecoder.decode(username, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			throw new AssertionError(e);
-		}
 	}
 
 	private class AccessToken {

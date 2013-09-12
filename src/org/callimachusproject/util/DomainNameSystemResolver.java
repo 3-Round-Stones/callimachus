@@ -169,6 +169,13 @@ public class DomainNameSystemResolver {
 		String address = getAddress(netAddr);
 		if (address == null)
 			return name;
+		try {
+			String ptr = lookup(address, "PTR");
+			if (ptr != null)
+				return ptr;
+		} catch (NamingException e) {
+			// use reverse name
+		}
 		return address;
 	}
 

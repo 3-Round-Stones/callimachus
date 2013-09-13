@@ -137,11 +137,12 @@
     """
     <../scripts/less.js>
     """
+        var rootFilename = this.toString();
         var client = this.httpClient;
         var contents = {};
-        window.less.Parser.importer = function(path, paths, callback, env) {
+        window.less.Parser.importer = function(path, currentFileInfo, callback, env) {
             if (path != null) {
-                var systemId = new java.net.URI(paths[0]).resolve(path).normalize().toASCIIString();
+                var systemId = new java.net.URI(currentFileInfo.currentDirectory).resolve(path).normalize().toASCIIString();
                 var req = new HttpGet(systemId);
                 req.setHeader("Accept", "text/css");
                 req.setHeader("Accept-Charset", "UTF-8");
@@ -167,8 +168,15 @@
                 var parser = new(window.less.Parser)({
                     optimization: 3,
                     filename: file,
-                    opaque: true,
-                    paths: [dir.toASCIIString()]
+                    currentFileInfo: {
+                        currentDirectory:   dir.toASCIIString(),        // path to the current file, absolute
+                        entryPath:          dir.toASCIIString(),        // absolute path to the entry file
+                        file:               systemId,                   // Recursive variable definition error
+                        filename:           systemId,                   // full resolved filename of current file
+                        relativeUrls:       true,                       // option - whether to adjust URL's to be relative
+                        rootFilename:       rootFilename,               // filename of the base file
+                        rootpath:           dir.toASCIIString()         // path to append to normal URLs for this node
+                    }
                 });
                 parser.imports.contents = contents;
                 parser.parse(content, function (e, root) {

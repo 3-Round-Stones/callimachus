@@ -1,4 +1,4 @@
-/*
+/**
  * LESS - Leaner CSS v1.4.2
  * http://lesscss.org
  *

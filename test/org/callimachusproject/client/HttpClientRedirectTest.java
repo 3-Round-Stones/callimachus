@@ -16,7 +16,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.URICollection;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpExecutionAware;
 import org.apache.http.client.methods.HttpGet;
@@ -334,9 +333,8 @@ public class HttpClientRedirectTest extends TestCase {
 		try {
 			URI original = originalRequest.getURI();
 			HttpHost target = ctx.getTargetHost();
-			URICollection redirects = ctx.getRedirectLocations();
-			List<URI> list = redirects == null ? null : redirects.getAll();
-			URI absolute = URIUtils.resolve(original, target, list);
+			List<URI> redirects = ctx.getRedirectLocations();
+			URI absolute = URIUtils.resolve(original, target, redirects);
 			return new URI(TermFactory.newInstance(absolute.toASCIIString()).getSystemId());
 		} catch (URISyntaxException e) {
 			return null;

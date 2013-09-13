@@ -24,6 +24,7 @@ public class AutoClosingAsyncClient extends CloseableHttpAsyncClient {
 	private final CachingHttpAsyncClient client;
 	private final ManagedHttpCacheStorage storage;
 	private int numberOfClientCalls = 0;
+	private boolean running;
 
 	public AutoClosingAsyncClient(CachingHttpAsyncClient client, ManagedHttpCacheStorage storage) {
 		this.client = client;
@@ -40,17 +41,23 @@ public class AutoClosingAsyncClient extends CloseableHttpAsyncClient {
 	}
 
     public void shutdown() {
+		running = false;
 		storage.shutdown();
     }
 
 	@Override
 	public void close() throws IOException {
-		// no-op
+		shutdown();
 	}
 
 	@Override
 	public void start() {
-		// no-op
+		running = true;
+	}
+
+	@Override
+	public boolean isRunning() {
+		return running;
 	}
 
 	@Override

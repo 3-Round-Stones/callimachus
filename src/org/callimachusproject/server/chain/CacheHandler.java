@@ -1,6 +1,5 @@
 package org.callimachusproject.server.chain;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Future;
@@ -23,26 +22,30 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.server.AsyncExecChain;
 import org.callimachusproject.server.helpers.AutoClosingAsyncClient;
-import org.callimachusproject.server.helpers.ResponseCallback;
 
 public class CacheHandler implements AsyncExecChain {
 	private final class DelegatingClient extends
 			CloseableHttpAsyncClient {
 		private final AsyncExecChain delegate;
+		private boolean running;
 		public DelegatingClient(AsyncExecChain delegate) {
 			this.delegate = delegate;
 		}
 
 		public void start() {
-			// no-op
+			running = true;
 		}
 
-		public void close() throws IOException {
-			// no-op
+		public void close() {
+			shutdown();
 		}
 
-		public void shutdown() throws InterruptedException {
-			// no-op
+		public void shutdown() {
+			running = false;
+		}
+
+		public boolean isRunning() {
+			return running;
 		}
 
 		public IOReactorStatus getStatus() {

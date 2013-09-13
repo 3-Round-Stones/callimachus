@@ -414,12 +414,14 @@ public abstract class AuthenticationManagerSupport implements CalliObject,
 
 	private Map<String, String> keyByName(String cookie) {
 		Map<String, String> map = new LinkedHashMap<String, String>();
-		for (String pair : cookie.split("&")) {
-			int idx = pair.indexOf('=');
-			if (idx > 0) {
-				String name = decode(pair.substring(0, idx));
-				String value = decode(pair.substring(idx + 1));
-				map.put(name, value);
+		if (cookie != null) {
+			for (String pair : cookie.split("&")) {
+				int idx = pair.indexOf('=');
+				if (idx > 0) {
+					String name = decode(pair.substring(0, idx));
+					String value = decode(pair.substring(idx + 1));
+					map.put(name, value);
+				}
 			}
 		}
 		return map;

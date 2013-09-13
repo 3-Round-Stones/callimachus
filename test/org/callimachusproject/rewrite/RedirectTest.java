@@ -58,11 +58,11 @@ public class RedirectTest extends TestCase {
 		repository.initialize();
 		RepositoryConnection con = repository.getConnection();
 		try {
-			con.setAutoCommit(false);
+			con.begin();
 			con.clear();
 			con.clearNamespaces();
 			con.setNamespace("test", "urn:test:");
-			con.setAutoCommit(true);
+			con.commit();
 		} finally {
 			con.close();
 		}
@@ -124,7 +124,7 @@ public class RedirectTest extends TestCase {
 	public void testQueryParameter() throws Exception {
 		concept = con.addDesignation(con.getObject("http://www.example.com/pathinfo"),
 				Concept.class);
-		assertEquals("http://www.example.com/pathinfo?param=foo+bar", concept.param("foo bar").getFirstHeader("Location").getValue());
+		assertEquals("http://www.example.com/pathinfo?param=foo%20bar", concept.param("foo bar").getFirstHeader("Location").getValue());
 	}
 
 	@Test

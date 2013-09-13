@@ -358,7 +358,7 @@ public class SetupTool {
 	private String stringValue(Value value) {
 		if (value == null || value.stringValue().length() == 0)
 			return null;
-		return value.stringValue();
+		return value.stringValue().trim();
 	}
 
 	private boolean registeDigestUser(String email, char[] password,

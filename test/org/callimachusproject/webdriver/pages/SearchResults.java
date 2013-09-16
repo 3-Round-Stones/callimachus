@@ -10,7 +10,7 @@ public class SearchResults extends CalliPage {
 	}
 
 	public CalliPage openResult(String label) {
-		driver.click(By.linkText(label));
+		browser.click(By.linkText(label));
 		return page();
 	}
 

@@ -10,14 +10,14 @@ public class SignIn extends CalliPage {
 	}
 
 	public Login loginWithDigest() {
-		driver.click(By.linkText("Sign in with your email address and a site password"));
-		driver.waitForScript();
+		browser.click(By.linkText("Sign in with your email address and a site password"));
+		browser.waitForScript();
 		return page(Login.class);
 	}
 
 	public Register registerWithDigest() {
-		driver.click(By.linkText("Sign in with your email address and a site password"));
-		driver.waitForScript();
+		browser.click(By.linkText("Sign in with your email address and a site password"));
+		browser.waitForScript();
 		return page(Register.class);
 	}
 

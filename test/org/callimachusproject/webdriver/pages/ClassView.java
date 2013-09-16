@@ -16,16 +16,16 @@ public class ClassView extends CalliPage {
 	}
 
 	public <P> P createANew(String label, Class<P> page) {
-		driver.focusInTopWindow();
-		driver.click(By.cssSelector("i.icon-cog"));
-		driver.click(By.linkText("Create a new " + label));
+		browser.focusInTopWindow();
+		browser.click(By.cssSelector("i.icon-cog"));
+		browser.click(By.linkText("Create a new " + label));
 		return page(page);
 	}
 
 	public ClassIndex openIndex(String label) {
-		driver.focusInTopWindow();
-		driver.click(By.cssSelector("i.icon-cog"));
-		driver.click(By.linkText(label + " resources"));
+		browser.focusInTopWindow();
+		browser.click(By.cssSelector("i.icon-cog"));
+		browser.click(By.linkText(label + " resources"));
 		return page(ClassIndex.class);
 	}
 

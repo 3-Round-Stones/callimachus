@@ -10,7 +10,7 @@ public class DescribePage extends CalliPage {
 	}
 
 	public DescribePage describe(String curie) {
-		driver.click(By.xpath("//li[span/text() = '" + curie + "']/a[@class='describe']"));
+		browser.click(By.xpath("//li[span/text() = '" + curie + "']/a[@class='describe']"));
 		return page(DescribePage.class);
 	}
 

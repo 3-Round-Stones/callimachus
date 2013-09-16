@@ -10,13 +10,13 @@ public class DatasourceCreate extends CalliPage {
 	}
 
 	public DatasourceCreate with(String label, String comment) {
-		driver.type(By.id("label"), label);
-		driver.type(By.id("comment"), comment);
+		browser.type(By.id("label"), label);
+		browser.type(By.id("comment"), comment);
 		return this;
 	}
 
 	public DatasourceView create() {
-		driver.click(By.id("create-datasource"));
+		browser.click(By.id("create-datasource"));
 		return page(DatasourceView.class);
 	}
 

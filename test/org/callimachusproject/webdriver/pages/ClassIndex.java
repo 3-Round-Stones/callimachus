@@ -10,7 +10,7 @@ public class ClassIndex extends CalliPage {
 	}
 
 	public CalliPage openResource(String label) {
-		driver.click(By.linkText(label));
+		browser.click(By.linkText(label));
 		return page();
 	}
 

@@ -10,12 +10,12 @@ public class FolderCreate extends CalliPage {
 	}
 
 	public FolderCreate with(String folderName) {
-		driver.type(By.id("label"), folderName);
+		browser.type(By.id("label"), folderName);
 		return this;
 	}
 
 	public FolderView create() {
-		driver.click(By.cssSelector("button.btn.btn-success"));
+		browser.click(By.cssSelector("button.btn.btn-success"));
 		return page(FolderView.class);
 	}
 

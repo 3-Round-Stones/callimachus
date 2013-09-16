@@ -10,35 +10,35 @@ public class DigestUserEdit extends CalliPage {
 	}
 
 	public FileUploadForm openPhotoUpload() {
-		driver.click(By.cssSelector("#photo label.control-label a"));
-		driver.waitForScript();
-		driver.focusInFrame("photo");
-		driver.waitForScript();
+		browser.click(By.cssSelector("#photo label.control-label a"));
+		browser.waitForScript();
+		browser.focusInFrame("photo");
+		browser.waitForScript();
 		final DigestUserEdit edit = this;
-		return new FileUploadForm(driver) {
+		return new FileUploadForm(browser) {
 			@Override
 			public DigestUserEdit uploadAs(String fileName) {
-				driver.click(By.id("upload"));
-				driver.focusInFrame("photo", "save-as___");
-				driver.type(By.id("label"), fileName);
-				driver.focusInFrame("photo");
-				driver.click(By.xpath("(//button[@type='button'])[2]"));
-				driver.waitForFrameToClose("photo");
+				browser.click(By.id("upload"));
+				browser.focusInFrame("photo", "save-as___");
+				browser.type(By.id("label"), fileName);
+				browser.focusInFrame("photo");
+				browser.click(By.xpath("(//button[@type='button'])[2]"));
+				browser.waitForFrameToClose("photo");
 				return edit;
 			}
 		};
 	}
 
 	public CalliPage save() {
-		driver.focusInTopWindow();
-		driver.click(By.id("save"));
+		browser.focusInTopWindow();
+		browser.click(By.id("save"));
 		return page();
 	}
 
 	public FolderView delete(String label) {
-		driver.focusInTopWindow();
-		driver.click(By.id("delete"));
-		driver.confirm("Are you sure you want to delete " + label);
+		browser.focusInTopWindow();
+		browser.click(By.id("delete"));
+		browser.confirm("Are you sure you want to delete " + label);
 		return page(FolderView.class);
 	}
 

@@ -10,32 +10,32 @@ public class ConceptEdit extends CalliPage {
 	}
 
 	public CalliPage delete(String label) {
-		driver.click(By.id("delete"));
-		driver.confirm("Are you sure you want to delete " + label);
+		browser.click(By.id("delete"));
+		browser.confirm("Are you sure you want to delete " + label);
 		return page();
 	}
 
 	public ConceptEdit definition(String value) {
-		driver.type(By.id("definition"), value);
+		browser.type(By.id("definition"), value);
 		return this;
 	}
 
 	public CalliPage save() {
-		driver.click(By.id("save"));
+		browser.click(By.id("save"));
 		return page();
 	}
 
 	public ConceptCreate openNarrowDialogue() {
-		driver.click(By.cssSelector("#narrower label.control-label a"));
-		driver.waitForScript();
-		driver.focusInFrame("narrower");
-		driver.waitForScript();
+		browser.click(By.cssSelector("#narrower label.control-label a"));
+		browser.waitForScript();
+		browser.focusInFrame("narrower");
+		browser.waitForScript();
 		final ConceptEdit edit = this;
-		return new ConceptCreate(driver) {
+		return new ConceptCreate(browser) {
 			@Override
 			public ConceptEdit create() {
-				driver.click(By.id("create"));
-				driver.waitForFrameToClose("narrower");
+				browser.click(By.id("create"));
+				browser.waitForFrameToClose("narrower");
 				return edit;
 			}
 		};

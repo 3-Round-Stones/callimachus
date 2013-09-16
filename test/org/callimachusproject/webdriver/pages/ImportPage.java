@@ -5,17 +5,21 @@ import java.io.File;
 import org.callimachusproject.webdriver.helpers.WebBrowserDriver;
 import org.openqa.selenium.By;
 
-public abstract class FileUploadForm extends CalliPage {
+public class ImportPage extends CalliPage {
 
-	public FileUploadForm(WebBrowserDriver driver) {
+	public ImportPage(WebBrowserDriver driver) {
 		super(driver);
 	}
 
-	public abstract CalliPage uploadAs(String fileName);
-
-	public FileUploadForm selectFile(File file) {
+	public ImportPage selectFile(File file) {
 		browser.sendKeys(By.id("file"), file.getAbsolutePath());
 		return this;
+	}
+
+	public CalliPage importCar() {
+		browser.focusInTopWindow();
+		browser.click(By.id("import"));
+		return page();
 	}
 
 }

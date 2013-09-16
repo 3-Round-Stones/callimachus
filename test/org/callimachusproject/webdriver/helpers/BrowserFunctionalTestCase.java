@@ -38,7 +38,7 @@ import org.callimachusproject.test.TemporaryServerFactory;
 import org.callimachusproject.test.WebResource;
 import org.callimachusproject.util.DomainNameSystemResolver;
 import org.callimachusproject.webdriver.pages.CalliPage;
-import org.callimachusproject.webdriver.pages.FolderEdit;
+import org.callimachusproject.webdriver.pages.FolderView;
 import org.openqa.selenium.Platform;
 import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -226,6 +226,7 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 	}
 
 	public RemoteWebDriver driver;
+	public WebBrowserDriver browser;
 	public CalliPage page;
 	private String folderUrl;
 	public BrowserFunctionalTestCase() {
@@ -234,7 +235,11 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 
 	public BrowserFunctionalTestCase(BrowserFunctionalTestCase parent) {
 		super();
-		this.page = parent.page;
+		if (parent != null) {
+			this.driver = parent.driver;
+			this.browser = parent.browser;
+			this.page = parent.page;
+		}
 	}
 
 	public String getUsername() {
@@ -308,7 +313,8 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 					"text/css");
 		}
 		driver = createWebDriver();
-		page = new CalliPage(new WebBrowserDriver(driver));
+		browser = new WebBrowserDriver(driver);
+		page = new CalliPage(browser);
 	}
 
 	@Override
@@ -355,7 +361,7 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 		if (folderUrl != null) {
 			String folderName = getFolderName();
 			logger.info("Delete folder {}", folderName);
-			page.open(folderUrl).openEdit(FolderEdit.class)
+			page.open(folderUrl, FolderView.class).openEdit()
 					.waitUntilTitle(folderName).delete();
 		}
 		logger.info("Logout");

@@ -14,14 +14,14 @@ public class Login extends CalliPage {
 	}
 
 	public Login with(String username, String password) {
-		driver.type(By.id("username"), username);
-		driver.type(By.id("password"), password);
+		browser.type(By.id("username"), username);
+		browser.type(By.id("password"), password);
 		return this;
 	}
 
 	public CalliPage login() {
-		driver.click(By.cssSelector("button.btn.btn-primary"));
-		driver.waitForScript();
+		browser.click(By.cssSelector("button.btn.btn-primary"));
+		browser.waitForScript();
 		return page();
 	}
 

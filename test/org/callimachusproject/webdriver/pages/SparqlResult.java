@@ -10,7 +10,7 @@ public class SparqlResult extends CalliPage {
 	}
 
 	public SparqlResult waitUntilResult(String text) {
-		driver.waitUntilTextPresent(By.tagName("td"), text);
+		browser.waitUntilTextPresent(By.tagName("td"), text);
 		return this;
 	}
 

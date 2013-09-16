@@ -10,8 +10,8 @@ public class DatasourceEdit extends CalliPage {
 	}
 
 	public CalliPage delete(String label) {
-		driver.click(By.id("delete-datasource"));
-		driver.confirm("Are you sure you want to delete " + label);
+		browser.click(By.id("delete-datasource"));
+		browser.confirm("Are you sure you want to delete " + label);
 		return page();
 	}
 

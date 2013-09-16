@@ -36,6 +36,10 @@ public class WebBrowserDriver {
 		return driver;
 	}
 
+	public String toString() {
+		return driver.toString();
+	}
+
 	public void quit() {
 		driver.quit();
 	}
@@ -58,6 +62,7 @@ public class WebBrowserDriver {
 
 	public void focusInTopWindow() {
 		driver.switchTo().window(driver.getWindowHandle());
+		waitForScript();
 	}
 
 	public void focusInFrame(String... frameNames) {
@@ -71,7 +76,7 @@ public class WebBrowserDriver {
 		waitForScript();
 	}
 
-	public void focusInFrame(int... frames) {
+	public void focusInFrameIndex(int... frames) {
 		driver.switchTo().window(driver.getWindowHandle());
 		waitForScript();
 		for (final int frame : frames) {

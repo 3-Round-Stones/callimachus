@@ -10,8 +10,8 @@ public class SampleResourceEdit extends CalliPage {
 	}
 
 	public CalliPage delete(String label) {
-		driver.click(By.cssSelector("button.btn-danger"));
-		driver.confirm("Are you sure you want to delete " + label);
+		browser.click(By.cssSelector("button.btn-danger"));
+		browser.confirm("Are you sure you want to delete " + label);
 		return page();
 	}
 

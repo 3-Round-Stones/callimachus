@@ -15,8 +15,8 @@ public class FolderEdit extends CalliPage {
 	}
 
 	public CalliPage delete() {
-		driver.click(By.id("delete"));
-		driver.confirm("Are you sure you want to delete this folder and all the contents of this folder");
+		browser.click(By.id("delete"));
+		browser.confirm("Are you sure you want to delete this folder and all the contents of this folder");
 		return page();
 	}
 

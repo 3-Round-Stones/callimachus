@@ -10,27 +10,27 @@ public class GroupEdit extends CalliPage {
 	}
 
 	public CalliPage delete(String label) {
-		driver.click(By.id("delete"));
-		driver.confirm("Are you sure you want to delete " + label);
+		browser.click(By.id("delete"));
+		browser.confirm("Are you sure you want to delete " + label);
 		return page();
 	}
 
 	public CalliPage save() {
-		driver.click(By.id("save"));
+		browser.click(By.id("save"));
 		return page();
 	}
 
 	public InviteUser openInviteUser() {
-		driver.click(By.cssSelector("#members label.control-label a"));
-		driver.waitForScript();
-		driver.focusInFrame("members");
-		driver.waitForScript();
+		browser.click(By.cssSelector("#members label.control-label a"));
+		browser.waitForScript();
+		browser.focusInFrame("members");
+		browser.waitForScript();
 		final GroupEdit edit = this;
-		return new InviteUser(driver) {
+		return new InviteUser(browser) {
 			@Override
 			public GroupEdit invite() {
-				driver.click(By.id("invite"));
-				driver.waitForFrameToClose("members");
+				browser.click(By.id("invite"));
+				browser.waitForFrameToClose("members");
 				return edit;
 			}
 		};

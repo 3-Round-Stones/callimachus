@@ -10,8 +10,8 @@ public class PurlEdit extends CalliPage {
 	}
 
 	public CalliPage delete(String purlName) {
-		driver.click(By.cssSelector("button.btn.btn-danger"));
-		driver.confirm("Are you sure you want to delete " + purlName);
+		browser.click(By.cssSelector("button.btn.btn-danger"));
+		browser.confirm("Are you sure you want to delete " + purlName);
 		return page();
 	}
 

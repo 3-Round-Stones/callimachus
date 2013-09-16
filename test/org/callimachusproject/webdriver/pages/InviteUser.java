@@ -10,13 +10,13 @@ public abstract class InviteUser extends CalliPage {
 	}
 
 	public InviteUser with(String fullname, String email) {
-		driver.type(By.id("label"), fullname);
-		driver.type(By.id("email"), email);
+		browser.type(By.id("label"), fullname);
+		browser.type(By.id("email"), email);
 		return this;
 	}
 
 	public InviteUser subject(String subject) {
-		driver.type(By.id("subject"), subject);
+		browser.type(By.id("subject"), subject);
 		return this;
 	}
 

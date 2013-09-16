@@ -10,7 +10,7 @@ public class HistoryPage extends CalliPage {
 	}
 
 	public ChangeView openLastModified() {
-		driver.click(By.xpath("//a[time]"));
+		browser.click(By.xpath("//a[time]"));
 		return page(ChangeView.class);
 	}
 

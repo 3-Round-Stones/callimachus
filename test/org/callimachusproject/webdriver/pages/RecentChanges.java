@@ -10,12 +10,12 @@ public class RecentChanges extends CalliPage {
 	}
 
 	public RecentChanges openResource(String label) {
-		driver.click(By.linkText(label));
+		browser.click(By.linkText(label));
 		return this;
 	}
 
 	public ChangeView openChange(String label) {
-		driver.click(By.xpath("//li[a//text() = \"" + label + "\"]/a[time]"));
+		browser.click(By.xpath("//li[a//text() = \"" + label + "\"]/a[time]"));
 		return page(ChangeView.class);
 	}
 

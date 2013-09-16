@@ -111,6 +111,20 @@ You can then execute 'ant run' from a command line in this top directory to run
 the server. If some files fail to download you may have to run "ant clean dist"
 and run "ant run" again.
 
+To test the build run "ant test", to run a single function test use the follow.
+
+$ ant dist test-compile
+$ jrunscript -J-Djava.ext.dirs=lib:dist:test/lib -cp build
+js> importPackage(org.openqa.selenium);
+js> importPackage(org.callimachusproject.webdriver.pages);
+js> var test = null;
+js> test = new org.callimachusproject.webdriver.HelloWorldFunctionalTestCase(test);
+js> test.init();
+js> var page = test.page, browser = test.browser, driver = test.driver;
+js> test.setUp();
+js> test.testHelloWorld();
+js> test.tearDown();
+js> test.destroy();
 
 Additional documentation regarding usage and application development may
 be found on the project's wiki at:

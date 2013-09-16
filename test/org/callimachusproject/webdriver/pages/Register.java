@@ -11,15 +11,15 @@ public class Register extends CalliPage {
 
 	public Register with(String username, String password, String fullname,
 			String email) {
-		driver.type(By.id("fullname"), fullname);
-		driver.type(By.id("email"), email);
-		driver.type(By.id("username"), username);
-		driver.type(By.id("password"), password);
+		browser.type(By.id("fullname"), fullname);
+		browser.type(By.id("email"), email);
+		browser.type(By.id("username"), username);
+		browser.type(By.id("password"), password);
 		return this;
 	}
 
 	public Login signup() {
-		driver.click(By.id("signup"));
+		browser.click(By.id("signup"));
 		return page(Login.class);
 	}
 }

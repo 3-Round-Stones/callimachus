@@ -11,16 +11,16 @@ public class PurlCreate extends CalliPage {
 
 	public PurlCreate with(String purlName, String purlComment,
 			String purlType, String purlTarget, String purlCache) {
-		driver.type(By.id("local"), purlName);
-		driver.type(By.id("comment"), purlComment);
-		driver.select(By.id("type"), purlType);
-		driver.type(By.cssSelector("textarea.pattern"), purlTarget);
-		driver.type(By.id("cache"), purlCache);
+		browser.type(By.id("local"), purlName);
+		browser.type(By.id("comment"), purlComment);
+		browser.select(By.id("type"), purlType);
+		browser.type(By.cssSelector("textarea.pattern"), purlTarget);
+		browser.type(By.id("cache"), purlCache);
 		return page(PurlCreate.class);
 	}
 
 	public CalliPage create() {
-		driver.click(By.id("create"));
+		browser.click(By.id("create"));
 		return page();
 	}
 

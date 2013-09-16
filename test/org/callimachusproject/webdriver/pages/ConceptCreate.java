@@ -11,14 +11,14 @@ public class ConceptCreate extends CalliPage {
 
 	public ConceptCreate with(String conceptName, String conceptLabel,
 			String conceptDefinition, String conceptExample) {
-		driver.type(By.id("label"), conceptLabel);
-		driver.type(By.id("definition"), conceptDefinition);
-		driver.type(By.id("example"), conceptExample);
+		browser.type(By.id("label"), conceptLabel);
+		browser.type(By.id("definition"), conceptDefinition);
+		browser.type(By.id("example"), conceptExample);
 		return this;
 	}
 
 	public CalliPage create() {
-		driver.click(By.id("create"));
+		browser.click(By.id("create"));
 		return page();
 	}
 

@@ -10,7 +10,7 @@ public class ChangeView extends CalliPage {
 	}
 
 	public ChangeView waitUntilText(By locator, String text) {
-		driver.waitUntilTextPresent(locator, text);
+		browser.waitUntilTextPresent(locator, text);
 		return this;
 	}
 

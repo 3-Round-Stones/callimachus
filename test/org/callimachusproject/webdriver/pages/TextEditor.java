@@ -17,48 +17,48 @@ public class TextEditor extends CalliPage {
 	}
 
 	public TextEditor clear() {
-		driver.focusInFrame(topFrameName, "editor-iframe");
+		browser.focusInFrame(topFrameName, "editor-iframe");
 		// shift/control does not appear to work in IE
 		CharSequence[] keys = new CharSequence[1024];
 		for (int i = 0; i < keys.length; i++) {
 			keys[i] = Keys.BACK_SPACE;
 		}
-		driver.sendKeys(By.tagName("textarea"), keys);
+		browser.sendKeys(By.tagName("textarea"), keys);
 		return this;
 	}
 
 	public TextEditor type(String text) {
-		driver.focusInFrame(topFrameName, "editor-iframe");
-		driver.sendKeys(By.tagName("textarea"), text);
+		browser.focusInFrame(topFrameName, "editor-iframe");
+		browser.sendKeys(By.tagName("textarea"), text);
 		return this;
 	}
 
 	public TextEditor end() {
-		driver.focusInFrame(topFrameName, "editor-iframe");
+		browser.focusInFrame(topFrameName, "editor-iframe");
 		// shift/control does not appear to work in IE
 		CharSequence[] keys = new CharSequence[1024];
 		for (int i = 0; i < keys.length; i++) {
 			keys[i] = Keys.DELETE;
 		}
-		driver.sendKeys(By.tagName("textarea"), keys);
+		browser.sendKeys(By.tagName("textarea"), keys);
 		return this;
 	}
 
 	public CalliPage saveAs(String name) {
-		driver.focusInFrame(topFrameName);
-		driver.click(By.cssSelector("button.btn-success"));
-		driver.focusInFrame(topFrameName, "save-as___");
-		driver.type(By.id("label"), name);
-		driver.focusInFrame(topFrameName);
-		driver.click(By.xpath("(//button[@type='button'])[2]"));
-		driver.waitForFrameToClose(topFrameName);
+		browser.focusInFrame(topFrameName);
+		browser.click(By.cssSelector("button.btn-success"));
+		browser.focusInFrame(topFrameName, "save-as___");
+		browser.type(By.id("label"), name);
+		browser.focusInFrame(topFrameName);
+		browser.click(By.xpath("(//button[@type='button'])[2]"));
+		browser.waitForFrameToClose(topFrameName);
 		return page();
 	}
 
 	public CalliPage delete() {
-		driver.click(By.cssSelector("button.btn.btn-danger"));
-		driver.confirm("Are you sure you want to delete");
-		driver.waitForScript();
+		browser.click(By.cssSelector("button.btn.btn-danger"));
+		browser.confirm("Are you sure you want to delete");
+		browser.waitForScript();
 		return page();
 	}
 

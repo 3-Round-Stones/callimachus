@@ -31,6 +31,7 @@ import org.callimachusproject.util.MailProperties;
 import org.callimachusproject.webdriver.helpers.BrowserFunctionalTestCase;
 import org.callimachusproject.webdriver.pages.DigestUserEdit;
 import org.callimachusproject.webdriver.pages.GroupEdit;
+import org.callimachusproject.webdriver.pages.PhotoEdit;
 import org.callimachusproject.webdriver.pages.SignIn;
 
 /**

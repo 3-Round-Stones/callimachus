@@ -16,23 +16,23 @@ public class DatasourceView extends CalliPage {
 	}
 
 	public CalliPage delete(String label) {
-		driver.click(By.id("delete"));
-		driver.confirm("Are you sure you want to delete " + label);
+		browser.click(By.id("delete"));
+		browser.confirm("Are you sure you want to delete " + label);
 		return page();
 	}
 
 	public DatasourceView query(String query) {
-		driver.type(By.id("sparql"), query);
+		browser.type(By.id("sparql"), query);
 		return this;
 	}
 
 	public SparqlResult evaluate() {
-		driver.click(By.id("evaluate"));
+		browser.click(By.id("evaluate"));
 		return page(SparqlResult.class);
 	}
 
 	public DatasourceView execute() {
-		driver.click(By.id("execute"));
+		browser.click(By.id("execute"));
 		return page(DatasourceView.class);
 	}
 

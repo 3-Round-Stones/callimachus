@@ -7,146 +7,148 @@ import org.callimachusproject.webdriver.helpers.WebBrowserDriver;
 import org.openqa.selenium.By;
 
 public class CalliPage {
-	protected WebBrowserDriver driver;
+	protected WebBrowserDriver browser;
 
-	public CalliPage(WebBrowserDriver driver) {
-		this.driver = driver;
+	public CalliPage(WebBrowserDriver browser) {
+		this.browser = browser;
+	}
+
+	public String toString() {
+		return browser.toString();
 	}
 
 	public CalliPage waitUntilTitle(String title) {
-		driver.focusInTopWindow();
-		driver.waitUntilTextPresent(By.tagName("h1"), title);
+		browser.focusInTopWindow();
+		browser.waitUntilTextPresent(By.tagName("h1"), title);
 		return this;
 	}
 
 	public Login openLogin() {
-		driver.focusInTopWindow();
-		driver.click(By.id("login-link"));
+		browser.focusInTopWindow();
+		browser.click(By.id("login-link"));
 		return page(SignIn.class).loginWithDigest();
 	}
 
 	public CalliPage logout() {
-		driver.focusInTopWindow();
-		driver.click(By.cssSelector("i.icon-cog"));
-		driver.click(By.id("logout-link"));
+		browser.focusInTopWindow();
+		browser.click(By.cssSelector("i.icon-cog"));
+		browser.click(By.id("logout-link"));
 		return page();
 	}
 	
 	public String getCurrentUrl() {
-		String url = driver.getCurrentUrl();
+		String url = browser.getCurrentUrl();
 		return url;
 	}
 
 	public FolderView openHomeFolder() {
-		driver.focusInTopWindow();
-		driver.click(By.cssSelector("i.icon-cog"));
-		driver.click(By.linkText("Home folder"));
+		browser.focusInTopWindow();
+		browser.click(By.cssSelector("i.icon-cog"));
+		browser.click(By.linkText("Home folder"));
 		return page(FolderView.class);
 	}
 
 	public FolderView openCurrentFolder() {
-		driver.focusInTopWindow();
-		driver.navigateTo("./?view");
+		browser.focusInTopWindow();
+		browser.navigateTo("./?view");
 		return page(FolderView.class);
 	}
 
 	public CalliPage open(String ref) {
-		driver.focusInTopWindow();
-		driver.navigateTo(ref);
+		browser.focusInTopWindow();
+		browser.navigateTo(ref);
 		return page();
 	}
 
 	public <P> P open(String ref, Class<P> pageClass) {
-		driver.focusInTopWindow();
-		driver.navigateTo(ref);
+		browser.focusInTopWindow();
+		browser.navigateTo(ref);
 		return page(pageClass);
 	}
 
 	public CalliPage openView() {
-		driver.focusInTopWindow();
-		driver.click(By.linkText("View"));
+		browser.focusInTopWindow();
+		browser.click(By.linkText("View"));
 		return page();
 	}
 
 	public <P> P openEdit(Class<P> pageClass) {
-		driver.focusInTopWindow();
-		driver.click(By.linkText("Edit"));
+		browser.focusInTopWindow();
+		browser.click(By.linkText("Edit"));
 		return page(pageClass);
 	}
 
 	public HistoryPage openHistory() {
-		driver.focusInTopWindow();
-		driver.click(By.linkText("History"));
+		browser.focusInTopWindow();
+		browser.click(By.linkText("History"));
 		return page(HistoryPage.class);
 	}
 
 	public DiscussionPage openDiscussion() {
-		driver.focusInTopWindow();
-		driver.click(By.linkText("Discussion"));
+		browser.focusInTopWindow();
+		browser.click(By.linkText("Discussion"));
 		return page(DiscussionPage.class);
 	}
 
 	public DescribePage openDescribe() {
-		driver.focusInTopWindow();
-		driver.click(By.linkText("Describe"));
+		browser.focusInTopWindow();
+		browser.click(By.linkText("Describe"));
 		return page(DescribePage.class);
 	}
 
 	public RecentChanges openRecentChanges() {
-		driver.focusInTopWindow();
-		driver.click(By.cssSelector("i.icon-cog"));
-		driver.click(By.linkText("Recent changes"));
+		browser.focusInTopWindow();
+		browser.click(By.cssSelector("i.icon-cog"));
+		browser.click(By.linkText("Recent changes"));
 		return page(RecentChanges.class);
 	}
 
 	public RecentChanges openRelatedChanges() {
-		driver.focusInTopWindow();
-		driver.click(By.cssSelector("i.icon-cog"));
-		driver.click(By.linkText("Related changes"));
+		browser.focusInTopWindow();
+		browser.click(By.cssSelector("i.icon-cog"));
+		browser.click(By.linkText("Related changes"));
 		return page(RecentChanges.class);
 	}
 
 	public SearchResults openWhatLinksHere() {
-		driver.focusInTopWindow();
-		driver.click(By.cssSelector("i.icon-cog"));
-		driver.click(By.linkText("What links here"));
+		browser.focusInTopWindow();
+		browser.click(By.cssSelector("i.icon-cog"));
+		browser.click(By.linkText("What links here"));
 		return page(SearchResults.class);
 	}
 
 	public CalliPage openProfile() {
-		driver.focusInTopWindow();
-		driver.click(By.cssSelector("i.icon-cog"));
-		driver.click(By.id("profile-link"));
+		browser.focusInTopWindow();
+		browser.click(By.cssSelector("i.icon-cog"));
+		browser.click(By.id("profile-link"));
 		return page();
 	
 	}
 
 	public SearchResults searchFor(String conceptLabel) {
-		driver.focusInTopWindow();
-		driver.type(By.xpath("//input[@name='q']"), conceptLabel);
-		driver.submit(By.xpath("//input[@name='q']"));
+		browser.focusInTopWindow();
+		browser.type(By.xpath("//input[@name='q']"), conceptLabel);
+		browser.submit(By.xpath("//input[@name='q']"));
 		return page(SearchResults.class);
 	}
 
 	public CalliPage back() {
-		driver.navigateBack();
+		browser.navigateBack();
 		return page();
 	}
 
 	public CalliPage page() {
-		driver.waitForScript();
-		driver.focusInTopWindow();
-		driver.waitForScript();
-		return new CalliPage(driver);
+		browser.waitForScript();
+		browser.focusInTopWindow();
+		return new CalliPage(browser);
 	}
 
 	public <P> P page(Class<P> pageClass) {
-		driver.waitForScript();
-		driver.focusInTopWindow();
-		driver.waitForScript();
+		browser.waitForScript();
+		browser.focusInTopWindow();
 		try {
 			try {
-				return pageClass.getConstructor(WebBrowserDriver.class).newInstance(driver);
+				return pageClass.getConstructor(WebBrowserDriver.class).newInstance(browser);
 			} catch (InvocationTargetException e) {
 				throw e.getCause();
 			}

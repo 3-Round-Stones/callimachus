@@ -1,5 +1,5 @@
 
-/* query-vizeditor.js */
+/* query-view.js */
 
 (function($) {
     
@@ -87,6 +87,8 @@
          */ 
         loadGoogleEditor: function(cb) {
             if (!lib.googleEditor) {
+                // css    	
+                $('<link rel="stylesheet" type="text/css" href="' + calli.getCallimachusUrl('styles/callimachus-query-view.css') + '" />').appendTo('head');
                 // editor
                 lib.loadGoogleApi(function() {
                     google.load('visualization', '1.0', {packages: ['charteditor'], callback: function() {
@@ -118,11 +120,31 @@
             $('.chart-options').on('change', '.params input', lib.onParameterChange);
             cb.call();
         },
-        
+
+        /**
+         * Extends the Menu with a chart launcher
+         */
+        initMenu: function() {
+            var active = false;
+            var onpopstate = function(event) {
+                if ("#vizeditor" == window.location.hash) {
+                    if (!active) {
+                        active = true;
+                        lib.onCreateChart(event);
+                    }
+                } else {
+                    active = false;
+                }
+            };
+            $(window).bind('popstate', onpopstate);
+            onpopstate();
+        },
+
         /**
          * Launches the chart editor with a clean chart wrapper and new container ID
          */ 
-        initMenu: function() {
+        onCreateChart: function(e) {
+            e && e.preventDefault();
             var containerId = lib.getNextChartContainerId();
             // html containers
             if (!$('#' + containerId).length) {
@@ -149,7 +171,7 @@
                     })
                 ;
                 lib.chartConfigs['calli'][containerId] = {query: query, params: {}};
-                lib.injectParameters(query, null);
+                lib.injectParameters(query, e && e.params || null);
                 lib.replaceButtons();
                 lib.backupWidget();
             });
@@ -160,10 +182,10 @@
          */ 
         replaceButtons: function() {
             $('.google-visualization-charteditor-dialog .modal-dialog-buttons button[name="ok"]')
-                .replaceWith('<a class="save-chart btn btn-info">Save settings...</a>')
+                .replaceWith('<a class="save-chart btn btn-info" href="#">Save settings...</a>')
             ;
             $('.google-visualization-charteditor-dialog .modal-dialog-buttons button[name="cancel"]')
-                .replaceWith(' <a class="close-chart btn">Close</a>')
+                .replaceWith(' <a class="cancel-chart btn" href="#">Cancel</a>')
             ;
         },
         
@@ -172,7 +194,7 @@
          */
         initActions: function() {
             $(document).on('click', 'a.btn.save-chart', lib.onSaveGoogleChart);
-            $(document).on('click', 'a.btn.close-chart', lib.onCloseGoogleChart);
+            $(document).on('click', 'a.btn.cancel-chart', lib.onCloseGoogleChart);
         },
         
         /**
@@ -182,6 +204,8 @@
             e.preventDefault();
             lib.backupWidget();
             lib.googleEditor.closeDialog();
+            window.history.replaceState({}, document.title, window.location.search);
+            window.location.reload();
         },        
         
         /**
@@ -197,26 +221,9 @@
             lib.getSaveTarget(slug, function(path, fname) {
                 var title = document.title;
                 // config with support for query string parameters and just ?results as URI for re-usability by other queries
-                var indent = function(v,i,a){
-                    var indent = a.reduce(function(indent,v,j){
-                        var m = v.match(/\{|\[/g);
-                        return indent + (j<i && m ? m.length : 0);
-                    }, 0);
-                    var outdent = a.reduce(function(outdent,v,j){
-                        var m = v.match(/\}|\]/g);
-                        return outdent + (j<i && m ? m.length : 0);
-                    }, 0);
-                    if (v.indexOf('}') == 0) {
-                        outdent++;
-                    }
-                    return '\n' + new Array(8 + 4 * (indent - outdent)).join(' ') + v;
-                };
-                var config = lib.googleEditor.chartWrapper.toJSON()
-                    .split(/(?=\})/g).map(indent).join('')
-                    .split(/,(?=")/g).map(indent).join(',')
-                    .split(/\{(?!\})/g).map(function(v,i,a){return v+(i<a.length-1?'{':'')}).map(indent).join('')
+                var config = JSON.stringify(JSON.parse(lib.googleEditor.chartWrapper.toJSON()), null, '  ')
+                    .replace(/\n/g, '\n        ')
                     .replace(/("dataSourceUrl":\s*)"[^\"\?]*\?results[^\"]+"/, '$1 window.location.href.replace("?view","?results")')
-                    .trim()
                 ;
                 var content = '' + 
                     '<?xml version="1.0" encoding="UTF-8" ?>\n' +
@@ -229,9 +236,10 @@
                     '    <link rel="edit-form" href="?edit" />\n' +
                     '    <link rel="comments" href="?discussion" />\n' +
                     '    <link rel="version-history" href="?history" />\n' +
-                    '    <link href="?vizeditor" title="Edit visualization" />\n' +
+                    '    <link href="#vizeditor" title="Edit visualization" />\n' +
                     '    <link rel="edit-media" href="?" title="Raw SPARQL file" type="application/sparql-query" />\n' +
                     '    <link href="?results" title="Results document" type="application/sparql-results+xml" />\n' +
+                    '    <script type="text/javascript" src="/callimachus/query-view.js"></script>\n' +
                     '    <script type="text/javascript" src="https://www.google.com/jsapi"></script>\n' +
                     '    <script type="text/javascript"><![CDATA[\n' +
                     '      google.load("visualization", "1.0");\n' +
@@ -318,7 +326,8 @@
                                     $(this).remove();
                                 })
                             ;
-                            window.location = window.location.href.replace(/\?\w+/,'?view');
+                            window.history.replaceState({}, document.title, window.location.search);
+                            window.location.reload();
                         },
                         error: function() {
                             $('<span class="save-error">Could not set view template</span>')

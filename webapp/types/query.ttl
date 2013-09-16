@@ -86,23 +86,6 @@
     calli:query "*";
     calli:type "application/x-www-form-urlencoded".
 
-# GET /queries/my-query.rq?vizeditor
-:GetVizEditor rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <NamedQuery>];
-    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-    rdfs:subClassOf [owl:onProperty :query_vizeditor_xhtml; owl:hasValue <../pages/query-vizeditor.xhtml>];
-    calli:method "GET";
-    calli:query "vizeditor";
-    calli:requires calli:editor;
-    calli:type "text/html";
-    calli:header "cache-control:no-cache";
-    calli:script """
-        return query_vizeditor_xhtml.Construct(this, 'vizeditor');
-    """.
-
-:query_vizeditor_xhtml a owl:FunctionalProperty, owl:ObjectProperty;
-    rdfs:domain :GetVizEditor.
-
 # GET /queries/my-query.rq?sparql
 :GetSparql rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <NamedQuery>];

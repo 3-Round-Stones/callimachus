@@ -50,13 +50,15 @@ INSERT {
 	FILTER NOT EXISTS { </auth/credentials/> a calli:Folder }
 };
 
-DELETE WHERE {
+INSERT {
 <../> calli:hasComponent <../query-view.js>.
 <../query-view.js> a <types/PURL>, calli:PURL ;
 	rdfs:label "query-view.js";
-	calli:alternate ?alternate;
+	calli:alternate <scripts/query-view.js>;
 	calli:administrator </auth/groups/super>;
 	calli:reader </auth/groups/public> .
+} WHERE {
+    FILTER NOT EXISTS { <../> calli:hasComponent <../query-view.js> }
 };
 
 DELETE {

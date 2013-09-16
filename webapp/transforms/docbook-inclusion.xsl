@@ -17,6 +17,27 @@
     </xsl:copy>
 </xsl:template>
 
+<xsl:template match="d:book/d:book">
+    <part>
+        <xsl:if test="base-uri(.)!=base-uri(..) and not(@xml:id)">
+            <xsl:attribute name="xml:id">
+                <xsl:call-template name="id">
+                    <xsl:with-param name="target" select="." />
+                </xsl:call-template>
+            </xsl:attribute>
+        </xsl:if>
+        <xsl:apply-templates select="@*|node()" />
+    </part>
+</xsl:template>
+
+<xsl:template match="d:part/d:book">
+    <xsl:apply-templates select="*[not(self::d:title or self::d:titleabbrev or self::d:subtitle or self::d:info)]" />
+</xsl:template>
+
+<xsl:template match="d:book/d:book/d:part|d:part/d:book/d:part|d:part/d:part">
+    <xsl:apply-templates select="*[not(self::d:title or self::d:titleabbrev or self::d:subtitle or self::d:info or self::d:partintro)]" />
+</xsl:template>
+
 <xsl:template match="d:preface/d:article|d:partintro/d:article|d:article/d:article|d:chapter/d:article|d:appendix/d:article|d:section/d:article|d:topic/d:article">
     <section>
         <xsl:if test="base-uri(.)!=base-uri(..) and not(@xml:id)">

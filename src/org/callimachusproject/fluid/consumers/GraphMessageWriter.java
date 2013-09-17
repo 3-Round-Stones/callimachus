@@ -31,6 +31,7 @@ package org.callimachusproject.fluid.consumers;
 
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.net.URISyntaxException;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -44,7 +45,9 @@ import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.fluid.consumers.helpers.MessageWriterBase;
 import org.callimachusproject.io.ChannelUtil;
+import org.callimachusproject.io.TurtleStreamWriterFactory;
 import org.openrdf.OpenRDFException;
+import org.openrdf.model.Literal;
 import org.openrdf.model.Namespace;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
@@ -59,7 +62,6 @@ import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFWriter;
 import org.openrdf.rio.RDFWriterFactory;
 import org.openrdf.rio.RDFWriterRegistry;
-import org.openrdf.rio.turtle.TurtleWriterFactory;
 
 /**
  * Writes RDF messages.
@@ -70,25 +72,6 @@ import org.openrdf.rio.turtle.TurtleWriterFactory;
 public class GraphMessageWriter extends
 		MessageWriterBase<RDFFormat, RDFWriterFactory, GraphQueryResult> {
 	private static final int SMALL = 100;
-	static {
-		RDFFormat format = RDFFormat.forMIMEType("text/turtle");
-		if (format == null) {
-			RDFFormat
-					.register(format = new RDFFormat("text/turtle",
-							"text/turtle", Charset.forName("UTF-8"), "ttl",
-							true, false));
-		}
-		final RDFFormat turtle = format;
-		RDFWriterRegistry registry = RDFWriterRegistry.getInstance();
-		RDFWriterFactory factory = registry.get(turtle);
-		if (factory == null) {
-			registry.add(new TurtleWriterFactory() {
-				public RDFFormat getRDFFormat() {
-					return turtle;
-				}
-			});
-		}
-	}
 
 	public GraphMessageWriter() {
 		super(RDFWriterRegistry.getInstance(), GraphQueryResult.class);
@@ -114,7 +97,7 @@ public class GraphMessageWriter extends
 			QueryEvaluationException {
 		RDFFormat rdfFormat = factory.getRDFFormat();
 		RDFWriter writer = getWriter(ChannelUtil.newOutputStream(out), charset,
-				factory);
+				factory, base);
 		// writer.setBaseURI(base);
 		writer.startRDF();
 
@@ -190,7 +173,17 @@ public class GraphMessageWriter extends
 	}
 
 	private RDFWriter getWriter(OutputStream out, Charset charset,
-			RDFWriterFactory factory) {
+			RDFWriterFactory factory, String systemId) {
+		if (RDFFormat.TURTLE.equals(factory.getRDFFormat()) && systemId != null) {
+			try {
+				TurtleStreamWriterFactory tf = new TurtleStreamWriterFactory();
+				if (charset == null)
+					return tf.createWriter(out, systemId);
+				return tf.createWriter(new OutputStreamWriter(out, charset), systemId);
+			} catch (URISyntaxException e) {
+				// ignore
+			}
+		}
 		if (charset == null)
 			return factory.getWriter(out);
 		return factory.getWriter(new OutputStreamWriter(out, charset));
@@ -200,6 +193,11 @@ public class GraphMessageWriter extends
 		if (value instanceof URI) {
 			URI uri = (URI) value;
 			namespaces.add(uri.getNamespace());
+		} else if (value instanceof Literal) {
+			Literal lit = (Literal) value;
+			if (lit.getDatatype() != null) {
+				namespaces.add(lit.getDatatype().getNamespace());
+			}
 		}
 	}
 

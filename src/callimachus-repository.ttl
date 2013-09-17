@@ -4,12 +4,15 @@
 #
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix foaf:<http://xmlns.com/foaf/0.1/>.
 @prefix rep: <http://www.openrdf.org/config/repository#>.
 @prefix sr: <http://www.openrdf.org/config/repository/sail#>.
 @prefix sail: <http://www.openrdf.org/config/sail#>.
 @prefix ns: <http://www.openrdf.org/config/sail/native#>.
 @prefix audit: <http://www.openrdf.org/config/repository/auditing#>.
 @prefix opt: <http://www.openrdf.org/config/sail/optimistic#>.
+
+<> foaf:primaryTopic <#callimachus>.
 
 <#callimachus> a rep:Repository ;
     rep:repositoryID "callimachus" ;

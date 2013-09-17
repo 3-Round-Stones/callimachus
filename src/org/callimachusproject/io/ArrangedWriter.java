@@ -182,8 +182,12 @@ public class ArrangedWriter implements RDFWriter {
 	}
 
 	private synchronized void flushNamespaces() throws RDFHandlerException {
+		Map<String, String> namespaces = new TreeMap<String, String>();
 		for (Map.Entry<String, String> e : prefixes.entrySet()) {
-			delegate.handleNamespace(e.getValue(), e.getKey());
+			namespaces.put(e.getValue(), e.getKey());
+		}
+		for (Map.Entry<String, String> e : namespaces.entrySet()) {
+			delegate.handleNamespace(e.getKey(), e.getValue());
 		}
 		prefixes.clear();
 	}

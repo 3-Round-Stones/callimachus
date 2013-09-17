@@ -165,11 +165,7 @@
         return {
             status: 200, message: "OK",
             headers:{"Content-Disposition":'attachment;filename="' + filename + '"', "content-type":"application/zip"},
-            body: new org.callimachusproject.io.ProducerStream(function(outputStream) {
-                var carStream = new org.callimachusproject.io.CarOutputStream(outputStream);
-                component.ExportComponents(baseURI, carStream);
-                carStream.finish();
-            })
+            body: this.exportFolder()
         };
     """.
 

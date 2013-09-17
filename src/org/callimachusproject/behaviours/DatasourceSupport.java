@@ -2,11 +2,6 @@ package org.callimachusproject.behaviours;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Set;
 import java.util.regex.Pattern;
 
 import javax.xml.datatype.DatatypeConfigurationException;
@@ -16,6 +11,7 @@ import org.callimachusproject.client.CloseableEntity;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidException;
 import org.callimachusproject.fluid.FluidFactory;
+import org.callimachusproject.io.DescribeResult;
 import org.callimachusproject.repository.CalliRepository;
 import org.callimachusproject.repository.DatasourceManager;
 import org.callimachusproject.repository.auditing.ActivityFactory;
@@ -27,14 +23,9 @@ import org.callimachusproject.traits.CalliObject;
 import org.openrdf.OpenRDFException;
 import org.openrdf.annotations.Sparql;
 import org.openrdf.model.Namespace;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
-import org.openrdf.model.Value;
-import org.openrdf.model.vocabulary.RDFS;
 import org.openrdf.query.GraphQueryResult;
 import org.openrdf.query.MalformedQueryException;
-import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.QueryLanguage;
 import org.openrdf.query.parser.ParsedBooleanQuery;
 import org.openrdf.query.parser.ParsedGraphQuery;
@@ -71,7 +62,7 @@ public abstract class DatasourceSupport implements CalliObject {
 			throw new BadRequest("Missing uri");
 		if (!isQuerySupported())
 			throw new BadRequest("SPARQL Query is not supported on this service");
-		return new DescribeResult(uri, openConnection());
+		return new DescribeResult(uri, openConnection(), true);
 	}
 
 	public HttpEntity evaluateSparql(String qry) throws OpenRDFException,
@@ -213,118 +204,5 @@ public abstract class DatasourceSupport implements CalliObject {
 			return findAuditing(((RepositoryConnectionWrapper) con)
 					.getDelegate());
 		return null;
-	}
-
-	private static class DescribeResult implements GraphQueryResult {
-		private final Set<Resource> seen = new HashSet<Resource>();
-		private final LinkedList<Resource> queue = new LinkedList<Resource>();
-		private final String base;
-		private final boolean baseIsHash;
-		private final RepositoryConnection con;
-		private RepositoryResult<Statement> stmts;
-		private Statement last;
-
-		private DescribeResult(URI resource, RepositoryConnection toBeClosed)
-				throws OpenRDFException {
-			this.con = toBeClosed;
-			seen.add(resource);
-			queue.push(resource);
-			base = resource.stringValue();
-			baseIsHash = base.charAt(base.length() - 1) == '#';
-			stmts = con.getStatements(null, RDFS.ISDEFINEDBY, resource, false);
-			try {
-				while (stmts.hasNext()) {
-					pushIfHash(stmts.next().getSubject());
-				}
-			} finally {
-				stmts.close();
-			}
-		}
-
-		public void close() throws QueryEvaluationException {
-			try {
-				try {
-					stmts.close();
-				} finally {
-					con.close();
-				}
-			} catch (RepositoryException e) {
-				throw new QueryEvaluationException(e);
-			}
-		}
-
-		public Map<String, String> getNamespaces()
-				throws QueryEvaluationException {
-			try {
-				RepositoryResult<Namespace> namespaces = con.getNamespaces();
-				Map<String, String> map = new LinkedHashMap<String, String>();
-				while (namespaces.hasNext()) {
-					Namespace ns = namespaces.next();
-					map.put(ns.getPrefix(), ns.getName());
-				}
-				return map;
-			} catch (RepositoryException e) {
-				throw new QueryEvaluationException(e);
-			}
-		}
-
-		public boolean hasNext() throws QueryEvaluationException {
-			try {
-				while (!stmts.hasNext() && queue.size() > 0) {
-					stmts.close();
-					stmts = con.getStatements(queue.poll(), null, null, false);
-				}
-				return stmts.hasNext();
-			} catch (RepositoryException e) {
-				throw new QueryEvaluationException(e);
-			}
-		}
-
-		public Statement next() throws QueryEvaluationException {
-			try {
-				while (!stmts.hasNext() && queue.size() > 0) {
-					stmts.close();
-					stmts = con.getStatements(queue.poll(), null, null, false);
-				}
-				Statement st = stmts.next();
-				while (last != null && stmts.hasNext()
-						&& st.getSubject() == last.getSubject()
-						&& st.getPredicate() == last.getPredicate()
-						&& st.getObject() == last.getObject()) {
-					st = stmts.next();
-				}
-				pushIfHash(st.getObject());
-				last = st;
-				return st;
-			} catch (RepositoryException e) {
-				throw new QueryEvaluationException(e);
-			}
-		}
-
-		public void remove() throws QueryEvaluationException {
-			try {
-				stmts.remove();
-			} catch (RepositoryException e) {
-				throw new QueryEvaluationException(e);
-			}
-		}
-
-		private void pushIfHash(Value object) {
-			String uri = object.stringValue();
-			if (object instanceof URI) {
-				if (uri.length() > base.length() && uri.indexOf(base) == 0) {
-					char chr = uri.charAt(base.length());
-					if (baseIsHash || chr == '#' && !seen.contains(object)) {
-						seen.add((URI) object);
-						queue.push((URI) object);
-					}
-				}
-			} else if (object instanceof Resource) {
-				if (!seen.contains(object)) {
-					seen.add((Resource) object);
-					queue.push((Resource) object);
-				}
-			}
-		}
 	}
 }

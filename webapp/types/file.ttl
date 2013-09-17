@@ -37,14 +37,6 @@
     calli:view <../templates/file-view.xhtml>;
     calli:edit <../templates/file-edit.xhtml>.
 
-:GetContentMediaType rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <File>];
-    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-    msg:sparql """
-        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
-        SELECT DISTINCT ?type { $this a [calli:mediaType ?type] }
-    """.
-
 :DeleteFileIfNotUsed rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <File>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];

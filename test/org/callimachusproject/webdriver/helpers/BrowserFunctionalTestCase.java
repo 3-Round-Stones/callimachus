@@ -272,8 +272,8 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 		init();
 		Throwable exception = null;
 		try {
-			setUp();
 			try {
+				setUp();
 				runTest();
 			} catch (Throwable running) {
 				exception = running;

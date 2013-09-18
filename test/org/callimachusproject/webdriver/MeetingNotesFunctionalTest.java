@@ -11,19 +11,19 @@ import org.callimachusproject.webdriver.pages.FolderView;
 import org.callimachusproject.webdriver.pages.SampleResourceCreate;
 import org.openqa.selenium.By;
 
-public class MeetingNotesFunctionalTestCase extends BrowserFunctionalTestCase {
+public class MeetingNotesFunctionalTest extends BrowserFunctionalTestCase {
 	private static final String DOWNLOAD_URL = "http://callimachus.googlecode.com/files/notes.car";
 
 	public static TestSuite suite() throws Exception {
 		return BrowserFunctionalTestCase
-				.suite(MeetingNotesFunctionalTestCase.class);
+				.suite(MeetingNotesFunctionalTest.class);
 	}
 
-	public MeetingNotesFunctionalTestCase() {
+	public MeetingNotesFunctionalTest() {
 		super();
 	}
 
-	public MeetingNotesFunctionalTestCase(BrowserFunctionalTestCase parent) {
+	public MeetingNotesFunctionalTest(BrowserFunctionalTestCase parent) {
 		super(parent);
 	}
 

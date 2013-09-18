@@ -2,6 +2,7 @@ package org.callimachusproject.webdriver.helpers;
 
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -186,6 +187,10 @@ public class WebBrowserDriver {
 				break;
 			}
 		}
+	}
+
+	public void sendFileName(By locator, File file) {
+		driver.findElement(locator).sendKeys(file.getAbsolutePath());
 	}
 
 	public void sendKeys(CharSequence... keys) {

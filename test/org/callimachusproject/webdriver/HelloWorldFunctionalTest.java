@@ -8,19 +8,19 @@ import org.callimachusproject.webdriver.helpers.AssetDownloader;
 import org.callimachusproject.webdriver.helpers.BrowserFunctionalTestCase;
 import org.openqa.selenium.By;
 
-public class HelloWorldFunctionalTestCase extends BrowserFunctionalTestCase {
+public class HelloWorldFunctionalTest extends BrowserFunctionalTestCase {
 	private static final String DOWNLOAD_URL = "http://callimachus.googlecode.com/files/helloworld.car";
 
 	public static TestSuite suite() throws Exception {
 		return BrowserFunctionalTestCase
-				.suite(HelloWorldFunctionalTestCase.class);
+				.suite(HelloWorldFunctionalTest.class);
 	}
 
-	public HelloWorldFunctionalTestCase() {
+	public HelloWorldFunctionalTest() {
 		super();
 	}
 
-	public HelloWorldFunctionalTestCase(BrowserFunctionalTestCase parent) {
+	public HelloWorldFunctionalTest(BrowserFunctionalTestCase parent) {
 		super(parent);
 	}
 

@@ -12,7 +12,7 @@ public class ImportPage extends CalliPage {
 	}
 
 	public ImportPage selectFile(File file) {
-		browser.sendKeys(By.id("file"), file.getAbsolutePath());
+		browser.sendFileName(By.id("file"), file);
 		return this;
 	}
 

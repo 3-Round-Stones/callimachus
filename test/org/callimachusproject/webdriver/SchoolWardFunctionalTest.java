@@ -9,19 +9,19 @@ import org.callimachusproject.webdriver.helpers.BrowserFunctionalTestCase;
 import org.callimachusproject.webdriver.pages.FolderView;
 import org.openqa.selenium.By;
 
-public class SchoolWardFunctionalTestCase extends BrowserFunctionalTestCase {
+public class SchoolWardFunctionalTest extends BrowserFunctionalTestCase {
 	private static final String DOWNLOAD_URL = "http://callimachus.googlecode.com/files/schools.car";
 
 	public static TestSuite suite() throws Exception {
 		return BrowserFunctionalTestCase
-				.suite(SchoolWardFunctionalTestCase.class);
+				.suite(SchoolWardFunctionalTest.class);
 	}
 
-	public SchoolWardFunctionalTestCase() {
+	public SchoolWardFunctionalTest() {
 		super();
 	}
 
-	public SchoolWardFunctionalTestCase(BrowserFunctionalTestCase parent) {
+	public SchoolWardFunctionalTest(BrowserFunctionalTestCase parent) {
 		super(parent);
 	}
 

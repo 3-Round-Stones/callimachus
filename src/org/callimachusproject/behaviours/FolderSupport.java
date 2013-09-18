@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 
 public abstract class FolderSupport implements RDFObject {
 	private static final String TURTLE = "text/turtle;charset=UTF-8";
-	private static final String PREFIX = "PREFIX owl:<http://www.w3.org/2002/07/owl>\n" +
+	private static final String PREFIX = "PREFIX owl:<http://www.w3.org/2002/07/owl#>\n" +
 			"PREFIX prov:<http://www.w3.org/ns/prov#>\n" +
 			"PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>\n";
 	private final Logger logger = LoggerFactory.getLogger(FolderSupport.class);
@@ -191,9 +191,9 @@ public abstract class FolderSupport implements RDFObject {
 			}
 			while (triples.hasNext()) {
 				Statement st = triples.next();
-				String pred = st.getPredicate().toString();
-				if (pred != "http://www.w3.org/ns/prov#wasGeneratedBy"
-						&& pred != "http://www.openrdf.org/rdf/2011/keyword#phone") {
+				String pred = st.getPredicate().stringValue();
+				if (!"http://www.w3.org/ns/prov#wasGeneratedBy".equals(pred)
+						&& !"http://www.openrdf.org/rdf/2011/keyword#phone".equals(pred)) {
 					writer.handleStatement(st);
 				}
 			}

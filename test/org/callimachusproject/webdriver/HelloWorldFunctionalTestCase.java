@@ -25,13 +25,24 @@ public class HelloWorldFunctionalTestCase extends BrowserFunctionalTestCase {
 	}
 
 	public void testHelloWorld() throws Exception {
-		File car = new AssetDownloader(new File("downloads")).download(DOWNLOAD_URL);
+		File car = new AssetDownloader(new File("downloads"))
+				.getLocalAsset(DOWNLOAD_URL);
+		String archive = page.getCurrentUrl().replaceAll("\\?.*", "?archive");
 		page.openCurrentFolder().openImportPage().selectFile(car).importCar();
+		verifyHelloWorldApp();
+		File ex = new AssetDownloader(getUsername(), getPassword()).downloadAsset(archive, "helloworld.car");
+		page.openCurrentFolder().openImportPage().selectFile(ex).importCar();
+		ex.delete();
+		verifyHelloWorldApp();
+	}
+
+	public void verifyHelloWorldApp() {
 		browser.click(By.linkText("helloworld.html"));
 		browser.waitUntilTextPresent(By.tagName("p"), "Hello, World from HTML!");
 		browser.navigateBack();
 		browser.click(By.linkText("hello+resource"));
-		browser.waitUntilTextPresent(By.tagName("p"), "Hello, World from XHTML Template!");
+		browser.waitUntilTextPresent(By.tagName("p"),
+				"Hello, World from XHTML Template!");
 		browser.waitUntilElementPresent(By.linkText("Edit"));
 		browser.navigateBack();
 	}

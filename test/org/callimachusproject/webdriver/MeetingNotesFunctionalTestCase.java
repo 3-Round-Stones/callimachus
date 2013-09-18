@@ -7,6 +7,7 @@ import junit.framework.TestSuite;
 import org.callimachusproject.webdriver.helpers.AssetDownloader;
 import org.callimachusproject.webdriver.helpers.BrowserFunctionalTestCase;
 import org.callimachusproject.webdriver.pages.ClassView;
+import org.callimachusproject.webdriver.pages.FolderView;
 import org.callimachusproject.webdriver.pages.SampleResourceCreate;
 import org.openqa.selenium.By;
 
@@ -27,8 +28,14 @@ public class MeetingNotesFunctionalTestCase extends BrowserFunctionalTestCase {
 	}
 
 	public void testMeetingNotes() throws Exception {
-		File car = new AssetDownloader(new File("downloads")).download(DOWNLOAD_URL);
-		page.openCurrentFolder().openImportPage().selectFile(car).importCar();
+		File car = new AssetDownloader(new File("downloads"))
+				.getLocalAsset(DOWNLOAD_URL);
+		FolderView folder = page.openCurrentFolder().openImportPage()
+				.selectFile(car).importCar().openCurrentFolder();
+		String archive = folder.getCurrentUrl().replaceAll("\\?.*", "?archive");
+		File ex = new AssetDownloader(getUsername(), getPassword()).downloadAsset(archive, "meeting.car");
+		folder.openImportPage().selectFile(ex).importCar();
+		ex.delete();
 		logger.info("Creating Journal");
 		browser.click(By.linkText("Journal"));
 		page.page(ClassView.class)

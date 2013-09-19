@@ -39,6 +39,7 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -508,7 +509,7 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 		if (sslserver != null) {
 			sslserver.shutdown();
 		}
-		for (String origin : origins) {
+		for (String origin : new ArrayList<String>(origins)) {
 			removeOrigin(origin);
 		}
 		synchronized(repositories) {

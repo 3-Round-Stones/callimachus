@@ -107,6 +107,14 @@
         this.touchRevision();
     """.
 
+:DeleteStyle owl:intersectionOf ( <editable.ttl#Delete>
+        [owl:onProperty msg:target; owl:allValuesFrom <Style>]);
+    calli:script """
+        var systemId = this.toString() + "?less";
+        this.objectConnection.getBlobObject(systemId)['delete']();
+        return proceed();
+    """.
+
 :reader a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :UploadStyle;
     rdfs:range <java:java.io.Reader>;
@@ -123,7 +131,8 @@
     calli:type "text/css";
     calli:script """
         var self = this;
-        return this.ifStringModifiedSince(this.toString() + "?less", function() {
+        var systemId = this.toString() + "?less";
+        return this.ifStringModifiedSince(systemId, function() {
             return self.LessJs();
         });
     """.

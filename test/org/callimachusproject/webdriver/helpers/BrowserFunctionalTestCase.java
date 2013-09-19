@@ -14,6 +14,8 @@ import java.net.URLEncoder;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -62,6 +64,7 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 	private static final String ORIGIN = "http://" + HOSTNAME + ":" + PORT;
 	private static final TemporaryServer server;
 	private static final Map<String, RemoteWebDriverFactory> factories = new LinkedHashMap<String, RemoteWebDriverFactory>();
+	protected static final ReadWriteLock locker = new ReentrantReadWriteLock();
 	static {
 		String service = System
 				.getProperty("org.callimachusproject.test.service");
@@ -269,36 +272,42 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 
 	@Override
 	public void runBare() throws Throwable {
-		init();
-		Throwable exception = null;
+		locker.readLock().lock();
 		try {
+			init();
+			Throwable exception = null;
 			try {
-				setUp();
-				runTest();
-			} catch (Throwable running) {
-				exception = running;
+				try {
+					setUp();
+					runTest();
+				} catch (Throwable running) {
+					exception = running;
+				} finally {
+					try {
+						tearDown();
+					} catch (Throwable tearingDown) {
+						if (exception == null) {
+							exception = tearingDown;
+						}
+					}
+				}
+				String jobId = driver.getSessionId().toString();
+				if (exception == null) {
+					recordPass(jobId);
+				} else {
+					recordFailure(jobId, exception);
+					throw exception;
+				}
 			} finally {
 				try {
-					tearDown();
-				} catch (Throwable tearingDown) {
+					destroy();
+				} catch (Throwable ex) {
 					if (exception == null)
-						exception = tearingDown;
+						throw ex;
 				}
 			}
-			String jobId = driver.getSessionId().toString();
-			if (exception == null) {
-				recordPass(jobId);
-			} else {
-				recordFailure(jobId, exception);
-				throw exception;
-			}
 		} finally {
-			try {
-				destroy();
-			} catch (Throwable ex) {
-				if (exception == null)
-					throw ex;
-			}
+			locker.readLock().unlock();
 		}
 	}
 

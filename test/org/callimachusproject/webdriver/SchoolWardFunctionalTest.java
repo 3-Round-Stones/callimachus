@@ -6,6 +6,7 @@ import junit.framework.TestSuite;
 
 import org.callimachusproject.webdriver.helpers.AssetDownloader;
 import org.callimachusproject.webdriver.helpers.BrowserFunctionalTestCase;
+import org.callimachusproject.webdriver.pages.DatasourceView;
 import org.callimachusproject.webdriver.pages.FolderView;
 import org.openqa.selenium.By;
 
@@ -39,6 +40,7 @@ public class SchoolWardFunctionalTest extends BrowserFunctionalTestCase {
 		browser.click(By
 				.linkText("Bartley Green School A Specialist Technology and Sports College"));
 		browser.focusInTopWindow();
+		String uri = browser.getCurrentUrl().replace("?view", "");
 		browser.click(By.linkText("Edit"));
 		browser.focusInTopWindow();
 		browser.type(By.id("name"), "Bartley Green School");
@@ -48,6 +50,8 @@ public class SchoolWardFunctionalTest extends BrowserFunctionalTestCase {
 		browser.focusInTopWindow();
 		browser.waitUntilTextPresent(By.tagName("p"),
 				"A Specialist Technology and Sports College");
+		page.open("/sparql", DatasourceView.class).query("DELETE WHERE { <" + uri + "> ?p ?o }").execute();
+		browser.focusInTopWindow();
 	}
 
 }

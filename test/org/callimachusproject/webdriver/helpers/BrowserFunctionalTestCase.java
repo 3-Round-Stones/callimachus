@@ -14,8 +14,6 @@ import java.net.URLEncoder;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -60,7 +58,7 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 	private static final int PORT = 8088;
 	protected static final Logger logger = LoggerFactory.getLogger(BrowserFunctionalTestCase.class);
 	private static final String HOSTNAME = DomainNameSystemResolver
-			.getInstance().getCanonicalLocalHostName();
+			.getInstance().getLocalHostName();
 	private static final String ORIGIN = "http://" + HOSTNAME + ":" + PORT;
 	private static final TemporaryServer server;
 	private static final Map<String, RemoteWebDriverFactory> factories = new LinkedHashMap<String, RemoteWebDriverFactory>();

@@ -23,16 +23,6 @@ public class ClassFunctionalTest extends BrowserFunctionalTestCase {
 		super(parent);
 	}
 
-	@Override
-	public void runBare() throws Throwable {
-		locker.writeLock().lock();
-		try {
-			super.runBare();
-		} finally {
-			locker.writeLock().unlock();
-		}
-	}
-
 	public void testCreateClass() {
 		String name = "Test";
 		String comment = "testing";

@@ -21,16 +21,6 @@ public class PageFunctionalTest extends BrowserFunctionalTestCase {
 		super(parent);
 	}
 
-	@Override
-	public void runBare() throws Throwable {
-		locker.writeLock().lock();
-		try {
-			super.runBare();
-		} finally {
-			locker.writeLock().unlock();
-		}
-	}
-
 	public void testCreatePage() {
 		String name = xhtml[0];
 		logger.info("Create page {}", name);

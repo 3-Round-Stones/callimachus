@@ -64,7 +64,6 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 	private static final String ORIGIN = "http://" + HOSTNAME + ":" + PORT;
 	private static final TemporaryServer server;
 	private static final Map<String, RemoteWebDriverFactory> factories = new LinkedHashMap<String, RemoteWebDriverFactory>();
-	protected static final ReadWriteLock locker = new ReentrantReadWriteLock();
 	static {
 		String service = System
 				.getProperty("org.callimachusproject.test.service");
@@ -272,42 +271,37 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 
 	@Override
 	public void runBare() throws Throwable {
-		locker.readLock().lock();
+		init();
+		Throwable exception = null;
 		try {
-			init();
-			Throwable exception = null;
 			try {
-				try {
-					setUp();
-					runTest();
-				} catch (Throwable running) {
-					exception = running;
-				} finally {
-					try {
-						tearDown();
-					} catch (Throwable tearingDown) {
-						if (exception == null) {
-							exception = tearingDown;
-						}
-					}
-				}
-				String jobId = driver.getSessionId().toString();
-				if (exception == null) {
-					recordPass(jobId);
-				} else {
-					recordFailure(jobId, exception);
-					throw exception;
-				}
+				setUp();
+				runTest();
+			} catch (Throwable running) {
+				exception = running;
 			} finally {
 				try {
-					destroy();
-				} catch (Throwable ex) {
-					if (exception == null)
-						throw ex;
+					tearDown();
+				} catch (Throwable tearingDown) {
+					if (exception == null) {
+						exception = tearingDown;
+					}
 				}
 			}
+			String jobId = driver.getSessionId().toString();
+			if (exception == null) {
+				recordPass(jobId);
+			} else {
+				recordFailure(jobId, exception);
+				throw exception;
+			}
 		} finally {
-			locker.readLock().unlock();
+			try {
+				destroy();
+			} catch (Throwable ex) {
+				if (exception == null)
+					throw ex;
+			}
 		}
 	}
 

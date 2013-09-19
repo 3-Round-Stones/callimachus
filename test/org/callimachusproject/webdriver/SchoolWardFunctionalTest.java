@@ -25,16 +25,6 @@ public class SchoolWardFunctionalTest extends BrowserFunctionalTestCase {
 		super(parent);
 	}
 
-	@Override
-	public void runBare() throws Throwable {
-		locker.writeLock().lock();
-		try {
-			super.runBare();
-		} finally {
-			locker.writeLock().unlock();
-		}
-	}
-
 	public void testSchoolWard() throws Exception {
 		File car = new AssetDownloader(new File("downloads"))
 				.getLocalAsset(DOWNLOAD_URL);

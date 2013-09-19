@@ -55,10 +55,6 @@ public class ConceptFunctionalTest extends BrowserFunctionalTestCase {
 				.waitUntilText(By.cssSelector(".tab-content .literal"), def)
 				.waitUntilText(By.cssSelector(".tab-content .literal"), altDef)
 				.back();
-		page.openRecentChanges().openChange(conceptLabel)
-				.waitUntilText(By.cssSelector(".tab-content .literal"), def)
-				.waitUntilText(By.cssSelector(".tab-content .literal"), altDef)
-				.back().back();
 		logger.info("Delete concept {}", conceptName);
 		page.openEdit(ConceptEdit.class).delete(conceptLabel);
 	}

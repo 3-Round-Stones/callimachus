@@ -33,7 +33,7 @@
 <http://callimachusproject.org/rdf/2009/framework> a owl:Ontology;
     rdfs:label "Callimachus Ontology";
     rdfs:comment "Vocabulary used to create Callimachus applications";
-    owl:versionInfo "1.1".
+    owl:versionInfo "1.2".
 
 ################################
 # Class

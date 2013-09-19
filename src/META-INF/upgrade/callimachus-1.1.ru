@@ -51,6 +51,13 @@ INSERT {
 };
 
 INSERT {
+    ?facebook calli:authButton <images/facebook_64.png>
+} WHERE {
+    ?facebook a <types/FacebookManager>
+    FILTER NOT EXISTS { ?facebook calli:authButton ?button }
+};
+
+INSERT {
 <../> calli:hasComponent <../query-view.js>.
 <../query-view.js> a <types/PURL>, calli:PURL ;
 	rdfs:label "query-view.js";

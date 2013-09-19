@@ -18,3 +18,4 @@ org.callimachusproject.behaviours.PurlSupport		= http://callimachusproject.org/r
 org.callimachusproject.behaviours.DatasourceSupport	= http://callimachusproject.org/rdf/2009/framework#Datasource
 org.callimachusproject.behaviours.FacebookManagerSupport
 org.callimachusproject.behaviours.OpenIDManagerSupport
+org.callimachusproject.behaviours.DocumentSupport	= http://xmlns.com/foaf/0.1/Document

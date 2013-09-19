@@ -121,6 +121,16 @@
     calli:query "less";
     calli:requires calli:reader;
     calli:type "text/css";
+    calli:script """
+        var self = this;
+        return this.ifStringModifiedSince(this.toString() + "?less", function() {
+            return self.LessJs();
+        });
+    """.
+
+:LessJs rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Style>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
     calli:imports <java:org.apache.http.client.methods.HttpGet>;
     calli:imports <java:org.callimachusproject.server.exceptions.NotFound>;
     calli:imports <java:org.callimachusproject.server.exceptions.ResponseException>;

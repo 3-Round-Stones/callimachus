@@ -132,9 +132,17 @@ public class DigestUserFunctionalTest extends BrowserFunctionalTestCase {
 				if (messages.length == 0) {
 					Thread.sleep(1000);
 				} else {
-					Message message = messages[0];
-					message.setFlag(Flags.Flag.DELETED, true);
-					return getPart(message, contentType);
+					int m = 0;
+					Message message = null;
+					while (message == null && m < messages.length) {
+						message = messages[m++]; // might be null
+					}
+					if (message == null) {
+						Thread.sleep(1000);
+					} else {
+						message.setFlag(Flags.Flag.DELETED, true);
+						return getPart(message, contentType);
+					}
 				}
 			}
 			return null;

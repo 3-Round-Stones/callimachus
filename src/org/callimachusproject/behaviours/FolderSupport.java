@@ -31,6 +31,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class FolderSupport implements RDFObject {
+	private static final String PHONE = "http://www.openrdf.org/rdf/2011/keyword#phone";
+	private static final String GENERATED_BY = "http://www.w3.org/ns/prov#wasGeneratedBy";
 	private static final String TURTLE = "text/turtle;charset=UTF-8";
 	private static final String PREFIX = "PREFIX owl:<http://www.w3.org/2002/07/owl#>\n" +
 			"PREFIX prov:<http://www.w3.org/ns/prov#>\n" +
@@ -69,10 +71,50 @@ public abstract class FolderSupport implements RDFObject {
         }});
 	}
 
+	@Sparql(PREFIX
+			+ "ASK {\n"
+			+ "$this calli:hasComponent+ ?component .\n"
+			+ "?component a calli:Folder .\n"
+			+ "{ ?component calli:alternate ?target }\n"
+			+ "UNION { ?component calli:canonical ?target }\n"
+			+ "UNION { ?component calli:copy ?target }\n"
+			+ "UNION { ?component calli:delete ?target }\n"
+			+ "UNION { ?component calli:describedby ?target }\n"
+			+ "UNION { ?component calli:gone ?target }\n"
+			+ "UNION { ?component calli:missing ?target }\n"
+			+ "UNION { ?component calli:moved ?target }\n"
+			+ "UNION { ?component calli:patch ?target }\n"
+			+ "UNION { ?component calli:post ?target }\n"
+			+ "UNION { ?component calli:put ?target }\n"
+			+ "UNION { ?component calli:resides ?target }\n"
+			+ "UNION { # reduced permissions\n"
+			+ "$this calli:reader ?reader FILTER NOT EXISTS { ?component calli:reader ?reader }\n"
+			+ "$this calli:subscriber ?subscriber FILTER NOT EXISTS { ?component calli:subscriber ?subscriber }\n"
+			+ "$this calli:editor ?editor FILTER NOT EXISTS { ?component calli:editor ?editor }\n"
+			+ "$this calli:administrator ?administrator FILTER NOT EXISTS { ?component calli:administrator ?administrator }\n"
+			+ "} UNION { # additional permissions\n"
+			+ "?component calli:reader ?reader FILTER NOT EXISTS { $this calli:reader ?reader }\n"
+			+ "?component calli:subscriber ?subscriber FILTER NOT EXISTS { $this calli:subscriber ?subscriber }\n"
+			+ "?component calli:editor ?editor FILTER NOT EXISTS { $this calli:editor ?editor }\n"
+			+ "?component calli:administrator ?administrator FILTER NOT EXISTS { $this calli:administrator ?administrator }\n"
+			+ "}}")
+	protected abstract boolean isFolderMetadataPresent()
+			throws OpenRDFException;
+
+	@Sparql(PREFIX
+			+ "SELECT REDUCED ?component ?lastmod ?fileType ?folder ?class {\n"
+			+ "$this calli:hasComponent+ ?component .\n"
+			+ "OPTIONAL { ?component prov:wasGeneratedBy/prov:endedAtTime ?lastmod }\n"
+			+ "OPTIONAL { ?component a [calli:mediaType ?fileType] }\n"
+			+ "OPTIONAL { ?component a calli:Folder BIND (true AS ?folder) }\n"
+			+ "OPTIONAL { ?component a owl:Class BIND (true AS ?class)}" + "}")
+	protected abstract TupleQueryResult loadComponents()
+			throws OpenRDFException;
+
 	private void exportComponents(String baseURI, ObjectConnection con,
 			CarOutputStream carStream) throws IOException, OpenRDFException,
 			URISyntaxException {
-		boolean exportFolder = false;
+		boolean exportFolder = isFolderMetadataPresent();
 		Set<String> writtenNames = new java.util.HashSet<String>();
 		TupleQueryResult components = loadComponents();
 		while (components.hasNext()) {
@@ -84,122 +126,90 @@ public abstract class FolderSupport implements RDFObject {
 			String name = entryId.substring(baseURI.length());
 			if (!writtenNames.add(name))
 				continue;
-			Literal lastmod = (Literal) result.getValue("lastmod");
-			Literal fileType = (Literal) result.getValue("fileType");
-			Literal folder = (Literal) result.getValue("folder");
-			boolean isClass = result.hasBinding("class");
-			InputStream content = con.getBlobObject(component).openInputStream();
-			long time;
-			if (lastmod != null) {
-				time = lastmod.calendarValue().toGregorianCalendar().getTimeInMillis();
-			} else {
-				time = java.lang.System.currentTimeMillis();
-			}
-			if (name.lastIndexOf('/') == name.length() - 1 && folder != null) {
-				//# Export Folder
-				if (exportFolder || folder.booleanValue()) {
-					//# Export Folder Triples
-					OutputStream resourceEntry = carStream.writeResourceEntry(name, time, TURTLE);
-					writeTriples(component, con, resourceEntry, entryId);
-					exportFolder = true;
-				} else {
-					carStream.writeFolderEntry(name, time).close();
-				}
-			} else if (content != null && fileType != null) {
-				//# Export File
-				try {
-					OutputStream entryStream = carStream.writeFileEntry(name, time, fileType.stringValue());
-					try {
-						ChannelUtil.transfer(content, entryStream);
-					} finally {
-						entryStream.close();
-					}
-				} finally {
-					content.close();
-				}
-			} else if (isClass) {
-				//# Export Schema
-				OutputStream schemaEntry = carStream.writeSchemaEntry(name, time, TURTLE);
-				writeTriples(component, con, schemaEntry, entryId);
-			} else {
-				//# Export Triples
-				OutputStream resourceEntry = carStream.writeResourceEntry(name, time, TURTLE);
-				writeTriples(component, con, resourceEntry, entryId);
-			}
+			writeEntry(name, component, carStream, result, exportFolder, con);
 		}
 	}
 
-	void writeTriples(URI component, ObjectConnection con,
+	private void writeEntry(String name, URI component,
+			CarOutputStream carStream, BindingSet result, boolean exportFolder,
+			ObjectConnection con) throws IOException, OpenRDFException,
+			URISyntaxException {
+		Literal lastmod = (Literal) result.getValue("lastmod");
+		Literal fileType = (Literal) result.getValue("fileType");
+		boolean isFolder = result.hasBinding("folder");
+		boolean isClass = result.hasBinding("class");
+		String entryId = component.stringValue();
+		InputStream content;
+		long time;
+		if (lastmod != null) {
+			time = lastmod.calendarValue().toGregorianCalendar().getTimeInMillis();
+		} else {
+			time = java.lang.System.currentTimeMillis();
+		}
+		if (name.lastIndexOf('/') == name.length() - 1 && isFolder) {
+			// # Export Folder
+			if (exportFolder) {
+				// # Export Folder Triples
+				OutputStream entry = carStream.writeResourceEntry(name, time, TURTLE);
+				writeTriples(component, con, entry, entryId);
+				exportFolder = true;
+			} else {
+				carStream.writeFolderEntry(name, time).close();
+			}
+		} else if (fileType != null
+				&& (content = con.getBlobObject(component).openInputStream()) != null) {
+			// # Export File
+			try {
+				OutputStream entryStream = carStream.writeFileEntry(name, time,
+						fileType.stringValue());
+				try {
+					ChannelUtil.transfer(content, entryStream);
+				} finally {
+					entryStream.close();
+				}
+			} finally {
+				content.close();
+			}
+		} else if (isClass) {
+			// # Export Schema
+			OutputStream entry = carStream.writeSchemaEntry(name, time, TURTLE);
+			writeTriples(component, con, entry, entryId);
+		} else {
+			// # Export Triples
+			OutputStream entry = carStream.writeResourceEntry(name, time, TURTLE);
+			writeTriples(component, con, entry, entryId);
+		}
+	}
+
+	private void writeTriples(URI component, ObjectConnection con,
 			OutputStream resourceEntry, String entryId)
 			throws OpenRDFException, URISyntaxException, IOException,
 			QueryEvaluationException {
-		GraphQueryResult triples = new DescribeResult(component, con);
 		try {
-			writeTo(triples, resourceEntry, entryId);
-		} finally {
-			triples.close();
-		}
-	}
-
-	@Sparql(PREFIX + "SELECT REDUCED ?component ?lastmod ?fileType ?folder ?class {\n" +
-			"$this calli:hasComponent+ ?component .\n" +
-			"OPTIONAL { ?component prov:wasGeneratedBy/prov:endedAtTime ?lastmod }\n" +
-			"OPTIONAL { ?component a [calli:mediaType ?fileType] }\n" +
-			"OPTIONAL { ?component a calli:Folder\n" +
-			"OPTIONAL { BIND (true AS ?exportFolder)\n" +
-			"FILTER EXISTS {\n" +
-			"{ ?component calli:alternate ?target }\n" +
-			"UNION { ?component calli:canonical ?target }\n" +
-			"UNION { ?component calli:copy ?target }\n" +
-			"UNION { ?component calli:delete ?target }\n" +
-			"UNION { ?component calli:describedby ?target }\n" +
-			"UNION { ?component calli:gone ?target }\n" +
-			"UNION { ?component calli:missing ?target }\n" +
-			"UNION { ?component calli:moved ?target }\n" +
-			"UNION { ?component calli:patch ?target }\n" +
-			"UNION { ?component calli:post ?target }\n" +
-			"UNION { ?component calli:put ?target }\n" +
-			"UNION { ?component calli:resides ?target }\n" +
-			"UNION { # reduced permissions\n" +
-			"$this calli:reader ?reader FILTER NOT EXISTS { ?component calli:reader ?reader }\n" +
-			"$this calli:subscriber ?subscriber FILTER NOT EXISTS { ?component calli:subscriber ?subscriber }\n" +
-			"$this calli:editor ?editor FILTER NOT EXISTS { ?component calli:editor ?editor }\n" +
-			"$this calli:administrator ?administrator FILTER NOT EXISTS { ?component calli:administrator ?administrator }\n" +
-			"} UNION { # additional permissions\n" +
-			"?component calli:reader ?reader FILTER NOT EXISTS { $this calli:reader ?reader }\n" +
-			"?component calli:subscriber ?subscriber FILTER NOT EXISTS { $this calli:subscriber ?subscriber }\n" +
-			"?component calli:editor ?editor FILTER NOT EXISTS { $this calli:editor ?editor }\n" +
-			"?component calli:administrator ?administrator FILTER NOT EXISTS { $this calli:administrator ?administrator }\n" +
-			"}}}\n" +
-			"BIND (bound(?exportFolder) AS ?folder) }\n" +
-			"OPTIONAL { ?component a ?class FILTER (owl:Class = ?class)}" +
-			"}")
-	protected abstract TupleQueryResult loadComponents() throws OpenRDFException;
-
-	private void writeTo(GraphQueryResult triples, OutputStream entryStream,
-			String baseURI) throws URISyntaxException, OpenRDFException,
-			IOException {
-		try {
-			TurtleStreamWriterFactory xf = new TurtleStreamWriterFactory();
-			RDFWriter writer = xf.createWriter(entryStream, baseURI);
-			writer.startRDF();
-			RepositoryResult<Namespace> namespaces = this.getObjectConnection()
-					.getNamespaces();
-			while (namespaces.hasNext()) {
-				Namespace ns = namespaces.next();
-				writer.handleNamespace(ns.getPrefix(), ns.getName());
-			}
-			while (triples.hasNext()) {
-				Statement st = triples.next();
-				String pred = st.getPredicate().stringValue();
-				if (!"http://www.w3.org/ns/prov#wasGeneratedBy".equals(pred)
-						&& !"http://www.openrdf.org/rdf/2011/keyword#phone".equals(pred)) {
-					writer.handleStatement(st);
+			GraphQueryResult triples = new DescribeResult(component, con);
+			try {
+				TurtleStreamWriterFactory xf = new TurtleStreamWriterFactory();
+				RDFWriter writer = xf.createWriter(resourceEntry, entryId);
+				writer.startRDF();
+				RepositoryResult<Namespace> namespaces = this
+						.getObjectConnection().getNamespaces();
+				while (namespaces.hasNext()) {
+					Namespace ns = namespaces.next();
+					writer.handleNamespace(ns.getPrefix(), ns.getName());
 				}
+				while (triples.hasNext()) {
+					Statement st = triples.next();
+					String pred = st.getPredicate().stringValue();
+					if (!GENERATED_BY.equals(pred) && !PHONE.equals(pred)) {
+						writer.handleStatement(st);
+					}
+				}
+				writer.endRDF();
+			} finally {
+				triples.close();
 			}
-			writer.endRDF();
 		} finally {
-			entryStream.close();
+			resourceEntry.close();
 		}
 	}
 

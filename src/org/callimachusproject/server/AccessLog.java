@@ -28,7 +28,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class AccessLog implements AsyncExecChain {
-	private static final String USERNAME = "username=";
 	private static final String NIL = "-";
 	private static final String FORENSIC_ATTR = AccessLog.class.getName() + "#forensicId";
 	private static final Pattern TOKENS_REGEX = Pattern
@@ -187,12 +186,12 @@ public class AccessLog implements AsyncExecChain {
 		}
 		for (Header hd : req.getHeaders("Cookie")) {
 			for (String cookie : hd.getValue().split("\\s*,\\s*")) {
-				if (!cookie.contains(USERNAME))
+				if (!cookie.contains("username"))
 					continue;
 				String[] pair = cookie.split("\\s*;\\s*");
 				for (String p : pair) {
-					if (p.startsWith(USERNAME)) {
-						return decode(p.substring(USERNAME.length()));
+					if (p.startsWith("username") && p.indexOf('=') > 0) {
+						return decode(p.substring(p.indexOf('=') + 1));
 					}
 				}
 			}

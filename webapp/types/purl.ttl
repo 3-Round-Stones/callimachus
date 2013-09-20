@@ -92,7 +92,7 @@
                         status:status,
                         message:phrase,
                         headers:{'location':location,'cache-control':cacheControl,'content-type':"text/plain"},
-                        body:[phrase]
+                        body:[location]
                     };
                 }
                 // 200, 203, 404, or 410 responses
@@ -104,6 +104,9 @@
                 var headers = {'content-location': resp.getURI().toASCIIString(),'cache-control':cacheControl};
                 if (resp.getFirstHeader('location')) {
                     headers['location'] = resp.getFirstHeader('location').value;
+                }
+                if (resp.getFirstHeader('content-type')) {
+                    headers['content-type'] = resp.getFirstHeader('content-type').value;
                 }
                 if (resp.getFirstHeader('content-location')) {
                     headers['content-location'] = resp.getFirstHeader('content-location').value;
@@ -160,7 +163,7 @@
                         status:status,
                         message:phrase,
                         headers:{'location':location,'content-type':"text/plain"},
-                        body:[phrase]
+                        body:[location]
                     };
                 }
                 // 200, 203, 404, or 410 responses
@@ -181,6 +184,9 @@
                 var headers = {};
                 if (resp.getFirstHeader('location')) {
                     headers['location'] = resp.getFirstHeader('location').value;
+                }
+                if (resp.getFirstHeader('content-type')) {
+                    headers['content-type'] = resp.getFirstHeader('content-type').value;
                 }
                 if (resp.getFirstHeader('content-location')) {
                     headers['content-location'] = resp.getFirstHeader('content-location').value;
@@ -221,7 +227,7 @@
                         status:status,
                         message:phrase,
                         headers:{'location':location,'content-type':"text/plain"},
-                        body:[phrase]
+                        body:[location]
                     };
                 }
                 // 200, 203, 404, or 410 responses
@@ -242,6 +248,9 @@
                 var headers = {};
                 if (resp.getFirstHeader('location')) {
                     headers['location'] = resp.getFirstHeader('location').value;
+                }
+                if (resp.getFirstHeader('content-type')) {
+                    headers['content-type'] = resp.getFirstHeader('content-type').value;
                 }
                 if (resp.getFirstHeader('content-location')) {
                     headers['content-location'] = resp.getFirstHeader('content-location').value;
@@ -282,7 +291,7 @@
                         status:status,
                         message:phrase,
                         headers:{'location':location,'content-type':"text/plain"},
-                        body:[phrase]
+                        body:[location]
                     };
                 }
                 // 200, 203, 404, or 410 responses
@@ -303,6 +312,9 @@
                 var headers = {};
                 if (resp.getFirstHeader('location')) {
                     headers['location'] = resp.getFirstHeader('location').value;
+                }
+                if (resp.getFirstHeader('content-type')) {
+                    headers['content-type'] = resp.getFirstHeader('content-type').value;
                 }
                 if (resp.getFirstHeader('content-location')) {
                     headers['content-location'] = resp.getFirstHeader('content-location').value;
@@ -343,7 +355,7 @@
                         status:status,
                         message:phrase,
                         headers:{'location':location,'content-type':"text/plain"},
-                        body:[phrase]
+                        body:[location]
                     };
                 }
                 // 200, 203, 404, or 410 responses
@@ -355,6 +367,9 @@
                 var headers = {};
                 if (resp.getFirstHeader('location')) {
                     headers['location'] = resp.getFirstHeader('location').value;
+                }
+                if (resp.getFirstHeader('content-type')) {
+                    headers['content-type'] = resp.getFirstHeader('content-type').value;
                 }
                 if (resp.getFirstHeader('content-location')) {
                     headers['content-location'] = resp.getFirstHeader('content-location').value;

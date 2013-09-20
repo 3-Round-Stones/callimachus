@@ -33,6 +33,7 @@
     <property name="setup.args" value="-c etc/callimachus.conf -g /auth/groups/super" />
     <property name="args" value="--pid ${pid} -c etc/callimachus.conf" />
     <property name="functionaltest.port" value="8081" />
+    <property name="functionaltest.jmxport" value="1091" />
 
     <target name="help">
         <exec executable="ant">
@@ -421,7 +422,7 @@
         <copy file="${tmp}/functionaltest/etc/callimachus-defaults.conf" tofile="${tmp}/functionaltest/etc/callimachus.conf" />
         <replace file="${tmp}/functionaltest/etc/callimachus.conf" token="#PORT=8080" value="PORT=${functionaltest.port}" />
         <replace file="${tmp}/functionaltest/etc/callimachus.conf" token="#ORIGIN=http://localhost:8080" value="ORIGIN=http://${hostname}:${functionaltest.port}" />
-        <replace file="${tmp}/functionaltest/etc/jmxremote.properties" token="com.sun.management.jmxremote.port=1090" value="com.sun.management.jmxremote.port=1091" />
+        <replace file="${tmp}/functionaltest/etc/jmxremote.properties" token="com.sun.management.jmxremote.port=1090" value="com.sun.management.jmxremote.port=${functionaltest.jmxport}" />
         <!-- setup script -->
         <exec executable="/bin/sh" dir="${tmp}/functionaltest" logError="true" failonerror="true" osfamily="unix">
             <arg line="bin/callimachus-setup.sh -L -u ${callimachus.username}:${callimachus.password} -e ${callimachus.email}" />

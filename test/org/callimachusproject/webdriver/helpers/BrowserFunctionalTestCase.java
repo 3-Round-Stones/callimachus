@@ -109,7 +109,7 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 						caps.setPlatform(Platform.WINDOWS);
 						caps.setCapability("name", name);
 						caps.setCapability("build", getBuild());
-						caps.setCapability("tags", getTag());
+						caps.setCapability("tags", getHostTag());
 						return new RemoteWebDriver(url, caps);
 					}
 				});
@@ -121,7 +121,7 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 						caps.setPlatform(Platform.WINDOWS);
 						caps.setCapability("name", name);
 						caps.setCapability("build", getBuild());
-						caps.setCapability("tags", getTag());
+						caps.setCapability("tags", getHostTag());
 						return new RemoteWebDriver(url, caps);
 					}
 				});
@@ -133,7 +133,7 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 						caps.setPlatform(Platform.WIN8);
 						caps.setCapability("name", name);
 						caps.setCapability("build", getBuild());
-						caps.setCapability("tags", getTag());
+						caps.setCapability("tags", getHostTag());
 						return new RemoteWebDriver(url, caps);
 					}
 				});
@@ -205,7 +205,7 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 		}
 	}
 
-	private static String getTag() {
+	private static String getHostTag() {
 		String authority = HOSTNAME;
 		if (authority.contains(".")) {
 			return authority.substring(0, authority.indexOf('.'));
@@ -214,6 +214,10 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 		} else {
 			return authority;
 		}
+	}
+
+	private static int getPort() {
+		return URI.create(getStartUrl()).getPort();
 	}
 
 	private static String getBuild() {
@@ -407,17 +411,27 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 	}
 
 	private void recordPass(String jobId) throws IOException {
+		int p = getPort();
+		String port = "";
+		if (p > 0) {
+			port = ", \"" + p + "\"";
+		}
 		recordTest(jobId, "{\"name\": \"" + getMethodName()
 				+ "\", \"build\": \"" + getBuild() + "\", \"tags\": [\""
-				+ getTag()
+				+ getHostTag() + port
 				+ "\"], \"video-upload-on-pass\": false, \"passed\": true}", 3);
 	}
 
 	private void recordFailure(String jobId, Throwable e) throws IOException {
+		int p = getPort();
+		String port = "";
+		if (p > 0) {
+			port = ", \"" + p + "\"";
+		}
 		recordTest(jobId, "{\"name\": \"" + getMethodName()
 				+ "\", \"build\": \"" + getBuild() + "\", \"tags\": [\""
-				+ getTag() + "\", \"" + e.getClass().getSimpleName()
-				+ "\"], \"passed\": false}", 3);
+				+ getHostTag() + "\"" + port + ", \""
+				+ e.getClass().getSimpleName() + "\"], \"passed\": false}", 3);
 	}
 
 	private void recordTest(String jobId, String data, int retry) {

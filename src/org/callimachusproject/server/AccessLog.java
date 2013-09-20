@@ -231,6 +231,10 @@ public class AccessLog implements AsyncExecChain {
 			StringBuilder sb = new StringBuilder();
 			sb.append("-").append(getForensicId(context));
 			sb.append("|").append(resp.getStatusLine().toString().replace('|', '_'));
+			for (Header hd : resp.getAllHeaders()) {
+				sb.append("|").append(hd.getName().replace('|', '_'));
+				sb.append(":").append(hd.getValue().replace('|', '_'));
+			}
 			if (trace) {
 				logger.trace(sb.toString());
 			} else {

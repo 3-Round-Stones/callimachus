@@ -36,6 +36,9 @@ public class AutoClosingAsyncClient extends CloseableHttpAsyncClient {
 		shutdown();
 	}
 
+	/**
+	 * Deletes the (no longer used) temporary cache files from disk.
+	 */
 	public void cleanResources() {
 		storage.cleanResources();
 	}
@@ -75,10 +78,6 @@ public class AutoClosingAsyncClient extends CloseableHttpAsyncClient {
 	}
 
 	private FutureCallback<HttpResponse> track(FutureCallback<HttpResponse> callback) {
-		if (++numberOfClientCalls % 100 == 0) {
-			// Deletes the (no longer used) temporary cache files from disk.
-			cleanResources();
-		}
 		return new ResponseCallback(callback) {
 			public void completed(HttpResponse result) {
 				try {
@@ -88,7 +87,9 @@ public class AutoClosingAsyncClient extends CloseableHttpAsyncClient {
 							public void close() throws IOException {
 								// this also keeps this object from being finalized
 								// until all its response entities are consumed
-								logger.trace("Response entity closed");
+								if (++numberOfClientCalls % 100 == 0) {
+									cleanResources();
+								}
 							}
 						}));
 					}

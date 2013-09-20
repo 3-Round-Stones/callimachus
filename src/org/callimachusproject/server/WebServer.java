@@ -604,7 +604,6 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 			}
 			HttpHost target = route.getTargetHost();
 			HttpProcessor httpproc = getHttpProcessor(target.getSchemeName());
-			logger.debug("Internal request received {}", request.getRequestLine());
 			CalliContext cc = CalliContext.adapt(new BasicHttpContext(context));
 			cc.setReceivedOn(System.currentTimeMillis());
 			cc.setClientAddr(LOCALHOST);

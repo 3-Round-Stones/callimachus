@@ -42,6 +42,7 @@ public class AutoClosingAsyncClient extends CloseableHttpAsyncClient {
 
     public void shutdown() {
 		running = false;
+		logger.debug("Disposing of obsolete cache entries");
 		storage.shutdown();
     }
 

@@ -201,8 +201,6 @@ public class AccessLog implements AsyncExecChain {
 
 	private void traceRequest(HttpRequest req, HttpContext context, boolean trace) {
 		if (logger.isDebugEnabled() && !trace || logger.isTraceEnabled()) {
-			String id = uid + seq.getAndIncrement();
-			setForensicId(context, id);
 			StringBuilder sb = new StringBuilder();
 			sb.append("+").append(getForensicId(context));
 			sb.append("|").append(req.getRequestLine().toString().replace('|', '_'));
@@ -219,11 +217,12 @@ public class AccessLog implements AsyncExecChain {
 	}
 
 	private String getForensicId(HttpContext context) {
-		return (String) context.getAttribute(FORENSIC_ATTR);
-	}
-
-	private void setForensicId(HttpContext context, String id) {
-		context.setAttribute(FORENSIC_ATTR, id);
+		String id = (String) context.getAttribute(FORENSIC_ATTR);
+		if (id == null) {
+			id = uid + seq.getAndIncrement();
+			context.setAttribute(FORENSIC_ATTR, id);
+		}
+		return id;
 	}
 
 	private void traceResponse(HttpRequest req, HttpContext context, HttpResponse resp, boolean trace) {

@@ -32,6 +32,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.util.EntityUtils;
 import org.callimachusproject.Version;
 import org.callimachusproject.test.TemporaryServer;
 import org.callimachusproject.test.TemporaryServerFactory;
@@ -418,8 +419,8 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 		}
 		recordTest(jobId, "{\"name\": \"" + getMethodName()
 				+ "\", \"build\": \"" + getBuild() + "\", \"tags\": [\""
-				+ getHostTag() + port
-				+ "\"], \"video-upload-on-pass\": false, \"passed\": true}", 3);
+				+ getHostTag() + "\"" + port
+				+ "], \"video-upload-on-pass\": false, \"passed\": true}", 3);
 	}
 
 	private void recordFailure(String jobId, Throwable e) throws IOException {
@@ -484,7 +485,10 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 		client.execute(put, new ResponseHandler<Void>() {
 			public Void handleResponse(HttpResponse response)
 					throws ClientProtocolException, IOException {
-				assertTrue(300 > response.getStatusLine().getStatusCode());
+				if (300 <= response.getStatusLine().getStatusCode()) {
+					System.err.println(EntityUtils.toString(response.getEntity()));
+				}
+				assertTrue(response.getStatusLine().toString(), 300 > response.getStatusLine().getStatusCode());
 				return null;
 			}
 		}, ctx);

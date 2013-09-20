@@ -348,6 +348,7 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 
 			public void run() {
 				try {
+					logger.info("Resetting cache");
 					cache.reset();
 					remoteCache.invalidate();
 					synchronized (repositories) {
@@ -362,6 +363,7 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 				} finally {
 					System.gc();
 					System.runFinalization();
+					logger.debug("Cache reset");
 				}
 			}
 		});

@@ -5,7 +5,10 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Callable;
 
 import org.apache.http.HttpEntity;
 import org.callimachusproject.client.HttpUriClient;
@@ -23,40 +26,73 @@ import com.google.javascript.jscomp.Compiler;
 import com.google.javascript.jscomp.CompilerOptions;
 import com.google.javascript.jscomp.CompilerOptions.LanguageMode;
 import com.google.javascript.jscomp.DiagnosticGroups;
-import com.google.javascript.jscomp.JSSourceFile;
 import com.google.javascript.jscomp.Result;
 import com.google.javascript.jscomp.SourceFile;
 
 public abstract class ScriptBundleSupport implements ScriptBundle, CalliObject {
+	/** very short lived cache to avoid race condition */
+	private static final Map<String, Callable<String>> cache = new HashMap<String, Callable<String>>();
 
 	@Override
 	public String calliGetBundleSource() throws GatewayTimeout, IOException, OpenRDFException {
-		List<JSSourceFile> scripts = new ArrayList<JSSourceFile>();
+		List<SourceFile> scripts = new ArrayList<SourceFile>();
 		for (Object ext : getCalliScriptsAsList()) {
 			String url = ext.toString();
 			String code = getJavaScriptCode(url);
-			scripts.add(JSSourceFile.fromCode(url, code));
+			scripts.add(SourceFile.fromCode(url, code));
 		}
 
 		StringBuilder sb = new StringBuilder();
-		for (JSSourceFile script : scripts) {
+		for (SourceFile script : scripts) {
 			sb.append(script.getCode()).append("\n");
 		}
 		return sb.toString();
 	}
 
 	@Override
-	public String calliGetMinifiedBundle() throws GatewayTimeout, IOException, OpenRDFException {
+	public String calliGetMinifiedBundle() throws Exception {
+		String uri = this.getResource().stringValue();
+		Callable<String> future;
+		synchronized (cache) {
+			future = cache.get(uri);
+			if (future == null) {
+				cache.put(uri, future = new Callable<String>() {
+					private String result;
+					public synchronized String call() throws Exception {
+						if (result == null)
+							return result = compress();
+						return result;
+					}
+				});
+			}
+		}
+		String result = future.call();
+		synchronized (cache) {
+			cache.remove(uri);
+		}
+		return result;
+	}
+
+	@Sparql("PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>\n"
+			+ "SELECT DISTINCT ?script\n"
+			+ "WHERE { {$this ?one ?script FILTER (regex(str(?one), \"#_\\\\d$\"))}\n"
+			+ "UNION {$this ?two ?script FILTER (regex(str(?two), \"#_\\\\d\\\\d$\"))}\n"
+			+ "UNION {$this ?three ?script FILTER (regex(str(?three), \"#_\\\\d\\\\d\\\\d+$\"))}\n"
+			+ "UNION {?member rdfs:member ?script FILTER (?member = $this)}\n"
+			+ "} ORDER BY ?member ?three ?two ?one")
+	protected abstract List<?> getCalliScriptsAsList();
+
+	private String compress() throws IOException, OpenRDFException {
 		int minification = this.getMinification();
 		if (minification < 1) {
 			return calliGetBundleSource();
 		}
 
-		List<JSSourceFile> scripts = new ArrayList<JSSourceFile>();
+		List<SourceFile> scripts = new ArrayList<SourceFile>();
 		for (Object ext : getCalliScriptsAsList()) {
 			String url = ext.toString();
 			String code = getJavaScriptCode(url);
-			scripts.add(JSSourceFile.fromCode(url, code));
+			scripts.add(SourceFile.fromCode(url, code));
 		}
 
 		Compiler compiler = new Compiler();
@@ -74,15 +110,6 @@ public abstract class ScriptBundleSupport implements ScriptBundle, CalliObject {
 		}
 		return "// @source: " + this.toString() + "?source\n" + compiler.toSource();
 	}
-
-	@Sparql("PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>\n"
-			+ "SELECT DISTINCT ?script\n"
-			+ "WHERE { {$this ?one ?script FILTER (regex(str(?one), \"#_\\\\d$\"))}\n"
-			+ "UNION {$this ?two ?script FILTER (regex(str(?two), \"#_\\\\d\\\\d$\"))}\n"
-			+ "UNION {$this ?three ?script FILTER (regex(str(?three), \"#_\\\\d\\\\d\\\\d+$\"))}\n"
-			+ "UNION {?member rdfs:member ?script FILTER (?member = $this)}\n"
-			+ "} ORDER BY ?member ?three ?two ?one")
-	protected abstract List<?> getCalliScriptsAsList();
 
 	private int getMinification() {
 		int result = Integer.MAX_VALUE;

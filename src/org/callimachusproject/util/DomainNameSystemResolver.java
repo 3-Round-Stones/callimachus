@@ -87,7 +87,7 @@ public class DomainNameSystemResolver {
 
 	public String getLocalHostName() {
 		try {
-			return InetAddress.getLocalHost().getHostName();
+			return InetAddress.getLocalHost().getHostName().toLowerCase();
 		} catch (UnknownHostException e) {
 			return "localhost";
 		}
@@ -133,7 +133,7 @@ public class DomainNameSystemResolver {
 		try {
 			addAllNames(InetAddress.getLocalHost(), set);
 		} catch (UnknownHostException e) {
-			set.add(getLocalHostName().toLowerCase());
+			set.add(getLocalHostName());
 		}
 		addAllNames(getLocalHost(), set);
 		return set;

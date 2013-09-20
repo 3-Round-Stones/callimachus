@@ -32,5 +32,5 @@ public interface ScriptBundle {
 	@query("minified")
 	@type("text/javascript")
 	@requires("http://callimachusproject.org/rdf/2009/framework#reader")
-	String calliGetMinifiedBundle() throws GatewayTimeout, IOException, OpenRDFException;
+	String calliGetMinifiedBundle() throws Exception;
 }

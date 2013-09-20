@@ -1,7 +1,5 @@
 package org.callimachusproject.types;
 
-import java.io.FileNotFoundException;
-
 import org.callimachusproject.test.TemporaryServerIntegrationTestCase;
 import org.callimachusproject.test.WebResource;
 

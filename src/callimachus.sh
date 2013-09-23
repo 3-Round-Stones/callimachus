@@ -737,8 +737,12 @@ do_stop()
     kill -9 "$ID"
     sleep 5
     if [ -f "$PIDFILE" ]; then
-      "$DAEMON" -home "$JAVA_HOME" -stop \
-        -pidfile "$PIDFILE" "$MAINCLASS" >/dev/null 2>&1
+      daemon_stop \
+        -Duser.home="$BASEDIR" \
+        -Djava.io.tmpdir="$TMPDIR" \
+        -Djava.mail.properties="$MAIL" \
+        -classpath "$CLASSPATH:$JDK_HOME/lib/tools.jar:$JDK_HOME/../Classes/classes.jar" \
+        $DAEMON_OPTS $SSL_OPTS "$MONITORCLASS" --pid "$PIDFILE" --stop "$@" >/dev/null 2>&1
     fi
   fi
 }

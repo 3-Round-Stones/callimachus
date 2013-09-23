@@ -189,7 +189,7 @@ function asSparqlUpdate(removed, added) {
 
     if (removed && !$.isEmptyObject(removed)) {
         writer.openDeleteWhere();
-        for (triple in removed) {
+        for (var triple in removed) {
             writer.pattern(removed[triple]);
         }
         writer.closeDeleteWhere();
@@ -197,7 +197,7 @@ function asSparqlUpdate(removed, added) {
 
     if (added && !$.isEmptyObject(added)) {
         writer.openInsert();
-        for (triple in added) {
+        for (var triple in added) {
             writer.triple(added[triple]);
         }
         writer.closeInsert();

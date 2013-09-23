@@ -228,11 +228,11 @@ public class AccessLog implements AsyncExecChain {
 	private void traceResponse(HttpRequest req, HttpContext context, HttpResponse resp, boolean trace) {
 		if (logger.isDebugEnabled() && !trace || logger.isTraceEnabled()) {
 			StringBuilder sb = new StringBuilder();
-			sb.append("-").append(getForensicId(context));
-			sb.append("|").append(resp.getStatusLine().toString().replace('|', '_'));
+			sb.append('-').append(getForensicId(context));
+			sb.append('|').append(resp.getStatusLine().toString().replace('|', '_'));
 			for (Header hd : resp.getAllHeaders()) {
-				sb.append("|").append(hd.getName().replace('|', '_'));
-				sb.append(":").append(hd.getValue().replace('|', '_'));
+				sb.append('|').append(hd.getName().replace('|', '_'));
+				sb.append(':').append(hd.getValue().replace('|', '_'));
 			}
 			if (trace) {
 				logger.trace(sb.toString());

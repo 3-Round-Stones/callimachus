@@ -89,7 +89,7 @@ jQuery(function($) {
             'border': /(^|\s)border-width\s*:\s*(\d+)px[^;]*(;|$)/i,
             'align': /(^|\s)float\s*:\s*(left|right)[^;]*(;|$)/i
         }
-        for (attr in attrs) {
+        for (var attr in attrs) {
             var m = style.match(attrs[attr]);
             if (m && m[2] && m[2].length) {
                 el.attributes[attr] = m[2];
@@ -119,7 +119,7 @@ jQuery(function($) {
             'width': /(^|\s)width\s*:\s*(\d+)px[^;]*(;|$)/i,
             'height': /(^|\s)height\s*:\s*(\d+)px[^;]*(;|$)/i
         }
-        for (attr in attrs) {
+        for (var attr in attrs) {
             var m = style.match(attrs[attr]);
             if (m && m[2] && m[2].length) {
                 el.attributes[attr] = m[2];
@@ -138,7 +138,7 @@ jQuery(function($) {
             'align': /(^|\s)text-align\s*:\s*(left|center|right)[^;]*(;|$)/i,
             'valign': /(^|\s)vertical-align\s*:\s*(top|middle|bottom|baseline)[^;]*(;|$)/i
         }
-        for (attr in attrs) {
+        for (var attr in attrs) {
             var m = style.match(attrs[attr]);
             if (m && m[2] && m[2].length) {
                 el.attributes[attr] = m[2];

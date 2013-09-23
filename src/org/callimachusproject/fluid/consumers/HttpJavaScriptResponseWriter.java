@@ -23,7 +23,7 @@ public class HttpJavaScriptResponseWriter implements Consumer<Object> {
 			"var contentType = null;\n" +
 			"var charset = 'UTF-8';\n" +
 			"var status = resp.status;\n" +
-			"var message = resp.message;" +
+			"var message = resp.message;\n" +
 			"if (typeof status != 'number') {\n" +
 			"	status = 200;\n" +
 			"}\n" +
@@ -34,12 +34,12 @@ public class HttpJavaScriptResponseWriter implements Consumer<Object> {
 			"var response = new org.apache.http.message.BasicHttpResponse(http11, status, message);\n" +
 			"if (typeof resp.headers == 'object') {\n" +
 			"	contentType = resp.headers['content-type'];\n" +
-			"	for (name in resp.headers) {\n" +
+			"	for (var name in resp.headers) {\n" +
 			"		var value = resp.headers[name];\n" +
 			"		if (typeof value == 'string') {\n" +
-			"			response.addHeader(name.toString(), value);" +
+			"			response.addHeader(name.toString(), value);\n" +
 			"		} else if (value && value.length && value.join) {\n" +
-			"			response.addHeader(name.toString(), value.join(','));" +
+			"			response.addHeader(name.toString(), value.join(','));\n" +
 			"		}\n" +
 			"	}\n" +
 			"}\n" +

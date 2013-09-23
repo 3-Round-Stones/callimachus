@@ -113,8 +113,7 @@ public class HttpResponseFilter implements AsyncExecChain {
 					if (type != null && type.getValue().startsWith(core)
 							&& envelopeType.match(type.getValue())) {
 						result = new ResponseBuilder(request, context)
-								.respond(unwrap(request, type.getValue(),
-										result));
+								.respond(unwrap(result));
 					}
 					super.completed(result);
 				} catch (IllegalArgumentException ex) {
@@ -130,11 +129,12 @@ public class HttpResponseFilter implements AsyncExecChain {
 		return future;
 	}
 
-	HttpResponse unwrap(HttpRequest request, String type, HttpResponse resp)
+	HttpResponse unwrap(HttpResponse resp)
 			throws IOException {
 		final HttpEntity entity = resp.getEntity();
 		if (entity == null)
 			return resp;
+		String type = resp.getFirstHeader("Content-Type").getValue();
 		InputStream in = entity.getContent();
 		final ReadableByteChannel cin = ChannelUtil.newChannel(in);
 		ReadableByteChannel ch = new ReadableByteChannel() {

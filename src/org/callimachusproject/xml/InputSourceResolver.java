@@ -77,10 +77,26 @@ public class InputSourceResolver implements EntityResolver, URIResolver, ModuleU
 		List<StreamSource> list = new ArrayList<StreamSource>();
 		try {
 			if (locations == null || locations.length == 0) {
-				list.add(resolve(moduleURI, baseURI));
+				StreamSource resolved = resolve(moduleURI, baseURI);
+				if (resolved == null) {
+					XPathException se = new XPathException(
+							"Cannot locate module for namespace " + moduleURI);
+					se.setErrorCode("XQST0059");
+					se.setIsStaticError(true);
+					throw se;
+				}
+				list.add(resolved);
 			} else {
 				for (String location : locations) {
-					list.add(resolve(location, baseURI));
+					StreamSource resolved = resolve(location, baseURI);
+					if (resolved == null) {
+						XPathException se = new XPathException(
+								"Could not load module at " + location);
+						se.setErrorCode("XQST0059");
+						se.setIsStaticError(true);
+						throw se;
+					}
+					list.add(resolved);
 				}
 			}
 		} catch (XPathException e) {

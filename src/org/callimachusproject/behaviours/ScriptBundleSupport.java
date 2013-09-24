@@ -35,10 +35,11 @@ public abstract class ScriptBundleSupport implements ScriptBundle, CalliObject {
 
 	@Override
 	public String calliGetBundleSource() throws GatewayTimeout, IOException, OpenRDFException {
+		HttpUriClient client = this.getHttpClient();
 		List<SourceFile> scripts = new ArrayList<SourceFile>();
 		for (Object ext : getCalliScriptsAsList()) {
 			String url = ext.toString();
-			String code = getJavaScriptCode(url);
+			String code = getJavaScriptCode(client, url);
 			scripts.add(SourceFile.fromCode(url, code));
 		}
 
@@ -51,7 +52,12 @@ public abstract class ScriptBundleSupport implements ScriptBundle, CalliObject {
 
 	@Override
 	public String calliGetMinifiedBundle() throws Exception {
+		final int minification = this.getMinification();
+		if (minification < 1)
+			return calliGetBundleSource();
 		String uri = this.getResource().stringValue();
+		final HttpUriClient client = this.getHttpClient();
+		final List<String> scripts = new ArrayList<String>(getCalliScriptsAsList());
 		Callable<String> future;
 		synchronized (cache) {
 			future = cache.get(uri);
@@ -60,38 +66,33 @@ public abstract class ScriptBundleSupport implements ScriptBundle, CalliObject {
 					private String result;
 					public synchronized String call() throws Exception {
 						if (result == null)
-							return result = compress();
+							return result = compress(minification, scripts, client);
 						return result;
 					}
 				});
 			}
 		}
-		String result = future.call();
+		String source = future.call();
 		synchronized (cache) {
 			cache.remove(uri);
 		}
-		return result;
+		return "// @source: " + uri + "?source\n" + source;
 	}
 
 	@Sparql("PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>\n"
-			+ "SELECT DISTINCT ?script\n"
+			+ "SELECT DISTINCT (str(?script) AS ?url)\n"
 			+ "WHERE { {$this ?one ?script FILTER (regex(str(?one), \"#_\\\\d$\"))}\n"
 			+ "UNION {$this ?two ?script FILTER (regex(str(?two), \"#_\\\\d\\\\d$\"))}\n"
 			+ "UNION {$this ?three ?script FILTER (regex(str(?three), \"#_\\\\d\\\\d\\\\d+$\"))}\n"
 			+ "UNION {?member rdfs:member ?script FILTER (?member = $this)}\n"
 			+ "} ORDER BY ?member ?three ?two ?one")
-	protected abstract List<?> getCalliScriptsAsList();
+	protected abstract List<String> getCalliScriptsAsList();
 
-	private String compress() throws IOException, OpenRDFException {
-		int minification = this.getMinification();
-		if (minification < 1) {
-			return calliGetBundleSource();
-		}
-
-		List<SourceFile> scripts = new ArrayList<SourceFile>();
-		for (Object ext : getCalliScriptsAsList()) {
-			String url = ext.toString();
-			String code = getJavaScriptCode(url);
+	static String compress(int minification, List<String> links, HttpUriClient client)
+			throws IOException {
+		final List<SourceFile> scripts = new ArrayList<SourceFile>();
+		for (String url : links) {
+			String code = getJavaScriptCode(client, url);
 			scripts.add(SourceFile.fromCode(url, code));
 		}
 
@@ -108,7 +109,7 @@ public abstract class ScriptBundleSupport implements ScriptBundle, CalliObject {
 		if (result.errors != null && result.errors.length > 0) {
 			throw new InternalServerError(result.errors[0].toString());
 		}
-		return "// @source: " + this.toString() + "?source\n" + compiler.toSource();
+		return compiler.toSource();
 	}
 
 	private int getMinification() {
@@ -123,7 +124,7 @@ public abstract class ScriptBundleSupport implements ScriptBundle, CalliObject {
 		return result;
 	}
 
-	private CompilationLevel getCompilationLevel(int minification) {
+	private static CompilationLevel getCompilationLevel(int minification) {
 		if (minification == 1)
 			return CompilationLevel.WHITESPACE_ONLY;
 		if (minification == 2)
@@ -131,8 +132,7 @@ public abstract class ScriptBundleSupport implements ScriptBundle, CalliObject {
 		return CompilationLevel.ADVANCED_OPTIMIZATIONS;
 	}
 
-	private String getJavaScriptCode(String url) throws IOException, OpenRDFException {
-		HttpUriClient client = this.getHttpClient();
+	private static String getJavaScriptCode(HttpUriClient client, String url) throws IOException {
 		Reader reader = openJavaScriptReader(url, 10, client);
 		try {
 			StringWriter writer = new StringWriter();
@@ -147,7 +147,7 @@ public abstract class ScriptBundleSupport implements ScriptBundle, CalliObject {
 		}
 	}
 
-	private Reader openJavaScriptReader(String url, int max,
+	private static Reader openJavaScriptReader(String url, int max,
 			HttpUriClient client) throws IOException {
 		HttpEntity entity = client.getEntity(url, "text/javascript;charset=UTF-8");
 		return new InputStreamReader(entity.getContent(), "UTF-8");

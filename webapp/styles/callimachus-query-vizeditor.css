@@ -1,9 +1,13 @@
 
+/* callimachus-query-vizeditor.css */
+
 /* reset bootstrap and callimachus styles where needed */
 
 .navbar-relative-bottom {
     z-index: 0;
 }
+
+/* google viz editor */
 
 .google-visualization-charteditor-dialog div {
     -moz-box-sizing: content-box;
@@ -83,3 +87,169 @@
     padding-left:10px;
     color: #c00;
 }
+
+/* bespoke editor */
+
+#calli-viz-editor {
+    -webkit-box-shadow: 0 4px 16px rgba(0, 0, 0, 0.9);
+       -moz-box-shadow: 0 4px 16px rgba(0, 0, 0, 0.9);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.9);
+    background: #fff;
+    position: absolute !important;
+    width: 975px;
+    width: 350px;
+    height: 550px;
+    top: 0;
+    left: 0;
+    -webkit-border-radius: 4px;
+       -moz-border-radius: 4px;
+            border-radius: 4px;
+    overflow: visible;
+}    
+
+#calli-viz-editor a {
+    cursor: pointer;
+}
+
+/* bespoke editor: editor buttons */
+
+#calli-viz-editor .form-actions {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    margin-bottom: 0;
+    -webkit-border-radius: 0 0 4px 4px;
+       -moz-border-radius: 0 0 4px 4px;
+            border-radius: 0 0 4px 4px;
+    
+}    
+
+/*  viz menu */
+
+.viz-menu {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 10px 20px;
+    border-bottom: 1px solid #ccc;
+    line-height: 1em;
+    cursor: move;
+}
+
+.viz-menu .visualizations {
+    display: inline-block;
+    margin: 0 0 0 5px;
+}
+
+.viz-menu .visualizations > .dropdown-toggle {
+    display: inline-block;
+    -webkit-border-radius: 2px;
+       -moz-border-radius: 2px;
+            border-radius: 2px;
+    background-color: #F5F5F5;
+    background-image: -webkit-linear-gradient(top,#F5F5F5,#F1F1F1);
+    background-image:    -moz-linear-gradient(top,#F5F5F5,#F1F1F1);
+    background-image:     -ms-linear-gradient(top,#F5F5F5,#F1F1F1);
+    background-image:      -o-linear-gradient(top,#F5F5F5,#F1F1F1);
+    background-image:         linear-gradient(top,#F5F5F5,#F1F1F1);
+    border: 1px solid #DCDCDC;
+    color: #444;
+    font-size: 14px;
+    font-weight: normal;
+    line-height: 27px;
+    margin: 0 2px;
+    outline: none;
+    padding: 0 0 0 6px;
+    text-align: center;
+    text-decoration: none;
+    vertical-align: middle;
+}
+
+.viz-menu .visualizations > .dropdown-toggle .caret {
+    vertical-align: top;
+    margin: 12px 7px 0 5px;
+}
+
+.viz-menu .visualization.google-editor-module {
+    border-top: 1px solid #e5e5e5;
+}    
+
+.google-visualization-charteditor-dialog .viz-menu .visualization.google-editor-module {
+    display: none;
+}    
+
+.google-visualization-charteditor-dialog .viz-menu {
+    border-bottom: none;
+    width: 90%;
+}    
+
+/* bespoke editor: options pane */
+
+#calli-viz-editor .options-pane {
+    position: absolute;
+    width: 330px;
+    top: 60px;
+    left: 20px;
+    height: 410px;
+    overflow: auto;
+    font-size: 12px;
+}
+
+#calli-viz-editor .options-pane h3 {
+    font-size: 14px;
+    margin: 10px 0 0 0;
+    line-height: 28px;
+}
+
+#calli-viz-editor .options-pane h3:first-child {
+    margin-top: 0;
+}
+
+#calli-viz-editor .options-pane .form-horizontal .control-group {
+    margin: 0 20px 5px 0;
+    background-color: #f3f3f3;
+    border: 1px solid #ddd;
+    padding: 2px 0;
+}
+
+#calli-viz-editor .options-pane .form-horizontal .control-group .controls {
+    margin-left: 120px;
+}
+
+#calli-viz-editor .options-pane .form-horizontal .control-label {
+    width: 100px;
+}
+
+#calli-viz-editor .options-pane .form-horizontal .info {
+    padding: 10px 0;
+}    
+
+#calli-viz-editor .options-pane .form-horizontal input[type="text"],
+#calli-viz-editor .options-pane .form-horizontal input[type="color"],
+#calli-viz-editor .options-pane .form-horizontal select {
+    width: 140px;
+}
+
+#calli-viz-editor .options-pane label,
+#calli-viz-editor .options-pane input,
+#calli-viz-editor .options-pane button, 
+#calli-viz-editor .options-pane select,
+#calli-viz-editor .options-pane textarea {
+    font-size: 14px;
+}
+
+/* bespoke editor: save-messages */
+
+#calli-viz-editor .save-success,
+#calli-viz-editor .save-error {
+    display:inline-block;
+    font-size:13px;
+    line-height:30px;
+    padding-left:10px;
+}
+
+#calli-viz-editor .save-error {
+    color: #c00;
+}
+

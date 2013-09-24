@@ -95,9 +95,9 @@ public class AlternativeHandler implements ClientExecChain {
 			String loc = req.getRequestURI() + "?" + getQuery(operation);
 			return new ResponseBuilder(request, context).see(loc);
 		} else if (req.getOperation() == null && ("GET".equals(m) || "HEAD".equals(m))) {
-			return new ResponseBuilder(request, context).notFound();
+			return new ResponseBuilder(request, context).notFound(req.getRequestURL());
 		} else if (req.findMethodHandlers().isEmpty() && ("GET".equals(m) || "HEAD".equals(m))) {
-			return new ResponseBuilder(request, context).notFound();
+			return new ResponseBuilder(request, context).notFound(req.getRequestURL());
 		}
 		return null;
 	}

@@ -21,11 +21,13 @@ window.calli.getCallimachusUrl = function(suffix) {
     while (home.lastIndexOf('/') == 0 || home.lastIndexOf('/') > home.indexOf('//') + 1) {
         home = home.substring(0, home.lastIndexOf('/'));
     }
-    if (typeof suffix == 'string' && suffix.indexOf('/') == 0)
-        return home + suffix;
-    if (typeof suffix == 'string')
-        return base + suffix;
-    return base;
+    var url = base;
+    if (typeof suffix == 'string' && suffix.indexOf('/') == 0) {
+        url = home + suffix;
+    } else if (typeof suffix == 'string') {
+        url = base + suffix;
+    }
+    return url.replace(/\/\.\//g,'/').replace(/\/[^\/]+\/\.\.\//g, '/');
 };
 
 window.calli.getFormAction = function(form) {

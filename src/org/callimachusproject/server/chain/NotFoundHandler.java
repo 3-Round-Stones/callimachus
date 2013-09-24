@@ -59,7 +59,7 @@ public class NotFoundHandler implements ClientExecChain {
 		CloseableHttpResponse rb = delegate.execute(route, request, context, execAware);
 		String method = request.getRequestLine().getMethod();
 		if (("GET".equals(method) || "HEAD".equals(method)) && rb.getEntity() == null) {
-			return new ResponseBuilder(request, context).notFound();
+			return new ResponseBuilder(request, context).notFound(request.getURI().toASCIIString());
 		}
 		return rb;
 	}

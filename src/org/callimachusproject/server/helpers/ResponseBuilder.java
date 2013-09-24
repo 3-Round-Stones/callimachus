@@ -144,10 +144,10 @@ public class ResponseBuilder {
 		return respond(response);
 	}
 
-	public HttpUriResponse notFound() {
+	public HttpUriResponse notFound(String url) {
 		HttpResponse response = new EntityRemovedHttpResponse(_404);
 		response.setHeader("Content-Type", "text/html;charset=UTF-8");
-		byte[] body = formatPage(createPage("Not Found"));
+		byte[] body = formatPage(createPage("Not Found: " + url));
 		response.setHeader("Content-Length", String.valueOf(body.length));
 		ReadableByteChannel in = ChannelUtil.newChannel(body);
 		response.setEntity(new ReadableHttpEntityChannel("text/html;charset=UTF-8", body.length, in));

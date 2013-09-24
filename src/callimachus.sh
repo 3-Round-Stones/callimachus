@@ -376,35 +376,36 @@ fi
 if [ -z "$JMXRMI" ] ; then
   JMXRMI="$BASEDIR/etc/jmxremote.properties"
 fi
-JMXRIMACCESS=$(grep -E '^com.sun.management.jmxremote.access.file=' "$JMXRMI" |perl -pe 's/^com.sun.management.jmxremote.access.file=(.*)/$1/' 2>/dev/null)
-if [ ! -e "$JMXRIMACCESS" -a -r "$JMXRMI" ] ; then
+JMXRMIACCESS=$(grep -E '^com.sun.management.jmxremote.access.file=' "$JMXRMI" |perl -pe 's/^com.sun.management.jmxremote.access.file=(.*)/$1/' 2>/dev/null)
+if [ ! -e "$JMXRMIACCESS" -a -r "$JMXRMI" ] ; then
   if [ -r "$JAVA_HOME/lib/management/jmxremote.access" ] ; then
-    cp "$JAVA_HOME/lib/management/jmxremote.access" "$JMXRIMACCESS"
+    cp "$JAVA_HOME/lib/management/jmxremote.access" "$JMXRMIACCESS"
   fi
-  if [ ! -e "$JMXRIMACCESS" ] || ! grep "^monitorRole" "$JMXRIMACCESS" | grep -q "read" ; then
-    echo >> "$JMXRIMACCESS"
-    echo "monitorRole   readonly" >> "$JMXRIMACCESS"
+  if [ ! -e "$JMXRMIACCESS" ] || ! grep "^monitorRole" "$JMXRMIACCESS" | grep -q "read" ; then
+    echo >> "$JMXRMIACCESS"
+    echo "monitorRole   readonly" >> "$JMXRMIACCESS"
   fi
-  if ! grep "^controlRole" "$JMXRIMACCESS" | grep -q "read" ; then
-    echo >> "$JMXRIMACCESS"
-    echo "controlRole   readwrite" >> "$JMXRIMACCESS"
+  if ! grep "^controlRole" "$JMXRMIACCESS" | grep -q "read" ; then
+    echo >> "$JMXRMIACCESS"
+    echo "controlRole   readwrite" >> "$JMXRMIACCESS"
   fi
 fi
-JMXRIMPASS=$(grep -E '^com.sun.management.jmxremote.password.file=' "$JMXRMI" |perl -pe 's/^com.sun.management.jmxremote.password.file=(.*)/$1/' 2>/dev/null)
-if [ ! -e "$JMXRIMPASS" -a -r "$JMXRMI" ] ; then
+JMXRMIPASS=$(grep -E '^com.sun.management.jmxremote.password.file=' "$JMXRMI" |perl -pe 's/^com.sun.management.jmxremote.password.file=(.*)/$1/' 2>/dev/null)
+if [ ! -e "$JMXRMIPASS" -a -r "$JMXRMI" ] ; then
   if [ -r "$JAVA_HOME/lib/management/jmxremote.password" ] ; then
-    cp "$JAVA_HOME/lib/management/jmxremote.password" "$JMXRIMPASS"
+    cp "$JAVA_HOME/lib/management/jmxremote.password" "$JMXRMIPASS"
   elif [ -r "$JAVA_HOME/lib/management/jmxremote.password.template" ] ; then
-    cp "$JAVA_HOME/lib/management/jmxremote.password.template" "$JMXRIMPASS"
+    cp "$JAVA_HOME/lib/management/jmxremote.password.template" "$JMXRMIPASS"
   fi
-  chmod 600 "$JMXRIMPASS"
-  echo >> "$JMXRIMPASS"
+  chmod 600 "$JMXRMIPASS"
+  echo >> "$JMXRMIPASS"
+  chmod 600 "$JMXRMIPASS"
   if [ -x "$(command -v md5sum)" ] ; then
-    echo 2$$$(date +%s)$RANDOM | md5sum | awk '{print "monitorRole " $1}' >> "$JMXRIMPASS"
-    echo 3$$$(date +%s)$RANDOM | md5sum | awk '{print "controlRole " $1}' >> "$JMXRIMPASS"
+    echo 2$$$(date +%s)$RANDOM | md5sum | awk '{print "monitorRole " $1}' >> "$JMXRMIPASS"
+    echo 3$$$(date +%s)$RANDOM | md5sum | awk '{print "controlRole " $1}' >> "$JMXRMIPASS"
   else
-    echo $$$(date +%s)$RANDOM | awk '{print "monitorRole " $1}' >> "$JMXRIMPASS"
-    echo $$$(date +%s)$RANDOM | awk '{print "controlRole " $1}' >> "$JMXRIMPASS"
+    echo $$$(date +%s)$RANDOM | awk '{print "monitorRole " $1}' >> "$JMXRMIPASS"
+    echo $$$(date +%s)$RANDOM | awk '{print "controlRole " $1}' >> "$JMXRMIPASS"
   fi
 fi
 

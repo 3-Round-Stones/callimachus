@@ -82,6 +82,7 @@
             dataType: "xml",
             beforeSend: calli.withCredentials,
             success: function(doc) {
+                var waiting = calli.wait();
                 jQuery(function() {
                     var feed = $(doc.documentElement);
                     var totalResults = feed.children().filter(function(){return this.tagName=='openSearch:totalResults'}).text();
@@ -116,6 +117,14 @@
                     if (bottom) {
                         box.scrollTop = box.scrollHeight - box.clientHeight;
                     }
+                    var checkForCompleteImg = function() {
+                        if (0 == $(tbody).find('img').filter(function() { return !this.complete; }).length) {
+                            waiting.over();
+                        } else {
+                            setTimeout(checkForCompleteImg, 500);
+                        }
+                    };
+                    setTimeout(checkForCompleteImg, 100);
                 });
             }
         });

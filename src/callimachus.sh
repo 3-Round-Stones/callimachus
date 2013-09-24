@@ -397,7 +397,9 @@ if [ ! -e "$JMXRMIPASS" -a -r "$JMXRMI" ] ; then
   elif [ -r "$JAVA_HOME/lib/management/jmxremote.password.template" ] ; then
     cp "$JAVA_HOME/lib/management/jmxremote.password.template" "$JMXRMIPASS"
   fi
-  chmod 600 "$JMXRMIPASS"
+  if [ -e "$JMXRMIPASS" ] ; then
+    chmod 600 "$JMXRMIPASS"
+  fi
   echo >> "$JMXRMIPASS"
   chmod 600 "$JMXRMIPASS"
   if [ -x "$(command -v md5sum)" ] ; then

@@ -47,7 +47,6 @@ import org.apache.http.nio.protocol.HttpAsyncExchange;
 import org.apache.http.nio.protocol.HttpAsyncRequestConsumer;
 import org.apache.http.nio.protocol.HttpAsyncRequestHandler;
 import org.apache.http.nio.protocol.HttpAsyncRequestHandlerMapper;
-import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpCoreContext;
 import org.callimachusproject.client.HttpUriResponse;
@@ -111,13 +110,12 @@ public class AsyncRequestHandler implements HttpAsyncRequestHandlerMapper,
 			final Exchange exchange) {
 		InetAddress remoteAddress = getRemoteAddress(context);
 		// fork HttpContext so it can be used in other threads
-		HttpContext ctx = new BasicHttpContext(context);
-		CalliContext cc = CalliContext.adapt(ctx);
+		CalliContext cc = CalliContext.fork(context);
 		cc.setReceivedOn(System.currentTimeMillis());
 		cc.setClientAddr(remoteAddress);
 		HttpHost host = URIUtils.extractHost(URI.create(req.getOrigin() + "/"));
 		try {
-			handler.execute(host, req.getEnclosingRequest(), ctx,
+			handler.execute(host, req.getEnclosingRequest(), cc,
 					new FutureCallback<HttpResponse>() {
 						public void completed(HttpResponse result) {
 							try {

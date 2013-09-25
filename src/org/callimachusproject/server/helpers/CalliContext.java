@@ -51,12 +51,26 @@ public class CalliContext implements HttpContext {
 	private static final String REPOSITORY_ATTR = NS + "repository";
 	private static final String TRANSACTION_ATTR = NS + "resourceTransaction";
 
-    public static CalliContext adapt(final HttpContext context) {
+    public static CalliContext adapt(HttpContext context) {
         if (context instanceof CalliContext) {
             return (CalliContext) context;
         } else {
             return new CalliContext(context);
         }
+    }
+
+    public static CalliContext fork(HttpContext context) {
+    	CalliContext forked = adapt(new BasicHttpContext(context));
+    	forked.setCalliRepository(forked.getCalliRepository());
+    	forked.setClientAddr(forked.getClientAddr());
+    	forked.setCredential(forked.getCredential());
+    	forked.setExchange(forked.getExchange());
+    	forked.setObjectConnection(forked.getObjectConnection());
+    	forked.setProtocolScheme(forked.getProtocolScheme());
+    	forked.setPublic(forked.isPublic());
+    	forked.setReceivedOn(forked.getReceivedOn());
+    	forked.setResourceTransaction(forked.getResourceTransaction());
+    	return forked;
     }
 
     public static CalliContext create() {

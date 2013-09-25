@@ -78,11 +78,6 @@
     rdf:_1 <d3/d3.v3.3.3.js>;
     rdf:_2 <dimple/dimple.v1.0.1.js>;
     rdf:_3 <nv/nv.d3.js>;
-    rdf:_4 <nv/tooltip.js>;
-    rdf:_5 <nv/utils.js>;
-    rdf:_6 <nv/legend.js>;
-    rdf:_7 <nv/pie.js>;
-    rdf:_8 <nv/pieChart.js>;
-    rdf:_9 <datatables/jquery.dataTables.js>;
-    rdf:_10 <query-vizeditor.js>.
+    rdf:_4 <datatables/jquery.dataTables.js>;
+    rdf:_5 <query-vizeditor.js>.
 

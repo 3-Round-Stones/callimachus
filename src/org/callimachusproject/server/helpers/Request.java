@@ -42,8 +42,6 @@ import org.apache.http.HttpRequest;
 import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.server.exceptions.BadRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Utility class for {@link HttpServletRequest}.
@@ -52,7 +50,6 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class Request extends EditableHttpEntityEnclosingRequest {
-	private final Logger logger = LoggerFactory.getLogger(Request.class);
 	private final String protocol;
 	private final String origin;
 	private final String iri;
@@ -63,9 +60,13 @@ public class Request extends EditableHttpEntityEnclosingRequest {
 
 	public Request(HttpRequest request, String protocol) {
 		super(request);
+		String path = request.getRequestLine().getUri();
+		if (protocol == null) {
+			String msg = "Could not determine protocol for " + path;
+			throw new IllegalStateException(msg);
+		}
 		this.protocol = protocol;
 		try {
-			String path = request.getRequestLine().getUri();
 			int qx = path.indexOf('?');
 			if (qx > 0) {
 				path = path.substring(0, qx);
@@ -232,10 +233,6 @@ public class Request extends EditableHttpEntityEnclosingRequest {
 			} catch (URISyntaxException e) {
 				// try the host header
 			}
-		}
-		if (protocol == null) {
-			logger.warn("Could not determine protocol for {}", uri);
-			return "http";
 		}
 		return protocol;
 	}

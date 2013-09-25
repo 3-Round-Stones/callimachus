@@ -22,6 +22,7 @@ import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.client.CloseableEntity;
+import org.callimachusproject.client.HttpUriResponse;
 import org.callimachusproject.io.ChannelUtil;
 import org.callimachusproject.repository.CalliRepository;
 import org.callimachusproject.repository.auditing.ActivityFactory;
@@ -30,9 +31,11 @@ import org.callimachusproject.server.AsyncExecChain;
 import org.callimachusproject.server.exceptions.InternalServerError;
 import org.callimachusproject.server.exceptions.ServiceUnavailable;
 import org.callimachusproject.server.helpers.CalliContext;
+import org.callimachusproject.server.helpers.CompletedResponse;
 import org.callimachusproject.server.helpers.Request;
 import org.callimachusproject.server.helpers.RequestActivityFactory;
 import org.callimachusproject.server.helpers.ResourceOperation;
+import org.callimachusproject.server.helpers.ResponseBuilder;
 import org.callimachusproject.server.helpers.ResponseCallback;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.URI;
@@ -73,7 +76,7 @@ public class TransactionHandler implements AsyncExecChain {
 		String origin = req.getOrigin();
 		CalliRepository repo = getRepository(origin);
 		if (repo == null || !repo.isInitialized())
-			throw notSetup(origin);
+			return notSetup(origin, request, ctx, callback);
 		final CalliContext context = CalliContext.adapt(ctx);
 		try {
 			context.setCalliRepository(repo);
@@ -142,12 +145,19 @@ public class TransactionHandler implements AsyncExecChain {
 		return repositories.get(origin);
 	}
 
-	private synchronized ServiceUnavailable notSetup(String origin) {
-		if (repositories.isEmpty())
-			return new ServiceUnavailable("No origins are configured");
-		String closest = closest(origin, repositories.keySet());
-		return new ServiceUnavailable("Origin " + origin
-				+ " is not configured, perhaps you wanted " + closest);
+	private synchronized Future<HttpResponse> notSetup(String origin,
+			HttpRequest request, HttpContext ctx,
+			FutureCallback<HttpResponse> callback) {
+		String msg = "No origins are configured";
+		if (!repositories.isEmpty()) {
+			String closest = closest(origin, repositories.keySet());
+			msg = "Origin " + origin
+					+ " is not configured, perhaps you wanted " + closest;
+		}
+		logger.warn(msg);
+		ResponseBuilder rb = new ResponseBuilder(request, ctx);
+		HttpUriResponse resp = rb.exception(new ServiceUnavailable(msg));
+		return new CompletedResponse(callback, resp);
 	}
 
 	private String closest(String origin, Set<String> origins) {

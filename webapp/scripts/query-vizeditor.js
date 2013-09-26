@@ -65,7 +65,7 @@
                     lib.openEditor(event);
                 }
             };
-            $(window).bind('popstate', onpopstate);
+            $(window).bind('hashchange', onpopstate);
             onpopstate();
         },
         
@@ -187,7 +187,7 @@
                 .css('overflow', 'auto')
             ;
             lib.selectedModule = null;
-            window.history.replaceState({}, document.title, window.location.search);
+            window.location.replace('#');
         },
         
         buildVizMenu: function() {
@@ -561,7 +561,7 @@
                 '   <script data-viz-id="' + lib.vizId + '" type="text/javascript">', 
                 '   //<![CDATA[',
                 "       var config = \n" + JSON.stringify(lib[lib.selectedModule].getConfig(), null, 4) + ";\n",
-                "       " + lib[lib.selectedModule].renderModule.toString().replace(/function\s+/, 'function drawVisualization') + ";",
+                "       " + lib[lib.selectedModule].renderModule.toString().replace(/function\s*/, 'function drawVisualization') + ";",
                 "       drawVisualization(config);",
                 '   //]]>',
                 '   </script>',
@@ -575,6 +575,7 @@
                 '   <link rel="edit-form" href="?edit" />',
                 '   <link rel="comments" href="?discussion" />',
                 '   <link rel="version-history" href="?history" />',
+                '   <link rel="help" href="' + calli.getCallimachusUrl('../callimachus-for-web-developers#Named_query') + '" target="_blank" title="Help" />',
                 '   <link href="#vizeditor" title="Edit visualization" />',
                 '   <link rel="edit-media" href="?" title="Raw SPARQL file" type="application/sparql-query" />',
                 '   <link href="?results" title="Results document" type="application/sparql-results+xml" />',
@@ -642,8 +643,7 @@
                                     $(this).remove();
                                 })
                             ;
-                            window.history.replaceState({}, document.title, window.location.search);
-                            window.location.reload();
+                            window.location.replace(window.location.search);
                         },
                         error: function() {
                             $('<span class="save-error">Could not set view template</span>')

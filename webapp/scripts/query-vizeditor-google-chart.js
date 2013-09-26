@@ -177,7 +177,7 @@
             lib.backupWidget();
             lib.googleEditor.closeDialog();
             pLib.selectedModule = null;
-            window.history.replaceState({}, document.title, window.location.search);
+            window.location.replace('#');
             if (window.drawVisualization) {
                 try {window.clearTimeout(window.renderVizTo)} catch(e) {};
                 window.renderVizTo = window.setTimeout(function() {

@@ -76,8 +76,7 @@
 <query_bundle> a calli:ScriptBundle;
     calli:reader </auth/groups/public>;
     rdf:_1 <d3/d3.v3.3.3.js>;
-    rdf:_2 <dimple/dimple.v1.0.1.js>;
-    rdf:_3 <nv/nv.d3.js>;
-    rdf:_4 <datatables/jquery.dataTables.js>;
-    rdf:_5 <query-vizeditor.js>.
+    rdf:_2 <nv/nv.d3.js>;
+    rdf:_3 <datatables/jquery.dataTables.js>;
+    rdf:_4 <query-vizeditor.js>.
 

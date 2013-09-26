@@ -16,24 +16,6 @@
                     'table-google': 'Table (Google Charts)'
                 }
             },
-            'bar': {
-                'label': 'Bar Chart',
-                'subModules': {
-                    'bar-dimple': 'Bar Chart (Dimple)'
-                }
-            },
-            'line': {
-                'label': 'Line Chart',
-                'subModules': {
-                    'line-dimple': 'Line Chart (Dimple)'
-                }
-            },
-            'area': {
-                'label': 'Area Chart',
-                'subModules': {
-                    'area-dimple': 'Area Chart (Dimple)'
-                }
-            },
             'pie': {
                 'label': 'Pie Chart',
                 'subModules': {

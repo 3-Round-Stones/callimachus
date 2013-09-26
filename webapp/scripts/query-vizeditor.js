@@ -23,12 +23,6 @@
                     'pie-google': 'Pie Chart (Google Charts)'
                 }
             },
-            'map': {
-                'label': 'Map Chart',
-                'subModules': {
-                    'map-google': 'Map Chart (Google Charts)'
-                }
-            },
             'google-chart': 'More... (Google Charts)'
         },
         selectedModule: null,

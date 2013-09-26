@@ -23,7 +23,6 @@ import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.query.Dataset;
 import org.openrdf.query.IncompatibleOperationException;
 import org.openrdf.query.MalformedQueryException;
-import org.openrdf.query.algebra.BindingSetAssignment;
 import org.openrdf.query.algebra.ExtensionElem;
 import org.openrdf.query.algebra.ProjectionElem;
 import org.openrdf.query.algebra.TupleExpr;
@@ -49,6 +48,10 @@ import org.openrdf.query.parser.sparql.ast.TokenMgrError;
 import org.openrdf.query.parser.sparql.ast.VisitorException;
 
 public class ParameterizedQueryParser {
+	static final Pattern ENDS_WITH_VALUES = Pattern
+			.compile(
+					".*\\bVALUES\\s*\\(?\\s*([\\?\\$][^\\s\\{\\)]+\\s*)+\\)?\\s*\\{[^\\}]*\\}\\s*$",
+					Pattern.DOTALL);
 
 	private final class ParameterScanner extends
 			QueryModelVisitorBase<MalformedQueryException> {
@@ -69,6 +72,8 @@ public class ParameterizedQueryParser {
 			ParsedQuery parsed = parseParsedQuery(sparql.replaceAll("(?<!\\\\)\\$\\{[^}]*\\}", "0"), systemId);
 			if (!(parsed instanceof ParsedTupleQuery))
 				throw new MalformedQueryException("Only SELECT queries are supported");
+			if (ENDS_WITH_VALUES.matcher(sparql).matches())
+				throw new MalformedQueryException("VALUES clause can only be used within a graph pattern");
 			parsed.getTupleExpr().visit(this);
 			visitExpressions(sparql);
 			for (String varname : variables) {
@@ -112,12 +117,6 @@ public class ParameterizedQueryParser {
 					addParameter(name, value);
 				}
 			}
-		}
-
-		@Override
-		public void meet(BindingSetAssignment node) throws MalformedQueryException {
-			super.meet(node);
-			throw new MalformedQueryException("BINDINGS clause is not supported");
 		}
 
 		@Override

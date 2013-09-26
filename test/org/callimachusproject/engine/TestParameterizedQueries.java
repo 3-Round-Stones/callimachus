@@ -11,6 +11,7 @@ import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.model.vocabulary.RDFS;
 import org.openrdf.model.vocabulary.XMLSchema;
 import org.openrdf.query.BindingSet;
+import org.openrdf.query.MalformedQueryException;
 import org.openrdf.query.TupleQueryResult;
 import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.repository.sail.SailRepositoryConnection;
@@ -369,6 +370,31 @@ public class TestParameterizedQueries extends TestCase {
 		con.add(vf.createURI("urn:test:thing1"), RDF.VALUE, vf.createLiteral(1));
 		con.add(vf.createURI("urn:test:thing2"), RDF.VALUE, vf.createLiteral(2));
 		TupleQueryResult result = parser.parseQuery(sparql, EXAMPLE_COM).evaluate(parameters, con);
+		assertEquals(Arrays.asList("thing", "label"), result.getBindingNames());
+		assertTrue(result.hasNext());
+		BindingSet next = result.next();
+		assertEquals("urn:test:thing2", next.getValue("thing").stringValue());
+		assertEquals("Thing2", next.getValue("label").stringValue());
+		assertFalse(result.hasNext());
+		result.close();
+	}
+
+	public void testValuesClauseAtEnd() throws Exception {
+		String sparql = PREFIX + "SELECT * { ?thing rdfs:label ?label } ORDER BY ?thing VALUES ?thing { <urn:test:thing2> }";
+		try {
+			parser.parseQuery(sparql, EXAMPLE_COM).prepare();
+			fail();
+		} catch (MalformedQueryException e) {
+			// success
+		}
+	}
+
+	public void testValuesClauseInline() throws Exception {
+		String sparql = PREFIX + "SELECT * { ?thing rdfs:label ?label VALUES ?thing { <urn:test:thing2> } } ORDER BY ?thing";
+
+		con.add(vf.createURI("urn:test:thing1"), RDFS.LABEL, vf.createLiteral("Thing1"));
+		con.add(vf.createURI("urn:test:thing2"), RDFS.LABEL, vf.createLiteral("Thing2"));
+		TupleQueryResult result = parser.parseQuery(sparql, EXAMPLE_COM).evaluate(con);
 		assertEquals(Arrays.asList("thing", "label"), result.getBindingNames());
 		assertTrue(result.hasNext());
 		BindingSet next = result.next();

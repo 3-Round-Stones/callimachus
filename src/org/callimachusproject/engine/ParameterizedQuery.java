@@ -279,7 +279,7 @@ public class ParameterizedQuery {
 		if (bindingNames.isEmpty())
 			return sparql;
 		StringBuilder sb = new StringBuilder(sparql);
-		sb.append("\nBINDINGS");
+		sb.append("\nVALUES");
 		for (String name : bindingNames) {
 			sb.append(" $").append(name);
 		}

@@ -13,13 +13,15 @@ $(document).bind("DOMNodeInserted", handle);
 function handle(event) {
     var now = new Date();
     var target = event.target ? event.target : document;
-    var time = $(target.getElementsByTagName('time'));
-    if ($(target).is('time')) {
-        time = time.add(target);
+    if (target.getElementsByTagName) {
+        var time = $(target.getElementsByTagName('time'));
+        if ($(target).is('time')) {
+            time = time.add(target);
+        }
+        time.each(function(i, node) {
+            changeDateLocale(node, now);
+        });
     }
-    time.each(function(i, node) {
-        changeDateLocale(node, now);
-    });
 }
 
 function changeDateLocale(node, now) {

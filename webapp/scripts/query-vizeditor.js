@@ -600,6 +600,7 @@
             $.ajax({
                 url: path + fname,
                 global: false,
+                dataType: 'text',
                 success: function() {
                     if (confirm('Replace ' + fname + '?')) {
                         $.ajax({

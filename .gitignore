@@ -1,0 +1,14 @@
+bin
+dist
+lib
+tmp
+build
+.classpath
+.project
+repositories
+etc
+log
+run
+build.properties
+downloads
+

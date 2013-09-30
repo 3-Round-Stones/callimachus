@@ -330,7 +330,7 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
     </xsl:if>
 </xsl:template>
 
-<xsl:template match="xhtml:img/@alt|xhtml:img/@title|xhtml:img/@border|xhtml:img/@style" />
+<xsl:template match="xhtml:img/@alt|xhtml:img/@title|xhtml:img/@border" />
 
 <xsl:template match="xhtml:img/@src">
     <xsl:attribute name="fileref">
@@ -354,18 +354,51 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
     </xsl:if>
 </xsl:template>
 
+<xsl:template match="xhtml:img/@style">
+    <xsl:if test="not(../@width) and contains(../@style, 'width:')">
+        <xsl:attribute name="contentwidth">
+            <xsl:value-of select="concat(substring-before(substring-after(../@style,'width:'),'px'),'px')" />
+        </xsl:attribute>
+    </xsl:if>
+    <xsl:if test="not(../@height) and contains(../@style, 'height:')">
+        <xsl:attribute name="contentdepth">
+            <xsl:value-of select="concat(substring-before(substring-after(../@style,'height:'),'px'),'px')" />
+        </xsl:attribute>
+    </xsl:if>
+</xsl:template>
+
 <xsl:template match="xhtml:img/@hspace">
+    <xsl:variable name="width">
+        <xsl:choose>
+            <xsl:when test="../@width">
+                <xsl:value-of select="../@width" />
+            </xsl:when>
+            <xsl:when test="contains(substring-after(../@style,'width:'),'px')">
+                <xsl:value-of select="substring-before(substring-after(../@style, 'width:'), 'px')" />
+            </xsl:when>
+        </xsl:choose>
+    </xsl:variable>
     <xsl:if test="string-length() &gt; 0">
         <xsl:attribute name="width">
-            <xsl:value-of select="concat(2 * number() + number(../@width),'px')" />
+            <xsl:value-of select="concat(2 * number() + number($width),'px')" />
         </xsl:attribute>
     </xsl:if>
 </xsl:template>
 
 <xsl:template match="xhtml:img/@vspace">
+    <xsl:variable name="height">
+        <xsl:choose>
+            <xsl:when test="../@height">
+                <xsl:value-of select="../@height" />
+            </xsl:when>
+            <xsl:when test="contains(substring-after(../@style,'height:'),'px')">
+                <xsl:value-of select="substring-before(substring-after(../@style, 'height:'), 'px')" />
+            </xsl:when>
+        </xsl:choose>
+    </xsl:variable>
     <xsl:if test="string-length() &gt; 0">
         <xsl:attribute name="depth">
-            <xsl:value-of select="concat(2 * number() + number(../@height),'px')" />
+            <xsl:value-of select="concat(2 * number() + number($height),'px')" />
         </xsl:attribute>
     </xsl:if>
 </xsl:template>

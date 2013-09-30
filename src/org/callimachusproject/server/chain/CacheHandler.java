@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Future;
 
+import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
@@ -22,6 +23,9 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.server.AsyncExecChain;
 import org.callimachusproject.server.helpers.AutoClosingAsyncClient;
+import org.callimachusproject.server.helpers.CalliContext;
+import org.callimachusproject.server.helpers.ResponseCallback;
+import org.callimachusproject.server.util.HTTPDateFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,9 +33,13 @@ public class CacheHandler implements AsyncExecChain {
 	private final class DelegatingClient extends
 			CloseableHttpAsyncClient {
 		private final AsyncExecChain delegate;
+		private final boolean maxAgeHeuristic;
 		private boolean running;
 		public DelegatingClient(AsyncExecChain delegate) {
 			this.delegate = delegate;
+			boolean enabled = config.isHeuristicCachingEnabled();
+			long lifetime = config.getHeuristicDefaultLifetime();
+			this.maxAgeHeuristic = enabled && lifetime > 0 && lifetime < Integer.MAX_VALUE;
 		}
 
 		public void start() {
@@ -69,13 +77,25 @@ public class CacheHandler implements AsyncExecChain {
 		}
 
 		public Future<HttpResponse> execute(HttpHost target,
-				HttpRequest request, HttpContext context,
+				final HttpRequest request, final HttpContext context,
 				FutureCallback<HttpResponse> callback) {
-			return delegate.execute(target, request, context, callback);
+			if (maxAgeHeuristic) {
+				return delegate.execute(target, request, context,
+						new ResponseCallback(callback) {
+							public void completed(HttpResponse result) {
+								setCacheControlIfCacheable(request, result,
+										context);
+								super.completed(result);
+							}
+						});
+			} else {
+				return delegate.execute(target, request, context, callback);
+			}
 		}
 	}
 
 	private final Logger logger = LoggerFactory.getLogger(CacheHandler.class);
+	private final HTTPDateFormat modifiedformat = new HTTPDateFormat();
 	private final AsyncExecChain delegate;
 	private final ResourceFactory resourceFactory;
 	private final CacheConfig config;
@@ -92,9 +112,8 @@ public class CacheHandler implements AsyncExecChain {
 	}
 
 	@Override
-	public Future<HttpResponse> execute(HttpHost target,
-			HttpRequest request, HttpContext context,
-			FutureCallback<HttpResponse> callback) {
+	public Future<HttpResponse> execute(HttpHost target, HttpRequest request,
+			final HttpContext context, FutureCallback<HttpResponse> callback) {
 		return getClient(target).execute(target, request, context, callback);
 	}
 
@@ -107,6 +126,77 @@ public class CacheHandler implements AsyncExecChain {
 		HttpAsyncClient client = new AutoClosingAsyncClient(cachingClient, storage);
 		clients.put(target, client);
 		return client;
+	}
+
+	void setCacheControlIfCacheable(final HttpRequest request,
+			HttpResponse response, final HttpContext context) {
+		String method = request.getRequestLine().getMethod();
+		int sc = response.getStatusLine().getStatusCode();
+		if ("GET".equals(method)) {
+			switch (sc) {
+			case 200:
+			case 203:
+			case 206:
+			case 300:
+			case 301:
+			case 302:
+			case 303:
+			case 307:
+			case 308:
+			case 410:
+				setCacheControl(response, context);
+			case 304:
+				if (response.getFirstHeader("Cache-Control") != null) {
+					setCacheControl(response, context);
+				}
+			}
+		}
+	}
+
+	private void setCacheControl(HttpResponse response, final HttpContext context) {
+		long now = CalliContext.adapt(context).getReceivedOn();
+		Header lastMod = response.getLastHeader("Last-Modified");
+		Header[] headers = response.getHeaders("Cache-Control");
+		if (headers != null && headers.length > 0 && now > 0 && lastMod != null) {
+			String cc = getCacheControl(headers, lastMod, now);
+			if (cc != null) {
+				response.removeHeaders("Cache-Control");
+				response.setHeader("Cache-Control", cc);
+			}
+		}
+	}
+
+	private String getCacheControl(Header[] cache, Header lastMod, long now) {
+		StringBuilder sb = new StringBuilder();
+		for (Header hd : cache) {
+			if (sb.length() > 0) {
+				sb.append(",");
+			}
+			sb.append(hd.getValue());
+		}
+		if (sb.length() == 0 || sb.indexOf("max-age") < 0
+				&& sb.indexOf("s-maxage") < 0 && sb.indexOf("no-cache") < 0
+				&& sb.indexOf("no-store") < 0) {
+			int maxage = getMaxAgeHeuristic(lastMod, now);
+			if (maxage > 0) {
+				if (sb.length() > 0) {
+					sb.append(",");
+				}
+				sb.append("max-age=").append(maxage);
+				return sb.toString();
+			}
+		}
+		return null;
+	}
+
+	private int getMaxAgeHeuristic(Header lastModified, long now) {
+		long lm = lastModified(lastModified);
+		int fraction = (int) ((now - lm) / 10000);
+		return Math.min(fraction, (int) config.getHeuristicDefaultLifetime());
+	}
+
+	private long lastModified(Header lastModified) {
+		return modifiedformat.parseHeader(lastModified);
 	}
 
 }

@@ -33,13 +33,9 @@ public class CacheHandler implements AsyncExecChain {
 	private final class DelegatingClient extends
 			CloseableHttpAsyncClient {
 		private final AsyncExecChain delegate;
-		private final boolean maxAgeHeuristic;
 		private boolean running;
 		public DelegatingClient(AsyncExecChain delegate) {
 			this.delegate = delegate;
-			boolean enabled = config.isHeuristicCachingEnabled();
-			long lifetime = config.getHeuristicDefaultLifetime();
-			this.maxAgeHeuristic = enabled && lifetime > 0 && lifetime < Integer.MAX_VALUE;
 		}
 
 		public void start() {
@@ -79,18 +75,7 @@ public class CacheHandler implements AsyncExecChain {
 		public Future<HttpResponse> execute(HttpHost target,
 				final HttpRequest request, final HttpContext context,
 				FutureCallback<HttpResponse> callback) {
-			if (maxAgeHeuristic) {
-				return delegate.execute(target, request, context,
-						new ResponseCallback(callback) {
-							public void completed(HttpResponse result) {
-								setCacheControlIfCacheable(request, result,
-										context);
-								super.completed(result);
-							}
-						});
-			} else {
-				return delegate.execute(target, request, context, callback);
-			}
+			return delegate.execute(target, request, context, callback);
 		}
 	}
 
@@ -112,9 +97,21 @@ public class CacheHandler implements AsyncExecChain {
 	}
 
 	@Override
-	public Future<HttpResponse> execute(HttpHost target, HttpRequest request,
-			final HttpContext context, FutureCallback<HttpResponse> callback) {
-		return getClient(target).execute(target, request, context, callback);
+	public Future<HttpResponse> execute(HttpHost target,
+			final HttpRequest request, final HttpContext context,
+			FutureCallback<HttpResponse> callback) {
+		if (config.isHeuristicCachingEnabled()) {
+			return getClient(target).execute(target, request, context,
+					new ResponseCallback(callback) {
+						public void completed(HttpResponse result) {
+							setCacheControlIfCacheable(request, result, context);
+							super.completed(result);
+						}
+					});
+		} else {
+			return getClient(target)
+					.execute(target, request, context, callback);
+		}
 	}
 
 	private synchronized HttpAsyncClient getClient(HttpHost target) {
@@ -128,6 +125,10 @@ public class CacheHandler implements AsyncExecChain {
 		return client;
 	}
 
+	/**
+	 * Adds max-age cache-control based on last-modified heuristic for client
+	 * caching.
+	 */
 	void setCacheControlIfCacheable(final HttpRequest request,
 			HttpResponse response, final HttpContext context) {
 		String method = request.getRequestLine().getMethod();
@@ -192,7 +193,7 @@ public class CacheHandler implements AsyncExecChain {
 	private int getMaxAgeHeuristic(Header lastModified, long now) {
 		long lm = lastModified(lastModified);
 		int fraction = (int) ((now - lm) / 10000);
-		return Math.min(fraction, (int) config.getHeuristicDefaultLifetime());
+		return Math.min(fraction, 24 * 60 * 60);
 	}
 
 	private long lastModified(Header lastModified) {

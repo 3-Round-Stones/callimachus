@@ -1,17 +1,15 @@
 package org.callimachusproject.behaviours;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-import org.apache.http.HttpEntity;
+import org.apache.http.util.EntityUtils;
 import org.callimachusproject.client.HttpUriClient;
+import org.callimachusproject.client.HttpUriEntity;
 import org.callimachusproject.concepts.ScriptBundle;
 import org.callimachusproject.server.exceptions.GatewayTimeout;
 import org.callimachusproject.server.exceptions.InternalServerError;
@@ -133,24 +131,8 @@ public abstract class ScriptBundleSupport implements ScriptBundle, CalliObject {
 	}
 
 	private static String getJavaScriptCode(HttpUriClient client, String url) throws IOException {
-		Reader reader = openJavaScriptReader(url, 10, client);
-		try {
-			StringWriter writer = new StringWriter();
-			int read;
-			char[] cbuf = new char[1024];
-			while ((read = reader.read(cbuf)) >= 0) {
-				writer.write(cbuf, 0, read);
-			}
-			return writer.toString();
-		} finally {
-			reader.close();
-		}
-	}
-
-	private static Reader openJavaScriptReader(String url, int max,
-			HttpUriClient client) throws IOException {
-		HttpEntity entity = client.getEntity(url, "text/javascript;charset=UTF-8");
-		return new InputStreamReader(entity.getContent(), "UTF-8");
+		HttpUriEntity entity = client.getEntity(url, "text/javascript");
+		return EntityUtils.toString(entity, "UTF-8");
 	}
 
 }

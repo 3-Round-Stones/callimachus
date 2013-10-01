@@ -240,7 +240,7 @@ INSERT {
 	calli:administrator </auth/groups/super>;
 	calli:reader </auth/groups/public> .
 } WHERE {
-    BIND (str(<editor/ckeditor.html>) AS ?alternate)
+    BIND (str(<pages/document-editor.html>) AS ?alternate)
 	FILTER NOT EXISTS { <../document-editor.html> a calli:PURL }
 };
 
@@ -251,7 +251,7 @@ INSERT {
 	calli:administrator </auth/groups/super>;
 	calli:reader </auth/groups/public> .
 } WHERE {
-    BIND (str(<editor/text-editor.html#css>) AS ?alternate)
+    BIND (str(<pages/text-editor.html#css>) AS ?alternate)
 	FILTER NOT EXISTS { <../css-editor.html> a calli:PURL }
 };
 
@@ -262,7 +262,7 @@ INSERT {
 	calli:administrator </auth/groups/super>;
 	calli:reader </auth/groups/public> .
 } WHERE {
-    BIND (str(<editor/text-editor.html#html>) AS ?alternate)
+    BIND (str(<pages/text-editor.html#html>) AS ?alternate)
 	FILTER NOT EXISTS { <../html-editor.html> a calli:PURL }
 };
 
@@ -273,7 +273,7 @@ INSERT {
 	calli:administrator </auth/groups/super>;
 	calli:reader </auth/groups/public> .
 } WHERE {
-    BIND (str(<editor/text-editor.html#javascript>) AS ?alternate)
+    BIND (str(<pages/text-editor.html#javascript>) AS ?alternate)
 	FILTER NOT EXISTS { <../javascript-editor.html> a calli:PURL }
 };
 
@@ -284,7 +284,7 @@ INSERT {
 	calli:administrator </auth/groups/super>;
 	calli:reader </auth/groups/public> .
 } WHERE {
-    BIND (str(<editor/text-editor.html#sparql>) AS ?alternate)
+    BIND (str(<pages/text-editor.html#sparql>) AS ?alternate)
 	FILTER NOT EXISTS { <../sparql-editor.html> a calli:PURL }
 };
 
@@ -295,7 +295,7 @@ INSERT {
 	calli:administrator </auth/groups/super>;
 	calli:reader </auth/groups/public> .
 } WHERE {
-    BIND (str(<editor/text-editor.html>) AS ?alternate)
+    BIND (str(<pages/text-editor.html>) AS ?alternate)
 	FILTER NOT EXISTS { <../text-editor.html> a calli:PURL }
 };
 
@@ -306,7 +306,7 @@ INSERT {
 	calli:administrator </auth/groups/super>;
 	calli:reader </auth/groups/public> .
 } WHERE {
-    BIND (str(<editor/text-editor.html#xml>) AS ?alternate)
+    BIND (str(<pages/text-editor.html#xml>) AS ?alternate)
 	FILTER NOT EXISTS { <../xml-editor.html> a calli:PURL }
 };
 
@@ -317,7 +317,7 @@ INSERT {
 	calli:administrator </auth/groups/super>;
 	calli:reader </auth/groups/public> .
 } WHERE {
-    BIND (str(<editor/text-editor.html#xquery>) AS ?alternate)
+    BIND (str(<pages/text-editor.html#xquery>) AS ?alternate)
 	FILTER NOT EXISTS { <../xquery-editor.html> a calli:PURL }
 };
 

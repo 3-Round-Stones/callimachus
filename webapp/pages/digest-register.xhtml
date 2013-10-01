@@ -7,61 +7,10 @@
 <head>
     <title resource="?this">{rdfs:label} Sign Up</title>
     <link rel="help" href="../../callimachus-for-web-developers" target="_blank" title="Help" />
-    <style type="text/css">
-    .password-meter {
-        position:relative;
-        width: 180px;
-    }
-    .password-meter-message {
-        text-align: right;
-        font-weight: bold;
-        font-size: x-small;
-        color: #676767;
-    }
-    .password-meter-bg, .password-meter-bar {
-        height: 4px;
-    }
-    .password-meter-bg {
-        top: 8px;
-        background: #e0e0e0;
-    }
-
-    .password-meter-message-very-weak {
-        color: #aa0033;
-    }
-    .password-meter-message-weak {
-        color: #f5ac00;
-    }
-    .password-meter-message-good {
-        color: #6699cc;
-    }
-    .password-meter-message-strong {
-        color: #008000;
-    }
-
-    .password-meter-bg .password-meter-very-weak {
-        background: #aa0033;
-        width: 30px;
-    }
-    .password-meter-bg .password-meter-weak {
-        background: #f5ac00;
-        width: 60px;
-    }
-    .password-meter-bg .password-meter-good {
-        background: #6699cc;
-        width: 135px;
-    }
-    .password-meter-bg .password-meter-strong {
-        background: #008000;
-        width: 180px;
-    }
-    </style>
-    <script type="text/javascript" src="../scripts/jquery.validate.js">
-    </script>
-    <script type="text/javascript" src="../scripts/jquery.validate.password.js">
-    </script>
-    <script type="text/javascript" src="../scripts/md5.js">
-    </script>
+    <link rel="stylesheet" href="../assets/jquery-validate.password/jquery.validate.password.css" />
+    <script type="text/javascript" src="../assets/jquery-validate.password/lib/jquery.validate.js"></script>
+    <script type="text/javascript" src="../assets/jquery-validate.password/jquery.validate.password.js"></script>
+    <script type="text/javascript" src="../assets/jshash/md5.js"></script>
     <script type="text/javascript">//<![CDATA[
         jQuery(function($) {
             function parameter(name) {

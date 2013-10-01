@@ -10,7 +10,7 @@
 <index> a calli:ScriptBundle;
     calli:reader </auth/groups/public>;
     rdf:_1 </?baseuri>;
-    rdf:_2 <jquery.js>;
+    rdf:_2 <../assets/jquery/jquery.js>;
     rdf:_3 <location.js>;
     rdf:_4 <iframe.js>;
     rdf:_5 <wait.js>;
@@ -30,22 +30,22 @@
     rdf:_19 <wiki.js>;
     rdf:_20 <placeholder.js>;
     rdf:_21 <details.js>;
-    rdf:_22 <bootstrap-affix.js>;
-    rdf:_23 <bootstrap-alert.js>;
-    rdf:_24 <bootstrap-button.js>;
-    rdf:_25 <bootstrap-carousel.js>;
-    rdf:_26 <bootstrap-collapse.js>;
-    rdf:_27 <bootstrap-dropdown.js>;
-    rdf:_28 <bootstrap-modal.js>;
-    rdf:_29 <bootstrap-tooltip.js>;
-    rdf:_30 <bootstrap-scrollspy.js>;
-    rdf:_31 <bootstrap-tab.js>;
-    rdf:_32 <bootstrap-popover.js>;
-    rdf:_33 <bootstrap-transition.js>;
-    rdf:_34 <bootstrap-typeahead.js>;
+    rdf:_22 <../assets/bootstrap/js/bootstrap-affix.js>;
+    rdf:_23 <../assets/bootstrap/js/bootstrap-alert.js>;
+    rdf:_24 <../assets/bootstrap/js/bootstrap-button.js>;
+    rdf:_25 <../assets/bootstrap/js/bootstrap-carousel.js>;
+    rdf:_26 <../assets/bootstrap/js/bootstrap-collapse.js>;
+    rdf:_27 <../assets/bootstrap/js/bootstrap-dropdown.js>;
+    rdf:_28 <../assets/bootstrap/js/bootstrap-modal.js>;
+    rdf:_29 <../assets/bootstrap/js/bootstrap-tooltip.js>;
+    rdf:_30 <../assets/bootstrap/js/bootstrap-scrollspy.js>;
+    rdf:_31 <../assets/bootstrap/js/bootstrap-tab.js>;
+    rdf:_32 <../assets/bootstrap/js/bootstrap-popover.js>;
+    rdf:_33 <../assets/bootstrap/js/bootstrap-transition.js>;
+    rdf:_34 <../assets/bootstrap/js/bootstrap-typeahead.js>;
     rdf:_35 <slugify.js>;
     rdf:_36 <ajax.js>;
-    rdf:_37 <jquery-ui.js>;
+    rdf:_37 <../assets/jquery-ui/jquery-ui.js>;
     rdf:_38 <rdfaparser.js>;
     rdf:_39 <rdfxmlserializer.js>;
     rdf:_40 <fix-event.js>;
@@ -73,10 +73,36 @@
     rdf:_62 <etag.js>;
     rdf:_63 <scale-container.js>.
 
+<text_bundle> a calli:ScriptBundle;
+    calli:reader </auth/groups/public>;
+    rdf:_1 <../assets/ace/ace.js>;
+    rdf:_2 <../assets/ace/mode-css.js>;
+    rdf:_3 <../assets/ace/mode-html.js>;
+    rdf:_4 <../assets/ace/mode-javascript.js>;
+    rdf:_5 <../assets/ace/mode-json.js>;
+    rdf:_6 <../assets/ace/mode-less.js>;
+    rdf:_7 <../assets/ace/mode-sparql.js>;
+    rdf:_8 <../assets/ace/mode-svg.js>;
+    rdf:_9 <../assets/ace/mode-text.js>;
+    rdf:_10 <../assets/ace/mode-xml.js>;
+    rdf:_11 <../assets/ace/mode-xquery.js>;
+    rdf:_12 <../assets/jquery/jquery.js>;
+    rdf:_13 <error.js>;
+    rdf:_14 <location.js>;
+    rdf:_15 <text-editor.js>.
+
+<document_bundle> a calli:ScriptBundle ;
+    calli:reader </auth/groups/public>;
+    rdf:_1 <../assets/jquery/jquery.js>;
+    rdf:_2 <error.js>;
+    rdf:_3 <decode-html.js>;
+    rdf:_4 <document-editor.js> ;
+    rdf:_5 <../assets/ckeditor/ckeditor.js> . # include after document-editor.js!
+
 <query_bundle> a calli:ScriptBundle;
     calli:reader </auth/groups/public>;
-    rdf:_1 <d3/d3.v3.3.3.js>;
-    rdf:_2 <nv/nv.d3.js>;
-    rdf:_3 <datatables/jquery.dataTables.js>;
+    rdf:_1 <../assets/d3/d3.v3.3.3.js>;
+    rdf:_2 <../assets/nv/nv.d3.js>;
+    rdf:_3 <../assets/datatables/jquery.dataTables.js>;
     rdf:_4 <query-vizeditor.js>.
 

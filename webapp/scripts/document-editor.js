@@ -1,6 +1,6 @@
 // editor/ckeditor.js
 
-CKEDITOR_BASEPATH = 'ckeditor/';
+CKEDITOR_BASEPATH = '../assets/ckeditor/';
 
 jQuery(function($) {
     var jQuery = $;

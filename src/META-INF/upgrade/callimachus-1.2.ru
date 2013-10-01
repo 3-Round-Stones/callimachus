@@ -49,3 +49,83 @@ INSERT {
     FILTER NOT EXISTS { <../> calli:hasComponent <../query-view.css> }
 };
 
+DELETE {
+	<../document-editor.html> calli:alternate ?oldalt
+} INSERT {
+	<../document-editor.html> calli:alternate ?newalt
+} WHERE {
+    BIND (str(<editor/ckeditor.html>) AS ?oldalt)
+    BIND (str(<pages/document-editor.html>) AS ?newalt)
+	<../document-editor.html> calli:alternate ?oldalt
+};
+
+DELETE {
+	<../css-editor.html> calli:alternate ?oldalt
+} INSERT {
+	<../css-editor.html> calli:alternate ?newalt
+} WHERE {
+    BIND (str(<editor/text-editor.html#css>) AS ?oldalt)
+    BIND (str(<pages/text-editor.html#css>) AS ?newalt)
+	<../css-editor.html> calli:alternate ?oldalt
+};
+
+DELETE {
+	<../html-editor.html> calli:alternate ?oldalt
+} INSERT {
+	<../html-editor.html> calli:alternate ?newalt
+} WHERE {
+    BIND (str(<editor/text-editor.html#html>) AS ?oldalt)
+    BIND (str(<pages/text-editor.html#html>) AS ?newalt)
+	<../html-editor.html> calli:alternate ?oldalt
+};
+
+DELETE {
+	<../javascript-editor.html> calli:alternate ?oldalt
+} INSERT {
+	<../javascript-editor.html> calli:alternate ?newalt
+} WHERE {
+    BIND (str(<editor/text-editor.html#javascript>) AS ?oldalt)
+    BIND (str(<pages/text-editor.html#javascript>) AS ?newalt)
+	<../javascript-editor.html> calli:alternate ?oldalt
+};
+
+DELETE {
+	<../sparql-editor.html> calli:alternate ?oldalt
+} INSERT {
+	<../sparql-editor.html> calli:alternate ?newalt
+} WHERE {
+    BIND (str(<editor/text-editor.html#sparql>) AS ?oldalt)
+    BIND (str(<pages/text-editor.html#sparql>) AS ?newalt)
+	<../sparql-editor.html> calli:alternate ?oldalt
+};
+
+DELETE {
+	<../text-editor.html> calli:alternate ?oldalt
+} INSERT {
+	<../text-editor.html> calli:alternate ?newalt
+} WHERE {
+    BIND (str(<editor/text-editor.html>) AS ?oldalt)
+    BIND (str(<pages/text-editor.html>) AS ?newalt)
+	<../text-editor.html> calli:alternate ?oldalt
+};
+
+DELETE {
+	<../xml-editor.html> calli:alternate ?oldalt
+} INSERT {
+	<../xml-editor.html> calli:alternate ?newalt
+} WHERE {
+    BIND (str(<editor/text-editor.html#xml>) AS ?oldalt)
+    BIND (str(<pages/text-editor.html#xml>) AS ?newalt)
+	<../xml-editor.html> calli:alternate ?oldalt
+};
+
+DELETE {
+	<../xquery-editor.html> calli:alternate ?oldalt
+} INSERT {
+	<../xquery-editor.html> calli:alternate ?newalt
+} WHERE {
+    BIND (str(<editor/text-editor.html#xquery>) AS ?oldalt)
+    BIND (str(<pages/text-editor.html#xquery>) AS ?newalt)
+	<../xquery-editor.html> calli:alternate ?oldalt
+};
+

@@ -64,29 +64,29 @@
     </div>
     <p>{rdfs:comment}</p>
     <p>To accept this invitation please confirm the information belove and provide a password.</p>
-    <form id="form" method="POST" action="?register">
-        <div class="control-group">
-            <label for="fullname" class="control-label">Full name</label>
+    <form role="form" id="form" method="POST" action="?register">
+        <div class="form-group">
+            <label for="fullname">Full name</label>
             <div class="controls">
-                <input id="fullname" name="fullname" type="text" required="required" />
+                <input id="fullname" name="fullname" type="text" class="form-control" required="required" />
             </div>
         </div>
-        <div class="control-group">
-            <label for="email" class="control-label">Email address</label>
+        <div class="form-group">
+            <label for="email">Email address</label>
             <div class="controls">
-                <input id="email" name="email" type="text" required="required" />
+                <input id="email" name="email" type="text" class="form-control" required="required" />
             </div>
         </div>
-        <div class="control-group">
-            <label for="username" class="control-label">Username</label>
+        <div class="form-group">
+            <label for="username">Username</label>
             <div class="controls">
-                <input id="username" name="username" type="text" required="required" />
+                <input id="username" name="username" type="text" class="form-control" required="required" />
             </div>
         </div>
-        <div class="control-group">
-        	<label for="password" class="control-label">New password</label>
+        <div class="form-group">
+        	<label for="password">New password</label>
     		<div class="controls">
-                <input id="password" type="password" password="#email" class="password" onkeyup="$(this).valid()" required="required" autofocus="autofocus" />
+                <input id="password" type="password" password="#email"  class="form-control password" onkeyup="$(this).valid()" required="required" autofocus="autofocus" />
                 <div class="password-meter">
                     <label for="password" class="password-meter-message" />
                     <div class="password-meter-bg">
@@ -95,7 +95,7 @@
                 </div>
     		</div>
         </div>
-        <div class="form-actions">
+        <div class="form-group">
             <button id="signup" type="submit" class="btn btn-primary">Yes, sign me up!</button>
             <button id="later" type="button" onclick="window.location.replace('/')">I'll come back later</button>
         </div>

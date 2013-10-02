@@ -24,6 +24,7 @@
     function handleDiscussion(tab, url, data) {
         var posts = $(".comment", data).parent().find("time").map(function(){ return $(this).text(); });
         if (posts.length) {
+            var span = $('<span class="badge pull-right"></span>');
             try {
                 if (window.localStorage.getItem(url)) {
                     var seen = window.localStorage.getItem(url).split(',');
@@ -35,15 +36,17 @@
                         return true;
                     });
                     if (newer.size()) {
-                        tab.text(tab.text() + " (" + newer.size() + ")");
+                        span.text(newer.size());
+                        tab.prepend(span);
                     }
                 } else {
-                    tab.text(tab.text() + " (" + posts.size() + ")");
+                    span.text(posts.size());
+                    tab.prepend(span);
                 }
             } catch(e) {
-                tab.text(tab.text() + " (" + posts.size() + ")");
+                span.text(posts.size());
+                tab.prepend(span);
             }
-            tab.css('font-weight', "bold");
         }
     }
     $(document).bind('calliLoggedIn', function(){setTimeout(checkTab,0)});

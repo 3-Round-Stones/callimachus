@@ -16,22 +16,22 @@
             <p>Use Wiki text to describe this domain</p>
         </aside>
     </div>
-    <form id="form" method="POST" action="" enctype="application/rdf+xml" typeof="calli:Party calli:Domain"
+    <form role="form" id="form" method="POST" action="" enctype="application/rdf+xml" typeof="calli:Party calli:Domain"
             onsubmit="return calli.saveResourceAs(event,calli.slugify($('#label').val()))">
         <fieldset>
-            <div class="control-group">
-                <label for="label" class="control-label">Name</label>
+            <div class="form-group">
+                <label for="label">Name</label>
                 <div class="controls">
-                    <input id="label" value="{rdfs:label}" type="text" class="auto-expand" required="required" autofocus="autofocus" />
+                    <input id="label" value="{rdfs:label}" type="text" class="form-control" required="required" autofocus="autofocus" />
                 </div>
             </div>
-            <div class="control-group">
-                <label for="comment" class="control-label">Description</label>
+            <div class="form-group">
+                <label for="comment">Description</label>
                 <div class="controls">
-                    <textarea id="comment" class="auto-expand">{rdfs:comment}</textarea>
+                    <textarea id="comment" class="form-control">{rdfs:comment}</textarea>
                 </div>
             </div>
-            <div class="form-actions">
+            <div class="form-group">
                 <button id="create" type="submit" class="btn btn-success">Create</button>
             </div>
         </fieldset>

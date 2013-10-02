@@ -6,16 +6,16 @@
 </head>
 <body>
     <h1>Upload File</h1>
-    <form id="form" method="POST" action="" enctype="multipart/form-data"
+    <form role="form" id="form" method="POST" action="" enctype="multipart/form-data"
             onsubmit="return calli.saveResourceAs(event,calli.slugify($('#file').val().replace(/\s+/g,'-')))">
         <fieldset>
-            <div class="control-group">
-                <label for="image" class="control-label">File</label>
+            <div class="form-group">
+                <label for="image">File</label>
                 <div class="controls">
                     <input type="file" id="file" name="file" autofocus="autofocus" />
                 </div>
             </div>
-            <div class="form-actions">
+            <div class="form-group">
                 <button type="submit" class="btn btn-primary" id="upload">Upload</button>
             </div>
         </fieldset>

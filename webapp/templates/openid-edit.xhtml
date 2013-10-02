@@ -11,50 +11,50 @@
 </head>
 <body resource="?this">
     <h1 property="rdfs:label" />
-    <form id="form" method="POST" action="" enctype="application/sparql-update" resource="?this">
+    <form role="form" id="form" method="POST" action="" enctype="application/sparql-update" resource="?this">
         <fieldset>
-            <div class="control-group">
-                <label for="label" class="control-label">Label</label>
+            <div class="form-group">
+                <label for="label">Label</label>
                 <div class="controls">
-                    <input type="text" id="label" value="{rdfs:label}" required="required" />
+                    <input type="text" class="form-control" id="label" value="{rdfs:label}" required="required" />
                 </div>
             </div>
-            <div class="control-group">
-                <label for="endpoint" class="control-label">OpenID endpoint URL</label>
+            <div class="form-group">
+                <label for="endpoint">OpenID endpoint URL</label>
                 <div class="controls">
                     <input type="url" id="endpoint" value="{calli:openIdEndpointUrl}" required="required" />
                 </div>
             </div>
-            <div class="control-group">
-                <label for="realm" class="control-label">OpenID realm pattern</label>
+            <div class="form-group">
+                <label for="realm">OpenID realm pattern</label>
                 <div class="controls">
-                    <input type="text" id="realm" value="{calli:openIdRealm}" required="required" />
+                    <input type="text" class="form-control" id="realm" value="{calli:openIdRealm}" required="required" />
                 </div>
             </div>
-            <div class="control-group">
-                <label for="authname" class="control-label">Auth name</label>
+            <div class="form-group">
+                <label for="authname">Auth name</label>
                 <div class="controls">
-                    <input type="text" id="authname" class="auto-expand" value="{calli:authName}" />
+                    <input type="text" class="form-control" id="authname" value="{calli:authName}" />
                 </div>
             </div>
-            <div class="control-group">
-                <label for="comment" class="control-label">Comment</label>
+            <div class="form-group">
+                <label for="comment">Comment</label>
                 <div class="controls">
-                    <textarea id="comment" class="auto-expand" required="required">{rdfs:comment}</textarea>
+                    <textarea id="comment" class="form-control" required="required">{rdfs:comment}</textarea>
                 </div>
             </div>
-            <div id="authButton" dropzone="link s:text/uri-list" class="control-group" ondrop="return calli.insertResource(event)">
-                <label class="control-label">Authentication button <a href="../types/Image?create" title="Upload"
-                        onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
+            <div id="authButton" dropzone="link s:text/uri-list" class="form-group" ondrop="return calli.insertResource(event)">
+                <label>Authentication button <a href="../types/Image?create" title="Upload"
+                        onclick="return calli.createResource(event)" class="glyphicon glyphicon-list-alt" /></label>
                 <div rel="calli:authButton" class="controls">
                     <span resource="?img" typeof="foaf:Image" class="ui-state-highlight ui-corner-all">
                         <img src="{?img}" />
                     </span>
                 </div>
             </div>
-            <div class="form-actions">
+            <div class="form-group">
                 <button id="save" type="submit" class="btn btn-primary">Save</button>
-                <button id="cancel" type="button" onclick="window.location.replace('?view')" class="btn">Cancel</button>
+                <button id="cancel" type="button" onclick="window.location.replace('?view')" class="btn btn-default">Cancel</button>
                 <button id="delete" type="button" onclick="calli.deleteResource(event)" class="btn btn-danger">Delete</button>
             </div>
         </fieldset>

@@ -11,12 +11,12 @@
     <link rel="edit-media" href="?" type="text/css" />
 </head>
 <body>
-    <form id="form" method="PUT" action="?" enctype="text/css">
+    <form role="form" id="form" method="PUT" action="?" enctype="text/css">
         <iframe id="editor-iframe" name="editor-iframe" class="flex" src="../../css-editor.html" onload="calli.loadEditor(event,'?')"> </iframe>
-        <fieldset class="form-actions">
+        <fieldset class="form-group">
             <button type="submit" class="btn btn-primary">Save</button>
             <button type="button" onclick="calli.saveResourceAs(event, 'untitled style.css', calli.getCallimachusUrl('types/Style'))" class="btn btn-info">Save as...</button>
-            <button type="button" onclick="window.location.replace('?view')" class="btn">Cancel</button>
+            <button type="button" onclick="window.location.replace('?view')" class="btn btn-default">Cancel</button>
             <button type="button" onclick="calli.deleteResource(event)" class="btn btn-danger">Delete</button>
         </fieldset>
     </form>

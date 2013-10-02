@@ -28,7 +28,7 @@
             </head>
             <body onload="init()">
                 <h1>Search Results</h1>
-                <form method="GET" class="search">
+                <form role="form" method="GET" class="search">
                     <input type="text" id="q" name="q" size="40" />
                     <button type="submit">Search</button>
                 </form>

@@ -41,30 +41,30 @@
             the problem of transitory URIs in location-based URI schemes like HTTP</p>
         </aside>
     </div>
-    <form id="form" method="POST" action="" enctype="application/rdf+xml" typeof="calli:PURL"
+    <form role="form" id="form" method="POST" action="" enctype="application/rdf+xml" typeof="calli:PURL"
             onsubmit="return calli.saveResourceAs(event,$('#local').val())">
         <fieldset class="row">
-            <div class="control-group span3">
-                <label for="local" class="control-label">Local name</label>
+            <div class="form-group col-md-3">
+                <label for="local">Local name</label>
                 <div class="controls">
-                    <input type="text" id="local" value="{rdfs:label}" class="auto-expand span3" required="required" autofocus="autofocus" />
+                    <input type="text" id="local" value="{rdfs:label}" class="form-control col-md-3" required="required" autofocus="autofocus" />
                 </div>
             </div>
         </fieldset>
         <fieldset class="row">
-            <div class="control-group span6">
-                <label for="comment" class="control-label">Comment</label>
+            <div class="form-group col-md-6">
+                <label for="comment">Comment</label>
                 <div class="controls">
-                    <textarea id="comment" class="auto-expand span6">{rdfs:comment}</textarea>
+                    <textarea id="comment" class="auto-expand col-md-6">{rdfs:comment}</textarea>
                 </div>
             </div>
         </fieldset>
         <div class="row">
-            <fieldset class="span3">
-                <div class="control-group">
-                    <label for="type" class="control-label">GET status</label>
+            <fieldset class="col-md-3">
+                <div class="form-group">
+                    <label for="type">GET status</label>
                     <div class="controls">
-                        <select id="type" class="span3">
+                        <select id="type" class="col-md-3">
                             <option value="calli:copy">Copy (200)</option>
                             <option value="calli:canonical">Canonical (301)</option>
                             <option value="calli:alternate" selected="selected">Alternate (302)</option>
@@ -76,55 +76,55 @@
                         </select>
                     </div>
                 </div>
-                <div class="control-group">
-                    <label for="pattern" class="control-label">GET content location</label>
+                <div class="form-group">
+                    <label for="pattern">GET content location</label>
                     <div class="controls">
-                        <textarea class="hide pattern span3 auto-expand" rows="1" property="calli:copy"></textarea>
-                        <textarea class="hide pattern span3 auto-expand" rows="1" property="calli:canonical"></textarea>
-                        <textarea class="pattern span3 auto-expand" rows="1" property="calli:alternate"></textarea>
-                        <textarea class="hide pattern span3 auto-expand" rows="1" property="calli:describedby"></textarea>
-                        <textarea class="hide pattern span3 auto-expand" rows="1" property="calli:resides"></textarea>
-                        <textarea class="hide pattern span3 auto-expand" rows="1" property="calli:moved"></textarea>
-                        <textarea class="hide pattern span3 auto-expand" rows="1" property="calli:missing"></textarea>
-                        <textarea class="hide pattern span3 auto-expand" rows="1" property="calli:gone"></textarea>
+                        <textarea class="hide pattern col-md-3 auto-expand" rows="1" property="calli:copy"></textarea>
+                        <textarea class="hide pattern col-md-3 auto-expand" rows="1" property="calli:canonical"></textarea>
+                        <textarea class="pattern col-md-3 auto-expand" rows="1" property="calli:alternate"></textarea>
+                        <textarea class="hide pattern col-md-3 auto-expand" rows="1" property="calli:describedby"></textarea>
+                        <textarea class="hide pattern col-md-3 auto-expand" rows="1" property="calli:resides"></textarea>
+                        <textarea class="hide pattern col-md-3 auto-expand" rows="1" property="calli:moved"></textarea>
+                        <textarea class="hide pattern col-md-3 auto-expand" rows="1" property="calli:missing"></textarea>
+                        <textarea class="hide pattern col-md-3 auto-expand" rows="1" property="calli:gone"></textarea>
                     </div>
                 </div>
-                <div class="control-group">
-                    <label for="cache" class="control-label">GET cache control</label>
+                <div class="form-group">
+                    <label for="cache">GET cache control</label>
                     <div class="controls">
-                    	<input type="text"  id="cache" value="{calli:cacheControl}" placeholder="max-age=3600" class="span3" />
+                    	<input type="text" id="cache" value="{calli:cacheControl}" placeholder="max-age=3600" class="form-control col-md-3" />
                     </div>
                 </div>
             </fieldset>
-            <fieldset class="span3">
-                <div class="control-group">
-                    <label for="post" class="control-label">POST request target</label>
+            <fieldset class="col-md-3">
+                <div class="form-group">
+                    <label for="post">POST request target</label>
                     <div class="controls">
-                        <textarea id="post" class="span3 auto-expand" rows="1">{calli:post}</textarea>
+                        <textarea id="post" class="col-md-3 auto-expand" rows="1">{calli:post}</textarea>
                     </div>
                 </div>
-                <div class="control-group">
-                    <label for="put" class="control-label">PUT request target</label>
+                <div class="form-group">
+                    <label for="put">PUT request target</label>
                     <div class="controls">
-                        <textarea id="put" class="span3 auto-expand" rows="1">{calli:put}</textarea>
+                        <textarea id="put" class="col-md-3 auto-expand" rows="1">{calli:put}</textarea>
                     </div>
                 </div>
-                <div class="control-group">
-                    <label for="patch" class="control-label">PATCH request target</label>
+                <div class="form-group">
+                    <label for="patch">PATCH request target</label>
                     <div class="controls">
-                        <textarea id="patch" class="span3 auto-expand" rows="1">{calli:patch}</textarea>
+                        <textarea id="patch" class="col-md-3 auto-expand" rows="1">{calli:patch}</textarea>
                     </div>
                 </div>
-                <div class="control-group">
-                    <label for="delete" class="control-label">DELETE request target</label>
+                <div class="form-group">
+                    <label for="delete">DELETE request target</label>
                     <div class="controls">
-                        <textarea id="delete" class="span3 auto-expand" rows="1">{calli:delete}</textarea>
+                        <textarea id="delete" class="col-md-3 auto-expand" rows="1">{calli:delete}</textarea>
                     </div>
                 </div>
             </fieldset>
         </div>
         <fieldset class="row">
-            <div class="form-actions span6">
+            <div class="form-group col-md-6">
                 <button id="create" type="submit" class="btn btn-success">Create</button>
             </div>
         </fieldset>

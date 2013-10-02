@@ -7,14 +7,9 @@
 
 /* https://github.com/twitter/bootstrap */
 @import url("../assets/bootstrap/less/bootstrap.less");
-@import url("../assets/bootstrap/less/responsive.less");
-
-/* http://fortawesome.github.io/Font-Awesome/ */
-@import url("../assets/font-awesome/less/font-awesome.less");
 
 /* Callimachus bootstrap overrides */
 @import url("callimachus-variables.less");
-@import url("callimachus-bootstrap.less");
 
 /* disable screen only elements */
 @import (less) url("../styles/callimachus-print.css");
@@ -51,7 +46,7 @@ html.iframe {
 }
 
 body {
-    background-color: @white;
+    background-color: @body-bg;
 }
 
 time {
@@ -107,7 +102,6 @@ div, footer, iframe {
 
 html.login .nav-tabs ~ .tab-content {
     border: 1px solid #ddd;
-    .border-radius(0 0 4px 4px);
     border-top: none;
     padding: 1rem;
     margin-bottom: 10px;
@@ -154,7 +148,7 @@ html.iframe .container {
 
 /* add a border to the iframe */
 form iframe {
-    border: 1px solid @grayLight;
+    border: 1px solid @gray-light;
 }
 
 form {
@@ -164,17 +158,12 @@ form {
 /* navbar */
 
 .navbar-inner {
-    .border-radius(0);
     border: 0;
-    border-bottom: 1px solid @navbarBorder;
+    border-bottom: 1px solid @navbar-default-border;
 }
 
 .navbar .brand {
-  padding: ((@navbarHeight - @baseLineHeight) / 2)rem 20px ((@navbarHeight - @baseLineHeight) / 2)rem;
-}
-
-.navbar-search {
-  .navbarVerticalAlign(@searchHeight); 
+  padding: ((@navbar-height - @line-height-base) / 2)rem 20px ((@navbar-height - @line-height-base) / 2)rem;
 }
 
 /* breadcrumbs */
@@ -183,16 +172,11 @@ form {
     margin-bottom: 0px;
     padding: 5px 2px;
     background-color: transparent;
-    font-size: 0.9rem;
     opacity: 0.8;
 }
 
 .navbar + .container > *.breadcrumb:first-child .divider {
     padding: 0 10px;
-}
-
-.iframe .breadcrumb {
-    display: none;
 }
 
 /* sidebar */
@@ -211,7 +195,6 @@ form {
 }
 
 .sidebar aside {
-    .border-radius(3px);
     .box-shadow(0 0 7px rgba(0, 0, 0, 0.1) inset);
     padding: 1rem;
     border: 1px solid #ddd;
@@ -232,18 +215,21 @@ form {
     width: 100%;
     position: relative;
     clear: both;
-    border-top: 1px solid @navbarBorder;
-    height: @navbarHeight;
+    border-top: 1px solid @navbar-default-border;
+    height: @navbar-height;
     margin-bottom: 0;
     box-sizing: border-box;
 }
 .until-navbar-large {
     min-height: 100%;
+    height: auto !important;
+    height: 100%;
     overflow: hidden;
-    padding-bottom: @largeNavbarHeight;
+    margin: 0 auto -@largeNavbarHeight;
+    padding-bottom: 0 0 @largeNavbarHeight;
 }
 .until-navbar-large + .navbar-large.navbar-relative-bottom {
-    margin-top: -@largeNavbarHeight;
+    height: @largeNavbarHeight;
 }
 .iframe .until-navbar-large {
     overflow: auto;
@@ -265,7 +251,7 @@ form {
   position: relative;
   right: 0;
   left: 0;
-  z-index: @zindexFixedNavbar;
+  z-index: @zindex-navbar;
   margin-bottom: 0; // remove 18px margin for default navbar
 }
 .navbar-relative-bottom .navbar-inner {

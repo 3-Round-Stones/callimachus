@@ -19,9 +19,9 @@
 </p:pipeline>]]></script>
 </head>
 <body>
-    <form id="form" method="POST" action="" enctype="application/xproc+xml">
+    <form role="form" id="form" method="POST" action="" enctype="application/xproc+xml">
         <iframe id="editor-iframe" name="editor-iframe" class="flex" src="../../xml-editor.html" onload="calli.initEditor(event,$('#template').text()||$('#template').html().replace(/^\s+/,''))"> </iframe>
-        <fieldset class="form-actions">
+        <fieldset class="form-group">
             <button id="create-pipeline" type="submit" onclick="return calli.saveResourceAs(event, 'untitled pipeline.xpl')" class="btn btn-success">Create</button>
         </fieldset>
     </form>

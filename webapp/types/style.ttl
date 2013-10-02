@@ -183,7 +183,7 @@
                 }
                 var dir = new java.net.URI(systemId).resolve(".").normalize();
                 var file = dir.relativize(new java.net.URI(systemId)).toASCIIString();
-                contents[file] = content;
+                contents[systemId] = content;
                 var parser = new(window.less.Parser)({
                     optimization: 3,
                     filename: file,

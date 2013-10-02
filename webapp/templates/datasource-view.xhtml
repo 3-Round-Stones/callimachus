@@ -45,7 +45,7 @@ LIMIT 50
 </pre>
         </aside>
     </div>
-    <form id="form" action="{?this}" method="GET">
+    <form role="form" id="form" action="{?this}" method="GET">
         <fieldset>
             <textarea id="sparql" name="query" class="flex" required="required"
                 onchange="$(form).find('button').removeAttr('disabled')"></textarea>
@@ -56,12 +56,12 @@ LIMIT 50
                 <span rel="sd:resultFormat" resource="?resultFormat" />
                 <span rel="sd:supportedLanguage" resource="?support" />
             </div>
-            <div class="form-actions">
+            <div class="form-group">
                 <button id="evaluate" type="submit" class="btn btn-primary SPARQL11Query"
                     onclick="$('#form').attr('method','GET');$('#sparql').attr('name', 'query')">Evaluate Query</button>
                 <button id="execute" type="submit" class="btn btn-primary SPARQL11Update"
                     onclick="$('#form').attr('method','POST');$('#sparql').attr('name', 'update')">Execute Update</button>
-                <button type="button" onclick="history.back()" class="btn">Cancel</button>
+                <button type="button" onclick="history.back()" class="btn btn-default">Cancel</button>
             </div>
         </fieldset>
     </form>

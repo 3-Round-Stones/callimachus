@@ -28,7 +28,17 @@
 
     <xsl:template mode="access" match="*">
         <xsl:copy>
-            <xsl:apply-templates mode="access" select="@*|*|text()|comment()" />
+            <xsl:apply-templates mode="access" select="@*[name()!='class']" />
+            <xsl:attribute name="class">
+                <xsl:if test="@class">
+                    <xsl:value-of select="@class" />
+                    <xsl:text> </xsl:text>
+                </xsl:if>
+                <xsl:if test="count(*//@href) = 1 and *//@href[.=concat('?',$query)]">
+                    <xsl:text>active</xsl:text>
+                </xsl:if>
+            </xsl:attribute>
+            <xsl:apply-templates mode="access" select="*|text()|comment()" />
         </xsl:copy>
     </xsl:template>
     <xsl:template mode="access" match="@*|text()|comment()">
@@ -185,4 +195,5 @@
     </xsl:template>
 
 </xsl:stylesheet>
+
 

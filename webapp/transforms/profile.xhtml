@@ -27,7 +27,7 @@
             <p>Removing items listed here can break the system</p>
         </aside>
     </div>
-    <form method="POST" action="" autocomplete="off">
+    <form role="form" method="POST" action="" autocomplete="off">
         <table class="graph">
             <thead>
                 <tr><th>Prefix</th><th>URI</th></tr>
@@ -39,8 +39,8 @@
                             <xsl:value-of select="rdfa:prefix" />
                         </td>
                         <td property="rdfa:uri" content="{rdfa:uri/text()}">
-                            <input type="text" name="{rdfa:prefix}" value="{rdfa:uri/text()}" class="auto-expand" />
-                            <a href="javascript:void(0)" title="Remove entry" class="icon-remove"
+                            <input type="text" class="form-control" name="{rdfa:prefix}" value="{rdfa:uri/text()}" />
+                            <a href="javascript:void(0)" title="Remove entry" class="glyphicon glyphicon-remove"
                                  onclick="$(this).parents('tr:first').remove();return false" />
                         </td>				
                     </tr>
@@ -49,11 +49,11 @@
             <tbody>
                 <tr>
                     <td>
-                        <input type="text" size="8" onchange="$('#new-uri').attr('name', value)" />
+                        <input type="text" class="form-control" size="8" onchange="$('#new-uri').attr('name', value)" />
                     </td>
                     <td>
-                        <input type="text" id="new-uri" class="auto-expand" />
-                        <a title="Remove entry" href="javascript:void(0)" class="icon-remove"
+                        <input type="text" class="form-control" id="new-uri" />
+                        <a title="Remove entry" href="javascript:void(0)" class="glyphicon glyphicon-remove"
                              onclick="$(this).parents('tr:first').remove()" />
                     </td>
                 </tr>
@@ -61,7 +61,7 @@
         </table>
         <div class="hidden-logout">
             <button type="submit" class="btn btn-primary">Save</button>
-            <button type="button" onclick="history.back()" class="btn">Cancel</button>
+            <button type="button" onclick="history.back()" class="btn btn-default">Cancel</button>
         </div>
     </form>
 </body>

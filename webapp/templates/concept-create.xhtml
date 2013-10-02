@@ -16,38 +16,38 @@
             <p>The definition, example, and scope can be provide to clarify usage and meaning</p>
         </aside>
     </div>
-    <form id="form" method="POST" action="" enctype="application/rdf+xml" typeof="skos:Concept"
+    <form role="form" id="form" method="POST" action="" enctype="application/rdf+xml" typeof="skos:Concept"
             onsubmit="return calli.saveResourceAs(event,calli.slugify($('#label').val()))">
         <fieldset class="hbox">
-            <div class="control-group">
-                <label for="label" class="control-label">Label</label>
+            <div class="form-group">
+                <label for="label">Label</label>
                 <div class="controls">
-                    <input type="text" id="label" value="{skos:prefLabel}" class="auto-expand" required="required" autofocus="autofocus" />
+                    <input type="text" id="label" value="{skos:prefLabel}" class="form-control" required="required" autofocus="autofocus" />
                 </div>
             </div>
-            <div class="control-group">
-                <label for="altLabel" class="control-label">Alternate label</label>
+            <div class="form-group">
+                <label for="altLabel">Alternate label</label>
                 <div class="controls">
-                    <input type="text" id="altLabel" property="skos:altLabel" content="?alt" value="{?alt}" class="auto-expand" />
-                    <a href="javascript:void(0)" title="More" onclick="return calli.addResource(event)" class="icon-plus" />
+                    <input type="text" id="altLabel" property="skos:altLabel" content="?alt" value="{?alt}" class="form-control" />
+                    <a href="javascript:void(0)" title="More" onclick="return calli.addResource(event)" class="glyphicon glyphicon-plus" />
                 </div>
             </div>
         </fieldset>
         <fieldset class="hbox">
-            <div class="control-group">
-                <label for="definition" class="control-label">Definition</label>
+            <div class="form-group">
+                <label for="definition">Definition</label>
                 <div class="controls">
-                    <textarea id="definition" class="auto-expand">{skos:definition}</textarea>
+                    <textarea id="definition" class="form-control">{skos:definition}</textarea>
                 </div>
             </div>
-            <div class="control-group">
-                <label for="example" class="control-label">Example</label>
+            <div class="form-group">
+                <label for="example">Example</label>
                 <div class="controls">
-                    <textarea id="example" class="auto-expand">{skos:example}</textarea>
+                    <textarea id="example" class="form-control">{skos:example}</textarea>
                 </div>
             </div>
         </fieldset>
-        <fieldset class="form-actions">
+        <fieldset class="form-group">
             <button id="create" type="submit" class="btn btn-success">Create</button>
         </fieldset>
     </form>

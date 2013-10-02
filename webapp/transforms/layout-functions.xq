@@ -80,8 +80,16 @@ declare function calli:scripts-src($script as element()) as element() {
     }
 };
 declare function calli:lookup-form($placeholder as xs:string) as element(form) {
-    <form class="form-search" method="GET" action="{$calli:realm}">
-        <input type="text" name="q" class="search-query" placeholder="{$placeholder}" />
+    <form class="navbar-form" role="search" method="GET" action="{$calli:realm}">
+        <div class="input-group">
+            <input type="text" name="q" class="form-control" placeholder="{$placeholder}" />
+            <span class="input-group-btn">
+                <button class="btn btn-default" type="submit">
+                    <span class="glyphicon glyphicon-search" />
+                    <span class="sr-only">Search</span>
+                </button>
+            </span>
+        </div>
     </form>
 };
 

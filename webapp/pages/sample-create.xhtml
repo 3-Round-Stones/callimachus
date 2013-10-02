@@ -8,22 +8,18 @@
 </head>
 <body>
     <h1>New Resource</h1>
-    <form method="POST" action="" enctype="application/rdf+xml" typeof=""
+    <form role="form" method="POST" action="" enctype="application/rdf+xml" typeof=""
             onsubmit="return calli.saveResourceAs(event,calli.slugify($('#label').val()))">
         <fieldset>
-            <div class="control-group">
-                <label for="label" class="control-label">Label</label>
-                <div class="controls">
-                    <input type="text" id="label" value="{rdfs:label}" required="required" autofocus="autofocus" />
-                </div>
+            <div class="form-group">
+                <label for="label">Label</label>
+                <input type="text" class="form-control" id="label" value="{rdfs:label}" required="required" autofocus="autofocus" />
             </div>
-            <div class="control-group">
-                <label for="comment" class="control-label">Comment</label>
-                <div class="controls">
-                    <textarea id="comment" class="auto-expand">{rdfs:comment}</textarea>
-                </div>
+            <div class="form-group">
+                <label for="comment">Comment</label>
+                <textarea id="comment" class="form-control">{rdfs:comment}</textarea>
             </div>
-            <div class="form-actions">
+            <div class="form-group">
                 <button type="submit" class="btn btn-success">Create</button>
             </div>
         </fieldset>

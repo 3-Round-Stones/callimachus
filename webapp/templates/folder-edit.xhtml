@@ -68,11 +68,11 @@
             <p>Cache control explains how frequently this is expected to change</p>
         </aside>
     </div>
-    <form method="POST" action="" enctype="application/sparql-update" resource="?this">
+    <form role="form" method="POST" action="" enctype="application/sparql-update" resource="?this">
         <fieldset>
             <legend>Directory index</legend>
-            <div class="control-group">
-                <label for="type" class="control-label">Type</label>
+            <div class="form-group">
+                <label for="type">Type</label>
                 <div class="controls">
                     <select id="type">
                         <option value="calli:copy">Copy (200)</option>
@@ -86,10 +86,10 @@
                     </select>
                 </div>
             </div>
-            <div class="control-group">
-                <label for="pattern" class="control-label">Content location</label>
+            <div class="form-group">
+                <label for="pattern">Content location</label>
                 <div class="controls">
-                    <input type="text" id="pattern" size="40" value="" />
+                    <input type="text" class="form-control" id="pattern" size="40" value="" />
                     <span class="pattern" property="calli:copy" content="?copy" />
                     <span class="pattern" property="calli:canonical" content="?canonical" />
                     <span class="pattern" property="calli:alternate" content="?alternate" />
@@ -100,16 +100,16 @@
                     <span class="pattern" property="calli:gone" content="?gone" />
                 </div>
             </div>
-            <div class="control-group">
-                <label for="cache" class="control-label">Cache control</label>
+            <div class="form-group">
+                <label for="cache">Cache control</label>
                 <div class="controls">
-            		<input type="text"  id="cache" value="{calli:cacheControl}" placeholder="max-age=3600" />
+            		<input type="text" class="form-control"  id="cache" value="{calli:cacheControl}" placeholder="max-age=3600" />
                 </div>
             </div>
         </fieldset>
-        <fieldset class="form-actions">
+        <fieldset class="form-group">
             <button id="save" type="submit" class="btn btn-primary">Save</button>
-            <button id="cancel" type="button" onclick="window.location.replace('?view')" class="btn">Cancel</button>
+            <button id="cancel" type="button" onclick="window.location.replace('?view')" class="btn btn-default">Cancel</button>
             <button id="delete" type="button" onclick="deleteFolder(event)" class="btn btn-danger">Delete</button>
         </fieldset>
     </form>

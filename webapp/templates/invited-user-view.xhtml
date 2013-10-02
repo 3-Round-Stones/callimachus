@@ -42,7 +42,7 @@
         <p property="calli:name" />
         <pre class="wiki" property="rdfs:comment" />
     </div>
-    <form id="msgForm" class="modal hide fade" tabindex="-1" role="dialog" aria-hidden="true"
+    <form role="form" id="msgForm" class="modal hide fade" tabindex="-1" role="dialog" aria-hidden="true"
             method="POST" action="?invite" enctype="application/x-www-form-urlencoded">
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
@@ -50,16 +50,16 @@
         </div>
         <fieldset class="modal-body">
             <input type="hidden" name="fullname" id="fullname" value="{rdfs:label}" />
-            <div class="control-group">
-                <label for="subject" class="control-label">Welcome subject</label>
+            <div class="form-group">
+                <label for="subject">Welcome subject</label>
                 <div class="controls">
-                    <input id="subject" name="subject" type="text" class="span5" required="required" value="Account Registration" />
+                    <input id="subject" name="subject" type="text" class="form-control col-md-5" required="required" value="Account Registration" />
                 </div>
             </div>
-            <div class="control-group">
-                <label for="message" class="control-label">Welcome message</label>
+            <div class="form-group">
+                <label for="message">Welcome message</label>
                 <div class="controls">
-                    <textarea id="body" name="body" class="auto-expand span5" required="required">Hello {rdfs:label},
+                    <textarea id="body" name="body" class="auto-expand col-md-5" required="required">Hello {rdfs:label},
 
 This is a reminder that a new account has been created for you. Use the
 link below to pick a password or other authentication options.
@@ -73,7 +73,7 @@ Enjoy!
         </fieldset>
         <fieldset class="modal-footer">
             <button type="submit" class="btn btn-primary">Re-send invitation</button>
-            <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+            <button class="btn btn-default" data-dismiss="modal" aria-hidden="true">Close</button>
         </fieldset>
     </form>
 </body>

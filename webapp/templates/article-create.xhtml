@@ -21,9 +21,9 @@
 </html>]]></script>
 </head>
 <body>
-    <form id="form" method="POST" action="" enctype="application/xhtml+xml">
+    <form role="form" id="form" method="POST" action="" enctype="application/xhtml+xml">
         <iframe id="editor-iframe" name="editor-iframe" class="flex" src="../../document-editor.html" onload="calli.initEditor(event,$('#template').text()||$('#template').html().replace(/^\s+/,''))"> </iframe>
-        <fieldset class="form-actions">
+        <fieldset class="form-group">
             <button id="create-article" type="submit" onclick="return calli.saveResourceAs(event, 'untitled article.docbook')" class="btn btn-success">Create</button>
         </fieldset>
     </form>

@@ -27,10 +27,10 @@
 <body>
     <h1>Daypass Request Form</h1>
     <p>You can request a temporary password by providing the e-mail address associated with your account.</p>
-    <form id="form" method="POST" action="?daypass">
+    <form role="form" id="form" method="POST" action="?daypass">
         <fieldset>
-            <div class="control-group">
-                <label for="email" class="control-label">Account e-mail address</label>
+            <div class="form-group">
+                <label for="email">Account e-mail address</label>
                 <div class="controls">
                     <input type="email" name="email" id="email" />
                 </div>
@@ -48,9 +48,9 @@ Use the link below to pick a password or other authentication options.
 
 Enjoy!
 </textarea>
-            <div class="form-actions">
+            <div class="form-group">
                 <button type="submit" class="btn btn-primary">Request Password</button>
-                <button type="button" onclick="history.back()" class="btn">Cancel</button>
+                <button type="button" onclick="history.back()" class="btn btn-default">Cancel</button>
             </div>
         </fieldset>
     </form>

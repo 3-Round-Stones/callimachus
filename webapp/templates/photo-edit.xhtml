@@ -13,18 +13,18 @@
     </script>
 </head>
 <body resource="?this">
-    <img src="{?this}?medium" style="max-height:50%;display:block" /><br/>
-    <form method="PUT" action="?" enctype="image/jpeg">
+    <img src="{?this}?medium" class="img-responsive" style="max-height:50%;display:block" /><br/>
+    <form role="form" method="PUT" action="?" enctype="image/jpeg">
         <fieldset>
-            <div class="control-group fileapi-show">
-                <label class="control-label">Replacement file</label>
+            <div class="form-group fileapi-show">
+                <label>Replacement file</label>
                 <div class="controls">
                     <input type="file" accept="image/jpeg" />
                 </div>
             </div>
-            <div class="form-actions">
+            <div class="form-group">
                 <button id="replace" type="submit" class="btn btn-primary fileapi-show">Replace</button>
-                <button id="cancel" type="button" onclick="window.location.replace('?view')" class="btn">Cancel</button>
+                <button id="cancel" type="button" onclick="window.location.replace('?view')" class="btn btn-default">Cancel</button>
                 <button id="delete" type="button" onclick="calli.deleteResource(event)" class="btn btn-danger">Delete</button>
             </div>
         </fieldset>

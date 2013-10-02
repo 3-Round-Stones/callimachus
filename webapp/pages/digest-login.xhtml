@@ -63,29 +63,29 @@
         <h2 id="authName">{calli:authName}</h2>
     </hgroup>
     <p>{rdfs:comment}</p>
-    <form id="form" method="POST" action="?login">
-        <div class="control-group">
-            <label class="control-label" for="username">Username or email</label>
+    <form role="form" id="form" method="POST" action="?login">
+        <div class="form-group">
+            <label for="username">Username or email</label>
             <div class="controls">
-                <input type="text" id="username" placeholder="Username or email" required="required" autofocus="autofocus" />
+                <input type="text" class="form-control" id="username" placeholder="Username or email" required="required" autofocus="autofocus" />
             </div>
         </div>
-        <div class="control-group">
-            <label class="control-label" for="password">Password</label>
+        <div class="form-group">
+            <label for="password">Password</label>
             <div class="controls">
                 <input type="password" id="password" placeholder="Password" />
             </div>
         </div>
-        <div class="control-group">
+        <div class="form-group">
             <div class="controls">
                 <label class="checkbox">
                     <input type="checkbox" id="persistent" value="true" /> Stay signed in
                 </label>
             </div>
         </div>
-        <div class="form-actions">
+        <div class="form-group">
             <button type="submit" class="btn btn-primary">Sign in</button>
-            <a href="?daypass" class="btn">Need another password?</a>
+            <a href="?daypass" class="btn btn-default">Need another password?</a>
         </div>
     </form>
 </body>

@@ -24,14 +24,14 @@
         <xsl:text> Discussion</xsl:text>
     </h1>
     <p>The purpose of this forum is to provide space for editors to discuss changes to this resource, post reminders of editorial work still to be done, or warnings in the event that future changes to this resource that might be made. This should not be used by editors for their personal views on a subject.</p>
-    <ul class="unstyled thread">
+    <ul class="list-unstyled thread">
         <xsl:for-each select="sparql:sparql/sparql:results/sparql:result[sparql:binding/@name='note']">
             <li class="note">
                 <div class="ui-state-default ui-corner-top" >
                     <time class="abbreviated" style="float: right">
                         <xsl:value-of select="sparql:binding[@name='modified']/*" />
                     </time>
-                    <span class="ui-icon ui-icon-comment" style="float: left"></span>
+                    <span class="ui-icon ui-glyphicon glyphicon-comment" style="float: left"></span>
                     <a href="{sparql:binding[@name='user']/*}">
                         <xsl:value-of select="sparql:binding[@name='name']/*" />
                     </a>
@@ -45,17 +45,17 @@
         </xsl:for-each>
         <li class="note hidden-logout">
             <div class="ui-state-active ui-corner-top" >
-                <span class="ui-icon ui-icon-comment" style="float: left"></span>
+                <span class="ui-icon ui-glyphicon glyphicon-comment" style="float: left"></span>
                 <xsl:text>Post a new note</xsl:text>
             </div>
             <div class="post ui-widget-content ui-corner-bottom">
-                <form action="?discussion" method="POST">
+                <form role="form" action="?discussion" method="POST">
                     <div>
                         <textarea class="auto-expand" name="note"></textarea>
                     </div>
                     <button id="send" type="submit" class="btn btn-primary">Send</button>
                     <xsl:text> </xsl:text>
-                    <button id="cancel" type="button" onclick="window.location.replace('?discussion')" class="btn">Cancel</button>
+                    <button id="cancel" type="button" onclick="window.location.replace('?discussion')" class="btn btn-default">Cancel</button>
                 </form>
             </div>
         </li>

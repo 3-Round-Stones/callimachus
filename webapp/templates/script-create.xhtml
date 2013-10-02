@@ -10,9 +10,9 @@
     <link href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide" target="_blank" title="JavaScript Guide" />
 </head>
 <body>
-    <form id="form" method="POST" action="" enctype="text/javascript">
+    <form role="form" id="form" method="POST" action="" enctype="text/javascript">
         <iframe id="editor-iframe" name="editor-iframe" class="flex" src="../../javascript-editor.html" onload="calli.initEditor(event)"> </iframe>
-        <fieldset class="form-actions">
+        <fieldset class="form-group">
             <button id="create-script" type="submit" onclick="return calli.saveResourceAs(event, 'untitled script.js')" class="btn btn-success">Create</button>
         </fieldset>
     </form>

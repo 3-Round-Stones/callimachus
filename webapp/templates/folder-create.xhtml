@@ -14,18 +14,18 @@
             <p>Choose a recognisable label to be used in the URL</p>
         </aside>
     </div>
-    <form method="POST" action="" enctype="application/rdf+xml" typeof="calli:Folder"
+    <form role="form" method="POST" action="" enctype="application/rdf+xml" typeof="calli:Folder"
             onsubmit="return calli.saveResourceAs(event,$('#label').val().replace(/[\s\/]*$/,'/').replace(/(\S)\s+(?=\S)/g, '$1-'))">
         <fieldset>
-            <div class="control-group">
-                <label for="label" class="control-label">Name</label>
+            <div class="form-group">
+                <label for="label">Name</label>
                 <div class="controls">
-                    <input type="text" id="label" value="{rdfs:label}" class="auto-expand" required="required" autofocus="autofocus" />
+                    <input type="text" id="label" value="{rdfs:label}" class="form-control" required="required" autofocus="autofocus" />
                 </div>
             </div>
-            <div class="form-actions">
+            <div class="form-group">
                 <button id="create-folder" type="submit" class="btn btn-success">Create</button>
-                <button id="cancel" type="button" onclick="history.back()" class="btn">Cancel</button>
+                <button id="cancel" type="button" onclick="history.back()" class="btn btn-default">Cancel</button>
             </div>
         </fieldset>
     </form>

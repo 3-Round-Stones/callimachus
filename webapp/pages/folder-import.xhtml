@@ -13,17 +13,17 @@
             <p>The current folder's' entire contents will be replaced with the contents of the archive as an atomic operation.</p>
         </aside>
     </div>
-    <form id="form" method="POST" action="" enctype="multipart/form-data">
+    <form role="form" id="form" method="POST" action="" enctype="multipart/form-data">
         <fieldset>
-            <div class="control-group">
-                <label for="image" class="control-label">Content</label>
+            <div class="form-group">
+                <label for="image">Content</label>
                 <div class="controls">
                     <input type="file" id="file" name="file" multiple="multiple" autofocus="autofocus" />
                 </div>
             </div>
-            <div class="form-actions">
+            <div class="form-group">
                 <button type="submit" class="btn btn-primary" id="import">Import</button>
-                <button type="button" id="cancel" onclick="window.location.replace('?view')" class="btn">Cancel</button>
+                <button type="button" id="cancel" onclick="window.location.replace('?view')" class="btn btn-default">Cancel</button>
             </div>
         </fieldset>
     </form>

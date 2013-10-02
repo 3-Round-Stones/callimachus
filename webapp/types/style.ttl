@@ -154,7 +154,7 @@
             return window.less[arg.split('/')[1]];
         };
     """
-    <../scripts/less.js>
+    <../assets/less.js/less.js>
     """
         var rootFilename = this.toString();
         var client = this.httpClient;

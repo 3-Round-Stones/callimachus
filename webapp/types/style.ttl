@@ -209,6 +209,6 @@
             if (e) throw e;
             result = root.toCSS();
         });
-        return result;
+        return result.toString();
     """).
 

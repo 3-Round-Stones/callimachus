@@ -41,7 +41,7 @@
 :helloTo rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom :ScriptTest];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdf:PlainLiteral];
-	msg:script "return 'Hello ' + helloToYou".
+	msg:script "return ('Hello ' + helloToYou).toString()".
 
 :helloToYou a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:domain :helloTo;

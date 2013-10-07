@@ -171,6 +171,7 @@
             throw new UnsupportedMediaType("File format is not recognized: " + type + " for " + location);
         var newCopy = template.calliCreateResource(body, type, this.toString(), location);
         newCopy = newCopy.objectConnection.addDesignation(newCopy, this.toString());
+        this.touchRevision(); // FIXME this shouldn't be needed
         return newCopy;
     """.
 

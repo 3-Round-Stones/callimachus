@@ -1,5 +1,7 @@
 package org.callimachusproject.behaviours;
 
+import static org.openrdf.query.QueryLanguage.SPARQL;
+
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.regex.Pattern;
@@ -24,9 +26,14 @@ import org.openrdf.OpenRDFException;
 import org.openrdf.annotations.Sparql;
 import org.openrdf.model.Namespace;
 import org.openrdf.model.URI;
+import org.openrdf.query.GraphQuery;
 import org.openrdf.query.GraphQueryResult;
 import org.openrdf.query.MalformedQueryException;
+import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.QueryLanguage;
+import org.openrdf.query.Update;
+import org.openrdf.query.impl.DatasetImpl;
+import org.openrdf.query.impl.GraphQueryResultImpl;
 import org.openrdf.query.parser.ParsedBooleanQuery;
 import org.openrdf.query.parser.ParsedGraphQuery;
 import org.openrdf.query.parser.ParsedQuery;
@@ -44,6 +51,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class DatasourceSupport implements CalliObject {
+	private static final String GET_GRAPH = "CONSTRUCT { ?s ?p ?o } WHERE { GRAPH $graph { ?s ?p ?o } }";
+	private static final String GET_DEFAULT = "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }";
 	private static final String PREFIX = "PREFIX sd:<http://www.w3.org/ns/sparql-service-description#>\n";
 	private static final Pattern HAS_PREFIX = Pattern.compile("^[^#]*\\bPREFIX\\b",
 			Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
@@ -56,13 +65,112 @@ public abstract class DatasourceSupport implements CalliObject {
 	@Sparql(PREFIX + "ASK { $this sd:supportedLanguage sd:SPARQL11Update }")
 	public abstract boolean isUpdateSupported();
 
-	public GraphQueryResult describeResource(final URI uri)
+	public GraphQueryResult describeResource(URI uri)
 			throws OpenRDFException, IOException, DatatypeConfigurationException {
 		if (uri == null)
 			throw new BadRequest("Missing uri");
 		if (!isQuerySupported())
 			throw new BadRequest("SPARQL Query is not supported on this service");
 		return new DescribeResult(uri, openConnection(), true);
+	}
+
+	public GraphQueryResult constructGraph(URI graph)
+			throws OpenRDFException, IOException, DatatypeConfigurationException {
+		boolean success = false;
+		final RepositoryConnection con = openConnection();
+		try {
+			GraphQuery rq;
+			if (graph == null) {
+				rq = con.prepareGraphQuery(SPARQL, GET_DEFAULT);
+			} else {
+				rq = con.prepareGraphQuery(SPARQL, GET_GRAPH);
+				rq.setBinding("graph", graph);
+			}
+			GraphQueryResult rdf = rq.evaluate();
+			rdf = new GraphQueryResultImpl(rdf.getNamespaces(), rdf) {
+				protected void handleClose() throws QueryEvaluationException {
+					super.handleClose();
+					try {
+						con.close();
+					} catch (RepositoryException e) {
+						throw new QueryEvaluationException(e);
+					}
+				}
+			};
+			success = true;
+			return rdf;
+		} finally {
+			if (!success) {
+				con.close();
+			}
+		}
+	}
+
+	public void dropGraph(URI graph)
+			throws OpenRDFException, IOException, DatatypeConfigurationException {
+		final RepositoryConnection con = openConnection();
+		try {
+			if (graph == null) {
+				con.prepareUpdate(SPARQL, "DROP DEFAULT").execute();
+			} else {
+				if (graph.stringValue().contains(">"))
+					throw new BadRequest("Invalid graph URI: " + graph);
+				String ru = "DROP GRAPH <" + graph.stringValue() + ">";
+				con.prepareUpdate(SPARQL, ru, this.toString()).execute();
+			}
+		} finally {
+			con.close();
+		}
+	}
+
+	public boolean loadGraph(GraphQueryResult rdf, URI graph)
+			throws OpenRDFException, IOException, DatatypeConfigurationException {
+		final RepositoryConnection con = openConnection();
+		try {
+			con.begin();
+			boolean created = !con.hasStatement(null, null, null, true, graph);
+			con.add(rdf, graph);
+			con.commit();
+			return created;
+		} finally {
+			con.rollback();
+			con.close();
+		}
+	}
+
+	public boolean clearAndLoadGraph(GraphQueryResult rdf, URI graph)
+			throws OpenRDFException, IOException, DatatypeConfigurationException {
+		final RepositoryConnection con = openConnection();
+		try {
+			con.begin();
+			boolean created = !con.hasStatement(null, null, null, true, graph);
+			con.clear(graph);
+			con.add(rdf, graph);
+			con.commit();
+			return created;
+		} finally {
+			con.rollback();
+			con.close();
+		}
+	}
+
+	public void patchGraph(String sparql, URI graph)
+			throws OpenRDFException, IOException, DatatypeConfigurationException {
+		final RepositoryConnection con = openConnection();
+		try {
+			con.begin();
+			Update ru = con.prepareUpdate(SPARQL, sparql, this.toString());
+			DatasetImpl ds = new DatasetImpl();
+			ds.setDefaultInsertGraph(graph);
+			ds.addDefaultGraph(graph);
+			ds.addDefaultRemoveGraph(graph);
+			ru.setDataset(ds);
+			ru.execute();
+			con.commit();
+		} finally {
+			con.rollback();
+			con.close();
+		}
 	}
 
 	public HttpEntity evaluateSparql(String qry) throws OpenRDFException,

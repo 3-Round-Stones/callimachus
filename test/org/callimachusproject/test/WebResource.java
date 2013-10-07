@@ -150,6 +150,28 @@ public class WebResource {
 		return link("describedby").create("application/sparql-update", sb.toString().getBytes("UTF-8"));
 	}
 
+	public WebResource createDatasource(String slug) throws IOException {
+		StringBuilder sb = new StringBuilder();
+		sb.append("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n");
+		sb.append("PREFIX calli: <http://callimachusproject.org/rdf/2009/framework#>\n");
+		sb.append("PREFIX sd: <http://www.w3.org/ns/sparql-service-description#>\n");
+		sb.append("INSERT DATA {\n");
+		sb.append("<").append(slug).append(">");
+		sb.append(" a sd:Service, calli:Datasource, </callimachus/1.0/types/Datasource>;\n");
+		sb.append("rdfs:label \"").append(slug).append("\";\n");
+		sb.append("sd:endpoint <").append(slug).append(">;\n");
+		sb.append("sd:supportedLanguage sd:SPARQL11Query;\n");
+		sb.append("sd:supportedLanguage sd:SPARQL11Update;\n");
+		sb.append("sd:feature sd:UnionDefaultGraph;\n");
+		sb.append("sd:feature sd:BasicFederatedQuery;\n");
+		sb.append("sd:inputFormat <http://www.w3.org/ns/formats/RDF_XML>;\n");
+		sb.append("sd:inputFormat <http://www.w3.org/ns/formats/Turtle>;\n");
+		sb.append("sd:resultFormat <http://www.w3.org/ns/formats/RDF_XML>;\n");
+		sb.append("sd:resultFormat <http://www.w3.org/ns/formats/SPARQL_Results_XML>\n");
+		sb.append("}");
+		return link("describedby").create("application/sparql-update", sb.toString().getBytes("UTF-8"));
+	}
+
 	public String getRedirectLocation() throws IOException {
 		HttpURLConnection con = (HttpURLConnection) new URL(uri).openConnection();
 		con.setInstanceFollowRedirects(false);

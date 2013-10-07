@@ -216,7 +216,7 @@ public class InvokeHandler implements ClientExecChain {
 								responseLocations = (Set<String>) writer
 										.as(ftype);
 							}
-							if (responseLocations != null
+							if (!emptyResult && responseLocations != null
 									&& !responseLocations.isEmpty()) {
 								responseCode = code;
 								responsePhrase = phrase;

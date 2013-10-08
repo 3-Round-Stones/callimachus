@@ -4,6 +4,7 @@ import static org.openrdf.query.QueryLanguage.SPARQL;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.regex.Pattern;
 
 import javax.xml.datatype.DatatypeConfigurationException;
@@ -46,6 +47,7 @@ import org.openrdf.repository.RepositoryResult;
 import org.openrdf.repository.base.RepositoryConnectionWrapper;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.sail.config.SailRepositoryConfig;
+import org.openrdf.rio.RDFFormat;
 import org.openrdf.sail.nativerdf.config.NativeStoreConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -123,13 +125,13 @@ public abstract class DatasourceSupport implements CalliObject {
 		}
 	}
 
-	public boolean loadGraph(GraphQueryResult rdf, URI graph)
+	public boolean loadGraph(InputStream rdf, String type, URI graph)
 			throws OpenRDFException, IOException, DatatypeConfigurationException {
 		final RepositoryConnection con = openConnection();
 		try {
 			con.begin();
 			boolean created = !con.hasStatement(null, null, null, true, graph);
-			con.add(rdf, graph);
+			con.add(rdf, this.toString(), RDFFormat.forMIMEType(type), graph);
 			con.commit();
 			return created;
 		} finally {
@@ -138,14 +140,14 @@ public abstract class DatasourceSupport implements CalliObject {
 		}
 	}
 
-	public boolean clearAndLoadGraph(GraphQueryResult rdf, URI graph)
+	public boolean clearAndLoadGraph(InputStream rdf, String type, URI graph)
 			throws OpenRDFException, IOException, DatatypeConfigurationException {
 		final RepositoryConnection con = openConnection();
 		try {
 			con.begin();
 			boolean created = !con.hasStatement(null, null, null, true, graph);
 			con.clear(graph);
-			con.add(rdf, graph);
+			con.add(rdf, this.toString(), RDFFormat.forMIMEType(type), graph);
 			con.commit();
 			return created;
 		} finally {

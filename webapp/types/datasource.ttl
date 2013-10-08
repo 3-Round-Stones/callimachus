@@ -234,9 +234,15 @@
 :IndirectPayload rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Datasource>].
 
+:rdfType a owl:DatatypeProperty, owl:FunctionalProperty;
+    rdfs:domain :IndirectPayload;
+    rdfs:range xsd:string;
+    calli:header "content-type";
+    calli:type "text/plain".
+
 :rdfPayload a owl:DatatypeProperty, owl:FunctionalProperty;
     rdfs:domain :IndirectPayload;
-    rdfs:range <java:org.openrdf.query.GraphQueryResult>;
+    rdfs:range <java:java.io.InputStream>;
     calli:type "application/rdf+xml", "text/turtle".
 
 # PUT default parameter
@@ -246,7 +252,7 @@
     calli:query "default";
     calli:requires calli:editor;
     calli:script """
-        this.clearAndLoadGraph(rdfPayload, null);
+        this.clearAndLoadGraph(rdfPayload, rdfType, null);
     """.
 
 # PUT graph parameter
@@ -259,7 +265,7 @@
     calli:expect "201-created";
     calli:script """
         if (!graph) graph = this;
-        if (this.clearAndLoadGraph(rdfPayload, graph.resource)) {
+        if (this.clearAndLoadGraph(rdfPayload, rdfType, graph.resource)) {
             return graph;
         } else {
             return null;
@@ -273,7 +279,7 @@
     calli:query "default";
     calli:requires calli:editor;
     calli:script """
-        this.loadGraph(rdfPayload, null);
+        this.loadGraph(rdfPayload, rdfType, null);
     """.
 
 # POST graph parameter
@@ -286,11 +292,24 @@
     calli:expect "201-created";
     calli:script """
         if (!graph) graph = this;
-        if (this.loadGraph(rdfPayload, graph.resource)) {
+        if (this.loadGraph(rdfPayload, rdfType, graph.resource)) {
             return graph;
         } else {
             return null;
         }
+    """.
+
+# POST graph store
+:PostNewGraph rdfs:subClassOf :IndirectPayload;
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom xsd:string];
+    calli:method "POST";
+    calli:requires calli:editor;
+    calli:type "text/uri-list";
+    calli:expect "201-created";
+    calli:script """
+        var graph = this.objectConnection.insertContext;
+        this.loadGraph(rdfPayload, rdfType, graph);
+        return graph.stringValue();
     """.
 
 :IndirectPatchGraph rdfs:subClassOf msg:Message;

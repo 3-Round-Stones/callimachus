@@ -2,9 +2,9 @@ Callimachus Project Release Notes
 
 http://callimachusproject.org/
 
-26 September 2013
+8 October 2013
 
-= REQUIREMENTS FOR CALLIMACHUS 1.2 (Open Source) =
+= REQUIREMENTS FOR CALLIMACHUS 1.2.1 (Open Source) =
 
 Callimachus works best on browsers that are closely tracking the development
 of HTML5.  At the time of this writing, Callimachus works best on Chrome and
@@ -21,6 +21,14 @@ Details of browser support may be found at:
 
 The Callimachus server requires Java JDK 1.7 on the server to run.
 
+= NEW IN VERSION 1.2.1 =
+
+ * Datasources now implement the SPARQL 1.1 Graph Protocol for indirect graphs
+ * Store image properties in article editor
+ * Automatically switch h1/h2 headings as needed in article editor
+ * Allow browser agents to cache images and other web assets
+ * Reset class index page when new resources are created
+
 = NEW IN VERSION 1.2 =
 
  * More semantics in article editor
@@ -34,7 +42,7 @@ The Callimachus server requires Java JDK 1.7 on the server to run.
  * Support for Facebook authentication
  * Stability and scalability improvements
 
-= KNOWN ISSUES IN 1.2 =
+= KNOWN ISSUES IN 1.2.1 =
 
  * All possible options in check boxes must have a label.
  * rdf:XMLLiteral on form create auto adds xmlns to elements.
@@ -42,7 +50,7 @@ The Callimachus server requires Java JDK 1.7 on the server to run.
    label until they are modified as well or the callimachus-reset script is run.
  * Template variables are only bound if there is at least one triple binding after them.
 
-= HOWTO UPGRADE FROM 1.0.1, 1.1, 1.1.1, and 1.1.2 =
+= HOWTO UPGRADE =
 
 Stop the server using the callimachus-stop script in the bin directory.
 Remove the lib, bin, tmp, src directories.

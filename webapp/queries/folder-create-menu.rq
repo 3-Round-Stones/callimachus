@@ -8,7 +8,7 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX calli: <http://callimachusproject.org/rdf/2009/framework#>
 
 SELECT (concat('?create=', encode_for_uri(str(?cls))) AS ?url)
-    ?label ?comment ?icon (min(?m) AS ?menu) (min(?s) AS ?section)
+    ?label ?comment ?icon (substr(min(?order),2) AS ?author)
 WHERE {
     ?cls rdf:type/rdfs:subClassOf? <../types/Creatable>;
         rdfs:label ?label;
@@ -17,27 +17,27 @@ WHERE {
         calli:create ?create
     FILTER (?create != <../templates/file-create.xhtml>)
     {
-        ?cls calli:author </auth/groups/everyone>
-        BIND (1 AS ?m)
-        BIND (1 AS ?s)
+        ?cls calli:author </auth/groups/everyone> .
+        </auth/groups/everyone> rdfs:label ?author
+        BIND (concat("1", ?author) AS ?order)
     } UNION {
-        ?cls calli:author </auth/groups/users>
-        BIND (1 AS ?m)
-        BIND (2 AS ?s)
+        ?cls calli:author </auth/groups/users> .
+        </auth/groups/users> rdfs:label ?author
+        BIND (concat("2", ?author) AS ?order)
     } UNION {
-        ?cls calli:author </auth/groups/staff>
-        BIND (2 AS ?m)
-        BIND (3 AS ?s)
+        ?cls calli:author </auth/groups/staff> .
+        </auth/groups/staff> rdfs:label ?author
+        BIND (concat("3", ?author) AS ?order)
     } UNION {
-        ?cls calli:author </auth/groups/power>
-        BIND (3 AS ?m)
-        BIND (4 AS ?s)
+        ?cls calli:author </auth/groups/power> .
+        </auth/groups/power> rdfs:label ?author
+        BIND (concat("4", ?author) AS ?order)
     } UNION {
-        ?cls calli:author </auth/groups/admin>
-        BIND (3 AS ?m)
-        BIND (5 AS ?s)
+        ?cls calli:author </auth/groups/admin> .
+        </auth/groups/admin> rdfs:label ?author
+        BIND (concat("5", ?author) AS ?order)
     } UNION {
-        BIND (3 AS ?m)
-        BIND (6 AS ?s)
+        ?cls calli:author [rdfs:label ?author]
+        BIND (concat("6", ?author) AS ?order)
     }
-} GROUP BY ?cls ?label ?comment ?icon ORDER BY ?menu ?section ?label
+} GROUP BY ?cls ?label ?comment ?icon ORDER BY asc(min(?order)) ?author ?label

@@ -189,42 +189,35 @@
         buildVizMenu: function() {
             $('.viz-menu .visualizations').append([
                 '<a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="selected-module"></span><b class="caret"></b></a>',
-                '<ul class="dropdown-menu"></ul>'
+                '<ul role="menu" class="dropdown-menu"></ul>'
             ].join("\n"))
                 .find(' > ul.dropdown-menu').each(function() {
                     var container = $(this);
                     var label;
                     for (var module in lib.modules) {
+                        if (container.children().length) {
+                            container.append('<li class="visualization divider"></li>');
+                        }
                         if (typeof lib.modules[module] == 'string') {
                             label = lib.modules[module];
                             container.append([
                                 '<li class="visualization ' + module + '-module">',
-                                '   <a data-module="' + module + '" href="#">' + label + '</a>',
+                                '   <a role="menuitem" data-module="' + module + '" href="#">' + label + '</a>',
                                 '</li>'
                             ].join("\n"));
                         }
                         else {
                             label = lib.modules[module]['label'];
-                            $([
-                                '<li class="visualization ' + module + '-module dropdown-submenu">',
-                                '   <a>' + label + '</a>',
-                                '   <ul class="dropdown-menu"></ul>',
-                                '</li>'
-                            ].join("\n"))
-                                .appendTo(container)
-                                // build sub-menu
-                                .find('ul.dropdown-menu').each(function() {
-                                    var subModules = lib.modules[module]['subModules'];
-                                    for (var subModule in subModules) {
-                                        label = subModules[subModule];
-                                        $(this).append([
-                                            '<li class="visualization ' + subModule + '-module">',
-                                            '   <a data-module="' + subModule + '" href="#">' + label + '</a>',
-                                            '</li>'
-                                        ].join("\n"));
-                                    }
-                                })
-                            ;
+                            container.append('<li class="visualization ' + module + '-module dropdown-header">' + label + '</li>');
+                            var subModules = lib.modules[module]['subModules'];
+                            for (var subModule in subModules) {
+                                label = subModules[subModule];
+                                $(this).append([
+                                    '<li class="visualization ' + subModule + '-module">',
+                                    '   <a role="menuitem" data-module="' + subModule + '" href="#">' + label + '</a>',
+                                    '</li>'
+                                ].join("\n"));
+                            }
                         }
                     }
                     // activate drop-down links and select the currently active or alternatively the first module in the list

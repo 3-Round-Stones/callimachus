@@ -17,7 +17,7 @@
         getTargetHeight: function() {
             var newHeight = 0;
             var curHeight = parseInt(lib.container.css('min-height'));
-            $('.sidebar, .dropdown.open > .dropdown-menu, .dropdown.open .dropdown-submenu > .dropdown-menu').each(function() {
+            $('.sidebar, .dropdown.open > .dropdown-menu').each(function() {
                 var h = $(this).outerHeight(true) + $(this).offset().top + 10;
                 if (h >= newHeight) {
                     newHeight =  h;
@@ -49,12 +49,10 @@
             $(window).on('resize', lib.scaleContainer);
             $(document).on('DOMNodeInserted', lib.scaleContainer);
             $(document).on('click', 'body, #create-menu, .dropdown, .dropdown-toggle', lib.scaleContainer);
-            $(document).on('mouseover mouseout', '.dropdown-submenu', lib.scaleContainer);
 			lib.scaleContainer();
 		}
 	
 	};
 	
-	$(lib.init);	
- 	
+	$(lib.init);
 })(jQuery);

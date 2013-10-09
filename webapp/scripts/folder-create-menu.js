@@ -9,25 +9,19 @@ jQuery(function($) {
             dataType: 'json',
             success: function(data) {
                 var ul = $('#create-menu-more');
-                var menu;
                 var section;
                 $(data.rows).each(function(){
-                    if (menu != this[4]) {
-                        if (menu) {
-                            ul.append('<li class="divider"></li>');
-                            ul.append('<li class="dropdown-submenu"><a tabindex="-1" href="javascript:void(0)">More options</a><ul class="dropdown-menu"></ul></li>')
-                            ul = ul.find('ul');
-                        }
-                        menu = this[4];
-                        section = this[5];
-                    } else if (section != this[5]) {
+                    if (section != this[4]) {
                         if (section) {
-                            ul.append('<li class="divider"></li>');
+                            ul.append('<li role="presentation" class="divider"></li>');
                         }
-                        section = this[5];
+                        section = this[4];
+                        var header = $('<li class="dropdown-header"></li>');
+                        header.text(section);
+                        ul.append(header);
                     }
                     var li = $('<li></li>');
-                    var a = $('<a></a>');
+                    var a = $('<a role="menuitem"></a>');
                     a.attr('href', this[0]);
                     a.text(this[1]);
                     if (this[2]) {
@@ -41,15 +35,6 @@ jQuery(function($) {
                     }
                     li.append(a);
                     ul.append(li);
-                });
-                $('#create-menu-more').find('.dropdown-submenu').each(function() {
-                    var sup = $(this).siblings('li').length;
-                    var sub = $(this).children('ul').children('li').length;
-                    if (sup < sub) {
-                        $(this).css('position','static');
-                    } else {
-                        $(this).parent('ul').addClass('dropup');
-                    }
                 });
             }
         });

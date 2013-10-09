@@ -31,9 +31,6 @@
    border-right: 0; 
 }
 
-.dropup .dropdown-menu { top: auto; bottom: -2px; }
-.dropup>.dropdown-submenu>.dropdown-menu { bottom: -7px; }
-
 .ui-grid-header {
     line-height: 24px;
 }

@@ -155,10 +155,12 @@
             lib.queryvizPositionTO = window.setTimeout(function() {
                 $('#calli-viz-editor-bg').css('z-index', lib.maxZIndex($('#calli-viz-editor-bg')));
             	$('#calli-viz-editor')
-                    .css('left', Math.max(8, ($(window).width() - $('#calli-viz-editor').width()) / 2))
-                    .css('top', Math.max(8, ($(window).height() - $('#calli-viz-editor').height()) / 2))
-            	    .css('z-index', lib.maxZIndex($('#calli-viz-editor')))
-                    .css('opacity', 1)
+                    .css('z-index', lib.maxZIndex($('#calli-viz-editor')))
+                    .animate({
+                        left: Math.max(8, ($(window).width() - $('#calli-viz-editor').width()) / 2),
+                        top: Math.max(8, ($(window).height() - $('#calli-viz-editor').height()) / 2),
+                        opacity: 1
+                    }, 1000)
                 ;
             }, 100)
         },
@@ -245,14 +247,14 @@
         
         runModule:function(e) {
             e.preventDefault();
-            $('#calli-viz-editor .options-pane').html('');
-            lib.resetData();
             var prevModule = lib.selectedModule;
             var newModule = $(this).attr('data-module');
             var moduleLabel = $(this).html();
             // set the selected label
             $('.viz-menu .visualizations a.dropdown-toggle span.selected-module').html(moduleLabel);
             if (prevModule == newModule) return;
+            $('#calli-viz-editor .options-pane').html('');
+            lib.resetData();
             // handle switching between bespoke and google editor
             if (prevModule == 'google-chart') {
                 lib['google-chart'].onCloseGoogleChartEditor(e);// close google editor
@@ -616,7 +618,7 @@
          * Injects a @view template annotation into the query file.
          */
         setQueryTemplate: function(templateLocation, responseContainer) {
-            var shortTemplateLocation = $('<a/>').attr('href', templateLocation)[0].pathname;
+            var shortTemplateLocation = '/' + $('<a/>').attr('href', templateLocation)[0].pathname.replace(/^\//, '');// IE-safe
             $.ajax({// retrieve current page
                 url: location.pathname,
                 dataType: 'text',

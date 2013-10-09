@@ -58,6 +58,7 @@
                     if (config.options.color && config.options.color != '#ffffff') {
                        viz.defaultColors.unshift(new dimple.color(config.options.color));
                     }
+                    viz.setBounds(50, 10, container.width() - 60, container.height() - 20);
                     // padding left
                     if (config.options['padding-left']) {
                        viz.x += parseInt(config.options['padding-left']);
@@ -76,7 +77,7 @@
                     // draw
                     viz.draw();
                     // tweak axis labels
-                    $(container).find('text.axis.title').each(function() {
+                    $(container).find('g.axis g.tick text').each(function() {
                        var label = $.trim($(this).text())
                            .replace(/^.+[\/\#]([^\/\#]+)/, '$1') // uri noise;
                            .replace(/([a-z])([A-Z])/g, '$1 $2')  // de-camelcase

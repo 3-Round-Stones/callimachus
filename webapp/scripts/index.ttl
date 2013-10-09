@@ -103,6 +103,6 @@
     rdf:_1 <../assets/d3/d3.v3.3.3.js>;
     rdf:_2 <../assets/nv/nv.d3.js>;
     rdf:_3 <../assets/datatables/jquery.dataTables.js>;
-    rdf:_4 <../assets/dimple/dimple.v1.0.1.js>;
+    rdf:_4 <../assets/dimple/dimple.v1.1.1.js>;
     rdf:_5 <query-vizeditor.js>.
 

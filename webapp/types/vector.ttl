@@ -112,4 +112,4 @@
 :ValidateVectorGraphic rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <VectorGraphic>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-    calli:post "../schemas/svg11.rng?validate\nContent-Location: {+0}\nContent-Type: application/xml".
+    calli:post "../schemas/svg.rng?validate\nContent-Location: {+0}\nContent-Type: application/xml".

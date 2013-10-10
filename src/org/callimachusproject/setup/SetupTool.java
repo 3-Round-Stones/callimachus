@@ -88,8 +88,8 @@ public class SetupTool {
 			+ "(group_concat(if(bound(?unauthorizedPage),str(?unauthorizedPage),\"\")) AS ?unauthorizedPage)\n"
 			+ "(group_concat(if(bound(?authentication),str(?authentication),\"\")) AS ?authentication)\n"
 			+ "WHERE {\n"
-			+ "{ ?realm a </callimachus/1.0/types/Realm> }\n"
-			+ "UNION { ?realm a </callimachus/1.0/types/Origin> }\n"
+			+ "{ ?realm a <types/Realm> }\n"
+			+ "UNION { ?realm a <types/Origin> }\n"
 			+ "OPTIONAL { { ?realm calli:layout ?layout }\n"
 			+ "UNION { ?realm calli:error ?errorPipe }\n"
 			+ "UNION { ?realm calli:forbidden ?forbiddenPage }\n"
@@ -168,8 +168,9 @@ public class SetupTool {
 				if (!repositoryID.equals(e.getValue()))
 					continue;
 				String root = e.getKey() + "/";
+				String webapp = repository.getCallimachusWebapp(root);
 				TupleQueryResult results = con.prepareTupleQuery(
-						QueryLanguage.SPARQL, SELECT_REALM, root).evaluate();
+						QueryLanguage.SPARQL, SELECT_REALM, webapp).evaluate();
 				try {
 					while (results.hasNext()) {
 						BindingSet result = results.next();

@@ -1,7 +1,7 @@
 # callimachus-webapp.ru
 #
 # read by Setup.java to determine initial Callimachus webapp path
-# @webapp </callimachus/1.0/>
+# @webapp </callimachus/1.3/>
 #
 PREFIX xsd:<http://www.w3.org/2001/XMLSchema#>
 PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>

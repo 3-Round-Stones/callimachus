@@ -29,7 +29,7 @@
     rdfs:subClassOf <File>, calli:Pipeline;
     rdfs:label "Pipeline";
     rdfs:comment "XML Processing XProc file";
-    owl:equivalentClass </callimachus/Pipeline>;
+    owl:equivalentClass </callimachus/Pipeline>, </callimachus/1.0/types/Pipeline>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/staff>,</auth/groups/power>,</auth/groups/admin>;

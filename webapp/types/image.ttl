@@ -29,7 +29,7 @@
     rdfs:subClassOf foaf:Image, <File>;
     rdfs:label "Image" ;
     rdfs:comment "Image file";
-    owl:equivalentClass </callimachus/Image>;
+    owl:equivalentClass </callimachus/Image>, </callimachus/1.0/types/Image>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/power>,</auth/groups/admin>;
@@ -42,7 +42,7 @@
     rdfs:subClassOf <Image>;
     rdfs:label "Animated Graphic" ;
     rdfs:comment "GIF image" ;
-    owl:equivalentClass </callimachus/AnimatedGraphic>;
+    owl:equivalentClass </callimachus/AnimatedGraphic>, </callimachus/1.0/types/AnimatedGraphic>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/power>,</auth/groups/admin>;
@@ -54,7 +54,7 @@
     rdfs:subClassOf <Image>;
     rdfs:label "Icon Graphic" ;
     rdfs:comment "ICO image" ;
-    owl:equivalentClass </callimachus/IconGraphic>;
+    owl:equivalentClass </callimachus/IconGraphic>, </callimachus/1.0/types/IconGraphic>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/power>,</auth/groups/admin>;
@@ -66,7 +66,7 @@
     rdfs:subClassOf <Image>;
     rdfs:label "Network Graphic" ;
     rdfs:comment "PNG image" ;
-    owl:equivalentClass </callimachus/NetworkGraphic>;
+    owl:equivalentClass </callimachus/NetworkGraphic>, </callimachus/1.0/types/NetworkGraphic>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/power>,</auth/groups/admin>;

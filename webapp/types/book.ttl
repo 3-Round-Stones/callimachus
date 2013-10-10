@@ -29,7 +29,7 @@
     rdfs:subClassOf <File>;
     rdfs:label "Book";
     rdfs:comment "A book is a DocBook XML document that includes articles";
-    owl:equivalentClass </callimachus/Book>;
+    owl:equivalentClass </callimachus/Book>, </callimachus/1.0/types/Book>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/staff>,</auth/groups/power>,</auth/groups/admin>;

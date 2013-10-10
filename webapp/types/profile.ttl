@@ -28,7 +28,7 @@
 
 <Profile> a owl:Class;
     rdfs:subClassOf <Viewable>;
-    owl:equivalentClass </callimachus/Profile>;
+    owl:equivalentClass </callimachus/Profile>, </callimachus/1.0/types/Profile>;
     rdfs:label "Profile";
     rdfs:isDefinedBy <../../ontology>.
 

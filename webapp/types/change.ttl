@@ -33,7 +33,7 @@
     foaf:primaryTopic <Change>.
 
 <Change> rdfs:subClassOf <Viewable>, prov:Bundle;
-    owl:equivalentClass </callimachus/Activity>;
+    owl:equivalentClass </callimachus/Activity>, </callimachus/1.0/types/Change>;
     rdfs:label "Change";
     rdfs:isDefinedBy <../../ontology>.
 

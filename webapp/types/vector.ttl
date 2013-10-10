@@ -30,7 +30,7 @@
     rdfs:subClassOf <Image>;
     rdfs:label "Vector Graphic" ;
     rdfs:comment "SVG image files" ;
-    owl:equivalentClass </callimachus/VectorGraphic>;
+    owl:equivalentClass </callimachus/VectorGraphic>, </callimachus/1.0/types/VectorGraphic>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/power>,</auth/groups/admin>;

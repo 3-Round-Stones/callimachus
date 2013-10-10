@@ -29,6 +29,7 @@
 
 <OpenIDManager> a <Creatable>, owl:Class;
     rdfs:subClassOf <AuthManager>, calli:OpenIDManager;
+    owl:equivalentClass </callimachus/1.0/types/OpenIDManager>;
     rdfs:label "OpenID Manager";
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;

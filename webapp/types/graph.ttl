@@ -29,11 +29,12 @@
 <SchemaGraph> a owl:Class;
     rdfs:subClassOf <Serviceable>;
     rdfs:label "Schema Graph";
-    owl:equivalentClass </callimachus/SchemaGraph>;
+    owl:equivalentClass </callimachus/SchemaGraph>, </callimachus/1.0/types/SchemaGraph>;
     rdfs:isDefinedBy <../../ontology>.
 
 <NamedGraph> a <Creatable>, owl:Class;
     rdfs:subClassOf <File>, sd:NamedGraph;
+    owl:equivalentClass </callimachus/1.0/types/NamedGraph>;
     rdfs:label "Named Graph";
     rdfs:comemnt "RDF document encoded as a RDF+XML file";
     rdfs:isDefinedBy <../../ontology>;
@@ -47,6 +48,7 @@
 
 <GraphDocument> a <Creatable>, owl:Class;
     rdfs:subClassOf <File>, sd:NamedGraph;
+    owl:equivalentClass </callimachus/1.0/types/GraphDocument>;
     rdfs:label "Graph Document";
     rdfs:comment "RDF document encoded as a Turtle file";
     rdfs:isDefinedBy <../../ontology>;

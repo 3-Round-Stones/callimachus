@@ -29,7 +29,7 @@
     rdfs:subClassOf calli:Page, <File>;
     rdfs:label "Page";
     rdfs:comment "New pages can be created in a folder";
-    owl:equivalentClass </callimachus/Page>;
+    owl:equivalentClass </callimachus/Page>, </callimachus/1.0/types/Page>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/staff>,</auth/groups/power>,</auth/groups/admin>;

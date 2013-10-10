@@ -29,7 +29,7 @@
 <Pdf> a <Creatable>, owl:Class;
     rdfs:subClassOf <File>;
     rdfs:label "PDF" ;
-    owl:equivalentClass </callimachus/Pdf>;
+    owl:equivalentClass </callimachus/Pdf>, </callimachus/1.0/types/Pdf>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/power>,</auth/groups/admin>;

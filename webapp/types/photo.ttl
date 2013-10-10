@@ -31,7 +31,7 @@
     rdfs:subClassOf <Image>;
     rdfs:label "Photo" ;
     rdfs:comment "JPEG image file";
-    owl:equivalentClass </callimachus/Photo>;
+    owl:equivalentClass </callimachus/Photo>, </callimachus/1.0/types/Photo>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/power>,</auth/groups/admin>;

@@ -29,7 +29,7 @@
 <Composite> a owl:Class;
     rdfs:label "Composite";
     rdfs:subClassOf <Serviceable>, calli:Composite;
-    owl:equivalentClass </callimachus/Composite>;
+    owl:equivalentClass </callimachus/Composite>, </callimachus/1.0/types/Composite>;
     rdfs:isDefinedBy <../../ontology>.
 
 ################################

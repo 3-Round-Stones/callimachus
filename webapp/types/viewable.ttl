@@ -32,7 +32,7 @@
 <Viewable> a owl:Class;
     rdfs:label "Viewable";
     rdfs:subClassOf <Serviceable>;
-    owl:equivalentClass </callimachus/Viewable>;
+    owl:equivalentClass </callimachus/Viewable>, </callimachus/1.0/types/Viewable>;
     rdfs:isDefinedBy <../../ontology>.
 
 :GetViewPage rdfs:subClassOf msg:Message;

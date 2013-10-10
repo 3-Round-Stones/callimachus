@@ -29,7 +29,7 @@
     rdfs:subClassOf <File>;
     rdfs:label "Transform";
     rdfs:comment "XSL transform files";
-    owl:equivalentClass </callimachus/Transform>;
+    owl:equivalentClass </callimachus/Transform>, </callimachus/1.0/types/Transform>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/staff>,</auth/groups/power>,</auth/groups/admin>;

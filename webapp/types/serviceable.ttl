@@ -29,7 +29,7 @@
 <Serviceable> a owl:Class;
     rdfs:label "Serviceable";
     rdfs:comment "All resources served by this host";
-    owl:equivalentClass </callimachus/Serviceable>;
+    owl:equivalentClass </callimachus/Serviceable>, </callimachus/1.0/types/Serviceable>;
     rdfs:isDefinedBy <../../ontology>.
 
 :GetHistory rdfs:subClassOf msg:Message;

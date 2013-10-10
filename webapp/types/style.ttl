@@ -29,7 +29,7 @@
     rdfs:subClassOf <File>;
     rdfs:label "Style";
     rdfs:comment "Style CSS files";
-    owl:equivalentClass </callimachus/Style>;
+    owl:equivalentClass </callimachus/Style>, </callimachus/1.0/types/Style>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/staff>,</auth/groups/power>,</auth/groups/admin>;

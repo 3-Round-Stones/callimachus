@@ -16,7 +16,7 @@
 
 <DigestManager> a <Creatable>, owl:Class;
     rdfs:subClassOf <Viewable>, <Editable>, calli:DigestManager;
-    owl:equivalentClass </callimachus/DigestManager>;
+    owl:equivalentClass </callimachus/DigestManager>, </callimachus/1.0/types/DigestManager>;
     rdfs:label "Digest Manager";
     rdfs:comment "Digest password is the default authentication mechanism in Callimachus";
     rdfs:isDefinedBy <../../ontology>;

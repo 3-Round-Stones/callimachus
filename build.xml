@@ -29,7 +29,7 @@
     <property name="main-monitor" value="org.callimachusproject.ServerMonitor" />
     <property name="jvmargs" value="-ea -server -mx512m -Dfile.encoding=UTF-8 -Duser.home=${home} -Djava.mail.properties=${mail} -Djava.awt.headless=true -Dcom.sun.management.jmxremote -Djava.io.tmpdir=${tmp}" />
     <property name="curl" value="curl" />
-    <property name="curl.args" value="-fSs --digest http://localhost:8080/callimachus/1.0/?archive" />
+    <property name="curl.args" value="-fSs --digest http://localhost:8080/callimachus/1.3/?archive" />
     <property name="setup.args" value="-c etc/callimachus.conf -g /auth/groups/super" />
     <property name="args" value="--pid ${pid} -c etc/callimachus.conf" />
     <property name="functionaltest.port" value="8081" />
@@ -439,7 +439,7 @@
         </exec>
         <get src="http://${hostname}:${functionaltest.port}/callimachus/scripts.js" dest="${tmp}/scripts.js" />
         <delete file="${tmp}/scripts.js" />
-        <get src="http://${hostname}:${functionaltest.port}/callimachus/1.0/styles/callimachus.less?less" dest="${tmp}/styles.css" />
+        <get src="http://${hostname}:${functionaltest.port}/callimachus/1.3/styles/callimachus.less?less" dest="${tmp}/styles.css" />
         <delete file="${tmp}/styles.css" />
     </target>
 

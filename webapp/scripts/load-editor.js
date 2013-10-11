@@ -81,10 +81,12 @@ function bindEditorEvents(editor) {
     $(window).bind('message', function(event) {
         if (event.originalEvent.source == editor) {
             var msg = event.originalEvent.data;
-            if (msg.indexOf('PUT text\n\n') == 0) {
+            if (msg.indexOf('PUT text\n\n') === 0) {
                 var text = msg.substring('PUT text\n\n'.length);
                 var se = $.Event("calliSave", {text: text});
                 $(editor.frameElement).trigger(se);
+            } else if (msg.indexOf('Error\n\n') === 0) {
+                calli.error(msg.substring(msg.indexOf('\n\n', msg.indexOf('\n\n') + 2)));
             }
         }
     });

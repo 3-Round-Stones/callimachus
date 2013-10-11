@@ -419,7 +419,7 @@ jQuery(function($) {
             return true;
         }
         return false; // Not Found
-    };    
+    }
     
     // catch inter-window messages
     $(window).bind('message', function(event) {
@@ -441,7 +441,7 @@ jQuery(function($) {
                     parent.postMessage('OK\n\n' + header, '*');
                 }
             } catch (e) {
-                calli.error(e);
+                parent.postMessage('Error\n\n' + header + '\n\n' + e, '*');
             }
         }
     });

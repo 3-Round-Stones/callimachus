@@ -59,6 +59,7 @@ function submitRDFForm(form, resource, stored) {
         }
         var se = $.Event("calliSubmit");
         se.resource = resource;
+        se.location = calli.getFormAction(form);
         se.payload = asSparqlUpdate(removed, added);
         $(form).trigger(se);
         if (!se.isDefaultPrevented()) {
@@ -77,7 +78,7 @@ function submitRDFForm(form, resource, stored) {
                     }
                     var event = $.Event("calliRedirect");
                     event.cause = se;
-                    event.resource = redirect;
+                    event.resource = se.resource;
                     event.location = redirect;
                     $(form).trigger(event);
                     if (!event.isDefaultPrevented()) {

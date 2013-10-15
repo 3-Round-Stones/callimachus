@@ -50,7 +50,7 @@ $('form[method="PUT"]').each(function(event){
                     try {
                         var redirect = null;
                         var contentType = xhr.getResponseHeader('Content-Type');
-                        if (contentType != null && contentType.indexOf('text/uri-list') == 0) {
+                        if (contentType !== null && contentType.indexOf('text/uri-list') === 0) {
                             redirect = xhr.responseText;
                         }
                         if (!redirect) {
@@ -61,7 +61,7 @@ $('form[method="PUT"]').each(function(event){
                         }
                         var event = $.Event("calliRedirect");
                         event.cause = se;
-                        event.resource = redirect;
+                        event.resource = se.resource;
                         event.location = redirect + "?view";
                         $(form).trigger(event);
                         if (!event.isDefaultPrevented()) {

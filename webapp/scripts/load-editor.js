@@ -132,26 +132,26 @@ function bindFormEvents(form, editor, idempotent) {
             calli.readEditorText(editor, function(text) {
                 saveFile(form, text, function(xhr, cause) {
                     var event = $.Event("calliRedirect");
+                    event.cause = cause;
+                    event.resource = cause.resource;
                     var redirect = xhr.getResponseHeader('Location');
                     var url = calli.getFormAction(form);
                     if (url.indexOf('?') > 0) {
                         url = url.substring(0, url.indexOf('?'));
                     }
                     if (redirect) {
-                        event.resource = redirect;
+                        event.location = redirect + '?view';
                     } else if (resource) {
-                        event.resource = resource;
+                        event.location = resource + '?view';
                     } else {
-                        event.resource = url;
+                        event.location = url + '?view';
                     }
-                    event.cause = cause;
-                    event.location = event.resource + '?view';
                     $(form).trigger(event);
                     if (!event.isDefaultPrevented()) {
                         if (window.parent != window && parent.postMessage) {
                             parent.postMessage('PUT src\n\n' + event.location, '*');
                         }
-                        if (event.location.indexOf(url) == 0) {
+                        if (event.location.indexOf(url) === 0) {
                             window.location.replace(event.location);
                         } else {
                             window.location.href = event.location;

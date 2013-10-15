@@ -10,29 +10,29 @@ var iframe_counter = 0;
 $('form[method="POST"][enctype="multipart/form-data"],form[method="POST"][enctype="application/x-www-form-urlencoded"]').submit(function(event) {
     var form = $(this);
     var resource = form.attr('about') || form.attr('resource');
-    if (!resource || resource.indexOf(':') < 0 && resource.indexOf('/') != 0 && resource.indexOf('?') != 0)
+    if (!resource || resource.indexOf(':') < 0 && resource.indexOf('/') !== 0 && resource.indexOf('?') !== 0)
         return true; // resource attribute not set yet
-    if (!this.target || this.target.indexOf('iframe-redirect-') != 0) {
+    if (!this.target || this.target.indexOf('iframe-redirect-') !== 0) {
         var iname = null;
         while (window.frames[iname = 'iframe-redirect-' + (++iframe_counter)]);
-        createIframeRedirect(iname, this.target, event);
+        createIframeRedirect(iname, this.target, resource, event);
         this.target = iname;
     }
     return true;
 });
 
-function createIframeRedirect(iname, finalTarget, cause) {
+function createIframeRedirect(iname, finalTarget, resource, cause) {
     var iframe = $('<iframe></iframe>');
-    iframe.attr('name', iname)
-    iframe.bind('load', function(event) {
+    iframe.attr('name', iname);
+    iframe.bind('load', function() {
         var doc = this.contentWindow.document;
         if (doc.URL == "about:blank")
             return true;
         var redirect = $(doc).text();
-        if (redirect && redirect.indexOf('http') == 0) {
+        if (redirect && redirect.indexOf('http') === 0) {
             var event = $.Event("calliRedirect");
             event.cause = cause;
-            event.resource = redirect;
+            event.resource = resource;
             event.location = redirect + '?view';
             $(this).trigger(event);
             if (!event.isDefaultPrevented()) {

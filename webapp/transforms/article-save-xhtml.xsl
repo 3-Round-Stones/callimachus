@@ -31,6 +31,9 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
 <!-- use template id instead -->
 <xsl:template match="@id|@xml:id" />
 
+<!-- ignore random styles -->
+<xsl:template match="@style" />
+
 <xsl:template match="@lang|@xml:lang">
     <xsl:attribute name="xml:lang">
         <xsl:value-of select="." />

@@ -45,10 +45,6 @@ html.iframe {
     overflow-y: scroll;
 }
 
-body {
-    background-color: @body-bg;
-}
-
 time {
     white-space:nowrap;
 }
@@ -100,32 +96,6 @@ div, footer, iframe {
     box-sizing: border-box; 
 }
 
-html.login .nav-tabs ~ .tab-content {
-    border: 1px solid #ddd;
-    border-top: none;
-    padding: 1rem;
-    margin-bottom: 10px;
-}
-
-html.login.iframe .nav-tabs ~ .tab-content {
-    padding: 0;
-    border: 0;
-    margin-bottom: 0;
-}
-
-html, body {
-    height: 100%;
-}
-
-html.iframe,
-.iframe body {
-    height: auto;
-}
-
-.iframe body {
-    padding: 0px;
-}
-
 .container {
     overflow:auto;
     position: relative;
@@ -155,15 +125,8 @@ form {
     margin-bottom: 0;
 }
 
-/* navbar */
-
-.navbar-inner {
-    border: 0;
-    border-bottom: 1px solid @navbar-default-border;
-}
-
-.navbar .brand {
-  padding: ((@navbar-height - @line-height-base) / 2)rem 20px ((@navbar-height - @line-height-base) / 2)rem;
+.container > .tab-content {
+    padding-top: 0.5em;
 }
 
 /* breadcrumbs */
@@ -181,16 +144,7 @@ form {
 
 /* sidebar */
 
-.tab-content {
-    min-height: 15rem;
-    overflow: visible;
-}
-
-.iframe .tab-content {
-    min-height: inherit;
-}
-
-.iframe .sidebar {
+html.iframe .sidebar {
     margin-top: 1rem;
 }
 
@@ -211,6 +165,18 @@ form {
 }
 
 /* footer */
+html,
+body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+html.iframe,
+html.iframe body {
+    height: auto;
+}
+
 .navbar-relative-bottom {
     width: 100%;
     position: relative;
@@ -225,24 +191,24 @@ form {
     height: auto !important;
     height: 100%;
     overflow: hidden;
-    margin: 0 auto -@largeNavbarHeight;
-    padding-bottom: 0 0 @largeNavbarHeight;
+    margin: 0 auto -@navbar-large-height;
+    padding: 0 0 @navbar-large-height;
 }
 .until-navbar-large + .navbar-large.navbar-relative-bottom {
-    height: @largeNavbarHeight;
+    height: @navbar-large-height;
 }
-.iframe .until-navbar-large {
+html.iframe .until-navbar-large {
     overflow: auto;
     min-height: inherit;
     padding-bottom: inherit;
 }
 
 .navbar-large {
-    height: @largeNavbarHeight;
+    height: @navbar-large-height;
 }
 
 .navbar-large .navbar-inner {
-    min-height: @largeNavbarHeight;
+    min-height: @navbar-large-height;
     padding-top: 0.5em;
     padding-bottom: 0.5em;
 }
@@ -275,46 +241,53 @@ form {
 
 /* responsive tweaks */
 
-@media (max-width: 480px) {
+@media (min-width: @screen-xs) and (max-width: @screen-xs-max) {
 
-    .sidebar.pull-right {
-        float: none;
+    .sidebar {
+        width: 18rem;
+        float: right;
     }
-    
-    nav.nav-tabs > a {
-        font-size: 0.9em;
-        padding-right: 6px;
-        padding-left: 6px;
+ 
+    .sidebar ~ .nav {
+        margin-right: 20rem;
     }
-    
-    form.form-search input {
-        width: 8rem;
-    } 
 
-    footer .navbar-text {
-        font-size: 0.8em;
-        line-height: 1rem;
-        text-align: center;
+    .sidebar ~ .nav:after {
+        clear: left;
     }
-    
-    footer .navbar-text.pull-right {
-        float: none;
-        margin-bottom: 10px;
+
+    html.login .sidebar {
+        width: auto;
+        float: none; /* don't float if tab-nav visible */
+    }
+ 
+    html.login .sidebar ~ .nav {
+        margin-right: 0;
+    }
+
+    html.login.iframe .sidebar {
+        width: 18rem;
+        float: right;
+    }
+ 
+    html.login.iframe .sidebar ~ .nav {
+        margin-right: 20rem;
     }
 }
 
-@media (min-width: 480px) {
+@media (min-width: @screen-sm) {
 
-    .sidebar.pull-right {
+    .sidebar {
         width: 18rem;
+        float: right;
     }
  
-    html.login .sidebar.pull-right ~ * {
+    .sidebar ~ .nav {
         margin-right: 20rem;
     }
- 
-    html.login.iframe .sidebar.pull-right ~ * {
-        margin-right: 0px;
+
+    .sidebar ~ .nav:after {
+        clear: left;
     }
 }
 

@@ -20,11 +20,11 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
     <div class="until-navbar-large">
         <div class="navbar navbar-default navbar-static-top hidden-iframe">
             <header class="container">
-                <div class="navbar-header">
+                <div class="pull-left">
                     {calli:home-href(<a class="navbar-brand">Callimachus</a>)}
                 </div>
-                {calli:login-href(<a class="btn btn-default navbar-btn navbar-right hidden-login">Sign in</a>)}
-                <div class="btn-group navbar-right hidden-logout">
+                {calli:login-href(<a class="btn btn-default navbar-btn pull-right hidden-login">Sign in</a>)}
+                <div class="btn-group pull-right hidden-logout">
                     <button type="button" class="btn btn-default navbar-btn dropdown-toggle" data-toggle="dropdown">
                         <span class="sr-only">Main menu</span>
                         <span class="glyphicon glyphicon-align-justify"></span>
@@ -48,7 +48,7 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
                         <li>{calli:logout-href(<a>Sign out</a>)}</li>
                     </ul>
                 </div>
-                <div class="col-sm-4 col-md-4 navbar-right hidden-logout">{calli:lookup-form('Lookup...')}</div>
+                <div class="col-xs-4 pull-right hidden-logout">{calli:lookup-form('Lookup...')}</div>
             </header>
         </div>
         <div class="container">

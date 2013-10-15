@@ -11,7 +11,9 @@
 </head>
 <body>
     <form role="form" id="form" method="PUT" action="?" enctype="text/turtle">
-        <iframe id="editor-iframe" name="editor-iframe" class="flex" src="../../sparql-editor.html" onload="calli.loadEditor(event,'?')"> </iframe>
+        <fieldset class="form-group">
+            <iframe id="editor-iframe" name="editor-iframe" class="flex" src="../../sparql-editor.html" onload="calli.loadEditor(event,'?')"> </iframe>
+        </fieldset>
         <fieldset class="form-group">
             <button type="submit" class="btn btn-primary">Save</button>
             <button type="button" onclick="calli.saveResourceAs(event, 'untitled graph.ttl', calli.getCallimachusUrl('types/GraphDocument'))" class="btn btn-info">Save as...</button>

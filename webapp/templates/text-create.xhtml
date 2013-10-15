@@ -8,7 +8,9 @@
 </head>
 <body>
     <form role="form" id="form" method="POST" action="" enctype="text/plain">
-        <iframe id="editor-iframe" name="editor-iframe" class="flex" src="../../text-editor.html" onload="calli.initEditor(event)"> </iframe>
+        <fieldset class="form-group">
+            <iframe id="editor-iframe" name="editor-iframe" class="flex" src="../../text-editor.html" onload="calli.initEditor(event)"> </iframe>
+        </fieldset>
         <fieldset class="form-group">
             <button id="create-text" type="submit" onclick="return calli.saveResourceAs(event, 'untitled text.txt')" class="btn btn-success">Create</button>
         </fieldset>

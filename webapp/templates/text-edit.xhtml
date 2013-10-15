@@ -9,7 +9,9 @@
 </head>
 <body>
     <form role="form" id="form" method="PUT" action="?" enctype="text/plain">
-        <iframe id="editor-iframe" name="editor-iframe" class="flex" src="../../text-editor.html" onload="calli.loadEditor(event,'?')"> </iframe>
+        <fieldset class="form-group">
+            <iframe id="editor-iframe" name="editor-iframe" class="flex" src="../../text-editor.html" onload="calli.loadEditor(event,'?')"> </iframe>
+        </fieldset>
         <fieldset class="form-group">
             <button type="submit" class="btn btn-primary">Save</button>
             <button type="button" onclick="calli.saveResourceAs(event, 'untitled text.txt', calli.getCallimachusUrl('types/TextFile'))" class="btn btn-info">Save as...</button>

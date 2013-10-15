@@ -27,7 +27,9 @@
 </head>
 <body>
     <form role="form" id="form" method="POST" action="" enctype="application/xhtml+xml">
-        <iframe id="editor-iframe" name="editor-iframe" class="flex" src="../../html-editor.html" onload="calli.initEditor(event,$('#template').text()||$('#template').html().replace(/^\s+/,''))"> </iframe>
+        <fieldset class="form-group">
+            <iframe id="editor-iframe" name="editor-iframe" class="flex" src="../../html-editor.html" onload="calli.initEditor(event,$('#template').text()||$('#template').html().replace(/^\s+/,''))"> </iframe>
+        </fieldset>
         <fieldset class="form-group">
             <button id="create-page" type="submit" onclick="return calli.saveResourceAs(event, 'untitled page.xhtml')" class="btn btn-success">Create</button>
         </fieldset>

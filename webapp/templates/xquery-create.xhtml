@@ -13,7 +13,9 @@
 </head>
 <body>
     <form role="form" id="form" method="POST" action="" enctype="application/xquery">
-        <iframe id="editor-iframe" name="editor-iframe" class="flex" src="../../xquery-editor.html" onload="calli.initEditor(event,$('#template').text()||$('#template').html().replace(/^\s+/,''))"> </iframe>
+        <fieldset class="form-group">
+            <iframe id="editor-iframe" name="editor-iframe" class="flex" src="../../xquery-editor.html" onload="calli.initEditor(event,$('#template').text()||$('#template').html().replace(/^\s+/,''))"> </iframe>
+        </fieldset>
         <fieldset class="form-group">
             <button id="create-xquery" type="submit" onclick="return calli.saveResourceAs(event, 'untitled query.xq')" class="btn btn-success">Create</button>
         </fieldset>

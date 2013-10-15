@@ -11,7 +11,9 @@
 </head>
 <body>
     <form role="form" id="form" method="PUT" action="?" enctype="text/html">
-        <iframe id="editor-iframe" name="editor-iframe" class="flex" src="../../html-editor.html" onload="calli.loadEditor(event,'?')"> </iframe>
+        <fieldset class="form-group">
+            <iframe id="editor-iframe" name="editor-iframe" class="flex" src="../../html-editor.html" onload="calli.loadEditor(event,'?')"> </iframe>
+        </fieldset>
         <fieldset class="form-group">
             <button type="submit" class="btn btn-primary">Save</button>
             <button type="button" onclick="calli.saveResourceAs(event, 'untitled.html', calli.getCallimachusUrl('types/HypertextFile'))" class="btn btn-info">Save as...</button>

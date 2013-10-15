@@ -25,7 +25,9 @@
 </head>
 <body>
     <form role="form" id="form" method="POST" action="" enctype="text/turtle">
-        <iframe id="editor-iframe" name="editor-iframe" class="flex" src="../../sparql-editor.html" onload="calli.initEditor(event,$('#template').text()||$('#template').html().replace(/^\s+/,''))"> </iframe>
+        <fieldset class="form-group">
+            <iframe id="editor-iframe" name="editor-iframe" class="flex" src="../../sparql-editor.html" onload="calli.initEditor(event,$('#template').text()||$('#template').html().replace(/^\s+/,''))"> </iframe>
+        </fieldset>
         <fieldset class="form-group">
             <button id="create-graph" type="submit" onclick="return calli.saveResourceAs(event, 'untitled graph.ttl')" class="btn btn-success">Create</button>
         </fieldset>

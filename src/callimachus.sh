@@ -83,7 +83,7 @@ if [ -r "$CONFIG" ]; then
 fi
 
 PIDFILE="$BASEDIR/run/$NAME.pid"
-SCRIPTNAME=/etc/init.d/$NAME
+SCRIPTNAME=$0
 
 MAINCLASS=org.callimachusproject.Server
 MONITORCLASS=org.callimachusproject.ServerMonitor

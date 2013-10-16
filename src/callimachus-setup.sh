@@ -66,6 +66,8 @@ if [ -r "$CONFIG" ]; then
   . "$CONFIG" 2>/dev/null
 fi
 
+PIDFILE="$BASEDIR/run/$NAME.pid"
+
 MAINCLASS=org.callimachusproject.Setup
 
 # Ensure that any user defined CLASSPATH variables are not used on startup.
@@ -252,6 +254,24 @@ if [ -z "$ORIGIN" ] ; then
   if [ $(cat "$CONFIG.tmp" |wc -l) = $(cat "$CONFIG" |wc -l) ] ; then
     cat "$CONFIG.tmp" > "$CONFIG"
     rm "$CONFIG.tmp"
+  fi
+fi
+
+if [ ! -z "$PIDFILE" ]; then
+  if [ -f "$PIDFILE" ]; then
+    $BASEDIR/bin/callimachus.sh stop
+  fi
+  if [ -f "$PIDFILE" -a -r "$PIDFILE" ]; then
+    $BASEDIR/bin/callimachus.sh stop
+    kill -0 `cat "$PIDFILE"` >/dev/null 2>&1
+    if [ $? -gt 0 ]; then
+      log_warning_msg "PID file ($PIDFILE) found, but no matching process was found."
+      rm -f "$PIDFILE"
+    fi
+  fi
+  if [ -f "$PIDFILE" ]; then
+    log_failure_msg "PID file ($PIDFILE) found. Is the server still running? Setup aborted."
+    exit 0
   fi
 fi
 

@@ -22,8 +22,8 @@ public class EditResourceTypeIntegrationTest extends TemporaryServerIntegrationT
 			"",
 			"</MyClass> a owl:Class;",
 			"		rdfs:label \"My Class\";",
-			"		rdfs:subClassOf </callimachus/1.0/types/Serviceable>;",
-			"		rdfs:subClassOf </callimachus/1.0/types/Editable>;",
+			"		rdfs:subClassOf </callimachus/1.3/types/Serviceable>;",
+			"		rdfs:subClassOf </callimachus/1.3/types/Editable>;",
 			"		calli:author </auth/groups/users>, </auth/groups/admin>, </auth/groups/staff>");
 	private static String RESOURCE_TURTLE = cat("@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.",
 			"@prefix owl:<http://www.w3.org/2002/07/owl#>.",
@@ -183,7 +183,7 @@ public class EditResourceTypeIntegrationTest extends TemporaryServerIntegrationT
 				.getAppCollection().create("my-create.xhtml", "application/xhtml+xml", CREATE_TEMPLATE.getBytes());
 		WebResource MyClass = waitForCompile(new Callable<WebResource>() {
 			public WebResource call() throws Exception {
-				String createClass = "?create=/callimachus/1.0/types/Class";
+				String createClass = "?create=/callimachus/1.3/types/Class";
 				String turtle = CLASS_TURTLE + ";\ncalli:create <" + my_create_xhtml + ">.";
 				return getHomeFolder().ref(createClass).create("text/turtle", turtle.getBytes());
 			}
@@ -212,7 +212,7 @@ public class EditResourceTypeIntegrationTest extends TemporaryServerIntegrationT
 				.getAppCollection().create("my-create.xhtml", "application/xhtml+xml", CREATE_TEMPLATE.getBytes());
 		WebResource MyClass = waitForCompile(new Callable<WebResource>() {
 			public WebResource call() throws Exception {
-				String createClass = "?create=/callimachus/1.0/types/Class";
+				String createClass = "?create=/callimachus/1.3/types/Class";
 				String turtle = CLASS_TURTLE + ";\ncalli:create <" + my_create_xhtml + ">.";
 				return getHomeFolder().ref(createClass).create("text/turtle", turtle.getBytes());
 			}
@@ -246,7 +246,7 @@ public class EditResourceTypeIntegrationTest extends TemporaryServerIntegrationT
 				.getAppCollection().create("my-edit.xhtml", "application/xhtml+xml", EDIT_TEMPLATE.getBytes());
 		WebResource MyClass = waitForCompile(new Callable<WebResource>() {
 			public WebResource call() throws Exception {
-				String createClass = "?create=/callimachus/1.0/types/Class";
+				String createClass = "?create=/callimachus/1.3/types/Class";
 				String turtle = CLASS_TURTLE + ";\ncalli:create <" + my_create_xhtml + ">;\ncalli:edit <" + my_edit_xhtml + ">.";
 				return getHomeFolder().ref(createClass).create("text/turtle", turtle.getBytes());
 			}
@@ -277,7 +277,7 @@ public class EditResourceTypeIntegrationTest extends TemporaryServerIntegrationT
 				.getAppCollection().create("my-edit.xhtml", "application/xhtml+xml", EDIT_TEMPLATE.getBytes());
 		WebResource MyClass = waitForCompile(new Callable<WebResource>() {
 			public WebResource call() throws Exception {
-				String createClass = "?create=/callimachus/1.0/types/Class";
+				String createClass = "?create=/callimachus/1.3/types/Class";
 				String turtle = CLASS_TURTLE + ";\ncalli:create <" + my_create_xhtml + ">;\ncalli:edit <" + my_edit_xhtml + ">.";
 				return getHomeFolder().ref(createClass).create("text/turtle", turtle.getBytes());
 			}
@@ -310,7 +310,7 @@ public class EditResourceTypeIntegrationTest extends TemporaryServerIntegrationT
 				.getAppCollection().create("my-edit.xhtml", "application/xhtml+xml", EDIT_TEMPLATE.getBytes());
 		WebResource MyClass = waitForCompile(new Callable<WebResource>() {
 			public WebResource call() throws Exception {
-				String createClass = "?create=/callimachus/1.0/types/Class";
+				String createClass = "?create=/callimachus/1.3/types/Class";
 				String turtle = CLASS_TURTLE + ";\ncalli:create <" + my_create_xhtml + ">;\ncalli:edit <" + my_edit_xhtml + ">.";
 				return getHomeFolder().ref(createClass).create("text/turtle", turtle.getBytes());
 			}
@@ -343,7 +343,7 @@ public class EditResourceTypeIntegrationTest extends TemporaryServerIntegrationT
 				.getAppCollection().create("my-edit.xhtml", "application/xhtml+xml", EDIT_TEMPLATE.getBytes());
 		WebResource MyClass = waitForCompile(new Callable<WebResource>() {
 			public WebResource call() throws Exception {
-				String createClass = "?create=/callimachus/1.0/types/Class";
+				String createClass = "?create=/callimachus/1.3/types/Class";
 				String turtle = CLASS_TURTLE + ";\ncalli:create <" + my_create_xhtml + ">;\ncalli:edit <" + my_edit_xhtml + ">.";
 				return getHomeFolder().ref(createClass).create("text/turtle", turtle.getBytes());
 			}

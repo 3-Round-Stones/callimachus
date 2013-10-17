@@ -262,7 +262,7 @@ Would you like to generate a new server certificate now? (type 'yes' or 'no')
   [no]:  " genkey
     if [ "$genkey" = "yes" ] ; then
       "$KEYTOOL" -delete -alias "$cname" -keystore "$KEYSTORE" -storepass "$(cat "$SSL.password")" $KEYTOOL_OPTS
-      rm "$cname.cer" "$cname.csr"
+      rm -f "$cname.cer" "$cname.csr"
     fi
   fi
 fi

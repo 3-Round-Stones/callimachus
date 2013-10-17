@@ -12,8 +12,7 @@ if (!window.calli) {
 window.calli.deleteResource = function(event, redirect) {
     var waiting = calli.wait();
     try {
-        event = calli.fixEvent(event);
-        var form = $(event.target).closest('form');
+        var form = $(calli.fixEvent(event).target).closest('form');
     
         if (event && event.type) {
             var prompt = event.message;

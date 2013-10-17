@@ -42,7 +42,7 @@ public class DocEditor extends CalliPage {
 		browser.focusInFrame("save-as___");
 		browser.type(By.id("label"), articleName);
 		browser.focusInTopWindow();
-		browser.click(By.xpath("(//button[@type='button'])[2]"));
+		browser.click(By.xpath("//div[@role='dialog']//button[1]"));
 		return page();
 	}
 

@@ -27,7 +27,7 @@ public class ClassEdit extends CalliPage {
 	}
 
 	public TextEditor openCreateTemplate() {
-		browser.click(By.cssSelector("#create label.control-label a"));
+		browser.click(By.cssSelector("#create label a"));
 		browser.waitForScript();
 		browser.focusInFrame("create-template");
 		browser.waitForScript();
@@ -43,7 +43,7 @@ public class ClassEdit extends CalliPage {
 	}
 
 	public TextEditor openViewTemplate() {
-		browser.click(By.cssSelector("#view label.control-label a"));
+		browser.click(By.cssSelector("#view label a"));
 		browser.waitForScript();
 		browser.focusInFrame("view-template");
 		browser.waitForScript();
@@ -59,7 +59,7 @@ public class ClassEdit extends CalliPage {
 	}
 
 	public TextEditor openEditTemplate() {
-		browser.click(By.cssSelector("#edit label.control-label a"));
+		browser.click(By.cssSelector("#edit label a"));
 		browser.waitForScript();
 		browser.focusInFrame("edit-template");
 		browser.waitForScript();

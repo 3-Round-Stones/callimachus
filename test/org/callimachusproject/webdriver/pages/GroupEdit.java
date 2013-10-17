@@ -21,7 +21,7 @@ public class GroupEdit extends CalliPage {
 	}
 
 	public InviteUser openInviteUser() {
-		browser.click(By.cssSelector("#members label.control-label a"));
+		browser.click(By.cssSelector("#members label a"));
 		browser.waitForScript();
 		browser.focusInFrame("members");
 		browser.waitForScript();

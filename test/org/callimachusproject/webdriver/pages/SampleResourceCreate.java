@@ -19,7 +19,7 @@ public class SampleResourceCreate extends CalliPage {
 		browser.click(By.cssSelector("button.btn-success"));
 		browser.focusInFrame("save-as___");
 		browser.focusInTopWindow();
-		browser.click(By.xpath("(//button[@type='button'])[2]"));
+		browser.click(By.xpath("//div[@role='dialog']//button[1]"));
 		browser.waitForScript();
 		return page();
 	}

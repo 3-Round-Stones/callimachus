@@ -31,7 +31,7 @@ public class CalliPage {
 
 	public CalliPage logout() {
 		browser.focusInTopWindow();
-		browser.click(By.cssSelector("i.icon-cog"));
+		browser.click(By.cssSelector("button.navbar-btn.dropdown-toggle"));
 		browser.click(By.id("logout-link"));
 		return page();
 	}
@@ -43,7 +43,7 @@ public class CalliPage {
 
 	public FolderView openHomeFolder() {
 		browser.focusInTopWindow();
-		browser.click(By.cssSelector("i.icon-cog"));
+		browser.click(By.cssSelector("button.navbar-btn.dropdown-toggle"));
 		browser.click(By.linkText("Home folder"));
 		return page(FolderView.class);
 	}
@@ -98,28 +98,28 @@ public class CalliPage {
 
 	public RecentChanges openRecentChanges() {
 		browser.focusInTopWindow();
-		browser.click(By.cssSelector("i.icon-cog"));
+		browser.click(By.cssSelector("button.navbar-btn.dropdown-toggle"));
 		browser.click(By.linkText("Recent changes"));
 		return page(RecentChanges.class);
 	}
 
 	public RecentChanges openRelatedChanges() {
 		browser.focusInTopWindow();
-		browser.click(By.cssSelector("i.icon-cog"));
+		browser.click(By.cssSelector("button.navbar-btn.dropdown-toggle"));
 		browser.click(By.linkText("Related changes"));
 		return page(RecentChanges.class);
 	}
 
 	public SearchResults openWhatLinksHere() {
 		browser.focusInTopWindow();
-		browser.click(By.cssSelector("i.icon-cog"));
+		browser.click(By.cssSelector("button.navbar-btn.dropdown-toggle"));
 		browser.click(By.linkText("What links here"));
 		return page(SearchResults.class);
 	}
 
 	public CalliPage openProfile() {
 		browser.focusInTopWindow();
-		browser.click(By.cssSelector("i.icon-cog"));
+		browser.click(By.cssSelector("button.navbar-btn.dropdown-toggle"));
 		browser.click(By.id("profile-link"));
 		return page();
 	

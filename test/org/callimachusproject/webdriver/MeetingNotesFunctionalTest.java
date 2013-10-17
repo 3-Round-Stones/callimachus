@@ -43,7 +43,7 @@ public class MeetingNotesFunctionalTest extends BrowserFunctionalTestCase {
 				.with("R & D", "Research and Development journal").createAs();
 		browser.focusInTopWindow();
 		logger.info("Creating note");
-		browser.click(By.cssSelector("i.icon-cog"));
+		browser.click(By.cssSelector("button.navbar-btn.dropdown-toggle"));
 		browser.click(By.linkText("Create a new note"));
 		browser.focusInTopWindow();
 		browser.type(By.id("comment"), "Testing callimachus");

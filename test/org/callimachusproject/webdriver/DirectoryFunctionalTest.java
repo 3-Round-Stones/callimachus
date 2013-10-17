@@ -46,7 +46,7 @@ public class DirectoryFunctionalTest extends BrowserFunctionalTestCase {
 		browser.click(By.cssSelector("button[type=submit]"));
 		browser.focusInFrame("save-as___");
 		browser.focusInTopWindow();
-		browser.click(By.xpath("(//button[@type='button'])[2]"));
+		browser.click(By.xpath("//div[@role='dialog']//button[1]"));
 		browser.focusInTopWindow();
 		browser.click(By.linkText("Edit"));
 		browser.type(By.xpath("//div[@id='adr']//input[@placeholder='state or province']"), "DC");

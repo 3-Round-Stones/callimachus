@@ -26,7 +26,7 @@ public class ConceptEdit extends CalliPage {
 	}
 
 	public ConceptCreate openNarrowDialogue() {
-		browser.click(By.cssSelector("#narrower label.control-label a"));
+		browser.click(By.cssSelector("#narrower label a"));
 		browser.waitForScript();
 		browser.focusInFrame("narrower");
 		browser.waitForScript();

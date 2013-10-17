@@ -10,7 +10,7 @@ public class DigestUserEdit extends CalliPage {
 	}
 
 	public FileUploadForm openPhotoUpload() {
-		browser.click(By.cssSelector("#photo label.control-label a"));
+		browser.click(By.cssSelector("#photo label a"));
 		browser.waitForScript();
 		browser.focusInFrame("photo");
 		browser.waitForScript();
@@ -22,7 +22,7 @@ public class DigestUserEdit extends CalliPage {
 				browser.focusInFrame("photo", "save-as___");
 				browser.type(By.id("label"), fileName);
 				browser.focusInFrame("photo");
-				browser.click(By.xpath("(//button[@type='button'])[2]"));
+				browser.click(By.xpath("//div[@role='dialog']//button[1]"));
 				browser.waitForFrameToClose("photo");
 				return edit;
 			}

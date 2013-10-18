@@ -16,21 +16,24 @@ function handle(event) {
 
 function flashButton(event) {
     var button = $(this);
-    setTimeout(function() {
-        if (!button.attr('disabled')) {
-            button.attr('disabled', 'disabled');
-            button.addClass("disabled");
-            setTimeout(function() {
-                button.removeAttr('disabled');
-                button.removeClass("disabled");
-            }, 5000);
-            button.focus(function() {
-                button.removeAttr('disabled');
-                button.removeClass("disabled");
-                return true;
-            });
-        }
-    }, 0); // yield
+    if (!button.is('.dropdown-toggle')) {
+        // yield
+        setTimeout(function() {
+            if (!button.attr('disabled')) {
+                button.attr('disabled', 'disabled');
+                button.addClass("disabled");
+                setTimeout(function() {
+                    button.removeAttr('disabled');
+                    button.removeClass("disabled");
+                }, 5000);
+                button.focus(function() {
+                    button.removeAttr('disabled');
+                    button.removeClass("disabled");
+                    return true;
+                });
+            }
+        }, 0);
+    }
     return true;
 }
 

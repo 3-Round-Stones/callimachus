@@ -46,19 +46,20 @@ $('form[enctype="application/sparql-update"]').each(function() {
 function submitRDFForm(form, resource, stored) {
     var waiting = calli.wait();
     try {
-        var revised = readRDF(form);
+        var parser = new RDFaParser();
+        var uri = parser.parseURI(parser.getNodeBase(form)).resolve(resource);
+        var revised = parseRDF(parser, uri, form);
         var diff = diffTriples(stored, revised);
         var removed = diff.removed;
         var added = diff.added;
-        var hash, triple;
-        for (hash in removed) {
-            addBoundedDescription(removed[hash], stored, removed, added);
+        for (var rhash in removed) {
+            addBoundedDescription(removed[rhash], stored, removed, added);
         }
-        for (hash in added) {
-            addBoundedDescription(added[hash], revised, added, removed);
+        for (var ahash in added) {
+            addBoundedDescription(added[ahash], revised, added, removed);
         }
         var se = $.Event("calliSubmit");
-        se.resource = resource;
+        se.resource = uri;
         se.location = calli.getFormAction(form);
         se.payload = asSparqlUpdate(removed, added);
         $(form).trigger(se);
@@ -101,12 +102,16 @@ function submitRDFForm(form, resource, stored) {
 }
 
 function readRDF(form) {
+    var parser = new RDFaParser();
+    var base = parser.getNodeBase(form);
+    var resource = $(form).attr("about") || $(form).attr("resource");
+    var formSubject = resource ? parser.parseURI(base).resolve(resource) : base;
+    return parseRDF(parser, formSubject, form);
+}
+
+function parseRDF(parser, formSubject, form) {
     var 
-        parser = new RDFaParser(),
         writer = new UpdateWriter(),
-        resource = $(form).attr("about") || $(form).attr("resource"),
-        base = parser.getNodeBase(form),
-        formSubject = resource ? parser.parseURI(base).resolve(resource) : base,
         formHash = formSubject + "#",
         triples = {},
         usedBlanks = {},

@@ -25,10 +25,12 @@ $('form').submit(function(event) {
 function submitRDFForm(form, uri) {
     var waiting = calli.wait();
     try {
+        var parser = new RDFaParser();
+        var resource = parser.parseURI(parser.getNodeBase(form)).resolve(uri);
         var se = $.Event("calliSubmit");
-        se.resource = uri;
+        se.resource = resource;
         se.location = calli.getFormAction(form);
-        se.payload = getRDFXML(uri, form);
+        se.payload = getRDFXML(parser, resource, form);
         $(form).trigger(se);
         if (!se.isDefaultPrevented()) {
             postData(form, se.payload, function(data, textStatus, xhr) {
@@ -63,11 +65,9 @@ function submitRDFForm(form, uri) {
     }
 }
 
-function getRDFXML(uri, form) {
+function getRDFXML(parser, formSubject, form) {
     var 
-        parser = new RDFaParser(),
         serializer = new RDFXMLSerializer(),
-        formSubject = parser.parseURI(parser.getNodeBase(form)).resolve(uri),
         usedBlanks = {},
         isBlankS,
         isFirstTriple = true

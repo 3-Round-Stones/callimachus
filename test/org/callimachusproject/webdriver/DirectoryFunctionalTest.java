@@ -12,7 +12,7 @@ import org.callimachusproject.webdriver.pages.FolderView;
 import org.openqa.selenium.By;
 
 public class DirectoryFunctionalTest extends BrowserFunctionalTestCase {
-	private static final String DOWNLOAD_URL = "http://dir-w3-org.googlecode.com/files/directory-1.3.car";
+	private static final String DOWNLOAD_URL = "https://github.com/3-Round-Stones/directory/releases/download/v1.6/directory-1.6.car";
 
 	public static TestSuite suite() throws Exception {
 		return BrowserFunctionalTestCase
@@ -43,7 +43,7 @@ public class DirectoryFunctionalTest extends BrowserFunctionalTestCase {
 		browser.select(By.id("orgtype"), "Commercial");
 		browser.type(By.id("url"), "http://3roundstones.com/");
 		browser.select(By.xpath("//div[@id='adr']//select"), "United States");
-		browser.click(By.cssSelector("button[type=submit]"));
+		browser.click(By.cssSelector("button#create"));
 		browser.focusInFrame("save-as___");
 		browser.focusInTopWindow();
 		browser.click(By.xpath("//div[@role='dialog']//button[1]"));

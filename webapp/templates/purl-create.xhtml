@@ -25,9 +25,7 @@
             $('textarea.pattern').attr('property', this.value);
         }).change();
         $('#form').bind('calliRedirect', function(event){
-            if (event.resource == event.location) {
-                event.location = event.resource + '?view';
-            }
+            event.location = event.resource + '?view';
         });
     });
     // ]]>

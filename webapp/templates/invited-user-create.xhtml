@@ -9,7 +9,8 @@
     <link rel="help" href="../../callimachus-for-web-developers#Account_Invitations" target="_blank" title="Help" />
     <script type="text/javascript"><![CDATA[
     jQuery(function($) {
-        $('#body').val($('#body').val().replace(/@@REGISTRATION_URL@@/g, window.location.protocol + '//' + window.location.host + '/?register'));
+        var origin = window.location.protocol + '//' + window.location.host;
+        $('#body').val($('#body').val().replace(/@@REGISTRATION_URL@@/g, origin + '/?register') + origin);
         var messageChanged = false;
         $('#body').change(function(){
             messageChanged = true;
@@ -87,13 +88,16 @@
                 <div class="controls">
                     <textarea id="body" name="body" class="auto-expand col-md-5" required="required">Hello,
 
-A new account has been created for you. Use the link below to pick a
-password or other authentication options.
+A new account has been created for you using a Callimachus service. Use the
+link below to pick a password or other authentication options.
 
 @@REGISTRATION_URL@@
 
-Enjoy!
-</textarea>
+If you have any questions, please contact your systems administrator who set
+this up for you.
+
+Kind regards,
+The Callimachus service running at </textarea>
                 </div>
             </div>
             <div class="form-group">

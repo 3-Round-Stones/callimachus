@@ -296,17 +296,18 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
 </xsl:template>
 
 <xsl:template match="xhtml:img">
+    <inlinemediaobject>
+        <xsl:call-template name="imageobject" />
+    </inlinemediaobject>
+</xsl:template>
+
+<xsl:template match="xhtml:body/xhtml:img">
     <figure>
+        <title><xsl:value-of select="@title" /></title>
         <mediaobject>
             <xsl:call-template name="imageobject" />
         </mediaobject>
     </figure>
-</xsl:template>
-
-<xsl:template match="xhtml:p/xhtml:img">
-    <inlinemediaobject>
-        <xsl:call-template name="imageobject" />
-    </inlinemediaobject>
 </xsl:template>
 
 <xsl:template match="xhtml:figure/xhtml:img|xhtml:p[@class='figure']/xhtml:img">

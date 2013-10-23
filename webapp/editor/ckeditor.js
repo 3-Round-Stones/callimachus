@@ -6,7 +6,6 @@ jQuery(function($) {
     var jQuery = $;
     
     CKEDITOR.replace('editor', {
-        baseHref: window.location.href,
         resize_enabled: false,                  // disable resize handle
         fullPage: true,                         // enable editing of complete documents
         basicEntities: true,                    // enable basic entities

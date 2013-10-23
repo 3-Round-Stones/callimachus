@@ -38,7 +38,7 @@
     <xsl:apply-templates select="*[not(self::d:title or self::d:titleabbrev or self::d:subtitle or self::d:info or self::d:partintro)]" />
 </xsl:template>
 
-<xsl:template match="d:preface/d:article|d:partintro/d:article|d:article/d:article|d:chapter/d:article|d:appendix/d:article|d:section/d:article|d:topic/d:article">
+<xsl:template match="*[self::d:preface or self::d:partintro or self::d:article or self::d:chapter or self::d:appendix or self::d:section or self::d:topic]//*[self::d:book or self::d:part or self::d:chapter or self::d:article]">
     <section>
         <xsl:if test="base-uri(.)!=base-uri(..) and not(@xml:id)">
             <xsl:attribute name="xml:id">

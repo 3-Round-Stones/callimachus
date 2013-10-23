@@ -68,7 +68,9 @@ $(document).bind("calliLoggedIn", function(event) {
 $(document).bind("calliLoggedIn", function(event) {
     $(document).ready(function() {
         if (event.title) {
-            $("#profile-link").text(event.title);
+            $("#profile-link").contents().filter(function(){
+                return this.nodeType === 3 && this.nodeValue.replace(/\w+/g,'');
+            }).first().replaceWith(document.createTextNode(event.title));
         }
     });
 });

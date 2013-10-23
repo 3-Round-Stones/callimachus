@@ -18,7 +18,7 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
 <body>
     {calli:body-attributes()}
     <div class="until-navbar-large">
-        <div class="navbar navbar-default navbar-static-top hidden-iframe">
+        <nav class="navbar navbar-default navbar-static-top hidden-iframe">
             <header class="container">
                 <div class="pull-left">
                     {calli:home-href(<a class="navbar-brand">Callimachus</a>)}
@@ -50,20 +50,22 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
                 </div>
                 <div class="col-xs-4 pull-right hidden-logout">{calli:lookup-form('Lookup...')}</div>
             </header>
-        </div>
+        </nav>
         <div class="container">
-            <ol class="breadcrumb hidden-iframe">{calli:breadcrumb-links(<li><a/></li>, <li class="active"/>)}</ol>
-            {calli:body-hgroup()}
-            {calli:body-sidebar(<div class="sidebar" />)}
-            {calli:activate-nav(<ul class="hidden-logout hidden-iframe nav nav-tabs">
-                <li>{calli:view-href(<a tabindex="1" onclick="location.replace(href);return false">View</a>)}</li>
-                <li>{calli:edit-href(<a tabindex="2" onclick="location.replace(href);return false">Edit</a>)}</li>
-                <li>{calli:discussion-href(<a tabindex="3" onclick="location.replace(href);return false">Discussion</a>)}</li>
-                <li>{calli:describe-href(<a tabindex="4" onclick="location.replace(href);return false">Describe</a>)}</li>
-                <li>{calli:history-href(<a tabindex="5" onclick="location.replace(href);return false">History</a>)}</li>
-            </ul>)}
-
+            <ol class="breadcrumb navbar-left hidden-iframe">{calli:breadcrumb-links(<li><a/></li>, <li class="active"/>)}</ol>
+            {calli:activate-nav(<nav class="nav-tabs clearfix hidden-logout hidden-iframe">
+                <ul class="nav nav-tabs navbar-right" style="border-bottom:none">
+                    <li>{calli:view-href(<a tabindex="1" onclick="location.replace(href);return false">View</a>)}</li>
+                    <li>{calli:edit-href(<a tabindex="2" onclick="location.replace(href);return false">Edit</a>)}</li>
+                    <li>{calli:discussion-href(<a tabindex="3" onclick="location.replace(href);return false">Discussion</a>)}</li>
+                    <li>{calli:describe-href(<a tabindex="4" onclick="location.replace(href);return false">Describe</a>)}</li>
+                    <li>{calli:history-href(<a tabindex="5" onclick="location.replace(href);return false">History</a>)}</li>
+                </ul>
+            </nav>)}
+            <div class="clearfix" />
             <div class="tab-content">
+                {calli:body-hgroup()}
+                {calli:body-sidebar(<div class="sidebar" />)}
                 {calli:error-alert(<div class="alert alert-danger alert-dismissable alert-block">
                     <button type="button" class="close" data-dismiss="alert">×</button>
                     <h4>Oops!</h4>

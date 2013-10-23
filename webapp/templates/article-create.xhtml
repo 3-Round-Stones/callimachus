@@ -23,10 +23,12 @@
 <body>
     <form role="form" id="form" method="POST" action="" enctype="application/xhtml+xml">
         <fieldset class="form-group">
-            <iframe id="editor-iframe" name="editor-iframe" class="flex" src="../../document-editor.html" onload="calli.initEditor(event,$('#template').text()||$('#template').html().replace(/^\s+/,''))"> </iframe>
+            <iframe id="editor-iframe" name="editor-iframe" class="flex" src="../../document-editor.html"
+                onload="calli.initEditor(event,$('#template').text()||$('#template').html().replace(/^\s+/,''))"> </iframe>
         </fieldset>
         <fieldset class="form-group">
-            <button id="create-article" type="submit" onclick="return calli.saveResourceAs(event, 'untitled article.docbook')" class="btn btn-success">Create</button>
+            <button id="create-article" type="submit"
+                onclick="return calli.saveResourceAs(event, 'untitled article.docbook')" class="btn btn-success">Create</button>
         </fieldset>
     </form>
 </body>

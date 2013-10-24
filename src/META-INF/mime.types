@@ -71,6 +71,8 @@ application/vnd.openxmlformats-officedocument.spreadsheetml.template xltx
 application/vnd.openxmlformats-officedocument.wordprocessingml.document docx
 application/vnd.openxmlformats-officedocument.wordprocessingml.template dotx
 application/zip zip
+application/zip jar
+application/zip car
 application/xhtml+xml xhtml
 application/xhtml+xml xht
 application/xml xml

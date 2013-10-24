@@ -28,7 +28,7 @@
     foaf:primaryTopic <Purl>.
 
 <Purl> a <Creatable>, owl:Class;
-    rdfs:subClassOf <Viewable>, <Editable>, calli:PURL;
+    rdfs:subClassOf <Viewable>, <Editable>, calli:Purl;
     rdfs:label "PURL";
     rdfs:comment "Persistent Uniform Resource Location of a Web resource.";
     owl:equivalentClass </callimachus/PURL>, </callimachus/1.0/types/PURL>;

@@ -22,12 +22,12 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<> a <SchemaGraph>;
-    foaf:primaryTopic <Transform>.
+<> a <RdfSchemaGraph>;
+    foaf:primaryTopic <XslTransform>.
 
-<Transform> a <Creatable>, owl:Class;
+<XslTransform> a <Creatable>, owl:Class;
     rdfs:subClassOf <File>;
-    rdfs:label "Transform";
+    rdfs:label "XSL Transform";
     rdfs:comment "XSL transform files";
     owl:equivalentClass </callimachus/Transform>, </callimachus/1.0/types/Transform>;
     rdfs:isDefinedBy <../../ontology>;
@@ -42,7 +42,7 @@
 
 # GET /transform.xsl
 :GetTransform rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Transform>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <XslTransform>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
     calli:method "GET";
     calli:rel "edit-media";
@@ -54,7 +54,7 @@
 
 # POST ?create=/callimachus/Transform
 :CreateTransform owl:intersectionOf (<creatable.ttl#PostCreate>
-        [owl:onProperty msg:target; owl:hasValue <Transform> ]);
+        [owl:onProperty msg:target; owl:hasValue <XslTransform> ]);
     calli:imports <java:org.openrdf.model.vocabulary.RDFS>;
     calli:imports <java:java.net.URLDecoder>;
     calli:imports <java:org.callimachusproject.server.WebServer>;
@@ -82,7 +82,7 @@
 
 # PUT /transform.xsl
 :UploadTransform rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Transform>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <XslTransform>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     calli:method "PUT";
     calli:requires calli:editor;
@@ -112,7 +112,7 @@
     calli:type "text/xsl".
 
 :ValidateTransform rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Transform>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <XslTransform>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     calli:post "../schemas/xslt.rng?validate\nContent-Location: {+0}\nContent-Type: application/xml".
 

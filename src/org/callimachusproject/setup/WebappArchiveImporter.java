@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 public class WebappArchiveImporter {
 	private static final String GROUP_PUBLIC = "/auth/groups/public";
 	private static final String GROUP_SUPER = "/auth/groups/super";
-	private static final String SCHEMA_GRAPH = "types/SchemaGraph";
+	private static final String SCHEMA_GRAPH = "types/RdfSchemaGraph";
 	private static final String REALM_TYPE = "types/Realm";
 	private static final String ORIGIN_TYPE = "types/Origin";
 	private static final String FOLDER_TYPE = "types/Folder";

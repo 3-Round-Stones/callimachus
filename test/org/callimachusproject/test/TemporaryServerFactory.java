@@ -44,7 +44,7 @@ public class TemporaryServerFactory {
 	private static int MIN_PORT = 49152;
 	private static int MAX_PORT = 65535;
 	private static final String CHANGES_PATH = "../changes/";
-	private static final String SCHEMA_GRAPH = "types/SchemaGraph";
+	private static final String SCHEMA_GRAPH = "types/RdfSchemaGraph";
 	private static final File WEBAPP_CAR = findCallimachusWebappCar();
 	private static final int PORT = findPort(WEBAPP_CAR.getAbsolutePath().hashCode());
 	private static final TemporaryServerFactory instance = new TemporaryServerFactory("http://localhost:" + PORT, PORT, "test@example.com", "test".toCharArray());

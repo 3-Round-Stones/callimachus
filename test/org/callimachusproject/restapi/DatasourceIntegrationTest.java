@@ -27,7 +27,7 @@ public class DatasourceIntegrationTest extends TemporaryServerIntegrationTestCas
 	@Before
 	public void setUp() throws Exception {
 		super.setUp();
-		datasource = getHomeFolder().createDatasource("data");
+		datasource = getHomeFolder().createRdfDatasource("data");
 	}
 
 	@Override

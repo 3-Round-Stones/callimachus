@@ -56,7 +56,7 @@ public class RdfIntegrationTest extends TemporaryServerIntegrationTestCase {
         			"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n" +
         		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
         		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
-        			" INSERT DATA {  \n <created-purl> a calli:PURL, </callimachus/PURL> ;  \n" +
+        			" INSERT DATA {  \n <created-purl> a calli:Purl, </callimachus/PURL> ;  \n" +
         			" rdfs:label \"purl\" ; calli:alternate \"http://purl.org/\" . }",
         			"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n" +
         		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +

@@ -59,7 +59,7 @@ public class SparqlEndpointProvider extends UpdateProvider {
 		if (con.hasStatement(uri, RDF.TYPE, Datasource))
 			return false;
 		con.add(root, vf.createURI(HASCOMPONENT), uri);
-		con.add(uri, RDF.TYPE, vf.createURI(tf.resolve("types/Datasource")));
+		con.add(uri, RDF.TYPE, vf.createURI(tf.resolve("types/RdfDatasource")));
 		con.add(uri, RDF.TYPE, Datasource);
 		con.add(uri, RDF.TYPE, vf.createURI(SD, "Service"));
 		con.add(uri, RDFS.LABEL, vf.createLiteral("SPARQL"));

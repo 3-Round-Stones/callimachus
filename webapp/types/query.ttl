@@ -22,12 +22,12 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<> a <SchemaGraph>;
-    foaf:primaryTopic <NamedQuery>.
+<> a <RdfSchemaGraph>;
+    foaf:primaryTopic <RdfQuery>.
 
-<NamedQuery> a <Creatable>, owl:Class;
+<RdfQuery> a <Creatable>, owl:Class;
     rdfs:subClassOf <File>;
-    rdfs:label "Query";
+    rdfs:label "RDF Query";
     rdfs:comment "Saved SPARQL queries";
     owl:equivalentClass </callimachus/NamedQuery>, </callimachus/1.0/types/NamedQuery>;
     rdfs:isDefinedBy <../../ontology>;
@@ -41,7 +41,7 @@
 
 # GET /query/my-query.rq
 :GetNamedQuery rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <NamedQuery>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfQuery>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
     calli:method "GET";
     calli:rel "edit-media";
@@ -53,7 +53,7 @@
 
 # GET /queries/my-query.rq?view
 :GetViewPage owl:intersectionOf (<viewable.ttl#GetViewPage>
-        [owl:onProperty msg:target; owl:allValuesFrom <NamedQuery>]);
+        [owl:onProperty msg:target; owl:allValuesFrom <RdfQuery>]);
     calli:rel "alternate";
     calli:method "GET";
     calli:query "view";
@@ -88,7 +88,7 @@
 
 # GET /queries/my-query.rq?sparql
 :GetSparql rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <NamedQuery>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfQuery>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:hexBinary];
     calli:method "GET";
     calli:query "sparql";
@@ -119,7 +119,7 @@
 
 # POST ?create=/callimachus/NamedQuery
 :CreateNamedQuery owl:intersectionOf (<creatable.ttl#PostCreate>
-        [owl:onProperty msg:target; owl:hasValue <NamedQuery> ]);
+        [owl:onProperty msg:target; owl:hasValue <RdfQuery> ]);
     calli:imports <java:org.openrdf.model.vocabulary.RDFS>;
     calli:imports <java:java.net.URLDecoder>;
     calli:imports <java:org.callimachusproject.server.WebServer>;
@@ -147,7 +147,7 @@
 
 # PUT /query/my-query.rq
 :UploadNamedQuery rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <NamedQuery>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfQuery>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     calli:method "PUT";
     calli:requires calli:editor;
@@ -156,7 +156,7 @@
     calli:imports <java:org.callimachusproject.engine.ParameterizedQueryParser>;
     calli:imports <java:org.callimachusproject.server.WebServer>;
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    calli:imports <NamedQuery>;
+    calli:imports <RdfQuery>;
     calli:imports <java:org.openrdf.query.QueryLanguage>;
     calli:script """
         if (!stream)
@@ -189,7 +189,7 @@
 ################################
 
 :GetResult rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <NamedQuery>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfQuery>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
     calli:method "GET";
     calli:query "results", "tqx", "eval";
@@ -303,7 +303,7 @@
 ################################
 
 :TransformSparqlResult rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <NamedQuery>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfQuery>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>].
 
 :xml a owl:FunctionalProperty, owl:ObjectProperty;

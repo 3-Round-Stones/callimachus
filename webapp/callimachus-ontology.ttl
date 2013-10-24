@@ -23,7 +23,7 @@
 @prefix foaf:<http://xmlns.com/foaf/0.1/>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 
-<> a <types/SchemaGraph>;
+<> a <types/RdfSchemaGraph>;
     foaf:primaryTopic <http://callimachusproject.org/rdf/2009/framework>.
 
 ################################
@@ -33,13 +33,13 @@
 <http://callimachusproject.org/rdf/2009/framework> a owl:Ontology;
     rdfs:label "Callimachus Ontology";
     rdfs:comment "Vocabulary used to create Callimachus applications";
-    owl:versionInfo "1.2".
+    owl:versionInfo "1.3".
 
 ################################
 # Class
 ################################
 
-calli:PURL a owl:Class;
+calli:Purl a owl:Class;
     rdfs:label "PURL";
     rdfs:comment "Persistent Uniform Resource Location of a Web resource";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
@@ -50,7 +50,7 @@ calli:Composite a owl:Class;
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:Folder a owl:Class;
-    rdfs:subClassOf calli:Composite, calli:PURL;
+    rdfs:subClassOf calli:Composite, calli:Purl;
     rdfs:label "Folder";
     rdfs:comment "A resource URI namespace ending in a slash";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
@@ -140,9 +140,9 @@ calli:XQuery a owl:Class;
     rdfs:comment "A Callimachus XQuery file";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
-calli:Datasource a owl:Class;
+calli:RdfDatasource a owl:Class;
     rdfs:subClassOf sd:Service;
-    rdfs:label "Datasource";
+    rdfs:label "RDF Datasource";
     rdfs:comment "An RDF source";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
@@ -424,21 +424,21 @@ calli:error a owl:ObjectProperty;
     rdfs:label "error";
     rdfs:comment "An XPROC pipeline file that should be used to transform/style simple error pages";
     rdfs:domain calli:Realm;
-    rdfs:range calli:PURL;
+    rdfs:range calli:Purl;
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:forbidden a owl:ObjectProperty;
     rdfs:label "forbidden";
     rdfs:comment "The XHTML page template used when an agent is forbidden from the requested resource";
     rdfs:domain calli:Realm;
-    rdfs:range calli:PURL;
+    rdfs:range calli:Purl;
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:unauthorized a owl:ObjectProperty;
     rdfs:label "authorized";
     rdfs:comment "The XHTML page used when an agent is aunothorized from the requested resource";
     rdfs:domain calli:Realm;
-    rdfs:range calli:PURL;
+    rdfs:range calli:Purl;
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:authentication a owl:ObjectProperty;
@@ -479,7 +479,7 @@ calli:nobodyFrom a owl:DatatypeProperty;
 calli:cacheControl a owl:DatatypeProperty;
     rdfs:label "cache-control";
     rdfs:comment "A response Cache-Control directive";
-    rdfs:domain calli:PURL;
+    rdfs:domain calli:Purl;
     rdfs:range xsd:string;
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 

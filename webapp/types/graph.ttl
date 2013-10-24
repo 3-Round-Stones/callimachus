@@ -24,18 +24,18 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<> a <SchemaGraph>.
+<> a <RdfSchemaGraph>.
 
-<SchemaGraph> a owl:Class;
+<RdfSchemaGraph> a owl:Class;
     rdfs:subClassOf <Serviceable>;
     rdfs:label "Schema Graph";
     owl:equivalentClass </callimachus/SchemaGraph>, </callimachus/1.0/types/SchemaGraph>;
     rdfs:isDefinedBy <../../ontology>.
 
-<NamedGraph> a <Creatable>, owl:Class;
+<RdfGraph> a <Creatable>, owl:Class;
     rdfs:subClassOf <File>, sd:NamedGraph;
     owl:equivalentClass </callimachus/1.0/types/NamedGraph>;
-    rdfs:label "Named Graph";
+    rdfs:label "RDF Graph";
     rdfs:comemnt "RDF document encoded as a RDF+XML file";
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;
@@ -46,10 +46,10 @@
     calli:mediaType "application/rdf+xml";
     calli:documentTag <http://www.w3.org/1999/02/22-rdf-syntax-ns#RDF>.
 
-<GraphDocument> a <Creatable>, owl:Class;
+<RdfTurtle> a <Creatable>, owl:Class;
     rdfs:subClassOf <File>, sd:NamedGraph;
     owl:equivalentClass </callimachus/1.0/types/GraphDocument>;
-    rdfs:label "Graph Document";
+    rdfs:label "RDF Turtle";
     rdfs:comment "RDF document encoded as a Turtle file";
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;
@@ -66,7 +66,7 @@
 
 # GET /graph.ttl
 :GetGraphDocument rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <GraphDocument>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfTurtle>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
     calli:method "GET";
     calli:rel "edit-media";
@@ -78,7 +78,7 @@
 
 # POST ?create=/callimachus/GraphDocument
 :CreateGraphDocument owl:intersectionOf (<creatable.ttl#PostCreate>
-        [owl:onProperty msg:target; owl:hasValue <GraphDocument> ]);
+        [owl:onProperty msg:target; owl:hasValue <RdfTurtle> ]);
     calli:imports <java:org.openrdf.model.vocabulary.RDFS>;
     calli:imports <java:java.net.URLDecoder>;
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
@@ -107,7 +107,7 @@
 
 # PUT /graph.ttl
 :UploadGraphDocument rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <GraphDocument>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfTurtle>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     calli:method "PUT";
     calli:requires calli:editor;
@@ -156,7 +156,7 @@
 
 # GET /graph.rdf
 :GetNamedGraph rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <NamedGraph>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfGraph>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
     calli:method "GET";
     calli:rel "edit-media";
@@ -168,7 +168,7 @@
 
 # POST ?create=/callimachus/NamedGraph
 :PostNamedGraphCreate owl:intersectionOf (<creatable.ttl#PostCreate>
-        [owl:onProperty msg:target; owl:hasValue <NamedGraph> ]);
+        [owl:onProperty msg:target; owl:hasValue <RdfGraph> ]);
     calli:imports <java:java.net.URLEncoder>;
     calli:imports <java:org.openrdf.model.vocabulary.RDFS>;
     calli:imports <java:org.openrdf.rio.RDFFormat>;
@@ -201,7 +201,7 @@
 
 # PUT /graph.rdf
 :UploadNamedGraph rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <NamedGraph>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfGraph>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     calli:method "PUT";
     calli:requires calli:editor;

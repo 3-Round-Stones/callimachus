@@ -13,7 +13,7 @@ PREFIX audit:<http://www.openrdf.org/rdf/2012/auditing#>
 
 INSERT {
 <../> calli:hasComponent <../query-view.js>.
-<../query-view.js> a <types/PURL>, calli:PURL ;
+<../query-view.js> a <types/Purl>, calli:Purl ;
 	rdfs:label "query-view.js";
 	calli:alternate <scripts/query-view?minified>;
 	calli:administrator </auth/groups/super>;
@@ -40,7 +40,7 @@ DELETE {
 
 INSERT {
 <../> calli:hasComponent <../query-view.css>.
-<../query-view.css> a <types/PURL>, calli:PURL ;
+<../query-view.css> a <types/Purl>, calli:Purl ;
 	rdfs:label "query-view.css";
 	calli:alternate <styles/callimachus-query-view.less?less>;
 	calli:administrator </auth/groups/super>;
@@ -153,7 +153,9 @@ DELETE {
 { ?resource a </callimachus/1.0/types/Concept> BIND (</callimachus/1.0/types/Concept> AS ?previous) BIND (</callimachus/1.3/types/Concept> AS ?current) } UNION
 { ?resource a </callimachus/1.0/types/Creatable> BIND (</callimachus/1.0/types/Creatable> AS ?previous) BIND (</callimachus/1.3/types/Creatable> AS ?current) } UNION
 { ?resource a </callimachus/1.0/types/Credential> BIND (</callimachus/1.0/types/Credential> AS ?previous) BIND (</callimachus/1.3/types/Credential> AS ?current) } UNION
-{ ?resource a </callimachus/1.0/types/Datasource> BIND (</callimachus/1.0/types/Datasource> AS ?previous) BIND (</callimachus/1.3/types/Datasource> AS ?current) } UNION
+{ ?resource a calli:Datasource BIND (calli:Datasource AS ?previous) BIND (calli:RdfDatasource AS ?current) } UNION
+{ ?resource a </callimachus/1.0/types/Datasource> BIND (</callimachus/1.0/types/Datasource> AS ?previous) BIND (</callimachus/1.3/types/RdfDatasource> AS ?current) } UNION
+{ ?resource a </callimachus/1.3/types/Datasource> BIND (</callimachus/1.3/types/Datasource> AS ?previous) BIND (</callimachus/1.3/types/RdfDatasource> AS ?current) } UNION
 { ?resource a </callimachus/1.0/types/DigestManager> BIND (</callimachus/1.0/types/DigestManager> AS ?previous) BIND (</callimachus/1.3/types/DigestManager> AS ?current) } UNION
 { ?resource a </callimachus/1.0/types/DigestUser> BIND (</callimachus/1.0/types/DigestUser> AS ?previous) BIND (</callimachus/1.3/types/DigestUser> AS ?current) } UNION
 { ?resource a </callimachus/1.0/types/Domain> BIND (</callimachus/1.0/types/Domain> AS ?previous) BIND (</callimachus/1.3/types/Domain> AS ?current) } UNION
@@ -161,32 +163,42 @@ DELETE {
 { ?resource a </callimachus/1.0/types/File> BIND (</callimachus/1.0/types/File> AS ?previous) BIND (</callimachus/1.3/types/File> AS ?current) } UNION
 { ?resource a </callimachus/1.0/types/Folder> BIND (</callimachus/1.0/types/Folder> AS ?previous) BIND (</callimachus/1.3/types/Folder> AS ?current) } UNION
 { ?resource a </callimachus/1.0/types/Font> BIND (</callimachus/1.0/types/Font> AS ?previous) BIND (</callimachus/1.3/types/Font> AS ?current) } UNION
-{ ?resource a </callimachus/1.0/types/GraphDocument> BIND (</callimachus/1.0/types/GraphDocument> AS ?previous) BIND (</callimachus/1.3/types/GraphDocument> AS ?current) } UNION
+{ ?resource a </callimachus/1.0/types/GraphDocument> BIND (</callimachus/1.0/types/GraphDocument> AS ?previous) BIND (</callimachus/1.3/types/RdfTurtle> AS ?current) } UNION
+{ ?resource a </callimachus/1.3/types/GraphDocument> BIND (</callimachus/1.3/types/GraphDocument> AS ?previous) BIND (</callimachus/1.3/types/RdfTurtle> AS ?current) } UNION
 { ?resource a </callimachus/1.0/types/Group> BIND (</callimachus/1.0/types/Group> AS ?previous) BIND (</callimachus/1.3/types/Group> AS ?current) } UNION
 { ?resource a </callimachus/1.0/types/HypertextFile> BIND (</callimachus/1.0/types/HypertextFile> AS ?previous) BIND (</callimachus/1.3/types/HypertextFile> AS ?current) } UNION
 { ?resource a </callimachus/1.0/types/IconGraphic> BIND (</callimachus/1.0/types/IconGraphic> AS ?previous) BIND (</callimachus/1.3/types/IconGraphic> AS ?current) } UNION
 { ?resource a </callimachus/1.0/types/Image> BIND (</callimachus/1.0/types/Image> AS ?previous) BIND (</callimachus/1.3/types/Image> AS ?current) } UNION
 { ?resource a </callimachus/1.0/types/InvitedUser> BIND (</callimachus/1.0/types/InvitedUser> AS ?previous) BIND (</callimachus/1.3/types/InvitedUser> AS ?current) } UNION
-{ ?resource a </callimachus/1.0/types/NamedGraph> BIND (</callimachus/1.0/types/NamedGraph> AS ?previous) BIND (</callimachus/1.3/types/NamedGraph> AS ?current) } UNION
-{ ?resource a </callimachus/1.0/types/NamedQuery> BIND (</callimachus/1.0/types/NamedQuery> AS ?previous) BIND (</callimachus/1.3/types/NamedQuery> AS ?current) } UNION
+{ ?resource a </callimachus/1.0/types/NamedGraph> BIND (</callimachus/1.0/types/NamedGraph> AS ?previous) BIND (</callimachus/1.3/types/RdfGraph> AS ?current) } UNION
+{ ?resource a </callimachus/1.3/types/NamedGraph> BIND (</callimachus/1.3/types/NamedGraph> AS ?previous) BIND (</callimachus/1.3/types/RdfGraph> AS ?current) } UNION
+{ ?resource a </callimachus/1.0/types/NamedQuery> BIND (</callimachus/1.0/types/NamedQuery> AS ?previous) BIND (</callimachus/1.3/types/RdfQuery> AS ?current) } UNION
+{ ?resource a </callimachus/1.3/types/NamedQuery> BIND (</callimachus/1.3/types/NamedQuery> AS ?previous) BIND (</callimachus/1.3/types/RdfQuery> AS ?current) } UNION
 { ?resource a </callimachus/1.0/types/NetworkGraphic> BIND (</callimachus/1.0/types/NetworkGraphic> AS ?previous) BIND (</callimachus/1.3/types/NetworkGraphic> AS ?current) } UNION
 { ?resource a </callimachus/1.0/types/OpenIDManager> BIND (</callimachus/1.0/types/OpenIDManager> AS ?previous) BIND (</callimachus/1.3/types/OpenIDManager> AS ?current) } UNION
 { ?resource a </callimachus/1.0/types/Origin> BIND (</callimachus/1.0/types/Origin> AS ?previous) BIND (</callimachus/1.3/types/Origin> AS ?current) } UNION
-{ ?resource a </callimachus/1.0/types/PURL> BIND (</callimachus/1.0/types/PURL> AS ?previous) BIND (</callimachus/1.3/types/PURL> AS ?current) } UNION
+{ ?resource a calli:PURL BIND (calli:PURL AS ?previous) BIND (calli:Purl AS ?current) } UNION
+{ ?resource a </callimachus/1.0/types/PURL> BIND (</callimachus/1.0/types/PURL> AS ?previous) BIND (</callimachus/1.3/types/Purl> AS ?current) } UNION
+{ ?resource a </callimachus/1.3/types/PURL> BIND (</callimachus/1.3/types/PURL> AS ?previous) BIND (</callimachus/1.3/types/Purl> AS ?current) } UNION
 { ?resource a </callimachus/1.0/types/Page> BIND (</callimachus/1.0/types/Page> AS ?previous) BIND (</callimachus/1.3/types/Page> AS ?current) } UNION
-{ ?resource a </callimachus/1.0/types/Pdf> BIND (</callimachus/1.0/types/Pdf> AS ?previous) BIND (</callimachus/1.3/types/Pdf> AS ?current) } UNION
+{ ?resource a </callimachus/1.0/types/Pdf> BIND (</callimachus/1.0/types/Pdf> AS ?previous) BIND (</callimachus/1.3/types/PortableDocument> AS ?current) } UNION
+{ ?resource a </callimachus/1.3/types/Pdf> BIND (</callimachus/1.3/types/Pdf> AS ?previous) BIND (</callimachus/1.3/types/PortableDocument> AS ?current) } UNION
 { ?resource a </callimachus/1.0/types/Photo> BIND (</callimachus/1.0/types/Photo> AS ?previous) BIND (</callimachus/1.3/types/Photo> AS ?current) } UNION
 { ?resource a </callimachus/1.0/types/Pipeline> BIND (</callimachus/1.0/types/Pipeline> AS ?previous) BIND (</callimachus/1.3/types/Pipeline> AS ?current) } UNION
-{ ?resource a </callimachus/1.0/types/Profile> BIND (</callimachus/1.0/types/Profile> AS ?previous) BIND (</callimachus/1.3/types/Profile> AS ?current) } UNION
+{ ?resource a </callimachus/1.0/types/Profile> BIND (</callimachus/1.0/types/Profile> AS ?previous) BIND (</callimachus/1.3/types/RdfProfile> AS ?current) } UNION
+{ ?resource a </callimachus/1.3/types/Profile> BIND (</callimachus/1.3/types/Profile> AS ?previous) BIND (</callimachus/1.3/types/RdfProfile> AS ?current) } UNION
 { ?resource a </callimachus/1.0/types/Realm> BIND (</callimachus/1.0/types/Realm> AS ?previous) BIND (</callimachus/1.3/types/Realm> AS ?current) } UNION
 { ?resource a </callimachus/1.0/types/Relax> BIND (</callimachus/1.0/types/Relax> AS ?previous) BIND (</callimachus/1.3/types/Relax> AS ?current) } UNION
-{ ?resource a </callimachus/1.0/types/SchemaGraph> BIND (</callimachus/1.0/types/SchemaGraph> AS ?previous) BIND (</callimachus/1.3/types/SchemaGraph> AS ?current) } UNION
+{ ?resource a </callimachus/1.0/types/SchemaGraph> BIND (</callimachus/1.0/types/SchemaGraph> AS ?previous) BIND (</callimachus/1.3/types/RdfSchemaGraph> AS ?current) } UNION
+{ ?resource a </callimachus/1.3/types/SchemaGraph> BIND (</callimachus/1.3/types/SchemaGraph> AS ?previous) BIND (</callimachus/1.3/types/RdfSchemaGraph> AS ?current) } UNION
 { ?resource a </callimachus/1.0/types/Schematron> BIND (</callimachus/1.0/types/Schematron> AS ?previous) BIND (</callimachus/1.3/types/Schematron> AS ?current) } UNION
 { ?resource a </callimachus/1.0/types/Script> BIND (</callimachus/1.0/types/Script> AS ?previous) BIND (</callimachus/1.3/types/Script> AS ?current) } UNION
 { ?resource a </callimachus/1.0/types/Serviceable> BIND (</callimachus/1.0/types/Serviceable> AS ?previous) BIND (</callimachus/1.3/types/Serviceable> AS ?current) } UNION
-{ ?resource a </callimachus/1.0/types/Style> BIND (</callimachus/1.0/types/Style> AS ?previous) BIND (</callimachus/1.3/types/Style> AS ?current) } UNION
+{ ?resource a </callimachus/1.0/types/Style> BIND (</callimachus/1.0/types/Style> AS ?previous) BIND (</callimachus/1.3/types/StyleSheet> AS ?current) } UNION
+{ ?resource a </callimachus/1.3/types/Style> BIND (</callimachus/1.3/types/Style> AS ?previous) BIND (</callimachus/1.3/types/StyleSheet> AS ?current) } UNION
 { ?resource a </callimachus/1.0/types/TextFile> BIND (</callimachus/1.0/types/TextFile> AS ?previous) BIND (</callimachus/1.3/types/TextFile> AS ?current) } UNION
-{ ?resource a </callimachus/1.0/types/Transform> BIND (</callimachus/1.0/types/Transform> AS ?previous) BIND (</callimachus/1.3/types/Transform> AS ?current) } UNION
+{ ?resource a </callimachus/1.0/types/Transform> BIND (</callimachus/1.0/types/Transform> AS ?previous) BIND (</callimachus/1.3/types/XslTransform> AS ?current) } UNION
+{ ?resource a </callimachus/1.3/types/Transform> BIND (</callimachus/1.3/types/Transform> AS ?previous) BIND (</callimachus/1.3/types/XslTransform> AS ?current) } UNION
 { ?resource a </callimachus/1.0/types/VectorGraphic> BIND (</callimachus/1.0/types/VectorGraphic> AS ?previous) BIND (</callimachus/1.3/types/VectorGraphic> AS ?current) } UNION
 { ?resource a </callimachus/1.0/types/Viewable> BIND (</callimachus/1.0/types/Viewable> AS ?previous) BIND (</callimachus/1.3/types/Viewable> AS ?current) } UNION
 { ?resource a </callimachus/1.0/types/XQuery> BIND (</callimachus/1.0/types/XQuery> AS ?previous) BIND (</callimachus/1.3/types/XQuery> AS ?current) }
@@ -207,7 +219,9 @@ DELETE {
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.0/types/Concept> BIND (</callimachus/1.0/types/Concept> AS ?previous) BIND (</callimachus/1.3/types/Concept> AS ?current) }}  UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.0/types/Creatable> BIND (</callimachus/1.0/types/Creatable> AS ?previous) BIND (</callimachus/1.3/types/Creatable> AS ?current) }}  UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.0/types/Credential> BIND (</callimachus/1.0/types/Credential> AS ?previous) BIND (</callimachus/1.3/types/Credential> AS ?current) }}  UNION
-{ GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.0/types/Datasource> BIND (</callimachus/1.0/types/Datasource> AS ?previous) BIND (</callimachus/1.3/types/Datasource> AS ?current) }}  UNION
+{ GRAPH ?graph { ?subclass rdfs:subClassOf calli:Datasource BIND (calli:Datasource AS ?previous) BIND (calli:RdfDatasource AS ?current) }}  UNION
+{ GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.0/types/Datasource> BIND (</callimachus/1.0/types/Datasource> AS ?previous) BIND (</callimachus/1.3/types/RdfDatasource> AS ?current) }}  UNION
+{ GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.3/types/Datasource> BIND (</callimachus/1.3/types/Datasource> AS ?previous) BIND (</callimachus/1.3/types/RdfDatasource> AS ?current) }}  UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.0/types/DigestManager> BIND (</callimachus/1.0/types/DigestManager> AS ?previous) BIND (</callimachus/1.3/types/DigestManager> AS ?current) }}  UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.0/types/DigestUser> BIND (</callimachus/1.0/types/DigestUser> AS ?previous) BIND (</callimachus/1.3/types/DigestUser> AS ?current) }}  UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.0/types/Domain> BIND (</callimachus/1.0/types/Domain> AS ?previous) BIND (</callimachus/1.3/types/Domain> AS ?current) }}  UNION
@@ -215,32 +229,42 @@ DELETE {
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.0/types/File> BIND (</callimachus/1.0/types/File> AS ?previous) BIND (</callimachus/1.3/types/File> AS ?current) }}  UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.0/types/Folder> BIND (</callimachus/1.0/types/Folder> AS ?previous) BIND (</callimachus/1.3/types/Folder> AS ?current) }}  UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.0/types/Font> BIND (</callimachus/1.0/types/Font> AS ?previous) BIND (</callimachus/1.3/types/Font> AS ?current) }}  UNION
-{ GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.0/types/GraphDocument> BIND (</callimachus/1.0/types/GraphDocument> AS ?previous) BIND (</callimachus/1.3/types/GraphDocument> AS ?current) }}  UNION
+{ GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.0/types/GraphDocument> BIND (</callimachus/1.0/types/GraphDocument> AS ?previous) BIND (</callimachus/1.3/types/RdfTurtle> AS ?current) }}  UNION
+{ GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.3/types/GraphDocument> BIND (</callimachus/1.3/types/GraphDocument> AS ?previous) BIND (</callimachus/1.3/types/RdfTurtle> AS ?current) }}  UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.0/types/Group> BIND (</callimachus/1.0/types/Group> AS ?previous) BIND (</callimachus/1.3/types/Group> AS ?current) }}  UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.0/types/HypertextFile> BIND (</callimachus/1.0/types/HypertextFile> AS ?previous) BIND (</callimachus/1.3/types/HypertextFile> AS ?current) }}  UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.0/types/IconGraphic> BIND (</callimachus/1.0/types/IconGraphic> AS ?previous) BIND (</callimachus/1.3/types/IconGraphic> AS ?current) }}  UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.0/types/Image> BIND (</callimachus/1.0/types/Image> AS ?previous) BIND (</callimachus/1.3/types/Image> AS ?current) }}  UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.0/types/InvitedUser> BIND (</callimachus/1.0/types/InvitedUser> AS ?previous) BIND (</callimachus/1.3/types/InvitedUser> AS ?current) }}  UNION
-{ GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.0/types/NamedGraph> BIND (</callimachus/1.0/types/NamedGraph> AS ?previous) BIND (</callimachus/1.3/types/NamedGraph> AS ?current) }}  UNION
-{ GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.0/types/NamedQuery> BIND (</callimachus/1.0/types/NamedQuery> AS ?previous) BIND (</callimachus/1.3/types/NamedQuery> AS ?current) }}  UNION
+{ GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.0/types/NamedGraph> BIND (</callimachus/1.0/types/NamedGraph> AS ?previous) BIND (</callimachus/1.3/types/RdfGraph> AS ?current) }}  UNION
+{ GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.3/types/NamedGraph> BIND (</callimachus/1.3/types/NamedGraph> AS ?previous) BIND (</callimachus/1.3/types/RdfGraph> AS ?current) }}  UNION
+{ GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.0/types/NamedQuery> BIND (</callimachus/1.0/types/NamedQuery> AS ?previous) BIND (</callimachus/1.3/types/RdfQuery> AS ?current) }}  UNION
+{ GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.3/types/NamedQuery> BIND (</callimachus/1.3/types/NamedQuery> AS ?previous) BIND (</callimachus/1.3/types/RdfQuery> AS ?current) }}  UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.0/types/NetworkGraphic> BIND (</callimachus/1.0/types/NetworkGraphic> AS ?previous) BIND (</callimachus/1.3/types/NetworkGraphic> AS ?current) }}  UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.0/types/OpenIDManager> BIND (</callimachus/1.0/types/OpenIDManager> AS ?previous) BIND (</callimachus/1.3/types/OpenIDManager> AS ?current) }}  UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.0/types/Origin> BIND (</callimachus/1.0/types/Origin> AS ?previous) BIND (</callimachus/1.3/types/Origin> AS ?current) }}  UNION
-{ GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.0/types/PURL> BIND (</callimachus/1.0/types/PURL> AS ?previous) BIND (</callimachus/1.3/types/PURL> AS ?current) }}  UNION
+{ GRAPH ?graph { ?subclass rdfs:subClassOf calli:PURL BIND (calli:PURL AS ?previous) BIND (calli:Purl AS ?current) }}  UNION
+{ GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.0/types/PURL> BIND (</callimachus/1.0/types/PURL> AS ?previous) BIND (</callimachus/1.3/types/Purl> AS ?current) }}  UNION
+{ GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.3/types/PURL> BIND (</callimachus/1.3/types/PURL> AS ?previous) BIND (</callimachus/1.3/types/Purl> AS ?current) }}  UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.0/types/Page> BIND (</callimachus/1.0/types/Page> AS ?previous) BIND (</callimachus/1.3/types/Page> AS ?current) }}  UNION
-{ GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.0/types/Pdf> BIND (</callimachus/1.0/types/Pdf> AS ?previous) BIND (</callimachus/1.3/types/Pdf> AS ?current) }}  UNION
+{ GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.0/types/Pdf> BIND (</callimachus/1.0/types/Pdf> AS ?previous) BIND (</callimachus/1.3/types/PortableDocument> AS ?current) }}  UNION
+{ GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.3/types/Pdf> BIND (</callimachus/1.3/types/Pdf> AS ?previous) BIND (</callimachus/1.3/types/PortableDocument> AS ?current) }}  UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.0/types/Photo> BIND (</callimachus/1.0/types/Photo> AS ?previous) BIND (</callimachus/1.3/types/Photo> AS ?current) }}  UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.0/types/Pipeline> BIND (</callimachus/1.0/types/Pipeline> AS ?previous) BIND (</callimachus/1.3/types/Pipeline> AS ?current) }}  UNION
-{ GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.0/types/Profile> BIND (</callimachus/1.0/types/Profile> AS ?previous) BIND (</callimachus/1.3/types/Profile> AS ?current) }}  UNION
+{ GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.0/types/Profile> BIND (</callimachus/1.0/types/Profile> AS ?previous) BIND (</callimachus/1.3/types/RdfProfile> AS ?current) }}  UNION
+{ GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.3/types/Profile> BIND (</callimachus/1.3/types/Profile> AS ?previous) BIND (</callimachus/1.3/types/RdfProfile> AS ?current) }}  UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.0/types/Realm> BIND (</callimachus/1.0/types/Realm> AS ?previous) BIND (</callimachus/1.3/types/Realm> AS ?current) }}  UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.0/types/Relax> BIND (</callimachus/1.0/types/Relax> AS ?previous) BIND (</callimachus/1.3/types/Relax> AS ?current) }}  UNION
-{ GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.0/types/SchemaGraph> BIND (</callimachus/1.0/types/SchemaGraph> AS ?previous) BIND (</callimachus/1.3/types/SchemaGraph> AS ?current) }}  UNION
+{ GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.0/types/SchemaGraph> BIND (</callimachus/1.0/types/SchemaGraph> AS ?previous) BIND (</callimachus/1.3/types/RdfSchemaGraph> AS ?current) }}  UNION
+{ GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.3/types/SchemaGraph> BIND (</callimachus/1.3/types/SchemaGraph> AS ?previous) BIND (</callimachus/1.3/types/RdfSchemaGraph> AS ?current) }}  UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.0/types/Schematron> BIND (</callimachus/1.0/types/Schematron> AS ?previous) BIND (</callimachus/1.3/types/Schematron> AS ?current) }}  UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.0/types/Script> BIND (</callimachus/1.0/types/Script> AS ?previous) BIND (</callimachus/1.3/types/Script> AS ?current) }}  UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.0/types/Serviceable> BIND (</callimachus/1.0/types/Serviceable> AS ?previous) BIND (</callimachus/1.3/types/Serviceable> AS ?current) }}  UNION
-{ GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.0/types/Style> BIND (</callimachus/1.0/types/Style> AS ?previous) BIND (</callimachus/1.3/types/Style> AS ?current) }}  UNION
+{ GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.0/types/Style> BIND (</callimachus/1.0/types/Style> AS ?previous) BIND (</callimachus/1.3/types/StyleSheet> AS ?current) }}  UNION
+{ GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.3/types/Style> BIND (</callimachus/1.3/types/Style> AS ?previous) BIND (</callimachus/1.3/types/StyleSheet> AS ?current) }}  UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.0/types/TextFile> BIND (</callimachus/1.0/types/TextFile> AS ?previous) BIND (</callimachus/1.3/types/TextFile> AS ?current) }}  UNION
-{ GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.0/types/Transform> BIND (</callimachus/1.0/types/Transform> AS ?previous) BIND (</callimachus/1.3/types/Transform> AS ?current) }}  UNION
+{ GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.0/types/Transform> BIND (</callimachus/1.0/types/Transform> AS ?previous) BIND (</callimachus/1.3/types/XslTransform> AS ?current) }}  UNION
+{ GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.3/types/Transform> BIND (</callimachus/1.3/types/Transform> AS ?previous) BIND (</callimachus/1.3/types/XslTransform> AS ?current) }}  UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.0/types/VectorGraphic> BIND (</callimachus/1.0/types/VectorGraphic> AS ?previous) BIND (</callimachus/1.3/types/VectorGraphic> AS ?current) }}  UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.0/types/Viewable> BIND (</callimachus/1.0/types/Viewable> AS ?previous) BIND (</callimachus/1.3/types/Viewable> AS ?current) }}  UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.0/types/XQuery> BIND (</callimachus/1.0/types/XQuery> AS ?previous) BIND (</callimachus/1.3/types/XQuery> AS ?current) }} 

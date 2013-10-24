@@ -25,13 +25,13 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<> a <SchemaGraph>;
-    foaf:primaryTopic <Datasource>.
+<> a <RdfSchemaGraph>;
+    foaf:primaryTopic <RdfDatasource>.
 
-<Datasource> a <Creatable>, owl:Class;
-    rdfs:subClassOf <Viewable>, <Editable>, calli:Datasource;
+<RdfDatasource> a <Creatable>, owl:Class;
+    rdfs:subClassOf <Viewable>, <Editable>, calli:RdfDatasource;
     owl:equivalentClass </callimachus/1.0/types/Datasource>;
-    rdfs:label "Datasource";
+    rdfs:label "RDF Datasource";
     rdfs:comment "A SPARQL endpoint service for a mutable dataset";
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;
@@ -42,14 +42,14 @@
     calli:create <../templates/datasource-create.xhtml>.
 
 :DeleteDatasource owl:intersectionOf ( <editable.ttl#Delete>
-        [owl:onProperty msg:target; owl:allValuesFrom <Datasource>]);
+        [owl:onProperty msg:target; owl:allValuesFrom <RdfDatasource>]);
     calli:script """
         this.getCalliRepository().getDatasourceManager().purgeDatasource(this.resource);
         return proceed();
     """.
 
 :GetRdfDescribeService rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Datasource>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfDatasource>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.openrdf.query.GraphQueryResult>];
     calli:method "GET";
     calli:query "uri";
@@ -72,7 +72,7 @@
 
 # GET query parameter
 :GetQueryResult rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Datasource>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfDatasource>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
     calli:method "GET";
     calli:query "query";
@@ -94,7 +94,7 @@
 
 # POST application/x-www-form-urlencoded
 :PostPercentEncoded rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Datasource>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfDatasource>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
     calli:method "POST";
     calli:requires calli:editor;
@@ -129,7 +129,7 @@
 
 # POST application/sparql-query
 :PostQuery rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Datasource>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfDatasource>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
     calli:method "POST";
     calli:requires calli:reader;
@@ -152,7 +152,7 @@
 
 # POST application/sparql-update
 :PostUpdate rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Datasource>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfDatasource>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     calli:method "POST";
     calli:requires calli:editor;
@@ -178,7 +178,7 @@
 ################################
 
 :IndirectGraph rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Datasource>].
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfDatasource>].
 
 :graph a owl:DatatypeProperty, owl:FunctionalProperty;
     rdfs:domain :IndirectGraph;
@@ -188,7 +188,7 @@
 
 # GET default parameter
 :GetDefaultGraph rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Datasource>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfDatasource>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.openrdf.query.GraphQueryResult>];
     calli:method "GET";
     calli:query "default";
@@ -212,7 +212,7 @@
 
 # DELETE default parameter
 :DeleteDefaultGraph rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Datasource>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfDatasource>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     calli:method "DELETE";
     calli:query "default";
@@ -233,7 +233,7 @@
     """.
 
 :IndirectPayload rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Datasource>].
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfDatasource>].
 
 :rdfType a owl:DatatypeProperty, owl:FunctionalProperty;
     rdfs:domain :IndirectPayload;
@@ -314,7 +314,7 @@
     """.
 
 :IndirectPatchGraph rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Datasource>].
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfDatasource>].
 
 :patchUpdate a owl:DatatypeProperty, owl:FunctionalProperty;
     rdfs:domain :IndirectPatchGraph;
@@ -347,7 +347,7 @@
 ################################
 
 :GetHtmlDescribeService rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Datasource>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfDatasource>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
     calli:method "GET";
     calli:query "uri";
@@ -365,7 +365,7 @@
 
 # GET query parameter
 :GetHtmlResults rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Datasource>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfDatasource>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
     calli:method "GET";
     calli:query "query";
@@ -387,7 +387,7 @@
 
 # POST application/x-www-form-urlencoded
 :PostWebForm rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Datasource>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfDatasource>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
     calli:method "POST";
     calli:requires calli:editor;
@@ -406,7 +406,7 @@
     calli:type "application/x-www-form-urlencoded".
 
 :TransformDescribeService rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Datasource>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfDatasource>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
     calli:type "text/html";
     calli:post "../pipelines/describe.xpl?results&target={0}".
@@ -418,7 +418,7 @@
 
 # Transformer
 :TransformResult rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Datasource>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfDatasource>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
     calli:type "text/html";
     calli:post "../pipelines/sparql.xpl?results&target={0}".

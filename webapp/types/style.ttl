@@ -22,13 +22,13 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<> a <SchemaGraph>;
-    foaf:primaryTopic <Style>.
+<> a <RdfSchemaGraph>;
+    foaf:primaryTopic <StyleSheet>.
 
-<Style> a <Creatable>, owl:Class;
+<StyleSheet> a <Creatable>, owl:Class;
     rdfs:subClassOf <File>;
-    rdfs:label "Style";
-    rdfs:comment "Style CSS files";
+    rdfs:label "Style Sheet";
+    rdfs:comment "Cascading Style Sheets (CSS) files";
     owl:equivalentClass </callimachus/Style>, </callimachus/1.0/types/Style>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;
@@ -41,7 +41,7 @@
 
 # GET /style.css
 :GetStyleSheet rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Style>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <StyleSheet>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
     calli:method "GET";
     calli:rel "edit-media";
@@ -53,7 +53,7 @@
 
 # POST ?create=/callimachus/Style
 :CreateStyle owl:intersectionOf (<creatable.ttl#PostCreate>
-        [owl:onProperty msg:target; owl:hasValue <Style> ]);
+        [owl:onProperty msg:target; owl:hasValue <StyleSheet> ]);
     calli:imports <java:org.openrdf.model.vocabulary.RDFS>;
     calli:imports <java:java.net.URLDecoder>;
     calli:imports <java:org.callimachusproject.server.WebServer>;
@@ -81,7 +81,7 @@
 
 # PUT /style.css
 :UploadStyle rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Style>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <StyleSheet>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     calli:method "PUT";
     calli:requires calli:editor;
@@ -89,7 +89,7 @@
     calli:imports <java:java.net.URLDecoder>;
     calli:imports <java:org.callimachusproject.server.WebServer>;
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    calli:imports <Style>;
+    calli:imports <StyleSheet>;
     calli:imports <java:org.openrdf.query.QueryLanguage>;
     calli:script """
         if (!reader)
@@ -108,7 +108,7 @@
     """.
 
 :DeleteStyle owl:intersectionOf ( <editable.ttl#Delete>
-        [owl:onProperty msg:target; owl:allValuesFrom <Style>]);
+        [owl:onProperty msg:target; owl:allValuesFrom <StyleSheet>]);
     calli:script """
         var systemId = this.toString() + "?less";
         this.objectConnection.getBlobObject(systemId)['delete']();
@@ -122,7 +122,7 @@
 
 # GET /style.css?less
 :CompressLess rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Style>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <StyleSheet>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
     calli:rel "alternate";
     calli:method "GET";
@@ -138,7 +138,7 @@
     """.
 
 :LessJs rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Style>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <StyleSheet>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
     calli:imports <java:org.apache.http.client.methods.HttpGet>;
     calli:imports <java:org.callimachusproject.server.exceptions.NotFound>;

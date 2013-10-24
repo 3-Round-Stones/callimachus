@@ -23,17 +23,17 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<> a <SchemaGraph>;
-    foaf:primaryTopic <Profile>.
+<> a <RdfSchemaGraph>;
+    foaf:primaryTopic <RdfProfile>.
 
-<Profile> a owl:Class;
+<RdfProfile> a owl:Class;
     rdfs:subClassOf <Viewable>;
     owl:equivalentClass </callimachus/Profile>, </callimachus/1.0/types/Profile>;
-    rdfs:label "Profile";
+    rdfs:label "RDF Profile";
     rdfs:isDefinedBy <../../ontology>.
 
 :GetRdfProfile rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Profile>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfProfile>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.openrdf.model.impl.LinkedHashModel>];
     calli:method "GET";
     calli:requires calli:reader;
@@ -63,7 +63,7 @@
 
 # GET /callimachus/profile?view
 :GetHtmlProfile owl:intersectionOf (<viewable.ttl#GetViewPage>
-        [owl:onProperty msg:target; owl:allValuesFrom <Profile>]);
+        [owl:onProperty msg:target; owl:allValuesFrom <RdfProfile>]);
     calli:rel "alternate";
     calli:method "GET";
     calli:query "view";
@@ -76,7 +76,7 @@
     """.
 
 :TransformProfile rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Profile>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfProfile>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
     calli:type "text/html";
     calli:post "../pipelines/profile.xpl?results&target={0}".
@@ -87,8 +87,8 @@
     calli:type "application/rdf+xml".
 
 :PostProfile rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Profile>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <Profile>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfProfile>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <RdfProfile>];
     calli:method "POST";
     calli:requires calli:editor;
     calli:expect "303-see-other";

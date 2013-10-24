@@ -14,8 +14,8 @@ org.callimachusproject.behaviours.UserSupport
 org.callimachusproject.behaviours.PipelineSupport	= http://callimachusproject.org/rdf/2009/framework#Pipeline
 org.callimachusproject.behaviours.XQuerySupport		= http://callimachusproject.org/rdf/2009/framework#XQuery
 org.callimachusproject.behaviours.CredentialSupport	= http://callimachusproject.org/rdf/2009/framework#Credential
-org.callimachusproject.behaviours.PurlSupport		= http://callimachusproject.org/rdf/2009/framework#PURL
-org.callimachusproject.behaviours.DatasourceSupport	= http://callimachusproject.org/rdf/2009/framework#Datasource
+org.callimachusproject.behaviours.PurlSupport		= http://callimachusproject.org/rdf/2009/framework#Purl
+org.callimachusproject.behaviours.DatasourceSupport	= http://callimachusproject.org/rdf/2009/framework#RdfDatasource
 org.callimachusproject.behaviours.FacebookManagerSupport
 org.callimachusproject.behaviours.OpenIDManagerSupport
 org.callimachusproject.behaviours.DocumentSupport	= http://xmlns.com/foaf/0.1/Document

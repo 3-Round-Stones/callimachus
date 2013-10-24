@@ -25,11 +25,11 @@
 @prefix prov:<http://www.w3.org/ns/prov#>.
 @prefix :<#>.
 
-<> a <SchemaGraph>;
+<> a <RdfSchemaGraph>;
     foaf:primaryTopic <Folder>.
 
 <Folder> a <Creatable>, owl:Class;
-    rdfs:subClassOf <Composite>, <PURL>, calli:Folder;
+    rdfs:subClassOf <Composite>, <Purl>, calli:Folder;
     rdfs:label "Folder";
     rdfs:comment "A folder of resources";
     owl:equivalentClass </callimachus/Folder>, </callimachus/1.0/types/Folder>;
@@ -291,7 +291,7 @@
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     rdfs:subClassOf [owl:onProperty :uploadFileClass; owl:hasValue <File>];
-    rdfs:subClassOf [owl:onProperty :schemaGraphClass; owl:hasValue <SchemaGraph>];
+    rdfs:subClassOf [owl:onProperty :schemaGraphClass; owl:hasValue <RdfSchemaGraph>];
     calli:method "PUT";
     calli:query "archive";
     calli:requires calli:administrator;

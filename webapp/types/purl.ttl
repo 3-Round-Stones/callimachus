@@ -24,10 +24,10 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<> a <SchemaGraph>;
-    foaf:primaryTopic <PURL>.
+<> a <RdfSchemaGraph>;
+    foaf:primaryTopic <Purl>.
 
-<PURL> a <Creatable>, owl:Class;
+<Purl> a <Creatable>, owl:Class;
     rdfs:subClassOf <Viewable>, <Editable>, calli:PURL;
     rdfs:label "PURL";
     rdfs:comment "Persistent Uniform Resource Location of a Web resource.";
@@ -41,7 +41,7 @@
     calli:create <../templates/purl-create.xhtml>.
 
 :Redirect rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <PURL>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Purl>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource].
 
 :queryString a owl:FunctionalProperty, owl:DatatypeProperty;
@@ -395,7 +395,7 @@
     """.
 
 :GetViewPage owl:intersectionOf (<viewable.ttl#GetViewPage>
-        [owl:onProperty msg:target; owl:allValuesFrom <PURL> ]);
+        [owl:onProperty msg:target; owl:allValuesFrom <Purl> ]);
     calli:rel "alternate";
     calli:method "GET";
     calli:query "view";
@@ -407,7 +407,7 @@
     """.
 
 :FindPurlGetPattern rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <PURL>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Purl>];
     rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom rdfs:Resource];
     msg:sparql """
         PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
@@ -449,7 +449,7 @@
     """.
 
 :FindPurlPostPattern rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <PURL>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Purl>];
     rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom rdfs:Resource];
     msg:sparql """
         PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
@@ -479,7 +479,7 @@
     """.
 
 :FindPurlPutPattern rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <PURL>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Purl>];
     rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom rdfs:Resource];
     msg:sparql """
         PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
@@ -509,7 +509,7 @@
     """.
 
 :FindPurlPatchPattern rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <PURL>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Purl>];
     rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom rdfs:Resource];
     msg:sparql """
         PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
@@ -539,7 +539,7 @@
     """.
 
 :FindPurlDeletePattern rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <PURL>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Purl>];
     rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom rdfs:Resource];
     msg:sparql """
         PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>

@@ -23,12 +23,12 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<> a <SchemaGraph>;
-    foaf:primaryTopic <Pdf>.
+<> a <RdfSchemaGraph>;
+    foaf:primaryTopic <PortableDocument>.
 
-<Pdf> a <Creatable>, owl:Class;
+<PortableDocument> a <Creatable>, owl:Class;
     rdfs:subClassOf <File>;
-    rdfs:label "PDF" ;
+    rdfs:label "Portable Document" ;
     owl:equivalentClass </callimachus/Pdf>, </callimachus/1.0/types/Pdf>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;
@@ -39,7 +39,7 @@
 
 # GET /document.pdf
 :GetPdf rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Pdf>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <PortableDocument>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
     calli:method "GET";
     calli:rel "edit-media";
@@ -50,7 +50,7 @@
 
 # POST ?create=/callimachus/Pdf
 :PostPdfCreate owl:intersectionOf (<creatable.ttl#PostCreate>
-        [owl:onProperty msg:target; owl:hasValue <Pdf> ]);
+        [owl:onProperty msg:target; owl:hasValue <PortableDocument> ]);
     calli:imports <java:java.net.URLEncoder>;
     calli:imports <java:javax.mail.util.ByteArrayDataSource>;
     calli:imports <java:javax.mail.internet.MimeMultipart>;
@@ -81,7 +81,7 @@
     """.
 
 :PutPdf rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Pdf> ];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <PortableDocument> ];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     calli:method "PUT";
     calli:requires calli:editor;

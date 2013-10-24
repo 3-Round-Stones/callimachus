@@ -28,7 +28,7 @@ public class PurlIntegrationTest extends TemporaryServerIntegrationTestCase {
 	}
 
 	public void testStaticCopy() throws Exception {
-		WebResource purl = getHomeFolder().createPURL("humans.txt", "copy", file.toString());
+		WebResource purl = getHomeFolder().createPurl("humans.txt", "copy", file.toString());
 		try {
 			assertEquals(new String(file.get("text/plain")), new String(purl.get("text/plain")));
 		} finally {
@@ -37,7 +37,7 @@ public class PurlIntegrationTest extends TemporaryServerIntegrationTestCase {
 	}
 
 	public void testStaticCanonical() throws Exception {
-		WebResource purl = getHomeFolder().createPURL("google", "canonical", "http://www.google.ca/");
+		WebResource purl = getHomeFolder().createPurl("google", "canonical", "http://www.google.ca/");
 		try {
 			assertEquals("http://www.google.ca/", purl.getRedirectLocation());
 			assertEquals(301, purl.headCode());
@@ -47,7 +47,7 @@ public class PurlIntegrationTest extends TemporaryServerIntegrationTestCase {
 	}
 
 	public void testStaticAlternate() throws Exception {
-		WebResource purl = getHomeFolder().createPURL("alternate", "alternate", "http://www.google.ca/");
+		WebResource purl = getHomeFolder().createPurl("alternate", "alternate", "http://www.google.ca/");
 		try {
 			assertEquals("http://www.google.ca/", purl.getRedirectLocation());
 			assertEquals(302, purl.headCode());
@@ -57,7 +57,7 @@ public class PurlIntegrationTest extends TemporaryServerIntegrationTestCase {
 	}
 
 	public void testStaticDescribedBy() throws Exception {
-		WebResource purl = getHomeFolder().createPURL("describing", "describedby", "http://www.google.ca/");
+		WebResource purl = getHomeFolder().createPurl("describing", "describedby", "http://www.google.ca/");
 		try {
 			assertEquals("http://www.google.ca/", purl.getRedirectLocation());
 			assertEquals(303, purl.headCode());
@@ -67,7 +67,7 @@ public class PurlIntegrationTest extends TemporaryServerIntegrationTestCase {
 	}
 
 	public void testStaticResides() throws Exception {
-		WebResource purl = getHomeFolder().createPURL("resides", "resides", "http://www.google.ca/");
+		WebResource purl = getHomeFolder().createPurl("resides", "resides", "http://www.google.ca/");
 		try {
 			assertEquals("http://www.google.ca/", purl.getRedirectLocation());
 			assertEquals(307, purl.headCode());
@@ -77,7 +77,7 @@ public class PurlIntegrationTest extends TemporaryServerIntegrationTestCase {
 	}
 
 	public void testStaticMoved() throws Exception {
-		WebResource purl = getHomeFolder().createPURL("moved", "moved", "http://www.google.ca/");
+		WebResource purl = getHomeFolder().createPurl("moved", "moved", "http://www.google.ca/");
 		try {
 			assertEquals("http://www.google.ca/", purl.getRedirectLocation());
 			assertEquals(308, purl.headCode());
@@ -87,7 +87,7 @@ public class PurlIntegrationTest extends TemporaryServerIntegrationTestCase {
 	}
 
 	public void testStaticMissing() throws Exception {
-		WebResource purl = getHomeFolder().createPURL("missing", "missing", file.toString());
+		WebResource purl = getHomeFolder().createPurl("missing", "missing", file.toString());
 		try {
 			assertEquals(404, purl.headCode());
 		} finally {
@@ -96,7 +96,7 @@ public class PurlIntegrationTest extends TemporaryServerIntegrationTestCase {
 	}
 
 	public void testStaticGone() throws Exception {
-		WebResource purl = getHomeFolder().createPURL("gone", "gone", file.toString());
+		WebResource purl = getHomeFolder().createPurl("gone", "gone", file.toString());
 		try {
 			assertEquals(410, purl.headCode());
 		} finally {
@@ -105,7 +105,7 @@ public class PurlIntegrationTest extends TemporaryServerIntegrationTestCase {
 	}
 
 	public void testPreserveQueryString() throws Exception {
-		WebResource purl = getHomeFolder().createPURL("preserve", "alternate", "http://www.google.ca/search");
+		WebResource purl = getHomeFolder().createPurl("preserve", "alternate", "http://www.google.ca/search");
 		try {
 			assertEquals("http://www.google.ca/search?q=callimachus", purl.ref("?q=callimachus").getRedirectLocation());
 			WebResource url = purl.ref("?search=callimachus");
@@ -116,7 +116,7 @@ public class PurlIntegrationTest extends TemporaryServerIntegrationTestCase {
 	}
 
 	public void testChangeQueryString() throws Exception {
-		WebResource purl = getHomeFolder().createPURL("change", "alternate", "http://www.google.ca/search?q={search}");
+		WebResource purl = getHomeFolder().createPurl("change", "alternate", "http://www.google.ca/search?q={search}");
 		try {
 			WebResource url = purl.ref("?search=callimachus");
 			assertEquals("http://www.google.ca/search?q=callimachus", url.getRedirectLocation());
@@ -127,8 +127,8 @@ public class PurlIntegrationTest extends TemporaryServerIntegrationTestCase {
 	}
 
 	public void testChainMissing() throws Exception {
-		WebResource alt = getHomeFolder().createPURL("alt", "alternate", file.toString());
-		WebResource missing = getHomeFolder().createPURL("chain", "missing", alt.toString());
+		WebResource alt = getHomeFolder().createPurl("alt", "alternate", file.toString());
+		WebResource missing = getHomeFolder().createPurl("chain", "missing", alt.toString());
 		try {
 			assertEquals(404, missing.headCode());
 		} finally {
@@ -148,8 +148,8 @@ public class PurlIntegrationTest extends TemporaryServerIntegrationTestCase {
 		sb.append("skos:prefLabel 'accept'\n");
 		sb.append("}");
 		WebResource concept = getHomeFolder().link("describedby").create("application/sparql-update", sb.toString().getBytes("UTF-8"));
-		WebResource rdf = getHomeFolder().createPURL("accept.rdf", "copy", concept.toString() + "?describe\nAccept: application/rdf+xml");
-		WebResource ttl = getHomeFolder().createPURL("accept.ttl", "copy", concept.toString() + "?describe\nAccept: text/turtle");
+		WebResource rdf = getHomeFolder().createPurl("accept.rdf", "copy", concept.toString() + "?describe\nAccept: application/rdf+xml");
+		WebResource ttl = getHomeFolder().createPurl("accept.ttl", "copy", concept.toString() + "?describe\nAccept: text/turtle");
 		try {
 			String rdfxml = new String(concept.ref("?describe").get("application/rdf+xml"));
 			String turtle = new String(concept.ref("?describe").get("text/turtle"));
@@ -165,7 +165,7 @@ public class PurlIntegrationTest extends TemporaryServerIntegrationTestCase {
 	}
 
 	public void testPost() throws Exception {
-		WebResource purl = getHomeFolder().createPURL("humans.txt", "post", ".* PUT " + file.toString());
+		WebResource purl = getHomeFolder().createPurl("humans.txt", "post", ".* PUT " + file.toString());
 		try {
 			byte[] bytes = "post via purl".getBytes();
 			purl.post("text/plain", bytes);
@@ -176,7 +176,7 @@ public class PurlIntegrationTest extends TemporaryServerIntegrationTestCase {
 	}
 
 	public void testPut() throws Exception {
-		WebResource purl = getHomeFolder().createPURL("humans.txt", "put", file.toString());
+		WebResource purl = getHomeFolder().createPurl("humans.txt", "put", file.toString());
 		try {
 			byte[] bytes = "put via purl".getBytes();
 			purl.put("text/plain", bytes);
@@ -187,7 +187,7 @@ public class PurlIntegrationTest extends TemporaryServerIntegrationTestCase {
 	}
 
 	public void testDelete() throws Exception {
-		WebResource purl = getHomeFolder().createPURL("humans.txt", "delete", file.toString());
+		WebResource purl = getHomeFolder().createPurl("humans.txt", "delete", file.toString());
 		try {
 			purl.delete();
 			assertEquals(404, file.headCode());

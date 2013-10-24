@@ -11,7 +11,7 @@ public class NamedQueryIntegrationTest extends TemporaryServerIntegrationTestCas
 
 	@Test
 	public void testLess() throws Exception {
-		WebResource create = getHomeFolder().ref("?create="+ getCallimachusUrl("types/NamedQuery") + "&location=test-query.rq");
+		WebResource create = getHomeFolder().ref("?create="+ getCallimachusUrl("types/RdfQuery") + "&location=test-query.rq");
 		WebResource query = create.create("application/sparql-query", RQ.getBytes());
 		query.ref("?sparql").get("application/sparql-query");
 		query.ref("?results").get("application/sparql-results+xml");

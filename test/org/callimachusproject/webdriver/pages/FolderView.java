@@ -54,7 +54,7 @@ public class FolderView extends CalliPage {
 
 	public DatasourceCreate openDatasourceCreate() {
 		browser.click(By.id("create-menu"));
-		browser.clickHiddenLink(".dropdown-menu a[href$=\"Datasource\"]");
+		browser.clickHiddenLink(".dropdown-menu a[href$=\"RdfDatasource\"]");
 		return page(DatasourceCreate.class);
 	}
 

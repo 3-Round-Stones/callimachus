@@ -66,12 +66,12 @@ import org.slf4j.LoggerFactory;
 
 public class CalliServer implements CalliServerMXBean {
 	private static final String CHANGES_PATH = "../changes/";
-	private static final String SCHEMA_GRAPH = "types/SchemaGraph";
+	private static final String SCHEMA_GRAPH = "types/RdfSchemaGraph";
 	private static final String ORIGIN = "http://callimachusproject.org/rdf/2009/framework#Origin";
 	private static final String PREFIX = "PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>\n"
 			+ "PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>\n";
 	private static final String SEL_DATASOURCE_LABEL = PREFIX
-			+ "SELECT ?datasource ?label { ?datasource a calli:Datasource; rdfs:label ?label } ORDER BY ?datasource";
+			+ "SELECT ?datasource ?label { ?datasource a calli:RdfDatasource; rdfs:label ?label } ORDER BY ?datasource";
 	private static final String SEL_AUTH_MANAGER_LABEL = PREFIX
 			+ "SELECT ?manager ?label { ?manager a calli:AuthenticationManager; rdfs:label ?label }";
 	private static final ThreadFactory THREADFACTORY = new ThreadFactory() {

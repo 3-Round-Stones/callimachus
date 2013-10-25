@@ -4,6 +4,8 @@ import static java.net.URLDecoder.decode;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -224,7 +226,11 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 	private static String getBuild() {
 		String build = System.getProperty("org.callimachusproject.test.build");
 		if (build == null) {
-			return Version.getInstance().getVersionCode();
+			RuntimeMXBean bean = ManagementFactory.getRuntimeMXBean();
+			long startTime = bean.getStartTime();
+			long code = startTime % (1000 * 60 * 60 * 24 * 30) / 1000 / 60;
+			String version = Version.getInstance().getVersionCode();
+			return version + "+" + Long.toHexString(code);
 		} else {
 			return build;
 		}

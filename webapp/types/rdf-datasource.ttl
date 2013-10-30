@@ -37,9 +37,9 @@
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/admin>;
     calli:icon <../images/datasource.png>;
-    calli:view <../templates/datasource-view.xhtml>;
-    calli:edit <../templates/datasource-edit.xhtml>;
-    calli:create <../templates/datasource-create.xhtml>.
+    calli:view <../templates/rdf-datasource-view.xhtml>;
+    calli:edit <../templates/rdf-datasource-edit.xhtml>;
+    calli:create <../templates/rdf-datasource-create.xhtml>.
 
 :DeleteDatasource owl:intersectionOf ( <editable.ttl#Delete>
         [owl:onProperty msg:target; owl:allValuesFrom <RdfDatasource>]);

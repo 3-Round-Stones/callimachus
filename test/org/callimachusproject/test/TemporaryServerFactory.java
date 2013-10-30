@@ -3,6 +3,7 @@ package org.callimachusproject.test;
 import info.aduna.io.FileUtil;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringReader;
 import java.lang.ref.SoftReference;
@@ -18,6 +19,7 @@ import org.callimachusproject.repository.CalliRepository;
 import org.callimachusproject.repository.DatasourceManager;
 import org.callimachusproject.server.WebServer;
 import org.callimachusproject.setup.CallimachusSetup;
+import org.callimachusproject.util.SystemProperties;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Graph;
 import org.openrdf.model.Resource;
@@ -62,6 +64,9 @@ public class TemporaryServerFactory {
 					return new File(dist, file);
 			}
 		}
+		File car = SystemProperties.getWebappCarFile();
+		if (car != null && car.exists())
+			return car;
 		throw new AssertionError("Could not find callimachus-webapp.car in "
 				+ dist.getAbsolutePath());
 	}
@@ -250,14 +255,15 @@ public class TemporaryServerFactory {
 	}
 
 	private File createCallimachus(String origin) throws Exception {
-		String name = TemporaryServer.class.getSimpleName() + Integer.toHexString(origin.hashCode() + WEBAPP_CAR.getAbsolutePath().hashCode());
+		int code = origin.hashCode() + WEBAPP_CAR.getAbsolutePath().hashCode();
+		String name = TemporaryServer.class.getSimpleName() + Integer.toHexString(code);
 		File dir = createDirectory(name);
 		if (!dir.isDirectory() || WEBAPP_CAR.lastModified() > dir.lastModified()) {
 			if (dir.isDirectory()) {
 				FileUtil.deleteDir(dir);
 			}
 			dir.delete();
-			String configStr = new Scanner(new File("etc", "callimachus-repository.ttl")).useDelimiter("\\A").next();
+			String configStr = readRepositoryConfigFile();
 			System.setProperty("org.callimachusproject.config.webapp", WEBAPP_CAR.getAbsolutePath());
 			RepositoryConfig config = getRepositoryConfig(configStr);
 			LocalRepositoryManager manager = RepositoryProvider.getRepositoryManager(dir);
@@ -283,6 +289,15 @@ public class TemporaryServerFactory {
 		File temp = FileUtil.createTempDir(name);
 		copyDir(dir, temp);
 		return temp;
+	}
+
+	private String readRepositoryConfigFile() throws FileNotFoundException {
+		Scanner scanner = new Scanner(new File("etc", "callimachus-repository.ttl"));
+		try {
+			return scanner.useDelimiter("\\A").next();
+		} finally {
+			scanner.close();
+		}
 	}
 
 	private Repository getRepository(LocalRepositoryManager manager, RepositoryConfig config)

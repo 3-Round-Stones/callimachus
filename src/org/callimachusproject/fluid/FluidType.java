@@ -65,7 +65,7 @@ public class FluidType extends GenericType {
 				MediaType mediaType = MediaType.valueOf(m);
 				if (!set.contains(mediaType.toExternal())) {
 					set.add(mediaType.toExternal());
-					mediaTypes.add(mediaType.multiply(1.0 - mediaTypes.size() / 10000000.0));
+					mediaTypes.add(mediaType.multiply(1.0 - mediaTypes.size() / 1000000.0));
 				}
 			}
 		}
@@ -78,7 +78,7 @@ public class FluidType extends GenericType {
 		for (MediaType mediaType : media) {
 			if (!set.contains(mediaType.toExternal())) {
 				set.add(mediaType.toExternal());
-				mediaTypes.add(mediaType.multiply(1.0 - mediaTypes.size() / 10000000.0));
+				mediaTypes.add(mediaType.multiply(1.0 - mediaTypes.size() / 1000000.0));
 			}
 		}
 	}

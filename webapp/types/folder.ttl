@@ -370,8 +370,7 @@
                     con.recompileSchemaOnClose();
                 }
             } catch (e) {
-                println("Could not import " + name + " a " + type + " into " + container);
-                throw e;
+                throw new BadRequest("Could not import " + name + " a " + type + " into " + container, e.javaException);
             } finally {
                 entryStream.close();
             }

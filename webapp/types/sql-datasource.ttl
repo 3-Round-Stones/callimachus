@@ -1,0 +1,202 @@
+#
+#    Copyright (c) 2013 3 Round Stones Inc, Some Rights Reserved
+#
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+
+@prefix xsd:<http://www.w3.org/2001/XMLSchema#>.
+@prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
+@prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix sd:<http://www.w3.org/ns/sparql-service-description#>.
+@prefix foaf:<http://xmlns.com/foaf/0.1/>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
+@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+@prefix ctrl:<http://support.3roundstones.com/rdf/2013/control#>.
+@prefix :<#>.
+
+<> a <RdfSchemaGraph>;
+    foaf:primaryTopic <SqlDatasource>.
+
+<SqlDatasource> a <Creatable>, owl:Class;
+    rdfs:subClassOf <Viewable>, <Editable>, ctrl:SqlDatasource;
+    rdfs:label "SQL Datasource";
+    rdfs:comment "A SQL endpoint service for a mutable dataset";
+    rdfs:isDefinedBy <../../ontology>;
+    calli:administrator </auth/groups/super>;
+    calli:author </auth/groups/admin>;
+    calli:icon <../images/datasource.png>;
+    calli:view <../templates/sql-datasource-view.xhtml>;
+    calli:edit <../templates/sql-datasource-edit.xhtml>;
+    calli:create <../templates/sql-datasource-create.xhtml>.
+
+:DeleteDatasource owl:intersectionOf ( <editable.ttl#Delete>
+        [owl:onProperty msg:target; owl:allValuesFrom <SqlDatasource>]);
+    calli:script """
+        this.reset();
+        return proceed();
+    """.
+
+:PostDatasourceEdit owl:intersectionOf (<editable.ttl#PostEdit>
+        [owl:onProperty msg:target; owl:allValuesFrom <SqlDatasource>]);
+    calli:method "POST";
+    calli:query "edit";
+    calli:requires calli:editor;
+    calli:expect "201-modified";
+    calli:type "text/uri-list";
+    calli:script """
+        var ret = proceed();
+        this.reset();
+        return ret;
+    """.
+
+# GET query parameter
+:GetQueryResult rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <SqlDatasource>].
+
+:queryStr a owl:DatatypeProperty, owl:FunctionalProperty;
+    rdfs:domain :GetQueryResult;
+    rdfs:range xsd:string;
+    calli:type "text/plain";
+    calli:query "query".
+
+:GetQueryResult rdfs:subClassOf :GetQueryResult;
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.openrdf.query.TupleQueryResult>];
+    calli:method "GET";
+    calli:query "query";
+    calli:requires calli:reader;
+    calli:type "text/csv;header=present","text/tab-separated-values","application/sparql-results+xml";
+    calli:header "cache-control:no-store";
+    calli:script """
+        return this.evaluateSql(queryStr);
+    """.
+
+# POST application/sql
+:PostUpdate rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <SqlDatasource>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+    calli:method "POST";
+    calli:requires calli:editor;
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:script """
+        if (!update)
+            throw new BadRequest("Missing update body");
+        this.executeSql(update, updateType);
+    """.
+
+:update a owl:DatatypeProperty, owl:FunctionalProperty;
+    rdfs:domain :PostUpdate;
+    rdfs:range xsd:hexBinary;
+    msg:type "application/sql".
+
+:updateType a owl:DatatypeProperty, owl:FunctionalProperty;
+    rdfs:domain :PostUpdate;
+    rdfs:range xsd:string;
+    calli:header "content-type";
+    calli:type "text/plain".
+
+:IndirectTable rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <SqlDatasource>].
+
+:table a owl:DatatypeProperty, owl:FunctionalProperty;
+    rdfs:domain :IndirectTable;
+    rdfs:range xsd:string;
+    calli:type "text/plain";
+    calli:query "table".
+
+# GET table parameter
+:GetTable rdfs:subClassOf :IndirectTable;
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.openrdf.query.TupleQueryResult>];
+    calli:method "GET";
+    calli:query "table";
+    calli:requires calli:reader;
+    calli:type "text/csv;header=present","text/tab-separated-values","application/sparql-results+xml";
+    calli:header "cache-control:no-store";
+    calli:script """
+        return this.selectTable(table);
+    """.
+
+# DELETE table parameter
+:DeleteTable rdfs:subClassOf :IndirectTable;
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+    calli:method "DELETE";
+    calli:query "table";
+    calli:requires calli:editor;
+    calli:script """
+        this.dropTable(table);
+    """.
+
+:IndirectPayload rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <SqlDatasource>].
+
+:payload a owl:DatatypeProperty, owl:FunctionalProperty;
+    rdfs:domain :IndirectPayload;
+    rdfs:range <java:org.openrdf.query.TupleQueryResult>;
+    calli:type "text/csv;header=present","text/tab-separated-values","application/sparql-results+xml".
+
+# PUT table parameter
+:PutTable rdfs:subClassOf :IndirectTable, :IndirectPayload;
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+    calli:method "PUT";
+    calli:query "table";
+    calli:requires calli:editor;
+    calli:script """
+        this.clearAndLoadTable(payload, table);
+    """.
+
+# POST table parameter
+:PostTable rdfs:subClassOf :IndirectTable, :IndirectPayload;
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+    calli:method "POST";
+    calli:query "table";
+    calli:requires calli:editor;
+    calli:script """
+        this.loadIntoTable(payload, table);
+    """.
+
+################################
+# Callimachus UI               #
+################################
+
+# GET table parameter
+:GetHtmlResults rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <SqlDatasource>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    calli:method "GET";
+    calli:query "query";
+    calli:requires calli:reader;
+    calli:type "text/html";
+    calli:header "cache-control:no-validate";
+    calli:script """
+        var results = this.GetQueryResult(htmlQueryStr);
+        if (results)
+            return this.TransformResult(results);
+        return null;
+    """.
+
+:htmlQueryStr a owl:DatatypeProperty, owl:FunctionalProperty;
+    rdfs:domain :GetHtmlResults;
+    rdfs:range xsd:string;
+    calli:query "query".
+
+# Transformer
+:TransformResult rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <SqlDatasource>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    calli:type "text/html";
+    calli:post "../pipelines/sql-datasource-html.xpl?results&target={0}".
+
+:queryResult a owl:ObjectProperty, owl:FunctionalProperty;
+    rdfs:domain :TransformResult;
+    rdfs:range <java:org.openrdf.query.TupleQueryResult>;
+    calli:type "application/sparql-results+xml".
+

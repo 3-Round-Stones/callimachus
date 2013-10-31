@@ -122,6 +122,8 @@
         <basename file="${httpclient.url}" property="httpclient.zip" />
         <basename file="${tagsoup.url}" property="tagsoup.jar" />
         <basename file="${htmlparser.url}" property="htmlparser.zip" />
+        <basename file="${pool.url}" property="pool.zip" />
+        <basename file="${dbcp.url}" property="dbcp.zip" />
         <mkdir dir="${downloads}" />
         <get usetimestamp="true" skipexisting="${lib.present}" dest="${downloads}">
             <url url="${sesame.url}" />
@@ -138,6 +140,8 @@
             <url url="${tagsoup.url}" />
             <url url="${htmlparser.url}" />
             <url url="${httpclient.url}" />
+            <url url="${pool.url}" />
+            <url url="${dbcp.url}" />
         </get>
         <mkdir dir="${lib}" />
         <mkdir dir="${bin}" />
@@ -221,11 +225,27 @@
             </patternset>
             <mapper type="flatten" />
         </unzip>
+        <unzip overwrite="false" src="${downloads}/${pool.zip}" dest="${lib}">
+            <patternset>
+                <include name="*/*.jar" />
+                <exclude name="*/*-sources.jar" />
+                <exclude name="*/*-javadoc.jar" />
+            </patternset>
+            <mapper type="flatten" />
+        </unzip>
+        <unzip overwrite="false" src="${downloads}/${dbcp.zip}" dest="${lib}">
+            <patternset>
+                <include name="*/*.jar" />
+                <exclude name="*/*-sources.jar" />
+                <exclude name="*/*-javadoc.jar" />
+            </patternset>
+            <mapper type="flatten" />
+        </unzip>
     </target>
 
     <target name="compile" depends="init,dist-dependencies" description="compile the source">
         <!-- Compile the java code from ${src} into ${build} -->
-        <javac srcdir="${src}" destdir="${build}" source="1.6" target="1.6" debug="true" debuglevel="lines,source">
+        <javac srcdir="${src}" destdir="${build}" source="1.7" target="1.7" debug="true" debuglevel="lines,source">
             <classpath>
                 <fileset dir="${lib}">
                     <include name="**/*.jar" />
@@ -294,6 +314,7 @@
         <basename file="${jsr311-api.url}" property="jsr311-api.jar" />
         <basename file="${selenium.url}" property="selenium.zip" />
         <basename file="${ant-contrib.url}" property="ant-contrib.zip" />
+        <basename file="${derby.url}" property="derby.zip" />
         <mkdir dir="${downloads}" />
         <get usetimestamp="true" skipexisting="${lib.tests.present}" dest="${downloads}">
             <url url="${junit.url}" />
@@ -302,6 +323,7 @@
             <url url="${jsr311-api.url}" />
             <url url="${selenium.url}" />
             <url url="${ant-contrib.url}" />
+            <url url="${derby.url}" />
         </get>
         <mkdir dir="${lib.tests}" />
         <copy file="${downloads}/${junit.jar}" tofile="${lib.tests}/${junit.jar}" />
@@ -324,6 +346,12 @@
                 <include name="**/*.jar" />
                 <exclude name="**/commons-httpclient*.jar" />
                 <exclude name="**/commons-logging*.jar" />
+            </patternset>
+            <mapper type="flatten" />
+        </unzip>
+        <unzip overwrite="false" src="${downloads}/${derby.zip}" dest="${tmp}">
+            <patternset>
+                <include name="**/*.jar" />
             </patternset>
             <mapper type="flatten" />
         </unzip>

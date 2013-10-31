@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:sd="http://www.w3.org/ns/sparql-service-description#">
+<head>
+    <title resource="?this">{rdfs:label}</title>
+    <link rel="comments" href="?discussion" />
+    <link rel="version-history" href="?history" />
+    <link rel="help" href="../../callimachus-for-web-developers" target="_blank" title="Help" />
+</head>
+<body resource="?this">
+    <h1 property="rdfs:label" />
+    <div id="sidebar">
+        <aside>
+            <pre class="wiki" property="rdfs:comment" />
+        </aside>
+        <aside>
+            <p>Query the database using the SQL language</p>
+        </aside>
+    </div>
+    <form role="form" id="form" action="{?this}" method="GET">
+        <fieldset>
+            <textarea id="sql" name="query" class="flex" required="required"
+                onchange="$(form).find('button').removeAttr('disabled')"></textarea>
+            <div class="form-group">
+                <button id="evaluate" type="submit" class="btn btn-primary">Evaluate Query</button>
+                <button id="execute" type="button" class="btn btn-primary"
+                    onclick="$.ajax({type:'POST',url:$(form).attr('action'),contentType:'application/sql',data:$('#sql').val(),complete:calli.wait().over})">Execute Update</button>
+                <button type="button" onclick="history.back()" class="btn btn-default">Cancel</button>
+            </div>
+        </fieldset>
+    </form>
+</body>
+</html>

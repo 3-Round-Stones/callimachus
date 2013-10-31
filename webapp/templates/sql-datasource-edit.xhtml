@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
+<head>
+    <title resource="?this">{rdfs:label}</title>
+    <link rel="help" href="../../callimachus-for-web-developers#Datasource" target="_blank" title="Help" />
+    <script type="text/javascript">
+        $(function(){
+            var sd = "http://www.w3.org/ns/sparql-service-description#";
+            var label = 'label[rel="sd:supportedLanguage"]';
+            $(label + '[resource="' + sd + 'SPARQL11Query"]').each(function(){
+                if ($(this).find('input:checked').length) {
+                    var other = $(this).siblings('label[resource="' + sd + 'SPARQL11Query"]');
+                    $(this).children('span').text(other.children('span').text());
+                    other.remove();
+                }
+            });
+            $(label + '[resource="' + sd + 'SPARQL11Update"]').each(function(){
+                if ($(this).find('input:checked').length) {
+                    var other = $(this).siblings('label[resource="' + sd + 'SPARQL11Update"]');
+                    $(this).children('span').text(other.children('span').text());
+                    other.remove();
+                }
+            });
+            $('label[class="checkbox"]').change(function(){
+                if ($(this).children('input:checked').length) {
+                    $(this).attr("rel", "sd:supportedLanguage");
+                } else {
+                    $(this).removeAttr("rel");
+                }
+            });
+        });
+    </script>
+</head>
+<body resource="?this">
+    <h1 property="rdfs:label" />
+    <form role="form" method="POST" action="" enctype="application/sparql-update" resource="?this">
+        <div class="row">
+            <fieldset class="col-sm-4">
+                <div class="form-group">
+                    <label for="label">Label</label>
+                    <div class="controls">
+                        <input type="text" class="form-control" id="label" value="{rdfs:label}" required="required" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="comment">Comment</label>
+                    <div class="controls">
+                        <textarea id="comment" class="form-control">{rdfs:comment}</textarea>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="jdbcUrl">JDBC URL</label>
+                    <div class="controls">
+                        <input type="text" class="form-control" id="jdbcUrl" value="{calli:jdbcUrl}" required="required" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="driverClassName">Driver class name</label>
+                    <div class="controls">
+                        <input type="text" class="form-control" id="driverClassName" value="{calli:driverClassName}" required="required" />
+                    </div>
+                </div>
+                <div id="driverJar" dropzone="link s:text/uri-list" class="form-group"
+                        ondrop="return calli.insertResource(event)">
+                    <label>Driver jar file <a href="/?view" title="Browse"
+                            onclick="return calli.selectResource(event)" class="glyphicon glyphicon-folder-open" /></label>
+                    <div rel="calli:driverJar" class="controls">
+                        <span resource="?driverJar" class="ui-state-highlight ui-corner-all">
+                            <span property="rdfs:label" />
+                            <a href="{?driverJar}" title="Don't use this jar" onclick="return calli.removeResource(event)" class="glyphicon glyphicon-remove" />
+                        </span>
+                    </div>
+                </div>
+            </fieldset>
+            <fieldset class="col-sm-4">
+                <div class="form-group">
+                    <label for="maxActive">Max active</label>
+                    <div class="controls">
+                        <input type="integer" class="form-control" id="maxActive" value="{calli:maxActive}" datatype="xsd:integer" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="maxIdle">Max idle</label>
+                    <div class="controls">
+                        <input type="integer" class="form-control" id="maxIdle" value="{calli:maxIdle}" datatype="xsd:integer" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="maxWait">Max wait</label>
+                    <div class="controls">
+                        <input type="integer" class="form-control" id="maxWait" value="{calli:maxWait}" datatype="xsd:integer" />
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+        <div class="row">
+            <fieldset class="col-sm-4">
+                <div class="form-group">
+                <button id="save-datasource" type="submit" class="btn btn-primary">Save</button>
+                <button id="cancel-datasource" type="button" class="btn btn-default"
+                    onclick="window.location.replace('?view')">Cancel</button>
+                <button id="delete-datasource" type="button" class="btn btn-danger"
+                    onclick="calli.deleteResource(event)">Delete</button>
+                </div>
+            </fieldset>
+        </div>
+    </form>
+</body>
+</html>

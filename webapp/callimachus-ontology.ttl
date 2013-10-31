@@ -146,6 +146,11 @@ calli:RdfDatasource a owl:Class;
     rdfs:comment "An RDF source";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
+calli:SqlDatasource a owl:Class;
+    rdfs:label "SQL Datasource";
+    rdfs:comment "JDBC database connection information";
+    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
 ################################
 # Annotation
 ################################
@@ -509,4 +514,46 @@ calli:layout a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:comment "An XQuery transform to add header/footer markup to page templates";
     rdfs:domain calli:Realm;
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
+calli:jdbcUrl a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:label "jdbc url";
+    rdfs:comment "The JDBC connection url for connecting to the database";
+    rdfs:domain calli:SqlDatasource;
+    rdfs:range xsd:string;
+    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
+calli:driverClassName a owl:DatatypeProperty;
+    rdfs:label "driver class name";
+    rdfs:comment "Java class name of the driver that should be used";
+    rdfs:domain calli:SqlDatasource;
+    rdfs:range xsd:string;
+    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
+calli:driverJar a owl:ObjectProperty;
+    rdfs:label "driver jar";
+    rdfs:comment "JAR that contains the driver class or one of its dependencies";
+    rdfs:domain calli:SqlDatasource;
+    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
+calli:maxActive a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:label "max idle";
+    rdfs:comment "Maximum number of database connections in pool";
+    rdfs:domain calli:SqlDatasource;
+    rdfs:range xsd:integer;
+    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
+calli:maxIdle a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:label "max idle";
+    rdfs:comment "Maximum number of idle database connections to retain in pool";
+    rdfs:domain calli:SqlDatasource;
+    rdfs:range xsd:integer;
+    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
+calli:maxWait a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:label "max wait";
+    rdfs:comment "Maximum time to wait for a database connection to become available in ms";
+    rdfs:domain calli:SqlDatasource;
+    rdfs:range xsd:integer;
+    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
 

@@ -19,9 +19,6 @@
 
 # Author: James Leigh <james@3roundstones.com>
 
-# PATH should only include /usr/* if it runs after the mountnfs.sh script
-PATH=/sbin:/usr/sbin:/bin:/usr/bin
-
 # resolve links - $0 may be a softlink
 PRG="$0"
 

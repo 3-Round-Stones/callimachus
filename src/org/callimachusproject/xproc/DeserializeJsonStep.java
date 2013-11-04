@@ -2,8 +2,6 @@ package org.callimachusproject.xproc;
 
 import java.io.UnsupportedEncodingException;
 
-import javax.xml.parsers.ParserConfigurationException;
-
 import net.sf.saxon.s9api.Axis;
 import net.sf.saxon.s9api.QName;
 import net.sf.saxon.s9api.SaxonApiException;
@@ -18,11 +16,8 @@ import org.apache.commons.codec.binary.BinaryCodec;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.net.QuotedPrintableCodec;
 import org.apache.commons.codec.net.URLCodec;
-import org.callimachusproject.xml.DocumentFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import org.json.JSONTokener;
 
-import com.xmlcalabash.core.XProcConstants;
 import com.xmlcalabash.core.XProcException;
 import com.xmlcalabash.core.XProcRuntime;
 import com.xmlcalabash.core.XProcStep;
@@ -31,25 +26,27 @@ import com.xmlcalabash.io.WritablePipe;
 import com.xmlcalabash.model.RuntimeValue;
 import com.xmlcalabash.runtime.XAtomicStep;
 import com.xmlcalabash.util.HttpUtils;
+import com.xmlcalabash.util.JSONtoXML;
+import com.xmlcalabash.util.TreeWriter;
 
-public class DecodeTextStep implements XProcStep {
-	private static final String XPROC_STEP = XProcConstants.c_data.getNamespaceURI();
-	private static final String DATA = XProcConstants.c_data.getLocalName();
+public class DeserializeJsonStep implements XProcStep {
     private static final QName _content_type = new QName("content-type");
     private static final QName _encoding = new QName("encoding");
     private static final QName _charset = new QName("charset");
+    private static final QName _flavor = new QName("flavor");
+
     protected XProcRuntime runtime = null;
     protected XAtomicStep step = null;
     private ReadablePipe source = null;
     private WritablePipe result = null;
-	private String contentType = "text/plain";
 	private String charset;
 	private String encoding;
+	private String flavor;
 
     /**
      * Creates a new instance
      */
-    public DecodeTextStep(XProcRuntime runtime, XAtomicStep step) {
+    public DeserializeJsonStep(XProcRuntime runtime, XAtomicStep step) {
         this.runtime = runtime;
         this.step =step;
     }
@@ -75,7 +72,6 @@ public class DecodeTextStep implements XProcStep {
 	@Override
 	public void setOption(QName name, RuntimeValue value) {
 		if (_content_type.equals(name)) {
-	        contentType = value.getString();
 	        if (charset == null) {
 	        	charset = HttpUtils.getCharset(value.getString());
 	        }
@@ -83,6 +79,10 @@ public class DecodeTextStep implements XProcStep {
             encoding = value.getString();
         } else if (_charset.equals(name)) {
             charset = value.getString();
+        } else if (_flavor.equals(name)) {
+        	flavor = value.getString();
+			if (!JSONtoXML.knownFlavor(flavor))
+				throw XProcException.stepError(51);
         }
 	}
 
@@ -94,18 +94,30 @@ public class DecodeTextStep implements XProcStep {
     public void run() throws SaxonApiException {
         try {
         	while (source.moreDocuments()) {
-		        String text = decodeText(source.read());
+	            XdmNode doc = source.read();
+				String text = decodeText(doc);
 	
-				Document doc = DocumentFactory.newInstance().newDocument();
-				doc.setDocumentURI(doc.getBaseURI());
-				Element data = doc.createElementNS(XPROC_STEP, DATA);
-				data.setAttribute("content-type", contentType);
-				data.appendChild(doc.createTextNode(text));
-				doc.appendChild(data);
-				result.write(runtime.getProcessor().newDocumentBuilder().wrap(doc));
+		        TreeWriter tree = new TreeWriter(runtime);
+		        tree.startDocument(doc.getBaseURI());
+	
+		        XdmSequenceIterator iter = doc.axisIterator(Axis.CHILD);
+		        XdmNode child = (XdmNode) iter.next();
+		        while (child.getNodeKind() != XdmNodeKind.ELEMENT) {
+		            tree.addSubtree(child);
+		            child = (XdmNode) iter.next();
+		        }
+		        tree.addStartElement(child);
+		        tree.addAttributes(child);
+		        tree.startContent();
+	
+	            JSONTokener jt = new JSONTokener(text);
+	            XdmNode jsonDoc = JSONtoXML.convert(runtime.getProcessor(), jt, flavor);
+	            tree.addSubtree(jsonDoc);
+	
+	            tree.addEndElement();
+	            tree.endDocument();
+	            result.write(tree.getResult());
         	}
-        } catch (ParserConfigurationException e) {
-			throw new XProcException(step.getNode(), e);
         } catch (UnsupportedEncodingException uee) {
             throw XProcException.stepError(10, uee);
         } catch (DecoderException e) {
@@ -113,9 +125,9 @@ public class DecodeTextStep implements XProcStep {
 		}
     }
 
-	private String decodeText(XdmNode source_read)
-			throws UnsupportedEncodingException, DecoderException {
-		String text = extractText(source_read);
+	private String decodeText(XdmNode doc) throws UnsupportedEncodingException,
+			DecoderException {
+		String text = extractText(doc);
 		if ("base64".equals(encoding)) {
 		    if (charset == null) {
 		        throw XProcException.stepError(10);

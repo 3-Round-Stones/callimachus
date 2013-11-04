@@ -16,6 +16,21 @@
         <p:output port="result" sequence="true" />
     </p:declare-step>
 
+    <p:declare-step type="calli:deserialize-json">
+        <p:input port="source" sequence="true" primary="true" />
+        <p:option name="content-type" select="'application/json'"/>
+        <p:option name="encoding"/>
+        <p:option name="charset"/>
+        <p:option name="flavor" select="'jsonx'"/>
+        <p:output port="result" sequence="true" />
+    </p:declare-step>
+
+    <p:declare-step type="calli:serialize-json">
+        <p:input port="source" sequence="true" primary="true" />
+        <p:option name="content-type" select="'application/json'"/>
+        <p:output port="result" sequence="true" />
+    </p:declare-step>
+
     <p:declare-step type="calli:render-sparql-query">
         <p:input port="source" sequence="true" primary="true" />
         <p:input port="template" />

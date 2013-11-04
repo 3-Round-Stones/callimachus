@@ -361,6 +361,7 @@ if [ -r "$JAVA_HOME/lib/security/cacerts" ] && ( [ ! -e "$SSL" ] || ( [ -r "$SSL
     echo $$$(date +%s)$RANDOM | awk '{print $1}' > "$SSL.password"
   fi
   cp "$JAVA_HOME/lib/security/cacerts" "$BASEDIR/etc/truststore"
+  chmod ug+rw "$BASEDIR/etc/truststore"
   "$KEYTOOL" -storepasswd -new "$(cat "$SSL.password")" -keystore "$BASEDIR/etc/truststore" -storepass "changeit"
   echo "javax.net.ssl.trustStore=etc/truststore" >> "$SSL"
   echo "javax.net.ssl.trustStorePassword=$(cat "$SSL.password")" >> "$SSL"

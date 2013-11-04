@@ -1,6 +1,7 @@
 package org.callimachusproject.behaviours;
 
 import java.io.BufferedInputStream;
+import java.io.FilterInputStream;
 import java.io.IOException;
 
 import org.callimachusproject.auth.AuthorizationManager;
@@ -40,7 +41,11 @@ public abstract class CompositeSupport implements CalliObject {
 					}
 				}
 			});
-			parser.parse(in, base);
+			parser.parse(new FilterInputStream(in) {
+				public void close() throws IOException {
+					// ignore
+				}
+			}, base);
 			return null;
 		} catch (RDFHandlerException e) {
 			return e.getMessage();

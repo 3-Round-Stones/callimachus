@@ -114,16 +114,16 @@ public class RenderSparqlQueryStep implements XProcStep {
 				}
 				resultPipe.write(xml);
 			}
-		} catch (SaxonApiException sae) {
-			throw new XProcException(step.getNode(), sae);
+		} catch (SaxonApiException e) {
+			throw XProcException.dynamicError(30, step.getNode(), e, e.getMessage());
 		} catch (FluidException e) {
-			throw new XProcException(step.getNode(), e);
+			throw XProcException.dynamicError(30, step.getNode(), e, e.getMessage());
 		} catch (IOException e) {
-			throw new XProcException(step.getNode(), e);
+			throw XProcException.dynamicError(30, step.getNode(), e, e.getMessage());
 		} catch (TemplateException e) {
-			throw new XProcException(step.getNode(), e);
+			throw XProcException.dynamicError(30, step.getNode(), e, e.getMessage());
 		} catch (ParserConfigurationException e) {
-			throw new XProcException(step.getNode(), e);
+			throw XProcException.dynamicError(30, step.getNode(), e, e.getMessage());
 		}
 	}
 

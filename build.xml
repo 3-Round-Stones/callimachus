@@ -124,6 +124,8 @@
         <basename file="${htmlparser.url}" property="htmlparser.zip" />
         <basename file="${pool.url}" property="pool.zip" />
         <basename file="${dbcp.url}" property="dbcp.zip" />
+        <basename file="${sacjava.url}" property="sacjava.zip" />
+        <basename file="${cssparser.url}" property="cssparser.jar" />
         <mkdir dir="${downloads}" />
         <get usetimestamp="true" skipexisting="${lib.present}" dest="${downloads}">
             <url url="${sesame.url}" />
@@ -142,12 +144,21 @@
             <url url="${httpclient.url}" />
             <url url="${pool.url}" />
             <url url="${dbcp.url}" />
+            <url url="${sacjava.url}" />
+            <url url="${cssparser.url}" />
         </get>
         <mkdir dir="${lib}" />
         <mkdir dir="${bin}" />
         <copy file="${downloads}/${openrdf-sesame.jar}" tofile="${lib}/${openrdf-sesame.jar}" />
         <copy file="${downloads}/${mail.jar}" tofile="${lib}/${mail.jar}" />
         <copy file="${downloads}/${tagsoup.jar}" tofile="${lib}/${tagsoup.jar}" />
+        <copy file="${downloads}/${cssparser.jar}" tofile="${lib}/${cssparser.jar}" />
+        <unzip overwrite="false" src="${downloads}/${sacjava.zip}" dest="${lib}">
+            <patternset>
+                <include name="**/*.jar" />
+            </patternset>
+            <mapper type="flatten" />
+        </unzip>
         <unzip overwrite="false" src="${downloads}/${htmlparser.zip}" dest="${lib}">
             <patternset>
                 <include name="*/htmlparser*.jar" />

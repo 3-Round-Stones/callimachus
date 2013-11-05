@@ -20,4 +20,10 @@
 <implementation type="calli:deserialize-json"
 		class-name="org.callimachusproject.xproc.DeserializeJsonStep" />
 
+<implementation type="calli:serialize-css"
+		class-name="org.callimachusproject.xproc.SerializeCascadingStyleSheetStep" />
+
+<implementation type="calli:deserialize-css"
+		class-name="org.callimachusproject.xproc.DeserializeCascadingStyleSheetStep" />
+
 </xproc-config>

@@ -1,8 +1,8 @@
 package org.callimachusproject.xproc;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
-
-import javax.xml.parsers.ParserConfigurationException;
 
 import net.sf.saxon.s9api.Axis;
 import net.sf.saxon.s9api.QName;
@@ -18,11 +18,15 @@ import org.apache.commons.codec.binary.BinaryCodec;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.net.QuotedPrintableCodec;
 import org.apache.commons.codec.net.URLCodec;
-import org.callimachusproject.xml.DocumentFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.w3c.css.sac.CSSException;
+import org.w3c.css.sac.CSSParseException;
+import org.w3c.css.sac.ErrorHandler;
+import org.w3c.css.sac.InputSource;
+import org.w3c.dom.css.CSSStyleSheet;
 
-import com.xmlcalabash.core.XProcConstants;
+import com.steadystate.css.parser.CSSOMParser;
 import com.xmlcalabash.core.XProcException;
 import com.xmlcalabash.core.XProcRuntime;
 import com.xmlcalabash.core.XProcStep;
@@ -31,25 +35,26 @@ import com.xmlcalabash.io.WritablePipe;
 import com.xmlcalabash.model.RuntimeValue;
 import com.xmlcalabash.runtime.XAtomicStep;
 import com.xmlcalabash.util.HttpUtils;
+import com.xmlcalabash.util.TreeWriter;
 
-public class DecodeTextStep implements XProcStep {
-	private static final String XPROC_STEP = XProcConstants.c_data.getNamespaceURI();
-	private static final String DATA = XProcConstants.c_data.getLocalName();
+public class DeserializeCascadingStyleSheetStep implements XProcStep {
     private static final QName _content_type = new QName("content-type");
     private static final QName _encoding = new QName("encoding");
     private static final QName _charset = new QName("charset");
-    protected XProcRuntime runtime = null;
-    protected XAtomicStep step = null;
+
+    private final Logger logger = LoggerFactory.getLogger(DeserializeCascadingStyleSheetStep.class);
+    private XProcRuntime runtime = null;
+    private XAtomicStep step = null;
     private ReadablePipe source = null;
     private WritablePipe result = null;
-	private String contentType = "text/plain";
+	private String contentType = "text/css";
 	private String charset;
 	private String encoding;
 
     /**
      * Creates a new instance
      */
-    public DecodeTextStep(XProcRuntime runtime, XAtomicStep step) {
+    public DeserializeCascadingStyleSheetStep(XProcRuntime runtime, XAtomicStep step) {
         this.runtime = runtime;
         this.step =step;
     }
@@ -93,29 +98,75 @@ public class DecodeTextStep implements XProcStep {
 
     public void run() throws SaxonApiException {
         try {
-        	while (source.moreDocuments()) {
-		        String text = decodeText(source.read());
-	
-				Document doc = DocumentFactory.newInstance().newDocument();
-				doc.setDocumentURI(doc.getBaseURI());
-				Element data = doc.createElementNS(XPROC_STEP, DATA);
-				data.setAttribute("content-type", contentType);
-				data.appendChild(doc.createTextNode(text));
-				doc.appendChild(data);
-				result.write(runtime.getProcessor().newDocumentBuilder().wrap(doc));
-        	}
-        } catch (ParserConfigurationException e) {
-			throw XProcException.dynamicError(30, step.getNode(), e, e.getMessage());
+			while (source.moreDocuments()) {
+				XdmNode doc = source.read();
+				String text = decodeText(doc);
+
+				TreeWriter tree = new TreeWriter(runtime);
+				tree.startDocument(doc.getBaseURI());
+
+				XdmSequenceIterator iter = doc.axisIterator(Axis.CHILD);
+				XdmNode child = (XdmNode) iter.next();
+				while (child.getNodeKind() != XdmNodeKind.ELEMENT) {
+					tree.addSubtree(child);
+					child = (XdmNode) iter.next();
+				}
+				tree.addStartElement(child);
+				tree.addAttributes(child);
+				tree.startContent();
+
+				CSSOMParser parser = new CSSOMParser();
+				InputSource css = new InputSource(new StringReader(text));
+				css.setURI(doc.getBaseURI().toASCIIString());
+				if (contentType != null) {
+					css.setMedia(contentType);
+				}
+				css.setEncoding(charset);
+				parser.setErrorHandler(new ErrorHandler() {
+
+					public void warning(CSSParseException e)
+							throws CSSException {
+						String msg = e.getURI() + "#" + e.getLineNumber() + ":"
+								+ e.getColumnNumber() + " " + e.getMessage();
+						logger.warn(msg, e);
+					}
+
+					public void error(CSSParseException e) throws CSSException {
+						String msg = e.getURI() + "#" + e.getLineNumber() + ":"
+								+ e.getColumnNumber() + " " + e.getMessage();
+						logger.error(msg, e);
+						throw XProcException.dynamicError(30, step.getNode(),
+								msg);
+					}
+
+					public void fatalError(CSSParseException e)
+							throws CSSException {
+						String msg = e.getURI() + "#" + e.getLineNumber() + ":"
+								+ e.getColumnNumber() + " " + e.getMessage();
+						logger.error(msg, e);
+						throw XProcException.dynamicError(30, step.getNode(),
+								msg);
+					}
+				});
+				CSSStyleSheet sheet = parser.parseStyleSheet(css, null, css.getURI());
+				new CSStoXML(tree).writeStyleSheet(sheet);
+
+				tree.addEndElement();
+				tree.endDocument();
+				result.write(tree.getResult());
+			}
         } catch (UnsupportedEncodingException uee) {
             throw XProcException.stepError(10, uee);
         } catch (DecoderException e) {
             throw XProcException.dynamicError(30, step.getNode(), e, e.getMessage());
+		} catch (IOException e) {
+			throw XProcException.dynamicError(30, step.getNode(), e, e.getMessage());
 		}
     }
 
-	private String decodeText(XdmNode source_read)
-			throws UnsupportedEncodingException, DecoderException {
-		String text = extractText(source_read);
+	private String decodeText(XdmNode doc) throws UnsupportedEncodingException,
+			DecoderException {
+		String text = extractText(doc);
 		if ("base64".equals(encoding)) {
 		    if (charset == null) {
 		        throw XProcException.stepError(10);

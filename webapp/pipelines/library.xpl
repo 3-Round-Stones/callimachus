@@ -31,6 +31,20 @@
         <p:output port="result" sequence="true" />
     </p:declare-step>
 
+    <p:declare-step type="calli:deserialize-css">
+        <p:input port="source" sequence="true" primary="true" />
+        <p:option name="content-type" select="'text/css'"/>
+        <p:option name="encoding"/>
+        <p:option name="charset"/>
+        <p:output port="result" sequence="true" />
+    </p:declare-step>
+
+    <p:declare-step type="calli:serialize-css">
+        <p:input port="source" sequence="true" primary="true" />
+        <p:option name="content-type" select="'text/css'"/>
+        <p:output port="result" sequence="true" />
+    </p:declare-step>
+
     <p:declare-step type="calli:render-sparql-query">
         <p:input port="source" sequence="true" primary="true" />
         <p:input port="template" />

@@ -96,10 +96,10 @@ public class DeserializeJsonStep implements XProcStep {
         	while (source.moreDocuments()) {
 	            XdmNode doc = source.read();
 				String text = decodeText(doc);
-	
+
 		        TreeWriter tree = new TreeWriter(runtime);
 		        tree.startDocument(doc.getBaseURI());
-	
+
 		        XdmSequenceIterator iter = doc.axisIterator(Axis.CHILD);
 		        XdmNode child = (XdmNode) iter.next();
 		        while (child.getNodeKind() != XdmNodeKind.ELEMENT) {
@@ -109,11 +109,11 @@ public class DeserializeJsonStep implements XProcStep {
 		        tree.addStartElement(child);
 		        tree.addAttributes(child);
 		        tree.startContent();
-	
+
 	            JSONTokener jt = new JSONTokener(text);
 	            XdmNode jsonDoc = JSONtoXML.convert(runtime.getProcessor(), jt, flavor);
 	            tree.addSubtree(jsonDoc);
-	
+
 	            tree.addEndElement();
 	            tree.endDocument();
 	            result.write(tree.getResult());
@@ -121,7 +121,7 @@ public class DeserializeJsonStep implements XProcStep {
         } catch (UnsupportedEncodingException uee) {
             throw XProcException.stepError(10, uee);
         } catch (DecoderException e) {
-            throw new XProcException(step.getNode(), e);
+            throw XProcException.dynamicError(30, step.getNode(), e, e.getMessage());
 		}
     }
 

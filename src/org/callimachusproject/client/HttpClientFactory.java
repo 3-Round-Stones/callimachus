@@ -145,8 +145,8 @@ public class HttpClientFactory implements Closeable {
 	}
 
 	public synchronized CloseableHttpClient createHttpClient(String source, CredentialsProvider credentials) {
-		ManagedHttpCacheStorage storage = new ManagedHttpCacheStorage(
-				getDefaultCacheConfig());
+		CacheConfig cache = getDefaultCacheConfig();
+		ManagedHttpCacheStorage storage = new ManagedHttpCacheStorage(cache);
 		List<BasicHeader> headers = new ArrayList<BasicHeader>();
 		headers.add(new BasicHeader("Origin", getOrigin(source)));
 		headers.addAll(getAdditionalRequestHeaders());
@@ -156,6 +156,7 @@ public class HttpClientFactory implements Closeable {
 						.decorateMainExec(mainExec));
 			}
 		}.setResourceFactory(entryFactory).setHttpCacheStorage(storage)
+				.setCacheConfig(cache)
 				.setConnectionManager(getConnectionManager())
 				.setConnectionReuseStrategy(reuseStrategy)
 				.setKeepAliveStrategy(keepAliveStrategy).useSystemProperties()

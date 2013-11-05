@@ -1,6 +1,7 @@
 package org.callimachusproject.setup;
 
 import java.io.IOException;
+import java.net.InetAddress;
 
 import org.callimachusproject.repository.CalliRepository;
 import org.callimachusproject.util.DomainNameSystemResolver;
@@ -31,11 +32,15 @@ public class LocalSystemProvider extends UpdateProvider {
 					URI subj = vf.createURI(group);
 					URI pred = vf.createURI(CALLI_ANONYMOUSFROM);
 					boolean modified = false;
-					String host = dnsResolver.reverse(dnsResolver.getLocalHost());
-					Literal obj = vf.createLiteral(host);
-					if (!con.hasStatement(subj, pred, obj)) {
-						con.add(subj, pred, obj);
-						modified = true;
+					InetAddress loop = dnsResolver.getLocalHost();
+					String localhost = dnsResolver.reverse(loop);
+					// CachingExec#generateViaHeader hardcodes "localhost"
+					for (String host : new String[] { "localhost", localhost }) {
+						Literal obj = vf.createLiteral(host);
+						if (!con.hasStatement(subj, pred, obj)) {
+							con.add(subj, pred, obj);
+							modified = true;
+						}
 					}
 					con.commit();
 					return modified;

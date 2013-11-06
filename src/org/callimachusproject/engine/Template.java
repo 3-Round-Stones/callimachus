@@ -20,6 +20,7 @@ import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.XMLEvent;
 
 import org.callimachusproject.engine.events.Base;
+import org.callimachusproject.engine.events.Comment;
 import org.callimachusproject.engine.events.Namespace;
 import org.callimachusproject.engine.events.RDFEvent;
 import org.callimachusproject.engine.events.TriplePattern;
@@ -50,7 +51,7 @@ import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 
 public class Template {
-	private static final Pattern PROLOGUE = Pattern.compile("#.*$|BASE\\s*<([^>\\s]*)>|PREFIX\\s+([^:\\s]*)\\s*:\\s*<([^>\\s]*)>", Pattern.CASE_INSENSITIVE);
+	private static final Pattern PROLOGUE = Pattern.compile("BASE\\s*<([^>\\s]*)>|PREFIX\\s+([^:\\s]*)\\s*:\\s*<([^>\\s]*)>|\\#(.*)[\r\n]", Pattern.CASE_INSENSITIVE);
 	private static final Pattern SELECT = Pattern.compile("\\s*(?:#.*(?:$|\n|\r)\\s*)*SELECT\\s+\\?([^\\{\\s]*)\\s*(?:WHERE\\s*)?\\{", Pattern.CASE_INSENSITIVE);
 	private final TermFactory systemId;
 	private final XMLEventList source;
@@ -107,6 +108,7 @@ public class Template {
 						String base = m.group(1);
 						String prefix = m.group(2);
 						String space = m.group(3);
+						String comment = m.group(4);
 						if (base != null) {
 							writer.write(new Base(base));
 							end = m.end();
@@ -118,6 +120,8 @@ public class Template {
 								writer.write(new Namespace(prefix, space));
 							}
 							end = m.end();
+						} else if (comment != null) {
+							writer.write(new Comment(comment));
 						}
 					}
 				}

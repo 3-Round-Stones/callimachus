@@ -25,11 +25,15 @@ public class TemplateEngine {
 	private final HttpUriClient client;
 
 	public TemplateEngine(final HttpClient client) {
-		this.client = new HttpUriClient() {
-			protected HttpClient getDelegate() {
-				return client;
-			}
-		};
+		if (client instanceof HttpUriClient) {
+			this.client = (HttpUriClient) client;
+		} else {
+			this.client = new HttpUriClient() {
+				protected HttpClient getDelegate() {
+					return client;
+				}
+			};
+		}
 	}
 
 	public Template getTemplate(String systemId) throws IOException,

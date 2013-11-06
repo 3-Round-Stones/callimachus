@@ -4,6 +4,8 @@
     version="5.0">
     <title>An HTML table without a title</title>
     <informaltable>
+        <col/>
+        <col/>
         <thead>
             <tr>
                 <td>Head 1</td>

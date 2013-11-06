@@ -2,18 +2,20 @@
     xmlns      ="http://docbook.org/ns/docbook" 
     xmlns:xl   ="http://www.w3.org/1999/xlink"
     version="5.0">
-    <title>test for informaltable docbook element</title>
+    <title>An HTML table without a title</title>
     <informaltable>
+        <col width="75%" />
+        <col width="25%" />
         <thead>
             <tr>
-                <th>foo is a meaningless word</th>
-                <th>3 is a meaningless number</th>
+                <td>Head 1</td>
+                <td>Head 2</td>
             </tr>
         </thead>
         <tbody>
             <tr>
-                <td>bar</td>
-                <td>5</td>
+                <td>Body 1</td>
+                <td>Body 2</td>
             </tr>
         </tbody>
     </informaltable>

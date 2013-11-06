@@ -164,7 +164,7 @@ jQuery(function($) {
         // hide unsupported fields in "Cell Properties" dialogs
         if (el.find('.cke_dialog_title').html().match(/Cell Properties/)) {
             el.find('label').each(function() {
-                if ($(this).html().match(/^(width|height|word wrap|border color|background color)$/i)) {
+                if ($(this).html().match(/^(height|word wrap|border color|background color)$/i)) {
                     $(this).parents('tr').first().hide();// only the immediate parent
                 }
             });

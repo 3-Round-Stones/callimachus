@@ -818,7 +818,7 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 				.setWeakETagOnPutDeleteAllowed(true)
 				.setHeuristicCachingEnabled(true)
 				.setHeuristicDefaultLifetime(60 * 60 * 24)
-				.setMaxObjectSize(64000).build();
+				.setMaxObjectSize(1024 * 1024).build();
 	}
 
 	private HttpAsyncService createProtocolHandler(HttpProcessor httpproc,

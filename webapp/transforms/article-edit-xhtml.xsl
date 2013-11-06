@@ -567,6 +567,7 @@
 </xsl:template>
 
 <xsl:template match="d:caption|d:td|d:th">
+    <xsl:variable name="colnum" select="1 + count(preceding-sibling::*)" />
     <xsl:variable name="style">
         <xsl:if test="@align">
             <xsl:text>text-align:</xsl:text>
@@ -578,10 +579,18 @@
             <xsl:value-of select="@valign" />
             <xsl:text>;</xsl:text>
         </xsl:if>
+        <xsl:if test="../../../d:col[$colnum]/@width and 0=count(../preceding-sibling::d:tr) and 0=count(../../preceding-sibling::d:thead)">
+            <xsl:text>width:</xsl:text>
+            <xsl:value-of select="../../../d:col[$colnum]/@width" />
+            <xsl:if test="not(contains(../../../d:col[$colnum]/@width,'%'))">
+                <xsl:text>px</xsl:text>
+            </xsl:if>
+            <xsl:text>;</xsl:text>
+        </xsl:if>
     </xsl:variable>
     <xsl:element name="{local-name()}" 
                  namespace="http://www.w3.org/1999/xhtml">
-        <xsl:if test="$style and not(@style)">
+        <xsl:if test="string-length($style) gt 0 and not(@style)">
             <xsl:attribute name="style">
                 <xsl:value-of select="$style" />
             </xsl:attribute>

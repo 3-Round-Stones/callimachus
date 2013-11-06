@@ -5,8 +5,8 @@
     <title>A formal (captioned) HTML table in a document</title>
     <table summary="table summary" border="1" cellpadding="10" cellspacing="10">
         <caption>Sample HTML Table</caption>
-        <col />
-        <col />
+        <col width="75%" />
+        <col width="25%" />
         <thead>
             <tr>
                 <th>

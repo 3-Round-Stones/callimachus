@@ -5,6 +5,8 @@
     <title>test for caption docbook element</title>
     <table>
         <caption>A table caption</caption>
+        <col/>
+        <col/>
         <tbody>
             <tr>
                 <td>foo is a meaningless word</td>

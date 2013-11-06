@@ -512,7 +512,8 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
         <xsl:call-template name="id" />
         <xsl:apply-templates select="@lang" />
         <xsl:apply-templates select="@summary|@width|@border|@cellspacing|@cellpadding|@frame|@rules" />
-        <xsl:apply-templates />
+        <xsl:apply-templates mode="col" select="(xhtml:thead/xhtml:tr|xhtml:tbody/xhtml:tr)[1]/(xhtml:th|xhtml:td)" />
+        <xsl:apply-templates select="*[not(self::xhtml:col)]" />
     </informaltable>
 </xsl:template>
 
@@ -521,8 +522,31 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
         <xsl:call-template name="id" />
         <xsl:apply-templates select="@lang" />
         <xsl:apply-templates select="@summary|@width|@border|@cellspacing|@cellpadding|@frame|@rules" />
-        <xsl:apply-templates />
+        <xsl:apply-templates select="xhtml:caption" />
+        <xsl:apply-templates mode="col" select="(xhtml:thead/xhtml:tr|xhtml:tbody/xhtml:tr)[1]/(xhtml:th|xhtml:td)" />
+        <xsl:apply-templates select="*[not(self::xhtml:caption or self::xhtml:col)]" />
     </table>
+</xsl:template>
+
+<xsl:template match="xhtml:th|xhtml:td" mode="col">
+    <col>
+        <xsl:apply-templates select="@align|@char|@charoff|@valign|@width" />
+        <xsl:if test="@colspan">
+            <xsl:attribute name="span">
+                <xsl:value-of select="@colspan" />
+            </xsl:attribute>
+        </xsl:if>
+        <xsl:if test="not(@width) and matches(@style, 'width:\s*\d+px')">
+            <xsl:attribute name="width">
+                <xsl:value-of select="replace(@style, '.*width:\s*(\d+)px.*', '$1')" />
+            </xsl:attribute>
+        </xsl:if>
+        <xsl:if test="not(@width) and matches(@style, 'width:\s*\d+%')">
+            <xsl:attribute name="width">
+                <xsl:value-of select="replace(@style, '.*width:\s*(\d+%).*', '$1')" />
+            </xsl:attribute>
+        </xsl:if>
+    </col>
 </xsl:template>
 
 <!-- inline formatting -->

@@ -28,7 +28,7 @@ public abstract class Reference extends IRI {
 	public abstract String getRelative();
 
 	public String toString() {
-		return "<" + getRelative() + ">";
+		return "<" + stringValue() + ">";
 	}
 
 }

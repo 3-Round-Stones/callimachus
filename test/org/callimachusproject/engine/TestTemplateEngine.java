@@ -69,4 +69,16 @@ public class TestTemplateEngine extends TestCase {
 		assertFalse(query.getIncludeInferred());
 	}
 
+	public void testCanonicalReferenceQuery() throws Exception {
+		Reader in = new StringReader(
+				"<ul xmlns:rdfs='http://www.w3.org/2000/01/rdf-schema#'>\n"
+						+ "<li resource='?url'>\n" +
+						"<span rel='rdfs:seeAlso' resource='http://example.com'/>\n" +
+						"<span property='rdfs:label'/></li></ul>");
+		TemplateEngine eng = TemplateEngine.newInstance(client);
+		Template tem = eng.getTemplate(in, SYSTEM_ID);
+		String qry = tem.getQueryString();
+		assertTrue(qry, qry.contains("<http://example.com/>"));
+	}
+
 }

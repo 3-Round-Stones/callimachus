@@ -1,12 +1,17 @@
 package org.callimachusproject.xproc;
 
-import net.sf.saxon.s9api.Axis;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
+
 import net.sf.saxon.s9api.QName;
 import net.sf.saxon.s9api.SaxonApiException;
 import net.sf.saxon.s9api.XdmNode;
-import net.sf.saxon.s9api.XdmNodeKind;
-import net.sf.saxon.s9api.XdmSequenceIterator;
 
+import org.w3c.css.sac.InputSource;
+import org.w3c.dom.css.CSSStyleSheet;
+
+import com.steadystate.css.parser.CSSOMParser;
 import com.xmlcalabash.core.XProcConstants;
 import com.xmlcalabash.core.XProcException;
 import com.xmlcalabash.core.XProcRuntime;
@@ -70,7 +75,7 @@ public class SerializeCascadingStyleSheetStep implements XProcStep {
 			XdmNode doc = source.read();
 			XdmNode root = S9apiUtils.getDocumentElement(doc);
 			String contentType = getContentType(root);
-			String text = extractText(doc);
+			String text = toCSS(doc, contentType);
 
 			TreeWriter tree = new TreeWriter(runtime);
 			tree.startDocument(step.getNode().getBaseURI());
@@ -92,15 +97,31 @@ public class SerializeCascadingStyleSheetStep implements XProcStep {
 		}
 	}
 
-    private String extractText(XdmNode doc) {
-        StringBuilder content = new StringBuilder();
-        XdmSequenceIterator iter = doc.axisIterator(Axis.CHILD);
-        while (iter.hasNext()) {
-            XdmNode child = (XdmNode) iter.next();
-            if (child.getNodeKind() == XdmNodeKind.ELEMENT || child.getNodeKind() == XdmNodeKind.TEXT) {
-                content.append(child.getStringValue());
-            }
-        }
-        return content.toString();
-    }
+	private String toCSS(XdmNode doc, String contentType) {
+		StringWriter writer = new StringWriter();
+		new XMLtoCSS(writer).writeDocument(doc);
+		String text = writer.toString();
+		// verify
+		parse(text, doc.getBaseURI().toASCIIString(), contentType, null);
+		return text;
+	}
+
+	private CSSStyleSheet parse(String text, String baseURI, String contentType,
+			String charset) {
+		CSSOMParser parser = new CSSOMParser();
+		InputSource css = new InputSource(new StringReader(text));
+		css.setURI(baseURI);
+		if (contentType != null) {
+			css.setMedia(contentType);
+		}
+		if (charset != null) {
+			css.setEncoding(charset);
+		}
+		parser.setErrorHandler(new XProcErrorHandler(step.getNode()));
+		try {
+			return parser.parseStyleSheet(css, null, css.getURI());
+		} catch (IOException e) {
+			throw XProcException.dynamicError(30, step.getNode(), e, e.getMessage());
+		}
+	}
 }

@@ -44,7 +44,7 @@ public class SerializeCssTest extends TestCase {
 			+ "    </p:declare-step>\n" + "\n" + "<calli:deserialize-css/>\n"
 			+ "<calli:serialize-css/>\n" + "</p:pipeline>\n";
 
-	private static final String PROPERTIES = "<p:pipeline version='1.0'\n"
+	private static final String VALUES = "<p:pipeline version='1.0'\n"
 			+ "xmlns:p='http://www.w3.org/ns/xproc'\n"
 			+ "xmlns:c='http://www.w3.org/ns/xproc-step'\n"
 			+ "xmlns:calli='http://callimachusproject.org/rdf/2009/framework#'\n"
@@ -65,10 +65,9 @@ public class SerializeCssTest extends TestCase {
 			+ "        <p:option name='content-type'/>\n"
 			+ "        <p:output port='result' sequence='true' />\n"
 			+ "    </p:declare-step>\n" + "\n" + "<calli:deserialize-css/>\n"
-			+ "<calli:serialize-css>\n"
-			+ "<p:input port='source' select='//css:style' />\n"
-			+ "</calli:serialize-css>\n"
-			+ "<p:wrap-sequence wrapper='c:data' />\n" + "</p:pipeline>\n";
+			+ "<p:wrap-sequence wrapper='c:data'>\n"
+			+ "<p:input port='source' select='//css:value' />\n"
+			+ "</p:wrap-sequence>\n" + "</p:pipeline>\n";
 
 	@Before
 	public void setUp() throws Exception {
@@ -109,6 +108,11 @@ public class SerializeCssTest extends TestCase {
 	}
 
 	@Test
+	public void testStyle() throws Exception {
+		assertRoundTrip("div#id { margin: 20px; }");
+	}
+
+	@Test
 	public void testFontFace() throws Exception {
 		assertRoundTrip("@font-face { font-family: Bitstream Vera Serif Bold; src: http://developer.mozilla.org/@api/deki/files/2934/=VeraSeBd.ttf; }");
 	}
@@ -121,14 +125,16 @@ public class SerializeCssTest extends TestCase {
 	@Test
 	public void testMediaProperties() throws Exception {
 		assertEquals(
-				"line-height: 1.2;",
-				pipe("@media screen, print {body { line-height: 1.2 } }",
-						PROPERTIES));
+				"1.2em",
+				pipe("@media screen, print { body { line-height: 1.2em } }",
+						VALUES));
 	}
 
-	private void assertRoundTrip(String str) throws IOException, SAXException,
-			ParserConfigurationException {
-		assertEquals(str.replaceAll("\\s+", " ").trim(), pipe(str, IDENTITY).replaceAll("\\s+", " ").trim());
+	private void assertRoundTrip(String expected) throws IOException,
+			SAXException, ParserConfigurationException {
+		String actual = pipe(expected, IDENTITY);
+		assertEquals(expected.replaceAll("\\s+", " ").trim(), actual
+				.replaceAll("\\s+", " ").trim());
 	}
 
 	private String pipe(String source, String pipeline) throws IOException,

@@ -18,11 +18,6 @@ import org.apache.commons.codec.binary.BinaryCodec;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.net.QuotedPrintableCodec;
 import org.apache.commons.codec.net.URLCodec;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.w3c.css.sac.CSSException;
-import org.w3c.css.sac.CSSParseException;
-import org.w3c.css.sac.ErrorHandler;
 import org.w3c.css.sac.InputSource;
 import org.w3c.dom.css.CSSStyleSheet;
 
@@ -42,7 +37,6 @@ public class DeserializeCascadingStyleSheetStep implements XProcStep {
     private static final QName _encoding = new QName("encoding");
     private static final QName _charset = new QName("charset");
 
-    private final Logger logger = LoggerFactory.getLogger(DeserializeCascadingStyleSheetStep.class);
     private XProcRuntime runtime = null;
     private XAtomicStep step = null;
     private ReadablePipe source = null;
@@ -115,40 +109,8 @@ public class DeserializeCascadingStyleSheetStep implements XProcStep {
 				tree.addAttributes(child);
 				tree.startContent();
 
-				CSSOMParser parser = new CSSOMParser();
-				InputSource css = new InputSource(new StringReader(text));
-				css.setURI(doc.getBaseURI().toASCIIString());
-				if (contentType != null) {
-					css.setMedia(contentType);
-				}
-				css.setEncoding(charset);
-				parser.setErrorHandler(new ErrorHandler() {
-
-					public void warning(CSSParseException e)
-							throws CSSException {
-						String msg = e.getURI() + "#" + e.getLineNumber() + ":"
-								+ e.getColumnNumber() + " " + e.getMessage();
-						logger.warn(msg, e);
-					}
-
-					public void error(CSSParseException e) throws CSSException {
-						String msg = e.getURI() + "#" + e.getLineNumber() + ":"
-								+ e.getColumnNumber() + " " + e.getMessage();
-						logger.error(msg, e);
-						throw XProcException.dynamicError(30, step.getNode(),
-								msg);
-					}
-
-					public void fatalError(CSSParseException e)
-							throws CSSException {
-						String msg = e.getURI() + "#" + e.getLineNumber() + ":"
-								+ e.getColumnNumber() + " " + e.getMessage();
-						logger.error(msg, e);
-						throw XProcException.dynamicError(30, step.getNode(),
-								msg);
-					}
-				});
-				CSSStyleSheet sheet = parser.parseStyleSheet(css, null, css.getURI());
+				CSSStyleSheet sheet = parse(text, doc.getBaseURI()
+						.toASCIIString(), contentType, charset);
 				new CSStoXML(tree).writeStyleSheet(sheet);
 
 				tree.addEndElement();
@@ -159,10 +121,27 @@ public class DeserializeCascadingStyleSheetStep implements XProcStep {
             throw XProcException.stepError(10, uee);
         } catch (DecoderException e) {
             throw XProcException.dynamicError(30, step.getNode(), e, e.getMessage());
+		}
+	}
+
+	private CSSStyleSheet parse(String text, String baseURI, String contentType,
+			String charset) {
+		CSSOMParser parser = new CSSOMParser();
+		InputSource css = new InputSource(new StringReader(text));
+		css.setURI(baseURI);
+		if (contentType != null) {
+			css.setMedia(contentType);
+		}
+		if (charset != null) {
+			css.setEncoding(charset);
+		}
+		parser.setErrorHandler(new XProcErrorHandler(step.getNode()));
+		try {
+			return parser.parseStyleSheet(css, null, css.getURI());
 		} catch (IOException e) {
 			throw XProcException.dynamicError(30, step.getNode(), e, e.getMessage());
 		}
-    }
+	}
 
 	private String decodeText(XdmNode doc) throws UnsupportedEncodingException,
 			DecoderException {

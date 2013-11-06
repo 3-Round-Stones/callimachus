@@ -27,6 +27,11 @@ import javax.xml.stream.Location;
 public class Comment extends RDFEvent {
 	String comment;
 
+	public Comment(String comment) {
+		super(null);
+		this.comment = comment;
+	}
+
 	public Comment(String comment, Location location) {
 		super(location);
 		this.comment = comment;

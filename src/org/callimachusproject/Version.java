@@ -22,6 +22,9 @@ public class Version {
 	}
 
 	private static String loadVersion(ClassLoader cl, String properties) {
+		String implVer = Version.class.getPackage().getImplementationVersion();
+		if (implVer != null)
+			return implVer;
 		try {
 			InputStream in = cl.getResourceAsStream(properties);
 			if (in != null) {
@@ -48,13 +51,15 @@ public class Version {
 	private final int maintenance;
 	private final String qualifier;
 	private final int development;
+	private final String build;
 
 	Version(String version) {
-		major = parseInt(version, "(\\d+)\\b.*");
-		release = parseInt(version, "\\d+\\.(\\d+)\\b.*");
-		maintenance = parseInt(version, "\\d+\\.\\d+\\.(\\d+)\\b.*");
-		qualifier = parseString(version, "[\\d\\.]+-([^\\d]+)(-\\d+)?");
-		development = parseInt(version, "[\\d\\.]+-[^\\d]*(\\d+)");
+		major = parseInt(version, "([0-9]+)\\b.*");
+		release = parseInt(version, "[0-9]+\\.([0-9]+)\\b.*");
+		maintenance = parseInt(version, "[0-9]+\\.[0-9]+\\.([0-9]+)\\b.*");
+		qualifier = parseString(version, "[0-9\\.]+-([A-Za-z\\-]+?)(\\-?[0-9]+)?(\\+[0-9A-Za-z\\-\\.]+)?");
+		development = parseInt(version, "[0-9\\.]+-[A-Za-z\\-]*([0-9]+)(\\+[0-9A-Za-z\\-\\.]+)?");
+		build = parseString(version, "[0-9A-Za-z\\.\\-]*\\+([0-9A-Za-z\\-\\.]+)");
 	}
 
 	private int parseInt(String version, String pattern) {
@@ -98,11 +103,16 @@ public class Version {
 		if (getMaintenanceVersionNum() > 0) {
 			sb.append(".").append(getMaintenanceVersionNum());
 		}
-		if (getQualifierVersion() != null) {
-			sb.append("-").append(getQualifierVersion());
-		}
-		if (getDevelopmentVersionNum() > 0) {
+		if (getQualifierIdentifier() != null) {
+			sb.append("-").append(getQualifierIdentifier());
+			if (getDevelopmentVersionNum() > 0) {
+				sb.append(getDevelopmentVersionNum());
+			}
+		} else if (getDevelopmentVersionNum() > 0) {
 			sb.append("-").append(getDevelopmentVersionNum());
+		}
+		if (getBuildIdentifier() != null) {
+			sb.append("+").append(getBuildIdentifier());
 		}
 		return sb.toString();
 	}
@@ -152,7 +162,7 @@ public class Version {
 	 * releases, and the qualifier is separated from the major, minor, and
 	 * incremental versions by a hyphen.
 	 */
-	public String getQualifierVersion() {
+	public String getQualifierIdentifier() {
 		return qualifier;
 	}
 
@@ -167,6 +177,17 @@ public class Version {
 	 */
 	public int getDevelopmentVersionNum() {
 		return development;
+	}
+
+	/**
+	 * Optional build identifier designates a specific binary build of a
+	 * version.
+	 * 
+	 * Build has no barring on the software version precedence, but is used to
+	 * identify the particular process that converted this software into binary.
+	 */
+	public String getBuildIdentifier() {
+		return build;
 	}
 
 }

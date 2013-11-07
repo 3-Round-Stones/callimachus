@@ -16,7 +16,7 @@ public class VersionTest {
 		assertEquals(0, version.getMajorVersionNum());
 		assertEquals(15, version.getReleaseVersionNum());
 		assertEquals(0, version.getMaintenanceVersionNum());
-		assertEquals(null, version.getQualifierVersion());
+		assertEquals(null, version.getQualifierIdentifier());
 		assertEquals(0, version.getDevelopmentVersionNum());
 	}
 
@@ -26,7 +26,7 @@ public class VersionTest {
 		assertEquals(0, version.getMajorVersionNum());
 		assertEquals(15, version.getReleaseVersionNum());
 		assertEquals(1, version.getMaintenanceVersionNum());
-		assertEquals(null, version.getQualifierVersion());
+		assertEquals(null, version.getQualifierIdentifier());
 		assertEquals(0, version.getDevelopmentVersionNum());
 	}
 
@@ -36,7 +36,17 @@ public class VersionTest {
 		assertEquals(0, version.getMajorVersionNum());
 		assertEquals(15, version.getReleaseVersionNum());
 		assertEquals(0, version.getMaintenanceVersionNum());
-		assertEquals("alpha", version.getQualifierVersion());
+		assertEquals("alpha", version.getQualifierIdentifier());
+		assertEquals(1, version.getDevelopmentVersionNum());
+	}
+
+	@Test
+	public void testQualifierCompact() {
+		Version version = new Version("0.15-alpha1");
+		assertEquals(0, version.getMajorVersionNum());
+		assertEquals(15, version.getReleaseVersionNum());
+		assertEquals(0, version.getMaintenanceVersionNum());
+		assertEquals("alpha", version.getQualifierIdentifier());
 		assertEquals(1, version.getDevelopmentVersionNum());
 	}
 
@@ -46,8 +56,19 @@ public class VersionTest {
 		assertEquals(0, version.getMajorVersionNum());
 		assertEquals(15, version.getReleaseVersionNum());
 		assertEquals(0, version.getMaintenanceVersionNum());
-		assertEquals(null, version.getQualifierVersion());
+		assertEquals(null, version.getQualifierIdentifier());
 		assertEquals(1, version.getDevelopmentVersionNum());
+	}
+
+	@Test
+	public void testBuild() {
+		Version version = new Version("0.15+buildinfo");
+		assertEquals(0, version.getMajorVersionNum());
+		assertEquals(15, version.getReleaseVersionNum());
+		assertEquals(0, version.getMaintenanceVersionNum());
+		assertEquals(null, version.getQualifierIdentifier());
+		assertEquals(0, version.getDevelopmentVersionNum());
+		assertEquals("buildinfo", version.getBuildIdentifier());
 	}
 
 	@Test
@@ -56,8 +77,9 @@ public class VersionTest {
 		assertTrue(version.getMajorVersionNum() >= 0);
 		assertTrue(version.getReleaseVersionNum() >= 0);
 		assertTrue(version.getMaintenanceVersionNum() >= 0);
-		version.getQualifierVersion();
+		version.getQualifierIdentifier();
 		assertTrue(version.getDevelopmentVersionNum() >= 0);
+		version.getBuildIdentifier();
 	}
 
 	@Test

@@ -225,14 +225,18 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 
 	private static String getBuild() {
 		String build = System.getProperty("org.callimachusproject.test.build");
-		if (build == null) {
+		String implementationVersion = Version.class.getPackage()
+				.getImplementationVersion();
+		if (build != null) {
+			return build;
+		} else if (implementationVersion != null) {
+			return implementationVersion;
+		} else {
 			RuntimeMXBean bean = ManagementFactory.getRuntimeMXBean();
 			long startTime = bean.getStartTime();
 			long code = startTime % (1000 * 60 * 60 * 24 * 30) / 1000 / 60;
 			String version = Version.getInstance().getVersionCode();
 			return version + "+" + Long.toHexString(code);
-		} else {
-			return build;
 		}
 	}
 

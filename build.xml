@@ -251,7 +251,7 @@
         <mkdir dir="${dist}" />
         <property name="jar.file" value="${dist}/${artifact.name}-${Version}.jar" />
         <tstamp>
-            <format property="build.number" pattern="ddHHmm" />
+            <format property="build.number" pattern="ddHHmm" timezone="UTC" />
         </tstamp>
         <manifestclasspath property="jar.classpath" jarfile="${jar.file}">
             <classpath>
@@ -372,10 +372,10 @@
         <junit printsummary="on" haltonfailure="on" tempdir="${tmp}" fork="yes" forkmode="perBatch">
             <jvmarg line="${jvmargs}" />
             <classpath>
-                <pathelement location="${build.tests}/" />
                 <fileset dir="${dist}">
                     <include name="**/*.jar" />
                 </fileset>
+                <pathelement location="${build.tests}/" />
                 <fileset dir="${lib.tests}">
                     <include name="**/*.jar" />
                 </fileset>
@@ -403,10 +403,10 @@
         <junit printsummary="on" haltonfailure="on" tempdir="${tmp}" fork="yes" forkmode="perBatch">
             <jvmarg line="${jvmargs} -Dorg.callimachusproject.config.webapp=${dist}/${artifact.name}-webapp-${Version}.car" />
             <classpath>
-                <pathelement location="${build.tests}/" />
                 <fileset dir="${dist}">
                     <include name="**/*.jar" />
                 </fileset>
+                <pathelement location="${build.tests}/" />
                 <fileset dir="${lib.tests}">
                     <include name="**/*.jar" />
                 </fileset>
@@ -476,10 +476,10 @@
         <junit printsummary="on" showoutput="yes" haltonfailure="off" tempdir="${tmp}" fork="yes" forkmode="perBatch">
             <jvmarg line="${jvmargs} -Dorg.callimachusproject.config.webapp=${dist}/${artifact.name}-webapp-${Version}.car -Dorg.callimachusproject.test.username=${callimachus.username} -Dorg.callimachusproject.test.email=${callimachus.email} -Dorg.callimachusproject.test.password=${callimachus.password} ${test.arg} ${build.arg}" />
             <classpath>
-                <pathelement location="${build.tests}/" />
                 <fileset dir="${dist}">
                     <include name="**/*.jar" />
                 </fileset>
+                <pathelement location="${build.tests}/" />
                 <fileset dir="${lib.tests}">
                     <include name="**/*.jar" />
                 </fileset>
@@ -528,10 +528,10 @@
         <junit printsummary="on" showoutput="yes" haltonfailure="off" tempdir="${tmp}" fork="yes" forkmode="perBatch">
             <jvmarg line="${jvmargs} -Dorg.callimachusproject.config.webapp=${dist}/${artifact.name}-webapp-${Version}.car -Dorg.callimachusproject.test.username=${callimachus.username} -Dorg.callimachusproject.test.email=${callimachus.email} -Dorg.callimachusproject.test.password=${callimachus.password} -Dorg.callimachusproject.test.remotewebdriver=${callimachus.webdriver} ${test.arg} ${build.arg}" />
             <classpath>
-                <pathelement location="${build.tests}/" />
                 <fileset dir="${dist}">
                     <include name="**/*.jar" />
                 </fileset>
+                <pathelement location="${build.tests}/" />
                 <fileset dir="${lib.tests}">
                     <include name="**/*.jar" />
                 </fileset>

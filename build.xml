@@ -1,6 +1,7 @@
 <project name="callimachus" default="help" basedir=".">
     <!-- set global properties for this build -->
     <property name="artifact.name" value="callimachus" />
+    <property name="vendor" value="3 Round Stones Inc." />
     <property name="src" location="src" />
     <property name="build" location="build" />
     <property name="build.tests" location="build" />
@@ -249,6 +250,9 @@
         <!-- Create the distribution directory and create the jar -->
         <mkdir dir="${dist}" />
         <property name="jar.file" value="${dist}/${artifact.name}-${Version}.jar" />
+        <tstamp>
+            <format property="build.number" pattern="ddHHmm" />
+        </tstamp>
         <manifestclasspath property="jar.classpath" jarfile="${jar.file}">
             <classpath>
                 <fileset dir="${lib}">
@@ -261,6 +265,11 @@
             <manifest>
                 <attribute name="Main-Class" value="${main}" />
                 <attribute name="Class-Path" value="${jar.classpath}" />
+                <attribute name="Built-By" value="${user.name}" />
+                <attribute name="Implementation-Title" value="${artifact.name}" />
+                <attribute name="Implementation-Version" value="${Version}+${build.number}" />
+                <attribute name="Implementation-Vendor" value="${vendor}" />
+                <attribute name="Sealed" value="true" />
             </manifest>
         </jar>
         <zip destfile="${dist}/${artifact.name}-${Version}.zip">
@@ -364,7 +373,9 @@
             <jvmarg line="${jvmargs}" />
             <classpath>
                 <pathelement location="${build.tests}/" />
-                <pathelement location="${build}/" />
+                <fileset dir="${dist}">
+                    <include name="**/*.jar" />
+                </fileset>
                 <fileset dir="${lib.tests}">
                     <include name="**/*.jar" />
                 </fileset>
@@ -393,7 +404,9 @@
             <jvmarg line="${jvmargs} -Dorg.callimachusproject.config.webapp=${dist}/${artifact.name}-webapp-${Version}.car" />
             <classpath>
                 <pathelement location="${build.tests}/" />
-                <pathelement location="${build}/" />
+                <fileset dir="${dist}">
+                    <include name="**/*.jar" />
+                </fileset>
                 <fileset dir="${lib.tests}">
                     <include name="**/*.jar" />
                 </fileset>
@@ -464,7 +477,9 @@
             <jvmarg line="${jvmargs} -Dorg.callimachusproject.config.webapp=${dist}/${artifact.name}-webapp-${Version}.car -Dorg.callimachusproject.test.username=${callimachus.username} -Dorg.callimachusproject.test.email=${callimachus.email} -Dorg.callimachusproject.test.password=${callimachus.password} ${test.arg} ${build.arg}" />
             <classpath>
                 <pathelement location="${build.tests}/" />
-                <pathelement location="${build}/" />
+                <fileset dir="${dist}">
+                    <include name="**/*.jar" />
+                </fileset>
                 <fileset dir="${lib.tests}">
                     <include name="**/*.jar" />
                 </fileset>
@@ -514,7 +529,9 @@
             <jvmarg line="${jvmargs} -Dorg.callimachusproject.config.webapp=${dist}/${artifact.name}-webapp-${Version}.car -Dorg.callimachusproject.test.username=${callimachus.username} -Dorg.callimachusproject.test.email=${callimachus.email} -Dorg.callimachusproject.test.password=${callimachus.password} -Dorg.callimachusproject.test.remotewebdriver=${callimachus.webdriver} ${test.arg} ${build.arg}" />
             <classpath>
                 <pathelement location="${build.tests}/" />
-                <pathelement location="${build}/" />
+                <fileset dir="${dist}">
+                    <include name="**/*.jar" />
+                </fileset>
                 <fileset dir="${lib.tests}">
                     <include name="**/*.jar" />
                 </fileset>

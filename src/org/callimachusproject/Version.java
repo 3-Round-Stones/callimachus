@@ -88,6 +88,9 @@ public class Version {
 		StringBuilder sb = new StringBuilder();
 		sb.append(getProduct());
 		sb.append("/").append(getVersionCode());
+		if (getBuildIdentifier() != null) {
+			sb.append("+").append(getBuildIdentifier());
+		}
 		return sb.toString();
 	}
 
@@ -110,9 +113,6 @@ public class Version {
 			}
 		} else if (getDevelopmentVersionNum() > 0) {
 			sb.append("-").append(getDevelopmentVersionNum());
-		}
-		if (getBuildIdentifier() != null) {
-			sb.append("+").append(getBuildIdentifier());
 		}
 		return sb.toString();
 	}

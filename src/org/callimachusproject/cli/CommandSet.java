@@ -10,6 +10,7 @@ public class CommandSet {
 	private final String name;
 	private final Options options = new Options();
 	private String otherArgName;
+	private CommandLine line;
 
 	public CommandSet(String version) {
 		this.name = version;
@@ -47,12 +48,24 @@ public class CommandSet {
 		this.otherArgName = argName;
 	}
 
-	public Command parse(String[] args) {
+	public synchronized Command parse(String[] args) {
 		try {
-			CommandLine line = new GnuParser().parse(options, args);
+			line = new GnuParser() {
+				public CommandLine parse(Options options, String[] arguments)
+						throws ParseException {
+					try {
+						return super.parse(options, arguments);
+					} catch (ParseException e) {
+						line = this.cmd;
+						throw e;
+					}
+				};
+			}.parse(options, args);
 			return new Command(name, options, otherArgName, line);
 		} catch (ParseException e) {
-			return new Command(name, options, otherArgName, e);
+			return new Command(name, options, otherArgName, line, e);
+		} finally {
+			line = null;
 		}
 	}
 

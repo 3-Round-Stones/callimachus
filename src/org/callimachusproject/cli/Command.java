@@ -27,11 +27,11 @@ public class Command {
 	}
 
 	public Command(String name, Options options, String otherArgName,
-			ParseException exception) {
+			CommandLine parsed, ParseException exception) {
 		this.name = name;
 		this.options = options;
 		this.otherArgName = otherArgName;
-		this.parsed = null;
+		this.parsed = parsed;
 		this.exception = exception;
 	}
 

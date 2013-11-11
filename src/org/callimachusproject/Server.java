@@ -130,17 +130,19 @@ public class Server {
 		try {
 			Command line = commands.parse(args);
 			if (line.isParseError()) {
-				line.printParseError();
-				System.exit(2);
-				return;
-			} else if (line.has("help")) {
-				line.printHelp();
-				System.exit(0);
-				return;
-			} else if (line.has("version")) {
-				line.printCommandName();
-				System.exit(0);
-				return;
+				if (line.has("help")) {
+					line.printHelp();
+					System.exit(0);
+					return;
+				} else if (line.has("version")) {
+					line.printCommandName();
+					System.exit(0);
+					return;
+				} else {
+					line.printParseError();
+					System.exit(2);
+					return;
+				}
 			} else if (line.has("quiet")) {
 				try {
 					logStdout();

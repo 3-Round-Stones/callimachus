@@ -608,22 +608,24 @@ do_start()
           else
             log_warning_msg "Could not import $cert into $KEYSTORE"
           fi
-        elif "$KEYTOOL" -list -keystore "$KEYSTORE" -storepass "$(cat "$SSL.password")" |grep "^$ALIAS," |grep -q "PrivateKeyEntry," ; then
-          if [ "$cert" != "etc/$ALIAS.cer" ] ; then
-            "$KEYTOOL" -import -alias "$ALIAS" -file "$cert" -noprompt -trustcacerts -keystore "$KEYSTORE" -storepass "$(cat "$SSL.password")" $KEYTOOL_OPTS
-            if [ $? = 0 ] ; then
-              log_success_msg "Imported certificate reply $cert into $KEYSTORE"
-            else
-              log_warning_msg "Could not import certificate reply $cert into $KEYSTORE"
-            fi
-          fi
         elif [ "$cert" -nt "$KEYSTORE" ] ; then
-          "$KEYTOOL" -delete -alias "$ALIAS" -keystore "$KEYSTORE" -storepass "$(cat "$SSL.password")" $KEYTOOL_OPTS
-          "$KEYTOOL" -import -alias "$ALIAS" -file "$cert" -noprompt -trustcacerts -keystore "$KEYSTORE" -storepass "$(cat "$SSL.password")" $KEYTOOL_OPTS
-          if [ $? = 0 ] ; then
-            log_success_msg "Imported $cert into $KEYSTORE"
+            if "$KEYTOOL" -list -keystore "$KEYSTORE" -storepass "$(cat "$SSL.password")" |grep "^$ALIAS," |grep -q "PrivateKeyEntry," ; then
+              if [ "$cert" != "etc/$ALIAS.cer" ] ; then
+                "$KEYTOOL" -import -alias "$ALIAS" -file "$cert" -noprompt -trustcacerts -keystore "$KEYSTORE" -storepass "$(cat "$SSL.password")" $KEYTOOL_OPTS
+                if [ $? = 0 ] ; then
+                  log_success_msg "Imported certificate reply $cert into $KEYSTORE"
+                else
+                  log_warning_msg "Could not import certificate reply $cert into $KEYSTORE"
+                fi
+              fi
           else
-            log_warning_msg "Could not import $cert into $KEYSTORE"
+              "$KEYTOOL" -delete -alias "$ALIAS" -keystore "$KEYSTORE" -storepass "$(cat "$SSL.password")" $KEYTOOL_OPTS
+              "$KEYTOOL" -import -alias "$ALIAS" -file "$cert" -noprompt -trustcacerts -keystore "$KEYSTORE" -storepass "$(cat "$SSL.password")" $KEYTOOL_OPTS
+              if [ $? = 0 ] ; then
+                log_success_msg "Imported $cert into $KEYSTORE"
+              else
+                log_warning_msg "Could not import $cert into $KEYSTORE"
+              fi
           fi
         fi
       fi

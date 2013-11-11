@@ -147,7 +147,6 @@ import org.slf4j.LoggerFactory;
 public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, ClientExecChain {
 	protected static final String DEFAULT_NAME = Version.getInstance().getVersion();
 	private static final int MAX_QUEUE_SIZE = 32;
-	private static final int N = Runtime.getRuntime().availableProcessors();
 	private static final String ENVELOPE_TYPE = "message/x-response";
 	private static NamedThreadFactory executor = new NamedThreadFactory("WebServer", false);
 	private static final Set<WebServer> instances = new HashSet<WebServer>();
@@ -171,9 +170,10 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 	private final Set<String> origins = new HashSet<String>();
 	private final ThreadLocal<Boolean> foreground = new ThreadLocal<Boolean>();
 	private final ExecutorService triaging = new InlineExecutorService(
-			foreground, ManagedExecutors.getInstance().newFixedThreadPool(N,
-					new ArrayBlockingQueue<Runnable>(MAX_QUEUE_SIZE),
-					"HttpTriaging"));
+			foreground, ManagedExecutors.getInstance()
+					.newAntiDeadlockThreadPool(
+							new ArrayBlockingQueue<Runnable>(MAX_QUEUE_SIZE),
+							"HttpTriaging"));
 	private final ExecutorService handling = new InlineExecutorService(
 			foreground, ManagedExecutors.getInstance()
 					.newAntiDeadlockThreadPool(

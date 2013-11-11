@@ -131,6 +131,11 @@ public class HttpClientFactory implements Closeable {
 		return decorator.setProxy(destination, proxy);
 	}
 
+	public synchronized ClientExecChain setProxyIfAbsent(HttpHost destination,
+			ClientExecChain proxy) {
+		return decorator.setProxyIfAbsent(destination, proxy);
+	}
+
 	public synchronized boolean removeProxy(HttpHost destination,
 			ClientExecChain proxy) {
 		return decorator.removeProxy(destination, proxy);

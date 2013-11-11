@@ -72,11 +72,8 @@ public class WebappArchiveImporter {
 			throws IOException, OpenRDFException, NoSuchMethodException,
 			InvocationTargetException {
 		HttpHost host = URIUtils.extractHost(java.net.URI.create(webapp));
-		HttpClientFactory client = HttpClientFactory.getInstance();
 		UnavailableRequestDirector service = new UnavailableRequestDirector();
-		if (client.getProxy(host) == null) {
-			client.setProxy(host, service);
-		}
+		HttpClientFactory.getInstance().setProxyIfAbsent(host, service);
 		try {
 			if (schemaGraphs != null) {
 				for (URI schemaGraph : schemaGraphs) {
@@ -108,7 +105,7 @@ public class WebappArchiveImporter {
 				con.commit();
 			} finally {
 				con.close();
-				client.removeProxy(host, service);
+				HttpClientFactory.getInstance().removeProxy(host, service);
 			}
 		} finally {
 			repository.setCompileRepository(false);

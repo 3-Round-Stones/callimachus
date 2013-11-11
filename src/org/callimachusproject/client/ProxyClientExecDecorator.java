@@ -31,6 +31,11 @@ public class ProxyClientExecDecorator {
 		}
 	}
 
+	public ClientExecChain setProxyIfAbsent(HttpHost host, ClientExecChain proxy) {
+		assert proxy != null;
+		return proxies.putIfAbsent(key(host), proxy);
+	}
+
 	public boolean removeProxy(HttpHost host, ClientExecChain proxy) {
 		return proxies.remove(key(host), proxy);
 	}

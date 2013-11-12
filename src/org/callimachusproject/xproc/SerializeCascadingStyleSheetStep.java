@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 
+import net.sf.saxon.s9api.Axis;
 import net.sf.saxon.s9api.QName;
 import net.sf.saxon.s9api.SaxonApiException;
 import net.sf.saxon.s9api.XdmNode;
@@ -20,10 +21,15 @@ import com.xmlcalabash.io.ReadablePipe;
 import com.xmlcalabash.io.WritablePipe;
 import com.xmlcalabash.model.RuntimeValue;
 import com.xmlcalabash.runtime.XAtomicStep;
+import com.xmlcalabash.util.RelevantNodes;
 import com.xmlcalabash.util.S9apiUtils;
 import com.xmlcalabash.util.TreeWriter;
 
 public class SerializeCascadingStyleSheetStep implements XProcStep {
+	private static final String NS = "http://callimachusproject.org/xmlns/2013/cssx#";
+	private static final String PREFIX = "css";
+	private static final QName _styleSheet = new QName(PREFIX, NS,
+			"style-sheet");
 	private static final QName _content_type = new QName("content-type");
 
 	private final XProcRuntime runtime;
@@ -102,8 +108,21 @@ public class SerializeCascadingStyleSheetStep implements XProcStep {
 		new XMLtoCSS(writer).writeDocument(doc);
 		String text = writer.toString();
 		// verify
-		parse(text, doc.getBaseURI().toASCIIString(), contentType, null);
+		if (isStyleSheet(doc)) {
+			parse(text, doc.getBaseURI().toASCIIString(), contentType, null);
+		}
 		return text;
+	}
+
+	private boolean isStyleSheet(XdmNode doc) {
+		if (_styleSheet.equals(doc.getNodeName()))
+			return true;
+        for (XdmNode node : new RelevantNodes(doc, Axis.CHILD,true)) {
+            if (_styleSheet.equals(node.getNodeName())) {
+                return true;
+            }
+        }
+        return false;
 	}
 
 	private CSSStyleSheet parse(String text, String baseURI, String contentType,

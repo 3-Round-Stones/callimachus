@@ -44,7 +44,7 @@ public class SerializeCssTest extends TestCase {
 			+ "    </p:declare-step>\n" + "\n" + "<calli:deserialize-css/>\n"
 			+ "<calli:serialize-css/>\n" + "</p:pipeline>\n";
 
-	private static final String VALUES = "<p:pipeline version='1.0'\n"
+	private static final String PROPERTIES = "<p:pipeline version='1.0'\n"
 			+ "xmlns:p='http://www.w3.org/ns/xproc'\n"
 			+ "xmlns:c='http://www.w3.org/ns/xproc-step'\n"
 			+ "xmlns:calli='http://callimachusproject.org/rdf/2009/framework#'\n"
@@ -65,9 +65,10 @@ public class SerializeCssTest extends TestCase {
 			+ "        <p:option name='content-type'/>\n"
 			+ "        <p:output port='result' sequence='true' />\n"
 			+ "    </p:declare-step>\n" + "\n" + "<calli:deserialize-css/>\n"
-			+ "<p:wrap-sequence wrapper='c:data'>\n"
-			+ "<p:input port='source' select='//css:value' />\n"
-			+ "</p:wrap-sequence>\n" + "</p:pipeline>\n";
+			+ "<calli:serialize-css>\n"
+			+ "<p:input port='source' select='//css:property' />\n"
+			+ "</calli:serialize-css>\n"
+			+ "<p:wrap-sequence wrapper='c:data' />\n" + "</p:pipeline>\n";
 
 	@Before
 	public void setUp() throws Exception {
@@ -125,9 +126,9 @@ public class SerializeCssTest extends TestCase {
 	@Test
 	public void testMediaProperties() throws Exception {
 		assertEquals(
-				"1.2em",
-				pipe("@media screen, print { body { line-height: 1.2em } }",
-						VALUES));
+				"line-height: 1.2em;font-size: 16px;",
+				pipe("@media screen, print { body { line-height: 1.2em; font-size: 16px } }",
+						PROPERTIES));
 	}
 
 	private void assertRoundTrip(String expected) throws IOException,

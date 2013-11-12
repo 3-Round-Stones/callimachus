@@ -2,7 +2,7 @@ Callimachus Project Release Notes
 
 http://callimachusproject.org/
 
-6 November 2013
+12 November 2013
 
 = REQUIREMENTS FOR CALLIMACHUS 1.2.2 (Open Source) =
 

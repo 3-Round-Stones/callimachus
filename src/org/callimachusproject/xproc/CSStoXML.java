@@ -110,6 +110,8 @@ public class CSStoXML {
 			}
 			String value = styles.getPropertyValue(name);
 			if (value != null && value.length() > 0) {
+				// FIXME http://sourceforge.net/p/cssparser/bugs/41/
+				value = value.replace(",,,", ",");
 				tree.startContent();
 				tree.addText(value);
 			}

@@ -70,6 +70,38 @@ public class SerializeCssTest extends TestCase {
 			+ "</calli:serialize-css>\n"
 			+ "<p:wrap-sequence wrapper='c:data' />\n" + "</p:pipeline>\n";
 
+	private static final String CSS = ".step {\n"
+			+ "	background: white;\n"
+			+ "}\n"
+			+ "div#step-2 {\n"
+			+ "	background: #D1B377;\n"
+			+ "}\n"
+			+ "div#step-4 {\n"
+			+ "	background: url(http://callimachusproject.org/themes/2013/earth/images/screen-w3c.png);\n"
+			+ "}\n";
+
+	private static final String CSSX = "<css:style-sheet xmlns:css='http://callimachusproject.org/xmlns/2013/cssx#'>\n"
+			+ "<css:style selector='.step'><css:property name='background'>white</css:property></css:style>\n"
+			+ "<css:style selector='div#step-2'><css:property name='background'>#D1B377</css:property></css:style>\n"
+			+ "<css:style selector='div#step-4'><css:property name='background'>url(http://callimachusproject.org/themes/2013/earth/images/screen-w3c.png)</css:property></css:style>\n"
+			+ "</css:style-sheet>";
+
+	private static final String SERIALIZE = "<p:pipeline version='1.0'\n"
+			+ "xmlns:p='http://www.w3.org/ns/xproc'\n"
+			+ "xmlns:c='http://www.w3.org/ns/xproc-step'\n"
+			+ "xmlns:calli='http://callimachusproject.org/rdf/2009/framework#'\n"
+			+ "xmlns:css='http://callimachusproject.org/xmlns/2013/cssx#'>\n"
+			+ "<p:serialization port='result' media-type='text/css' method='text' />\n"
+			+ "\n"
+			+ "    <p:declare-step type='calli:serialize-css'>\n"
+			+ "        <p:input port='source' sequence='true' primary='true' />\n"
+			+ "        <p:option name='content-type'/>\n"
+			+ "        <p:output port='result' sequence='true' />\n"
+			+ "    </p:declare-step>\n" + "\n" + "<calli:serialize-css>\n"
+			+ "<p:input port='source'>\n" + "<p:inline>\n" + CSSX
+			+ "</p:inline>" + "</p:input>" + "</calli:serialize-css>\n"
+			+ "</p:pipeline>\n";
+
 	@Before
 	public void setUp() throws Exception {
 	}
@@ -129,6 +161,16 @@ public class SerializeCssTest extends TestCase {
 				"line-height: 1.2em;font-size: 16px;",
 				pipe("@media screen, print { body { line-height: 1.2em; font-size: 16px } }",
 						PROPERTIES));
+	}
+
+	@Test
+	public void testSerialize() throws Exception {
+		assertEquals(CSS, pipe(null, SERIALIZE));
+	}
+
+	@Test
+	public void testGradient() throws Exception {
+		assertRoundTrip("@page { background: radial-gradient(rgb(240,240,240),rgb(190,190,190)); }");
 	}
 
 	private void assertRoundTrip(String expected) throws IOException,

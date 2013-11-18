@@ -696,7 +696,10 @@ public class CalliServer implements CalliServerMXBean {
 					listener.webServiceStopping(server);
 				}
 				server.stop();
-				HttpClientFactory.getInstance().removeProxy(server);
+				HttpClientFactory instance = HttpClientFactory.getInstance();
+				if (instance != null) {
+					instance.removeProxy(server);
+				}
 				shutDownRepositories();
 				server.destroy();
 				return true;

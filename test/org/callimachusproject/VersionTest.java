@@ -97,7 +97,7 @@ public class VersionTest {
 		} finally {
 			in.close();
 		}
-		assertEquals("Callimachus/" + version, Version.getInstance().getVersion());
+		assertEquals(version, Version.getInstance().getVersionCode());
 	}
 
 	@Test

@@ -70,7 +70,10 @@ public class StringBodyReader implements Producer {
 			while ((read = reader.read(cbuf)) >= 0) {
 				writer.write(cbuf, 0, read);
 			}
-			return writer.toString();
+			String str = writer.toString();
+			if (str.length() == 0)
+				return null;
+			return str;
 		} finally {
 			reader.close();
 		}

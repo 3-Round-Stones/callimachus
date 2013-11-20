@@ -71,11 +71,6 @@ public class ParameterTest extends MetadataServerTestCase {
 		assertEquals("hello q1", q1.get(String.class));
 	}
 
-	public void testQueryPriority() throws Exception {
-		WebResource q1 = client.path("/").queryParam("either", "").queryParam("q1", "q1");
-		assertEquals("hello q1", q1.header("h1", "h1").get(String.class));
-	}
-
 	public void testHeader() throws Exception {
 		WebResource h1 = client.path("/").queryParam("either", "");
 		assertEquals("hello h1", h1.header("h1", "h1").get(String.class));

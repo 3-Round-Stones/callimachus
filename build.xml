@@ -269,7 +269,6 @@
                 <attribute name="Implementation-Title" value="${artifact.name}" />
                 <attribute name="Implementation-Version" value="${Version}+${build.number}" />
                 <attribute name="Implementation-Vendor" value="${vendor}" />
-                <attribute name="Sealed" value="true" />
             </manifest>
         </jar>
         <zip destfile="${dist}/${artifact.name}-${Version}.zip">

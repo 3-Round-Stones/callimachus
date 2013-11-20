@@ -114,9 +114,26 @@ public class FluidFactory {
 		consumers.add(new FormMapMessageWriter());
 		consumers.add(new FormStringMessageWriter());
 		consumers.add(new HttpEntityWriter());
-		consumers.add(new URIListWriter<URI>(URI.class));
-		consumers.add(new URIListWriter<URL>(URL.class));
-		consumers.add(new URIListWriter<java.net.URI>(java.net.URI.class));
+		consumers.add(new URIListWriter<URI>(URI.class) {
+			protected String toString(URI result) {
+				return result.stringValue();
+			}
+		});
+		consumers.add(new URIListWriter<URL>(URL.class) {
+			protected String toString(URL result) {
+				return result.toExternalForm();
+			}
+		});
+		consumers.add(new URIListWriter<java.net.URI>(java.net.URI.class) {
+			protected String toString(java.net.URI result) {
+				return result.toASCIIString();
+			}
+		});
+		consumers.add(new URIListWriter<String>(String.class) {
+			protected String toString(String result) {
+				return result;
+			}
+		});
 		try {
 			consumers.add(new DocumentFragmentMessageWriter());
 			consumers.add(new DOMMessageWriter());

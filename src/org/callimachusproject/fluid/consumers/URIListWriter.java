@@ -49,7 +49,7 @@ import org.callimachusproject.server.helpers.ReadableHttpEntityChannel;
 /**
  * Writes text/uri-list files.
  */
-public class URIListWriter<URI> implements Consumer<URI> {
+public abstract class URIListWriter<URI> implements Consumer<URI> {
 	private static final Charset USASCII = Charset.forName("US-ASCII");
 	private StringBodyWriter delegate = new StringBodyWriter();
 	private Class<URI> componentType;
@@ -160,8 +160,6 @@ public class URIListWriter<URI> implements Consumer<URI> {
 		return out.toByteArray();
 	}
 
-	protected String toString(URI result) {
-		return result.toString();
-	}
+	protected abstract String toString(URI result);
 
 }

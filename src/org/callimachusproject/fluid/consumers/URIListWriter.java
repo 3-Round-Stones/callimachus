@@ -157,6 +157,8 @@ public abstract class URIListWriter<URI> implements Consumer<URI> {
 			}
 		}
 		writer.flush();
+		if (out.size() == 0)
+			return null;
 		return out.toByteArray();
 	}
 

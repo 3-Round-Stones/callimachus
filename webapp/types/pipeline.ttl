@@ -199,7 +199,8 @@
 :sourceLocation a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :PostResult;
     rdfs:range xsd:string;
-    calli:header "Content-Location".
+    calli:header "Content-Location";
+    calli:type "text/uri-list".
 
 :sourcePort a owl:ObjectProperty; a owl:FunctionalProperty;
     rdfs:domain :PostResult;
@@ -209,5 +210,6 @@
 :sourceType a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :PostResult;
     rdfs:range xsd:string;
-    calli:header "Content-Type".
+    calli:header "Content-Type";
+    calli:type "text/plain".
 

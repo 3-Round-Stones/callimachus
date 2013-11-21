@@ -16,7 +16,6 @@
  */
 package org.callimachusproject.fluid;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,18 +59,15 @@ import org.callimachusproject.fluid.producers.HttpEntityReader;
 import org.callimachusproject.fluid.producers.HttpMessageReader;
 import org.callimachusproject.fluid.producers.InputStreamBodyReader;
 import org.callimachusproject.fluid.producers.ModelMessageReader;
-import org.callimachusproject.fluid.producers.NetURIReader;
 import org.callimachusproject.fluid.producers.PrimitiveBodyReader;
 import org.callimachusproject.fluid.producers.RDFObjectURIReader;
 import org.callimachusproject.fluid.producers.ReadableBodyReader;
 import org.callimachusproject.fluid.producers.ReadableByteChannelBodyReader;
 import org.callimachusproject.fluid.producers.StringBodyReader;
 import org.callimachusproject.fluid.producers.TupleMessageReader;
-import org.callimachusproject.fluid.producers.URIReader;
-import org.callimachusproject.fluid.producers.URLReader;
 import org.callimachusproject.fluid.producers.VoidReader;
 import org.callimachusproject.fluid.producers.XMLEventMessageReader;
-import org.openrdf.model.URI;
+import org.callimachusproject.fluid.producers.base.URIListReader;
 import org.openrdf.repository.object.ObjectConnection;
 
 /**
@@ -114,26 +110,9 @@ public class FluidFactory {
 		consumers.add(new FormMapMessageWriter());
 		consumers.add(new FormStringMessageWriter());
 		consumers.add(new HttpEntityWriter());
-		consumers.add(new URIListWriter<URI>(URI.class) {
-			protected String toString(URI result) {
-				return result.stringValue();
-			}
-		});
-		consumers.add(new URIListWriter<URL>(URL.class) {
-			protected String toString(URL result) {
-				return result.toExternalForm();
-			}
-		});
-		consumers.add(new URIListWriter<java.net.URI>(java.net.URI.class) {
-			protected String toString(java.net.URI result) {
-				return result.toASCIIString();
-			}
-		});
-		consumers.add(new URIListWriter<String>(String.class) {
-			protected String toString(String result) {
-				return result;
-			}
-		});
+		consumers.add(URIListWriter.RDF_URI);
+		consumers.add(URIListWriter.NET_URL);
+		consumers.add(URIListWriter.NET_URI);
 		try {
 			consumers.add(new DocumentFragmentMessageWriter());
 			consumers.add(new DOMMessageWriter());
@@ -143,9 +122,9 @@ public class FluidFactory {
 		} catch (ScriptException e) {
 			throw new AssertionError(e);
 		}
-		producers.add(new URIReader());
-		producers.add(new URLReader());
-		producers.add(new NetURIReader());
+		producers.add(URIListReader.RDF_URI);
+		producers.add(URIListReader.NET_URL);
+		producers.add(URIListReader.NET_URI);
 		producers.add(new RDFObjectURIReader());
 		producers.add(new ModelMessageReader());
 		producers.add(new GraphMessageReader());

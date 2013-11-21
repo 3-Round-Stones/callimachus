@@ -255,7 +255,7 @@ skos:editorialNote a owl:AnnotationProperty.
 # used by permissions.xhtml
 :GetRdfTypes rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Serviceable>];
-    rdfs:subClassOf [owl:onProperty msg:literalSet; owl:allValuesFrom xsd:string];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
     calli:method "GET";
     calli:query "rdftype";
     calli:requires calli:administrator;
@@ -279,7 +279,8 @@ skos:editorialNote a owl:AnnotationProperty.
             }
             return concepts;
         }
-        return addConcepts(this.getClass(), new java.util.TreeSet(), new java.util.HashSet());
+        var set = addConcepts(this.getClass(), new java.util.TreeSet(), new java.util.HashSet());
+        return set.toArray().join('\\r\\n');
     """.
 
 :PostPermissions rdfs:subClassOf msg:Message;

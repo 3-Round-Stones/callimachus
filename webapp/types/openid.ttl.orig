@@ -21,7 +21,7 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<> a <RdfSchemaGraph>.
+<> a <SchemaGraph>.
 
 ################################
 # OpenID Manager
@@ -29,7 +29,6 @@
 
 <OpenIDManager> a <Creatable>, owl:Class;
     rdfs:subClassOf <AuthManager>, calli:OpenIDManager;
-    owl:equivalentClass </callimachus/1.0/types/OpenIDManager>;
     rdfs:label "OpenID Manager";
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;
@@ -113,8 +112,7 @@
 :loginCookies a owl:DatatypeProperty;
     rdfs:domain :RedirectReturnTo;
     rdfs:range xsd:string;
-    calli:header "Authorization", "Cookie";
-    calli:type "text/plain".
+    calli:header "Authorization", "Cookie".
 
 ################################
 # Registration
@@ -195,8 +193,7 @@
 :regCookies a owl:DatatypeProperty;
     rdfs:domain :PostUserRegistration;
     rdfs:range xsd:string;
-    calli:header "Authorization", "Cookie";
-    calli:type "text/plain".
+    calli:header "Authorization", "Cookie".
 
 :regForm a owl:ObjectProperty, owl:FunctionalProperty;
     rdfs:domain :PostUserRegistration;

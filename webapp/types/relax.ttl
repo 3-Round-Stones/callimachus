@@ -142,7 +142,8 @@
 :sourceLocation a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :Validate;
     rdfs:range xsd:string;
-    calli:header "Content-Location".
+    calli:header "Content-Location";
+    calli:type "text/uri-list".
 
 :xmlToValidate a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :Validate;

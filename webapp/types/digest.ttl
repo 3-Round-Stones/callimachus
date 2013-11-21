@@ -80,7 +80,8 @@
 :openIdCookies a owl:DatatypeProperty;
     rdfs:domain :GetOpenIdProviderReturn;
     rdfs:range xsd:string;
-    calli:header "Authorization", "Cookie".
+    calli:header "Authorization", "Cookie";
+    calli:type "text/plain".
 
 :PostOpenIdProvider rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <DigestManager>];
@@ -135,7 +136,8 @@
 :cookies a owl:DatatypeProperty;
     rdfs:domain :PostLogin;
     rdfs:range xsd:string;
-    calli:header "Authorization", "Cookie".
+    calli:header "Authorization", "Cookie";
+    calli:type "text/plain".
 
 :loginOptions a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :PostLogin;

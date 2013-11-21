@@ -178,7 +178,8 @@
 :loginReferer a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :GetLogin;
     rdfs:range xsd:string;
-    calli:header "Referer".
+    calli:header "Referer";
+    calli:type "text/uri-list".
 
 :loginChoice a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :GetLogin;
@@ -221,7 +222,8 @@
 :cookies a owl:DatatypeProperty;
     rdfs:domain :GetProfile;
     rdfs:range xsd:string;
-    calli:header "Authorization", "Cookie".
+    calli:header "Authorization", "Cookie";
+    calli:type "text/plain".
 
 ################################
 # logout
@@ -243,7 +245,8 @@
 :authorization a owl:DatatypeProperty;
     rdfs:domain :GetLogout;
     rdfs:range xsd:string;
-    calli:header "Authorization", "Cookie".
+    calli:header "Authorization", "Cookie";
+    calli:type "text/plain".
 
 :logoutContinue a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :GetLogout;

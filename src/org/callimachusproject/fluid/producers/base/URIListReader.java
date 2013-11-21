@@ -32,6 +32,7 @@ package org.callimachusproject.fluid.producers.base;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.util.LinkedHashSet;
@@ -42,6 +43,8 @@ import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.fluid.Producer;
 import org.callimachusproject.io.ChannelUtil;
+import org.openrdf.model.ValueFactory;
+import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.TupleQueryResultHandlerException;
 import org.openrdf.query.resultio.QueryResultParseException;
@@ -53,6 +56,31 @@ import org.openrdf.repository.object.ObjectConnection;
  */
 public abstract class URIListReader<URI> implements Producer {
 	private Class<URI> componentType;
+
+	public static URIListReader<org.openrdf.model.URI> RDF_URI = new URIListReader<org.openrdf.model.URI>(
+			org.openrdf.model.URI.class) {
+		protected org.openrdf.model.URI create(ObjectConnection con, String uri) {
+			ValueFactory vf;
+			if (con == null) {
+				vf = ValueFactoryImpl.getInstance();
+			} else {
+				vf = con.getValueFactory();
+			}
+			return vf.createURI(uri);
+		}
+	};
+	public static URIListReader<URL> NET_URL = new URIListReader<URL>(URL.class) {
+		protected URL create(ObjectConnection con, String uri)
+				throws MalformedURLException {
+			return new URL(uri);
+		}
+	};
+	public static URIListReader<java.net.URI> NET_URI = new URIListReader<java.net.URI>(
+			java.net.URI.class) {
+		protected java.net.URI create(ObjectConnection con, String uri) {
+			return java.net.URI.create(uri);
+		}
+	};
 
 	public URIListReader(Class<URI> componentType) {
 		this.componentType = componentType;

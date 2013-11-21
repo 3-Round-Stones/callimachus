@@ -553,7 +553,7 @@
 
     <target name="test" depends="unittest,integrationtest,functionaltest" description="run all the tests" />
 
-    <target name="package" depends="clean,dist,test" description="Create a package ready for release">
+    <target name="package" depends="clean,dist" description="Create a package ready for release">
         <echo>Artifact ready: ${dist}/${artifact.name}-${Version}.zip</echo>
     </target>
 

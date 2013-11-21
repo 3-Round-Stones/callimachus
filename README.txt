@@ -68,7 +68,7 @@ For more options see:
 ----------------
 
 There are two ways to acquire and run Callimachus:  Download the ZIP archive 
-or checkout the Subversion repository.
+or checkout the code repository.
 
 If you download a ZIP archive of a release from http://callimachusproject.org/, 
 extract it into a new directory. Copy etc/callimachus-defaults.conf to

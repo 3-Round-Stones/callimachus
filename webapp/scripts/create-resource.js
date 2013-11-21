@@ -27,12 +27,12 @@ calli.createResource = function(event, href) {
     }
     var options = {
         onmessage: function(event) {
-            if (event.data.indexOf('PUT src\n') == 0) {
+            if (event.data.indexOf('PUT src\n') === 0) {
                 var data = event.data;
                 var src = data.substring(data.indexOf('\n\n') + 2);
                 var uri = src.replace(/\?.*/,'');
                 var de = jQuery.Event('drop');
-                de.dataTransfer = {getData:function(){return uri}};
+                de.dataTransfer = {getData:function(){return uri;}};
                 $(node).trigger(de);
             }
         },
@@ -74,20 +74,23 @@ function listSearchResults(url, win, button) {
                     link.attr("class", "option");
                     link.attr("href", resource);
                     link.append($(this).html());
+                    link.find('a').each(function(){
+                        $(this).replaceWith($(this).contents());
+                    });
                     li.append(link);
                     ul.append(li);
                 }
             });
+            var doc = win.document;
             var html = ul.html();
             if (html) {
-                var doc = win.document;
                 doc.open();
                 doc.write("<ul>" + html + "</ul>");
                 doc.close();
                 $('a.option', doc).click(function(event) {
                     var href = this.href;
                     var de = jQuery.Event('drop');
-                    de.dataTransfer = {getData:function(){return href}};
+                    de.dataTransfer = {getData:function(){return href;}};
                     $(button).trigger(de);
                     if (de.isDefaultPrevented()) {
                         event.preventDefault();
@@ -96,7 +99,6 @@ function listSearchResults(url, win, button) {
                     return true;
                 });
             } else {
-                var doc = win.document;
                 doc.open();
                 doc.write('<p style="text-align:center">No match found</p>');
                 doc.close();

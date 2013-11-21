@@ -87,12 +87,14 @@
 :slug a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :PostFileSlug;
     rdfs:range xsd:string;
-    calli:header "Slug".
+    calli:header "Slug";
+    calli:type "text/plain".
 
 :contentType a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :PostFileSlug;
     rdfs:range xsd:string;
-    calli:header "Content-Type".
+    calli:header "Content-Type";
+    calli:type "text/plain".
 
 :content a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :PostFileSlug;

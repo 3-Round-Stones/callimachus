@@ -112,8 +112,7 @@
 :loginCookies a owl:DatatypeProperty;
     rdfs:domain :RedirectReturnTo;
     rdfs:range xsd:string;
-    calli:header "Authorization", "Cookie";
-    calli:type "text/plain".
+    calli:header "Authorization", "Cookie".
 
 ################################
 # Registration
@@ -194,8 +193,7 @@
 :regCookies a owl:DatatypeProperty;
     rdfs:domain :PostUserRegistration;
     rdfs:range xsd:string;
-    calli:header "Authorization", "Cookie";
-    calli:type "text/plain".
+    calli:header "Authorization", "Cookie".
 
 :regForm a owl:ObjectProperty, owl:FunctionalProperty;
     rdfs:domain :PostUserRegistration;

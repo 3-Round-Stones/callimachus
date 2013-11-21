@@ -309,7 +309,8 @@
 :type a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :PostFactoryCreate;
     rdfs:range xsd:string;
-    calli:header "Content-Type".
+    calli:header "Content-Type";
+    calli:type "text/plain".
 
 ################################
 # Delete

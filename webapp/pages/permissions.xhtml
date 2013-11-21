@@ -42,6 +42,11 @@
             return true;
         });
     })(jQuery);
+    jQuery(function($) {
+        $('.party:empty').each(function(){
+            $(this).text($(this).parent().attr('resource'));
+        });
+    });
     // ]]>
     </script>
 </head>
@@ -80,8 +85,8 @@
                 <label>Reader <a href="/auth/groups/" title="Select Group"
                         onclick="return calli.selectResource(event)" class="glyphicon glyphicon-folder-open" /></label>
                 <div rel="calli:reader" class="vbox controls">
-                    <span resource="?reader" typeof="calli:Party" class="ui-state-highlight ui-corner-all">
-                        <span property="rdfs:label" />
+                    <span resource="?reader" class="ui-state-highlight ui-corner-all">
+                        <span class="party"><span property="rdfs:label" /></span>
                         <a href="{?reader}" title="Remove permission" onclick="return calli.removeResource(event)" class="glyphicon glyphicon-remove" />
                     </span>
                 </div>
@@ -91,8 +96,8 @@
                 <label>Subscriber <a href="/auth/groups/" title="Select Group"
                         onclick="return calli.selectResource(event)" class="glyphicon glyphicon-folder-open" /></label>
                 <div rel="calli:subscriber" class="vbox controls">
-                    <span resource="?subscriber" typeof="calli:Party" class="ui-state-highlight ui-corner-all">
-                        <span property="rdfs:label" />
+                    <span resource="?subscriber" class="ui-state-highlight ui-corner-all">
+                        <span class="party"><span property="rdfs:label" /></span>
                         <a href="{?subscriber}" title="Remove permission" onclick="return calli.removeResource(event)" class="glyphicon glyphicon-remove" />
                     </span>
                 </div>
@@ -102,8 +107,8 @@
                 <label>Author <a href="/auth/groups/" title="Select Group"
                         onclick="return calli.selectResource(event)" class="glyphicon glyphicon-folder-open" /></label>
                 <div rel="calli:author" class="vbox controls">
-                    <span resource="?author" typeof="calli:Party" class="ui-state-highlight ui-corner-all">
-                        <span property="rdfs:label" />
+                    <span resource="?author" class="ui-state-highlight ui-corner-all">
+                        <span class="party"><span property="rdfs:label" /></span>
                         <a href="{?author}" title="Remove permission" onclick="return calli.removeResource(event)" class="glyphicon glyphicon-remove" />
                     </span>
                 </div>
@@ -113,8 +118,8 @@
                 <label>Contributor <a href="/auth/groups/" title="Select Group"
                         onclick="return calli.selectResource(event)" class="glyphicon glyphicon-folder-open" /></label>
                 <div rel="calli:contributor" class="vbox controls">
-                    <span resource="?contributor" typeof="calli:Party" class="ui-state-highlight ui-corner-all">
-                        <span property="rdfs:label" />
+                    <span resource="?contributor" class="ui-state-highlight ui-corner-all">
+                        <span class="party"><span property="rdfs:label" /></span>
                         <a href="{?contributor}" title="Remove permission" onclick="return calli.removeResource(event)" class="glyphicon glyphicon-remove" />
                     </span>
                 </div>
@@ -124,8 +129,8 @@
                 <label>Editor <a href="/auth/groups/" title="Select Group"
                         onclick="return calli.selectResource(event)" class="glyphicon glyphicon-folder-open" /></label>
                 <div rel="calli:editor" class="vbox controls">
-                    <span resource="?editor" typeof="calli:Party" class="ui-state-highlight ui-corner-all">
-                        <span property="rdfs:label" />
+                    <span resource="?editor" class="ui-state-highlight ui-corner-all">
+                        <span class="party"><span property="rdfs:label" /></span>
                         <a href="{?editor}" title="Remove permission" onclick="return calli.removeResource(event)" class="glyphicon glyphicon-remove" />
                     </span>
                 </div>
@@ -135,8 +140,8 @@
                 <label>Administrator <a href="/auth/groups/" title="Select Group"
                         onclick="return calli.selectResource(event)" class="glyphicon glyphicon-folder-open" /></label>
                 <div rel="calli:administrator" class="vbox controls">
-                    <span resource="?administrator" typeof="calli:Party" class="ui-state-highlight ui-corner-all">
-                        <span property="rdfs:label" />
+                    <span resource="?administrator" class="ui-state-highlight ui-corner-all">
+                        <span class="party"><span property="rdfs:label" /></span>
                         <a href="{?administrator}" title="Remove permission" onclick="return calli.removeResource(event)" class="glyphicon glyphicon-remove" />
                     </span>
                 </div>

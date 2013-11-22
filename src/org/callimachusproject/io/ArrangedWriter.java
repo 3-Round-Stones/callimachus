@@ -198,7 +198,10 @@ public class ArrangedWriter implements RDFWriter {
 			for (Set<Statement> set : statements.values()) {
 				for (Statement st : set) {
 					used.add(st.getPredicate().getNamespace());
-					if (st.getObject() instanceof Literal) {
+					if (st.getObject() instanceof URI) {
+						URI uri = (URI) st.getObject();
+						used.add(uri.getNamespace());
+					} else if (st.getObject() instanceof Literal) {
 						Literal lit = (Literal) st.getObject();
 						if (lit.getDatatype() != null) {
 							used.add(lit.getDatatype().getNamespace());

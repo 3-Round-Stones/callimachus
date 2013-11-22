@@ -191,8 +191,7 @@ public abstract class FolderSupport implements RDFObject {
 				TurtleStreamWriterFactory xf = new TurtleStreamWriterFactory();
 				RDFWriter writer = xf.createWriter(resourceEntry, entryId);
 				writer.startRDF();
-				RepositoryResult<Namespace> namespaces = this
-						.getObjectConnection().getNamespaces();
+				RepositoryResult<Namespace> namespaces = con.getNamespaces();
 				while (namespaces.hasNext()) {
 					Namespace ns = namespaces.next();
 					writer.handleNamespace(ns.getPrefix(), ns.getName());

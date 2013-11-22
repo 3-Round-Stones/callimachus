@@ -17,6 +17,8 @@
 package org.callimachusproject.io;
 
 
+import info.aduna.xml.XMLUtil;
+
 import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.Collections;
@@ -128,7 +130,7 @@ public class RDFXMLStreamWriter implements RDFWriter {
 
 	private void namespace(String prefix, String uri)
 			throws XMLStreamException {
-		if (open == null) {
+		if (open == null && XMLUtil.isNCName(prefix)) {
 			writer.writeNamespace(prefix, uri);
 		}
 	}

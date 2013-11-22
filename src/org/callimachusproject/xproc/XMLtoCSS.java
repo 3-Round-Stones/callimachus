@@ -39,6 +39,8 @@ public class XMLtoCSS {
 	}
 
 	private void writeStyleSheet(XdmNode sheet, int indent) {
+		if (sheet == null)
+			return;
 		QName name = sheet.getNodeName();
 		if (_mediaRule.equals(name)) {
 			writeMediaRule(sheet, indent);

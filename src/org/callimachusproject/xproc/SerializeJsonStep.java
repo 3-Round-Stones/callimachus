@@ -78,9 +78,11 @@ public class SerializeJsonStep implements XProcStep {
 			XdmNode json = getJsonNode(root);
 
 			StringWriter out = new StringWriter();
-			PrintWriter writer = new PrintWriter(out);
-			writer.print(XMLtoJSON.convert(json));
-			writer.close();
+			if (json != null) {
+				PrintWriter writer = new PrintWriter(out);
+				writer.print(XMLtoJSON.convert(json));
+				writer.close();
+			}
 
 			TreeWriter tree = new TreeWriter(runtime);
 			tree.startDocument(step.getNode().getBaseURI());
@@ -95,7 +97,7 @@ public class SerializeJsonStep implements XProcStep {
 	}
 
 	private String getContentType(XdmNode root) {
-		if (this.contentType == null) {
+		if (this.contentType == null && root != null) {
 			return root.getAttributeValue(_content_type);
 		} else {
 			return this.contentType;
@@ -103,6 +105,8 @@ public class SerializeJsonStep implements XProcStep {
 	}
 
 	private XdmNode getJsonNode(XdmNode root) {
+		if (root == null)
+			return root;
 		QName name = root.getNodeName();
 		if (XProcConstants.c_data.equals(name)
 				|| XProcConstants.c_body.equals(name)) {

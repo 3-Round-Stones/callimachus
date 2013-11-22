@@ -16,7 +16,7 @@ calli.initEditor = function(event, text) {
 
     bindEditorEvents(editor);
     bindFormEvents(form, editor, false);
-    setText(text, editor);
+    setText(form, text, editor);
 };
 
 calli.loadEditor = function(event, url) {
@@ -30,12 +30,12 @@ calli.loadEditor = function(event, url) {
 
     bindEditorEvents(editor, iframe);
     bindFormEvents(form, editor, true);
-    loadText(url, editor);
+    loadText(form, url, editor);
 };
 
 $(window).bind('message', function(event) {
     var msg = event.originalEvent.data;
-    if (msg.indexOf('OK\n\nGET text\n\n') == 0) {
+    if (msg.indexOf('OK\n\nGET text\n\n') === 0) {
         var text = msg.substring('OK\n\nGET text\n\n'.length);
         var callbacks = sourceCallbacks[event.originalEvent.source];
         if (callbacks) {
@@ -44,7 +44,7 @@ $(window).bind('message', function(event) {
                 callbacks[i](text);
             }
         }
-    } else if (msg.indexOf('OK\n\nPUT text') == 0) {
+    } else if (msg.indexOf('OK\n\nPUT text') === 0) {
         if (waiting) {
             waiting.over();
             waiting = null;
@@ -100,7 +100,7 @@ function onhashchange(editor) {
             editor.postMessage('PUT line.column\n\n' + hash.substring(1), '*');
         }  
     };
-};
+}
 
 // bindFormEvents
 var boundForms = {};
@@ -204,32 +204,40 @@ function saveFile(form, text, callback) {
 }
 
 // setText
-function setText(text, editor) {
-    if (window.location.hash.indexOf('#!') == 0) {
+function setText(form, text, editor) {
+    if (window.location.hash.indexOf('#!') === 0) {
         var url = resolve(window.location.hash.substring(2));
         jQuery.ajax({type: 'GET', url: url, beforeSend: calli.withCredentials, complete: function(xhr) {
             if (xhr.status == 200 || xhr.status == 304) {
                 var text = xhr.responseText;
-                editor.postMessage('PUT text\nIf-None-Match: *\nContent-Location: '
-                    + url + '\n\n' + text, '*');
+                editor.postMessage('PUT text\nIf-None-Match: *' +
+                    '\nContent-Location: ' + url +
+                    '\nContent-Type: '+ form.getAttribute("enctype") +
+                    '\n\n' + text, '*');
             }
         }});
     } else if (text) {
-        editor.postMessage('PUT text\nIf-None-Match: *\nContent-Location: '
-                    + window.location.href + '\n\n' + text, '*');
+        editor.postMessage('PUT text\nIf-None-Match: *' +
+            '\nContent-Location: ' + window.location.href +
+            '\nContent-Type: '+ form.getAttribute("enctype") +
+            '\n\n' + text, '*');
     } else {
-        editor.postMessage('PUT text\nIf-None-Match: *\nContent-Location: '
-                    + window.location.href + '\n\n', '*');
+        editor.postMessage('PUT text\nIf-None-Match: *' +
+            '\nContent-Location: ' + window.location.href +
+            '\nContent-Type: '+ form.getAttribute("enctype") +
+            '\n\n', '*');
     }
 }
 
 // loadText
-function loadText(url, editor) {
+function loadText(form, url, editor) {
     url = resolve(url);
     $.ajax({type: 'GET', dataType: "text", url: url, beforeSend: calli.withCredentials, complete: function(xhr) {
         if (xhr.status == 200 || xhr.status == 304) {
             calli.etag(url, xhr.getResponseHeader('ETag'));
-            editor.postMessage('PUT text\nContent-Location: '+ url +'\n\n' + xhr.responseText, '*');
+            editor.postMessage('PUT text\nContent-Location: '+ url +
+                '\nContent-Type: '+ form.getAttribute("enctype") +
+                '\n\n' + xhr.responseText, '*');
             onhashchange(editor)();
         }
     }});
@@ -238,7 +246,7 @@ function loadText(url, editor) {
 function resolve(url) {
     if (document.baseURIObject && document.baseURIObject.resolve) {
         return document.baseURIObject.resolve(url);
-    } else if (url.indexOf('http:') != 0 && url.indexOf('https:') != 0) {
+    } else if (url.indexOf('http:') !== 0 && url.indexOf('https:') !== 0) {
         var a = document.createElement('a');
         a.setAttribute('href', url);
         if (a.href) {

@@ -1,5 +1,5 @@
 #
-# @Cache-Control: 
+# @Cache-Control: max-age=60
 # @view 
 #
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
@@ -16,28 +16,30 @@ WHERE {
         calli:icon ?icon;
         calli:create ?create
     FILTER (?create != <../templates/file-create.xhtml>)
-    {
-        ?cls calli:author </auth/groups/everyone> .
-        </auth/groups/everyone> rdfs:label ?author
-        BIND (concat("1", ?author) AS ?order)
-    } UNION {
-        ?cls calli:author </auth/groups/users> .
-        </auth/groups/users> rdfs:label ?author
-        BIND (concat("2", ?author) AS ?order)
-    } UNION {
-        ?cls calli:author </auth/groups/staff> .
-        </auth/groups/staff> rdfs:label ?author
-        BIND (concat("3", ?author) AS ?order)
-    } UNION {
-        ?cls calli:author </auth/groups/power> .
-        </auth/groups/power> rdfs:label ?author
-        BIND (concat("4", ?author) AS ?order)
-    } UNION {
-        ?cls calli:author </auth/groups/admin> .
-        </auth/groups/admin> rdfs:label ?author
-        BIND (concat("5", ?author) AS ?order)
-    } UNION {
-        ?cls calli:author [rdfs:label ?author]
-        BIND (concat("6", ?author) AS ?order)
+    FILTER EXISTS {
+        ?cls calli:author ?domain
+        {
+            FILTER (?domain = <$user>)
+        } UNION {
+            ?domain calli:member <$user>
+        } UNION {
+            ?domain calli:everyoneFrom []
+        } UNION {
+            ?domain calli:anonymousFrom []
+        }
     }
+    ?cls calli:author ?group .
+    ?group rdfs:label ?author .
+    BIND (
+        concat(
+            if (?group = </auth/groups/everyone>, "1",
+            if (?group = </auth/groups/users>, "2",
+            if (?group = </auth/groups/staff>, "3",
+            if (?group = </auth/groups/power>, "4",
+            if (?group = </auth/groups/admin>, "5",
+            "6"
+            ))))),
+            ?author
+        ) AS ?order
+    )
 } GROUP BY ?cls ?label ?comment ?icon ORDER BY asc(min(?order)) ?author ?label

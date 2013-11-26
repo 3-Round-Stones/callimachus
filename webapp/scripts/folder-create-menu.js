@@ -4,7 +4,7 @@ jQuery(function($) {
     $('#create-menu').one('click', function() {
         $.ajax({
             type: 'GET',
-            url: $('#create-menu-json')[0].href,
+            url: $('#create-menu-json')[0].href + encodeURIComponent(calli.getUserIri()),
             xhrFields: calli.withCredentials,
             dataType: 'json',
             success: function(data) {

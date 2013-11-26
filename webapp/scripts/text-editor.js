@@ -89,7 +89,7 @@ jQuery(function($) {
                 }
                 return true;
             }
-        } else if (header == 'GET text') {
+        } else if (header.match(/^GET text(\n|$)/)) {
             saved = editor.getSession().getValue();
             return saved;
         } else if (header == 'PUT line.column' && body) {

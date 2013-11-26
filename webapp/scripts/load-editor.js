@@ -35,14 +35,15 @@ calli.loadEditor = function(event, url) {
 
 $(window).bind('message', function(event) {
     var msg = event.originalEvent.data;
-    if (msg.indexOf('OK\n\nGET text\n\n') === 0) {
-        var text = msg.substring('OK\n\nGET text\n\n'.length);
-        var callbacks = sourceCallbacks[event.originalEvent.source];
-        if (callbacks) {
-            sourceCallbacks[event.originalEvent.source] = [];
-            for (var i=0; i<callbacks.length; i++) {
-                callbacks[i](text);
-            }
+    if (msg.indexOf('OK\n\nGET text\nCallbackID: ') === 0) {
+        var start = 'OK\n\nGET text\nCallbackID: '.length;
+        var end = msg.indexOf('\n\n', start);
+        var idx = msg.substring(start, end);
+        var text = msg.substring(end + 2);
+        var callback = sourceCallbacks[idx];
+        if (callback) {
+            delete sourceCallbacks[idx];
+            callback(text);
         }
     } else if (msg.indexOf('OK\n\nPUT text') === 0) {
         if (waiting) {
@@ -51,23 +52,15 @@ $(window).bind('message', function(event) {
         }
     }
 });
-var sourceCallbacks = {};
+var sourceCallbacks = [];
 calli.readEditorText = function(editorWindow, callback) {
-    if (!sourceCallbacks[editorWindow]) {
-        sourceCallbacks[editorWindow] = [];
-    }
-    sourceCallbacks[editorWindow].push(callback);
-    if (sourceCallbacks[editorWindow].length == 1) {
-        editorWindow.postMessage('GET text', '*');
-    }
+    var idx = sourceCallbacks.length;
+    sourceCallbacks[idx] = callback;
+    editorWindow.postMessage('GET text\nCallbackID: ' + idx, '*');
 };
 
 // bindEditorEvents
-var boundEditors = {};
 function bindEditorEvents(editor) {
-    if (boundEditors[editor])
-        return false;
-    boundEditors[editor] = true;
     $(document).bind('calliOpenDialog', function(event) {
         if (editor && !event.isDefaultPrevented()) {
             editor.postMessage('PUT disabled\n\ntrue', '*');

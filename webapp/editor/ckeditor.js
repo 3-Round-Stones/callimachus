@@ -407,7 +407,7 @@ jQuery(function($) {
                 editor.setXhtml(body);
                 return true;
             }
-        } else if (header == 'GET text') {
+        } else if (header.match(/^GET text(\n|$)/)) {
             saved = normalize(editor.getData());
             return editor.getXhtml();
         } else if (header == 'PUT line.column') {

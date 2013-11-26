@@ -39,7 +39,7 @@ window.calli.getUserIri = function() {
     } catch(e) {}
     if (isLoggedIn()) {
         jQuery.ajax({ url: "/?profile", async: false,
-            beforeSend: calli.withCredentials,
+            xhrFields: calli.withCredentials,
             success: function(doc) {
                 iri = /resource="([^" >]*)"/i.exec(doc)[1];
                 loadProfile(doc);
@@ -134,7 +134,7 @@ if (isLoggedIn()) {
         nowLoggedOut();
         // hasn't logged in using the login form; is this page protected?
         var xhr = jQuery.ajax({type: 'GET', url: calli.getPageUrl(),
-            beforeSend: calli.withCredentials,
+            xhrFields: calli.withCredentials,
             success: function() {
                 var cc = xhr.getResponseHeader("Cache-Control");
                 if (cc && cc.indexOf("public") < 0) {
@@ -147,7 +147,7 @@ if (isLoggedIn()) {
 
 function activelyLogin() {
     jQuery.ajax({ url: "/?profile",
-        beforeSend: calli.withCredentials,
+        xhrFields: calli.withCredentials,
         success: function(doc) {
             loadProfile(doc);
             nowLoggedIn();

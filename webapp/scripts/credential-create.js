@@ -11,7 +11,7 @@ $('form[typeof~="calli:Credential"]').bind('calliRedirect', function(event){
             url: event.resource + '?password',
             contentType: 'text/plain',
             data: rstr2b64(str2rstr_utf8(password)),
-            beforeSend: calli.withCredentials,
+            xhrFields: calli.withCredentials,
             dataType: "text",
             success: function(url) {
                 window.location.replace(url);

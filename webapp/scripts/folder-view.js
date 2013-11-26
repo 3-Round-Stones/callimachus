@@ -80,7 +80,7 @@
         jQuery.ajax({
             url: url,
             dataType: "xml",
-            beforeSend: calli.withCredentials,
+            xhrFields: calli.withCredentials,
             success: function(doc) {
                 var waiting = calli.wait();
                 jQuery(function() {
@@ -192,13 +192,13 @@
             contentType:"multipart/form-data",
             processData:false,
             data:formData,
+            xhrFields: calli.withCredentials,
             beforeSend:function(xhr) {
                 if (xhr.upload && xhr.upload.addEventListener) {
                     xhr.upload.addEventListener("progress", function(event) {
                         uploadProgress(event.loaded);
                     }, false);
                 }
-                calli.withCredentials(xhr);
             },
             success:function(data, textStatus) {
                 reload();
@@ -214,13 +214,13 @@
             contentType:contentType,
             processData:false,
             data:file,
+            xhrFields: calli.withCredentials,
             beforeSend:function(xhr) {
                 if (xhr.upload && xhr.upload.addEventListener) {
                     xhr.upload.addEventListener("progress", function(event) {
                         uploadProgress(event.loaded);
                     }, false);
                 }
-                calli.withCredentials(xhr);
             },
             success:function(data, textStatus) {
                 reload();

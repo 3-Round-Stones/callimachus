@@ -181,12 +181,12 @@ function saveFile(form, text, callback) {
             url: url,
             contentType: form.getAttribute("enctype"),
             data: se.payload,
-            dataType: "text", 
+            dataType: "text",
+            xhrFields: calli.withCredentials,
             beforeSend: function(xhr) {
                 if (calli.etag(url) && method == 'PUT') {
                     xhr.setRequestHeader('If-Match', calli.etag(url));
                 }
-                calli.withCredentials(xhr);
             },
             complete: function(xhr) {
                 saving = false;
@@ -207,7 +207,7 @@ function saveFile(form, text, callback) {
 function setText(form, text, editor) {
     if (window.location.hash.indexOf('#!') === 0) {
         var url = resolve(window.location.hash.substring(2));
-        jQuery.ajax({type: 'GET', url: url, beforeSend: calli.withCredentials, complete: function(xhr) {
+        jQuery.ajax({type: 'GET', url: url, xhrFields: calli.withCredentials, complete: function(xhr) {
             if (xhr.status == 200 || xhr.status == 304) {
                 var text = xhr.responseText;
                 editor.postMessage('PUT text\nIf-None-Match: *' +
@@ -232,7 +232,7 @@ function setText(form, text, editor) {
 // loadText
 function loadText(form, url, editor) {
     url = resolve(url);
-    $.ajax({type: 'GET', dataType: "text", url: url, beforeSend: calli.withCredentials, complete: function(xhr) {
+    $.ajax({type: 'GET', dataType: "text", url: url, xhrFields: calli.withCredentials, complete: function(xhr) {
         if (xhr.status == 200 || xhr.status == 304) {
             calli.etag(url, xhr.getResponseHeader('ETag'));
             editor.postMessage('PUT text\nContent-Location: '+ url +

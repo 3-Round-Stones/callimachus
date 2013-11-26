@@ -34,12 +34,11 @@ window.calli.deleteResource = function(event, redirect) {
         de.resource = event.resource || de.location.replace(/\?.*/,'');
         form.trigger(de);
         if (!de.isDefaultPrevented()) {
-            var xhr = $.ajax({ type: "DELETE", url: de.location, dataType: "text", beforeSend: function(xhr){
+            var xhr = $.ajax({ type: "DELETE", url: de.location, dataType: "text", xhrFields: calli.withCredentials, beforeSend: function(xhr){
                 var lastmod = getLastModified();
                 if (lastmod) {
                     xhr.setRequestHeader("If-Unmodified-Since", lastmod);
                 }
-                calli.withCredentials(xhr);
             }, complete: function(xhr) {
                 try {
                     if (200 <= xhr.status && xhr.status < 300) {

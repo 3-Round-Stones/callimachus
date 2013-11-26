@@ -49,3 +49,11 @@ INSERT {
     FILTER NOT EXISTS { <../> calli:hasComponent <../query-view.css> }
 };
 
+DELETE {
+    <queries/folder-create-menu.rq> calli:reader </auth/groups/system>, </auth/groups/admin>
+} INSERT {
+	<queries/folder-create-menu.rq> calli:reader </auth/groups/public>
+} WHERE {
+	FILTER NOT EXISTS { <queries/folder-create-menu.rq> calli:reader </auth/groups/public> }
+};
+

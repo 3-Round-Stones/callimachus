@@ -50,6 +50,14 @@ INSERT {
 };
 
 DELETE {
+    <queries/folder-create-menu.rq> calli:reader </auth/groups/system>, </auth/groups/admin>
+} INSERT {
+	<queries/folder-create-menu.rq> calli:reader </auth/groups/public>
+} WHERE {
+	FILTER NOT EXISTS { <queries/folder-create-menu.rq> calli:reader </auth/groups/public> }
+};
+
+DELETE {
 	<../document-editor.html> calli:alternate ?oldalt
 } INSERT {
 	<../document-editor.html> calli:alternate ?newalt
@@ -271,3 +279,4 @@ DELETE {
 FILTER (!strstarts(str(?subclass),str(</callimachus/1.0/>)))
 FILTER (!strstarts(str(?graph),str(</callimachus/1.0/>)))
 };
+

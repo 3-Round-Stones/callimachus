@@ -22,15 +22,10 @@ DELETE {
 		<pipelines/> calli:hasComponent? ?file . ?file calli:reader </auth/groups/public>
 	} UNION {
 		<queries/> calli:hasComponent? ?file . ?file calli:reader </auth/groups/public>
+		FILTER (?file != <queries/folder-create-menu.rq>)
 	} UNION {
 		<schemas/> calli:hasComponent? ?file . ?file calli:reader </auth/groups/public>
 	} UNION {
 		<transforms/> calli:hasComponent? ?file . ?file calli:reader </auth/groups/public>
 	}
-};
-
-INSERT {
-	<queries/folder-create-menu.rq> calli:reader </auth/groups/everyone>
-} WHERE {
-	FILTER NOT EXISTS { <queries/folder-create-menu.rq> calli:reader </auth/groups/everyone> }
 };

@@ -108,7 +108,7 @@ function postData(form, data, callback) {
         contentType: type,
         data: data,
 		dataType: "text", 
-        beforeSend: calli.withCredentials,
+        xhrFields: calli.withCredentials,
         success: function(data, textStatus) {
             callback(data, textStatus, xhr);
         }

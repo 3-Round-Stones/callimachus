@@ -5,7 +5,7 @@ jQuery(function($) {
         $.ajax({
             type: 'GET',
             url: $('#create-menu-json')[0].href,
-            beforeSend: calli.withCredentials,
+            xhrFields: calli.withCredentials,
             dataType: 'json',
             success: function(data) {
                 var ul = $('#create-menu-more');

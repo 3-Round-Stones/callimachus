@@ -13,7 +13,7 @@ $('form[method="PUT"]').each(function(event){
         var xhr = $.ajax({
             type: 'HEAD',
             url: action,
-            beforeSend: calli.withCredentials,
+            xhrFields: calli.withCredentials,
             success: function() {
                 calli.etag(action, xhr.getResponseHeader('ETag'));
             }
@@ -39,12 +39,12 @@ $('form[method="PUT"]').each(function(event){
                 contentType: form.getAttribute("enctype"),
                 processData: false,
                 data: se.payload,
+                xhrFields: calli.withCredentials,
                 beforeSend: function(xhr) {
                     var etag = calli.etag(action);
                     if (etag) {
                         xhr.setRequestHeader('If-Match', etag);
                     }
-                    calli.withCredentials(xhr);
                 },
                 success: function() {
                     try {

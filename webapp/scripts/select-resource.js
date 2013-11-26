@@ -77,7 +77,7 @@ calli.selectResource = function(event, src) {
         jQuery.ajax({
             type:"GET",
             url:url,
-            beforeSend: calli.withCredentials,
+            xhrFields: calli.withCredentials,
             complete:function(xhr) {
                 if (xhr.status == 200 || xhr.status == 304) {
                     openBrowseDialog(url);

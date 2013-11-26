@@ -13,7 +13,7 @@ $('form[typeof~="calli:Credential"]').submit(function(event){
             url: resource + '?password',
             contentType: 'text/plain',
             data: rstr2b64(str2rstr_utf8(password)),
-            beforeSend: calli.withCredentials,
+            xhrFields: calli.withCredentials,
             dataType: "text",
             success: function(url) {
                 $('#password').val('');

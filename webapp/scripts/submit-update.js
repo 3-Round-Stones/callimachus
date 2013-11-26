@@ -20,7 +20,7 @@ $('form[enctype="application/sparql-update"]').each(function() {
             var xhr = $.ajax({
                 type: 'HEAD',
                 url: action,
-                beforeSend: calli.withCredentials,
+                xhrFields: calli.withCredentials,
                 success: function() {
                     calli.etag(action, xhr.getResponseHeader('ETag'));
                 }
@@ -221,12 +221,11 @@ function patchData(form, data, callback) {
         type = "application/sparql-update";
     }
     var action = calli.getFormAction(form);
-    var xhr = $.ajax({ type: method, url: action, contentType: type, data: data, dataType: "text", beforeSend: function(xhr){
+    var xhr = $.ajax({ type: method, url: action, contentType: type, data: data, dataType: "text", xhrFields: calli.withCredentials, beforeSend: function(xhr){
         var etag = calli.etag(action);
         if (etag) {
             xhr.setRequestHeader("If-Match", etag);
         }
-        calli.withCredentials(xhr);
     }, success: function(data, textStatus) {
         calli.etag(action, xhr.getResponseHeader("ETag"));
         callback(data, textStatus, xhr);

@@ -7,7 +7,8 @@
 <head>
     <title resource="?this">{rdfs:label} Sign In</title>
     <link rel="help" href="../../callimachus-for-web-developers" target="_blank" title="Help" />
-    <script type="text/javascript" src="../assets/jshash/md5.js"></script>
+    <script type="text/javascript" src="../scripts/md5.js">
+    </script>
     <script type="text/javascript">
     // <![CDATA[
     $(document).bind("calliLoggedIn", function(event) {
@@ -28,7 +29,7 @@
             var options = {type: "POST", url: "?login",
                 username: username,
                 password: password,
-                xhrFields: calli.withCredentials,
+                beforeSend: function(req){try{req.withCredentials=true;}catch(e){}},
                 contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
                 data: {persistent: persistent},
                 success: function(doc) {
@@ -63,29 +64,29 @@
         <h2 id="authName">{calli:authName}</h2>
     </hgroup>
     <p>{rdfs:comment}</p>
-    <form role="form" id="form" method="POST" action="?login">
-        <div class="form-group">
-            <label for="username">Username or email</label>
+    <form id="form" method="POST" action="?login">
+        <div class="control-group">
+            <label class="control-label" for="username">Username or email</label>
             <div class="controls">
-                <input type="text" class="form-control" id="username" placeholder="Username or email" required="required" autofocus="autofocus" />
+                <input type="text" id="username" placeholder="Username or email" required="required" autofocus="autofocus" />
             </div>
         </div>
-        <div class="form-group">
-            <label for="password">Password</label>
+        <div class="control-group">
+            <label class="control-label" for="password">Password</label>
             <div class="controls">
-                <input type="password" class="form-control" id="password" placeholder="Password" />
+                <input type="password" id="password" placeholder="Password" />
             </div>
         </div>
-        <div class="form-group">
+        <div class="control-group">
             <div class="controls">
                 <label class="checkbox">
                     <input type="checkbox" id="persistent" value="true" /> Stay signed in
                 </label>
             </div>
         </div>
-        <div class="form-group">
+        <div class="form-actions">
             <button type="submit" class="btn btn-primary">Sign in</button>
-            <a href="?daypass" class="btn btn-default">Need another password?</a>
+            <a href="?daypass" class="btn">Need another password?</a>
         </div>
     </form>
 </body>

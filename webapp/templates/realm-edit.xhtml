@@ -39,13 +39,13 @@
             var xhr = $.ajax({
                 type: 'DELETE',
                 url: '?archive',
-        		dataType: "text", 
+        		dataType: "text",
+        		xhrFields: calli.withCredentials,
                 beforeSend: function(xhr){
                     var etag = calli.etag('?archive');
                     if (etag) {
                         xhr.setRequestHeader("If-Match", etag);
                     }
-                    calli.withCredentials(xhr);
                 },
                 success: function(data, textStatus) {
                     event.message = '';

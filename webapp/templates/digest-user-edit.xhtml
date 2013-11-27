@@ -13,11 +13,7 @@
             var uri = $("form[resource]").attr("resource");
             var credential = null;
             jQuery.ajax({type: "GET",  url: "/?profile",
-                beforeSend: function(req) {
-                    try {
-                        req.withCredentials = true;
-                    } catch (e) {}
-                },
+                xhrFields: calli.withCredentials,
                 success: function(doc) {
                     credential = /resource="([^" >]*)"/i.exec(doc)[1];
                 }

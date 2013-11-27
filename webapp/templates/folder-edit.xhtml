@@ -37,12 +37,12 @@
                 url: '?archive',
     			dataType: "text",
                 global: false,
+                xhrFields: calli.withCredentials,
                 beforeSend: function(xhr){
                     var etag = calli.etag('?archive');
                     if (etag) {
                         xhr.setRequestHeader("If-Match", etag);
                     }
-                    calli.withCredentials(xhr);
                 },
                 complete: function(data, textStatus) {
                     try {

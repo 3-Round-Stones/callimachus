@@ -29,7 +29,7 @@
             var options = {type: "POST", url: "?login",
                 username: username,
                 password: password,
-                xhrFields: calli.withCredentials,
+                beforeSend: function(req){try{req.withCredentials=true;}catch(e){}},
                 contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
                 data: {persistent: persistent},
                 success: function(doc) {

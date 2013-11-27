@@ -37,20 +37,20 @@
     calli:view <../templates/text-view.xhtml>;
     calli:edit <../templates/transform-edit.xhtml>;
     calli:create <../templates/transform-create.xhtml>;
-    calli:mediaType "text/xsl";
+    calli:mediaType "application/xslt+xml";
     calli:documentTag <http://www.w3.org/1999/XSL/Transform#stylesheet>.
 
 # GET /transform.xsl
 :GetTransform rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Transform>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
     calli:method "GET";
     calli:rel "edit-media";
     calli:requires calli:reader;
-    calli:type "text/xsl";
+    calli:type "text/xsl", "application/xslt+xml";
     calli:header "cache-control:no-cache";
     calli:header "cache-control:cache-range";
-    calli:script "return this.openReader(true)".
+    calli:script "return this.openInputStream()".
 
 # POST ?create=/callimachus/Transform
 :CreateTransform owl:intersectionOf (<creatable.ttl#PostCreate>
@@ -76,7 +76,7 @@
         created = con.addDesignation(created, this.toString());
         created = con.addDesignation(created, Document);
 
-        created.UploadTransform(new org.callimachusproject.io.TextReader(body, "UTF-8"));
+        created.UploadTransform(body);
         return created;
     """.
 
@@ -89,8 +89,8 @@
     calli:imports <java:org.callimachusproject.server.exceptions.ServiceUnavailable>;
     calli:script """
         var read;
-        var buf = java.lang.reflect.Array.newInstance(java.lang.Character.TYPE, 1024);
-        var out = this.openWriter();
+        var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
+        var out = this.openOutputStream();
         try {
             while ((read = reader.read(buf)) >= 0) {
                 out.write(buf, 0, read);
@@ -108,8 +108,8 @@
 
 :reader a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :UploadTransform;
-    rdfs:range <java:java.io.Reader>;
-    calli:type "text/xsl".
+    rdfs:range <java:java.io.InputStream>;
+    calli:type "text/xsl", "application/xslt+xml".
 
 :ValidateTransform rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Transform>];

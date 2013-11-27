@@ -79,6 +79,7 @@ application/xml sch
 application/xml xsd
 application/xml-external-parsed-entity ent
 application/xproc+xml xpl
+application/xslt+xml xsl
 application/xquery xq
 application/xquery xquery
 audio/basic au
@@ -112,7 +113,6 @@ text/tab-separated-values tsv
 text/turtle ttl
 text/uri-list uri
 text/uri-list uris
-text/xsl xsl
 text/vtt vtt
 video/3gpp 3gp
 video/mp4 mp4

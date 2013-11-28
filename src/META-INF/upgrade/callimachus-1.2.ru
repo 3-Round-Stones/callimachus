@@ -288,3 +288,10 @@ INSERT {
     FILTER NOT EXISTS { ?file a foaf:Image }
 };
 
+INSERT {
+    ?zip a calli:ZipArchive
+} WHERE {
+    ?zip a <types/ZipArchive>
+    FILTER NOT EXISTS { ?zip a calli:ZipArchive }
+};
+

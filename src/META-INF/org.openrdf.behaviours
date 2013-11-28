@@ -20,3 +20,4 @@ org.callimachusproject.behaviours.FacebookManagerSupport
 org.callimachusproject.behaviours.OpenIDManagerSupport
 org.callimachusproject.behaviours.DocumentSupport	= http://xmlns.com/foaf/0.1/Document
 org.callimachusproject.behaviours.SqlDatasourceSupport
+org.callimachusproject.behaviours.ZipArchiveSupport	= http://callimachusproject.org/rdf/2009/framework#ZipArchive

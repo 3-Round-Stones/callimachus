@@ -151,6 +151,11 @@ calli:SqlDatasource a owl:Class;
     rdfs:comment "JDBC database connection information";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
+calli:ZipArchive a owl:Class;
+    rdfs:label "ZIP Archive";
+    rdfs:comment "ZIP archive files";
+    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
 ################################
 # Annotation
 ################################

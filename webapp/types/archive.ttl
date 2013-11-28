@@ -27,7 +27,7 @@
     foaf:primaryTopic <ZipArchive>.
 
 <ZipArchive> a <Creatable>, owl:Class;
-    rdfs:subClassOf <File>;
+    rdfs:subClassOf calli:ZipArchive, <File>;
     rdfs:label "ZIP Archive" ;
     rdfs:comemnt "ZIP archive files";
     rdfs:isDefinedBy <../../ontology>;
@@ -48,6 +48,48 @@
     calli:header "cache-control:cache-range";
     calli:script "return this.openInputStream()".
 
+# GET /archive.zip?contents
+:GetZipContents rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <ZipArchive>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
+    calli:method "GET";
+    calli:query "contents";
+    calli:rel "contents";
+    calli:requires calli:reader;
+    calli:type "application/atom+xml";
+    calli:header "cache-control:cache-range";
+    calli:script """
+        var id = this.toString() + '?contents';
+        var pattern = this.toString() + '?entry={entry}';
+        return this.createAtomFeedFromArchive(id, pattern);
+    """.
+
+# GET /archive.zip?entry=/
+:GetZipEntry rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <ZipArchive>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
+    calli:method "GET";
+    calli:query "entry";
+    calli:requires calli:reader;
+    calli:type "message/x-response";
+    calli:header "cache-control:cache-range";
+    calli:script """
+        var type = this.getZipEntryType(entry);
+        var stream = this.readZipEntry(entry);
+        if (!stream) throw new org.callimachusproject.server.exceptions.NotFound();
+        return {
+            status: 200, message: "OK",
+            headers:{"content-type": type},
+            body: stream
+        };
+    """.
+
+:entry a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:domain :GetZipEntry;
+    rdfs:range xsd:string;
+    calli:query "entry";
+    calli:type "text/plain".
+
 # POST ?create=/callimachus/ZipArchive
 :PostZipArchiveCreate owl:intersectionOf (<creatable.ttl#PostCreate>
         [owl:onProperty msg:target; owl:hasValue <ZipArchive> ]);
@@ -57,7 +99,8 @@
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
     calli:imports <java:org.callimachusproject.server.exceptions.Conflict>;
     calli:imports <java:org.openrdf.model.vocabulary.RDFS>;
-    calli:imports <File>;
+    calli:imports foaf:Document;
+    calli:imports calli:ZipArchive;
     calli:script """
         var con = this.objectConnection;
         var vf = con.getValueFactory();
@@ -67,7 +110,9 @@
         if (!obj)
             throw new BadRequest("Missing location");
 
-        obj = con.addDesignation(obj, this.toString()) ;
+        obj = con.addDesignation(obj, this.toString());
+        obj = con.addDesignation(obj, Document);
+        obj = con.addDesignation(obj, ZipArchive);
 
         //# add the label
         var fileName = location.resource.localName;
@@ -98,7 +143,7 @@
             out.close();
         }
         try {
-            this.ValidateZipArchive();
+            this.validateZipAndClose(this.openInputStream());
         } catch (e if e.javaException instanceof ServiceUnavailable) {
             java.lang.System.err.println("Storing " + this);
         }
@@ -109,24 +154,4 @@
     rdfs:domain :PutZipArchive ;
     rdfs:range <java:java.io.InputStream> ;
     calli:type "application/zip" .
-
-:ValidateZipArchive rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <ZipArchive>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-    calli:script """
-        var zip = new org.apache.commons.compress.archivers.zip.ZipArchiveInputStream(this.openInputStream());
-        try {
-            var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
-            var entry = zip.getNextZipEntry();
-            do {
-                entry.getName();
-                entry.getMethod();
-                entry.getSize();
-                while (zip.read(buf, 0, buf.length) >= 0);
-                entry = zip.getNextZipEntry();
-            } while (entry != null);
-        } finally {
-            zip.close();
-        }
-    """.
 

@@ -280,3 +280,11 @@ FILTER (!strstarts(str(?subclass),str(</callimachus/1.0/>)))
 FILTER (!strstarts(str(?graph),str(</callimachus/1.0/>)))
 };
 
+INSERT {
+    ?file a foaf:Document
+} WHERE {
+    ?file a [rdfs:subClassOf <types/File>]
+    FILTER NOT EXISTS { ?file a foaf:Document }
+    FILTER NOT EXISTS { ?file a foaf:Image }
+};
+

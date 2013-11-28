@@ -59,7 +59,7 @@
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
     calli:imports <java:org.callimachusproject.server.exceptions.Conflict>;
     calli:imports <java:org.openrdf.model.vocabulary.RDFS>;
-    calli:imports <File>;
+    calli:imports foaf:Document;
     calli:script """
         var con = this.objectConnection;
         var vf = con.getValueFactory();
@@ -69,7 +69,8 @@
         if (!obj)
             throw new BadRequest("Missing location");
 
-        obj = con.addDesignation(obj, this.toString()) ;
+        obj = con.addDesignation(obj, this.toString());
+        obj = con.addDesignation(obj, Document);
 
         //# add the label
         var fileName = location.resource.localName;

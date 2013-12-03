@@ -127,6 +127,9 @@
                         (sameTerm($mediaType,"application/xslt+xml") || sameTerm($mediaType,"text/xsl"))
                         && (sameTerm(?typ2,"application/xslt+xml") || sameTerm(?typ2,"text/xsl"))
                     ) || (
+                        (sameTerm($mediaType,"application/java-archive") || sameTerm($mediaType,"application/zip"))
+                        && (sameTerm(?typ2,"application/java-archive") || sameTerm(?typ2,"application/zip"))
+                    ) || (
                         (sameTerm($mediaType,"image/x-png") || sameTerm($mediaType,"image/png"))
                         && (sameTerm(?typ2,"image/x-png") || sameTerm(?typ2,"image/png"))
                     ) || (

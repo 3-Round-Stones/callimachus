@@ -138,39 +138,39 @@ public class SqlDatasourceIntegrationTest extends TemporaryServerIntegrationTest
 	}
 
 	@Test
-	public void testPutXmlTable() throws Exception {
-		datasource.post(SQL, "create table TESTDATA (id int not null primary key, foo varchar(25), bar int)".getBytes());
+	public void testPutCsvTable() throws Exception {
+		datasource.post(SQL, "create table \"testdata\" (\"id\" int not null primary key, \"foo\" varchar(25), \"bar\" int)".getBytes());
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer writer = new OutputStreamWriter(out, "UTF-8");
 		writer.write("id,foo,bar\r\n");
 		writer.write("1,hello,12345\r\n");
 		writer.close();
-		datasource.ref("?table=TESTDATA").put(RESULTS_CSV, out.toByteArray());
-		String results = new String(datasource.ref("?table=TESTDATA").get(RESULTS_XML));
+		datasource.ref("?table=testdata").put(RESULTS_CSV, out.toByteArray());
+		String results = new String(datasource.ref("?table=testdata").get(RESULTS_XML));
 		assertTrue(results.contains(">hello<"));
 	}
 
 	@Test
-	public void testPostXmlTable() throws Exception {
-		datasource.post(SQL, "create table TESTDATA (id int not null primary key, foo varchar(25), bar int)".getBytes());
-		datasource.post(SQL, "insert into TESTDATA values(1, 'hello', 12345)".getBytes());
+	public void testPostCsvTable() throws Exception {
+		datasource.post(SQL, "create table \"testdata\" (\"id\" int not null primary key, \"foo\" varchar(25), \"bar\" int)".getBytes());
+		datasource.post(SQL, "insert into \"testdata\" values(1, 'hello', 12345)".getBytes());
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		Writer writer = new OutputStreamWriter(out, "UTF-8");
 		writer.write("id,foo,bar\r\n");
 		writer.write("2,world,6789\r\n");
 		writer.close();
-		datasource.ref("?table=TESTDATA").post(RESULTS_CSV, out.toByteArray());
-		String results = new String(datasource.ref("?table=TESTDATA").get(RESULTS_XML));
+		datasource.ref("?table=testdata").post(RESULTS_CSV, out.toByteArray());
+		String results = new String(datasource.ref("?table=testdata").get(RESULTS_XML));
 		assertTrue(results, results.contains(">hello<"));
 		assertTrue(results, results.contains(">world<"));
 	}
 
 	@Test
 	public void testDeleteTable() throws Exception {
-		datasource.post(SQL, "create table TESTDATA (id int not null primary key, foo varchar(25), bar int)".getBytes());
-		assertEquals(200, datasource.ref("?table=TESTDATA").headCode());
-		datasource.ref("?table=TESTDATA").delete();
-		assertEquals(404, datasource.ref("?table=TESTDATA").headCode());
+		datasource.post(SQL, "create table \"testdata\" (\"id\" int not null primary key, \"foo\" varchar(25), \"bar\" int)".getBytes());
+		assertEquals(200, datasource.ref("?table=testdata").headCode());
+		datasource.ref("?table=testdata").delete();
+		assertEquals(404, datasource.ref("?table=testdata").headCode());
 	}
 
 }

@@ -359,7 +359,7 @@ public abstract class SqlDatasourceSupport implements SqlDatasource,
 				BindingSet row = rows.next();
 				for (int i = 0, n = columns.size(); i < n; i++) {
 					String column = columns.get(i);
-					Integer type = columnTypes.get(column.toUpperCase());
+					Integer type = columnTypes.get(column);
 					Value value = row.getValue(column);
 					int col = i + 1;
 					setValue(insert, col, value, type);
@@ -383,7 +383,7 @@ public abstract class SqlDatasourceSupport implements SqlDatasource,
 		sb.append("INSERT INTO \"").append(tablename);
 		sb.append("\" (\"");
 		for (String name : columns) {
-			if (!columnNames.contains(name.toUpperCase()))
+			if (!columnNames.contains(name))
 				throw new BadRequest("Table " + tablename
 						+ " does not have column " + name);
 			sb.append(name);
@@ -406,8 +406,7 @@ public abstract class SqlDatasourceSupport implements SqlDatasource,
 				tablename, null);
 		try {
 			while (columns.next()) {
-				columnNames.put(columns.getString(4).toUpperCase(),
-						columns.getInt(5));
+				columnNames.put(columns.getString(4), columns.getInt(5));
 			}
 		} finally {
 			columns.close();

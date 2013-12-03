@@ -79,7 +79,7 @@ public abstract class SqlDatasourceSupport implements SqlDatasource,
 			conn = getConnection();
 			conn.setAutoCommit(false);
 			verifyTableExists(tablename, conn);
-			results = evaluateSql("SELECT * FROM " + tablename, conn);
+			results = evaluateSql("SELECT * FROM \"" + tablename + "\"", conn);
 		} finally {
 			if (results == null) {
 				if (conn != null) {
@@ -96,7 +96,7 @@ public abstract class SqlDatasourceSupport implements SqlDatasource,
 		try {
 			conn.setAutoCommit(false);
 			verifyTableExists(tablename, conn);
-			executeSql("DROP TABLE " + tablename, conn);
+			executeSql("DROP TABLE \"" + tablename + "\"", conn);
 			conn.commit();
 		} finally {
 			conn.close();
@@ -109,7 +109,7 @@ public abstract class SqlDatasourceSupport implements SqlDatasource,
 		try {
 			conn.setAutoCommit(false);
 			verifyTableExists(tablename, conn);
-			conn.createStatement().execute("DELETE FROM " + tablename);
+			conn.createStatement().execute("DELETE FROM \"" + tablename + "\"");
 			loadIntoTable(rows, tablename, conn);
 			conn.commit();
 		} finally {
@@ -228,8 +228,8 @@ public abstract class SqlDatasourceSupport implements SqlDatasource,
 			DriverConnectionPoolManager manager) throws SQLException,
 			OpenRDFException, IOException {
 		Exception cause = null;
-		String url = this.getCtrlJdbcUrl();
-		List<String> classnames = new ArrayList<>(this.getCtrlDriverClassName());
+		String url = this.getCalliJdbcUrl();
+		List<String> classnames = new ArrayList<>(this.getCalliDriverClassName());
 		ClassLoader cl = createClassLoader();
 		for (String classname : classnames) {
 			try {
@@ -243,9 +243,9 @@ public abstract class SqlDatasourceSupport implements SqlDatasource,
 				}
 				if (driver.acceptsURL(url)) {
 					Config config = new Config();
-					config.maxActive = intOrNeg(this.getCtrlMaxActive());
-					config.maxIdle = intOrNeg(this.getCtrlMaxIdle());
-					config.maxWait = intOrNeg(this.getCtrlMaxWait());
+					config.maxActive = intOrNeg(this.getCalliMaxActive());
+					config.maxIdle = intOrNeg(this.getCalliMaxIdle());
+					config.maxWait = intOrNeg(this.getCalliMaxWait());
 					Properties props = new Properties();
 					Credentials cred = getCredential(url);
 					if (cred != null) {
@@ -260,7 +260,7 @@ public abstract class SqlDatasourceSupport implements SqlDatasource,
 			} catch (ClassNotFoundException e) {
 				cause = e;
 				logger.error("{} is not found in {}", classname,
-						this.getCtrlDriverJar());
+						this.getCalliDriverJar());
 			} catch (InstantiationException e) {
 				cause = e;
 				logger.error("Could not instaniate {}", classname);
@@ -297,7 +297,7 @@ public abstract class SqlDatasourceSupport implements SqlDatasource,
 
 	private ClassLoader createClassLoader() {
 		List<URL> urls = new ArrayList<URL>();
-		for (RDFObject jar : this.getCtrlDriverJar()) {
+		for (RDFObject jar : this.getCalliDriverJar()) {
 			try {
 				urls.add(new URL(jar.getResource().stringValue()));
 			} catch (MalformedURLException e) {
@@ -380,16 +380,16 @@ public abstract class SqlDatasourceSupport implements SqlDatasource,
 			QueryEvaluationException {
 		Set<String> columnNames = getColumnTypes(tablename, conn).keySet();
 		StringBuilder sb = new StringBuilder();
-		sb.append("INSERT INTO ").append(tablename);
-		sb.append(" (");
+		sb.append("INSERT INTO \"").append(tablename);
+		sb.append("\" (\"");
 		for (String name : columns) {
 			if (!columnNames.contains(name.toUpperCase()))
 				throw new BadRequest("Table " + tablename
 						+ " does not have column " + name);
 			sb.append(name);
-			sb.append(",");
+			sb.append("\",\"");
 		}
-		sb.setLength(sb.length() - 1);
+		sb.setLength(sb.length() - 2);
 		sb.append(") VALUES (");
 		for (int i = 0, n = columns.size(); i < n; i++) {
 			sb.append("?").append(",");

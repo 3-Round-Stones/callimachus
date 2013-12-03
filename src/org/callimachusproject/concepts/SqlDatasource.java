@@ -10,44 +10,44 @@ import org.openrdf.repository.object.RDFObject;
 public interface SqlDatasource {
 	/** Java class name of the driver that should be used */
 	@Iri("http://callimachusproject.org/rdf/2009/framework#driverClassName")
-	Set<String> getCtrlDriverClassName();
+	Set<String> getCalliDriverClassName();
 	/** Java class name of the driver that should be used */
 	@Iri("http://callimachusproject.org/rdf/2009/framework#driverClassName")
-	void setCtrlDriverClassName(Set<? extends String> ctrlDriverClassName);
+	void setCalliDriverClassName(Set<? extends String> calliDriverClassName);
 
 	/** JAR that contains the driver class or one of its dependencies */
 	@Iri("http://callimachusproject.org/rdf/2009/framework#driverJar")
-	Set<RDFObject> getCtrlDriverJar();
+	Set<RDFObject> getCalliDriverJar();
 	/** JAR that contains the driver class or one of its dependencies */
 	@Iri("http://callimachusproject.org/rdf/2009/framework#driverJar")
-	void setCtrlDriverJar(Set<?> ctrlDriverJar);
+	void setCalliDriverJar(Set<?> calliDriverJar);
 
 	/** "The JDBC connection url for connecting to the database. */
 	@Iri("http://callimachusproject.org/rdf/2009/framework#jdbcUrl")
-	String getCtrlJdbcUrl();
+	String getCalliJdbcUrl();
 	/** "The JDBC connection url for connecting to the database. */
 	@Iri("http://callimachusproject.org/rdf/2009/framework#jdbcUrl")
-	void setCtrlJdbcUrl(String ctrlJdbcUrl);
+	void setCalliJdbcUrl(String calliJdbcUrl);
 
 	/** Maximum number of database connections in pool */
 	@Iri("http://callimachusproject.org/rdf/2009/framework#maxActive")
-	Number getCtrlMaxActive();
+	Number getCalliMaxActive();
 	/** Maximum number of database connections in pool */
 	@Iri("http://callimachusproject.org/rdf/2009/framework#maxActive")
-	void setCtrlMaxActive(Number ctrlMaxActive);
+	void setCalliMaxActive(Number calliMaxActive);
 
 	/** Maximum number of idle database connections to retain in pool */
 	@Iri("http://callimachusproject.org/rdf/2009/framework#maxIdle")
-	Number getCtrlMaxIdle();
+	Number getCalliMaxIdle();
 	/** Maximum number of idle database connections to retain in pool */
 	@Iri("http://callimachusproject.org/rdf/2009/framework#maxIdle")
-	void setCtrlMaxIdle(Number ctrlMaxIdle);
+	void setCalliMaxIdle(Number calliMaxIdle);
 
 	/** Maximum time to wait for a database connection to become available in ms */
 	@Iri("http://callimachusproject.org/rdf/2009/framework#maxWait")
-	Number getCtrlMaxWait();
+	Number getCalliMaxWait();
 	/** Maximum time to wait for a database connection to become available in ms */
 	@Iri("http://callimachusproject.org/rdf/2009/framework#maxWait")
-	void setCtrlMaxWait(Number ctrlMaxWait);
+	void setCalliMaxWait(Number calliMaxWait);
 
 }

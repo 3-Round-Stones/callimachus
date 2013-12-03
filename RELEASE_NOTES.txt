@@ -2,7 +2,7 @@ Callimachus Project Release Notes
 
 http://callimachusproject.org/
 
-12 November 2013
+3 December 2013
 
 = REQUIREMENTS FOR CALLIMACHUS 1.2.2 (Open Source) =
 
@@ -26,6 +26,7 @@ The Callimachus server requires Java JDK 1.7 on the server to run.
  * Improvements to article, including column width property, and image support
  * Read query annotation comments in xproc calli:render-html step
  * Improve the versatility of the setup script
+ * Better support for cross-domain applications
 
 = NEW IN VERSION 1.2.1 =
 

@@ -235,6 +235,13 @@ public class WebResource {
 		}
 	}
 
+	public void post() throws IOException {
+		HttpURLConnection con = (HttpURLConnection) new URL(uri).openConnection();
+		con.setRequestMethod("POST");
+		con.setDoOutput(false);
+		Assert.assertEquals(con.getResponseMessage(), 204, con.getResponseCode());
+	}
+
 	public void post(String type, byte[] body) throws IOException {
 		HttpURLConnection con = (HttpURLConnection) new URL(uri).openConnection();
 		con.setRequestMethod("POST");

@@ -85,6 +85,9 @@ public abstract class PurlSupport implements CalliObject {
 				"application/x-www-form-urlencoded");
 		Substitution substitution = Substitution.compile(pattern);
 		String result = substitution.replace(base, map);
+		if (result == null && queryString != null) {
+			result = substitution.replace(base + "?" + queryString, map);
+		}
 		if (result != null && result.length() > 0) {
 			int split = result.indexOf("\n");
 			String location = result;

@@ -173,4 +173,31 @@ public class SqlDatasourceIntegrationTest extends TemporaryServerIntegrationTest
 		assertEquals(404, datasource.ref("?table=testdata").headCode());
 	}
 
+	@Test
+	public void testProxyInsert() throws Exception {
+		datasource.post(SQL, "create table \"testdata\" (\"id\" int not null primary key, \"foo\" varchar(256), \"bar\" int)".getBytes());
+		String select = "SELECT \"id\", \"foo\", \"bar\" FROM \"testdata\"";
+		String insert = "INSERT INTO \"testdata\" (\"id\", \"foo\", \"bar\") VALUES ({+id}, '{+foo}', {+bar})";
+		String copy = datasource + "?query=" + URLEncoder.encode(select, "UTF-8") + "\n" +
+				"Accept: text/csv";
+		String regex = "\\w+(://|%3A%2F%2F)([:\\w\\.-]|%3A)+([/\\w\\.-]*|%2F|%25)*";
+		String post = "[^\\?]+\\?id=\\d+&foo=" + regex + "&bar=\\d+$ " + datasource + "\n" +
+				"Content-Type: application/sql\n\n" + insert;
+		StringBuilder sb = new StringBuilder();
+		sb.append("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n");
+		sb.append("PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>\n");
+		sb.append("INSERT DATA {\n");
+		sb.append("<").append("testdata").append(">");
+		sb.append(" a calli:Purl, </callimachus/1.3/types/Purl>;\n");
+		sb.append("rdfs:label \"").append("testdata").append("\";\n");
+		sb.append("calli:copy \"\"\"").append(copy.replace("\\", "\\\\")).append("\"\"\";");
+		sb.append("calli:post \"\"\"").append(post.replace("\\", "\\\\")).append("\"\"\"");
+		sb.append("}");
+		WebResource testdata = getHomeFolder().link("describedby").create("application/sparql-update", sb.toString().getBytes("UTF-8"));
+		String foo = datasource.toString();
+		testdata.ref("?id=1&foo=" + URLEncoder.encode(foo, "UTF-8") + "&bar=1").post();
+		assertEquals("id,foo,bar\r\n1," + foo + ",1\r\n", new String(testdata.get("*/*"), "UTF-8"));
+		testdata.link("describedby").delete();
+	}
+
 }

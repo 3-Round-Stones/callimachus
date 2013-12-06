@@ -31,7 +31,7 @@ public class RedirectTest extends TestCase {
 		@alternate("^http://(.*).example.com/(.*) http://example.com/{+1}/{+2}")
 		HttpResponse readDomain();
 
-		@alternate("{+0}#{+frag}")
+		@alternate("{+0}{#frag}")
 		HttpResponse frag(@Iri("urn:test:frag") String frag);
 
 		@alternate("{+0}?{+query}")

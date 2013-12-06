@@ -17,6 +17,7 @@ import org.callimachusproject.fluid.FluidFactory;
 import org.callimachusproject.rewrite.Substitution;
 import org.callimachusproject.server.exceptions.ResponseException;
 import org.callimachusproject.traits.CalliObject;
+import org.callimachusproject.util.PercentCodec;
 import org.openrdf.OpenRDFException;
 
 public abstract class PurlSupport implements CalliObject {
@@ -44,7 +45,7 @@ public abstract class PurlSupport implements CalliObject {
 				return method;
 			}
 		};
-		String location = line.group(2);
+		String location = PercentCodec.encodeOthers(line.group(2), PercentCodec.ALLOWED);
 		URI target = URI.create(this.toString()).resolve(location);
 		request.setURI(target.normalize());
 		Matcher body = HTTP_BODY.matcher(requestMessage);

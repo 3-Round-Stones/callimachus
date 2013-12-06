@@ -1,6 +1,7 @@
 package org.callimachusproject.rewrite;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.net.URL;
@@ -21,6 +22,7 @@ import org.callimachusproject.fluid.FluidFactory;
 import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.server.exceptions.GatewayTimeout;
 import org.callimachusproject.server.exceptions.ResponseException;
+import org.callimachusproject.util.PercentCodec;
 import org.openrdf.OpenRDFException;
 import org.openrdf.annotations.Iri;
 import org.openrdf.repository.object.ObjectConnection;
@@ -138,10 +140,11 @@ public abstract class RewriteAdvice implements Advice {
 		return null;
 	}
 
-	private String resolve(String path) {
+	private String resolve(String path) throws UnsupportedEncodingException {
 		if (path == null)
 			return null;
-		return systemId.resolve(path);
+		String uri = PercentCodec.encodeOthers(path, PercentCodec.ALLOWED);
+		return systemId.resolve(uri);
 	}
 
 	private Header[] readHeaders(String[] lines) {

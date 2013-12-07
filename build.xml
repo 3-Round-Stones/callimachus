@@ -42,6 +42,10 @@
         </exec>
     </target>
 
+    <target name="package" depends="clean,dist" description="Create a package ready for release">
+        <echo>Artifact ready: ${dist}/${artifact.name}-${Version}.zip</echo>
+    </target>
+
     <target name="clean" description="clean up temporary files">
         <!-- Delete the directory trees -->
         <delete dir="${reports.tests}" />
@@ -255,29 +259,7 @@
         </unzip>
     </target>
 
-    <target name="compile" depends="init,dist-dependencies" description="compile the source">
-        <!-- Compile the java code from ${src} into ${build} -->
-        <javac srcdir="${src}" destdir="${build}" source="1.7" target="1.7" debug="true" debuglevel="lines,source">
-            <classpath>
-                <fileset dir="${lib}">
-                    <include name="**/*.jar" />
-                </fileset>
-            </classpath>
-        </javac>
-        <copy todir="${build}">
-            <fileset dir="${src}" excludes="**/*.java *.*"/>
-        </copy>
-        <copy todir="${etc}">
-            <fileset dir="${src}" includes="*.conf *.properties *.ttl"/>
-        </copy>
-        <copy todir="${bin}">
-            <fileset dir="${src}" includes="*.sh *.bat *.pl"/>
-        </copy>
-        <fixcrlf srcdir="${bin}" includes="*.bat" eol="crlf" />
-        <chmod dir="${bin}" includes="*.sh,*.pl,*-linux*" perm="ugo+rx"/>
-    </target>
-
-    <target name="dist" depends="compile,car" description="generate the distribution">
+    <target name="dist" depends="compile,car" description="generate the distribution" unless="jar.classpath">
         <!-- Create the distribution directory and create the jar -->
         <mkdir dir="${dist}" />
         <property name="jar.file" value="${dist}/${artifact.name}-${Version}.jar" />
@@ -316,6 +298,28 @@
         <uptodate srcfile="${dist}/${artifact.name}-webapp-${Version}.car" targetfile="${triples.file}" property="repositories.uptodate" />
     </target>
 
+    <target name="compile" depends="init,dist-dependencies" description="compile the source">
+        <!-- Compile the java code from ${src} into ${build} -->
+        <javac srcdir="${src}" destdir="${build}" source="1.7" target="1.7" debug="true" debuglevel="lines,source">
+            <classpath>
+                <fileset dir="${lib}">
+                    <include name="**/*.jar" />
+                </fileset>
+            </classpath>
+        </javac>
+        <copy todir="${build}">
+            <fileset dir="${src}" excludes="**/*.java *.*"/>
+        </copy>
+        <copy todir="${etc}">
+            <fileset dir="${src}" includes="*.conf *.properties *.ttl"/>
+        </copy>
+        <copy todir="${bin}">
+            <fileset dir="${src}" includes="*.sh *.bat *.pl"/>
+        </copy>
+        <fixcrlf srcdir="${bin}" includes="*.bat" eol="crlf" />
+        <chmod dir="${bin}" includes="*.sh,*.pl,*-linux*" perm="ugo+rx"/>
+    </target>
+
     <target name="car">
         <!-- Create the distribution directory and create the car -->
         <mkdir dir="${dist}" />
@@ -325,6 +329,8 @@
         </zip>
         <uptodate srcfile="${dist}/${artifact.name}-webapp-${Version}.car" targetfile="${triples.file}" property="repositories.uptodate" />
     </target>
+
+    <target name="test" depends="unittest,integrationtest,functionaltest" description="run all the tests" />
 
     <target name="test-dependencies" depends="init">
         <basename file="${junit.url}" property="junit.jar" />
@@ -466,6 +472,8 @@
         </junit>
     </target>
 
+    <target name="functionaltest" depends="functionaltest-setup,functionaltest-run,functionaltest-all,functionaltest-teardown" description="run the functional tests" />
+
     <target name="functionaltest-setup" depends="dist,test-compile" unless="callimachus.url">
         <delete dir="${tmp}/functionaltest" />
         <mkdir dir="${tmp}/functionaltest" />
@@ -586,14 +594,6 @@
                 </fileset>
             </batchtest>
         </junit>
-    </target>
-
-    <target name="functionaltest" depends="functionaltest-setup,functionaltest-run,functionaltest-all,functionaltest-teardown" description="run the functional tests" />
-
-    <target name="test" depends="unittest,integrationtest,functionaltest" description="run all the tests" />
-
-    <target name="package" depends="clean,dist" description="Create a package ready for release">
-        <echo>Artifact ready: ${dist}/${artifact.name}-${Version}.zip</echo>
     </target>
 
     <target name="setup" depends="dist" unless="repositories.uptodate">

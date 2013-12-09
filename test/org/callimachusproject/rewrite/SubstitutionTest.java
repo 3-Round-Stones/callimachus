@@ -3,9 +3,11 @@ package org.callimachusproject.rewrite;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URLEncoder;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -273,6 +275,20 @@ public class SubstitutionTest extends TestCase {
 		String pattern = "(?<pres>.*) /request\nContent-Type: application/sparql\n\nSELECT * { <{+pres}> rdfs:label ?label}";
 		String actual = Substitution.compile(pattern).replace("http://example.com/").toString();
 		assertEquals("/request\nContent-Type: application/sparql\n\nSELECT * { <http://example.com/> rdfs:label ?label}", actual);
+	}
+
+	public void testNamedGroupReference() throws Exception {
+		String regex = "^https?://(?<server>[\\w\\.-]+)(?::\\d+)?/[^\\?]*\\?url=https?(://|%3A%2F%2F)\\k<server>(?::\\d+|%3A\\d+)?([/\\w\\.\\-\\_\\!\\~\\*\\'\\(\\)]|%2F|%25|%24|%2B|%3B|%2C|%26|%3D|%24|%5B|%5D)*$";
+		String pattern = regex + " {+url}";
+		String target = "http://example.org/target";
+		String url = "http://example.org/redirect?url=" + URLEncoder.encode(target, "UTF-8");
+		assertTrue(Pattern.matches(regex, url));
+		Map<String, String> param = Collections.singletonMap("url", target);
+		Substitution substitution = Substitution.compile(pattern);
+		String actual = substitution.replace(url, param).toString();
+		assertEquals(target, actual);
+		String com = "http://example.com/redirect?url=" + URLEncoder.encode(target, "UTF-8");
+		assertNull(substitution.replace(com, param));
 	}
 
 	private void assertSubstitution(String sub, String expected)

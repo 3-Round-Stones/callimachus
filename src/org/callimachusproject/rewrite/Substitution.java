@@ -13,7 +13,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Substitution {
-	private static final Pattern NUMERIC = Pattern.compile("\\d");
+	private static final Pattern NUMERIC = Pattern.compile("\\d\\d?");
 	private static final Pattern NAMED_GROUP_PATTERN = Pattern
 			.compile("\\(\\?<(\\w+)>");
 	private static final Pattern EXPRESSIONS = Pattern
@@ -98,8 +98,7 @@ public class Substitution {
 		this.regex = regex;
 		this.template = template;
 		this.groupNames = extractGroupNames(regex);
-		this.pattern = Pattern.compile(buildStandardPattern(regex, groupNames),
-				flags(flags));
+		this.pattern = Pattern.compile(regex, flags(flags));
 		Matcher m = EXPRESSIONS.matcher(template);
 		while (m.find()) {
 			String expr = m.group();
@@ -211,70 +210,75 @@ public class Substitution {
 	}
 
 	private CharSequence value(String name, Matcher regex,
-			Map<String, ?> variables, int maxLength, boolean explode, Expansion ex) {
-		int g = groupNames.indexOf(name) + 1;
-		if (g > 0) {
-			return inline(name, regex.group(g), maxLength, ex);
-		} else if (NUMERIC.matcher(name).matches() && name.length() < 3
-				&& regex.groupCount() >= Integer.parseInt(name)) {
-			return inline(name, regex.group(Integer.parseInt(name)), maxLength, ex);
-		} else {
-			Object o = variables.get(name);
-			if (o == null) {
-				return null;
-			} else if (o instanceof CharSequence) {
-				return inline(name, (CharSequence) o, maxLength, ex);
-			} else if (o.getClass().isArray() && Array.getLength(o) == 0) {
-				return null;
-			} else if (o.getClass().isArray()) {
-				StringBuilder sb = null;
-				for (int i = 0; i < Array.getLength(o); i++) {
-					String value = Array.get(o, i).toString();
-					if (value != null) {
-						if (sb == null) {
-							sb = new StringBuilder();
-							sb.append(inline(name, value, maxLength, ex));
-						} else if (explode) {
-							sb.append(ex.separator);
-							sb.append(inline(name, value, maxLength, ex));
-						} else {
-							sb.append(',');
-							sb.append(inline(null, value, maxLength, ex));
-						}
-					}
-				}
-				return sb;
-			} else if (o instanceof Map) {
-				StringBuilder sb = null;
-				Map<?,?> map = (Map<?,?>)o;
-				for (Map.Entry<?,?> e : map.entrySet()) {
-					String key = e.getKey().toString();
-					String value = e.getValue().toString();
-					if (explode) {
-						if (sb == null) {
-							sb = new StringBuilder();
-						} else {
-							sb.append(ex.separator);
-						}
-						sb.append(inline(null, key, maxLength, ex));
-						sb.append('=');
-						sb.append(inline(null, value, maxLength, ex));
+			Map<String, ?> variables, int maxLength, boolean explode,
+			Expansion ex) {
+		if (groupNames.contains(name)) {
+			try {
+				return inline(name, regex.group(name), maxLength, ex);
+			} catch (IllegalArgumentException e) {
+				// check qs parameter
+			}
+		}
+		if (name.length() < 3 && NUMERIC.matcher(name).matches()) {
+			int g = Integer.parseInt(name);
+			if (regex.groupCount() >= g)
+				return inline(name, regex.group(g), maxLength, ex);
+		}
+		Object o = variables.get(name);
+		if (o == null) {
+			return null;
+		} else if (o instanceof CharSequence) {
+			return inline(name, (CharSequence) o, maxLength, ex);
+		} else if (o.getClass().isArray() && Array.getLength(o) == 0) {
+			return null;
+		} else if (o.getClass().isArray()) {
+			StringBuilder sb = null;
+			for (int i = 0; i < Array.getLength(o); i++) {
+				String value = Array.get(o, i).toString();
+				if (value != null) {
+					if (sb == null) {
+						sb = new StringBuilder();
+						sb.append(inline(name, value, maxLength, ex));
+					} else if (explode) {
+						sb.append(ex.separator);
+						sb.append(inline(name, value, maxLength, ex));
 					} else {
-						if (sb == null) {
-							sb = new StringBuilder();
-							sb.append(inline(name, key, maxLength, ex));
-						} else {
-							sb.append(',');
-							sb.append(inline(null, key, maxLength, ex));
-						}
 						sb.append(',');
 						sb.append(inline(null, value, maxLength, ex));
 					}
 				}
-				return sb;
-			} else {
-				return inline(name, o.toString(), maxLength, ex);
 			}
+			return sb;
+		} else if (o instanceof Map) {
+			StringBuilder sb = null;
+			Map<?, ?> map = (Map<?, ?>) o;
+			for (Map.Entry<?, ?> e : map.entrySet()) {
+				String key = e.getKey().toString();
+				String value = e.getValue().toString();
+				if (explode) {
+					if (sb == null) {
+						sb = new StringBuilder();
+					} else {
+						sb.append(ex.separator);
+					}
+					sb.append(inline(null, key, maxLength, ex));
+					sb.append('=');
+					sb.append(inline(null, value, maxLength, ex));
+				} else {
+					if (sb == null) {
+						sb = new StringBuilder();
+						sb.append(inline(name, key, maxLength, ex));
+					} else {
+						sb.append(',');
+						sb.append(inline(null, key, maxLength, ex));
+					}
+					sb.append(',');
+					sb.append(inline(null, value, maxLength, ex));
+				}
+			}
+			return sb;
+		} else {
+			return inline(name, o.toString(), maxLength, ex);
 		}
 	}
 
@@ -304,17 +308,6 @@ public class Substitution {
 			groupNames.add(matcher.group(1));
 		}
 		return groupNames;
-	}
-
-	private String buildStandardPattern(String namedPattern,
-			List<String> groupNames) {
-		String regex = NAMED_GROUP_PATTERN.matcher(namedPattern)
-				.replaceAll("(");
-		for (int g = 1, n = groupNames.size(); g <= n; g++) {
-			regex = regex.replace("\\k<" + groupNames.get(g - 1) + ">", "\\"
-					+ g);
-		}
-		return regex;
 	}
 
 	private int flags(String flags) {

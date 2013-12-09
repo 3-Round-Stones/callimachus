@@ -133,9 +133,9 @@ public abstract class RewriteAdvice implements Advice {
 		if (replacers == null || replacers.length <= 0)
 			return null;
 		for (Substitution pattern : replacers) {
-			String result = pattern.replace(uri, variables);
+			CharSequence result = pattern.replace(uri, variables);
 			if (result != null)
-				return result;
+				return result.toString();
 		}
 		return null;
 	}

@@ -130,76 +130,58 @@ public class Substitution {
 		return variables.contains(name);
 	}
 
-	public String replace(CharSequence input) {
-		Map<String, String> parameters = Collections.emptyMap();
-		return replace(input, parameters);
+	public CharSequence replace(CharSequence input) {
+		return replace(input, Collections.<String, String>emptyMap());
 	}
 
-	public String replace(CharSequence input, Map<String, ?> variables) {
-		int dollar = template.indexOf('$');
-		int percent = template.indexOf('{');
-		if (dollar < 0 && percent < 0)
+	public CharSequence replace(CharSequence input, Map<String, ?> variables) {
+		if (template.indexOf('{') < 0)
 			return template;
 		Matcher m = pattern.matcher(input);
-		StringBuilder sb = new StringBuilder(255);
-		int position = 0;
-		while (m.find() && position < input.length()) {
-			sb.append(input, position, m.start());
-			appendSubstitution(m, variables, sb);
-			position = m.end();
-		}
-		if (position == 0)
+		if (!m.find())
 			return null;
-		sb.append(input, position, input.length());
-		return sb.toString();
+		return substitute(m, variables);
 	}
 
-	private void appendSubstitution(Matcher m, Map<String, ?> variables,
-			StringBuilder sb) {
-		loop: for (int i = 0, n = template.length(); i < n; i++) {
-			char chr = template.charAt(i);
-			if (chr == '=') {
-				sb.append(chr);
-			} else if (chr == '?' || chr == '&') {
-				sb.append(chr);
-			} else if (Character.isWhitespace(chr)) {
-				sb.append(chr);
-			} else if (chr == '\\' && i + 1 < n) {
-				sb.append(template.charAt(++i));
-			} else if (chr == '{' && i + 2 < n) {
-				int j = template.indexOf('}', i);
-				if (j > i) {
-					String expr = template.substring(i, j + 1);
-					if (EXPRESSIONS.matcher(expr).matches()) {
-						Character prefix = expr.charAt(1);
-						for (Expansion ex : Expansion.values()) {
-							if (prefix.equals(ex.operator)) {
-								CharSequence value = values(expr, m, variables,
-										ex);
-								if (value != null) {
-									sb.append(ex.prefix).append(value);
-								}
-								i = j;
-								continue loop;
-							}
-						}
-						Expansion ex = Expansion.SIMPLE;
-						CharSequence value = values(expr, m, variables, ex);
-						if (value != null) {
-							sb.append(value);
-						}
-						i = j;
-						continue loop;
-					} else {
-						sb.append(chr);
-					}
-				} else {
-					sb.append(chr);
+	private CharSequence substitute(Matcher m, Map<String, ?> variables) {
+		StringBuilder sb = new StringBuilder(255);
+		for (int i = 0, n = template.length(); i < n; i++) {
+			String expr = getExpression(template, i);
+			if (expr != null) {
+				Expansion ex = getExpansion(expr);
+				CharSequence value = values(expr, m, variables, ex);
+				if (value != null) {
+					sb.append(ex.prefix).append(value);
 				}
+				i += expr.length() - 1;
 			} else {
-				sb.append(chr);
+				sb.append(template.charAt(i));
 			}
 		}
+		return sb;
+	}
+
+	private String getExpression(String template, int i) {
+		char chr = template.charAt(i);
+		if (chr == '{' && i + 2 < template.length()) {
+			int j = template.indexOf('}', i);
+			if (j > i) {
+				String expr = template.substring(i, j + 1);
+				if (EXPRESSIONS.matcher(expr).matches())
+					return expr;
+			}
+		}
+		return null;
+	}
+
+	private Expansion getExpansion(String expr) {
+		Character prefix = expr.charAt(1);
+		for (Expansion ex : Expansion.values()) {
+			if (prefix.equals(ex.operator)) {
+				return ex;
+			}
+		}
+		return Expansion.SIMPLE;
 	}
 
 	private CharSequence values(String expression, Matcher regex,

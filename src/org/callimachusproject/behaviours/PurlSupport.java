@@ -31,7 +31,8 @@ public abstract class PurlSupport implements CalliObject {
 	public HttpUriRequest buildRequest(final String defaultMethod,
 			String pattern, String queryString) throws IOException,
 			FluidException {
-		final String requestMessage = processUriTemplate(pattern, queryString);
+		final CharSequence requestMessage = processUriTemplate(pattern,
+				queryString);
 		if (requestMessage == null)
 			return null;
 		Matcher line = HTTP_LINE.matcher(requestMessage);
@@ -45,7 +46,8 @@ public abstract class PurlSupport implements CalliObject {
 				return method;
 			}
 		};
-		String location = PercentCodec.encodeOthers(line.group(2), PercentCodec.ALLOWED);
+		String location = PercentCodec.encodeOthers(line.group(2),
+				PercentCodec.ALLOWED);
 		URI target = URI.create(this.toString()).resolve(location);
 		request.setURI(target.normalize());
 		Matcher body = HTTP_BODY.matcher(requestMessage);
@@ -75,7 +77,7 @@ public abstract class PurlSupport implements CalliObject {
 		return this.getHttpClient().getAnyResponse(request);
 	}
 
-	private String processUriTemplate(String pattern, String queryString)
+	private CharSequence processUriTemplate(String pattern, String queryString)
 			throws IOException, FluidException {
 		String base = this.toString();
 		FluidFactory ff = FluidFactory.getInstance();
@@ -84,32 +86,33 @@ public abstract class PurlSupport implements CalliObject {
 				"application/x-www-form-urlencoded");
 		Map<String, ?> map = (Map) fluid.as(Map.class,
 				"application/x-www-form-urlencoded");
-		Substitution substitution = Substitution.compile(pattern);
-		String result = substitution.replace(base, map);
-		if (result == null && queryString != null) {
-			result = substitution.replace(base + "?" + queryString, map);
-		}
-		if (result != null && result.length() > 0) {
-			int split = result.indexOf("\n");
-			String location = result;
-			if (split >= 0) {
-				location = result.substring(0, split);
-			}
-			int size = result.length();
-			if (queryString != null) {
-				size += queryString.length() + 1;
-			}
+		if (queryString != null) {
+			int size = base.length() + queryString.length() + 1;
 			StringBuilder sb = new StringBuilder(size);
-			sb.append(location);
-			if (queryString != null && location.indexOf('?') < 0) {
-				sb.append('?').append(queryString);
-			}
-			if (split >= 0) {
-				sb.append(result.substring(split));
-			}
-			return sb.toString();
+			sb.append(base).append('?').append(queryString);
+			CharSequence qs = sb.subSequence(base.length(), sb.length());
+			Substitution substitution = Substitution.compile(pattern);
+			CharSequence result = substitution.replace(sb, map);
+			return appendQueryString(result, qs);
 		} else {
-			return null;
+			Substitution substitution = Substitution.compile(pattern);
+			return substitution.replace(base, map);
 		}
+	}
+
+	private CharSequence appendQueryString(CharSequence result, CharSequence qs) {
+		if (result == null)
+			return result;
+		StringBuilder sb = new StringBuilder(result.length() + qs.length());
+		sb.append(result);
+		int split = sb.indexOf("\n");
+		if (split < 0) {
+			split = sb.length();
+		}
+		int q = sb.indexOf("?");
+		if (0 < q && q < split)
+			return result;
+		sb.insert(split, qs);
+		return sb;
 	}
 }

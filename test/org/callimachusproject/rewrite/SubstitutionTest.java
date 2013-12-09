@@ -271,13 +271,13 @@ public class SubstitutionTest extends TestCase {
 
 	public void testRequestBody() throws Exception {
 		String pattern = "(?<pres>.*) /request\nContent-Type: application/sparql\n\nSELECT * { <{+pres}> rdfs:label ?label}";
-		String actual = Substitution.compile(pattern).replace("http://example.com/");
+		String actual = Substitution.compile(pattern).replace("http://example.com/").toString();
 		assertEquals("/request\nContent-Type: application/sparql\n\nSELECT * { <http://example.com/> rdfs:label ?label}", actual);
 	}
 
 	private void assertSubstitution(String sub, String expected)
 			throws UnsupportedEncodingException {
-		String actual = Substitution.compile(sub).replace(sub, values);
+		String actual = Substitution.compile(sub).replace(sub, values).toString();
 		assertEquals(expected,
 				PercentCodec.encodeOthers(actual, PercentCodec.ALLOWED).replaceAll("%(?!\\w\\w)", "%25"));
 	}

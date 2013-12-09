@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.HttpClientConnection;
 import org.apache.http.HttpHost;
+import org.apache.http.HttpResponse;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.cache.ResourceFactory;
 import org.apache.http.client.config.RequestConfig;
@@ -49,6 +50,7 @@ import org.callimachusproject.util.MailProperties;
  * 
  */
 public class HttpClientFactory implements Closeable {
+	private static final int KEEPALIVE = 30 * 1000;
 	private static final String DEFAULT_NAME = Version.getInstance()
 			.getVersion();
 	private static HttpClientFactory instance;
@@ -115,7 +117,17 @@ public class HttpClientFactory implements Closeable {
 		connManager.setDefaultMaxPerRoute(max);
 		connManager.setMaxTotal(2 * max);
 		reuseStrategy = DefaultConnectionReuseStrategy.INSTANCE;
-		keepAliveStrategy = DefaultConnectionKeepAliveStrategy.INSTANCE;
+		keepAliveStrategy = new ConnectionKeepAliveStrategy() {
+			private ConnectionKeepAliveStrategy delegate = DefaultConnectionKeepAliveStrategy.INSTANCE;
+
+			public long getKeepAliveDuration(HttpResponse response,
+					HttpContext context) {
+				long ret = delegate.getKeepAliveDuration(response, context);
+				if (ret > 0)
+					return ret;
+				return KEEPALIVE;
+			}
+		};
 	}
 
 	public synchronized void close() {

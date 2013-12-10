@@ -33,9 +33,9 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
                         <li>{calli:folder-href(<a>Home folder</a>)}</li>
                         <li>{calli:changes-href(<a>Recent changes</a>)}</li>
                         <li class="divider"></li>
-                        <li><a href="http://callimachusproject.org/">About Callimachus</a></li>
-                        <li><a href="http://callimachusproject.org/docs/1.0/getting-started-with-callimachus.docbook?view">Getting started</a></li>
-                        <li><a href="http://groups.google.com/group/callimachus-discuss">Send feedback</a></li>
+                        <li>{calli:callimachus-about-href(<a>About Callimachus</a>)}</li>
+                        <li>{calli:callimachus-getting-started-href(<a>Getting started</a>)}</li>
+                        <li>{calli:callimachus-feedback-href(<a>Send feedback</a>)}</li>
                         <li class="divider"></li>
                         {calli:head-links(<li><a /></li>,<li class="divider" />)}
                         <li>{calli:whatlinkshere-href(<a>What links here</a>)}</li>

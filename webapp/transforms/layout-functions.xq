@@ -92,6 +92,27 @@ declare function calli:lookup-form($placeholder as xs:string) as element(form) {
         </div>
     </form>
 };
+declare function calli:callimachus-about-href($a as element()) as element() {
+    element {node-name($a)} {
+        attribute href {'http://callimachusproject.org/'},
+        $a/@*[name()!='href'],
+        $a/node()
+    }
+};
+declare function calli:callimachus-getting-started-href($a as element()) as element() {
+    element {node-name($a)} {
+        attribute href {resolve-uri('../../getting-started-with-callimachus')},
+        $a/@*[name()!='href'],
+        $a/node()
+    }
+};
+declare function calli:callimachus-feedback-href($a as element()) as element() {
+    element {node-name($a)} {
+        attribute href {'http://groups.google.com/group/callimachus-discuss'},
+        $a/@*[name()!='href'],
+        $a/node()
+    }
+};
 
 declare function calli:breadcrumb-links($breadcrumb as element(), $divider as item(), $active as element()) as element(nav) {
     <nav id="calli-breadcrumb">{$breadcrumb}{$divider}{$active}</nav>

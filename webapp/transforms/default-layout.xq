@@ -80,8 +80,8 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
     <div class="navbar navbar-large navbar-relative-bottom hidden-iframe">
         <footer class="navbar-inner">
             <div class="container">
-                {calli:generator-p(<p class="pull-right navbar-text" />)}
-                {calli:lastmod-time(<p class="navbar-text">This resource was last modified at <time class="abbreviated"/></p>)}
+                {calli:generator-p(<p class="navbar-right navbar-text" />)}
+                {calli:lastmod-time(<p class="navbar-text">This resource was last modified at <time class="datetime-local"/></p>)}
             </div>
         </footer>
     </div>

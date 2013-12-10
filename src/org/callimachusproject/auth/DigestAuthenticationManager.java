@@ -218,8 +218,12 @@ public class DigestAuthenticationManager implements DetachedAuthenticationManage
 			String username = options.get("username");
 			int retryAfter = fail.retryAfter(username);
 			if (retryAfter > 0) {
-				logger.warn("Account {} is locked for {} seconds", username, retryAfter);
-				throw new TooManyRequests("User Account is Locked", retryAfter);
+				logger.warn("Account {} is locked for {} seconds", username,
+						retryAfter);
+				int min = (int) Math.ceil(retryAfter / 60.0);
+				throw new TooManyRequests(
+						"User Account is Locked\nTry again in " + min
+								+ " minutes", retryAfter);
 			}
 			Map.Entry<String, String> password = findAuthUser(method, resource,
 					request, options, con);

@@ -40,6 +40,7 @@ import java.nio.charset.Charset;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
@@ -204,6 +205,9 @@ public class ResponseBuilder {
 		HttpResponse response = new EntityRemovedHttpResponse(ver, code, phrase);
 		String type = "text/html;charset=UTF-8";
 		response.setHeader("Content-Type", type);
+		for (Header hd : exception.getResponseHeaders()) {
+			response.addHeader(hd);
+		}
 		byte[] body = formatPage(createErrorPage(exception));
 		response.setHeader("Content-Length", String.valueOf(body.length));
 		ReadableByteChannel in = ChannelUtil.newChannel(body);

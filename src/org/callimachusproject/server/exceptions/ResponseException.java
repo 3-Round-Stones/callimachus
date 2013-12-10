@@ -85,6 +85,8 @@ public abstract class ResponseException extends RuntimeException {
 			return new Gone(msg, stack);
 		case 415:
 			return new UnsupportedMediaType(msg, stack);
+		case 429:
+			return new TooManyRequests(msg, stack);
 		case 500:
 			return new InternalServerError(msg, stack);
 		case 501:
@@ -194,6 +196,10 @@ public abstract class ResponseException extends RuntimeException {
 	}
 
 	public abstract int getStatusCode();
+
+	public Header[] getResponseHeaders() {
+		return new Header[0];
+	}
 
 	@Override
 	public String toString() {

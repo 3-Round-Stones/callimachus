@@ -30,6 +30,7 @@ import org.apache.http.message.BasicStatusLine;
 import org.apache.http.util.EntityUtils;
 import org.callimachusproject.server.chain.AuthenticationHandler;
 import org.callimachusproject.server.exceptions.ResponseException;
+import org.callimachusproject.server.exceptions.TooManyRequests;
 import org.callimachusproject.server.helpers.CalliContext;
 import org.callimachusproject.server.helpers.ResourceOperation;
 import org.callimachusproject.util.DomainNameSystemResolver;
@@ -118,13 +119,26 @@ public class AuthorizationManager {
 		if (realm != null) {
 			String cred = null;
 			Collection<String> allowed = realm.allowOrigin();
-			if (or == null || isOriginAllowed(allowed, or)) {
-				ObjectConnection con = ctx.getObjectConnection();
-				cred = realm.authenticateRequest(m, target, map, con);
-				if (cred != null && isMember(cred, from, groups)) {
-					ctx.setCredential(cred);
-					return null; // this request is good
+			try {
+				if (or == null || isOriginAllowed(allowed, or)) {
+					ObjectConnection con = ctx.getObjectConnection();
+					cred = realm.authenticateRequest(m, target, map, con);
+					if (cred != null && isMember(cred, from, groups)) {
+						ctx.setCredential(cred);
+						return null; // this request is good
+					}
 				}
+			} catch (TooManyRequests e) {
+				StringEntity body = new StringEntity(e.getDetailMessage(), Charset.forName("UTF-8"));
+				body.setContentType("text/plain");
+				BasicStatusLine line = new BasicStatusLine(HttpVersion.HTTP_1_1, e.getStatusCode(), e.getShortMessage());
+				HttpResponse resp = new BasicHttpResponse(line);
+				resp.setHeader("Content-Type", "text/plain;charset=UTF-8");
+				for (Header hd : e.getResponseHeaders()) {
+					resp.addHeader(hd);
+				}
+				resp.setEntity(body);
+				return resp;
 			}
 			noRealm = false;
 			validOrigin = or == null || isOriginAllowed(allowed, or);

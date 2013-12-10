@@ -45,6 +45,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
 import org.callimachusproject.server.exceptions.BadRequest;
+import org.callimachusproject.server.exceptions.TooManyRequests;
 import org.callimachusproject.traits.CalliObject;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Resource;
@@ -214,14 +215,21 @@ public class DigestAuthenticationManager implements DetachedAuthenticationManage
 			Map<String, String> options = parseDigestAuthorization(request);
 			if (options == null)
 				return null;
+			String username = options.get("username");
+			int retryAfter = fail.retryAfter(username);
+			if (retryAfter > 0) {
+				logger.warn("Account {} is locked for {} seconds", username, retryAfter);
+				throw new TooManyRequests("User Account is Locked", retryAfter);
+			}
 			Map.Entry<String, String> password = findAuthUser(method, resource,
 					request, options, con);
-			String username = options.get("username");
 			if (password == null) {
 				if (isRecentDigest(resource, request, options)) {
 					fail.failedAttempt(username);
 				}
 				return null;
+			} else {
+				fail.successfulAttempt(username);
 			}
 			if (options.containsKey("qop")) {
 				if (fail.isReplayed(options)) {
@@ -231,6 +239,8 @@ public class DigestAuthenticationManager implements DetachedAuthenticationManage
 				}
 			}
 			return password.getValue();
+		} catch (TooManyRequests e) {
+			throw e;
 		} catch (BadRequest e) {
 			throw e;
 		} catch (Exception e) {

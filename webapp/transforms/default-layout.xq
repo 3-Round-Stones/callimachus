@@ -36,7 +36,7 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
                                 <li>{calli:changes-href(<a>Recent changes</a>)}</li>
                                 <li class="divider"></li>
                                 <li><a href="http://callimachusproject.org/">About Callimachus</a></li>
-                                <li><a href="http://callimachusproject.org/docs/1.0/getting-started-with-callimachus.docbook?view">Getting started</a></li>
+                                <li><a href="http://callimachusproject.org/docs/1.2/getting-started-with-callimachus.docbook?view">Getting started</a></li>
                                 <li><a href="http://groups.google.com/group/callimachus-discuss">Send feedback</a></li>
                                 <li class="divider"></li>
                                 {calli:head-links(<li><a /></li>,<li class="divider" />)}

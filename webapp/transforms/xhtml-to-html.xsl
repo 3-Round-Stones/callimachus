@@ -4,9 +4,9 @@
 
     <!-- normal elements -->
     <xsl:template match="*">
-        <xsl:copy>
+        <xsl:element name="{local-name()}">
             <xsl:apply-templates select="@*|node()"/>
-        </xsl:copy>
+        </xsl:element>
     </xsl:template>
 
     <!-- strip meta charset -->
@@ -35,9 +35,9 @@
 
     <!-- End tag optional elements -->
     <xsl:template match="xhtml:li|xhtml:dt|xhtml:dd|xhtml:p|xhtml:rt|xhtml:rp|xhtml:optgroup|xhtml:option|xhtml:colgroup|xhtml:thead|xhtml:tbody|xhtml:tfoot|xhtml:tr|xhtml:td|xhtml:th">
-        <xsl:copy>
+        <xsl:element name="{local-name()}">
             <xsl:apply-templates select="@*|node()"/>
-        </xsl:copy>
+        </xsl:element>
     </xsl:template>
 
     <xsl:template match="@*|comment()">

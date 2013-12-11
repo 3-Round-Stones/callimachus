@@ -44,7 +44,7 @@ import org.callimachusproject.server.util.HTTPDateFormat;
 
 /**
  * Adds the HTTP headers: Cache-Control, Vary, ETag, Content-Type,
- * Content-Encoding, and Last-Modified.
+ * and Last-Modified.
  * 
  * @author James Leigh
  * 

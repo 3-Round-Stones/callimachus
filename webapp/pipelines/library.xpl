@@ -47,7 +47,9 @@
         <p:serialization port="result" media-type="text/html" method="html" doctype-system="about:legacy-compat" />
         <p:input port="source" sequence="true" primary="true" />
         <p:input port="parameters" kind="parameter" primary="true" />
-        <p:input port="query" sequence="false" />
+        <p:input port="query" sequence="false">
+            <p:empty />
+        </p:input>
         <p:input port="template" sequence="false" />
         <p:output port="result" sequence="true" primary="true" />
 

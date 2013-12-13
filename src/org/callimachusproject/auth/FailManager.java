@@ -22,29 +22,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.regex.Pattern;
+
+import org.callimachusproject.util.SystemProperties;
 
 public class FailManager {
-	private static int RESET_ATTEMPTS = 12 * 60 * 60 * 1000; // 12 hours
-	private static int THROTTLE_ATTEMPTS = 100;
-	private static int MAX_LOGIN_ATTEMPTS = 1000;
-	static {
-		try {
-			String maxLoginAttempts = System.getProperty("org.callimachusproject.auth.maxLoginAttempts");
-			if (maxLoginAttempts != null && Pattern.matches("\\d+", maxLoginAttempts)) {
-				int max = Math.abs(Integer.parseInt(maxLoginAttempts));
-				MAX_LOGIN_ATTEMPTS = max;
-				THROTTLE_ATTEMPTS = (int) Math.ceil(max / 10.0);
-			}
-			String unlockAfter = System.getProperty("org.callimachusproject.auth.unlockAfter");
-			if (unlockAfter != null && Pattern.matches("\\d+", unlockAfter)) {
-				int after = Math.abs(Integer.parseInt(unlockAfter));
-				RESET_ATTEMPTS = after * 1000;
-			}
-		} catch (SecurityException e) {
-			e.printStackTrace(System.err);
-		}
-	}
 	private static long resetAttempts;
 	private static final ConcurrentMap<String, Integer> failedAttempts = new ConcurrentHashMap<String, Integer>();
 	private static final int MAX_ENTRIES = 2048;
@@ -56,6 +37,9 @@ public class FailManager {
 			return size() > MAX_ENTRIES;
 		}
 	};
+	private int RESET_ATTEMPTS = SystemProperties.getUnlockAfter() * 1000;
+	private int MAX_LOGIN_ATTEMPTS = SystemProperties.getMaxLoginAttempts();
+	private int THROTTLE_ATTEMPTS = (int) Math.ceil(MAX_LOGIN_ATTEMPTS / 10.0);
 
 	public boolean isReplayed(Object options) {
 		synchronized (replay) {

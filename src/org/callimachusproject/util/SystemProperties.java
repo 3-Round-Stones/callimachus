@@ -2,6 +2,7 @@ package org.callimachusproject.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.regex.Pattern;
 
 import org.callimachusproject.Version;
 
@@ -12,21 +13,21 @@ public class SystemProperties {
 	private static final String WEBAPP_CAR = "lib/callimachus-webapp-" + VERSION_CODE + ".car";
 
 	public static char[] getKeyStorePassword() throws IOException {
-		String password = System.getProperty("javax.net.ssl.keyStorePassword");
+		String password = getProperty("javax.net.ssl.keyStorePassword");
 		if (password == null)
 			return "changeit".toCharArray();
 		return password.toCharArray();
 	}
 
 	public static File getKeyStoreFile() throws IOException {
-		String keyStore = System.getProperty("javax.net.ssl.keyStore");
+		String keyStore = getProperty("javax.net.ssl.keyStore");
 		if (keyStore == null)
 			return new File(".keystore");
 		return new File(keyStore);
 	}
 
 	public static File getMailPropertiesFile() {
-		String mail = System.getProperty("java.mail.properties");
+		String mail = getProperty("java.mail.properties");
 		if (mail == null)
 			return new File("etc/mail.properties");
 		return new File(mail);
@@ -40,34 +41,60 @@ public class SystemProperties {
 	}
 
 	public static File getRepositoryConfigFile() {
-		String rconfig = System
-				.getProperty("org.callimachusproject.config.repository");
+		String rconfig = getProperty("org.callimachusproject.config.repository");
 		if (rconfig != null)
 			return new File(rconfig);
 		return new File(REPOSITORY_CONFIG);
 	}
 
 	public static File getWebappCarFile() {
-		String car = System
-				.getProperty("org.callimachusproject.config.webapp");
+		String car = getProperty("org.callimachusproject.config.webapp");
 		if (car != null)
 			return new File(car);
 		return new File(WEBAPP_CAR);
 	}
 
 	public static File getConfigDefaultsFile() {
-		String defaultFile = System
-				.getProperty("org.callimachusproject.config.defaults");
+		String defaultFile = getProperty("org.callimachusproject.config.defaults");
 		if (defaultFile != null)
 			return new File(defaultFile);
 		return new File(SERVER_DEFAULT_CONF);
 	}
 
 	public static File getBackupDirectory() {
-		String defaultFile = System
-				.getProperty("org.callimachusproject.config.backups");
+		String defaultFile = getProperty("org.callimachusproject.config.backups");
 		if (defaultFile != null)
 			return new File(defaultFile);
+		return null;
+	}
+
+	public static int getUnlockAfter() {
+		String unlockAfter = getProperty("org.callimachusproject.auth.unlockAfter");
+		if (unlockAfter != null && Pattern.matches("\\d+", unlockAfter))
+			return Math.abs(Integer.parseInt(unlockAfter));
+		return 12 * 60 * 60;
+	}
+
+	public static int getMaxLoginAttempts() {
+		String maxLoginAttempts = getProperty("org.callimachusproject.auth.maxLoginAttempts");
+		if (maxLoginAttempts != null && Pattern.matches("\\d+", maxLoginAttempts))
+			return Math.abs(Integer.parseInt(maxLoginAttempts));
+		return 1000;
+	}
+
+	public static int getClientKeepAliveTimeout() {
+		String keepAliveTimeout = getProperty("org.callimachusproject.client.keepAliveTimeout");
+		if (keepAliveTimeout != null && Pattern.matches("\\d+", keepAliveTimeout))
+			return Math.abs(Integer.parseInt(keepAliveTimeout));
+		return 4000;
+	}
+
+	private static String getProperty(String key) {
+		try {
+			return System.getProperty(key);
+		} catch (SecurityException e) {
+			e.printStackTrace(System.err);
+		}
 		return null;
 	}
 }

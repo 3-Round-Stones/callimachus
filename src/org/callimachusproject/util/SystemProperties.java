@@ -82,10 +82,10 @@ public class SystemProperties {
 		return 1000;
 	}
 
-	public static int getClientKeepAliveTimeout() {
+	public static long getClientKeepAliveTimeout() {
 		String keepAliveTimeout = getProperty("org.callimachusproject.client.keepAliveTimeout");
 		if (keepAliveTimeout != null && Pattern.matches("\\d+", keepAliveTimeout))
-			return Math.abs(Integer.parseInt(keepAliveTimeout));
+			return Math.abs(Long.parseLong(keepAliveTimeout));
 		return 4000;
 	}
 

@@ -118,7 +118,7 @@ public class HttpClientFactory implements Closeable {
 		connManager.setMaxTotal(2 * max);
 		reuseStrategy = DefaultConnectionReuseStrategy.INSTANCE;
 		keepAliveStrategy = new ConnectionKeepAliveStrategy() {
-			private final int KEEPALIVE = SystemProperties.getClientKeepAliveTimeout();
+			private final long KEEPALIVE = SystemProperties.getClientKeepAliveTimeout();
 			private ConnectionKeepAliveStrategy delegate = DefaultConnectionKeepAliveStrategy.INSTANCE;
 
 			public long getKeepAliveDuration(HttpResponse response,

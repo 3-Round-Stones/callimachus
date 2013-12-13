@@ -50,7 +50,7 @@ import org.callimachusproject.util.MailProperties;
  * 
  */
 public class HttpClientFactory implements Closeable {
-	private static final int KEEPALIVE = 30 * 1000;
+	private static final int KEEPALIVE = 4000;
 	private static final String DEFAULT_NAME = Version.getInstance()
 			.getVersion();
 	private static HttpClientFactory instance;

@@ -42,6 +42,7 @@ import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.Version;
 import org.callimachusproject.io.FileUtil;
 import org.callimachusproject.util.MailProperties;
+import org.callimachusproject.util.SystemProperties;
 
 /**
  * Manages the connections and cache entries for outgoing requests.
@@ -50,7 +51,6 @@ import org.callimachusproject.util.MailProperties;
  * 
  */
 public class HttpClientFactory implements Closeable {
-	private static final int KEEPALIVE = 30 * 1000;
 	private static final String DEFAULT_NAME = Version.getInstance()
 			.getVersion();
 	private static HttpClientFactory instance;
@@ -118,6 +118,7 @@ public class HttpClientFactory implements Closeable {
 		connManager.setMaxTotal(2 * max);
 		reuseStrategy = DefaultConnectionReuseStrategy.INSTANCE;
 		keepAliveStrategy = new ConnectionKeepAliveStrategy() {
+			private final int KEEPALIVE = SystemProperties.getClientKeepAliveTimeout();
 			private ConnectionKeepAliveStrategy delegate = DefaultConnectionKeepAliveStrategy.INSTANCE;
 
 			public long getKeepAliveDuration(HttpResponse response,

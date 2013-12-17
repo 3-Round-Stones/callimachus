@@ -125,6 +125,10 @@ public class Template {
 						}
 					}
 				}
+				if (next.isEndWhere() && end == subQuery.length()) {
+					writer.flush();
+					str.write("}");
+				}
 				writer.write(next);
 				if (next.isStartWhere() && !reader.peek().isEndWhere() && end < subQuery.length()) {
 					String select = subQuery.substring(end);
@@ -138,7 +142,7 @@ public class Template {
 					writer.flush();
 					str.write("{");
 					str.write(select);
-					str.write("}");
+					str.write("} OPTIONAL {");
 				}
 			}
 			for (Set<String> cluster : reader.getClusters()) {

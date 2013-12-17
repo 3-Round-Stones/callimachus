@@ -2,9 +2,9 @@ Callimachus Project Release Notes
 
 http://callimachusproject.org/
 
-12 November 2013
+18 December 2013
 
-= REQUIREMENTS FOR CALLIMACHUS 1.2.2 (Open Source) =
+= REQUIREMENTS FOR CALLIMACHUS 1.2.3 (Open Source) =
 
 Callimachus works best on browsers that are closely tracking the development
 of HTML5.  At the time of this writing, Callimachus works best on Chrome and
@@ -20,6 +20,13 @@ Details of browser support may be found at:
   http://callimachusproject.org/docs/1.2/articles/browser-support.docbook?view
 
 The Callimachus server requires Java JDK 1.7 on the server to run.
+
+= NEW IN VERSION 1.2.3 =
+
+ * Improvements to calli:render-html step and Named RDF Query template rendering
+ * Digest user accounts can now be locked if too many concurrent login attempts
+ * Client keepAliveTimeout is now configurable
+ * PURL substitution patterns now implement level 4 of RFC 6570 URI Templates
 
 = NEW IN VERSION 1.2.2 =
 

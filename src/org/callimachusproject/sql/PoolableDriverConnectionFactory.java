@@ -1,7 +1,9 @@
 package org.callimachusproject.sql;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import org.apache.commons.dbcp.ConnectionFactory;
 import org.apache.commons.pool.ObjectPool;
@@ -15,18 +17,20 @@ public class PoolableDriverConnectionFactory implements
 	private final Logger logger = LoggerFactory
 			.getLogger(PoolableDriverConnectionFactory.class);
 	private final ConnectionFactory factory;
+	private final String validationQuery;
 	private volatile ObjectPool<PoolableDriverConnection> pool = null;
 
 	/**
 	 * @param connFactory
 	 *            the {@link ConnectionFactory} from which to obtain base
 	 *            {@link Connection}s
-	 * @param pool
-	 *            the {@link ObjectPool} in which to pool those
-	 *            {@link Connection}s
+	 * @param validationQuery
+	 *            SQL SELECT query to validate connections
 	 */
-	public PoolableDriverConnectionFactory(ConnectionFactory connFactory) {
-		factory = connFactory;
+	public PoolableDriverConnectionFactory(ConnectionFactory connFactory,
+			String validationQuery) {
+		this.factory = connFactory;
+		this.validationQuery = validationQuery;
 	}
 
 	/**
@@ -63,13 +67,25 @@ public class PoolableDriverConnectionFactory implements
 		}
 	}
 
-	public boolean validateObject(PoolableDriverConnection obj) {
+	public boolean validateObject(PoolableDriverConnection conn) {
 		try {
-			if (obj.isClosed()) {
+			if (conn.isClosed()) {
 				throw new SQLException("connection closed");
 			}
-			return true;
-		} catch (Exception e) {
+			if (null == validationQuery)
+				return true;
+			Statement stmt = conn.createStatement();
+			try {
+				ResultSet rset = stmt.executeQuery(validationQuery);
+				try {
+					return rset.next();
+				} finally {
+					rset.close();
+				}
+			} finally {
+				stmt.close();
+			}
+		} catch (SQLException e) {
 			return false;
 		}
 	}

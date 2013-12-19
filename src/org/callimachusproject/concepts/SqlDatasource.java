@@ -50,4 +50,11 @@ public interface SqlDatasource {
 	@Iri("http://callimachusproject.org/rdf/2009/framework#maxWait")
 	void setCalliMaxWait(Number calliMaxWait);
 
+	/** SQL SELECT query to validate connections */
+	@Iri("http://callimachusproject.org/rdf/2009/framework#validationQuery")
+	String getCalliValidationQuery();
+	/** SQL SELECT query to validate connections */
+	@Iri("http://callimachusproject.org/rdf/2009/framework#validationQuery")
+	void setCalliValidationQuery(String calliValidationQuery);
+
 }

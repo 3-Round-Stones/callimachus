@@ -561,4 +561,10 @@ calli:maxWait a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:range xsd:integer;
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
+calli:validationQuery a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:label "validation query";
+    rdfs:comment "SQL SELECT query to validate connections";
+    rdfs:domain calli:SqlDatasource;
+    rdfs:range xsd:string;
+    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 

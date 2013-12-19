@@ -15,8 +15,8 @@ public class DriverConnectionPoolManager {
 	private final HashMap<String, ObjectPool<PoolableDriverConnection>> pools = new HashMap<>();
 
 	public synchronized void registerDriver(String name, Driver driver,
-			String url, Properties info, GenericObjectPool.Config config)
-			throws SQLException {
+			String url, Properties info, GenericObjectPool.Config config,
+			String validationQuery) throws SQLException {
 		ConnectionFactory factory;
 		PoolableDriverConnectionFactory poolable;
 		ObjectPool<PoolableDriverConnection> pool;
@@ -24,7 +24,7 @@ public class DriverConnectionPoolManager {
 			deregisterDriver(name);
 		}
 		factory = new DriverConnectionFactory(driver, url, info);
-		poolable = new PoolableDriverConnectionFactory(factory);
+		poolable = new PoolableDriverConnectionFactory(factory, validationQuery);
 		pool = new GenericObjectPool<PoolableDriverConnection>(poolable, config);
 		poolable.setPool(pool);
 		pools.put(name, pool);

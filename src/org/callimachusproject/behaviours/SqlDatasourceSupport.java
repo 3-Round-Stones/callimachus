@@ -243,6 +243,7 @@ public abstract class SqlDatasourceSupport implements SqlDatasource,
 				}
 				if (driver.acceptsURL(url)) {
 					Config config = new Config();
+					config.testOnBorrow = true;
 					config.maxActive = intOrNeg(this.getCalliMaxActive());
 					config.maxIdle = intOrNeg(this.getCalliMaxIdle());
 					config.maxWait = intOrNeg(this.getCalliMaxWait());
@@ -254,7 +255,8 @@ public abstract class SqlDatasourceSupport implements SqlDatasource,
 						props.setProperty("password", cred.getPassword());
 					}
 					verifyDriver(url, driver, props);
-					manager.registerDriver(name, driver, url, props, config);
+					manager.registerDriver(name, driver, url, props, config,
+							this.getCalliValidationQuery());
 					return;
 				}
 			} catch (ClassNotFoundException e) {

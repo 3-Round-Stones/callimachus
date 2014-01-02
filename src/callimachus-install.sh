@@ -254,7 +254,7 @@ elif [ -r "$SSL" -a "$VERBOSE" != no ]; then
   grep -E '^javax.net.ssl.keyStorePassword=' "$SSL" |perl -pe 's/^javax.net.ssl.keyStorePassword=(.*)/$1/' 2>/dev/null > "$SSL.password"
   KEYSTORE=$(grep -E '^javax.net.ssl.keyStore=' $SSL |perl -pe 's/^javax.net.ssl.keyStore=(.*)/$1/' 2>/dev/null)
   cname=$("$KEYTOOL" -list -v -keystore "$KEYSTORE" -storepass "$(cat "$SSL.password")" $KEYTOOL_OPTS |grep -B 2 PrivateKeyEntry |grep 'Alias' |head -n 1 |awk '{print $3}')
-  until=$("$KEYTOOL" -list -v -keystore "$KEYSTORE" -storepass "$(cat "$SSL.password")" $KEYTOOL_OPTS |grep -A 8 "$cname" |grep "until:" |tail -n 1 |sed 's/.*until: //')
+  until=$("$KEYTOOL" -list -v -keystore "$KEYSTORE" -storepass "$(cat "$SSL.password")" $KEYTOOL_OPTS |grep -A 8 -x "Alias name: $cname" |grep "until:" |tail -n 1 |sed 's/.*until: //')
   expires=$(expr $(date --date="$until" +%s) '-' 60 '*' 60 '*' 24 '*' 31)
   if [ $(date +%s) -ge "$expires" ] ; then
     read -p "The certificate $cname will expire on $until.

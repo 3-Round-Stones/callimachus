@@ -674,7 +674,7 @@ public class ResourceOperation {
 	private Method findMethod() throws RepositoryException {
 		Method method = findMethodIfPresent(request.getMethod(), request.isMessageBody(), null);
 		if (method == null)
-			throw new MethodNotAllowed("No such method for this resource");
+			throw new MethodNotAllowed("No such method for " + request.getIRI());
 		return method;
 	}
 
@@ -682,7 +682,7 @@ public class ResourceOperation {
 			throws RepositoryException {
 		Method method = findMethodIfPresent(req_method, request.isMessageBody(), isResponsePresent);
 		if (method == null)
-			throw new MethodNotAllowed("No such method for this resource");
+			throw new MethodNotAllowed("No such method for " + request.getIRI());
 		return method;
 	}
 

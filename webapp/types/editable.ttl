@@ -207,17 +207,19 @@
     calli:imports <java:org.callimachusproject.server.exceptions.Conflict>;
     calli:script """
         var con = this.objectConnection;
-        function removeTriples(subject, hash) {
+        function removeTriples(subject, hash, qry) {
             var stmts = con.getStatements(subject, null, null, []);
             try {
                 while (stmts.hasNext()) {
                     var st = stmts.next();
                     con.remove(st.subject, st.predicate, st.object, []);
                     if (st.object instanceof BNode && !st.object.equals(subject)) {
-                        removeTriples(st.object, hash);
+                        removeTriples(st.object, hash, qry);
                     } else if (st.object instanceof URI && !st.object.equals(subject)) {
                         if (st.object.stringValue().indexOf(hash) == 0) {
-                            removeTriples(st.object, hash);
+                            removeTriples(st.object, hash, qry);
+                        } else if (st.object.stringValue().indexOf(qry) == 0) {
+                            removeTriples(st.object, hash, qry);
                         } else {
                             con.getObjectFactory().createObject(st.object).touchRevision();
                         }
@@ -229,7 +231,9 @@
         }
 
         con.clear([this.resource]); //# clear graph
-        removeTriples(this.resource, this.resource.stringValue() + '#'); //# follow blank and hash references
+        var hash = this.resource.stringValue() + '#';
+        var qry = this.resource.stringValue() + '?';
+        removeTriples(this.resource, hash, qry); //# follow blank, hash and query references
         if (this instanceof FileObject) {
             this['delete'](); //# remove document
         }

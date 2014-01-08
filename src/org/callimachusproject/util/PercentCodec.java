@@ -28,18 +28,18 @@ public class PercentCodec {
 		}
 	}
 
-	public static String encode(String username) {
+	public static String encode(String decoded) {
 		try {
 			// JavaScript's decodeURIComponent does not decode '+' as space
-			return URLEncoder.encode(username, "UTF-8").replace("+", "%20");
+			return URLEncoder.encode(decoded, "UTF-8").replace("+", "%20");
 		} catch (UnsupportedEncodingException e) {
 			throw new AssertionError(e);
 		}
 	}
 
-	public static String decode(String username) {
+	public static String decode(String encoded) {
 		try {
-			return URLDecoder.decode(username, "UTF-8");
+			return URLDecoder.decode(encoded, "UTF-8");
 		} catch (UnsupportedEncodingException e) {
 			throw new AssertionError(e);
 		}

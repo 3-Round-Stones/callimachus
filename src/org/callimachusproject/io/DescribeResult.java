@@ -96,6 +96,9 @@ public class DescribeResult implements GraphQueryResult {
 				}
 				results.push(con.getStatements(queue.poll(), null, null, false));
 			}
+			while (!results.isEmpty() && !results.peek().hasNext()) {
+				results.poll().close();
+			}
 			return !results.isEmpty();
 		} catch (RepositoryException e) {
 			throw new QueryEvaluationException(e);
@@ -135,9 +138,13 @@ public class DescribeResult implements GraphQueryResult {
 	private boolean pushIfMember(Value object) {
 		String uri = object.stringValue();
 		if (object instanceof URI) {
-			if (uri.length() > base.length() && uri.indexOf(base) == 0) {
+			if (uri.length() > base.length() && uri.indexOf(base) == 0
+					&& !seen.contains(object)) {
 				char chr = uri.charAt(base.length());
-				if (baseIsHash || chr == '#' && !seen.contains(object)) {
+				if (baseIsHash || chr == '#') {
+					seen.add((URI) object);
+					queue.push((URI) object);
+				} else if (chr == '?') {
 					seen.add((URI) object);
 					queue.push((URI) object);
 				}

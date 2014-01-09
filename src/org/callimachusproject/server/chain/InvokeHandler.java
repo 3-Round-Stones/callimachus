@@ -184,7 +184,7 @@ public class InvokeHandler implements ClientExecChain {
 		String responsePhrase = "No Content";
 		Set<String> responseLocations = null;
 		FluidBuilder builder = req.getFluidBuilder();
-		Fluid writer = builder.consume(result, req.getIRI(),
+		Fluid writer = builder.consume(result, req.getRequestURL(),
 				method.getGenericReturnType(), responseTypes);
 		Class<?> type = method.getReturnType();
 		boolean emptyResult = result == null || Set.class.equals(type)

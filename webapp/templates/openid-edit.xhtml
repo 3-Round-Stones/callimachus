@@ -43,7 +43,7 @@
                     <textarea id="comment" class="form-control" required="required">{rdfs:comment}</textarea>
                 </div>
             </div>
-            <div id="authButton" dropzone="link s:text/uri-list" class="form-group" ondrop="return calli.insertResource(event)">
+            <div id="authButton" dropzone="link string:text/uri-list" class="form-group" ondrop="return calli.insertResource(event)">
                 <label>Authentication button <a href="../types/Image?create" title="Upload"
                         onclick="return calli.createResource(event)" class="glyphicon glyphicon-list-alt" /></label>
                 <div rel="calli:authButton" class="controls">

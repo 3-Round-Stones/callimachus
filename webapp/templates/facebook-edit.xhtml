@@ -33,7 +33,7 @@
                     <input type="text" class="form-control" id="appId" value="{calli:facebookAppId}" required="required" />
                 </div>
             </div>
-            <div id="secret" dropzone="link s:text/uri-list" class="form-group"
+            <div id="secret" dropzone="link string:text/uri-list" class="form-group"
                     ondrop="if(!event.dataTransfer.getData('text/plain').match(/.xhtml$/)){$('#add-secret').hide();calli.insertResource(event);}return false">
                 <label>Secret</label>
                 <div rel="calli:facebookSecret" class="controls">

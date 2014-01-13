@@ -76,7 +76,7 @@
         </fieldset>
         <hr />
         <fieldset class="hbox">
-            <div id="related" dropzone="link s:text/uri-list" class="form-group"
+            <div id="related" dropzone="link string:text/uri-list" class="form-group"
                     ondrop="return calli.insertResource(event)">
                 <label>Related <a href="../types/Concept" title="Create"
                         onclick="return calli.createResource(event, './?create=' + encodeURIComponent(this.href))" class="glyphicon glyphicon-list-alt" /></label>
@@ -87,7 +87,7 @@
                     </span>
                 </div>
             </div>
-            <div id="narrower" dropzone="link s:text/uri-list" class="form-group"
+            <div id="narrower" dropzone="link string:text/uri-list" class="form-group"
                     ondrop="return calli.insertResource(event)">
                 <label>Narrower <a href="../types/Concept" title="Create"
                         onclick="return calli.createResource(event, './?create=' + encodeURIComponent(this.href))" class="glyphicon glyphicon-list-alt" /></label>
@@ -100,7 +100,7 @@
             </div>
         </fieldset>
         <hr />
-        <fieldset id="image" dropzone="link s:text/uri-list" class="form-group"
+        <fieldset id="image" dropzone="link string:text/uri-list" class="form-group"
                 ondrop="return calli.insertResource(event)">
             <label>Image <a href="/?view" title="Browse" onclick="return calli.selectResource(event)" class="glyphicon glyphicon-folder-open" /></label>
              <div rel="foaf:depiction" class="controls">

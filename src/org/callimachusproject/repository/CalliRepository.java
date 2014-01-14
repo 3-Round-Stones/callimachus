@@ -460,7 +460,7 @@ public class CalliRepository extends RepositoryWrapper implements CalliRepositor
 		if (repository instanceof ObjectRepository)
 			return (ObjectRepository) repository;
 		// AdviceService used in ObjectRepository#compileSchema
-		// uses java.util.ServiceLoader is a non-thread safe way
+		// uses java.util.ServiceLoader in a non-thread safe way
 		synchronized (CalliRepository.class) {
 			ObjectRepositoryFactory factory = new ObjectRepositoryFactory();
 			ObjectRepositoryConfig config = factory.getConfig();

@@ -36,6 +36,10 @@ function submitRDFForm(form, uri) {
             postData(form, se.payload, function(data, textStatus, xhr) {
                 try {
                     var redirect = xhr.getResponseHeader("Location");
+                    var contentType = xhr.getResponseHeader('Content-Type');
+                    if (!redirect && contentType !== null && contentType.indexOf('text/uri-list') === 0) {
+                        redirect = xhr.responseText;
+                    }
                     if (!redirect) {
                         redirect = calli.getFormAction(form);
                         if (redirect.indexOf('?') > 0) {

@@ -23,6 +23,7 @@ import javax.script.ScriptException;
 import javax.xml.transform.TransformerConfigurationException;
 
 import org.callimachusproject.fluid.consumers.BooleanMessageWriter;
+import org.callimachusproject.fluid.consumers.BufferedImageWriter;
 import org.callimachusproject.fluid.consumers.ByteArrayMessageWriter;
 import org.callimachusproject.fluid.consumers.ByteArrayStreamMessageWriter;
 import org.callimachusproject.fluid.consumers.DOMMessageWriter;
@@ -47,6 +48,7 @@ import org.callimachusproject.fluid.consumers.URIListWriter;
 import org.callimachusproject.fluid.consumers.VoidWriter;
 import org.callimachusproject.fluid.consumers.XMLEventMessageWriter;
 import org.callimachusproject.fluid.producers.BooleanMessageReader;
+import org.callimachusproject.fluid.producers.BufferedImageReader;
 import org.callimachusproject.fluid.producers.ByteArrayMessageReader;
 import org.callimachusproject.fluid.producers.ByteArrayStreamMessageReader;
 import org.callimachusproject.fluid.producers.DOMMessageReader;
@@ -110,6 +112,7 @@ public class FluidFactory {
 		consumers.add(new FormMapMessageWriter());
 		consumers.add(new FormStringMessageWriter());
 		consumers.add(new HttpEntityWriter());
+		consumers.add(new BufferedImageWriter());
 		consumers.add(URIListWriter.RDF_URI);
 		consumers.add(URIListWriter.NET_URL);
 		consumers.add(URIListWriter.NET_URI);
@@ -146,6 +149,7 @@ public class FluidFactory {
 		producers.add(new DOMMessageReader());
 		producers.add(new DocumentFragmentMessageReader());
 		producers.add(new HttpEntityReader());
+		producers.add(new BufferedImageReader());
 	}
 
 	public FluidBuilder builder() {

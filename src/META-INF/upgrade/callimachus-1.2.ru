@@ -189,8 +189,6 @@ DELETE {
 { ?resource a </callimachus/1.0/types/PURL> BIND (</callimachus/1.0/types/PURL> AS ?previous) BIND (</callimachus/1.3/types/Purl> AS ?current) } UNION
 { ?resource a </callimachus/1.3/types/PURL> BIND (</callimachus/1.3/types/PURL> AS ?previous) BIND (</callimachus/1.3/types/Purl> AS ?current) } UNION
 { ?resource a </callimachus/1.0/types/Page> BIND (</callimachus/1.0/types/Page> AS ?previous) BIND (</callimachus/1.3/types/Page> AS ?current) } UNION
-{ ?resource a </callimachus/1.0/types/Pdf> BIND (</callimachus/1.0/types/Pdf> AS ?previous) BIND (</callimachus/1.3/types/PortableDocument> AS ?current) } UNION
-{ ?resource a </callimachus/1.3/types/Pdf> BIND (</callimachus/1.3/types/Pdf> AS ?previous) BIND (</callimachus/1.3/types/PortableDocument> AS ?current) } UNION
 { ?resource a </callimachus/1.0/types/Photo> BIND (</callimachus/1.0/types/Photo> AS ?previous) BIND (</callimachus/1.3/types/Photo> AS ?current) } UNION
 { ?resource a </callimachus/1.0/types/Pipeline> BIND (</callimachus/1.0/types/Pipeline> AS ?previous) BIND (</callimachus/1.3/types/Pipeline> AS ?current) } UNION
 { ?resource a </callimachus/1.0/types/Profile> BIND (</callimachus/1.0/types/Profile> AS ?previous) BIND (</callimachus/1.3/types/RdfProfile> AS ?current) } UNION
@@ -255,8 +253,6 @@ DELETE {
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.0/types/PURL> BIND (</callimachus/1.0/types/PURL> AS ?previous) BIND (</callimachus/1.3/types/Purl> AS ?current) }}  UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.3/types/PURL> BIND (</callimachus/1.3/types/PURL> AS ?previous) BIND (</callimachus/1.3/types/Purl> AS ?current) }}  UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.0/types/Page> BIND (</callimachus/1.0/types/Page> AS ?previous) BIND (</callimachus/1.3/types/Page> AS ?current) }}  UNION
-{ GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.0/types/Pdf> BIND (</callimachus/1.0/types/Pdf> AS ?previous) BIND (</callimachus/1.3/types/PortableDocument> AS ?current) }}  UNION
-{ GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.3/types/Pdf> BIND (</callimachus/1.3/types/Pdf> AS ?previous) BIND (</callimachus/1.3/types/PortableDocument> AS ?current) }}  UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.0/types/Photo> BIND (</callimachus/1.0/types/Photo> AS ?previous) BIND (</callimachus/1.3/types/Photo> AS ?current) }}  UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.0/types/Pipeline> BIND (</callimachus/1.0/types/Pipeline> AS ?previous) BIND (</callimachus/1.3/types/Pipeline> AS ?current) }}  UNION
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.0/types/Profile> BIND (</callimachus/1.0/types/Profile> AS ?previous) BIND (</callimachus/1.3/types/RdfProfile> AS ?current) }}  UNION
@@ -278,6 +274,15 @@ DELETE {
 { GRAPH ?graph { ?subclass rdfs:subClassOf </callimachus/1.0/types/XQuery> BIND (</callimachus/1.0/types/XQuery> AS ?previous) BIND (</callimachus/1.3/types/XQuery> AS ?current) }} 
 FILTER (!strstarts(str(?subclass),str(</callimachus/1.0/>)))
 FILTER (!strstarts(str(?graph),str(</callimachus/1.0/>)))
+};
+
+DELETE {
+    ?pdf ?p ?o .
+    ?folder calli:hasComponent ?pdf
+} WHERE {
+    ?pdf a </callimachus/1.0/types/Pdf> .
+    ?pdf ?p ?o .
+    ?folder calli:hasComponent ?pdf
 };
 
 INSERT {

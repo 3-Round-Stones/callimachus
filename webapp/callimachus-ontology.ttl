@@ -124,6 +124,7 @@ calli:ScriptBundle a owl:Class;
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:Page a owl:Class;
+    rdfs:subClassOf foaf:Document;
     rdfs:label "Page";
     rdfs:comment "A Callimachus XHTML page";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
@@ -152,6 +153,7 @@ calli:SqlDatasource a owl:Class;
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:ZipArchive a owl:Class;
+    rdfs:subClassOf foaf:Document;
     rdfs:label "ZIP Archive";
     rdfs:comment "ZIP archive files";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.

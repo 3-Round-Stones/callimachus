@@ -154,7 +154,7 @@
         };
         var slug = calli.slugify(file.name.replace(/[-\s]+/g, '-'));
         var xhr = $.ajax({
-            type: 'GET',
+            type: 'HEAD',
             url: slug,
             global: false,
             complete: calli.wait().over,

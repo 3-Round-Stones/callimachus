@@ -193,7 +193,7 @@
                 var file = parser.next();
                 var headers = parser.getHeaders();
                 var disposition = headers.get("content-disposition");
-                if (disposition && disposition.indexOf("filename=") >= 0) {
+                if (disposition && disposition.indexOf("filename=") >= 0 && disposition.indexOf('filename="blob"') < 0) {
                     ftype = headers.get("content-type");
                     var xml = ftype.indexOf("text/xml") == 0 || ftype.indexOf("application/xml") == 0;
                     if (xml || ftype.indexOf("application/octet-stream") == 0 || ftype.indexOf("application/x-") == 0) {

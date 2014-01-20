@@ -284,6 +284,8 @@ if [ "$VERBOSE" != no ]; then
 fi
 
 exec "$JAVA_HOME/bin/java" \
+    -Duser.home="$BASEDIR" \
+    -Djava.io.tmpdir="$TMPDIR" \
     -Djava.mail.properties="$MAIL" \
     -Dorg.callimachusproject.config.repository="$REPOSITORY_CONFIG" \
     -classpath "$CLASSPATH" \

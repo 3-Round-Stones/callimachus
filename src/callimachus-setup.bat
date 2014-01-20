@@ -187,7 +187,7 @@ goto setStartArgs
 :doneSetStartArgs
 
 rem Execute Java with the applicable properties
-"%JAVA_HOME%\bin\java" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.mail.properties=%MAIL%" "-Dorg.callimachusproject.config.repository=%REPOSITORY_CONFIG%"  -classpath "%CLASSPATH%" -XX:OnOutOfMemoryError="taskkill /F /PID %%p" %JAVA_OPTS% %MAINCLASS% -b "%BASEDIR%" -c "%CONFIG%" -k "%BASEDIR%\backups" -e -l "cmd.exe /c bin\%NAME%-start.bat %CMD_LINE_ARGS%
+"%JAVA_HOME%\bin\java" "-Djava.io.tmpdir=%TMPDIR%" "-Duser.home=%BASEDIR%" "-Djava.mail.properties=%MAIL%" "-Dorg.callimachusproject.config.repository=%REPOSITORY_CONFIG%"  -classpath "%CLASSPATH%" -XX:OnOutOfMemoryError="taskkill /F /PID %%p" %JAVA_OPTS% %MAINCLASS% -b "%BASEDIR%" -c "%CONFIG%" -k "%BASEDIR%\backups" -e -l "cmd.exe /c bin\%NAME%-start.bat %CMD_LINE_ARGS%
 goto end
 
 :end

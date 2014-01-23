@@ -85,7 +85,7 @@
                 var waiting = calli.wait();
                 jQuery(function() {
                     var feed = $(doc.documentElement);
-                    var totalResults = feed.children().filter(function(){return this.tagName=='openSearch:totalResults'}).text();
+                    var totalResults = feed.children().filter(function(){return this.tagName=='openSearch:totalResults';}).text();
                     $('#totalResults').text(totalResults);
                     var tbody = $('<tbody/>');
                     tbody.attr('id', 'tfiles');
@@ -118,7 +118,7 @@
                         box.scrollTop = box.scrollHeight - box.clientHeight;
                     }
                     var checkForCompleteImg = function() {
-                        if (0 == $(tbody).find('img').filter(function() { return !this.complete; }).length) {
+                        if (0 === $(tbody).find('img').filter(function() { return !this.complete; }).length) {
                             waiting.over();
                         } else {
                             setTimeout(checkForCompleteImg, 500);
@@ -152,7 +152,7 @@
                 notifyProgressComplete();
             }
         };
-        var slug = calli.slugify(file.name.replace(/[-\s]+/g, '-'));
+        var slug = calli.slugify(file.name.replace(/[\-\s]+/g, '-'));
         var xhr = $.ajax({
             type: 'HEAD',
             url: slug,
@@ -232,7 +232,7 @@
     function uploadProgress(complete, estimated) {
         var progress = $('#result-status').find('.ui-progressbar-value');
         if (!progress.length && queueCompleteSize + complete < queueTotalSize / 2) {
-            var progress = $('<div/>');
+            progress = $('<div/>');
             var progressbar = $('<div/>');
             progressbar.addClass("ui-progressbar ui-widget ui-widget-content ui-corner-all");
             progress.addClass("ui-progressbar-value ui-widget-header ui-corner-left");
@@ -266,8 +266,10 @@
             }, 1000);
         };
         // animate progressbar every second while idle to simulate server processing
-        var rate = uploadedSize / (new Date().getTime() - queueStarted.getTime()) * 1000 / 5;
-        estimate(uploadedSize, uploadedSize - queueCompleteSize + rate, rate);
+        if (queueStarted) {
+            var rate = uploadedSize / (new Date().getTime() - queueStarted.getTime()) * 1000 / 5;
+            estimate(uploadedSize, uploadedSize - queueCompleteSize + rate, rate);
+        }
     }
     function notifyProgressComplete() {
         uploadedSize = 0;
@@ -314,7 +316,7 @@ jQuery(function($){
                 setTimeout(resized, 500);
             }
         }, 0);
-    }
+    };
     $(window).bind('resize', resized);
     resized();
 });

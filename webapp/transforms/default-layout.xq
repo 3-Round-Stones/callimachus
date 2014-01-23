@@ -23,7 +23,7 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
                 <div class="pull-left">
                     {calli:home-href(<a class="navbar-brand">Callimachus</a>)}
                 </div>
-                {calli:login-href(<a class="btn btn-default navbar-btn pull-right hidden-login">Sign in</a>)}
+                {calli:login-href(<a class="btn btn-default navbar-btn pull-right hidden-login">Sign in <span class="glyphicon glyphicon-log-in"></span></a>)}
                 <div class="btn-group pull-right hidden-logout">
                     <button type="button" class="btn btn-default navbar-btn dropdown-toggle" data-toggle="dropdown">
                         <span class="sr-only">Main menu</span>

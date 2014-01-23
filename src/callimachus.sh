@@ -1014,7 +1014,7 @@ case "$1" in
     fi
     [ "$VERBOSE" != no ] && log_success_msg "Running $NAME"
     do_run "$@"
-    exec $?
+    exit $?
     ;;
 esac
 

@@ -202,6 +202,11 @@ if [ "$("$JDK_HOME/bin/jrunscript" -e 'if(Array.isArray)println(true)')" != "tru
     exit 5
 fi
 
+if [ -z "$TMPDIR" ] ; then
+  # Define the java.io.tmpdir to use
+  TMPDIR="$BASEDIR"/tmp
+fi
+
 if [ -z "$MAIL" ] ; then
   MAIL="$BASEDIR/etc/mail.properties"
 fi

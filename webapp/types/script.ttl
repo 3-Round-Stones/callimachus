@@ -80,6 +80,24 @@
     """.
 
 # PUT /script.js
+:UploadBinaryScript rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Script>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+    calli:method "PUT";
+    calli:requires calli:editor;
+    calli:imports <java:java.io.InputStreamReader>;
+    calli:script """
+        if (!stream)
+            throw new BadRequest("Missing PUT request payload");
+        this.UploadScript(new java.io.InputStreamReader(stream, "UTF-8"));
+    """.
+
+:stream a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :UploadBinaryScript;
+    rdfs:range <java:java.io.InputStream>;
+    calli:type "application/javascript".
+
+# PUT /script.js
 :UploadScript rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Script>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];

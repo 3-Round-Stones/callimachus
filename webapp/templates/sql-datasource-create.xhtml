@@ -52,6 +52,14 @@
             </fieldset>
             <fieldset class="col-sm-4">
                 <div class="form-group">
+                	<div class="controls checkbox">
+            			<label rel="calli:editor" resource="/auth/groups/system">
+            				<input type="checkbox" name="editor" checked="checked" />
+            				Grant anonymous localhost to modify datasource
+            			</label>
+            		</div>
+                </div>
+                <div class="form-group">
                     <label for="validationQuery">Validation query</label>
                     <div class="controls">
                         <input type="text" class="form-control" id="validationQuery" value="{calli:validationQuery}" />

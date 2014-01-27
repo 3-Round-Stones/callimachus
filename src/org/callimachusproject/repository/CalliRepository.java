@@ -56,6 +56,8 @@ import org.openrdf.repository.object.ObjectRepository;
 import org.openrdf.repository.object.config.ObjectRepositoryConfig;
 import org.openrdf.repository.object.config.ObjectRepositoryFactory;
 import org.openrdf.repository.object.exceptions.ObjectStoreConfigException;
+import org.openrdf.rio.ParserConfig;
+import org.openrdf.rio.helpers.BasicParserSettings;
 import org.openrdf.rio.turtle.TurtleWriter;
 import org.openrdf.store.blob.BlobStore;
 import org.openrdf.store.blob.file.FileBlobStoreProvider;
@@ -117,6 +119,7 @@ public class CalliRepository extends RepositoryWrapper implements CalliRepositor
 	private final ObjectRepository object;
 	private DatasourceManager datasources;
 	private String changeFolder;
+	private ParserConfig parserConfig;
 
 	public CalliRepository(Repository repository, File dataDir)
 			throws RepositoryConfigException, RepositoryException,
@@ -133,6 +136,8 @@ public class CalliRepository extends RepositoryWrapper implements CalliRepositor
 		CalliObjectSupport.associate(this, object);
 		realms = new RealmManager(this);
 		auth = new AuthorizationManager(realms, object);
+		parserConfig = new ParserConfig();
+		parserConfig.set(BasicParserSettings.PRESERVE_BNODE_IDS, true);
 	}
 
 	public AuthorizationManager getAuthorizationManager() {
@@ -399,6 +404,7 @@ public class CalliRepository extends RepositoryWrapper implements CalliRepositor
 			}
 			con.setVersionBundle(bundle); // use the same URI for blob version
 		}
+		con.setParserConfig(parserConfig);
 		return con;
 	}
 

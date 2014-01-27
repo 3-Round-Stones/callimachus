@@ -21,7 +21,6 @@ import static org.openrdf.query.QueryLanguage.SPARQL;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.security.SecureRandom;
@@ -138,7 +137,7 @@ public class DigestPasswordAccessor implements DigestAccessor {
 		resp.setHeader("Content-Type", "text/plain;charset=\"UTF-8\"");
 		try {
 			resp.setEntity(new StringEntity("Must login", "UTF-8"));
-		} catch (UnsupportedEncodingException e) {
+		} catch (Exception e) { // UnsupportedEncodingException
 			throw new AssertionError(e);
 		}
 		return resp;
@@ -150,7 +149,7 @@ public class DigestPasswordAccessor implements DigestAccessor {
 		resp.setHeader("Content-Type", "text/plain;charset=\"UTF-8\"");
 		try {
 			resp.setEntity(new StringEntity("Bad credentials", "UTF-8"));
-		} catch (UnsupportedEncodingException e) {
+		} catch (Exception e) { // UnsupportedEncodingException
 			throw new AssertionError(e);
 		}
 		return resp;

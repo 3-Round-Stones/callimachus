@@ -21,7 +21,6 @@ import static org.callimachusproject.util.PercentCodec.encode;
 import info.aduna.net.ParsedURI;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -150,7 +149,7 @@ public class DigestAuthenticationManager implements DetachedAuthenticationManage
 			resp.setHeader("Content-Type", "text/plain;charset=\"UTF-8\"");
 			try {
 				resp.setEntity(new StringEntity("Authorization header required", "UTF-8"));
-			} catch (UnsupportedEncodingException e) {
+			} catch (Exception e) { // UnsupportedEncodingException
 				throw new AssertionError(e);
 			}
 		} else if (options != null && !isRecentDigest(resource, request, options)) {
@@ -159,7 +158,7 @@ public class DigestAuthenticationManager implements DetachedAuthenticationManage
 			resp.setHeader("Content-Type", "text/plain;charset=\"UTF-8\"");
 			try {
 				resp.setEntity(new StringEntity("Stale authorization header", "UTF-8"));
-			} catch (UnsupportedEncodingException e) {
+			} catch (Exception e) { // UnsupportedEncodingException
 				throw new AssertionError(e);
 			}
 		} else {

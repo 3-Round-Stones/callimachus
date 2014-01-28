@@ -60,20 +60,27 @@ public abstract class FileUpdater implements Updater {
 			BlobObject blob = con.getBlobObject(article);
 			CharSequence current = blob.getCharContent(true);
 			if (current != null) {
-				if (ifContent == null || !ifContent.equals(current.toString()))
+				if (ifContent != null && !ifContent.equals(current.toString()))
 					return false;
-				logger.info("Replacing {}", article);
 			}
 			InputStream in = getFileResourceAsStream();
-			try {
-				OutputStream out = blob.openOutputStream();
+			if (in == null) {
+				logger.info("Removing {}", article);
+				blob.delete();
+				con.remove((URI) null, null, article);
+				con.remove(article, null, null);
+			} else {
 				try {
-					ChannelUtil.transfer(in, out);
+					logger.info("Replacing {}", article);
+					OutputStream out = blob.openOutputStream();
+					try {
+						ChannelUtil.transfer(in, out);
+					} finally {
+						out.close();
+					}
 				} finally {
-					out.close();
+					in.close();
 				}
-			} finally {
-				in.close();
 			}
 			con.commit();
 		} finally {

@@ -52,46 +52,58 @@
 </head>
 <body>
     <div class="container">
-        <h1><xsl:value-of select="//sparql:result[1]/sparql:binding[@name='title']/*" /> Resources</h1>
-        <xsl:if test="//sparql:result[1]/sparql:binding[@name='description']/*">
-            <div id="sidebar">
-                <aside>
-                    <p><xsl:value-of select="//sparql:result[1]/sparql:binding[@name='description']/*"/></p>
-                </aside>
+        <div class="row">
+            <div>
+                <xsl:choose>
+                    <xsl:when test="//sparql:result[1]/sparql:binding[@name='description']/*">
+                        <xsl:attribute name="class"><xsl:text>col-sm-6</xsl:text></xsl:attribute>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:attribute name="class"><xsl:text>col-sm-12</xsl:text></xsl:attribute>
+                    </xsl:otherwise>
+                </xsl:choose>
+                <h1><xsl:value-of select="//sparql:result[1]/sparql:binding[@name='title']/*" /> Resources</h1>
+                <div id="index">
+                    <a href="#A">A</a><xsl:text> </xsl:text>
+                    <a href="#B">B</a><xsl:text> </xsl:text>
+                    <a href="#C">C</a><xsl:text> </xsl:text>
+                    <a href="#D">D</a><xsl:text> </xsl:text>
+                    <a href="#E">E</a><xsl:text> </xsl:text>
+                    <a href="#F">F</a><xsl:text> </xsl:text>
+                    <a href="#G">G</a><xsl:text> </xsl:text>
+                    <a href="#H">H</a><xsl:text> </xsl:text>
+                    <a href="#I">I</a><xsl:text> </xsl:text>
+                    <a href="#J">J</a><xsl:text> </xsl:text>
+                    <a href="#K">K</a><xsl:text> </xsl:text>
+                    <a href="#L">L</a><xsl:text> </xsl:text>
+                    <a href="#M">M</a><xsl:text> </xsl:text>
+                    <a href="#N">N</a><xsl:text> </xsl:text>
+                    <a href="#O">O</a><xsl:text> </xsl:text>
+                    <a href="#P">P</a><xsl:text> </xsl:text>
+                    <a href="#Q">Q</a><xsl:text> </xsl:text>
+                    <a href="#R">R</a><xsl:text> </xsl:text>
+                    <a href="#S">S</a><xsl:text> </xsl:text>
+                    <a href="#T">T</a><xsl:text> </xsl:text>
+                    <a href="#U">U</a><xsl:text> </xsl:text>
+                    <a href="#V">V</a><xsl:text> </xsl:text>
+                    <a href="#W">W</a><xsl:text> </xsl:text>
+                    <a href="#X">X</a><xsl:text> </xsl:text>
+                    <a href="#Y">Y</a><xsl:text> </xsl:text>
+                    <a href="#Z">Z</a><xsl:text> </xsl:text>
+                    <a href="#_">#</a><xsl:text> </xsl:text>
+                </div>
+                <xsl:if test="count(sparql:sparql/sparql:results/sparql:result) &gt; 100">
+                    <p>Not all resources are shown</p>
+                </xsl:if>
             </div>
-        </xsl:if>
-        <div id="index">
-            <a href="#A">A</a><xsl:text> </xsl:text>
-            <a href="#B">B</a><xsl:text> </xsl:text>
-            <a href="#C">C</a><xsl:text> </xsl:text>
-            <a href="#D">D</a><xsl:text> </xsl:text>
-            <a href="#E">E</a><xsl:text> </xsl:text>
-            <a href="#F">F</a><xsl:text> </xsl:text>
-            <a href="#G">G</a><xsl:text> </xsl:text>
-            <a href="#H">H</a><xsl:text> </xsl:text>
-            <a href="#I">I</a><xsl:text> </xsl:text>
-            <a href="#J">J</a><xsl:text> </xsl:text>
-            <a href="#K">K</a><xsl:text> </xsl:text>
-            <a href="#L">L</a><xsl:text> </xsl:text>
-            <a href="#M">M</a><xsl:text> </xsl:text>
-            <a href="#N">N</a><xsl:text> </xsl:text>
-            <a href="#O">O</a><xsl:text> </xsl:text>
-            <a href="#P">P</a><xsl:text> </xsl:text>
-            <a href="#Q">Q</a><xsl:text> </xsl:text>
-            <a href="#R">R</a><xsl:text> </xsl:text>
-            <a href="#S">S</a><xsl:text> </xsl:text>
-            <a href="#T">T</a><xsl:text> </xsl:text>
-            <a href="#U">U</a><xsl:text> </xsl:text>
-            <a href="#V">V</a><xsl:text> </xsl:text>
-            <a href="#W">W</a><xsl:text> </xsl:text>
-            <a href="#X">X</a><xsl:text> </xsl:text>
-            <a href="#Y">Y</a><xsl:text> </xsl:text>
-            <a href="#Z">Z</a><xsl:text> </xsl:text>
-            <a href="#_">#</a><xsl:text> </xsl:text>
+            <xsl:if test="//sparql:result[1]/sparql:binding[@name='description']/*">
+                <div class="col-sm-6">
+                    <aside class="well">
+                        <p><xsl:value-of select="//sparql:result[1]/sparql:binding[@name='description']/*"/></p>
+                    </aside>
+                </div>
+            </xsl:if>
         </div>
-        <xsl:if test="count(sparql:sparql/sparql:results/sparql:result) &gt; 100">
-            <p>Not all resources are shown</p>
-        </xsl:if>
         <div id="results" class="row">
             <xsl:if test="sparql:sparql/sparql:results/sparql:result['A'=sparql:binding[@name='index']/*]">
                 <div id="A" class="col-sm-4"><h2>A</h2>

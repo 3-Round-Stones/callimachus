@@ -2,11 +2,10 @@
 <html>
 <head>
     <title>Save as...</title>
+    <link rel="stylesheet" href="../styles/callimachus.less?less" />
     <style type="text/css">
         html,body { padding:0;margin:0;overflow:hidden; }
-        label { height:1.5em;display:block;width:100%; }
-        #label { float:right; }
-        #saveas-iframe { clear:right; border:none; }
+        #saveas-iframe { border:none; }
         #form { padding:0; }
     </style>
     <script src="../../scripts.js" type="text/javascript"> </script>
@@ -65,8 +64,10 @@
 </head>
 <body>
     <form id="form">
-        <label for="label"><input class="auto-expand" id="label" type="text" autofocus="autofocus" />Name: </label>
-        <iframe id="saveas-iframe" name="saveas-iframe" class="flex"></iframe>
+        <div class="form-group">
+            <input class="form-control" id="label" type="text" autofocus="autofocus" />
+        </div>
+        <iframe id="saveas-iframe" name="saveas-iframe" class="flex" seamless="seamless"></iframe>
     </form>
 </body>
 </html>

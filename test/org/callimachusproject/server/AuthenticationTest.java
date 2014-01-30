@@ -119,8 +119,8 @@ public class AuthenticationTest extends MetadataServerTestCase {
 		ClientResponse resp;
 		MyProtectedResource.body = "first";
 		resp = web("/protected", "bob").get(ClientResponse.class);
-		assertNotNull(resp.getHeaders().get("ETag"));
-		assertNotNull(resp.getHeaders().get("Authentication-Info").get(0));
+		assertNotNull(resp.toString(), resp.getHeaders().get("ETag"));
+		assertNotNull(resp.toString(), resp.getHeaders().get("Authentication-Info").get(0));
 		assertEquals("first", resp.getEntity(String.class));
 	}
 
@@ -130,10 +130,10 @@ public class AuthenticationTest extends MetadataServerTestCase {
 		resp = web("/protected", "bob").get(ClientResponse.class);
 		MyProtectedResource.body = "second";
 		resp = web("/protected", "jim").get(ClientResponse.class);
-		assertNotNull(resp.getHeaders().get("ETag"));
+		assertNotNull(resp.toString(), resp.getHeaders().get("ETag"));
 		// body should be cached
 		assertEquals("first", resp.getEntity(String.class));
-		assertNotNull(resp.getHeaders().get("Authentication-Info").get(0));
+		assertNotNull(resp.toString(), resp.getHeaders().get("Authentication-Info").get(0));
 	}
 
 	public void testBadAuth() throws Exception {
@@ -152,24 +152,24 @@ public class AuthenticationTest extends MetadataServerTestCase {
 		resp = web("/protected", "nobody").get(ClientResponse.class);
 		MyProtectedResource.body = "second";
 		resp = web("/protected", "jim").get(ClientResponse.class);
-		assertNotNull(resp.getHeaders().get("ETag"));
+		assertNotNull(resp.toString(), resp.getHeaders().get("ETag"));
 		// body should still be cached
 		assertEquals("first", resp.getEntity(String.class));
-		assertNotNull(resp.getHeaders().get("Authentication-Info").get(0));
+		assertNotNull(resp.toString(), resp.getHeaders().get("Authentication-Info").get(0));
 	}
 
 	public void testGetVaryAuth() throws Exception {
 		ClientResponse resp;
 		resp = web("/resource", "bob").get(ClientResponse.class);
 		assertTrue(resp.getEntity(String.class).contains("username=\"bob\""));
-		assertTrue(resp.getHeaders().get("Cache-Control").get(0).contains("private"));
-		assertNotNull(resp.getHeaders().get("ETag"));
-		assertFalse(resp.getHeaders().get("Vary").toString().contains("Authorization"));
+		assertTrue(resp.toString(), resp.getHeaders().get("Cache-Control").get(0).contains("private"));
+		assertNotNull(resp.toString(), resp.getHeaders().get("ETag"));
+		assertFalse(resp.toString(), resp.getHeaders().get("Vary").toString().contains("Authorization"));
 		resp = web("/resource", "jim").get(ClientResponse.class);
 		assertTrue(resp.getEntity(String.class).contains("username=\"jim\""));
-		assertTrue(resp.getHeaders().get("Cache-Control").get(0).contains("private"));
-		assertNotNull(resp.getHeaders().get("ETag"));
-		assertFalse(resp.getHeaders().get("Vary").toString().contains("Authorization"));
+		assertTrue(resp.toString(), resp.getHeaders().get("Cache-Control").get(0).contains("private"));
+		assertNotNull(resp.toString(), resp.getHeaders().get("ETag"));
+		assertFalse(resp.toString(), resp.getHeaders().get("Vary").toString().contains("Authorization"));
 	}
 
 	protected void addContentEncoding(WebResource client) {

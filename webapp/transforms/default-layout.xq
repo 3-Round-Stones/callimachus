@@ -48,7 +48,7 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
                         <li>{calli:logout-href(<a>Sign out</a>)}</li>
                     </ul>
                 </div>
-                <div class="col-xs-4 pull-right hidden-logout">{calli:lookup-form('Lookup...')}</div>
+                <div class="col-xs-3 pull-right hidden-logout">{calli:lookup-form('Lookup...')}</div>
             </header>
         </nav>
         <div class="container">

@@ -26,10 +26,9 @@
 </head>
 <body resource="?this">
     <form role="form" id="form" action="{?this}" method="GET" class="container">
-        <h1 property="rdfs:label" />
         <div class="row">
             <fieldset class="col-sm-8">
-                <textarea id="sparql" name="query" class="flex" required="required"
+                <textarea id="sparql" name="query" class="flex form-control" required="required" autofocus="autofocus"
                     onchange="$(form).find('button').removeAttr('disabled')"></textarea>
                 <div resource="?this" typeof="sd:Service">
                     <span rel="sd:endpoint" resource="?endpoint" />
@@ -47,8 +46,13 @@
                 </div>
             </fieldset>
             <div class="col-sm-4">
-                <aside class="well">
-                    <pre class="wiki" property="rdfs:comment" />
+                <aside class="panel panel-default">
+                    <div class="panel-heading">
+                        <h1 class="panel-title" property="rdfs:label" />
+                    </div>
+                    <div class="panel-body">
+                        <pre class="wiki" property="rdfs:comment" />
+                    </div>
                 </aside>
                 <aside class="well">
                     <p>Query the database using the SPARQL language</p>

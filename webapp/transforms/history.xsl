@@ -15,7 +15,9 @@
             </head>
             <body>
                 <div class="container">
-                    <h1><xsl:value-of select="sparql:sparql/sparql:results/sparql:result[1]/sparql:binding[@name='title']/*" /></h1>
+                    <hgroup class="page-header">
+                        <h1><xsl:value-of select="sparql:sparql/sparql:results/sparql:result[1]/sparql:binding[@name='title']/*" /></h1>
+                    </hgroup>
                     <xsl:apply-templates />
                 </div>
             </body>

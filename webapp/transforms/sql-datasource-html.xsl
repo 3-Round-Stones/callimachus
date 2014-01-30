@@ -25,7 +25,9 @@
                 </head>
                 <body>
                     <div class="container">
-                        <h1>SQL Results</h1>
+                        <hgroup class="page-header">
+                            <h1>SQL Results</h1>
+                        </hgroup>
                         <xsl:apply-templates />
                     </div>
                 </body>

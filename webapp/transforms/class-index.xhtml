@@ -62,7 +62,9 @@
                         <xsl:attribute name="class"><xsl:text>col-sm-12</xsl:text></xsl:attribute>
                     </xsl:otherwise>
                 </xsl:choose>
-                <h1><xsl:value-of select="//sparql:result[1]/sparql:binding[@name='title']/*" /> Resources</h1>
+                <hgroup class="page-header">
+                    <h1><xsl:value-of select="//sparql:result[1]/sparql:binding[@name='title']/*" /> Resources</h1>
+                </hgroup>
                 <div id="index">
                     <a href="#A">A</a><xsl:text> </xsl:text>
                     <a href="#B">B</a><xsl:text> </xsl:text>

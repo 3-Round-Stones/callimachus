@@ -39,6 +39,12 @@ xmlns="http://www.w3.org/1999/xhtml" xmlns:xhtml="http://www.w3.org/1999/xhtml" 
     </html>
 </xsl:template>
 
+<xsl:template match="/*/d:title|/*/d:info/d:title">
+    <hgroup class="page-header">
+        <xsl:apply-imports/>
+    </hgroup>
+</xsl:template>
+
 <xsl:template mode="rel" match="node()" />
 
 <xsl:template mode="rel" match="d:actknowledgements|d:appendix|d:article|d:bibliography|d:book|d:chapter|d:colophon|d:dedication|d:glossary|d:index|d:para|d:part|d:preface|d:refentry|d:reference|d:section|d:toc|d:set|d:setindex">

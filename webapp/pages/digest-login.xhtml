@@ -59,9 +59,8 @@
 </head>
 <body resource="?this">
     <div class="container">
-        <hgroup>
-            <h1>{rdfs:label} Sign In</h1>
-            <h2 id="authName">{calli:authName}</h2>
+        <hgroup class="page-header">
+            <h1>{rdfs:label} Sign In <small id="authName">{calli:authName}</small></h1>
         </hgroup>
         <p>{rdfs:comment}</p>
         <form role="form" id="form" method="POST" action="?login" class="row">

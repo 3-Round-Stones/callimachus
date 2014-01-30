@@ -14,7 +14,9 @@
             </head>
             <body>
                 <div class="container">
-                    <h1>Related Changes</h1>
+                    <hgroup class="page-header">
+                        <h1>Related Changes</h1>
+                    </hgroup>
                     <xsl:apply-templates />
                 </div>
             </body>

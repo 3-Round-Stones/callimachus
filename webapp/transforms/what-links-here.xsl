@@ -14,7 +14,9 @@
             </head>
             <body>
                 <div class="container">
-                    <h1>What Links Here</h1>
+                    <hgroup class="page-header">
+                        <h1>What Links Here</h1>
+                    </hgroup>
                     <xsl:if test="not(/sparql:sparql/sparql:results/sparql:result)">
                         <p>No resources link here.</p>
                     </xsl:if>

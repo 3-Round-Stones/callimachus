@@ -28,7 +28,9 @@
             </head>
             <body onload="init()">
                 <div class="container">
-                    <h1>Search Results</h1>
+                    <hgroup class="page-header">
+                        <h1>Search Results</h1>
+                    </hgroup>
                     <form role="form" method="GET" class="search">
                         <input type="text" id="q" name="q" size="40" />
                         <button type="submit">Search</button>

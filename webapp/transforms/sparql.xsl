@@ -26,7 +26,9 @@
                 </head>
                 <body>
                     <div class="container">
-                        <h1>SPARQL Results</h1>
+                        <hgroup class="page-header">
+                            <h1>SPARQL Results</h1>
+                        </hgroup>
                         <xsl:apply-templates />
                     </div>
                 </body>

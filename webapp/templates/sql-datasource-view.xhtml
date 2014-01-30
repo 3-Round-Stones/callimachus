@@ -12,12 +12,11 @@
 </head>
 <body resource="?this">
     <div class="container">
-        <h1 property="rdfs:label" />
         <div class="row">
             <div class="col-sm-8">
                 <form role="form" id="form" action="{?this}" method="GET">
                     <fieldset>
-                        <textarea id="sql" name="query" class="flex" required="required"
+                        <textarea id="sql" name="query" class="flex form-control" required="required" autofocus="autofocus"
                             onchange="$(form).find('button').removeAttr('disabled')"></textarea>
                         <div class="form-group">
                             <button id="evaluate" type="submit" class="btn btn-primary">Evaluate Query</button>
@@ -29,8 +28,13 @@
                 </form>
             </div>
             <div class="col-sm-4">
-                <aside class="well">
-                    <pre class="wiki" property="rdfs:comment" />
+                <aside class="panel panel-default">
+                    <div class="panel-heading">
+                        <h1 class="panel-title" property="rdfs:label" />
+                    </div>
+                    <div class="panel-body">
+                        <pre class="wiki" property="rdfs:comment" />
+                    </div>
                 </aside>
                 <aside class="well">
                     <p>Query the database using the SQL language</p>

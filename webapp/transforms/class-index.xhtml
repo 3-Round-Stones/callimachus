@@ -92,9 +92,9 @@
         <xsl:if test="count(sparql:sparql/sparql:results/sparql:result) &gt; 100">
             <p>Not all resources are shown</p>
         </xsl:if>
-        <div id="results" class="hbox">
+        <div id="results" class="row">
             <xsl:if test="sparql:sparql/sparql:results/sparql:result['A'=sparql:binding[@name='index']/*]">
-                <div id="A"><h2>A</h2>
+                <div id="A" class="col-sm-4"><h2>A</h2>
                     <xsl:for-each select="sparql:sparql/sparql:results/sparql:result['A'=sparql:binding[@name='index']/*]">
                         <div class="result">
                             <a href="{sparql:binding[@name='resource']/*}">
@@ -105,7 +105,7 @@
                 </div>
             </xsl:if>
             <xsl:if test="sparql:sparql/sparql:results/sparql:result['B'=sparql:binding[@name='index']/*]">
-                <div id="B"><h2>B</h2>
+                <div id="B" class="col-sm-4"><h2>B</h2>
                     <xsl:for-each select="sparql:sparql/sparql:results/sparql:result['B'=sparql:binding[@name='index']/*]">
                         <div class="result">
                             <a href="{sparql:binding[@name='resource']/*}">
@@ -116,7 +116,7 @@
                 </div>
             </xsl:if>
             <xsl:if test="sparql:sparql/sparql:results/sparql:result['C'=sparql:binding[@name='index']/*]">
-                <div id="C"><h2>C</h2>
+                <div id="C" class="col-sm-4"><h2>C</h2>
                     <xsl:for-each select="sparql:sparql/sparql:results/sparql:result['C'=sparql:binding[@name='index']/*]">
                         <div class="result">
                             <a href="{sparql:binding[@name='resource']/*}">
@@ -127,7 +127,7 @@
                 </div>
             </xsl:if>
             <xsl:if test="sparql:sparql/sparql:results/sparql:result['D'=sparql:binding[@name='index']/*]">
-                <div id="D"><h2>D</h2>
+                <div id="D" class="col-sm-4"><h2>D</h2>
                     <xsl:for-each select="sparql:sparql/sparql:results/sparql:result['D'=sparql:binding[@name='index']/*]">
                         <div class="result">
                             <a href="{sparql:binding[@name='resource']/*}">
@@ -138,7 +138,7 @@
                 </div>
             </xsl:if>
             <xsl:if test="sparql:sparql/sparql:results/sparql:result['E'=sparql:binding[@name='index']/*]">
-                <div id="E"><h2>E</h2>
+                <div id="E" class="col-sm-4"><h2>E</h2>
                     <xsl:for-each select="sparql:sparql/sparql:results/sparql:result['E'=sparql:binding[@name='index']/*]">
                         <div class="result">
                             <a href="{sparql:binding[@name='resource']/*}">
@@ -149,7 +149,7 @@
                 </div>
             </xsl:if>
             <xsl:if test="sparql:sparql/sparql:results/sparql:result['F'=sparql:binding[@name='index']/*]">
-                <div id="F"><h2>F</h2>
+                <div id="F" class="col-sm-4"><h2>F</h2>
                     <xsl:for-each select="sparql:sparql/sparql:results/sparql:result['F'=sparql:binding[@name='index']/*]">
                         <div class="result">
                             <a href="{sparql:binding[@name='resource']/*}">
@@ -160,7 +160,7 @@
                 </div>
             </xsl:if>
             <xsl:if test="sparql:sparql/sparql:results/sparql:result['G'=sparql:binding[@name='index']/*]">
-                <div id="G"><h2>G</h2>
+                <div id="G" class="col-sm-4"><h2>G</h2>
                     <xsl:for-each select="sparql:sparql/sparql:results/sparql:result['G'=sparql:binding[@name='index']/*]">
                         <div class="result">
                             <a href="{sparql:binding[@name='resource']/*}">
@@ -171,7 +171,7 @@
                 </div>
             </xsl:if>
             <xsl:if test="sparql:sparql/sparql:results/sparql:result['H'=sparql:binding[@name='index']/*]">
-                <div id="H"><h2>H</h2>
+                <div id="H" class="col-sm-4"><h2>H</h2>
                     <xsl:for-each select="sparql:sparql/sparql:results/sparql:result['H'=sparql:binding[@name='index']/*]">
                         <div class="result">
                             <a href="{sparql:binding[@name='resource']/*}">
@@ -182,7 +182,7 @@
                 </div>
             </xsl:if>
             <xsl:if test="sparql:sparql/sparql:results/sparql:result['I'=sparql:binding[@name='index']/*]">
-                <div id="I"><h2>I</h2>
+                <div id="I" class="col-sm-4"><h2>I</h2>
                     <xsl:for-each select="sparql:sparql/sparql:results/sparql:result['I'=sparql:binding[@name='index']/*]">
                         <div class="result">
                             <a href="{sparql:binding[@name='resource']/*}">
@@ -193,7 +193,7 @@
                 </div>
             </xsl:if>
             <xsl:if test="sparql:sparql/sparql:results/sparql:result['J'=sparql:binding[@name='index']/*]">
-                <div id="J"><h2>J</h2>
+                <div id="J" class="col-sm-4"><h2>J</h2>
                     <xsl:for-each select="sparql:sparql/sparql:results/sparql:result['J'=sparql:binding[@name='index']/*]">
                         <div class="result">
                             <a href="{sparql:binding[@name='resource']/*}">
@@ -204,7 +204,7 @@
                 </div>
             </xsl:if>
             <xsl:if test="sparql:sparql/sparql:results/sparql:result['K'=sparql:binding[@name='index']/*]">
-                <div id="K"><h2>K</h2>
+                <div id="K" class="col-sm-4"><h2>K</h2>
                     <xsl:for-each select="sparql:sparql/sparql:results/sparql:result['K'=sparql:binding[@name='index']/*]">
                         <div class="result">
                             <a href="{sparql:binding[@name='resource']/*}">
@@ -215,7 +215,7 @@
                 </div>
             </xsl:if>
             <xsl:if test="sparql:sparql/sparql:results/sparql:result['L'=sparql:binding[@name='index']/*]">
-                <div id="L"><h2>L</h2>
+                <div id="L" class="col-sm-4"><h2>L</h2>
                     <xsl:for-each select="sparql:sparql/sparql:results/sparql:result['L'=sparql:binding[@name='index']/*]">
                         <div class="result">
                             <a href="{sparql:binding[@name='resource']/*}">
@@ -226,7 +226,7 @@
                 </div>
             </xsl:if>
             <xsl:if test="sparql:sparql/sparql:results/sparql:result['M'=sparql:binding[@name='index']/*]">
-                <div id="M"><h2>M</h2>
+                <div id="M" class="col-sm-4"><h2>M</h2>
                     <xsl:for-each select="sparql:sparql/sparql:results/sparql:result['M'=sparql:binding[@name='index']/*]">
                         <div class="result">
                             <a href="{sparql:binding[@name='resource']/*}">
@@ -237,7 +237,7 @@
                 </div>
             </xsl:if>
             <xsl:if test="sparql:sparql/sparql:results/sparql:result['N'=sparql:binding[@name='index']/*]">
-                <div id="N"><h2>N</h2>
+                <div id="N" class="col-sm-4"><h2>N</h2>
                     <xsl:for-each select="sparql:sparql/sparql:results/sparql:result['N'=sparql:binding[@name='index']/*]">
                         <div class="result">
                             <a href="{sparql:binding[@name='resource']/*}">
@@ -248,7 +248,7 @@
                 </div>
             </xsl:if>
             <xsl:if test="sparql:sparql/sparql:results/sparql:result['O'=sparql:binding[@name='index']/*]">
-                <div id="O"><h2>O</h2>
+                <div id="O" class="col-sm-4"><h2>O</h2>
                     <xsl:for-each select="sparql:sparql/sparql:results/sparql:result['O'=sparql:binding[@name='index']/*]">
                         <div class="result">
                             <a href="{sparql:binding[@name='resource']/*}">
@@ -259,7 +259,7 @@
                 </div>
             </xsl:if>
             <xsl:if test="sparql:sparql/sparql:results/sparql:result['P'=sparql:binding[@name='index']/*]">
-                <div id="P"><h2>P</h2>
+                <div id="P" class="col-sm-4"><h2>P</h2>
                     <xsl:for-each select="sparql:sparql/sparql:results/sparql:result['P'=sparql:binding[@name='index']/*]">
                         <div class="result">
                             <a href="{sparql:binding[@name='resource']/*}">
@@ -270,7 +270,7 @@
                 </div>
             </xsl:if>
             <xsl:if test="sparql:sparql/sparql:results/sparql:result['Q'=sparql:binding[@name='index']/*]">
-                <div id="Q"><h2>Q</h2>
+                <div id="Q" class="col-sm-4"><h2>Q</h2>
                     <xsl:for-each select="sparql:sparql/sparql:results/sparql:result['Q'=sparql:binding[@name='index']/*]">
                         <div class="result">
                             <a href="{sparql:binding[@name='resource']/*}">
@@ -281,7 +281,7 @@
                 </div>
             </xsl:if>
             <xsl:if test="sparql:sparql/sparql:results/sparql:result['R'=sparql:binding[@name='index']/*]">
-                <div id="R"><h2>R</h2>
+                <div id="R" class="col-sm-4"><h2>R</h2>
                     <xsl:for-each select="sparql:sparql/sparql:results/sparql:result['R'=sparql:binding[@name='index']/*]">
                         <div class="result">
                             <a href="{sparql:binding[@name='resource']/*}">
@@ -292,7 +292,7 @@
                 </div>
             </xsl:if>
             <xsl:if test="sparql:sparql/sparql:results/sparql:result['S'=sparql:binding[@name='index']/*]">
-                <div id="S"><h2>S</h2>
+                <div id="S" class="col-sm-4"><h2>S</h2>
                     <xsl:for-each select="sparql:sparql/sparql:results/sparql:result['S'=sparql:binding[@name='index']/*]">
                         <div class="result">
                             <a href="{sparql:binding[@name='resource']/*}">
@@ -303,7 +303,7 @@
                 </div>
             </xsl:if>
             <xsl:if test="sparql:sparql/sparql:results/sparql:result['T'=sparql:binding[@name='index']/*]">
-                <div id="T"><h2>T</h2>
+                <div id="T" class="col-sm-4"><h2>T</h2>
                     <xsl:for-each select="sparql:sparql/sparql:results/sparql:result['T'=sparql:binding[@name='index']/*]">
                         <div class="result">
                             <a href="{sparql:binding[@name='resource']/*}">
@@ -314,7 +314,7 @@
                 </div>
             </xsl:if>
             <xsl:if test="sparql:sparql/sparql:results/sparql:result['U'=sparql:binding[@name='index']/*]">
-                <div id="U"><h2>U</h2>
+                <div id="U" class="col-sm-4"><h2>U</h2>
                     <xsl:for-each select="sparql:sparql/sparql:results/sparql:result['U'=sparql:binding[@name='index']/*]">
                         <div class="result">
                             <a href="{sparql:binding[@name='resource']/*}">
@@ -325,7 +325,7 @@
                 </div>
             </xsl:if>
             <xsl:if test="sparql:sparql/sparql:results/sparql:result['V'=sparql:binding[@name='index']/*]">
-                <div id="V"><h2>V</h2>
+                <div id="V" class="col-sm-4"><h2>V</h2>
                     <xsl:for-each select="sparql:sparql/sparql:results/sparql:result['V'=sparql:binding[@name='index']/*]">
                         <div class="result">
                             <a href="{sparql:binding[@name='resource']/*}">
@@ -336,7 +336,7 @@
                 </div>
             </xsl:if>
             <xsl:if test="sparql:sparql/sparql:results/sparql:result['W'=sparql:binding[@name='index']/*]">
-                <div id="W"><h2>W</h2>
+                <div id="W" class="col-sm-4"><h2>W</h2>
                     <xsl:for-each select="sparql:sparql/sparql:results/sparql:result['W'=sparql:binding[@name='index']/*]">
                         <div class="result">
                             <a href="{sparql:binding[@name='resource']/*}">
@@ -347,7 +347,7 @@
                 </div>
             </xsl:if>
             <xsl:if test="sparql:sparql/sparql:results/sparql:result['X'=sparql:binding[@name='index']/*]">
-                <div id="X"><h2>X</h2>
+                <div id="X" class="col-sm-4"><h2>X</h2>
                     <xsl:for-each select="sparql:sparql/sparql:results/sparql:result['X'=sparql:binding[@name='index']/*]">
                         <div class="result">
                             <a href="{sparql:binding[@name='resource']/*}">
@@ -358,7 +358,7 @@
                 </div>
             </xsl:if>
             <xsl:if test="sparql:sparql/sparql:results/sparql:result['Y'=sparql:binding[@name='index']/*]">
-                <div id="Y"><h2>Y</h2>
+                <div id="Y" class="col-sm-4"><h2>Y</h2>
                     <xsl:for-each select="sparql:sparql/sparql:results/sparql:result['Y'=sparql:binding[@name='index']/*]">
                         <div class="result">
                             <a href="{sparql:binding[@name='resource']/*}">
@@ -369,7 +369,7 @@
                 </div>
             </xsl:if>
             <xsl:if test="sparql:sparql/sparql:results/sparql:result['Z'=sparql:binding[@name='index']/*]">
-                <div id="Z"><h2>Z</h2>
+                <div id="Z" class="col-sm-4"><h2>Z</h2>
                     <xsl:for-each select="sparql:sparql/sparql:results/sparql:result['Z'=sparql:binding[@name='index']/*]">
                         <div class="result">
                             <a href="{sparql:binding[@name='resource']/*}">
@@ -380,7 +380,7 @@
                 </div>
             </xsl:if>
             <xsl:if test="sparql:sparql/sparql:results/sparql:result[not('true'=sparql:binding[@name='letter']/*) and not(sparql:binding[@name='title'])]">
-                <div id="_"><h2>#</h2>
+                <div id="_" class="col-sm-4"><h2>#</h2>
                     <xsl:for-each select="sparql:sparql/sparql:results/sparql:result[not('true'=sparql:binding[@name='letter']/*) and not(sparql:binding[@name='title'])]">
                         <div class="result">
                             <a href="{sparql:binding[@name='resource']/*}">

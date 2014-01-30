@@ -71,7 +71,7 @@
                 <fieldset class="row">
                     <div class="form-group col-sm-6">
                         <label for="label">Label</label>
-                        <div class="controls">
+                        <div>
                             <input type="text" id="label" value="{rdfs:label}" class="form-control" required="required" />
                         </div>
                     </div>
@@ -79,7 +79,7 @@
                             ondrop="return calli.insertResource(event)">
                         <label>Icon <a href="/?view" title="Browse"
                                 onclick="return calli.selectResource(event)" class="glyphicon glyphicon-folder-open" /></label>
-                        <div rel="calli:icon" class="controls">
+                        <div rel="calli:icon">
                             <span resource="?icon" typeof="foaf:Image" class="ui-state-highlight ui-corner-all">
                                 <img src="{?icon}" />
                                 <a href="{?icon}" title="Remove from class" onclick="return calli.removeResource(event)" class="glyphicon glyphicon-remove" />
@@ -89,7 +89,7 @@
                 </fieldset>
                 <fieldset class="form-group">
                     <label for="comment">Comment</label>
-                    <div class="controls">
+                    <div>
                         <textarea id="comment" class="form-control">{rdfs:comment}</textarea>
                     </div>
                 </fieldset>
@@ -98,8 +98,8 @@
                             ondrop="return calli.insertResource(event)">
                         <label>Authors <a href="/auth/groups/" title="Select Group"
                                 onclick="return calli.selectResource(event)" class="glyphicon glyphicon-folder-open" /></label>
-                        <div rel="calli:author" class="vbox controls">
-                            <span resource="?author" typeof="calli:Party" class="ui-state-highlight ui-corner-all">
+                        <div rel="calli:author">
+                            <span resource="?author" typeof="calli:Party" class="label label-info">
                                 <span property="rdfs:label" />
                                 <a href="{?author}" title="Remove permission" onclick="return calli.removeResource(event)" class="glyphicon glyphicon-remove" />
                             </span>
@@ -109,8 +109,8 @@
                             ondrop="return calli.insertResource(event)">
                         <label>Super <a href="/?view" title="Create"
                                 onclick="return calli.selectResource(event)" class="glyphicon glyphicon-folder-open" /></label>
-                        <div rel="rdfs:subClassOf" class="vbox controls">
-                            <span resource="?subClassOf" typeof="owl:Class" class="ui-state-highlight ui-corner-all">
+                        <div rel="rdfs:subClassOf">
+                            <span resource="?subClassOf" typeof="owl:Class" class="label label-info">
                                 <span property="rdfs:label" />
                                 <a href="{?subClassOf}" title="Remove relationship" onclick="return calli.removeResource(event)" class="glyphicon glyphicon-remove" />
                             </span>
@@ -119,7 +119,7 @@
                 </fieldset>
                 <fieldset class="control-gorup">
                     <label for="composite">Nested resources</label>
-                    <div class="controls">
+                    <div>
                         <label class="checkbox"><input id="composite" type="checkbox" /> These resources contain other resources</label>
                     </div>
                 </fieldset>
@@ -130,8 +130,8 @@
                                 ondrop="return calli.insertResource(event)">
                             <label>Template for creating <a href="../types/Page" title="Create a new template" class="glyphicon glyphicon-list-alt"
                                     onclick="return calli.createResource(event, './?create=' + encodeURIComponent(this.href) + '#!' + $('link[rel=sample-create]').attr('href'))" /></label>
-                            <div rel="calli:create" class="controls">
-                                <span resource="?create" typeof="calli:Page" class="ui-state-highlight ui-corner-all">
+                            <div rel="calli:create">
+                                <span resource="?create" typeof="calli:Page" class="label label-info">
                                     <a href="{?create}?edit" property="rdfs:label" onclick="calli.openDialog(this.href, 'Template for creating');return false" />
                                     <a href="{?create}" title="Don't use this template" onclick="return calli.removeResource(event)" class="glyphicon glyphicon-remove" />
                                 </span>
@@ -141,8 +141,8 @@
                                 ondrop="return calli.insertResource(event)">
                             <label>Template for viewing <a href="../types/Page" title="Create a new template" class="glyphicon glyphicon-list-alt"
                                     onclick="return calli.createResource(event, './?create=' + encodeURIComponent(this.href) + '#!' + $('link[rel=sample-view]').attr('href'))" /></label>
-                            <div rel="calli:view" class="controls">
-                                <span resource="?view" typeof="calli:Page" class="ui-state-highlight ui-corner-all">
+                            <div rel="calli:view">
+                                <span resource="?view" typeof="calli:Page" class="label label-info">
                                     <a href="{?view}?edit" property="rdfs:label" onclick="calli.openDialog(this.href, 'Template for viewing');return false" />
                                     <a href="{?view}" title="Don't use this template" onclick="return calli.removeResource(event)" class="glyphicon glyphicon-remove" />
                                 </span>
@@ -152,8 +152,8 @@
                                 ondrop="return calli.insertResource(event)">
                             <label>Template for editing <a href="../types/Page" title="Create a new template" class="glyphicon glyphicon-list-alt"
                                     onclick="return calli.createResource(event, './?create=' + encodeURIComponent(this.href) + '#!' + $('link[rel=sample-edit]').attr('href'))" /></label>
-                            <div rel="calli:edit" class="controls">
-                                <span resource="?edit" typeof="calli:Page" class="ui-state-highlight ui-corner-all">
+                            <div rel="calli:edit">
+                                <span resource="?edit" typeof="calli:Page" class="label label-info">
                                     <a href="{?edit}?edit" property="rdfs:label" onclick="calli.openDialog(this.href, 'Template for editing');return false" />
                                     <a href="{?edit}" title="Don't use this template" onclick="return calli.removeResource(event)" class="glyphicon glyphicon-remove" />
                                 </span>

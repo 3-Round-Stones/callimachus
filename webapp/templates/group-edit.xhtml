@@ -19,7 +19,7 @@
                     <fieldset class="col-sm-6">
                         <div class="form-group">
                             <label for="comment">Description</label>
-                            <div class="controls">
+                            <div>
                                 <textarea id="comment" class="form-control">{rdfs:comment}</textarea>
                             </div>
                         </div>
@@ -30,8 +30,8 @@
                             <label>Members <a href="../types/InvitedUser?create" title="Invite"
                                     onmousedown="href=calli.getCallimachusUrl('/auth/invited-users/') + '?create=' + encodeURIComponent(calli.getCallimachusUrl('types/InvitedUser'))"
                                     onclick="return calli.createResource(event)" class="glyphicon glyphicon-list-alt" /></label>
-                            <div rel="calli:member" class="vbox controls">
-                                <span resource="?member" typeof="calli:User" class="ui-state-highlight ui-corner-all">
+                            <div rel="calli:member">
+                                <span resource="?member" typeof="calli:User" class="label label-info">
                                     <span property="rdfs:label" />
                                     <a href="{?member}" title="Remove user from group" onclick="return calli.removeResource(event)" class="glyphicon glyphicon-remove" />
                                 </span>

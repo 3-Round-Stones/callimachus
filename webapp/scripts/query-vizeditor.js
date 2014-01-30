@@ -385,10 +385,10 @@
         createTextOption: function(container, name, label, placeholder, value, info) {
             value = value || lib.getOption(name);
             $([
-                '<div class="control-group">',
-                '   <label class="control-label" for="options-' + name + '">' + label + '</label>',
-                '   <div class="controls">',
-                '       <input type="text" name="' +  name + '" id="options-' + name + '" placeholder="' + (placeholder || "") + '" value="' + (value || "") + '" />',
+                '<div class="form-group">',
+                '   <label for="options-' + name + '">' + label + '</label>',
+                '   <div>',
+                '       <input type="text" name="' +  name + '" id="options-' + name + '" placeholder="' + (placeholder || "") + '" value="' + (value || "") + '" class="form-control" />',
                         info ? '<span class="info">' + info + '</span>' : '',
                 '   </div>',
                 '</div>'
@@ -401,10 +401,10 @@
         createColorOption: function(container, name, label, placeholder, value) {
             value = value || lib.getOption(name) || '#ffffff';
             $([
-                '<div class="control-group">',
-                '   <label class="control-label" for="options-' + name + '">' + label + '</label>',
-                '   <div class="controls">',
-                '       <input type="color" name="' +  name + '" id="options-' + name + '" placeholder="' + (placeholder || "") + '" value="' + (value || "") + '" />',
+                '<div class="form-group">',
+                '   <label for="options-' + name + '">' + label + '</label>',
+                '   <div>',
+                '       <input type="color" name="' +  name + '" id="options-' + name + '" placeholder="' + (placeholder || "") + '" value="' + (value || "") + '" class="form-control" />',
                 '   </div>',
                 '</div>'
             ].join("\n"))
@@ -429,9 +429,9 @@
         createCheckboxOption: function(container, name, label) {
             var checked = lib.getOption(name) ? ' checked="checked"' : '';
             $([
-                '<div class="control-group">',
-                '   <div class="controls">',
-                '       <label class="checkbox"><input type="checkbox" name="' + name + '" value="true"' + checked +'> ' + label + '</label>',
+                '<div class="form-group">',
+                '   <div class="checkbox">',
+                '       <label><input type="checkbox" name="' + name + '" value="true"' + checked +'> ' + label + '</label>',
                 '   </div>',
                 '</div>'
             ].join("\n"))
@@ -443,10 +443,10 @@
         createSelectOption: function(container, name, label, entries) {
             var selected = lib.getOption(name);
             var html = [
-                '<div class="control-group">',
-                '   <label class="control-label" for="options-' + name + '">' + label + '</label>',
-                '   <div class="controls">',
-                '       <select name="' + name + '">'
+                '<div class="form-group">',
+                '   <label for="options-' + name + '">' + label + '</label>',
+                '   <div>',
+                '       <select name="' + name + '" class="form-control">'
             ];
             $.each(entries, function(index, val) {
                 var selCode = (index == selected) || (val == selected) ? ' selected="selected"' : '';

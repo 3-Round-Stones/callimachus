@@ -48,14 +48,14 @@
                 <fieldset class="row">
                     <div class="form-group col-sm-6">
                         <label for="label">Full name</label>
-                        <div class="controls">
+                        <div>
                             <input id="label" value="{rdfs:label}" type="text" class="form-control" required="required" />
                         </div>
                      </div>
                      <div id="photo" dropzone="link string:text/uri-list" class="form-group col-sm-6" ondrop="return calli.insertResource(event)">
                         <label>Photo <a href="../types/Photo?create" title="Upload"
                                 onclick="return calli.createResource(event)" class="glyphicon glyphicon-list-alt" /></label>
-                        <div rel="foaf:depiction" class="controls">
+                        <div rel="foaf:depiction">
                             <span resource="?img" typeof="foaf:Image" class="ui-state-highlight ui-corner-all">
                                 <img src="{?img}?small" />
                             </span>
@@ -65,7 +65,7 @@
                 <fieldset>
                     <div class="form-group">
                         <label for="comment">Additional information</label>
-                        <div class="controls">
+                        <div>
                             <textarea id="comment" class="form-control">{rdfs:comment}</textarea>
                         </div>
                     </div>

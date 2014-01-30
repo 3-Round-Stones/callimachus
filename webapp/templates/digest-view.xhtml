@@ -13,19 +13,29 @@
     <link rel="help" href="../../callimachus-for-web-developers#Digest_Password_Authentication" target="_blank" title="Help" />
 </head>
 <body resource="?this">
-    <h1 property="rdfs:label" />
-    <div id="sidebar">
-        <aside>
-            <h3>User accounts</h3>
-            <p rel="calli:authNamespace" resource="?authNamespace"><a href="{?authNamespace}">{rdfs:label}</a></p>
-        </aside>
-        <aside>
-            <p>Callimachus splits access control into two steps: authentication and authorization</p>
-            <p>Authentication authorizes user accounts based on a username and password that are in the folders listed here</p>
-            <p>Authorization is done by matching authenticated users or their groups to resource and class settings</p>
-        </aside>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-8">
+                <h1 property="rdfs:label" />
+                <p>{calli:authName}</p>
+                <pre class="wiki" property="rdfs:comment" />
+            </div>
+            <div class="col-sm-4">
+                <aside class="optional panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">User accounts</h3>
+                    </div>
+                    <div class="panel-body">
+                        <p rel="calli:authNamespace" resource="?authNamespace"><a href="{?authNamespace}">{rdfs:label}</a></p>
+                    </div>
+                </aside>
+                <aside class="well">
+                    <p>Callimachus splits access control into two steps: authentication and authorization</p>
+                    <p>Authentication authorizes user accounts based on a username and password that are in the folders listed here</p>
+                    <p>Authorization is done by matching authenticated users or their groups to resource and class settings</p>
+                </aside>
+            </div>
+        </div>
     </div>
-    <p>{calli:authName}</p>
-    <pre class="wiki" property="rdfs:comment" />
 </body>
 </html>

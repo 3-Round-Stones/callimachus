@@ -42,51 +42,54 @@
     </script>
 </head>
 <body>
-    <div id="sidebar">
-        <aside>
-            <p>E-mail address is used to send an invite and possibly reset the password</p>
-            <p>Provide the user's full name</p>
-            <p>Provide any additional contact information or affiliation information</p>
-            <p>You can customize the message sent in the email here</p>
-        </aside>
-    </div>
-    <form role="form" id="rdfForm" method="POST" action="" enctype="application/rdf+xml" typeof="calli:User calli:Party" autocomplete="off"
-            onsubmit="return calli.saveResourceAs(event,calli.slugify($('#email').val()))">
-        <fieldset>
-            <div class="form-group">
-                <label for="email">E-mail address</label>
-                <div class="controls">
-                    <input id="email" name="email" type="email" class="form-control" required="required" autofocus="autofocus" value="{calli:email}" />
-                </div>
+    <div class="container">
+        <div class="row">
+            <form role="form" id="rdfForm" method="POST" action="" enctype="application/rdf+xml" typeof="calli:User calli:Party" autocomplete="off"
+                    onsubmit="return calli.saveResourceAs(event,calli.slugify($('#email').val()))" class="col-xs-6">
+                <fieldset>
+                    <div class="form-group">
+                        <label for="email">E-mail address</label>
+                        <div class="controls">
+                            <input id="email" name="email" type="email" class="form-control" required="required" autofocus="autofocus" value="{calli:email}" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="label">Full name</label>
+                        <div class="controls">
+                            <input id="label" name="label" type="text" class="form-control" required="required" value="{rdfs:label}" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="comment">Additional information</label>
+                        <div class="controls">
+                            <textarea id="comment" class="form-control" name="comment">{rdfs:comment}</textarea>
+                        </div>
+                    </div>
+                </fieldset>
+            </form>
+            <div class="col-xs-6">
+                <aside class="well">
+                    <p>E-mail address is used to send an invite and possibly reset the password</p>
+                    <p>Provide the user's full name</p>
+                    <p>Provide any additional contact information or affiliation information</p>
+                    <p>You can customize the message sent in the email here</p>
+                </aside>
             </div>
-            <div class="form-group">
-                <label for="label">Full name</label>
-                <div class="controls">
-                    <input id="label" name="label" type="text" class="form-control" required="required" value="{rdfs:label}" />
+        </div>
+        <hr />
+        <form role="form" id="msgForm" method="POST" action="?invite" enctype="application/x-www-form-urlencoded">
+            <fieldset>
+                <input type="hidden" name="fullname" id="fullname" />
+                <div class="form-group">
+                    <label for="subject">Welcome subject</label>
+                    <div class="controls">
+                        <input id="subject" name="subject" type="text" class="form-control" required="required" value="Account Registration" />
+                    </div>
                 </div>
-            </div>
-            <div class="form-group">
-                <label for="comment">Additional information</label>
-                <div class="controls">
-                    <textarea id="comment" class="form-control" name="comment">{rdfs:comment}</textarea>
-                </div>
-            </div>
-        </fieldset>
-    </form>
-    <hr />
-    <form role="form" id="msgForm" method="POST" action="?invite" enctype="application/x-www-form-urlencoded">
-        <fieldset>
-            <input type="hidden" name="fullname" id="fullname" />
-            <div class="form-group">
-                <label for="subject">Welcome subject</label>
-                <div class="controls">
-                    <input id="subject" name="subject" type="text" class="form-control col-md-5" required="required" value="Account Registration" />
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="message">Welcome message</label>
-                <div class="controls">
-                    <textarea id="body" name="body" class="auto-expand col-md-5" required="required">Hello,
+                <div class="form-group">
+                    <label for="message">Welcome message</label>
+                    <div class="controls">
+                        <textarea id="body" name="body" rows="12" class="form-control" required="required">Hello,
 
 A new account has been created for you using a Callimachus service. Use the
 link below to pick a password or other authentication options.
@@ -98,12 +101,13 @@ this up for you.
 
 Kind regards,
 The Callimachus service running at </textarea>
+                    </div>
                 </div>
-            </div>
-            <div class="form-group">
-                <button id="invite" class="btn btn-default" onclick="$('#rdfForm').submit();return false">Invite</button>
-            </div>
-        </fieldset>
-    </form>
+                <div class="form-group">
+                    <button id="invite" class="btn btn-default" onclick="$('#rdfForm').submit();return false">Invite</button>
+                </div>
+            </fieldset>
+        </form>
+    </div>
 </body>
 </html>

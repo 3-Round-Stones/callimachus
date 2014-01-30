@@ -14,8 +14,10 @@
                 <link rel="help" href="../../callimachus-for-web-developers#History_tab" target="_blank" title="Help" />
             </head>
             <body>
-                <h1><xsl:value-of select="sparql:sparql/sparql:results/sparql:result[1]/sparql:binding[@name='title']/*" /></h1>
-                <xsl:apply-templates />
+                <div class="container">
+                    <h1><xsl:value-of select="sparql:sparql/sparql:results/sparql:result[1]/sparql:binding[@name='title']/*" /></h1>
+                    <xsl:apply-templates />
+                </div>
             </body>
         </html>
     </xsl:template>

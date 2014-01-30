@@ -14,21 +14,29 @@
     <link href="?password" title="Change password or email" />
 </head>
 <body resource="?this">
-    <h1 property="rdfs:label" />
-    <div id="sidebar">
-        <aside>
-            <h3>Group memberships</h3>
-            <ul rev="calli:member">
-                <li resource="?group"><a href="?group" property="rdfs:label"/></li>
-            </ul>
-        </aside>
-    </div>
-    <div id="img" rel="foaf:depiction" resource="?img" style="margin: 0px 1ex 1ex 0px;max-width:10em">
-        <a href="{?img}?view"><img src="{?img}?small" style="max-height:100%;max-width:10em" /></a>
-    </div>
-    <div>
-        <p property="calli:name" />
-        <pre class="wiki" property="rdfs:comment" />
+    <div class="container">
+        <h1 property="rdfs:label" />
+        <div class="row">
+            <div class="col-sm-8">
+                <div id="img" rel="foaf:depiction" resource="?img" style="margin: 0px 1ex 1ex 0px;max-width:10em">
+                    <a href="{?img}?view"><img src="{?img}?small" style="max-height:100%;max-width:10em" /></a>
+                </div>
+                <div>
+                    <p property="calli:name" />
+                    <pre class="wiki" property="rdfs:comment" />
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <aside class="optional panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Group memberships</h3>
+                    </div>
+                    <ul rev="calli:member" class="panel-body">
+                        <li resource="?group"><a href="?group" property="rdfs:label"/></li>
+                    </ul>
+                </aside>
+            </div>
+        </div>
     </div>
 </body>
 </html>

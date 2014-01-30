@@ -10,7 +10,9 @@
                 <title></title>
             </head>
             <body>
-                <xsl:apply-templates />
+                <div class="container">
+                    <xsl:apply-templates />
+                </div>
             </body>
         </html>
     </xsl:template>

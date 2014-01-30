@@ -50,55 +50,65 @@
     </script>
 </head>
 <body resource="?this">
-    <hgroup>
-        <h1>{rdfs:label} Sign Up</h1>
-        <h2 id="authName">{calli:authName}</h2>
-    </hgroup>
-    <div id="sidebar">
-        <aside>
-            <p>Your full name is used to indentify your work on this website</p>
-            <p>Your E-mail address is used to manage your password and is not shown on the website</p>
-            <p>Your username is used to uniquely identify your account on this website</p>
-            <p>Please double check your email address is correct before signing up</p>
-        </aside>
-    </div>
-    <p>{rdfs:comment}</p>
-    <p>To accept this invitation please confirm the information belove and provide a password.</p>
-    <form role="form" id="form" method="POST" action="?register">
-        <div class="form-group">
-            <label for="fullname">Full name</label>
-            <div class="controls">
-                <input id="fullname" name="fullname" type="text" class="form-control" required="required" />
+    <div class="container">
+        <hgroup>
+            <h1>{rdfs:label} Sign Up</h1>
+            <h2 id="authName">{calli:authName}</h2>
+        </hgroup>
+        <div class="row">
+            <div class="col-sm-4 col-sm-push-8">
+                <aside class="well">
+                    <p>Your full name is used to indentify your work on this website</p>
+                    <p>Your E-mail address is used to manage your password and is not shown on the website</p>
+                    <p>Your username is used to uniquely identify your account on this website</p>
+                    <p>Please double check your email address is correct before signing up</p>
+                </aside>
             </div>
-        </div>
-        <div class="form-group">
-            <label for="email">Email address</label>
-            <div class="controls">
-                <input id="email" name="email" type="text" class="form-control" required="required" />
-            </div>
-        </div>
-        <div class="form-group">
-            <label for="username">Username</label>
-            <div class="controls">
-                <input id="username" name="username" type="text" class="form-control" required="required" />
-            </div>
-        </div>
-        <div class="form-group">
-        	<label for="password">New password</label>
-    		<div class="controls">
-                <input id="password" type="password" password="#email"  class="form-control password" onkeyup="$(this).valid()" required="required" autofocus="autofocus" />
-                <div class="password-meter">
-                    <label for="password" class="password-meter-message" />
-                    <div class="password-meter-bg">
-                        <div class="password-meter-bar"></div>
+            <div class="col-sm-8 col-sm-pull-4">
+                <p>{rdfs:comment}</p>
+                <p>To accept this invitation please confirm the information belove and provide a password.</p>
+                <form role="form" id="form" method="POST" action="?register">
+                    <div class="row">
+                        <div class="form-group col-sm-6">
+                            <label for="fullname">Full name</label>
+                            <div class="controls">
+                                <input id="fullname" name="fullname" type="text" class="form-control" required="required" />
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-6">
+                            <label for="email">Email address</label>
+                            <div class="controls">
+                                <input id="email" name="email" type="text" class="form-control" required="required" />
+                            </div>
+                        </div>
                     </div>
-                </div>
-    		</div>
+                    <div class="row">
+                        <div class="form-group col-sm-6">
+                            <label for="username">Username</label>
+                            <div class="controls">
+                                <input id="username" name="username" type="text" class="form-control" required="required" />
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-6">
+                            <label for="password">New password</label>
+                    		<div class="controls">
+                                <input id="password" type="password" password="#email"  class="form-control password" onkeyup="$(this).valid()" required="required" autofocus="autofocus" />
+                                <div class="password-meter">
+                                    <label for="password" class="password-meter-message" />
+                                    <div class="password-meter-bg">
+                                        <div class="password-meter-bar"></div>
+                                    </div>
+                                </div>
+                    		</div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <button id="signup" type="submit" class="btn btn-primary">Yes, sign me up!</button>
+                        <button id="later" type="button" class="btn btn-default" onclick="window.location.replace('/')">I'll come back later</button>
+                    </div>
+                </form>
+            </div>
         </div>
-        <div class="form-group">
-            <button id="signup" type="submit" class="btn btn-primary">Yes, sign me up!</button>
-            <button id="later" type="button" class="btn btn-default" onclick="window.location.replace('/')">I'll come back later</button>
-        </div>
-    </form>
+    </div>
 </body>
 </html>

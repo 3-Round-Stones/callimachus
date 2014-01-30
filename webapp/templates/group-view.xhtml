@@ -12,18 +12,24 @@
     <link rel="help" href="../../callimachus-for-web-developers" target="_blank" title="Help" />
 </head>
 <body resource="?this">
-    <h1 property="rdfs:label" />
-    <div id="sidebar">
-        <aside>
-            <p>Groups provide a way to assign permissions to a named set of users</p>
-            <p>User permissions through groups can help generalize resource's permissions</p>
-        </aside>
+    <div class="container">
+        <h1 property="rdfs:label" />
+        <div class="row">
+            <div class="col-sm-8">
+                <pre class="wiki" property="rdfs:comment" />
+                <ul class="sorted">
+                    <li rel="calli:member" resource="?member">
+                        <a href="?member" property="rdfs:label" class="asc" />
+                    </li>
+                </ul>
+            </div>
+            <div class="col-sm-4">
+                <aside class="well">
+                    <p>Groups provide a way to assign permissions to a named set of users</p>
+                    <p>User permissions through groups can help generalize resource's permissions</p>
+                </aside>
+            </div>
+        </div>
     </div>
-    <pre class="wiki" property="rdfs:comment" />
-    <ul class="sorted">
-        <li rel="calli:member" resource="?member">
-            <a href="?member" property="rdfs:label" class="asc" />
-        </li>
-    </ul>
 </body>
 </html>

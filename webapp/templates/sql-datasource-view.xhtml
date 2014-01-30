@@ -11,26 +11,32 @@
     <link rel="help" href="../../callimachus-for-web-developers" target="_blank" title="Help" />
 </head>
 <body resource="?this">
-    <h1 property="rdfs:label" />
-    <div id="sidebar">
-        <aside>
-            <pre class="wiki" property="rdfs:comment" />
-        </aside>
-        <aside>
-            <p>Query the database using the SQL language</p>
-        </aside>
-    </div>
-    <form role="form" id="form" action="{?this}" method="GET">
-        <fieldset>
-            <textarea id="sql" name="query" class="flex" required="required"
-                onchange="$(form).find('button').removeAttr('disabled')"></textarea>
-            <div class="form-group">
-                <button id="evaluate" type="submit" class="btn btn-primary">Evaluate Query</button>
-                <button id="execute" type="button" class="btn btn-primary"
-                    onclick="$.ajax({type:'POST',url:$(form).attr('action'),contentType:'application/sql',data:$('#sql').val(),complete:calli.wait().over})">Execute Update</button>
-                <button type="button" onclick="history.back()" class="btn btn-default">Cancel</button>
+    <div class="container">
+        <h1 property="rdfs:label" />
+        <div class="row">
+            <div class="col-sm-8">
+                <form role="form" id="form" action="{?this}" method="GET">
+                    <fieldset>
+                        <textarea id="sql" name="query" class="flex" required="required"
+                            onchange="$(form).find('button').removeAttr('disabled')"></textarea>
+                        <div class="form-group">
+                            <button id="evaluate" type="submit" class="btn btn-primary">Evaluate Query</button>
+                            <button id="execute" type="button" class="btn btn-primary"
+                                onclick="$.ajax({type:'POST',url:$(form).attr('action'),contentType:'application/sql',data:$('#sql').val(),complete:calli.wait().over})">Execute Update</button>
+                            <button type="button" onclick="history.back()" class="btn btn-default">Cancel</button>
+                        </div>
+                    </fieldset>
+                </form>
             </div>
-        </fieldset>
-    </form>
+            <div class="col-sm-4">
+                <aside class="well">
+                    <pre class="wiki" property="rdfs:comment" />
+                </aside>
+                <aside class="well">
+                    <p>Query the database using the SQL language</p>
+                </aside>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

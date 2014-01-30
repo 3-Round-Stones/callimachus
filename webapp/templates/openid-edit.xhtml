@@ -10,53 +10,51 @@
     <link href="../../callimachus-for-web-developers#Callimachus_auth_options" target="_blank" title="Help" />
 </head>
 <body resource="?this">
-    <h1 property="rdfs:label" />
-    <form role="form" id="form" method="POST" action="" enctype="application/sparql-update" resource="?this">
-        <fieldset>
-            <div class="form-group">
-                <label for="label">Label</label>
-                <div class="controls">
-                    <input type="text" class="form-control" id="label" value="{rdfs:label}" required="required" />
+    <form role="form" id="form" method="POST" action="" enctype="application/sparql-update" resource="?this" class="container">
+        <h1 property="rdfs:label" />
+        <div class="row">
+            <fieldset class="col-sm-4">
+                <div class="form-group">
+                    <label for="label">Label</label>
+                    <div class="controls">
+                        <input type="text" class="form-control" id="label" value="{rdfs:label}" required="required" />
+                    </div>
                 </div>
-            </div>
-            <div class="form-group">
-                <label for="endpoint">OpenID endpoint URL</label>
-                <div class="controls">
-                    <input type="url" id="endpoint" value="{calli:openIdEndpointUrl}" required="required" />
+                <div class="form-group">
+                    <label for="comment">Comment</label>
+                    <div class="controls">
+                        <textarea id="comment" class="form-control" required="required">{rdfs:comment}</textarea>
+                    </div>
                 </div>
-            </div>
-            <div class="form-group">
-                <label for="realm">OpenID realm pattern</label>
-                <div class="controls">
-                    <input type="text" class="form-control" id="realm" value="{calli:openIdRealm}" required="required" />
+            </fieldset>
+            <fieldset class="col-sm-8">
+                <div class="form-group">
+                    <label for="endpoint">OpenID endpoint URL</label>
+                    <div class="controls">
+                        <input type="url" class="form-control" id="endpoint" value="{calli:openIdEndpointUrl}" required="required" />
+                    </div>
                 </div>
-            </div>
-            <div class="form-group">
-                <label for="authname">Auth name</label>
-                <div class="controls">
-                    <input type="text" class="form-control" id="authname" value="{calli:authName}" />
+                <div class="form-group">
+                    <label for="realm">OpenID realm pattern</label>
+                    <div class="controls">
+                        <input type="text" class="form-control" id="realm" value="{calli:openIdRealm}" required="required" />
+                    </div>
                 </div>
-            </div>
-            <div class="form-group">
-                <label for="comment">Comment</label>
-                <div class="controls">
-                    <textarea id="comment" class="form-control" required="required">{rdfs:comment}</textarea>
+                <div id="authButton" dropzone="link string:text/uri-list" class="form-group" ondrop="return calli.insertResource(event)">
+                    <label>Authentication button <a href="../types/Image?create" title="Upload"
+                            onclick="return calli.createResource(event)" class="glyphicon glyphicon-list-alt" /></label>
+                    <div rel="calli:authButton" class="controls">
+                        <span resource="?img" typeof="foaf:Image" class="ui-state-highlight ui-corner-all">
+                            <img src="{?img}" />
+                        </span>
+                    </div>
                 </div>
-            </div>
-            <div id="authButton" dropzone="link string:text/uri-list" class="form-group" ondrop="return calli.insertResource(event)">
-                <label>Authentication button <a href="../types/Image?create" title="Upload"
-                        onclick="return calli.createResource(event)" class="glyphicon glyphicon-list-alt" /></label>
-                <div rel="calli:authButton" class="controls">
-                    <span resource="?img" typeof="foaf:Image" class="ui-state-highlight ui-corner-all">
-                        <img src="{?img}" />
-                    </span>
-                </div>
-            </div>
-            <div class="form-group">
-                <button id="save" type="submit" class="btn btn-primary">Save</button>
-                <button id="cancel" type="button" onclick="window.location.replace('?view')" class="btn btn-default">Cancel</button>
-                <button id="delete" type="button" onclick="calli.deleteResource(event)" class="btn btn-danger">Delete</button>
-            </div>
+            </fieldset>
+        </div>
+        <fieldset class="form-group">
+            <button id="save" type="submit" class="btn btn-primary">Save</button>
+            <button id="cancel" type="button" onclick="window.location.replace('?view')" class="btn btn-default">Cancel</button>
+            <button id="delete" type="button" onclick="calli.deleteResource(event)" class="btn btn-danger">Delete</button>
         </fieldset>
     </form>
 </body>

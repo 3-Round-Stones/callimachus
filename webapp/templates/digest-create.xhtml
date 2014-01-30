@@ -9,48 +9,56 @@
     <link rel="help" href="../../callimachus-for-web-developers#Digest_Password_Authentication" target="_blank" title="Help" />
 </head>
 <body>
-    <h1>New Digest Manager</h1>
-    <div id="sidebar">
-        <aside>
-            <p>The Auth name is used to salt passwords, changing it requires all users to reset their password</p>
-            <p>Only users in the User namespace folder are permitted to authenticate</p>
-        </aside>
-    </div>
     <form role="form" id="form" method="POST" action="" enctype="application/rdf+xml" typeof="calli:DigestManager calli:AuthenticationManager"
-            onsubmit="return calli.saveResourceAs(event,calli.slugify($('#label').val()))">
-        <fieldset>
-            <div class="form-group">
-                <label for="label">Label</label>
-                <div class="controls">
-                    <input type="text" id="label" class="form-control" value="{rdfs:label}" autofocus="autofocus" />
+            class="container" onsubmit="return calli.saveResourceAs(event,calli.slugify($('#label').val()))">
+        <h1>New Digest Manager</h1>
+        <div class="row">
+            <div class="col-sm-8">
+                <div class="row">
+                    <fieldset class="col-sm-6">
+                        <div class="form-group">
+                            <label for="label">Label</label>
+                            <div class="controls">
+                                <input type="text" id="label" class="form-control" value="{rdfs:label}" autofocus="autofocus" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="comment">Comment</label>
+                            <div class="controls">
+                                <textarea id="comment" class="form-control">{rdfs:comment}</textarea>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset class="col-sm-6">
+                        <div class="form-group">
+                            <label for="name">Auth name</label>
+                            <div class="controls">
+                                <input type="text" id="name" class="form-control" value="{calli:authName}" />
+                            </div>
+                        </div>
+                        <div id="authNamespace" dropzone="link string:text/uri-list" class="form-group"
+                                ondrop="return calli.insertResource(event)">
+                            <label for="authNamespace">User folder</label>
+                            <div rel="calli:authNamespace" class="controls">
+                                <span resource="?authNamespace" typeof="calli:Folder" class="ui-state-highlight ui-corner-all">
+                                    <span property="rdfs:label" />
+                                    <a href="{?authNamespace}" title="Don't use users in this folder" onclick="return calli.removeResource(event)" class="glyphicon glyphicon-remove" />
+                                </span>
+                            </div>
+                        </div>
+                    </fieldset>
                 </div>
+                <fieldset class="form-group">
+                    <button type="submit" class="btn btn-default">Add</button>
+                </fieldset>
             </div>
-            <div class="form-group">
-                <label for="name">Auth name</label>
-                <div class="controls">
-                    <input type="text" id="name" class="form-control" value="{calli:authName}" />
-                </div>
+            <div class="col-sm-4">
+                <aside class="well">
+                    <p>The Auth name is used to salt passwords, changing it requires all users to reset their password</p>
+                    <p>Only users in the User namespace folder are permitted to authenticate</p>
+                </aside>
             </div>
-            <div id="authNamespace" dropzone="link string:text/uri-list" class="form-group"
-                    ondrop="return calli.insertResource(event)">
-                <label for="authNamespace">User folder</label>
-                <div rel="calli:authNamespace" class="controls">
-                    <span resource="?authNamespace" typeof="calli:Folder" class="ui-state-highlight ui-corner-all">
-                        <span property="rdfs:label" />
-                        <a href="{?authNamespace}" title="Don't use users in this folder" onclick="return calli.removeResource(event)" class="glyphicon glyphicon-remove" />
-                    </span>
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="comment">Comment</label>
-                <div class="controls">
-                    <textarea id="comment" class="form-control">{rdfs:comment}</textarea>
-                </div>
-            </div>
-            <div class="form-group">
-                <button type="submit" class="btn btn-default">Add</button>
-            </div>
-        </fieldset>
+        </div>
     </form>
 </body>
 </html>

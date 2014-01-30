@@ -545,17 +545,19 @@
                 '   <title>' + document.title + '</title>',
                     lib.getVizHtmlHeadLinks(),
                 '</head>',
-                '<body>', 
-                '   <div id="' + lib.vizId + '"/>', 
-                '   <script data-viz-id="' + lib.vizId + '" type="text/javascript">', 
+                '<body>',
+                '   <div class="container">',
+                '      <div id="' + lib.vizId + '"/>',
+                '   </div>',
+                '   <script data-viz-id="' + lib.vizId + '" type="text/javascript">',
                 '   //<![CDATA[',
                 "       var config = \n" + JSON.stringify(lib[lib.selectedModule].getConfig(), null, 4) + ";\n",
                 "       " + lib[lib.selectedModule].renderModule.toString().replace(/function\s*/, 'function drawVisualization') + ";",
                 "       drawVisualization(config);",
                 '   //]]>',
                 '   </script>',
-                '</body>', 
-                '</html>' 
+                '</body>',
+                '</html>'
             ].join("\n");
         },
         

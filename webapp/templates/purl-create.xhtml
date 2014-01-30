@@ -32,100 +32,100 @@
     </script>
 </head>
 <body>
-    <h1>New Persistent Uniform Resource Locator</h1>
-    <div id="sidebar">
-        <aside>
-            <p>PURLs are used to curate the URL resolution process, thus solving
-            the problem of transitory URIs in location-based URI schemes like HTTP</p>
-        </aside>
-    </div>
     <form role="form" id="form" method="POST" action="" enctype="application/rdf+xml" typeof="calli:Purl"
-            onsubmit="return calli.saveResourceAs(event,$('#local').val())">
-        <fieldset class="row">
-            <div class="form-group col-md-3">
-                <label for="local">Local name</label>
-                <div class="controls">
-                    <input type="text" id="local" value="{rdfs:label}" class="form-control col-md-3" required="required" autofocus="autofocus" />
-                </div>
-            </div>
-        </fieldset>
-        <fieldset class="row">
-            <div class="form-group col-md-6">
-                <label for="comment">Comment</label>
-                <div class="controls">
-                    <textarea id="comment" class="auto-expand col-md-6">{rdfs:comment}</textarea>
-                </div>
-            </div>
-        </fieldset>
+            onsubmit="return calli.saveResourceAs(event,$('#local').val())" class="container">
+        <h1>New Persistent Uniform Resource Locator</h1>
         <div class="row">
-            <fieldset class="col-md-3">
-                <div class="form-group">
-                    <label for="type">GET status</label>
-                    <div class="controls">
-                        <select id="type" class="col-md-3">
-                            <option value="calli:copy">Copy (200)</option>
-                            <option value="calli:canonical">Canonical (301)</option>
-                            <option value="calli:alternate" selected="selected">Alternate (302)</option>
-                            <option value="calli:describedby">Described by (303)</option>
-                            <option value="calli:resides">Resides (307)</option>
-                            <option value="calli:moved">Moved (308)</option>
-                            <option value="calli:missing">Missing (404)</option>
-                            <option value="calli:gone">Gone (410)</option>
-                        </select>
+            <div class="col-sm-8">
+                <fieldset>
+                    <div class="form-group">
+                        <label for="local">Local name</label>
+                        <div class="controls">
+                            <input type="text" id="local" value="{rdfs:label}" class="form-control" required="required" autofocus="autofocus" />
+                        </div>
                     </div>
+                </fieldset>
+                <div class="row">
+                    <fieldset class="col-sm-6">
+                        <div class="form-group">
+                            <label for="comment">Comment</label>
+                            <div class="controls">
+                                <textarea id="comment" class="form-control">{rdfs:comment}</textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="type">GET status</label>
+                            <div class="controls">
+                                <select id="type" class="form-control">
+                                    <option value="calli:copy">Copy (200)</option>
+                                    <option value="calli:canonical">Canonical (301)</option>
+                                    <option value="calli:alternate" selected="selected">Alternate (302)</option>
+                                    <option value="calli:describedby">Described by (303)</option>
+                                    <option value="calli:resides">Resides (307)</option>
+                                    <option value="calli:moved">Moved (308)</option>
+                                    <option value="calli:missing">Missing (404)</option>
+                                    <option value="calli:gone">Gone (410)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="pattern">GET content location</label>
+                            <div class="controls">
+                                <textarea class="hide pattern form-control" rows="1" property="calli:copy"></textarea>
+                                <textarea class="hide pattern form-control" rows="1" property="calli:canonical"></textarea>
+                                <textarea class="pattern form-control" rows="1" property="calli:alternate"></textarea>
+                                <textarea class="hide pattern form-control" rows="1" property="calli:describedby"></textarea>
+                                <textarea class="hide pattern form-control" rows="1" property="calli:resides"></textarea>
+                                <textarea class="hide pattern form-controld" rows="1" property="calli:moved"></textarea>
+                                <textarea class="hide pattern form-control" rows="1" property="calli:missing"></textarea>
+                                <textarea class="hide pattern form-control" rows="1" property="calli:gone"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="cache">GET cache control</label>
+                            <div class="controls">
+                                <input type="text" id="cache" value="{calli:cacheControl}" placeholder="max-age=3600" class="form-control" />
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset class="col-sm-6">
+                        <div class="form-group">
+                            <label for="post">POST request target</label>
+                            <div class="controls">
+                                <textarea id="post" class="form-control" rows="1">{calli:post}</textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="put">PUT request target</label>
+                            <div class="controls">
+                                <textarea id="put" class="form-control" rows="1">{calli:put}</textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="patch">PATCH request target</label>
+                            <div class="controls">
+                                <textarea id="patch" class="form-control" rows="1">{calli:patch}</textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="delete">DELETE request target</label>
+                            <div class="controls">
+                                <textarea id="delete" class="form-control" rows="1">{calli:delete}</textarea>
+                            </div>
+                        </div>
+                    </fieldset>
                 </div>
-                <div class="form-group">
-                    <label for="pattern">GET content location</label>
-                    <div class="controls">
-                        <textarea class="hide pattern col-md-3 auto-expand" rows="1" property="calli:copy"></textarea>
-                        <textarea class="hide pattern col-md-3 auto-expand" rows="1" property="calli:canonical"></textarea>
-                        <textarea class="pattern col-md-3 auto-expand" rows="1" property="calli:alternate"></textarea>
-                        <textarea class="hide pattern col-md-3 auto-expand" rows="1" property="calli:describedby"></textarea>
-                        <textarea class="hide pattern col-md-3 auto-expand" rows="1" property="calli:resides"></textarea>
-                        <textarea class="hide pattern col-md-3 auto-expand" rows="1" property="calli:moved"></textarea>
-                        <textarea class="hide pattern col-md-3 auto-expand" rows="1" property="calli:missing"></textarea>
-                        <textarea class="hide pattern col-md-3 auto-expand" rows="1" property="calli:gone"></textarea>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="cache">GET cache control</label>
-                    <div class="controls">
-                    	<input type="text" id="cache" value="{calli:cacheControl}" placeholder="max-age=3600" class="form-control col-md-3" />
-                    </div>
-                </div>
-            </fieldset>
-            <fieldset class="col-md-3">
-                <div class="form-group">
-                    <label for="post">POST request target</label>
-                    <div class="controls">
-                        <textarea id="post" class="col-md-3 auto-expand" rows="1">{calli:post}</textarea>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="put">PUT request target</label>
-                    <div class="controls">
-                        <textarea id="put" class="col-md-3 auto-expand" rows="1">{calli:put}</textarea>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="patch">PATCH request target</label>
-                    <div class="controls">
-                        <textarea id="patch" class="col-md-3 auto-expand" rows="1">{calli:patch}</textarea>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="delete">DELETE request target</label>
-                    <div class="controls">
-                        <textarea id="delete" class="col-md-3 auto-expand" rows="1">{calli:delete}</textarea>
-                    </div>
-                </div>
-            </fieldset>
-        </div>
-        <fieldset class="row">
-            <div class="form-group col-md-6">
-                <button id="create" type="submit" class="btn btn-success">Create</button>
+                <fieldset class="form-group">
+                    <button id="create" type="submit" class="btn btn-success">Create</button>
+                </fieldset>
             </div>
-        </fieldset>
+            <div class="col-sm-4">
+                <aside class="well">
+                    <p>PURLs are used to curate the URL resolution process, thus solving
+                    the problem of transitory URIs in location-based URI schemes like HTTP</p>
+                </aside>
+            </div>
+        </div>
     </form>
 </body>
 </html>

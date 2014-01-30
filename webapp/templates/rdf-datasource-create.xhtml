@@ -10,9 +10,9 @@
     <link rel="help" href="../../callimachus-for-web-developers#Datasource" target="_blank" title="Help" />
 </head>
 <body>
-    <h1>New Datasource</h1>
-    <form role="form" method="POST" action="" enctype="application/rdf+xml" typeof="calli:RdfDatasource sd:Service"
+    <form role="form" method="POST" action="" enctype="application/rdf+xml" typeof="calli:RdfDatasource sd:Service" class="container"
             onsubmit="if (calli.saveResourceAs(event,calli.slugify($('#label').val()))){$('[rel=&quot;sd:endpoint&quot;]').attr('resource',$(this).attr('resource'));return true;} else return false">
+        <h1>New Datasource</h1>
         <div class="row">
             <fieldset class="col-sm-4">
                 <div class="form-group">
@@ -27,13 +27,15 @@
                         <textarea id="comment" class="form-control">{rdfs:comment}</textarea>
                     </div>
                 </div>
+            </fieldset>
+            <fieldset class="col-sm-4">
                 <div class="form-group">
-            		<div class="controls checkbox">
-            			<label rel="calli:editor" resource="/auth/groups/system">
-            				<input type="checkbox" name="editor" checked="checked" />
-            				Grant anonymous localhost to modify datasource
-            			</label>
-            		</div>
+                    <div class="checkbox">
+                        <label rel="calli:editor" resource="/auth/groups/system">
+                            <input type="checkbox" name="editor" checked="checked" />
+                			Grant anonymous localhost to modify datasource
+                		</label>
+                	</div>
                 </div>
                 <div>
                     <span rel="sd:endpoint" />
@@ -45,22 +47,24 @@
                     <span rel="sd:resultFormat" resource="http://www.w3.org/ns/formats/SPARQL_Results_XML" />
                 </div>
                 <div class="form-group">
-            		<div class="controls checkbox">
+            		<div class="checkbox">
             			<label rel="sd:supportedLanguage" resource="http://www.w3.org/ns/sparql-service-description#SPARQL11Query">
             				<input type="checkbox" name="support" checked="checked" />
             				SPARQL Query
             			</label>
+                    </div>
+                	<div class="checkbox">
                 		<label rel="sd:supportedLanguage" resource="http://www.w3.org/ns/sparql-service-description#SPARQL11Update">
             				<input type="checkbox" name="support" checked="checked" />
             				SPARQL Update
             			</label>
             		</div>
                 </div>
-                <div class="form-group">
-                    <button id="create-datasource" type="submit" class="btn btn-success">Create</button>
-                </div>
             </fieldset>
         </div>
+        <fieldset class="form-group">
+            <button id="create-datasource" type="submit" class="btn btn-success">Create</button>
+        </fieldset>
     </form>
 </body>
 </html>

@@ -32,7 +32,9 @@ xmlns="http://www.w3.org/1999/xhtml" xmlns:xhtml="http://www.w3.org/1999/xhtml" 
         </script>
     </head>
     <body>
-        <xsl:apply-templates />
+        <div class="container">
+            <xsl:apply-templates />
+        </div>
     </body>
     </html>
 </xsl:template>

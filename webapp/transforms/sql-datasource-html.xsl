@@ -24,8 +24,8 @@
                     </style>
                 </head>
                 <body>
-                    <h1>SQL Results</h1>
-                    <div>
+                    <div class="container">
+                        <h1>SQL Results</h1>
                         <xsl:apply-templates />
                     </div>
                 </body>

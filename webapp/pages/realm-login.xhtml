@@ -22,14 +22,16 @@
     </script>
 </head>
 <body resource="?this">
-    <h1>{rdfs:label} Sign in</h1>
-    <ul>
-        <li rel="calli:authentication" resource="?auth">
-            <a href="{?auth}" class="add-query" title="{rdfs:label}">
-                <img rel="calli:authButton" src="?authButton" />
-                {rdfs:comment}
-            </a>
-        </li>
-    </ul>
+    <div class="container">
+        <h1>{rdfs:label} Sign in</h1>
+        <ul>
+            <li rel="calli:authentication" resource="?auth">
+                <a href="{?auth}" class="add-query" title="{rdfs:label}">
+                    <img rel="calli:authButton" src="?authButton" />
+                    {rdfs:comment}
+                </a>
+            </li>
+        </ul>
+    </div>
 </body>
 </html>

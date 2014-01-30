@@ -9,9 +9,9 @@
     <link rel="help" href="../../callimachus-for-web-developers#Datasource" target="_blank" title="Help" />
 </head>
 <body>
-    <h1>New SQL Datasource</h1>
     <form role="form" method="POST" action="" enctype="application/rdf+xml" typeof="calli:SqlDatasource"
-            onsubmit="return calli.saveResourceAs(event,calli.slugify($('#label').val()))">
+            onsubmit="return calli.saveResourceAs(event,calli.slugify($('#label').val()))" class="container">
+        <h1>New SQL Datasource</h1>
         <div class="row">
             <fieldset class="col-sm-4">
                 <div class="form-group">
@@ -85,13 +85,9 @@
                 </div>
             </fieldset>
         </div>
-        <div class="row">
-            <fieldset class="col-sm-4">
-                <div class="form-group">
-                    <button id="create-datasource" type="submit" class="btn btn-success">Create</button>
-                </div>
-            </fieldset>
-        </div>
+        <fieldset class="form-group">
+                <button id="create-datasource" type="submit" class="btn btn-success">Create</button>
+        </fieldset>
     </form>
 </body>
 </html>

@@ -7,23 +7,25 @@
     <title resource="?this">{rdfs:label}</title>
 </head>
 <body resource="?this">
-    <h1 property="rdfs:label" />
-    <form role="form" method="POST" action="" enctype="application/sparql-update" resource="?this">
-        <fieldset>
-            <div class="form-group">
-                <label for="label">Label</label>
-                <input type="text" class="form-control" id="label" value="{rdfs:label}" required="required" />
-            </div>
-            <div class="form-group">
-                <label for="comment">Comment</label>
-                <textarea id="comment" class="form-control">{rdfs:comment}</textarea>
-            </div>
-            <div class="form-group">
-                <button type="submit" class="btn btn-primary">Save</button>
-                <button type="button" onclick="window.location.replace('?view')" class="btn btn-default">Cancel</button>
-                <button type="button" onclick="calli.deleteResource(event)" class="btn btn-danger">Delete</button>
-            </div>
-        </fieldset>
-    </form>
+    <div class="container">
+        <h1 property="rdfs:label" />
+        <form role="form" method="POST" action="" enctype="application/sparql-update" resource="?this" class="row">
+            <fieldset class="col-sm-4">
+                <div class="form-group">
+                    <label for="label">Label</label>
+                    <input type="text" class="form-control" id="label" value="{rdfs:label}" required="required" />
+                </div>
+                <div class="form-group">
+                    <label for="comment">Comment</label>
+                    <textarea id="comment" class="form-control">{rdfs:comment}</textarea>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                    <button type="button" onclick="window.location.replace('?view')" class="btn btn-default">Cancel</button>
+                    <button type="button" onclick="calli.deleteResource(event)" class="btn btn-danger">Delete</button>
+                </div>
+            </fieldset>
+        </form>
+    </div>
 </body>
 </html>

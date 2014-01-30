@@ -8,32 +8,39 @@
     <link rel="help" href="../../callimachus-for-web-developers#File" target="_blank" title="Help" />
     <style type="text/css">
         .fileapi-show { display: none; }
-        .fileapi .fileapi-show { display: inline-block; }
+        .fileapi .fileapi-show { display: block; }
+        .fileapi button.fileapi-show { display: inline-block; }
     </style>
     <script type="text/javascript">
         if (window.FileReader) document.documentElement.className += " fileapi";
     </script>
 </head>
 <body resource="?this">
-    <h1 property="rdfs:label" />
-    <pre>{?this}</pre>
-    <div rel="rdf:type" resource="?type">
-        <div property="calli:mediaType" content="?mediaType">
-            <form role="form" method="PUT" action="?" enctype="{?mediaType}">
-                <fieldset>
-                    <div class="form-group fileapi-show">
-                        <label>Replacement file</label>
-                        <div class="controls">
-                            <input type="file" accept="{?mediaType}" />
-                        </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-6">
+                <h1 property="rdfs:label" />
+                <pre>{?this}</pre>
+                <div rel="rdf:type" resource="?type">
+                    <div property="calli:mediaType" content="?mediaType">
+                        <form role="form" method="PUT" action="?" enctype="{?mediaType}">
+                            <fieldset>
+                                <div class="form-group fileapi-show">
+                                    <label>Replacement file</label>
+                                    <div class="controls">
+                                        <input type="file" class="form-control" accept="{?mediaType}" />
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <button id="replace" type="submit" class="btn btn-primary fileapi-show">Replace</button>
+                                    <button id="cancel" type="button" onclick="window.location.replace('?view')" class="btn btn-default">Cancel</button>
+                                    <button id="delete" type="button" onclick="calli.deleteResource(event)" class="btn btn-danger">Delete</button>
+                                </div>
+                            </fieldset>
+                        </form>
                     </div>
-                    <div class="form-group">
-                        <button id="replace" type="submit" class="btn btn-primary fileapi-show">Replace</button>
-                        <button id="cancel" type="button" onclick="window.location.replace('?view')" class="btn btn-default">Cancel</button>
-                        <button id="delete" type="button" onclick="calli.deleteResource(event)" class="btn btn-danger">Delete</button>
-                    </div>
-                </fieldset>
-            </form>
+                </div>
+            </div>
         </div>
     </div>
 </body>

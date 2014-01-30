@@ -26,21 +26,31 @@
     </script>
 </head>
 <body resource="?this">
-    <h1 property="rdfs:label" />
-    <div id="sidebar">
-        <aside>
-            <h3>Group memberships</h3>
-            <ul rev="calli:member">
-                <li resource="?group"><a href="?group" property="rdfs:label"/></li>
-            </ul>
-        </aside>
-    </div>
-    <div id="img" rel="foaf:depiction" resource="?img" style="margin: 0px 1ex 1ex 0px;max-width:10em">
-        <a href="{?img}?view"><img src="{?img}?small" style="max-height:100%;max-width:10em" /></a>
-    </div>
-    <div>
-        <p property="calli:name" />
-        <pre class="wiki" property="rdfs:comment" />
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-8">
+                <h1 property="rdfs:label" />
+                <div id="img" rel="foaf:depiction" resource="?img" style="margin: 0px 1ex 1ex 0px;max-width:10em">
+                    <a href="{?img}?view"><img src="{?img}?small" style="max-height:100%;max-width:10em" /></a>
+                </div>
+                <div>
+                    <p property="calli:name" />
+                    <pre class="wiki" property="rdfs:comment" />
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <aside class="optional panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Group memberships</h3>
+                    </div>
+                    <div class="panel-body">
+                        <ul rev="calli:member">
+                            <li resource="?group"><a href="?group" property="rdfs:label"/></li>
+                        </ul>
+                    </div>
+                </aside>
+            </div>
+        </div>
     </div>
     <form id="msgForm" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true"
             method="POST" action="?invite" enctype="application/x-www-form-urlencoded">

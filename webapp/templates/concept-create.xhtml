@@ -8,48 +8,52 @@
     <link rel="help" href="../../callimachus-for-web-developers#Concept" target="_blank" title="Help" />
 </head>
 <body>
-    <h1>New Concept</h1>
-    <div id="sidebar">
-        <aside>
-            <p>The initial label is use to construct the resource URI</p>
-            <p>Other labels can be provide to assist concept lookup</p>
-            <p>The definition, example, and scope can be provide to clarify usage and meaning</p>
-        </aside>
-    </div>
-    <form role="form" id="form" method="POST" action="" enctype="application/rdf+xml" typeof="skos:Concept"
+    <form role="form" id="form" method="POST" action="" enctype="application/rdf+xml" typeof="skos:Concept" class="container"
             onsubmit="return calli.saveResourceAs(event,calli.slugify($('#label').val()))">
-        <fieldset class="hbox">
-            <div class="form-group">
-                <label for="label">Label</label>
-                <div class="controls">
-                    <input type="text" id="label" value="{skos:prefLabel}" class="form-control" required="required" autofocus="autofocus" />
-                </div>
+        <h1>New Concept</h1>
+        <div class="row">
+            <div class="col-sm-8">
+                <fieldset class="row">
+                    <div class="form-group col-sm-6">
+                        <label for="label">Label</label>
+                        <div class="controls">
+                            <input type="text" id="label" value="{skos:prefLabel}" class="form-control" required="required" autofocus="autofocus" />
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-6">
+                        <label for="altLabel">Alternate label</label>
+                        <div class="controls">
+                            <input type="text" id="altLabel" property="skos:altLabel" content="?alt" value="{?alt}" class="form-control" />
+                            <a href="javascript:void(0)" title="More" onclick="return calli.addResource(event)" class="glyphicon glyphicon-plus" />
+                        </div>
+                    </div>
+                </fieldset>
+                <fieldset class="row">
+                    <div class="form-group col-sm-6">
+                        <label for="definition">Definition</label>
+                        <div class="controls">
+                            <textarea id="definition" class="form-control">{skos:definition}</textarea>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-6">
+                        <label for="example">Example</label>
+                        <div class="controls">
+                            <textarea id="example" class="form-control">{skos:example}</textarea>
+                        </div>
+                    </div>
+                </fieldset>
+                <fieldset class="form-group">
+                    <button id="create" type="submit" class="btn btn-success">Create</button>
+                </fieldset>
             </div>
-            <div class="form-group">
-                <label for="altLabel">Alternate label</label>
-                <div class="controls">
-                    <input type="text" id="altLabel" property="skos:altLabel" content="?alt" value="{?alt}" class="form-control" />
-                    <a href="javascript:void(0)" title="More" onclick="return calli.addResource(event)" class="glyphicon glyphicon-plus" />
-                </div>
+            <div class="col-sm-4">
+                <aside class="well">
+                    <p>The initial label is use to construct the resource URI</p>
+                    <p>Other labels can be provide to assist concept lookup</p>
+                    <p>The definition, example, and scope can be provide to clarify usage and meaning</p>
+                </aside>
             </div>
-        </fieldset>
-        <fieldset class="hbox">
-            <div class="form-group">
-                <label for="definition">Definition</label>
-                <div class="controls">
-                    <textarea id="definition" class="form-control">{skos:definition}</textarea>
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="example">Example</label>
-                <div class="controls">
-                    <textarea id="example" class="form-control">{skos:example}</textarea>
-                </div>
-            </div>
-        </fieldset>
-        <fieldset class="form-group">
-            <button id="create" type="submit" class="btn btn-success">Create</button>
-        </fieldset>
+        </div>
     </form>
 </body>
 </html>

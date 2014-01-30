@@ -38,39 +38,41 @@
                 </style>
             </head>
             <body>
-                <p><xsl:text>Revised on </xsl:text>
-                    <time property="prov:endedAtTime">
-                        <xsl:value-of select="sparql:sparql/sparql:results/sparql:result[1]/sparql:binding[@name='modified']/*" />
-                    </time>
-                    <xsl:text> by </xsl:text>
-                    <a href="{sparql:sparql/sparql:results/sparql:result[1]/sparql:binding[@name='user']/*}">
-                        <xsl:value-of select="$name" />
-                    </a>
-                </p>
-                <p>
-                    <xsl:for-each select="sparql:sparql/sparql:results/sparql:result[sparql:binding/@name='previous']">
-                        <a href="{sparql:binding[@name='previous']/*}">←Previous revision</a>
-                        <xsl:text> </xsl:text>
-                    </xsl:for-each>
-                    <xsl:if test="sparql:sparql/sparql:results/sparql:result[sparql:binding/@name='subsequent']">
-                        <xsl:text>|</xsl:text>
-                    </xsl:if>
-                    <xsl:for-each select="sparql:sparql/sparql:results/sparql:result[sparql:binding/@name='subsequent']">
-                        <xsl:text> </xsl:text>
-                        <a href="{sparql:binding[@name='subsequent']/*}">Subsequent revision→</a>
-                    </xsl:for-each>
-                </p>
-                <xsl:for-each-group select="sparql:sparql/sparql:results/sparql:result[sparql:binding/@name='subject']"
-                        group-by="sparql:binding[@name='subject']/*">
-                    <a href="{sparql:binding[@name='subject']/*}">
-                        <xsl:call-template name="iriref">
-                            <xsl:with-param name="iri" select="sparql:binding[@name='subject']/*"/>
-                        </xsl:call-template>
-                    </a>
-                    <ul>
-                        <xsl:apply-templates select="current-group()" />
-                    </ul>
-                </xsl:for-each-group>
+                <div class="container">
+                    <p><xsl:text>Revised on </xsl:text>
+                        <time property="prov:endedAtTime">
+                            <xsl:value-of select="sparql:sparql/sparql:results/sparql:result[1]/sparql:binding[@name='modified']/*" />
+                        </time>
+                        <xsl:text> by </xsl:text>
+                        <a href="{sparql:sparql/sparql:results/sparql:result[1]/sparql:binding[@name='user']/*}">
+                            <xsl:value-of select="$name" />
+                        </a>
+                    </p>
+                    <p>
+                        <xsl:for-each select="sparql:sparql/sparql:results/sparql:result[sparql:binding/@name='previous']">
+                            <a href="{sparql:binding[@name='previous']/*}">←Previous revision</a>
+                            <xsl:text> </xsl:text>
+                        </xsl:for-each>
+                        <xsl:if test="sparql:sparql/sparql:results/sparql:result[sparql:binding/@name='subsequent']">
+                            <xsl:text>|</xsl:text>
+                        </xsl:if>
+                        <xsl:for-each select="sparql:sparql/sparql:results/sparql:result[sparql:binding/@name='subsequent']">
+                            <xsl:text> </xsl:text>
+                            <a href="{sparql:binding[@name='subsequent']/*}">Subsequent revision→</a>
+                        </xsl:for-each>
+                    </p>
+                    <xsl:for-each-group select="sparql:sparql/sparql:results/sparql:result[sparql:binding/@name='subject']"
+                            group-by="sparql:binding[@name='subject']/*">
+                        <a href="{sparql:binding[@name='subject']/*}">
+                            <xsl:call-template name="iriref">
+                                <xsl:with-param name="iri" select="sparql:binding[@name='subject']/*"/>
+                            </xsl:call-template>
+                        </a>
+                        <ul>
+                            <xsl:apply-templates select="current-group()" />
+                        </ul>
+                    </xsl:for-each-group>
+                </div>
             </body>
         </html>
     </xsl:template>

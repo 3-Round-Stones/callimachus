@@ -16,19 +16,8 @@ declare function calli:head-nodes() as node()* {
 declare function calli:body-attributes() as attribute(*)* {
     $calli:html-element/body/@*
 };
-declare function calli:body-sidebar($div as element()) as element()? {
-    let $sidebar := $calli:html-element/body/div[@id='sidebar'][1]
-    return if ($sidebar) then
-        element { node-name($div) } { $div/@*, $div/node(), $sidebar/node() }
-    else
-        $sidebar
-};
-declare function calli:body-hgroup() as element()? {
-    ($calli:html-element/body/*[self::h1 or self::hgroup])[1]
-};
 declare function calli:body-nodes() as node()* {
-    let $hgroup := ($calli:html-element/body/*[self::h1 or self::hgroup])[1]
-    return $calli:html-element/body/node()[not(self::div[@id='sidebar']) and (not(self::h1 or self::hgroup) or preceding-sibling::h1 or preceding-sibling::hgroup)]
+    $calli:html-element/body/node()
 };
 declare function calli:head-links($a as element(), $divider as element()) as element()* {
     let $links := $calli:html-element/head/link[@title and @href]
@@ -249,6 +238,14 @@ declare function calli:logout-href($a as element()) as element() {
         $a/@*[name()!='href' and name()!='id'],
         $a/node()
     }
+};
+
+(: deprecated since 1.3 :)
+declare function calli:body-sidebar($div as element()) as element()? {
+    ()
+};
+declare function calli:body-hgroup() as element()? {
+    ()
 };
 
 (: deprecated since 1.2 :)

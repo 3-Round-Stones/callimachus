@@ -12,7 +12,6 @@
             src = calli.getCallimachusUrl('images/rdf-icon.png');
         }
         var td = $('<td/>');
-        td.addClass('ui-widget-content');
         td.addClass('filecell');
         var a = $('<a/>');
         if (url) {
@@ -39,7 +38,6 @@
     }
     function createTimeCell(text) {
         var td = $('<td/>');
-        td.addClass('ui-widget-content');
         td.addClass('timecell');
         if (text) {
             var time = $('<time/>');
@@ -51,8 +49,7 @@
     }
     function createPermissionCell(entry, local) {
         var td = $('<td/>');
-        td.addClass('ui-widget-content');
-        td.addClass('permission');
+        td.addClass('hidden-xs hidden-sm');
         if (!entry || !local)
             return td;
         var tags = entry.children('link[rel="http://callimachusproject.org/rdf/2009/framework#' + local + '"]');
@@ -304,20 +301,5 @@ jQuery(function($){
     if (!$('#tfolders').children().length) {
         $('#tfolders').remove();
     }
-    var tooSmall = 500;
-    var resized = function() {
-        setTimeout(function(){
-            var clientWidth = Math.round($('#folder-box').width());
-            if (clientWidth < Math.round($('#table').outerWidth(true))) {
-                tooSmall = clientWidth;
-                $('#table').addClass('small');
-            } else if (clientWidth > tooSmall) {
-                $('#table').removeClass('small');
-                setTimeout(resized, 500);
-            }
-        }, 0);
-    };
-    $(window).bind('resize', resized);
-    resized();
 });
 

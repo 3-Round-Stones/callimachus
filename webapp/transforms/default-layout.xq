@@ -23,8 +23,8 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
                 <div class="pull-left">
                     {calli:home-href(<a class="navbar-brand">Callimachus</a>)}
                 </div>
-                {calli:login-href(<a class="btn btn-default navbar-btn pull-right hidden-login">Sign in <span class="glyphicon glyphicon-log-in"></span></a>)}
-                <div class="btn-group pull-right hidden-logout">
+                {calli:login-href(<a class="btn btn-default navbar-btn pull-right hidden-login hidden-print">Sign in <span class="glyphicon glyphicon-log-in"></span></a>)}
+                <div class="btn-group pull-right hidden-logout hidden-print">
                     <button type="button" class="btn btn-default navbar-btn dropdown-toggle" data-toggle="dropdown">
                         <span class="sr-only">Main menu</span>
                         <span class="glyphicon glyphicon-align-justify"></span>
@@ -48,12 +48,12 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
                         <li>{calli:logout-href(<a>Sign out</a>)}</li>
                     </ul>
                 </div>
-                <div class="col-xs-3 pull-right hidden-logout">{calli:lookup-form('Lookup...')}</div>
+                <div class="col-xs-3 pull-right hidden-logout hidden-print">{calli:lookup-form('Lookup...')}</div>
             </header>
         </nav>
         <div class="container">
             <ol class="breadcrumb navbar-left hidden-iframe">{calli:breadcrumb-links(<li><a/></li>, <li class="active"/>)}</ol>
-            {calli:activate-nav(<nav class="hidden-logout hidden-iframe">
+            {calli:activate-nav(<nav class="hidden-logout hidden-iframe hidden-print">
                 <div class="nav nav-tabs clearfix">
                     <ul class="nav nav-tabs navbar-right" style="border-bottom:none">
                         <li>{calli:view-href(<a tabindex="1" onclick="location.replace(href);return false">View</a>)}</li>

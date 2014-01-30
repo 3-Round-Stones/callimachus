@@ -15,9 +15,9 @@
 </head>
 <body resource="?this">
     <div class="container">
-        <h1 property="rdfs:label" />
         <div class="row">
             <div class="col-sm-8">
+                <h1 property="rdfs:label" />
                 <div id="img" rel="foaf:depiction" resource="?img" style="margin: 0px 1ex 1ex 0px;max-width:10em">
                     <a href="{?img}?view"><img src="{?img}?small" style="max-height:100%;max-width:10em" /></a>
                 </div>
@@ -31,11 +31,11 @@
                     <div class="panel-heading">
                         <h3 class="panel-title">Group memberships</h3>
                     </div>
-                    <div class="panel-body">
-                        <ul rev="calli:member">
-                            <li resource="?group"><a href="?group" property="rdfs:label"/></li>
-                        </ul>
-                    </div>
+                    <ul rev="calli:member" class="list-group">
+                        <li resource="?group" class="list-group-item">
+                            <a href="?group" property="rdfs:label"/>
+                        </li>
+                    </ul>
                 </aside>
             </div>
         </div>

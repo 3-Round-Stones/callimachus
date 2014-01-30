@@ -103,7 +103,7 @@
                         <label>Icon <a href="/?view" title="Browse"
                                 onclick="return calli.selectResource(event)" class="glyphicon glyphicon-folder-open" /></label>
                         <div rel="calli:icon">
-                            <span resource="?icon" typeof="foaf:Image" class="ui-state-highlight ui-corner-all">
+                            <span resource="?icon" typeof="foaf:Image" class="label label-info">
                                 <img src="{?icon}" />
                                 <a href="{?icon}" title="Remove from class" onclick="return calli.removeResource(event)" class="glyphicon glyphicon-remove" />
                             </span>
@@ -165,7 +165,7 @@
                             <label>Template for creating <a href="../types/Page" title="Create a new template" class="glyphicon glyphicon-list-alt"
                                     onclick="return calli.createResource(event, './?create=' + encodeURIComponent(this.href) + '#!' + $('link[rel=sample-create]').attr('href'))" /></label>
                             <div rel="calli:create">
-                                <span resource="?create" typeof="calli:Page" class="ui-state-highlight ui-corner-all">
+                                <span resource="?create" typeof="calli:Page" class="label label-info">
                                     <a href="{?create}?edit" property="rdfs:label" onclick="calli.openDialog(this.href, 'Template for creating');return false" />
                                     <a href="{?create}" title="Don't use this template" onclick="return calli.removeResource(event)" class="glyphicon glyphicon-remove" />
                                 </span>
@@ -176,7 +176,7 @@
                             <label>Template for viewing <a href="../types/Page" title="Create a new template" class="glyphicon glyphicon-list-alt"
                                     onclick="return calli.createResource(event, './?create=' + encodeURIComponent(this.href) + '#!' + $('link[rel=sample-view]').attr('href'))" /></label>
                             <div rel="calli:view">
-                                <span resource="?view" typeof="calli:Page" class="ui-state-highlight ui-corner-all">
+                                <span resource="?view" typeof="calli:Page" class="label label-info">
                                     <a href="{?view}?edit" property="rdfs:label" onclick="calli.openDialog(this.href, 'Template for viewing');return false" />
                                     <a href="{?view}" title="Don't use this template" onclick="return calli.removeResource(event)" class="glyphicon glyphicon-remove" />
                                 </span>
@@ -187,7 +187,7 @@
                             <label>Template for editing <a href="../types/Page" title="Create a new template" class="glyphicon glyphicon-list-alt"
                                     onclick="return calli.createResource(event, './?create=' + encodeURIComponent(this.href) + '#!' + $('link[rel=sample-edit]').attr('href'))" /></label>
                             <div rel="calli:edit">
-                                <span resource="?edit" typeof="calli:Page" class="ui-state-highlight ui-corner-all">
+                                <span resource="?edit" typeof="calli:Page" class="label label-info">
                                     <a href="{?edit}?edit" property="rdfs:label" onclick="calli.openDialog(this.href, 'Template for editing');return false" />
                                     <a href="{?edit}" title="Don't use this template" onclick="return calli.removeResource(event)" class="glyphicon glyphicon-remove" />
                                 </span>

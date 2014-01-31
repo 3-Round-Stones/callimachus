@@ -101,5 +101,15 @@
     rdf:_2 <../assets/nv/nv.d3.js>;
     rdf:_3 <../assets/datatables/jquery.dataTables.js>;
     rdf:_4 <../assets/dimple/dimple.v1.1.1.js>;
-    rdf:_5 <query-vizeditor.js>.
+    rdf:_5 <query-vizeditor.js>;
+    rdf:_6 <query-vizeditor-area-dimple.js>;
+    rdf:_7 <query-vizeditor-bar-dimple.js>;
+    rdf:_8 <query-vizeditor-google-chart.js>;
+    rdf:_9 <query-vizeditor-line-dimple.js>;
+    rdf:_10 <query-vizeditor-pie-google.js>;
+    rdf:_11 <query-vizeditor-pie-nvd3.js>;
+    rdf:_12 <query-vizeditor-table-bootstrap.js>;
+    rdf:_13 <query-vizeditor-table-datatables.js>;
+    rdf:_14 <query-vizeditor-table-google.js>.
+
 

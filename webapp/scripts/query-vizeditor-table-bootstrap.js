@@ -30,20 +30,20 @@
             var cls = 'table'
                 + (config.options['bordered'] ? ' table-bordered' : '')
                 + (config.options['striped'] ? ' table-striped' : '')
+                + (config.options['hover'] ? ' table-hover' : '')
                 + (config.options['condensed'] ? ' table-condensed' : '')
             ;
             // viz container and styling
             var container = $('#' + config.vizId);
-            container.width('100%').css('height', 'auto').css('overflow', 'auto').html('');
             // data source
             var queryUrl = location.pathname;
             if (!queryUrl.match(/\.rq$/)) {// context is not the query view but the chart page, use config
                 queryUrl = config.query;
             }
             queryUrl += '?results&' + $.param(config.params) + location.search.replace('?view', '&') + '&tqx=out:html';
-            container.load(queryUrl, function() {
-                container.find(' > table').addClass(cls);
-            })
+            container.load(queryUrl + ' table', function() {
+                $(this).find('table').addClass(cls);
+            });
         },
         
         createOptionsPane: function() {
@@ -55,11 +55,12 @@
         },
         
         createOptionsMarkup: function(container) {
-            $('<form class="calli-viz-options form-horizontal" action="#" method="post"></form>')
+            $('<form rol="form" class="calli-viz-options" action="#" method="post"></form>')
                 .appendTo(container)
                 .each(function() {
                     pLib.createHiddenOption($(this), 'module', moduleName);
                     pLib.createCheckboxOption($(this), 'striped', 'Striped');
+                    pLib.createCheckboxOption($(this), 'hover', 'Hover');
                     pLib.createCheckboxOption($(this), 'bordered', 'Bordered');
                     pLib.createCheckboxOption($(this), 'condensed', 'Condensed');
                 })
@@ -89,5 +90,5 @@
 	};
 	
 	$(lib.init);	
- 	
+
 })(jQuery);

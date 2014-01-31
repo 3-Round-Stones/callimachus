@@ -111,15 +111,15 @@
             var queryShortName = queryRelPath.replace(/^.+\/([^\/\.]+)\..+$/, '$1');
             // dialog
             var html = [
-                '<div id="calli-viz-editor" data-viz-id="' + lib.vizId + '" data-query="' + queryRelPath + '">',
+                '<div id="calli-viz-editor" data-viz-id="' + lib.vizId + '" data-query="' + queryRelPath + '" class="panel panel-info">',
                     // menu
-                    '<div class="viz-menu">Visualization: <menu class="visualizations dropdown"></menu></div>',
+                    '<div class="viz-menu panel-heading">Visualization: <menu class="visualizations dropdown"></menu></div>',
                     // options pane
-                    '<div class="options-pane"></div>',
+                    '<div class="options-pane panel-body"></div>',
                     // buttons
-                    '<div class="form-actions">',
-                        '<a class="save-viz btn btn-info">Save settings...</a>',
-                        ' <a class="close-editor btn">Close</a>',
+                    '<div class="form-group form-actions panel-footer">',
+                        '<a type="button" class="save-viz btn btn-info">Save settings...</a>',
+                        ' <a type="button" class="close-editor btn btn-default">Close</a>',
                     '</div>',
                 '</div>'
             ].join("\n");
@@ -156,11 +156,11 @@
                 $('#calli-viz-editor-bg').css('z-index', lib.maxZIndex($('#calli-viz-editor-bg')));
             	$('#calli-viz-editor')
                     .css('z-index', lib.maxZIndex($('#calli-viz-editor')))
-                    .animate({
+                    .css({
                         left: Math.max(8, ($(window).width() - $('#calli-viz-editor').width()) / 2),
                         top: Math.max(8, ($(window).height() - $('#calli-viz-editor').height()) / 2),
                         opacity: 1
-                    }, 1000)
+                    })
                 ;
             }, 100)
         },
@@ -261,6 +261,7 @@
             lib.selectedModule = newModule;
             lib.loadModule(newModule, function() {
                 lib[newModule].run();
+                lib.positionEditor();
             });
         },
         
@@ -356,7 +357,7 @@
          */
         createParamsMarkup: function(container, params) {
             var query = lib.detectQueryPath();
-            $('<form class="calli-viz-params form-horizontal" action="#" method="post"></form>')
+            $('<form role="form" class="calli-viz-params" action="#" method="post"></form>')
                 .appendTo(container)
                 .each(function() {
                     var container = $(this);
@@ -389,7 +390,7 @@
                 '   <label for="options-' + name + '">' + label + '</label>',
                 '   <div>',
                 '       <input type="text" name="' +  name + '" id="options-' + name + '" placeholder="' + (placeholder || "") + '" value="' + (value || "") + '" class="form-control" />',
-                        info ? '<span class="info">' + info + '</span>' : '',
+                        info ? '<p class="help-block">' + info + '</p>' : '',
                 '   </div>',
                 '</div>'
             ].join("\n"))

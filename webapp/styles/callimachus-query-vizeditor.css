@@ -98,7 +98,6 @@
     position: absolute !important;
     width: 975px;
     width: 350px;
-    height: 550px;
     top: 0;
     left: 0;
     -webkit-border-radius: 4px;
@@ -109,29 +108,11 @@
 
 #calli-viz-editor a {
     cursor: pointer;
-}
-
-/* bespoke editor: editor buttons */
-
-#calli-viz-editor .form-actions {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    margin-bottom: 0;
-    -webkit-border-radius: 0 0 4px 4px;
-       -moz-border-radius: 0 0 4px 4px;
-            border-radius: 0 0 4px 4px;
-    
-}    
+}  
 
 /*  viz menu */
 
 .viz-menu {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    padding: 10px 20px;
     border-bottom: 1px solid #ccc;
     line-height: 1em;
     cursor: move;
@@ -187,11 +168,7 @@
 /* bespoke editor: options pane */
 
 #calli-viz-editor .options-pane {
-    position: absolute;
-    width: 330px;
-    top: 60px;
-    left: 20px;
-    height: 410px;
+    max-height: 410px;
     overflow: auto;
     font-size: 12px;
 }

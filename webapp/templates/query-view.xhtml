@@ -14,20 +14,13 @@
     <link href="?results" title="Results document" type="application/sparql-results+xml" />
     <link rel="stylesheet" href="../../query-view.css" type="text/css" />
     <script type="text/javascript" src="../../query-view.js"></script>
-    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
     <script type="text/javascript">
-      google.load('visualization', '1.0', {packages: ['table']});
-      function drawVisualization() {
-        google.visualization.drawChart({
-           "containerId": "visualization",
-           "dataSourceUrl": window.location.href.replace('?view','?results'),
-           "chartType": "Table",
-           "options": {
-              "alternatingRowStyle": true,
-           }
-         });
-      }
-      google.setOnLoadCallback(drawVisualization);
+        <![CDATA[
+        jQuery(function($){
+            var url = window.location.href.replace('?view','?results&tqx=out:html');
+            $('#visualization table').load(url + " table>*");
+        });
+        ]]>
     </script>
 </head>
 <body resource="?this">
@@ -35,7 +28,9 @@
         <hgroup class="page-header">
             <h1 property="rdfs:label"></h1>
         </hgroup>
-        <div id="visualization" />
+        <div id="visualization">
+            <table class="table table-hover table-condensed table-responsive" />
+        </div>
     </div>
 </body>
 </html>

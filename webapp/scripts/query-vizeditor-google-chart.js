@@ -25,7 +25,7 @@
                 if (!config || config.module != 'google-chart') {
                     config = {
                         chartType: "Table",
-                        dataSourceUrl: queryRelPath + '?results&tqx=out:csv',
+                        dataSourceUrl: queryRelPath + '?results',
                         options: {title: "Callimachus Chart", legend: "none"},
                         containerId: vizId
                     };

@@ -68,6 +68,13 @@ declare function calli:scripts-src($script as element()) as element() {
         $script/node()
     }
 };
+declare function calli:lookup-href($link as element()) as element() {
+    element {node-name($link)} {
+        attribute href {concat($calli:realm, '?q')},
+        $link/@*[name()!='href'],
+        $link/node()
+    }
+};
 declare function calli:lookup-form($placeholder as xs:string) as element(form) {
     <form class="navbar-form" role="search" method="GET" action="{$calli:realm}">
         <div class="input-group">

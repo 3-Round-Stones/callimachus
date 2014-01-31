@@ -32,8 +32,12 @@
                         <h1>Search Results</h1>
                     </hgroup>
                     <form role="form" method="GET" class="search">
-                        <input type="text" id="q" name="q" size="40" />
-                        <button type="submit">Search</button>
+                        <div class="form-group">
+                            <input type="text" id="q" name="q" size="40" class="form-control" autofocus="autofocus" required="required" />
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary">Search</button>
+                        </div>
                     </form>
                     <hr />
                     <xsl:if test="not(/sparql:sparql/sparql:results/sparql:result[sparql:binding[@name='type']/*='entry'])">

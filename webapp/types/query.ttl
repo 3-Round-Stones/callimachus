@@ -175,7 +175,11 @@
 
         var con = this.objectConnection;
         var parser = ParameterizedQueryParser.newInstance();
-        parser.parseQuery(this.openInputStream(), this.toString());
+        try {
+            parser.parseQuery(this.openInputStream(), this.toString());
+        } catch (e) {
+            throw new BadRequest("Could not parse " + this + " " + e.javaException.getMessage(), e);
+        }
     """.
 
 :stream a owl:FunctionalProperty, owl:ObjectProperty;

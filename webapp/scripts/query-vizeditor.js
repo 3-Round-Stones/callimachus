@@ -125,7 +125,6 @@
                     .css('opacity', 0)
                     .end()
             ;
-            $('#calli-viz-editor').draggable({opacity: 0.7, handle: '.viz-menu'});
             lib.positionEditor();
             window.setTimeout(lib.positionEditor, 500);
             lib.buildVizMenu();

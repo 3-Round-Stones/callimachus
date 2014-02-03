@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html style="overflow:hidden">
 <head>
     <title>Save as...</title>
     <link rel="stylesheet" href="../styles/callimachus.less?less" />
@@ -63,9 +63,15 @@
     </script>
 </head>
 <body>
-    <form id="form">
-        <div class="form-group">
-            <input class="form-control" id="label" type="text" autofocus="autofocus" />
+    <form id="form" role="form" class="form-horizontal">
+        <div class="container">
+            <div class="form-group"></div>
+            <div class="form-group">
+                <label for="label" class="col-xs-2 control-label">Name</label>
+                <div class="col-xs-8">
+                    <input class="form-control" id="label" type="text" autofocus="autofocus" />
+                </div>
+            </div>
         </div>
         <iframe id="saveas-iframe" name="saveas-iframe" class="flex" seamless="seamless"></iframe>
     </form>

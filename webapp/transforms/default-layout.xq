@@ -82,7 +82,7 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
         {calli:body-nodes()}
     </div>
 
-    <div class="navbar navbar-large navbar-relative-bottom hidden-iframe">
+    <div class="navbar navbar-default navbar-large navbar-relative-bottom hidden-iframe">
         <footer class="navbar-inner">
             <div class="container">
                 {calli:generator-p(<p class="navbar-right navbar-text" />)}

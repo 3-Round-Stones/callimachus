@@ -41,8 +41,9 @@ window.calli.closeDialog = function(iframe) {
     $(frameElement).closest('.modal').modal('hide');
 };
 
-// settings : {buttons:{label:handler}, onmessage:handler, onclose:handler}
-window.calli.openDialog = function(url, title, settings) {
+// options : {buttons:{label:handler}, onmessage:handler, onclose:handler}
+window.calli.openDialog = function(url, title, options) {
+    var settings = options || {};
     var markup = ['<div class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">',
         '  <div class="modal-dialog modal-lg">',
         '    <div class="modal-content">',
@@ -58,16 +59,21 @@ window.calli.openDialog = function(url, title, settings) {
         '</div>'].join('\n');
     var modal = $(markup);
     modal.find('.modal-title').text(title);
-    for (var label in settings.buttons) {
-        var button = $('<button></button>');
-        button.attr("type", "button");
-        button.attr("class", "btn btn-default");
-        button.text(label);
-        modal.find('.modal-footer').append(button);
-        button.on('click', settings.buttons[label]);
-    }
     var iframe = modal.find('iframe');
-    iframe.css('height', 0.6 * $(window).height());
+    if (settings.buttons) {
+        for (var label in settings.buttons) {
+            var button = $('<button></button>');
+            button.attr("type", "button");
+            button.attr("class", "btn btn-default");
+            button.text(label);
+            modal.find('.modal-footer').append(button);
+            button.on('click', settings.buttons[label]);
+        }
+        iframe.css('height', 0.6 * $(window).height());
+    } else {
+        modal.find('.modal-footer').remove();
+        iframe.css('height', 0.8 * $(window).height());
+    }
     $('body').append(modal);
     // inter-window message processor
     var handle = function(event) {
@@ -85,10 +91,19 @@ window.calli.openDialog = function(url, title, settings) {
         }
     };
     $(window).bind('message', handle);
+    var resize = function(event) {
+        if (settings.buttons) {
+            iframe.css('height', 0.6 * $(window).height());
+        } else {
+            iframe.css('height', 0.8 * $(window).height());
+        }
+    };
+    $(window).on('resize', resize);
     // close
     modal.on("hidden.bs.modal", function(event, ui) {
         $(document).trigger("calliCloseDialog");
         $(window).unbind('message', handle);
+        $(window).off('resize', handle);
         modal.remove();
         if (typeof settings.onclose == 'function') {
             settings.onclose();

@@ -190,12 +190,16 @@
             processData:false,
             data:formData,
             xhrFields: calli.withCredentials,
-            beforeSend:function(xhr) {
+            xhr: function() {
+                var xhr = $.ajaxSettings.xhr();
                 if (xhr.upload && xhr.upload.addEventListener) {
                     xhr.upload.addEventListener("progress", function(event) {
                         uploadProgress(event.loaded);
                     }, false);
+                } else if (console.log) {
+                    console.log("Upload progress is not supported.");
                 }
+                return xhr;
             },
             success:function(data, textStatus) {
                 reload();
@@ -212,12 +216,16 @@
             processData:false,
             data:file,
             xhrFields: calli.withCredentials,
-            beforeSend:function(xhr) {
+            xhr: function() {
+                var xhr = $.ajaxSettings.xhr();
                 if (xhr.upload && xhr.upload.addEventListener) {
                     xhr.upload.addEventListener("progress", function(event) {
                         uploadProgress(event.loaded);
                     }, false);
+                } else if (console.log) {
+                    console.log("Upload progress is not supported.");
                 }
+                return xhr;
             },
             success:function(data, textStatus) {
                 reload();
@@ -227,14 +235,17 @@
     }
     var uploadedSize = 0;
     function uploadProgress(complete, estimated) {
-        var progress = $('#result-status').find('.ui-progressbar-value');
-        if (!progress.length && queueCompleteSize + complete < queueTotalSize / 2) {
-            progress = $('<div/>');
-            var progressbar = $('<div/>');
-            progressbar.addClass("ui-progressbar ui-widget ui-widget-content ui-corner-all");
-            progress.addClass("ui-progressbar-value ui-widget-header ui-corner-left");
-            progressbar.append(progress);
-            $('#result-status').append(progressbar);
+        var progressbar = $('#result-status').find('.progress-bar');
+        if (!progressbar.length && queueCompleteSize + complete < queueTotalSize / 2) {
+            var progress = $('<div/>');
+            progressbar = $('<div/>');
+            var span = $('<span></span>');
+            span.addClass("sr-only");
+            progressbar.append(span);
+            progressbar.addClass("progress-bar");
+            progress.addClass("progress");
+            progress.append(progressbar);
+            $('#result-status').append(progress);
         }
         // Set aside 25% for server processing time
         var x = (queueCompleteSize + complete * 7/8) / queueTotalSize;
@@ -242,8 +253,12 @@
         var percent = Math.round(Math.pow(x+(1-x)*0.03, 2) * 100);
         if (percent >= 100)
             return false;
-        progress.css('width', percent + '%');
-        if (!estimated) {
+        progressbar.css('width', percent + '%');
+        progressbar.find('span').text(percent + '%');
+        if (estimated) {
+            progressbar.closest('.progress').addClass('progress-striped active');
+        } else {
+            progressbar.closest('.progress').removeClass('progress-striped active');
             uploadedSize = queueCompleteSize + complete;
             if (console && console.log) {
                 console.log(new Date().toTimeString() + ' processed ' + percent + '% uploaded ' + (queueCompleteSize + complete) + ' of ' + queueTotalSize);
@@ -260,7 +275,7 @@
                         estimate(lastSize, complete + rate, rate);
                     }
                 }
-            }, 1000);
+            }, 2000);
         };
         // animate progressbar every second while idle to simulate server processing
         if (queueStarted) {
@@ -270,7 +285,7 @@
     }
     function notifyProgressComplete() {
         uploadedSize = 0;
-        $('#result-status').find('.ui-progressbar').remove();
+        $('#result-status').find('.progress').remove();
         if (console && console.log) {
             console.log(new Date().toTimeString() + ' processed 100% of ' + queueTotalSize);
         }

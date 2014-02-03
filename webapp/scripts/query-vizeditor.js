@@ -9,39 +9,29 @@
         
         modules: {
             'table': {
-                'label': 'Table',
+                'label': 'Tables',
                 'subModules': {
                     'table-bootstrap': 'Table (Bootstrap)',
                     'table-datatables': 'Table (DataTables)',
                     'table-google': 'Table (Google Charts)'
                 }
             },
-            'bar': {
-                'label': 'Bar Chart',
+            'axis': {
+                'label': 'Axis Charts',
                 'subModules': {
-                    'bar-dimple': 'Bar Chart (Dimple)'
-                }
-            },
-            'line': {
-                'label': 'Line Chart',
-                'subModules': {
-                    'line-dimple': 'Line Chart (Dimple)'
-                }
-            },
-            'area': {
-                'label': 'Area Chart',
-                'subModules': {
+                    'bar-dimple': 'Bar Chart (Dimple)',
+                    'line-dimple': 'Line Chart (Dimple)',
                     'area-dimple': 'Area Chart (Dimple)'
                 }
             },
-            'pie': {
-                'label': 'Pie Chart',
+            'info': {
+                'label': 'Infographics',
                 'subModules': {
                     'pie-nvd3': 'Pie Chart (nvd3)',
-                    'pie-google': 'Pie Chart (Google Charts)'
+                    'pie-google': 'Pie Chart (Google Charts)',
+                    'google-chart': 'More... (Google Charts)'
                 }
-            },
-            'google-chart': 'More... (Google Charts)'
+            }
         },
         selectedModule: null,
         editorInitialized: false,

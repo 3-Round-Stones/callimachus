@@ -60,6 +60,7 @@ window.calli.openDialog = function(url, title, options) {
     var modal = $(markup);
     modal.find('.modal-title').text(title);
     var iframe = modal.find('iframe');
+    iframe.attr('name', asUniqueName(title));
     if (settings.buttons) {
         for (var label in settings.buttons) {
             var button = $('<button></button>');

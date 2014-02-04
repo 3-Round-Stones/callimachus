@@ -24,7 +24,7 @@
     rdf:_13 <time.js>;
     rdf:_14 <flex.js>;
     rdf:_15 <sorted.js>;
-    rdf:_16 <creole.js>;
+    rdf:_16 <../assets/creole/creole.js>;
     rdf:_17 <wiki.js>;
     rdf:_18 <placeholder.js>;
     rdf:_19 <details.js>;

@@ -14,7 +14,7 @@ window.calli.saveFormAs = function(event, fileName, create) {
     return calli.saveResourceAs(event, fileName, create);
 };
 var nestedSubmit = false;
-window.calli.saveResourceAs = function(event, fileName, create) {
+window.calli.saveResourceAs = function(event, fileName, create, folder) {
     event = calli.fixEvent(event);
     var form = event.target;
     if(!$(form).is('form')) form = $(form).closest('form')[0];
@@ -60,7 +60,7 @@ window.calli.saveResourceAs = function(event, fileName, create) {
     }
     // prompt for a new resource URI
     var label = fileName || findLabel(form) || localPart(resource);
-    openSaveAsDialog(form, label, create, function(ns, local) {
+    openSaveAsDialog(form, label, create, folder, function(ns, local) {
         if (fileName) {
             local = local.replace(/\+/g,'-');
         }
@@ -112,12 +112,14 @@ function localPart(resource) {
     return null;
 }
 
-function openSaveAsDialog(form, label, create, callback) {
+function openSaveAsDialog(form, label, create, folder, callback) {
     var src = calli.getCallimachusUrl("pages/save-resource-as.html#");
     if (label) {
         src += encodeURIComponent(label.replace(/!/g,''));
     }
-    if (location.search.search(/\?create=/) == 0) {
+    if (folder) {
+        src += '!' + folder + '?view';
+    } else if (location.search.search(/\?create=/) === 0) {
         var page = calli.getPageUrl();
         src += '!' + page.substring(0, page.indexOf('?')) + '?view';
     } else {
@@ -141,15 +143,14 @@ function openSaveAsDialog(form, label, create, callback) {
             }
         },
         onmessage: function(event) {
-            if (event.data == 'POST save') {
+            var data = event.data;
+            if (data == 'POST save') {
                 dialog.postMessage('OK\n\n' + event.data, '*');
                 dialog.postMessage('GET label', '*');
-            } else if (event.data.indexOf('OK\n\nGET label\n\n') == 0) {
-                var data = event.data;
+            } else if (data.indexOf('OK\n\nGET label\n\n') === 0) {
                 label = data.substring(data.indexOf('\n\n', data.indexOf('\n\n') + 2) + 2);
                 dialog.postMessage('GET url', '*');
-            } else if (event.data.indexOf('OK\n\nGET url\n\n') == 0) {
-                var data = event.data;
+            } else if (data.indexOf('OK\n\nGET url\n\n') === 0) {
                 var src = data.substring(data.indexOf('\n\n', data.indexOf('\n\n') + 2) + 2);
                 if (src.indexOf('?') >= 0) {
                     src = src.substring(0, src.indexOf('?'));

@@ -2,7 +2,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
     <title resource="?this">{rdfs:label}</title>
     <link rel="help" href="../../callimachus-for-web-developers#XQuery" target="_blank" title="Help" />
@@ -11,7 +12,7 @@
     <link href="http://www.w3.org/TR/xpath-functions/" target="_blank" title="XPath 2.0 Functions and Operators" />
     <link rel="edit-media" href="?" type="application/xquery" />
 </head>
-<body>
+<body resource="?this">
     <form role="form" id="form" method="PUT" action="?" enctype="application/xquery" class="container">
         <fieldset class="form-group">
             <iframe id="editor-iframe" name="editor-iframe" class="flex" src="../../xquery-editor.html" onload="calli.loadEditor(event,'?')"> </iframe>

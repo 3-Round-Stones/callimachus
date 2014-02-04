@@ -212,8 +212,12 @@ public class CalliRepository extends RepositoryWrapper implements CalliRepositor
 		object.setIncludeInferred(includeInferred);
 	}
 
-	public void addSchemaGraph(String graphURI) throws RepositoryException {
-		object.addSchemaGraph(getValueFactory().createURI(graphURI));
+	public void addSchemaGraph(URI graphURI) throws RepositoryException {
+		object.addSchemaGraph(graphURI);
+	}
+
+	public void removeSchemaGraph(URI graphURI) throws RepositoryException {
+		object.removeSchemaGraph(graphURI);
 	}
 
 	public void addSchemaGraphType(String rdfType) throws RepositoryException {

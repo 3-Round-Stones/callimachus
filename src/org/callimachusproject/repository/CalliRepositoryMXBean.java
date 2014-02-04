@@ -20,8 +20,6 @@ public interface CalliRepositoryMXBean {
 
 	void setChangeFolder(String uriSpace) throws OpenRDFException;
 
-	void addSchemaGraph(String graphURI) throws RepositoryException;
-
 	void addSchemaGraphType(String rdfType) throws RepositoryException;
 
 	void setSchemaGraphType(String rdfType) throws RepositoryException;

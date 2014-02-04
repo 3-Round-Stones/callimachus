@@ -77,7 +77,7 @@ public class WebappArchiveImporter {
 		try {
 			if (schemaGraphs != null) {
 				for (URI schemaGraph : schemaGraphs) {
-					repository.addSchemaGraph(schemaGraph.stringValue());
+					repository.addSchemaGraph(schemaGraph);
 				}
 			} else {
 				repository.setSchemaGraphType(webapp + SCHEMA_GRAPH);
@@ -109,6 +109,11 @@ public class WebappArchiveImporter {
 			}
 		} finally {
 			repository.setCompileRepository(false);
+			if (schemaGraphs != null) {
+				for (URI schemaGraph : schemaGraphs) {
+					repository.removeSchemaGraph(schemaGraph);
+				}
+			}
 		}
 	}
 

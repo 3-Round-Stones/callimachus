@@ -58,35 +58,38 @@
     </script>
 </head>
 <body resource="?this">
-    <hgroup>
-        <h1>{rdfs:label} Sign In</h1>
-        <h2 id="authName">{calli:authName}</h2>
-    </hgroup>
-    <p>{rdfs:comment}</p>
-    <form role="form" id="form" method="POST" action="?login">
-        <div class="form-group">
-            <label for="username">Username or email</label>
-            <div class="controls">
-                <input type="text" class="form-control" id="username" placeholder="Username or email" required="required" autofocus="autofocus" />
-            </div>
-        </div>
-        <div class="form-group">
-            <label for="password">Password</label>
-            <div class="controls">
-                <input type="password" class="form-control" id="password" placeholder="Password" />
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="controls">
-                <label class="checkbox">
-                    <input type="checkbox" id="persistent" value="true" /> Stay signed in
-                </label>
-            </div>
-        </div>
-        <div class="form-group">
-            <button type="submit" class="btn btn-primary">Sign in</button>
-            <a href="?daypass" class="btn btn-default">Need another password?</a>
-        </div>
-    </form>
+    <div class="container">
+        <hgroup class="page-header">
+            <h1>{rdfs:label} Sign In <small id="authName">{calli:authName}</small></h1>
+        </hgroup>
+        <p>{rdfs:comment}</p>
+        <form role="form" id="form" method="POST" action="?login" class="row">
+            <fieldset class="col-sm-4">
+                <div class="form-group">
+                    <label for="username">Username or email</label>
+                    <div>
+                        <input type="text" class="form-control" id="username" placeholder="Username or email" required="required" autofocus="autofocus" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div>
+                        <input type="password" class="form-control" id="password" placeholder="Password" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" id="persistent" value="true" /> Stay signed in
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Sign in</button>
+                    <a href="?daypass" class="btn btn-default">Need another password?</a>
+                </div>
+            </fieldset>
+        </form>
+    </div>
 </body>
 </html>

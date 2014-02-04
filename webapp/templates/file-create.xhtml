@@ -5,20 +5,24 @@
     <link rel="help" href="../../callimachus-for-web-developers#File" target="_blank" title="Help" />
 </head>
 <body>
-    <h1>Upload File</h1>
-    <form role="form" id="form" method="POST" action="" enctype="multipart/form-data"
+    <form role="form" id="form" method="POST" action="" enctype="multipart/form-data" class="container"
             onsubmit="return calli.saveResourceAs(event,calli.slugify($('#file').val().replace(/\s+/g,'-')))">
-        <fieldset>
-            <div class="form-group">
-                <label for="image">File</label>
-                <div class="controls">
-                    <input type="file" id="file" name="file" autofocus="autofocus" />
+        <hgroup class="page-header">
+            <h1>Upload File</h1>
+        </hgroup>
+        <div class="row">
+            <fieldset class="col-sm-6">
+                <div class="form-group">
+                    <label for="image">File</label>
+                    <div>
+                        <input type="file" id="file" name="file" class="form-control" autofocus="autofocus" />
+                    </div>
                 </div>
-            </div>
-            <div class="form-group">
-                <button type="submit" class="btn btn-primary" id="upload">Upload</button>
-            </div>
-        </fieldset>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary" id="upload">Upload</button>
+                </div>
+            </fieldset>
+        </div>
     </form>
 </body>
 </html>

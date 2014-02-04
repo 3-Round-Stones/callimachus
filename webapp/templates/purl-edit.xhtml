@@ -16,7 +16,6 @@
     <script type="text/javascript">
     // <![CDATA[
     jQuery(function($){
-        $('textarea.pattern.hide').remove();
         $('textarea.pattern[property]').each(function(){
             $('#type').val(this.getAttribute('property'));
         });
@@ -34,22 +33,22 @@
     </script>
 </head>
 <body resource="?this">
-    <h1 property="rdfs:label" />
-    <form role="form" id="form" method="POST" action="" enctype="application/sparql-update" resource="?this">
-        <fieldset class="row">
-            <div class="form-group col-md-6">
-                <label for="comment">Comment</label>
-                <div class="controls">
-                    <textarea id="comment" class="auto-expand col-md-6">{rdfs:comment}</textarea>
-                </div>
-            </div>
-        </fieldset>
+    <form role="form" id="form" method="POST" action="" enctype="application/sparql-update" resource="?this" class="control">
+        <hgroup class="page-header">
+            <h1 property="rdfs:label" />
+        </hgroup>
         <div class="row">
-            <fieldset class="col-md-3">
+            <fieldset class="col-sm-6">
+                <div class="form-group">
+                    <label for="comment">Comment</label>
+                    <div>
+                        <textarea id="comment" class="form-control">{rdfs:comment}</textarea>
+                    </div>
+                </div>
                 <div class="form-group">
                     <label for="type">GET status</label>
-                    <div class="controls">
-                        <select id="type" class="col-md-3">
+                    <div>
+                        <select id="type" class="form-control">
                             <option value="calli:copy">Copy (200)</option>
                             <option value="calli:canonical">Canonical (301)</option>
                             <option value="calli:alternate" selected="selected">Alternate (302)</option>
@@ -63,57 +62,55 @@
                 </div>
                 <div class="form-group">
                     <label for="pattern">GET content location</label>
-                    <div class="controls">
-                        <textarea class="pattern col-md-3 auto-expand" rows="1" property="calli:copy"></textarea>
-                        <textarea class="pattern col-md-3 auto-expand" rows="1" property="calli:canonical"></textarea>
-                        <textarea class="pattern col-md-3 auto-expand" rows="1" property="calli:alternate"></textarea>
-                        <textarea class="pattern col-md-3 auto-expand" rows="1" property="calli:describedby"></textarea>
-                        <textarea class="pattern col-md-3 auto-expand" rows="1" property="calli:resides"></textarea>
-                        <textarea class="pattern col-md-3 auto-expand" rows="1" property="calli:moved"></textarea>
-                        <textarea class="pattern col-md-3 auto-expand" rows="1" property="calli:missing"></textarea>
-                        <textarea class="pattern col-md-3 auto-expand" rows="1" property="calli:gone"></textarea>
+                    <div>
+                        <textarea class="pattern form-control" rows="1" property="calli:copy"></textarea>
+                        <textarea class="pattern form-control" rows="1" property="calli:canonical"></textarea>
+                        <textarea class="pattern form-control" rows="1" property="calli:alternate"></textarea>
+                        <textarea class="pattern form-control" rows="1" property="calli:describedby"></textarea>
+                        <textarea class="pattern form-control" rows="1" property="calli:resides"></textarea>
+                        <textarea class="pattern form-control" rows="1" property="calli:moved"></textarea>
+                        <textarea class="pattern form-control" rows="1" property="calli:missing"></textarea>
+                        <textarea class="pattern form-control" rows="1" property="calli:gone"></textarea>
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="cache">GET cache control</label>
-                    <div class="controls">
-                		<input type="text" id="cache" value="{calli:cacheControl}" placeholder="max-age=3600" class="form-control col-md-3" />
+                    <div>
+                    	<input type="text" id="cache" value="{calli:cacheControl}" placeholder="max-age=3600" class="form-control" />
                     </div>
                 </div>
             </fieldset>
-            <fieldset class="col-md-3">
+            <fieldset class="col-sm-6">
                 <div class="form-group">
                     <label for="post">POST request target</label>
-                    <div class="controls">
-                        <textarea id="post" class="col-md-3 auto-expand" rows="1">{calli:post}</textarea>
+                    <div>
+                        <textarea id="post" class="form-control" rows="1">{calli:post}</textarea>
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="put">PUT request target</label>
-                    <div class="controls">
-                        <textarea id="put" class="col-md-3 auto-expand" rows="1">{calli:put}</textarea>
+                    <div>
+                        <textarea id="put" class="form-control" rows="1">{calli:put}</textarea>
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="patch">PATCH request target</label>
-                    <div class="controls">
-                        <textarea id="patch" class="col-md-3 auto-expand" rows="1">{calli:patch}</textarea>
+                    <div>
+                        <textarea id="patch" class="form-control" rows="1">{calli:patch}</textarea>
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="delete">DELETE request target</label>
-                    <div class="controls">
-                        <textarea id="delete" class="col-md-3 auto-expand" rows="1">{calli:delete}</textarea>
+                    <div>
+                        <textarea id="delete" class="form-control" rows="1">{calli:delete}</textarea>
                     </div>
                 </div>
             </fieldset>
         </div>
-        <fieldset class="row">
-            <div class="form-group col-md-6">
-                <button type="submit" class="btn btn-primary">Save</button>
-                <button type="button" onclick="window.location.replace('?view')" class="btn btn-default">Cancel</button>
-                <button type="button" onclick="calli.deleteResource(event)" class="btn btn-danger">Delete</button>
-            </div>
+        <fieldset class="form-group">
+            <button type="submit" class="btn btn-primary">Save</button>
+            <button type="button" onclick="window.location.replace('?view')" class="btn btn-default">Cancel</button>
+            <button type="button" onclick="calli.deleteResource(event)" class="btn btn-danger">Delete</button>
         </fieldset>
     </form>
 </body>

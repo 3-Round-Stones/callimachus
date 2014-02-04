@@ -27,20 +27,28 @@
                 </script>
             </head>
             <body onload="init()">
-                <h1>Search Results</h1>
-                <form role="form" method="GET" class="search">
-                    <input type="text" id="q" name="q" size="40" />
-                    <button type="submit">Search</button>
-                </form>
-                <hr />
-                <xsl:if test="not(/sparql:sparql/sparql:results/sparql:result[sparql:binding[@name='type']/*='entry'])">
-                    <p>No resources with this label found.</p>
-                </xsl:if>
-                <xsl:if test="/sparql:sparql/sparql:results/sparql:result[sparql:binding[@name='type']/*='entry']">
-                    <ul id="results">
-                        <xsl:apply-templates select="/sparql:sparql/sparql:results/sparql:result[sparql:binding[@name='type']/*='entry']" />
-                    </ul>
-                </xsl:if>
+                <div class="container">
+                    <hgroup class="page-header">
+                        <h1>Search Results</h1>
+                    </hgroup>
+                    <form role="form" method="GET" class="search">
+                        <div class="form-group">
+                            <input type="text" id="q" name="q" size="40" class="form-control" autofocus="autofocus" required="required" />
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary">Search</button>
+                        </div>
+                    </form>
+                    <hr />
+                    <xsl:if test="not(/sparql:sparql/sparql:results/sparql:result[sparql:binding[@name='type']/*='entry'])">
+                        <p>No resources with this label found.</p>
+                    </xsl:if>
+                    <xsl:if test="/sparql:sparql/sparql:results/sparql:result[sparql:binding[@name='type']/*='entry']">
+                        <ul id="results">
+                            <xsl:apply-templates select="/sparql:sparql/sparql:results/sparql:result[sparql:binding[@name='type']/*='entry']" />
+                        </ul>
+                    </xsl:if>
+                </div>
             </body>
         </html>
     </xsl:template>

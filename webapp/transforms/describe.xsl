@@ -77,20 +77,28 @@
                 </script>
             </head>
             <body>
-                <h1>
-                    <xsl:call-template name="resource">
-                        <xsl:with-param name="iri" select="/rdf:RDF/rdf:Description/@rdf:about[1]"/>
-                    </xsl:call-template>
-                    <xsl:text> Resource</xsl:text>
-                </h1>
-                <div id="sidebar">
-                    <aside>
-                        <p>As <a href="#" id="rdfxml">RDF/XML</a></p>
-                        <p>As <a href="#" id="turtle">Turtle</a></p>
-                    </aside>
-                </div>
-                <div id="results">
-                    <xsl:apply-templates />
+                <div class="container">
+                    <div class="row">
+                        <div class="col-sm-8">
+                            <hgroup class="page-header">
+                                <h1>
+                                    <xsl:call-template name="resource">
+                                        <xsl:with-param name="iri" select="/rdf:RDF/rdf:Description/@rdf:about[1]"/>
+                                    </xsl:call-template>
+                                    <xsl:text> Resource</xsl:text>
+                                </h1>
+                            </hgroup>
+                        </div>
+                        <div class="col-sm-4">
+                            <aside class="well">
+                                <p>As <a href="#" id="rdfxml">RDF/XML</a></p>
+                                <p>As <a href="#" id="turtle">Turtle</a></p>
+                            </aside>
+                        </div>
+                    </div>
+                    <div id="results">
+                        <xsl:apply-templates />
+                    </div>
                 </div>
             </body>
         </html>

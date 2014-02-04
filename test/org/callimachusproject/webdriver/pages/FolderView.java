@@ -66,7 +66,7 @@ public class FolderView extends CalliPage {
 
 	public FolderView waitUntilFolderOpen(String folderName) {
 		browser.focusInTopWindow();
-		browser.waitUntilTextPresent(By.cssSelector(".ui-widget-header"), folderName);
+		browser.waitUntilTextPresent(By.tagName("h3"), folderName);
 		return this;
 	}
 

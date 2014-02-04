@@ -9,39 +9,29 @@
         
         modules: {
             'table': {
-                'label': 'Table',
+                'label': 'Tables',
                 'subModules': {
                     'table-bootstrap': 'Table (Bootstrap)',
                     'table-datatables': 'Table (DataTables)',
                     'table-google': 'Table (Google Charts)'
                 }
             },
-            'bar': {
-                'label': 'Bar Chart',
+            'axis': {
+                'label': 'Axis Charts',
                 'subModules': {
-                    'bar-dimple': 'Bar Chart (Dimple)'
-                }
-            },
-            'line': {
-                'label': 'Line Chart',
-                'subModules': {
-                    'line-dimple': 'Line Chart (Dimple)'
-                }
-            },
-            'area': {
-                'label': 'Area Chart',
-                'subModules': {
+                    'bar-dimple': 'Bar Chart (Dimple)',
+                    'line-dimple': 'Line Chart (Dimple)',
                     'area-dimple': 'Area Chart (Dimple)'
                 }
             },
-            'pie': {
-                'label': 'Pie Chart',
+            'info': {
+                'label': 'Infographics',
                 'subModules': {
                     'pie-nvd3': 'Pie Chart (nvd3)',
-                    'pie-google': 'Pie Chart (Google Charts)'
+                    'pie-google': 'Pie Chart (Google Charts)',
+                    'google-chart': 'More... (Google Charts)'
                 }
-            },
-            'google-chart': 'More... (Google Charts)'
+            }
         },
         selectedModule: null,
         editorInitialized: false,
@@ -111,15 +101,15 @@
             var queryShortName = queryRelPath.replace(/^.+\/([^\/\.]+)\..+$/, '$1');
             // dialog
             var html = [
-                '<div id="calli-viz-editor" data-viz-id="' + lib.vizId + '" data-query="' + queryRelPath + '">',
+                '<div id="calli-viz-editor" data-viz-id="' + lib.vizId + '" data-query="' + queryRelPath + '" class="panel panel-info">',
                     // menu
-                    '<div class="viz-menu">Visualization: <menu class="visualizations dropdown"></menu></div>',
+                    '<div class="viz-menu panel-heading">Visualization: <menu class="visualizations dropdown"></menu></div>',
                     // options pane
-                    '<div class="options-pane"></div>',
+                    '<div class="options-pane panel-body"></div>',
                     // buttons
-                    '<div class="form-actions">',
-                        '<a class="save-viz btn btn-info">Save settings...</a>',
-                        ' <a class="close-editor btn">Close</a>',
+                    '<div class="form-group form-actions panel-footer">',
+                        '<a type="button" class="save-viz btn btn-info">Save settings...</a>',
+                        ' <a type="button" class="close-editor btn btn-default">Close</a>',
                     '</div>',
                 '</div>'
             ].join("\n");
@@ -135,7 +125,6 @@
                     .css('opacity', 0)
                     .end()
             ;
-            $('#calli-viz-editor').draggable({opacity: 0.7, handle: '.viz-menu'});
             lib.positionEditor();
             window.setTimeout(lib.positionEditor, 500);
             lib.buildVizMenu();
@@ -156,11 +145,11 @@
                 $('#calli-viz-editor-bg').css('z-index', lib.maxZIndex($('#calli-viz-editor-bg')));
             	$('#calli-viz-editor')
                     .css('z-index', lib.maxZIndex($('#calli-viz-editor')))
-                    .animate({
+                    .css({
                         left: Math.max(8, ($(window).width() - $('#calli-viz-editor').width()) / 2),
                         top: Math.max(8, ($(window).height() - $('#calli-viz-editor').height()) / 2),
                         opacity: 1
-                    }, 1000)
+                    })
                 ;
             }, 100)
         },
@@ -261,6 +250,7 @@
             lib.selectedModule = newModule;
             lib.loadModule(newModule, function() {
                 lib[newModule].run();
+                lib.positionEditor();
             });
         },
         
@@ -356,7 +346,7 @@
          */
         createParamsMarkup: function(container, params) {
             var query = lib.detectQueryPath();
-            $('<form class="calli-viz-params form-horizontal" action="#" method="post"></form>')
+            $('<form role="form" class="calli-viz-params" action="#" method="post"></form>')
                 .appendTo(container)
                 .each(function() {
                     var container = $(this);
@@ -385,11 +375,11 @@
         createTextOption: function(container, name, label, placeholder, value, info) {
             value = value || lib.getOption(name);
             $([
-                '<div class="control-group">',
-                '   <label class="control-label" for="options-' + name + '">' + label + '</label>',
-                '   <div class="controls">',
-                '       <input type="text" name="' +  name + '" id="options-' + name + '" placeholder="' + (placeholder || "") + '" value="' + (value || "") + '" />',
-                        info ? '<span class="info">' + info + '</span>' : '',
+                '<div class="form-group">',
+                '   <label for="options-' + name + '">' + label + '</label>',
+                '   <div>',
+                '       <input type="text" name="' +  name + '" id="options-' + name + '" placeholder="' + (placeholder || "") + '" value="' + (value || "") + '" class="form-control" />',
+                        info ? '<p class="help-block">' + info + '</p>' : '',
                 '   </div>',
                 '</div>'
             ].join("\n"))
@@ -401,10 +391,10 @@
         createColorOption: function(container, name, label, placeholder, value) {
             value = value || lib.getOption(name) || '#ffffff';
             $([
-                '<div class="control-group">',
-                '   <label class="control-label" for="options-' + name + '">' + label + '</label>',
-                '   <div class="controls">',
-                '       <input type="color" name="' +  name + '" id="options-' + name + '" placeholder="' + (placeholder || "") + '" value="' + (value || "") + '" />',
+                '<div class="form-group">',
+                '   <label for="options-' + name + '">' + label + '</label>',
+                '   <div>',
+                '       <input type="color" name="' +  name + '" id="options-' + name + '" placeholder="' + (placeholder || "") + '" value="' + (value || "") + '" class="form-control" />',
                 '   </div>',
                 '</div>'
             ].join("\n"))
@@ -429,9 +419,9 @@
         createCheckboxOption: function(container, name, label) {
             var checked = lib.getOption(name) ? ' checked="checked"' : '';
             $([
-                '<div class="control-group">',
-                '   <div class="controls">',
-                '       <label class="checkbox"><input type="checkbox" name="' + name + '" value="true"' + checked +'> ' + label + '</label>',
+                '<div class="form-group">',
+                '   <div class="checkbox">',
+                '       <label><input type="checkbox" name="' + name + '" value="true"' + checked +'> ' + label + '</label>',
                 '   </div>',
                 '</div>'
             ].join("\n"))
@@ -443,10 +433,10 @@
         createSelectOption: function(container, name, label, entries) {
             var selected = lib.getOption(name);
             var html = [
-                '<div class="control-group">',
-                '   <label class="control-label" for="options-' + name + '">' + label + '</label>',
-                '   <div class="controls">',
-                '       <select name="' + name + '">'
+                '<div class="form-group">',
+                '   <label for="options-' + name + '">' + label + '</label>',
+                '   <div>',
+                '       <select name="' + name + '" class="form-control">'
             ];
             $.each(entries, function(index, val) {
                 var selCode = (index == selected) || (val == selected) ? ' selected="selected"' : '';
@@ -545,17 +535,19 @@
                 '   <title>' + document.title + '</title>',
                     lib.getVizHtmlHeadLinks(),
                 '</head>',
-                '<body>', 
-                '   <div id="' + lib.vizId + '"/>', 
-                '   <script data-viz-id="' + lib.vizId + '" type="text/javascript">', 
+                '<body>',
+                '   <div class="container">',
+                '      <div id="' + lib.vizId + '"/>',
+                '   </div>',
+                '   <script data-viz-id="' + lib.vizId + '" type="text/javascript">',
                 '   //<![CDATA[',
                 "       var config = \n" + JSON.stringify(lib[lib.selectedModule].getConfig(), null, 4) + ";\n",
                 "       " + lib[lib.selectedModule].renderModule.toString().replace(/function\s*/, 'function drawVisualization') + ";",
                 "       drawVisualization(config);",
                 '   //]]>',
                 '   </script>',
-                '</body>', 
-                '</html>' 
+                '</body>',
+                '</html>'
             ].join("\n");
         },
         

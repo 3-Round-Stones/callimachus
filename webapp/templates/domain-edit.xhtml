@@ -11,7 +11,7 @@
     <script type="text/javascript">
     // <![CDATA[
         jQuery(function($){
-            $('.controls.auto-prompt').each(function(){
+            $('.auto-prompt').each(function(){
                 if (!$(this).find(':input').length) {
                     $(this).find('a').click();
                 }
@@ -21,56 +21,62 @@
     </script>
 </head>
 <body resource="?this">
-    <h1><span property="rdfs:label" /> Domain</h1>
-    <div id="sidebar">
-        <aside>
-            <p>Use Wiki text to describe the purpose of this domain</p>
-            <p>You must specify the Domain Name System suffix to enable access for this group</p>
-            <p>To allow access from any network use a single dot character '.'</p>
-            <p>The longest domain suffix overrides shorter domain suffixes</p>
-        </aside>
-    </div>
     <form role="form" id="form" method="POST" action="" enctype="application/sparql-update" resource="?this"
-            onsubmit="saveChangeNote()">
-        <fieldset>
-            <div class="form-group">
-                <label for="comment">Description</label>
-                <div class="controls">
-                    <textarea id="comment" class="form-control">{rdfs:comment}</textarea>
-                </div>
-            </div>
-            <div class="hbox">
-                <div class="form-group">
-                    <label for="anonymousFrom">Anonymous access from</label>
-                    <div class="controls auto-prompt vbox">
-                        <input id="anonymousFrom" property="calli:anonymousFrom" content="?anonymousFrom" value="{?anonymousFrom}"
-                            type="text" pattern="[\w\-\.]*" placeholder="domain.name" class="form-control" />
-                        <a href="javascript:void(0)" title="More" onclick="return calli.addResource(event)" class="glyphicon glyphicon-plus" />
+            onsubmit="saveChangeNote()" class="container">
+        <hgroup class="page-header">
+            <h1><span property="rdfs:label" /> Domain</h1>
+        </hgroup>
+        <div class="row">
+            <div class="col-sm-8">
+                <fieldset>
+                    <div class="form-group">
+                        <label for="comment">Description</label>
+                        <div>
+                            <textarea id="comment" class="form-control">{rdfs:comment}</textarea>
+                        </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label for="everyoneFrom">Authenticated access from</label>
-                    <div class="controls auto-prompt vbox">
-                        <input id="everyoneFrom" property="calli:everyoneFrom" content="?everyoneFrom" value="{?everyoneFrom}"
-                            type="text" pattern="[\w\-\.]*" placeholder="domain.name" class="form-control" />
-                        <a href="javascript:void(0)" title="More" onclick="return calli.addResource(event)" class="glyphicon glyphicon-plus" />
+                </fieldset>
+                <fieldset class="row">
+                    <div class="form-group col-sm-4">
+                        <label for="anonymousFrom">Anonymous access from</label>
+                        <div class="auto-prompt">
+                            <input id="anonymousFrom" property="calli:anonymousFrom" content="?anonymousFrom" value="{?anonymousFrom}"
+                                type="text" pattern="[\w\-\.]*" placeholder="domain.name" class="form-control" />
+                            <a href="javascript:void(0)" title="More" onclick="return calli.addResource(event)" class="glyphicon glyphicon-plus" />
+                        </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label for="nobodyFrom">Deny access from</label>
-                    <div class="controls auto-prompt vbox">
-                        <input id="nobodyFrom" property="calli:nobodyFrom" content="?nobodyFrom" value="{?nobodyFrom}"
-                            type="text" pattern="[\w\-\.]*" placeholder="domain.name" class="form-control" />
-                        <a href="javascript:void(0)" title="More" onclick="return calli.addResource(event)" class="glyphicon glyphicon-plus" />
+                    <div class="form-group col-sm-4">
+                        <label for="everyoneFrom">Authenticated access from</label>
+                        <div class="auto-prompt">
+                            <input id="everyoneFrom" property="calli:everyoneFrom" content="?everyoneFrom" value="{?everyoneFrom}"
+                                type="text" pattern="[\w\-\.]*" placeholder="domain.name" class="form-control" />
+                            <a href="javascript:void(0)" title="More" onclick="return calli.addResource(event)" class="glyphicon glyphicon-plus" />
+                        </div>
                     </div>
-                </div>
+                    <div class="form-group col-sm-4">
+                        <label for="nobodyFrom">Deny access from</label>
+                        <div class="auto-prompt">
+                            <input id="nobodyFrom" property="calli:nobodyFrom" content="?nobodyFrom" value="{?nobodyFrom}"
+                                type="text" pattern="[\w\-\.]*" placeholder="domain.name" class="form-control" />
+                            <a href="javascript:void(0)" title="More" onclick="return calli.addResource(event)" class="glyphicon glyphicon-plus" />
+                        </div>
+                    </div>
+                </fieldset>
+                <fieldset class="form-group">
+                    <button id="save" type="submit" class="btn btn-primary">Save</button>
+                    <button id="cancel" type="button" onclick="window.location.replace('?view')" class="btn btn-default">Cancel</button>
+                    <button id="delete" type="button" onclick="calli.deleteResource(event)" class="btn btn-danger">Delete</button>
+                </fieldset>
             </div>
-            <div class="form-group">
-                <button id="save" type="submit" class="btn btn-primary">Save</button>
-                <button id="cancel" type="button" onclick="window.location.replace('?view')" class="btn btn-default">Cancel</button>
-                <button id="delete" type="button" onclick="calli.deleteResource(event)" class="btn btn-danger">Delete</button>
+            <div class="col-sm-4">
+                <aside class="well">
+                    <p>Use Wiki text to describe the purpose of this domain</p>
+                    <p>You must specify the Domain Name System suffix to enable access for this group</p>
+                    <p>To allow access from any network use a single dot character '.'</p>
+                    <p>The longest domain suffix overrides shorter domain suffixes</p>
+                </aside>
             </div>
-        </fieldset>
+        </div>
     </form>
 </body>
 </html>

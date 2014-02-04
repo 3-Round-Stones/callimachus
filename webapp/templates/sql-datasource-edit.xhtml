@@ -36,31 +36,33 @@
     </script>
 </head>
 <body resource="?this">
-    <h1 property="rdfs:label" />
-    <form role="form" method="POST" action="" enctype="application/sparql-update" resource="?this">
+    <form role="form" method="POST" action="" enctype="application/sparql-update" resource="?this" class="container">
+        <hgroup class="page-header">
+            <h1 property="rdfs:label" />
+        </hgroup>
         <div class="row">
             <fieldset class="col-sm-4">
                 <div class="form-group">
                     <label for="label">Label</label>
-                    <div class="controls">
+                    <div>
                         <input type="text" class="form-control" id="label" value="{rdfs:label}" required="required" />
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="comment">Comment</label>
-                    <div class="controls">
+                    <div>
                         <textarea id="comment" class="form-control">{rdfs:comment}</textarea>
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="jdbcUrl">JDBC URL</label>
-                    <div class="controls">
+                    <div>
                         <input type="text" class="form-control" id="jdbcUrl" value="{calli:jdbcUrl}" required="required" />
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="driverClassName">Driver class name</label>
-                    <div class="controls">
+                    <div>
                         <input type="text" class="form-control" id="driverClassName" value="{calli:driverClassName}" required="required" />
                     </div>
                 </div>
@@ -68,8 +70,8 @@
                         ondrop="return calli.insertResource(event)">
                     <label>Driver jar file <a href="/?view" title="Browse"
                             onclick="return calli.selectResource(event)" class="glyphicon glyphicon-folder-open" /></label>
-                    <div rel="calli:driverJar" class="controls">
-                        <span resource="?driverJar" class="ui-state-highlight ui-corner-all">
+                    <div rel="calli:driverJar">
+                        <span resource="?driverJar" class="label label-info">
                             <span property="rdfs:label" />
                             <a href="{?driverJar}" title="Don't use this jar" onclick="return calli.removeResource(event)" class="glyphicon glyphicon-remove" />
                         </span>
@@ -79,41 +81,37 @@
             <fieldset class="col-sm-4">
                 <div class="form-group">
                     <label for="validationQuery">Validation query</label>
-                    <div class="controls">
+                    <div>
                         <input type="text" class="form-control" id="validationQuery" value="{calli:validationQuery}" />
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="maxActive">Max active</label>
-                    <div class="controls">
+                    <div>
                         <input type="integer" class="form-control" id="maxActive" value="{calli:maxActive}" datatype="xsd:integer" />
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="maxIdle">Max idle</label>
-                    <div class="controls">
+                    <div>
                         <input type="integer" class="form-control" id="maxIdle" value="{calli:maxIdle}" datatype="xsd:integer" />
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="maxWait">Max wait</label>
-                    <div class="controls">
+                    <div>
                         <input type="integer" class="form-control" id="maxWait" value="{calli:maxWait}" datatype="xsd:integer" />
                     </div>
                 </div>
             </fieldset>
         </div>
-        <div class="row">
-            <fieldset class="col-sm-4">
-                <div class="form-group">
-                <button id="save-datasource" type="submit" class="btn btn-primary">Save</button>
-                <button id="cancel-datasource" type="button" class="btn btn-default"
-                    onclick="window.location.replace('?view')">Cancel</button>
-                <button id="delete-datasource" type="button" class="btn btn-danger"
-                    onclick="calli.deleteResource(event)">Delete</button>
-                </div>
-            </fieldset>
-        </div>
+        <fieldset class="form-group">
+            <button id="save-datasource" type="submit" class="btn btn-primary">Save</button>
+            <button id="cancel-datasource" type="button" class="btn btn-default"
+                onclick="window.location.replace('?view')">Cancel</button>
+            <button id="delete-datasource" type="button" class="btn btn-danger"
+                onclick="calli.deleteResource(event)">Delete</button>
+        </fieldset>
     </form>
 </body>
 </html>

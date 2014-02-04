@@ -25,18 +25,21 @@
     </script>
 </head>
 <body>
-    <h1>Daypass Request Form</h1>
-    <p>You can request a temporary password by providing the e-mail address associated with your account.</p>
-    <form role="form" id="form" method="POST" action="?daypass">
-        <fieldset>
-            <div class="form-group">
-                <label for="email">Account e-mail address</label>
-                <div class="controls">
-                    <input type="email" name="email" id="email" />
+    <div class="container">
+        <hgroup class="page-header">
+            <h1>Daypass Request Form</h1>
+        </hgroup>
+        <p>You can request a temporary password by providing the e-mail address associated with your account.</p>
+        <form role="form" id="form" method="POST" action="?daypass" class="row">
+            <fieldset class="col-sm-4">
+                <div class="form-group">
+                    <label for="email">Account e-mail address</label>
+                    <div>
+                        <input type="email" name="email" id="email" class="form-control" />
+                    </div>
                 </div>
-            </div>
-            <input name="subject" type="hidden" value="Account Registration" />
-            <textarea id="body" name="body" style="display:none">Hello,
+                <input name="subject" type="hidden" value="Account Registration" />
+                <textarea id="body" name="body" class="hidden form-control">Hello,
 
 If you didn't ask us for a another invitation to register link, let us
 know right away. Reporting it is important because it helps us prevent
@@ -48,15 +51,16 @@ Use the link below to pick a password or other authentication options.
 
 Enjoy!
 </textarea>
-            <div class="form-group">
-                <button type="submit" class="btn btn-primary">Request Password</button>
-                <button type="button" onclick="history.back()" class="btn btn-default">Cancel</button>
-            </div>
-        </fieldset>
-    </form>
-    <div id="success" style="display:none">
-        <p>If the email address provided is on file, instructions have been sent.</p>
-        <p>Please follow the instruction sent in the email to proceed.</p>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Request Password</button>
+                    <button type="button" onclick="history.back()" class="btn btn-default">Cancel</button>
+                </div>
+            </fieldset>
+        </form>
+        <div id="success" style="display:none">
+            <p>If the email address provided is on file, instructions have been sent.</p>
+            <p>Please follow the instruction sent in the email to proceed.</p>
+        </div>
     </div>
 </body>
 </html>

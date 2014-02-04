@@ -59,59 +59,63 @@
     </script>
 </head>
 <body resource="?this">
-    <h1 property="rdfs:label" />
-    <div id="sidebar">
-        <aside>
-            <p>Directory index determines how requests directly to this folder should be handled</p>
-            <p>The type is the response code that is sent</p>
-            <p>Content location is what should be returned to the browser</p>
-            <p>Cache control explains how frequently this is expected to change</p>
-        </aside>
-    </div>
-    <form role="form" method="POST" action="" enctype="application/sparql-update" resource="?this">
-        <fieldset>
-            <legend>Directory index</legend>
-            <div class="form-group">
-                <label for="type">Type</label>
-                <div class="controls">
-                    <select id="type">
-                        <option value="calli:copy">Copy (200)</option>
-                        <option value="calli:canonical">Canonical (301)</option>
-                        <option value="calli:alternate">Alternate (302)</option>
-                        <option value="calli:describedby" selected="selected">Described by (303)</option>
-                        <option value="calli:resides">Resides (307)</option>
-                        <option value="calli:moved">Moved (308)</option>
-                        <option value="calli:missing">Missing (404)</option>
-                        <option value="calli:gone">Gone (410)</option>
-                    </select>
+    <form role="form" method="POST" action="" enctype="application/sparql-update" resource="?this" class="container">
+        <hgroup class="page-header">
+            <h1 property="rdfs:label" />
+        </hgroup>
+        <div class="row">
+            <fieldset class="col-sm-4">
+                <legend>Directory index</legend>
+                <div class="form-group">
+                    <label for="type">Type</label>
+                    <div>
+                        <select id="type">
+                            <option value="calli:copy">Copy (200)</option>
+                            <option value="calli:canonical">Canonical (301)</option>
+                            <option value="calli:alternate">Alternate (302)</option>
+                            <option value="calli:describedby" selected="selected">Described by (303)</option>
+                            <option value="calli:resides">Resides (307)</option>
+                            <option value="calli:moved">Moved (308)</option>
+                            <option value="calli:missing">Missing (404)</option>
+                            <option value="calli:gone">Gone (410)</option>
+                        </select>
+                    </div>
                 </div>
-            </div>
-            <div class="form-group">
-                <label for="pattern">Content location</label>
-                <div class="controls">
-                    <input type="text" class="form-control" id="pattern" size="40" value="" />
-                    <span class="pattern" property="calli:copy" content="?copy" />
-                    <span class="pattern" property="calli:canonical" content="?canonical" />
-                    <span class="pattern" property="calli:alternate" content="?alternate" />
-                    <span class="pattern" property="calli:describedby" content="?describedby" />
-                    <span class="pattern" property="calli:resides" content="?resides" />
-                    <span class="pattern" property="calli:moved" content="?moved" />
-                    <span class="pattern" property="calli:missing" content="?missing" />
-                    <span class="pattern" property="calli:gone" content="?gone" />
+                <div class="form-group">
+                    <label for="pattern">Content location</label>
+                    <div>
+                        <input type="text" class="form-control" id="pattern" size="40" value="" />
+                        <span class="pattern" property="calli:copy" content="?copy" />
+                        <span class="pattern" property="calli:canonical" content="?canonical" />
+                        <span class="pattern" property="calli:alternate" content="?alternate" />
+                        <span class="pattern" property="calli:describedby" content="?describedby" />
+                        <span class="pattern" property="calli:resides" content="?resides" />
+                        <span class="pattern" property="calli:moved" content="?moved" />
+                        <span class="pattern" property="calli:missing" content="?missing" />
+                        <span class="pattern" property="calli:gone" content="?gone" />
+                    </div>
                 </div>
-            </div>
-            <div class="form-group">
-                <label for="cache">Cache control</label>
-                <div class="controls">
-            		<input type="text" class="form-control"  id="cache" value="{calli:cacheControl}" placeholder="max-age=3600" />
+                <div class="form-group">
+                    <label for="cache">Cache control</label>
+                    <div>
+                		<input type="text" class="form-control"  id="cache" value="{calli:cacheControl}" placeholder="max-age=3600" />
+                    </div>
                 </div>
+                <div class="form-group">
+                    <button id="save" type="submit" class="btn btn-primary">Save</button>
+                    <button id="cancel" type="button" onclick="window.location.replace('?view')" class="btn btn-default">Cancel</button>
+                    <button id="delete" type="button" onclick="deleteFolder(event)" class="btn btn-danger">Delete</button>
+                </div>
+            </fieldset>
+            <div class="col-sm-4 col-sm-offset-4">
+                <aside class="well">
+                    <p>Directory index determines how requests directly to this folder should be handled</p>
+                    <p>The type is the response code that is sent</p>
+                    <p>Content location is what should be returned to the browser</p>
+                    <p>Cache control explains how frequently this is expected to change</p>
+                </aside>
             </div>
-        </fieldset>
-        <fieldset class="form-group">
-            <button id="save" type="submit" class="btn btn-primary">Save</button>
-            <button id="cancel" type="button" onclick="window.location.replace('?view')" class="btn btn-default">Cancel</button>
-            <button id="delete" type="button" onclick="deleteFolder(event)" class="btn btn-danger">Delete</button>
-        </fieldset>
+        </div>
     </form>
 </body>
 </html>

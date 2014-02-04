@@ -34,7 +34,7 @@
                     if (!queryUrl.match(/\.rq$/)) {// context is not the query view but the chart page, use config
                         queryUrl = config.query;
                     }
-                    queryUrl += '?results&' + $.param(config.params) + location.search.replace('?view', '&') + '&tqx=out:table';
+                    queryUrl += '?results&' + $.param(config.params) + location.search.replace('?view', '&');
                     // chart options
                     var options = {
                         width: '100%',
@@ -63,7 +63,7 @@
         },
         
         createOptionsMarkup: function(container) {
-            $('<form class="calli-viz-options form-horizontal" action="#" method="post"></form>')
+            $('<form role="form" class="calli-viz-options" action="#" method="post"></form>')
                 .appendTo(container)
                 .each(function() {
                     var container = $(this);

@@ -1,84 +1,29 @@
-// auto-expand.js
+// flex.js
 
 (function($){
 
-$(window).bind('resize', fillOutTextArea);
-$(document).bind('change', findAutoExpandTextArea);
-$(document).bind('keypress', findAutoExpandTextArea);
-$(document).bind('input', findAutoExpandTextArea);
-$(document).bind('paste', findAutoExpandTextArea);
-$(document).bind("DOMNodeInserted", findAutoExpandTextArea);
-$(document).ready(function(){setTimeout(fillOutTextArea, 0)});
+$(window).bind('resize', fillOutFlex);
 $(window).load(function(event){
-    fillOutTextArea();
+    $('iframe').load(fillOutFlex);
+    $('img').load(fillOutFlex);
+    fillOutFlex();
 });
 
-function fillOutTextArea(){
-    findAutoExpandTextAreaIn(document);
+function fillOutFlex(e){
+    var el = e ? e.target : window;
+    // use timeout to reduce cpu stress during resize and eternal loops
+    try {clearTimeout(window.flexTO);} catch (e) { }
+    window.flexTO = window.setTimeout(function() {
+        $('.flex').each(function() { flex(this); });
+    }, 50);
+    return;
 }
 
-function findAutoExpandTextArea(event) {
-    findAutoExpandTextAreaIn(event.target);
-}
-
-function findAutoExpandTextAreaIn(target) {
-    var areas = $(".auto-expand", target);
-    if ($(target).is(".auto-expand")) {
-        areas = areas.add(target);
-    }
-    for (var i = 0; i < areas.length; i++) {
-        expand(areas[i]);
-    }
-    $(areas).unbind("paste", targetAutoExpandTextArea);
-    $(areas).bind("paste", targetAutoExpandTextArea);
-}
-
-function targetAutoExpandTextArea(event) {
-    if (event.target && event.target.className.match(/\bauto-expand\b/)) {
-        setTimeout(function(){
-            expand(event.target);
-        }, 0);
-    }
-}
-
-function expand(area) {
+function flex(area) {
     var contentWidth = getAvailableWidth(area);
-    var contentHeight = getAvailableHeight(area);
-    if ($(area).is(":input")) {
-        expandTextArea(area, contentWidth, contentHeight);
-    }
-}
-
-function expandTextArea(area, contentWidth, innerHeight) {
-    var width = area.cols || area.size;
-    var height = area.rows;
-    var maxCols = Math.min(Math.floor(contentWidth / area.offsetWidth * width - 3), Math.floor(contentWidth / 8 - 3));
-    var maxRows = Math.floor(innerHeight / area.offsetHeight * height - 3);
-    if (!maxCols || maxCols < 20) {
-        maxCols = 96;
-    }
-    if (!maxRows || maxRows < 3) {
-        maxRows = 43;
-    }
-    var lines = area.value.split("\n");
-    var cols = 20;
-    var rows = Math.max(1, lines.length);
-    if ($(area).css("white-space") != "pre") {
-        for (var i = 0; i < lines.length; i++) {
-            var len = lines[i].replace(/\t/g, "        ").length;
-            if (cols < len + 1) {
-                cols = len + 1;
-            }
-            rows += Math.floor(len / maxCols);
-        }
-        rows += 1;
-    }
-    if (area.type == "textarea") {
-        area.cols = Math.min(maxCols, cols + 1);
-        area.rows = Math.min(maxRows, rows);
-    } else {
-        area.size = Math.min(maxCols, cols + 1);
-    }
+    var innerHeight = getAvailableHeight(area);
+    $(area).css('width', contentWidth);
+    $(area).css('height', innerHeight);
 }
 
 function getAvailableHeight(area) {
@@ -121,10 +66,7 @@ function getAvailableWidth(area) {
             margin += $(this).outerWidth(true) - $(this).width();
         }
     });
-    var asideLeft = getAsideLeft(area);
-    if ($(parent).offset().left + $(parent).outerWidth(true) <= asideLeft)
-        return $(parent).width() - margin;
-    return $(parent).width() - margin - $(parent).offset().left - $(parent).outerWidth(true) + asideLeft;
+    return $(parent).width() - margin;
 }
 
 function getParentBlock(area) {
@@ -143,23 +85,6 @@ function getParentBlock(area) {
     return $('body')[0];
 }
 
-function getAsideLeft(area) {
-    var clientWidth = document.documentElement.clientWidth;
-    var asideLeft = clientWidth;
-    var areaTop = $(area).offset().top;
-    $("#sidebar,.aside:visible,aside:visible").filter(function(){
-        var top = $(this).offset().top;
-        return areaTop < top + $(this).outerHeight(true) && areaTop + $(area).outerHeight(true) > top;
-    }).each(function() {
-        var left = $(this).offset().left;
-        left -= parsePixel($(this).css("margin-left"));
-        if (left < asideLeft) {
-            asideLeft = left;
-        }
-    });
-    return asideLeft;
-}
-
 function parsePixel(str) {
     if (!str)
         return 0;
@@ -172,30 +97,6 @@ function parsePixel(str) {
     if (str == "thick")
         return 5;
     return 0;
-}
-
-$(window).bind('resize', fillOutFlex);
-$(window).load(function(event){
-    $('iframe').load(fillOutFlex);
-    $('img').load(fillOutFlex);
-    fillOutFlex();
-});
-
-function fillOutFlex(e){
-    var el = e ? e.target : window;
-    // use timeout to reduce cpu stress during resize and eternal loops
-    try {clearTimeout(window.flexTO)} catch (e) { }
-    window.flexTO = window.setTimeout(function() {
-        $('.flex').each(function() { flex(this); });
-    }, 50);
-    return;
-}
-
-function flex(area) {
-    var contentWidth = getAvailableWidth(area);
-    var innerHeight = getAvailableHeight(area);
-    $(area).css('width', contentWidth);
-    $(area).css('height', innerHeight);
 }
 
 if (window.parent != window) {
@@ -240,7 +141,7 @@ if (window.parent != window) {
     $(window).bind('message', function(event) {
         var source = event.originalEvent.source;
         var data = event.originalEvent.data;
-        if (data.indexOf('PUT height\n\n') == 0) {
+        if (data.indexOf('PUT height\n\n') === 0) {
             $('iframe.flex').each(function() {
                 if (this.contentWindow == source) {
                     var innerHeight = window.innerHeight || document.documentElement.clientHeight;
@@ -250,7 +151,7 @@ if (window.parent != window) {
                     this.contentWindow.postMessage('OK\n\nPUT height', '*');
                 }
             });
-        } else if (data.indexOf('PUT width\n\n') == 0) {
+        } else if (data.indexOf('PUT width\n\n') === 0) {
             $('iframe.flex').each(function() {
                 if (this.contentWindow == source) {
                     var width = parseInt(data.substring(data.indexOf('\n\n') + 2));

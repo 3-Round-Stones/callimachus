@@ -225,6 +225,7 @@ public class ResponseBuilder {
 			print.append(enc(exception.getLongMessage()));
 			print.append("</title></head>\n");
 			print.append("<body>\n");
+			print.append("<div class='container'>\n");
 			print.append("<h1>");
 			print.append(html(exception.getLongMessage()));
 			print.append("</h1>\n");
@@ -241,6 +242,7 @@ public class ResponseBuilder {
 				print.append(enc(exception.getDetailMessage()));
 				print.append("</pre>\n");
 			}
+			print.append("</div>\n");
 			print.append("</body>\n");
 			print.append("</html>\n");
 		} finally {
@@ -258,9 +260,11 @@ public class ResponseBuilder {
 			print.append(enc(title));
 			print.append("</title></head>\n");
 			print.append("<body>\n");
+			print.append("<div class='container'>\n");
 			print.append("<h1>");
 			print.append(html(title));
 			print.append("</h1>\n");
+			print.append("</div>\n");
 			print.append("</body>\n");
 			print.append("</html>\n");
 		} finally {

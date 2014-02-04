@@ -32,9 +32,17 @@ xmlns="http://www.w3.org/1999/xhtml" xmlns:xhtml="http://www.w3.org/1999/xhtml" 
         </script>
     </head>
     <body>
-        <xsl:apply-templates />
+        <div class="container">
+            <xsl:apply-templates />
+        </div>
     </body>
     </html>
+</xsl:template>
+
+<xsl:template match="/*/d:title|/*/d:info/d:title">
+    <hgroup class="page-header">
+        <xsl:apply-imports/>
+    </hgroup>
 </xsl:template>
 
 <xsl:template mode="rel" match="node()" />

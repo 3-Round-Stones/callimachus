@@ -25,7 +25,7 @@
                 if (!config || config.module != 'google-chart') {
                     config = {
                         chartType: "Table",
-                        dataSourceUrl: queryRelPath + '?results&tqx=out:csv',
+                        dataSourceUrl: queryRelPath + '?results',
                         options: {title: "Callimachus Chart", legend: "none"},
                         containerId: vizId
                     };
@@ -229,10 +229,12 @@
                     "       drawVisualization(config);",
                     '    ]]></script>',
                     '</head>',
-                    '<body>', 
-                    '   <div id="' + vizId + '"/>', 
-                    '</body>', 
-                    '</html>' 
+                    '<body>',
+                    '   <div class="container">',
+                    '      <div id="' + vizId + '"/>',
+                    '   </div>',
+                    '</body>',
+                    '</html>'
                 ].join("\n");
                 pLib.saveFile(path, fname, content, 'application/xhtml+xml', function(data, status, xhr) {
                     var location = xhr.getResponseHeader('Location');

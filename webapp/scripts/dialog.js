@@ -19,17 +19,6 @@ function findFrameElement(iframe) {
     return iframe.frameElement;
 }
 
-function maxZIndex() {
-    var result = 1;
-    $('div, header, section, footer').each(function() {
-        var z = parseInt($(this).css("z-index"), 10);
-        if (z >= result) {
-            result = z + 1;
-        }
-    });
-    return result;
-}
-
 function asName(title) {
     if (!title)
         return "iframe";
@@ -49,51 +38,44 @@ function asUniqueName(title) {
 
 window.calli.closeDialog = function(iframe) {
     var frameElement = findFrameElement(iframe);
-    $(frameElement).dialog('close');
-}
+    $(frameElement).closest('.modal').modal('hide');
+};
 
-$(window).on('resize', function(e) {
-    resizeDialog(this);
-});
-
-/**
- * Resizes the given window's dialog DIV and associated IFRAME.
- */ 
-function resizeDialog(win) {
-    $(win.document).find('.ui-dialog').each(function() {
-        var 
-            oldDialogHeight = $(this).height(),
-            oldIframeHeight = $(this).find('iframe').height(),
-            newDialogHeight = $(this).height(0.9 * $(win).height()).height(),
-            diff = newDialogHeight - oldDialogHeight,
-            newIframeHeight = oldIframeHeight + diff
-        ;
-        $(this).find('iframe')
-            .height(newIframeHeight)
-            .dialog("option", "position", ['center', 'center']);
-        ;
-    });
-}
-
+// options : {buttons:{label:handler}, onmessage:handler, onclose:handler}
 window.calli.openDialog = function(url, title, options) {
-    // init the dialog
-    var settings = jQuery.extend({
-        title: title,
-        autoOpen: false,
-        modal: false,
-        draggable: true,
-        resizable: false,
-        autoResize: true,
-        position: ['center', 'center'],
-        width: '90%',
-        height: 0.9 * $(window).height(),
-        zIndex: maxZIndex()
-    }, options);
-    var iframe = $("<iframe></iframe>");
-    iframe.attr('src', 'about:blank');
+    var settings = options || {};
+    var markup = ['<div class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">',
+        '  <div class="modal-dialog modal-lg">',
+        '    <div class="modal-content">',
+        '      <div class="modal-header">',
+        '        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>',
+        '        <h4 class="modal-title"></h4>',
+        '      </div>',
+        '      <iframe seamless="seamless" width="100%"></iframe>',
+        '      <div class="modal-footer" style="margin-top:0">',
+        '      </div>',
+        '    </div>',
+        '  </div>',
+        '</div>'].join('\n');
+    var modal = $(markup);
+    modal.find('.modal-title').text(title);
+    var iframe = modal.find('iframe');
     iframe.attr('name', asUniqueName(title));
-    iframe.addClass('dialog');
-    iframe.dialog(settings);
+    if (settings.buttons) {
+        for (var label in settings.buttons) {
+            var button = $('<button></button>');
+            button.attr("type", "button");
+            button.attr("class", "btn btn-default");
+            button.text(label);
+            modal.find('.modal-footer').append(button);
+            button.on('click', settings.buttons[label]);
+        }
+        iframe.css('height', 0.6 * $(window).height());
+    } else {
+        modal.find('.modal-footer').remove();
+        iframe.css('height', 0.8 * $(window).height());
+    }
+    $('body').append(modal);
     // inter-window message processor
     var handle = function(event) {
         if (event.originalEvent.source == iframe[0].contentWindow) {
@@ -110,44 +92,44 @@ window.calli.openDialog = function(url, title, options) {
         }
     };
     $(window).bind('message', handle);
-    // before close
-    iframe.bind("dialogbeforeclose", function(event, ui) {
-        var e = jQuery.Event("calliCloseDialog");
-        var frameElement = findFrameElement(iframe[0].contentWindow);
-        $(frameElement).trigger(e);
-        return !e.isDefaultPrevented();
-    });
+    var resize = function(event) {
+        if (settings.buttons) {
+            iframe.css('height', 0.6 * $(window).height());
+        } else {
+            iframe.css('height', 0.8 * $(window).height());
+        }
+    };
+    $(window).on('resize', resize);
     // close
-    iframe.bind("dialogclose", function(event, ui) {
+    modal.on("hidden.bs.modal", function(event, ui) {
+        $(document).trigger("calliCloseDialog");
         $(window).unbind('message', handle);
-        iframe.remove();
-        iframe.parent().remove();
+        $(window).off('resize', handle);
+        modal.remove();
         if (typeof settings.onclose == 'function') {
             settings.onclose();
         }
     });
     // trigger open
     var e = jQuery.Event("calliOpenDialog");
-    iframe.trigger(e);
+    $(document).trigger(e);
     if (e.isDefaultPrevented()) {
-        iframe.dialog('close');
         return null;
     } else {
-        iframe.dialog("open");
-        iframe.css('padding-left', '1em');
-        iframe.css('width', '100%');
+        modal.modal('show');
         iframe.load(calli.wait().over);
         iframe[0].src = url;
         if (typeof settings.onlookup == 'function') {
-            var dialogTitle = iframe.parents(".ui-dialog").find(".ui-dialog-title");
+            var dialogTitle = modal.find(".modal-title");
             var form = $("<form></form>");
             var searchTerms = $("<input/>");
             searchTerms.attr("placeholder", "Lookup..");
+            searchTerms.addClass("form-control");
             form.append(searchTerms);
-            form.css('position', "absolute");
-            form.css('top', dialogTitle.offset().top - iframe.parent().offset().top - 5);
-            form.css('right', 30);
-            iframe.before(form);
+            form.attr("role", "form");
+            form.addClass('pull-right form-inline');
+            form.css('padding-right', '15px');
+            dialogTitle.append(form);
             form.submit(function(event) {
                 event.preventDefault();
                 if (searchTerms.val()) {
@@ -168,7 +150,7 @@ window.calli.openDialog = function(url, title, options) {
         }
         return win;
     }
-}
+};
 
 })(jQuery, jQuery);
 

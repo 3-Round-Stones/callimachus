@@ -10,7 +10,9 @@
                 <title></title>
             </head>
             <body>
-                <xsl:apply-templates />
+                <div class="container">
+                    <xsl:apply-templates />
+                </div>
             </body>
         </html>
     </xsl:template>
@@ -56,5 +58,10 @@
     </xsl:template>
     <xsl:template match="sparql:binding">
         <xsl:apply-templates select="*" />
+    </xsl:template>
+    <xsl:template match="sparql:uri">
+        <a href="{text()}">
+            <xsl:value-of select="replace(text(), 'https?://[^\?#]*/([^\?#/])', '$1')" />
+        </a>
     </xsl:template>
 </xsl:stylesheet>

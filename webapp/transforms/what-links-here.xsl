@@ -13,13 +13,17 @@
                 <link rel="help" href="../../callimachus-for-web-developers#System_menu" target="_blank" title="Help" />
             </head>
             <body>
-                <h1>What Links Here</h1>
-                <xsl:if test="not(/sparql:sparql/sparql:results/sparql:result)">
-                    <p>No resources link here.</p>
-                </xsl:if>
-                <xsl:if test="/sparql:sparql/sparql:results/sparql:result">
-                    <xsl:apply-templates />
-                </xsl:if>
+                <div class="container">
+                    <hgroup class="page-header">
+                        <h1>What Links Here</h1>
+                    </hgroup>
+                    <xsl:if test="not(/sparql:sparql/sparql:results/sparql:result)">
+                        <p>No resources link here.</p>
+                    </xsl:if>
+                    <xsl:if test="/sparql:sparql/sparql:results/sparql:result">
+                        <xsl:apply-templates />
+                    </xsl:if>
+                </div>
             </body>
         </html>
     </xsl:template>

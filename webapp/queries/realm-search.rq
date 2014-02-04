@@ -32,6 +32,7 @@ SELECT * {
                             SELECT * {
                                 ?url keyword:phone ?soundex
                                 FILTER sameTerm(?soundex, keyword:soundex("$q"))
+                                FILTER (strlen("$q") > 0)
                             } LIMIT 1000
                         }
                         FILTER (isIRI(?url))
@@ -79,6 +80,7 @@ SELECT * {
             GROUP BY ?url ORDER BY ?title ?id ?icon
         }
         FILTER (bound(?id))
+        FILTER (strlen("$q") > 0)
         BIND ("entry" as ?type)
         BIND (concat(str(?id),"?view") as ?link_href)
         BIND ("alternate" as ?link_rel)

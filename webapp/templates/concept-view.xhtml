@@ -16,40 +16,60 @@
     </style>
 </head>
 <body resource="?this">
-    <h1 property="skos:prefLabel" />
-    <div id="sidebar">
-        <aside class="optional">
-            <h3>Broader</h3>
-            <p rev="skos:narrower" resource="?broader">
-                <a property="skos:prefLabel" href="?broader"></a>
-            </p>
-        </aside>
-        <aside class="optional">
-            <h3>Related</h3>
-            <p rel="skos:related" resource="?related" class="related">
-                <a property="skos:prefLabel" href="?related"></a>
-            </p>
-            <p rev="skos:related" resource="?revated" class="related">
-                <a property="skos:prefLabel" href="?revated"></a>
-            </p>
-        </aside>
-        <aside class="optional">
-            <h3>Narrower</h3>
-            <p rel="skos:narrower" resource="?narrower">
-                <a property="skos:prefLabel" href="?narrower"></a>
-            </p>
-        </aside>
-    </div>
-    <div class="hbox">
-        <div class="vbox">
-            <pre property="skos:definition" class="wiki"></pre>
-            <pre property="skos:example" class="wiki"></pre>
-            <pre property="skos:historyNote" class="wiki"></pre>
-            <pre property="skos:scopeNote" class="wiki"></pre>
-        </div>
-        <div id="image" rel="foaf:depiction" resource="?image" style="max-width:33%">
-            <a href="{?image}?view"><img src="?image" class="img-responsive" /></a>
-            <p property="rdfs:comment" />
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-8">
+                <hgroup class="page-header">
+                    <h1 property="skos:prefLabel" />
+                </hgroup>
+                <div class="row">
+                    <div class="col-sm-8">
+                        <pre property="skos:definition" class="wiki"></pre>
+                        <pre property="skos:example" class="wiki"></pre>
+                        <pre property="skos:historyNote" class="wiki"></pre>
+                        <pre property="skos:scopeNote" class="wiki"></pre>
+                    </div>
+                    <div id="image" rel="foaf:depiction" resource="?image" class="col-sm-4">
+                        <a href="{?image}?view"><img src="?image" class="img-responsive" /></a>
+                        <p property="rdfs:comment" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <aside class="optional panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Broader</h3>
+                    </div>
+                    <div class="panel-body">
+                        <p rev="skos:narrower" resource="?broader">
+                            <a property="skos:prefLabel" href="?broader"></a>
+                        </p>
+                    </div>
+                </aside>
+                <aside class="optional panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Related</h3>
+                    </div>
+                    <div class="panel-body">
+                        <p rel="skos:related" resource="?related" class="related">
+                            <a property="skos:prefLabel" href="?related"></a>
+                        </p>
+                        <p rev="skos:related" resource="?revated" class="related">
+                            <a property="skos:prefLabel" href="?revated"></a>
+                        </p>
+                    </div>
+                </aside>
+                <aside class="optional panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Narrower</h3>
+                    </div>
+                    <div class="panel-body">
+                        <p rel="skos:narrower" resource="?narrower">
+                            <a property="skos:prefLabel" href="?narrower"></a>
+                        </p>
+                    </div>
+                </aside>
+            </div>
         </div>
     </div>
 </body>

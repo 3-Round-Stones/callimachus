@@ -66,7 +66,7 @@
         },
         
         createOptionsMarkup: function(container) {
-            $('<form class="calli-viz-options form-horizontal" action="#" method="post"></form>')
+            $('<form role="form" class="calli-viz-options" action="#" method="post"></form>')
                 .appendTo(container)
                 .each(function() {
                     pLib.createHiddenOption($(this), 'module', moduleName);

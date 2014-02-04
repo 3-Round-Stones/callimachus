@@ -5,27 +5,31 @@
     <link rel="help" href="../../callimachus-for-web-developers#Bulk_changes" target="_blank" title="Help" />
 </head>
 <body>
-    <h1>Import Folder Contents</h1>
-    <div id="sidebar">
-        <aside>
-            <p>Upload a CAR file that was previously exported from another Callimachus folder</p>
-            <p>By uploading a replacement archive, <b>all</b> contents of the current folder will be <b>deleted</b>!</p>
-            <p>The current folder's' entire contents will be replaced with the contents of the archive as an atomic operation.</p>
-        </aside>
-    </div>
-    <form role="form" id="form" method="POST" action="" enctype="multipart/form-data">
-        <fieldset>
-            <div class="form-group">
-                <label for="image">Content</label>
-                <div class="controls">
-                    <input type="file" id="file" name="file" multiple="multiple" autofocus="autofocus" />
+    <form role="form" id="form" method="POST" action="" enctype="multipart/form-data" class="container">
+        <div class="row">
+            <fieldset class="col-sm-8">
+                <hgroup class="page-header">
+                    <h1>Import Folder Contents</h1>
+                </hgroup>
+                <div class="form-group">
+                    <label for="image">Content</label>
+                    <div>
+                        <input type="file" id="file" name="file" multiple="multiple" class="form-control" autofocus="autofocus" />
+                    </div>
                 </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary" id="import">Import</button>
+                    <button type="button" id="cancel" onclick="window.location.replace('?view')" class="btn btn-default">Cancel</button>
+                </div>
+            </fieldset>
+            <div class="col-sm-4">
+                <aside class="well">
+                    <p>Upload a CAR file that was previously exported from another Callimachus folder</p>
+                    <p>By uploading a replacement archive, <b>all</b> contents of the current folder will be <b>deleted</b>!</p>
+                    <p>The current folder's' entire contents will be replaced with the contents of the archive as an atomic operation.</p>
+                </aside>
             </div>
-            <div class="form-group">
-                <button type="submit" class="btn btn-primary" id="import">Import</button>
-                <button type="button" id="cancel" onclick="window.location.replace('?view')" class="btn btn-default">Cancel</button>
-            </div>
-        </fieldset>
+        </div>
     </form>
 </body>
 </html>

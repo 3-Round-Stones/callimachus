@@ -89,7 +89,7 @@
         createOptionsMarkup: function(container) {
             var columns = lib.getColumns();
             columns.unshift('-');
-            $('<form class="calli-viz-options form-horizontal" action="#" method="post"></form>')
+            $('<form role="form" class="calli-viz-options" action="#" method="post"></form>')
                 .appendTo(container)
                 .each(function() {
                     var container = $(this);

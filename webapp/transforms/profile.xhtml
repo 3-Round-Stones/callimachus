@@ -10,58 +10,62 @@
     <link rel="help" href="../../callimachus-for-web-developers" target="_blank" title="Help" />
 </head>
 <body>
-    <h1>RDF Profile</h1>
-    <div id="sidebar">
-        <aside>
-            <p>Namespace profiles are used to refer to resources using CURIES</p>
-        </aside>
-        <aside>
-            <h3>Use of this Profile</h3>
-            <ul>
-                <li>Downloading RDF graphs</li>
-                <li>Evaluating SPARQL queries</li>
-                <li>Compiling internal SPARQL queries</li>
-            </ul>
-        </aside>
-        <aside>
-            <p>Removing items listed here can break the system</p>
-        </aside>
-    </div>
-    <form role="form" method="POST" action="" autocomplete="off">
-        <table class="graph">
-            <thead>
-                <tr><th>Prefix</th><th>URI</th></tr>
-            </thead>
-            <tbody class="sorted">
-                <xsl:for-each select="rdf:RDF/rdf:Description">
-                    <tr resource="{@rdf:about}">
-                        <td property="rdfa:prefix" class="asc">
+    <form role="form" method="POST" action="" autocomplete="off" class="container">
+        <hgroup class="page-header">
+            <h1>RDF Namespace Profile</h1>
+        </hgroup>
+        <div class="row">
+            <div class="col-sm-8">
+                <dl class="dl-horizontal">
+                    <dt></dt>
+                    <dd></dd>
+                    <xsl:for-each select="rdf:RDF/rdf:Description">
+                        <dt>
                             <xsl:value-of select="rdfa:prefix" />
-                        </td>
-                        <td property="rdfa:uri" content="{rdfa:uri/text()}">
-                            <input type="text" class="form-control" name="{rdfa:prefix}" value="{rdfa:uri/text()}" />
-                            <a href="javascript:void(0)" title="Remove entry" class="glyphicon glyphicon-remove"
-                                 onclick="$(this).parents('tr:first').remove();return false" />
-                        </td>				
-                    </tr>
-                </xsl:for-each>
-            </tbody>
-            <tbody>
-                <tr>
-                    <td>
+                        </dt>
+                        <dd>
+                            <div class="input-group">
+                                <input type="text" class="form-control" name="{rdfa:prefix}" value="{rdfa:uri/text()}" />
+                                <span class="input-group-btn">
+                                    <button class="btn btn-warning" type="button" title="Remove entry"
+                                            onclick="$(this).closest('dd').prev('dt').remove();$(this).closest('dd').remove();return false">
+                                        <span class="glyphicon glyphicon-remove" />
+                                    </button>
+                                </span>
+                            </div>
+                        </dd>
+                    </xsl:for-each>
+                    <dt>
                         <input type="text" class="form-control" size="8" onchange="$('#new-uri').attr('name', value)" />
-                    </td>
-                    <td>
+                    </dt>
+                    <dd>
                         <input type="text" class="form-control" id="new-uri" />
-                        <a title="Remove entry" href="javascript:void(0)" class="glyphicon glyphicon-remove"
-                             onclick="$(this).parents('tr:first').remove()" />
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-        <div class="hidden-logout">
-            <button type="submit" class="btn btn-primary">Save</button>
-            <button type="button" onclick="history.back()" class="btn btn-default">Cancel</button>
+                    </dd>
+                </dl>
+                <div class="hidden-logout form-group">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                    <xsl:text> </xsl:text>
+                    <button type="button" onclick="history.back()" class="btn btn-default">Cancel</button>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <aside class="well">
+                    <p>Namespace profiles are used to refer to resources using CURIES</p>
+                </aside>
+                <aside class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Use of this Profile</h3>
+                    </div>
+                    <ul class="list-group">
+                        <li class="list-group-item">Downloading RDF graphs</li>
+                        <li class="list-group-item">Evaluating SPARQL queries</li>
+                        <li class="list-group-item">Compiling internal SPARQL queries</li>
+                    </ul>
+                </aside>
+                <aside class="well">
+                    <p>Removing items listed here can break the system</p>
+                </aside>
+            </div>
         </div>
     </form>
 </body>

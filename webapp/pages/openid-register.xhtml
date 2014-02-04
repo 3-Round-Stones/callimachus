@@ -33,13 +33,17 @@
     </script>
 </head>
 <body resource="?this">
-    <h1>{rdfs:label} Sign Up</h1>
-    <p>Are you sure you want to accept this invitation?</p>
-    <form role="form" id="form" method="POST" action="?register">
-        <div class="form-group">
-            <button type="submit" class="btn btn-primary">Yes, sign me up!</button>
-            <button type="button" class="btn btn-default" onclick="window.location.replace('/')">I'll come back later</button>
-        </div>
-    </form>
+    <div class="container">
+        <hgroup class="page-header">
+            <h1>{rdfs:label} Sign Up</h1>
+        </hgroup>
+        <p>Are you sure you want to accept this invitation?</p>
+        <form role="form" id="form" method="POST" action="?register">
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">Yes, sign me up!</button>
+                <button type="button" class="btn btn-default" onclick="window.location.replace('/')">I'll come back later</button>
+            </div>
+        </form>
+    </div>
 </body>
 </html>

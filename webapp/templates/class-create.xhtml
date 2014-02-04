@@ -86,128 +86,133 @@
     </script>
 </head>
 <body>
-    <h1>New Class</h1>
-    <div id="sidebar">
-        <aside>
-            <p>A class usually represents a noun, such as a person, place or (possibly quite abstract) thing</p>
-            <p>Icon is used when looking up resources. To add an icon, click the browse icon to open a file upload dialogue</p>
-            <p>Authors are permitted to create new resources of this class</p>
-            <p>Use a super class to inherit or override page templates</p>
-            <p>An external OWL class can be associated with a Callimachus class to apply the templates to both classes.
-                Use the equivalent dialogue to upload and view an imported ontology; drag the external OWL class onto the equivalent field to make the association</p>
-            <p>Templates are used for page or form structure on each operation</p>
-        </aside>
-    </div>
-    <form role="form" id="form" method="POST" action="" enctype="application/rdf+xml" typeof="owl:Class"
+    <form role="form" id="form" method="POST" action="" enctype="application/rdf+xml" typeof="owl:Class" class="container"
             onsubmit="return calli.saveResourceAs(event,encodeURIComponent($('#label').val().replace(/([a-z])\s([A-Z])/g, '$1$2').replace(/\s+/g,'_')))">
-        <fieldset class="hbox">
-            <div class="form-group">
-                <label for="label">Label</label>
-                <div class="controls">
-                    <input type="text" id="label" value="{rdfs:label}" class="form-control" required="required" autofocus="autofocus" />
-                </div>
-            </div>
-            <div id="icon" dropzone="link string:text/uri-list" class="form-group"
-                    ondrop="return calli.insertResource(event)">
-                <label>Icon <a href="/?view" title="Browse"
-                        onclick="return calli.selectResource(event)" class="glyphicon glyphicon-folder-open" /></label>
-                <div rel="calli:icon" class="controls">
-                    <span resource="?icon" typeof="foaf:Image" class="ui-state-highlight ui-corner-all">
-                        <img src="{?icon}" />
-                        <a href="{?icon}" title="Remove from class" onclick="return calli.removeResource(event)" class="glyphicon glyphicon-remove" />
-                    </span>
-                </div>
-            </div>
-        </fieldset>
-        <fieldset class="form-group">
-            <label for="comment">Comment</label>
-            <div class="controls">
-                <textarea id="comment" class="form-control">{rdfs:comment}</textarea>
-            </div>
-        </fieldset>
-        <fieldset class="hbox">
-            <div id="authors" dropzone="link string:text/uri-list" class="form-group"
-                    ondrop="return calli.insertResource(event)">
-                <label>Authors <a href="/auth/groups/" title="Select Group"
-                        onclick="return calli.selectResource(event)" class="glyphicon glyphicon-folder-open" /></label>
-                <div rel="calli:author" class="vbox controls">
-                    <span resource="?author" typeof="calli:Party" class="ui-state-highlight ui-corner-all">
-                        <span property="rdfs:label" />
-                        <a href="{?author}" title="Remove permission" onclick="return calli.removeResource(event)" class="glyphicon glyphicon-remove" />
-                    </span>
-                </div>
-            </div>
-            <div id="subClassOf" dropzone="link string:text/uri-list" class="form-group"
-                    ondrop="return calli.insertResource(event)">
-                <label>Super <a href="/?view" title="Create"
-                        onclick="return calli.selectResource(event)" class="glyphicon glyphicon-folder-open" /></label>
-                <div rel="rdfs:subClassOf" class="vbox controls">
-                    <span resource="?subClassOf" typeof="owl:Class" class="ui-state-highlight ui-corner-all">
-                        <span property="rdfs:label" />
-                        <a href="{?subClassOf}" title="Don't extend" onclick="return calli.removeResource(event)" class="glyphicon glyphicon-remove" />
-                    </span>
-                </div>
-            </div>
-            <div id="equivalentClass" dropzone="link string:text/uri-list" class="form-group"
-                    ondrop="return calli.insertResource(event)">
-                <label>Equivalent</label>
-                <div rel="owl:equivalentClass" class="vbox controls">
-                    <span resource="?equivalentClass" typeof="owl:Class" class="ui-state-highlight ui-corner-all">
-                        <span class="equivalentLabel" property="rdfs:label" />
-                        <span style="display:none" class="equivalentComment">{rdfs:comment}</span>
-                        <a href="{?equivalentClass}" title="Not equivalent" onclick="return calli.removeResource(event)" class="glyphicon glyphicon-remove" />
-                    </span>
-                </div>
-            </div>
-        </fieldset>
-        <fieldset class="form-group">
-            <label for="composite">Nested resources</label>
-            <div class="controls">
-                <label class="checkbox"><input id="composite" type="checkbox" /> These resources contain other resources</label>
-            </div>
-        </fieldset>
-        <hr />
-        <fieldset>
-            <legend>Page Templates</legend>
-            <div class="hbox">
-                <div id="create" dropzone="link string:text/uri-list" class="form-group"
-                        ondrop="return calli.insertResource(event)">
-                    <label>Template for creating <a href="../types/Page" title="Create a new template" class="glyphicon glyphicon-list-alt"
-                            onclick="return calli.createResource(event, './?create=' + encodeURIComponent(this.href) + '#!' + $('link[rel=sample-create]').attr('href'))" /></label>
-                    <div rel="calli:create" class="controls">
-                        <span resource="?create" typeof="calli:Page" class="ui-state-highlight ui-corner-all">
-                            <a href="{?create}?edit" property="rdfs:label" onclick="calli.openDialog(this.href, 'Template for creating');return false" />
-                            <a href="{?create}" title="Don't use this template" onclick="return calli.removeResource(event)" class="glyphicon glyphicon-remove" />
-                        </span>
+        <div class="row">
+            <div class="col-sm-8">
+                <hgroup class="page-header">
+                    <h1>New Class</h1>
+                </hgroup>
+                <fieldset class="row">
+                    <div class="form-group col-sm-6">
+                        <label for="label">Label</label>
+                        <div>
+                            <input type="text" id="label" value="{rdfs:label}" class="form-control" required="required" autofocus="autofocus" />
+                        </div>
                     </div>
-                </div>
-                <div id="view" dropzone="link string:text/uri-list" class="form-group"
-                        ondrop="return calli.insertResource(event)">
-                    <label>Template for viewing <a href="../types/Page" title="Create a new template" class="glyphicon glyphicon-list-alt"
-                            onclick="return calli.createResource(event, './?create=' + encodeURIComponent(this.href) + '#!' + $('link[rel=sample-view]').attr('href'))" /></label>
-                    <div rel="calli:view" class="controls">
-                        <span resource="?view" typeof="calli:Page" class="ui-state-highlight ui-corner-all">
-                            <a href="{?view}?edit" property="rdfs:label" onclick="calli.openDialog(this.href, 'Template for viewing');return false" />
-                            <a href="{?view}" title="Don't use this template" onclick="return calli.removeResource(event)" class="glyphicon glyphicon-remove" />
-                        </span>
+                    <div id="icon" dropzone="link string:text/uri-list" class="form-group col-sm-6"
+                            ondrop="return calli.insertResource(event)">
+                        <label>Icon <a href="/?view" title="Browse"
+                                onclick="return calli.selectResource(event)" class="glyphicon glyphicon-folder-open" /></label>
+                        <div rel="calli:icon">
+                            <span resource="?icon" typeof="foaf:Image" class="label label-info">
+                                <img src="{?icon}" />
+                                <a href="{?icon}" title="Remove from class" onclick="return calli.removeResource(event)" class="glyphicon glyphicon-remove" />
+                            </span>
+                        </div>
                     </div>
-                </div>
-                <div id="edit" dropzone="link string:text/uri-list" class="form-group"
-                        ondrop="return calli.insertResource(event)">
-                    <label>Template for editing <a href="../types/Page" title="Create a new template" class="glyphicon glyphicon-list-alt"
-                            onclick="return calli.createResource(event, './?create=' + encodeURIComponent(this.href) + '#!' + $('link[rel=sample-edit]').attr('href'))" /></label>
-                    <div rel="calli:edit" class="controls">
-                        <span resource="?edit" typeof="calli:Page" class="ui-state-highlight ui-corner-all">
-                            <a href="{?edit}?edit" property="rdfs:label" onclick="calli.openDialog(this.href, 'Template for editing');return false" />
-                            <a href="{?edit}" title="Don't use this template" onclick="return calli.removeResource(event)" class="glyphicon glyphicon-remove" />
-                        </span>
+                </fieldset>
+                <fieldset class="form-group">
+                    <label for="comment">Comment</label>
+                    <div>
+                        <textarea id="comment" class="form-control">{rdfs:comment}</textarea>
                     </div>
-                </div>
+                </fieldset>
+                <fieldset class="row">
+                    <div id="authors" dropzone="link string:text/uri-list" class="form-group col-sm-4"
+                            ondrop="return calli.insertResource(event)">
+                        <label>Authors <a href="/auth/groups/" title="Select Group"
+                                onclick="return calli.selectResource(event)" class="glyphicon glyphicon-folder-open" /></label>
+                        <div rel="calli:author">
+                            <span resource="?author" typeof="calli:Party" class="label label-info">
+                                <span property="rdfs:label" />
+                                <a href="{?author}" title="Remove permission" onclick="return calli.removeResource(event)" class="glyphicon glyphicon-remove" />
+                            </span>
+                        </div>
+                    </div>
+                    <div id="subClassOf" dropzone="link string:text/uri-list" class="form-group col-sm-4"
+                            ondrop="return calli.insertResource(event)">
+                        <label>Super <a href="/?view" title="Create"
+                                onclick="return calli.selectResource(event)" class="glyphicon glyphicon-folder-open" /></label>
+                        <div rel="rdfs:subClassOf">
+                            <span resource="?subClassOf" typeof="owl:Class" class="label label-info">
+                                <span property="rdfs:label" />
+                                <a href="{?subClassOf}" title="Don't extend" onclick="return calli.removeResource(event)" class="glyphicon glyphicon-remove" />
+                            </span>
+                        </div>
+                    </div>
+                    <div id="equivalentClass" dropzone="link string:text/uri-list" class="form-group col-sm-4"
+                            ondrop="return calli.insertResource(event)">
+                        <label>Equivalent</label>
+                        <div rel="owl:equivalentClass">
+                            <span resource="?equivalentClass" typeof="owl:Class" class="label label-info">
+                                <span class="equivalentLabel" property="rdfs:label" />
+                                <span style="display:none" class="equivalentComment">{rdfs:comment}</span>
+                                <a href="{?equivalentClass}" title="Not equivalent" onclick="return calli.removeResource(event)" class="glyphicon glyphicon-remove" />
+                            </span>
+                        </div>
+                    </div>
+                </fieldset>
+                <fieldset class="form-group">
+                    <label for="composite">Nested resources</label>
+                    <div>
+                        <label class="checkbox"><input id="composite" type="checkbox" /> These resources contain other resources</label>
+                    </div>
+                </fieldset>
+                <fieldset>
+                    <legend>Page Templates</legend>
+                    <div class="row">
+                        <div id="create" dropzone="link string:text/uri-list" class="form-group col-sm-4"
+                                ondrop="return calli.insertResource(event)">
+                            <label>Template for creating <a href="../types/Page" title="Create a new template" class="glyphicon glyphicon-list-alt"
+                                    onclick="return calli.createResource(event, './?create=' + encodeURIComponent(this.href) + '#!' + $('link[rel=sample-create]').attr('href'))" /></label>
+                            <div rel="calli:create">
+                                <span resource="?create" typeof="calli:Page" class="label label-info">
+                                    <a href="{?create}?edit" property="rdfs:label" onclick="calli.openDialog(this.href, 'Template for creating');return false" />
+                                    <a href="{?create}" title="Don't use this template" onclick="return calli.removeResource(event)" class="glyphicon glyphicon-remove" />
+                                </span>
+                            </div>
+                        </div>
+                        <div id="view" dropzone="link string:text/uri-list" class="form-group col-sm-4"
+                                ondrop="return calli.insertResource(event)">
+                            <label>Template for viewing <a href="../types/Page" title="Create a new template" class="glyphicon glyphicon-list-alt"
+                                    onclick="return calli.createResource(event, './?create=' + encodeURIComponent(this.href) + '#!' + $('link[rel=sample-view]').attr('href'))" /></label>
+                            <div rel="calli:view">
+                                <span resource="?view" typeof="calli:Page" class="label label-info">
+                                    <a href="{?view}?edit" property="rdfs:label" onclick="calli.openDialog(this.href, 'Template for viewing');return false" />
+                                    <a href="{?view}" title="Don't use this template" onclick="return calli.removeResource(event)" class="glyphicon glyphicon-remove" />
+                                </span>
+                            </div>
+                        </div>
+                        <div id="edit" dropzone="link string:text/uri-list" class="form-group col-sm-4"
+                                ondrop="return calli.insertResource(event)">
+                            <label>Template for editing <a href="../types/Page" title="Create a new template" class="glyphicon glyphicon-list-alt"
+                                    onclick="return calli.createResource(event, './?create=' + encodeURIComponent(this.href) + '#!' + $('link[rel=sample-edit]').attr('href'))" /></label>
+                            <div rel="calli:edit">
+                                <span resource="?edit" typeof="calli:Page" class="label label-info">
+                                    <a href="{?edit}?edit" property="rdfs:label" onclick="calli.openDialog(this.href, 'Template for editing');return false" />
+                                    <a href="{?edit}" title="Don't use this template" onclick="return calli.removeResource(event)" class="glyphicon glyphicon-remove" />
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+                <fieldset class="form-group">
+                    <button id="create" type="submit" class="btn btn-success">Create</button>
+                </fieldset>
             </div>
-        </fieldset>
-        <fieldset class="form-group">
-            <button id="create" type="submit" class="btn btn-success">Create</button>
-        </fieldset>
+            <div class="col-sm-4">
+                <aside class="well">
+                    <p>A class usually represents a noun, such as a person, place or (possibly quite abstract) thing</p>
+                    <p>Icon is used when looking up resources. To add an icon, click the browse icon to open a file upload dialogue</p>
+                    <p>Authors are permitted to create new resources of this class</p>
+                    <p>Use a super class to inherit or override page templates</p>
+                    <p>An external OWL class can be associated with a Callimachus class to apply the templates to both classes.
+                        Use the equivalent dialogue to upload and view an imported ontology; drag the external OWL class onto the equivalent field to make the association</p>
+                    <p>Templates are used for page or form structure on each operation</p>
+                </aside>
+            </div>
+        </div>
     </form>
 </body>
 </html>

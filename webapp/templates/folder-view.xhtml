@@ -8,7 +8,6 @@
     xmlns:prov="http://www.w3.org/ns/prov#">
 <head>
     <title resource="?this">{rdfs:label}</title>
-    <link href="../styles/callimachus-folder-view.css" type="text/css" rel="stylesheet" />
     <link href="?changes" type="application/atom+xml" rel="alternate" />
     <link href="?contents" type="application/atom+xml" rel="contents" />
     <link rel="edit-form" href="?edit" />
@@ -19,6 +18,9 @@
     <link id="create-menu-json" href="../queries/folder-create-menu.rq?results&amp;tqx=out:table&amp;user=" />
     <link href="?archive" title="Export folder contents" />
     <link href="?import" title="Import folder contents" />
+    <style type="text/css">
+        #table td { white-space: nowrap; }
+    </style>
     <script type="text/javascript" src="../scripts/folder-view.js"></script>
     <script type="text/javascript" src="../scripts/folder-create-menu.js"></script>
     <script type="text/javascript">
@@ -29,83 +31,87 @@
     </script>
 </head>
 <body resource="?this">
-    <div id="folder-box" class="ui-grid ui-widget ui-widget-content ui-corner-all" dropzone="copy f:image/pjpeg f:image/x-png f:image/png f:image/jpeg f:image/gif f:image/vnd.microsoft.icon f:application/rdf+xml f:application/sparql-query f:application/xhtml+xml f:text/javascript f:text/css f:text/plain f:application/docbook+xml">
-        <div class="ui-grid-header ui-widget-header ui-corner-top">
-            <span class="hidden-logout">
-                <nav class="pull-left dropdown btn-group">
-                    <a id="create-menu" href="javascript:void(0)" class="btn btn-sm btn-danger" title="Create menu" data-toggle="dropdown">Create<i class="glyphicon" style="width:0px"></i></a>
-                    <ul id="create-menu-more" class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
-                    </ul>
-                    <a id="file-create" href="../types/File" class="btn btn-sm btn-icon btn-danger" title="Upload file"><i class="glyphicon glyphicon-upload"></i></a>
-                </nav>
-            </span>
-            <span rev="calli:hasComponent" resource="?parent" class="muted">
-                <a href="{?parent}?view">{rdfs:label}</a>
-                <span> / </span>
-            </span>
-            <span property="rdfs:label"/>
-        </div>
-        <table id="table" class="ui-grid-content ui-widget-content">
-            <colgroup class="filecol" />
-            <thead>
-                <tr>
-                    <th class="ui-state-default">File</th>
-                    <th class="ui-state-default">Updated</th>
-                    <th class="ui-state-default permission">Readers</th>
-                    <th class="ui-state-default permission">Subscribers</th>
-                    <th class="ui-state-default permission">Contributors</th>
-                    <th class="ui-state-default permission">Editors</th>
-                    <th class="ui-state-default permission">Administrators</th>
-                </tr>
-            </thead>
-            <tbody id="tfolders" rel="calli:hasComponent">
-                <tr resource="?folder" typeof="calli:Folder">
-                    <td class="ui-widget-content filecell">
-                        <a href="{?folder}?view" property="rdfs:label" content="?flabel">
-                            <img class="icon" src="../images/folder.png" /><span>{?flabel}</span>
-                        </a>
-                    </td>
-                    <td class="ui-widget-content timecell">
-                        <span rel="prov:wasGeneratedBy" resource="?activity">
-                            <time class="abbreviated" property="prov:endedAtTime"/>
-                        </span>
-                    </td>
-                    <td class="ui-widget-content permission">
-                        <a rel="calli:reader" href="?reader">
-                            <span property="rdfs:label"/>
-                        </a>
-                    </td>
-                    <td class="ui-widget-content permission">
-                        <a rel="calli:subscriber" href="?subscriber">
-                            <span property="rdfs:label"/>
-                        </a>
-                    </td>
-                    <td class="ui-widget-content permission">
-                        <a rel="calli:contributor" href="?contributor">
-                            <span property="rdfs:label"/>
-                        </a>
-                    </td>
-                    <td class="ui-widget-content permission">
-                        <a rel="calli:editor" href="?editor">
-                            <span property="rdfs:label"/>
-                        </a>
-                    </td>
-                    <td class="ui-widget-content permission">
-                        <a rel="calli:administrator" href="?administrator">
-                            <span property="rdfs:label"/>
-                        </a>
-                    </td>
-                </tr>
-            </tbody>
-            <tbody id="tfiles">
-            </tbody>
-        </table>
-        <div class="ui-grid-footer ui-widget-header ui-corner-bottom">
-            <div id="result-status" class="ui-grid-results">
-                <span>Showing results <span id="totalEntries" /> of <span id="totalResults" /></span>
+    <div class="container">
+        <div id="folder-box" class="panel panel-default" dropzone="copy">
+            <div class="panel-heading">
+                <span class="hidden-logout">
+                    <nav class="pull-left dropdown btn-group">
+                        <a id="create-menu" href="javascript:void(0)" class="btn btn-sm btn-danger" title="Create menu" data-toggle="dropdown">Create<i class="glyphicon" style="width:0px"></i></a>
+                        <ul id="create-menu-more" class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
+                        </ul>
+                        <a id="file-create" href="../types/File" class="btn btn-sm btn-icon btn-danger" title="Upload file"><i class="glyphicon glyphicon-upload"></i></a>
+                    </nav>
+                </span>
+                <h3 class="panel-title text-center btn-sm">
+                    <span rev="calli:hasComponent" resource="?parent" class="muted">
+                        <a href="{?parent}?view">{rdfs:label}</a>
+                        <span> / </span>
+                    </span>
+                    <span property="rdfs:label"/>
+                </h3>
+                <div class="clearfix"></div>
+            </div>
+            <table id="table" class="table table-hover table-condensed table-responsive">
+                <colgroup class="filecol" />
+                <thead>
+                    <tr>
+                        <th>File</th>
+                        <th>Updated</th>
+                        <th class="hidden-xs hidden-sm">Readers</th>
+                        <th class="hidden-xs hidden-sm">Subscribers</th>
+                        <th class="hidden-xs hidden-sm">Contributors</th>
+                        <th class="hidden-xs hidden-sm">Editors</th>
+                        <th class="hidden-xs hidden-sm">Administrators</th>
+                    </tr>
+                </thead>
+                <tbody id="tfolders" rel="calli:hasComponent">
+                    <tr resource="?folder" typeof="calli:Folder">
+                        <td class="filecell">
+                            <a href="{?folder}?view" property="rdfs:label" content="?flabel">
+                                <img class="icon" src="../images/folder.png" /><span>{?flabel}</span>
+                            </a>
+                        </td>
+                        <td class="timecell">
+                            <span rel="prov:wasGeneratedBy" resource="?activity">
+                                <time class="abbreviated" property="prov:endedAtTime"/>
+                            </span>
+                        </td>
+                        <td class="hidden-xs hidden-sm">
+                            <a rel="calli:reader" href="?reader">
+                                <span property="rdfs:label"/>
+                            </a>
+                        </td>
+                        <td class="hidden-xs hidden-sm">
+                            <a rel="calli:subscriber" href="?subscriber">
+                                <span property="rdfs:label"/>
+                            </a>
+                        </td>
+                        <td class="hidden-xs hidden-sm">
+                            <a rel="calli:contributor" href="?contributor">
+                                <span property="rdfs:label"/>
+                            </a>
+                        </td>
+                        <td class="hidden-xs hidden-sm">
+                            <a rel="calli:editor" href="?editor">
+                                <span property="rdfs:label"/>
+                            </a>
+                        </td>
+                        <td class="hidden-xs hidden-sm">
+                            <a rel="calli:administrator" href="?administrator">
+                                <span property="rdfs:label"/>
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+                <tbody id="tfiles">
+                </tbody>
+            </table>
+            <div class="panel-footer">
+                <div id="result-status">
+                    <span>Showing results <span id="totalEntries" /> of <span id="totalResults" /></span>
+                </div>
             </div>
         </div>
     </div>
 </body>
 </html>
-

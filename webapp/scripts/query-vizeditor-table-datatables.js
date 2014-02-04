@@ -31,8 +31,8 @@
                 queryUrl = config.query;
             }
             queryUrl += '?results&' + $.param(config.params) + location.search.replace('?view', '&') + '&tqx=out:html';
-            container.load(queryUrl, function() {
-                container.find(' > table').dataTable( {
+            container.load(queryUrl + ' table', function() {
+                container.find('table').dataTable( {
                     "bPaginate": config.options['pagination'] ? true : false,
                     "sPaginationType": config.options['full-pagination'] ? 'full_numbers' : 'two_button',
                     "bLengthChange": true
@@ -48,7 +48,7 @@
         },
         
         createOptionsMarkup: function(container) {
-            $('<form class="calli-viz-options form-horizontal" action="#" method="post"></form>')
+            $('<form role="form" class="calli-viz-options" action="#" method="post"></form>')
                 .appendTo(container)
                 .each(function() {
                     pLib.createHiddenOption($(this), 'module', moduleName);

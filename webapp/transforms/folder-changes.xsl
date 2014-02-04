@@ -13,8 +13,12 @@
                 <link rel="help" href="../../callimachus-for-web-developers#System_menu" target="_blank" title="Help" />
             </head>
             <body>
-                <h1>Recent Changes</h1>
-                <xsl:apply-templates />
+                <div class="container">
+                    <hgroup class="page-header">
+                        <h1>Recent Changes</h1>
+                    </hgroup>
+                    <xsl:apply-templates />
+                </div>
             </body>
         </html>
     </xsl:template>

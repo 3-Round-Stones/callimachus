@@ -2,9 +2,6 @@
  * Import the style rules and default values
  */
 
-/* https://github.com/jquery/jquery-ui  */
-@import url("jquery.ui.all.less");
-
 /* https://github.com/twitter/bootstrap */
 @import url("../assets/bootstrap/less/bootstrap.less");
 
@@ -22,10 +19,6 @@ html {
 
 .wait,.wait * {
     cursor:wait;
-}
-
-.drag-over {
-    cursor:copy;
 }
 
 html.logout .protected,
@@ -49,15 +42,6 @@ time {
     white-space:nowrap;
 }
 
-[dropzone] .ui-state-highlight {
-    white-space:nowrap;
-}
-
-iframe.ui-widget-content.ui-dialog-content {
-    margin:0;
-    padding:0;
-}
-
 pre {
     white-space:pre-wrap;
 }
@@ -66,11 +50,6 @@ img.icon {
     max-height:1em;
     padding-right:2pt;
     vertical-align:text-top;
-}
-
-a.ui-icon {
-    display:inline-block;
-    vertical-align:text-bottom;
 }
 
 .flex {
@@ -103,17 +82,6 @@ div, footer, iframe {
     .box-shadow(none);
 }
 
-html.iframe .container {
-    padding: 0;
-    width: auto;
-}
-
-.ui-dialog {
-    padding-bottom: 0;
-    .box-shadow(0 5px 10px rgba(0,0,0,0.2));
-    max-width: 640px;
-}
-
 /* add a border to the iframe */
 form iframe {
     border: 1px solid @gray-light;
@@ -121,10 +89,6 @@ form iframe {
 
 form {
     margin-bottom: 0;
-}
-
-.container > .tab-content {
-    padding-top: 0.5em;
 }
 
 /* breadcrumbs */
@@ -138,28 +102,6 @@ form {
 
 .navbar + .container > *.breadcrumb:first-child .divider {
     padding: 0 10px;
-}
-
-/* sidebar */
-
-html.iframe .sidebar {
-    margin-top: 1rem;
-}
-
-.sidebar aside {
-    .box-shadow(0 0 7px rgba(0, 0, 0, 0.1) inset);
-    padding: 1rem;
-    border: 1px solid #ddd;
-    margin-bottom: 1rem;
-}
-
-.sidebar aside p:last-child {
-    margin-bottom: 0;
-}    
-
-.sidebar aside h3 {
-    line-height: 1rem;
-    margin-top: 0;
 }
 
 /* footer */
@@ -234,56 +176,3 @@ html.iframe .until-navbar-large {
     cursor: copy;
     background: #ddd !important;
 }
-
-/* responsive tweaks */
-
-@media (min-width: @screen-xs) and (max-width: @screen-xs-max) {
-
-    .sidebar {
-        width: 18rem;
-        float: right;
-    }
- 
-    .sidebar ~ .nav {
-        margin-right: 20rem;
-    }
-
-    .sidebar ~ .nav:after {
-        clear: left;
-    }
-
-    html.login .sidebar {
-        width: auto;
-        float: none; /* don't float if tab-nav visible */
-    }
- 
-    html.login .sidebar ~ .nav {
-        margin-right: 0;
-    }
-
-    html.login.iframe .sidebar {
-        width: 18rem;
-        float: right;
-    }
- 
-    html.login.iframe .sidebar ~ .nav {
-        margin-right: 20rem;
-    }
-}
-
-@media (min-width: @screen-sm) {
-
-    .sidebar {
-        width: 18rem;
-        float: right;
-    }
- 
-    .sidebar ~ .nav {
-        margin-right: 20rem;
-    }
-
-    .sidebar ~ .nav:after {
-        clear: left;
-    }
-}
-

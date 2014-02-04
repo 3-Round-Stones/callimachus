@@ -19,113 +19,119 @@
     </script>
 </head>
 <body resource="?this">
-    <h1 property="skos:prefLabel" />
-    <div id="sidebar">
-        <aside>
-            <p>The primary label should be recognizable</p>
-            <p>Other labels can be provide to assist concept lookup</p>
-            <p>The definition, example, and scope can be provide to clarify usage and meaning</p>
-            <p>Links to other related concepts may also be provided</p>
-            <p>To add an image, click the browse icon to open a file upload dialogue</p>
-        </aside>
-    </div>
-    <form role="form" id="form" method="POST" action="" enctype="application/sparql-update"
+    <form role="form" id="form" method="POST" action="" enctype="application/sparql-update" class="container"
             resource="?this" typeof="skos:Concept" onsubmit="saveChangeNote()">
-        <fieldset class="hbox">
-            <div class="form-group">
-                <label for="label">Label</label>
-                <div class="controls">
-                    <input type="text" id="label" value="{skos:prefLabel}" class="form-control" />
-                </div>
+        <hgroup class="page-header">
+            <h1 property="skos:prefLabel" />
+        </hgroup>
+        <div class="row">
+            <div class="col-sm-8">
+                <fieldset class="row">
+                    <div class="form-group col-sm-6">
+                        <label for="label">Label</label>
+                        <div>
+                            <input type="text" id="label" value="{skos:prefLabel}" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-6">
+                        <label for="altLabel">Alternate label</label>
+                        <div>
+                            <input type="text" id="altLabel" property="skos:altLabel" content="?alt" value="{?alt}" class="form-control" />
+                            <a href="javascript:void(0)" title="More" onclick="return calli.addResource(event)" class="glyphicon glyphicon-plus" />
+                        </div>
+                    </div>
+                </fieldset>
+                <fieldset class="row">
+                    <div class="form-group col-sm-6">
+                        <label for="definition">Definition</label>
+                        <div>
+                            <textarea id="definition" class="form-control">{skos:definition}</textarea>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-6">
+                        <label for="example">Example</label>
+                        <div>
+                            <textarea id="example" class="form-control">{skos:example}</textarea>
+                        </div>
+                    </div>
+                </fieldset>
+                <fieldset class="row">
+                    <div class="form-group col-sm-6">
+                        <label for="scopeNote">Scope</label>
+                        <div>
+                            <textarea id="scopeNote" class="form-control">{skos:scopeNote}</textarea>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-6">
+                        <label for="historyNote">History</label>
+                        <div>
+                            <textarea id="historyNote" class="form-control">{skos:historyNote}</textarea>
+                        </div>
+                    </div>
+                </fieldset>
+                <hr />
+                <fieldset class="row">
+                    <div id="related" dropzone="link string:text/uri-list" class="form-group col-sm-6"
+                            ondrop="return calli.insertResource(event)">
+                        <label>Related <a href="../types/Concept" title="Create"
+                                onclick="return calli.createResource(event, './?create=' + encodeURIComponent(this.href))" class="glyphicon glyphicon-list-alt" /></label>
+                        <div rel="skos:related">
+                            <span resource="?related" typeof="skos:Concept" class="label label-info">
+                                <span property="skos:prefLabel" />
+                                <a href="{?related}" title="Remove relationship" onclick="return calli.removeResource(event)" class="glyphicon glyphicon-remove" />
+                            </span>
+                        </div>
+                    </div>
+                    <div id="narrower" dropzone="link string:text/uri-list" class="form-group col-sm-6"
+                            ondrop="return calli.insertResource(event)">
+                        <label>Narrower <a href="../types/Concept" title="Create"
+                                onclick="return calli.createResource(event, './?create=' + encodeURIComponent(this.href))" class="glyphicon glyphicon-list-alt" /></label>
+                        <div rel="skos:narrower">
+                            <span resource="?narrower" typeof="skos:Concept" class="label label-info">
+                                <span property="skos:prefLabel" />
+                                <a href="{?narrower}" title="Remove relationship" onclick="return calli.removeResource(event)" class="glyphicon glyphicon-remove" />
+                            </span>
+                        </div>
+                    </div>
+                </fieldset>
+                <hr />
+                <fieldset id="image" dropzone="link string:text/uri-list" class="form-group"
+                        ondrop="return calli.insertResource(event)">
+                    <label>Image <a href="/?view" title="Browse" onclick="return calli.selectResource(event)" class="glyphicon glyphicon-folder-open" /></label>
+                     <div rel="foaf:depiction">
+                        <span resource="?depiction" typeof="foaf:Image" class="label label-info">
+                            <img src="{?depiction}?small" />
+                            <a href="{?depiction}" title="Remove from this concept" onclick="return calli.removeResource(event)" class="glyphicon glyphicon-remove" />
+                        </span>
+                    </div>
+                </fieldset>
+                <hr />
+                <fieldset>
+                    <div class="form-group">
+                        <label for="note">Change note</label>
+                        <div>
+                            <input type="text" id="note" maxlength="140" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <button id="save" type="submit" class="btn btn-primary">Save</button>
+                        <button id="saveas" type="button" class="btn btn-info"
+                            onclick="calli.saveResourceAs(event, calli.slugify($('#label').val()), calli.getCallimachusUrl('types/Concept'))">Save as...</button>
+                        <button id="cancel" type="button" onclick="window.location.replace('?view')" class="btn btn-default">Cancel</button>
+                        <button id="delete" type="button" onclick="calli.deleteResource(event)" class="btn btn-danger">Delete</button>
+                    </div>
+                </fieldset>
             </div>
-            <div class="form-group">
-                <label for="altLabel">Alternate label</label>
-                <div class="controls">
-                    <input type="text" id="altLabel" property="skos:altLabel" content="?alt" value="{?alt}" class="form-control" />
-                    <a href="javascript:void(0)" title="More" onclick="return calli.addResource(event)" class="glyphicon glyphicon-plus" />
-                </div>
+            <div class="col-sm-4">
+                <aside class="well">
+                    <p>The primary label should be recognizable</p>
+                    <p>Other labels can be provide to assist concept lookup</p>
+                    <p>The definition, example, and scope can be provide to clarify usage and meaning</p>
+                    <p>Links to other related concepts may also be provided</p>
+                    <p>To add an image, click the browse icon to open a file upload dialogue</p>
+                </aside>
             </div>
-        </fieldset>
-        <fieldset class="hbox">
-            <div class="form-group">
-                <label for="definition">Definition</label>
-                <div class="controls">
-                    <textarea id="definition" class="form-control">{skos:definition}</textarea>
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="example">Example</label>
-                <div class="controls">
-                    <textarea id="example" class="form-control">{skos:example}</textarea>
-                </div>
-            </div>
-        </fieldset>
-        <fieldset class="hbox">
-            <div class="form-group">
-                <label for="scopeNote">Scope</label>
-                <div class="controls">
-                    <textarea id="scopeNote" class="form-control">{skos:scopeNote}</textarea>
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="historyNote">History</label>
-                <div class="controls">
-                    <textarea id="historyNote" class="form-control">{skos:historyNote}</textarea>
-                </div>
-            </div>
-        </fieldset>
-        <hr />
-        <fieldset class="hbox">
-            <div id="related" dropzone="link string:text/uri-list" class="form-group"
-                    ondrop="return calli.insertResource(event)">
-                <label>Related <a href="../types/Concept" title="Create"
-                        onclick="return calli.createResource(event, './?create=' + encodeURIComponent(this.href))" class="glyphicon glyphicon-list-alt" /></label>
-                <div rel="skos:related" class="controls vbox">
-                    <span resource="?related" typeof="skos:Concept" class="ui-state-highlight ui-corner-all">
-                        <span property="skos:prefLabel" />
-                        <a href="{?related}" title="Remove relationship" onclick="return calli.removeResource(event)" class="glyphicon glyphicon-remove" />
-                    </span>
-                </div>
-            </div>
-            <div id="narrower" dropzone="link string:text/uri-list" class="form-group"
-                    ondrop="return calli.insertResource(event)">
-                <label>Narrower <a href="../types/Concept" title="Create"
-                        onclick="return calli.createResource(event, './?create=' + encodeURIComponent(this.href))" class="glyphicon glyphicon-list-alt" /></label>
-                <div rel="skos:narrower" class="controls vbox">
-                    <span resource="?narrower" typeof="skos:Concept" class="ui-state-highlight ui-corner-all">
-                        <span property="skos:prefLabel" />
-                        <a href="{?narrower}" title="Remove relationship" onclick="return calli.removeResource(event)" class="glyphicon glyphicon-remove" />
-                    </span>
-                </div>
-            </div>
-        </fieldset>
-        <hr />
-        <fieldset id="image" dropzone="link string:text/uri-list" class="form-group"
-                ondrop="return calli.insertResource(event)">
-            <label>Image <a href="/?view" title="Browse" onclick="return calli.selectResource(event)" class="glyphicon glyphicon-folder-open" /></label>
-             <div rel="foaf:depiction" class="controls">
-                <span resource="?depiction" typeof="foaf:Image" class="ui-state-highlight ui-corner-all">
-                    <img src="{?depiction}?small" />
-                    <a href="{?depiction}" title="Remove from this concept" onclick="return calli.removeResource(event)" class="glyphicon glyphicon-remove" />
-                </span>
-            </div>
-        </fieldset>
-        <hr />
-        <fieldset>
-            <div class="form-group">
-                <label for="note">Change note</label>
-                <div class="controls">
-                    <input type="text" id="note" maxlength="140" class="form-control" />
-                </div>
-            </div>
-            <div class="form-group">
-                <button id="save" type="submit" class="btn btn-primary">Save</button>
-                <button id="saveas" type="button" class="btn btn-info"
-                    onclick="calli.saveResourceAs(event, calli.slugify($('#label').val()), calli.getCallimachusUrl('types/Concept'))">Save as...</button>
-                <button id="cancel" type="button" onclick="window.location.replace('?view')" class="btn btn-default">Cancel</button>
-                <button id="delete" type="button" onclick="calli.deleteResource(event)" class="btn btn-danger">Delete</button>
-            </div>
-        </fieldset>
+        </div>
     </form>
 </body>
 </html>

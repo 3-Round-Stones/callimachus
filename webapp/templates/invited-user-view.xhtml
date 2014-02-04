@@ -26,21 +26,33 @@
     </script>
 </head>
 <body resource="?this">
-    <h1 property="rdfs:label" />
-    <div id="sidebar">
-        <aside>
-            <h3>Group memberships</h3>
-            <ul rev="calli:member">
-                <li resource="?group"><a href="?group" property="rdfs:label"/></li>
-            </ul>
-        </aside>
-    </div>
-    <div id="img" rel="foaf:depiction" resource="?img" style="margin: 0px 1ex 1ex 0px;max-width:10em">
-        <a href="{?img}?view"><img src="{?img}?small" style="max-height:100%;max-width:10em" /></a>
-    </div>
-    <div>
-        <p property="calli:name" />
-        <pre class="wiki" property="rdfs:comment" />
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-8">
+                <hgroup class="page-header">
+                    <h1 property="rdfs:label" />
+                </hgroup>
+                <div id="img" rel="foaf:depiction" resource="?img" style="margin: 0px 1ex 1ex 0px;max-width:10em">
+                    <a href="{?img}?view"><img src="{?img}?small" style="max-height:100%;max-width:10em" /></a>
+                </div>
+                <div>
+                    <p property="calli:name" />
+                    <pre class="wiki" property="rdfs:comment" />
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <aside class="optional panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Group memberships</h3>
+                    </div>
+                    <ul rev="calli:member" class="list-group">
+                        <li resource="?group" class="list-group-item">
+                            <a href="?group" property="rdfs:label"/>
+                        </li>
+                    </ul>
+                </aside>
+            </div>
+        </div>
     </div>
     <form id="msgForm" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true"
             method="POST" action="?invite" enctype="application/x-www-form-urlencoded">
@@ -54,13 +66,13 @@
                     <input type="hidden" name="fullname" id="fullname" value="{rdfs:label}" />
                     <div class="form-group">
                         <label for="subject">Welcome subject</label>
-                        <div class="controls">
+                        <div>
                             <input id="subject" name="subject" type="text" class="form-control col-md-5" required="required" value="Account Registration" />
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="message">Welcome message</label>
-                        <div class="controls">
+                        <div>
                             <textarea id="body" name="body" class="form-control col-md-5" required="required" rows="10">Hello {rdfs:label},
         
         This is a reminder that a new account has been created for you. Use the

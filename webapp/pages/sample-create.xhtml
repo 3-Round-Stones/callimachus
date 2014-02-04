@@ -7,22 +7,26 @@
     <title>New Resource</title>
 </head>
 <body>
-    <h1>New Resource</h1>
-    <form role="form" method="POST" action="" enctype="application/rdf+xml" typeof=""
-            onsubmit="return calli.saveResourceAs(event,calli.slugify($('#label').val()))">
-        <fieldset>
-            <div class="form-group">
-                <label for="label">Label</label>
-                <input type="text" class="form-control" id="label" value="{rdfs:label}" required="required" autofocus="autofocus" />
-            </div>
-            <div class="form-group">
-                <label for="comment">Comment</label>
-                <textarea id="comment" class="form-control">{rdfs:comment}</textarea>
-            </div>
-            <div class="form-group">
-                <button type="submit" class="btn btn-success">Create</button>
-            </div>
-        </fieldset>
-    </form>
+    <div class="container">
+        <hgroup class="page-header">
+            <h1>New Resource</h1>
+        </hgroup>
+        <form role="form" method="POST" action="" enctype="application/rdf+xml" typeof="" class="row"
+                onsubmit="return calli.saveResourceAs(event,calli.slugify($('#label').val()))">
+            <fieldset class="col-sm-4">
+                <div class="form-group">
+                    <label for="label">Label</label>
+                    <input type="text" class="form-control" id="label" value="{rdfs:label}" required="required" autofocus="autofocus" />
+                </div>
+                <div class="form-group">
+                    <label for="comment">Comment</label>
+                    <textarea id="comment" class="form-control">{rdfs:comment}</textarea>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-success">Create</button>
+                </div>
+            </fieldset>
+        </form>
+    </div>
 </body>
 </html>

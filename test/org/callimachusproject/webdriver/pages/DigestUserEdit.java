@@ -22,7 +22,7 @@ public class DigestUserEdit extends CalliPage {
 				browser.focusInFrame("photo", "save-as___");
 				browser.type(By.id("label"), fileName);
 				browser.focusInFrame("photo");
-				browser.click(By.xpath("//div[@role='dialog']//button[1]"));
+				browser.click(By.xpath("//div[@role='dialog']//button[text()='Save']"));
 				browser.waitForFrameToClose("photo");
 				return edit;
 			}

@@ -65,7 +65,7 @@ public class Version {
 	private int parseInt(String version, String pattern) {
 		String str = parseString(version, pattern);
 		if (str == null)
-			return 0;
+			return -1;
 		return Integer.parseInt(str);
 	}
 
@@ -103,15 +103,15 @@ public class Version {
 		StringBuilder sb = new StringBuilder();
 		sb.append(getMajorVersionNum());
 		sb.append(".").append(getReleaseVersionNum());
-		if (getMaintenanceVersionNum() > 0) {
+		if (maintenance >= 0) {
 			sb.append(".").append(getMaintenanceVersionNum());
 		}
-		if (getQualifierIdentifier() != null) {
+		if (qualifier != null) {
 			sb.append("-").append(getQualifierIdentifier());
-			if (getDevelopmentVersionNum() > 0) {
+			if (development >= 0) {
 				sb.append(getDevelopmentVersionNum());
 			}
-		} else if (getDevelopmentVersionNum() > 0) {
+		} else if (development >= 0) {
 			sb.append("-").append(getDevelopmentVersionNum());
 		}
 		return sb.toString();
@@ -133,7 +133,7 @@ public class Version {
 	 * external interfaces and behaviour may have changed.
 	 */
 	public int getMajorVersionNum() {
-		return major;
+		return Math.max(0, major);
 
 	}
 
@@ -143,7 +143,7 @@ public class Version {
 	 * as a reference release.
 	 */
 	public int getReleaseVersionNum() {
-		return release;
+		return Math.max(0, release);
 	}
 
 	/**
@@ -154,7 +154,7 @@ public class Version {
 	 * complete development drop for a release.
 	 */
 	public int getMaintenanceVersionNum() {
-		return maintenance;
+		return Math.max(0, maintenance);
 	}
 
 	/**
@@ -176,7 +176,7 @@ public class Version {
 	 * complete.
 	 */
 	public int getDevelopmentVersionNum() {
-		return development;
+		return Math.max(0, development);
 	}
 
 	/**

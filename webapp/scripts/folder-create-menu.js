@@ -2,6 +2,7 @@
 
 jQuery(function($) {
     $('#create-menu').one('click', function() {
+        var wait = calli.wait();
         $.ajax({
             type: 'GET',
             url: $('#create-menu-json')[0].href + encodeURIComponent(calli.getUserIri()),
@@ -36,6 +37,7 @@ jQuery(function($) {
                     li.append(a);
                     ul.append(li);
                 });
+                wait.over();
             }
         });
         return true;

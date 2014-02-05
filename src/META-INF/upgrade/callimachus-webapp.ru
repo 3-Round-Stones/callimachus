@@ -97,7 +97,7 @@ INSERT {
 INSERT {
     <../getting-started-with-callimachus> a <types/Purl>, calli:Purl ;
 	rdfs:label "getting-started-with-callimachus";
-	calli:alternate <http://callimachusproject.org/docs/1.2/getting-started-with-callimachus.docbook?view>;
+	calli:alternate <http://callimachusproject.org/docs/1.3/getting-started-with-callimachus.docbook?view>;
 	calli:administrator </auth/groups/super>;
 	calli:reader </auth/groups/public> .
 } WHERE {
@@ -107,7 +107,7 @@ INSERT {
 INSERT {
     <../callimachus-for-web-developers> a <types/Purl>, calli:Purl ;
 	rdfs:label "callimachus-for-web-developers";
-	calli:alternate <http://callimachusproject.org/docs/1.2/callimachus-for-web-developers.docbook?view>;
+	calli:alternate <http://callimachusproject.org/docs/1.3/callimachus-for-web-developers.docbook?view>;
 	calli:administrator </auth/groups/super>;
 	calli:reader </auth/groups/public> .
 } WHERE {
@@ -117,7 +117,7 @@ INSERT {
 INSERT {
     <../callimachus-reference> a <types/Purl>, calli:Purl ;
 	rdfs:label "callimachus-reference";
-	calli:alternate <http://callimachusproject.org/docs/1.2/callimachus-reference.docbook?view>;
+	calli:alternate <http://callimachusproject.org/docs/1.3/callimachus-reference.docbook?view>;
 	calli:administrator </auth/groups/super>;
 	calli:reader </auth/groups/public> .
 } WHERE {

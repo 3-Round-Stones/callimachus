@@ -300,3 +300,27 @@ INSERT {
     FILTER NOT EXISTS { ?zip a calli:ZipArchive }
 };
 
+DELETE {
+    <../getting-started-with-callimachus>  calli:alternate <http://callimachusproject.org/docs/1.2/getting-started-with-callimachus.docbook?view>
+} INSERT {
+    <../getting-started-with-callimachus>  calli:alternate <http://callimachusproject.org/docs/1.3/getting-started-with-callimachus.docbook?view>
+} WHERE {
+    <../getting-started-with-callimachus>  calli:alternate <http://callimachusproject.org/docs/1.2/getting-started-with-callimachus.docbook?view>
+};
+
+DELETE {
+    <../callimachus-for-web-developers> calli:alternate <http://callimachusproject.org/docs/1.2/callimachus-for-web-developers.docbook?view>
+} INSERT {
+    <../callimachus-for-web-developers> calli:alternate <http://callimachusproject.org/docs/1.3/callimachus-for-web-developers.docbook?view>
+} WHERE {
+    <../callimachus-for-web-developers> calli:alternate <http://callimachusproject.org/docs/1.2/callimachus-for-web-developers.docbook?view>
+};
+
+DELETE {
+    <../callimachus-reference> calli:alternate <http://callimachusproject.org/docs/1.2/callimachus-reference.docbook?view>
+} INSERT {
+    <../callimachus-reference> calli:alternate <http://callimachusproject.org/docs/1.3/callimachus-reference.docbook?view>
+} WHERE {
+    <../callimachus-reference> calli:alternate <http://callimachusproject.org/docs/1.2/callimachus-reference.docbook?view>
+};
+

@@ -118,42 +118,48 @@ function bindFormEvents(form, editor, idempotent) {
             saveFile(form, event.text);
         });
     }
-    $(form).submit(function(event) {
-        event.preventDefault();
-        var resource = $(form).attr('about') || $(form).attr('resource');
-        if (idempotent || resource) {
-            calli.readEditorText(editor, function(text) {
-                saveFile(form, text, function(xhr, cause) {
-                    var event = $.Event("calliRedirect");
-                    event.cause = cause;
-                    event.resource = cause.resource;
-                    var redirect = xhr.getResponseHeader('Location');
-                    var url = calli.getFormAction(form);
-                    if (url.indexOf('?') > 0) {
-                        url = url.substring(0, url.indexOf('?'));
-                    }
-                    if (redirect) {
-                        event.location = redirect + '?view';
-                    } else if (resource) {
-                        event.location = resource + '?view';
-                    } else {
-                        event.location = url + '?view';
-                    }
-                    $(form).trigger(event);
-                    if (!event.isDefaultPrevented()) {
-                        if (window.parent != window && parent.postMessage) {
-                            parent.postMessage('PUT src\n\n' + event.location, '*');
-                        }
-                        if (event.location.indexOf(url) === 0) {
-                            window.location.replace(event.location);
-                        } else {
-                            window.location.href = event.location;
-                        }
-                    }
-                });
-            });
+    $(form).submit(function(event, onlyHandlers) {
+        if (!onlyHandlers) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            form.triggerHandler(event.type, true);
+        } else {
+            setTimeout(function(){
+                var resource = $(form).attr('about') || $(form).attr('resource');
+                if ((idempotent || resource) && !event.isDefaultPrevented()) {
+                    calli.readEditorText(editor, function(text) {
+                        saveFile(form, text, function(xhr, cause) {
+                            var event = $.Event("calliRedirect");
+                            event.cause = cause;
+                            event.resource = cause.resource;
+                            var redirect = xhr.getResponseHeader('Location');
+                            var url = calli.getFormAction(form);
+                            if (url.indexOf('?') > 0) {
+                                url = url.substring(0, url.indexOf('?'));
+                            }
+                            if (redirect) {
+                                event.location = redirect + '?view';
+                            } else if (resource) {
+                                event.location = resource + '?view';
+                            } else {
+                                event.location = url + '?view';
+                            }
+                            $(form).trigger(event);
+                            if (!event.isDefaultPrevented()) {
+                                if (window.parent != window && parent.postMessage) {
+                                    parent.postMessage('PUT src\n\n' + event.location, '*');
+                                }
+                                if (event.location.indexOf(url) === 0) {
+                                    window.location.replace(event.location);
+                                } else {
+                                    window.location.href = event.location;
+                                }
+                            }
+                        });
+                    });
+                }
+            }, 0);
         }
-        return false;
     });
 }
 

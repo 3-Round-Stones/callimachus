@@ -26,17 +26,22 @@ $('form[enctype="application/sparql-update"]').each(function() {
                 }
             });
         }
-        form.submit(function(event) {
+        form.submit(function(event, onlyHandlers) {
             if (this.getAttribute("enctype") != "application/sparql-update")
                 return true;
             form.find("input").change(); // IE may not have called onchange before onsubmit
-            setTimeout(function(){
-                var resource = form.attr('about') || form.attr('resource');
-                if (resource) {
-                    submitRDFForm(form[0], resource, stored);
-                }
-            }, 0);
-            return false;
+            if (!onlyHandlers) {
+                event.preventDefault();
+                event.stopImmediatePropagation();
+                form.triggerHandler(event.type, true);
+            } else {
+                setTimeout(function(){
+                    var resource = form.attr('about') || form.attr('resource');
+                    if (resource && !event.isDefaultPrevented()) {
+                        submitRDFForm(form[0], resource, stored);
+                    }
+                }, 0);
+            }
         });
     } catch (e) {
         throw calli.error(e);

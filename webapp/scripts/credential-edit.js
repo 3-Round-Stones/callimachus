@@ -2,7 +2,7 @@
 
 jQuery(function($){
 
-$('#modified').val(new Date().toISOString()).change();
+$('#modified').attr('content', new Date().toISOString());
 
 $('form[typeof~="calli:Credential"]').submit(function(event){
     var form = this;

@@ -122,7 +122,7 @@ function bindFormEvents(form, editor, idempotent) {
         if (!onlyHandlers) {
             event.preventDefault();
             event.stopImmediatePropagation();
-            form.triggerHandler(event.type, true);
+            $(this).triggerHandler(event.type, true);
         } else {
             setTimeout(function(){
                 var resource = $(form).attr('about') || $(form).attr('resource');

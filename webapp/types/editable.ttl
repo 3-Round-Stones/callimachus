@@ -163,6 +163,9 @@
     calli:imports <java:javax.tools.FileObject>;
     calli:imports <java:org.callimachusproject.server.exceptions.Conflict>;
     calli:script """
+        this.Delete();
+
+        //# check if any hanging triples still exist
         var con = this.objectConnection;
         var stmts = con.getStatements(null, null, this.resource, []);
         var redirect = "/";
@@ -170,11 +173,9 @@
             while (stmts.hasNext()) {
                 var st = stmts.next();
                 var subj = st.subject;
-                var pred = st.predicate.stringValue();
-                if (pred != "http://www.w3.org/1999/02/22-rdf-syntax-ns#subject"
-                        && pred != "http://www.w3.org/1999/02/22-rdf-syntax-ns#object"
-                        && pred != "http://www.w3.org/ns/prov#specializationOf"
-                        && pred != "http://www.w3.org/ns/prov#wasAssociatedWith") {
+                var pred = st.predicate.namespace;
+                if (pred != "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+                        && pred != "http://www.w3.org/ns/prov#") {
                     //# Don't allow removal if used in a complex structure (like an rdf:List)
                     if (subj instanceof BNode)
                         throw new Conflict(st.object + " is currently is use and cannot be removed");
@@ -190,7 +191,6 @@
             stmts.close();
         }
 
-        this.Delete();
         return {
             status:200,message:"Deleted",
             headers:{'content-type':"text/uri-list"},

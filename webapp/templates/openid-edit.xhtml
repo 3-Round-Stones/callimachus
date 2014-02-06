@@ -4,10 +4,17 @@
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
     xmlns:foaf="http://xmlns.com/foaf/0.1/"
+    xmlns:dcterms="http://purl.org/dc/terms/"
     xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
     <title resource="?this">{rdfs:label}</title>
     <link href="../../callimachus-for-web-developers#Callimachus_auth_options" target="_blank" title="Help" />
+    <script type="text/javascript">
+        jQuery(function($){
+            $('#created').val(new Date().toISOString()).change();
+            $('#modified').val($('#created').val()).change();
+        });
+    </script>
 </head>
 <body resource="?this">
     <form role="form" id="form" method="POST" action="" enctype="application/sparql-update" resource="?this" class="container">
@@ -54,6 +61,8 @@
             </fieldset>
         </div>
         <fieldset class="form-group">
+            <input type="hidden" id="created" value="{dcterms:created}" datatype="xsd:dateTime" />
+            <input type="hidden" id="modified" value="{dcterms:modified}" datatype="xsd:dateTime" />
             <button id="save" type="submit" class="btn btn-primary">Save</button>
             <button id="cancel" type="button" onclick="window.location.replace('?view')" class="btn btn-default">Cancel</button>
             <button id="delete" type="button" onclick="calli.deleteResource(event)" class="btn btn-danger">Delete</button>

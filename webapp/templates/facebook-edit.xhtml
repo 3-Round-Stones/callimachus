@@ -3,6 +3,7 @@
     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:dcterms="http://purl.org/dc/terms/"
     xmlns:foaf="http://xmlns.com/foaf/0.1/"
     xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
@@ -13,6 +14,7 @@
             if ($('#secret-link').length) {
                 $('#add-secret').hide();
             }
+            $('#modified').attr('content', new Date().toISOString());
         });
     // ]]>
     </script>
@@ -59,6 +61,7 @@
             </fieldset>
         </div>
         <fieldset class="form-group">
+            <span id="modified" property="dcterms:modified" content="?modified" datatype="xsd:dateTime" />
             <button id="save" type="submit" class="btn btn-primary">Save</button>
             <button id="cancel" type="button" onclick="window.location.replace('?view')" class="btn btn-default">Cancel</button>
             <button id="delete" type="button" onclick="calli.deleteResource(event)" class="btn btn-danger">Delete</button>

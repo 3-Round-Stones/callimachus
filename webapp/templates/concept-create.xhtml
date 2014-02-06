@@ -2,10 +2,17 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-    xmlns:skos="http://www.w3.org/2004/02/skos/core#" xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
+    xmlns:skos="http://www.w3.org/2004/02/skos/core#" xmlns:dcterms="http://purl.org/dc/terms/"
+    xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
     <title>New Concept</title>
     <link rel="help" href="../../callimachus-for-web-developers#Concept" target="_blank" title="Help" />
+    <script type="text/javascript">
+        jQuery(function($){
+            $('#created').val(new Date().toISOString()).change();
+            $('#modified').val($('#created').val()).change();
+        });
+    </script>
 </head>
 <body>
     <form role="form" id="form" method="POST" action="" enctype="application/rdf+xml" typeof="skos:Concept" class="container"
@@ -45,6 +52,8 @@
                     </div>
                 </fieldset>
                 <fieldset class="form-group">
+                    <input type="hidden" id="created" value="{dcterms:created}" datatype="xsd:dateTime" />
+                    <input type="hidden" id="modified" value="{dcterms:modified}" datatype="xsd:dateTime" />
                     <button id="create" type="submit" class="btn btn-success">Create</button>
                 </fieldset>
             </div>

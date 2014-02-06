@@ -2,6 +2,8 @@
 
 jQuery(function($){
 
+$('#modified').val(new Date().toISOString()).change();
+
 $('form[typeof~="calli:Credential"]').submit(function(event){
     var form = this;
     var resource = $(form).attr('resource');

@@ -320,7 +320,7 @@ public class WebBrowserDriver {
 
 	public void waitForScript() {
 		Wait<WebDriver> wait = new WebDriverWait(driver, 240);
-		Boolean present = wait.until(new ExpectedCondition<Boolean>() {
+		assertTrue(wait.until(new ExpectedCondition<Boolean>() {
 			public Boolean apply(WebDriver wd) {
 				String js = "try {\n" + "if (document.documentElement)\n"
 						+ "    return document.documentElement.className;\n"
@@ -337,8 +337,20 @@ public class WebBrowserDriver {
 			public String toString() {
 				return "script to be ready";
 			}
-		});
-		assertTrue(present);
+		}));
+		assertTrue(wait.until(new ExpectedCondition<Boolean>() {
+			public Boolean apply(WebDriver wd) {
+				for (WebElement modal : wd.findElements(By.cssSelector(".modal.fade.in"))) {
+					if (!modal.getCssValue("opacity").equals("1"))
+						return false;
+				}
+				return true;
+			}
+
+			public String toString() {
+				return "modal to fade in";
+			}
+		}));
 	}
 
 	public int getPositionTop(By locator) {

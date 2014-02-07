@@ -52,7 +52,7 @@ public class MeetingNotesFunctionalTest extends BrowserFunctionalTestCase {
 		browser.focusInTopWindow();
 		logger.info("Creating tag");
 		browser.click(By.xpath("//label[@for='topic']/a"));
-		browser.focusInFrame("topics");
+		browser.focusInModalFrame("topics");
 		browser.type(By.id("label"), "Callimachus Tag");
 		browser.type(By.id("comment"), "Anything about Callimachus");
 		browser.click(By.xpath("//button[text()='Create']"));

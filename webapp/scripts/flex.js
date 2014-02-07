@@ -2,6 +2,7 @@
 
 (function($){
 
+$(document).ready(fillOutFlex);
 $(window).bind('resize', fillOutFlex);
 $(window).load(function(event){
     $('iframe').load(fillOutFlex);
@@ -9,21 +10,29 @@ $(window).load(function(event){
     fillOutFlex();
 });
 
+var flexTO;
+var flexWait;
 function fillOutFlex(e){
     var el = e ? e.target : window;
     // use timeout to reduce cpu stress during resize and eternal loops
-    try {clearTimeout(window.flexTO);} catch (e) { }
-    window.flexTO = window.setTimeout(function() {
+    if (flexTO) {
+        clearTimeout(flexTO);
+        flexTO = null;
+    }
+    if (!flexWait) {
+        flexWait = calli.wait();
+    }
+    flexTO = window.setTimeout(function() {
         $('.flex').each(function() { flex(this); });
+        flexWait.over();
+        flexWait = null;
+        flexTO = null;
     }, 50);
     return;
 }
 
 function flex(area) {
-    var contentWidth = getAvailableWidth(area);
-    var innerHeight = getAvailableHeight(area);
-    $(area).css('width', contentWidth);
-    $(area).css('height', innerHeight);
+    $(area).css('height', getAvailableHeight(area));
 }
 
 function getAvailableHeight(area) {
@@ -53,50 +62,6 @@ function bottom(element) {
     if ($(element).length)
         return $(element).offset().top + $(element).outerHeight(true);
     return null;
-}
-
-function getAvailableWidth(area) {
-    var parent = getParentBlock(area);
-    var margin = $(area).outerWidth(true) - $(area).width();
-    var breakFlag = false;
-    $(area).parents().each(function(){
-        if (this == parent) {
-            breakFlag = true;
-        } else if (!breakFlag) {
-            margin += $(this).outerWidth(true) - $(this).width();
-        }
-    });
-    return $(parent).width() - margin;
-}
-
-function getParentBlock(area) {
-    var parent = null;
-    var parents = $(area).parents();
-    for (var i=0;i<parents.length;i++) {
-        parent = parents[i];
-        var floatStyle = $(parents[i]).css('float');
-        if (floatStyle && floatStyle != 'none')
-            break;
-        if ($(parents[i]).css('display') == 'block')
-            break;
-    }
-    if (parent)
-        return parent;
-    return $('body')[0];
-}
-
-function parsePixel(str) {
-    if (!str)
-        return 0;
-    if (str.indexOf('px') > 0)
-        return parseInt(str.substring(0, str.indexOf('px')));
-    if (str == "thin")
-        return 1;
-    if (str == "medium")
-        return 3;
-    if (str == "thick")
-        return 5;
-    return 0;
 }
 
 if (window.parent != window) {

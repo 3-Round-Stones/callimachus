@@ -99,6 +99,18 @@ public class WebBrowserDriver {
 		waitForScript();
 	}
 
+	public void focusInModalFrame(String... frameNames) {
+		if (frameNames.length < 2) {
+			focusInTopWindow();
+		} else {
+			String[] parent = new String[frameNames.length - 1];
+			System.arraycopy(frameNames, 0, parent, 0, parent.length);
+			focusInFrame(parent);
+		}
+		waitUntilModalOpen();
+		focusInFrame(frameNames);
+	}
+
 	public void waitForFrameToClose(final String frameName) {
 		driver.switchTo().window(driver.getWindowHandle());
 		if (frameName != null) {
@@ -338,9 +350,16 @@ public class WebBrowserDriver {
 				return "script to be ready";
 			}
 		}));
+	}
+
+	public void waitUntilModalOpen() {
+		Wait<WebDriver> wait = new WebDriverWait(driver, 240);
 		assertTrue(wait.until(new ExpectedCondition<Boolean>() {
 			public Boolean apply(WebDriver wd) {
-				for (WebElement modal : wd.findElements(By.cssSelector(".modal.fade.in"))) {
+				List<WebElement> modals = wd.findElements(By.cssSelector(".modal.fade.in"));
+				if (modals.isEmpty())
+					return false;
+				for (WebElement modal : modals) {
 					if (!modal.getCssValue("opacity").equals("1"))
 						return false;
 				}
@@ -348,7 +367,7 @@ public class WebBrowserDriver {
 			}
 
 			public String toString() {
-				return "modal to fade in";
+				return "modal to open";
 			}
 		}));
 	}

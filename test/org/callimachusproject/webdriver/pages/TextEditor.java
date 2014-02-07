@@ -47,7 +47,7 @@ public class TextEditor extends CalliPage {
 	public CalliPage saveAs(String name) {
 		browser.focusInFrame(topFrameName);
 		browser.click(By.cssSelector("button.btn-success"));
-		browser.focusInFrame(topFrameName, "save-as___");
+		browser.focusInModalFrame(topFrameName, "save-as___");
 		browser.type(By.id("label"), name);
 		browser.focusInFrame(topFrameName);
 		browser.click(By.xpath("//div[@role='dialog']//button[text()='Save']"));

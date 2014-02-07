@@ -181,7 +181,7 @@
                         throw new Conflict(st.object + " is currently is use and cannot be removed");
                     if (subj.stringValue().indexOf('#') >= 0)
                         throw new Conflict(st.object + " resource is currently referenced by " + subj);
-                    if (pred == "http://callimachusproject.org/rdf/2009/framework#hasComponent") {
+                    if (st.predicate.stringValue() == "http://callimachusproject.org/rdf/2009/framework#hasComponent") {
                         redirect = subj.stringValue();
                     }
                     con.remove(st.subject, st.predicate, st.object, []);

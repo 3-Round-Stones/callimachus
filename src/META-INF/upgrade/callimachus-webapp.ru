@@ -385,7 +385,7 @@ INSERT {
 
 </auth/groups/admin> a calli:Party, calli:Group, <types/Group>;
     rdfs:label "admin";
-    rdfs:comment "Members of this grouph have the ability to edit other user accounts and access to modify the underlying data store";
+    rdfs:comment "Members of this group have the ability to edit other user accounts and access to modify the underlying data store";
     calli:subscriber </auth/groups/power>;
     calli:administrator </auth/groups/admin>.
 

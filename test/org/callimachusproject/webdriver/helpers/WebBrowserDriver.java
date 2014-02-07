@@ -146,6 +146,9 @@ public class WebBrowserDriver {
 		} catch (ElementNotVisibleException e) {
 			// firefox can't scroll to reveal element
 			driver.executeScript("arguments[0].click()", element);
+		} catch (WebDriverException e) {
+			// chrome redrew the screen and lost the element
+			driver.executeScript("arguments[0].click()", element);
 		}
 	}
 

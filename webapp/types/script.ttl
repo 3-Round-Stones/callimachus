@@ -34,6 +34,7 @@
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/staff>,</auth/groups/power>,</auth/groups/admin>;
     calli:icon <../images/script.png>;
+    calli:thumbnail <../images/script.svg>;
     calli:view <../templates/text-view.xhtml>;
     calli:edit <../templates/script-edit.xhtml>;
     calli:create <../templates/script-create.xhtml>;

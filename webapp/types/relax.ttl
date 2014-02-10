@@ -34,7 +34,8 @@
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/staff>,</auth/groups/power>,</auth/groups/admin>;
-    calli:icon <../images/relax.png>;
+    calli:icon <../images/xml.png>;
+    calli:thumbnail <../images/xml.svg>;
     calli:create <../templates/file-create.xhtml>;
     calli:mediaType "application/xml";
     calli:documentTag <http://relaxng.org/ns/structure/1.0#grammar>;

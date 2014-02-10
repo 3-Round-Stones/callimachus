@@ -34,6 +34,7 @@
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/power>,</auth/groups/admin>;
     calli:icon <../images/query.png>;
+    calli:thumbnail <../images/query.svg>;
     calli:view <../templates/query-view.xhtml>;
     calli:edit <../templates/query-edit.xhtml>;
     calli:create <../templates/query-create.xhtml>;

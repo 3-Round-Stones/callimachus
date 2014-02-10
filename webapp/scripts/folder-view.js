@@ -9,7 +9,7 @@
     } catch(e) {}
     function createTextCell(text, url, type, src) {
         if (!src) {
-            src = calli.getCallimachusUrl('images/rdf-icon.png');
+            src = calli.getCallimachusUrl('images/rdf_flyer.png');
         }
         var td = $('<td/>');
         td.addClass('filecell');

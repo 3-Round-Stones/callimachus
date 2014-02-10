@@ -8,35 +8,11 @@
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:xlink="http://www.w3.org/1999/xlink"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    version="1.0"
    width="256"
    height="256"
    id="svg11300"
-   style="display:inline;enable-background:new"
-   inkscape:version="0.48.4 r9939"
-   sodipodi:docname="archive.svg">
-  <sodipodi:namedview
-     pagecolor="#ffffff"
-     bordercolor="#666666"
-     borderopacity="1"
-     objecttolerance="10"
-     gridtolerance="10"
-     guidetolerance="10"
-     inkscape:pageopacity="0"
-     inkscape:pageshadow="2"
-     inkscape:window-width="640"
-     inkscape:window-height="480"
-     id="namedview358"
-     showgrid="false"
-     inkscape:zoom="0.921875"
-     inkscape:cx="128"
-     inkscape:cy="128"
-     inkscape:window-x="49"
-     inkscape:window-y="24"
-     inkscape:window-maximized="0"
-     inkscape:current-layer="svg11300" />
+   style="display:inline;enable-background:new">
   <metadata
      id="metadata106">
     <rdf:RDF>
@@ -45,7 +21,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
         <dc:creator>
           <cc:Agent>
             <dc:title>Lapo Calamandrei</dc:title>
@@ -107,8 +83,8 @@
        color-interpolation-filters="sRGB"
        id="filter3736">
       <feGaussianBlur
-         id="feGaussianBlur3738"
-         stdDeviation="1.625" />
+         stdDeviation="1.625"
+         id="feGaussianBlur3738" />
     </filter>
     <linearGradient
        id="linearGradient3741">
@@ -143,8 +119,8 @@
        color-interpolation-filters="sRGB"
        id="filter3684">
       <feGaussianBlur
-         id="feGaussianBlur3686"
-         stdDeviation="0.335" />
+         stdDeviation="0.335"
+         id="feGaussianBlur3686" />
     </filter>
     <linearGradient
        id="linearGradient3688">
@@ -246,18 +222,18 @@
          style="fill:url(#pattern7326);fill-opacity:1;fill-rule:evenodd;stroke:none;display:inline" />
     </mask>
     <pattern
-       patternUnits="userSpaceOnUse"
-       width="15"
-       height="15"
+       id="pattern7312"
        patternTransform="translate(-110,111)"
-       id="pattern7312">
+       height="15"
+       width="15"
+       patternUnits="userSpaceOnUse">
       <rect
-         id="rect7290"
-         y="0"
-         x="0"
-         height="15"
+         style="fill:url(#pattern7315);stroke:none"
          width="15"
-         style="fill:url(#pattern7315);stroke:none" />
+         height="15"
+         x="0"
+         y="0"
+         id="rect7290" />
     </pattern>
     <linearGradient
        x1="-110"
@@ -269,18 +245,18 @@
        gradientUnits="userSpaceOnUse"
        gradientTransform="matrix(0.75,0,0,0.75,82.5,-64.5)" />
     <pattern
-       patternUnits="userSpaceOnUse"
-       width="30"
-       height="30"
+       id="pattern7285"
        patternTransform="translate(-110,96)"
-       id="pattern7285">
+       height="30"
+       width="30"
+       patternUnits="userSpaceOnUse">
       <rect
-         y="0"
-         x="0"
-         height="30"
-         width="30"
+         style="opacity:1;fill:url(#linearGradient7288);fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0.69999992;stroke-opacity:1"
          id="rect7243"
-         style="opacity:1;fill:url(#linearGradient7288);fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0.69999992;stroke-opacity:1" />
+         width="30"
+         height="30"
+         x="0"
+         y="0" />
     </pattern>
     <mask
        id="mask6971">
@@ -422,17 +398,17 @@
          offset="1" />
     </linearGradient>
     <pattern
-       xlink:href="#pattern7285"
+       patternTransform="matrix(0.5,0,0,0.5,-110,111)"
        id="pattern7310"
-       patternTransform="matrix(0.5,0,0,0.5,-110,111)" />
+       xlink:href="#pattern7285" />
     <pattern
-       xlink:href="#pattern7310"
+       patternTransform="scale(0.5,0.5)"
        id="pattern7315"
-       patternTransform="scale(0.5,0.5)" />
+       xlink:href="#pattern7310" />
     <pattern
-       xlink:href="#pattern7312"
+       patternTransform="translate(-110,111)"
        id="pattern7326"
-       patternTransform="translate(-110,111)" />
+       xlink:href="#pattern7312" />
     <linearGradient
        id="linearGradient7328">
       <stop
@@ -448,15 +424,15 @@
        color-interpolation-filters="sRGB"
        id="filter3403">
       <feGaussianBlur
-         id="feGaussianBlur3405"
-         stdDeviation="2.1614063" />
+         stdDeviation="2.1614063"
+         id="feGaussianBlur3405" />
     </filter>
     <filter
        color-interpolation-filters="sRGB"
        id="filter3515">
       <feGaussianBlur
-         id="feGaussianBlur3517"
-         stdDeviation="1.2808222" />
+         stdDeviation="1.2808222"
+         id="feGaussianBlur3517" />
     </filter>
     <filter
        x="-0.088411674"
@@ -466,8 +442,8 @@
        color-interpolation-filters="sRGB"
        id="filter3519">
       <feGaussianBlur
-         id="feGaussianBlur3521"
-         stdDeviation="7.5339885" />
+         stdDeviation="7.5339885"
+         id="feGaussianBlur3521" />
     </filter>
     <linearGradient
        x1="52"
@@ -799,7 +775,7 @@
            id="path3990"
            style="opacity:0.55;fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none;display:inline;filter:url(#filter3519);enable-background:new" />
         <path
-           d="m 51,185.28125 c -0.677092,0 -2.002339,0.11171 -3.15625,0.75 -1.153911,0.63829 -1.68601,1.33592 -2.0625,1.78125 -1.110414,1.31344 -1.669365,2.53408 -2.15625,3.875 a 4.9502425,4.9502425 0 0 0 -0.1875,0.46875 c -0.03287,0.0956 -0.06108,0.18416 -0.09375,0.28125 a 4.9502425,4.9502425 0 0 0 -0.03125,0.0312 l -13.90625,40.75 a 4.9502425,4.9502425 0 0 0 4.6875,6.53125 l 191.8125,0 a 4.9502425,4.9502425 0 0 0 4.6875,-6.5 l -13.90625,-41.5 c -0.56434,-1.6806 -1.14947,-3.03005 -2.53125,-4.40625 -0.70868,-0.70582 -3.58098,-2.0625 -5.125,-2.0625 l -158.03125,0 z"
+           d="m 51,185.28125 c -0.677092,0 -2.002339,0.11171 -3.15625,0.75 -1.153911,0.63829 -1.68601,1.33592 -2.0625,1.78125 -1.110414,1.31344 -1.669365,2.53408 -2.15625,3.875 a 4.9502425,4.9502425 0 0 0 -0.1875,0.46875 c -0.03287,0.0956 -0.06108,0.18416 -0.09375,0.28125 a 4.9502425,4.9502425 0 0 0 -0.03125,0.0312 l -13.90625,40.75 a 4.9502425,4.9502425 0 0 0 4.6875,6.53125 l 191.8125,0 a 4.9502425,4.9502425 0 0 0 4.6875,-6.5 l -13.90625,-41.5 c -0.56434,-1.6806 -1.14947,-3.03005 -2.53125,-4.40625 -0.70868,-0.70582 -3.58098,-2.0625 -5.125,-2.0625 L 51,185.2812 z"
            transform="translate(254,26.40625)"
            id="path3992"
            style="opacity:0.9;fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none;display:inline;filter:url(#filter3515);enable-background:new" />

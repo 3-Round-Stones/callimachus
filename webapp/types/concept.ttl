@@ -36,6 +36,7 @@
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/power>,</auth/groups/admin>;
     calli:icon <../images/concept.png>;
+    calli:thumbnail <../images/concept.svg>;
     calli:view <../templates/concept-view.xhtml>;
     calli:edit <../templates/concept-edit.xhtml>;
     calli:create <../templates/concept-create.xhtml>.

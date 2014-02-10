@@ -35,6 +35,7 @@
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/power>,</auth/groups/admin>;
     calli:icon <../images/font.png>;
+    calli:thumbnail <../images/font.svg>;
     calli:create <../templates/file-create.xhtml>;
     calli:mediaType "application/font-woff".
 

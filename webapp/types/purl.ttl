@@ -36,6 +36,7 @@
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/power>,</auth/groups/admin>;
     calli:icon <../images/purl.png>;
+    calli:thumbnail <../images/purl.svg>;
     calli:view <../templates/purl-view.xhtml>;
     calli:edit <../templates/purl-edit.xhtml>;
     calli:create <../templates/purl-create.xhtml>.

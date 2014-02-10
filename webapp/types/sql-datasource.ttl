@@ -35,6 +35,7 @@
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/admin>;
     calli:icon <../images/datasource.png>;
+    calli:thumbnail <../images/datasource.svg>;
     calli:view <../templates/sql-datasource-view.xhtml>;
     calli:edit <../templates/sql-datasource-edit.xhtml>;
     calli:create <../templates/sql-datasource-create.xhtml>.

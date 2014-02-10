@@ -34,6 +34,7 @@
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/power>,</auth/groups/admin>;
     calli:icon <../images/image.png>;
+    calli:thumbnail <../images/image.svg>;
     calli:view <../templates/image-view.xhtml> ;
     calli:edit <../templates/image-edit.xhtml> ;
     calli:create <../templates/file-create.xhtml>.
@@ -47,6 +48,7 @@
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/power>,</auth/groups/admin>;
     calli:icon <../images/image.png>;
+    calli:thumbnail <../images/image.svg>;
     calli:create <../templates/file-create.xhtml>;
     calli:mediaType "image/gif".
 
@@ -59,6 +61,7 @@
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/power>,</auth/groups/admin>;
     calli:icon <../images/image.png>;
+    calli:thumbnail <../images/image.svg>;
     calli:create <../templates/file-create.xhtml>;
     calli:mediaType "image/vnd.microsoft.icon".
 
@@ -71,6 +74,7 @@
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/power>,</auth/groups/admin>;
     calli:icon <../images/image.png>;
+    calli:thumbnail <../images/image.svg>;
     calli:create <../templates/file-create.xhtml>;
     calli:mediaType "image/png".
 

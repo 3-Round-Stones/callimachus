@@ -37,6 +37,7 @@
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/admin>;
     calli:icon <../images/datasource.png>;
+    calli:thumbnail <../images/datasource.svg>;
     calli:view <../templates/rdf-datasource-view.xhtml>;
     calli:edit <../templates/rdf-datasource-edit.xhtml>;
     calli:create <../templates/rdf-datasource-create.xhtml>.

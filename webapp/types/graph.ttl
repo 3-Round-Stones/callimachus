@@ -41,6 +41,7 @@
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/admin>;
     calli:icon <../images/graph.png>;
+    calli:thumbnail <../images/graph.svg>;
     calli:create <../templates/file-create.xhtml>;
     calli:view <../templates/graph-view.xhtml>;
     calli:mediaType "application/rdf+xml";

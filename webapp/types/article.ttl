@@ -34,6 +34,7 @@
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/power>,</auth/groups/admin>;
     calli:icon <../images/article.png>;
+    calli:thumbnail <../images/article.svg>;
     calli:edit <../templates/article-edit.xhtml>;
     calli:create <../templates/article-create.xhtml>;
     calli:mediaType "application/docbook+xml";

@@ -82,6 +82,10 @@
         var label = fileName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
         con.add(obj.resource, RDFS.LABEL, vf.createLiteral(label), []);
 
+        var depiction = vf.createURI("http://xmlns.com/foaf/0.1/depiction");
+        var small = vf.createURI(obj.resource.stringValue() + '?small');
+        con.add(obj.resource, depiction, small, []);
+
         //# load image data
         var out = obj.PutImage(body) ;
 
@@ -112,18 +116,24 @@
 
 :GetPhotoLarge rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Photo> ];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.awt.image.BufferedImage>];
     calli:method "GET";
     calli:query "large";
     calli:requires calli:reader;
     calli:type "image/png";
+    calli:imports <java:javax.imageio.ImageIO>;
     calli:script """
-        return this.ResizePhoto(this.openInputStream(), 1080);
+        var stream = this.openInputStream();
+        try {
+            return this.ResizePhoto(ImageIO.read(stream), 1080);
+        } finally {
+            stream.close();
+        }
     """.
 
 :GetPhotoMedium rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Photo> ];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.awt.image.BufferedImage>];
     calli:method "GET";
     calli:query "medium";
     calli:requires calli:reader;
@@ -134,7 +144,7 @@
 
 :GetPhotoSmall rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Photo> ];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.awt.image.BufferedImage>];
     calli:method "GET";
     calli:query "small";
     calli:requires calli:reader;
@@ -145,7 +155,7 @@
 
 :GetPhotoThumbnail rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Photo> ];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.awt.image.BufferedImage>];
     calli:method "GET";
     calli:query "thumbnail";
     calli:requires calli:reader;
@@ -156,16 +166,15 @@
 
 :ResizePhoto rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Photo> ];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.awt.image.BufferedImage>];
     calli:imports <java:java.awt.AlphaComposite>;
     calli:imports <java:java.awt.RenderingHints>;
     calli:imports <java:java.awt.image.BufferedImage>;
     calli:imports <java:java.awt.image.ConvolveOp>;
     calli:imports <java:java.awt.image.Kernel>;
-    calli:imports <java:javax.imageio.ImageIO>;
     calli:imports <java:java.io.ByteArrayOutputStream>;
     calli:script """
-        var image = ImageIO.read(inputStream);
+        var image = bufferedImage;
         var height = Math.min(minSize, image.getHeight());
         var width = image.getWidth() * height / image.getHeight();
         if (width < minSize) {
@@ -198,14 +207,12 @@
             image = resizedImage;
         }
     
-        var out = new ByteArrayOutputStream();
-        ImageIO.write(image, "png", out);
-        return new java.io.ByteArrayInputStream(out.toByteArray());
+        return image;
     """.
 
-:inputStream a owl:FunctionalProperty, owl:ObjectProperty;
+:bufferedImage a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :ResizePhoto;
-    rdfs:range <java:java.io.InputStream>.
+    rdfs:range <java:java.awt.image.BufferedImage>.
 
 :minSize a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :ResizePhoto;

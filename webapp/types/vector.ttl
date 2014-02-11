@@ -80,6 +80,9 @@
         var label = fileName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
         con.add(obj.resource, RDFS.LABEL, vf.createLiteral(label), []);
 
+        var depiction = vf.createURI("http://xmlns.com/foaf/0.1/depiction");
+        con.add(obj.resource, depiction, obj.resource, []);
+
         //# load image data
         var out = obj.PutImage(body) ;
 

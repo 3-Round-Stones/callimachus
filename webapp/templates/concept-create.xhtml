@@ -6,6 +6,17 @@
 <head>
     <title>New Concept</title>
     <link rel="help" href="../../callimachus-for-web-developers#Concept" target="_blank" title="Help" />
+    <script type="text/javascript">
+        $(function() {
+            $('div.checkbox[data-rel]').change(function() {
+                if ($(this).find('input:checked').length) {
+                    $(this).attr("rel", $(this).attr("data-rel"));
+                } else {
+                    $(this).removeAttr("rel");
+                }
+            }).change();
+        });
+    </script>
 </head>
 <body>
     <form role="form" id="form" method="POST" action="" enctype="application/rdf+xml" typeof="skos:Concept" class="container"
@@ -43,6 +54,17 @@
                             <textarea id="example" class="form-control">{skos:example}</textarea>
                         </div>
                     </div>
+                </fieldset>
+                <fieldset class="row">
+                    <div class="form-group col-sm-6">
+                        <div class="checkbox" data-rel="rdf:type" resource="http://www.w3.org/ns/oa#SemanticTag">
+                            <label>
+                                <input type="checkbox" name="semanticTag" checked="checked" />
+                                Use as Semantic Tag
+                            </label>
+                      	</div>
+                    </div>
+                    <span rel="rdf:type" />
                 </fieldset>
                 <fieldset class="form-group">
                     <button id="create" type="submit" class="btn btn-success">Create</button>

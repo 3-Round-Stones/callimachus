@@ -84,7 +84,7 @@
 
         //# dcterms:created
         var now = DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar(TimeZone.getTimeZone("UTC")));
-        con.add(created.resource, DCTERMS.CREATED, vf.createLiteral(now), []);
+        con.add(obj.resource, DCTERMS.CREATED, vf.createLiteral(now), []);
 
         //# load data
         var out = obj.PutSchematron(body) ;

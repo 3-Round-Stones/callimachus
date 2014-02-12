@@ -146,7 +146,7 @@
 
         //# dcterms:created
         var now = DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar(TimeZone.getTimeZone("UTC")));
-        con.add(created.resource, DCTERMS.CREATED, vf.createLiteral(now), []);
+        con.add(obj.resource, DCTERMS.CREATED, vf.createLiteral(now), []);
 
         var depiction = vf.createURI("http://xmlns.com/foaf/0.1/depiction");
         con.add(obj.resource, depiction, obj.resource, []);

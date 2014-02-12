@@ -147,7 +147,6 @@
     calli:script """
         //# dcterms:modified
         var now = DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar(TimeZone.getTimeZone("UTC")));
-        this.objectConnection.remove(this.resource, DCTERMS.MODIFIED, null, []);
         this.objectConnection.add(this.resource, DCTERMS.MODIFIED, this.objectConnection.valueFactory.createLiteral(now), []);
 
         var out = this.openOutputStream() ;

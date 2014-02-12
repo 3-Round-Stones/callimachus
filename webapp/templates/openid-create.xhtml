@@ -29,7 +29,6 @@
 	        }
         }
         $('#created').val(new Date().toISOString()).change();
-        $('#modified').val($('#created').val()).change();
     }); // ]]>
     </script>
 </head>
@@ -80,7 +79,6 @@
         </div>
         <div class="form-group">
             <input type="hidden" id="created" value="{dcterms:created}" datatype="xsd:dateTime" />
-            <input type="hidden" id="modified" value="{dcterms:modified}" datatype="xsd:dateTime" />
             <button type="submit" class="btn btn-default">Add</button>
         </div>
     </form>

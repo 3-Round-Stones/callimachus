@@ -3,7 +3,6 @@
 jQuery(function($){
 
 $('#created').val(new Date().toISOString()).change();
-$('#modified').val($('#created').val()).change();
 
 $('form[typeof~="calli:Credential"]').bind('calliRedirect', function(event){
     var password = $('#password').val();

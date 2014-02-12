@@ -10,7 +10,6 @@
     <script type="text/javascript">
         jQuery(function($){
             $('#created').val(new Date().toISOString()).change();
-            $('#modified').val($('#created').val()).change();
         });
     </script>
 </head>
@@ -53,7 +52,6 @@
                 </fieldset>
                 <fieldset class="form-group">
                     <input type="hidden" id="created" value="{dcterms:created}" datatype="xsd:dateTime" />
-                    <input type="hidden" id="modified" value="{dcterms:modified}" datatype="xsd:dateTime" />
                     <button id="create" type="submit" class="btn btn-success">Create</button>
                 </fieldset>
             </div>

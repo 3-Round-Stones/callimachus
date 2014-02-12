@@ -68,8 +68,6 @@
         //# dcterms:created
         var now = DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar(TimeZone.getTimeZone("UTC")));
         con.add(created.resource, DCTERMS.CREATED, vf.createLiteral(now), []);
-        //# dcterms:modified
-        this.objectConnection.add(this.resource, DCTERMS.MODIFIED, this.objectConnection.valueFactory.createLiteral(now), []);
 
         created = con.addDesignation(created, this.toString());
         created = con.addDesignation(created, Document);
@@ -116,7 +114,6 @@
     calli:script """
         //# dcterms:modified
         var now = DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar(TimeZone.getTimeZone("UTC")));
-        this.objectConnection.remove(this.resource, DCTERMS.MODIFIED, null, []);
         this.objectConnection.add(this.resource, DCTERMS.MODIFIED, this.objectConnection.valueFactory.createLiteral(now), []);
 
         var read;

@@ -7,6 +7,9 @@
 <head>
     <title>New Group</title>
     <link rel="help" href="../../callimachus-for-web-developers#User_Group" target="_blank" title="Help" />
+    <script type="text/javascript">
+        $('#created').val(new Date().toISOString()).change();
+    </script>
 </head>
 <body>
     <form role="form" id="form" method="POST" action="" enctype="application/rdf+xml" typeof="calli:Party calli:Group"
@@ -29,6 +32,7 @@
                     </div>
                 </div>
                 <div class="form-group">
+                    <input type="hidden" id="created" value="{dcterms:created}" datatype="xsd:dateTime" />
                     <button id="create" type="submit" class="btn btn-success">Create</button>
                 </div>
             </fieldset>

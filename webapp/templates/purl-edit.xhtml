@@ -28,6 +28,11 @@
                 event.location = event.resource + '?view';
             }
         });
+        $('<span></span>').attr("id", "modified")
+            .attr("property", "dcterms:modified")
+            .attr("datatype", "xsd:dateTime")
+            .attr("content", new Date().toISOString())
+            .appendTo('#form');
     });
     // ]]>
     </script>

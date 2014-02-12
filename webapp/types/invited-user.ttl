@@ -19,6 +19,7 @@
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/admin>;
     calli:icon <../images/user.png>;
+    calli:thumbnail <../images/user.svg>;
     calli:view <../templates/invited-user-view.xhtml>;
     calli:edit <../templates/invited-user-edit.xhtml>;
     calli:create <../templates/invited-user-create.xhtml>.

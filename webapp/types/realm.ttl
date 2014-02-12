@@ -18,6 +18,7 @@
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;
     calli:icon <../images/realm.png>;
+    calli:thumbnail <../images/realm.svg>;
     calli:edit <../templates/realm-edit.xhtml>.
 
 :PostEditRealm owl:intersectionOf (<editable.ttl#PostEdit>

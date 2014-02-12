@@ -99,6 +99,18 @@ public class WebBrowserDriver {
 		waitForScript();
 	}
 
+	public void focusInModalFrame(String... frameNames) {
+		if (frameNames.length < 2) {
+			focusInTopWindow();
+		} else {
+			String[] parent = new String[frameNames.length - 1];
+			System.arraycopy(frameNames, 0, parent, 0, parent.length);
+			focusInFrame(parent);
+		}
+		waitUntilModalOpen();
+		focusInFrame(frameNames);
+	}
+
 	public void waitForFrameToClose(final String frameName) {
 		driver.switchTo().window(driver.getWindowHandle());
 		if (frameName != null) {
@@ -133,6 +145,9 @@ public class WebBrowserDriver {
 			driver.executeScript("arguments[0].click()", element);
 		} catch (ElementNotVisibleException e) {
 			// firefox can't scroll to reveal element
+			driver.executeScript("arguments[0].click()", element);
+		} catch (WebDriverException e) {
+			// chrome redrew the screen and lost the element
 			driver.executeScript("arguments[0].click()", element);
 		}
 	}
@@ -320,7 +335,7 @@ public class WebBrowserDriver {
 
 	public void waitForScript() {
 		Wait<WebDriver> wait = new WebDriverWait(driver, 240);
-		Boolean present = wait.until(new ExpectedCondition<Boolean>() {
+		assertTrue(wait.until(new ExpectedCondition<Boolean>() {
 			public Boolean apply(WebDriver wd) {
 				String js = "try {\n" + "if (document.documentElement)\n"
 						+ "    return document.documentElement.className;\n"
@@ -337,8 +352,27 @@ public class WebBrowserDriver {
 			public String toString() {
 				return "script to be ready";
 			}
-		});
-		assertTrue(present);
+		}));
+	}
+
+	public void waitUntilModalOpen() {
+		Wait<WebDriver> wait = new WebDriverWait(driver, 240);
+		assertTrue(wait.until(new ExpectedCondition<Boolean>() {
+			public Boolean apply(WebDriver wd) {
+				List<WebElement> modals = wd.findElements(By.cssSelector(".modal.fade.in"));
+				if (modals.isEmpty())
+					return false;
+				for (WebElement modal : modals) {
+					if (!modal.getCssValue("opacity").equals("1"))
+						return false;
+				}
+				return true;
+			}
+
+			public String toString() {
+				return "modal to open";
+			}
+		}));
 	}
 
 	public int getPositionTop(By locator) {

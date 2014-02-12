@@ -12,14 +12,14 @@ public class DigestUserEdit extends CalliPage {
 	public FileUploadForm openPhotoUpload() {
 		browser.click(By.cssSelector("#photo label a"));
 		browser.waitForScript();
-		browser.focusInFrame("photo");
+		browser.focusInModalFrame("photo");
 		browser.waitForScript();
 		final DigestUserEdit edit = this;
 		return new FileUploadForm(browser) {
 			@Override
 			public DigestUserEdit uploadAs(String fileName) {
 				browser.click(By.id("upload"));
-				browser.focusInFrame("photo", "save-as___");
+				browser.focusInModalFrame("photo", "save-as___");
 				browser.type(By.id("label"), fileName);
 				browser.focusInFrame("photo");
 				browser.click(By.xpath("//div[@role='dialog']//button[text()='Save']"));

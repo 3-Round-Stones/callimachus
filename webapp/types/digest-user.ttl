@@ -20,6 +20,7 @@
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/admin>;
     calli:icon <../images/user.png>;
+    calli:thumbnail <../images/user.svg>;
     calli:view <../templates/digest-user-view.xhtml>;
     calli:edit <../templates/digest-user-edit.xhtml>.
 

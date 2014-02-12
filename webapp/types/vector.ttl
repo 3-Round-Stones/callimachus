@@ -34,7 +34,8 @@
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/power>,</auth/groups/admin>;
-    calli:icon <../images/image.png>;
+    calli:icon <../images/svg.png>;
+    calli:thumbnail <../images/svg.svg>;
     calli:create <../templates/file-create.xhtml>;
     calli:mediaType "image/svg+xml";
     calli:documentTag <http://www.w3.org/2000/svg#svg>.
@@ -78,6 +79,9 @@
         var fileName = location.resource.localName;
         var label = fileName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
         con.add(obj.resource, RDFS.LABEL, vf.createLiteral(label), []);
+
+        var depiction = vf.createURI("http://xmlns.com/foaf/0.1/depiction");
+        con.add(obj.resource, depiction, obj.resource, []);
 
         //# load image data
         var out = obj.PutImage(body) ;

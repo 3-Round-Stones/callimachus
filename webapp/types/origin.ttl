@@ -35,6 +35,7 @@
     owl:equivalentClass </callimachus/Origin>, </callimachus/1.0/types/Origin>;
     rdfs:isDefinedBy <../../ontology>;
     calli:icon <../images/realm.png>;
+    calli:thumbnail <../images/realm.svg>;
     calli:view <../templates/folder-view.xhtml>.
 
 ################################

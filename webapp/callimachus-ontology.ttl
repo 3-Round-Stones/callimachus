@@ -221,6 +221,16 @@ calli:mediaType a owl:AnnotationProperty;
     rdfs:comment "The content media type for binary or text representations of resources of this class";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
+calli:icon a owl:AnnotationProperty;
+    rdfs:label "icon";
+    rdfs:comment "A 16x16 px Portable Network Graphic representing a single resource of this class";
+    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
+calli:thumbnail a owl:AnnotationProperty;
+    rdfs:label "thumbnail";
+    rdfs:comment "A 256x256 px Scalable Vector Graphic representing a single resource of this class";
+    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
 calli:type a owl:AnnotationProperty;
     rdfs:label "type";
     rdfs:comment "The content type for binary or text representations of objects for this property, or msg:object for this message class";

@@ -8,6 +8,17 @@
 <head>
     <title>New Datasource</title>
     <link rel="help" href="../../callimachus-for-web-developers#Datasource" target="_blank" title="Help" />
+    <script type="text/javascript">
+        $(function(){
+            $('div.checkbox[data-rel]').change(function(){
+                if ($(this).find('input:checked').length) {
+                    $(this).attr("rel", $(this).attr("data-rel"));
+                } else {
+                    $(this).removeAttr("rel");
+                }
+            }).change();
+        });
+    </script>
 </head>
 <body>
     <form role="form" method="POST" action="" enctype="application/rdf+xml" typeof="calli:RdfDatasource sd:Service" class="container"
@@ -32,15 +43,17 @@
             </fieldset>
             <fieldset class="col-sm-4">
                 <div class="form-group">
-                    <div class="checkbox">
-                        <label rel="calli:editor" resource="/auth/groups/system">
+                    <div class="checkbox" data-rel="calli:editor" resource="/auth/groups/system">
+                        <label>
                             <input type="checkbox" name="editor" checked="checked" />
                 			Grant anonymous localhost to modify datasource
                 		</label>
                 	</div>
                 </div>
                 <div>
+                    <span rel="calli:editor" />
                     <span rel="sd:endpoint" />
+                    <span rel="sd:supportedLanguage" />
                     <span rel="sd:feature" resource="http://www.w3.org/ns/sparql-service-description#BasicFederatedQuery" />
                     <span rel="sd:feature" resource="http://www.w3.org/ns/sparql-service-description#UnionDefaultGraph" />
                     <span rel="sd:inputFormat" resource="http://www.w3.org/ns/formats/RDF_XML" />
@@ -49,14 +62,14 @@
                     <span rel="sd:resultFormat" resource="http://www.w3.org/ns/formats/SPARQL_Results_XML" />
                 </div>
                 <div class="form-group">
-            		<div class="checkbox">
-            			<label rel="sd:supportedLanguage" resource="http://www.w3.org/ns/sparql-service-description#SPARQL11Query">
+            		<div class="checkbox" data-rel="sd:supportedLanguage" resource="http://www.w3.org/ns/sparql-service-description#SPARQL11Query">
+            			<label>
             				<input type="checkbox" name="support" checked="checked" />
             				SPARQL Query
             			</label>
                     </div>
-                	<div class="checkbox">
-                		<label rel="sd:supportedLanguage" resource="http://www.w3.org/ns/sparql-service-description#SPARQL11Update">
+                	<div class="checkbox" data-rel="sd:supportedLanguage" resource="http://www.w3.org/ns/sparql-service-description#SPARQL11Update">
+                		<label>
             				<input type="checkbox" name="support" checked="checked" />
             				SPARQL Update
             			</label>

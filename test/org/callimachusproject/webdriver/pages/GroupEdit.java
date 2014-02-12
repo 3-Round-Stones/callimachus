@@ -23,7 +23,7 @@ public class GroupEdit extends CalliPage {
 	public InviteUser openInviteUser() {
 		browser.click(By.cssSelector("#members label a"));
 		browser.waitForScript();
-		browser.focusInFrame("members");
+		browser.focusInModalFrame("members");
 		browser.waitForScript();
 		final GroupEdit edit = this;
 		return new InviteUser(browser) {

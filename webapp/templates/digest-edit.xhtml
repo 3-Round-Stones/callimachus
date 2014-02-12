@@ -10,7 +10,11 @@
     <link rel="help" href="../../callimachus-for-web-developers#Digest_Password_Authentication" target="_blank" title="Help" />
     <script type="text/javascript">
         jQuery(function($){
-            $('#modified').attr('content', new Date().toISOString());
+            $('<span></span>').attr("id", "modified")
+                .attr("property", "dcterms:modified")
+                .attr("datatype", "xsd:dateTime")
+                .attr("content", new Date().toISOString())
+                .appendTo('#form');
         });
     </script>
 </head>
@@ -55,7 +59,6 @@
                     </fieldset>
                 </div>
                 <fieldset class="form-group">
-                    <span id="modified" property="dcterms:modified" content="?modified" datatype="xsd:dateTime" />
                     <button id="save" type="submit" class="btn btn-primary">Save</button>
                     <button id="cancel" type="button" onclick="window.location.replace('?view')" class="btn btn-default">Cancel</button>
                     <button id="delete" type="button" onclick="calli.deleteResource(event)" class="btn btn-danger">Delete</button>

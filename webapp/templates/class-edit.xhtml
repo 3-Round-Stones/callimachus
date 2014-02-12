@@ -61,12 +61,16 @@
         if ($('#subClassOf').find('[resource$="Composite"]').length) {
             $('#composite').attr('checked','checked');
         }
-        $('#modified').attr('content', new Date().toISOString());
+        $('<span></span>').attr("id", "modified")
+            .attr("property", "dcterms:modified")
+            .attr("datatype", "xsd:dateTime")
+            .attr("content", new Date().toISOString())
+            .appendTo('#form');
     }); // ]]>
     </script>
 </head>
 <body resource="?this">
-    <form role="form" method="POST" action="" enctype="application/sparql-update" resource="?this" typeof="owl:Class" class="container">
+    <form id="form" role="form" method="POST" action="" enctype="application/sparql-update" resource="?this" typeof="owl:Class" class="container">
         <div class="row">
             <div class="col-sm-8">
                 <hgroup class="page-header">
@@ -181,7 +185,6 @@
                     </div>
                 </fieldset>
                 <fieldset class="form-group">
-                    <span id="modified" property="dcterms:modified" content="?modified" datatype="xsd:dateTime" />
                     <button id="save" type="submit" class="btn btn-primary">Save</button>
                     <button id="cancel" type="button" onclick="window.location.replace('?view')" class="btn btn-default">Cancel</button>
                     <button id="delete" type="button" onclick="calli.deleteResource(event)" class="btn btn-danger">Delete</button>

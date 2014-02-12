@@ -120,6 +120,10 @@
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
     calli:imports <java:org.callimachusproject.server.exceptions.Conflict>;
     calli:imports <java:org.openrdf.model.vocabulary.RDFS>;
+    calli:imports <java:org.openrdf.model.vocabulary.DCTERMS>;
+    calli:imports <java:javax.xml.datatype.DatatypeFactory>;
+    calli:imports <java:java.util.GregorianCalendar>;
+    calli:imports <java:java.util.TimeZone>;
     calli:imports <File>;
     calli:imports foaf:Image ;
     calli:script """
@@ -140,6 +144,10 @@
         var label = fileName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
         con.add(obj.resource, RDFS.LABEL, vf.createLiteral(label), []);
 
+        //# dcterms:created
+        var now = DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar(TimeZone.getTimeZone("UTC")));
+        con.add(created.resource, DCTERMS.CREATED, vf.createLiteral(now), []);
+
         var depiction = vf.createURI("http://xmlns.com/foaf/0.1/depiction");
         con.add(obj.resource, depiction, obj.resource, []);
 
@@ -154,7 +162,15 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     calli:method "PUT";
     calli:requires calli:editor;
+    calli:imports <java:org.openrdf.model.vocabulary.DCTERMS>;
+    calli:imports <java:javax.xml.datatype.DatatypeFactory>;
+    calli:imports <java:java.util.GregorianCalendar>;
+    calli:imports <java:java.util.TimeZone>;
     calli:script """
+        //# dcterms:modified
+        var now = DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar(TimeZone.getTimeZone("UTC")));
+        this.objectConnection.add(this.resource, DCTERMS.MODIFIED, this.objectConnection.valueFactory.createLiteral(now), []);
+
         var out = this.openOutputStream() ;
         var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
         var read;

@@ -55,6 +55,7 @@ import org.openrdf.OpenRDFException;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
+import org.openrdf.model.vocabulary.DCTERMS;
 import org.openrdf.query.BooleanQuery;
 import org.openrdf.query.GraphQueryResult;
 import org.openrdf.query.impl.MapBindingSet;
@@ -158,6 +159,7 @@ public abstract class PageSupport implements CalliObject {
 			update.acceptDelete(loadEditTriples(resource, con));
 			update.acceptInsert(openPatternReader(resource.stringValue()));
 			update.acceptInsert(changeNoteOf(resource));
+			update.acceptInsert(modified(resource));
 			String sparqlUpdate = update.parseUpdate(in);
 	
 			update.executeUpdate(sparqlUpdate, con);
@@ -219,6 +221,7 @@ public abstract class PageSupport implements CalliObject {
 		EntityUpdater postUpdate = new EntityUpdater(resource);
 		postUpdate.acceptInsert(loadEditTriples(resource, con));
 		postUpdate.acceptInsert(changeNoteOf(resource));
+		postUpdate.acceptInsert(modified(resource));
 		postUpdate.analyzeUpdate(sparqlUpdate);
 	}
 
@@ -294,5 +297,11 @@ public abstract class PageSupport implements CalliObject {
 		AbsoluteTermFactory tf = AbsoluteTermFactory.newInstance();
 		IRI subj = tf.iri(resource.stringValue());
 		return new TriplePattern(subj, tf.iri(CHANGE_NOTE), tf.node());
+	}
+
+	private TriplePattern modified(URI resource) {
+		AbsoluteTermFactory tf = AbsoluteTermFactory.newInstance();
+		IRI subj = tf.iri(resource.stringValue());
+		return new TriplePattern(subj, tf.iri(DCTERMS.MODIFIED.stringValue()), tf.node());
 	}
 }

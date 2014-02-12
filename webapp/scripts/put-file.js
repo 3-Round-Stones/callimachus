@@ -30,7 +30,7 @@ $('form[method="PUT"]').each(function(event){
         if (!onlyHandlers) {
             event.preventDefault();
             event.stopImmediatePropagation();
-            form.triggerHandler(event.type, true);
+            $(form).triggerHandler(event.type, true);
         } else {
             setTimeout(function(){
                 if (!event.isDefaultPrevented()) {

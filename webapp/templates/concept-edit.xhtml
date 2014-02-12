@@ -10,13 +10,39 @@
     <title resource="?this">{skos:prefLabel}</title>
     <link rel="help" href="../../callimachus-for-web-developers#Concept" target="_blank" title="Help" />
     <script type="text/javascript">
-        function saveChangeNote() {
-            var note = document.getElementById('note')
-            if (note.value) {
-                note.setAttribute('property', 'skos:changeNote')
-                note.setAttribute('content', note.value)
+        $(function(){
+            var oa = "http://www.w3.org/ns/oa#";
+            var label = 'div[rel="rdf:type"]';
+            $(label).each(function() {
+                if ($(this).attr('resource') !== "http://www.w3.org/ns/oa#SemanticTag") {
+                    $(this).hide();
+                }
+            });
+            $(label + '[resource="' + oa + 'SemanticTag"]').each(function(){
+                if ($(this).find('input:checked').length) {
+                    console.log('Semantic tag is checked');
+                    var other = $(this).siblings('div[resource="' + oa + 'SemanticTag"]');
+                    $(this).find('span').text(other.find('span').text());
+                    other.remove();
+                }
+            });
+            
+            $('div.checkbox').change(function(){
+                if ($(this).find('input:checked').length) {
+                    $(this).attr("rel", "rdf:type");
+                } else {
+                    $(this).removeAttr("rel");
+                }
+            });
+            
+            function saveChangeNote() {
+                var note = document.getElementById('note')
+                if (note.value) {
+                    note.setAttribute('property', 'skos:changeNote')
+                    note.setAttribute('content', note.value)
+                }
             }
-        }
+        });
     </script>
 </head>
 <body resource="?this">
@@ -67,6 +93,22 @@
                         <label for="historyNote">History</label>
                         <div>
                             <textarea id="historyNote" class="form-control">{skos:historyNote}</textarea>
+                        </div>
+                    </div>
+                </fieldset>
+                <fieldset class="row">
+                    <div class="form-group col-sm-6">
+                        <div class="checkbox" resource="http://www.w3.org/ns/oa#SemanticTag">
+                            <label>
+                                <input type="checkbox" name="semanticTag" />
+                                <span>Use as Semantic Tag</span>
+                            </label>
+                        </div>
+                        <div class="checkbox" rel="rdf:type" resource="?type">
+                            <label>
+                    			<input type="checkbox" name="type" checked="checked" />
+                				<span>{?type}</span>
+                			</label>
                         </div>
                     </div>
                 </fieldset>

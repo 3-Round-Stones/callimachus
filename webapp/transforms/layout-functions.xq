@@ -78,7 +78,7 @@ declare function calli:lookup-href($link as element()) as element() {
 declare function calli:lookup-form($placeholder as xs:string) as element(form) {
     <form class="navbar-form" role="search" method="GET" action="{$calli:realm}">
         <div class="input-group">
-            <input type="text" name="q" class="form-control" placeholder="{$placeholder}" />
+            <input type="text" name="q" class="form-control pull-right" placeholder="{$placeholder}" />
             <span class="input-group-btn">
                 <button class="btn btn-default" type="submit">
                     <span class="glyphicon glyphicon-search" />

@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-    xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
-    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
-    xmlns:skos="http://www.w3.org/2004/02/skos/core#">
+    xmlns:dcterms="http://purl.org/dc/terms/"
+    xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+    xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
     <title resource="?this">{rdfs:label}</title>
     <link rel="help" href="../../callimachus-for-web-developers#Domain" target="_blank" title="Help" />
@@ -16,6 +17,11 @@
                     $(this).find('a').click();
                 }
             });
+            $('<span></span>').attr("id", "modified")
+                .attr("property", "dcterms:modified")
+                .attr("datatype", "xsd:dateTime")
+                .attr("content", new Date().toISOString())
+                .appendTo('#form');
         });
     // ]]>
     </script>

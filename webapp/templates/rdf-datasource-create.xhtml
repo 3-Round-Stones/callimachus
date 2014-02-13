@@ -3,6 +3,7 @@
     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:dcterms="http://purl.org/dc/terms/"
     xmlns:sd="http://www.w3.org/ns/sparql-service-description#"
     xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
@@ -17,7 +18,8 @@
                     $(this).removeAttr("rel");
                 }
             }).change();
-        });
+        $('#created').val(new Date().toISOString()).change();
+    });
     </script>
 </head>
 <body>
@@ -78,6 +80,7 @@
             </fieldset>
         </div>
         <fieldset class="form-group">
+            <input type="hidden" id="created" value="{dcterms:created}" datatype="xsd:dateTime" />
             <button id="create-datasource" type="submit" class="btn btn-success">Create</button>
         </fieldset>
     </form>

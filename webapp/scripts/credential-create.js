@@ -2,6 +2,8 @@
 
 jQuery(function($){
 
+$('#created').val(new Date().toISOString()).change();
+
 $('form[typeof~="calli:Credential"]').bind('calliRedirect', function(event){
     var password = $('#password').val();
     if (password && event.cause.type == 'calliSubmit') {

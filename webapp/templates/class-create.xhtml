@@ -3,6 +3,7 @@
     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
     xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
+    xmlns:dcterms="http://purl.org/dc/terms/"
     xmlns:foaf="http://xmlns.com/foaf/0.1/">
 <head>
     <title>New Class</title>
@@ -82,6 +83,7 @@
             de.dataTransfer = {getData:function(){return equivalentURL}};
             $('#equivalentClass').trigger(de);
         }
+        $('#created').val(new Date().toISOString()).change();
     }); // ]]>
     </script>
 </head>
@@ -213,6 +215,7 @@
                     </div>
                 </fieldset>
                 <fieldset class="form-group">
+                    <input type="hidden" id="created" value="{dcterms:created}" datatype="xsd:dateTime" />
                     <button id="create" type="submit" class="btn btn-success">Create</button>
                 </fieldset>
             </div>

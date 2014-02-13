@@ -56,6 +56,7 @@
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/admin>;
     calli:icon <../images/graph.png>;
+    calli:thumbnail <../images/graph.svg>;
     calli:create <../templates/graph-create.xhtml>;
     calli:view <../templates/graph-view.xhtml>;
     calli:edit <../templates/graph-edit.xhtml>;

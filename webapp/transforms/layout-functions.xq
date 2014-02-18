@@ -227,7 +227,9 @@ declare function calli:relatedchanges-href($a as element()) as element() {
 declare function calli:permissions-href($a as element()) as element() {
     element {node-name($a)} {
         attribute href {"?permissions"},
-        $a/@*[name()!='href'],
+        if ($a/@onclick) then $a/@onclick
+            else attribute onclick {"if(location.search!='?view')return true;calli.openDialog(this.href,this.textContent);return false;"},
+        $a/@*[name()!='href' and name()!='click'],
         $a/node()
     }
 };

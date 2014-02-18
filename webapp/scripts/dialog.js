@@ -45,7 +45,7 @@ window.calli.closeDialog = function(iframe) {
 window.calli.openDialog = function(url, title, options) {
     var settings = options || {};
     var markup = ['<div class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">',
-        '  <div class="modal-dialog modal-lg">',
+        '  <div class="modal-dialog">',
         '    <div class="modal-content">',
         '      <div class="modal-header">',
         '        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>',
@@ -58,6 +58,9 @@ window.calli.openDialog = function(url, title, options) {
         '  </div>',
         '</div>'].join('\n');
     var modal = $(markup);
+    if (window.parent == window) {
+        modal.find('.modal-dialog').addClass('modal-lg');
+    }
     modal.find('.modal-title').text(title);
     var iframe = modal.find('iframe');
     iframe.attr('name', asUniqueName(title));
@@ -89,6 +92,9 @@ window.calli.openDialog = function(url, title, options) {
                 }
                 settings.onmessage(event);
             }
+            if (data == 'POST close') {
+                calli.closeDialog(iframe[0].contentWindow);
+            }
         }
     };
     $(window).bind('message', handle);
@@ -116,7 +122,10 @@ window.calli.openDialog = function(url, title, options) {
     if (e.isDefaultPrevented()) {
         return null;
     } else {
-        modal.modal('show');
+        modal.modal({
+            backdrop: window.parent == window,
+            show: true
+        });
         iframe.load(calli.wait().over);
         iframe[0].src = url;
         if (typeof settings.onlookup == 'function') {

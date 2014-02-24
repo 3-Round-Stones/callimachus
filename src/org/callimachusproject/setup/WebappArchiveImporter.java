@@ -29,6 +29,7 @@ import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.repository.CalliRepository;
 import org.callimachusproject.repository.auditing.AuditingRepositoryConnection;
 import org.openrdf.OpenRDFException;
+import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
@@ -39,6 +40,8 @@ import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
 import org.openrdf.repository.object.ObjectConnection;
+import org.openrdf.repository.object.RDFObject;
+import org.openrdf.repository.object.exceptions.RDFObjectException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,6 +77,10 @@ public class WebappArchiveImporter {
 			NoSuchMethodException, InvocationTargetException {
 		createFolder(folder, webapp, repository);
 		importArchive(carStream, folder, webapp, repository);
+	}
+
+	public void removeFolder(String folder) {
+		deleteComponents(folder);
 	}
 
 	protected void setFolderPermissions(URI uri, ObjectConnection con)
@@ -227,6 +234,77 @@ public class WebappArchiveImporter {
 			String resource) throws RepositoryException {
 		ValueFactory vf = con.getValueFactory();
 		con.add(subj, vf.createURI(pred), vf.createURI(resource));
+	}
+
+	private boolean deleteComponents(String folder) {
+		try {
+			try {
+				repository.setSchemaGraphType(webapp + SCHEMA_GRAPH);
+				repository.setCompileRepository(true);
+				ObjectConnection con = repository.getConnection();
+				try {
+					con.begin();
+					RDFObject obj = (RDFObject) con.getObject(folder);
+					Method DeleteComponents = findDeleteComponents(folder);
+					try {
+						logger.info("Removing {}", folder);
+						invokeAndRemove(DeleteComponents, obj, con);
+						con.commit();
+						return true;
+					} catch (InvocationTargetException e) {
+						try {
+							throw e.getCause();
+						} catch (Exception cause) {
+							logger.warn(cause.toString());
+						} catch (Error cause) {
+							logger.warn(cause.toString());
+						} catch (Throwable cause) {
+							logger.warn(cause.toString());
+						}
+						con.rollback();
+						return false;
+					}
+				} catch (IllegalAccessException e) {
+					logger.debug(e.toString());
+				} catch (NoSuchMethodException e) {
+					logger.debug(e.toString());
+				} finally {
+					con.rollback();
+					repository.setCompileRepository(false);
+					con.close();
+				}
+			} finally {
+				repository.setCompileRepository(false);
+			}
+		} catch (RDFObjectException e) {
+			logger.debug(e.toString());
+		} catch (OpenRDFException e) {
+			logger.debug(e.toString());
+		}
+		return false;
+	}
+
+	private Method findDeleteComponents(Object folder)
+			throws NoSuchMethodException {
+		for (Method method : folder.getClass().getMethods()) {
+			if ("DeleteComponents".equals(method.getName()))
+				return method;
+		}
+		throw new NoSuchMethodException("DeleteComponents in " + folder);
+	}
+
+	private void invokeAndRemove(Method DeleteComponents, RDFObject folder,
+			ObjectConnection con) throws IllegalAccessException,
+			InvocationTargetException, OpenRDFException {
+		int argc = DeleteComponents.getParameterTypes().length;
+		DeleteComponents.invoke(folder, new Object[argc]);
+		Resource target = folder.getResource();
+		ValueFactory vf = con.getValueFactory();
+		String parent = getParentFolder(target.stringValue());
+		if (parent != null) {
+			con.remove(vf.createURI(parent), null, target);
+		}
+		con.remove(target, null, null);
 	}
 
 }

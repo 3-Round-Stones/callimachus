@@ -149,7 +149,7 @@ public class CacheHandler implements AsyncExecChain {
 			HttpResponse response, final HttpContext context) {
 		String method = request.getRequestLine().getMethod();
 		int sc = response.getStatusLine().getStatusCode();
-		if ("GET".equals(method)) {
+		if ("GET".equals(method) || "HEAD".equals(method)) {
 			switch (sc) {
 			case 200:
 			case 203:

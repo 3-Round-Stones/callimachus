@@ -100,8 +100,8 @@ log messages. Windows users may find the callimachus-log.bat script useful to
 monitor the activity without locking the log file.
 
 
-Alternatively, if you want to check out the source code, see the directions at:
-  http://code.google.com/p/callimachus/source/checkout
+Alternatively, if you want to check out the source code, you can do so here on
+GitHub via the command git clone https://github.com/3-Round-Stones/callimachus.git.
 Once you have the source code checked out, you will need to provide a username,
 email and password. Create a build.properties file in the same directory as
 build.xml. Put the variables "callimachus.username", "callimachus.email", and

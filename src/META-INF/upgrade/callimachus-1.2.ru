@@ -324,3 +324,11 @@ DELETE {
     <../callimachus-reference> calli:alternate <http://callimachusproject.org/docs/1.2/callimachus-reference.docbook?view>
 };
 
+DELETE {
+	</callimachus/ontology> owl:versionInfo "1.2"
+} INSERT {
+	</callimachus/ontology> owl:versionInfo "1.3"
+} WHERE {
+	</callimachus/ontology> owl:versionInfo "1.2"
+};
+

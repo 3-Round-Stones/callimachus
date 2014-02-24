@@ -245,7 +245,7 @@ public class WebappArchiveImporter {
 				try {
 					con.begin();
 					RDFObject obj = (RDFObject) con.getObject(folder);
-					Method DeleteComponents = findDeleteComponents(folder);
+					Method DeleteComponents = findDeleteComponents(obj);
 					try {
 						logger.info("Removing {}", folder);
 						invokeAndRemove(DeleteComponents, obj, con);

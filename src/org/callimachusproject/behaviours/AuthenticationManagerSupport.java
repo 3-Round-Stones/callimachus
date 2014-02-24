@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2014 3 Round Stones Inc., Some Rights Reserved
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package org.callimachusproject.behaviours;
 
 import static org.callimachusproject.util.PercentCodec.decode;
@@ -14,6 +30,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TimeZone;
@@ -21,6 +38,9 @@ import java.util.TimeZone;
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpResponse;
@@ -39,6 +59,7 @@ import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
+import org.openrdf.model.vocabulary.DCTERMS;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.model.vocabulary.RDFS;
 import org.openrdf.query.BindingSet;
@@ -321,6 +342,15 @@ public abstract class AuthenticationManagerSupport implements CalliObject,
 		} finally {
 			stmts.close();
 		}
+		stmts = con.getStatements(invitedUser, DCTERMS.CREATED, null);
+		try {
+			while (stmts.hasNext()) {
+				Statement st = stmts.next();
+				add(regUser, st.getPredicate(), st.getObject(), con);
+			}
+		} finally {
+			stmts.close();
+		}
 		stmts = con.getStatements(invitedUser, vf.createURI(FOAF_DEPICTION), null);
 		try {
 			while (stmts.hasNext()) {
@@ -374,9 +404,20 @@ public abstract class AuthenticationManagerSupport implements CalliObject,
 		add(regUser, RDF.TYPE, vf.createURI(PARTY), con);
 		add(regUser, RDF.TYPE, vf.createURI(USER), con);
 		add(regUser, vf.createURI(DERIVED_FROM), invitedUser, con);
+		add(regUser, DCTERMS.MODIFIED, vf.createLiteral(now()), con);
 		getManager().registered(invitedUser, regUser, con);
 		con.remove(invitedUser, null, null);
 		con.commit();
+	}
+
+	private XMLGregorianCalendar now() {
+		try {
+			TimeZone utc = TimeZone.getTimeZone("UTC");
+			DatatypeFactory df = DatatypeFactory.newInstance();
+			return df.newXMLGregorianCalendar(new GregorianCalendar(utc));
+		} catch (DatatypeConfigurationException e) {
+			throw new AssertionError(e);
+		}
 	}
 
 	private void moveTo(URI link, Statement st, ObjectConnection con)

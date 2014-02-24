@@ -4,15 +4,25 @@
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
     xmlns:foaf="http://xmlns.com/foaf/0.1/"
+    xmlns:dcterms="http://purl.org/dc/terms/"
     xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
     <title resource="?this">{rdfs:label}</title>
     <link href="../../callimachus-for-web-developers#Callimachus_auth_options" target="_blank" title="Help" />
+    <script type="text/javascript">
+        jQuery(function($){
+            $('<span></span>').attr("id", "modified")
+                .attr("property", "dcterms:modified")
+                .attr("datatype", "xsd:dateTime")
+                .attr("content", new Date().toISOString())
+                .appendTo('#form');
+        });
+    </script>
 </head>
 <body resource="?this">
     <form role="form" id="form" method="POST" action="" enctype="application/sparql-update" resource="?this" class="container">
         <hgroup class="page-header">
-            <h1 property="rdfs:label" />
+            <h1>{rdfs:label}</h1>
         </hgroup>
         <div class="row">
             <fieldset class="col-sm-4">

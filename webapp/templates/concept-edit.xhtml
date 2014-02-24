@@ -4,6 +4,7 @@
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
     xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+    xmlns:dcterms="http://purl.org/dc/terms/"
     xmlns:foaf="http://xmlns.com/foaf/0.1/"
     xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
@@ -17,13 +18,20 @@
                 note.setAttribute('content', note.value)
             }
         }
+        jQuery(function($){
+            $('<span></span>').attr("id", "modified")
+                .attr("property", "dcterms:modified")
+                .attr("datatype", "xsd:dateTime")
+                .attr("content", new Date().toISOString())
+                .appendTo('#form');
+        });
     </script>
 </head>
 <body resource="?this">
     <form role="form" id="form" method="POST" action="" enctype="application/sparql-update" class="container"
             resource="?this" typeof="skos:Concept" onsubmit="saveChangeNote()">
         <hgroup class="page-header">
-            <h1 property="skos:prefLabel" />
+            <h1>{skos:prefLabel}</h1>
         </hgroup>
         <div class="row">
             <div class="col-sm-8">

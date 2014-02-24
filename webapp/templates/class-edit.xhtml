@@ -3,7 +3,8 @@
     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
     xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
-    xmlns:foaf="http://xmlns.com/foaf/0.1/">
+    xmlns:foaf="http://xmlns.com/foaf/0.1/"
+    xmlns:dcterms="http://purl.org/dc/terms/">
 <head>
     <title resource="?this">{rdfs:label}</title>
     <link rel="help" href="../../callimachus-for-web-developers#Class" target="_blank" title="Help" />
@@ -60,15 +61,20 @@
         if ($('#subClassOf').find('[resource$="Composite"]').length) {
             $('#composite').attr('checked','checked');
         }
+        $('<span></span>').attr("id", "modified")
+            .attr("property", "dcterms:modified")
+            .attr("datatype", "xsd:dateTime")
+            .attr("content", new Date().toISOString())
+            .appendTo('#form');
     }); // ]]>
     </script>
 </head>
 <body resource="?this">
-    <form role="form" method="POST" action="" enctype="application/sparql-update" resource="?this" typeof="owl:Class" class="container">
+    <form id="form" role="form" method="POST" action="" enctype="application/sparql-update" resource="?this" typeof="owl:Class" class="container">
         <div class="row">
             <div class="col-sm-8">
                 <hgroup class="page-header">
-                    <h1 property="rdfs:label" />
+                    <h1>{rdfs:label}</h1>
                 </hgroup>
                 <div class="row">
                     <div class="col-sm-6">

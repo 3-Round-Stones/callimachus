@@ -48,6 +48,10 @@
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
     calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
     calli:imports <java:org.callimachusproject.server.exceptions.ServiceUnavailable>;
+    calli:imports <java:org.openrdf.model.vocabulary.DCTERMS>;
+    calli:imports <java:javax.xml.datatype.DatatypeFactory>;
+    calli:imports <java:java.util.GregorianCalendar>;
+    calli:imports <java:java.util.TimeZone>;
     calli:imports <File>;
     calli:imports foaf:Document;
     calli:script """
@@ -60,6 +64,10 @@
         var filename = created.resource.localName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
         var label = vf.createLiteral(URLDecoder.decode(filename, "UTF-8").replace(/[_\\-\\+\\s]+/g, " "));
         con.add(created.resource, RDFS.LABEL, label, []);
+
+        //# dcterms:created
+        var now = DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar(TimeZone.getTimeZone("UTC")));
+        con.add(created.resource, DCTERMS.CREATED, vf.createLiteral(now), []);
 
         created = con.addDesignation(created, this.toString());
         created = con.addDesignation(created, Document);
@@ -99,7 +107,15 @@
     calli:query "xhtml";
     calli:requires calli:editor;
     calli:imports foaf:Document;
+    calli:imports <java:org.openrdf.model.vocabulary.DCTERMS>;
+    calli:imports <java:javax.xml.datatype.DatatypeFactory>;
+    calli:imports <java:java.util.GregorianCalendar>;
+    calli:imports <java:java.util.TimeZone>;
     calli:script """
+        //# dcterms:modified
+        var now = DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar(TimeZone.getTimeZone("UTC")));
+        this.objectConnection.add(this.resource, DCTERMS.MODIFIED, this.objectConnection.valueFactory.createLiteral(now), []);
+
         var read;
         var docbookStream = this.ConvertXhtmlDocbook(xhtmlStream);
         try {

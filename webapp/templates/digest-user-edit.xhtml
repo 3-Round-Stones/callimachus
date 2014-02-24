@@ -4,6 +4,7 @@
     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
     xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:dcterms="http://purl.org/dc/terms/"
     xmlns:foaf="http://xmlns.com/foaf/0.1/">
 <head>
     <title resource="?this">{rdfs:label}</title>
@@ -36,6 +37,11 @@
                 }
                 return true;
             });
+            $('<span></span>').attr("id", "modified")
+                .attr("property", "dcterms:modified")
+                .attr("datatype", "xsd:dateTime")
+                .attr("content", new Date().toISOString())
+                .appendTo('#form');
         });
         // ]]>
     </script>
@@ -45,7 +51,7 @@
         <div class="row">
             <div class="col-sm-8">
                 <hgroup class="page-header">
-                    <h1 property="rdfs:label" />
+                    <h1>{rdfs:label}</h1>
                 </hgroup>
                 <fieldset class="row">
                     <div class="form-group col-sm-6">

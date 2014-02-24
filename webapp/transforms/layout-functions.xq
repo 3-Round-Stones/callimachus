@@ -1,4 +1,20 @@
 xquery version "1.0" encoding "utf-8";
+(:
+ : Copyright (c) 2014 3 Round Stones Inc., Some Rights Reserved
+ :
+ : Licensed under the Apache License, Version 2.0 (the "License");
+ : you may not use this file except in compliance with the License.
+ : You may obtain a copy of the License at
+ :
+ :     http://www.apache.org/licenses/LICENSE-2.0
+ :
+ : Unless required by applicable law or agreed to in writing, software
+ : distributed under the License is distributed on an "AS IS" BASIS,
+ : WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ : See the License for the specific language governing permissions and
+ : limitations under the License.
+ :
+ :)
 
 module namespace calli = "http://callimachusproject.org/rdf/2009/framework#";
 
@@ -78,7 +94,7 @@ declare function calli:lookup-href($link as element()) as element() {
 declare function calli:lookup-form($placeholder as xs:string) as element(form) {
     <form class="navbar-form" role="search" method="GET" action="{$calli:realm}">
         <div class="input-group">
-            <input type="text" name="q" class="form-control" placeholder="{$placeholder}" />
+            <input type="text" name="q" class="form-control pull-right" placeholder="{$placeholder}" />
             <span class="input-group-btn">
                 <button class="btn btn-default" type="submit">
                     <span class="glyphicon glyphicon-search" />
@@ -211,7 +227,9 @@ declare function calli:relatedchanges-href($a as element()) as element() {
 declare function calli:permissions-href($a as element()) as element() {
     element {node-name($a)} {
         attribute href {"?permissions"},
-        $a/@*[name()!='href'],
+        if ($a/@onclick) then $a/@onclick
+            else attribute onclick {"if(location.search!='?view')return true;calli.openDialog(this.href,this.textContent);return false;"},
+        $a/@*[name()!='href' and name()!='click'],
         $a/node()
     }
 };

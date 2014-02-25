@@ -185,6 +185,8 @@ public class SetupTool {
 					continue;
 				String root = e.getKey() + "/";
 				String webapp = repository.getCallimachusWebapp(root);
+				if (webapp == null)
+					continue;
 				TupleQueryResult results = con.prepareTupleQuery(
 						QueryLanguage.SPARQL, SELECT_REALM, webapp).evaluate();
 				try {

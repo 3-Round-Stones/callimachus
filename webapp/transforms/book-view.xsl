@@ -33,7 +33,6 @@ xmlns="http://www.w3.org/1999/xhtml" xmlns:xhtml="http://www.w3.org/1999/xhtml" 
         <link rel="describedby" href="?describe" />
         <link rel="version-history" href="?history" />
         <link rel="alternate" href="?docbook" title="Download Docbook" />
-        <link href="http://www.docbookpublishing.com/" title="DocBookPublishing.com" />
         <xsl:apply-templates mode="rel" />
         <link href="{resolve-uri('../assets/google-code-prettify/prettify.css')}" type="text/css" rel="stylesheet" />
         <style type="text/css">

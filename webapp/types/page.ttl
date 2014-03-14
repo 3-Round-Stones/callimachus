@@ -27,8 +27,8 @@
 
 <Page> a <Creatable>, owl:Class;
     rdfs:subClassOf calli:Page, <File>;
-    rdfs:label "Page";
-    rdfs:comment "New pages can be created in a folder";
+    rdfs:label "XHTML file";
+    rdfs:comment "Hypertext XHTML files served with Callimachus preprocessing.";
     owl:equivalentClass </callimachus/Page>, </callimachus/1.0/types/Page>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;

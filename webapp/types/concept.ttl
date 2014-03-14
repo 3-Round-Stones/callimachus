@@ -30,7 +30,7 @@
 <Concept> a <Creatable>, owl:Class;
     rdfs:subClassOf <Viewable>, <Editable>, skos:Concept;
     rdfs:label "Concept";
-    rdfs:comment "Concepts are ideas, meanings, or categories of objects and events";
+    rdfs:comment "Concepts are ideas, meanings, or categories of objects and events.";
     owl:equivalentClass </callimachus/Concept>, </callimachus/1.0/types/Concept>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;

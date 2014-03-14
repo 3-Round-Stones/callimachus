@@ -27,8 +27,8 @@
 
 <XQuery> a <Creatable>, owl:Class;
     rdfs:subClassOf <File>, calli:XQuery;
-    rdfs:label "XQuery";
-    rdfs:comment "XQueries files";
+    rdfs:label "XQuery file";
+    rdfs:comment "An XQuery file.";
     owl:equivalentClass </callimachus/XQuery>, </callimachus/1.0/types/XQuery>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;

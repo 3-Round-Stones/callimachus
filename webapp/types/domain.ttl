@@ -30,7 +30,7 @@
     rdfs:subClassOf <Viewable>, <Editable>, calli:Domain;
     owl:equivalentClass </callimachus/1.0/types/Domain>;
     rdfs:label "Domain";
-    rdfs:comment "Domains provide a way to assign permissions to a computer domain";
+    rdfs:comment "Domains are virtual groups that provide a way to assign permissions to a collection of groups.";
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/power>,</auth/groups/admin>;

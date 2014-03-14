@@ -31,7 +31,7 @@
 <Folder> a <Creatable>, owl:Class;
     rdfs:subClassOf <Composite>, <Purl>, calli:Folder;
     rdfs:label "Folder";
-    rdfs:comment "A folder of resources";
+    rdfs:comment "A container of resources.";
     owl:equivalentClass </callimachus/Folder>, </callimachus/1.0/types/Folder>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;

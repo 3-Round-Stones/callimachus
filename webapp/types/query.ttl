@@ -27,8 +27,8 @@
 
 <RdfQuery> a <Creatable>, owl:Class;
     rdfs:subClassOf <File>;
-    rdfs:label "RDF Query";
-    rdfs:comment "Saved SPARQL queries";
+    rdfs:label "Named SPARQL query";
+    rdfs:comment "A SPARQL query saved as a resolvable resource.";
     owl:equivalentClass </callimachus/NamedQuery>, </callimachus/1.0/types/NamedQuery>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;

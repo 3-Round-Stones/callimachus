@@ -33,8 +33,8 @@
 <DigestManager> a <Creatable>, owl:Class;
     rdfs:subClassOf <Viewable>, <Editable>, calli:DigestManager;
     owl:equivalentClass </callimachus/DigestManager>, </callimachus/1.0/types/DigestManager>;
-    rdfs:label "Digest Manager";
-    rdfs:comment "Digest password is the default authentication mechanism in Callimachus";
+    rdfs:label "Digest manager";
+    rdfs:comment "HTTP Digest is the default authentication mechanism.  This class represents a Digest manager.";
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/admin>;

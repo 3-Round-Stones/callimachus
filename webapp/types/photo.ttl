@@ -29,8 +29,8 @@
 
 <Photo> a <Creatable>, owl:Class;
     rdfs:subClassOf <Image>;
-    rdfs:label "Photo" ;
-    rdfs:comment "JPEG image file";
+    rdfs:label "JPEG image" ;
+    rdfs:comment "An image in Joint Photographic Experts Group format.";
     owl:equivalentClass </callimachus/Photo>, </callimachus/1.0/types/Photo>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;

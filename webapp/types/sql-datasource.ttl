@@ -29,7 +29,7 @@
 
 <SqlDatasource> a <Creatable>, owl:Class;
     rdfs:subClassOf <Viewable>, <Editable>, ctrl:SqlDatasource;
-    rdfs:label "SQL Datasource";
+    rdfs:label "SQL datasource";
     rdfs:comment "A SQL endpoint service for a mutable dataset";
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;

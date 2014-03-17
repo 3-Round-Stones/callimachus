@@ -29,8 +29,8 @@
 
 <DigestUser> a owl:Class;
     rdfs:subClassOf <Viewable>, <Editable>, calli:User;
-    rdfs:label "Digest User";
-    rdfs:comment "Username and password digest associated with an email address";
+    rdfs:label "Digest user";
+    rdfs:comment "An HTTP Digest user is a username and password digest associated with an email address.";
     owl:equivalentClass </callimachus/User>, <User>, </callimachus/1.0/types/DigestUser>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;

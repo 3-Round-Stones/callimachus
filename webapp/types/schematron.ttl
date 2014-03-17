@@ -28,7 +28,7 @@
 
 <Schematron> a <Creatable>, owl:Class;
     rdfs:subClassOf <File>;
-    rdfs:label "Schematron" ;
+    rdfs:label "Schematron file" ;
     rdfs:comment "Schematron is a rule-based validation language for making assertions about the presence or absence of patterns in XML trees";
     owl:equivalentClass </callimachus/Schematron>, </callimachus/1.0/types/Schematron>;
     rdfs:isDefinedBy <../../ontology>;

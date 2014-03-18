@@ -26,12 +26,13 @@
     "panel": {
         "view": "Tiedot",
         "edit": "Muokkaa",
-        "discussion": "Keskustele",
+        "discussion": "Keskustelu",
+        "describe": "Kuvailutiedot",
         "history": "Historia"
     },
     "messages": {
         "oops": "Oho!",
-        "last-modified": "Viimeiksi muokattu"
+        "last-modified": "Viimeksi muokattu"
     },
     "lookup": {
     	"placeholder": "Etsi ...",

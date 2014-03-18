@@ -72,7 +72,7 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
                     <ul class="nav nav-tabs navbar-right" style="border-bottom:none">
                         <li>{calli:view-href(<a tabindex="1" onclick="location.replace(href);return false" data-localize="panel.view">View</a>)}</li>
                         <li>{calli:edit-href(<a tabindex="2" onclick="location.replace(href);return false" data-localize="panel.edit">Edit</a>)}</li>
-                        <li>{calli:discussion-href(<a tabindex="3" onclick="location.replace(href);return false" data-localize="panel.discussions">Discussion</a>)}</li>
+                        <li>{calli:discussion-href(<a tabindex="3" onclick="location.replace(href);return false" data-localize="panel.discussion">Discussion</a>)}</li>
                         <li>{calli:describe-href(<a tabindex="4" onclick="location.replace(href);return false" data-localize="panel.describe">Describe</a>)}</li>
                         <li>{calli:history-href(<a tabindex="5" onclick="location.replace(href);return false" data-localize="panel.history">History</a>)}</li>
                     </ul>

@@ -27,6 +27,7 @@
         "view": "View",
         "edit": "Editer",
         "discussion": "Discuter",
+        "describe":"Describe",
         "history": "Histoire"
     },
     "messages": {

@@ -1,0 +1,40 @@
+{
+    "main": {
+        "title": "Callimachus",
+        "menu": "Päävalikko"
+    },
+    "menu": {
+    	"sign-in":"Kirjaudu sisään",
+        "home": "Koti",
+        "changes": "Muutokset",
+        "lookup": "Hae resursseja",
+        "language": "Valitse kieli",
+        "lang": {
+            "en": "Englanti",
+            "fi": "Suomi"
+        },
+        "about": "Lisätietoa",
+        "getting-started": "Ohjeita",
+        "feedback": "Anna palautetta",
+        "links": "Linkit tänne",
+        "permissions": "Oikeudet",
+        "introspect": "API",
+        "print": "Tulosta",
+        "account": "Tili",
+        "sign-out": "Kirjaudu ulos"
+    },
+    "panel": {
+        "view": "Tiedot",
+        "edit": "Muokkaa",
+        "discussion": "Keskustele",
+        "history": "Historia"
+    },
+    "messages": {
+        "oops": "Oho!",
+        "last-modified": "Viimeiksi muokattu"
+    },
+    "lookup": {
+    	"placeholder": "Etsi ...",
+    	"search": "Hae"
+    }
+}

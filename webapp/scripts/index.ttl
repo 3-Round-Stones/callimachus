@@ -82,7 +82,9 @@
     rdf:_55 <decode-html.js>;
     rdf:_56 <load-editor.js>;
     rdf:_57 <put-file.js>;
-    rdf:_58 <etag.js>.
+    rdf:_58 <etag.js> ;
+    rdf:_59 <localize.js> ;
+    rdf:_60 <localize-init.js> .
 
 <text_bundle> a calli:ScriptBundle;
     calli:reader </auth/groups/public>;

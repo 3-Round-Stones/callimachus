@@ -21,30 +21,27 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
         <nav class="navbar navbar-default navbar-static-top hidden-iframe">
             <header class="container">
                 <div class="row">
-                    <div class="col-xs-8 col-sm-6 col-md-8">
+                    <div class="col-xs-4 col-sm-4 col-md-6">
                         {calli:home-href(<a class="navbar-brand" data-localize="main.title">Callimachus</a>)}
                     </div>
-                    <div class="col-xs-4 col-sm-6 col-md-4 hidden-login hidden-print">
-                        {calli:login-href(<a class="pull-right btn btn-default navbar-btn" data-localize="menu.sign-in">Sign in <span class="glyphicon glyphicon-log-in"></span></a>)}
+                    <div class="hidden-xs col-sm-4 col-md-3">
+                        <div class="hidden-logout hidden-print pull-right">{calli:lookup-form('Lookup...')}</div>
                     </div>
-                    <div class="hidden-xs col-sm-4 col-md-3 hidden-logout hidden-print">
-                        <div class="pull-right">{calli:lookup-form('Lookup...')}</div>
-                    </div>
-                    <div class="col-xs-4 col-sm-2 col-md-1 hidden-logout hidden-print">
-                        <div class="btn-group pull-right">
+                    <div class="col-xs-8 col-sm-4 col-md-3">
+                    <div class="btn-group">
+                    	<div class="btn-group hidden-login hidden-print">
+                        	{calli:login-href(<a class="btn btn-default navbar-btn"><span style="margin-right: 4px;" data-localize="menu.sign-in">Sign in</span><span class="glyphicon glyphicon-log-in"></span></a>)}
+                    	</div>
+                        <div class="btn-group hidden-logout hidden-print">
                             <button type="button" class="btn btn-default navbar-btn dropdown-toggle" data-toggle="dropdown">
                                 <span class="sr-only" data-localize="main.menu">Main menu</span>
+                                <span> </span>
                                 <span class="glyphicon glyphicon-align-justify"></span>
                             </button>
                             <ul class="dropdown-menu" role="menu">
                                 <li>{calli:folder-href(<a data-localize="menu.home">Home folder</a>)}</li>
                                 <li>{calli:changes-href(<a data-localize="menu.changes">Recent changes</a>)}</li>
                                 <li class="visible-xs">{calli:lookup-href(<a data-localize="menu.lookup">Lookup resources</a>)}</li>
-                                <li class="divider"></li>
-                                <li class="dropdown-header" data-localize="menu.language">Language</li>
-                                <li><a href="#" class="setLocale" data-locale="default" data-localize="lang.en">English</a></li>
-                                <li><a href="#" class="setLocale" data-locale="fi" data-localize="lang.fi">Finnish</a></li>
-                                <li><a href="#" class="setLocale" data-locale="fr" data-localize="lang.fr">French</a></li>
                                 <li class="divider"></li>
                                 <li>{calli:callimachus-about-href(<a data-localize="menu.about">About Callimachus</a>)}</li>
                                 <li>{calli:callimachus-getting-started-href(<a data-localize="menu.getting-started">Getting started</a>)}</li>
@@ -61,6 +58,18 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
                                 <li>{calli:logout-href(<a data-localize="menu.sign-out">Sign out</a>)}</li>
                             </ul>
                         </div>
+                         <div class="btn-group">
+	                             <button type="button" class="btn btn-default navbar-btn dropdown-toggle" data-toggle="dropdown">
+	                                <span class="glyphicon glyphicon-globe"></span>
+	                            </button>
+	                            <ul class="dropdown-menu" role="menu">
+	                    			<li class="dropdown-header" data-localize="menu.language">Language</li>
+	                                <li><a href="#" class="setLocale" data-locale="default" data-localize="lang.en">English</a></li>
+	                                <li><a href="#" class="setLocale" data-locale="fi" data-localize="lang.fi">Finnish</a></li>
+	                                <li><a href="#" class="setLocale" data-locale="fr" data-localize="lang.fr">French</a></li>
+	                           	</ul>
+	                    </div>
+	                   </div>
                     </div>
                 </div>
             </header>
@@ -86,7 +95,6 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
         </div>
         {calli:body-nodes()}
     </div>
-
     <div class="navbar navbar-default navbar-large navbar-relative-bottom hidden-iframe">
         <footer class="navbar-inner">
             <div class="container">

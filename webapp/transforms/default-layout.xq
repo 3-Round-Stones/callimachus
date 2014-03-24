@@ -39,6 +39,7 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
                             <ul class="dropdown-menu" role="menu">
                                 <li>{calli:folder-href(<a>Home folder</a>)}</li>
                                 <li>{calli:changes-href(<a>Recent changes</a>)}</li>
+                                <li>{calli:invite-href(<a>Invite users</a>)}</li>
                                 <li class="visible-xs">{calli:lookup-href(<a>Lookup resources</a>)}</li>
                                 <li class="divider"></li>
                                 <li>{calli:callimachus-about-href(<a>About Callimachus</a>)}</li>

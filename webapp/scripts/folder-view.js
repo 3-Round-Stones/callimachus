@@ -332,5 +332,28 @@ jQuery(function($){
     if (!$('#tfolders').children().length) {
         $('#tfolders').remove();
     }
+    
+    // Build page tour
+    var tour = new Trip([
+        { content : "Welcome to the Folder view. This will become a very familiar screen as you start to use Callimachus more. Look around " +
+            " to see all the functionality this page contains.", position : "screen-center" },
+        { sel : $("#create-menu"), content : "Use the create menu to create resources within this folder.",  position : "e" },
+        { sel : $("#file-create"), content : "You can also use the upload button to upload existing resources from your computer.", position : "e" },
+        { sel : $('[class="btn btn-default navbar-btn dropdown-toggle"]'), content : "The main menu can be used to export and import folder contents.", position : "w" },
+        { sel : $("thead"), content: "This table lists outs all resources contained within their folder along with the last time they " + 
+            "were updated and their associated group permissions.", position : "n" }
+    ], { 
+        showNavigation: true,
+        animation: 'fadeIn',
+        showCloseBox : true,
+        finishLabel: 'End tour',
+        delay : -1, // Allows for manual control of tour
+        backToTopWhenEnded: true
+    });
+    
+    // Start tour on main menu click
+    $('[title="Tour the Folder view"]').on("click", function() {
+        tour.start();
+    });
 });
 

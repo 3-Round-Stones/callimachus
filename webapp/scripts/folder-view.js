@@ -334,13 +334,18 @@ jQuery(function($){
     }
     
     // Build page tour
-    var tour = new Trip([
+    var tour = new Trip ([
         { content : "Welcome to the Folder view. This will become a very familiar screen as you start to use Callimachus more. Look around " +
             " to see all the functionality this page contains.", position : "screen-center" },
-        { sel : $("#create-menu"), content : "Use the create menu to create resources within this folder.",  position : "e" },
+        { sel : $("#create-menu"), content : "Use the create menu to create resources within this folder. Folders can contain other folders. Try making a folder here." +
+            "Articles allow you to quickly make a new Web page using a familiar editor." +
+            "Read about all the file types you can create or upload in the documentation.",  position : "e" },
         { sel : $("#file-create"), content : "You can also use the upload button to upload existing resources from your computer.", position : "e" },
-        { sel : $('[class="btn btn-default navbar-btn dropdown-toggle"]'), content : "The main menu can be used to export and import folder contents.", position : "w" },
-        { sel : $("thead"), content: "This table lists outs all resources contained within their folder along with the last time they " + 
+        { sel : $('[class="btn btn-default navbar-btn dropdown-toggle"]'), content : "The main menu can be used to export and import folder contents." +
+            "You can export a Callimachus ARchive (CAR) file containing all resources from this folder and its children. " +
+            "You can also import a CAR file to replace this folder's contents. This action deletes any current contents and replaces them. " +
+            "Administrators may invite other users to this Callimachus instance.", position : "s" },
+        { sel : $("thead"), content: "This table lists all resources contained within their folder along with the last time they " + 
             "were updated and their associated group permissions.", position : "n" }
     ], { 
         showNavigation: true,

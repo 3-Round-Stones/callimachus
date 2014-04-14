@@ -28,7 +28,7 @@
 
 <Relax> a <Creatable>, owl:Class;
     rdfs:subClassOf <File>;
-    rdfs:label "RELAX" ;
+    rdfs:label "RELAX NG file" ;
     rdfs:comemnt "RELAX NG is a schema language for XML";
     owl:equivalentClass </callimachus/Relax>, </callimachus/1.0/types/Relax>;
     rdfs:isDefinedBy <../../ontology>;

@@ -27,8 +27,8 @@
 
 <HypertextFile> a <Creatable>, owl:Class;
     rdfs:subClassOf <File>;
-    rdfs:label "Hypertext File";
-    rdfs:comment "Hypertext HTML files served verbatim";
+    rdfs:label "HTML file";
+    rdfs:comment "Hypertext HTML files served verbatim without Callimachus preprocessing.";
     owl:equivalentClass </callimachus/HypertextFile>, </callimachus/1.0/types/HypertextFile>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;

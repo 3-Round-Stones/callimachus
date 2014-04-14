@@ -27,8 +27,8 @@
 
 <StyleSheet> a <Creatable>, owl:Class;
     rdfs:subClassOf <File>;
-    rdfs:label "Style Sheet";
-    rdfs:comment "Cascading Style Sheets (CSS) files";
+    rdfs:label "CSS file";
+    rdfs:comment "A Cascading Style Sheets (CSS) file.";
     owl:equivalentClass </callimachus/Style>, </callimachus/1.0/types/Style>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;

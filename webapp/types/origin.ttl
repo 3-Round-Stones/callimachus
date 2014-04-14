@@ -30,7 +30,7 @@
 
 <Origin> a owl:Class;
     rdfs:subClassOf <Realm>, calli:Origin;
-    rdfs:label "Origin";
+    rdfs:label "HTTP Origin";
     rdfs:comment "Root path of an http or https authority";
     owl:equivalentClass </callimachus/Origin>, </callimachus/1.0/types/Origin>;
     rdfs:isDefinedBy <../../ontology>;

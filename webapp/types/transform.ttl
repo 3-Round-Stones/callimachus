@@ -27,8 +27,8 @@
 
 <XslTransform> a <Creatable>, owl:Class;
     rdfs:subClassOf <File>;
-    rdfs:label "XSL Transform";
-    rdfs:comment "XSL transform files";
+    rdfs:label "XSLT file";
+    rdfs:comment "An XML Stylesheet Language Transform file.";
     owl:equivalentClass </callimachus/Transform>, </callimachus/1.0/types/Transform>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;

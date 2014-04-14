@@ -22,6 +22,38 @@ if (!window.calli) {
     window.calli = {};
 }
 
+window.calli.camelCase = function(label) {
+	if (!label) return label;
+    if (label.lastIndexOf('\\') > 0) {
+		// IE file input
+		label = label.substring(label.lastIndexOf('\\') + 1);
+	}
+	var name = removeDiacritics(label);
+    return name
+     	   .replace(/\s(.)/g, function($1) { return $1.toUpperCase(); })
+           .replace(/\s/g, '')
+           .replace(/^(.)/, function($1) { return $1.toLowerCase(); })
+           .replace(/[^a-z0-9]/gi,'');
+};
+
+window.calli.lowerCamelCase = function(label) {
+	if (!label) return label;
+    return window.calli.lowercase(window.calli.camelCase(label));
+}
+
+window.calli.upperCamelCase = function(label) {
+	if (!label) return label;
+    return window.calli.capitalize(window.calli.camelCase(label));
+}
+
+window.calli.lowercase = function(label) {
+      return label.substr( 0, 1 ).toLowerCase() + label.substr( 1 );
+};
+
+window.calli.capitalize = function(label) {
+      return label.substr( 0, 1 ).toUpperCase() + label.substr( 1 );
+};
+
 window.calli.slugify = function(label) {
     if (!label)
         return label;

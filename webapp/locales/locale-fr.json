@@ -1,0 +1,41 @@
+{
+    "main": {
+        "title": "Callimachus",
+        "menu": "Le Menu"
+    },
+    "menu": {
+    	"sign-in":"Se connecter",
+        "home": "Chez vous",
+        "changes": "Le changement",
+        "lookup": "Recherche",
+        "language": "Langue",
+        "lang": {
+            "en": "Anglais",
+            "fi": "Finlandais"
+        },
+        "about": "Sur callimachus",
+        "getting-started": "Commencer",
+        "feedback": "Envoyer des commentaires",
+        "links": "Links",
+        "permissions": "autorisations",
+        "introspect": "API",
+        "print": "Imprimer",
+        "account": "Compte",
+        "sign-out": "De connecter"
+    },
+    "panel": {
+        "view": "View",
+        "edit": "Editer",
+        "discussion": "Discuter",
+        "describe":"Describe",
+        "history": "Histoire"
+    },
+    "messages": {
+        "oops": "Oi!",
+        "last-modified": "Denière modification"
+    },
+    "lookup": {
+    	"placeholder": "Recherche ...",
+    	"search": "Chercher"
+    }
+}

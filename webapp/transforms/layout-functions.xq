@@ -175,13 +175,6 @@ declare function calli:changes-href($a as element()) as element() {
         $a/node()
     }
 };
-declare function calli:invite-href($a as element()) as element() {
-    element {node-name($a)} {
-        attribute href {resolve-uri('../pages/invite-users.xhtml?view')},
-        $a/@*[name()!='href'],
-        $a/node()
-    }
-};
 declare function calli:view-href($a as element()) as element() {
     element {node-name($a)} {
         attribute href {"?view"},

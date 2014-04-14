@@ -30,3 +30,14 @@ DELETE {
     BIND (concat(str(</callimachus/1.3/>), strafter(str(?previous),str(</callimachus/1.0/>))) AS ?currently)
 };
 
+INSERT {
+    </> calli:hasComponent </admin> .
+    </admin> a <types/Purl>, calli:Purl ;
+    rdfs:label "admin";
+    calli:alternate <pages/invite-users.xhtml?view>;
+	calli:administrator </auth/groups/super>;
+	calli:reader </auth/groups/admin> .
+} WHERE {
+	FILTER NOT EXISTS { </admin> a calli:Purl }
+};
+

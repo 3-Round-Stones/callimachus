@@ -40,7 +40,7 @@
                                 ondrop="return calli.insertResource(event)">
                             <label>Members <a href="../types/InvitedUser?create" title="Invite"
                                     onmousedown="href=calli.getCallimachusUrl('/auth/invited-users/') + '?create=' + encodeURIComponent(calli.getCallimachusUrl('types/InvitedUser'))"
-                                    onclick="return calli.createResource(event)" class="glyphicon glyphicon-list-alt" /></label>
+                                    onclick="return calli.createResource(event)" class="glyphicon glyphicon-plus" /></label>
                             <div rel="calli:member">
                                 <span resource="?member" typeof="calli:User" class="label label-info">
                                     <span property="rdfs:label" />
@@ -59,7 +59,8 @@
             <div class="col-sm-4">
                 <aside class="well">
                     <p>Use Wiki text to describe the purpose of this group</p>
-                    <p>Use the<a class="glyphicon glyphicon-remove"/>icon to remove a user from this group without deleting the user account</p>
+                    <p>Use the <a class="glyphicon glyphicon-plus" /> icon to add a user to this group</p>
+                    <p>Use the <a class="glyphicon glyphicon-remove" /> icon to remove a user from this group without deleting the user account</p>
                     <p>To delete a user account: click the user link on the view tab and use the edit tab of the user account</p>
                 </aside>
             </div>

@@ -128,4 +128,8 @@
     rdf:_13 <query-vizeditor-table-datatables.js>;
     rdf:_14 <query-vizeditor-table-google.js>.
 
+<folder-tour> a calli:ScriptBundle;
+    calli:reader </auth/groups/public>;
+    rdf:_1 <../assets/tripjs/trip.js>;
+    rdf:_2 <folder-tour.js>.
 

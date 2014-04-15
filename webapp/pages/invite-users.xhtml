@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+<head>
+    <title>Invite Users</title>
+    <link rel="edit-form" href="?edit" />
+    <link rel="comments" href="?discussion" />
+    <link rel="version-history" href="?history" />
+</head>
+<body>
+    <div class="container">
+        <div class="page-header">
+            <h1>Invite Users <small>Group permissions</small></h1>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <p class="lead">
+                    Groups provide a way to assign permissions to a named set of users. User permissions through 
+                    groups can help generalize resource's permissions.
+                </p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6 col-sm-offset-3">
+                <div class="well well-sm">
+                    <fieldset>
+                        <legend>Users <a href="/auth/groups/users?edit" class="btn btn-info btn-xs pull-right"><span class="glyphicon glyphicon-user" /> Invite</a></legend>
+                        <p>Members of this group can view, discuss, document, link, and upload binary resources.</p>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="well well-sm">
+                    <fieldset>
+                        <legend>Super <a href="/auth/groups/super?edit" class="btn btn-info btn-xs pull-right"><span class="glyphicon glyphicon-user" /> Invite</a></legend>
+                        <p>The user accounts in this group have heightened privileges to change or patch the system itself.</p>
+                    </fieldset>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="well well-sm">
+                    <fieldset>
+                        <legend>Admin <a href="/auth/groups/admin?edit" class="btn btn-info btn-xs pull-right"><span class="glyphicon glyphicon-user" /> Invite</a></legend>
+                        <p>Members of this group have the ability to edit other user accounts and access to modify the underlying data store.</p>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="well well-sm">
+                    <fieldset>
+                        <legend>Power <a href="/auth/groups/power?edit" class="btn btn-info btn-xs pull-right"><span class="glyphicon glyphicon-user" /> Invite</a></legend>
+                        <p>Members of this group can access all data in the underlying data store.</p>
+                    </fieldset>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="well well-sm">
+                    <fieldset>
+                        <legend>Staff <a href="/auth/groups/staff?edit" class="btn btn-info btn-xs pull-right"><span class="glyphicon glyphicon-user" /> Invite</a></legend>
+                        <p>Members of this group can design websites and develop applications.</p>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

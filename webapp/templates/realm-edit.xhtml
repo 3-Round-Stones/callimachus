@@ -15,16 +15,19 @@
     <script type="text/javascript">
     // <![CDATA[
     jQuery(function($){
-        $('#pattern').change(function(){
-             $('span.pattern').attr('content', this.value);
+        $('#pattern').change(function(event){
+            $('span.pattern').remove();
+            var type = $('#type').prop('value');
+            if (event.target.value && type) {
+                $(event.target).parent().append($('<span/>', {
+                    "class": "pattern",
+                    property: type,
+                    content: event.target.value
+                }));
+            }
         });
         $('#type').change(function(){
-            if (this.value) {
-                $('span.pattern').remove();
-                $('#pattern').parent().append('<span class="pattern" />');
-                $('span.pattern').attr('property', this.value);
-                $('#pattern').change();
-            }
+            $('#pattern').change();
         });
         $('span.pattern[property]').each(function(){
             if (this.getAttribute('content')) {

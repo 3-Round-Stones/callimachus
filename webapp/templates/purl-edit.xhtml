@@ -9,7 +9,7 @@
     <title resource="?this">{rdfs:label}</title>
     <link rel="help" href="../../callimachus-for-web-developers#PURL" target="_blank" title="Help" />
     <style>
-        form#form textarea {
+        form#form textarea.pattern {
             white-space: pre;
             word-wrap: normal;
         }
@@ -17,12 +17,12 @@
     <script type="text/javascript">
     // <![CDATA[
     jQuery(function($){
-        $('textarea.pattern[property]').each(function(){
+        $('#get textarea.pattern[property]').each(function(){
             $('#type').val(this.getAttribute('property'));
         });
         $('#type').change(function(){
-            $('textarea.pattern').attr('data-text-expression', this.value);
-            $('textarea.pattern').attr('property', this.value);
+            $('#get textarea.pattern').attr('data-text-expression', this.value);
+            $('#get textarea.pattern').attr('property', this.value);
         }).change();
         $('#form').bind('calliRedirect', function(event){
             if (event.resource == event.location) {
@@ -67,8 +67,8 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="pattern">GET content location</label>
-                    <div>
+                    <label>GET content location</label>
+                    <div id="get">
                         <textarea class="pattern form-control" rows="1" property="calli:copy"></textarea>
                         <textarea class="pattern form-control" rows="1" property="calli:canonical"></textarea>
                         <textarea class="pattern form-control" rows="1" property="calli:alternate"></textarea>
@@ -90,25 +90,25 @@
                 <div class="form-group">
                     <label for="post">POST request target</label>
                     <div>
-                        <textarea id="post" class="form-control" rows="1">{calli:post}</textarea>
+                        <textarea id="post" class="form-control pattern" rows="1">{calli:post}</textarea>
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="put">PUT request target</label>
                     <div>
-                        <textarea id="put" class="form-control" rows="1">{calli:put}</textarea>
+                        <textarea id="put" class="form-control pattern" rows="1">{calli:put}</textarea>
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="patch">PATCH request target</label>
                     <div>
-                        <textarea id="patch" class="form-control" rows="1">{calli:patch}</textarea>
+                        <textarea id="patch" class="form-control pattern" rows="1">{calli:patch}</textarea>
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="delete">DELETE request target</label>
                     <div>
-                        <textarea id="delete" class="form-control" rows="1">{calli:delete}</textarea>
+                        <textarea id="delete" class="form-control pattern" rows="1">{calli:delete}</textarea>
                     </div>
                 </div>
             </fieldset>

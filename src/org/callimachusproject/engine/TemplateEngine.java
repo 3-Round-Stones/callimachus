@@ -54,7 +54,7 @@ public class TemplateEngine {
 
 	public Template getTemplate(String systemId) throws IOException,
 			TemplateException {
-		HttpUriEntity resp = client.getEntity(systemId, "appliaction/xhtml+xml, application/xml, text/xml");
+		HttpUriEntity resp = client.getEntity(systemId, "application/xhtml+xml, application/xml, text/xml");
 		systemId = resp.getSystemId();
 		InputStream in = resp.getContent();
 		return getTemplate(in, systemId, null);

@@ -14,12 +14,12 @@
     <link rel="comments" href="?discussion" />
     <link rel="version-history" href="?history" />
     <link rel="help" href="../../callimachus-for-web-developers#Folder" target="_blank" title="Help" />
-    <link rel="help" href="javascript:void()" title="Tour the Folder view" />
+    <link id="folder-tour" href="../scripts/folder-tour?minified" />
+    <link rel="help" href="#" onclick="$.getScript($('#folder-tour').attr('href'))" title="Tour the Folder view" />
     <link id="file-class-link" href="../types/File" />
     <link id="create-menu-json" href="../queries/folder-create-menu.rq?results&amp;tqx=out:table&amp;user=" />
     <link href="?archive" title="Export folder contents" />
     <link href="?import" title="Import folder contents" />
-    <link rel="stylesheet" type="text/css" href="../assets/tripjs/trip.css" />
     <style type="text/css">
         #table td { white-space: nowrap; }
         .screen-center {
@@ -27,7 +27,6 @@
             right: 25%;
         }
     </style>
-    <script type="text/javascript" src="../assets/tripjs/trip.js"></script>
     <script type="text/javascript" src="../scripts/folder-view.js"></script>
     <script type="text/javascript" src="../scripts/folder-create-menu.js"></script>
     <script type="text/javascript">

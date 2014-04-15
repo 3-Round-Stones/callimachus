@@ -95,6 +95,18 @@ INSERT {
 };
 
 INSERT {
+    </> calli:hasComponent </admin> .
+    </admin> a <types/Purl>, calli:Purl ;
+    rdfs:label "admin";
+    rdfs:comment "Use the link below to manage groups and invite new users";
+    calli:alternate <pages/invite-users.xhtml?view>;
+	calli:administrator </auth/groups/super>;
+	calli:reader </auth/groups/admin> .
+} WHERE {
+	FILTER NOT EXISTS { </admin> a calli:Purl }
+};
+
+INSERT {
     <../getting-started-with-callimachus> a <types/Purl>, calli:Purl ;
 	rdfs:label "getting-started-with-callimachus";
 	calli:alternate <http://callimachusproject.org/docs/1.3/getting-started-with-callimachus.docbook?view>;

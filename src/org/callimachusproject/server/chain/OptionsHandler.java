@@ -81,7 +81,7 @@ public class OptionsHandler implements AsyncExecChain {
 		if ("OPTIONS".equals(request.getRequestLine().getMethod())) {
 			ResourceOperation trans = CalliContext.adapt(context).getResourceTransaction();
 			StringBuilder sb = new StringBuilder();
-			sb.append("OPTIONS, TRACE");
+			sb.append("OPTIONS");
 			for (String method : trans.getAllowedMethods()) {
 				sb.append(", ").append(method);
 			}

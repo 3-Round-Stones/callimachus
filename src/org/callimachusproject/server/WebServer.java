@@ -119,7 +119,7 @@ import org.callimachusproject.server.chain.OptionsHandler;
 import org.callimachusproject.server.chain.ResponseExceptionHandler;
 import org.callimachusproject.server.chain.SecureChannelFilter;
 import org.callimachusproject.server.chain.ServerNameFilter;
-import org.callimachusproject.server.chain.TraceHandler;
+import org.callimachusproject.server.chain.PingOptionsHandler;
 import org.callimachusproject.server.chain.TransactionHandler;
 import org.callimachusproject.server.chain.UnmodifiedSinceHandler;
 import org.callimachusproject.server.exceptions.BadGateway;
@@ -223,7 +223,7 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 		filter = new ResponseExceptionHandler(filter);
 		filter = transaction = new TransactionHandler(filter, closing);
 		filter = env = new HttpResponseFilter(filter);
-		filter = new TraceHandler(filter);
+		filter = new PingOptionsHandler(filter);
 		// exec in i/o thread
 		filter = new PooledExecChain(filter, triaging);
 		filter = cache = new CacheHandler(filter, new FileResourceFactory(cacheDir), getDefaultCacheConfig());

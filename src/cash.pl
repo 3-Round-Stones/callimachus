@@ -8,6 +8,7 @@
 #
 #  History:
 #    29Aug2012: Checked into Callimachus svn
+#    16Apr2014: Updated for Callimachus 1.3
 #
 #  A shell for the Callimachus Project (http://callimachusproject.org)
 #  that implements a client for the Callimachus REST API.
@@ -62,7 +63,7 @@ BEGIN {
 Getopt::Long::Configure( qw(gnu_getopt) );
 
 # Globals
-my $version = "0.15";
+my $version = "0.16";
 my $authority;
 my $host;
 my $debug = 0;

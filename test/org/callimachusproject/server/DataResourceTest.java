@@ -133,14 +133,14 @@ public class DataResourceTest extends MetadataServerTestCase {
 	public void testNoOptions() throws Exception {
 		ClientResponse options = client.path("hello").options(ClientResponse.class);
 		String allows = options.getMetadata().getFirst("Allow");
-		assertEquals("OPTIONS, TRACE, PUT", allows);
+		assertEquals("OPTIONS, PUT", allows);
 	}
 
 	public void testOPTIONS() throws Exception {
 		client.path("hello").put("world");
 		ClientResponse options = client.path("hello").options(ClientResponse.class);
 		String allows = options.getMetadata().getFirst("Allow");
-		assertEquals("OPTIONS, TRACE, GET, HEAD, PUT, DELETE", allows);
+		assertEquals("OPTIONS, GET, HEAD, PUT, DELETE", allows);
 	}
 
 	public void testSetOfInputStream() throws Exception {

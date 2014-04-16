@@ -62,7 +62,9 @@ window.calli.saveResourceAs = function(event, fileName, create, folder) {
     var label = fileName || findLabel(form) || localPart(resource);
     openSaveAsDialog(form, label, create, folder, function(ns, local) {
         if (fileName) {
-            local = local.replace(/\+/g,'-');
+            local = local.replace(/%20/g,'-');
+        } else {
+            local = local.replace(/%20/g,'+');
         }
         var resource = ns + local.toLowerCase();
         $(form).removeAttr('about');
@@ -159,7 +161,7 @@ function openSaveAsDialog(form, label, create, folder, callback) {
                 if (ns.lastIndexOf('/') != ns.length - 1) {
                     ns += '/';
                 }
-                var local = encodeURI(label).replace(/%20/g,'+');
+                var local = encodeURI(label);
                 updateFormAction(form, src, create);
                 callback(ns, local);
                 calli.closeDialog(dialog);

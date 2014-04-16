@@ -27,12 +27,34 @@ WHERE {
     ?url ?rel <$target>
     FILTER (isIRI(?url))
     FILTER (?rel != prov:wasAssociatedWith)
-    ?url prov:wasGeneratedBy ?revision
-    OPTIONAL { ?revision prov:endedAtTime ?modified }
-    OPTIONAL { ?url a [calli:icon ?icon] }
-    OPTIONAL { ?url skos:prefLabel ?label }
-    OPTIONAL { ?url rdfs:label ?label }
-    OPTIONAL { ?url rdfs:comment ?comment }
+    {
+        FILTER (!contains(str(?url), "?") && !contains(str(?url), "#"))
+        ?url prov:wasGeneratedBy ?revision
+        OPTIONAL { ?revision prov:endedAtTime ?modified }
+        OPTIONAL { ?url a [calli:icon ?icon] }
+        OPTIONAL { ?url skos:prefLabel ?label }
+        OPTIONAL { ?url rdfs:label ?label }
+        OPTIONAL { ?url rdfs:comment ?comment }
+    } UNION {
+        FILTER contains(str(?url), "?")
+        BIND (iri(strbefore(str(?url), "?")) AS ?entity)
+        ?entity prov:wasGeneratedBy ?revision
+        OPTIONAL { ?revision prov:endedAtTime ?modified }
+        OPTIONAL { ?entity a [calli:icon ?icon] }
+        OPTIONAL { ?entity skos:prefLabel ?label }
+        OPTIONAL { ?entity rdfs:label ?label }
+        OPTIONAL { ?entity rdfs:comment ?comment }
+    } UNION {
+        FILTER (!contains(str(?url), "?"))
+        FILTER contains(str(?url), "#")
+        BIND (iri(strbefore(str(?url), "#")) AS ?entity)
+        ?entity prov:wasGeneratedBy ?revision
+        OPTIONAL { ?revision prov:endedAtTime ?modified }
+        OPTIONAL { ?entity a [calli:icon ?icon] }
+        OPTIONAL { ?entity skos:prefLabel ?label }
+        OPTIONAL { ?entity rdfs:label ?label }
+        OPTIONAL { ?entity rdfs:comment ?comment }
+    }
 }
 ORDER BY ?label ?url ?icon
 LIMIT 100

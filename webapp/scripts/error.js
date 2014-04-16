@@ -113,7 +113,7 @@ window.calli.error = function(message, stack) {
         error = new Error(message.toString());
     }
     if (window.console && window.console.error) {
-        console.error(error.message);
+        console.error(message);
     }
     if (!e.isPropagationStopped() && parent != window && parent.postMessage) {
         if (stack) {

@@ -1,4 +1,5 @@
 /*
+ * Copyright 2011-2014 3 Round Stones Inc., Some rights reserved.
  * Copyright 2009-2010, James Leigh and Zepheira LLC Some rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -28,10 +29,8 @@
  */
 package org.callimachusproject.server.chain;
 
-import java.nio.charset.Charset;
 import java.util.concurrent.Future;
 
-import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
@@ -40,25 +39,21 @@ import org.apache.http.ProtocolVersion;
 import org.apache.http.RequestLine;
 import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.message.BasicHttpResponse;
-import org.apache.http.nio.entity.NStringEntity;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpDateGenerator;
 import org.callimachusproject.client.HttpUriResponse;
 import org.callimachusproject.server.AsyncExecChain;
 import org.callimachusproject.server.helpers.CompletedResponse;
-import org.callimachusproject.server.helpers.EntityRemovedHttpResponse;
-import org.callimachusproject.server.helpers.ResponseBuilder;
-import org.callimachusproject.server.helpers.ResponseCallback;
 
 /**
- * Handles the TRACE and OPTIONS * requests.
+ * Handles the OPTIONS * requests.
  */
-public class TraceHandler implements AsyncExecChain {
+public class PingOptionsHandler implements AsyncExecChain {
     private static final HttpDateGenerator DATE_GENERATOR = new HttpDateGenerator();
 
     private final AsyncExecChain delegate;
 
-	public TraceHandler(AsyncExecChain delegate) {
+	public PingOptionsHandler(AsyncExecChain delegate) {
 		this.delegate = delegate;
 	}
 
@@ -67,57 +62,16 @@ public class TraceHandler implements AsyncExecChain {
 			HttpRequest request, HttpContext context,
 			FutureCallback<HttpResponse> callback) {
 		RequestLine line = request.getRequestLine();
-		if ("TRACE".equals(request.getRequestLine().getMethod())) {
-			String CRLF = "\r\n";
-			StringBuilder sb = new StringBuilder();
-			sb.append("TRACE ").append(line.getUri()).append(" ");
-			sb.append(line.getProtocolVersion());
-
-			for (Header hd : request.getAllHeaders()) {
-				sb.append(CRLF).append(hd.getName());
-				sb.append(": ").append(hd.getValue());
-			}
-
-			sb.append(CRLF);
-			ProtocolVersion ver = HttpVersion.HTTP_1_1;
-			BasicHttpResponse resp = new EntityRemovedHttpResponse(ver, 200, "OK");
-			resp.setHeader("Date", DATE_GENERATOR.getCurrentDate());
-			NStringEntity entity = new NStringEntity(sb.toString(), Charset.forName("ISO-8859-1"));
-			entity.setContentType("message/http");
-			entity.setChunked(false);
-			resp.setEntity(entity);
-			resp.setHeader("Content-Length", Long.toString(entity.getContentLength()));
-			resp.setHeader(entity.getContentType());
-			return new CompletedResponse(callback, new ResponseBuilder(request, context).respond(resp));
-		} else if ("OPTIONS".equals(request.getRequestLine().getMethod())
+		if ("OPTIONS".equals(request.getRequestLine().getMethod())
 				&& "*".equals(line.getUri())) {
 			ProtocolVersion ver = HttpVersion.HTTP_1_1;
 			BasicHttpResponse resp = new BasicHttpResponse(ver, 204, "No Content");
 			resp.setHeader("Date", DATE_GENERATOR.getCurrentDate());
-			resp.setHeader("Allow", "OPTIONS, TRACE, GET, HEAD, PUT, DELETE");
+			resp.setHeader("Allow", "OPTIONS, GET, HEAD, PUT, DELETE");
+			// TRACE is not supported, due to http://www.kb.cert.org/vuls/id/867593
 			return new CompletedResponse(callback, new HttpUriResponse("*", resp));
 		} else {
-			return delegate.execute(target, request, context, new ResponseCallback(callback) {
-				public void completed(HttpResponse result) {
-					try {
-						allow(result);
-						super.completed(result);
-					} catch (RuntimeException ex) {
-						super.failed(ex);
-					}
-				}
-			});
-		}
-	}
-
-	void allow(HttpResponse resp) {
-		if (resp != null && resp.getStatusLine().getStatusCode() == 405) {
-			if (resp.containsHeader("Allow")) {
-				String allow = resp.getFirstHeader("Allow").getValue();
-				resp.setHeader("Allow", allow + ",TRACE");
-			} else {
-				resp.setHeader("Allow", "TRACE");
-			}
+			return delegate.execute(target, request, context, callback);
 		}
 	}
 

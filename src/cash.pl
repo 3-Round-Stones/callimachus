@@ -178,18 +178,14 @@ sub processCmd {
     # TODO: Allow a get/upload/delete/etc to operate on a full URL.
     
     # REFACTORING:
-    # TODO: Survey all action methods for consistency of var checks, state checks, login checks...
-    # TODO: Review all commands requiring authentication to ensure checks are made (consistently).
-    # TODO: Use parseFolderPath() in deleteFile(), etc.
     # TODO: Refactor chDir() and parseDirPath(). Should they be the same method??
-    # MAYBE: Have a single 'when' clause per command prefix. Maybe use parser-generator.
     # MAYBE: Refactor login to provide just username and ask for password (won't work without a better libreadline on Macs).  See http://www.perlmonks.org/?node_id=352298 and http://www.trinitycore.info/How-to:Mac#Installing_new_libraries.
     given ($command) {
         when (/^\s*$/) { }
         when (/^\#/) { }
         when (/^cat/i) { $command =~ m/^cat\s+(.*)$/i; retrieveFile("cat", $1) unless $@; }
+        when (/^cd\s*$/i) { chHomeDir("1") unless $@; }
         when (/^cd\s+(.*)$/i) { $command =~ m/^cd\s+(.*)\s*$/i; parseDirPath($1) unless $@; }
-        when (/^cd/i) { chHomeDir("1") unless $@; }
         when (/^debug/i) { reportState() unless $@; }
         when (/^echo/i) { $command =~ m/^echo\s+(.*)$/i; echo($1) unless $@; }
         when (/^exec/i) { $command =~ m/exec\s+(.*)\s*$/i; execCommand($1) unless $@; }
@@ -205,6 +201,7 @@ sub processCmd {
         when (/^mv/i) { $command =~ /^mv\s+(.*?)\s+(.*)\s*$/i; moveFile($1, $2) unless $@; }
         when (/^put/i) { $command =~ m/^put\s+(.*)$/i; putFile($1) unless $@; }
         when (/^pwd$/i) { pwd() unless $@; }
+        when (/^rm \*/i) { $command =~ m/^rm \*$/i; deleteFolderContents($1) unless $@; }
         when (/^rm\s+/i) { $command =~ m/^rm\s+(.*)$/i; deleteFile($1) unless $@; }
         when (/^rmdir/i) { $command =~ m/^rmdir\s+(.*)$/i; deleteFolder($1) unless $@; }
         when (/^server/i) { $command =~ m/^server\s+(.*)\s*$/i; server($1) unless $@; }
@@ -235,7 +232,10 @@ sub chDir {
     my $folderName = shift(@_);
     say $OUT "In chDir()\n   Attempting to cd to \"$folderName\"." if $debug > 2;
     unless ( serverSet() ) { return 0; }
-    if ( $folderName eq "/" ) { chHomeDir("1"); }
+    if ( $folderName eq "/" ) {
+        chHomeDir("1");
+        return 1;
+    }
     
     my $folder = $server->folders->{$folderName};
     if ( $folder ) {
@@ -284,8 +284,8 @@ sub chHomeDir {
     $server->folder($server->homeFolder);
     my @folders = ("/");
     $server->folderHistory( \@folders );
+    # Refresh folder contents.
     &getFolderContents();
-    &ls() if ($autols and $shouldReport);
 }
 
 # Report extended help for a given command.
@@ -311,7 +311,7 @@ sub commandhelp {
         when (/^put/) { say $OUT "put <filename>: Puts the designated file onto the server in the active folder.  The filename will become the filename on the server, but will be changed to lower case.  This action requires authorization (see 'help login')." }
         when (/^pwd/) { say $OUT "pwd: Returns the path of the active folder." }
         when (/^quit/) { say $OUT "quit: Exits the shell." }
-        when (/^rm\s+/) { say $OUT "rm <file title>: Deletes the designated file from the active folder.  The file title must be exactly as it appears in a folder listing, including spaces.  This action requires authorization (see 'help login')." }
+        when (/^rm\s*/) { say $OUT "rm <file title>: Deletes the designated file from the active folder.  The file title must be exactly as it appears in a folder listing, including spaces.\nrm *: recursively deletes all files and subfolders under the active folder.\nThis action requires authorization (see 'help login')." }
         when (/^rmdir/) { say $OUT "rmdir <folder title>: Deletes the designated folder from the active folder.  The folder title must be exactly as it appears in a folder listing, including spaces.  This action requires authorization (see 'help login')." }
         when (/^server/) { say $OUT "server <url> or server -p <proxy> <url>: Sets the Callimachus server authority.  For example, 'server http://localhost:8080/' creates a server object with that base HTTP authority.  The server URL must refer to a Callimachus instance.  Further commands will relate to the last set server authority.  Optionally set an HTTP proxy with -p to allow connection to a Callimachus server behind a proxy or running a DNS name different from its HTTP authority.  The <proxy> field must contain a URL and may contain an optional port number (e.g. http://www.example.com:8080).  The proxy port defaults to 1080 if not provided.  The <proxy> field must contain 'http://'." }
         when (/^set/) { say $OUT "set <option> <value>:  Set a shell option to the specified value.  Current options are 'debug', which may be set to a non-negative integer value to cause an increasing level of additional information to be displayed, and 'autols', which may be set to 1 to cause an 'ls' command to be issued after every 'cd' command."}
@@ -356,6 +356,8 @@ sub deleteFile {
         say $OUT "Delete request resulted in:  " . $res->status_line if $debug;
         parseDirPath( ".", "suppress display" );
         say $OUT "Deleted file." if $debug;
+        # Refresh folder contents.
+        &getFolderContents();
         return 1;
     } elsif ( $res->status_line =~ m/401/ ) {
         unless ( deleteFile($title) ) {
@@ -373,7 +375,7 @@ sub deleteFile {
 }
 
 
-# Delete a subfolder (and its contents) from the active folder.
+# Delete an empty subfolder from the active folder.
 sub deleteFolder {
 
     unless ( serverSet() ) { return 0; }
@@ -393,6 +395,7 @@ sub deleteFolder {
     }
     
     my $url = $server->folders->{$title};
+    $url =~ s/\?.*$/?edit/; # Replace the query string to get the right URL for folder deletion.
     say $OUT "Attempting to delete URL: $url" if $debug;
     unless ($url) {
         say $OUT "Error: Could not determine URL for file '$title'.";
@@ -410,7 +413,9 @@ sub deleteFolder {
     if ($res->is_success) {
         say $OUT "Delete request resulted in:  " . $res->status_line if $debug;
         parseDirPath( ".", "suppress display" );
-        say $OUT "Deleted folder and its contents." if $debug;
+        say $OUT "Deleted folder." if $debug;
+        # Refresh folder contents.
+        &getFolderContents();
         return 1;
     } elsif ( $res->status_line =~ m/401/ ) {
         unless ( deleteFolder($title) ) {
@@ -427,6 +432,53 @@ sub deleteFolder {
     }
 }
 
+# Delete the active folder's contents.
+sub deleteFolderContents {
+
+    unless ( serverSet() ) { return 0; }
+    unless ( $server->loggedIn ) {
+        say $OUT "Deleting a folder's contents may only be performed by an authenticated user.  Please log in first.";
+        commandhelp("login");
+        return;
+    }
+    
+    my $url = $server->folder;
+    $url =~ s/\?.*$/?archive/; # Replace the query string to get the right URL for folder deletion.
+    say $OUT "Attempting to delete URL: $url" if $debug;
+    unless ($url) {
+        say $OUT "Error: Could not determine URL for file '$url'.";
+        $exitstatus++;
+        return 0;
+    }
+    my $req = new HTTP::Request DELETE => $url;
+    $req->header( "Host" => $host );
+    say $OUT "REQUEST:" if $debug;
+    say $OUT $req->as_string if $debug;
+    
+    # Pass request to the user agent and get a response back
+    my $res = $ua->request($req);
+    # Check the outcome of the response
+    if ($res->is_success) {
+        say $OUT "Delete request resulted in:  " . $res->status_line if $debug;
+        parseDirPath( ".", "suppress display" );
+        say $OUT "Deleted folder's contents." if $debug;
+        # Refresh folder contents.
+        &getFolderContents();
+        return 1;
+    } elsif ( $res->status_line =~ m/401/ ) {
+        unless ( &deleteFolderContents() ) {
+            say $OUT "Error: Failed to delete contents after two tries.";
+            $exitstatus++;
+            return 0;
+        }
+        return 1;
+    } else {
+        say $OUT "Error: Failed to delete folder contents.  The server reported: " . $res->status_line;
+        print $OUT $res->as_string if $debug;
+        $exitstatus++;
+        return 0;
+    }
+}
 
 # Echo a string to STDOUT.
 sub echo {
@@ -552,6 +604,7 @@ sub getContentType {
 # Retreive the contents of the active folder from the active server.
 sub getFolderContents {
     unless ( serverSet() ) { return; }
+    my $called = pop(); # Used to track whether called recursively
     # Create a request
     my $url = $server->folder;
     say $OUT "In getFolderContents()\n   URL: $url" if $debug > 1;
@@ -569,8 +622,8 @@ sub getFolderContents {
         # multiple Client-Transfer-Encoding headers.
         unless ($res->content) {
             say $OUT "Error: Cannot process folder due to multiple Client-Transfer-Encoding headers in response.";
-            say $OUT "       Folder set to home.";
-            chHomeDir();
+            #say $OUT "       Folder set to home.";
+            #chHomeDir();
             return 0;
         }
         
@@ -631,11 +684,20 @@ sub getFolderContents {
             $server->files(undef);
             say $OUT "No files found in this folder." if $debug > 2;
         }
-        
+        return 1;
+    } elsif ( $res->status_line =~ m/401/ ) {
+        return 1 if $called;
+        unless ( &getFolderContents("second") ) {
+            say $OUT "Error: Failed to import CAR file after responding to Digest request.  Authentication credentials may be invalid.  Trying logging in again.";
+            $exitstatus++;
+            return 0;
+        }
+        return 1;    
     } else {    
         # TODO: Handle this error condition?
-        say $OUT "Error: Could not resolve folder contents.";
+        say $OUT "Error: Could not resolve folder contents. The server reported: " . $res->status_line;
         $@ = "";
+        return 0;
     }
 }
 
@@ -758,6 +820,7 @@ put <filename>              Store a file in the active folder.
 pwd                         Return the path of the active folder.
 quit                        Exit the shell.
 rm <filename>               Delete a file from the active folder.
+rm *                        Delete all content (files and subfolders) from the active folder.
 rmdir <folder name>         Delete a folder from the active folder.
 server <url>                Set the Callimachus server authority. Optionally set an HTTP proxy (-p <proxy>).
 set <option> <value>        Set a shell option.
@@ -874,9 +937,12 @@ sub login {
     if ( $server_version =~ m/^\./ ) {
         # Older Callimachus
         $realmurl = $server->authority . "accounts?describe";
-    } else {
-        # For Callimachus 1.0 and above
+    } elsif ( $server_version =~ m/(^1\.0)|(^1\.1)|(^1\.2)/) {
+        # For Callimachus 1.0-1.2
         $realmurl = $server->authority . 'auth/digest+account?describe';
+    } else {
+        # For Callimachus 1.3 and above
+        $realmurl = $server->authority . 'auth/digest+accounts?describe';
     }
     my $realmreq = new HTTP::Request GET => $realmurl;
     $realmreq->header( "Host" => $host );
@@ -907,6 +973,7 @@ sub login {
     $ua->credentials($authority, $realm, $username, $password);
     $server->loggedIn(1);
     say $OUT "Credentials accepted." unless $silent;
+    &getFolderContents();
     return 1;
 }
 
@@ -920,6 +987,11 @@ sub logout {
 # List the contents of the active folder.
 sub ls {
     unless ( serverSet() ) { return 0; }
+    unless ( $server->loggedIn and $server->version !~ m/(^\.)|(^1\.0)|(^1\.1)|(^1\.2)/ ) {
+        say $OUT "Callimachus versions 1.3 and later require you to be logged in to see folder contents.  Please log in first.";
+        commandhelp("login");
+        return 0;
+    }
     # Display the folder and file titles.
     my $serverfolders = $server->folders;
     foreach my $key (sort keys %$serverfolders) {
@@ -1001,6 +1073,8 @@ ENDOFMKDIRTTL
         say $OUT "Create folder request resulted in:  " . $res->status_line if $debug;
         say $OUT "Folder created." if $debug;
         parseDirPath( ".", "suppress display" );
+        # Refresh folder contents.
+        &getFolderContents();
         return 1;
     } elsif ( $res->status_line =~ m/401/ ) {
         unless ( makeDir($folderpath) ) {
@@ -1177,9 +1251,10 @@ sub parseDirPath {
         chHomeDir();
     }
     my @pathElements = split("/", $desiredFolderPath);
+    say $OUT "Path elements are: @pathElements" if $debug;
     
     foreach my $folder (@pathElements) {
-        say "Trying to change to $folder" if $debug > 1;
+        say $OUT "Trying to change to $folder" if $debug;
         unless ( chDir($folder) ) {  # Return to the current folder for any error in the path.
             return 1 if ( parseDirPath($currentFolder) );
             $exitstatus++;
@@ -1306,6 +1381,8 @@ sub putFile {
             say $OUT "File request resulted in:  " . $res->status_line if $debug;
             say $OUT "File uploaded.";
             parseDirPath( ".", "suppress display" );
+            # Refresh folder contents.
+            &getFolderContents();
             return 1;
         } elsif ( $res->status_line =~ m/401/ ) {
             unless ( putFile($filename, $contentRef) ) {
@@ -1476,7 +1553,7 @@ sub server {
         say $OUT "Host: $host";
     }
     
-    if ( $authority ne "unitialized" and checkAuthority($authority) ) {
+    if ( $authority ne "uninitialized" and checkAuthority($authority) ) {
         $server->authority($authority);
         $server->proxy($proxy); # Store the HTTP proxy in the server object.
         $ua->proxy('http', $proxy); # Set the user agent's proxy.

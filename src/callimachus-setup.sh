@@ -234,7 +234,9 @@ fi
 
 if [ -z "$PORT" -a -z "$SSLPORT" ] ; then
   PORT="8080"
-  sed "s:#\?\s*PORT=.*:PORT=$PORT:" "$CONFIG" > "$CONFIG.tmp"
+  # Changed to avoid problems on Mac's BSD sed:
+  #sed "s:#\?\s*PORT=.*:PORT=$PORT:" "$CONFIG" > "$CONFIG.tmp"
+  sed "s/#\s*PORT=.*/PORT=$PORT/" "$CONFIG" > "$CONFIG.tmp"
   if [ $(cat "$CONFIG.tmp" |wc -l) = $(cat "$CONFIG" |wc -l) ] ; then
     cat "$CONFIG.tmp" > "$CONFIG"
     rm "$CONFIG.tmp"
@@ -255,7 +257,9 @@ if [ -z "$ORIGIN" ] ; then
       ORIGIN="$ORIGIN:$SSLPORT"
     fi
   fi
-  sed "s%#\?\s*ORIGIN=.*%ORIGIN=$ORIGIN%" "$CONFIG" > "$CONFIG.tmp"
+  # Changed to avoid problems on Mac's BSD sed:
+  #sed "s%#\?\s*ORIGIN=.*%ORIGIN=$ORIGIN%" "$CONFIG" > "$CONFIG.tmp"
+  sed "s%#\s*ORIGIN=.*%ORIGIN=$ORIGIN%" "$CONFIG" > "$CONFIG.tmp"
   if [ $(cat "$CONFIG.tmp" |wc -l) = $(cat "$CONFIG" |wc -l) ] ; then
     cat "$CONFIG.tmp" > "$CONFIG"
     rm "$CONFIG.tmp"

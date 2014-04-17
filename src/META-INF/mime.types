@@ -84,6 +84,7 @@ application/xproc+xml xpl
 application/xslt+xml xsl
 application/xquery xq
 application/xquery xquery
+application/x-xliff+xml xlf
 audio/basic au
 audio/basic snd
 audio/mpeg mp1 mp2 mp3 mpg

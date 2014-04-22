@@ -20,28 +20,41 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
+import java.util.HashSet;
 import java.util.Set;
 
+import org.callimachusproject.concepts.Composite;
 import org.callimachusproject.engine.model.TermFactory;
+import org.callimachusproject.form.helpers.TripleInserter;
 import org.callimachusproject.io.CarOutputStream;
 import org.callimachusproject.io.ChannelUtil;
 import org.callimachusproject.io.DescribeResult;
 import org.callimachusproject.io.ProducerStream;
 import org.callimachusproject.io.ProducerStream.OutputProducer;
 import org.callimachusproject.io.TurtleStreamWriterFactory;
+import org.callimachusproject.server.exceptions.BadRequest;
 import org.openrdf.OpenRDFException;
+import org.openrdf.annotations.Bind;
 import org.openrdf.annotations.Sparql;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Namespace;
+import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
+import org.openrdf.model.ValueFactory;
+import org.openrdf.model.vocabulary.RDF;
+import org.openrdf.model.vocabulary.RDFS;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.GraphQueryResult;
 import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.TupleQueryResult;
 import org.openrdf.repository.RepositoryResult;
 import org.openrdf.repository.object.ObjectConnection;
+import org.openrdf.repository.object.ObjectFactory;
 import org.openrdf.repository.object.RDFObject;
+import org.openrdf.rio.RDFParser;
+import org.openrdf.rio.RDFParserRegistry;
 import org.openrdf.rio.RDFWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,9 +63,10 @@ public abstract class FolderSupport implements RDFObject {
 	private static final String PHONE = "http://www.openrdf.org/rdf/2011/keyword#phone";
 	private static final String GENERATED_BY = "http://www.w3.org/ns/prov#wasGeneratedBy";
 	private static final String TURTLE = "text/turtle;charset=UTF-8";
-	private static final String PREFIX = "PREFIX owl:<http://www.w3.org/2002/07/owl#>\n" +
-			"PREFIX prov:<http://www.w3.org/ns/prov#>\n" +
-			"PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>\n";
+	private static final String PREFIX = "PREFIX owl:<http://www.w3.org/2002/07/owl#>\n"
+			+ "PREFIX prov:<http://www.w3.org/ns/prov#>\n"
+			+ "PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>\n";
+	private static final String CALLI_FOLDER = "http://callimachusproject.org/rdf/2009/framework#Folder";
 	private final Logger logger = LoggerFactory.getLogger(FolderSupport.class);
 
 	/**
@@ -65,27 +79,124 @@ public abstract class FolderSupport implements RDFObject {
 	public InputStream exportFolder() throws IOException {
 		final String baseURI = this.getResource().stringValue();
 		final ObjectConnection con = this.getObjectConnection();
-		return new ProducerStream(new OutputProducer(){
+		return new ProducerStream(new OutputProducer() {
 			public void produce(OutputStream outputStream) throws IOException {
-            try {
-				CarOutputStream carStream = new CarOutputStream(outputStream);
-				exportComponents(baseURI, con, carStream);
-				carStream.finish();
-			} catch (OpenRDFException e) {
-				logger.error(e.toString(), e);
-				throw new IOException(e);
-			} catch (URISyntaxException e) {
-				logger.error(e.toString(), e);
-				throw new IOException(e);
-			} catch (RuntimeException e) {
-				logger.error(e.toString(), e);
-				throw e;
-			} catch (Error e) {
-				logger.error(e.toString(), e);
-				throw e;
+				try {
+					CarOutputStream carStream = new CarOutputStream(
+							outputStream);
+					exportComponents(baseURI, con, carStream);
+					carStream.finish();
+				} catch (OpenRDFException e) {
+					logger.error(e.toString(), e);
+					throw new IOException(e);
+				} catch (URISyntaxException e) {
+					logger.error(e.toString(), e);
+					throw new IOException(e);
+				} catch (RuntimeException e) {
+					logger.error(e.toString(), e);
+					throw e;
+				} catch (Error e) {
+					logger.error(e.toString(), e);
+					throw e;
+				}
 			}
-        }});
+		});
 	}
+
+	public void readFrom(String type, InputStream entryStream, String uri,
+			URI graph) throws OpenRDFException, IOException {
+		TripleInserter inserter = new TripleInserter(this.getObjectConnection());
+		inserter.setGraph(graph);
+		RDFParserRegistry registry = RDFParserRegistry.getInstance();
+		RDFParser parser = registry
+				.get(registry.getFileFormatForMIMEType(type)).getParser();
+		parser.setValueFactory(this.getObjectConnection().getValueFactory());
+		parser.setRDFHandler(inserter);
+		parser.parse(entryStream, uri);
+		if (inserter.isEmpty())
+			throw new BadRequest("Missing resource information for: " + uri);
+		if (!inserter.isSingleton())
+			throw new BadRequest("Multiple resources for: " + uri);
+		if (!uri.equals(inserter.getSubject().stringValue()))
+			throw new BadRequest("Wrong subject of " + inserter.getSubject() + " for: " + uri);
+		if (inserter.isDisconnectedNodePresent())
+			throw new BadRequest("Blank nodes must be connected in: " + uri);
+	}
+
+	public Set<String> getComponentsWithExternalDependent() {
+		Set<URI> uris = findComponentsWithExternalDependent();
+		HashSet<String> result = new HashSet<String>(uris.size());
+		for (URI uri : uris) {
+			result.add(uri.stringValue());
+		}
+		return result;
+	}
+
+	public <F extends Composite> Composite findContainer(String uri,
+			Class<F> Folder) throws OpenRDFException, IOException {
+		ObjectConnection con = this.getObjectConnection();
+		ValueFactory vf = con.getValueFactory();
+		Composite container = this.findExistingContainer(vf.createURI(uri));
+		if (container == null) {
+			int idx = uri.lastIndexOf('/', uri.length() - 2) + 1;
+			container = designateAsFolder(uri.substring(0, idx), Folder);
+		}
+		return container;
+	}
+
+	public <F extends Composite> Composite designateAsFolder(String uri,
+			Class<F> Folder) throws OpenRDFException, IOException {
+		ObjectConnection con = this.getObjectConnection();
+		RDFObject nonFolder = (RDFObject) con.getObject(uri);
+		if (nonFolder instanceof Composite)
+			return (Composite) nonFolder;
+		ValueFactory vf = con.getValueFactory();
+		ObjectFactory of = con.getObjectFactory();
+		Resource resource = nonFolder.getResource();
+		Composite container = this.findExistingContainer(resource);
+		int idx = uri.lastIndexOf('/', uri.length() - 2) + 1;
+		if (container == null) {
+			container = designateAsFolder(uri.substring(0, idx), Folder);
+			container.getCalliHasComponent().add(of.createObject(resource));
+		}
+		if (!(container instanceof Composite))
+			throw new BadRequest("Schema data about " + container
+					+ " must be imported before " + uri);
+		String label = URLDecoder.decode(uri.substring(idx, uri.length() - 1),
+				"UTF-8").replace('-', ' ');
+		con.add(resource, RDFS.LABEL, vf.createLiteral(label));
+		inheritPermissions(resource, container);
+		con.add(resource, RDF.TYPE, vf.createURI(CALLI_FOLDER));
+		return con.addDesignation(of.createObject(resource), Folder);
+	}
+
+	@Sparql(PREFIX + "INSERT {" + "$resource calli:reader ?reader .\n"
+			+ " $reosurce calli:subscriber ?subscriber .\n"
+			+ " $resource calli:editor ?editor .\n"
+			+ " $resource calli:administrator ?administrator \n" + "} WHERE {"
+			+ "{$container calli:reader ?reader\n"
+			+ "} UNION {$container calli:subscriber ?subscriber\n"
+			+ "} UNION {$container calli:editor ?editor\n"
+			+ "} UNION {$conatiner calli:administrator ?administrator}" + "}")
+	protected abstract void inheritPermissions(
+			@Bind("resource") Resource resource,
+			@Bind("container") Composite conatiner);
+
+	@Sparql(PREFIX
+			+ "SELECT ?component {\n"
+			+ "	$this calli:hasComponent+ ?component .\n"
+			+ "	GRAPH ?graph { ?external ?dependent ?component }\n"
+			+ "	FILTER (!strstarts(str(?graph), str($this)))\n"
+			+ "	FILTER (!isIRI(?external) || !strstarts(str(?external), str($this)))\n"
+			+ "	FILTER (?dependent != prov:specializationOf && ?dependent != prov:wasInfluencedBy)\n"
+			+ "	FILTER (?dependent != rdf:subject && ?dependent != rdf:object)\n"
+			+ "}")
+	protected abstract Set<URI> findComponentsWithExternalDependent();
+
+	@Sparql(PREFIX + "SELECT ?composite {"
+			+ "    ?composite calli:hasComponent $component\n" + "}")
+	protected abstract Composite findExistingContainer(
+			@Bind("component") Resource component);
 
 	@Sparql(PREFIX
 			+ "ASK {\n"
@@ -158,7 +269,8 @@ public abstract class FolderSupport implements RDFObject {
 		InputStream content;
 		long time;
 		if (lastmod != null) {
-			time = lastmod.calendarValue().toGregorianCalendar().getTimeInMillis();
+			time = lastmod.calendarValue().toGregorianCalendar()
+					.getTimeInMillis();
 		} else {
 			time = java.lang.System.currentTimeMillis();
 		}
@@ -166,7 +278,8 @@ public abstract class FolderSupport implements RDFObject {
 			// # Export Folder
 			if (exportFolder) {
 				// # Export Folder Triples
-				OutputStream entry = carStream.writeResourceEntry(name, time, TURTLE);
+				OutputStream entry = carStream.writeResourceEntry(name, time,
+						TURTLE);
 				writeTriples(component, con, entry, entryId);
 				exportFolder = true;
 			} else {
@@ -192,7 +305,8 @@ public abstract class FolderSupport implements RDFObject {
 			writeTriples(component, con, entry, entryId);
 		} else {
 			// # Export Triples
-			OutputStream entry = carStream.writeResourceEntry(name, time, TURTLE);
+			OutputStream entry = carStream.writeResourceEntry(name, time,
+					TURTLE);
 			writeTriples(component, con, entry, entryId);
 		}
 	}

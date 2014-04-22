@@ -266,11 +266,12 @@
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
     calli:script """
         var con = this.objectConnection;
-        var dependency = new java.util.HashSet(this.FindComponentsWithExternalDependent());
+        var vf = con.valueFactory;
+        var dependency = this.getComponentsWithExternalDependent();
         this.DeleteComponents(); //# remove existing components
         var iter = dependency.iterator();
         while (iter.hasNext()) {
-            var stmts = con.getStatements(null, null, iter.next().resource, true, []);
+            var stmts = con.getStatements(null, null, vf.createURI(iter.next()), true, []);
             try {
                 while (stmts.hasNext()) {
                     var st = stmts.next();
@@ -299,77 +300,48 @@
     calli:query "archive";
     calli:requires calli:administrator;
     calli:imports <Composite>;
+    calli:imports <Folder>;
     calli:imports <java:org.openrdf.rio.RDFFormat>;
     calli:imports <java:org.openrdf.model.vocabulary.RDF>;
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
     calli:script """
         var con = this.objectConnection;
         var vf = con.getValueFactory();
-        function readFrom(type, entryStream, uri, graph) {
-            var inserter = new org.callimachusproject.form.helpers.TripleInserter(con);
-            inserter.setGraph(graph);
-    		var registry = org.openrdf.rio.RDFParserRegistry.getInstance();
-			var parser = registry.get(registry.getFileFormatForMIMEType(type)).getParser();
-            parser.setValueFactory(vf);
-            parser.setRDFHandler(inserter);
-            parser.parse(entryStream, uri);
-            if (inserter.isEmpty())
-                throw new BadRequest("Missing resource information for: " + uri);
-            if (!inserter.isSingleton())
-                throw new BadRequest("Multiple resources for: " + uri);
-            if (inserter.getSubject().toString() != uri)
-                throw new BadRequest("Wrong subject for: " + uri);
-            if (inserter.isDisconnectedNodePresent())
-                throw new BadRequest("Blank nodes must be connected in: " + uri);
-        }
         var baseURI = this.toString();
         if (baseURI.lastIndexOf('/') != baseURI.length - 1) {
             baseURI = baseURI + '/';
         }
         var File = uploadFileClass;
         var SchemaGraph = schemaGraphClass.resource;
-        var dependency = new java.util.HashSet(this.FindComponentsWithExternalDependent());
+        var dependency = this.getComponentsWithExternalDependent();
         this.DeleteComponents(); //# remove existing components
         var name;
         var carStream = new org.callimachusproject.io.CarInputStream(payload);
         while (name = carStream.readEntryName()) {
             var uri = baseURI + name.replace(/\\s+/g, '+');
-            var location = con.getObject(uri);
-            var folder = null;
-            var container = this.FindExistingContainer(location);
-            if (!container) {
-                container = folder = con.getObject(uri.substring(0, uri.lastIndexOf('/', uri.length - 2) + 1));
-                if (!(container instanceof Composite)) {
-                    container = folder = this.DesignateAsFolder(container);
-                }
-            }
+            var location = con.objectFactory.createObject(uri);
+            var container = this.findContainer(uri, Folder);
             var entryStream = carStream.getEntryStream();
             var type = carStream.getEntryType();
             try {
                 if (carStream.isFolderEntry()) {
-                    this.DesignateAsFolder(location);
-                    dependency.remove(location);
+                    this.designateAsFolder(uri, Folder);
+                    dependency.remove(uri);
                 } else if (carStream.isFileEntry()) {
-                    if (!(container instanceof Composite))
-                        throw new BadRequest("Schema data about " + container + " must be imported before " + uri);
                     container.PostFactoryCreate(entryStream, File, null, location, type);
-                    dependency.remove(location);
+                    dependency.remove(uri);
                 } else if (carStream.isResourceEntry()) {
-                    readFrom(type, entryStream, uri, null);
-                    if (folder) {
-                        folder.calliHasComponent.add(location);
-                    }
-                    dependency.remove(location);
+                    this.readFrom(type, entryStream, uri, null);
+                    container.calliHasComponent.add(location);
+                    dependency.remove(uri);
                 } else if (carStream.isSchemaEntry()) {
                     var graphURI = vf.createURI(con.getVersionBundle().stringValue() + "#schema");
                     con.add(graphURI, RDF.TYPE, SchemaGraph, []);
-                    readFrom(type, entryStream, uri, graphURI);
+                    this.readFrom(type, entryStream, uri, graphURI);
                     //# copy rdf:type to activity graph
                     con.add(con.getStatements(vf.createURI(uri), RDF.TYPE, null, false, [graphURI]), [con.getVersionBundle()]);
-                    if (folder) {
-                        folder.calliHasComponent.add(location);
-                    }
-                    dependency.remove(location);
+                    container.calliHasComponent.add(location);
+                    dependency.remove(uri);
                     con.recompileSchemaOnClose();
                 }
             } catch (e) {
@@ -380,7 +352,7 @@
         }
         var iter = dependency.iterator();
         while (iter.hasNext()) {
-            var stmts = con.getStatements(null, null, iter.next().resource, true, []);
+            var stmts = con.getStatements(null, null, vf.createURI(iter.next()), true, []);
             try {
                 while (stmts.hasNext()) {
                     var st = stmts.next();
@@ -409,72 +381,4 @@
 
 :schemaGraphClass a owl:ObjectProperty, owl:FunctionalProperty;
     rdfs:domain :UploadFolderComponents.
-
-:FindComponentsWithExternalDependent rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
-    rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom rdfs:Resource];
-    msg:sparql """
-        PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-        PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
-        PREFIX prov:<http://www.w3.org/ns/prov#>
-        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
-        SELECT ?component {
-            $this calli:hasComponent+ ?component .
-            GRAPH ?graph { ?external ?dependent ?component }
-            FILTER (!strstarts(str(?graph), str($this)))
-            FILTER (!isIRI(?external) || !strstarts(str(?external), str($this)))
-            FILTER (?dependent != prov:specializationOf && ?dependent != prov:wasInfluencedBy)
-            FILTER (?dependent != rdf:subject && ?dependent != rdf:object)
-        }
-    """.
-
-:FindExistingContainer rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
-    msg:sparql """
-        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
-        SELECT ?composite {
-            ?composite calli:hasComponent $component
-        }
-    """.
-
-:component a owl:FunctionalProperty, owl:ObjectProperty;
-    rdfs:domain :FindExistingContainer.
-
-:DesignateAsFolder rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <Folder>];
-    calli:imports <Folder>;
-    calli:imports <Composite>;
-    calli:imports <java:org.openrdf.model.vocabulary.RDF>;
-    calli:imports <java:org.openrdf.model.vocabulary.RDFS>;
-    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    calli:script """
-        if (nonFolder instanceof Folder)
-            return nonFolder;
-        var con = this.objectConnection;
-        var vf = con.getValueFactory();
-        var uri = nonFolder.toString();
-        var container = this.FindExistingContainer(nonFolder);
-        if (!container) {
-            container = con.getObject(uri.substring(0, uri.lastIndexOf('/', uri.length - 2) + 1));
-            if (!(container instanceof Folder)) {
-                container = this.DesignateAsFolder(container);
-            }
-        }
-        if (!(container instanceof Composite))
-            throw new BadRequest("Schema data about " + container + " must be imported before " + uri);
-        var label = decodeURI(uri.substring(uri.lastIndexOf('/', uri.length - 2) + 1, uri.length - 1)).replace(/-/g, ' ');
-        con.add(nonFolder.resource, RDFS.LABEL, vf.createLiteral(label), []);
-        nonFolder.calliReader.addAll(container.calliReader);
-        nonFolder.calliSubscriber.addAll(container.calliSubscriber);
-        nonFolder.calliEditor.addAll(container.calliEditor);
-        nonFolder.calliAdministrator.addAll(container.calliAdministrator);
-        container.calliHasComponent.add(nonFolder);
-        con.add(nonFolder.resource, RDF.TYPE, vf.createURI("http://callimachusproject.org/rdf/2009/framework#Folder"), []);
-        return con.addDesignation(nonFolder, Folder);
-    """.
-
-:nonFolder a owl:FunctionalProperty, owl:ObjectProperty;
-    rdfs:domain :DesignateAsFolder.
 

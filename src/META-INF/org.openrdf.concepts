@@ -8,3 +8,4 @@ org.callimachusproject.concepts.AuthenticationManager
 org.callimachusproject.concepts.FacebookManager
 org.callimachusproject.concepts.OpenIDManager
 org.callimachusproject.concepts.SqlDatasource
+org.callimachusproject.concepts.Composite

@@ -69,20 +69,19 @@
     rdf:_42 <dialog.js>;
     rdf:_43 <create-resource.js>;
     rdf:_44 <document-ready.js>;
-    rdf:_45 <input-date.js>;
-    rdf:_46 <disable-button.js>;
-    rdf:_47 <save-resource-as.js>;
-    rdf:_48 <select-resource.js>;
-    rdf:_49 <submit-rdfxml.js>;
-    rdf:_50 <submit-form-data.js>;
-    rdf:_51 <submit-update.js>;
-    rdf:_52 <delete-resource.js>;
-    rdf:_53 <insert-resource.js>;
-    rdf:_54 <discussion.js>;
-    rdf:_55 <decode-html.js>;
-    rdf:_56 <load-editor.js>;
-    rdf:_57 <put-file.js>;
-    rdf:_58 <etag.js>.
+    rdf:_45 <disable-button.js>;
+    rdf:_46 <save-resource-as.js>;
+    rdf:_47 <select-resource.js>;
+    rdf:_48 <submit-rdfxml.js>;
+    rdf:_49 <submit-form-data.js>;
+    rdf:_50 <submit-update.js>;
+    rdf:_51 <delete-resource.js>;
+    rdf:_52 <insert-resource.js>;
+    rdf:_53 <discussion.js>;
+    rdf:_54 <decode-html.js>;
+    rdf:_55 <load-editor.js>;
+    rdf:_56 <put-file.js>;
+    rdf:_57 <etag.js>.
 
 <text_bundle> a calli:ScriptBundle;
     calli:reader </auth/groups/public>;

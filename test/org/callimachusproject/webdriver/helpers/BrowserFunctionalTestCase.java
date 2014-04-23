@@ -58,6 +58,7 @@ import org.callimachusproject.test.WebResource;
 import org.callimachusproject.util.DomainNameSystemResolver;
 import org.callimachusproject.webdriver.pages.CalliPage;
 import org.callimachusproject.webdriver.pages.FolderView;
+import org.openqa.selenium.By;
 import org.openqa.selenium.Platform;
 import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -351,7 +352,7 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 
 	@Override
 	public void setUp() throws Exception {
-		driver.switchTo().window(driver.getWindowHandle()); // Workaround for IE
+		driver.findElement(By.tagName("body")).click(); // workaround for IE focus
 		folderUrl = null;
 		String username = getUsername();
 		if (username != null) {

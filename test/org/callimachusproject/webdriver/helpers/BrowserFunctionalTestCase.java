@@ -351,6 +351,7 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 
 	@Override
 	public void setUp() throws Exception {
+		driver.switchTo().window(driver.getWindowHandle()); // Workaround for IE
 		folderUrl = null;
 		String username = getUsername();
 		if (username != null) {

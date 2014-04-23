@@ -153,6 +153,7 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 						caps.setCapability("name", name);
 						caps.setCapability("build", getBuild());
 						caps.setCapability("tags", getHostTag());
+						caps.setCapability("requireWindowFocus", true);
 						return new RemoteWebDriver(url, caps);
 					}
 				});

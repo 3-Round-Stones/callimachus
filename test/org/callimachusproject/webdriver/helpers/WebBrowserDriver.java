@@ -155,7 +155,6 @@ public class WebBrowserDriver {
 		WebElement element = driver.findElement(locator);
 		try {
 			new Actions(driver).moveToElement(element).build().perform();
-			element.sendKeys(Keys.CONTROL); // workaround for IE window focus
 			element.click();
 		} catch (MoveTargetOutOfBoundsException e) {
 			// firefox can't scroll to reveal element

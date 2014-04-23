@@ -42,3 +42,14 @@ INSERT {
 	FILTER NOT EXISTS { </admin> a calli:Purl }
 };
 
+DELETE {
+    ?fb a </callimachus/1.0/types/FacebookManager>;
+    calli:authButton </callimachus/1.0/images/facebook_64.png>
+} INSERT {
+    ?fb a </callimachus/1.3/types/FacebookManager>;
+    calli:authButton </callimachus/1.3/images/facebook_64.png>
+} WHERE {
+    ?fb a </callimachus/1.0/types/FacebookManager>;
+    calli:authButton </callimachus/1.0/images/facebook_64.png>
+};
+

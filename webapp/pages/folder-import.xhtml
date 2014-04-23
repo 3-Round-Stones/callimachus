@@ -3,6 +3,22 @@
 <head>
     <title>Import Folder Contents</title>
     <link rel="help" href="../../callimachus-for-web-developers#Bulk_changes" target="_blank" title="Help" />
+    <script type="text/javascript">
+    // <![CDATA[
+        jQuery(function($){
+            $('#form').submit(function(){
+                $('input[type="hidden"]').remove();
+                if (!$('#label').prop('disabled')) {
+                    $(this).prepend($('<input/>', {
+                        name: "name",
+                        type: "hidden",
+                        value: $('#label').val().replace(/[\s\/]*$/,'/').replace(/(\S)\s+(?=\S)/g, '$1-')
+                    }));
+                }
+            });
+        });
+    // ]]>
+    </script>
 </head>
 <body>
     <form role="form" id="form" method="POST" action="" enctype="multipart/form-data" class="container">
@@ -14,7 +30,33 @@
                 <div class="form-group">
                     <label for="image">Content</label>
                     <div>
-                        <input type="file" id="file" name="file" multiple="multiple" class="form-control" autofocus="autofocus" />
+                        <input type="file" id="file" name="file" multiple="multiple" class="form-control" autofocus="autofocus"
+                            onchange="$('#label').val(this.value.replace(/.*[\/\\]/,'').replace(/.[a-zA-Z]+$/, '').replace(/\-/, ' '))" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <div class="radio">
+                                <label>
+                                    <input type="radio" name="new" checked="checked" onchange="$('#label').prop('disabled', false)" value="" />
+                                    <span>Import into sub folder</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-xs-6">
+                            <div class="radio">
+                                <label>
+                                    <input type="radio" name="new" onchange="$('#label').prop('disabled', true)" value="" />
+                                    <span>Replace this folder's contents</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div>
+                        <input type="text" id="label" class="form-control" placeholder="New folder label" />
                     </div>
                 </div>
                 <div class="form-group">

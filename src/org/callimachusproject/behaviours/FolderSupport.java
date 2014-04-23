@@ -73,7 +73,11 @@ public abstract class FolderSupport implements RDFObject {
 	 * Called from folder.ttl and origin.ttl
 	 */
 	public String resolve(String reference) {
-		return TermFactory.newInstance(this.toString()).resolve(reference);
+		String uri = this.getResource().stringValue();
+		if (uri.charAt(uri.length() - 1) != '/') {
+			uri = uri + '/';
+		}
+		return TermFactory.newInstance(uri).resolve(reference);
 	}
 
 	public InputStream exportFolder() throws IOException {

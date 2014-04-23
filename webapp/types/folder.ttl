@@ -227,6 +227,8 @@
 :folder_import_xhtml a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :GetFolderUploadPage.
 
+rdfs:label a rdf:Property.
+
 :ImportFolderComponents rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
@@ -235,20 +237,30 @@
     calli:requires calli:administrator;
     calli:expect "302-see-other";
     calli:type "text/uri-list";
+    calli:imports <Folder>;
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
     calli:script """
+        var folder;
         var bio = new org.callimachusproject.io.LatencyInputStream(formData);
         var multipart = new org.callimachusproject.io.MultipartParser(bio);
         var inputStream = multipart.next();
+        if (multipart.headers.get("content-type")) {
+            //# replacing this folders contents
+            folder = this;
+        } else {
+            //# creating a new folder
+            var name = new java.util.Scanner(inputStream).useDelimiter('\\n').next();
+            inputStream.close();
+            inputStream = multipart.next();
+            folder = this.designateAsFolder(this.resolve(name), Folder);
+        }
         try {
-            println("Importing folder content from: " + multipart.headers.get("content-disposition"));
-            this.UploadFolderComponents(inputStream, null, null);
+            println("Importing folder content from " + multipart.headers.get("content-disposition"));
+            folder.UploadFolderComponents(inputStream, null, null);
             println("Imported folder content for: " + this);
-            return this;
+            return folder;
         } finally {
             inputStream.close();
-            if (multipart.next() != null)
-                throw new BadRequest("Only one file can be uploaded");
         }
     """.
 

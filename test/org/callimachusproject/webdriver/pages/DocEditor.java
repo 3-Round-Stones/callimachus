@@ -38,6 +38,11 @@ public class DocEditor extends CalliPage {
 		return this;
 	}
 
+	public DocEditor end() {
+		browser.sendKeys(Keys.END);
+		return this;
+	}
+
 	public DocEditor type(String text) {
 		browser.focusInFrameIndex(0, 0);
 		browser.sendKeys(text);

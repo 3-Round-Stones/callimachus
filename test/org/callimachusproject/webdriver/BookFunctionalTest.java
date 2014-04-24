@@ -70,8 +70,8 @@ public class BookFunctionalTest extends BrowserFunctionalTestCase {
 		String articleText = ArticleFunctionalTest.article[2];
 		logger.info("Create article {}", articleName);
 		page.openCurrentFolder().openArticleCreate().clear().type(articleTitle)
-				.heading1().type("\n").type(articleText).saveAs(articleName)
-				.waitUntilTitle(articleTitle);
+				.heading1().end().type("\n").type(articleText)
+				.saveAs(articleName).waitUntilTitle(articleTitle);
 		String bookName = includes[0];
 		String bookTitle = includes[1];
 		logger.info("Create book {}", bookName);

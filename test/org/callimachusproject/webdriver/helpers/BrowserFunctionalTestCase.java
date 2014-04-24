@@ -144,12 +144,12 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 						return new RemoteWebDriver(url, caps);
 					}
 				});
-				factories.put("ie10", new RemoteWebDriverFactory() {
+				factories.put("ie11", new RemoteWebDriverFactory() {
 					public RemoteWebDriver create(String name) {
 						DesiredCapabilities caps = DesiredCapabilities
 								.internetExplorer();
-						caps.setVersion("10");
-						caps.setPlatform(Platform.WIN8);
+						caps.setVersion("11");
+						caps.setCapability("platform", "Windows 7");
 						caps.setCapability("name", name);
 						caps.setCapability("build", getBuild());
 						caps.setCapability("tags", getHostTag());

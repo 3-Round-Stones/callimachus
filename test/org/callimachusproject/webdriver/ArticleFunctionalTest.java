@@ -47,8 +47,8 @@ public class ArticleFunctionalTest extends BrowserFunctionalTestCase {
 		String articleTitle = article[1];
 		logger.info("Create article {}", articleName);
 		page.openCurrentFolder().openArticleCreate().clear().type(articleTitle)
-				.heading1().type("\n").type(article[2]).saveAs(articleName)
-				.waitUntilTitle(articleTitle);
+				.heading1().end().type("\n").type(article[2])
+				.saveAs(articleName).waitUntilTitle(articleTitle);
 		logger.info("Delete article {}", articleName);
 		page.open(articleName + "?view").waitUntilTitle(article[1])
 				.openEdit(DocEditor.class).delete();

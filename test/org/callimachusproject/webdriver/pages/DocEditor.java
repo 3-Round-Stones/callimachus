@@ -28,12 +28,12 @@ public class DocEditor extends CalliPage {
 
 	public DocEditor clear() {
 		browser.focusInFrameIndex(0, 0);
-		browser.sendKeys(Keys.chord(Keys.CONTROL, "a"));
-		browser.sendKeys(Keys.DELETE);
+		browser.executeScript("arguments[0].innerHTML=''", By.cssSelector("body[contenteditable]"));
 		return this;
 	}
 
 	public DocEditor end() {
+		browser.focusInFrameIndex(0, 0);
 		browser.sendKeys(Keys.END);
 		browser.sendKeys(Keys.ARROW_RIGHT);
 		return this;

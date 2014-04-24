@@ -77,6 +77,10 @@ public class WebBrowserDriver {
 		return url;
 	}
 
+	public Object executeScript(String script, By locator) {
+		return driver.executeScript(script, driver.findElement(locator));
+	}
+
 	public void focusInTopWindow() {
 		driver.switchTo().window(driver.getWindowHandle());
 		waitForScript();

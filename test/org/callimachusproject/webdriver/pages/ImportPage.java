@@ -32,6 +32,11 @@ public class ImportPage extends CalliPage {
 		return this;
 	}
 
+	public ImportPage replaceContents() {
+		browser.click(By.id("replace"));
+		return this;
+	}
+
 	public CalliPage importCar() {
 		browser.focusInTopWindow();
 		browser.click(By.id("import"));

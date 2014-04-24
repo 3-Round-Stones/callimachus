@@ -114,7 +114,7 @@ and run "ant run" again.
 To test the build run "ant test", to run a single functional test use the follow.
 
 $ ant dist test-compile
-$ jrunscript -J-Djava.ext.dirs=lib:dist:test/lib -cp build
+$ jrunscript -J-Djava.ext.dirs=lib:dist:test/lib -cp build/test
 js> importPackage(org.openqa.selenium);
 js> importPackage(org.callimachusproject.webdriver.pages);
 js> var test = null;

@@ -50,7 +50,7 @@ public class MeetingNotesFunctionalTest extends BrowserFunctionalTestCase {
 				.selectFile(car).importCar().openCurrentFolder();
 		String archive = folder.getCurrentUrl().replaceAll("\\?.*", "?archive");
 		File ex = new AssetDownloader(getUsername(), getPassword()).downloadAsset(archive, "meeting.car");
-		folder.openImportPage().selectFile(ex).importCar();
+		folder.openImportPage().selectFile(ex).replaceContents().importCar();
 		ex.delete();
 		logger.info("Creating Journal");
 		browser.click(By.linkText("Journal"));

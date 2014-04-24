@@ -43,11 +43,11 @@ public class HelloWorldFunctionalTest extends BrowserFunctionalTestCase {
 	public void testHelloWorld() throws Exception {
 		File car = new AssetDownloader(new File("downloads"))
 				.getLocalAsset(DOWNLOAD_URL);
-		String archive = page.getCurrentUrl().replaceAll("\\?.*", "?archive");
 		page.openCurrentFolder().openImportPage().selectFile(car).importCar();
 		verifyHelloWorldApp();
+		String archive = page.openCurrentFolder().getCurrentUrl().replaceAll("\\?.*", "?archive");
 		File ex = new AssetDownloader(getUsername(), getPassword()).downloadAsset(archive, "helloworld.car");
-		page.openCurrentFolder().openImportPage().selectFile(ex).importCar();
+		page.openCurrentFolder().openImportPage().selectFile(ex).replaceContents().importCar();
 		ex.delete();
 		verifyHelloWorldApp();
 	}

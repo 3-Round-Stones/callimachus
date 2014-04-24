@@ -30,16 +30,12 @@ public class DocEditor extends CalliPage {
 		browser.focusInFrameIndex(0, 0);
 		browser.sendKeys(Keys.chord(Keys.CONTROL, "a"));
 		browser.sendKeys(Keys.DELETE);
-		CharSequence[] keys = new CharSequence[32];
-		for (int i = 0; i < keys.length; i++) {
-			keys[i] = Keys.BACK_SPACE;
-		}
-		browser.sendKeys(keys);
 		return this;
 	}
 
 	public DocEditor end() {
 		browser.sendKeys(Keys.END);
+		browser.sendKeys(Keys.ARROW_RIGHT);
 		return this;
 	}
 

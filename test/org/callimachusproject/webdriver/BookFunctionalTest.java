@@ -69,9 +69,11 @@ public class BookFunctionalTest extends BrowserFunctionalTestCase {
 		String articleTitle = ArticleFunctionalTest.article[1];
 		String articleText = ArticleFunctionalTest.article[2];
 		logger.info("Create article {}", articleName);
-		page.openCurrentFolder().openArticleCreate().clear().type(articleTitle)
-				.heading1().end().type("\n").type(articleText)
-				.saveAs(articleName).waitUntilTitle(articleTitle);
+		String heading = "<h1>" + articleTitle + "</h1>";
+		String body = "<p>" + articleText.replace("\n", "</p>\n<p>") + "</p>";
+		page.openCurrentFolder().openArticleCreate().clear()
+				.appendHTML(heading).appendHTML(body).saveAs(articleName)
+				.waitUntilTitle(articleTitle);
 		String bookName = includes[0];
 		String bookTitle = includes[1];
 		logger.info("Create book {}", bookName);

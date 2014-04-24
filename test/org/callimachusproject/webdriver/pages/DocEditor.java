@@ -28,7 +28,13 @@ public class DocEditor extends CalliPage {
 
 	public DocEditor clear() {
 		browser.focusInFrameIndex(0, 0);
-		browser.executeScript("arguments[0].innerHTML=''", By.cssSelector("body[contenteditable]"));
+		browser.innerHTML(By.cssSelector("body[contenteditable]"), "");
+		return this;
+	}
+
+	public DocEditor appendHTML(String html) {
+		browser.focusInFrameIndex(0, 0);
+		browser.appendHTML(By.cssSelector("body[contenteditable]"), html);
 		return this;
 	}
 

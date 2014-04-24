@@ -77,8 +77,14 @@ public class WebBrowserDriver {
 		return url;
 	}
 
-	public Object executeScript(String script, By locator) {
-		return driver.executeScript(script, driver.findElement(locator));
+	public void innerHTML(By locator, String html) {
+		String script = "arguments[0].innerHTML=arguments[1]";
+		driver.executeScript(script, driver.findElement(locator));
+	}
+
+	public void appendHTML(By locator, String html) {
+		String script = "arguments[0].innerHTML+=arguments[1]";
+		driver.executeScript(script, driver.findElement(locator), html);
 	}
 
 	public void focusInTopWindow() {

@@ -211,8 +211,8 @@ function isLoggedIn() {
 
 function getUsername() {
     var pattern = escape(getUserCookieName()).replace(/[\-\.\+\*]/g, "\\$&");
-    var hasItem = new RegExp("(?:^|;\\s*)" + pattern + "\\s*\\=");
-    var regex = new RegExp("(?:^|.*;\\s*)" + pattern + "\\s*\\=\\s*((?:[^;](?!;))*[^;]?).*");
+    var hasItem = new RegExp("(?:^|;\\s*)" + pattern + "\\s*\\=\\s*[^;\\s]");
+    var regex = new RegExp("(?:^|.*;\\s*)" + pattern + "\\s*\\=\\s*((?:[^;](?!;))+[^;]?).*");
     if (document.cookie && hasItem.test(document.cookie))
         return decodeURIComponent(document.cookie.replace(regex, "$1"));
     return null;

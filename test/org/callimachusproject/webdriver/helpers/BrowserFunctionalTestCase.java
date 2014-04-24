@@ -58,7 +58,6 @@ import org.callimachusproject.test.WebResource;
 import org.callimachusproject.util.DomainNameSystemResolver;
 import org.callimachusproject.webdriver.pages.CalliPage;
 import org.callimachusproject.webdriver.pages.FolderView;
-import org.openqa.selenium.Platform;
 import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
@@ -124,8 +123,7 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 				factories.put("chrome", new RemoteWebDriverFactory() {
 					public RemoteWebDriver create(String name) {
 						DesiredCapabilities caps = DesiredCapabilities.chrome();
-						caps.setVersion(""); // Any version
-						caps.setPlatform(Platform.WINDOWS);
+						caps.setCapability("platform", "Windows 7");
 						caps.setCapability("name", name);
 						caps.setCapability("build", getBuild());
 						caps.setCapability("tags", getHostTag());
@@ -136,8 +134,7 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 					public RemoteWebDriver create(String name) {
 						DesiredCapabilities caps = DesiredCapabilities
 								.firefox();
-						caps.setVersion("22");
-						caps.setPlatform(Platform.WINDOWS);
+						caps.setCapability("platform", "Windows 7");
 						caps.setCapability("name", name);
 						caps.setCapability("build", getBuild());
 						caps.setCapability("tags", getHostTag());

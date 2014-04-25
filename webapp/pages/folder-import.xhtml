@@ -3,17 +3,26 @@
 <head>
     <title>Import Folder Contents</title>
     <link rel="help" href="../../callimachus-for-web-developers#Bulk_changes" target="_blank" title="Help" />
+    <link id="nothere" href="../" />
     <script type="text/javascript">
     // <![CDATA[
         jQuery(function($){
             $('#form').submit(function(){
+                var nothere = $('#nothere').prop('href');
+                var uri = window.location.href.replace(/[\?#].*/,'');
                 $('input[type="hidden"]').remove();
-                if (!$('#label').prop('disabled')) {
+                if (!$('#replace').prop('checked')) {
+                    var name = $('#label').val().replace(/[\s\/]*$/,'/').replace(/(\S)\s+(?=\S)/g, '$1-');
+                    uri = uri.replace(/\/?$/,'/') + name;
                     $(this).prepend($('<input/>', {
                         name: "name",
                         type: "hidden",
-                        value: $('#label').val().replace(/[\s\/]*$/,'/').replace(/(\S)\s+(?=\S)/g, '$1-')
+                        value: name
                     }));
+                }
+                if (nothere.indexOf(uri) === 0) {
+                    event.preventDefault();
+                    calli.error("Cannot replace this folder's contents; try using a different folder");
                 }
             });
         });
@@ -67,8 +76,8 @@
             <div class="col-sm-4">
                 <aside class="well">
                     <p>Upload a CAR file that was previously exported from another Callimachus folder</p>
-                    <p>By uploading a replacement archive, <b>all</b> contents of the current folder will be <b>deleted</b>!</p>
-                    <p>The current folder's' entire contents will be replaced with the contents of the archive as an atomic operation.</p>
+                    <p>By uploading a replacement archive, <b>all</b> contents of the folder will be <b>deleted</b>!</p>
+                    <p>The folder's entire contents will be replaced with the contents of the archive as an atomic operation.</p>
                 </aside>
             </div>
         </div>

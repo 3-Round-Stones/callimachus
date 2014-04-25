@@ -53,13 +53,14 @@ import org.openrdf.repository.RepositoryResult;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.ObjectFactory;
 import org.openrdf.repository.object.RDFObject;
+import org.openrdf.repository.object.traits.RDFObjectBehaviour;
 import org.openrdf.rio.RDFParser;
 import org.openrdf.rio.RDFParserRegistry;
 import org.openrdf.rio.RDFWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class FolderSupport implements RDFObject {
+public abstract class FolderSupport implements RDFObject, RDFObjectBehaviour, Composite {
 	private static final String PHONE = "http://www.openrdf.org/rdf/2011/keyword#phone";
 	private static final String GENERATED_BY = "http://www.w3.org/ns/prov#wasGeneratedBy";
 	private static final String TURTLE = "text/turtle;charset=UTF-8";
@@ -150,6 +151,8 @@ public abstract class FolderSupport implements RDFObject {
 
 	public <F extends Composite> Composite designateAsFolder(String uri,
 			Class<F> Folder) throws OpenRDFException, IOException {
+		if (this.getResource().stringValue().equals(uri))
+			return (Composite) this.getBehaviourDelegate();
 		ObjectConnection con = this.getObjectConnection();
 		RDFObject nonFolder = (RDFObject) con.getObject(uri);
 		if (nonFolder instanceof Composite)

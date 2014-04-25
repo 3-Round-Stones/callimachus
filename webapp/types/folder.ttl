@@ -316,6 +316,7 @@ rdfs:label a rdf:Property.
     calli:imports <java:org.openrdf.rio.RDFFormat>;
     calli:imports <java:org.openrdf.model.vocabulary.RDF>;
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
     calli:script """
         var con = this.objectConnection;
         var vf = con.getValueFactory();
@@ -357,7 +358,7 @@ rdfs:label a rdf:Property.
                     con.recompileSchemaOnClose();
                 }
             } catch (e) {
-                throw new BadRequest("Could not import " + name + " a " + type + " into " + container, e.javaException);
+                throw new InternalServerError("Could not import " + name + " a " + type + " into " + container, e.javaException || e.toString());
             } finally {
                 entryStream.close();
             }

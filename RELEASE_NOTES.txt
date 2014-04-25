@@ -27,7 +27,7 @@ The Callimachus server requires Java JDK 1.7 on the server to run.
  * Import CAR files directly into subfolders
  * Added /admin page with useful links for adding users to groups
  * Fixed named RDF query visualization settings
- * Numerous other fixes.  See https://github.com/3-Round-Stones/callimachus/pull/112 for details
+ * Numerous other fixes.  See https://github.com/3-Round-Stones/callimachus/issues?milestone=3&state=closed for details
 
 = NEW IN VERSION 1.3.0 =
 

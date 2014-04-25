@@ -15,7 +15,7 @@ applications, upgrades and tools to the Callimachus Project site at
 http://callimachusproject.org.
 
 Documentation for Callimachus may be found at:
-  http://callimachusproject.org/docs/
+  http://callimachusproject.org/documentation.xhtml?view
 
 Please consider joining the mailing lists and participating in the
 online community so we can serve you better.  See

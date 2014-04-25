@@ -60,6 +60,9 @@
         <xsl:copy />
     </xsl:template>
 
+    <!-- strip RDFa version attribute -->
+    <xsl:template match = 'xhtml:html/@version' />
+
     <!-- strip xml:space attributes -->
     <xsl:template match = '@xml:space' />
 

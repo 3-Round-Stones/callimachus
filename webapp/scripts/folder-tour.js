@@ -35,7 +35,7 @@ jQuery(function($){
         { sel : $('[class="btn btn-default navbar-btn dropdown-toggle"]'), content : "The main menu can be used to export and import folder contents." +
             "You can export a Callimachus ARchive (CAR) file containing all resources from this folder and its children. " +
             "You can also import a CAR file to replace this folder's contents. This action deletes any current contents and replaces them. " +
-            "Administrators may invite other users to this Callimachus instance.", position : "s" },
+            "Administrators may invite other users to this Callimachus instance.", position : "w" },
         { sel : $("thead"), content: "This table lists all resources contained within their folder along with the last time they " + 
             "were updated and their associated group permissions.", position : "n" }
     ], { 

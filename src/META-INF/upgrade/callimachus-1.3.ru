@@ -53,3 +53,15 @@ DELETE {
     calli:authButton </callimachus/1.0/images/facebook_64.png>
 };
 
+INSERT {
+<../> calli:hasComponent <../json-editor.html> .
+<../json-editor.html> a <types/Purl>, calli:Purl ;
+	rdfs:label "json-editor.html";
+	calli:alternate ?alternate;
+	calli:administrator </auth/groups/super>;
+	calli:reader </auth/groups/public> .
+} WHERE {
+    BIND (str(<pages/text-editor.html#json>) AS ?alternate)
+	FILTER NOT EXISTS { <../json-editor.html> a calli:Purl }
+};
+

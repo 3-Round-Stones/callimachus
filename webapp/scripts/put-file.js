@@ -29,6 +29,7 @@ $('form[method="PUT"]').each(function(event){
         var xhr = $.ajax({
             type: 'HEAD',
             url: action,
+            dataType: "text",
             xhrFields: calli.withCredentials,
             success: function() {
                 calli.etag(action, xhr.getResponseHeader('ETag'));

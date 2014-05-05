@@ -20,6 +20,7 @@ $('form[enctype="application/sparql-update"]').each(function() {
             var xhr = $.ajax({
                 type: 'HEAD',
                 url: action,
+                dataType: "text",
                 xhrFields: calli.withCredentials,
                 success: function() {
                     calli.etag(action, xhr.getResponseHeader('ETag'));

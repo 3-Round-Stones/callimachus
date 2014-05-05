@@ -170,6 +170,7 @@
             type: 'HEAD',
             url: slug,
             global: false,
+            dataType: "text",
             complete: calli.wait().over,
             success: function() {
                 if (confirm(slug + " already exists. Do you want to replace it?")) {

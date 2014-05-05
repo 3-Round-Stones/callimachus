@@ -134,6 +134,9 @@ public class BufferedImageWriter implements Consumer<BufferedImage> {
 					writer.setOutput(stream);
 					try {
 						writer.write(result);
+					} catch (IOException e) {
+						writer.abort();
+						throw e;
 					} finally {
 						writer.dispose();
 					}

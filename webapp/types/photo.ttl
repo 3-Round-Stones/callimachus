@@ -108,6 +108,8 @@
     calli:imports <java:javax.xml.datatype.DatatypeFactory>;
     calli:imports <java:java.util.GregorianCalendar>;
     calli:imports <java:java.util.TimeZone>;
+    calli:imports <java:javax.imageio.ImageIO>;
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
     calli:script """
         //# dcterms:modified
         var now = DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar(TimeZone.getTimeZone("UTC")));
@@ -122,6 +124,13 @@
             }
         } finally {
             out.close();
+        }
+        var stream = this.openInputStream();
+        try {
+            if (ImageIO.read(stream) == null)
+                throw new BadRequest("Not recognized as a JPEG file");
+        } finally {
+            stream.close();
         }
         this.touchRevision();
     """.

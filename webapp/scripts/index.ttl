@@ -112,7 +112,7 @@
 <query_bundle> a calli:ScriptBundle;
     calli:minified 0;
     calli:reader </auth/groups/public>;
-    rdf:_1 <../assets/d3/d3.v3.3.3.js>;
+    rdf:_1 <../assets/d3/d3.js>;
     rdf:_2 <../assets/nv/nv.d3.js>;
     rdf:_3 <../assets/datatables/jquery.dataTables.js>;
     rdf:_4 <../assets/dimple/dimple.v1.1.1.js>;

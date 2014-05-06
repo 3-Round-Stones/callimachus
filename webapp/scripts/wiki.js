@@ -18,7 +18,7 @@
 
 (function($){
 
-var creole = new Parse.Simple.Creole();
+var parser = new creole();
 
 $(document).ready(function() {
     $("pre.wiki", document).each(function() {
@@ -48,7 +48,7 @@ function initWiki(pre) {
     }
     pre.parentNode.replaceChild(div, pre);
     if (text) {
-        creole.parse(div, text);
+        parser.parse(div, text);
     }
 }
 

@@ -1,190 +1,19 @@
-/*
- * JavaScript Creole 1.0 Wiki Markup Parser
- * $Id: creole.js 14 2009-03-21 16:15:08Z ifomichev $
- *
- * Copyright (c) 2009 Ivan Fomichev
- *
- * Portions Copyright (c) 2007 Chris Purcell
- *
- * Permission is hereby granted, free of charge, to any person obtaining a
- * copy of this software and associated documentation files (the "Software"),
- * to deal in the Software without restriction, including without limitation
- * the rights to use, copy, modify, merge, publish, distribute, sublicense,
- * and/or sell copies of the Software, and to permit persons to whom the
- * Software is furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included
- * in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
- * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
- * DEALINGS IN THE SOFTWARE.
+/*!
+ * Copyright (c) 2011 Ivan Fomichev
+ * http://github.com/codeholic/jscreole
+ * Licensed under MIT license, see http://www.opensource.org/licenses/mit-license.php
  */
 
-if (!Parse) { var Parse = {}; }
-if (!Parse.Simple) { Parse.Simple = {}; }
-
-Parse.Simple.Base = function(grammar, options) {
-    if (!arguments.length) { return; }
-
-    this.grammar = grammar;
-    this.grammar.root = new this.ruleConstructor(this.grammar.root);
-    this.options = options;
-};
-
-Parse.Simple.Base.prototype = {
-    ruleConstructor: null,
-    grammar: null,
-    options: null,
-
-    parse: function(node, data, options) {
-        if (options) {
-            for (i in this.options) {
-                if (typeof options[i] == 'undefined') { options[i] = this.options[i]; }
-            }
-        }
-        else {
-            options = this.options;
-        }
-        data = data.replace(/\r\n?/g, '\n');
-        this.grammar.root.apply(node, data, options);
-        if (options && options.forIE) { node.innerHTML = node.innerHTML.replace(/\r?\n/g, '\r\n'); }
-    }
-};
-
-Parse.Simple.Base.prototype.constructor = Parse.Simple.Base;
-
-Parse.Simple.Base.Rule = function(params) {
-    if (!arguments.length) { return; }
-
-    for (var p in params) { this[p] = params[p]; }
-    if (!this.children) { this.children = []; }
-};
-
-Parse.Simple.Base.prototype.ruleConstructor = Parse.Simple.Base.Rule;
-
-Parse.Simple.Base.Rule.prototype = {
-    regex: null,
-    capture: null,
-    replaceRegex: null,
-    replaceString: null,
-    tag: null,
-    attrs: null,
-    children: null,
-
-    match: function(data, options) {
-        return data.match(this.regex);
-    },
-
-    build: function(node, r, options) {
-        var data;
-        if (this.capture !== null) {
-            data = r[this.capture];
-        }
-
-        var target;
-        if (this.tag) {
-            target = document.createElement(this.tag);
-            node.appendChild(target);
-        }
-        else { target = node; }
-
-        if (data) {
-            if (this.replaceRegex) {
-                data = data.replace(this.replaceRegex, this.replaceString);
-            }
-            this.apply(target, data, options);
-        }
-
-        if (this.attrs) {
-            for (var i in this.attrs) {
-                target.setAttribute(i, this.attrs[i]);
-                if (options && options.forIE && i == 'class') { target.className = this.attrs[i]; }
-            }
-        }
-        return this;
-    },
-
-    apply: function(node, data, options) {
-        var tail = '' + data;
-        var matches = [];
-
-        if (!this.fallback.apply) {
-            this.fallback = new this.constructor(this.fallback);
-        }
-
-        while (true) {
-            var best = false;
-            var rule  = false;
-            for (var i = 0; i < this.children.length; i++) {
-                if (typeof matches[i] == 'undefined') {
-                    if (!this.children[i].match) {
-                        this.children[i] = new this.constructor(this.children[i]);
-                    }
-                    matches[i] = this.children[i].match(tail, options);
-                }
-                if (matches[i] && (!best || best.index > matches[i].index)) {
-                    best = matches[i];
-                    rule = this.children[i];
-                    if (best.index == 0) { break; }
-                }
-            }
-                
-            var pos = best ? best.index : tail.length;
-            if (pos > 0) {
-                this.fallback.apply(node, tail.substring(0, pos), options);
-            }
-            
-            if (!best) { break; }
-
-            if (!rule.build) { rule = new this.constructor(rule); }
-            rule.build(node, best, options);
-
-            var chopped = best.index + best[0].length;
-            tail = tail.substring(chopped);
-            for (var i = 0; i < this.children.length; i++) {
-                if (matches[i]) {
-                    if (matches[i].index >= chopped) {
-                        matches[i].index -= chopped;
-                    }
-                    else {
-                        matches[i] = void 0;
-                    }
-                }
-            }
-        }
-
-        return this;
-    },
-
-    fallback: {
-        apply: function(node, data, options) {
-            if (options && options.forIE) {
-                // workaround for bad IE
-                data = data.replace(/\n/g, ' \r');
-            }
-            node.appendChild(document.createTextNode(data));
-        }
-    }    
-};
-
-Parse.Simple.Base.Rule.prototype.constructor = Parse.Simple.Base.Rule;
-
-Parse.Simple.Creole = function(options) {
+var creole = function(options) {
     var rx = {};
-    rx.link = '[^\\]|~\\n]*(?:(?:\\](?!\\])|~.)[^\\]|~\\n]*)*';
-    rx.linkText = '[^\\]~\\n]*(?:(?:\\](?!\\])|~.)[^\\]~\\n]*)*';
-    rx.uriPrefix = '\\b(?:(?:https?|ftp)://|mailto:)';
-    rx.uri = rx.uriPrefix + rx.link;
-    rx.rawUri = rx.uriPrefix + '\\S*[^\\s!"\',.:;?]';
-    rx.interwikiPrefix = '[\\w.]+:';
-    rx.interwikiLink = rx.interwikiPrefix + rx.link;
-    rx.img = '\\{\\{((?!\\{)[^|}\\n]*(?:}(?!})[^|}\\n]*)*)' +
-             (options && options.strict ? '' : '(?:') + 
+    rx._link = '[^\\]|~\\n]*(?:(?:\\](?!\\])|~.)[^\\]|~\\n]*)*';
+    rx._linkText = '[^\\]~\\n]*(?:(?:\\](?!\\])|~.)[^\\]~\\n]*)*';
+    rx._uriPrefix = '\\b(?:(?:https?|ftp)://|mailto:)';
+    rx._uri = rx._uriPrefix + rx._link;
+    rx._rawUri = rx._uriPrefix + '\\S*[^\\s!"\',.:;?]';
+    rx._interwikiLink = '[\\w.]+:' + rx._link;
+    rx._img = '\\{\\{((?!\\{)[^|}\\n]*(?:}(?!})[^|}\\n]*)*)' +
+             (options && options.strict ? '' : '(?:') +
              '\\|([^}~\\n]*((}(?!})|~.)[^}~\\n]*)*)' +
              (options && options.strict ? '' : ')?') +
              '}}';
@@ -200,50 +29,50 @@ Parse.Simple.Creole = function(options) {
     };
 
     var g = {
-        hr: { tag: 'hr', regex: /(^|\n)\s*----\s*(\n|$)/ },
+        _hr: { _tag: 'hr', _regex: /(^|\n)\s*----\s*(\n|$)/ },
 
-        br: { tag: 'br', regex: /\\\\/ },
-        
-        preBlock: { tag: 'pre', capture: 2,
-            regex: /(^|\n)\{\{\{\n((.*\n)*?)\}\}\}(\n|$)/,
-            replaceRegex: /^ ([ \t]*\}\}\})/gm,
-            replaceString: '$1' },
-        tt: { tag: 'tt',
-            regex: /\{\{\{(.*?\}\}\}+)/, capture: 1,
-            replaceRegex: /\}\}\}$/, replaceString: '' },
+        _br: { _tag: 'br', _regex: /\\\\/ },
 
-        ulist: { tag: 'ul', capture: 0,
-            regex: /(^|\n)([ \t]*\*[^*#].*(\n|$)([ \t]*[^\s*#].*(\n|$))*([ \t]*[*#]{2}.*(\n|$))*)+/ },
-        olist: { tag: 'ol', capture: 0,
-            regex: /(^|\n)([ \t]*#[^*#].*(\n|$)([ \t]*[^\s*#].*(\n|$))*([ \t]*[*#]{2}.*(\n|$))*)+/ },
-        li: { tag: 'li', capture: 0,
-            regex: /[ \t]*([*#]).+(\n[ \t]*[^*#\s].*)*(\n[ \t]*\1[*#].+)*/,
-            replaceRegex: /(^|\n)[ \t]*[*#]/g, replaceString: '$1' },
+        _preBlock: { _tag: 'pre', _capture: 2,
+            _regex: /(^|\n)\{\{\{\n((.*\n)*?)\}\}\}(\n|$)/,
+            _replaceRegex: /^ ([ \t]*\}\}\})/gm,
+            _replaceString: '$1' },
+        _tt: { _tag: 'tt',
+            _regex: /\{\{\{(.*?\}\}\}+)/, _capture: 1,
+            _replaceRegex: /\}\}\}$/, _replaceString: '' },
 
-        table: { tag: 'table', capture: 0,
-            regex: /(^|\n)(\|.*?[ \t]*(\n|$))+/ },
-        tr: { tag: 'tr', capture: 2, regex: /(^|\n)(\|.*?)\|?[ \t]*(\n|$)/ },
-        th: { tag: 'th', regex: /\|+=([^|]*)/, capture: 1 },
-        td: { tag: 'td', capture: 1,
-            regex: '\\|+([^|~\\[{]*((~(.|(?=\\n)|$)|' +
-                   '\\[\\[' + rx.link + '(\\|' + rx.linkText + ')?\\]\\]' +
-                   (options && options.strict ? '' : '|' + rx.img) +
+        _ulist: { _tag: 'ul', _capture: 0,
+            _regex: /(^|\n)([ \t]*\*[^*#].*(\n|$)([ \t]*[^\s*#].*(\n|$))*([ \t]*[*#]{2}.*(\n|$))*)+/ },
+        _olist: { _tag: 'ol', _capture: 0,
+            _regex: /(^|\n)([ \t]*#[^*#].*(\n|$)([ \t]*[^\s*#].*(\n|$))*([ \t]*[*#]{2}.*(\n|$))*)+/ },
+        _li: { _tag: 'li', _capture: 0,
+            _regex: /[ \t]*([*#]).+(\n[ \t]*[^*#\s].*)*(\n[ \t]*[*#]{2}.+)*/,
+            _replaceRegex: /(^|\n)[ \t]*[*#]/g, _replaceString: '$1' },
+
+        _table: { _tag: 'table', _capture: 0,
+            _regex: /(^|\n)(\|.*?[ \t]*(\n|$))+/ },
+        _tr: { _tag: 'tr', _capture: 2, _regex: /(^|\n)(\|.*?)\|?[ \t]*(\n|$)/ },
+        _th: { _tag: 'th', _regex: /\|+=([^|]*)/, _capture: 1 },
+        _td: { _tag: 'td', _capture: 1,
+            _regex: '\\|+([^|~\\[{]*((~(.|(?=\\n)|$)|' +
+                   '\\[\\[' + rx._link + '(\\|' + rx._linkText + ')?\\]\\]' +
+                   (options && options.strict ? '' : '|' + rx._img) +
                    '|[\\[{])[^|~]*)*)' },
 
-        singleLine: { regex: /.+/, capture: 0 },
-        paragraph: { tag: 'p', capture: 0,
-            regex: /(^|\n)([ \t]*\S.*(\n|$))+/ },
-        text: { capture: 0, regex: /(^|\n)([ \t]*[^\s].*(\n|$))+/ },
+        _singleLine: { _regex: /.+/, _capture: 0 },
+        _paragraph: { _tag: 'p', _capture: 0,
+            _regex: /(^|\n)([ \t]*\S.*(\n|$))+/ },
+        _text: { _capture: 0, _regex: /(^|\n)([ \t]*[^\s].*(\n|$))+/ },
 
-        strong: { tag: 'strong', capture: 1,
-            regex: /\*\*([^*~]*((\*(?!\*)|~(.|(?=\n)|$))[^*~]*)*)(\*\*|\n|$)/ },
-        em: { tag: 'em', capture: 1,
-            regex: '\\/\\/(((?!' + rx.uriPrefix + ')[^\\/~])*' +
-                   '((' + rx.rawUri + '|\\/(?!\\/)|~(.|(?=\\n)|$))' +
-                   '((?!' + rx.uriPrefix + ')[^\\/~])*)*)(\\/\\/|\\n|$)' },
+        _strong: { _tag: 'strong', _capture: 1,
+            _regex: /\*\*([^*~]*((\*(?!\*)|~(.|(?=\n)|$))[^*~]*)*)(\*\*|\n|$)/ },
+        _em: { _tag: 'em', _capture: 1,
+            _regex: '\\/\\/(((?!' + rx._uriPrefix + ')[^\\/~])*' +
+                   '((' + rx._rawUri + '|\\/(?!\\/)|~(.|(?=\\n)|$))' +
+                   '((?!' + rx._uriPrefix + ')[^\\/~])*)*)(\\/\\/|\\n|$)' },
 
-        img: { regex: rx.img,
-            build: function(node, r, options) {
+        _img: { _regex: rx._img,
+            _build: function(node, r, options) {
                 var img = document.createElement('img');
                 img.src = r[1];
                 img.alt = r[2] === undefined
@@ -252,120 +81,254 @@ Parse.Simple.Creole = function(options) {
                 node.appendChild(img);
             } },
 
-        namedUri: { regex: '\\[\\[(' + rx.uri + ')\\|(' + rx.linkText + ')\\]\\]',
-            build: function(node, r, options) {
+        _namedUri: { _regex: '\\[\\[(' + rx._uri + ')\\|(' + rx._linkText + ')\\]\\]',
+            _build: function(node, r, options) {
                 var link = document.createElement('a');
                 link.href = r[1];
                 if (options && options.isPlainUri) {
                     link.appendChild(document.createTextNode(r[2]));
                 }
                 else {
-                    this.apply(link, r[2], options);
+                    this._apply(link, r[2], options);
                 }
                 node.appendChild(link);
             } },
 
-        namedLink: { regex: '\\[\\[(' + rx.link + ')\\|(' + rx.linkText + ')\\]\\]',
-            build: function(node, r, options) {
+        _namedLink: { _regex: '\\[\\[(' + rx._link + ')\\|(' + rx._linkText + ')\\]\\]',
+            _build: function(node, r, options) {
                 var link = document.createElement('a');
-                
+
                 link.href = options && options.linkFormat
                     ? formatLink(r[1].replace(/~(.)/g, '$1'), options.linkFormat)
                     : r[1].replace(/~(.)/g, '$1');
-                this.apply(link, r[2], options);
-                
+                this._apply(link, r[2], options);
+
                 node.appendChild(link);
             } },
 
-        unnamedUri: { regex: '\\[\\[(' + rx.uri + ')\\]\\]',
-            build: 'dummy' },
-        unnamedLink: { regex: '\\[\\[(' + rx.link + ')\\]\\]',
-            build: 'dummy' },
-        unnamedInterwikiLink: { regex: '\\[\\[(' + rx.interwikiLink + ')\\]\\]',
-            build: 'dummy' },
+        _unnamedUri: { _regex: '\\[\\[(' + rx._uri + ')\\]\\]' },
+        _unnamedLink: { _regex: '\\[\\[(' + rx._link + ')\\]\\]' },
+        _unnamedInterwikiLink: { _regex: '\\[\\[(' + rx._interwikiLink + ')\\]\\]' },
 
-        rawUri: { regex: '(' + rx.rawUri + ')',
-            build: 'dummy' },
+        _rawUri: { _regex: '(' + rx._rawUri + ')' },
 
-        escapedSequence: { regex: '~(' + rx.rawUri + '|.)', capture: 1,
-            tag: 'span', attrs: { 'class': 'escaped' } },
-        escapedSymbol: { regex: /~(.)/, capture: 1,
-            tag: 'span', attrs: { 'class': 'escaped' } }
+        _escapedSequence: { _regex: '~(' + rx._rawUri + '|.)', _capture: 1,
+            _tag: 'span', _attrs: { 'class': 'escaped' } },
+        _escapedSymbol: { _regex: /~(.)/, _capture: 1,
+            _tag: 'span', _attrs: { 'class': 'escaped' } }
     };
-    g.unnamedUri.build = g.rawUri.build = function(node, r, options) {
+    g._unnamedUri._build = g._rawUri._build = function(node, r, options) {
         if (!options) { options = {}; }
         options.isPlainUri = true;
-        g.namedUri.build.call(this, node, Array(r[0], r[1], r[1]), options);
+        g._namedUri._build.call(this, node, Array(r[0], r[1], r[1]), options);
     };
-    g.unnamedLink.build = function(node, r, options) {
-        g.namedLink.build.call(this, node, Array(r[0], r[1], r[1]), options);
+    g._unnamedLink._build = function(node, r, options) {
+        g._namedLink._build.call(this, node, Array(r[0], r[1], r[1]), options);
     };
-    g.namedInterwikiLink = { regex: '\\[\\[(' + rx.interwikiLink + ')\\|(' + rx.linkText + ')\\]\\]',
-        build: function(node, r, options) {
+    g._namedInterwikiLink = { _regex: '\\[\\[(' + rx._interwikiLink + ')\\|(' + rx._linkText + ')\\]\\]',
+        _build: function(node, r, options) {
                 var link = document.createElement('a');
-                
+
                 var m, f;
                 if (options && options.interwiki) {
                 m = r[1].match(/(.*?):(.*)/);
                 f = options.interwiki[m[1]];
             }
-            
+
             if (typeof f == 'undefined') {
-                if (!g.namedLink.apply) {
-                    g.namedLink = new this.constructor(g.namedLink);
+                if (!g._namedLink._apply) {
+                    g._namedLink = new this.constructor(g._namedLink);
                 }
-                return g.namedLink.build.call(g.namedLink, node, r, options);
+                return g._namedLink._build.call(g._namedLink, node, r, options);
             }
 
             link.href = formatLink(m[2].replace(/~(.)/g, '$1'), f);
-            
-            this.apply(link, r[2], options);
-            
+
+            this._apply(link, r[2], options);
+
             node.appendChild(link);
         }
     };
-    g.unnamedInterwikiLink.build = function(node, r, options) {
-        g.namedInterwikiLink.build.call(this, node, Array(r[0], r[1], r[1]), options);
+    g._unnamedInterwikiLink._build = function(node, r, options) {
+        g._namedInterwikiLink._build.call(this, node, Array(r[0], r[1], r[1]), options);
     };
-    g.namedUri.children = g.unnamedUri.children = g.rawUri.children =
-            g.namedLink.children = g.unnamedLink.children =
-            g.namedInterwikiLink.children = g.unnamedInterwikiLink.children =
-        [ g.escapedSymbol, g.img ];
+    g._namedUri._children = g._unnamedUri._children = g._rawUri._children =
+            g._namedLink._children = g._unnamedLink._children =
+            g._namedInterwikiLink._children = g._unnamedInterwikiLink._children =
+        [ g._escapedSymbol, g._img ];
 
     for (var i = 1; i <= 6; i++) {
-        g['h' + i] = { tag: 'h' + i, capture: 2,
-            regex: '(^|\\n)[ \\t]*={' + i + '}[ \\t]' +
-                   '([^~]*?(~(.|(?=\\n)|$))*)[ \\t]*=*\\s*(\\n|$)'
+        g['h' + i] = { _tag: 'h' + i, _capture: 2,
+            _regex: '(^|\\n)[ \\t]*={' + i + '}[ \\t]*' +
+                   '([^\\n=][^~]*?(~(.|(?=\\n)|$))*)[ \\t]*=*\\s*(\\n|$)'
         };
     }
 
-    g.ulist.children = g.olist.children = [ g.li ];
-    g.li.children = [ g.ulist, g.olist ];
-    g.li.fallback = g.text;
+    g._ulist._children = g._olist._children = [ g._li ];
+    g._li._children = [ g._ulist, g._olist ];
+    g._li._fallback = g._text;
 
-    g.table.children = [ g.tr ];
-    g.tr.children = [ g.th, g.td ];
-    g.td.children = [ g.singleLine ];
-    g.th.children = [ g.singleLine ];
+    g._table._children = [ g._tr ];
+    g._tr._children = [ g._th, g._td ];
+    g._td._children = [ g._singleLine ];
+    g._th._children = [ g._singleLine ];
 
-    g.h1.children = g.h2.children = g.h3.children =
-            g.h4.children = g.h5.children = g.h6.children =
-            g.singleLine.children = g.paragraph.children =
-            g.text.children = g.strong.children = g.em.children =
-        [ g.escapedSequence, g.strong, g.em, g.br, g.rawUri,
-            g.namedUri, g.namedInterwikiLink, g.namedLink,
-            g.unnamedUri, g.unnamedInterwikiLink, g.unnamedLink,
-            g.tt, g.img ];
+    g.h1._children = g.h2._children = g.h3._children =
+            g.h4._children = g.h5._children = g.h6._children =
+            g._singleLine._children = g._paragraph._children =
+            g._text._children = g._strong._children = g._em._children =
+        [ g._escapedSequence, g._strong, g._em, g._br, g._rawUri,
+            g._namedUri, g._namedInterwikiLink, g._namedLink,
+            g._unnamedUri, g._unnamedInterwikiLink, g._unnamedLink,
+            g._tt, g._img ];
 
-    g.root = {
-        children: [ g.h1, g.h2, g.h3, g.h4, g.h5, g.h6,
-            g.hr, g.ulist, g.olist, g.preBlock, g.table ],
-        fallback: { children: [ g.paragraph ] }
+    g._root = {
+        _children: [ g.h1, g.h2, g.h3, g.h4, g.h5, g.h6,
+            g._hr, g._ulist, g._olist, g._preBlock, g._table ],
+        _fallback: { _children: [ g._paragraph ] }
     };
 
-    Parse.Simple.Base.call(this, g, options);
+    creole._base.call(this, g, options);
 };
 
-Parse.Simple.Creole.prototype = new Parse.Simple.Base();
+creole._base = function(grammar, options) {
+    if (!arguments.length) { return; }
 
-Parse.Simple.Creole.prototype.constructor = Parse.Simple.Creole;
+    this._grammar = grammar;
+    this._grammar._root = new this._ruleConstructor(this._grammar._root);
+    this._options = options;
+};
+
+creole._rule = function(params) {
+    if (!arguments.length) { return; }
+
+    for (var p in params) { this[p] = params[p]; }
+    if (!this._children) { this._children = []; }
+};
+
+creole._base.prototype = {
+    _ruleConstructor: null,
+    _grammar: null,
+    _options: null,
+
+    parse: function(node, data, options) {
+        if (options) {
+            for (i in this._options) {
+                if (typeof options[i] == 'undefined') { options[i] = this._options[i]; }
+            }
+        }
+        else {
+            options = this._options;
+        }
+        data = data.replace(/\r\n?/g, '\n');
+        this._grammar._root._apply(node, data, options);
+        if (options && options.forIE) { node.innerHTML = node.innerHTML.replace(/\r?\n/g, '\r\n'); }
+    }
+};
+
+creole._base.prototype.constructor = creole._base;
+
+creole._base.prototype._ruleConstructor = creole._rule;
+
+creole._rule.prototype = {
+    _match: function(data, options) {
+        return data.match(this._regex);
+    },
+
+    _build: function(node, r, options) {
+        var data;
+        if (this._capture !== null) {
+            data = r[this._capture];
+        }
+
+        var target;
+        if (this._tag) {
+            target = document.createElement(this._tag);
+            node.appendChild(target);
+        }
+        else { target = node; }
+
+        if (data) {
+            if (this._replaceRegex) {
+                data = data.replace(this._replaceRegex, this._replaceString);
+            }
+            this._apply(target, data, options);
+        }
+
+        if (this._attrs) {
+            for (var i in this._attrs) {
+                target.setAttribute(i, this._attrs[i]);
+                if (options && options.forIE && i == 'class') { target.className = this._attrs[i]; }
+            }
+        }
+        return this;
+    },
+
+    _apply: function(node, data, options) {
+        var tail = '' + data;
+        var matches = [];
+
+        if (!this._fallback._apply) {
+            this._fallback = new this.constructor(this._fallback);
+        }
+
+        while (true) {
+            var best = false;
+            var rule  = false;
+            for (var i = 0; i < this._children.length; i++) {
+                if (typeof matches[i] == 'undefined') {
+                    if (!this._children[i]._match) {
+                        this._children[i] = new this.constructor(this._children[i]);
+                    }
+                    matches[i] = this._children[i]._match(tail, options);
+                }
+                if (matches[i] && (!best || best.index > matches[i].index)) {
+                    best = matches[i];
+                    rule = this._children[i];
+                    if (best.index == 0) { break; }
+                }
+            }
+
+            var pos = best ? best.index : tail.length;
+            if (pos > 0) {
+                this._fallback._apply(node, tail.substring(0, pos), options);
+            }
+
+            if (!best) { break; }
+
+            if (!rule._build) { rule = new this.constructor(rule); }
+            rule._build(node, best, options);
+
+            var chopped = best.index + best[0].length;
+            tail = tail.substring(chopped);
+            for (var i = 0; i < this._children.length; i++) {
+                if (matches[i]) {
+                    if (matches[i].index >= chopped) {
+                        matches[i].index -= chopped;
+                    }
+                    else {
+                        matches[i] = void 0;
+                    }
+                }
+            }
+        }
+
+        return this;
+    },
+
+    _fallback: {
+        _apply: function(node, data, options) {
+            if (options && options.forIE) {
+                // workaround for bad IE
+                data = data.replace(/\n/g, ' \r');
+            }
+            node.appendChild(document.createTextNode(data));
+        }
+    }
+};
+
+creole._rule.prototype.constructor = creole._rule;
+
+creole.prototype = new creole._base();
+
+creole.prototype.constructor = creole;

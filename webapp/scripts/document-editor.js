@@ -22,6 +22,8 @@ jQuery(function($) {
     var jQuery = $;
     
     CKEDITOR.replace('editor', {
+        disableNativeSpellChecker:false,
+        scayt_autoStartup:false,
         resize_enabled: false,                  // disable resize handle
         fullPage: true,                         // enable editing of complete documents
         basicEntities: true,                    // enable basic entities
@@ -39,10 +41,26 @@ jQuery(function($) {
         coreStyles_bold: { element: 'strong' }, // convert bold to <strong>
         coreStyles_italic: { element: 'em' },   // convert italic to <em>
         
-        removeButtons: 'Underline,Strike,ShowBlocks,Iframe,About',
+        removePlugins: 'about,iframe,scayt,maximize,horizontalrule,scayt,wsc,pastefromword,pastetext,sourcearea',
+        removeButtons: 'Underline,Strike,ShowBlocks',
         
         format_tags: 'p;h1;h2;h3;h4;h5;h6;pre',
         
+        toolbarGroups: [
+            { name: 'clipboard',   groups: [ 'clipboard', 'undo' ] },
+            { name: 'editing',     groups: [ 'find', 'selection', 'spellchecker' ] },
+            { name: 'links' },
+            { name: 'insert' },
+            { name: 'forms' },
+            { name: 'tools' },
+            { name: 'document',    groups: [ 'mode', 'document', 'doctools' ] },
+            { name: 'others' },
+            { name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ] },
+            { name: 'paragraph',   groups: [ 'list', 'indent', 'blocks', 'align', 'bidi' ] },
+            { name: 'styles' },
+            { name: 'colors' },
+            { name: 'about' }
+        ],
         stylesSet: [
             { name: 'Cited work',       element: 'cite' },
             { name: 'Inline quotation', element: 'q' },

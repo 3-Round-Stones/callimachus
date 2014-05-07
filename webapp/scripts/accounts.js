@@ -54,7 +54,6 @@ window.calli.getUserIri = function() {
     } catch(e) {}
     if (isLoggedIn()) {
         jQuery.ajax({ url: "/?profile", async: false,
-            xhrFields: calli.withCredentials,
             success: function(doc) {
                 iri = /resource="([^" >]*)"/i.exec(doc)[1];
                 loadProfile(doc);

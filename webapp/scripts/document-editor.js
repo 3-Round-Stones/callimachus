@@ -42,7 +42,7 @@ jQuery(function($) {
         coreStyles_italic: { element: 'em' },   // convert italic to <em>
         
         removePlugins: 'about,iframe,scayt,maximize,horizontalrule,scayt,wsc,pastefromword,pastetext,sourcearea',
-        removeButtons: 'Underline,Strike,ShowBlocks',
+        removeButtons: 'Underline,Strike,ShowBlocks,Cut,Copy,Paste',
         
         format_tags: 'p;h1;h2;h3;h4;h5;h6;pre',
         

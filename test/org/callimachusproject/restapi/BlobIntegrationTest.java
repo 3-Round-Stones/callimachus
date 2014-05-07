@@ -79,31 +79,11 @@ public class BlobIntegrationTest extends TemporaryServerIntegrationTestCase {
 							"<body> <p> The UPDATED Wikipedia is a great website. </p> </body> </html>"
 			});
         	
-        	put("animatedGraphic", new String[] { "blobtest-graphic.gif", "image/gif",
-							"binary", //End original 
-							"UPDATED BINARY" //Begin update
-			});
-        	
-        	put("photo", new String[] { "blobtest-photo.jpg", "image/jpeg",
-							"binary", //End original 
-							"UPDATED BINARY" //Begin update
-			});
-        	
-        	put("networkGraphic", new String[] { "blobtest-network.png", "image/png",
-							"binary", //End original 
-							"UPDATED BINARY" //Begin update
-			});
-        	
         	put("vectorGraphic", new String[] { "blobtest-vector.svg", "image/svg+xml",
 							"<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">" +
 							"</svg> \n ", //End original
 							"<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">" + //Begin update
 							"<!-- UPDATED --></svg> \n "
-			});
-        	
-        	put("iconGraphic", new String[] { "blobtest-logo.ico", "image/vnd.microsoft.icon",
-							"binary", //End original 
-							"UPDATED BINARY" //Begin update
 			});
         	
         	put("style", new String[] { "blobtest-style.css", "text/css",

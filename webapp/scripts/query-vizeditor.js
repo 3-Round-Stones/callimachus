@@ -659,8 +659,13 @@
          * Lets the user choose a file location for saving a file
          */
         getSaveTarget: function(slug, callback) {
-            var src = calli.getCallimachusUrl("pages/save-resource-as.html#");
-            src += encodeURIComponent(slug.replace(/!/g,''));
+            var href = window.location.href;
+            var src = [
+                calli.getCallimachusUrl("pages/save-resource-as.html#"),
+                encodeURIComponent(slug.replace(/!/g,'')),
+                "!",
+                href.substring(0, href.lastIndexOf('/', href.indexOf('?')) + 1),
+                "?view"].join('');
             var dialog = window.calli.openDialog(src, 'Save Settings', {
                 buttons: {
                     "Save": function() {

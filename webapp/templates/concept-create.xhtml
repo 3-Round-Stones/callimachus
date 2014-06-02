@@ -3,6 +3,7 @@
     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
     xmlns:skos="http://www.w3.org/2004/02/skos/core#" xmlns:dcterms="http://purl.org/dc/terms/"
+    xmlns:foaf="http://xmlns.com/foaf/0.1/"
     xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
     <title>New Concept</title>
@@ -48,6 +49,41 @@
                         <div>
                             <textarea id="example" class="form-control">{skos:example}</textarea>
                         </div>
+                    </div>
+                </fieldset>
+                <fieldset class="row hidden-iframe">
+                    <div id="related" dropzone="link string:text/uri-list" class="form-group col-sm-6"
+                            ondrop="return calli.insertResource(event)">
+                        <label>Related <a href="../types/Concept" title="Create"
+                                onclick="return calli.createResource(event, './?create=' + encodeURIComponent(this.href))" class="glyphicon glyphicon-list-alt" /></label>
+                        <div rel="skos:related">
+                            <span resource="?related" typeof="skos:Concept" class="label label-info">
+                                <span property="skos:prefLabel" />
+                                <a href="{?related}" title="Remove relationship" onclick="return calli.removeResource(event)" class="glyphicon glyphicon-remove" />
+                            </span>
+                        </div>
+                    </div>
+                    <div id="narrower" dropzone="link string:text/uri-list" class="form-group col-sm-6"
+                            ondrop="return calli.insertResource(event)">
+                        <label>Narrower <a href="../types/Concept" title="Create"
+                                onclick="return calli.createResource(event, './?create=' + encodeURIComponent(this.href))" class="glyphicon glyphicon-list-alt" /></label>
+                        <div rel="skos:narrower">
+                            <span resource="?narrower" typeof="skos:Concept" class="label label-info">
+                                <span property="skos:prefLabel" />
+                                <a href="{?narrower}" title="Remove relationship" onclick="return calli.removeResource(event)" class="glyphicon glyphicon-remove" />
+                            </span>
+                        </div>
+                    </div>
+                </fieldset>
+                <hr />
+                <fieldset id="image" dropzone="link string:text/uri-list" class="form-group hidden-iframe"
+                        ondrop="return calli.insertResource(event)">
+                    <label>Image <a href="/?view" title="Browse" onclick="return calli.selectResource(event)" class="glyphicon glyphicon-folder-open" /></label>
+                     <div rel="foaf:depiction">
+                        <span resource="?depiction" typeof="foaf:Image" class="label label-info">
+                            <img src="{?depiction}?small" />
+                            <a href="{?depiction}" title="Remove from this concept" onclick="return calli.removeResource(event)" class="glyphicon glyphicon-remove" />
+                        </span>
                     </div>
                 </fieldset>
                 <fieldset class="form-group">

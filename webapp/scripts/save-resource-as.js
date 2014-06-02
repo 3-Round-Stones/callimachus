@@ -62,11 +62,11 @@ window.calli.saveResourceAs = function(event, fileName, create, folder) {
     var label = fileName || findLabel(form) || localPart(resource);
     openSaveAsDialog(form, label, create, folder, function(ns, local) {
         if (fileName) {
-            local = local.replace(/%20/g,'-');
+            local = local.replace(/(%20|\-)+/g,'-');
         } else {
             local = local.replace(/%20/g,'+');
         }
-        var resource = ns + local.toLowerCase();
+        var resource = ns + local;
         $(form).removeAttr('about');
         $(form).attr('resource', resource);
         overrideLocation(form, resource);

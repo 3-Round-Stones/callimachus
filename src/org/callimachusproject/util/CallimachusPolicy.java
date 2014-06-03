@@ -251,9 +251,11 @@ public class CallimachusPolicy extends Policy {
 	}
 
 	private void addJavaPath(String path) {
-		if (path != null) {
+		if ((path != null) && (path.trim().length() >= 1)) {
 			File parent = new File(path).getParentFile();
-			addPath(parent.getAbsolutePath());
+            if (parent != null) {
+                addPath(parent.getAbsolutePath());
+            }
 		}
 	}
 

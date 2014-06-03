@@ -93,9 +93,9 @@ public class ResponseExceptionHandler implements AsyncExecChain {
 			final HttpContext context, ResponseException e) {
 		ResourceOperation trans = CalliContext.adapt(context).getResourceTransaction();
 		HttpUriResponse resp = new ResponseBuilder(request, context).exception(e);
-		Set<String> allowed = trans.getAllowedMethods();
-		if (allowed.isEmpty())
+		if (trans == null || trans.getAllowedMethods().isEmpty())
 			return resp;
+		Set<String> allowed = trans.getAllowedMethods();
 		StringBuilder sb = new StringBuilder();
 		for (String method : allowed) {
 			sb.append(method).append(",");

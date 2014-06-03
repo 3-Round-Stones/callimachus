@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar ns="http://www.w3.org/2000/svg" xmlns="http://relaxng.org/ns/structure/1.0">
+    <start>
+        <element>
+            <anyName/>
+            <ref name="anything"/>
+        </element>
+    </start>
+     <define name="anything">
+        <zeroOrMore>
+            <choice>
+                <element>
+                    <anyName/>
+                    <ref name="anything"/>
+                </element>
+                <attribute>
+                    <anyName/>
+                </attribute>
+                <text/>
+            </choice>
+        </zeroOrMore>
+    </define>
+</grammar>

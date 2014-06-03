@@ -112,9 +112,17 @@
         PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
         SELECT REDUCED ?class {
             {
-                # non-xml type or xml type with correct document tag
-                ?class rdfs:subClassOf+ $this; calli:mediaType $mediaType
-                FILTER (!bound($documentTag) || EXISTS { ?class calli:documentTag $documentTag })
+                # xml type with correct document tag
+                ?class rdfs:subClassOf+ $this
+                FILTER bound($documentTag)
+                FILTER EXISTS { ?class calli:documentTag $documentTag }
+                BIND (0 AS ?preference)
+            } UNION {
+                # non-xml type or xml type without document tag
+                ?class rdfs:subClassOf+ $this
+                FILTER bound($mediaType)
+                FILTER EXISTS { ?class calli:mediaType $mediaType }
+                FILTER NOT EXISTS { ?class calli:documentTag ?tag }
                 BIND (1 AS ?preference)
             } UNION {
                 # supported media type alias (document tag not considered)

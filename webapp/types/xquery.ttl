@@ -144,3 +144,50 @@
         PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
         ASK { ?realm calli:layout $this }
     """.
+
+################################
+# Execute XQuery               #
+################################
+
+# GET /xquery.xq?results
+:GetResult rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <XQuery>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+    calli:method "GET";
+    calli:query "results";
+    calli:requires calli:reader;
+    calli:type "application/xml";
+    calli:header "cache-control:no-store,no-transform".
+
+:queryGetParameters a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :GetResult;
+    rdfs:range <java:java.util.Map>;
+    calli:query "*";
+    calli:type "application/x-www-form-urlencoded".
+
+# POST /xquery.xq?results
+:PostResult rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <XQuery>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+    calli:method "POST";
+    calli:query "results";
+    calli:requires calli:reader;
+    calli:type "application/xml";
+    calli:header "cache-control:no-store,no-transform".
+
+:queryPostParameters a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :PostResult;
+    rdfs:range <java:java.util.Map>;
+    calli:query "*";
+    calli:type "application/x-www-form-urlencoded".
+
+:sourceLocation a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:domain :PostResult;
+    rdfs:range xsd:string;
+    calli:header "Content-Location";
+    calli:type "text/uri-list".
+
+:sourcePort a owl:ObjectProperty; a owl:FunctionalProperty;
+    rdfs:domain :PostResult;
+    rdfs:range <java:java.io.InputStream>;
+    calli:type "*/*".

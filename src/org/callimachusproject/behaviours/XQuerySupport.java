@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 3 Round Stones Inc., Some Rights Reserved
+ * Copyright (c) 2013-2014 3 Round Stones Inc., Some Rights Reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,17 +18,38 @@ package org.callimachusproject.behaviours;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
+
+import javax.tools.FileObject;
+
+import net.sf.saxon.s9api.SaxonApiException;
 
 import org.callimachusproject.traits.CalliObject;
-import org.callimachusproject.xml.XQueryValidator;
+import org.callimachusproject.xml.XQueryEngine;
 import org.openrdf.OpenRDFException;
+import org.xml.sax.SAXException;
 
-public abstract class XQuerySupport implements CalliObject {
+public abstract class XQuerySupport implements CalliObject, FileObject {
 
 	public String[] getXQueryValidationErrors(InputStream queryStream)
 			throws IOException, OpenRDFException {
-		XQueryValidator validator = new XQueryValidator(this.toString(), this.getHttpClient());
-		validator.parse(queryStream);
+		XQueryEngine validator = new XQueryEngine(this.toString(),
+				this.getHttpClient());
+		validator.validate(queryStream);
 		return validator.getErrorMessages();
+	}
+
+	public InputStream GetResult(Map<String, String[]> parameters)
+			throws OpenRDFException, IOException, SaxonApiException, SAXException {
+		XQueryEngine engine = new XQueryEngine(this.toString(),
+				this.getHttpClient());
+		return engine.evaluateResult(this.openInputStream(), parameters);
+	}
+
+	public InputStream PostResult(Map<String, String[]> parameters, String docId, InputStream doc)
+			throws OpenRDFException, IOException, SaxonApiException, SAXException {
+		XQueryEngine engine = new XQueryEngine(this.toString(),
+				this.getHttpClient());
+		return engine.evaluateResult(this.openInputStream(), parameters, doc, docId);
 	}
 }

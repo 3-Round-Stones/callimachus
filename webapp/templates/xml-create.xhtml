@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
+<head>
+    <title>New XML Document</title>
+    <link rel="help" href="../../callimachus-for-web-developers" target="_blank" title="Help" />
+</head>
+<body>
+    <form role="form" id="form" method="POST" action="" enctype="application/xml" class="container">
+        <fieldset class="form-group">
+            <iframe id="editor-iframe" name="editor-iframe" class="flex" src="../../xml-editor.html" onload="calli.initEditor(event)"> </iframe>
+        </fieldset>
+        <fieldset class="form-group">
+            <button id="create-xml" type="submit" onclick="return calli.saveResourceAs(event, 'untitled.xml')" class="btn btn-success">Create</button>
+        </fieldset>
+    </form>
+</body>
+</html>
+

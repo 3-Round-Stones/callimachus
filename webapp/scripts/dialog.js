@@ -51,7 +51,7 @@ window.calli.openDialog = function(url, title, options) {
         '        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>',
         '        <h4 class="modal-title"></h4>',
         '      </div>',
-        '      <iframe seamless="seamless" width="100%"></iframe>',
+        '      <iframe frameborder="0" width="100%"></iframe>',
         '      <div class="modal-footer" style="margin-top:0">',
         '      </div>',
         '    </div>',

@@ -629,24 +629,24 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 						}).get();
 			} catch (InterruptedException ex) {
 				logger.error(ex.toString(), ex);
-				response = new ResponseBuilder(request, context).exception(new GatewayTimeout(ex));
+				response = new ResponseBuilder(request, cc).exception(new GatewayTimeout(ex));
 			} catch (ExecutionException e) {
 				Throwable ex = e.getCause();
 				logger.error(ex.toString(), ex);
 				if (ex instanceof Error) {
 					throw (Error) ex;
 				} else if (ex instanceof ResponseException) {
-					response = new ResponseBuilder(request, context).exception((ResponseException) ex);
+					response = new ResponseBuilder(request, cc).exception((ResponseException) ex);
 				} else {
-					response = new ResponseBuilder(request, context).exception(new BadGateway(ex));
+					response = new ResponseBuilder(request, cc).exception(new BadGateway(ex));
 				}
 			} catch (ResponseException ex) {
-				response = new ResponseBuilder(request, context).exception(ex);
+				response = new ResponseBuilder(request, cc).exception(ex);
 			} catch (RuntimeException ex) {
-				response = new ResponseBuilder(request, context).exception(new BadGateway(ex));
+				response = new ResponseBuilder(request, cc).exception(new BadGateway(ex));
 			}
 			if (response == null) {
-				response = new ResponseBuilder(request, context).exception(new BadGateway());
+				response = new ResponseBuilder(request, cc).exception(new BadGateway());
 			}
 			httpproc.process(response, cc);
 			if (response instanceof CloseableHttpResponse)

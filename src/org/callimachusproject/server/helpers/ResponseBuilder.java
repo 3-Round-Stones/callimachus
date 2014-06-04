@@ -76,7 +76,7 @@ public class ResponseBuilder {
 	private static final StatusLine _412 = new BasicStatusLine(HttpVersion.HTTP_1_1, 412, "Precondition Failed");
 	static final StatusLine _500 = new BasicStatusLine(HttpVersion.HTTP_1_1, 500, "Internal Server Error");
 	private static final Pattern URL_PATTERN = Pattern
-			.compile("\\w+://(?:\\.?[^\\s}>\\)\\]\\.])+");
+			.compile("[a-zA-Z0-9\\+\\-\\.]+://[a-zA-Z0-9\\-\\._~%!\\$\\&'\\(\\)\\*\\+,;=:/\\?\\#\\[\\]@]+");
 
 	private final Logger logger = LoggerFactory.getLogger(ResponseBuilder.class);
 	private final String systemId;

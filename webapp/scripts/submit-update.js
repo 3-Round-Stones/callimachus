@@ -11,6 +11,7 @@ jQuery(function($){
 $('form[enctype="application/sparql-update"]').each(function() {
     try {
         var form = $(this);
+        form.find("input").change(); // give update-resource.js a chance to initialize
         var stored = readRDF(form[0]);
         form.bind('reset', function() {
             stored = readRDF(form[0]);

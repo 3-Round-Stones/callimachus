@@ -24,8 +24,8 @@ window.calli.updateResource = function(event, rel) {
 
 window.calli.updateProperty = function(event, property) {
     return update(event, function(){
-        this.remoteAttr('property');
-        this.remoteAttr('content');
+        this.removeAttribute('property');
+        this.removeAttribute('content');
     }, function(){
         if (this.value) {
             this.setAttribute('property', property);
@@ -40,8 +40,8 @@ function update(event, deselect, select) {
     var group = name ? $(document.getElementsByName(name)) : target;
     var checked = target.find('option:checked').addBack(':checked');
     var unchecked = target.find('option:not(:checked)').add(group.filter('option:not(:checked),:radio:not(:checked),:checkbox:not(:checked)'));
-    var deselected = target.prop('value') ? unchecked : unchecked.addBack();
-    var selected = target.prop('value') && target.is(':not(option):not(:radio):not(:checkbox)') ? checked.addBack() : checked;
+    var deselected = target.prop('value') ? unchecked : unchecked.add(target);
+    var selected = target.prop('value') && target.is(':not(option):not(:radio):not(:checkbox)') ? checked.add(target) : checked;
     deselected.each(deselect);
     selected.each(select);
     return true;

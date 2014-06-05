@@ -204,7 +204,6 @@
     rdfs:range <java:java.io.InputStream>;
     calli:type "application/sparql-query".
 
-
 ################################
 # Form Elements                #
 ################################
@@ -248,14 +247,14 @@
     calli:query "select";
     calli:requires calli:reader;
     calli:type "application/xhtml+xml";
-    calli:post "../transforms/query-select.xq?results&target={0}%3Fresults%26{formQuery}&id={formId}&name={formName}&property={formProperty}&rel={formRel}".
+    calli:post "../transforms/query-select.xq?results&query={0}%3Fresults%26{formQuery}&target=&id={formId}&name={formName}&property={formProperty}&rel={formRel}".
 
 :GetResultsAsCheckbox rdfs:subClassOf :GetFormResults;
     calli:method "GET";
     calli:query "checkbox", "checkbox-inline", "radio", "radio-inline";
     calli:requires calli:reader;
     calli:type "application/xhtml+xml";
-    calli:post "../transforms/query-checkbox.xq?results&target={0}%3Fresults%26{formQuery}&mode={formQuery}&id={formId}&name={formName}&property={formProperty}&rel={formRel}".
+    calli:post "../transforms/query-checkbox.xq?results&query={0}%3Fresults%26{formQuery}&target=&mode={formQuery}&id={formId}&name={formName}&property={formProperty}&rel={formRel}".
 
 ################################
 # Google Chart Wire Protocol 0.6

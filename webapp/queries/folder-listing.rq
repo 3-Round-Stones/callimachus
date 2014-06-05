@@ -1,0 +1,43 @@
+#
+# Copyright (c) 2014 3 Round Stones Inc., Some Rights Reserved
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+#
+#
+# @Cache-Control: no-store
+#
+PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
+PREFIX skos:<http://www.w3.org/2004/02/skos/core#>
+PREFIX skosxl:<http://www.w3.org/2008/05/skos-xl#>
+PREFIX dc:<http://purl.org/dc/elements/1.1/>
+PREFIX dcterms:<http://purl.org/dc/terms/>
+PREFIX foaf:<http://xmlns.com/foaf/0.1/>
+PREFIX prov:<http://www.w3.org/ns/prov#>
+PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
+SELECT REDUCED ?id ?title {
+    <$target> calli:hasComponent ?id
+    FILTER (isIRI(?id))
+    OPTIONAL {
+        ?id skos:prefLabel ?title
+    } OPTIONAL {
+        ?id foaf:name ?title
+    } OPTIONAL {
+        ?id rdfs:label ?title
+    } OPTIONAL {
+        ?id skosxl:literalForm ?title
+    } OPTIONAL {
+        ?id dcterms:title ?title
+    }
+} ORDER BY ?id

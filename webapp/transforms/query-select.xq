@@ -2,13 +2,17 @@ xquery version "1.0" encoding "utf-8";
 
 declare namespace sparql = "http://www.w3.org/2005/sparql-results#";
 
+declare variable $query external;
 declare variable $target external;
 declare variable $id as xs:string external;
 declare variable $name as xs:string external;
 declare variable $property as xs:string external;
 declare variable $rel as xs:string external;
 
-let $sparql := doc($target)/sparql:sparql
+let $url := if ($target)
+    then concat($query,'&amp;target=',$target)
+    else $query
+let $sparql := doc($url)/sparql:sparql
 let $head := $sparql/sparql:head
 let $first := $head/sparql:variable[1]/@name
 let $second := $head/sparql:variable[2]/@name

@@ -6,25 +6,23 @@
 
 (function($, jQuery){
 
-calli.updateResource = function(event, rel) {
+if (!window.calli) {
+    window.calli = {};
+}
+
+window.calli.updateResource = function(event, rel) {
     return update(event, function(){
-        if (rel) {
-            this.removeAttribute('rel');
-            this.removeAttribute('resource');
-        } else {
-            this.removeAttribute('about');
-        }
+        this.removeAttribute('rel');
+        this.removeAttribute('resource');
     }, function(){
-        if (rel && this.value) {
+        if (this.value) {
             this.setAttribute('rel', rel);
             this.setAttribute('resource', this.value);
-        } else if (this.value) {
-            this.setAttribute('about', this.value);
         }
     });
 };
 
-calli.updateProperty = function(event, property) {
+window.calli.updateProperty = function(event, property) {
     return update(event, function(){
         this.remoteAttr('property');
         this.remoteAttr('content');

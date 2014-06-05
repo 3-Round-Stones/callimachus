@@ -187,14 +187,14 @@
     calli:method "GET";
     calli:query "select";
     calli:requires calli:reader;
-    calli:type "application/xhtml+xml";
-    calli:post "../transforms/query-select.xq?results&query=../queries/folder-listing.rq%3Fresults&target={0}&id={formId}&name={formName}&property={formProperty}&rel={formRel}".
+    calli:type "application/xml";
+    calli:post "../transforms/query-select.xq?results&query=../queries/folder-listing.rq%3Fresults&target={0}&mode={formQuery}&id={formId}&name={formName}&property={formProperty}&rel={formRel}".
 
 :GetResultsAsCheckbox rdfs:subClassOf :GetFormResults;
     calli:method "GET";
     calli:query "checkbox", "checkbox-inline", "radio", "radio-inline";
     calli:requires calli:reader;
-    calli:type "application/xhtml+xml";
+    calli:type "application/xml";
     calli:post "../transforms/query-checkbox.xq?results&query=../queries/folder-listing.rq%3Fresults&target={0}&mode={formQuery}&id={formId}&name={formName}&property={formProperty}&rel={formRel}".
 
 ################################

@@ -19,9 +19,9 @@ let $head := $sparql/sparql:head
 let $first := $head/sparql:variable[1]/@name
 let $second := $head/sparql:variable[2]/@name
 let $onchange := if ($property)
-    then concat('calli.updateProperty(event, "', $property, '")')
-    else if ($rel) then concat('calli.updateResource(event, "', $rel, '")')
-    else 'calli.updateResource(event)'
+    then attribute onchange {concat('calli.updateProperty(event, "', $property, '")')}
+    else if ($rel) then attribute onchange {concat('calli.updateResource(event, "', $rel, '")')}
+    else ()
 return <div xmlns="http://www.w3.org/1999/xhtml">
 {
     if ($id)
@@ -41,12 +41,12 @@ return <div xmlns="http://www.w3.org/1999/xhtml">
     let $text := if ($label) then $label/text() else $value/text()
     return if (contains($mode,"inline"))
         then <label class="{$type}-inline">
-            <input type="{$type}" value="{$value/text()}" onclick="{$onchange}">{$nattr}{$vattr}</input>
+            <input type="{$type}" value="{$value/text()}">{$onchange}{$nattr}{$vattr}</input>
             <span>{$lattr}{$text}</span>
         </label>
         else <div class="{$type}">
             <label>
-                <input type="{$type}" value="{$value/text()}" onclick="{$onchange}">{$nattr}{$vattr}</input>
+                <input type="{$type}" value="{$value/text()}">{$onchange}{$nattr}{$vattr}</input>
                 <span>{$lattr}{$text}</span>
             </label>
         </div>

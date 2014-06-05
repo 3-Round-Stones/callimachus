@@ -4,6 +4,7 @@ declare namespace sparql = "http://www.w3.org/2005/sparql-results#";
 
 declare variable $query external;
 declare variable $target external;
+declare variable $mode as xs:string external;
 declare variable $id as xs:string external;
 declare variable $name as xs:string external;
 declare variable $property as xs:string external;
@@ -16,11 +17,18 @@ let $sparql := doc($url)/sparql:sparql
 let $head := $sparql/sparql:head
 let $first := $head/sparql:variable[1]/@name
 let $second := $head/sparql:variable[2]/@name
-let $onchange := if ($property)
-    then concat('calli.updateProperty(event, "', $property, '")')
-    else if ($rel) then concat('calli.updateResource(event, "', $rel, '")')
-    else 'calli.updateResource(event)'
-return <select xmlns="http://www.w3.org/1999/xhtml" class="form-control" multiple="multiple" onchange="{$onchange}">
+return <select xmlns="http://www.w3.org/1999/xhtml" class="form-control">
+{
+    if (contains($mode,"multiple"))
+        then attribute multiple {'multiple'}
+        else ()
+}
+{
+    if ($property)
+        then attribute onchange {concat('calli.updateProperty(event, "', $property, '")')}
+        else if ($rel) then attribute onchange {concat('calli.updateResource(event, "', $rel, '")')}
+        else ()
+}
 {
     if ($id)
         then attribute id {$id}

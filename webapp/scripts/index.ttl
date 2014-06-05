@@ -78,11 +78,12 @@
     rdf:_51 <delete-resource.js>;
     rdf:_52 <insert-resource.js>;
     rdf:_53 <update-resource.js>;
-    rdf:_54 <discussion.js>;
-    rdf:_55 <decode-html.js>;
-    rdf:_56 <load-editor.js>;
-    rdf:_57 <put-file.js>;
-    rdf:_58 <etag.js>.
+    rdf:_54 <each-resource-in.js>;
+    rdf:_55 <discussion.js>;
+    rdf:_56 <decode-html.js>;
+    rdf:_57 <load-editor.js>;
+    rdf:_58 <put-file.js>;
+    rdf:_59 <etag.js>.
 
 <text_bundle> a calli:ScriptBundle;
     calli:reader </auth/groups/public>;

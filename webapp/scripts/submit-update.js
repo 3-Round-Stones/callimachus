@@ -11,7 +11,7 @@ jQuery(function($){
 $('form[enctype="application/sparql-update"]').each(function() {
     try {
         var form = $(this);
-        form.find("input").change(); // give update-resource.js a chance to initialize
+        form.find(":input").change(); // give update-resource.js a chance to initialize
         var stored = readRDF(form[0]);
         form.bind('reset', function() {
             stored = readRDF(form[0]);
@@ -31,7 +31,7 @@ $('form[enctype="application/sparql-update"]').each(function() {
         form.submit(function(event, onlyHandlers) {
             if (this.getAttribute("enctype") != "application/sparql-update")
                 return true;
-            form.find("input").change(); // IE may not have called onchange before onsubmit
+            form.find(":input").change(); // IE may not have called onchange before onsubmit
             if (!onlyHandlers) {
                 event.preventDefault();
                 event.stopImmediatePropagation();

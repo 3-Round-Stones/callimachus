@@ -17,7 +17,7 @@ $('form').submit(function(event, onlyHandlers) {
         event.stopImmediatePropagation();
         form.triggerHandler(event.type, true);
     } else {
-        form.find("input").change(); // IE may not have called onchange before onsubmit
+        form.find(":input").change(); // IE may not have called onchange before onsubmit
         setTimeout(function(){
             var resource = form.attr('about') || form.attr('resource');
             if (resource && !event.isDefaultPrevented()) {

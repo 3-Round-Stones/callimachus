@@ -29,6 +29,7 @@ import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
+import org.openrdf.model.impl.StatementImpl;
 import org.openrdf.model.vocabulary.RDFS;
 import org.openrdf.query.GraphQueryResult;
 import org.openrdf.query.QueryEvaluationException;
@@ -137,7 +138,7 @@ public class DescribeResult implements GraphQueryResult {
 				results.push(con.getStatements(queue.poll(), null, null, false));
 			}
 			last = st;
-			return st;
+			return stripContext(st);
 		} catch (RepositoryException e) {
 			throw new QueryEvaluationException(e);
 		}
@@ -173,5 +174,9 @@ public class DescribeResult implements GraphQueryResult {
 			}
 		}
 		return false;
+	}
+
+	private Statement stripContext(Statement st) {
+		return new StatementImpl(st.getSubject(), st.getPredicate(), st.getObject());
 	}
 }

@@ -88,6 +88,22 @@
                         req.send(null);
                         return false;
                     });
+                    $('#jsonld').click(function(event) {
+                        event.preventDefault();
+                        var req = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP");
+                        req.open('GET', calli.getPageUrl(), true);
+                        req.setRequestHeader("Accept", "application/ld+json");
+                        req.onreadystatechange = function () {
+                            if (req.readyState != 4) return;
+                            if (req.status == 200 || req.status == 304) {
+                                var win = window.open('', document.URL);
+                                win.document.write('<pre>\n' + req.responseText.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '\n</pre>');
+                            }
+                        }
+                        if (req.readyState == 4) return false;
+                        req.send(null);
+                        return false;
+                    });
                 });
                 // ]]>
                 </script>
@@ -109,6 +125,7 @@
                             <aside class="well">
                                 <p>As <a href="#" id="rdfxml">RDF/XML</a></p>
                                 <p>As <a href="#" id="turtle">Turtle</a></p>
+                                <p>As <a href="#" id="jsonld">JSON+LD</a></p>
                             </aside>
                         </div>
                     </div>

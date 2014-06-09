@@ -131,6 +131,12 @@
         <basename file="${dbcp.url}" property="dbcp.zip" />
         <basename file="${sacjava.url}" property="sacjava.zip" />
         <basename file="${cssparser.url}" property="cssparser.jar" />
+        <basename file="${jsonld-java-sesame.url}" property="jsonld-java-sesame.jar" />
+        <basename file="${jsonld-java.url}" property="jsonld-java.jar" />
+        <basename file="${jackson-core.url}" property="jackson-core.jar" />
+        <basename file="${jackson-databind.url}" property="jackson-databind.jar" />
+        <basename file="${jackson-annotations.url}" property="jackson-annotations.jar" />
+        <basename file="${rdf.core.url}" property="rdf.core.jar" />
         <mkdir dir="${downloads}" />
         <get usetimestamp="true" skipexisting="${lib.present}" dest="${downloads}">
             <url url="${sesame.url}" />
@@ -151,6 +157,12 @@
             <url url="${dbcp.url}" />
             <url url="${sacjava.url}" />
             <url url="${cssparser.url}" />
+            <url url="${jsonld-java-sesame.url}" />
+            <url url="${jsonld-java.url}" />
+            <url url="${jackson-core.url}" />
+            <url url="${jackson-databind.url}" />
+            <url url="${jackson-annotations.url}" />
+            <url url="${rdf.core.url}" />
         </get>
         <mkdir dir="${lib}" />
         <mkdir dir="${bin}" />
@@ -158,6 +170,12 @@
         <copy file="${downloads}/${mail.jar}" tofile="${lib}/${mail.jar}" />
         <copy file="${downloads}/${tagsoup.jar}" tofile="${lib}/${tagsoup.jar}" />
         <copy file="${downloads}/${cssparser.jar}" tofile="${lib}/${cssparser.jar}" />
+        <copy file="${downloads}/${jsonld-java-sesame.jar}" tofile="${lib}/${jsonld-java-sesame.jar}" />
+        <copy file="${downloads}/${jsonld-java.jar}" tofile="${lib}/${jsonld-java.jar}" />
+        <copy file="${downloads}/${jackson-core.jar}" tofile="${lib}/${jackson-core.jar}" />
+        <copy file="${downloads}/${jackson-databind.jar}" tofile="${lib}/${jackson-databind.jar}" />
+        <copy file="${downloads}/${jackson-annotations.jar}" tofile="${lib}/${jackson-annotations.jar}" />
+        <copy file="${downloads}/${rdf.core.jar}" tofile="${lib}/${rdf.core.jar}" />
         <unzip overwrite="false" src="${downloads}/${sacjava.zip}" dest="${lib}">
             <patternset>
                 <include name="**/*.jar" />
@@ -175,6 +193,7 @@
             <patternset>
                 <include name="lib/*.jar" />
                 <include name="dist/*.jar" />
+                <exclude name="lib/jackson-core-*.jar" />
                 <exclude name="lib/commons-codec-*.jar" />
                 <exclude name="lib/openrdf-sesame*.jar" />
             </patternset>

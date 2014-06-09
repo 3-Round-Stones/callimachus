@@ -141,7 +141,7 @@ skos:editorialNote a owl:AnnotationProperty.
     calli:method "GET";
     calli:query "describe";
     calli:requires calli:reader;
-    calli:type "application/rdf+xml;q=0.4", "text/turtle;q=0.5";
+    calli:type "application/rdf+xml;q=0.4", "text/turtle;q=0.6", "application/ld+json;q=0.5";
     calli:script """
         return new org.callimachusproject.io.DescribeResult(this.resource, this.objectConnection);
     """.

@@ -315,7 +315,7 @@
                 resp.body = this.TransformIntoTSV(rs);
                 resp.headers["content-type"] = "text/tab-separated-values;charset=UTF-16LE";
             } else if (map.out == "table") {
-                resp.body = this.TransformIntoJson(rs);
+                resp.body = this.TransformIntoTable(rs);
                 resp.headers["content-type"] = "application/json";
             } else if (tqx) {
                 resp.body = this.TransformIntoWire(map.responseHandler, map.reqId, rs);
@@ -385,23 +385,23 @@
 
 :TransformIntoHtml rdfs:subClassOf :TransformSparqlResult;
     calli:type "text/html;charset=UTF-8";
-    calli:post <../pipelines/sparql-results-html.xpl?results>.
+    calli:post <../transforms/sparql-results-html.xsl?results>.
 
 :TransformIntoCSV rdfs:subClassOf :TransformSparqlResult;
     calli:type "text/csv;charset=UTF-8";
-    calli:post <../pipelines/sparql-results-csv.xpl?results>.
+    calli:post <../transforms/sparql-results-csv.xsl?results>.
 
 :TransformIntoTSV rdfs:subClassOf :TransformSparqlResult;
     calli:type "text/tab-separated-values;charset=UTF-16LE";
-    calli:post <../pipelines/sparql-results-tsv.xpl?results>.
+    calli:post <../transforms/sparql-results-tsv.xsl?results>.
 
-:TransformIntoJson rdfs:subClassOf :TransformSparqlResult;
+:TransformIntoTable rdfs:subClassOf :TransformSparqlResult;
     calli:type "application/json";
-    calli:post <../pipelines/sparql-results-json.xpl?results>.
+    calli:post <../transforms/sparql-results-table.xsl?results>.
 
 :TransformIntoWire rdfs:subClassOf :TransformSparqlResult;
     calli:type "text/javascript;charset=UTF-8";
-    calli:post "../pipelines/sparql-results-wire.xpl?results&handler={handler}&reqId={reqId}".
+    calli:post "../transforms/sparql-results-wire.xsl?results&handler={handler}&reqId={reqId}".
 
 :handler a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :TransformIntoWire;

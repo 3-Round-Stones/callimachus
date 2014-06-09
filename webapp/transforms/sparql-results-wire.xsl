@@ -3,21 +3,20 @@
         xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
         xmlns:c="http://www.w3.org/ns/xproc-step"
         xmlns:sparql="http://www.w3.org/2005/sparql-results#">
+    <xsl:output media-type="text/javascript" method="text" encoding="UTF-8" />
     <xsl:param name="handler" select="'google.visualization.Query.setResponse'" />
     <xsl:param name="reqId" select="'0'" />
     <xsl:template match="sparql:sparql">
-        <c:data>
-            <xsl:value-of select="$handler" />
-            <xsl:text>({version:'0.6',reqId:</xsl:text>
-            <xsl:call-template name="escape-string">
-                <xsl:with-param name="s" select="$reqId" />
-            </xsl:call-template>
-            <xsl:text>,status:'ok',table:{</xsl:text>
-            <xsl:apply-templates select="sparql:head" />
-            <xsl:text>,</xsl:text>
-            <xsl:apply-templates select="sparql:results" />
-            <xsl:text>}});</xsl:text>
-        </c:data>
+        <xsl:value-of select="$handler" />
+        <xsl:text>({version:'0.6',reqId:</xsl:text>
+        <xsl:call-template name="escape-string">
+            <xsl:with-param name="s" select="$reqId" />
+        </xsl:call-template>
+        <xsl:text>,status:'ok',table:{</xsl:text>
+        <xsl:apply-templates select="sparql:head" />
+        <xsl:text>,</xsl:text>
+        <xsl:apply-templates select="sparql:results" />
+        <xsl:text>}});</xsl:text>
     </xsl:template>
     <xsl:template match="sparql:head">
         <xsl:text>cols:[</xsl:text>

@@ -3,14 +3,13 @@
         xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
         xmlns:c="http://www.w3.org/ns/xproc-step"
         xmlns:sparql="http://www.w3.org/2005/sparql-results#">
+    <xsl:output media-type="application/json" method="text" encoding="UTF-8" />
     <xsl:template match="sparql:sparql">
-        <c:data>
-            <xsl:text>{</xsl:text>
-            <xsl:apply-templates select="sparql:head" />
-            <xsl:text>,</xsl:text>
-            <xsl:apply-templates select="sparql:results" />
-            <xsl:text>}</xsl:text>
-        </c:data>
+        <xsl:text>{</xsl:text>
+        <xsl:apply-templates select="sparql:head" />
+        <xsl:text>,</xsl:text>
+        <xsl:apply-templates select="sparql:results" />
+        <xsl:text>}</xsl:text>
     </xsl:template>
     <xsl:template match="sparql:head">
         <xsl:text>"columns":[</xsl:text>

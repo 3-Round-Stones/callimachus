@@ -27,7 +27,9 @@ import javax.xml.transform.URIResolver;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamSource;
 
+import net.sf.saxon.Configuration;
 import net.sf.saxon.lib.ModuleURIResolver;
+import net.sf.saxon.lib.UnparsedTextURIResolver;
 import net.sf.saxon.s9api.DocumentBuilder;
 import net.sf.saxon.s9api.Processor;
 import net.sf.saxon.s9api.SaxonApiException;
@@ -41,7 +43,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
-public class XdmNodeFactory implements EntityResolver, URIResolver, ModuleURIResolver {
+public class XdmNodeFactory implements EntityResolver, URIResolver, ModuleURIResolver, UnparsedTextURIResolver {
 	private static final String XML_MEDIA = "application/xml, application/xslt+xml, text/xml, text/xsl";
 	private static final String XQUERY_MEDIA = "application/xquery, " + XML_MEDIA;
 	private final Processor processor;
@@ -52,6 +54,11 @@ public class XdmNodeFactory implements EntityResolver, URIResolver, ModuleURIRes
 		this.processor = processor;
 		this.xmlResolver = new InputSourceResolver(XML_MEDIA, client);
 		this.xqueryResolver = new InputSourceResolver(XQUERY_MEDIA, client);
+	}
+
+	public Reader resolve(URI absoluteURI, String encoding, Configuration config)
+			throws XPathException {
+		return xmlResolver.resolve(absoluteURI, encoding, config);
 	}
 
 	public StreamSource resolve(String href, String base) throws TransformerException {

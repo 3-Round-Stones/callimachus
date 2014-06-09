@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -36,7 +37,9 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.URIResolver;
 import javax.xml.transform.stream.StreamSource;
 
+import net.sf.saxon.Configuration;
 import net.sf.saxon.lib.ModuleURIResolver;
+import net.sf.saxon.lib.UnparsedTextURIResolver;
 import net.sf.saxon.trans.XPathException;
 
 import org.apache.http.client.HttpClient;
@@ -46,7 +49,7 @@ import org.callimachusproject.server.exceptions.NotFound;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 
-public class InputSourceResolver implements EntityResolver, URIResolver, ModuleURIResolver {
+public class InputSourceResolver implements EntityResolver, URIResolver, ModuleURIResolver, UnparsedTextURIResolver {
 	private static final Pattern CHARSET = Pattern
 			.compile("\\bcharset\\s*=\\s*([\\w-:]+)");
 	private final HttpUriClient client;
@@ -59,6 +62,20 @@ public class InputSourceResolver implements EntityResolver, URIResolver, ModuleU
 				return client;
 			}
 		};
+	}
+
+	@Override
+	public Reader resolve(URI absoluteURI, String encoding, Configuration config)
+			throws XPathException {
+		try {
+			InputSource source = resolve(absoluteURI.toASCIIString());
+			if (encoding != null && encoding.length() > 0) {
+				source.setEncoding(encoding);
+			}
+			return source.getCharacterStream();
+		} catch (IOException e) {
+			throw new XPathException(e.toString(), e);
+		}
 	}
 
 	@Override

@@ -155,6 +155,7 @@ public class Pipeline {
 			runtime.setURIResolver(uriResolver);
 			runtime.setEntityResolver(entityResolver);
 			runtime.getResolver().setUnderlyingModuleURIResolver(resolver);
+			runtime.getResolver().setUnderlyingUnparsedTextURIResolver(resolver);
 			runtime.setHttpClient(client);
 			XdmNode doc = this.pipeline;
 			if (doc == null) {

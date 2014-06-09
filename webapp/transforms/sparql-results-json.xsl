@@ -5,74 +5,94 @@
         xmlns:sparql="http://www.w3.org/2005/sparql-results#">
     <xsl:output media-type="application/json" method="text" encoding="UTF-8" />
     <xsl:template match="sparql:sparql">
-        <xsl:text>{</xsl:text>
+        <xsl:text>{"head":{</xsl:text>
         <xsl:apply-templates select="sparql:head" />
-        <xsl:text>,</xsl:text>
+        <xsl:text>},"results":{</xsl:text>
         <xsl:apply-templates select="sparql:results" />
-        <xsl:text>}</xsl:text>
+        <xsl:text>}}</xsl:text>
     </xsl:template>
     <xsl:template match="sparql:head">
-        <xsl:text>"columns":[</xsl:text>
+        <xsl:text>"vars":[</xsl:text>
         <xsl:apply-templates select="sparql:variable" />
         <xsl:text>]</xsl:text>
+        <xsl:if test="sparql:link">
+            <xsl:text>,"link":[</xsl:text>
+            <xsl:apply-templates select="sparql:link" />
+            <xsl:text>]</xsl:text>
+        </xsl:if>
     </xsl:template>
     <xsl:template match="sparql:variable">
         <xsl:call-template name="escape-string">
-            <xsl:with-param name="s" select="translate(@name,'_',' ')"/>
+            <xsl:with-param name="s" select="@name"/>
+        </xsl:call-template>
+        <xsl:if test="position() != last()">
+            <xsl:text>,</xsl:text>
+        </xsl:if>
+    </xsl:template>
+    <xsl:template match="sparql:link">
+        <xsl:call-template name="escape-string">
+            <xsl:with-param name="s" select="@href"/>
         </xsl:call-template>
         <xsl:if test="position() != last()">
             <xsl:text>,</xsl:text>
         </xsl:if>
     </xsl:template>
     <xsl:template match="sparql:results">
-        <xsl:text>"rows":[</xsl:text>
+        <xsl:text>"bindings":[</xsl:text>
         <xsl:apply-templates select="sparql:result" />
         <xsl:text>]</xsl:text>
     </xsl:template>
     <xsl:template match="sparql:result">
-        <xsl:text>[</xsl:text>
+        <xsl:text>{</xsl:text>
         <xsl:variable name="current" select="."/> 
-        <xsl:for-each select="../../sparql:head/sparql:variable">
-            <xsl:variable name="name" select="@name"/>
-            <xsl:if test="not($current/sparql:binding[@name=$name])">
-                <xsl:text>null</xsl:text>
-            </xsl:if>
-            <xsl:apply-templates select="$current/sparql:binding[@name=$name]" />
-            <xsl:if test="position() != last()">
-                <xsl:text>,</xsl:text>
-            </xsl:if>
-        </xsl:for-each>
-        <xsl:text>]</xsl:text>
+        <xsl:apply-templates select="sparql:binding" />
+        <xsl:text>}</xsl:text>
         <xsl:if test="position() != last()">
             <xsl:text>,</xsl:text>
         </xsl:if>
     </xsl:template>
     <xsl:template match="sparql:binding">
+        <xsl:call-template name="escape-string">
+            <xsl:with-param name="s" select="@name" />
+        </xsl:call-template>
+        <xsl:text>:</xsl:text>
         <xsl:apply-templates select="sparql:uri|sparql:bnode|sparql:literal" />
+        <xsl:if test="position() != last()">
+            <xsl:text>,</xsl:text>
+        </xsl:if>
     </xsl:template>
-    <xsl:template match="sparql:uri|sparql:bnode">
+    <xsl:template match="sparql:uri">
+        <xsl:text>{"type":"uri","value":</xsl:text>
         <xsl:call-template name="escape-string">
             <xsl:with-param name="s" select="text()"/>
         </xsl:call-template>
+        <xsl:text>}</xsl:text>
+    </xsl:template>
+    <xsl:template match="sparql:bnode">
+        <xsl:text>{"type":"bnode","value":</xsl:text>
+        <xsl:call-template name="escape-string">
+            <xsl:with-param name="s" select="text()"/>
+        </xsl:call-template>
+        <xsl:text>}</xsl:text>
     </xsl:template>
     <xsl:template match="sparql:literal">
-        <xsl:variable name="ns" select="substring-before(@datatype, '#')" />
-        <xsl:variable name="local" select="substring-after(@datatype, '#')" />
-        <xsl:choose>
-            <xsl:when test="not($ns='http://www.w3.org/2001/XMLSchema')">
-                <xsl:call-template name="escape-string">
-                    <xsl:with-param name="s" select="text()"/>
-                </xsl:call-template>
-            </xsl:when>
-            <xsl:when test="$local='boolean' or $local='float' or $local='decimal' or $local='double' or $local='integer' or $local='long' or $local='int' or $local='short' or $local='byte' or $local='nonPositiveInteger' or $local='negativeInteger' or $local='nonNegativeInteger' or $local='positiveInteger' or $local='unsignedLong' or $local='unsignedInt' or $local='unsignedShort' or $local='unsignedByte'">
-                <xsl:value-of select="text()"/>
-            </xsl:when>
-            <xsl:otherwise>
-                <xsl:call-template name="escape-string">
-                    <xsl:with-param name="s" select="text()"/>
-                </xsl:call-template>
-            </xsl:otherwise>
-        </xsl:choose>
+        <xsl:text>{"type":"literal","value":</xsl:text>
+        <xsl:call-template name="escape-string">
+            <xsl:with-param name="s" select="text()"/>
+        </xsl:call-template>
+        <xsl:if test="@xml:lang">
+            <xsl:text>,"xml:lang":</xsl:text>
+            <xsl:call-template name="escape-string">
+                <xsl:with-param name="s" select="@xml:lang"/>
+            </xsl:call-template>
+        </xsl:if>
+        <xsl:if test="@datatype">
+            <xsl:text>,"datatype":</xsl:text>
+            <xsl:call-template name="escape-string">
+                <xsl:with-param name="s" select="@datatype"/>
+            </xsl:call-template>
+        </xsl:if>
+        <xsl:text>}</xsl:text>
     </xsl:template>
 
 <!--

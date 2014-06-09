@@ -314,6 +314,9 @@
             } else if (map.out == "tsv-excel") {
                 resp.body = this.TransformIntoTSV(rs);
                 resp.headers["content-type"] = "text/tab-separated-values;charset=UTF-16LE";
+            } else if (map.out == "sparql-json") {
+                resp.body = this.TransformIntoJson(rs);
+                resp.headers["content-type"] = "application/json";
             } else if (map.out == "table") {
                 resp.body = this.TransformIntoTable(rs);
                 resp.headers["content-type"] = "application/json";
@@ -394,6 +397,10 @@
 :TransformIntoTSV rdfs:subClassOf :TransformSparqlResult;
     calli:type "text/tab-separated-values;charset=UTF-16LE";
     calli:post <../transforms/sparql-results-tsv.xsl?results>.
+
+:TransformIntoJson rdfs:subClassOf :TransformSparqlResult;
+    calli:type "application/json";
+    calli:post <../transforms/sparql-results-json.xsl?results>.
 
 :TransformIntoTable rdfs:subClassOf :TransformSparqlResult;
     calli:type "application/json";

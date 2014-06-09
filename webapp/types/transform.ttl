@@ -26,7 +26,7 @@
     foaf:primaryTopic <XslTransform>.
 
 <XslTransform> a <Creatable>, owl:Class;
-    rdfs:subClassOf <File>;
+    rdfs:subClassOf <File>, calli:XslTransform;
     rdfs:label "XSLT file";
     rdfs:comment "An XML Stylesheet Language Transform file.";
     owl:equivalentClass </callimachus/Transform>, </callimachus/1.0/types/Transform>;
@@ -132,4 +132,57 @@
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <XslTransform>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     calli:post "../schemas/xslt.rng?validate\nContent-Location: {+0}\nContent-Type: application/xml".
+
+################################
+# Execute Pipeline             #
+################################
+
+# GET /stylesheet.xsl?results
+:GetResult rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <XslTransform>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
+    calli:method "GET";
+    calli:query "results";
+    calli:requires calli:reader;
+    calli:type "message/x-response";
+    calli:header "cache-control:no-store,no-transform".
+
+:queryGetParameters a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :GetResult;
+    rdfs:range <java:java.util.Map>;
+    calli:query "*";
+    calli:type "application/x-www-form-urlencoded".
+
+:template-name a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :GetResult;
+    rdfs:range xsd:string;
+    calli:query "initial-template";
+    calli:type "text/plain".
+
+# POST /stylesheet.xsl?results
+:PostResult rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <XslTransform>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
+    calli:method "POST";
+    calli:query "results";
+    calli:requires calli:reader;
+    calli:type "message/x-response";
+    calli:header "cache-control:no-store,no-transform".
+
+:queryPostParameters a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :PostResult;
+    rdfs:range <java:java.util.Map>;
+    calli:query "*";
+    calli:type "application/x-www-form-urlencoded".
+
+:sourceLocation a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:domain :PostResult;
+    rdfs:range xsd:string;
+    calli:header "Content-Location";
+    calli:type "text/uri-list".
+
+:sourcePort a owl:ObjectProperty; a owl:FunctionalProperty;
+    rdfs:domain :PostResult;
+    rdfs:range <java:java.io.InputStream>;
+    calli:type "application/xml".
 

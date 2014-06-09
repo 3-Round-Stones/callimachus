@@ -13,6 +13,7 @@ org.callimachusproject.behaviours.CompositeSupport = http://callimachusproject.o
 org.callimachusproject.behaviours.UserSupport
 org.callimachusproject.behaviours.PipelineSupport	= http://callimachusproject.org/rdf/2009/framework#Pipeline
 org.callimachusproject.behaviours.XQuerySupport		= http://callimachusproject.org/rdf/2009/framework#XQuery
+org.callimachusproject.behaviours.XslTransformSupport		= http://callimachusproject.org/rdf/2009/framework#XslTransform
 org.callimachusproject.behaviours.CredentialSupport	= http://callimachusproject.org/rdf/2009/framework#Credential
 org.callimachusproject.behaviours.PurlSupport		= http://callimachusproject.org/rdf/2009/framework#Purl
 org.callimachusproject.behaviours.DatasourceSupport	= http://callimachusproject.org/rdf/2009/framework#RdfDatasource

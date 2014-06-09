@@ -141,6 +141,12 @@ calli:XQuery a owl:Class;
     rdfs:comment "A Callimachus XQuery file";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
+calli:XslTransform a owl:Class;
+    rdfs:subClassOf foaf:Document;
+    rdfs:label "XSL Transform";
+    rdfs:comment "A Callimachus XSL file";
+    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
 calli:RdfDatasource a owl:Class;
     rdfs:subClassOf sd:Service;
     rdfs:label "RDF Datasource";

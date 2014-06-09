@@ -37,7 +37,7 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.openrdf.model.impl.LinkedHashModel>];
     calli:method "GET";
     calli:requires calli:reader;
-    calli:type "application/rdf+xml;q=0.9", "text/turtle;q=0.9";
+    calli:type "application/rdf+xml;q=0.9", "text/turtle;q=0.9", "application/ld+json;q=0.9";
     calli:header "cache-control:no-validate";
     calli:header "cache-control:max-age=60";
     calli:imports <java:org.openrdf.model.impl.LinkedHashModel>;

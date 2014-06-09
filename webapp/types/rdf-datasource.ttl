@@ -55,7 +55,7 @@
     calli:method "GET";
     calli:query "uri";
     calli:requires calli:reader;
-    calli:type "application/rdf+xml;q=0.4", "text/turtle;q=0.5";
+    calli:type "application/rdf+xml;q=0.4", "text/turtle;q=0.6", "application/ld+json;q=0.5";
     calli:script """
         if (!rdfResource) rdfResource = this;
         return this.describeResource(rdfResource.resource);
@@ -194,7 +194,7 @@
     calli:method "GET";
     calli:query "default";
     calli:requires calli:reader;
-    calli:type "application/rdf+xml;q=0.4", "text/turtle;q=0.5";
+    calli:type "application/rdf+xml;q=0.4", "text/turtle;q=0.6", "application/ld+json;q=0.5";
     calli:script """
         return this.constructGraph(null);
     """.
@@ -205,7 +205,7 @@
     calli:method "GET";
     calli:query "graph";
     calli:requires calli:reader;
-    calli:type "application/rdf+xml;q=0.4", "text/turtle;q=0.5";
+    calli:type "application/rdf+xml;q=0.4", "text/turtle;q=0.6", "application/ld+json;q=0.5";
     calli:script """
         if (!graph) graph = this;
         return this.constructGraph(graph.resource);
@@ -245,7 +245,7 @@
 :rdfPayload a owl:DatatypeProperty, owl:FunctionalProperty;
     rdfs:domain :IndirectPayload;
     rdfs:range <java:java.io.InputStream>;
-    calli:type "application/rdf+xml", "text/turtle".
+    calli:type "application/rdf+xml", "text/turtle", "application/ld+json".
 
 # PUT default parameter
 :PutDefaultGraph rdfs:subClassOf :IndirectPayload;

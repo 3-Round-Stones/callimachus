@@ -151,13 +151,13 @@
     calli:requires calli:reader;
     calli:type "application/xhtml+xml";
     calli:header "cache-control:no-cache";
-    calli:post "../pipelines/article-edit-xhtml.xpl?results\nContent-Location: {+0}\nContent-Type: application/docbook+xml".
+    calli:post "../transforms/article-edit-xhtml.xsl?results\nContent-Location: {+0}\nContent-Type: application/docbook+xml".
 
 :ConvertXhtmlDocbook rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Article>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
     calli:type "application/docbook+xml";
-    calli:post "../pipelines/article-save-xhtml.xpl?results".
+    calli:post "../transforms/article-save-xhtml.xsl?results".
 
 :xhtmlInput a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :ConvertXhtmlDocbook;

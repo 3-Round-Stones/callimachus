@@ -22,7 +22,7 @@
     xmlns:d="http://docbook.org/ns/docbook" 
     xmlns:xl   ="http://www.w3.org/1999/xlink"
     exclude-result-prefixes="xsl d xl">
-<xsl:output method="xml" indent="yes" omit-xml-declaration="yes"/>
+<xsl:output media-type="application/xhtml+xml" method="xml" indent="yes" omit-xml-declaration="yes"/>
 
 <xsl:template match="text()|comment()">
     <xsl:copy />

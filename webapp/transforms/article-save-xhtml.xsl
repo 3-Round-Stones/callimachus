@@ -22,7 +22,7 @@
     xmlns:xl   ="http://www.w3.org/1999/xlink"
     version="1.0" 
     exclude-result-prefixes="xsl xhtml">
-<xsl:output method="xml" indent="yes" omit-xml-declaration="yes"/>
+<xsl:output media-type="application/docbook+xml" method="xml" indent="yes" omit-xml-declaration="yes"/>
 
 <xsl:key name="section" match="node()[not(name()='h1' or name()='h2' or name()='h3' or name()='h4' or name()='h5' or name()='h6')]"
 use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' or name()='h4' or name()='h5' or name()='h6'][1])"/>

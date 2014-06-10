@@ -116,6 +116,7 @@ text/turtle ttl
 text/uri-list uri
 text/uri-list uris
 text/vtt vtt
+text/x-markdown md
 video/3gpp 3gp
 video/mp4 mp4
 video/mpeg mp2

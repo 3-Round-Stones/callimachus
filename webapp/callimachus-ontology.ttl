@@ -129,6 +129,12 @@ calli:Page a owl:Class;
     rdfs:comment "A Callimachus XHTML page";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
+calli:Markdown a owl:Class;
+    rdfs:subClassOf foaf:Document;
+    rdfs:label "Markdown";
+    rdfs:comment "A Callimachus Markdown document";
+    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
 calli:Pipeline a owl:Class;
     rdfs:subClassOf foaf:Document;
     rdfs:label "Pipeline";

@@ -30,9 +30,9 @@
             </head>
             <body>
                 <div class="container">
-                    <hgroup class="page-header">
+                    <div class="page-header">
                         <h1>What Links Here</h1>
-                    </hgroup>
+                    </div>
                     <xsl:if test="not(/sparql:sparql/sparql:results/sparql:result)">
                         <p>No resources link here.</p>
                     </xsl:if>

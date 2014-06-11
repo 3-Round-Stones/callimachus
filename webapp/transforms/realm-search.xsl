@@ -44,9 +44,9 @@
             </head>
             <body onload="init()">
                 <div class="container">
-                    <hgroup class="page-header">
+                    <div class="page-header">
                         <h1>Search Results</h1>
-                    </hgroup>
+                    </div>
                     <form role="form" method="GET" class="search">
                         <div class="form-group">
                             <input type="text" id="q" name="q" size="40" class="form-control" autofocus="autofocus" required="required" />

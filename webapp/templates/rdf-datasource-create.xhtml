@@ -25,9 +25,9 @@
 <body>
     <form role="form" method="POST" action="" enctype="application/rdf+xml" typeof="calli:RdfDatasource sd:Service" class="container"
             onsubmit="if (calli.saveResourceAs(event,calli.slugify($('#label').val()))){$('[rel=&quot;sd:endpoint&quot;]').attr('resource',$(this).attr('resource'));return true;} else return false">
-        <hgroup class="page-header">
+        <div class="page-header">
             <h1>New Datasource</h1>
-        </hgroup>
+        </div>
         <div class="row">
             <fieldset class="col-sm-4">
                 <div class="form-group">

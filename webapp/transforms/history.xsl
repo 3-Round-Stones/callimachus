@@ -31,9 +31,9 @@
             </head>
             <body>
                 <div class="container">
-                    <hgroup class="page-header">
+                    <div class="page-header">
                         <h1><xsl:value-of select="sparql:sparql/sparql:results/sparql:result[1]/sparql:binding[@name='title']/*" /></h1>
-                    </hgroup>
+                    </div>
                     <xsl:apply-templates />
                 </div>
             </body>

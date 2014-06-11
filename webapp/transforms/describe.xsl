@@ -112,14 +112,14 @@
                 <div class="container">
                     <div class="row">
                         <div class="col-sm-8">
-                            <hgroup class="page-header">
+                            <div class="page-header">
                                 <h1>
                                     <xsl:call-template name="resource">
                                         <xsl:with-param name="iri" select="/rdf:RDF/rdf:Description/@rdf:about[1]"/>
                                     </xsl:call-template>
                                     <xsl:text> Resource</xsl:text>
                                 </h1>
-                            </hgroup>
+                            </div>
                         </div>
                         <div class="col-sm-4">
                             <aside class="well">

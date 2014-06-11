@@ -30,9 +30,9 @@
             </head>
             <body>
                 <div class="container">
-                    <hgroup class="page-header">
+                    <div class="page-header">
                         <h1>Recent Changes</h1>
-                    </hgroup>
+                    </div>
                     <xsl:apply-templates />
                 </div>
             </body>

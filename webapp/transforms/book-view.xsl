@@ -55,9 +55,9 @@ xmlns="http://www.w3.org/1999/xhtml" xmlns:xhtml="http://www.w3.org/1999/xhtml" 
 </xsl:template>
 
 <xsl:template match="/*/d:title|/*/d:info/d:title">
-    <hgroup class="page-header">
+    <div class="page-header">
         <xsl:apply-imports/>
-    </hgroup>
+    </div>
 </xsl:template>
 
 <xsl:template mode="rel" match="node()" />

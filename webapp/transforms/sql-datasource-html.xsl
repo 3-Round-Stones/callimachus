@@ -41,9 +41,9 @@
                 </head>
                 <body>
                     <div class="container">
-                        <hgroup class="page-header">
+                        <div class="page-header">
                             <h1>SQL Results</h1>
-                        </hgroup>
+                        </div>
                         <xsl:apply-templates />
                     </div>
                 </body>

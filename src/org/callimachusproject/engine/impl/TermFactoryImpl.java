@@ -105,6 +105,13 @@ public class TermFactoryImpl extends TermFactory {
 	}
 
 	@Override
+	public GraphNodePathImpl path(String path) {
+		if (path == null)
+			throw new IllegalArgumentException();
+		return new GraphNodePathImpl(path);
+	}
+
+	@Override
 	public IRI iri(String iri) {
 		if (iri == null)
 			throw new IllegalArgumentException();

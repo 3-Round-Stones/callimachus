@@ -21,7 +21,7 @@ import org.callimachusproject.engine.RDFParseException;
 import org.callimachusproject.engine.events.RDFEvent;
 import org.callimachusproject.engine.events.TriplePattern;
 import org.callimachusproject.engine.helpers.AbstractRDFEventReader;
-import org.callimachusproject.engine.model.VarOrTerm;
+import org.callimachusproject.engine.model.GraphNodePath;
 
 public class SerializeRDFReader extends AbstractRDFEventReader {
 	private RDFEventReader delegate;
@@ -66,7 +66,7 @@ public class SerializeRDFReader extends AbstractRDFEventReader {
 			TriplePattern tp = next.asTriplePattern();
 			serializeTerm(sb, tp.getSubject());
 			sb.append(",");
-			serializeTerm(sb, tp.getPredicate());
+			serializeTerm(sb, tp.getProperty());
 			sb.append(",");
 			serializeTerm(sb, tp.getObject());
 			sb.append(",");
@@ -81,11 +81,11 @@ public class SerializeRDFReader extends AbstractRDFEventReader {
 		return next;
 	}
 
-	private void serializeTerm(StringBuilder sb, VarOrTerm subj) {
+	private void serializeTerm(StringBuilder sb, GraphNodePath node) {
 		sb.append("new ");
-		sb.append(subj.getClass().getSimpleName());
+		sb.append(node.getClass().getSimpleName());
 		sb.append("(\"");
-		sb.append(subj.stringValue());
+		sb.append(node.stringValue());
 		sb.append("\")");
 	}
 

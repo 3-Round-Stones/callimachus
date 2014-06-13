@@ -18,7 +18,7 @@
 package org.callimachusproject.engine.impl;
 
 import org.callimachusproject.engine.model.Node;
-import org.callimachusproject.engine.model.VarOrTermBase;
+import org.callimachusproject.engine.model.GraphNodePathBase;
 
 /**
  * RDF blank node.
@@ -26,7 +26,7 @@ import org.callimachusproject.engine.model.VarOrTermBase;
  * @author James Leigh
  *
  */
-public class BlankNode extends VarOrTermBase implements Node {
+public class BlankNode extends GraphNodePathBase implements Node {
 	private String id;
 
 	public BlankNode(String id) {

@@ -18,6 +18,7 @@
 package org.callimachusproject.engine.model;
 
 import org.callimachusproject.engine.impl.AbsoluteTermFactoryImpl;
+import org.callimachusproject.engine.impl.GraphNodePathImpl;
 
 /**
  * Factory class for RDF terms.
@@ -33,6 +34,8 @@ public abstract class AbsoluteTermFactory {
 	public abstract Var var(char prefix, String name);
 	
 	public abstract Var var(String name);
+
+	public abstract GraphNodePathImpl path(String path);
 
 	public abstract IRI iri(String iri);
 

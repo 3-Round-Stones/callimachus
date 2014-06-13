@@ -32,10 +32,10 @@ import org.callimachusproject.engine.events.RDFEvent;
 import org.callimachusproject.engine.events.Triple;
 import org.callimachusproject.engine.events.TriplePattern;
 import org.callimachusproject.engine.model.AbsoluteTermFactory;
+import org.callimachusproject.engine.model.GraphNodePath;
 import org.callimachusproject.engine.model.IRI;
 import org.callimachusproject.engine.model.Node;
 import org.callimachusproject.engine.model.Term;
-import org.callimachusproject.engine.model.VarOrIRI;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
@@ -105,7 +105,7 @@ public final class TripleVerifier implements Cloneable {
 				RDFEvent next = reader.next();
 				if (next.isTriplePattern()) {
 					TriplePattern tp = next.asTriplePattern();
-					VarOrIRI pred = tp.getPredicate();
+					GraphNodePath pred = tp.getProperty();
 					if (!tp.isInverse()) {
 						if (pred.isIRI()) {
 							accept(tp);
@@ -257,8 +257,8 @@ public final class TripleVerifier implements Cloneable {
 				if (!tp.getSubject().equals(sterm))
 					continue;
 			}
-			if (tp.getPredicate().isIRI()) {
-				if (!tp.getPredicate().equals(pterm))
+			if (tp.getProperty().isIRI()) {
+				if (!tp.getProperty().equals(pterm))
 					continue;
 			}
 			if (tp.getObject().isIRI() || tp.getObject().isLiteral()) {
@@ -272,7 +272,7 @@ public final class TripleVerifier implements Cloneable {
 		Set<TriplePattern> alt1 = new LinkedHashSet<TriplePattern>();
 		Set<TriplePattern> alt2 = new LinkedHashSet<TriplePattern>();
 		for (TriplePattern tp : patterns) {
-			if (tp.getPredicate().equals(pterm)) {
+			if (tp.getProperty().equals(pterm)) {
 				alt1.add(tp);
 				if (tp.getSubject().equals(sterm)
 						|| tp.getObject().equals(oterm)) {

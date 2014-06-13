@@ -19,7 +19,7 @@ package org.callimachusproject.engine.events;
 
 import javax.xml.stream.Location;
 
-import org.callimachusproject.engine.model.VarOrIRI;
+import org.callimachusproject.engine.model.GraphNodePath;
 import org.callimachusproject.engine.model.VarOrTerm;
 
 /**
@@ -30,23 +30,23 @@ import org.callimachusproject.engine.model.VarOrTerm;
  */
 public class TriplePattern extends RDFEvent {
 	private VarOrTerm subject;
-	private VarOrIRI predicate;
+	private GraphNodePath property;
 	private VarOrTerm object;
 	private boolean inverse;
 
-	public TriplePattern(VarOrTerm subject, VarOrIRI predicate, VarOrTerm object) {
-		this(subject, predicate, object, false, null);
+	public TriplePattern(VarOrTerm subject, GraphNodePath property, VarOrTerm object) {
+		this(subject, property, object, false, null);
 	}
 
-	public TriplePattern(VarOrTerm subject, VarOrIRI predicate, VarOrTerm object, Location location) {
-		this(subject, predicate, object, false, location);
+	public TriplePattern(VarOrTerm subject, GraphNodePath property, VarOrTerm object, Location location) {
+		this(subject, property, object, false, location);
 	}
 
-	public TriplePattern(VarOrTerm subject, VarOrIRI predicate,
+	public TriplePattern(VarOrTerm subject, GraphNodePath property,
 			VarOrTerm object, boolean inverse, Location location) {
 		super(location);
 		this.subject = subject;	
-		this.predicate = predicate;
+		this.property = property;
 		this.object = object;
 		this.inverse = inverse;
 	}
@@ -55,8 +55,8 @@ public class TriplePattern extends RDFEvent {
 		return subject;
 	}
 
-	public VarOrIRI getPredicate() {
-		return predicate;
+	public GraphNodePath getProperty() {
+		return property;
 	}
 
 	public VarOrTerm getObject() {
@@ -80,13 +80,13 @@ public class TriplePattern extends RDFEvent {
 	}
 
 	public String toString() {
-		return subject.toString() + " " + predicate.toString() + " "
+		return subject.toString() + " " + property.toString() + " "
 				+ object.toString();
 	}
 
 	@Override
 	public int hashCode() {
-		return 961 * subject.hashCode() + 31 * predicate.hashCode() + object.hashCode();
+		return 961 * subject.hashCode() + 31 * property.hashCode() + object.hashCode();
 	}
 
 	@Override
@@ -103,10 +103,10 @@ public class TriplePattern extends RDFEvent {
 				return false;
 		} else if (!object.equals(other.object))
 			return false;
-		if (predicate == null) {
-			if (other.predicate != null)
+		if (property == null) {
+			if (other.property != null)
 				return false;
-		} else if (!predicate.equals(other.predicate))
+		} else if (!property.equals(other.property))
 			return false;
 		if (subject == null) {
 			if (other.subject != null)

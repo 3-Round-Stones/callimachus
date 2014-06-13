@@ -22,6 +22,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Stack;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.xml.stream.Location;
@@ -39,12 +40,11 @@ import org.callimachusproject.engine.events.TriplePattern;
 import org.callimachusproject.engine.events.Union;
 import org.callimachusproject.engine.events.Where;
 import org.callimachusproject.engine.model.AbsoluteTermFactory;
+import org.callimachusproject.engine.model.GraphNodePath;
 import org.callimachusproject.engine.model.IRI;
 import org.callimachusproject.engine.model.Term;
 import org.callimachusproject.engine.model.TermOrigin;
 import org.callimachusproject.engine.model.VarOrTerm;
-import org.openrdf.model.URI;
-import org.openrdf.model.impl.URIImpl;
 
 /**
  * Produce SPARQL events from an RDFa event stream. 
@@ -53,6 +53,8 @@ import org.openrdf.model.impl.URIImpl;
  * @author Steve Battle
  */
 public class SPARQLProducer extends RDFEventPipe {
+	private static final Pattern LOCAL_PART = Pattern.compile("([a-zA-Z0-9\\-\\._~%!\\$\\&'\\(\\)\\*\\+,;=]+)$");
+
 	private static final Pattern VAR_REGEX = Pattern
 		.compile("[a-zA-Z0-9_"
 		+ "\\u00C0-\\u00D6\\u00D8-\\u00F6\\u00F8-\\u02FF\\u0370-\\u037D\\u037F-\\u1FFF\\u200C-\\u200D\\u2070-\\u218F\\u2C00-\\u2FEF\\u3001-\\uD7FF\\uF900-\\uFDCF\\uFDF0-\\uFFFD"
@@ -279,11 +281,11 @@ public class SPARQLProducer extends RDFEventPipe {
 			promotion();
 		}
 		/* triple processing may be called out-of-line so should not use look-ahead */
-		else if (event.isTriple()) {
-			Triple triple = event.asTriple();
+		else if (event.isTriplePattern()) {
+			TriplePattern triple = event.asTriplePattern();
 			if (promoted(triple)) return;
 			
-			IRI p = triple.getPredicate();
+			GraphNodePath p = triple.getProperty();
 			boolean rev = triple.isInverse();
 			VarOrTerm s = getVarOrTerm(triple.getSubject(),triple,true);
 			VarOrTerm o = getVarOrTerm(triple.getObject(),triple,true);
@@ -366,8 +368,8 @@ public class SPARQLProducer extends RDFEventPipe {
 	/* literal triples that were brought forward are already mapped 
 	 * There can be only one content variable assigned to an element */
 	
-	private boolean promoted(Triple triple) {
-		Term obj = triple.getObject();
+	private boolean promoted(TriplePattern triple) {
+		VarOrTerm obj = triple.getObject();
 		return obj.isLiteral() && origins.containsValue(obj.getOrigin());
 	}
 
@@ -403,7 +405,7 @@ public class SPARQLProducer extends RDFEventPipe {
 		return context;
 	}
 	
-	private boolean isOptionalTriple(Triple triple) throws RDFParseException {
+	private boolean isOptionalTriple(TriplePattern triple) throws RDFParseException {
 		// This may be an object variable
 		return getVarOrTerm(triple.getPartner(),null,false).isVar();
 	}
@@ -475,26 +477,21 @@ public class SPARQLProducer extends RDFEventPipe {
 		return l;
 	}
 	
-	public static String predicateLabel(IRI pred, boolean inverse) {
-		URI uri=null;
-		if (pred.isCURIE())
-			uri = new URIImpl(pred.asCURIE().stringValue());
-		else if (pred.isIRI())
-			uri = new URIImpl(pred.stringValue());
-		String l = uri.getLocalName();
-		l = stripPrefix(l,"has");
-		l = stripPrefix(l,"in");
-		
+	public static String predicateLabel(GraphNodePath pred, boolean inverse) {
+		Matcher m = LOCAL_PART.matcher(pred.stringValue());
+		String localPart = m.find() ? m.group(1) : "var";
 		// characters valid in NCName but not SPARQL variable name
-		l = l.replaceAll("-", "_").replaceAll("\\.", "_");
-
+		String word = localPart.replaceAll("^\\W+", "").replaceAll("\\W+$", "")
+				.replaceAll("\\W+", "_");
+		String var = stripPrefix(stripPrefix(word, "has"), "in");
 		// append/remove 'Of' to inverse relations
 		if (inverse) {
-			if (l.endsWith("Of")) l = stripSuffix(l,"Of");
-			else l += "Of";
+			if (var.endsWith("Of"))
+				return stripSuffix(var, "Of");
+			else
+				return var + "Of";
 		}
-
-		return l;
+		return var;
 	}
 	
 	String mapSeq(String label, boolean increment) {
@@ -528,11 +525,11 @@ public class SPARQLProducer extends RDFEventPipe {
 		}
 	}
 	
-	protected VarOrTerm getVarOrTerm(VarOrTerm term, Triple triple, boolean addOrigin) throws RDFParseException {
+	protected VarOrTerm getVarOrTerm(VarOrTerm term, TriplePattern triple, boolean addOrigin) throws RDFParseException {
 		String label = null;
 		VarOrTerm opposite = null;
 		if (triple!=null) {
-			label = predicateLabel(triple.getPredicate(), triple.isInverse());
+			label = predicateLabel(triple.getProperty(), triple.isInverse());
 			
 			// build a compound label using variable at the opposing end of the triple
 			if (term.equals(triple.getSubject())) 

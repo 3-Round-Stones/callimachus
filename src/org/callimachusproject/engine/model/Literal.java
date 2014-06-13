@@ -23,7 +23,7 @@ package org.callimachusproject.engine.model;
  * @author James Leigh
  *
  */
-public abstract class Literal extends VarOrTermBase implements Term {
+public abstract class Literal extends GraphNodePathBase implements Term {
 
 	public abstract IRI getDatatype();
 

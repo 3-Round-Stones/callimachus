@@ -18,12 +18,12 @@
 package org.callimachusproject.engine.model;
 
 /**
- * Common methods for {@link VarOrTerm}.
+ * Common methods for {@link GraphNodePath}.
  * 
  * @author James Leigh
  * 
  */
-public abstract class VarOrTermBase implements VarOrTerm {
+public abstract class GraphNodePathBase implements GraphNodePath {
 	private TermOrigin origin;
 
 	public boolean isNode() {

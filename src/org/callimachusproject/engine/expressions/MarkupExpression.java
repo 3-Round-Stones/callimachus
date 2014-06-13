@@ -47,6 +47,11 @@ public class MarkupExpression implements Expression {
 	/** ^\{([NCNameChar]*:[NCNameChar]*?)\} */
 	private static final Pattern PROPERTY = Pattern.compile("^\\{(["
 			+ NCNameChar + "]*:[" + NCNameChar + "]*?)\\}");
+	private static final String URIChar = "a-zA-Z0-9\\-\\._~%!\\$\\&'\\(\\)\\*\\+,;=:/\\?\\#\\[\\]@";
+	private static final String PathChar = "\\<\\>\\^\\/\\|\\*\\+\\?\\!\\(\\)";
+	private static final Pattern PATH = Pattern.compile("^\\{([" + NCNameChar
+			+ URIChar + "]*[" + PathChar + "][" + NCNameChar + URIChar
+			+ PathChar + "]*)\\}");
 
 	private final List<Expression> exprs;
 	private final Expression expression;
@@ -162,6 +167,12 @@ public class MarkupExpression implements Expression {
 					continue;
 				} else if ((m = PROPERTY.matcher(text)).find()) {
 					exprs.add(new PropertyExpression(m.group(1), namespaces,
+							loc, tf));
+					text = text.subSequence(m.end(), text.length());
+					p = 0;
+					continue;
+				} else if ((m = PATH.matcher(text)).find()) {
+					exprs.add(new PathExpression(m.group(1), namespaces,
 							loc, tf));
 					text = text.subSequence(m.end(), text.length());
 					p = 0;

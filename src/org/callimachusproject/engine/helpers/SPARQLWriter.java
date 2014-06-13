@@ -30,8 +30,7 @@ import org.callimachusproject.engine.RDFEventReader;
 import org.callimachusproject.engine.RDFParseException;
 import org.callimachusproject.engine.events.RDFEvent;
 import org.callimachusproject.engine.events.TriplePattern;
-import org.callimachusproject.engine.model.VarOrIRI;
-import org.callimachusproject.engine.model.VarOrTerm;
+import org.callimachusproject.engine.model.GraphNodePath;
 import org.openrdf.model.vocabulary.RDF;
 
 /**
@@ -164,7 +163,7 @@ public class SPARQLWriter implements Closeable, Flushable {
 			indent(indent);
 			writer.append(term(tp.getSubject()));
 			writer.append(" ");
-			VarOrIRI pred = tp.getPredicate();
+			GraphNodePath pred = tp.getProperty();
 			if (pred.isIRI() && pred.stringValue().equals(RDFTYPE)) {
 				writer.append("a");
 			} else {
@@ -193,7 +192,7 @@ public class SPARQLWriter implements Closeable, Flushable {
 		previous = event;
 	}
 
-	private CharSequence term(VarOrTerm term) {
+	private CharSequence term(GraphNodePath term) {
 		return term.toString();
 	}
 

@@ -49,9 +49,8 @@ public class Triple extends TriplePattern {
 		return (Node) super.getSubject();
 	}
 
-	@Override
 	public IRI getPredicate() {
-		return (IRI) super.getPredicate();
+		return (IRI) super.getProperty();
 	}
 
 	@Override

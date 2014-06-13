@@ -1,6 +1,5 @@
 /*
-   Portions Copyright (c) 2009-10 Zepheira LLC, Some Rights Reserved
-   Portions Copyright (c) 2010-11 Talis Inc, Some Rights Reserved
+   Copyright (c) 2014 3 Round Stones Inc, Some Rights Reserved
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -15,19 +14,36 @@
    limitations under the License.
 
  */
-package org.callimachusproject.engine.model;
+package org.callimachusproject.engine.impl;
+
+import org.callimachusproject.engine.model.Node;
+import org.callimachusproject.engine.model.GraphNodePathBase;
 
 /**
- * SPARQL variable.
+ * RDF property path.
  * 
  * @author James Leigh
  *
  */
-public abstract class Var extends GraphNodePathBase implements VarOrIRI {
+public class GraphNodePathImpl extends GraphNodePathBase implements Node {
+	private String path;
+
+	public GraphNodePathImpl(String path) {
+		assert path != null;
+		this.path = path;
+	}
+
+	public String stringValue() {
+		return path;
+	}
+
+	public String toString() {
+		return path;
+	}
 
 	@Override
 	public int hashCode() {
-		return stringValue().hashCode();
+		return path.hashCode();
 	}
 
 	@Override
@@ -36,20 +52,15 @@ public abstract class Var extends GraphNodePathBase implements VarOrIRI {
 			return true;
 		if (obj == null)
 			return false;
-		if (!(obj instanceof Var))
+		if (getClass() != obj.getClass())
 			return false;
-		Var other = (Var) obj;
-		if (stringValue() == null) {
-			if (other.stringValue() != null)
+		GraphNodePathImpl other = (GraphNodePathImpl) obj;
+		if (path == null) {
+			if (other.path != null)
 				return false;
-		} else if (!stringValue().equals(other.stringValue()))
+		} else if (!path.equals(other.path))
 			return false;
 		return true;
 	}
 
-	public String toString() {
-		return prefix() + stringValue();
-	}
-
-	public abstract String prefix();
 }

@@ -23,7 +23,7 @@ package org.callimachusproject.engine.model;
  * @author James Leigh
  * 
  */
-public abstract class IRI extends VarOrTermBase implements Node, VarOrIRI {
+public abstract class IRI extends GraphNodePathBase implements Node, VarOrIRI {
 
 	public String toString() {
 		return "<" + stringValue() + ">";

@@ -372,7 +372,7 @@ public class RDFaGenerationTest extends TestCase {
 	 * Generate XHTML+RDFa using RDFaProducer.
 	 * Test equivalence of the expectedFile and generated output.
 	 */
-	protected void runTest() throws Exception {
+	public void runTest() throws Exception {
 		assumeTrue(test_set.contains("select"));
 		if (verbose || show_rdf || show_sparql || show_xml || show_results) {
 			System.out.println("\nUNION SELECT TEST: "+template);

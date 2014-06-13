@@ -29,13 +29,15 @@
                 <div class="form-group">
                     <label for="label">Label</label>
                     <div>
-                        <input type="text" class="form-control" id="label" value="{rdfs:label}" required="required" />
+                        <input type="text" class="form-control" id="label" value="{rdfs:label}" required="required"
+                            onchange="calli.updateProperty(event, 'rdfs:label')" />
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="comment">Comment</label>
                     <div>
-                        <textarea id="comment" class="form-control" required="required">{rdfs:comment}</textarea>
+                        <textarea id="comment" class="form-control" required="required"
+                            onchange="calli.updateProperty(event, 'rdfs:comment')">{rdfs:comment}</textarea>
                     </div>
                 </div>
             </fieldset>
@@ -43,13 +45,15 @@
                 <div class="form-group">
                     <label for="endpoint">OpenID endpoint URL</label>
                     <div>
-                        <input type="url" class="form-control" id="endpoint" value="{calli:openIdEndpointUrl}" required="required" />
+                        <input type="url" class="form-control" id="endpoint" value="{calli:openIdEndpointUrl}" required="required"
+                            onchange="calli.updateProperty(event, 'calli:openIdEndpointUrl')" />
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="realm">OpenID realm pattern</label>
                     <div>
-                        <input type="text" class="form-control" id="realm" value="{calli:openIdRealm}" required="required" />
+                        <input type="text" class="form-control" id="realm" value="{calli:openIdRealm}" required="required"
+                            onchange="calli.updateProperty(event, 'calli:openIdRealm')" />
                     </div>
                 </div>
                 <div id="authButton" dropzone="link string:text/uri-list" class="form-group" ondrop="return calli.insertResource(event)">

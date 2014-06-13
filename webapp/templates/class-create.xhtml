@@ -101,7 +101,8 @@
                             <div class="form-group col-sm-10">
                                 <label for="label">Label</label>
                                 <div>
-                                    <input type="text" id="label" value="{rdfs:label}" class="form-control" required="required" autofocus="autofocus" />
+                                    <input type="text" id="label" value="{rdfs:label}" class="form-control" required="required" autofocus="autofocus"
+                                        onchange="calli.updateProperty(event, 'rdfs:label')" />
                                 </div>
                             </div>
                             <div id="icon" dropzone="link string:text/uri-list" class="form-group col-sm-2"
@@ -119,7 +120,8 @@
                         <fieldset class="form-group">
                             <label for="comment">Comment</label>
                             <div>
-                                <textarea id="comment" class="form-control">{rdfs:comment}</textarea>
+                                <textarea id="comment" class="form-control"
+                                    onchange="calli.updateProperty(event, 'rdfs:comment')">{rdfs:comment}</textarea>
                             </div>
                         </fieldset>
                     </div>
@@ -215,7 +217,8 @@
                     </div>
                 </fieldset>
                 <fieldset class="form-group">
-                    <input type="hidden" id="created" value="{dcterms:created}" datatype="xsd:dateTime" />
+                    <input type="hidden" id="created" value="{dcterms:created}" datatype="xsd:dateTime"
+                        onchange="calli.updateProperty(event, 'dcterms:created')" />
                     <button id="create" type="submit" class="btn btn-success">Create</button>
                 </fieldset>
             </div>

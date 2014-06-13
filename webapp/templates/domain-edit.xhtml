@@ -38,7 +38,8 @@
                     <div class="form-group">
                         <label for="comment">Description</label>
                         <div>
-                            <textarea id="comment" class="form-control">{rdfs:comment}</textarea>
+                            <textarea id="comment" class="form-control"
+                                onchange="calli.updateProperty(event, 'rdfs:comment')">{rdfs:comment}</textarea>
                         </div>
                     </div>
                 </fieldset>
@@ -55,7 +56,8 @@
                         <label for="everyoneFrom">Authenticated access from</label>
                         <div class="auto-prompt">
                             <input id="everyoneFrom" property="calli:everyoneFrom" content="?everyoneFrom" value="{?everyoneFrom}"
-                                type="text" pattern="[\w\-\.]*" placeholder="domain.name" class="form-control" />
+                                type="text" pattern="[\w\-\.]*" placeholder="domain.name" class="form-control"
+                                onchange="calli.updateProperty(event, 'calli:everyoneFrom')" />
                             <a href="javascript:void(0)" title="More" onclick="return calli.addResource(event)" class="glyphicon glyphicon-plus" />
                         </div>
                     </div>
@@ -63,7 +65,8 @@
                         <label for="nobodyFrom">Deny access from</label>
                         <div class="auto-prompt">
                             <input id="nobodyFrom" property="calli:nobodyFrom" content="?nobodyFrom" value="{?nobodyFrom}"
-                                type="text" pattern="[\w\-\.]*" placeholder="domain.name" class="form-control" />
+                                type="text" pattern="[\w\-\.]*" placeholder="domain.name" class="form-control"
+                                onchange="calli.updateProperty(event, 'calli:nobodyFrom')" />
                             <a href="javascript:void(0)" title="More" onclick="return calli.addResource(event)" class="glyphicon glyphicon-plus" />
                         </div>
                     </div>

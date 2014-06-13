@@ -16,11 +16,13 @@
             <fieldset class="col-sm-4">
                 <div class="form-group">
                     <label for="label">Label</label>
-                    <input type="text" class="form-control" id="label" value="{rdfs:label}" required="required" />
+                    <input type="text" class="form-control" id="label" value="{rdfs:label}" required="required"
+                        onchange="calli.updateProperty(event, 'rdfs:label')" />
                 </div>
                 <div class="form-group">
                     <label for="comment">Comment</label>
-                    <textarea id="comment" class="form-control">{rdfs:comment}</textarea>
+                    <textarea id="comment" class="form-control"
+                        onchange="calli.updateProperty(event, 'rdfs:comment')">{rdfs:comment}</textarea>
                 </div>
                 <div class="form-group">
                     <button type="submit" class="btn btn-primary">Save</button>

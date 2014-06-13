@@ -31,7 +31,8 @@
                         <div class="form-group">
                             <label for="comment">Description</label>
                             <div>
-                                <textarea id="comment" class="form-control">{rdfs:comment}</textarea>
+                                <textarea id="comment" class="form-control"
+                                    onchange="calli.updateProperty(event, 'rdfs:comment')">{rdfs:comment}</textarea>
                             </div>
                         </div>
                     </fieldset>

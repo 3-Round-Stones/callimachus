@@ -25,25 +25,29 @@
                 <div class="form-group">
                     <label for="label">Label</label>
                     <div>
-                        <input type="text" class="form-control" id="label" value="{rdfs:label}" required="required" autofocus="autofocus" />
+                        <input type="text" class="form-control" id="label" value="{rdfs:label}" required="required" autofocus="autofocus"
+                            onchange="calli.updateProperty(event, 'rdfs:label')" />
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="comment">Comment</label>
                     <div>
-                        <textarea id="comment" class="form-control">{rdfs:comment}</textarea>
+                        <textarea id="comment" class="form-control"
+                            onchange="calli.updateProperty(event, 'rdfs:comment')">{rdfs:comment}</textarea>
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="jdbcUrl">JDBC URL</label>
                     <div>
-                        <input type="text" class="form-control" id="jdbcUrl" value="{calli:jdbcUrl}" required="required" />
+                        <input type="text" class="form-control" id="jdbcUrl" value="{calli:jdbcUrl}" required="required"
+                            onchange="calli.updateProperty(event, 'calli:jdbcUrl')" />
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="driverClassName">Driver class name</label>
                     <div>
-                        <input type="text" class="form-control" id="driverClassName" value="{calli:driverClassName}" required="required" />
+                        <input type="text" class="form-control" id="driverClassName" value="{calli:driverClassName}" required="required"
+                            onchange="calli.updateProperty(event, 'calli:driverClassName')" />
                     </div>
                 </div>
                 <div id="driverJar" dropzone="link string:text/uri-list" class="form-group"
@@ -70,31 +74,36 @@
                 <div class="form-group">
                     <label for="validationQuery">Validation query</label>
                     <div>
-                        <input type="text" class="form-control" id="validationQuery" value="{calli:validationQuery}" />
+                        <input type="text" class="form-control" id="validationQuery" value="{calli:validationQuery}"
+                            onchange="calli.updateProperty(event, 'calli:validationQuery')" />
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="maxActive">Max active</label>
                     <div>
-                        <input type="integer" class="form-control" id="maxActive" value="{calli:maxActive}" datatype="xsd:integer" />
+                        <input type="integer" class="form-control" id="maxActive" value="{calli:maxActive}" datatype="xsd:integer"
+                            onchange="calli.updateProperty(event, 'calli:maxActive')" />
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="maxIdle">Max idle</label>
                     <div>
-                        <input type="integer" class="form-control" id="maxIdle" value="{calli:maxIdle}" datatype="xsd:integer" />
+                        <input type="integer" class="form-control" id="maxIdle" value="{calli:maxIdle}" datatype="xsd:integer"
+                            onchange="calli.updateProperty(event, 'calli:maxIdle')" />
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="maxWait">Max wait</label>
                     <div>
-                        <input type="integer" class="form-control" id="maxWait" value="{calli:maxWait}" datatype="xsd:integer" />
+                        <input type="integer" class="form-control" id="maxWait" value="{calli:maxWait}" datatype="xsd:integer"
+                            onchange="calli.updateProperty(event, 'calli:maxWait')" />
                     </div>
                 </div>
             </fieldset>
         </div>
         <fieldset class="form-group">
-            <input type="hidden" id="created" value="{dcterms:created}" datatype="xsd:dateTime" />
+            <input type="hidden" id="created" value="{dcterms:created}" datatype="xsd:dateTime"
+                onchange="calli.updateProperty(event, 'dcterms:created')" />
             <button id="create-datasource" type="submit" class="btn btn-success">Create</button>
         </fieldset>
     </form>

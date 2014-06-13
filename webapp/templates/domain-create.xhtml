@@ -27,17 +27,20 @@
                         <div class="form-group">
                             <label for="label">Name</label>
                             <div>
-                                <input id="label" value="{rdfs:label}" type="text" class="form-control" required="required" autofocus="autofocus" />
+                                <input id="label" value="{rdfs:label}" type="text" class="form-control" required="required" autofocus="autofocus"
+                                onchange="calli.updateProperty(event, 'rdfs:label')" />
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="comment">Description</label>
                             <div>
-                                <textarea id="comment" class="form-control">{rdfs:comment}</textarea>
+                                <textarea id="comment" class="form-control"
+                                    onchange="calli.updateProperty(event, 'rdfs:comment')">{rdfs:comment}</textarea>
                             </div>
                         </div>
                         <div class="form-group">
-                            <input type="hidden" id="created" value="{dcterms:created}" datatype="xsd:dateTime" />
+                            <input type="hidden" id="created" value="{dcterms:created}" datatype="xsd:dateTime"
+                                onchange="calli.updateProperty(event, 'dcterms:created')" />
                             <button id="create" type="submit" class="btn btn-success">Create</button>
                         </div>
                     </fieldset>

@@ -154,7 +154,8 @@
                         <div class="form-group">
                             <label for="cache">Cache control</label>
                             <div>
-                            	<input type="text" class="form-control"  id="cache" value="{calli:cacheControl}" placeholder="max-age=3600" />
+                            	<input type="text" class="form-control"  id="cache" value="{calli:cacheControl}" placeholder="max-age=3600"
+                                    onchange="calli.updateProperty(event, 'calli:cacheControl')" />
                             </div>
                         </div>
                     </fieldset>

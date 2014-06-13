@@ -2,9 +2,9 @@ Callimachus Project Release Notes
 
 http://callimachusproject.org/
 
-24 April 2014
+13 June 2014
 
-= REQUIREMENTS FOR CALLIMACHUS 1.3.1 (Open Source) =
+= REQUIREMENTS FOR CALLIMACHUS 1.3.3 (Open Source) =
 
 Callimachus works best on browsers that are closely tracking the development
 of HTML5.  At the time of this writing, Callimachus works best on Chrome and
@@ -21,6 +21,15 @@ Details of browser support may be found at:
 
 The Callimachus server requires Java JDK 1.7 on the server to run.
 
+= NEW IN VERSION 1.3.3 =
+
+ * Support for hosting generic XML files.
+ * Warning when starting Callimachus without running the setup script first (Linux and Mac).
+ * Newly created file names are no longer forced to lower-case.
+ * Added support for skos:narrower relationship on the SKOS Concept create template.
+ * Improved error reporting for corner cases.
+ * Support for hosting JSON files.
+
 = NEW IN VERSION 1.3.1 =
 
  * Folder view tour
@@ -36,14 +45,14 @@ The Callimachus server requires Java JDK 1.7 on the server to run.
  * Ability to host/serve ZIP, JAR, and CAR files.
  * SQL Datastore endpoint to connect with relational databases.
 
-= KNOWN ISSUES IN 1.3.1 =
+= KNOWN ISSUES IN 1.3.3 =
 
  * All possible options in check boxes must have a label.
  * rdf:XMLLiteral on form create auto adds xmlns to elements.
  * When resource labels are updated, referencing resource may not display new
    label until they are modified as well or the callimachus-reset script is run.
  * Template variables are only bound if there is at least one triple binding after them.
- * Large folder imports will only success if importing into an empty folder.
+ * Large folder imports will only succeed if importing into an empty folder.
 
 = HOWTO UPGRADE =
 

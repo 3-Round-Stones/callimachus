@@ -551,6 +551,9 @@ daemon_run()
 #
 do_start()
 {
+  if [ -z "$ORIGIN" ] ; then
+    log_warning_msg "No Web origin configured. Either you are configuring remotely or you should run callimachus-setup.sh first."
+  fi
   LSOF="$(which lsof 2>/dev/null)"
   LSOF_OPTS="$(echo $PORT |perl -pe 's/(^|\s)(\S)/ -i :$2/g' 2>/dev/null) $(echo $SSLPORT |perl -pe 's/(^|\s)(\S)/ -i :$2/g' 2>/dev/null)"
   if [ -n "$LSOF" ] && [ -n "$PORT" -o -n "$SSLPORT" ] && "$LSOF" $LSOF_OPTS |grep "LISTEN" ; then

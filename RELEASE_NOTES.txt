@@ -24,6 +24,7 @@ The Callimachus server requires Java JDK 1.7 on the server to run.
 = NEW IN VERSION 1.3.3 =
 
  * Support for hosting generic XML files.
+ * Warning when starting Callimachus without running the setup script first (Linux and Mac).
  * Newly created file names are no longer forced to lower-case.
  * Added support for skos:narrower relationship on the SKOS Concept create template.
  * Improved error reporting for corner cases.

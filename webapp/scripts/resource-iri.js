@@ -13,7 +13,7 @@ if (!window.calli) {
 window.calli.listResourceIRIs = function (text) {
     var set = text ? text.replace(/\s+$/,"").replace(/^\s+/,"").replace(/\s+/g,'\n') : "";
     return $(set.split(/[^a-zA-Z0-9\-\._~%!\$\&'\(\)\*\+,;=:\/\?\#\[\]@]+/)).filter(function() {
-        if (!this || this.indexOf('_:') <= 0)
+        if (!this || this.indexOf('_:') >= 0)
             return false;
         return this.indexOf(':') >= 0 || this.indexOf('/') >= 0;
     }).map(function() {

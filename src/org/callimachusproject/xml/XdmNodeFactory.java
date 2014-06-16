@@ -42,7 +42,7 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
 public class XdmNodeFactory implements EntityResolver, URIResolver, ModuleURIResolver {
-	private static final String XML_MEDIA = "application/xml, application/xslt+xml, text/xml, text/xsl";
+	private static final String XML_MEDIA = "application/xml, application/xslt+xml, application/xproc+xml, text/xml, text/xsl";
 	private static final String XQUERY_MEDIA = "application/xquery, " + XML_MEDIA;
 	private final Processor processor;
 	private final InputSourceResolver xmlResolver;

@@ -154,7 +154,13 @@ public class InvokeHandler implements ClientExecChain {
 				throw e;
 			}
 		} finally {
-			body.asVoid();
+			if (body != null) {
+				try {
+					body.asVoid();
+				} catch (IOException e) {
+					logger.error(req.toString(), e);
+				}
+			}
 		}
 	}
 

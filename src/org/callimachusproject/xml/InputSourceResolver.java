@@ -46,12 +46,15 @@ import org.apache.http.client.HttpClient;
 import org.callimachusproject.client.HttpUriClient;
 import org.callimachusproject.client.HttpUriEntity;
 import org.callimachusproject.server.exceptions.NotFound;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 
 public class InputSourceResolver implements EntityResolver, URIResolver, ModuleURIResolver, UnparsedTextURIResolver {
 	private static final Pattern CHARSET = Pattern
 			.compile("\\bcharset\\s*=\\s*([\\w-:]+)");
+	private final Logger logger = LoggerFactory.getLogger(InputSourceResolver.class);
 	private final HttpUriClient client;
 	private final String accept;
 
@@ -187,6 +190,9 @@ public class InputSourceResolver implements EntityResolver, URIResolver, ModuleU
 			return create(type, in, systemId);
 		} catch (NotFound e) {
 			return null;
+		} catch (IOException e) {
+			logger.warn("Could not resolve {}", systemId);
+			throw e;
 		}
 	}
 
@@ -208,6 +214,9 @@ public class InputSourceResolver implements EntityResolver, URIResolver, ModuleU
 			return create(type, in, base);
 		} catch (FileNotFoundException e) {
 			return null;
+		} catch (IOException e) {
+			logger.warn("Could not resolve {}", systemId);
+			throw e;
 		}
 	}
 

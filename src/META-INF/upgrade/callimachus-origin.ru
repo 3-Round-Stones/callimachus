@@ -62,7 +62,7 @@ INSERT {
 		calli:reader </auth/groups/public>;
 		calli:subscriber </auth/groups/everyone>;
 		calli:administrator </auth/groups/admin>;
-		calli:authButton <images/digest_64.png>;
+		calli:authButton <../digest_64.png>;
 		calli:authName ?name;
 		calli:authNamespace ?space .
 	?yahoo a <types/OpenIDManager>, calli:OpenIDManager, calli:AuthenticationManager;
@@ -71,7 +71,7 @@ INSERT {
 		calli:reader </auth/groups/public>;
 		calli:subscriber </auth/groups/everyone>;
 		calli:administrator </auth/groups/admin>;
-		calli:authButton <images/yahoo_64.png>;
+		calli:authButton <../yahoo_64.png>;
 		calli:openIdEndpointUrl "https://open.login.yahooapis.com/openid/op/auth";
 		calli:openIdRealm ?realmPattern .
 	?google a <types/OpenIDManager>, calli:OpenIDManager, calli:AuthenticationManager;
@@ -80,7 +80,7 @@ INSERT {
 		calli:reader </auth/groups/public>;
 		calli:subscriber </auth/groups/everyone>;
 		calli:administrator </auth/groups/admin>;
-		calli:authButton <images/google_64.png>;
+		calli:authButton <../google_64.png>;
 		calli:openIdEndpointUrl "https://www.google.com/accounts/o8/ud";
 		calli:openIdRealm ?realmPattern .
 } WHERE {

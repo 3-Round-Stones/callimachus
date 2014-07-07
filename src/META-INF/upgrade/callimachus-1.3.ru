@@ -65,3 +65,114 @@ INSERT {
 	FILTER NOT EXISTS { <../json-editor.html> a calli:Purl }
 };
 
+INSERT {
+<../> calli:hasComponent <../digest_64.png> .
+<../digest_64.png> a <types/Purl>, calli:Purl ;
+	rdfs:label "digest_64.png";
+	calli:alternate ?alternate;
+	calli:administrator </auth/groups/super>;
+	calli:reader </auth/groups/public> .
+} WHERE {
+    BIND (str(<images/digest_64.png>) AS ?alternate)
+	FILTER NOT EXISTS { <../digest_64.png> a calli:Purl }
+};
+
+INSERT {
+<../> calli:hasComponent <../google_64.png> .
+<../google_64.png> a <types/Purl>, calli:Purl ;
+	rdfs:label "google_64.png";
+	calli:alternate ?alternate;
+	calli:administrator </auth/groups/super>;
+	calli:reader </auth/groups/public> .
+} WHERE {
+    BIND (str(<images/google_64.png>) AS ?alternate)
+	FILTER NOT EXISTS { <../google_64.png> a calli:Purl }
+};
+
+INSERT {
+<../> calli:hasComponent <../yahoo_64.png> .
+<../yahoo_64.png> a <types/Purl>, calli:Purl ;
+	rdfs:label "yahoo_64.png";
+	calli:alternate ?alternate;
+	calli:administrator </auth/groups/super>;
+	calli:reader </auth/groups/public> .
+} WHERE {
+    BIND (str(<images/yahoo_64.png>) AS ?alternate)
+	FILTER NOT EXISTS { <../yahoo_64.png> a calli:Purl }
+};
+
+INSERT {
+<../> calli:hasComponent <../facebook_64.png> .
+<../facebook_64.png> a <types/Purl>, calli:Purl ;
+	rdfs:label "facebook_64.png";
+	calli:alternate ?alternate;
+	calli:administrator </auth/groups/super>;
+	calli:reader </auth/groups/public> .
+} WHERE {
+    BIND (str(<images/facebook_64.png>) AS ?alternate)
+	FILTER NOT EXISTS { <../facebook_64.png> a calli:Purl }
+};
+
+INSERT {
+<../> calli:hasComponent <../openid_64.png> .
+<../openid_64.png> a <types/Purl>, calli:Purl ;
+	rdfs:label "openid_64.png";
+	calli:alternate ?alternate;
+	calli:administrator </auth/groups/super>;
+	calli:reader </auth/groups/public> .
+} WHERE {
+    BIND (str(<images/openid_64.png>) AS ?alternate)
+	FILTER NOT EXISTS { <../openid_64.png> a calli:Purl }
+};
+
+DELETE {
+    ?mgr calli:authButton <images/digest_64.png>
+} INSERT {
+    ?mgr calli:authButton <../digest_64.png>
+} WHERE {
+    ?mgr calli:authButton <images/digest_64.png>
+};
+
+DELETE {
+    ?mgr calli:authButton <images/google_64.png>
+} INSERT {
+    ?mgr calli:authButton <../google_64.png>
+} WHERE {
+    ?mgr calli:authButton <images/google_64.png>
+};
+
+DELETE {
+    ?mgr calli:authButton <images/yahoo_64.png>
+} INSERT {
+    ?mgr calli:authButton <../yahoo_64.png>
+} WHERE {
+    ?mgr calli:authButton <images/yahoo_64.png>
+};
+
+DELETE {
+    ?mgr calli:authButton <images/facebook_64.png>
+} INSERT {
+    ?mgr calli:authButton <../facebook_64.png>
+} WHERE {
+    ?mgr calli:authButton <images/facebook_64.png>
+};
+
+DELETE {
+    ?mgr calli:authButton <images/openid_64.png>
+} INSERT {
+    ?mgr calli:authButton <../openid_64.png>
+} WHERE {
+    ?mgr calli:authButton <images/openid_64.png>
+};
+
+DELETE {
+    ?purl calli:alternate ?iri
+} INSERT {
+    ?purl calli:alternate ?str
+} WHERE {
+    <../> calli:hasComponent ?purl .
+    ?purl calli:alternate ?iri .
+    FILTER isIRI(?iri)
+    BIND (str(?iri) AS ?str)
+};
+

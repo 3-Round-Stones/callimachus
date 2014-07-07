@@ -27,7 +27,7 @@ INSERT {
 <../ontology> a <types/Serviceable>, owl:Ontology;
     rdfs:label "ontology";
     rdfs:comment "Vocabulary used to create local Callimachus applications";
-    owl:versionInfo "1.1";
+    owl:versionInfo "1.3";
     calli:administrator </auth/groups/admin>.
 } WHERE {
 	FILTER NOT EXISTS { <../ontology> a owl:Ontology }
@@ -99,17 +99,18 @@ INSERT {
     </admin> a <types/Purl>, calli:Purl ;
     rdfs:label "admin";
     rdfs:comment "Use the link below to manage groups and invite new users";
-    calli:alternate <pages/invite-users.xhtml?view>;
+	calli:alternate ?alternate;
 	calli:administrator </auth/groups/super>;
 	calli:reader </auth/groups/admin> .
 } WHERE {
+    BIND (str(<pages/invite-users.xhtml?view>) AS ?alternate)
 	FILTER NOT EXISTS { </admin> a calli:Purl }
 };
 
 INSERT {
     <../getting-started-with-callimachus> a <types/Purl>, calli:Purl ;
 	rdfs:label "getting-started-with-callimachus";
-	calli:alternate <http://callimachusproject.org/docs/1.3/getting-started-with-callimachus.docbook?view>;
+	calli:alternate "http://callimachusproject.org/docs/1.4/getting-started-with-callimachus.docbook?view";
 	calli:administrator </auth/groups/super>;
 	calli:reader </auth/groups/public> .
 } WHERE {
@@ -119,7 +120,7 @@ INSERT {
 INSERT {
     <../callimachus-for-web-developers> a <types/Purl>, calli:Purl ;
 	rdfs:label "callimachus-for-web-developers";
-	calli:alternate <http://callimachusproject.org/docs/1.3/callimachus-for-web-developers.docbook?view>;
+	calli:alternate "http://callimachusproject.org/docs/1.4/callimachus-for-web-developers.docbook?view";
 	calli:administrator </auth/groups/super>;
 	calli:reader </auth/groups/public> .
 } WHERE {
@@ -129,7 +130,7 @@ INSERT {
 INSERT {
     <../callimachus-reference> a <types/Purl>, calli:Purl ;
 	rdfs:label "callimachus-reference";
-	calli:alternate <http://callimachusproject.org/docs/1.3/callimachus-reference.docbook?view>;
+	calli:alternate "http://callimachusproject.org/docs/1.4/callimachus-reference.docbook?view";
 	calli:administrator </auth/groups/super>;
 	calli:reader </auth/groups/public> .
 } WHERE {
@@ -151,10 +152,11 @@ INSERT {
 <../> calli:hasComponent <../query-view.js>.
 <../query-view.js> a <types/Purl>, calli:Purl ;
 	rdfs:label "query-view.js";
-	calli:alternate <scripts/query_bundle?minified>;
+	calli:alternate ?alternate;
 	calli:administrator </auth/groups/super>;
 	calli:reader </auth/groups/public> .
 } WHERE {
+    BIND (str(<scripts/query_bundle?minified>) AS ?alternate)
     FILTER NOT EXISTS { <../> calli:hasComponent <../query-view.js> }
 };
 
@@ -162,10 +164,11 @@ INSERT {
 <../> calli:hasComponent <../query-view.css>.
 <../query-view.css> a <types/Purl>, calli:Purl ;
 	rdfs:label "query-view.css";
-	calli:alternate <styles/callimachus-query-view.less?less>;
+	calli:alternate ?alternate;
 	calli:administrator </auth/groups/super>;
 	calli:reader </auth/groups/public> .
 } WHERE {
+    BIND (str(<styles/callimachus-query-view.less?less>) AS ?alternate)
     FILTER NOT EXISTS { <../> calli:hasComponent <../query-view.css> }
 };
 
@@ -194,10 +197,11 @@ INSERT {
 INSERT {
 <../forbidden.html> a <types/Purl>, calli:Purl ;
 	rdfs:label "forbidden.html";
-	calli:alternate <pages/forbidden.xhtml?html>;
+	calli:alternate ?alternate;
 	calli:administrator </auth/groups/super>;
 	calli:reader </auth/groups/public> .
 } WHERE {
+    BIND (str(<pages/forbidden.xhtml?html>) AS ?alternate)
 	FILTER NOT EXISTS { <../forbidden.html> a calli:Purl }
 };
 
@@ -343,6 +347,66 @@ INSERT {
 } WHERE {
     BIND (str(<pages/text-editor.html#xquery>) AS ?alternate)
 	FILTER NOT EXISTS { <../xquery-editor.html> a calli:Purl }
+};
+
+INSERT {
+<../> calli:hasComponent <../digest_64.png> .
+<../digest_64.png> a <types/Purl>, calli:Purl ;
+	rdfs:label "digest_64.png";
+	calli:alternate ?alternate;
+	calli:administrator </auth/groups/super>;
+	calli:reader </auth/groups/public> .
+} WHERE {
+    BIND (str(<images/digest_64.png>) AS ?alternate)
+	FILTER NOT EXISTS { <../digest_64.png> a calli:Purl }
+};
+
+INSERT {
+<../> calli:hasComponent <../google_64.png> .
+<../google_64.png> a <types/Purl>, calli:Purl ;
+	rdfs:label "google_64.png";
+	calli:alternate ?alternate;
+	calli:administrator </auth/groups/super>;
+	calli:reader </auth/groups/public> .
+} WHERE {
+    BIND (str(<images/google_64.png>) AS ?alternate)
+	FILTER NOT EXISTS { <../google_64.png> a calli:Purl }
+};
+
+INSERT {
+<../> calli:hasComponent <../yahoo_64.png> .
+<../yahoo_64.png> a <types/Purl>, calli:Purl ;
+	rdfs:label "yahoo_64.png";
+	calli:alternate ?alternate;
+	calli:administrator </auth/groups/super>;
+	calli:reader </auth/groups/public> .
+} WHERE {
+    BIND (str(<images/yahoo_64.png>) AS ?alternate)
+	FILTER NOT EXISTS { <../yahoo_64.png> a calli:Purl }
+};
+
+INSERT {
+<../> calli:hasComponent <../facebook_64.png> .
+<../facebook_64.png> a <types/Purl>, calli:Purl ;
+	rdfs:label "facebook_64.png";
+	calli:alternate ?alternate;
+	calli:administrator </auth/groups/super>;
+	calli:reader </auth/groups/public> .
+} WHERE {
+    BIND (str(<images/facebook_64.png>) AS ?alternate)
+	FILTER NOT EXISTS { <../facebook_64.png> a calli:Purl }
+};
+
+INSERT {
+<../> calli:hasComponent <../openid_64.png> .
+<../openid_64.png> a <types/Purl>, calli:Purl ;
+	rdfs:label "openid_64.png";
+	calli:alternate ?alternate;
+	calli:administrator </auth/groups/super>;
+	calli:reader </auth/groups/public> .
+} WHERE {
+    BIND (str(<images/openid_64.png>) AS ?alternate)
+	FILTER NOT EXISTS { <../openid_64.png> a calli:Purl }
 };
 
 ################################

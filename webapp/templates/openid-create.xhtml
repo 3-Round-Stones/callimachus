@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <html version="XHTML+RDFa 1.0" xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:xi="http://www.w3.org/2001/XInclude"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
@@ -23,11 +24,26 @@
             $('#realm').val(parameter('realm')).change();
 	        var authButton = parameter('button');
 	        if (authButton) {
-	            var de = jQuery.Event('drop');
-	            de.dataTransfer = {getData:function(){return authButton}};
-	            $('#authButton').trigger(de);
-	        }
+                var select = $('#authButton-select');
+                var option = select.find('option').filter(function(){
+                    return this.value == authButton;
+                });
+                if (!option.length) {
+                    select.preppend($('<option></option>', {
+                        selected: 'selected',
+                        value: authButton
+                    }).text(authButton.replace(/.*\//,'')));
+                }
+                select.val(authButton).change();
+            }
         }
+        $('#authButton-select').selectize({
+            render: {
+                option: function(item, escape) {
+                    return '<img src="' + escape(item.value) + '" alt="' + escape(item.text) + '" />';
+                }
+            }
+        });
         $('#created').val(new Date().toISOString()).change();
     }); // ]]>
     </script>
@@ -71,12 +87,13 @@
                     </div>
                 </div>
                 <div id="authButton" dropzone="link string:text/uri-list" class="form-group" ondrop="return calli.insertResource(event)">
-                    <label>Authentication button <a href="../types/Image?create" title="Upload"
-                            onclick="return calli.createResource(event)" class="glyphicon glyphicon-list-alt" /></label>
-                    <div rel="calli:authButton">
-                        <span resource="?img" typeof="foaf:Image" class="label label-info">
-                            <img src="{?img}" />
-                        </span>
+                    <label for="authButton-select">Authentication button</label>
+                    <div>
+                        <select id="authButton-select" placeholder="Choose a button graphic"
+                                onchange="calli.updateResource(event,'calli:authButton')">
+                            <option selected="selected" rel="calli:authButton" resource="?authButton" value="{?authButton}">{rdfs:label}</option>
+                            <xi:include href="../queries/auth-button.rq?select" xpointer="xpath(/*/node())" />
+                        </select>
                     </div>
                 </div>
             </fieldset>

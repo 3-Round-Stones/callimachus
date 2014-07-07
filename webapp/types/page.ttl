@@ -29,7 +29,7 @@
     rdfs:subClassOf calli:Page, <File>;
     rdfs:label "XHTML file";
     rdfs:comment "Hypertext XHTML files served with Callimachus preprocessing.";
-    owl:equivalentClass </callimachus/Page>, </callimachus/1.0/types/Page>;
+    owl:equivalentClass </callimachus/Page>, </callimachus/1.0/types/Page>, </callimachus/1.3/types/Page>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/staff>,</auth/groups/power>,</auth/groups/admin>;

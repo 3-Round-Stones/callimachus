@@ -29,7 +29,7 @@
     rdfs:subClassOf <Book>;
     rdfs:label "Article";
     rdfs:comment "An Article is a DocBook file, a popular and open standard for marking up technical documentation.";
-    owl:equivalentClass </callimachus/Article>, </callimachus/1.0/types/Article>;
+    owl:equivalentClass </callimachus/Article>, </callimachus/1.0/types/Article>, </callimachus/1.3/types/Article>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/power>,</auth/groups/admin>;

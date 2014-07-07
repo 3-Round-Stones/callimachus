@@ -29,7 +29,7 @@
     rdfs:label "File";
     rdfs:comment "Upload a file with a known file type and extension.";
     rdfs:subClassOf <Viewable>, <Editable>, foaf:Document;
-    owl:equivalentClass </callimachus/File>, </callimachus/1.0/types/File>;
+    owl:equivalentClass </callimachus/File>, </callimachus/1.0/types/File>, </callimachus/1.3/types/File>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/power>,</auth/groups/admin>;

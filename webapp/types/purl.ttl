@@ -31,7 +31,7 @@
     rdfs:subClassOf <Viewable>, <Editable>, calli:Purl;
     rdfs:label "PURL";
     rdfs:comment "Persistent Uniform Resource Location of a Web resource.";
-    owl:equivalentClass </callimachus/PURL>, </callimachus/1.0/types/PURL>;
+    owl:equivalentClass </callimachus/PURL>, </callimachus/1.0/types/PURL>, </callimachus/1.3/types/Purl>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/power>,</auth/groups/admin>;

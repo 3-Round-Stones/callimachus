@@ -29,7 +29,7 @@
     rdfs:subClassOf foaf:Image, <File>;
     rdfs:label "Image" ;
     rdfs:comment "Image file";
-    owl:equivalentClass </callimachus/Image>, </callimachus/1.0/types/Image>;
+    owl:equivalentClass </callimachus/Image>, </callimachus/1.0/types/Image>, </callimachus/1.3/types/Image>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/power>,</auth/groups/admin>;
@@ -43,7 +43,7 @@
     rdfs:subClassOf <Image>;
     rdfs:label "GIF image" ;
     rdfs:comment "An image in Graphics Interchange Format.  May be animated." ;
-    owl:equivalentClass </callimachus/AnimatedGraphic>, </callimachus/1.0/types/AnimatedGraphic>;
+    owl:equivalentClass </callimachus/AnimatedGraphic>, </callimachus/1.0/types/AnimatedGraphic>, </callimachus/1.3/types/AnimatedGraphic>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/power>,</auth/groups/admin>;
@@ -56,7 +56,7 @@
     rdfs:subClassOf <Image>;
     rdfs:label "Icon image" ;
     rdfs:comment "An image in ICO format used for icons." ;
-    owl:equivalentClass </callimachus/IconGraphic>, </callimachus/1.0/types/IconGraphic>;
+    owl:equivalentClass </callimachus/IconGraphic>, </callimachus/1.0/types/IconGraphic>, </callimachus/1.3/types/IconGraphic>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/power>,</auth/groups/admin>;
@@ -69,7 +69,7 @@
     rdfs:subClassOf <Image>;
     rdfs:label "PNG image" ;
     rdfs:comment "An image in Portable Network Graphic format." ;
-    owl:equivalentClass </callimachus/NetworkGraphic>, </callimachus/1.0/types/NetworkGraphic>;
+    owl:equivalentClass </callimachus/NetworkGraphic>, </callimachus/1.0/types/NetworkGraphic>, </callimachus/1.3/types/NetworkGraphic>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/power>,</auth/groups/admin>;

@@ -29,8 +29,8 @@
 <Font> a <Creatable>, owl:Class;
     rdfs:subClassOf <File>;
     rdfs:label "Font" ;
-    rdfs:comemnt "Web Open Font Format (WOFF) is a font format for use in web pages.";
-    owl:equivalentClass </callimachus/Font>, </callimachus/1.0/types/Font>;
+    rdfs:comment "Web Open Font Format (WOFF) is a font format for use in web pages.";
+    owl:equivalentClass </callimachus/Font>, </callimachus/1.0/types/Font>, </callimachus/1.3/types/Font>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/power>,</auth/groups/admin>;

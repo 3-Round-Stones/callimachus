@@ -29,7 +29,7 @@
     rdfs:subClassOf <File>;
     rdfs:label "Text file";
     rdfs:comment "A plain text file.";
-    owl:equivalentClass </callimachus/TextFile>, </callimachus/1.0/types/TextFile>;
+    owl:equivalentClass </callimachus/TextFile>, </callimachus/1.0/types/TextFile>, </callimachus/1.3/types/TextFile>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/staff>,</auth/groups/power>,</auth/groups/admin>;

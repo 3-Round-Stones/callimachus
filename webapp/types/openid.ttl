@@ -29,7 +29,7 @@
 
 <OpenIDManager> a <Creatable>, owl:Class;
     rdfs:subClassOf <AuthManager>, calli:OpenIDManager;
-    owl:equivalentClass </callimachus/1.0/types/OpenIDManager>;
+    owl:equivalentClass </callimachus/1.0/types/OpenIDManager>, </callimachus/1.3/types/OpenIDManager>;
     rdfs:label "OpenID Manager";
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;
@@ -45,6 +45,7 @@
 <FacebookManager> a <Creatable>, owl:Class;
     rdfs:subClassOf <AuthManager>, calli:FacebookManager;
     rdfs:label "Facebook Manager";
+    owl:equivalentClass </callimachus/1.3/types/FacebookManager>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/admin>;
@@ -59,6 +60,7 @@
 <AuthManager> a <Creatable>, owl:Class;
     rdfs:subClassOf <Viewable>, <Editable>, calli:CookieAuthManager;
     rdfs:label "Auth Manager";
+    owl:equivalentClass </callimachus/1.3/types/AuthManager>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;
     calli:create <../templates/authmanager-create.xhtml>.

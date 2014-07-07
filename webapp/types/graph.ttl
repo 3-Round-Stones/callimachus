@@ -29,14 +29,14 @@
 <RdfSchemaGraph> a owl:Class;
     rdfs:subClassOf <Serviceable>;
     rdfs:label "RDF Schema graph";
-    owl:equivalentClass </callimachus/SchemaGraph>, </callimachus/1.0/types/SchemaGraph>;
+    owl:equivalentClass </callimachus/SchemaGraph>, </callimachus/1.0/types/SchemaGraph>, </callimachus/1.3/types/RdfSchemaGraph>;
     rdfs:isDefinedBy <../../ontology>.
 
 <RdfGraph> a <Creatable>, owl:Class;
     rdfs:subClassOf <File>, sd:NamedGraph;
-    owl:equivalentClass </callimachus/1.0/types/NamedGraph>;
+    owl:equivalentClass </callimachus/1.0/types/NamedGraph>, </callimachus/1.3/types/RdfGraph>;
     rdfs:label "RDF/XML graph";
-    rdfs:comemnt "RDF document encoded as a RDF/XML file.";
+    rdfs:comment "RDF document encoded as a RDF/XML file.";
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/admin>;
@@ -49,7 +49,7 @@
 
 <RdfTurtle> a <Creatable>, owl:Class;
     rdfs:subClassOf <File>, sd:NamedGraph;
-    owl:equivalentClass </callimachus/1.0/types/GraphDocument>;
+    owl:equivalentClass </callimachus/1.0/types/GraphDocument>, </callimachus/1.3/types/RdfTurtle>;
     rdfs:label "RDF Turtle graph";
     rdfs:comment "RDF document encoded as a Turtle file.";
     rdfs:isDefinedBy <../../ontology>;

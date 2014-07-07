@@ -30,7 +30,7 @@
 
 <RdfDatasource> a <Creatable>, owl:Class;
     rdfs:subClassOf <Viewable>, <Editable>, calli:RdfDatasource;
-    owl:equivalentClass </callimachus/1.0/types/Datasource>;
+    owl:equivalentClass </callimachus/1.0/types/Datasource>, </callimachus/1.3/types/RdfDatasource>;
     rdfs:label "RDF datasource";
     rdfs:comment "A SPARQL endpoint service for a mutable dataset";
     rdfs:isDefinedBy <../../ontology>;

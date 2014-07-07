@@ -12,6 +12,30 @@ PREFIX msg:<http://www.openrdf.org/rdf/2011/messaging#>
 PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
 
 DELETE {
+	?resource a ?equivalent .
+} INSERT {
+	?resource a ?class .
+} WHERE {
+    <types/> calli:hasComponent ?schema .
+    GRAPH ?schema { ?class a owl:Class ; owl:equivalentClass ?equivalent }
+    FILTER (?equivalent != ?class)
+    ?resource a ?equivalent .
+    FILTER (!strstarts(str(?resource),str(</callimachus/>)))
+};
+
+DELETE {
+	GRAPH ?graph { ?subclass rdfs:subClassOf ?equivalent }
+} INSERT {
+	GRAPH ?graph { ?subclass rdfs:subClassOf ?class }
+} WHERE {
+    <types/> calli:hasComponent ?schema .
+    GRAPH ?schema { ?class a owl:Class ; owl:equivalentClass ?equivalent }
+    FILTER (?equivalent != ?class)
+	GRAPH ?graph { ?subclass rdfs:subClassOf ?equivalent }
+    FILTER (!strstarts(str(?subclass),str(</callimachus/>)))
+};
+
+DELETE {
 	?file calli:reader </auth/groups/public>
 } INSERT {
 	?file calli:reader </auth/groups/system>, </auth/groups/admin>

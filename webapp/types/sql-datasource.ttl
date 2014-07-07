@@ -31,6 +31,7 @@
     rdfs:subClassOf <Viewable>, <Editable>, ctrl:SqlDatasource;
     rdfs:label "SQL datasource";
     rdfs:comment "A SQL endpoint service for a mutable dataset";
+    owl:equivalentClass </callimachus/1.3/types/SqlDatasource>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/admin>;

@@ -29,6 +29,7 @@
     rdfs:subClassOf <File>;
     rdfs:label "JavaScript Object Notation";
     rdfs:comment "A JavaScript Object Notation (JSON) file.";
+    owl:equivalentClass </callimachus/1.3/types/JavaScriptObjectNotation>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/staff>,</auth/groups/power>,</auth/groups/admin>;

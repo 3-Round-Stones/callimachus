@@ -176,3 +176,81 @@ DELETE {
     BIND (str(?iri) AS ?str)
 };
 
+DELETE {
+    <../getting-started-with-callimachus>  calli:alternate "http://callimachusproject.org/docs/1.3/getting-started-with-callimachus.docbook?view"
+} INSERT {
+    <../getting-started-with-callimachus>  calli:alternate "http://callimachusproject.org/docs/1.4/getting-started-with-callimachus.docbook?view"
+} WHERE {
+    <../getting-started-with-callimachus>  calli:alternate "http://callimachusproject.org/docs/1.3/getting-started-with-callimachus.docbook?view"
+};
+
+DELETE {
+    <../callimachus-for-web-developers> calli:alternate "http://callimachusproject.org/docs/1.3/callimachus-for-web-developers.docbook?view"
+} INSERT {
+    <../callimachus-for-web-developers> calli:alternate "http://callimachusproject.org/docs/1.4/callimachus-for-web-developers.docbook?view"
+} WHERE {
+    <../callimachus-for-web-developers> calli:alternate "http://callimachusproject.org/docs/1.3/callimachus-for-web-developers.docbook?view"
+};
+
+DELETE {
+    <../callimachus-reference> calli:alternate "http://callimachusproject.org/docs/1.3/callimachus-reference.docbook?view"
+} INSERT {
+    <../callimachus-reference> calli:alternate "http://callimachusproject.org/docs/1.4/callimachus-reference.docbook?view"
+} WHERE {
+    <../callimachus-reference> calli:alternate "http://callimachusproject.org/docs/1.3/callimachus-reference.docbook?view"
+};
+
+DELETE {
+    ?purl a <../1.3/types/Purl>; calli:alternate ?previous
+} INSERT {
+    ?purl a <../1.4/types/Purl>; calli:alternate ?currently
+} WHERE {
+    { <../> calli:hasComponent ?purl } UNION { </> calli:hasComponent ?purl }
+    ?purl a <../1.3/types/Purl>; calli:alternate ?previous .
+    FILTER strstarts(str(?previous), str(</callimachus/1.3/>))
+    BIND (concat(str(<../1.4/>), strafter(str(?previous),str(<../1.3/>))) AS ?currently)
+};
+
+DELETE {
+    <../profile> a <../1.3/types/RdfProfile>
+} INSERT {
+    <../profile> a <../1.4/types/RdfProfile>
+} WHERE {
+    <../profile> a <../1.3/types/RdfProfile>
+};
+
+DELETE {
+    ?folder a <../1.3/types/Folder>
+} INSERT {
+    ?folder a <../1.4/types/Folder>
+} WHERE {
+    <../changes/> calli:hasComponent* ?folder .
+    ?folder a <../1.3/types/Folder>
+};
+
+DELETE {
+    <../> a <../1.3/types/Folder>
+} INSERT {
+    <../> a <../1.4/types/Folder>
+} WHERE {
+    <../> a <../1.3/types/Folder>
+};
+
+# Setup process determins the Callimachus webapp location based on Origin path
+DELETE {
+	</> a <../1.3/types/Origin>
+} INSERT {
+	</> a <../1.4/types/Origin>
+} WHERE {
+	</> a <../1.3/types/Origin>
+};
+
+# Setup process determins upgrade file based on versionInfo
+DELETE {
+	</callimachus/ontology> a <../1.3/types/Serviceable>; owl:versionInfo "1.3"
+} INSERT {
+	</callimachus/ontology> a <../1.3/types/Serviceable>; owl:versionInfo "1.3"
+} WHERE {
+	</callimachus/ontology> a <../1.3/types/Serviceable>; owl:versionInfo "1.3"
+};
+

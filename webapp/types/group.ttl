@@ -30,7 +30,7 @@
     rdfs:subClassOf <Viewable>, <Editable>, calli:Group;
     rdfs:label "Group";
     rdfs:comment "Groups provide a way to assign permissions to a named set of users.";
-    owl:equivalentClass </callimachus/Group>, </callimachus/1.0/types/Group>;
+    owl:equivalentClass </callimachus/Group>, </callimachus/1.0/types/Group>, </callimachus/1.3/types/Group>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/power>,</auth/groups/admin>;

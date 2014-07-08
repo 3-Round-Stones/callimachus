@@ -46,7 +46,7 @@
 <body>
     <div class="container">
         <div class="row">
-            <form role="form" id="rdfForm" method="POST" action="" enctype="application/rdf+xml" typeof="calli:User calli:Party" autocomplete="off"
+            <form role="form" id="rdfForm" method="POST" action="" enctype="text/turtle" typeof="calli:User calli:Party" autocomplete="off"
                     onsubmit="return calli.saveResourceAs(event,calli.slugify($('#email').val()))" class="col-xs-6">
                 <input type="hidden" id="created" value="{dcterms:created}" datatype="xsd:dateTime"
                         onchange="calli.updateProperty(event, 'dcterms:created')" />

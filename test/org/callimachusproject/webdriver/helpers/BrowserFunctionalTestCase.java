@@ -339,7 +339,7 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 			WebResource home = new WebResource(url);
 			home.get("text/html");
 			home.ref("/callimachus/scripts.js").get("text/javascript");
-			home.ref("/callimachus/1.3/styles/callimachus.less?less").get(
+			home.ref("/callimachus/1.4/styles/callimachus.less?less").get(
 					"text/css");
 		}
 		driver = createWebDriver();

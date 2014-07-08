@@ -10,29 +10,6 @@
     <link rel="help" href="../../callimachus-for-web-developers#Datasource" target="_blank" title="Help" />
     <script type="text/javascript">
         $(function(){
-            var sd = "http://www.w3.org/ns/sparql-service-description#";
-            var label = 'div[rel="sd:supportedLanguage"]';
-            $(label + '[resource="' + sd + 'SPARQL11Query"]').each(function(){
-                if ($(this).find('input:checked').length) {
-                    var other = $(this).siblings('div[resource="' + sd + 'SPARQL11Query"]');
-                    $(this).find('span').text(other.find('span').text());
-                    other.remove();
-                }
-            });
-            $(label + '[resource="' + sd + 'SPARQL11Update"]').each(function(){
-                if ($(this).find('input:checked').length) {
-                    var other = $(this).siblings('div[resource="' + sd + 'SPARQL11Update"]');
-                    $(this).find('span').text(other.find('span').text());
-                    other.remove();
-                }
-            });
-            $('div.checkbox').change(function(){
-                if ($(this).find('input:checked').length) {
-                    $(this).attr("rel", "sd:supportedLanguage");
-                } else {
-                    $(this).removeAttr("rel");
-                }
-            });
             $('<span></span>').attr("id", "modified")
                 .attr("property", "dcterms:modified")
                 .attr("datatype", "xsd:dateTime")
@@ -67,25 +44,25 @@
                 <div class="form-group">
                     <label for="support">Support</label>
             		<div id="support">
-                        <div class="checkbox" resource="http://www.w3.org/ns/sparql-service-description#SPARQL11Query">
+                        <div class="checkbox">
                         	<label>
-                				<input type="checkbox" name="support" />
+                				<input type="checkbox" name="support" resource="http://www.w3.org/ns/sparql-service-description#SPARQL11Query"
+                                    onchange="calli.updateResource(event, 'sd:supportedLanguage')" />
                 				<span>SPARQL Query</span>
                 			</label>
                         </div>
-                        <div class="checkbox" rel="sd:supportedLanguage" resource="?support">
-                        	<label>
-                				<input type="checkbox" name="support" checked="checked" />
-                				<span>{?support}</span>
-                			</label>
-                        </div>
-                        <div class="checkbox" resource="http://www.w3.org/ns/sparql-service-description#SPARQL11Update">
+                        <div class="checkbox">
                     		<label>
-                				<input type="checkbox" name="support" />
+                				<input type="checkbox" name="support" resource="http://www.w3.org/ns/sparql-service-description#SPARQL11Update"
+                                    onchange="calli.updateResource(event, 'sd:supportedLanguage')" />
                 				<span>SPARQL Update</span>
                 			</label>
                         </div>
             		</div>
+                    <div class="hidden" rel="sd:supportedLanguage" resource="?support"></div>
+                    <script type="text/javascript">
+                        $('[rel="sd:supportedLanguage"].hidden').filter(calli.checkEachResourceIn('#support')).remove();
+                    </script>
                 </div>
             </fieldset>
         </div>

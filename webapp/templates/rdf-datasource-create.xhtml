@@ -7,17 +7,10 @@
     xmlns:sd="http://www.w3.org/ns/sparql-service-description#"
     xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
-    <title>New Datasource</title>
+    <title>New RDF Datasource</title>
     <link rel="help" href="../../callimachus-for-web-developers#Datasource" target="_blank" title="Help" />
     <script type="text/javascript">
-        $(function(){
-            $('div.checkbox[data-rel]').change(function(){
-                if ($(this).find('input:checked').length) {
-                    $(this).attr("rel", $(this).attr("data-rel"));
-                } else {
-                    $(this).removeAttr("rel");
-                }
-            }).change();
+    $(function(){
         $('#created').val(new Date().toISOString()).change();
     });
     </script>
@@ -26,7 +19,7 @@
     <form role="form" method="POST" action="" enctype="application/rdf+xml" typeof="calli:RdfDatasource sd:Service" class="container"
             onsubmit="if (calli.saveResourceAs(event,calli.slugify($('#label').val()))){$('[rel=&quot;sd:endpoint&quot;]').attr('resource',$(this).attr('resource'));return true;} else return false">
         <div class="page-header">
-            <h1>New Datasource</h1>
+            <h1>New RDF Datasource</h1>
         </div>
         <div class="row">
             <fieldset class="col-sm-4">
@@ -47,17 +40,19 @@
             </fieldset>
             <fieldset class="col-sm-4">
                 <div class="form-group">
-                    <div class="checkbox" data-rel="calli:editor" resource="/auth/groups/system">
+                    <div class="checkbox">
                         <label>
-                            <input type="checkbox" name="editor" checked="checked" />
+                            <input type="checkbox" name="editor" checked="checked"
+                                resource="/auth/groups/system"
+                                onchange="calli.updateResource(event, 'calli:editor')" />
                 			Grant anonymous localhost to modify datasource
                 		</label>
                 	</div>
                 </div>
                 <div>
                     <span rel="calli:editor" />
-                    <span rel="sd:endpoint" />
                     <span rel="sd:supportedLanguage" />
+                    <span rel="sd:endpoint" />
                     <span rel="sd:feature" resource="http://www.w3.org/ns/sparql-service-description#BasicFederatedQuery" />
                     <span rel="sd:feature" resource="http://www.w3.org/ns/sparql-service-description#UnionDefaultGraph" />
                     <span rel="sd:inputFormat" resource="http://www.w3.org/ns/formats/RDF_XML" />
@@ -66,15 +61,19 @@
                     <span rel="sd:resultFormat" resource="http://www.w3.org/ns/formats/SPARQL_Results_XML" />
                 </div>
                 <div class="form-group">
-            		<div class="checkbox" data-rel="sd:supportedLanguage" resource="http://www.w3.org/ns/sparql-service-description#SPARQL11Query">
+            		<div class="checkbox">
             			<label>
-            				<input type="checkbox" name="support" checked="checked" />
+            				<input type="checkbox" name="support" checked="checked"
+                                resource="http://www.w3.org/ns/sparql-service-description#SPARQL11Query"
+                                onchange="calli.updateResource(event, 'sd:supportedLanguage')"/>
             				SPARQL Query
             			</label>
                     </div>
-                	<div class="checkbox" data-rel="sd:supportedLanguage" resource="http://www.w3.org/ns/sparql-service-description#SPARQL11Update">
+                	<div class="checkbox">
                 		<label>
-            				<input type="checkbox" name="support" checked="checked" />
+            				<input type="checkbox" name="support" checked="checked"
+                                resource="http://www.w3.org/ns/sparql-service-description#SPARQL11Update"
+                                onchange="calli.updateResource(event, 'sd:supportedLanguage')"/>
             				SPARQL Update
             			</label>
             		</div>

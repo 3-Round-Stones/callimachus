@@ -18,48 +18,46 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
 <body>
     {calli:body-attributes()}
     <nav class="navbar navbar-default navbar-static-top hidden-iframe">
-        <div class="container">
-            <header class="navbar-header">
-                <div class="row">
-                    <div class="col-xs-8 col-sm-6 col-md-8">
-                        {calli:home-href(<a class="navbar-brand">Callimachus</a>)}
-                    </div>
-                    <div class="col-xs-4 col-sm-6 col-md-4 hidden-login hidden-print">
-                        {calli:login-href(<a class="pull-right btn btn-default navbar-btn">Sign in <span class="glyphicon glyphicon-log-in"></span></a>)}
-                    </div>
-                    <div class="hidden-xs col-sm-4 col-md-3 hidden-logout hidden-print">
-                        <div class="pull-right">{calli:lookup-form('Lookup...')}</div>
-                    </div>
-                    <div class="col-xs-4 col-sm-2 col-md-1 hidden-logout hidden-print">
-                        <div class="btn-group pull-right">
-                            <button type="button" class="btn btn-default navbar-btn dropdown-toggle" data-toggle="dropdown">
-                                <span class="sr-only">Main menu</span>
-                                <span class="glyphicon glyphicon-align-justify"></span>
-                            </button>
-                            <ul class="dropdown-menu" role="menu">
-                                <li>{calli:folder-href(<a>Home folder</a>)}</li>
-                                <li>{calli:changes-href(<a>Recent changes</a>)}</li>
-                                <li class="visible-xs">{calli:lookup-href(<a>Lookup resources</a>)}</li>
-                                <li class="divider"></li>
-                                <li>{calli:callimachus-about-href(<a>About Callimachus</a>)}</li>
-                                <li>{calli:callimachus-getting-started-href(<a>Getting started</a>)}</li>
-                                <li>{calli:callimachus-feedback-href(<a>Send feedback</a>)}</li>
-                                <li class="divider"></li>
-                                {calli:head-links(<li><a /></li>,<li class="divider" />)}
-                                <li>{calli:whatlinkshere-href(<a>What links here</a>)}</li>
-                                <li>{calli:relatedchanges-href(<a>Related changes</a>)}</li>
-                                <li>{calli:permissions-href(<a>Permissions</a>)}</li>
-                                <li>{calli:introspect-href(<a>Introspect resource</a>)}</li>
-                                <li><a href="javascript:print()">Print this page</a></li>
-                                <li class="divider"></li>
-                                <li>{calli:profile-href(<a>Account</a>)}</li>
-                                <li>{calli:logout-href(<a>Sign out</a>)}</li>
-                            </ul>
-                        </div>
+        <header class="container">
+            <div class="row">
+                <div class="col-xs-8 col-sm-6 col-md-8">
+                    {calli:home-href(<a class="navbar-brand">Callimachus</a>)}
+                </div>
+                <div class="col-xs-4 col-sm-6 col-md-4 hidden-login hidden-print">
+                    {calli:login-href(<a class="pull-right btn btn-default navbar-btn">Sign in <span class="glyphicon glyphicon-log-in"></span></a>)}
+                </div>
+                <div class="hidden-xs col-sm-4 col-md-3 hidden-logout hidden-print">
+                    <div class="pull-right">{calli:lookup-form('Lookup...')}</div>
+                </div>
+                <div class="col-xs-4 col-sm-2 col-md-1 hidden-logout hidden-print">
+                    <div class="btn-group pull-right">
+                        <button type="button" class="btn btn-default navbar-btn dropdown-toggle" data-toggle="dropdown">
+                            <span class="sr-only">Main menu</span>
+                            <span class="glyphicon glyphicon-align-justify"></span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu">
+                            <li>{calli:folder-href(<a>Home folder</a>)}</li>
+                            <li>{calli:changes-href(<a>Recent changes</a>)}</li>
+                            <li class="visible-xs">{calli:lookup-href(<a>Lookup resources</a>)}</li>
+                            <li class="divider"></li>
+                            <li>{calli:callimachus-about-href(<a>About Callimachus</a>)}</li>
+                            <li>{calli:callimachus-getting-started-href(<a>Getting started</a>)}</li>
+                            <li>{calli:callimachus-feedback-href(<a>Send feedback</a>)}</li>
+                            <li class="divider"></li>
+                            {calli:head-links(<li><a /></li>,<li class="divider" />)}
+                            <li>{calli:whatlinkshere-href(<a>What links here</a>)}</li>
+                            <li>{calli:relatedchanges-href(<a>Related changes</a>)}</li>
+                            <li>{calli:permissions-href(<a>Permissions</a>)}</li>
+                            <li>{calli:introspect-href(<a>Introspect resource</a>)}</li>
+                            <li><a href="javascript:print()">Print this page</a></li>
+                            <li class="divider"></li>
+                            <li>{calli:profile-href(<a>Account</a>)}</li>
+                            <li>{calli:logout-href(<a>Sign out</a>)}</li>
+                        </ul>
                     </div>
                 </div>
-            </header>
-        </div>
+            </div>
+        </header>
     </nav>
     <div class="container">
         <ol class="breadcrumb navbar-left hidden-iframe">{calli:breadcrumb-links(<li><a/></li>, <li class="active"/>)}</ol>
@@ -75,6 +73,7 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
             </div>
             <br />
         </nav>)}
+        <div class="clearfix"></div>
         {calli:error-alert(<div class="alert alert-danger alert-dismissable alert-block">
             <button type="button" class="close" data-dismiss="alert">×</button>
             <h4>Oops!</h4>

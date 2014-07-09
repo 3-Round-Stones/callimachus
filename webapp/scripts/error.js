@@ -22,23 +22,8 @@ if (!window.calli) {
     window.calli = {};
 }
 
-var unloading = false;
-$(window).bind('beforeunload', function() {
-    unloading = true;
-});
-
 $(document).ajaxError(function(event, xhr, ajaxOptions, thrownError){
-    if (xhr && xhr.status >= 400) {
-        calli.error(xhr.statusText, xhr.responseText);
-    } else if (thrownError) {
-        calli.error(thrownError);
-    } else if (xhr && xhr.status < 100) {
-        setTimeout(function() {
-            if (!unloading) {
-                calli.error("Could not connect to server, please try again later");
-            }
-        }, 0);
-    }
+    calli.error(xhr);
 });
 
 $(window).bind('message', function(event) {
@@ -64,9 +49,15 @@ $(window).bind('message', function(event) {
 // calli.error(caught);
 // calli.error({message:getter,stack:getter});
 // calli.error({description:getter});
+// calli.error(xhr);
 window.calli.error = function(message, stack) {
     var e = jQuery.Event("error");
     if (typeof message == 'object') {
+        if (message.status >= 400 && message.statusText && message.responseText) {
+            return calli.error(message.statusText, message.responseText);
+        } else if (message.status <= 100) {
+            return calli.error("Could not connect to server, please try again later");
+        }
         if (message.description) {
             e.message = asHtml(message.description);
         }

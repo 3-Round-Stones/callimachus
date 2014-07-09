@@ -948,18 +948,9 @@ function RDFaParser() {
 			throw "Second parameter of parse(node, callback) must be a function.";
 		}
 		this.callback = callback;
-		try {
-			this.setContext(node);
-			this.process(node);
-			return true;
-		}
-		catch (e) {
-			if (window.console !== undefined && console.log) {
-				console.log(e);
-				console.log(e.stack);
-			}
-			return false;
-		}
+		this.setContext(node);
+		this.process(node);
+		return true;
 	};
 
 	/**

@@ -18,6 +18,11 @@
 
 (function($){
 
+var unloading = false;
+$(window).bind('beforeunload', function() {
+    unloading = true;
+});
+
 $(document).error(function(event) {
     if (event.message && !event.isDefaultPrevented()) {
         if (flash(event.message, event.stack)) {
@@ -45,8 +50,12 @@ function flash(message, stack) {
         widget.append(more);
         widget.append(pre);
     }
-    msg.append(widget);
-    scroll(0,0);
+    setTimeout(function() {
+        if (!unloading) {
+            msg.append(widget);
+            scroll(0,0);
+        }
+    }, 0);
     return true;
 }
 

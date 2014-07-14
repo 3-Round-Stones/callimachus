@@ -120,6 +120,7 @@ function postData(form, data, callback) {
 		dataType: "text", 
         xhrFields: calli.withCredentials,
         success: function(data, textStatus) {
+            calli.lastModified(action, new Date().toUTCString());
             callback(data, textStatus, xhr);
         }
     });

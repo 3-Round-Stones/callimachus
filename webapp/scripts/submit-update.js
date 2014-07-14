@@ -16,27 +16,15 @@ $('form[enctype="application/sparql-update"]').each(function() {
         form.bind('reset', function() {
             stored = readRDF(form[0]);
         });
-        var action = calli.getFormAction(this);
-        if (action.match(/^https?:\/\/[A-Za-z0-9-_.~\!\*\'\(\)\;\:\@\&\=\+\$\,\/\?\%\#\[\]]*$/)) {
-            var xhr = $.ajax({
-                type: 'HEAD',
-                url: action,
-                dataType: "text",
-                xhrFields: calli.withCredentials,
-                success: function() {
-                    calli.etag(action, xhr.getResponseHeader('ETag'));
-                }
-            });
-        }
         form.submit(function(event, onlyHandlers) {
             if (this.getAttribute("enctype") != "application/sparql-update")
                 return true;
             form.find(":input").change(); // IE may not have called onchange before onsubmit
-            if (!onlyHandlers) {
+            if (!onlyHandlers && !event.isDefaultPrevented()) {
                 event.preventDefault();
                 event.stopImmediatePropagation();
                 form.triggerHandler(event.type, true);
-            } else {
+            } else if (onlyHandlers) {
                 setTimeout(function(){
                     var resource = form.attr('about') || form.attr('resource');
                     if (resource && !event.isDefaultPrevented()) {
@@ -235,12 +223,12 @@ function patchData(form, data, callback) {
     }
     var action = calli.getFormAction(form);
     var xhr = $.ajax({ type: method, url: action, contentType: type, data: data, dataType: "text", xhrFields: calli.withCredentials, beforeSend: function(xhr){
-        var etag = calli.etag(action);
-        if (etag) {
-            xhr.setRequestHeader("If-Match", etag);
+        var modified = calli.lastModified(action);
+        if (modified) {
+            xhr.setRequestHeader("If-Unmodified-Since", modified);
         }
     }, success: function(data, textStatus) {
-        calli.etag(action, xhr.getResponseHeader("ETag"));
+        calli.lastModified(action, new Date().toUTCString());
         callback(data, textStatus, xhr);
     }});
 }

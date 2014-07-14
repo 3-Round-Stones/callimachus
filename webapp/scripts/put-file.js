@@ -24,18 +24,6 @@ $('form[method="PUT"]').each(function(event){
     var fileInput = $(form).find('input[type="file"][accept*="' + enctype + '"]');
     if (!enctype || fileInput.length != 1)
         return;
-    var action = calli.getFormAction(this);
-    if (action.match(/^https?:\/\/[A-Za-z0-9\-_.~\!\*\'\(\)\;\:\@\&\=\+\$\,\/\?\%\#\[\]]*$/)) {
-        var xhr = $.ajax({
-            type: 'HEAD',
-            url: action,
-            dataType: "text",
-            xhrFields: calli.withCredentials,
-            success: function() {
-                calli.etag(action, xhr.getResponseHeader('ETag'));
-            }
-        });
-    }
     $(form).submit(function(event, onlyHandlers){
         var form = this;
         var enctype = form.getAttribute("enctype");
@@ -65,13 +53,14 @@ $('form[method="PUT"]').each(function(event){
                             data: se.payload,
                             xhrFields: calli.withCredentials,
                             beforeSend: function(xhr) {
-                                var etag = calli.etag(action);
-                                if (etag) {
-                                    xhr.setRequestHeader('If-Match', etag);
+                                var lastModified = calli.lastModified(action);
+                                if (modified) {
+                                    xhr.setRequestHeader('If-Unmodified-Since', modified);
                                 }
                             },
                             success: function() {
                                 try {
+                                    calli.lastModified(action, new Date().toUTCString());
                                     var redirect = null;
                                     var contentType = xhr.getResponseHeader('Content-Type');
                                     if (contentType !== null && contentType.indexOf('text/uri-list') === 0) {

@@ -199,15 +199,15 @@ function saveFile(form, text, callback) {
             dataType: "text",
             xhrFields: calli.withCredentials,
             beforeSend: function(xhr) {
-                if (calli.etag(url) && method == 'PUT') {
-                    xhr.setRequestHeader('If-Match', calli.etag(url));
+                if (calli.lastModified(url) && method == 'PUT') {
+                    xhr.setRequestHeader('If-Unmodified-Since', calli.lastModified(url));
                 }
             },
             complete: function(xhr) {
                 saving = false;
                 if (xhr.status < 300 || xhr.status == 1223) {
                     if (xhr.status == 204 || xhr.status == 1223) {
-                        calli.etag(url, xhr.getResponseHeader('ETag'));
+                        calli.lastModified(url, new Date().toUTCString());
                     }
                     if (typeof callback == 'function') {
                         callback(xhr, se);
@@ -249,7 +249,7 @@ function loadText(form, url, editor) {
     url = resolve(url);
     $.ajax({type: 'GET', dataType: "text", url: url, xhrFields: calli.withCredentials, complete: function(xhr) {
         if (xhr.status == 200 || xhr.status == 304) {
-            calli.etag(url, xhr.getResponseHeader('ETag'));
+            calli.lastModified(url, xhr.getResponseHeader('Last-Modified'));
             editor.postMessage('PUT text\nContent-Location: '+ url +
                 '\nContent-Type: '+ form.getAttribute("enctype") +
                 '\n\n' + xhr.responseText, '*');

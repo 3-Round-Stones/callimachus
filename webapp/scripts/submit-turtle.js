@@ -4,25 +4,27 @@
    Licensed under the Apache License, Version 2.0, http://www.apache.org/licenses/LICENSE-2.0
 */
 
-jQuery(function($){
+(function($){
 
-$('form').submit(function(event, onlyHandlers) {
-    if (this.getAttribute("enctype") != "text/turtle")
-        return true;
-    var form = $(this);
-    if (!onlyHandlers) {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        form.triggerHandler(event.type, true);
-    } else {
-        form.find(":input").change(); // IE may not have called onchange before onsubmit
-        setTimeout(function(){
-            var resource = form.attr('about') || form.attr('resource');
-            if (resource && !event.isDefaultPrevented()) {
-                submitRDFForm(form[0], resource);
-            }
-        }, 0);
-    }
+$(function($){
+    $('form').submit(function(event, onlyHandlers) {
+        if (this.getAttribute("enctype") != "text/turtle")
+            return true;
+        var form = $(this);
+        if (!onlyHandlers && !event.isDefaultPrevented()) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            form.triggerHandler(event.type, true);
+        } else if (onlyHandlers) {
+            form.find(":input").change(); // IE may not have called onchange before onsubmit
+            setTimeout(function(){
+                var resource = form.attr('about') || form.attr('resource');
+                if (resource && !event.isDefaultPrevented()) {
+                    submitRDFForm(form[0], resource);
+                }
+            }, 0);
+        }
+    });
 });
 
 function submitRDFForm(form, uri) {
@@ -115,13 +117,13 @@ function postData(form, data, callback) {
         url: calli.getFormAction(form),
         contentType: type,
         data: data,
-		dataType: "text", 
+        dataType: "text", 
         xhrFields: calli.withCredentials,
         success: function(data, textStatus) {
-            callback(data, textStatus, xhr);
-        }
+                callback(data, textStatus, xhr);
+            }
     });
 }
 
-});
+})(jQuery);
 

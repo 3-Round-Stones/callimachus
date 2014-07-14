@@ -68,7 +68,7 @@
     rdf:_41 <dialog.js>;
     rdf:_42 <create-resource.js>;
     rdf:_43 <document-ready.js>;
-    rdf:_44 <disable-button.js>;
+    rdf:_54 <last-modified.js>;
     rdf:_45 <save-resource-as.js>;
     rdf:_46 <select-resource.js>;
     rdf:_47 <submit-rdfxml.js>;
@@ -83,7 +83,7 @@
     rdf:_56 <decode-html.js>;
     rdf:_57 <load-editor.js>;
     rdf:_58 <put-file.js>;
-    rdf:_59 <etag.js>.
+    rdf:_59 <disable-button.js>.
 
 <text_bundle> a calli:ScriptBundle;
     calli:reader </auth/groups/public>;

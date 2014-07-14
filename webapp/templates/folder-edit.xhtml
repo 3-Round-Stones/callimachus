@@ -43,9 +43,9 @@
                 global: false,
                 xhrFields: calli.withCredentials,
                 beforeSend: function(xhr){
-                    var etag = calli.etag('?archive');
-                    if (etag) {
-                        xhr.setRequestHeader("If-Match", etag);
+                    var modified = calli.lastModified('?archive');
+                    if (modified) {
+                        xhr.setRequestHeader("If-Unmodified-Since", modified);
                     }
                 },
                 complete: function(data, textStatus) {

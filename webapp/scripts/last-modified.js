@@ -1,4 +1,4 @@
-// etag.js
+// last-modified.js
 /*
  * Copyright (c) 2014 3 Round Stones Inc., Some Rights Reserved
  *
@@ -16,17 +16,20 @@
  *
  */
 
-window.calli = window.calli || {};
+(function($){
+
+var calli = window.calli = window.calli || {};
 
 try {
-    window.calli.etag = function(url, value) {
+    var since = new Date();
+    calli.lastModified = function(url, value) {
         var uri = url;
-        if (uri.indexOf('http') != 0) {
+        if (!uri || uri.indexOf('http') !== 0) {
             if (document.baseURIObject && document.baseURIObject.resolve) {
-                uri = document.baseURIObject.resolve(uri);
+                uri = document.baseURIObject.resolve(uri || '');
             } else {
                 var a = document.createElement('a');
-                a.setAttribute('href', uri);
+                a.setAttribute('href', uri || '');
                 if (a.href) {
                     uri = a.href;
                 }
@@ -36,14 +39,19 @@ try {
             uri = uri.substring(0, uri.indexOf('?'));
         }
         if (value) {
-            return window.sessionStorage.setItem(uri + " ETag", value);
+            return window.sessionStorage.setItem(uri + " Last-Modified", value);
         } else {
-            return window.sessionStorage.getItem(uri + " ETag");
+            var last = window.sessionStorage.getItem(uri + " Last-Modified");
+            if (last && Date.parse(last) >= since.valueOf())
+                return last;
+            return since.toUTCString();
         }
     };
     if (!window.sessionStorage) {
-        window.calli.etag = function(){return null;};
+        calli.etag = function(){return null;};
     }
 } catch(e) {
-    window.calli.etag = function(){return null;};
+    calli.lastModified = function(){return null;};
 }
+
+})(jQuery);

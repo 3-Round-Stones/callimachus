@@ -16,7 +16,8 @@
 <body resource="?this">
     <div class="container">
         <img src="{?this}?medium" class="img-responsive" style="max-height:50%;display:block" /><br/>
-        <form role="form" method="PUT" action="?" enctype="image/jpeg" class="row">
+        <form role="form" method="PUT" action="?" enctype="image/jpeg" class="row"
+                onsubmit="calli.submitFile(event)">
             <fieldset class="col-sm-6">
                 <div class="form-group fileapi-show">
                     <label>Replacement file</label>

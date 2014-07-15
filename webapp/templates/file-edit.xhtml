@@ -25,7 +25,8 @@
                 <pre>{?this}</pre>
                 <div rel="rdf:type" resource="?type">
                     <div property="calli:mediaType" content="?mediaType">
-                        <form role="form" method="PUT" action="?" enctype="{?mediaType}">
+                        <form role="form" method="PUT" action="?" enctype="{?mediaType}"
+                                onsubmit="calli.submitFile(event)">
                             <fieldset>
                                 <div class="form-group fileapi-show">
                                     <label>Replacement file</label>

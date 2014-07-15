@@ -15,6 +15,28 @@
  * limitations under the License.
  *
  */
+ 
+(function($){
+
+var calli = window.calli = window.calli || {};
+
+calli.submitFile = function(event) {
+    event.preventDefault();
+    var form = $(calli.fixEvent(event).target).closest('form')[0];
+    var action = calli.getFormAction(form);
+    var enctype = form.getAttribute("enctype") || "application/octet-stream";
+    var files = $(form).find('input[type="file"]').toArray().reduce(function(files, input) {
+        return files.concat(input.files);
+    }, []);
+    return calli.putText(action, files[0], enctype).then(function(redirect){
+        if (window.parent != window && parent.postMessage) {
+            parent.postMessage('PUT src\n\n' + redirect, '*');
+        }
+        window.location.replace(redirect);
+    });
+};
+
+})(jQuery);
 
 jQuery(function($){
 
@@ -32,11 +54,11 @@ $('form[method="PUT"]').each(function(event){
         var fileInput = $(form).find('input[type="file"][accept*="' + enctype + '"]');
         if (fileInput.length != 1 || !fileInput[0].files || fileInput[0].files.length != 1)
             return true;
-        if (!onlyHandlers) {
+        if (!onlyHandlers && !event.isDefaultPrevented()) {
             event.preventDefault();
             event.stopImmediatePropagation();
             $(form).triggerHandler(event.type, true);
-        } else {
+        } else if (onlyHandlers) {
             setTimeout(function(){
                 if (!event.isDefaultPrevented()) {
                     var se = $.Event("calliSubmit");

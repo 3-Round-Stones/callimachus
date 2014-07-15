@@ -20,7 +20,8 @@
         <img src="?this" style="max-height:50%;display:block" /><br/>
         <div rel="rdf:type" resource="?type">
             <div property="calli:mediaType" content="?mediaType">
-                <form role="form" method="PUT" action="?" enctype="{?mediaType}" class="row">
+                <form role="form" method="PUT" action="?" enctype="{?mediaType}" class="row"
+                        onsubmit="calli.submitFile(event)">
                     <fieldset class="col-sm-6">
                         <div class="form-group fileapi-show">
                             <label>Replacement file</label>

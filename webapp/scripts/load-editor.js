@@ -135,11 +135,11 @@ function bindFormEvents(form, editor, idempotent) {
         });
     }
     $(form).submit(function(event, onlyHandlers) {
-        if (!onlyHandlers) {
+        if (!onlyHandlers && !event.isDefaultPrevented()) {
             event.preventDefault();
             event.stopImmediatePropagation();
             $(this).triggerHandler(event.type, true);
-        } else {
+        } else if (onlyHandlers) {
             setTimeout(function(){
                 var resource = $(form).attr('about') || $(form).attr('resource');
                 if ((idempotent || resource) && !event.isDefaultPrevented()) {

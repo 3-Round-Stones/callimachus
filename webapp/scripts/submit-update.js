@@ -57,7 +57,7 @@ calli.postUpdate = function(url, deleteData, insertData) {
             addBoundedDescription(added[ahash], insertData, added, removed);
         }
         var payload = asSparqlUpdate(insertData.prefix, removed, added);
-        return calli.resolve(patchData("POST", url, payload));
+        return calli.postText(url, payload, "application/sparql-update");
     });
 }
 

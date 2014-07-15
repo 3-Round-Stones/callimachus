@@ -134,20 +134,17 @@
             // reset params
             container.html("").removeClass('active');
             // fetch query source
-            $.ajax({
-                url: query,
-                success: function(data) {
-                    var m = data.match(/\$([a-z0-9_]+)/ig);
-                    if (m) {
-                        container.addClass('active');
-                        var param, added= {}, value;
-                        for (var i = 0, imax = m.length; i < imax; i++) {
-                            param = m[i].replace('$', '');
-                            if (added[param]) continue;
-                            added[param] = true;
-                            value = params && params[param] ? params[param] : '';
-                            container.append('<input type="text" name="' + param + '" placeholder="Enter a ' + param + '…" value="' + value.replace(/"/g, '') + '"/>');
-                        }
+            calli.getText(query).then(function(data) {
+                var m = data.match(/\$([a-z0-9_]+)/ig);
+                if (m) {
+                    container.addClass('active');
+                    var param, added= {}, value;
+                    for (var i = 0, imax = m.length; i < imax; i++) {
+                        param = m[i].replace('$', '');
+                        if (added[param]) continue;
+                        added[param] = true;
+                        value = params && params[param] ? params[param] : '';
+                        container.append('<input type="text" name="' + param + '" placeholder="Enter a ' + param + '…" value="' + value.replace(/"/g, '') + '"/>');
                     }
                 }
             });

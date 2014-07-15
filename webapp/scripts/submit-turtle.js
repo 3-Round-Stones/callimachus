@@ -41,6 +41,9 @@ calli.submitTurtle = function(event, local) {
         }).then(function(data){
             return calli.postTurtle(action, data);
         }).then(function(redirect){
+            if (window.parent != window && parent.postMessage) {
+                parent.postMessage('PUT src\n\n' + redirect, '*');
+            }
             window.location.replace(redirect);
         }, function(error){
             btn.button('reset');
@@ -66,7 +69,7 @@ calli.submitTurtle = function(event, local) {
 };
 
 calli.postTurtle = function(url, data) {
-    return calli.resolve(postData("POST", url, getTurtle(data)));
+    return calli.postText(url, getTurtle(data), "text/turtle");
 };
 
 $(function($){

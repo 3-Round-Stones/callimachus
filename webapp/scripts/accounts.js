@@ -160,14 +160,7 @@ if (isLoggedIn()) {
 }
 
 function activelyLogin() {
-    jQuery.ajax({ url: "/?profile",
-        xhrFields: calli.withCredentials,
-        success: function(doc) {
-            loadProfile(doc);
-            nowLoggedIn();
-        },
-        error: nowLoggedOut
-    });
+    calli.getText("/?profile").then(loadProfile).then(nowLoggedIn, nowLoggedOut);
 }
 
 function nowLoggedIn() {
@@ -175,7 +168,7 @@ function nowLoggedIn() {
     if (name) {
         try {
             window.localStorage.setItem("username", name);
-        } catch(e) {}
+        } catch(error) {}
         var e = jQuery.Event("calliLoggedIn");
         e.title = name;
         $(document).ready(function() {

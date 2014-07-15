@@ -19,12 +19,8 @@
 jQuery(function($){
     var form = document.getElementById('form');
     var uri = $(form).attr("resource");
-    var credential = null;
-    jQuery.ajax({type: "GET",  url: "/?profile",
-        xhrFields: calli.withCredentials,
-        success: function(doc) {
-            credential = /resource="([^" >]*)"/i.exec(doc)[1];
-        }
+    var credential = calli.getText("/?profile").then(function(doc) {
+        return (/resource="([^" >]*)"/i).exec(doc)[1];
     });
     $(form).submit(calli.submitUpdate.bind(calli,calli.copyResourceData(form)));
     $('#cancel').click(function(event){
@@ -33,14 +29,16 @@ jQuery(function($){
     $('#delete').click(function(event){
         var action = calli.getFormAction(form);
         calli.deleteText(action).then(function(){
-            if (credential && credential == uri) {
-                // need to log user out gracefully since they deleted themselves
-                var e = jQuery.Event("calliLogout");
-                e.location = '/';
-                $(document).trigger(e);
-            } else {
-                window.location.replace('./');
-            }
+            credential.then(function(credential){
+                if (credential && credential == uri) {
+                    // need to log user out gracefully since they deleted themselves
+                    var e = jQuery.Event("calliLogout");
+                    e.location = '/';
+                    $(document).trigger(e);
+                } else {
+                    window.location.replace('./');
+                }
+            });
         });
     });
 });

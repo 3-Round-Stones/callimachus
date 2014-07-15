@@ -45,14 +45,9 @@ $('form[typeof~="calli:Credential"][enctype="text/turtle"]').submit(function(eve
     }).then(function(data){
         return calli.postTurtle(calli.getFormAction(form), data);
     }).then(function(redirect){
-        return calli.resolve($.ajax({
-            type: 'POST',
-            url: local + '?password',
-            contentType: 'text/plain',
-            data: rstr2b64(str2rstr_utf8(password)),
-            xhrFields: calli.withCredentials,
-            dataType: "text"
-        })).then(function(){
+        var url = local + '?password';
+        var text = rstr2b64(str2rstr_utf8(password));
+        return calli.postText(url, text).then(function(){
             return redirect;
         });
     }).then(function(redirect){
@@ -73,23 +68,8 @@ $('form[typeof~="calli:Credential"][enctype="application/sparql-update"]').each(
         calli.resolve($('#password').val()).then(function(password){
             if (password) {
                 var resource = $(form).attr('resource');
-                return calli.resolve($.ajax({
-                    type: 'POST',
-                    url: resource + '?password',
-                    contentType: 'text/plain',
-                    data: rstr2b64(str2rstr_utf8(password)),
-                    xhrFields: calli.withCredentials,
-                    dataType: "text",
-                    beforeSend: function(xhr){
-                        var modified = calli.lastModified(resource);
-                        if (modified) {
-                            xhr.setRequestHeader("If-Unmodified-Since", modified);
-                        }
-                    },
-                    success: function(url) {
-                        calli.lastModified(resource, new Date().toUTCString());
-                    }
-                }));
+                var text = rstr2b64(str2rstr_utf8(password));
+                return calli.postText(resource + '?password', text);
             } else {
                 return Promise.resolve();
             }

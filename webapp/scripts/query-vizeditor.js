@@ -366,20 +366,17 @@
                 .each(function() {
                     var container = $(this);
                     // fetch query source
-                    $.ajax({
-                        url: query,
-                        success: function(data) {
-                            var m = data.match(/\$([a-z0-9_]+)/ig);
-                            if (m) {
-                                container.append('<h3>Query Parameters</h3>');
-                                var param, added = {}, value;
-                                for (var i = 0, imax = m.length; i < imax; i++) {
-                                    param = m[i].replace('$', '');
-                                    if (added[param]) continue;
-                                    added[param] = true;
-                                    value = params && params[param] ? params[param] : '';
-                                    lib.createTextOption(container, param, param, 'Enter a ' + param + '…', value.replace(/"/g, ''))
-                                }
+                    calli.getText(query).then(function(data) {
+                        var m = data.match(/\$([a-z0-9_]+)/ig);
+                        if (m) {
+                            container.append('<h3>Query Parameters</h3>');
+                            var param, added = {}, value;
+                            for (var i = 0, imax = m.length; i < imax; i++) {
+                                param = m[i].replace('$', '');
+                                if (added[param]) continue;
+                                added[param] = true;
+                                value = params && params[param] ? params[param] : '';
+                                lib.createTextOption(container, param, param, 'Enter a ' + param + '…', value.replace(/"/g, ''));
                             }
                         }
                     });
@@ -599,13 +596,9 @@
                 dataType: 'text',
                 success: function() {
                     if (confirm('Replace ' + fname + '?')) {
-                        $.ajax({
-                            type: 'DELETE',
-                            url: path + fname + '?',
-                            success: function() {
-                                $.ajax(request);
-                            }
-                        })
+                        calli.deleteText(path + fname).then(function() {
+                            $.ajax(request);
+                        });
                     }
                 },
                 error: function() {
@@ -619,39 +612,30 @@
          */
         setQueryTemplate: function(templateLocation, responseContainer) {
             var shortTemplateLocation = '/' + $('<a/>').attr('href', templateLocation)[0].pathname.replace(/^\//, '');// IE-safe
-            $.ajax({// retrieve current page
-                url: location.pathname,
-                dataType: 'text',
-                success: function(data) {
-                    data = data
-                        .replace(/(\s*)\#\s*\@view\s+[^\n\r]+[\r\n]+/, '$1')    // remove existing annotation
-                        .replace(/(PREFIX|SELECT) /i, "# @view " +  shortTemplateLocation + "\n#\n$1 ") // inject annotation in front of query
-                        .replace(/[\n\s]+\#\s*([\n\s]+\# \@view)/, '$1')    // remove empty comment line in front of annotation
-                    ;
-                    $.ajax({// update
-                        url: location.pathname + '?',
-                        type: 'PUT',
-                        data: data,
-                        contentType: 'application/sparql-query',
-                        success: function() {
-                            $('<span class="save-success">Updated the query\'s view template. Reloading...</span>')
-                                .appendTo(responseContainer)
-                                .delay(5000).fadeOut(2000, function() { 
-                                    $(this).remove();
-                                })
-                            ;
-                            window.location.replace(window.location.search);
-                        },
-                        error: function() {
-                            $('<span class="save-error">Could not set view template</span>')
-                                .appendTo(responseContainer)
-                                .delay(5000).fadeOut(2000, function() { 
-                                    $(this).remove();
-                                })
-                            ;
-                        }
-                    });
-                }
+            calli.getText(location.pathname).then(function(data) {// retrieve current page
+                return data
+                    .replace(/(\s*)\#\s*\@view\s+[^\n\r]+[\r\n]+/, '$1')    // remove existing annotation
+                    .replace(/(PREFIX|SELECT) /i, "# @view " +  shortTemplateLocation + "\n#\n$1 ") // inject annotation in front of query
+                    .replace(/[\n\s]+\#\s*([\n\s]+\# \@view)/, '$1')    // remove empty comment line in front of annotation
+                ;
+            }).then(function(data){
+                return calli.putText(location.pathname, data, 'application/sparql-query');
+            }).then(function() {
+                $('<span class="save-success">Updated the query\'s view template. Reloading...</span>')
+                    .appendTo(responseContainer)
+                    .delay(5000).fadeOut(2000, function() { 
+                        $(this).remove();
+                    })
+                ;
+                window.location.replace(window.location.search);
+            },
+            function() {
+                $('<span class="save-error">Could not set view template</span>')
+                    .appendTo(responseContainer)
+                    .delay(5000).fadeOut(2000, function() { 
+                        $(this).remove();
+                    })
+                ;
             });
         },
                 

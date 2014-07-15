@@ -18,18 +18,12 @@
 
 (function($, jQuery){
 
-if (!window.calli) {
-    window.calli = {};
-}
-
-$(document).ajaxError(function(event, xhr, ajaxOptions, thrownError){
-    calli.error(xhr);
-});
+var calli = window.calli = window.calli || {};
 
 $(window).bind('message', function(event) {
-    if ($('iframe').filter(function(){return this.contentWindow == event.originalEvent.source}).length) {
+    if ($('iframe').filter(function(){return this.contentWindow == event.originalEvent.source;}).length) {
         var msg = event.originalEvent.data;
-        if (msg.indexOf('ERROR ') == 0) {
+        if (msg.indexOf('ERROR ') === 0) {
             if (msg.indexOf('\n\n') > 0) {
                 var message = msg.substring('ERROR '.length, msg.indexOf('\n\n'));
                 var stack = msg.substring(msg.indexOf('\n\n') + 2);
@@ -74,7 +68,7 @@ window.calli.error = function(message, stack) {
     if (!e.message) {
         e.message = asHtml(message);
     }
-    if (typeof message == 'string' && stack && stack.indexOf('<') == 0) {
+    if (typeof message == 'string' && stack && stack.indexOf('<') === 0) {
         e.message = $(stack).find("h1").andSelf().filter("h1").html();
         e.stack = $(stack).find("pre").andSelf().filter("pre").html();
     } else if (stack) {
@@ -84,7 +78,7 @@ window.calli.error = function(message, stack) {
         try {
             $(document).trigger(e);
         } catch (e) {
-            setTimeout(function(){throw e}, 0);
+            setTimeout(function(){throw e;}, 0);
         }
     }
     var error;
@@ -113,7 +107,7 @@ window.calli.error = function(message, stack) {
             parent.postMessage('ERROR ' + error.message, '*');
         }
     }
-    return error;
+    return calli.reject(error);
 };
 
 function asHtml(obj) {

@@ -10,47 +10,59 @@
     <link rel="help" href="../../callimachus-for-web-developers#Permissions" target="_blank" title="Help" />
     <script type="text/javascript"><![CDATA[
     (function($) {
-        jQuery.ajax({type: 'GET', url:'?rdftype', complete: function(xhr) {
-            if (xhr.status == 200) {
-                jQuery(function($) {
-                    var text = xhr.responseText;
-                    var list = text.split('\r\n');
-                    var calli = "http://callimachusproject.org/rdf/2009/framework#";
-                    if (text.indexOf('types/Creatable') < 0) {
-                        $('.creatable').hide();
+        var xhr = $.ajax({type:'GET', url:'?rdftype'});
+        calli.resolve(xhr).then(function(text) {
+            jQuery(function($) {
+                var list = text.split('\r\n');
+                var calli = "http://callimachusproject.org/rdf/2009/framework#";
+                if (text.indexOf('types/Creatable') < 0) {
+                    $('.creatable').hide();
+                }
+                if (jQuery.inArray('http://www.w3.org/2002/07/owl#Class', list) >= 0) {
+                    $('.class').show();
+                    $('.private').show();
+                } else {
+                    $('.class').hide();
+                    var control = xhr.getResponseHeader('Cache-Control');
+                    if (control && control.indexOf('public') >= 0) {
+                        $('.private').hide();
                     }
-                    if (jQuery.inArray('http://www.w3.org/2002/07/owl#Class', list) >= 0) {
-                        $('.class').show();
-                        $('.private').show();
-                    } else {
-                        $('.class').hide();
-                        var control = xhr.getResponseHeader('Cache-Control');
-                        if (control && control.indexOf('public') >= 0) {
-                            $('.private').hide();
-                        }
-                    }
-                    if (jQuery.inArray(calli + 'Composite', list) >= 0) {
-                        $('.composite').show();
-                    } else {
-                        $('.composite').hide();
-                    }
-                });
-            }
-        }});
-        $(document).bind('calliRedirect', function(event) {
-            event.preventDefault();
-            if (window.parent != window) {
-                window.parent.postMessage('POST close', '*');
-            }
-            setTimeout(function(){
-                window.location = $('body').attr('resource') + '?view';
-            }, 500);
-        });
+                }
+                if (jQuery.inArray(calli + 'Composite', list) >= 0) {
+                    $('.composite').show();
+                } else {
+                    $('.composite').hide();
+                }
+            });
+        }).catch(calli.error);
     })(jQuery);
     jQuery(function($) {
         $('.party:empty').each(function(){
             $(this).text($(this).parent().attr('resource'));
         });
+        var comparison = calli.copyResourceData('#form');
+        $('#form').submit(function(event){
+            event.preventDefault();
+            var form = this;
+            var btn = $(form).find('button[type="submit"]');
+            btn.button('loading');
+            return calli.resolve(form).then(function(form){
+                return calli.copyResourceData(form);
+            }).then(function(insertData){
+                var action = calli.getFormAction(form);
+                return calli.postUpdate(action, comparison, insertData);
+            }).then(function(redirect){
+                if (window.parent != window) {
+                    window.parent.postMessage('POST close', '*');
+                }
+                setTimeout(function(){
+                    window.location = $('body').attr('resource') + '?view';
+                }, 500);
+            }, function(error){
+                btn.button('reset');
+                return calli.error(error);
+            });
+        })
     });
     // ]]>
     </script>

@@ -29,7 +29,7 @@ jQuery(function($){
     $('#delete').click(function(event){
         var action = calli.getFormAction(form);
         calli.deleteText(action).then(function(){
-            credential.then(function(credential){
+            return credential.then(function(credential){
                 if (credential && credential == uri) {
                     // need to log user out gracefully since they deleted themselves
                     var e = jQuery.Event("calliLogout");
@@ -39,6 +39,6 @@ jQuery(function($){
                     window.location.replace('./');
                 }
             });
-        });
+        }).catch(calli.error);
     });
 });

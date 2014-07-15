@@ -90,57 +90,52 @@
     }
     function reload() {
         var url = $('link[rel="contents"][type="application/atom+xml"]').attr('href');
-        jQuery.ajax({
-            url: url,
-            dataType: "xml",
-            xhrFields: calli.withCredentials,
-            success: function(doc) {
-                var waiting = calli.wait();
-                jQuery(function() {
-                    var feed = $(doc.documentElement);
-                    var totalResults = feed.children().filter(function(){return this.tagName=='openSearch:totalResults';}).text();
-                    $('#totalResults').text(totalResults);
-                    var tbody = $('<tbody/>');
-                    tbody.attr('id', 'tfiles');
-                    var totalEntries = 0;
-                    feed.children('entry').each(function() {
-                        var entry = $(this);
-                        totalEntries++;
-                        if (!entry.children('link[rel="contents"]').length) {
-                            var tr = $('<tr/>');
-                            var icon = entry.children('icon').text();
-                            var title = entry.children('title').text();
-                            var content = entry.children('content');
-                            var src = content.attr('src');
-                            var type = content.attr('type');
-                            tr.append(createTextCell(title, src, type, icon));
-                            tr.append(createTimeCell(entry.children('updated').text()));
-                            tr.append(createPermissionCell(entry, 'reader'));
-                            tr.append(createPermissionCell(entry, 'subscriber'));
-                            tr.append(createPermissionCell(entry, 'contributor'));
-                            tr.append(createPermissionCell(entry, 'editor'));
-                            tr.append(createPermissionCell(entry, 'administrator'));
-                            tbody.append(tr);
-                        }
-                    });
-                    var box = $('#folder-box')[0];
-                    var bottom = box.scrollTop > 0 && box.scrollTop >= box.scrollHeight - box.clientHeight;
-                    $('#tfiles').replaceWith(tbody);
-                    $('#totalEntries').text(totalEntries);
-                    if (bottom) {
-                        box.scrollTop = box.scrollHeight - box.clientHeight;
+        return calli.getXML(url).then(function(doc) {
+            var waiting = calli.wait();
+            jQuery(function() {
+                var feed = $(doc.documentElement);
+                var totalResults = feed.children().filter(function(){return this.tagName=='openSearch:totalResults';}).text();
+                $('#totalResults').text(totalResults);
+                var tbody = $('<tbody/>');
+                tbody.attr('id', 'tfiles');
+                var totalEntries = 0;
+                feed.children('entry').each(function() {
+                    var entry = $(this);
+                    totalEntries++;
+                    if (!entry.children('link[rel="contents"]').length) {
+                        var tr = $('<tr/>');
+                        var icon = entry.children('icon').text();
+                        var title = entry.children('title').text();
+                        var content = entry.children('content');
+                        var src = content.attr('src');
+                        var type = content.attr('type');
+                        tr.append(createTextCell(title, src, type, icon));
+                        tr.append(createTimeCell(entry.children('updated').text()));
+                        tr.append(createPermissionCell(entry, 'reader'));
+                        tr.append(createPermissionCell(entry, 'subscriber'));
+                        tr.append(createPermissionCell(entry, 'contributor'));
+                        tr.append(createPermissionCell(entry, 'editor'));
+                        tr.append(createPermissionCell(entry, 'administrator'));
+                        tbody.append(tr);
                     }
-                    var checkForCompleteImg = function() {
-                        if (0 === $(tbody).find('img').filter(function() { return !this.complete; }).length) {
-                            waiting.over();
-                        } else {
-                            setTimeout(checkForCompleteImg, 500);
-                        }
-                    };
-                    setTimeout(checkForCompleteImg, 100);
                 });
-            }
-        });
+                var box = $('#folder-box')[0];
+                var bottom = box.scrollTop > 0 && box.scrollTop >= box.scrollHeight - box.clientHeight;
+                $('#tfiles').replaceWith(tbody);
+                $('#totalEntries').text(totalEntries);
+                if (bottom) {
+                    box.scrollTop = box.scrollHeight - box.clientHeight;
+                }
+                var checkForCompleteImg = function() {
+                    if (0 === $(tbody).find('img').filter(function() { return !this.complete; }).length) {
+                        waiting.over();
+                    } else {
+                        setTimeout(checkForCompleteImg, 500);
+                    }
+                };
+                setTimeout(checkForCompleteImg, 100);
+            });
+        }).catch(calli.error);
     }
     reload();
     var queueStarted = null;
@@ -169,7 +164,6 @@
         var xhr = $.ajax({
             type: 'HEAD',
             url: slug,
-            global: false,
             dataType: "text",
             complete: calli.wait().over,
             success: function() {
@@ -221,6 +215,7 @@
             success:function(data, textStatus) {
                 reload();
             },
+            error: calli.error,
             complete:callback
         });
     }
@@ -247,6 +242,7 @@
             success:function(data, textStatus) {
                 reload();
             },
+            error: calli.error,
             complete:callback
         });
     }

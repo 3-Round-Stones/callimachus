@@ -34,7 +34,7 @@ function select(node, selector) {
 function addSetItem(uri, script, errorMessage) {
     var position = 0;
     var url = script.attr("data-construct").replace("{resource}", encodeURIComponent(uri));
-    calli.getText(url, function(data) {
+    calli.getText(url).then(function(data) {
         var input = data ? $(data).children("[data-var-about],[data-var-resource]") : data;
         if (input && input.length) {
             if (position > 0 && script.children().length >= position) {
@@ -48,7 +48,7 @@ function addSetItem(uri, script, errorMessage) {
         } else if (errorMessage) {
             calli.error(errorMessage);
         }
-    });
+    }).catch(calli.error);
 }
 
 })(jQuery, jQuery);

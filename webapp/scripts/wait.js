@@ -26,10 +26,11 @@ var calli = window.calli || (window.calli={});
 
 calli.wait = function() {
     requestCount++;
+    var closed = false;
     $(document.documentElement).addClass("wait");
     return {over: function() {
-        if (!this.closed) {
-            this.closed = true;
+        if (!closed) {
+            closed = true;
             removeWait();
         }
     }};

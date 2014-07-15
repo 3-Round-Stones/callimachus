@@ -41,7 +41,7 @@ calli.submitUpdate = function(comparedData, event) {
         window.location.replace(redirect);
     }, function(error){
         btn.button('reset');
-        return Promise.reject(error);
+        return calli.error(error);
     });
 };
 
@@ -312,7 +312,7 @@ function patchData(method, action, data, callback) {
         if (callback) {
             callback(data, textStatus, xhr);
         }
-    }});
+    }, error: calli.error});
     return xhr;
 }
 

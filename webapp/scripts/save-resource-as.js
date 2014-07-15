@@ -50,7 +50,7 @@ window.calli.submitTurtleAs = function(event, fileName, create, folder) {
         }
     }, function(error){
         btn.button('reset');
-        return Promise.reject(error);
+        return calli.error(error);
     });
 };
 

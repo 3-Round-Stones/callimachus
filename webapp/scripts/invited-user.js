@@ -71,7 +71,7 @@ jQuery(function($){
             $('#msgForm').attr("action", resource + '?invite').submit();
         }).then(undefined, function(error){
             btn.button('reset');
-            return Promise.reject(error);
+            return calli.error(error);
         });
     });
 

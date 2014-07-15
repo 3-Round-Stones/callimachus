@@ -281,7 +281,6 @@
                     $.ajax({
                         url: url,
                         dataType: "xml",
-                        global: false,
                         success: function(data, status, xhr) {
                             lib.data = data;
                             if (cb) cb(lib.data, xhr);
@@ -320,7 +319,6 @@
                     url: url,
                     dataType: "script",
                     cache: true,
-                    global: false,
                     success: function() {
                         lib.loaded[url] = true;
                         if (cb) cb.call();
@@ -590,21 +588,15 @@
                 success: callback
             }
             // check existence
-            $.ajax({
-                url: path + fname,
-                global: false,
-                dataType: 'text',
-                success: function() {
-                    if (confirm('Replace ' + fname + '?')) {
-                        calli.deleteText(path + fname).then(function() {
-                            $.ajax(request);
-                        });
-                    }
-                },
-                error: function() {
-                    $.ajax(request);
+            calli.headText(path + fname).then(function() {
+                if (confirm('Replace ' + fname + '?')) {
+                    return calli.deleteText(path + fname).then(function() {
+                        return calli.resolve($.ajax(request));
+                    });
                 }
-            })
+            }, function() {
+                return calli.resolve($.ajax(request));
+            }).catch(calli.error);
         },
         
         /**

@@ -21,7 +21,7 @@
                         <div class="form-group">
                             <button id="evaluate" type="submit" class="btn btn-primary">Evaluate Query</button>
                             <button id="execute" type="button" class="btn btn-primary"
-                                onclick="$.ajax({type:'POST',url:$(form).attr('action'),contentType:'application/sql',data:$('#sql').val(),complete:calli.wait().over})">Execute Update</button>
+                                onclick="calli.postText($(form).attr('action'),$('#sql').val(),contentType:'application/sql').catche(calli.error).catch(calli.resolve).then(calli.wait().over)">Execute Update</button>
                             <button type="button" onclick="history.back()" class="btn btn-default">Cancel</button>
                         </div>
                     </fieldset>

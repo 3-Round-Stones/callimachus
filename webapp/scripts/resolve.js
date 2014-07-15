@@ -8,17 +8,36 @@
 
 var calli = window.calli = window.calli || {};
 
+var polyfill;
+
 calli.resolve = function(obj) {
     if (typeof self.Promise == 'function') return when(obj);
     var delayed = delayedPromise();
-    $.ajax({
-        url: calli.getCallimachusUrl("assets/promise-1.0.0.js"),
-        dataType: "script",
-        cache: true
-    }).done(function(){
+    if (!polyfill) {
+        polyfill = $.ajax({
+            url: calli.getCallimachusUrl("assets/promise-1.0.0.js"),
+            dataType: "script",
+            cache: true
+        });
+    }
+    polyfill.done(function(){
         delayed._apply(when(obj));
     }).fail(function(xhr){
         delayed._apply(self.Promise.reject(xhr));
+    });
+};
+
+calli.reject = function(obj) {
+    if (typeof self.Promise == 'function') return self.Promise.reject(obj);
+    return calli.resolve().then(function(){
+        return self.Promise.reject(obj);
+    });
+};
+
+calli.all = function(array) {
+    if (typeof self.Promise == 'function') return self.Promise.all(array);
+    return calli.resolve().then(function(){
+        return self.Promise.all(array);
     });
 };
 

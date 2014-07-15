@@ -74,17 +74,10 @@ calli.selectResource = function(event, src) {
         dialog = calli.openDialog(url, title, options);
     };
     if (url) {
-        jQuery.ajax({
-            type:"GET",
-            url:url,
-            xhrFields: calli.withCredentials,
-            complete:function(xhr) {
-                if (xhr.status == 200 || xhr.status == 304) {
-                    openBrowseDialog(url);
-                } else {
-                    openBrowseDialog(src);
-                }
-            }
+        calli.headText(url).then(function(){
+            openBrowseDialog(url);
+        }, function(){
+            openBrowseDialog(src);
         });
     } else {
         openBrowseDialog(src);

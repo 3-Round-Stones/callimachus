@@ -203,6 +203,7 @@ function saveFile(form, text, callback) {
                     xhr.setRequestHeader('If-Unmodified-Since', calli.lastModified(url));
                 }
             },
+            error: calli.error,
             complete: function(xhr) {
                 saving = false;
                 if (xhr.status < 300 || xhr.status == 1223) {
@@ -222,15 +223,12 @@ function saveFile(form, text, callback) {
 function setText(form, text, editor) {
     if (window.location.hash.indexOf('#!') === 0) {
         var url = resolve(window.location.hash.substring(2));
-        jQuery.ajax({type: 'GET', url: url, xhrFields: calli.withCredentials, complete: function(xhr) {
-            if (xhr.status == 200 || xhr.status == 304) {
-                var text = xhr.responseText;
-                editor.postMessage('PUT text\nIf-None-Match: *' +
-                    '\nContent-Location: ' + url +
-                    '\nContent-Type: '+ form.getAttribute("enctype") +
-                    '\n\n' + text, '*');
-            }
-        }});
+        calli.getText(url).then(function(text){
+            editor.postMessage('PUT text\nIf-None-Match: *' +
+                '\nContent-Location: ' + url +
+                '\nContent-Type: '+ form.getAttribute("enctype") +
+                '\n\n' + text, '*');
+        }).catch(calli.error);
     } else if (text) {
         editor.postMessage('PUT text\nIf-None-Match: *' +
             '\nContent-Location: ' + window.location.href +
@@ -247,15 +245,12 @@ function setText(form, text, editor) {
 // loadText
 function loadText(form, url, editor) {
     url = resolve(url);
-    $.ajax({type: 'GET', dataType: "text", url: url, xhrFields: calli.withCredentials, complete: function(xhr) {
-        if (xhr.status == 200 || xhr.status == 304) {
-            calli.lastModified(url, xhr.getResponseHeader('Last-Modified'));
-            editor.postMessage('PUT text\nContent-Location: '+ url +
-                '\nContent-Type: '+ form.getAttribute("enctype") +
-                '\n\n' + xhr.responseText, '*');
-            onhashchange(editor)();
-        }
-    }});
+    calli.getText(url).then(function(text){
+        editor.postMessage('PUT text\nContent-Location: '+ url +
+            '\nContent-Type: '+ form.getAttribute("enctype") +
+            '\n\n' + text, '*');
+        onhashchange(editor)();
+    }).catch(calli.error);
 }
 
 function resolve(url) {

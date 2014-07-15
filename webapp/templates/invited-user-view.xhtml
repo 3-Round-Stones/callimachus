@@ -15,13 +15,6 @@
     <script type="text/javascript"><![CDATA[
     jQuery(function($) {
         $('#body').val($('#body').val().replace(/@@REGISTRATION_URL@@/g, window.location.protocol + '//' + window.location.host + '/?register'));
-        $('#msgForm').bind('calliRedirect', function(event) {
-            if (event.cause.type == 'calliSubmit') {
-                event.preventDefault();
-                $('#msgForm').hide();
-                return false;
-            }
-        });
     }); // ]]>
     </script>
 </head>

@@ -25,15 +25,34 @@ calli.withCredentials = {
   withCredentials: true
 };
 
+calli.headText = function(url) {
+    return calli.resolve($.ajax({
+        type: 'HEAD',
+        url: url,
+        dataType: 'text',
+        cache: true,
+        xhrFields: {
+          withCredentials: true
+        }
+    })).then(function(response){
+        calli.lastModified(url, new Date().toUTCString());
+        return response;
+    });
+};
+
 calli.getText = function(url, success) {
     return calli.resolve($.ajax({
         type: 'GET',
         url: url,
         dataType: 'text',
+        cache: true,
         xhrFields: {
           withCredentials: true
         }
-    })).then(sucess);
+    })).then(function(response){
+        calli.lastModified(url, new Date().toUTCString());
+        return response;
+    }).then(success);
 };
 
 calli.postText = function(url, data, contentType) {
@@ -88,6 +107,36 @@ calli.deleteText = function(url) {
             "If-Unmodified-Since": calli.lastModified(url)
         }
     }));
+};
+
+calli.getJSON = function(url) {
+    return calli.resolve($.ajax({
+        type: 'GET',
+        url: url,
+        dataType: 'json',
+        cache: true,
+        xhrFields: {
+          withCredentials: true
+        }
+    })).then(function(response){
+        calli.lastModified(url, new Date().toUTCString());
+        return response;
+    });
+};
+
+calli.getXML = function(url) {
+    return calli.resolve($.ajax({
+        type: 'GET',
+        url: url,
+        dataType: 'xml',
+        cache: true,
+        xhrFields: {
+          withCredentials: true
+        }
+    })).then(function(response){
+        calli.lastModified(url, new Date().toUTCString());
+        return response;
+    });
 };
 
 })(jQuery);

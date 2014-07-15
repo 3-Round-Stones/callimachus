@@ -23,7 +23,7 @@ calli.submitTurtle = function(event, local) {
             try {
                 return calli.copyResourceData(form);
             } finally {
-                if (prevously) {
+                if (previously) {
                     form.setAttribute("resource", previously);
                 }
             }
@@ -47,7 +47,7 @@ calli.submitTurtle = function(event, local) {
             window.location.replace(redirect);
         }, function(error){
             btn.button('reset');
-            return Promise.reject(error);
+            return calli.error(error);
         });
     } else {
         window.console && window.console.log("This create page is deprecated, use a different URL");
@@ -62,8 +62,9 @@ calli.submitTurtle = function(event, local) {
             if (redirect) {
                 window.location.replace(redirect);
             }
-        }).always(function(){
+        }, function(error){
             btn.button('reset');
+            return calli.error(error);
         });
     }
 };
@@ -163,7 +164,8 @@ function postData(method, url, data, callback) {
             if (callback) {
                 callback(data, textStatus, xhr);
             }
-        }
+        },
+        error: calli.error
     });
     return xhr;
 }

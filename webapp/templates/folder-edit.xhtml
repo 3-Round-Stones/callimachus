@@ -30,34 +30,22 @@
             }
         });
         $('#type').change();
-        window.deleteFolder = function(event) {
+        $('#delete').click(function(event) {
             var waiting = calli.wait();
+            var btn = $(this);
+            btn.button('loading');
             if (!confirm("Are you sure you want to delete this folder and all the contents of this folder?")) {
                 waiting.over();
                 return false;
             }
-            var xhr = $.ajax({
-                type: 'DELETE',
-                url: '?archive',
-    			dataType: "text",
-                global: false,
-                xhrFields: calli.withCredentials,
-                beforeSend: function(xhr){
-                    var modified = calli.lastModified('?archive');
-                    if (modified) {
-                        xhr.setRequestHeader("If-Unmodified-Since", modified);
-                    }
-                },
-                complete: function(data, textStatus) {
-                    try {
-                        event.message = '';
-                        calli.deleteResource(event);
-                    } finally {
-                        waiting.over();
-                    }
-                }
-            });
-        };
+            calli.deleteText('?archive').then(function() {
+                event.message = '';
+                return calli.deleteResource(event);
+            }).catch(function(error){
+                btn.button('reset');
+                return calli.error(error);
+            }).then(waiting.over, waiting.over);
+        });
     });
     // ]]>
     </script>
@@ -110,7 +98,7 @@
                 <div class="form-group">
                     <button id="save" type="submit" class="btn btn-primary">Save</button>
                     <button id="cancel" type="button" onclick="window.location.replace('?view')" class="btn btn-default">Cancel</button>
-                    <button id="delete" type="button" onclick="deleteFolder(event)" class="btn btn-danger">Delete</button>
+                    <button id="delete" type="button" class="btn btn-danger">Delete</button>
                 </div>
             </fieldset>
             <div class="col-sm-4 col-sm-offset-4">

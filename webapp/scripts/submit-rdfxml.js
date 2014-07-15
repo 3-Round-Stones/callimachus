@@ -122,7 +122,8 @@ function postData(form, data, callback) {
         success: function(data, textStatus) {
             calli.lastModified(action, new Date().toUTCString());
             callback(data, textStatus, xhr);
-        }
+        },
+        error: calli.error
     });
 }
 

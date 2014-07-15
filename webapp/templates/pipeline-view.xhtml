@@ -14,15 +14,11 @@
     <link rel="edit-media" href="?" title="Raw file" type="application/xproc+xml" />
     <link href="?results" title="Result document" />
     <script type="text/javascript">
-        jQuery(function($) {
-            $.ajax({
-                url: window.location.pathname,
-                success: function(text) {
-                    $('#pre').text(text);
-                },
-                dataType: "text"
+        calli.getText(window.location.pathname).then(function(text){
+            jQuery(function($) {
+                $('#pre').text(text);
             });
-        });
+        }).catch(calli.error);
     </script>
 </head>
 <body>

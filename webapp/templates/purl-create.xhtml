@@ -14,26 +14,10 @@
             word-wrap: normal;
         }
     </style>
-    <script type="text/javascript">
-    // <![CDATA[
-    jQuery(function($){
-        $('#get textarea.pattern.hidden').remove();
-        $('#get textarea.pattern[property]').each(function(){
-            $('#type').val(this.getAttribute('property'));
-        });
-        $('#type').change(function(){
-            $('#get textarea.pattern').attr('data-text-expression', this.value);
-            $('#get textarea.pattern').attr('property', this.value);
-        }).change();
-        $('#form').bind('calliRedirect', function(event){
-            event.location = event.resource + '?view';
-        });
-    }); // ]]>
-    </script>
+    <script type="text/javascript" src="../scripts/purl.js"></script>
 </head>
 <body>
-    <form role="form" id="form" method="POST" action="" enctype="text/turtle" typeof="calli:Purl"
-            onsubmit="calli.submitTurtle(event,$('#local').val())" class="container">
+    <form role="form" id="form" method="POST" action="" enctype="text/turtle" typeof="calli:Purl" class="container">
         <div class="page-header">
             <h1>New Persistent Uniform Resource Locator</h1>
         </div>

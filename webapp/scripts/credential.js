@@ -54,7 +54,7 @@ $('form[typeof~="calli:Credential"][enctype="text/turtle"]').submit(function(eve
         window.location.replace(redirect);
     }, function(error){
         btn.button('reset');
-        return Promise.reject(error);
+        return calli.error(error);
     });
 });
 
@@ -71,13 +71,13 @@ $('form[typeof~="calli:Credential"][enctype="application/sparql-update"]').each(
                 var text = rstr2b64(str2rstr_utf8(password));
                 return calli.postText(resource + '?password', text);
             } else {
-                return Promise.resolve();
+                return calli.resolve();
             }
         }).then(function(){
             return calli.submitUpdate(comparison, event);
         }, function(error){
             btn.button('reset');
-            return Promise.reject(error);
+            return calli.error(error);
         });
     });
 });

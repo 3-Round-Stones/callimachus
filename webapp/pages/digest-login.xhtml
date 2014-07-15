@@ -39,7 +39,8 @@
                         localStorage.setItem("digestPassword", digestPassword);
                     }
                     $(document).trigger("calliLoggedIn");
-                }
+                },
+                calli.error
             };
             try {
                 jQuery.ajax(options);

@@ -14,18 +14,14 @@
                 return m ? decodeURIComponent(m[1]) : null;
             }
             $("#form").submit(function(form) {
-                jQuery.ajax({type: 'POST', url: form.action,
-                    traditional: true,
-                    data: {
-                        nonce: parameter("nonce"),
-                        token: parameter("token"),
-                        email: parameter("email"),
-                        fullname: parameter("fullname") || parameter("email").replace(/@.*/,'')
-                    },
-                    success: function() {
-                        window.location.replace('?login&return_to=' + encodeURIComponent(parameter('return_to')));
-                    }
-                });
+                calli.postText(form.action, $.param({
+                    nonce: parameter("nonce"),
+                    token: parameter("token"),
+                    email: parameter("email"),
+                    fullname: parameter("fullname") || parameter("email").replace(/@.*/,'')
+                }, true), "application/x-www-form-urlencoded").then(function() {
+                    window.location.replace('?login&return_to=' + encodeURIComponent(parameter('return_to')));
+                }).catch(calli.error);
                 return false;
                });
         });

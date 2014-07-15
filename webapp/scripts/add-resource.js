@@ -24,7 +24,7 @@ calli.addTemplate = calli.addResource = function(event, container) {
             node.before(child);
         }
         child.find(':input').andSelf().filter(':input:first').focus();
-    });
+    }).catch(calli.error);
     return false;
 };
 

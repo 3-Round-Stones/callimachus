@@ -29,17 +29,13 @@
                 event.location = event.resource + '?view';
             }
         });
-        $('<span></span>').attr("id", "modified")
-            .attr("property", "dcterms:modified")
-            .attr("datatype", "xsd:dateTime")
-            .attr("content", new Date().toISOString())
-            .appendTo('#form');
     });
     // ]]>
     </script>
 </head>
-<body resource="?this">
-    <form role="form" id="form" method="POST" action="" enctype="application/sparql-update" resource="?this" class="container">
+<body resource="?this" onload="comparison=calli.copyResourceData('#form')">
+    <form role="form" id="form" method="POST" action="" enctype="application/sparql-update" resource="?this" class="container"
+            onsubmit="calli.submitUpdate(comparison, event)">
         <div class="page-header">
             <h1 property="rdfs:label" />
         </div>

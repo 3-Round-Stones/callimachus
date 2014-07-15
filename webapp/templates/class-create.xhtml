@@ -83,13 +83,12 @@
             de.dataTransfer = {getData:function(){return equivalentURL}};
             $('#equivalentClass').trigger(de);
         }
-        $('#created').val(new Date().toISOString()).change();
     }); // ]]>
     </script>
 </head>
 <body>
     <form role="form" id="form" method="POST" action="" enctype="text/turtle" typeof="owl:Class" class="container"
-            onsubmit="return calli.saveResourceAs(event,encodeURIComponent($('#label').val().replace(/([a-z])\s([A-Z])/g, '$1$2').replace(/\s+/g,'_')))">
+            onsubmit="calli.submitTurtle(event,encodeURIComponent($('#label').val().replace(/([a-z])\s([A-Z])/g, '$1$2').replace(/\s+/g,'_')))">
         <div class="row">
             <div class="col-sm-8">
                 <div class="page-header">
@@ -217,8 +216,6 @@
                     </div>
                 </fieldset>
                 <fieldset class="form-group">
-                    <input type="hidden" id="created" value="{dcterms:created}" datatype="xsd:dateTime"
-                        onchange="calli.updateProperty(event, 'dcterms:created')" />
                     <button id="create" type="submit" class="btn btn-success">Create</button>
                 </fieldset>
             </div>

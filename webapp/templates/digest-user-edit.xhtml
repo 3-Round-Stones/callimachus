@@ -9,42 +9,7 @@
 <head>
     <title resource="?this">{rdfs:label}</title>
     <link rel="help" href="../../callimachus-for-web-developers#User_Profile" target="_blank" title="Help" />
-    <script type="text/javascript">//<![CDATA[
-        $(document).ready(function() {
-            var uri = $("form[resource]").attr("resource");
-            var credential = null;
-            jQuery.ajax({type: "GET",  url: "/?profile",
-                xhrFields: calli.withCredentials,
-                success: function(doc) {
-                    credential = /resource="([^" >]*)"/i.exec(doc)[1];
-                }
-            });
-            var deleted = false;
-            $(document).bind("calliDelete", function(event) {
-                if (credential && credential == uri) {
-                    deleted = true;
-                }
-                return true;
-            });
-            $(document).bind("calliRedirect", function(event) {
-                if (deleted && credential && credential == uri) {
-                    // need to log user out gracefully since they deleted themselves
-                    var e = jQuery.Event("calliLogout");
-                    e.location = '/';
-                    $(document).trigger(e);
-                    event.preventDefault();
-                    return false;
-                }
-                return true;
-            });
-            $('<span></span>').attr("id", "modified")
-                .attr("property", "dcterms:modified")
-                .attr("datatype", "xsd:dateTime")
-                .attr("content", new Date().toISOString())
-                .appendTo('#form');
-        });
-        // ]]>
-    </script>
+    <script type="text/javascript" src="../scripts/digest-user.js"></script>
 </head>
 <body resource="?this">
     <form role="form" id="form" method="POST" action="" enctype="application/sparql-update" resource="?this" autocomplete="off" class="container">
@@ -81,8 +46,8 @@
                     </div>
                     <div class="form-group">
                         <button id="save" type="submit" class="btn btn-primary">Save</button>
-                        <button id="cancel" type="button" onclick="window.location.replace('?view')" class="btn btn-default">Cancel</button>
-                        <button id="delete" type="button" onclick="calli.deleteResource(event)" class="btn btn-danger">Delete</button>
+                        <button id="cancel" type="button" class="btn btn-default">Cancel</button>
+                        <button id="delete" type="button" class="btn btn-danger">Delete</button>
                     </div>
                 </fieldset>
             </div>

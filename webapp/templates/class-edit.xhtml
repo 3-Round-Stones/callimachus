@@ -61,16 +61,12 @@
         if ($('#subClassOf').find('[resource$="Composite"]').length) {
             $('#composite').attr('checked','checked');
         }
-        $('<span></span>').attr("id", "modified")
-            .attr("property", "dcterms:modified")
-            .attr("datatype", "xsd:dateTime")
-            .attr("content", new Date().toISOString())
-            .appendTo('#form');
     }); // ]]>
     </script>
 </head>
-<body resource="?this">
-    <form id="form" role="form" method="POST" action="" enctype="application/sparql-update" resource="?this" typeof="owl:Class" class="container">
+<body resource="?this" onload="comparison=calli.copyResourceData('#form')">
+    <form id="form" role="form" method="POST" action="" enctype="application/sparql-update" resource="?this" typeof="owl:Class" class="container"
+            onsubmit="calli.submitUpdate(comparison, event)">
         <div class="row">
             <div class="col-sm-8">
                 <div class="page-header">

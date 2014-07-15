@@ -116,6 +116,7 @@ public abstract class PageSupport implements CalliObject {
 			RDFHandler handler = new RDFHandlerWrapper(new RDFInserter(con), statements);
 			TripleInserter tracker = new TripleInserter(handler, con);
 			tracker.accept(openPatternReader(target.toString()));
+			tracker.accept(created((URI) target.getResource()));
 			RDFFormat format = RDFFormat.forMIMEType(type);
 			RDFParserRegistry registry = RDFParserRegistry.getInstance();
 			RDFParser parser = registry.get(format).getParser();
@@ -192,6 +193,7 @@ public abstract class PageSupport implements CalliObject {
 		GraphQueryResult construct = template.evaluateGraph(bindings, con);
 		TripleVerifier verifier = new TripleVerifier();
 		verifier.accept(construct);
+		verifier.accept(created(created));
 		for (Statement st : statements) {
 			verifier.verify(st.getSubject(), st.getPredicate(), st.getObject());
 		}
@@ -303,5 +305,11 @@ public abstract class PageSupport implements CalliObject {
 		AbsoluteTermFactory tf = AbsoluteTermFactory.newInstance();
 		IRI subj = tf.iri(resource.stringValue());
 		return new TriplePattern(subj, tf.iri(DCTERMS.MODIFIED.stringValue()), tf.node());
+	}
+
+	private TriplePattern created(URI resource) {
+		AbsoluteTermFactory tf = AbsoluteTermFactory.newInstance();
+		IRI subj = tf.iri(resource.stringValue());
+		return new TriplePattern(subj, tf.iri(DCTERMS.CREATED.stringValue()), tf.node());
 	}
 }

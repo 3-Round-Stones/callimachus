@@ -13,11 +13,6 @@
     <script type="text/javascript">
     // <![CDATA[
         jQuery(function($){
-            $('<span></span>').attr("id", "modified")
-                .attr("property", "dcterms:modified")
-                .attr("datatype", "xsd:dateTime")
-                .attr("content", new Date().toISOString())
-                .appendTo('#form');
             $('#authButton-select').selectize({
                 render: {
                     option: function(item, escape) {
@@ -29,8 +24,9 @@
         // ]]>
     </script>
 </head>
-<body resource="?this">
-    <form role="form" id="form" method="POST" action="" enctype="application/sparql-update" resource="?this" class="container">
+<body resource="?this" onload="comparison=calli.copyResourceData('#form')">
+    <form role="form" id="form" method="POST" action="" enctype="application/sparql-update" resource="?this" class="container"
+            onsubmit="calli.submitUpdate(comparison, event)">
         <div class="page-header">
             <h1>{rdfs:label}</h1>
         </div>

@@ -8,15 +8,10 @@
 <head>
     <title>New Concept</title>
     <link rel="help" href="../../callimachus-for-web-developers#Concept" target="_blank" title="Help" />
-    <script type="text/javascript">
-        jQuery(function($){
-            $('#created').val(new Date().toISOString()).change();
-        });
-    </script>
 </head>
 <body>
     <form role="form" id="form" method="POST" action="" enctype="text/turtle" typeof="skos:Concept" class="container"
-            onsubmit="return calli.saveResourceAs(event,calli.slugify($('#label').val()))">
+            onsubmit="calli.submitTurtle(event,calli.slugify($('#label').val()))">
         <div class="page-header">
             <h1>New Concept</h1>
         </div>
@@ -54,6 +49,8 @@
                                 onchange="calli.updateProperty(event, 'skos:example')">{skos:example}</textarea>
                         </div>
                     </div>
+                    <div property="skos:scopeNote"></div>
+                    <div property="skos:historyNote"></div>
                 </fieldset>
                 <fieldset class="row hidden-iframe">
                     <div id="related" dropzone="link string:text/uri-list" class="form-group col-sm-6"
@@ -91,8 +88,6 @@
                     </div>
                 </fieldset>
                 <fieldset class="form-group">
-                    <input type="hidden" id="created" value="{dcterms:created}" datatype="xsd:dateTime"
-                        onchange="calli.updateProperty(event, 'dcterms:created')" />
                     <button id="create" type="submit" class="btn btn-success">Create</button>
                 </fieldset>
             </div>

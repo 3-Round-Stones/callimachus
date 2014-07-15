@@ -12,33 +12,10 @@
     <link rel="help" href="../../callimachus-for-web-developers#Concept" target="_blank" title="Help" />
     <link id="folder" about="?this" rev="calli:hasComponent" href="?folder" />
     <link id="type" href="../types/Concept" />
-    <script type="text/javascript">
-        function saveChangeNote() {
-            var note = document.getElementById('note')
-            if (note.value) {
-                note.setAttribute('property', 'skos:changeNote')
-                note.setAttribute('content', note.value)
-            }
-        }
-        jQuery(function($){
-            $('<span></span>').attr("id", "modified")
-                .attr("property", "dcterms:modified")
-                .attr("datatype", "xsd:dateTime")
-                .attr("content", new Date().toISOString())
-                .appendTo('#form');
-            $('#saveas').on('click', function(event){
-                $('#modified').attr("property", "decterms:created");
-                var local = calli.slugify($('#label').val());
-                var type = $('#type').attr('href');
-                var folder = $('#folder').attr('href');
-                calli.saveResourceAs(event, local, type, folder);
-            });
-        });
-    </script>
 </head>
-<body resource="?this">
+<body resource="?this" onload="comparison=calli.copyResourceData('#form')">
     <form role="form" id="form" method="POST" action="" enctype="application/sparql-update" class="container"
-            resource="?this" typeof="skos:Concept" onsubmit="saveChangeNote()">
+            resource="?this" typeof="skos:Concept" onsubmit="calli.submitUpdate(comparison, event)">
         <div class="page-header">
             <h1>{skos:prefLabel}</h1>
         </div>
@@ -133,12 +110,14 @@
                     <div class="form-group">
                         <label for="note">Change note</label>
                         <div>
-                            <input type="text" id="note" maxlength="140" class="form-control" />
+                            <input type="text" id="note" maxlength="140" class="form-control"
+                                onchange="calli.updateProperty(event, 'skos:changeNote')" />
                         </div>
                     </div>
                     <div class="form-group">
                         <button id="save" type="submit" class="btn btn-primary">Save</button>
-                        <button id="saveas" type="button" class="btn btn-info">Save as...</button>
+                        <button id="saveas" type="button" class="btn btn-info"
+                            onclick="calli.submitTurtleAs(event, calli.slugify($('#label').val()), $('#type').attr('href'), $('#folder').attr('href'))">Save as...</button>
                         <button id="cancel" type="button" onclick="window.location.replace('?view')" class="btn btn-default">Cancel</button>
                         <button id="delete" type="button" onclick="calli.deleteResource(event)" class="btn btn-danger">Delete</button>
                     </div>

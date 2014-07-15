@@ -14,7 +14,9 @@ window.calli.updateResource = function(event, rel) {
     return update(event, function(){
         this.removeAttribute('rel');
     }, function(){
-        this.setAttribute('rel', rel);
+        if (!this.getAttribute('rel')) {
+            this.setAttribute('rel', rel);
+        }
         if (this.value && (this.value != "on" || !this.checked)) {
             this.setAttribute('resource', this.value);
         }
@@ -25,7 +27,9 @@ window.calli.updateProperty = function(event, property) {
     return update(event, function(){
         this.removeAttribute('property');
     }, function(){
-        this.setAttribute('property', property);
+        if (!this.getAttribute('property')) {
+            this.setAttribute('property', property);
+        }
         if (this.value && (this.value != "on" || !this.checked)) {
             this.setAttribute('content', this.value);
         }

@@ -9,15 +9,10 @@
 <head>
     <title>New RDF Datasource</title>
     <link rel="help" href="../../callimachus-for-web-developers#Datasource" target="_blank" title="Help" />
-    <script type="text/javascript">
-    $(function(){
-        $('#created').val(new Date().toISOString()).change();
-    });
-    </script>
 </head>
 <body>
     <form role="form" method="POST" action="" enctype="text/turtle" typeof="calli:RdfDatasource sd:Service" class="container"
-            onsubmit="if (calli.saveResourceAs(event,calli.slugify($('#label').val()))){$('[rel=&quot;sd:endpoint&quot;]').attr('resource',$(this).attr('resource'));return true;} else return false">
+            onsubmit="var resource=calli.slugify($('#label').val());$('#endpoint').attr('resource',resource);calli.submitTurtle(event, resource);">
         <div class="page-header">
             <h1>New RDF Datasource</h1>
         </div>
@@ -52,7 +47,7 @@
                 <div>
                     <span rel="calli:editor" />
                     <span rel="sd:supportedLanguage" />
-                    <span rel="sd:endpoint" />
+                    <span id="endpoint" rel="sd:endpoint" />
                     <span rel="sd:feature" resource="http://www.w3.org/ns/sparql-service-description#BasicFederatedQuery" />
                     <span rel="sd:feature" resource="http://www.w3.org/ns/sparql-service-description#UnionDefaultGraph" />
                     <span rel="sd:inputFormat" resource="http://www.w3.org/ns/formats/RDF_XML" />
@@ -81,8 +76,6 @@
             </fieldset>
         </div>
         <fieldset class="form-group">
-            <input type="hidden" id="created" value="{dcterms:created}" datatype="xsd:dateTime"
-                onchange="calli.updateProperty(event, 'dcterms:created')" />
             <button id="create-datasource" type="submit" class="btn btn-success">Create</button>
         </fieldset>
     </form>

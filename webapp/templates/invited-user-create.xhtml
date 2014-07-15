@@ -8,48 +8,13 @@
 <head>
     <title>Invite a New User</title>
     <link rel="help" href="../../callimachus-for-web-developers#Account_Invitations" target="_blank" title="Help" />
-    <script type="text/javascript"><![CDATA[
-    jQuery(function($) {
-        var origin = window.location.protocol + '//' + window.location.host;
-        $('#body').val($('#body').val().replace(/@@REGISTRATION_URL@@/g, origin + '/?register') + origin);
-        var messageChanged = false;
-        $('#body').change(function(){
-            messageChanged = true;
-        });
-        $('#label').on('change keyup blur', function() {
-            if (!messageChanged) {
-                var salutation = $(this).val() ? 'Hello ' + $(this).val() : 'Hello';
-                $('#body').val($('#body').val().replace(/(^|[\r\n])Hello.*/, '$1' + salutation + ','));
-            }
-        });
-        $('#email').change(function(){
-            if (this.value.indexOf('<') >= 0) {
-                var name = this.value.substring(0, this.value.indexOf('<')).replace(/^\s+/,'').replace(/\s+$/,'');
-                if (name) {
-                    $('#label').val(name).change();
-                }
-                $(this).val(this.value.replace(/.*</, '').replace(/>.*/, '')).change();
-            }
-        });
-        $('#rdfForm').bind('calliRedirect', function(event) {
-            if (event.cause.type == 'calliSubmit') {
-                event.preventDefault();
-                $('#fullname').val($('#label').val());
-                $('#msgForm').attr("action", event.resource + '?invite').submit();
-                return false;
-            }
-        });
-        $('#created').val(new Date().toISOString()).change();
-    }); // ]]>
-    </script>
+    <script type="text/javascript" src="../scripts/invited-user.js"></script>
 </head>
 <body>
     <div class="container">
         <div class="row">
-            <form role="form" id="rdfForm" method="POST" action="" enctype="text/turtle" typeof="calli:User calli:Party" autocomplete="off"
-                    onsubmit="return calli.saveResourceAs(event,calli.slugify($('#email').val()))" class="col-xs-6">
-                <input type="hidden" id="created" value="{dcterms:created}" datatype="xsd:dateTime"
-                        onchange="calli.updateProperty(event, 'dcterms:created')" />
+            <form role="form" id="rdfForm" method="POST" action="" enctype="text/turtle" typeof="calli:User calli:Party" autocomplete="off" class="col-xs-6">
+                <input type="submit" class="hidden" />
                 <fieldset>
                     <div class="form-group">
                         <label for="email">E-mail address</label>
@@ -111,7 +76,7 @@ The Callimachus service running at </textarea>
                     </div>
                 </div>
                 <div class="form-group">
-                    <button id="invite" class="btn btn-default" onclick="$('#rdfForm').submit();return false">Invite</button>
+                    <button type="submit" id="invite" class="btn btn-default">Invite</button>
                 </div>
             </fieldset>
         </form>

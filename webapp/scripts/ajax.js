@@ -17,24 +17,40 @@
  */
 
 
-(function($,jQuery){
+(function($){
 
-if (!window.calli) {
-    window.calli = {};
-}
+var calli = window.calli = window.calli || {};
 
-window.calli.withCredentials = {
+calli.withCredentials = {
   withCredentials: true
 };
 
-window.calli.getText = function(url, success) {
-    return jQuery.ajax({
+calli.getText = function(url, success) {
+    return calli.resolve($.ajax({
         type: 'GET',
         url: url,
         dataType: 'text',
-        xhrFields: calli.withCredentials,
-        success: success
-    });
-}
+        xhrFields: {
+          withCredentials: true
+        }
+    })).then(sucess);
+};
 
-})(jQuery, jQuery);
+calli.deleteText = function(url) {
+    return calli.resolve($.ajax({
+        type: "DELETE",
+        url: url,
+        dataType: "text",
+        xhrFields: {
+            withCredentials: true
+        },
+        beforeSend: function(xhr){
+            var lastmod = calli.lastModified(url);
+            if (lastmod) {
+                xhr.setRequestHeader("If-Unmodified-Since", lastmod);
+            }
+        }
+    }));
+};
+
+})(jQuery);

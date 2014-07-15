@@ -53,7 +53,7 @@ $(window).bind('message', function(event) {
 window.calli.error = function(message, stack) {
     var e = jQuery.Event("error");
     if (typeof message == 'object') {
-        if (message.status >= 400 && message.statusText && message.responseText) {
+        if (message.status >= 400 && message.statusText) {
             return calli.error(message.statusText, message.responseText);
         } else if (message.status <= 100) {
             return calli.error("Could not connect to server, please try again later");

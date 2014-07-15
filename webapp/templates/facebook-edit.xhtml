@@ -14,17 +14,13 @@
             if ($('#secret-link').length) {
                 $('#add-secret').hide();
             }
-            $('<span></span>').attr("id", "modified")
-                .attr("property", "dcterms:modified")
-                .attr("datatype", "xsd:dateTime")
-                .attr("content", new Date().toISOString())
-                .appendTo('#form');
         });
     // ]]>
     </script>
 </head>
-<body resource="?this">
-    <form role="form" id="rdfForm" method="POST" action="" enctype="application/sparql-update" resource="?this" class="container">
+<body resource="?this" onload="comparison=calli.copyResourceData('#rdfForm')">
+    <form role="form" id="rdfForm" method="POST" action="" enctype="application/sparql-update" resource="?this" class="container"
+            onsubmit="calli.submitUpdate(comparison, event)">
         <div class="page-header">
             <h1>{rdfs:label}</h1>
         </div>

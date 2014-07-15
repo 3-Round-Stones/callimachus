@@ -8,18 +8,10 @@
 <head>
     <title resource="?this">{rdfs:label}</title>
     <link rel="help" href="../../callimachus-for-web-developers#Datasource" target="_blank" title="Help" />
-    <script type="text/javascript">
-        $(function(){
-            $('<span></span>').attr("id", "modified")
-                .attr("property", "dcterms:modified")
-                .attr("datatype", "xsd:dateTime")
-                .attr("content", new Date().toISOString())
-                .appendTo('#form');
-        });
-    </script>
 </head>
-<body resource="?this">
-    <form id="form" role="form" method="POST" action="" enctype="application/sparql-update" resource="?this" class="container">
+<body resource="?this" onload="comparison=calli.copyResourceData('#form')">
+    <form id="form" role="form" method="POST" action="" enctype="application/sparql-update" resource="?this" class="container"
+            onsubmit="calli.submitUpdate(comparison, event)">
         <div class="page-header">
             <h1>{rdfs:label}</h1>
         </div>

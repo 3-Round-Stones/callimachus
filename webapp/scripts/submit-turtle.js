@@ -6,6 +6,69 @@
 
 (function($){
 
+var calli = window.calli = window.calli || {};
+
+calli.submitTurtle = function(event, local) {
+    event.preventDefault();
+    var form = calli.fixEvent(event).target;
+    var btn = $(form).find('button[type="submit"]');
+    btn.button('loading');
+    var action = calli.getFormAction(form);
+    if (action.indexOf('?create=') > 0) {
+        return calli.resolve(form).then(function(form){
+            var previously = form.getAttribute("resource");
+            var ns = window.location.pathname.replace(/\/?$/, '/');
+            var resource = ns + encodeURI(local).replace(/%25(\w\w)/g, '%$1').replace(/%20/g, '+');
+            form.setAttribute("resource", resource);
+            try {
+                return calli.copyResourceData(form);
+            } finally {
+                if (prevously) {
+                    form.setAttribute("resource", previously);
+                }
+            }
+        }).then(function(data){
+            data.results.bindings.push({
+                s: {type:'uri', value: data.head.link[0]},
+                p: {type:'uri', value: 'http://purl.org/dc/terms/created'},
+                o: {
+                    type:'literal',
+                    value: new Date().toISOString(),
+                    datatype: "http://www.w3.org/2001/XMLSchema#dateTime"
+                }
+            });
+            return data;
+        }).then(function(data){
+            return calli.postTurtle(action, data);
+        }).then(function(redirect){
+            window.location.replace(redirect);
+        }, function(error){
+            btn.button('reset');
+            return Promise.reject(error);
+        });
+    } else {
+        window.console && window.console.log("This create page is deprecated, use a different URL");
+        return calli.promptForNewResource(null, local).then(function(folder, local){
+            if (!folder || !local) return undefined;
+            var type = window.location.href.replace(/\?.*|\#.*/, '');
+            var url = folder + '?create=' + encodeURIComponent(type);
+            var resource = folder.replace(/\/?$/, '/') + local.replace(/%20/g, '+');
+            form.setAttribute("resource", resource);
+            return calli.postTurtle(url, calli.copyResourceData(form));
+        }).then(function(redirect){
+            if (redirect) {
+                window.location.replace(redirect);
+            }
+        }).always(function(){
+            btn.button('reset');
+        });
+    }
+};
+
+calli.postTurtle = function(url, data) {
+    return calli.resolve(postData("POST", url, getTurtle(data)));
+};
+
 $(function($){
     $('form').submit(function(event, onlyHandlers) {
         if (this.getAttribute("enctype") != "text/turtle")
@@ -30,15 +93,15 @@ $(function($){
 function submitRDFForm(form, uri) {
     var waiting = calli.wait();
     try {
-        var parser = new RDFaParser();
-        var resource = parser.parseURI(parser.getNodeBase(form)).resolve(uri);
+        var data = calli.copyResourceData(form);
         var se = $.Event("calliSubmit");
-        se.resource = resource;
+        se.resource = data.resource;
         se.location = calli.getFormAction(form);
-        se.payload = getTurtle(parser, resource, form);
+        se.payload = getTurtle(data);
         $(form).trigger(se);
         if (!se.isDefaultPrevented()) {
-            postData(form, se.payload, function(data, textStatus, xhr) {
+            var method = form.getAttribute('method') || form.method || "POST";
+            postData(method, calli.getFormAction(form), se.payload, function(data, textStatus, xhr) {
                 try {
                     var redirect = xhr.getResponseHeader("Location");
                     var contentType = xhr.getResponseHeader('Content-Type');
@@ -74,55 +137,32 @@ function submitRDFForm(form, uri) {
     }
 }
 
-function getTurtle(parser, formSubject, form) {
-    var 
-        serializer = new TurtleSerializer(),
-        usedBlanks = {},
-        isBlankS,
-        isFirstTriple = true
-    ;
-    parser.parse(form, function(s, p, o, dt, lang) {
-        isBlankS = s.indexOf('_:') === 0;
-        // keep subjects matching the form's subject and blank subjects if already introduced as objects
-        if (s == formSubject || s.indexOf(formSubject + "#") === 0 || (isBlankS && usedBlanks[s])) {
-            if (isFirstTriple) {
-                serializer.setMappings(parser.getMappings());// import prefixes encountered so far
-                isFirstTriple = false;
-            }
-            serializer.addTriple(s, p, o, dt, lang);
-            // log blank objects, they may be used as subjects in later triples
-            if (!dt && o.indexOf('_:') === 0) {
-                usedBlanks[o] = true;
-            }
-        }
+function getTurtle(data) {
+    var serializer = new TurtleSerializer();
+    serializer.setMappings(data.prefix);
+    data.results.bindings.forEach(function(triple){
+        serializer.addTriple(triple);
     });
     return serializer.toString();
 }
 
-function postData(form, data, callback) {
-    var method = form.getAttribute('method');
-    if (!method) {
-        method = form.method;
-    }
-    if (!method) {
-        method = "POST";
-    }
-    var type = form.getAttribute("enctype");
-    if (!type) {
-        type = "text/turtle";
-    }
+function postData(method, url, data, callback) {
     var xhr = null;
     xhr = $.ajax({
         type: method,
-        url: calli.getFormAction(form),
-        contentType: type,
+        url: url,
+        contentType: "text/turtle",
         data: data,
         dataType: "text", 
         xhrFields: calli.withCredentials,
         success: function(data, textStatus) {
+            calli.lastModified(url, new Date().toUTCString());
+            if (callback) {
                 callback(data, textStatus, xhr);
             }
+        }
     });
+    return xhr;
 }
 
 })(jQuery);

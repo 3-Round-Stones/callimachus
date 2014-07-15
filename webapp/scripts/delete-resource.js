@@ -35,7 +35,7 @@ window.calli.deleteResource = function(event, redirect) {
         form.trigger(de);
         if (!de.isDefaultPrevented()) {
             var xhr = $.ajax({ type: "DELETE", url: de.location, dataType: "text", xhrFields: calli.withCredentials, beforeSend: function(xhr){
-                var lastmod = getLastModified();
+                var lastmod = calli.lastModified(de.location);
                 if (lastmod) {
                     xhr.setRequestHeader("If-Unmodified-Since", lastmod);
                 }
@@ -74,16 +74,7 @@ window.calli.deleteResource = function(event, redirect) {
     } finally {
         waiting.over();
     }
-}
-
-function getLastModified() {
-    try {
-        var committedOn = $('#resource-lastmod').find('[property=audit:committedOn]').attr('content');
-        return new Date(committedOn).toGMTString();
-    } catch (e) {
-        return null;
-    }
-}
+};
 
 })(jQuery, jQuery);
 

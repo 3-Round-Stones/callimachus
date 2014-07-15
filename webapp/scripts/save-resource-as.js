@@ -10,6 +10,62 @@ if (!window.calli) {
     window.calli = {};
 }
 
+window.calli.submitTurtleAs = function(event, fileName, create, folder) {
+    var button = calli.fixEvent(event).target;
+    var form = $(button).closest('form');
+    var btn = $(button).filter('button');
+    var resource = form.attr("about") || form.attr("resource") || '';
+    var local = fileName || localPart(resource);
+    btn.button('loading');
+    return calli.promptForNewResource(folder, local).then(function(two){
+        if (!two) return undefined;
+        var url = two[0] + '?create=' + encodeURIComponent(create);
+        var iri = two[0].replace(/\/?$/, '/') + two[1].replace(/%20/g, '+');
+        form.attr("resource", iri);
+        try {
+            return calli.copyResourceData(form);
+        } finally {
+            if (resource) {
+                form.attr("resource", resource);
+            }
+        }
+    }).then(function(data){
+        data.results.bindings.push({
+            s: {type:'uri', value: data.head.link[0]},
+            p: {type:'uri', value: 'http://purl.org/dc/terms/created'},
+            o: {
+                type:'literal',
+                value: new Date().toISOString(),
+                datatype: "http://www.w3.org/2001/XMLSchema#dateTime"
+            }
+        });
+        return data;
+    }).then(function(data){
+        return calli.postTurtle(url, data);
+    }).then(function(redirect){
+        if (redirect) {
+            window.location.replace(redirect);
+        } else {
+            btn.button('reset');
+        }
+    }, function(error){
+        btn.button('reset');
+        return Promise.reject(error);
+    });
+};
+
+window.calli.promptForNewResource = function(container, localPart) {
+    return calli.resolve().then(function(){
+        return new Promise(function(resolve, reject){
+            try {
+                openSaveAsDialog(null, localPart, null, container, resolve);
+            } catch(e){
+                reject(e);
+            }
+        });
+    });
+};
+
 window.calli.saveFormAs = function(event, fileName, create) {
     return calli.saveResourceAs(event, fileName, create);
 };
@@ -60,18 +116,24 @@ window.calli.saveResourceAs = function(event, fileName, create, folder) {
     }
     // prompt for a new resource URI
     var label = fileName || findLabel(form) || localPart(resource);
-    openSaveAsDialog(form, label, create, folder, function(ns, local) {
+    openSaveAsDialog(form, label, create, folder, function(twoPartArray) {
+        if (!twoPartArray) return; // dialogue cancelled
+        var ns = twoPartArray[0];
+        var local = twoPartArray[1];
         if (fileName) {
             local = local.replace(/(%20|\-)+/g,'-');
         } else {
             local = local.replace(/%20/g,'+');
+        }
+        if (ns.lastIndexOf('/') != ns.length - 1) {
+            ns += '/';
         }
         var resource = ns + local;
         $(form).removeAttr('about');
         $(form).attr('resource', resource);
         overrideLocation(form, resource);
         if (form.getAttribute("enctype") == "application/sparql-update") {
-            form.setAttribute("enctype", "application/rdf+xml");
+            form.setAttribute("enctype", "text/turtle");
         }
         try {
             nestedSubmit = true;
@@ -135,6 +197,7 @@ function openSaveAsDialog(form, label, create, folder, callback) {
             // ignore
         }
     }
+    var called = false;
     var dialog = window.calli.openDialog(src, 'Save As...', {
         buttons: {
             "Save": function() {
@@ -158,13 +221,17 @@ function openSaveAsDialog(form, label, create, folder, callback) {
                     src = src.substring(0, src.indexOf('?'));
                 }
                 var ns = src.replace(/\?.*/,'');
-                if (ns.lastIndexOf('/') != ns.length - 1) {
-                    ns += '/';
-                }
-                var local = encodeURI(label);
-                updateFormAction(form, src, create);
-                callback(ns, local);
+                var local = encodeURI(label).replace(/%25(\w\w)/g, '%$1');
+                form && updateFormAction(form, src, create);
+                called = true;
+                callback([ns, local]);
                 calli.closeDialog(dialog);
+            }
+        },
+        onclose: function() {
+            if (!called){
+                called = true;
+                callback();
             }
         }
     });

@@ -6,36 +6,91 @@
    Licensed under the Apache License, Version 2.0, http://www.apache.org/licenses/LICENSE-2.0
 */
 
-jQuery(function($){
+(function($){
 
-$('form[enctype="application/sparql-update"]').each(function() {
-    try {
-        var form = $(this);
-        form.find(":input").change(); // give update-resource.js a chance to initialize
-        var stored = readRDF(form[0]);
-        form.bind('reset', function() {
-            stored = readRDF(form[0]);
-        });
-        form.submit(function(event, onlyHandlers) {
-            if (this.getAttribute("enctype") != "application/sparql-update")
-                return true;
-            form.find(":input").change(); // IE may not have called onchange before onsubmit
-            if (!onlyHandlers && !event.isDefaultPrevented()) {
-                event.preventDefault();
-                event.stopImmediatePropagation();
-                form.triggerHandler(event.type, true);
-            } else if (onlyHandlers) {
-                setTimeout(function(){
-                    var resource = form.attr('about') || form.attr('resource');
-                    if (resource && !event.isDefaultPrevented()) {
-                        submitRDFForm(form[0], resource, stored);
-                    }
-                }, 0);
+var calli = window.calli = window.calli || {};
+
+calli.copyResourceData = (function(memo, element) {
+    var form = calli.fixEvent(element).target;
+    $(form).find(':input').change();
+    return readRDF(form);
+}).bind(this, {});
+
+calli.submitUpdate = function(comparedData, event) {
+    event.preventDefault();
+    var form = calli.fixEvent(event).target;
+    var btn = $(form).find('button[type="submit"]');
+    btn.button('loading');
+    return calli.resolve(form).then(function(form){
+        return calli.copyResourceData(form);
+    }).then(function(insertData){
+        insertData.results.bindings.push({
+            s: {type:'uri', value: insertData.head.link[0]},
+            p: {type:'uri', value: 'http://purl.org/dc/terms/modified'},
+            o: {
+                type:'literal',
+                value: new Date().toISOString(),
+                datatype: "http://www.w3.org/2001/XMLSchema#dateTime"
             }
         });
-    } catch (e) {
-        throw calli.error(e);
-    }
+        return insertData;
+    }).then(function(insertData){
+        var action = calli.getFormAction(form);
+        return calli.postUpdate(action, comparedData, insertData);
+    }).then(function(redirect){
+        window.location.replace(redirect);
+    }, function(error){
+        btn.button('reset');
+        return Promise.reject(error);
+    });
+};
+
+calli.postUpdate = function(url, deleteData, insertData) {
+    return calli.resolve().then(function(){
+        var diff = diffTriples(deleteData.results.bindings, insertData.results.bindings);
+        var removed = diff.removed;
+        var added = diff.added;
+        for (var rhash in removed) {
+            addBoundedDescription(removed[rhash], deleteData, removed, added);
+        }
+        for (var ahash in added) {
+            addBoundedDescription(added[ahash], insertData, added, removed);
+        }
+        var payload = asSparqlUpdate(insertData.prefix, removed, added);
+        return calli.resolve(patchData("POST", url, payload));
+    });
+}
+
+$(function(){
+    $('form[enctype="application/sparql-update"]').each(function() {
+        try {
+            var form = $(this);
+            form.find(":input").change(); // give update-resource.js a chance to initialize
+            var stored = readRDF(form[0]).results.bindings;
+            form.bind('reset', function() {
+                stored = readRDF(form[0]).results.bindings;
+            });
+            form.submit(function(event, onlyHandlers) {
+                if (this.getAttribute("enctype") != "application/sparql-update")
+                    return true;
+                form.find(":input").change(); // IE may not have called onchange before onsubmit
+                if (!onlyHandlers && !event.isDefaultPrevented()) {
+                    event.preventDefault();
+                    event.stopImmediatePropagation();
+                    form.triggerHandler(event.type, true);
+                } else if (onlyHandlers) {
+                    setTimeout(function(){
+                        var resource = form.attr('about') || form.attr('resource');
+                        if (resource && !event.isDefaultPrevented()) {
+                            submitRDFForm(form[0], resource, stored);
+                        }
+                    }, 0);
+                }
+            });
+        } catch (e) {
+            throw calli.error(e);
+        }
+    });
 });
 
 function submitRDFForm(form, resource, stored) {
@@ -43,7 +98,8 @@ function submitRDFForm(form, resource, stored) {
     try {
         var parser = new RDFaParser();
         var uri = parser.parseURI(parser.getNodeBase(form)).resolve(resource);
-        var revised = parseRDF(parser, uri, form);
+        var data = parseRDF(parser, uri, form);
+        var revised = data.results.bindings;
         var diff = diffTriples(stored, revised);
         var removed = diff.removed;
         var added = diff.added;
@@ -56,10 +112,11 @@ function submitRDFForm(form, resource, stored) {
         var se = $.Event("calliSubmit");
         se.resource = uri;
         se.location = calli.getFormAction(form);
-        se.payload = asSparqlUpdate(removed, added);
+        se.payload = asSparqlUpdate(data.prefix, removed, added);
         $(form).trigger(se);
         if (!se.isDefaultPrevented()) {
-            patchData(form, se.payload, function(data, textStatus, xhr) {
+            var method = form.getAttribute('method') || form.method || "POST";
+            patchData(method, calli.getFormAction(form), se.payload, function(data, textStatus, xhr) {
                 try {
                     var redirect = null;
                     var contentType = xhr.getResponseHeader('Content-Type');
@@ -99,19 +156,17 @@ function submitRDFForm(form, resource, stored) {
 function readRDF(form) {
     var parser = new RDFaParser();
     var base = parser.getNodeBase(form);
-    var resource = $(form).attr("about") || $(form).attr("resource");
+    var resource = $(form).attr("about") || $(form).attr("resource") || '';
     var formSubject = resource ? parser.parseURI(base).resolve(resource) : base;
     return parseRDF(parser, formSubject, form);
 }
 
 function parseRDF(parser, formSubject, form) {
     var 
-        writer = new UpdateWriter(),
         formHash = formSubject + "#",
-        triples = {},
+        bindings = [],
         usedBlanks = {},
-        selfRefs = {},
-        hash
+        selfRefs = {}
     ;
     parser.parse(form, function(s, p, o, dt, lang) {
         // keep subjects matching the form's subject and blank subjects if already introduced as objects
@@ -120,15 +175,29 @@ function parseRDF(parser, formSubject, form) {
             if (!dt && s == o) {
                 selfRefs[this] = true;
             }
-            hash = writer.hash(s, p, o, dt, lang);
-            triples[hash] = {subject: s, predicate: p, object: o, datatype: dt, language: lang};
+            var binding = {
+                s: bind(s),
+                p: bind(p),
+                o: bind(o, dt, lang)
+            };
+            bindings.push(binding);
             // log blank objects, they may be used as subjects in later triples
             if (!dt && o.indexOf('_:') === 0) {
                 usedBlanks[o] = true;
             }
         }
     });
-    return triples;
+    return {
+        base: parser.getNodeBase(form),
+        prefix: parser.getMappings(),
+        head: {
+            link: [formSubject],
+            vars: ['s', 'p', 'o']
+        },
+        results: {
+            bindings: bindings
+        }
+    };
 }
 
 function isDecendent(child, parents) {
@@ -141,12 +210,34 @@ function isDecendent(child, parents) {
     return false;
 }
 
-function diffTriples(oldTriples, newTriples) {
+function bind(o, dt, lang) {
+    if (lang) {
+        return {type:"literal", value: o, "xml:lang": lang};
+    } else if (dt == "http://www.w3.org/2001/XMLSchema#string") {
+        return {type:"literal", value: o};
+    } else if (dt) {
+        return {type:"literal", value: o, datatype: dt};
+    } else if (o.match(/^_:/)) {
+        return {type:"bnode", value: o.substring(2)};
+    } else {
+        return {type:"uri", value: o};
+    }
+}
+
+function diffTriples(deleteTriples, insertTriples) {
     var 
         added = {},
         removed = {},
         hash
     ;
+    var oldTriples = deleteTriples.reduce(function(oldTriples, triple){
+        oldTriples[JSON.stringify(triple)] = triple;
+        return oldTriples;
+    }, {});
+    var newTriples = insertTriples.reduce(function(newTriples, triple){
+        newTriples[JSON.stringify(triple)] = triple;
+        return newTriples;
+    }, {});
     // removed
     for (hash in oldTriples) {
         if (!newTriples[hash]) {
@@ -167,17 +258,17 @@ function diffTriples(oldTriples, newTriples) {
  */
 function addBoundedDescription(triple, store, dest, copy) {
     var hash;
-    if (triple.subject.match(/^_:/)) {
+    if (triple.s.type == 'bnode') {
         for (hash in store) {
-            if (store[hash].object == triple.subject && !store[hash].datatype && !dest[hash]) {
+            if (store[hash].o.value == triple.s.value && store[hash].o.type == 'bnode' && !dest[hash]) {
                 copy[hash] = dest[hash] = store[hash];
                 addBoundedDescription(store[hash], store, dest, copy);
             }
         }
     }
-    if (triple.object.match(/^_:/) && !triple.datatype) {
+    if (triple.o.type == 'bnode') {
         for (hash in store) {
-            if (store[hash].subject == triple.object && !dest[hash]) {
+            if (store[hash].s.value == triple.o.value && store[hash].s.type == 'bnode' && !dest[hash]) {
                 copy[hash] = dest[hash] = store[hash];
                 addBoundedDescription(store[hash], store, dest, copy);
             }
@@ -185,8 +276,9 @@ function addBoundedDescription(triple, store, dest, copy) {
     }
 }
 
-function asSparqlUpdate(removed, added) {
+function asSparqlUpdate(namespaces, removed, added) {
     var writer = new UpdateWriter();
+    writer.setMappings(namespaces);
 
     if (removed && !$.isEmptyObject(removed)) {
         writer.openDeleteWhere();
@@ -209,32 +301,33 @@ function asSparqlUpdate(removed, added) {
     return writer.toString() || 'INSERT {} WHERE {}';
 }
 
-function patchData(form, data, callback) {
-    var method = form.getAttribute('method');
-    if (!method) {
-        method = form.method;
-    }
-    if (!method) {
-        method = "POST";
-    }
-    var type = form.getAttribute("enctype");
-    if (!type) {
-        type = "application/sparql-update";
-    }
-    var action = calli.getFormAction(form);
-    var xhr = $.ajax({ type: method, url: action, contentType: type, data: data, dataType: "text", xhrFields: calli.withCredentials, beforeSend: function(xhr){
+function patchData(method, action, data, callback) {
+    var xhr = $.ajax({ type: method, url: action, contentType: "application/sparql-update", data: data, dataType: "text", xhrFields: calli.withCredentials, beforeSend: function(xhr){
         var modified = calli.lastModified(action);
         if (modified) {
             xhr.setRequestHeader("If-Unmodified-Since", modified);
         }
     }, success: function(data, textStatus) {
         calli.lastModified(action, new Date().toUTCString());
-        callback(data, textStatus, xhr);
+        if (callback) {
+            callback(data, textStatus, xhr);
+        }
     }});
+    return xhr;
 }
 
 function UpdateWriter() {
+    this.prefixes = {};
+    this.usedNamespaces = {};
+    this.triples = {};
     this.buf = [];
+
+    this.setMappings = function(namespaces) {
+        for (var prefix in namespaces) {
+            var namespace = namespaces[prefix];
+            this.prefixes[namespace] = prefix;
+        }
+    }
     
     this.push = function(str) {
         return this.buf.push(str);
@@ -246,7 +339,12 @@ function UpdateWriter() {
     };
     
     this.toString = function() {
-        return this.buf.join('');
+        var buf = [];
+        for (var prefix in this.usedNamespaces) {
+            buf.push('PREFIX '+ prefix + ':<' + this.usedNamespaces[prefix] + '>\n');
+        }
+        buf.push('\n');
+        return buf.concat(this.flush().buf).join('');
     };
     
     this.openDeleteWhere = function() {
@@ -254,7 +352,7 @@ function UpdateWriter() {
     };
     
     this.closeDeleteWhere = function() {
-        this.push('};\n');
+        this.flush().push('};\n');
     };
     
     this.openInsert = function() {
@@ -262,7 +360,7 @@ function UpdateWriter() {
     };
     
     this.closeInsert = function() {
-        this.push('}\n');
+        this.flush().push('}\n');
     };
     
     this.openWhere = function() {
@@ -270,91 +368,98 @@ function UpdateWriter() {
     };
     
     this.closeWhere = function() {
-        this.push('};\n');
+        this.flush().push('};\n');
     };
+
+    this.flush = function() {
+        for (var subject in this.triples) {
+            this.push('\t');
+            this.push(subject);
+            this.push('\n\t\t' + this.triples[subject].join(';\n\t\t') + '.\n');
+        }
+        this.triples = {};
+        return this;
+    }
     
     this.triple = function(triple) {
-        this.push('\t');
-        this.term(triple.subject, null, null);
-        this.push(' ');
-        this.term(triple.predicate, null, null);
-        this.push(' ');
-        this.term(triple.object, triple.datatype, triple.language);
-        this.push(' .\n');
+        var key = this.term(triple.s);
+        if (!this.triples[key]) {
+            this.triples[key] = [];
+        }
+        this.triples[key].push(this.term(triple.p) + ' ' + this.term(triple.o));
         return this;
-    };
-    
-    this.hash = function(subject, predicate, object, datatype, language) {
-        var tempWriter = new UpdateWriter();
-        return tempWriter.triple({
-            subject:subject, predicate:predicate, object:object,
-            datatype:datatype, language:language
-        }).toString();
     };
     
     /**
      * Serializes a triple for the DELETE/WHERE section, with bnodes replaced by vars.
      */ 
     this.pattern = function(triple) {
-        this.push('\t');
-        if (triple.subject.match(/^_:/)) {
-            this.push("?var" + triple.subject.substring(2));
+        var key;
+        if (triple.s.type == 'bnode') {
+            key = "?v" + triple.s.value;
         } else {
-            this.term(triple.subject, null, null);
+            key = this.term(triple.s);
         }
-        this.push(' ');
-        this.term(triple.predicate, null, null);
-        this.push(' ');
-        if (triple.object.match(/^_:/) && !triple.datatype) {
-            this.push("?var" + triple.object.substring(2));
+        if (!this.triples[key]) {
+            this.triples[key] = [];
+        }
+        if (triple.o.type == 'bnode') {
+            this.triples[key].push(this.term(triple.p) + ' ?v' + triple.o.value);
         } else {
-            this.term(triple.object, triple.datatype, triple.language);
+            this.triples[key].push(this.term(triple.p) + ' ' + this.term(triple.o));
         }
-        this.push(' .\n');
         return this;
     };   
     
-    this.term = function(term, datatype, language) {
+    this.term = function(term) {
         // bnode
-        if (!datatype && term.match(/^_:/)) {
-            this.push("_:bn" + term.substring(2));
+        if (term.type == 'bnode') {
+            return "_:" + term.value;
         }
         // uri
-        else if (!datatype) {
-            this.push('<');
-            this.push(term.replace(/\\/g, '\\\\').replace(/>/g, '\\>'));
-            this.push('>');
+        else if (term.type == 'uri') {
+            var namespace = term.value.replace(/[\w_\-\.\\%]+$/, '');
+            var prefix = this.prefixes[namespace];
+            if (term.value == "http://www.w3.org/1999/02/22-rdf-syntax-ns#type") {
+                return 'a';
+            } else if (prefix) {
+                this.usedNamespaces[prefix] = namespace;
+                return prefix + ':' + term.value.substring(namespace.length);
+            } else {
+                return '<' + term.value.replace(/\\/g, '\\\\').replace(/>/g, '\\>') + '>';
+            }
         }
         // literal
         else {
-            var s = term;
-            if (datatype == "http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral") {
+            var buf = [];
+            var s = term.value;
+            if (term.datatype == "http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral") {
                 s = calli.decodeHtmlText(s, true);
             }
-            this.push('"');
-            s = s
-                .replace(/\\/g, "\\\\")
-                .replace(/\t/g, "\\t")
-                .replace(/\n/g, "\\n")
-                .replace(/\r/g, "\\r")
-                .replace(/"/g, '\\"')
-            ;
-            this.push(s);
-            this.push('"');
+            if (s.indexOf('\n') >= 0 || s.indexOf('\t') >= 0 || s.indexOf('\r') >= 0) {
+                buf.push('"""');
+                buf.push(s.replace(/\\/g, "\\\\").replace(/"/g, '\\"'));
+                buf.push('"""');
+            } else {
+                buf.push('"');
+                buf.push(s.replace(/\\/g, "\\\\").replace(/"/g, '\\"'));
+                buf.push('"');
+            }
             // language
-            if (datatype == "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString" && language) {
-                this.push('@');
-                this.push(language.replace(/[^0-9a-zA-Z\-]/g, ''));
+            if (term.datatype == "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString" && term["xml:lang"]) {
+                buf.push('@');
+                buf.push(term["xml:lang"].replace(/[^0-9a-zA-Z\-]/g, ''));
             }
             // datatype
-            else if (datatype != "http://www.w3.org/2001/XMLSchema#string") {
-                this.push('^^');
-                this.push('<');
-                this.push(datatype.replace(/\\/g, '\\\\').replace(/>/g, '\\>'));
-                this.push('>');
+            else if (term.dataype && term.datatype != "http://www.w3.org/2001/XMLSchema#string") {
+                buf.push('^^');
+                buf.push('<');
+                buf.push(this.term({type:'uri',value:term.datatype}));
+                buf.push('>');
             }
+            return buf.join('');
         }
     };
 }
 
-});
+})(jQuery);

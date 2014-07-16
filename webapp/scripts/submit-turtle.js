@@ -70,7 +70,20 @@ calli.submitTurtle = function(event, local) {
 };
 
 calli.postTurtle = function(url, data) {
-    return calli.postText(url, getTurtle(data), "text/turtle");
+    return calli.resolve($.ajax({
+        type: "POST",
+        url: url,
+        dataType: "text",
+        contentType: "text/turtle",
+        processData: false,
+        data: getTurtle(data),
+        xhrFields: {
+            withCredentials: true
+        }
+    })).then(function(response){
+        calli.lastModified(url, new Date().toUTCString());
+        return response;
+    });
 };
 
 $(function($){

@@ -50,7 +50,9 @@ try {
         }
     };
     if (window.sessionStorage) {
-        calli.lastModified(window.location.href, since.toUTCString());
+        var last = calli.lastModified(window.location.href);
+        if (!(last && Date.parse(last) >= since.valueOf()))
+            calli.lastModified(window.location.href, since.toUTCString());
     } else {
         calli.lastModified = function(){return undefined;};
     }

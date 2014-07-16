@@ -21,6 +21,7 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 
 import org.callimachusproject.auth.AuthorizationManager;
+import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.traits.CalliObject;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Statement;
@@ -64,10 +65,14 @@ public abstract class CompositeSupport implements CalliObject {
 			}, base);
 			return null;
 		} catch (RDFHandlerException e) {
-			return e.getMessage();
+			return canonicalize(e.getMessage());
 		} finally {
 			in.reset();
 		}
+	}
+
+	private String canonicalize(String uri) {
+		return TermFactory.newInstance(uri).getSystemId();
 	}
 
 }

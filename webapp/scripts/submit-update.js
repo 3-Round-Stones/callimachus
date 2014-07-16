@@ -166,14 +166,14 @@ function parseRDF(parser, formSubject, form) {
         formHash = formSubject + "#",
         bindings = [],
         usedBlanks = {},
-        selfRefs = {}
+        selfRefs = []
     ;
     parser.parse(form, function(s, p, o, dt, lang) {
         // keep subjects matching the form's subject and blank subjects if already introduced as objects
         if ((s == formSubject || s.indexOf(formHash) === 0 || usedBlanks[s]) && !isDecendent(this, selfRefs)) {
             // Resources linking to themselves don't need any triples under the reference.
             if (!dt && s == o) {
-                selfRefs[this] = true;
+                selfRefs.push(this);
             }
             var binding = {
                 s: bind(s),
@@ -203,7 +203,7 @@ function parseRDF(parser, formSubject, form) {
 function isDecendent(child, parents) {
     var node = child;
     while (node) {
-        if (parents[node])
+        if (parents.indexOf(node) >= 0)
             return true;
         node = node.parentNode;
     }

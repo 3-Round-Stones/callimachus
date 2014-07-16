@@ -52,8 +52,8 @@ function TurtleSerializer() {
             }
         }
     };
-    
-    this.buildPName= function(uri) {
+
+    this.buildUri = function(uri) {
         if (uri == "http://www.w3.org/1999/02/22-rdf-syntax-ns#type") return 'a';
         var namespace = uri.replace(/[\w_\-\.\\%]+$/, '');
         for (var prefix in this.prefixes) {
@@ -64,17 +64,13 @@ function TurtleSerializer() {
         }
         return '<' + uri + '>';
     };
-    
+
     this.buildBnode = function(id) {
         return '_:' + id;
     };
-    
-    this.buildUri = function(uri) {
-        return '<' + uri + '>';
-    };
-    
+
     this.buildObject = function(p, o) {
-        var pTerm = this.buildPName(p.value);
+        var pTerm = this.buildUri(p.value);
         var oTerm;
         if (o.type != 'literal') {
             oTerm = o.type == 'bnode' ? this.buildBnode(o.value) : this.buildUri(o.value);
@@ -94,7 +90,7 @@ function TurtleSerializer() {
         }
         else {
             oTerm = this.buildLiteral(o.value);
-            var dTerm = this.buildPName(o.datatype);
+            var dTerm = this.buildUri(o.datatype);
             return pTerm + ' ' + oTerm + '^^' + dTerm;
         }
     };

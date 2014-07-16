@@ -70,7 +70,7 @@ $(window).bind('message', function(event) {
 });
 var sourceCallbacks = [];
 calli.readEditorText = function(editorWindow, callback) {
-    return calil.resolve().then(function(){
+    return calli.resolve().then(function(){
         return new Promise(function(callback){
             var idx = sourceCallbacks.length;
             sourceCallbacks[idx] = callback;

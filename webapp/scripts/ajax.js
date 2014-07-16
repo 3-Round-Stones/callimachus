@@ -26,7 +26,7 @@ calli.withCredentials = {
 };
 
 calli.headText = function(url) {
-    return calli.resolve($.ajax({
+    return ajax({
         type: 'HEAD',
         url: url,
         dataType: 'text',
@@ -34,14 +34,11 @@ calli.headText = function(url) {
         xhrFields: {
           withCredentials: true
         }
-    })).then(function(response){
-        calli.lastModified(url, new Date().toUTCString());
-        return response;
     });
 };
 
 calli.getText = function(url, success) {
-    return calli.resolve($.ajax({
+    return ajax({
         type: 'GET',
         url: url,
         dataType: 'text',
@@ -49,14 +46,11 @@ calli.getText = function(url, success) {
         xhrFields: {
           withCredentials: true
         }
-    })).then(function(response){
-        calli.lastModified(url, new Date().toUTCString());
-        return response;
     }).then(success);
 };
 
 calli.postText = function(url, data, contentType) {
-    return calli.resolve($.ajax({
+    return ajax({
         type: "POST",
         url: url,
         dataType: "text",
@@ -69,14 +63,11 @@ calli.postText = function(url, data, contentType) {
         headers: {
             "If-Unmodified-Since": calli.lastModified(url)
         }
-    })).then(function(response){
-        calli.lastModified(url, new Date().toUTCString());
-        return response;
     });
 };
 
 calli.putText = function(url, data, contentType) {
-    return calli.resolve($.ajax({
+    return ajax({
         type: "PUT",
         url: url,
         dataType: "text",
@@ -89,14 +80,11 @@ calli.putText = function(url, data, contentType) {
         headers: {
             "If-Unmodified-Since": calli.lastModified(url)
         }
-    })).then(function(response){
-        calli.lastModified(url, new Date().toUTCString());
-        return response;
     });
 };
 
 calli.deleteText = function(url) {
-    return calli.resolve($.ajax({
+    return ajax({
         type: "DELETE",
         url: url,
         dataType: "text",
@@ -106,11 +94,11 @@ calli.deleteText = function(url) {
         headers: {
             "If-Unmodified-Since": calli.lastModified(url)
         }
-    }));
+    });
 };
 
 calli.getJSON = function(url) {
-    return calli.resolve($.ajax({
+    return ajax({
         type: 'GET',
         url: url,
         dataType: 'json',
@@ -118,14 +106,11 @@ calli.getJSON = function(url) {
         xhrFields: {
           withCredentials: true
         }
-    })).then(function(response){
-        calli.lastModified(url, new Date().toUTCString());
-        return response;
     });
 };
 
 calli.getXML = function(url) {
-    return calli.resolve($.ajax({
+    return ajax({
         type: 'GET',
         url: url,
         dataType: 'xml',
@@ -133,10 +118,16 @@ calli.getXML = function(url) {
         xhrFields: {
           withCredentials: true
         }
-    })).then(function(response){
-        calli.lastModified(url, new Date().toUTCString());
-        return response;
     });
 };
+
+function ajax(settings) {
+    var xhr = $.ajax(settings);
+    return calli.resolve(xhr).then(function(response){
+        var modified = xhr.getResponseHeader('Last-Modified');
+        calli.lastModified(settings.url, modified || new Date().toUTCString());
+        return response;
+    });
+}
 
 })(jQuery);

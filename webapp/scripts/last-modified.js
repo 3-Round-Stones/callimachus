@@ -44,14 +44,18 @@ try {
             var last = window.sessionStorage.getItem(uri + " Last-Modified");
             if (last && Date.parse(last) >= since.valueOf())
                 return last;
-            return since.toUTCString();
+            if (last)
+                return since.toUTCString();
+            return undefined;
         }
     };
-    if (!window.sessionStorage) {
-        calli.etag = function(){return null;};
+    if (window.sessionStorage) {
+        calli.lastModified(window.location.href, since.toUTCString());
+    } else {
+        calli.lastModified = function(){return undefined;};
     }
 } catch(e) {
-    calli.lastModified = function(){return null;};
+    calli.lastModified = function(){return undefined;};
 }
 
 })(jQuery);

@@ -88,7 +88,6 @@ public class TransactionHandler implements AsyncExecChain {
 			HttpRequest request, HttpContext ctx,
 			FutureCallback<HttpResponse> callback) {
 		final Request req = new Request(request, ctx);
-		final boolean unsafe = !req.isSafe();
 		String origin = req.getOrigin();
 		CalliRepository repo = getRepository(origin);
 		if (repo == null || !repo.isInitialized())
@@ -99,7 +98,7 @@ public class TransactionHandler implements AsyncExecChain {
 			final ObjectConnection con = repo.getConnection();
 			con.begin();
 			long now = context.getReceivedOn();
-			if (unsafe) {
+			if (!req.isSafe()) {
 				initiateActivity(now, con, context);
 			}
 			context.setObjectConnection(con);
@@ -109,10 +108,8 @@ public class TransactionHandler implements AsyncExecChain {
 			try {
 				Future<HttpResponse> future = handler.execute(target, request, context, new ResponseCallback(callback) {
 					public void completed(HttpResponse result) {
-						int code = result.getStatusLine()
-								.getStatusCode();
 						try {
-							createSafeHttpEntity(result, unsafe && code < 400, con);
+							createSafeHttpEntity(result, con);
 							super.completed(result);
 						} catch (RepositoryException ex) {
 							failed(ex);
@@ -199,8 +196,8 @@ public class TransactionHandler implements AsyncExecChain {
 		return set;
 	}
 
-	void createSafeHttpEntity(HttpResponse resp, boolean commit,
-			ObjectConnection con) throws IOException, RepositoryException {
+	void createSafeHttpEntity(HttpResponse resp, ObjectConnection con)
+			throws IOException, RepositoryException {
 		boolean endNow = true;
 		try {
 			if (resp.getEntity() != null) {
@@ -223,9 +220,6 @@ public class TransactionHandler implements AsyncExecChain {
 				endNow = true;
 			}
 		} finally {
-			if (commit) {
-				con.commit();
-			}
 			if (endNow) {
 				endTransaction(con);
 			}

@@ -461,6 +461,7 @@ public class ResourceOperation {
 
 	public void flush() throws RepositoryException, QueryEvaluationException,
 			IOException {
+		con.commit();
 		this.target = con.getObject(CalliObject.class, getRequestedResource().getResource());
 	}
 

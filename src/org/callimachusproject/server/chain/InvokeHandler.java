@@ -132,7 +132,7 @@ public class InvokeHandler implements ClientExecChain {
 			}
 			try {
 				HttpUriResponse response = invoke(req, method, args, getResponseTypes(req, method), builder);
-				if (!safe) {
+				if (!safe && response.getStatusLine().getStatusCode() < 400) {
 					req.flush();
 				}
 				return response;

@@ -255,7 +255,7 @@
         var createdUri = location.toString();
         var dest = createdUri.substring(0, createdUri.lastIndexOf('/', createdUri.length - 2) + 1);
         if (creatorUri != dest && creatorUri != dest.substring(0, dest.length - 1))
-            throw new BadRequest("Location URI must be nested");
+            throw new BadRequest("Resource " + dest + " URI must be nested under " + creatorUri);
         if (createdUri.search(/[\\s\\#\\?]/) >= 0 || createdUri.search(/^\\w+:\\/\\/\\S+/) != 0)
             throw new BadRequest("Fragement or name resources are not supported: " + createdUri);
         if (this.calliHasComponent.contains(location))

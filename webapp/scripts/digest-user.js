@@ -27,18 +27,20 @@ jQuery(function($){
         window.location.replace('?view');
     });
     $('#delete').click(function(event){
-        var action = calli.getFormAction(form);
-        calli.deleteText(action).then(function(){
-            return credential.then(function(credential){
-                if (credential && credential == uri) {
-                    // need to log user out gracefully since they deleted themselves
-                    var e = jQuery.Event("calliLogout");
-                    e.location = '/';
-                    $(document).trigger(e);
-                } else {
-                    window.location.replace('./');
-                }
-            });
-        }).catch(calli.error);
+        if (confirm("Are you sure you want to delete " + document.title + "?")) {
+            var action = calli.getFormAction(form);
+            calli.deleteText(action).then(function(){
+                return credential.then(function(credential){
+                    if (credential && credential == uri) {
+                        // need to log user out gracefully since they deleted themselves
+                        var e = jQuery.Event("calliLogout");
+                        e.location = '/';
+                        $(document).trigger(e);
+                    } else {
+                        window.location.replace('./');
+                    }
+                });
+            }).catch(calli.error);
+        }
     });
 });

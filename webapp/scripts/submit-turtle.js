@@ -70,7 +70,7 @@ calli.submitTurtle = function(event, local) {
 };
 
 calli.postTurtle = function(url, data) {
-    return calli.resolve($.ajax({
+    var xhr = $.ajax({
         type: "POST",
         url: url,
         dataType: "text",
@@ -80,8 +80,9 @@ calli.postTurtle = function(url, data) {
         xhrFields: {
             withCredentials: true
         }
-    })).then(function(response){
-        calli.lastModified(url, new Date().toUTCString());
+    });
+    return calli.resolve(xhr).then(function(response){
+        calli.lastModified(url, xhr.getResponseHeader('Last-Modified'));
         return response;
     });
 };
@@ -164,8 +165,7 @@ function getTurtle(data) {
 }
 
 function postData(method, url, data, callback) {
-    var xhr = null;
-    xhr = $.ajax({
+    var xhr = $.ajax({
         type: method,
         url: url,
         contentType: "text/turtle",
@@ -173,7 +173,7 @@ function postData(method, url, data, callback) {
         dataType: "text", 
         xhrFields: calli.withCredentials,
         success: function(data, textStatus) {
-            calli.lastModified(url, new Date().toUTCString());
+            calli.lastModified(url, xhr.getResponseHeader('Last-Modified'));
             if (callback) {
                 callback(data, textStatus, xhr);
             }

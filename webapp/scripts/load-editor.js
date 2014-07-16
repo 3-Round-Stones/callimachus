@@ -212,7 +212,7 @@ function saveFile(form, text, callback) {
                 saving = false;
                 if (xhr.status < 300 || xhr.status == 1223) {
                     if (xhr.status == 204 || xhr.status == 1223) {
-                        calli.lastModified(url, new Date().toUTCString());
+                        calli.lastModified(url, xhr.getResponseHeader('Last-Modified'));
                     }
                     if (typeof callback == 'function') {
                         callback(xhr, se);

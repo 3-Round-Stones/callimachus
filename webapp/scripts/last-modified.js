@@ -38,10 +38,13 @@ try {
         if (uri.indexOf('?') > 0) {
             uri = uri.substring(0, uri.indexOf('?'));
         }
+        var last = window.sessionStorage.getItem(uri + " Last-Modified");
         if (value) {
-            return window.sessionStorage.setItem(uri + " Last-Modified", value);
+            if (last && Date.parse(last) >= Date.parse(value))
+                return last;
+            window.sessionStorage.setItem(uri + " Last-Modified", value);
+            return value;
         } else {
-            var last = window.sessionStorage.getItem(uri + " Last-Modified");
             if (last && Date.parse(last) >= since.valueOf())
                 return last;
             if (last)
@@ -50,9 +53,7 @@ try {
         }
     };
     if (window.sessionStorage) {
-        var last = calli.lastModified(window.location.href);
-        if (!(last && Date.parse(last) >= since.valueOf()))
-            calli.lastModified(window.location.href, since.toUTCString());
+        calli.lastModified(window.location.href, since.toUTCString());
     } else {
         calli.lastModified = function(){return undefined;};
     }

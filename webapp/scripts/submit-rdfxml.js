@@ -111,8 +111,7 @@ function postData(form, data, callback) {
     if (!type) {
         type = "application/rdf+xml";
     }
-    var xhr = null;
-    xhr = $.ajax({
+    var xhr = $.ajax({
         type: method,
         url: calli.getFormAction(form),
         contentType: type,
@@ -120,7 +119,7 @@ function postData(form, data, callback) {
 		dataType: "text", 
         xhrFields: calli.withCredentials,
         success: function(data, textStatus) {
-            calli.lastModified(action, new Date().toUTCString());
+            calli.lastModified(action, xhr.getResponseHeader('Last-Modified'));
             callback(data, textStatus, xhr);
         },
         error: calli.error

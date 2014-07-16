@@ -308,7 +308,7 @@ function patchData(method, action, data, callback) {
             xhr.setRequestHeader("If-Unmodified-Since", modified);
         }
     }, success: function(data, textStatus) {
-        calli.lastModified(action, new Date().toUTCString());
+        calli.lastModified(action, xhr.getResponseHeader('Last-Modified'));
         if (callback) {
             callback(data, textStatus, xhr);
         }

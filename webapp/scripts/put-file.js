@@ -82,7 +82,7 @@ $('form[method="PUT"]').each(function(event){
                             },
                             success: function() {
                                 try {
-                                    calli.lastModified(action, new Date().toUTCString());
+                                    calli.lastModified(action, xhr.getResponseHeader('Last-Modified'));
                                     var redirect = null;
                                     var contentType = xhr.getResponseHeader('Content-Type');
                                     if (contentType !== null && contentType.indexOf('text/uri-list') === 0) {

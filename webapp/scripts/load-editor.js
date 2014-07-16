@@ -70,9 +70,13 @@ $(window).bind('message', function(event) {
 });
 var sourceCallbacks = [];
 calli.readEditorText = function(editorWindow, callback) {
-    var idx = sourceCallbacks.length;
-    sourceCallbacks[idx] = callback;
-    editorWindow.postMessage('GET text\nCallbackID: ' + idx, '*');
+    return calil.resolve().then(function(){
+        return new Promise(function(callback){
+            var idx = sourceCallbacks.length;
+            sourceCallbacks[idx] = callback;
+            editorWindow.postMessage('GET text\nCallbackID: ' + idx, '*');
+        });
+    }).then(callback);
 };
 
 // bindEditorEvents

@@ -25,6 +25,7 @@ calli.resolve = function(obj) {
     }).fail(function(xhr){
         delayed._apply(self.Promise.reject(xhr));
     });
+    return delayed;
 };
 
 calli.reject = function(obj) {

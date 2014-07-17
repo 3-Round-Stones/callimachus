@@ -416,7 +416,9 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 		RemoteWebDriverFactory driverFactory = getInstalledWebDrivers().get(
 				getBrowserName());
 		if (driverFactory == null)
-			return null;
+			throw new WebDriverException("No WebDrivers available for "
+					+ getBrowserName() + ", try one of "
+					+ getInstalledWebDrivers().keySet());
 		String testname = getMethodName();
 		RemoteWebDriver driver = driverFactory.create(testname);
 		init(driver);
@@ -530,7 +532,7 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 		if (name == null) {
 			Map<String, RemoteWebDriverFactory> map = getInstalledWebDrivers();
 			if (map.isEmpty())
-				return "";
+				throw new WebDriverException("No WebDrivers installed");
 			return map.keySet().iterator().next();
 		}
 		return name.substring(name.lastIndexOf(DELIM) + 1);

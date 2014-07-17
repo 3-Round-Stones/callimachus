@@ -18,9 +18,8 @@
 
 (function($){
 
-var calli = window.calli = window.calli || {};
+    var calli = window.calli = window.calli || {};
 
-try {
     var since = new Date();
     calli.lastModified = function(url, value) {
         var uri = url;
@@ -34,10 +33,15 @@ try {
                     uri = a.href;
                 }
             }
+            if (window.location.pathname.indexOf('%27') > 0) {
+                // https://bugzilla.mozilla.org/show_bug.cgi?id=1040285
+                uri = uri.replace('%27', "'");
+            }
         }
         if (uri.indexOf('?') > 0) {
             uri = uri.substring(0, uri.indexOf('?'));
         }
+        console.log(url, uri, new Error());
         var last = window.sessionStorage.getItem(uri + " Last-Modified");
         if (value) {
             if (last && Date.parse(last) >= Date.parse(value))
@@ -53,12 +57,9 @@ try {
         }
     };
     if (window.sessionStorage) {
-        calli.lastModified(window.location.href, since.toUTCString());
+        calli.lastModified(calli.getPageUrl(), since.toUTCString());
     } else {
         calli.lastModified = function(){return undefined;};
     }
-} catch(e) {
-    calli.lastModified = function(){return undefined;};
-}
 
 })(jQuery);

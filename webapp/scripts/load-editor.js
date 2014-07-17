@@ -231,7 +231,7 @@ function saveFile(form, text, callback) {
 // setText
 function setText(form, text, editor) {
     if (window.location.hash.indexOf('#!') === 0) {
-        var url = resolve(window.location.hash.substring(2));
+        var url = window.location.hash.substring(2);
         calli.getText(url).then(function(text){
             editor.postMessage('PUT text\nIf-None-Match: *' +
                 '\nContent-Location: ' + url +
@@ -253,26 +253,12 @@ function setText(form, text, editor) {
 
 // loadText
 function loadText(form, url, editor) {
-    url = resolve(url);
     calli.getText(url).then(function(text){
         editor.postMessage('PUT text\nContent-Location: '+ url +
             '\nContent-Type: '+ form.getAttribute("enctype") +
             '\n\n' + text, '*');
         onhashchange(editor)();
     }).catch(calli.error);
-}
-
-function resolve(url) {
-    if (document.baseURIObject && document.baseURIObject.resolve) {
-        return document.baseURIObject.resolve(url);
-    } else if (url.indexOf('http:') !== 0 && url.indexOf('https:') !== 0) {
-        var a = document.createElement('a');
-        a.setAttribute('href', url);
-        if (a.href) {
-            return a.href;
-        }
-    }
-    return url;
 }
 
 })(jQuery);

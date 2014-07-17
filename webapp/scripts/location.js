@@ -22,23 +22,24 @@ if (!window.calli) {
     window.calli = {};
 }
 
-window.calli.getPageUrl = function() {
-    // window.location.href needlessly decodes URI-encoded characters in the URI path
+window.calli.getPageUrl = function(ref) {
+    // window.location.href needlessly encodes/decodes reserved characters in the URI path
     // https://bugs.webkit.org/show_bug.cgi?id=30225
+    // https://bugzilla.mozilla.org/show_bug.cgi?id=1040285
     var path = location.pathname;
-    if (path.match(/#/))
-        return location.href.replace(path, path.replace('#', '%23'));
+    if (path.match(/#|%27/))
+        return location.href.replace(path, path.replace('#', '%23').replace('%27', "'"));
     return location.href;
 };
 
 window.calli.getCallimachusUrl = function(suffix) {
     var base = window.calli.baseURI;
     var home = base.substring(0, base.length - 1);
-    while (home.lastIndexOf('/') == 0 || home.lastIndexOf('/') > home.indexOf('//') + 1) {
+    while (home.lastIndexOf('/') === 0 || home.lastIndexOf('/') > home.indexOf('//') + 1) {
         home = home.substring(0, home.lastIndexOf('/'));
     }
     var url = base;
-    if (typeof suffix == 'string' && suffix.indexOf('/') == 0) {
+    if (typeof suffix == 'string' && suffix.indexOf('/') === 0) {
         url = home + suffix;
     } else if (typeof suffix == 'string') {
         url = base + suffix;

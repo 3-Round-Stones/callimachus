@@ -123,7 +123,7 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 				factories.put("chrome", new RemoteWebDriverFactory() {
 					public RemoteWebDriver create(String name) {
 						DesiredCapabilities caps = DesiredCapabilities.chrome();
-						caps.setVersion("beta");
+						caps.setVersion("35");
 						caps.setCapability("platform", "Windows 7");
 						caps.setCapability("name", name);
 						caps.setCapability("build", getBuild());

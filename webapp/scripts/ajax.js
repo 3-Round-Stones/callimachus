@@ -66,6 +66,20 @@ calli.postText = function(url, data, contentType) {
     });
 };
 
+calli.createText = function(url, data, contentType) {
+    return ajax({
+        type: "POST",
+        url: url,
+        dataType: "text",
+        contentType: contentType || "text/plain",
+        processData: false,
+        data: data,
+        xhrFields: {
+            withCredentials: true
+        }
+    });
+};
+
 calli.putText = function(url, data, contentType) {
     return ajax({
         type: "PUT",
@@ -124,8 +138,17 @@ calli.getXML = function(url) {
 function ajax(settings) {
     var xhr = $.ajax(settings);
     return calli.resolve(xhr).then(function(response){
+        var location = xhr.getResponseHeader('Location');
+        var content = xhr.getResponseHeader('Content-Location');
         var modified = xhr.getResponseHeader('Last-Modified');
-        calli.lastModified(settings.url, modified || new Date().toUTCString());
+        var now = modified || new Date().toUTCString();
+        calli.lastModified(settings.url, now);
+        if (location) {
+            calli.lastModified(location, now);
+        }
+        if (content) {
+            calli.lastModified(content, now);
+        }
         return response;
     });
 }

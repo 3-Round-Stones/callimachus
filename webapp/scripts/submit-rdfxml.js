@@ -120,6 +120,7 @@ function postData(form, data, callback) {
         xhrFields: calli.withCredentials,
         success: function(data, textStatus) {
             calli.lastModified(action, xhr.getResponseHeader('Last-Modified'));
+            calli.lastModified(xhr.getResponseHeader('Location'), xhr.getResponseHeader('Last-Modified'));
             callback(data, textStatus, xhr);
         },
         error: calli.error

@@ -30,6 +30,7 @@ window.calli.submitTurtleAs = function(event, fileName, create, folder) {
             }
         }
     }).then(function(data){
+        if (!data) return data;
         data.results.bindings.push({
             s: {type:'uri', value: data.head.link[0]},
             p: {type:'uri', value: 'http://purl.org/dc/terms/created'},
@@ -41,7 +42,8 @@ window.calli.submitTurtleAs = function(event, fileName, create, folder) {
         });
         return data;
     }).then(function(data){
-        return calli.postTurtle(url, data);
+        if (!data) return data;
+        return calli.createTurtle(url, data);
     }).then(function(redirect){
         if (redirect) {
             window.location.replace(redirect);

@@ -303,7 +303,7 @@
 
 :location a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :PostFactoryCreate;
-    calli:query "location";
+    calli:query "resource";
     calli:type "text/uri-list".
 
 :type a owl:FunctionalProperty, owl:ObjectProperty;

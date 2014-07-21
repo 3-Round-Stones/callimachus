@@ -13,14 +13,15 @@
     <link rel="edit-media" href="?" type="application/xquery" />
 </head>
 <body resource="?this">
-    <form role="form" id="form" method="PUT" action="?" enctype="application/xquery" class="container">
+    <form role="form" id="form" method="PUT" action="?" enctype="application/xquery" class="container"
+            onsubmit="calli.submitEditor(event)">
         <fieldset class="form-group">
             <iframe id="editor-iframe" name="editor-iframe" class="flex" src="../../xquery-editor.html" onload="calli.loadEditor(event,'?')"> </iframe>
         </fieldset>
         <fieldset class="form-group">
             <button type="submit" class="btn btn-primary">Save</button>
             <button id="saveas" type="button" class="btn btn-info" rev="calli:hasComponent" resource="?folder"
-                onclick="calli.saveResourceAs(event, 'untitled query.xq', calli.getCallimachusUrl('types/XQuery'), this.getAttribute('resource'))">Save as...</button>
+                onclick="calli.submitEditorAs(event, 'untitled.xq', calli.getCallimachusUrl('types/XQuery'), this.getAttribute('resource'))">Save as...</button>
             <button type="button" onclick="window.location.replace('?view')" class="btn btn-default">Cancel</button>
             <button type="button" onclick="calli.deleteResource(event)" class="btn btn-danger">Delete</button>
         </fieldset>

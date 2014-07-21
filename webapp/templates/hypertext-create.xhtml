@@ -21,12 +21,19 @@
 </html>]]></script>
 </head>
 <body>
-    <form role="form" id="form" method="POST" action="" enctype="text/html" class="container">
+    <form role="form" id="form" method="POST" action="" enctype="text/html" class="container"
+            onsubmit="calli.submitEditor(event, $('#label').val())">
+        <fieldset class="form-group">
+            <div>
+                <input id="label" type="text" class="input-lg form-control" value="untitled.html" required="required" autofocus="autofocus"
+                    onfocus="this.setSelectionRange(0, this.value.lastIndexOf('.'))" />
+            </div>
+        </fieldset>
         <fieldset class="form-group">
             <iframe id="editor-iframe" name="editor-iframe" class="flex" src="../../html-editor.html" onload="calli.initEditor(event,$('#template').text()||$('#template').html().replace(/^\s+/,''))"> </iframe>
         </fieldset>
         <fieldset class="form-group">
-            <button id="create-hypertext" type="submit" onclick="return calli.saveResourceAs(event, 'untitled.html')" class="btn btn-success">Create</button>
+            <button id="create-hypertext" type="submit" class="btn btn-success">Create</button>
         </fieldset>
     </form>
 </body>

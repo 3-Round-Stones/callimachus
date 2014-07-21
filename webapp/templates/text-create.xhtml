@@ -7,12 +7,19 @@
     <title>New Text File</title>
 </head>
 <body>
-    <form role="form" id="form" method="POST" action="" enctype="text/plain" class="container">
+    <form role="form" id="form" method="POST" action="" enctype="text/plain" class="container"
+            onsubmit="calli.submitEditor(event, $('#label').val())">
+        <fieldset class="form-group">
+            <div>
+                <input id="label" type="text" class="input-lg form-control" value="untitled.txt" required="required" autofocus="autofocus"
+                    onfocus="this.setSelectionRange(0, this.value.lastIndexOf('.'))" />
+            </div>
+        </fieldset>
         <fieldset class="form-group">
             <iframe id="editor-iframe" name="editor-iframe" class="flex" src="../../text-editor.html" onload="calli.initEditor(event)"> </iframe>
         </fieldset>
         <fieldset class="form-group">
-            <button id="create-text" type="submit" onclick="return calli.saveResourceAs(event, 'untitled text.txt')" class="btn btn-success">Create</button>
+            <button id="create-text" type="submit" class="btn btn-success">Create</button>
         </fieldset>
     </form>
 </body>

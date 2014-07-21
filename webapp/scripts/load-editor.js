@@ -49,6 +49,73 @@ calli.loadEditor = function(event, url) {
     loadText(form, url, editor);
 };
 
+calli.submitEditor = function(event, local) {
+    event.preventDefault();
+    var form = $(calli.fixEvent(event).target).closest('form');
+    var btn = form.find('button[type="submit"]');
+    btn.button('loading');
+    return calli.resolve(form).then(function(form){
+        var editor = form.find('iframe')[0].contentWindow;
+        return calli.readEditorText(editor);
+    }).then(function(text) {
+        var action = calli.getFormAction(form[0]);
+        if (local) {
+            var resource = encodeURI(local).replace(/%25(\w\w)/g, '%$1').replace(/%20/g, '-');
+            var url = action + "&resource=" + encodeURIComponent(local);
+            return calli.createText(url, text, form.attr('enctype')).then(function(redirect){
+                return redirect && redirect + '?view';
+            });
+        } else {
+            return calli.putText(action, text, form.attr('enctype')).then(function(){
+                return action.replace(/\?.*/,'') + "?view";
+            });
+        }
+    }).then(function(redirect){
+        if (redirect) {
+            if (window.parent != window && parent.postMessage) {
+                parent.postMessage('PUT src\n\n' + redirect, '*');
+            }
+            window.location.href = redirect;
+        } else {
+            btn.button('reset');
+        }
+    }, function(error) {
+        btn.button('reset');
+        return calli.error(error);
+    });
+};
+
+window.calli.submitEditorAs = function(event, local, create, folder) {
+    event.preventDefault();
+    var button = calli.fixEvent(event).target;
+    var form = $(button).closest('form');
+    var btn = $(button).filter('button');
+    btn.button('loading');
+    return calli.resolve(form).then(function(form){
+        var editor = form.find('iframe')[0].contentWindow;
+        return calli.readEditorText(editor);
+    }).then(function(text) {
+        return calli.promptForNewResource(folder, local).then(function(two){
+            if (!two) return undefined;
+            var action = two[0] + '?create=' + encodeURIComponent(create);
+            var iri = two[0].replace(/\/?$/, '/') + two[1].replace(/%20/g, '+');
+            var url = action + "&resource=" + encodeURIComponent(iri);
+            return calli.createText(url, text, form.attr('enctype'));
+        });
+    }).then(function(redirect){
+        return redirect && redirect + '?view';
+    }).then(function(redirect){
+        if (redirect) {
+            window.location.href = redirect;
+        } else {
+            btn.button('reset');
+        }
+    }, function(error){
+        btn.button('reset');
+        return calli.error(error);
+    });
+};
+
 $(window).bind('message', function(event) {
     var msg = event.originalEvent.data;
     if (msg.indexOf('OK\n\nGET text\nCallbackID: ') === 0) {

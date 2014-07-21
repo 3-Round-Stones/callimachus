@@ -14,7 +14,7 @@
             <h1>New Resource</h1>
         </div>
         <form role="form" method="POST" action="" enctype="text/turtle" typeof="" class="row"
-                onsubmit="return calli.saveResourceAs(event,calli.slugify($('#label').val()))">
+                onsubmit="calli.submitTurtle(event,calli.slugify($('#label').val()))">
             <fieldset class="col-sm-4">
                 <div class="form-group">
                     <label for="label">Label</label>

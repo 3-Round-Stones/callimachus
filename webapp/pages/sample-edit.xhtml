@@ -8,12 +8,13 @@
 <head>
     <title resource="?this">{rdfs:label}</title>
 </head>
-<body resource="?this">
+<body resource="?this" onload="comparison=calli.copyResourceData('#form')">
     <div class="container">
         <div class="page-header">
             <h1 property="rdfs:label" />
         </div>
-        <form role="form" method="POST" action="" enctype="application/sparql-update" resource="?this" class="row">
+        <form id="form" role="form" method="POST" action="" enctype="application/sparql-update" resource="?this" class="row"
+                onsubmit="calli.submitUpdate(comparison,event)">
             <fieldset class="col-sm-4">
                 <div class="form-group">
                     <label for="label">Label</label>

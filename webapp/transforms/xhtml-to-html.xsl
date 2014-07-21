@@ -45,7 +45,7 @@
     <!-- Raw text elements -->
     <xsl:template match="xhtml:script|xhtml:style">
         <xsl:element name="{local-name()}">
-            <xsl:apply-templates select="@*|comment()|text()"/>
+            <xsl:apply-templates select="@*|node()" mode="serialize" />
         </xsl:element>
     </xsl:template>
 
@@ -77,5 +77,45 @@
 
     <!-- strip all processing instructions -->
     <xsl:template match = 'processing-instruction()' />
+
+    <!-- serialize void elements -->
+    <xsl:template mode="serialize" match="xhtml:area|xhtml:base|xhtml:br|xhtml:col|xhtml:command|xhtml:embed|xhtml:hr|xhtml:img|xhtml:input|xhtml:keygen|xhtml:link|xhtml:meta|xhtml:param|xhtml:source|xhtml:track|xhtml:wbr">
+        <xsl:text>&lt;</xsl:text>
+        <xsl:value-of select="local-name()"/>
+        <xsl:apply-templates select="@*" mode="serialize" />
+        <xsl:text> /&gt;</xsl:text>
+    </xsl:template>
+
+    <xsl:template match="*" mode="serialize">
+        <xsl:text>&lt;</xsl:text>
+        <xsl:value-of select="local-name()"/>
+        <xsl:apply-templates select="@*" mode="serialize" />
+        <xsl:text>&gt;</xsl:text>
+        <xsl:apply-templates mode="serialize" />
+        <xsl:text>&lt;/</xsl:text>
+        <xsl:value-of select="local-name()"/>
+        <xsl:text>&gt;</xsl:text>
+    </xsl:template>
+
+    <xsl:template match="@*" mode="serialize">
+        <xsl:text> </xsl:text>
+        <xsl:value-of select="local-name()"/>
+        <xsl:text>="</xsl:text>
+        <xsl:value-of select="."/>
+        <xsl:text>"</xsl:text>
+    </xsl:template>
+
+    <xsl:template match="text()" mode="serialize">
+        <xsl:value-of select="."/>
+    </xsl:template>
+
+    <xsl:template match="comment()" mode="serialize">
+        <xsl:text>&lt;!--</xsl:text>
+        <xsl:value-of select="."/>
+        <xsl:text>--&gt;</xsl:text>
+    </xsl:template>
+
+    <!-- strip all processing instructions -->
+    <xsl:template match="processing-instruction()" mode="serialize" />
 
 </xsl:transform>

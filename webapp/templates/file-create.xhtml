@@ -6,7 +6,7 @@
 </head>
 <body>
     <form role="form" id="form" method="POST" action="" enctype="multipart/form-data" class="container"
-            onsubmit="return calli.saveResourceAs(event,calli.slugify($('#file').val().replace(/\s+/g,'-')))">
+            onsubmit="calli.submitForm(this)">
         <div class="page-header">
             <h1>Upload File</h1>
         </div>

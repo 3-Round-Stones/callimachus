@@ -195,14 +195,22 @@
                 var disposition = headers.get("content-disposition");
                 if (disposition && disposition.indexOf("filename=") >= 0 && disposition.indexOf('filename="blob"') < 0) {
                     ftype = headers.get("content-type");
+                    var fileName = disposition.replace(/.*filename="/g, '').replace(/".*/g, '');
                     var xml = ftype.indexOf("text/xml") == 0 || ftype.indexOf("application/xml") == 0;
                     if (xml || ftype.indexOf("application/octet-stream") == 0 || ftype.indexOf("application/x-") == 0) {
-                        var fileName = disposition.replace(/.*filename="/g, '').replace(/".*/g, '');
                         var mimetypes = new javax.activation.MimetypesFileTypeMap();
                         var mtype = mimetypes.getContentType(fileName);
                         if (!"application/octet-stream".equals(mtype)) {
                             ftype = mtype;
                         }
+                    }
+                    if (fileName && !location) {
+                        var ns = this.toString();
+                        if (ns.lastIndexOf('/') < ns.length - 1) {
+                            ns = ns + '/';
+                        }
+                        var local = encodeURI(fileName).replace(/%25(\\w\\w)/g, '%$1').replace(/%20/g, '-');
+                        location = this.objectConnection.objectFactory.createObject(ns + local);
                     }
                     bio = new org.callimachusproject.io.LatencyInputStream(file);
                 } else { // not a file upload

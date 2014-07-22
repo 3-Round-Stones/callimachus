@@ -7,7 +7,7 @@
     <script type="text/javascript">
     // <![CDATA[
         jQuery(function($){
-            $('#form').submit(function(){
+            $('#form').submit(function(event){
                 var nothere = $('#nothere').prop('href');
                 var uri = window.location.href.replace(/[\?#].*/,'');
                 $('input[type="hidden"]').remove();

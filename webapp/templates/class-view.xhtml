@@ -42,7 +42,7 @@
                 </ul>
             </div>
             <div class="col-sm-4">
-                <aside class="optional panel panel-default">
+                <aside class="panel panel-default">
                     <div class="panel-heading">
                         <h3 class="panel-title">Super class</h3>
                     </div>
@@ -52,7 +52,7 @@
                         </p>
                     </div>
                 </aside>
-                <aside class="optional panel panel-default">
+                <aside class="panel panel-default">
                     <div class="panel-heading">
                         <h3 class="panel-title">Equivalent class</h3>
                     </div>
@@ -62,7 +62,7 @@
                         </p>
                     </div>
                 </aside>
-                <aside class="optional panel panel-default">
+                <aside class="panel panel-default">
                     <div class="panel-heading">
                         <h3 class="panel-title">Sub class</h3>
                     </div>
@@ -72,6 +72,9 @@
                         </p>
                     </div>
                 </aside>
+                <script type="text/javascript">
+                    $('aside').filter(calli.isEmptyResource).remove();
+                </script>
             </div>
         </div>
     </div>

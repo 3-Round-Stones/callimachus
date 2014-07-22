@@ -18,6 +18,14 @@
 
 (function($){
 
+var calli = window.calli = window.calli || {};
+
+calli.isEmptyResource = function(element, index) {
+    var selector = "[about],[src],[typeof],[typeof=''],[resource],[href],[property]";
+    var el = $(typeof element == 'number' ? index : element);
+    return !el.is(selector) && el.find(selector).length === 0;
+};
+
 $(document).ready(function() {
     select(document, ".optional").each(function() {
         var node = $(this);

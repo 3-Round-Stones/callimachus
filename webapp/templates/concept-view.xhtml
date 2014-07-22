@@ -36,7 +36,7 @@
                 </div>
             </div>
             <div class="col-sm-4">
-                <aside class="optional panel panel-default">
+                <aside class="panel panel-default">
                     <div class="panel-heading">
                         <h3 class="panel-title">Broader</h3>
                     </div>
@@ -46,7 +46,7 @@
                         </p>
                     </div>
                 </aside>
-                <aside class="optional panel panel-default">
+                <aside class="panel panel-default">
                     <div class="panel-heading">
                         <h3 class="panel-title">Related</h3>
                     </div>
@@ -59,7 +59,7 @@
                         </p>
                     </div>
                 </aside>
-                <aside class="optional panel panel-default">
+                <aside class="panel panel-default">
                     <div class="panel-heading">
                         <h3 class="panel-title">Narrower</h3>
                     </div>
@@ -69,6 +69,9 @@
                         </p>
                     </div>
                 </aside>
+                <script type="text/javascript">
+                    $('aside').filter(calli.isEmptyResource).remove();
+                </script>
             </div>
         </div>
     </div>

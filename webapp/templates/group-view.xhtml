@@ -19,11 +19,14 @@
         <div class="row">
             <div class="col-sm-8">
                 <pre class="wiki" property="rdfs:comment" />
-                <ul class="sorted">
+                <ul id="members">
                     <li rel="calli:member" resource="?member">
-                        <a href="?member" property="rdfs:label" class="asc" />
+                        <a href="?member" property="rdfs:label" />
                     </li>
                 </ul>
+                <script type="text/javascript">
+                    $('#members li').sort(calli.compareElementsBy('a')).appendTo('#members');
+                </script>
             </div>
             <div class="col-sm-4">
                 <aside class="well">

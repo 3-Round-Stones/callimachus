@@ -31,11 +31,8 @@ public class SampleResourceCreate extends CalliPage {
 		return this;
 	}
 
-	public CalliPage createAs() {
+	public CalliPage create() {
 		browser.click(By.cssSelector("button.btn-success"));
-		browser.focusInModalFrame("save-as___");
-		browser.focusInTopWindow();
-		browser.click(By.xpath("//div[@role='dialog']//button[text()='Save']"));
 		browser.waitForScript();
 		return page();
 	}

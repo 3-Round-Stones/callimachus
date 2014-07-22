@@ -51,23 +51,24 @@ public class ClassFunctionalTest extends BrowserFunctionalTestCase {
 	}
 
 	public void testCreatableClass() {
-		String name = "Test";
-		String comment = "testing";
+		String name = "Test Class";
 		logger.info("Create class templates for {}", name);
 		ClassEdit create = page.openCurrentFolder().openClassCreate();
 		create.openCreateTemplate().saveAs("test-create.xhtml");
 		create.openViewTemplate().saveAs("test-view.xhtml");
 		create.openEditTemplate().saveAs("test-edit.xhtml");
 		logger.info("Create class {}", name);
-		ClassView cls = create.with(name, comment).create();
+		ClassView cls = create.with(name, "testing").create().waitUntilTitle(name);
+		String view = cls.getCurrentUrl();
 		logger.info("Create resource {}", "resource");
-		cls.waitUntilTitle(name).createANew(name, SampleResourceCreate.class)
-				.with("resource", "A test resource").createAs().back();
+		page.openCurrentFolder().openCreateHref("TestClass", SampleResourceCreate.class)
+				.with("resource", "A test resource").create();
 		logger.info("Delete resource {}", "resource");
+		cls = page.open(view, ClassView.class);
 		cls.openIndex(name).openResource("resource")
 				.openEdit(SampleResourceEdit.class).delete("resource");
 		logger.info("Delete class {}", name);
-		page.open(name + "?view").waitUntilTitle(name)
+		page.open(view).waitUntilTitle(name)
 				.openEdit(ClassEdit.class).delete(name);
 		logger.info("Delete class templates for {}", name);
 		page.open("test-create.xhtml?view").openEdit(TextEditor.class).delete();

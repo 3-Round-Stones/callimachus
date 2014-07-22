@@ -56,7 +56,7 @@ public class MeetingNotesFunctionalTest extends BrowserFunctionalTestCase {
 		browser.click(By.linkText("Journal"));
 		page.page(ClassView.class)
 				.createANew("Journal", SampleResourceCreate.class)
-				.with("R & D", "Research and Development journal").createAs();
+				.with("R & D", "Research and Development journal").create();
 		browser.focusInTopWindow();
 		logger.info("Creating note");
 		browser.click(By.linkText("Create a new note"));

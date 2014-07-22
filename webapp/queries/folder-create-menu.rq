@@ -15,7 +15,7 @@
 #
 #
 #
-# @Cache-Control: max-age=60
+# @Cache-Control: no-store
 # @view 
 #
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>

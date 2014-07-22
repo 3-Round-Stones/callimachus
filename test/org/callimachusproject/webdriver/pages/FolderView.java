@@ -51,33 +51,29 @@ public class FolderView extends CalliPage {
 	}
 
 	public ClassEdit openClassCreate() {
-		browser.click(By.id("create-menu"));
-		browser.clickHiddenLink(".dropdown-menu a[href$=\"Class\"]");
-		return page(ClassEdit.class);
+		return openCreateHref("Class", ClassEdit.class);
 	}
 
 	public DomainCreate openDomainCreate() {
-		browser.click(By.id("create-menu"));
-		browser.clickHiddenLink(".dropdown-menu a[href$=\"Domain\"]");
-		return page(DomainCreate.class);
+		return openCreateHref("Domain", DomainCreate.class);
 	}
 
 	public GroupCreate openGroupCreate() {
-		browser.click(By.id("create-menu"));
-		browser.clickHiddenLink(".dropdown-menu a[href$=\"Group\"]");
-		return page(GroupCreate.class);
+		return openCreateHref("Group", GroupCreate.class);
 	}
 
 	public DatasourceCreate openDatasourceCreate() {
-		browser.click(By.id("create-menu"));
-		browser.clickHiddenLink(".dropdown-menu a[href$=\"RdfDatasource\"]");
-		return page(DatasourceCreate.class);
+		return openCreateHref("RdfDatasource", DatasourceCreate.class);
 	}
 
 	public TextEditor openTextCreate(String hrefEndsWith) {
+		return openCreateHref(hrefEndsWith, TextEditor.class);
+	}
+
+	public <T> T openCreateHref(String hrefEndsWith, Class<T> type) {
 		browser.click(By.id("create-menu"));
 		browser.clickHiddenLink(".dropdown-menu a[href$=\""+ hrefEndsWith + "\"]");
-		return page(TextEditor.class);
+		return page(type);
 	}
 
 	public FolderView waitUntilFolderOpen(String folderName) {

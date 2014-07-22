@@ -41,7 +41,6 @@
         if (uri.indexOf('?') > 0) {
             uri = uri.substring(0, uri.indexOf('?'));
         }
-        console.log(url, uri, new Error());
         var last = window.sessionStorage.getItem(uri + " Last-Modified");
         if (value) {
             if (last && Date.parse(last) >= Date.parse(value))

@@ -28,8 +28,6 @@ SELECT (concat('?create=', encode_for_uri(str(?cls))) AS ?url)
 WHERE {
     ?cls rdf:type/rdfs:subClassOf? <../types/Creatable>;
         rdfs:label ?label;
-        rdfs:comment ?comment;
-        calli:icon ?icon;
         calli:create ?create
     FILTER (?create != <../templates/file-create.xhtml>)
     FILTER EXISTS {
@@ -46,16 +44,24 @@ WHERE {
     }
     ?cls calli:author ?group .
     ?group rdfs:label ?author .
+    OPTIONAL {
+        ?cls calli:icon ?icon
+    }
+    OPTIONAL {
+        ?cls rdfs:comment ?comment
+    }
     BIND (
-        concat(
-            if (?group = </auth/groups/everyone>, "1",
-            if (?group = </auth/groups/users>, "2",
-            if (?group = </auth/groups/staff>, "3",
-            if (?group = </auth/groups/power>, "4",
-            if (?group = </auth/groups/admin>, "5",
-            "6"
-            ))))),
-            ?author
+        if (bound(?comment),
+            concat(
+                if (?group = </auth/groups/everyone>, "1",
+                if (?group = </auth/groups/users>, "2",
+                if (?group = </auth/groups/staff>, "3",
+                if (?group = </auth/groups/power>, "4",
+                if (?group = </auth/groups/admin>, "5",
+                "6"
+                ))))),
+                ?author
+            ), "9"
         ) AS ?order
     )
-} GROUP BY ?cls ?label ?comment ?icon ORDER BY asc(min(?order)) ?author ?label
+} GROUP BY ?cls ?label ?comment ?icon ?with_icon ORDER BY asc(min(?order)) ?author ?label

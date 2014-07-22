@@ -272,11 +272,11 @@ function updateFormAction(form, target, create) {
 
 function overrideLocation(form, uri) {
     var action = calli.getFormAction(form);
-    if (action.indexOf('&location=') > 0) {
-        var m = action.match(/^(.*&location=)([^&=]*)(.*)$/);
+    if (action.indexOf('&resource=') > 0) {
+        var m = action.match(/^(.*&resource=)([^&=]*)(.*)$/);
         form.action = m[1] + encodeURIComponent(uri) + m[3];
     } else if (action.indexOf('?create') >= 0) {
-        form.action = action + '&location=' + encodeURIComponent(uri);
+        form.action = action + '&resource=' + encodeURIComponent(uri);
     }
     if (action.indexOf('?create') >= 0 && action.indexOf('&intermediate=') < 0 && isIntermidate(action)) {
         form.action += '&intermediate=true';

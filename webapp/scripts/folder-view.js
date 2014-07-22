@@ -196,7 +196,7 @@
         formData.append(file.name, file);
         jQuery.ajax({
             type:'POST',
-            url:'?create=' + classFile + '&location=' + encodeURIComponent(slug),
+            url:'?create=' + classFile + '&resource=' + encodeURIComponent(slug),
             contentType:"multipart/form-data",
             processData:false,
             data:formData,

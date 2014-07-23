@@ -48,15 +48,7 @@ calli.submitUpdate = function(comparedData, event) {
 calli.postUpdate = function(url, deleteData, insertData) {
     return calli.resolve().then(function(){
         var diff = diffTriples(deleteData.results.bindings, insertData.results.bindings);
-        var removed = diff.removed;
-        var added = diff.added;
-        for (var rhash in removed) {
-            addBoundedDescription(removed[rhash], deleteData, removed, added);
-        }
-        for (var ahash in added) {
-            addBoundedDescription(added[ahash], insertData, added, removed);
-        }
-        var payload = asSparqlUpdate(insertData.prefix, removed, added);
+        var payload = asSparqlUpdate(insertData.prefix, diff.removed, diff.added);
         return calli.postText(url, payload, "application/sparql-update");
     });
 }
@@ -101,18 +93,10 @@ function submitRDFForm(form, resource, stored) {
         var data = parseRDF(parser, uri, form);
         var revised = data.results.bindings;
         var diff = diffTriples(stored, revised);
-        var removed = diff.removed;
-        var added = diff.added;
-        for (var rhash in removed) {
-            addBoundedDescription(removed[rhash], stored, removed, added);
-        }
-        for (var ahash in added) {
-            addBoundedDescription(added[ahash], revised, added, removed);
-        }
         var se = $.Event("calliSubmit");
         se.resource = uri;
         se.location = calli.getFormAction(form);
-        se.payload = asSparqlUpdate(data.prefix, removed, added);
+        se.payload = asSparqlUpdate(data.prefix, diff.removed, diff.added);
         $(form).trigger(se);
         if (!se.isDefaultPrevented()) {
             var method = form.getAttribute('method') || form.method || "POST";
@@ -120,7 +104,7 @@ function submitRDFForm(form, resource, stored) {
                 try {
                     var redirect = null;
                     var contentType = xhr.getResponseHeader('Content-Type');
-                    if (contentType != null && contentType.indexOf('text/uri-list') == 0) {
+                    if (contentType !== null && contentType.indexOf('text/uri-list') === 0) {
                         redirect = xhr.responseText;
                     }
                     if (!redirect) {
@@ -224,12 +208,14 @@ function bind(o, dt, lang) {
     }
 }
 
+/**
+ * Makes sure blank subjects and objects get complemented with incoming and outgoing triples (transitive closure).
+ */
 function diffTriples(deleteTriples, insertTriples) {
-    var 
-        added = {},
-        removed = {},
-        hash
-    ;
+    var result = {
+        added: {},
+        removed: {}
+    };
     var oldTriples = deleteTriples.reduce(function(oldTriples, triple){
         oldTriples[JSON.stringify(triple)] = triple;
         return oldTriples;
@@ -239,41 +225,20 @@ function diffTriples(deleteTriples, insertTriples) {
         return newTriples;
     }, {});
     // removed
-    for (hash in oldTriples) {
-        if (!newTriples[hash]) {
-            removed[hash] = oldTriples[hash];
+    for (var ohash in oldTriples) {
+        var old = oldTriples[ohash];
+        if (!newTriples[ohash] || old.s.type == 'bnode' || old.o.type == 'bnode') {
+            result.removed[ohash] = old;
         }
     }
     // added
-    for (hash in newTriples) {
-        if (!oldTriples[hash]) {
-            added[hash] = newTriples[hash];
+    for (var nhash in newTriples) {
+        var triple = newTriples[nhash];
+        if (!oldTriples[nhash] || triple.s.type == 'bnode' || triple.o.type == 'bnode') {
+            result.added[nhash] = triple;
         }
     }
-    return {added: added, removed: removed};
-}
-
-/**
- * Makes sure blank subjects and objects get complemented with incoming and outgoing triples (transitive closure).
- */
-function addBoundedDescription(triple, store, dest, copy) {
-    var hash;
-    if (triple.s.type == 'bnode') {
-        for (hash in store) {
-            if (store[hash].o.value == triple.s.value && store[hash].o.type == 'bnode' && !dest[hash]) {
-                copy[hash] = dest[hash] = store[hash];
-                addBoundedDescription(store[hash], store, dest, copy);
-            }
-        }
-    }
-    if (triple.o.type == 'bnode') {
-        for (hash in store) {
-            if (store[hash].s.value == triple.o.value && store[hash].s.type == 'bnode' && !dest[hash]) {
-                copy[hash] = dest[hash] = store[hash];
-                addBoundedDescription(store[hash], store, dest, copy);
-            }
-        }
-    }
+    return result;
 }
 
 function asSparqlUpdate(namespaces, removed, added) {
@@ -343,7 +308,9 @@ function UpdateWriter() {
         for (var prefix in this.usedNamespaces) {
             buf.push('PREFIX '+ prefix + ':<' + this.usedNamespaces[prefix] + '>\n');
         }
-        buf.push('\n');
+        if (buf.length) {
+            buf.push('\n');
+        }
         return buf.concat(this.flush().buf).join('');
     };
     

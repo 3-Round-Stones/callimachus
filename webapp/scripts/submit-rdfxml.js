@@ -111,9 +111,10 @@ function postData(form, data, callback) {
     if (!type) {
         type = "application/rdf+xml";
     }
+    var action = calli.getFormAction(form);
     var xhr = $.ajax({
         type: method,
-        url: calli.getFormAction(form),
+        url: action,
         contentType: type,
         data: data,
 		dataType: "text", 

@@ -87,9 +87,9 @@
                 <xsl:text>) </xsl:text>
             </xsl:if>
             <xsl:if test="sparql:binding[@name='comment']">
-                <pre class="wiki summary">
+                <p class="summary">
                     <xsl:value-of select="sparql:binding[@name='comment']/*" />
-                </pre>
+                </p>
             </xsl:if>
             <xsl:if test="sparql:binding[@name='url']">
                 <div class="cite">

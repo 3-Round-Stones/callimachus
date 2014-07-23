@@ -21,14 +21,14 @@
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
 PREFIX calli: <http://callimachusproject.org/rdf/2009/framework#>
 
 SELECT (concat('?create=', encode_for_uri(str(?cls))) AS ?url)
     ?label ?comment ?icon (substr(min(?order),2) AS ?author)
 WHERE {
-    ?cls rdf:type/rdfs:subClassOf? <../types/Creatable>;
-        rdfs:label ?label;
-        calli:create ?create
+    ?cls calli:create ?create;
+        rdfs:label ?label
     FILTER (?create != <../templates/file-create.xhtml>)
     FILTER EXISTS {
         ?cls calli:author ?domain

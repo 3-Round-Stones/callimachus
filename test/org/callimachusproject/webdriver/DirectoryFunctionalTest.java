@@ -23,7 +23,6 @@ import junit.framework.TestSuite;
 import org.callimachusproject.webdriver.helpers.AssetDownloader;
 import org.callimachusproject.webdriver.helpers.BrowserFunctionalTestCase;
 import org.callimachusproject.webdriver.pages.CalliPage;
-import org.callimachusproject.webdriver.pages.ClassView;
 import org.callimachusproject.webdriver.pages.FolderView;
 import org.openqa.selenium.By;
 
@@ -52,21 +51,15 @@ public class DirectoryFunctionalTest extends BrowserFunctionalTestCase {
 		File ex = new AssetDownloader(getUsername(), getPassword()).downloadAsset(archive, "directory.car");
 		folder.openImportPage().selectFile(ex).replaceContents().importCar();
 		ex.delete();
-		page.openCurrentFolder();
-		browser.click(By.linkText("Organization"));
-		page.page(ClassView.class).createANew("Organization", CalliPage.class);
+		page.openCurrentFolder().openCreateHref("Organization", CalliPage.class);
 		browser.type(By.id("legal"), "3 Round Stones Inc.");
 		browser.select(By.id("orgtype"), "Commercial");
 		browser.type(By.id("url"), "http://3roundstones.com/");
 		browser.select(By.xpath("//div[@id='adr']//select"), "United States");
 		browser.click(By.cssSelector("button#create"));
-		browser.focusInModalFrame("save-as___");
-		browser.focusInTopWindow();
-		browser.click(By.xpath("//div[@role='dialog']//button[text()='Save']"));
-		browser.focusInTopWindow();
 		browser.click(By.linkText("Edit"));
 		browser.type(By.xpath("//div[@id='adr']//input[@placeholder='state or province']"), "DC");
-		browser.click(By.cssSelector("button[type=submit]"));
+		browser.click(By.cssSelector("button.btn-success"));
 	}
 
 }

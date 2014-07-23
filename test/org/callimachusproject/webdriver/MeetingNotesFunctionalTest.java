@@ -22,7 +22,6 @@ import junit.framework.TestSuite;
 
 import org.callimachusproject.webdriver.helpers.AssetDownloader;
 import org.callimachusproject.webdriver.helpers.BrowserFunctionalTestCase;
-import org.callimachusproject.webdriver.pages.ClassView;
 import org.callimachusproject.webdriver.pages.FolderView;
 import org.callimachusproject.webdriver.pages.SampleResourceCreate;
 import org.openqa.selenium.By;
@@ -53,9 +52,7 @@ public class MeetingNotesFunctionalTest extends BrowserFunctionalTestCase {
 		folder.openImportPage().selectFile(ex).replaceContents().importCar();
 		ex.delete();
 		logger.info("Creating Journal");
-		browser.click(By.linkText("Journal"));
-		page.page(ClassView.class)
-				.createANew("Journal", SampleResourceCreate.class)
+		page.openCurrentFolder().openCreateHref("Journal", SampleResourceCreate.class)
 				.with("R & D", "Research and Development journal").create();
 		browser.focusInTopWindow();
 		logger.info("Creating note");

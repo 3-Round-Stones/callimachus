@@ -27,6 +27,15 @@
             <head>
                 <title>What Links Here</title>
                 <link rel="help" href="../../callimachus-for-web-developers#System_menu" target="_blank" title="Help" />
+                <script>
+                // <![CDATA[
+                jQuery(function($) {
+                    $('.cite time').text(function(){
+                        return calli.parseDateTime(this).toLocaleString();
+                    });
+                });
+                // ]]>
+                </script>
             </head>
             <body>
                 <div class="container">
@@ -104,7 +113,7 @@
                     </span>
                     <xsl:if test="sparql:binding[@name='modified']">
                         <span> - </span>
-                        <time class="abbreviated">
+                        <time datetime="{sparql:binding[@name='modified']/*}" datatype="{sparql:binding[@name='modified']/*/@datatype}">
                             <xsl:value-of select="sparql:binding[@name='modified']/*" />
                         </time>
                     </xsl:if>

@@ -23,7 +23,7 @@ window.calli.checkEachResourceIn = function(container) {
 window.calli.selectEachResourceIn = function(container) {
     var group = $(container);
     return function(element, index) {
-        var el = typeof element == 'number' ? index : element;
+        var el = (typeof element == 'number' ? index : element) || this;
         var resource = el.getAttribute('resource');
         var option = group.find('[value="' + resource + '"]').first();
         option.prop('selected', true).closest('select').change();

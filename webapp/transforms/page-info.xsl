@@ -98,8 +98,11 @@
     <xsl:template mode="time" match="xhtml:time|time">
         <xsl:variable name="url" select="concat('../queries/page-info.rq?results&amp;target=',encode-for-uri($target))" />
         <xsl:copy>
-            <xsl:apply-templates mode="time" select="@*|node()" />
+            <xsl:apply-templates mode="time" select="@*[name()!='datetime']|node()" />
             <xsl:apply-templates mode="time" select="document($url)//sparql:binding[@name='updated']/*/@datatype" />
+            <xsl:attribute name="datetime">
+                <xsl:value-of select="document($url)//sparql:binding[@name='updated']/*" />
+            </xsl:attribute>
             <xsl:value-of select="document($url)//sparql:binding[@name='updated']/*" />
         </xsl:copy>
     </xsl:template>

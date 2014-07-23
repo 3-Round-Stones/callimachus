@@ -85,7 +85,11 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
         <footer class="navbar-inner">
             <div class="container">
                 {calli:generator-p(<p class="navbar-right navbar-text" />)}
-                {calli:lastmod-time(<p class="navbar-text">This resource was last modified at <time class="datetime-local"/></p>)}
+                {calli:lastmod-time(<p class="navbar-text">This resource was last modified at <time />
+                    <script type="text/javascript">
+                        $('time').last().text(calli.parseDateTime($('time').get(-1)).toLocaleString());
+                    </script>
+                </p>)}
             </div>
         </footer>
     </div>

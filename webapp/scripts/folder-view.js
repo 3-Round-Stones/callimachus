@@ -57,8 +57,8 @@
         td.addClass('timecell');
         if (text) {
             var time = $('<time/>');
-            time.addClass("abbreviated");
-            time.text(text);
+            time.attr('datetime', text);
+            time.text(calli.parseDateTime(text).toLocaleString());
             td.append(time);
         }
         return td;

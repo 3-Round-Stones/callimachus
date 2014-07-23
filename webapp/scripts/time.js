@@ -18,6 +18,14 @@
 
 (function($){
 
+var calli = window.calli = window.calli || {};
+
+calli.parseDateTime = function(element, index) {
+    var el = (typeof element == 'number' ? index : element) || this;
+    var formatted = el && el.getAttribute && el.getAttribute('datetime') || el;
+    return new Date(parseDateTime(formatted));
+};
+
 $(document).ready(function() {
     var now = new Date();
     $(document.getElementsByTagName('time')).each(function() {
@@ -41,10 +49,11 @@ function handle(event) {
 }
 
 function changeDateLocale(node, now) {
-    var node = $(node);
-    if (!node.attr("datetime")) {
+    node = $(node);
+    var text = node.text();
+    var datetime = node.attr("datetime");
+    if (!datetime || text == datetime) {
         var ie8 = false;
-        var text = node.text();
         if (!text && node[0].nextSibling && node[0].nextSibling.nodeValue) {
             text = node[0].nextSibling.nodeValue;
             ie8 = true;
@@ -87,7 +96,7 @@ function changeDateLocale(node, now) {
     }
 }
 
-function parseDateTime(text, now) {
+function parseDateTime(text, asof) {
     if (/^\s*([\d]+\-?){1,2}\s*$/.exec(text))
         return NaN;
     var struct = /(?:(\d{4})-?(\d{2})-?(\d{2}))?(?:[T ]?(\d{2}):?(\d{2}):?(\d{2})(?:\.(\d{3,}))?)?(?:(Z)|([+\-])(\d{2})(?::?(\d{2}))?)?/.exec(text);
@@ -113,6 +122,7 @@ function parseDateTime(text, now) {
             timestamp = new Date(+struct[1], +struct[2] - 1, +struct[3]).getTime();
         }
     } else if (struct[4] || struct[5] || struct[6]) {
+        var now = asof || new Date();
         if (struct[8] || struct[9]) {
             timestamp = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate(), +struct[4], +struct[5] + minutesOffset, +struct[6], 0);
         } else {
@@ -140,7 +150,7 @@ function local(date, now, node) {
         }
     }
     if (!node || !node.is('.time')) {
-        if (!node || locale == '' || date.getDate() != now.getDate() || date.getMonth() != now.getMonth() || date.getFullYear() != now.getFullYear()) {
+        if (!node || locale === '' || date.getDate() != now.getDate() || date.getMonth() != now.getMonth() || date.getFullYear() != now.getFullYear()) {
             if (locale) {
                 locale += ", ";
             }

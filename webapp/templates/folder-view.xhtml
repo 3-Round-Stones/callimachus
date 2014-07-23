@@ -33,6 +33,9 @@
         jQuery(function($) {
             var link = $('#file-create')[0];
             link.href = '?create=' + encodeURIComponent(link.href);
+            $('span[rel="prov:wasGeneratedBy"]').text(function(){
+                return calli.parseDateTime(this).toLocaleString();
+            });
         });
     </script>
 </head>
@@ -79,7 +82,7 @@
                         </td>
                         <td class="timecell">
                             <span rel="prov:wasGeneratedBy" resource="?activity">
-                                <time class="abbreviated" property="prov:endedAtTime"/>
+                                <time property="prov:endedAtTime"/>
                             </span>
                         </td>
                         <td class="hidden-xs hidden-sm">

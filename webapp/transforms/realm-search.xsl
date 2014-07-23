@@ -29,20 +29,23 @@
                 <link rel="help" href="../../callimachus-for-web-developers" target="_blank" title="Help" />
                 <script>
                 // <![CDATA[
-                function parameter(name) {
-                    var regex = new RegExp("[\\?&]"+name+"=([^&#]*)")
-                    var m = regex.exec(window.location.href)
-                    return m ? decodeURIComponent(m[1].replace(/\+/g, ' ')) : null
-                }
-                function init() {
+                jQuery(function($) {
                     if (parameter("q")) {
                         document.getElementById("q").value = parameter("q")
                     }
-                }
+                    $('.cite time').text(function(){
+                        return calli.parseDateTime(this).toLocaleString();
+                    });
+                    function parameter(name) {
+                        var regex = new RegExp("[\\?&]"+name+"=([^&#]*)")
+                        var m = regex.exec(window.location.href)
+                        return m ? decodeURIComponent(m[1].replace(/\+/g, ' ')) : null
+                    }
+                });
                 // ]]>
                 </script>
             </head>
-            <body onload="init()">
+            <body>
                 <div class="container">
                     <div class="page-header">
                         <h1>Search Results</h1>
@@ -124,7 +127,7 @@
                     </span>
                     <xsl:if test="sparql:binding[@name='updated']">
                         <span> - </span>
-                        <time class="abbreviated">
+                        <time datetime="{sparql:binding[@name='updated']/*}" datatype="{sparql:binding[@name='updated']/*/@datatype}">
                             <xsl:value-of select="sparql:binding[@name='updated']/*" />
                         </time>
                     </xsl:if>

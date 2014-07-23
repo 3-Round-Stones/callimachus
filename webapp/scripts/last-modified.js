@@ -20,7 +20,6 @@
 
     var calli = window.calli = window.calli || {};
 
-    var since = new Date();
     calli.lastModified = function(url, value) {
         var uri = url;
         if (!uri || uri.indexOf('http') !== 0) {
@@ -48,15 +47,12 @@
             window.sessionStorage.setItem(uri + " Last-Modified", value);
             return value;
         } else {
-            if (last && Date.parse(last) >= since.valueOf())
-                return last;
-            if (last)
-                return since.toUTCString();
+            if (last) return last;
             return undefined;
         }
     };
     if (window.sessionStorage) {
-        calli.lastModified(calli.getPageUrl(), since.toUTCString());
+        calli.lastModified(calli.getPageUrl(), document.lastModified);
     } else {
         calli.lastModified = function(){return undefined;};
     }

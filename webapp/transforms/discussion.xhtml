@@ -17,6 +17,13 @@
         .note .comment { padding: 0px 1ex; }
         .note .post { padding: 1ex; }
     </style>
+    <script type="text/javascript">
+        jQuery(function($){
+            $('.panel-heading time').text(function(){
+                return calli.parseDateTime(this).toLocaleString();
+            });
+        });
+    </script>
 </head>
 <body>
     <div class="container">
@@ -31,7 +38,7 @@
             <xsl:for-each select="sparql:sparql/sparql:results/sparql:result[sparql:binding/@name='note']">
                 <li class="note panel panel-primary">
                     <div class="panel-heading" >
-                        <time class="abbreviated pull-right">
+                        <time class="pull-right" datetime="{sparql:binding[@name='modified']/*}" datatype="{sparql:binding[@name='modified']/*/@datatype}">
                             <xsl:value-of select="sparql:binding[@name='modified']/*" />
                         </time>
                         <span class="glyphicon glyphicon-comment pull-left"></span>

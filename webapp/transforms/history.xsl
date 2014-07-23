@@ -28,6 +28,16 @@
             <head>
                 <title><xsl:value-of select="sparql:sparql/sparql:results/sparql:result[1]/sparql:binding[@name='title']/*" /></title>
                 <link rel="help" href="../../callimachus-for-web-developers#History_tab" target="_blank" title="Help" />
+                <script type="text/javascript">
+                    jQuery(function($){
+                        $('h2 time').text(function(){
+                            return calli.parseDateTime(this).toLocaleDateString();
+                        });
+                        $('li.result time').text(function(){
+                            return calli.parseDateTime(this).toLocaleTimeString();
+                        });
+                    });
+                </script>
             </head>
             <body>
                 <div class="container">
@@ -47,7 +57,11 @@
             <xsl:for-each-group
                     select="sparql:result[sparql:binding[@name='type']/*='entry']"
                     group-by="substring-before(sparql:binding[@name='updated']/*, 'T')">
-                <h2><time class="abbreviated date"><xsl:value-of select="sparql:binding[@name='updated']/*" /></time></h2>
+                <h2>
+                    <time datetime="{sparql:binding[@name='updated']/*}" datatype="{sparql:binding[@name='updated']/*/@datatype}">
+                        <xsl:value-of select="sparql:binding[@name='updated']/*" />
+                    </time>
+                </h2>
                 <ul>
                     <xsl:apply-templates select="current-group()" />
                 </ul>
@@ -71,7 +85,11 @@
                 </xsl:if>
             </a>
             <xsl:text>; </xsl:text>
-            <a href="{sparql:binding[@name='id']/*}"><time class="abbreviated time"><xsl:value-of select="sparql:binding[@name='updated']/*" /></time></a>
+            <a href="{sparql:binding[@name='id']/*}">
+                <time datetime="{sparql:binding[@name='updated']/*}" datatype="{sparql:binding[@name='updated']/*/@datatype}">
+                    <xsl:value-of select="sparql:binding[@name='updated']/*" />
+                </time>
+            </a>
             <xsl:text>..</xsl:text>
             <a>
                 <xsl:if test="sparql:binding[@name='contributor_uri']">

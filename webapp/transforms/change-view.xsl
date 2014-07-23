@@ -42,6 +42,7 @@
         </xsl:choose>
     </xsl:variable>
     <xsl:template match="/">
+        <xsl:variable name="modified" select="sparql:sparql/sparql:results/sparql:result[1]/sparql:binding[@name='modified']/*" />
         <html>
             <head>
                 <title><xsl:value-of select="sparql:sparql/sparql:results/sparql:result[1]/sparql:binding[@name='modified']/*" /> Changeset</title>
@@ -52,12 +53,19 @@
                     .predicate { font-weight: bold; }
                     .removed { text-decoration: line-through; }
                 </style>
+                <script type="text/javascript">
+                    jQuery(function($){
+                        $('time[property="prov:endedAtTime"]').text(function(){
+                            return calli.parseDateTime(this).toLocaleString();
+                        });
+                    });
+                </script>
             </head>
             <body>
                 <div class="container">
                     <p><xsl:text>Revised on </xsl:text>
-                        <time property="prov:endedAtTime">
-                            <xsl:value-of select="sparql:sparql/sparql:results/sparql:result[1]/sparql:binding[@name='modified']/*" />
+                        <time property="prov:endedAtTime" datetime="{$modified}" datatype="{$modified/@datatype}">
+                            <xsl:value-of select="$modified" />
                         </time>
                         <xsl:text> by </xsl:text>
                         <a href="{sparql:sparql/sparql:results/sparql:result[1]/sparql:binding[@name='user']/*}">

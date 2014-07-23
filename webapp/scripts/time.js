@@ -20,8 +20,8 @@
 
 var calli = window.calli = window.calli || {};
 
-calli.parseDateTime = function(element, index) {
-    var el = (typeof element == 'number' ? index : element) || this;
+calli.parseDateTime = function(element) {
+    var el = element && typeof element == 'object' ? element : this;
     var formatted = el && el.getAttribute && el.getAttribute('datetime') || el;
     return new Date(parseDateTime(formatted));
 };

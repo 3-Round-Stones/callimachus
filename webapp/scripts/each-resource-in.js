@@ -12,8 +12,8 @@ if (!window.calli) {
 
 window.calli.checkEachResourceIn = function(container) {
     var group = $(container);
-    return function(element, index) {
-        var el = typeof element == 'number' ? index : element;
+    return function(element) {
+        var el = element && typeof element == 'object' ? element : this;
         var resource = el.getAttribute('resource');
         var checkbox = group.find('[value="' + resource + '"]').first();
         return checkbox.prop('checked', true).change().get(0);
@@ -22,8 +22,8 @@ window.calli.checkEachResourceIn = function(container) {
 
 window.calli.selectEachResourceIn = function(container) {
     var group = $(container);
-    return function(element, index) {
-        var el = (typeof element == 'number' ? index : element) || this;
+    return function(element) {
+        var el = element && typeof element == 'object' ? element : this;
         var resource = el.getAttribute('resource');
         var option = group.find('[value="' + resource + '"]').first();
         option.prop('selected', true).closest('select').change();

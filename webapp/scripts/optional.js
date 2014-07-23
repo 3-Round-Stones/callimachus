@@ -20,9 +20,9 @@
 
 var calli = window.calli = window.calli || {};
 
-calli.isEmptyResource = function(element, index) {
+calli.isEmptyResource = function(element) {
     var selector = "[about],[src],[typeof],[typeof=''],[resource],[href],[property]";
-    var el = $((typeof element == 'number' ? index : element) || this);
+    var el = $(element && typeof element == 'object' ? element : this);
     return !el.is(selector) && el.find(selector).length === 0;
 };
 

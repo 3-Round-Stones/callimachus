@@ -22,6 +22,7 @@
             $('.panel-heading time').text(function(){
                 return calli.parseDateTime(this).toLocaleString();
             });
+            $('.panel-body pre').replaceWith(calli.parseCreole);
         });
     </script>
 </head>
@@ -49,7 +50,7 @@
                         </h4>
                     </div>
                     <div class="comment panel-body">
-                        <pre class="wiki">
+                        <pre>
                             <xsl:value-of select="sparql:binding[@name='note']/*" />
                         </pre>
                     </div>

@@ -20,17 +20,36 @@
 
 var parser = new creole();
 
+var calli = window.calli = window.calli || {};
+
+calli.parseCreole = function(element) {
+    var pre = element && typeof element == 'object' ? element : this;
+    var text = pre && pre.textContent || pre && pre.innerText || pre;
+    var div = document.createElement('div');
+    if (text && typeof text == 'string') {
+        parser.parse(div, text);
+        if (pre != text) {
+            var attrs = pre.attributes;
+            for(var j=attrs.length-1; j>=0; j--) {
+                div.setAttribute(attrs[j].name, attrs[j].value);
+            }
+            div.setAttribute("content", text);
+        }
+    }
+    return div;
+};
+
 $(document).ready(function() {
     $("pre.wiki", document).each(function() {
         initWiki(this);
-    })
+    });
 });
 $(document).bind("DOMNodeInserted", handle);
 
 function handle(event) {
     $("pre.wiki", event.target).each(function(i, node) {
         initWiki(node);
-    })
+    });
     if ($(event.target).is("pre.wiki")) {
         initWiki(event.target);
     }

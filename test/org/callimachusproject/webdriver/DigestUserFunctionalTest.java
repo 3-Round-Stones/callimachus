@@ -16,21 +16,12 @@
  */
 package org.callimachusproject.webdriver;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics2D;
-import java.awt.font.FontRenderContext;
-import java.awt.font.TextLayout;
-import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.imageio.ImageIO;
 import javax.mail.BodyPart;
 import javax.mail.Flags;
 import javax.mail.Folder;
@@ -47,7 +38,6 @@ import org.callimachusproject.util.MailProperties;
 import org.callimachusproject.webdriver.helpers.BrowserFunctionalTestCase;
 import org.callimachusproject.webdriver.pages.DigestUserEdit;
 import org.callimachusproject.webdriver.pages.GroupEdit;
-import org.callimachusproject.webdriver.pages.PhotoEdit;
 import org.callimachusproject.webdriver.pages.SignIn;
 
 /**
@@ -105,16 +95,6 @@ public class DigestUserFunctionalTest extends BrowserFunctionalTestCase {
 		logger.info("Login {}", username);
 		page.openLogin().with(username, getPassword()).login();
 		page.open(profile).openEdit(DigestUserEdit.class).delete(fullname);
-	}
-
-	public void testUserProfilePhoto() throws Exception {
-		DigestUserEdit user = page.openProfile().openEdit(DigestUserEdit.class);
-		File jpeg = textToImage("test-photo");
-		logger.info("Upload profile photo {}", "test-photo.jpg");
-		user.openPhotoUpload().selectFile(jpeg).uploadAs("test-photo.jpg");
-		jpeg.delete();
-		user.save().openDescribe().describe("foaf:depiction")
-				.openEdit(PhotoEdit.class).delete("test-photo");
 	}
 
 	public String getRegistrationUrlByEmailSubject(String subject)
@@ -183,43 +163,6 @@ public class DigestUserFunctionalTest extends BrowserFunctionalTestCase {
 			return (String) content;
 		}
 		return null;
-	}
-
-	/**
-	 * creates a black-on-white image with the text on it
-	 * (Courier New, normal, 10pt)
-	 * @param str	string to be displayed (single line only!)
-	 * @return	the image or null on error
-	 * @throws IOException 
-	 */
-	private File textToImage(String str) throws IOException {
-		// set font
-		Font font = new Font("Courier New", Font.PLAIN, 12);
-		// calc/guess bounding of text
-		FontRenderContext frc = new FontRenderContext(null, true, false);
-		TextLayout layout = new TextLayout(str, font, frc);
-		Rectangle2D bounds = layout.getBounds();
-		// create image
-		int width = (int) bounds.getWidth() + (int) bounds.getX() + 4;
-		int height = (int) bounds.getHeight() + 2;
-		BufferedImage img = new BufferedImage(width, height,
-				BufferedImage.TYPE_INT_RGB);
-		Graphics2D g = img.createGraphics();
-		// set complete background to white
-		g.setColor(Color.WHITE);
-		g.fillRect(0, 0, img.getWidth(), img.getHeight());
-		// set font and colors
-		g.setFont(font);
-		g.setBackground(Color.WHITE);
-		g.setColor(Color.BLACK);
-		// render text
-		float posX = 1;
-		float posY = Math.abs((float) bounds.getY());
-		g.drawString(str, posX, posY);
-		// return file
-	    File outputfile = File.createTempFile(str.replaceAll("\\W", "_"), ".jpeg");
-	    ImageIO.write(img, "jpeg", outputfile);
-	    return outputfile;
 	}
 
 }

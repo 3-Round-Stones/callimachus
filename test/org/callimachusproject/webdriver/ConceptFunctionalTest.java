@@ -87,7 +87,7 @@ public class ConceptFunctionalTest extends BrowserFunctionalTestCase {
 				.waitUntilTitle(conceptLabel);
 		logger.info("Discuss concept {}", conceptName);
 		page.openDiscussion().with(altDef).post()
-				.waitUntilText(By.cssSelector(".wiki"), altDef);
+				.waitUntilText(By.cssSelector(".panel-body"), altDef);
 		logger.info("Delete concept {}", conceptName);
 		page.openEdit(ConceptEdit.class).delete(conceptLabel);
 	}

@@ -44,8 +44,8 @@ public class StyleFunctionalTest extends BrowserFunctionalTestCase {
 	public void testCreateStyle() {
 		String name = style[0];
 		logger.info("Create style {}", name);
-		page.openCurrentFolder().openTextCreate("StyleSheet").clear()
-				.type(style[1]).end().saveAs(name);
+		page.openCurrentFolder().openTextCreate("StyleSheet").setText(style[1])
+				.saveAs(name);
 		logger.info("Delete style {}", name);
 		page.open(name + "?view").openEdit(TextEditor.class).delete();
 	}

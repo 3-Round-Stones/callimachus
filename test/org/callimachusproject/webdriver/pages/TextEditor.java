@@ -32,7 +32,13 @@ public class TextEditor extends CalliPage {
 		this.topFrameName = topFrameName;
 	}
 
-	public TextEditor clear() {
+	public TextEditor setText(String text) {
+		browser.focusInFrame(topFrameName, "editor-iframe");
+		browser.setStyle(By.tagName("textarea"), "opacity", "1");
+		return clear().type(text).end();
+	}
+
+	private TextEditor clear() {
 		browser.focusInFrame(topFrameName, "editor-iframe");
 		// shift/control does not appear to work in IE
 		CharSequence[] keys = new CharSequence[1024];
@@ -43,13 +49,13 @@ public class TextEditor extends CalliPage {
 		return this;
 	}
 
-	public TextEditor type(String text) {
+	private TextEditor type(String text) {
 		browser.focusInFrame(topFrameName, "editor-iframe");
 		browser.sendKeys(By.tagName("textarea"), text);
 		return this;
 	}
 
-	public TextEditor end() {
+	private TextEditor end() {
 		browser.focusInFrame(topFrameName, "editor-iframe");
 		// shift/control does not appear to work in IE
 		CharSequence[] keys = new CharSequence[1024];

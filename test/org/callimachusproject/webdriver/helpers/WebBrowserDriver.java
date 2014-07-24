@@ -87,6 +87,16 @@ public class WebBrowserDriver {
 		driver.executeScript(script, driver.findElement(locator), html);
 	}
 
+	public void setFieldValue(By locator, String value) {
+		String script = "arguments[0].value=arguments[1]";
+		driver.executeScript(script, driver.findElement(locator), value);
+	}
+
+	public void setStyle(By locator, String prop, String value) {
+		String script = "arguments[0].style[arguments[1]]=arguments[2]";
+		driver.executeScript(script, driver.findElement(locator), prop, value);
+	}
+
 	public void focusInTopWindow() {
 		driver.switchTo().window(driver.getWindowHandle());
 		waitForScript();

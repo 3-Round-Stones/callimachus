@@ -41,8 +41,8 @@ public class TurtleFunctionalTest extends BrowserFunctionalTestCase {
 	public void testCreateTurtle() {
 		String name = turtle[0];
 		logger.info("Create turtle {}", name);
-		page.openCurrentFolder().openTextCreate("RdfTurtle").clear()
-				.type(turtle[1]).end().saveAs(name);
+		page.openCurrentFolder().openTextCreate("RdfTurtle").setText(turtle[1])
+				.saveAs(name);
 		logger.info("Delete turtle {}", name);
 		page.open(name + "?view").openEdit(TextEditor.class).delete();
 	}

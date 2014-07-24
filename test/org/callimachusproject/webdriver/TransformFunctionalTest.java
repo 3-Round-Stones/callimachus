@@ -51,8 +51,8 @@ public class TransformFunctionalTest extends BrowserFunctionalTestCase {
 		String markup = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
 				+ "<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" version=\"1.0\">\n"
 				+ transform[1] + "\n</xsl:stylesheet>";
-		page.openCurrentFolder().openTextCreate("Transform").clear()
-				.type(markup).end().saveAs(name);
+		page.openCurrentFolder().openTextCreate("Transform").setText(markup)
+				.saveAs(name);
 		logger.info("Delete transform {}", name);
 		page.open(name + "?view").openEdit(TextEditor.class).delete();
 	}

@@ -43,8 +43,8 @@ public class ScriptFunctionalTest extends BrowserFunctionalTestCase {
 	public void testCreateScript() {
 		String name = script[0];
 		logger.info("Create script {}", name);
-		page.openCurrentFolder().openTextCreate("Script").clear()
-				.type(script[1]).end().saveAs(name);
+		page.openCurrentFolder().openTextCreate("Script").setText(script[1])
+				.saveAs(name);
 		logger.info("Delete script {}", name);
 		page.open(name + "?view").openEdit(TextEditor.class).delete();
 	}

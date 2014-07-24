@@ -50,8 +50,8 @@ public class XQueryFunctionalTest extends BrowserFunctionalTestCase {
 	public void testCreateXQuery() {
 		String name = xquery[0];
 		logger.info("Create xquery {}", name);
-		page.openCurrentFolder().openTextCreate("XQuery").clear()
-				.type(xquery[1]).end().saveAs(name);
+		page.openCurrentFolder().openTextCreate("XQuery").setText(xquery[1])
+				.saveAs(name);
 		logger.info("Delete xquery {}", name);
 		page.open(name + "?view").openEdit(TextEditor.class).delete();
 	}

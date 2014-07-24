@@ -40,8 +40,8 @@ public class TextFileFunctionalTest extends BrowserFunctionalTestCase {
 	public void testCreateTextFile() {
 		String name = text[0];
 		logger.info("Create text {}", name);
-		page.openCurrentFolder().openTextCreate("TextFile").clear()
-				.type(text[1]).end().saveAs(name);
+		page.openCurrentFolder().openTextCreate("TextFile").setText(text[1])
+				.saveAs(name);
 		logger.info("Delete text {}", name);
 		page.open(name + "?view").openEdit(TextEditor.class).delete();
 	}

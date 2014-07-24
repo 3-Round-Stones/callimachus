@@ -48,8 +48,8 @@ public class PageFunctionalTest extends BrowserFunctionalTestCase {
 				+ " xmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\">\n"
 				+ "<head>\n" + "<title>" + xhtml[1] + "</title>\n"
 				+ "</head>\n" + "<body>\n" + xhtml[2] + "\n</body>\n</html>";
-		page.openCurrentFolder().openTextCreate("Page").clear().type(markup)
-				.end().saveAs(name);
+		page.openCurrentFolder().openTextCreate("Page").setText(markup)
+				.saveAs(name);
 		logger.info("Delete page {}", name);
 		page.open(name + "?view").openEdit(TextEditor.class).delete();
 	}

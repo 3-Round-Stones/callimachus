@@ -42,8 +42,8 @@ public class HypertextFunctionalTest extends BrowserFunctionalTestCase {
 		logger.info("Create hypertext {}", name);
 		String markup = "<!DOCTYPE html>\n" + "<html>\n" + "<title>" + html[1]
 				+ "</title>\n" + "<body>\n" + html[2] + "\n</body>\n</html>";
-		page.openCurrentFolder().openTextCreate("HypertextFile").clear()
-				.type(markup).end().saveAs(name);
+		page.openCurrentFolder().openTextCreate("HypertextFile")
+				.setText(markup).saveAs(name);
 		logger.info("Delete hypertext {}", name);
 		page.open(name + "?view").openEdit(TextEditor.class).delete();
 	}

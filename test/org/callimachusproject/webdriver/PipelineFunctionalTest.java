@@ -51,8 +51,8 @@ public class PipelineFunctionalTest extends BrowserFunctionalTestCase {
 				+ " xmlns:c=\"http://www.w3.org/ns/xproc-step\"\n"
 				+ " xmlns:l=\"http://xproc.org/library\">\n" + pipeline[1]
 				+ "\n</p:pipeline>";
-		page.openCurrentFolder().openTextCreate("Pipeline").clear()
-				.type(markup).end().saveAs(name);
+		page.openCurrentFolder().openTextCreate("Pipeline").setText(markup)
+				.saveAs(name);
 		logger.info("Delete pipeline {}", name);
 		page.open(name + "?view").openEdit(TextEditor.class).delete();
 	}

@@ -46,7 +46,7 @@ window.calli.submitTurtleAs = function(event, fileName, create, folder) {
         return calli.createTurtle(url, data);
     }).then(function(redirect){
         if (redirect) {
-            window.location.replace(redirect);
+            window.location.href = redirect;
         } else {
             btn.button('reset');
         }

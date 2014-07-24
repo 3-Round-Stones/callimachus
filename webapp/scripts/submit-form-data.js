@@ -13,7 +13,11 @@ calli.submitForm = function(event) {
     event.preventDefault();
     var form = $(event.target).closest('form')[0];
     var finalTarget = form.target;
+    var btn = $(form).find('button[type="submit"]');
+    btn.button('loading');
     return calli.postForm(form).then(function(redirect){
+        return redirect && redirect + "?view";
+    }).then(function(redirect){
         if (finalTarget && window.frames[finalTarget]) {
             window.frames[finalTarget].location.href = redirect;
         } else {
@@ -22,6 +26,9 @@ calli.submitForm = function(event) {
             }
             window.location.href = redirect;
         }
+    }, function(error) {
+        btn.button('reset');
+        return calli.error(error);
     });
 };
 
@@ -33,11 +40,10 @@ calli.postForm = function(form) {
         $('body').append(iframe);
         return new Promise(function(resolve){
             var finalTarget = form.target;
-            iframe.bind('load', function(event){
-                var doc = event.target.contentWindow.document;
+            $(iframe).bind('load', function(event){
+                var doc = iframe.contentDocument;
                 if (doc.URL != "about:blank") {
                     resolve($(doc).text());
-                    $(iframe).remove();
                 }
             });
             form.target = iframe.name;
@@ -45,15 +51,18 @@ calli.postForm = function(form) {
             form.target = finalTarget;
         }).then(function(redirect){
             if (redirect && redirect.indexOf('http') === 0) {
+                $(iframe).remove();
                 return redirect;
             } else {
-                var doc = this.contentWindow.document;
+                var doc = iframe.contentDocument;
                 var h1 = $(doc).find('h1').clone();
                 var frag = document.createDocumentFragment();
                 h1.contents().each(function() {
                     frag.appendChild(this);
                 });
                 var pre = $(doc).find('pre').text();
+                $(iframe).remove();
+                if (!pre) return calli.reject(frag);
                 return calli.reject({message: frag, stack: pre});
             }
         });

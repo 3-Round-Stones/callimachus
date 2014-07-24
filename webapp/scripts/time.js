@@ -112,24 +112,23 @@ function parseDateTime(text, asof) {
     if (struct[1]) {
         if (struct[4] || struct[5] || struct[6]) {
             if (struct[8] || struct[9]) {
-                timestamp = Date.UTC(+struct[1], +struct[2] - 1, +struct[3], +struct[4], +struct[5] + minutesOffset, +struct[6], 0);
+                return Date.UTC(+struct[1], +struct[2] - 1, +struct[3], +struct[4], +struct[5] + minutesOffset, +struct[6], 0);
             } else {
-                timestamp = new Date(+struct[1], +struct[2] - 1, +struct[3], +struct[4], +struct[5], +struct[6], 0).getTime();
+                return new Date(+struct[1], +struct[2] - 1, +struct[3], +struct[4], +struct[5], +struct[6], 0).getTime();
             }
         } else if (struct[8] || struct[9]) {
-            timestamp = Date.UTC(+struct[1], +struct[2] - 1, +struct[3], 0, minutesOffset, 0, 0);
+            return Date.UTC(+struct[1], +struct[2] - 1, +struct[3], 0, minutesOffset, 0, 0);
         } else {
-            timestamp = new Date(+struct[1], +struct[2] - 1, +struct[3]).getTime();
+            return new Date(+struct[1], +struct[2] - 1, +struct[3]).getTime();
         }
     } else if (struct[4] || struct[5] || struct[6]) {
         var now = asof || new Date();
         if (struct[8] || struct[9]) {
-            timestamp = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate(), +struct[4], +struct[5] + minutesOffset, +struct[6], 0);
+            return Date.UTC(now.getFullYear(), now.getMonth(), now.getDate(), +struct[4], +struct[5] + minutesOffset, +struct[6], 0);
         } else {
-            timestamp = new Date(now.getFullYear(), now.getMonth(), now.getDate(), +struct[4], +struct[5], +struct[6], 0).getTime();
+            return new Date(now.getFullYear(), now.getMonth(), now.getDate(), +struct[4], +struct[5], +struct[6], 0).getTime();
         }
     }
-    return timestamp;
 }
 
 function local(date, now, node) {

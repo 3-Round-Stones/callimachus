@@ -27,7 +27,7 @@ public class PageIntegrationTest extends TemporaryServerIntegrationTestCase {
 
 	@Test
 	public void testLess() throws Exception {
-		WebResource create = getHomeFolder().ref("?create="+ getCallimachusUrl("types/Page") + "&location=test-page.xhtml");
+		WebResource create = getHomeFolder().ref("?create="+ getCallimachusUrl("types/Page") + "&resource=test-page.xhtml");
 		WebResource page = create.create("application/xhtml+xml", XHTML.getBytes());
 		page.ref("?element=/1&realm=/").get("text/html");
 		page.ref("?template&realm=/").get("application/xhtml+xml");

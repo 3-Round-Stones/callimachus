@@ -23,7 +23,6 @@ import junit.framework.TestSuite;
 import org.callimachusproject.webdriver.helpers.AssetDownloader;
 import org.callimachusproject.webdriver.helpers.BrowserFunctionalTestCase;
 import org.callimachusproject.webdriver.pages.CalliPage;
-import org.callimachusproject.webdriver.pages.FolderView;
 import org.openqa.selenium.By;
 
 public class DirectoryFunctionalTest extends BrowserFunctionalTestCase {
@@ -45,12 +44,7 @@ public class DirectoryFunctionalTest extends BrowserFunctionalTestCase {
 	public void testDirectory() throws Exception {
 		File car = new AssetDownloader(new File("downloads"))
 				.getLocalAsset(DOWNLOAD_URL);
-		FolderView folder = page.openCurrentFolder().openImportPage()
-				.selectFile(car).importCar().openCurrentFolder();
-		String archive = folder.getCurrentUrl().replaceAll("\\?.*", "?archive");
-		File ex = new AssetDownloader(getUsername(), getPassword()).downloadAsset(archive, "directory.car");
-		folder.openImportPage().selectFile(ex).replaceContents().importCar();
-		ex.delete();
+		page.openCurrentFolder().openImportPage().selectFile(car).importCar();
 		page.openCurrentFolder().openCreateHref("Organization", CalliPage.class);
 		browser.type(By.id("legal"), "3 Round Stones Inc.");
 		browser.select(By.id("orgtype"), "Commercial");

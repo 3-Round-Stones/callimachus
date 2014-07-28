@@ -7,6 +7,9 @@
     <title>New JSON File</title>
     <link rel="help" href="../../callimachus-for-web-developers" target="_blank" title="Help" />
     <link href="http://www.json.org/" target="_blank" title="Format home page" />
+    <script type="text/javascript">
+        $(calli.fillElement.bind(this, '#editor-iframe'));
+    </script>
 </head>
 <body>
     <form role="form" id="form" method="POST" action="" enctype="application/json" class="container"
@@ -18,7 +21,7 @@
             </div>
         </fieldset>
         <fieldset class="form-group">
-            <iframe id="editor-iframe" name="editor-iframe" class="flex" src="../../json-editor.html" onload="calli.initEditor(event)"> </iframe>
+            <iframe id="editor-iframe" name="editor-iframe" src="../../json-editor.html" onload="calli.initEditor(event)"> </iframe>
         </fieldset>
         <fieldset class="form-group">
             <button id="create-script" type="submit" class="btn btn-success">Create</button>

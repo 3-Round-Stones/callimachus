@@ -9,6 +9,9 @@
     <style type="text/css">
         #iframe { border:0; }
     </style>
+    <script type="text/javascript">
+        $(calli.fillElement.bind(this, '#editor-iframe'));
+    </script>
     <script id="template" type="application/xhtml+xml"><![CDATA[<?xml version="1.0" encoding="UTF-8" ?>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -30,7 +33,7 @@
             </div>
         </fieldset>
         <fieldset class="form-group">
-            <iframe id="editor-iframe" name="editor-iframe" class="flex" src="../../document-editor.html"
+            <iframe id="editor-iframe" name="editor-iframe" src="../../document-editor.html"
                 onload="calli.initEditor(event,$('#template').text()||$('#template').html().replace(/^\s+/,''))"> </iframe>
         </fieldset>
         <fieldset class="form-group">

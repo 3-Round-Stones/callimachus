@@ -8,6 +8,9 @@
     <link rel="help" href="../../callimachus-for-web-developers#Named_query" target="_blank" title="Help" />
     <link href="../../callimachus-reference#SPARQL_Reference" target="_blank" title="Reference" />
     <link href="http://www.w3.org/TR/sparql11-query/" target="_blank" title="SPARQL Query Language" />
+    <script type="text/javascript">
+        $(calli.fillElement.bind(this, '#editor-iframe'));
+    </script>
     <script id="template" type="application/sparql-query"><![CDATA[#
 # @Cache-Control: 
 # @infer true
@@ -31,7 +34,7 @@ SELECT * {
             </div>
         </fieldset>
         <fieldset class="form-group">
-            <iframe id="editor-iframe" name="editor-iframe" class="flex" src="../../sparql-editor.html" onload="calli.initEditor(event,$('#template').text()||$('#template').html().replace(/^\s+/,''))"> </iframe>
+            <iframe id="editor-iframe" name="editor-iframe" src="../../sparql-editor.html" onload="calli.initEditor(event,$('#template').text()||$('#template').html().replace(/^\s+/,''))"> </iframe>
         </fieldset>
         <fieldset class="form-group">
             <button id="create-query" type="submit" class="btn btn-success">Create</button>

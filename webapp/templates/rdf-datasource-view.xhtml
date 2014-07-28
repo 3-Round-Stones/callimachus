@@ -21,6 +21,24 @@
             if (!$('span[rel="sd:supportedLanguage"][resource="' + sd + 'SPARQL11Update"]').length) {
                 $('.SPARQL11Update').hide();
             }
+            calli.fillElement('#sparql');
+            $('#evaluate').click(function(event){
+                $(event.target).button('loading');
+            });
+            $('#execute').click(function(event){
+                var btn = $(event.target);
+                var form = btn.closest('form')[0];
+                btn.button('loading');
+                var action = calli.getFormAction(form);
+                var sparql = $('#sparql').val();
+                var data = 'update=' + encodeURIComponent(sparql);
+                calli.postText(action, data, 'application/x-www-form-urlencoded').then(function(){
+                    btn.button('reset');
+                }, function(error){
+                    btn.button('reset');
+                    return calli.error(error);
+                });
+            });
         });
     </script>
 </head>
@@ -28,7 +46,7 @@
     <form role="form" id="form" action="{?this}" method="GET" class="container">
         <div class="row">
             <fieldset class="col-sm-8">
-                <textarea id="sparql" name="query" class="flex form-control" required="required" autofocus="autofocus"
+                <textarea id="sparql" name="query" class="form-control" required="required" autofocus="autofocus"
                     onchange="$(form).find('button').removeAttr('disabled')"></textarea>
                 <div resource="?this" typeof="sd:Service">
                     <span rel="sd:endpoint" resource="?endpoint" />
@@ -38,10 +56,8 @@
                     <span rel="sd:supportedLanguage" resource="?support" />
                 </div>
                 <div class="form-group">
-                    <button id="evaluate" type="submit" class="btn btn-primary SPARQL11Query"
-                        onclick="$('#form').attr('method','GET');$('#sparql').attr('name', 'query')">Evaluate Query</button>
-                    <button id="execute" type="submit" class="btn btn-primary SPARQL11Update"
-                        onclick="$('#form').attr('method','POST');$('#sparql').attr('name', 'update')">Execute Update</button>
+                    <button id="evaluate" type="submit" class="btn btn-primary SPARQL11Query">Evaluate Query</button>
+                    <button id="execute" type="button" class="btn btn-warning SPARQL11Update">Execute Update</button>
                     <button type="button" onclick="history.back()" class="btn btn-default">Cancel</button>
                 </div>
             </fieldset>

@@ -6,6 +6,9 @@
     <link href="../../callimachus-reference#XQuery_Reference" target="_blank" title="Reference" />
     <link href="http://www.w3.org/TR/xquery/" target="_blank" title="XQuery Language" />
     <link href="http://www.w3.org/TR/xpath-functions/" target="_blank" title="XPath 2.0 Functions and Operators" />
+    <script type="text/javascript">
+        $(calli.fillElement.bind(this, '#editor-iframe'));
+    </script>
     <script id="template" type="application/xquery"><![CDATA[xquery version "1.0" encoding "utf-8";
 
 /
@@ -21,7 +24,7 @@
             </div>
         </fieldset>
         <fieldset class="form-group">
-            <iframe id="editor-iframe" name="editor-iframe" class="flex" src="../../xquery-editor.html" onload="calli.initEditor(event,$('#template').text()||$('#template').html().replace(/^\s+/,''))"> </iframe>
+            <iframe id="editor-iframe" name="editor-iframe" src="../../xquery-editor.html" onload="calli.initEditor(event,$('#template').text()||$('#template').html().replace(/^\s+/,''))"> </iframe>
         </fieldset>
         <fieldset class="form-group">
             <button id="create-xquery" type="submit" class="btn btn-success">Create</button>

@@ -9,6 +9,9 @@
     <link href="http://www.w3.org/TR/html/introduction.html#html-vs-xhtml" target="_blank" title="HTML vs XHTML" />
     <link href="http://www.w3.org/TR/2006/WD-xhtml-rdfa-primer-20060516/" target="_blank" title="RDFa Primer 1.0" />
     <link href="http://www.w3.org/2012/pyRdfa/Validator.html" target="_blank" title="RDFa Validator" />
+    <script type="text/javascript">
+        $(calli.fillElement.bind(this, '#editor-iframe'));
+    </script>
     <script id="template" type="application/xhtml+xml"><![CDATA[<?xml version="1.0" encoding="UTF-8" ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
@@ -37,7 +40,7 @@
             </div>
         </fieldset>
         <fieldset class="form-group">
-            <iframe id="editor-iframe" name="editor-iframe" class="flex" src="../../html-editor.html" onload="calli.initEditor(event,$('#template').text()||$('#template').html().replace(/^\s+/,''))"> </iframe>
+            <iframe id="editor-iframe" name="editor-iframe" src="../../html-editor.html" onload="calli.initEditor(event,$('#template').text()||$('#template').html().replace(/^\s+/,''))"> </iframe>
         </fieldset>
         <fieldset class="form-group">
             <button id="create-page" type="submit" class="btn btn-success">Create</button>

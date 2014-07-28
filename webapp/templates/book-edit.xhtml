@@ -9,12 +9,15 @@
     <link href="http://docbook.org/tdg5/en/html/chunk-part-d64e8789.html" target="_blank" title="Reference" />
     <link href="http://docbook.org/tdg5/en/html/docbook.html" target="_blank" title="DocBook 5: The Definitive Guide" />
     <link rel="edit-media" href="?" type="application/docbook+xml" />
+    <script type="text/javascript">
+        $(calli.fillElement.bind(this, '#editor-iframe'));
+    </script>
 </head>
 <body resource="?this">
     <form role="form" id="form" method="PUT" action="?" enctype="application/docbook+xml" class="container"
             onsubmit="calli.submitEditor(event)">
         <fieldset class="form-group">
-            <iframe id="editor-iframe" name="editor-iframe" class="flex" src="../../xml-editor.html" onload="calli.loadEditor(event,'?')"> </iframe>
+            <iframe id="editor-iframe" name="editor-iframe" src="../../xml-editor.html" onload="calli.loadEditor(event,'?')"> </iframe>
         </fieldset>
         <fieldset class="form-group">
             <button type="submit" class="btn btn-primary">Save</button>

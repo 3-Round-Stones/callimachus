@@ -7,6 +7,9 @@
     <title>New Hypertext File</title>
     <link rel="help" href="../../callimachus-for-web-developers#Hypertext_File" target="_blank" title="Help" />
     <link href="http://www.w3.org/TR/html/" target="_blank" title="HTML5" />
+    <script type="text/javascript">
+        $(calli.fillElement.bind(this, '#editor-iframe'));
+    </script>
     <script id="template" type="text/html"><![CDATA[<!DOCTYPE html>
 <html>
 <head>
@@ -30,7 +33,7 @@
             </div>
         </fieldset>
         <fieldset class="form-group">
-            <iframe id="editor-iframe" name="editor-iframe" class="flex" src="../../html-editor.html" onload="calli.initEditor(event,$('#template').text()||$('#template').html().replace(/^\s+/,''))"> </iframe>
+            <iframe id="editor-iframe" name="editor-iframe" src="../../html-editor.html" onload="calli.initEditor(event,$('#template').text()||$('#template').html().replace(/^\s+/,''))"> </iframe>
         </fieldset>
         <fieldset class="form-group">
             <button id="create-hypertext" type="submit" class="btn btn-success">Create</button>

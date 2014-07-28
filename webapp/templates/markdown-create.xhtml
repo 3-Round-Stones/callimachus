@@ -5,6 +5,9 @@
     xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
     <title>New Markdown File</title>
+    <script type="text/javascript">
+        $(calli.fillElement.bind(this, '#editor-iframe'));
+    </script>
 </head>
 <body>
     <form role="form" id="form" method="POST" action="" enctype="text/x-markdown" class="container"
@@ -16,7 +19,7 @@
             </div>
         </fieldset>
         <fieldset class="form-group">
-            <iframe id="editor-iframe" name="editor-iframe" class="flex" src="../../text-editor.html" onload="calli.initEditor(event)"> </iframe>
+            <iframe id="editor-iframe" name="editor-iframe" src="../../text-editor.html" onload="calli.initEditor(event)"> </iframe>
         </fieldset>
         <fieldset class="form-group">
             <button id="create-text" type="submit" class="btn btn-success">Create</button>

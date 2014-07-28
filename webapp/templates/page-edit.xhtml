@@ -10,12 +10,15 @@
     <link href="http://www.w3.org/TR/2006/WD-xhtml-rdfa-primer-20060516/" target="_blank" title="RDFa Primer 1.0" />
     <link href="http://www.w3.org/2012/pyRdfa/Validator.html" target="_blank" title="RDFa Validator" />
     <link rel="edit-media" href="?" type="application/xhtml+xml" />
+    <script type="text/javascript">
+        $(calli.fillElement.bind(this, '#editor-iframe'));
+    </script>
 </head>
 <body resource="?this">
     <form role="form" id="form" method="PUT" action="?" enctype="application/xhtml+xml" class="container"
             onsubmit="calli.submitEditor(event)">
         <fieldset class="form-group">
-            <iframe id="editor-iframe" name="editor-iframe" class="flex" src="../../html-editor.html" onload="calli.loadEditor(event,'?')"> </iframe>
+            <iframe id="editor-iframe" name="editor-iframe" src="../../html-editor.html" onload="calli.loadEditor(event,'?')"> </iframe>
         </fieldset>
         <fieldset class="form-group">
             <button type="submit" class="btn btn-primary">Save</button>

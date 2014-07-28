@@ -9,12 +9,15 @@
     <link href="../../callimachus-reference#JavaScript_Reference" target="_blank" title="Reference" />
     <link href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide" target="_blank" title="JavaScript Guide" />
     <link rel="edit-media" href="?" type="text/javascript" />
+    <script type="text/javascript">
+        $(calli.fillElement.bind(this, '#editor-iframe'));
+    </script>
 </head>
 <body resource="?this">
     <form role="form" id="form" method="PUT" action="?" enctype="text/javascript" class="container"
             onsubmit="calli.submitEditor(event)">
         <fieldset class="form-group">
-            <iframe id="editor-iframe" name="editor-iframe" class="flex" src="../../javascript-editor.html" onload="calli.loadEditor(event,'?')"> </iframe>
+            <iframe id="editor-iframe" name="editor-iframe" src="../../javascript-editor.html" onload="calli.loadEditor(event,'?')"> </iframe>
         </fieldset>
         <fieldset class="form-group">
             <button type="submit" class="btn btn-primary">Save</button>

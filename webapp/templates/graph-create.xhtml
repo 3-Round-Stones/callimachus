@@ -7,6 +7,9 @@
     <title>New Graph Document</title>
     <link rel="help" href="../../callimachus-for-web-developers#Graph_document" target="_blank" title="Help" />
     <link href="http://www.w3.org/TR/turtle/" target="_blank" title="Terse RDF Triple Language" />
+    <script type="text/javascript">
+        $(calli.fillElement.bind(this, '#editor-iframe'));
+    </script>
     <script id="template" type="text/turtle"><![CDATA[@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
@@ -33,7 +36,7 @@
             </div>
         </fieldset>
         <fieldset class="form-group">
-            <iframe id="editor-iframe" name="editor-iframe" class="flex" src="../../sparql-editor.html" onload="calli.initEditor(event,$('#template').text()||$('#template').html().replace(/^\s+/,''))"> </iframe>
+            <iframe id="editor-iframe" name="editor-iframe" src="../../sparql-editor.html" onload="calli.initEditor(event,$('#template').text()||$('#template').html().replace(/^\s+/,''))"> </iframe>
         </fieldset>
         <fieldset class="form-group">
             <button id="create-graph" type="submit" class="btn btn-success">Create</button>

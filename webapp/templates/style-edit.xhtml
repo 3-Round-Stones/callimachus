@@ -9,12 +9,15 @@
     <link href="http://www.w3.org/TR/CSS2/" target="_blank" title="Cascading Style Sheets" />
     <link href="http://www.w3.org/TR/selectors/#selectors" target="_blank" title="Selectors" />
     <link rel="edit-media" href="?" type="text/css" />
+    <script type="text/javascript">
+        $(calli.fillElement.bind(this, '#editor-iframe'));
+    </script>
 </head>
 <body resource="?this">
     <form role="form" id="form" method="PUT" action="?" enctype="text/css" class="container"
             onsubmit="calli.submitEditor(event)">
         <fieldset class="form-group">
-            <iframe id="editor-iframe" name="editor-iframe" class="flex" src="../../css-editor.html" onload="calli.loadEditor(event,'?')"> </iframe>
+            <iframe id="editor-iframe" name="editor-iframe" src="../../css-editor.html" onload="calli.loadEditor(event,'?')"> </iframe>
         </fieldset>
         <fieldset class="form-group">
             <button type="submit" class="btn btn-primary">Save</button>

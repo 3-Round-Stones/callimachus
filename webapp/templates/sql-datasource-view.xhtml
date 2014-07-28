@@ -9,6 +9,27 @@
     <link rel="comments" href="?discussion" />
     <link rel="version-history" href="?history" />
     <link rel="help" href="../../callimachus-for-web-developers" target="_blank" title="Help" />
+    <script type="text/javascript">
+        $(function(){
+            calli.fillElement('#sql');
+            $('#evaluate').click(function(event){
+                $(event.target).button('loading');
+            });
+            $('#execute').click(function(event){
+                var btn = $(event.target);
+                var form = btn.closest('form')[0];
+                btn.button('loading');
+                var action = calli.getFormAction(form);
+                var sql = $('#sql').val();
+                calli.postText(action, sql, 'application/sql').then(function(){
+                    btn.button('reset');
+                }, function(error) {
+                    btn.button('reset');
+                    return calli.error(error);
+                });
+            });
+        });
+    </script>
 </head>
 <body resource="?this">
     <div class="container">
@@ -16,12 +37,10 @@
             <div class="col-sm-8">
                 <form role="form" id="form" action="{?this}" method="GET">
                     <fieldset>
-                        <textarea id="sql" name="query" class="flex form-control" required="required" autofocus="autofocus"
-                            onchange="$(form).find('button').removeAttr('disabled')"></textarea>
+                        <textarea id="sql" name="query" class="form-control" required="required" autofocus="autofocus"></textarea>
                         <div class="form-group">
                             <button id="evaluate" type="submit" class="btn btn-primary">Evaluate Query</button>
-                            <button id="execute" type="button" class="btn btn-primary"
-                                onclick="calli.postText($(form).attr('action'),$('#sql').val(),contentType:'application/sql').catche(calli.error).catch(calli.resolve).then(calli.wait().over)">Execute Update</button>
+                            <button id="execute" type="button" class="btn btn-warning">Execute Update</button>
                             <button type="button" onclick="history.back()" class="btn btn-default">Cancel</button>
                         </div>
                     </fieldset>

@@ -35,10 +35,15 @@
         <div class="graph">
             <xsl:apply-templates select="*" />
         </div>
+        <script type="text/javascript">
+            $('ul.properties').each(function(){
+                $(this).children('li').sort(calli.compareElementsBy('.predicate')).appendTo(this);
+            });
+        </script>
     </xsl:template>
     <xsl:template match="/rdf:RDF/rdf:Description/*[not(@rdf:nodeID) and not(@rdf:resource) and not(@rdf:datatype) and not(@xml:lang) and not(@rdf:parseType)]">
         <li class="triple">
-            <span class="asc predicate">
+            <span class="predicate">
                 <xsl:call-template name="resource">
                     <xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
                 </xsl:call-template>
@@ -51,7 +56,7 @@
     </xsl:template>
     <xsl:template match="/rdf:RDF/rdf:Description/*[@rdf:nodeID]">
         <li class="triple">
-            <span class="asc predicate">
+            <span class="predicate">
                 <xsl:call-template name="resource">
                     <xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
                 </xsl:call-template>
@@ -65,7 +70,7 @@
     </xsl:template>
     <xsl:template match="/rdf:RDF/rdf:Description/*[@rdf:resource]">
         <li class="triple">
-            <span class="asc predicate">
+            <span class="predicate">
                 <xsl:call-template name="resource">
                     <xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
                 </xsl:call-template>
@@ -82,7 +87,7 @@
     <xsl:template mode="describe" match="node()" />
     <xsl:template match="/rdf:RDF/rdf:Description/*[@rdf:datatype]">
         <li class="triple">
-            <span class="asc predicate">
+            <span class="predicate">
                 <xsl:call-template name="resource">
                     <xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
                 </xsl:call-template>
@@ -101,7 +106,7 @@
     </xsl:template>
     <xsl:template match="/rdf:RDF/rdf:Description/*[@xml:lang]">
         <li class="triple">
-            <span class="asc predicate">
+            <span class="predicate">
                 <xsl:call-template name="resource">
                     <xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
                 </xsl:call-template>
@@ -121,7 +126,7 @@
     </xsl:template>
     <xsl:template match="/rdf:RDF/rdf:Description/*[@rdf:parseType='Literal']">
         <li class="triple">
-            <span class="asc predicate">
+            <span class="predicate">
                 <xsl:call-template name="resource">
                     <xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
                 </xsl:call-template>
@@ -134,19 +139,19 @@
     </xsl:template>
     <xsl:template match="/rdf:RDF/rdf:Description/*[@rdf:parseType='Resource']">
         <li class="triple">
-            <span class="asc predicate">
+            <span class="predicate">
                 <xsl:call-template name="resource">
                     <xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
                 </xsl:call-template>
             </span>
-            <ul class="properties sorted" rel="{concat(namespace-uri(),local-name())}">
+            <ul class="properties" rel="{concat(namespace-uri(),local-name())}">
                 <xsl:apply-templates />
             </ul>
         </li>
     </xsl:template>
     <xsl:template match="/rdf:RDF/rdf:Description/*[@rdf:parseType='Collection']">
         <li class="triple">
-            <span class="asc predicate">
+            <span class="predicate">
                 <xsl:call-template name="resource">
                     <xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
                 </xsl:call-template>
@@ -202,7 +207,7 @@
                 <xsl:apply-templates mode="describe" select="." />
             </xsl:for-each>
         </xsl:if>
-        <ul class="properties sorted">
+        <ul class="properties">
             <xsl:apply-templates select="*[not(self::rdf:type[@rdf:resource])]" />
         </ul>
     </xsl:template>

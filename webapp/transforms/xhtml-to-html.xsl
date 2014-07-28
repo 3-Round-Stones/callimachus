@@ -45,7 +45,8 @@
     <!-- Raw text elements -->
     <xsl:template match="xhtml:script|xhtml:style">
         <xsl:element name="{local-name()}">
-            <xsl:apply-templates select="@*|node()" mode="serialize" />
+            <xsl:apply-templates select="@*" />
+            <xsl:apply-templates select="node()" mode="serialize" />
         </xsl:element>
     </xsl:template>
 

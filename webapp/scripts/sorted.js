@@ -23,11 +23,10 @@ var calli = window.calli || (window.calli={});
 calli.compareElementsBy = function(valueOf) {
     var val = typeof valueOf == 'function' ? valueOf : typeof valueOf == 'string' ? function iterator(element) {
         var text = $(element).find(valueOf).text();
-        try {
-            return parseInt(text, 10);
-        } catch (e) {
+        var int = parseInt(text, 10);
+        if (isNaN(int))
             return text;
-        }
+        return int;
     } : function(element) {
         return $(element).text();
     };

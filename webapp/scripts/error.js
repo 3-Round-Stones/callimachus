@@ -18,7 +18,7 @@
 
 (function($, jQuery){
 
-var calli = window.calli = window.calli || {};
+var calli = window.calli || (window.calli={});
 
 $(window).bind('message', function(event) {
     if ($('iframe').filter(function(){return this.contentWindow == event.originalEvent.source;}).length) {

@@ -18,7 +18,7 @@
 
 (function($){
 
-var calli = window.calli = window.calli || {};
+var calli = window.calli || (window.calli={});
 
 calli.isEmptyResource = function(element) {
     var selector = "[about],[src],[typeof],[typeof=''],[resource],[href],[property]";

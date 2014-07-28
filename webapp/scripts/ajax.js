@@ -19,7 +19,7 @@
 
 (function($){
 
-var calli = window.calli = window.calli || {};
+var calli = window.calli || (window.calli={});
 
 calli.withCredentials = {
   withCredentials: true

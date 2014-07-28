@@ -18,7 +18,7 @@
 
 (function($){
 
-var calli = window.calli = window.calli || {};
+var calli = window.calli || (window.calli={});
 
 calli.parseDateTime = function(element) {
     var el = element && typeof element == 'object' ? element : this;

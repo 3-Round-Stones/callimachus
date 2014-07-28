@@ -20,7 +20,7 @@
 
 var parser = new creole();
 
-var calli = window.calli = window.calli || {};
+var calli = window.calli || (window.calli={});
 
 calli.parseCreole = function(element) {
     var pre = element && typeof element == 'object' ? element : this;

@@ -6,7 +6,7 @@
 
 (function($){
 
-var calli = window.calli = window.calli || {};
+var calli = window.calli || (window.calli={});
 
 var polyfill;
 

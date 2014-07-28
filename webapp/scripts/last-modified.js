@@ -18,43 +18,43 @@
 
 (function($){
 
-    var calli = window.calli = window.calli || {};
+var calli = window.calli || (window.calli={});
 
-    calli.lastModified = function(url, value) {
-        var uri = url;
-        if (!uri || uri.indexOf('http') !== 0) {
-            if (document.baseURIObject && document.baseURIObject.resolve) {
-                uri = document.baseURIObject.resolve(uri || '');
-            } else {
-                var a = document.createElement('a');
-                a.setAttribute('href', uri || '');
-                if (a.href) {
-                    uri = a.href;
-                }
-            }
-            if (window.location.pathname.indexOf('%27') > 0) {
-                // https://bugzilla.mozilla.org/show_bug.cgi?id=1040285
-                uri = uri.replace('%27', "'");
-            }
-        }
-        if (uri.indexOf('?') > 0) {
-            uri = uri.substring(0, uri.indexOf('?'));
-        }
-        var last = window.sessionStorage.getItem(uri + " Last-Modified");
-        if (value) {
-            if (last && Date.parse(last) >= Date.parse(value))
-                return last;
-            window.sessionStorage.setItem(uri + " Last-Modified", value);
-            return value;
+calli.lastModified = function(url, value) {
+    var uri = url;
+    if (!uri || uri.indexOf('http') !== 0) {
+        if (document.baseURIObject && document.baseURIObject.resolve) {
+            uri = document.baseURIObject.resolve(uri || '');
         } else {
-            if (last) return last;
-            return undefined;
+            var a = document.createElement('a');
+            a.setAttribute('href', uri || '');
+            if (a.href) {
+                uri = a.href;
+            }
         }
-    };
-    if (window.sessionStorage) {
-        calli.lastModified(calli.getPageUrl(), document.lastModified);
-    } else {
-        calli.lastModified = function(){return undefined;};
+        if (window.location.pathname.indexOf('%27') > 0) {
+            // https://bugzilla.mozilla.org/show_bug.cgi?id=1040285
+            uri = uri.replace('%27', "'");
+        }
     }
+    if (uri.indexOf('?') > 0) {
+        uri = uri.substring(0, uri.indexOf('?'));
+    }
+    var last = window.sessionStorage.getItem(uri + " Last-Modified");
+    if (value) {
+        if (last && Date.parse(last) >= Date.parse(value))
+            return last;
+        window.sessionStorage.setItem(uri + " Last-Modified", value);
+        return value;
+    } else {
+        if (last) return last;
+        return undefined;
+    }
+};
+if (window.sessionStorage) {
+    calli.lastModified(calli.getPageUrl(), document.lastModified);
+} else {
+    calli.lastModified = function(){return undefined;};
+}
 
 })(jQuery);

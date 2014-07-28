@@ -18,7 +18,7 @@
 
 (function($){
 
-var calli = window.calli = window.calli || {};
+var calli = window.calli || (window.calli={});
 
 calli.compareElementsBy = function(valueOf) {
     var val = typeof valueOf == 'function' ? valueOf : typeof valueOf == 'string' ? function iterator(element) {

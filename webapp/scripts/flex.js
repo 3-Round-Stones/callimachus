@@ -18,7 +18,7 @@
 
 (function($){
 
-var calli = window.calli = window.calli || {};
+var calli = window.calli || (window.calli={});
 
 calli.fillElement = function(element) {
     var flexElement = function(){

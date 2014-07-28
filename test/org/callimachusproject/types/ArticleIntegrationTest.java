@@ -46,7 +46,7 @@ public class ArticleIntegrationTest extends TemporaryServerIntegrationTestCase {
 
 	@Test
 	public void testDocbookCreate() throws Exception {
-		WebResource create = getHomeFolder().ref("?create="+ getCallimachusUrl("types/Article") + "&location=test-article.docbook");
+		WebResource create = getHomeFolder().ref("?create="+ getCallimachusUrl("types/Article") + "&resource=test-article.docbook");
 		WebResource article = create.create("application/docbook+xml", DOCBOOK.getBytes());
 		WebResource edit = article.link("edit-media", "application/docbook+xml");
 		edit.get("application/docbook+xml");
@@ -66,7 +66,7 @@ public class ArticleIntegrationTest extends TemporaryServerIntegrationTestCase {
 
 	@Test
 	public void testXhtmlHeadingCreate() throws Exception {
-		WebResource create = getHomeFolder().ref("?create="+ getCallimachusUrl("types/Article") + "&location=test-article.docbook");
+		WebResource create = getHomeFolder().ref("?create="+ getCallimachusUrl("types/Article") + "&resource=test-article.docbook");
 		WebResource article = create.create("application/xhtml+xml", XHTML.getBytes());
 		WebResource edit = article.link("edit-media", "application/xhtml+xml");
 		edit.get("application/xhtml+xml");

@@ -31,11 +31,9 @@
         });
         $('#type').change();
         $('#delete').click(function(event) {
-            var waiting = calli.wait();
             var btn = $(this);
             btn.button('loading');
             if (!confirm("Are you sure you want to delete this folder and all the contents of this folder?")) {
-                waiting.over();
                 return false;
             }
             calli.deleteText('?archive').then(function() {
@@ -44,7 +42,7 @@
             }).catch(function(error){
                 btn.button('reset');
                 return calli.error(error);
-            }).then(waiting.over, waiting.over);
+            });
         });
     });
     // ]]>

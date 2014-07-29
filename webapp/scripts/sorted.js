@@ -18,34 +18,6 @@
 
 (function($){
 
-var calli = window.calli || (window.calli={});
-
-calli.compareElementsBy = function(valueOf) {
-    var val = typeof valueOf == 'function' ? valueOf : typeof valueOf == 'string' ? function iterator(element) {
-        var text = $(element).find(valueOf).text();
-        var int = parseInt(text, 10);
-        if (isNaN(int))
-            return text;
-        return int;
-    } : function(element) {
-        return $(element).text();
-    };
-    return function(a,b) {
-        var v1 = val(a);
-        var v2 = val(b);
-        if (v1 == v2) return 0;
-        if (v1 < v2) return -1;
-        if (v1 > v2) return 1;
-        // as strings
-        if ((''+v1) < (''+v2)) return -1;
-        if ((''+v1) > (''+v2)) return 1;
-        // as JSON
-        if (JSON.stringify(v1) < JSON.stringify(v2)) return -1;
-        if (JSON.stringify(v1) > JSON.stringify(v2)) return 1;
-        return 0;
-    };
-};
-
 $(document).ready(function() {
     $(".asc,.desc", document).parents('.sorted').each(function() {
         sortElements(this);

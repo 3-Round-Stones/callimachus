@@ -142,7 +142,7 @@ be found on the project's wiki at:
 Details of browser support may be found at:
 >  http://callimachusproject.org/docs/1.2/articles/browser-support.docbook?view
 
-Share your experience or ask questions on the mailing list: callimachus-
-discuss@googlegroups.com.  You can sign up at 
+Share your experience or ask questions on the mailing list:
+callimachus-discuss@googlegroups.com.  You can sign up at 
 >  http://groups.google.com/group/callimachus-discuss.
 

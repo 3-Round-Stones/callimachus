@@ -4,13 +4,11 @@
    Licensed under the Apache License, Version 2.0, http://www.apache.org/licenses/LICENSE-2.0
 */
 
-(function($, jQuery){
+(function($){
 
-if (!window.calli) {
-    window.calli = {};
-}
+var calli = window.calli || (window.calli={});
 
-window.calli.updateResource = function(event, rel) {
+calli.updateResource = function(event, rel) {
     return update(event, function(){
         this.removeAttribute('rel');
     }, function(){
@@ -23,7 +21,7 @@ window.calli.updateResource = function(event, rel) {
     });
 };
 
-window.calli.updateProperty = function(event, property) {
+calli.updateProperty = function(event, property) {
     return update(event, function(){
         this.removeAttribute('property');
     }, function(){
@@ -49,5 +47,5 @@ function update(event, deselect, select) {
     return true;
 }
 
-})(jQuery, jQuery);
+})(jQuery);
 

@@ -18,14 +18,6 @@
 
 (function($){
 
-var calli = window.calli || (window.calli={});
-
-calli.parseDateTime = function(element) {
-    var el = element && typeof element == 'object' ? element : this;
-    var formatted = el && el.getAttribute && el.getAttribute('datetime') || el;
-    return new Date(parseDateTime(formatted));
-};
-
 $(document).ready(function() {
     var now = new Date();
     $(document.getElementsByTagName('time')).each(function() {
@@ -59,13 +51,13 @@ function changeDateLocale(node, now) {
             ie8 = true;
         }
         if (!text) return;
-        var timestamp = parseDateTime(text, now);
+        var timestamp = calli.parseDateTime(text);
         if (!isNaN(timestamp)) {
             node.attr("content", text);
             node.attr("datetime", text);
             var date = new Date(timestamp);
             if ((date.getHours() > 0 || date.getMinutes() > 0) && /^\s*(\d{4})-?(\d{2})-?(\d{2})\s*$/.exec(text)) {
-                date = new Date(parseDateTime(text + "T00:00:00"));
+                date = new Date(calli.parseDateTime(text + "T00:00:00"));
             }
             var formatted = null;
             if (node.is(".abbreviated")) {
@@ -92,41 +84,6 @@ function changeDateLocale(node, now) {
             } else {
                 node.text(formatted);
             }
-        }
-    }
-}
-
-function parseDateTime(text, asof) {
-    if (/^\s*([\d]+\-?){1,2}\s*$/.exec(text))
-        return NaN;
-    var struct = /(?:(\d{4})-?(\d{2})-?(\d{2}))?(?:[T ]?(\d{2}):?(\d{2}):?(\d{2})(?:\.(\d{3,}))?)?(?:(Z)|([+\-])(\d{2})(?::?(\d{2}))?)?/.exec(text);
-    if (!struct)
-        return Date.parse(text);
-    var minutesOffset = 0;
-    if (struct[8] !== 'Z' && struct[9]) {
-        minutesOffset = +struct[10] * 60 + (+struct[11]);
-        if (struct[9] === '+') {
-            minutesOffset = 0 - minutesOffset;
-        }
-    }
-    if (struct[1]) {
-        if (struct[4] || struct[5] || struct[6]) {
-            if (struct[8] || struct[9]) {
-                return Date.UTC(+struct[1], +struct[2] - 1, +struct[3], +struct[4], +struct[5] + minutesOffset, +struct[6], 0);
-            } else {
-                return new Date(+struct[1], +struct[2] - 1, +struct[3], +struct[4], +struct[5], +struct[6], 0).getTime();
-            }
-        } else if (struct[8] || struct[9]) {
-            return Date.UTC(+struct[1], +struct[2] - 1, +struct[3], 0, minutesOffset, 0, 0);
-        } else {
-            return new Date(+struct[1], +struct[2] - 1, +struct[3]).getTime();
-        }
-    } else if (struct[4] || struct[5] || struct[6]) {
-        var now = asof || new Date();
-        if (struct[8] || struct[9]) {
-            return Date.UTC(now.getFullYear(), now.getMonth(), now.getDate(), +struct[4], +struct[5] + minutesOffset, +struct[6], 0);
-        } else {
-            return new Date(now.getFullYear(), now.getMonth(), now.getDate(), +struct[4], +struct[5], +struct[6], 0).getTime();
         }
     }
 }

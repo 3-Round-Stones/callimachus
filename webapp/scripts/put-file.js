@@ -16,28 +16,6 @@
  *
  */
  
-(function($){
-
-var calli = window.calli || (window.calli={});
-
-calli.submitFile = function(event) {
-    event.preventDefault();
-    var form = $(calli.fixEvent(event).target).closest('form')[0];
-    var action = calli.getFormAction(form);
-    var enctype = form.getAttribute("enctype") || "application/octet-stream";
-    var files = $(form).find('input[type="file"]').toArray().reduce(function(files, input) {
-        return files.concat(input.files);
-    }, []);
-    return calli.putText(action, files[0], enctype).then(function(redirect){
-        if (window.parent != window && parent.postMessage) {
-            parent.postMessage('PUT src\n\n' + redirect, '*');
-        }
-        window.location.replace(redirect);
-    }).catch(calli.error);
-};
-
-})(jQuery);
-
 jQuery(function($){
 
 $('form[method="PUT"]').each(function(event){

@@ -22,16 +22,12 @@ var calli = window.calli || (window.calli={});
 
 calli.fillElement = function(element) {
     var flexElement = function(){
-        flex($(element).css('display', 'block').css('width', '100%'));
+        $(element).css('display', 'block').css('width', '100%').css('height', getAvailableHeight(element));
     };
     $(window).bind('resize', flexElement);
     flexElement();
     return calli.resolve().then(flexElement);
 };
-
-function flex(area) {
-    $(area).css('height', getAvailableHeight(area));
-}
 
 function getAvailableHeight(area) {
     var innerHeight = $(area).height();

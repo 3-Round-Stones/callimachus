@@ -20,12 +20,6 @@
 
 var calli = window.calli || (window.calli={});
 
-calli.isEmptyResource = function(element) {
-    var selector = "[about],[src],[typeof],[typeof=''],[resource],[href],[property]";
-    var el = $(element && typeof element == 'object' ? element : this);
-    return !el.is(selector) && el.find(selector).length === 0;
-};
-
 $(document).ready(function() {
     select(document, ".optional").each(function() {
         var node = $(this);

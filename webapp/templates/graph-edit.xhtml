@@ -8,12 +8,15 @@
     <link rel="help" href="../../callimachus-for-web-developers#Graph_document" target="_blank" title="Help" />
     <link href="http://www.w3.org/TR/turtle/" target="_blank" title="Terse RDF Triple Language" />
     <link rel="edit-media" href="?" type="text/turtle" />
+    <script type="text/javascript">
+        $(calli.fillElement.bind(this, '#editor-iframe'));
+    </script>
 </head>
 <body resource="?this">
     <form role="form" id="form" method="PUT" action="?" enctype="text/turtle" class="container"
             onsubmit="calli.submitEditor(event)">
         <fieldset class="form-group">
-            <iframe id="editor-iframe" name="editor-iframe" class="flex" src="../../sparql-editor.html" onload="calli.loadEditor(event,'?')"> </iframe>
+            <iframe id="editor-iframe" name="editor-iframe" src="../../sparql-editor.html" onload="calli.loadEditor(event,'?')"> </iframe>
         </fieldset>
         <fieldset class="form-group">
             <button type="submit" class="btn btn-primary">Save</button>

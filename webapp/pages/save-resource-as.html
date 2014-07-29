@@ -22,6 +22,7 @@
                 return false;
             });
             $('#saveas-iframe').load(calli.wait().over);
+            calli.fillElement('#saveas-iframe');
             if (window.location.hash) {
                 var i = window.location.hash.indexOf('!');
                 if (i > 0) {
@@ -77,7 +78,7 @@
                 </div>
             </div>
         </div>
-        <iframe id="saveas-iframe" name="saveas-iframe" class="flex"></iframe>
+        <iframe id="saveas-iframe" name="saveas-iframe"></iframe>
     </form>
 </body>
 </html>

@@ -171,12 +171,12 @@ public class EditResourceIntegrationTest extends TemporaryServerIntegrationTestC
 				.getAppCollection().create("my-create.xhtml", "application/xhtml+xml", CREATE_TEMPLATE.getBytes());
 		WebResource MyClass = waitForCompile(new Callable<WebResource>() {
 			public WebResource call() throws Exception {
-				String createClass = "?create=/callimachus/1.4/types/Class&location=/MyClass";
+				String createClass = "?create=/callimachus/1.4/types/Class&resource=/MyClass";
 				String turtle = CLASS_TURTLE + ";\ncalli:create <" + my_create_xhtml + ">.";
 				return getHomeFolder().ref(createClass).create("text/turtle", turtle.getBytes());
 			}
 		});
-		String createResource = "?create=" + MyClass + "&location=/my-resource";
+		String createResource = "?create=" + MyClass + "&resource=/my-resource";
 		WebResource my_resource = null;
 		try {
 			my_resource = getHomeFolder().ref(createResource).create("text/turtle", RESOURCE_TURTLE.getBytes());

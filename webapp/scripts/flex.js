@@ -18,6 +18,17 @@
 
 (function($){
 
+var calli = window.calli || (window.calli={});
+
+calli.fillElement = function(element) {
+    var flexElement = function(){
+        flex($(element).css('display', 'block').css('width', '100%'));
+    };
+    $(window).bind('resize', flexElement);
+    flexElement();
+    return calli.resolve().then(flexElement);
+};
+
 $(document).ready(fillOutFlex);
 $(window).bind('resize', fillOutFlex);
 $(window).load(function(event){

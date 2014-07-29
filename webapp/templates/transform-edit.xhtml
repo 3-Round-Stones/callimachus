@@ -9,12 +9,15 @@
     <link href="http://www.w3.org/TR/xslt20/" target="_blank" title="XSL Transformations" />
     <link href="http://www.w3.org/TR/xpath-functions/" target="_blank" title="XPath 2.0 Functions and Operators" />
     <link rel="edit-media" href="?" type="text/xsl" />
+    <script type="text/javascript">
+        $(calli.fillElement.bind(this, '#editor-iframe'));
+    </script>
 </head>
 <body resource="?this">
     <form role="form" id="form" method="PUT" action="?" enctype="text/xsl" class="container"
             onsubmit="calli.submitEditor(event)">
         <fieldset class="form-group">
-            <iframe id="editor-iframe" name="editor-iframe" class="flex" src="../../xml-editor.html" onload="calli.loadEditor(event,'?')"> </iframe>
+            <iframe id="editor-iframe" name="editor-iframe" src="../../xml-editor.html" onload="calli.loadEditor(event,'?')"> </iframe>
         </fieldset>
         <fieldset class="form-group">
             <button type="submit" class="btn btn-primary">Save</button>

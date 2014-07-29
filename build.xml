@@ -54,18 +54,13 @@
         <delete dir="${dist}" />
         <delete dir="${lib}" />
         <delete dir="${bin}" />
-        <delete dir="${tmp}" />
-    </target>
-
-    <target name="test-clean" description="clean up temporary test files">
-        <!-- Delete the directory trees -->
         <delete dir="${reports.tests}" />
         <delete dir="${build.tests}" />
         <delete dir="${lib.tests}" />
         <delete dir="${tmp}" />
     </target>
 
-    <target name="dist-clean" depends="clean,test-clean">
+    <target name="dist-clean" depends="clean">
         <delete dir="${downloads}" />
     </target>
 

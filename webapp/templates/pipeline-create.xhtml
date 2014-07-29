@@ -8,6 +8,9 @@
     <link rel="help" href="../../callimachus-for-web-developers#Pipeline" target="_blank" title="Help" />
     <link href="../../callimachus-reference#XProc_Reference" target="_blank" title="Reference" />
     <link href="http://www.w3.org/TR/xproc/" target="_blank" title="XProc: An XML Pipeline Language" />
+    <script type="text/javascript">
+        $(calli.fillElement.bind(this, '#editor-iframe'));
+    </script>
     <script id="template" type="application/xproc+xml"><![CDATA[<?xml version="1.0" encoding="UTF-8" ?>
 <p:pipeline version="1.0"
         xmlns:p="http://www.w3.org/ns/xproc"
@@ -28,7 +31,7 @@
             </div>
         </fieldset>
         <fieldset class="form-group">
-            <iframe id="editor-iframe" name="editor-iframe" class="flex" src="../../xml-editor.html" onload="calli.initEditor(event,$('#template').text()||$('#template').html().replace(/^\s+/,''))"> </iframe>
+            <iframe id="editor-iframe" name="editor-iframe" src="../../xml-editor.html" onload="calli.initEditor(event,$('#template').text()||$('#template').html().replace(/^\s+/,''))"> </iframe>
         </fieldset>
         <fieldset class="form-group">
             <button id="create-pipeline" type="submit" class="btn btn-success">Create</button>

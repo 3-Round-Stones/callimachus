@@ -258,7 +258,7 @@
             throw new BadRequest(e.javaException);
         }
         if (!location)
-            throw new BadRequest("No location provided");
+            throw new BadRequest("No resource location provided");
         var creatorUri = this.toString();
         var createdUri = location.toString();
         var dest = createdUri.substring(0, createdUri.lastIndexOf('/', createdUri.length - 2) + 1);

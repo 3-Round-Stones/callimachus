@@ -8,6 +8,9 @@
     <link rel="help" href="../../callimachus-for-web-developers#Script" target="_blank" title="Help" />
     <link href="../../callimachus-reference#JavaScript_Reference" target="_blank" title="Reference" />
     <link href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide" target="_blank" title="JavaScript Guide" />
+    <script type="text/javascript">
+        $(calli.fillElement.bind(this, '#editor-iframe'));
+    </script>
 </head>
 <body>
     <form role="form" id="form" method="POST" action="" enctype="text/javascript" class="container"
@@ -19,7 +22,7 @@
             </div>
         </fieldset>
         <fieldset class="form-group">
-            <iframe id="editor-iframe" name="editor-iframe" class="flex" src="../../javascript-editor.html" onload="calli.initEditor(event)"> </iframe>
+            <iframe id="editor-iframe" name="editor-iframe" src="../../javascript-editor.html" onload="calli.initEditor(event)"> </iframe>
         </fieldset>
         <fieldset class="form-group">
             <button id="create-script" type="submit" class="btn btn-success">Create</button>

@@ -27,7 +27,7 @@ public class StyleIntegrationTest extends TemporaryServerIntegrationTestCase {
 
 	@Test
 	public void testLess() throws Exception {
-		WebResource create = getHomeFolder().ref("?create="+ getCallimachusUrl("types/StyleSheet") + "&location=test-style.css");
+		WebResource create = getHomeFolder().ref("?create="+ getCallimachusUrl("types/StyleSheet") + "&resource=test-style.css");
 		WebResource resource = create.create("text/css", CSS.getBytes());
 		WebResource less = resource.link("alternate", "text/css");
 		less.get("text/css");

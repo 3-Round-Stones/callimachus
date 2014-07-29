@@ -10,64 +10,6 @@ if (!window.calli) {
     window.calli = {};
 }
 
-window.calli.submitTurtleAs = function(event, fileName, create, folder) {
-    var button = calli.fixEvent(event).target;
-    var form = $(button).closest('form');
-    var btn = $(button).filter('button');
-    var resource = form.attr("about") || form.attr("resource") || '';
-    var local = fileName || localPart(resource);
-    btn.button('loading');
-    return calli.promptForNewResource(folder, local).then(function(two){
-        if (!two) return undefined;
-        var url = two[0] + '?create=' + encodeURIComponent(create);
-        var iri = two[0].replace(/\/?$/, '/') + two[1].replace(/%20/g, '+');
-        form.attr("resource", iri);
-        try {
-            return calli.copyResourceData(form);
-        } finally {
-            if (resource) {
-                form.attr("resource", resource);
-            }
-        }
-    }).then(function(data){
-        if (!data) return data;
-        data.results.bindings.push({
-            s: {type:'uri', value: data.head.link[0]},
-            p: {type:'uri', value: 'http://purl.org/dc/terms/created'},
-            o: {
-                type:'literal',
-                value: new Date().toISOString(),
-                datatype: "http://www.w3.org/2001/XMLSchema#dateTime"
-            }
-        });
-        return data;
-    }).then(function(data){
-        if (!data) return data;
-        return calli.createTurtle(url, data);
-    }).then(function(redirect){
-        if (redirect) {
-            window.location.href = redirect;
-        } else {
-            btn.button('reset');
-        }
-    }, function(error){
-        btn.button('reset');
-        return calli.error(error);
-    });
-};
-
-window.calli.promptForNewResource = function(container, localPart) {
-    return calli.resolve().then(function(){
-        return new Promise(function(resolve, reject){
-            try {
-                openSaveAsDialog(null, localPart, null, container, resolve);
-            } catch(e){
-                reject(e);
-            }
-        });
-    });
-};
-
 window.calli.saveFormAs = function(event, fileName, create) {
     return calli.saveResourceAs(event, fileName, create);
 };
@@ -118,10 +60,11 @@ window.calli.saveResourceAs = function(event, fileName, create, folder) {
     }
     // prompt for a new resource URI
     var label = fileName || findLabel(form) || localPart(resource);
-    openSaveAsDialog(form, label, create, folder, function(twoPartArray) {
+    calli.promptForNewResource(folder, label).then(function(twoPartArray) {
         if (!twoPartArray) return; // dialogue cancelled
         var ns = twoPartArray[0];
         var local = twoPartArray[1];
+        updateFormAction(form, ns, create);
         if (fileName) {
             local = local.replace(/(%20|\-)+/g,'-');
         } else {
@@ -176,68 +119,6 @@ function localPart(resource) {
     if (resource)
         return resource.replace(/.*\/(.+)/, '$1');
     return null;
-}
-
-function openSaveAsDialog(form, label, create, folder, callback) {
-    var src = calli.getCallimachusUrl("pages/save-resource-as.html#");
-    if (label) {
-        src += encodeURIComponent(label.replace(/!/g,''));
-    }
-    if (folder) {
-        src += '!' + folder + '?view';
-    } else if (location.search.search(/\?create=/) === 0) {
-        var page = calli.getPageUrl();
-        src += '!' + page.substring(0, page.indexOf('?')) + '?view';
-    } else {
-        try {
-            if (window.sessionStorage.getItem("LastFolder")) {
-                src += '!' + window.sessionStorage.getItem("LastFolder");
-            } else if (window.localStorage.setItem("LastFolder")) {
-                src += '!' + window.localStorage.setItem("LastFolder");
-            }
-        } catch (e) {
-            // ignore
-        }
-    }
-    var called = false;
-    var dialog = window.calli.openDialog(src, 'Save As...', {
-        buttons: {
-            "Save": function() {
-                dialog.postMessage('GET label', '*');
-            },
-            "Cancel": function() {
-                calli.closeDialog(dialog);
-            }
-        },
-        onmessage: function(event) {
-            var data = event.data;
-            if (data == 'POST save') {
-                dialog.postMessage('OK\n\n' + event.data, '*');
-                dialog.postMessage('GET label', '*');
-            } else if (data.indexOf('OK\n\nGET label\n\n') === 0) {
-                label = data.substring(data.indexOf('\n\n', data.indexOf('\n\n') + 2) + 2);
-                dialog.postMessage('GET url', '*');
-            } else if (data.indexOf('OK\n\nGET url\n\n') === 0) {
-                var src = data.substring(data.indexOf('\n\n', data.indexOf('\n\n') + 2) + 2);
-                if (src.indexOf('?') >= 0) {
-                    src = src.substring(0, src.indexOf('?'));
-                }
-                var ns = src.replace(/\?.*/,'');
-                var local = encodeURI(label).replace(/%25(\w\w)/g, '%$1');
-                form && updateFormAction(form, src, create);
-                called = true;
-                callback([ns, local]);
-                calli.closeDialog(dialog);
-            }
-        },
-        onclose: function() {
-            if (!called){
-                called = true;
-                callback();
-            }
-        }
-    });
-    return dialog;
 }
 
 function updateFormAction(form, target, create) {

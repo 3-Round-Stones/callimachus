@@ -18,17 +18,6 @@
 
 (function($){
 
-var calli = window.calli || (window.calli={});
-
-calli.fillElement = function(element) {
-    var flexElement = function(){
-        flex($(element).css('display', 'block').css('width', '100%'));
-    };
-    $(window).bind('resize', flexElement);
-    flexElement();
-    return calli.resolve().then(flexElement);
-};
-
 $(document).ready(fillOutFlex);
 $(window).bind('resize', fillOutFlex);
 $(window).load(function(event){
@@ -50,45 +39,12 @@ function fillOutFlex(e){
         flexWait = calli.wait();
     }
     flexTO = window.setTimeout(function() {
-        $('.flex').each(function() { flex(this); });
+        $('.flex').each(function() { calli.fillElement(this); });
         flexWait.over();
         flexWait = null;
         flexTO = null;
     }, 50);
     return;
-}
-
-function flex(area) {
-    $(area).css('height', getAvailableHeight(area));
-}
-
-function getAvailableHeight(area) {
-    var innerHeight = $(area).height();
-    var clientHeight = window.innerHeight || document.documentElement.clientHeight;
-
-    var container = $(area).parents('form');
-    if (!container.length) {
-        container = $(area).parents('.container');
-        if (!container.length) {
-            container = $(area).parents('body>*');
-        }
-    }
-    var form = bottom(container) - innerHeight;
-    if (form > 0 && form <= clientHeight / 3)
-        return clientHeight - form;
-    var top = $(area).offset().top;
-    if (top <= clientHeight / 3)
-        return clientHeight - top;
-    var formHeight = container.outerHeight(true) - innerHeight;
-    if (formHeight > 0 && formHeight <= clientHeight / 3)
-        return clientHeight - formHeight;
-    return clientHeight;
-}
-
-function bottom(element) {
-    if ($(element).length)
-        return $(element).offset().top + $(element).outerHeight(true);
-    return null;
 }
 
 if (window.parent != window) {

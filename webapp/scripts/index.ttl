@@ -39,7 +39,7 @@
     rdf:_12 <resource-iri.js>;
     rdf:_13 <empty-resource.js>;
     rdf:_14 <parse-date-time.js>;
-    rdf:_15 <flex.js>;
+    rdf:_17 <fill-element.js>;
     rdf:_16 <compare-elements-by.js>;
     rdf:_17 <../assets/bootstrap/js/affix.js>;
     rdf:_18 <../assets/bootstrap/js/alert.js>;

@@ -1,4 +1,4 @@
-// optional.js
+// empty-resource.js
 /*
  * Copyright (c) 2014 3 Round Stones Inc., Some Rights Reserved
  *
@@ -18,41 +18,13 @@
 
 (function($){
 
-var calli = window.calli = window.calli || {};
+var calli = window.calli || (window.calli={});
 
 calli.isEmptyResource = function(element) {
     var selector = "[about],[src],[typeof],[typeof=''],[resource],[href],[property]";
     var el = $(element && typeof element == 'object' ? element : this);
     return !el.is(selector) && el.find(selector).length === 0;
 };
-
-$(document).ready(function() {
-    select(document, ".optional").each(function() {
-        var node = $(this);
-        if (node.find("[about],[src],[typeof],[typeof=''],[resource],[href],[property]").length) {
-            node.show();
-        } else {
-            node.hide();
-        }
-    });
-	
-});
-$(document).bind("DOMNodeInserted", handle);
-
-function select(node, selector) {
-    return $(node).find(selector).add($(node).parents(selector)).andSelf().filter(selector);
-}
-
-function handle(event) {
-    select(event.target, ".optional").each(function() {
-        var node = $(this);
-        if (node.find("[about],[src],[typeof],[typeof=''],[resource],[href],[property]").length) {
-            node.show();
-        } else {
-            node.hide();
-        }
-    });
-}
 
 })(window.jQuery);
 

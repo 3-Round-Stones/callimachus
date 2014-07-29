@@ -6,10 +6,6 @@
 
 (function($, jQuery){
 
-calli.selectFile = function(node, src) {
-    return calli.selectResource(node, src);
-};
-
 calli.selectResource = function(event, src) {
     event = calli.fixEvent(event);
     var node = event.target;

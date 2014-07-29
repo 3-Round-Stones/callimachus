@@ -6,7 +6,7 @@
 
 (function($,jQuery){
 
-calli.addTemplate = calli.addResource = function(event, container) {
+calli.addResource = function(event, container) {
     event = calli.fixEvent(event);
     // container can be null, or a jQuery object, or a container node?
     var node = (container && (container.length || container.nodeType)) ? $(container) : $(event.target);

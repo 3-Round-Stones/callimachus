@@ -6,12 +6,13 @@
 
 (function($){
 
-var calli = window.calli = window.calli || {};
+var calli = window.calli || (window.calli={});
 
 var polyfill;
 
 calli.resolve = function(obj) {
-    if (typeof self.Promise == 'function') return when(obj);
+    if (typeof self.Promise == 'function')
+        return waitForPromise(when(obj));
     var delayed = delayedPromise();
     if (!polyfill) {
         polyfill = $.ajax({
@@ -25,18 +26,20 @@ calli.resolve = function(obj) {
     }).fail(function(xhr){
         delayed._apply(self.Promise.reject(xhr));
     });
-    return delayed;
+    return waitForPromise(delayed);
 };
 
 calli.reject = function(obj) {
-    if (typeof self.Promise == 'function') return self.Promise.reject(obj);
+    if (typeof self.Promise == 'function')
+        return waitForPromise(self.Promise.reject(obj));
     return calli.resolve().then(function(){
         return self.Promise.reject(obj);
     });
 };
 
 calli.all = function(array) {
-    if (typeof self.Promise == 'function') return self.Promise.all(array);
+    if (typeof self.Promise == 'function')
+        return waitForPromise(self.Promise.all(array));
     return calli.resolve().then(function(){
         return self.Promise.all(array);
     });
@@ -55,7 +58,7 @@ function delayedPromise() {
     var calls = [];
     var promise;
     return {
-        then: function() {
+        "then": function() {
             if (promise) return promise.then.apply(promise, arguments);
             var delayed = delayedPromise();
             calls.push({
@@ -80,6 +83,25 @@ function delayedPromise() {
                 call.delayed._apply(context[call.name].apply(context, call.args));
             });
             promise = context;
+        }
+    };
+}
+
+function waitForPromise(promise) {
+    var waiting = calli.wait();
+    var p = promise.then(function(resolve){
+        waiting.over();
+        return resolve;
+    }, function(reject) {
+        waiting.over();
+        return self.Promise.reject(reject);
+    });
+    return {
+        "then": function() {
+            return waitForPromise(p.then.apply(promise, arguments));
+        },
+        "catch": function() {
+            return waitForPromise(p["catch"].apply(promise, arguments));
         }
     };
 }

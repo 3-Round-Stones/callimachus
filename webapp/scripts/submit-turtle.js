@@ -6,7 +6,7 @@
 
 (function($){
 
-var calli = window.calli = window.calli || {};
+var calli = window.calli || (window.calli={});
 
 calli.submitTurtle = function(event, local) {
     event.preventDefault();
@@ -14,46 +14,30 @@ calli.submitTurtle = function(event, local) {
     var btn = $(form).find('button[type="submit"]');
     btn.button('loading');
     return calli.resolve(form).then(function(form){
-        var action = calli.getFormAction(form);
-        if (action.indexOf('?create=') > 0) {
-            return calli.resolve(form).then(function(form){
-                var previously = form.getAttribute("resource");
-                var ns = window.location.pathname.replace(/\/?$/, '/');
-                var resource = ns + encodeURI(local).replace(/%25(\w\w)/g, '%$1').replace(/%20/g, '+');
-                form.setAttribute("resource", resource);
-                try {
-                    return calli.copyResourceData(form);
-                } finally {
-                    if (previously) {
-                        form.setAttribute("resource", previously);
-                    }
-                }
-            }).then(function(data){
-                data.results.bindings.push({
-                    s: {type:'uri', value: data.head.link[0]},
-                    p: {type:'uri', value: 'http://purl.org/dc/terms/created'},
-                    o: {
-                        type:'literal',
-                        value: new Date().toISOString(),
-                        datatype: "http://www.w3.org/2001/XMLSchema#dateTime"
-                    }
-                });
-                return data;
-            }).then(function(data){
-                return calli.postTurtle(action, data);
-            });
-        } else if (confirm("This create page is deprecated, use a different link next time, do you still want to continue")) {
-            return calli.promptForNewResource(null, local).then(function(folder, local){
-                if (!folder || !local) return undefined;
-                var type = window.location.href.replace(/\?.*|\#.*/, '');
-                var url = folder + '?create=' + encodeURIComponent(type);
-                var resource = folder.replace(/\/?$/, '/') + local.replace(/%20/g, '+');
-                form.setAttribute("resource", resource);
-                return calli.postTurtle(url, calli.copyResourceData(form));
-            });
-        } else {
-            return undefined;
+        var previously = form.getAttribute("resource");
+        var ns = window.location.pathname.replace(/\/?$/, '/');
+        var resource = ns + encodeURI(local).replace(/%25(\w\w)/g, '%$1').replace(/%20/g, '+');
+        form.setAttribute("resource", resource);
+        try {
+            return calli.copyResourceData(form);
+        } finally {
+            if (previously) {
+                form.setAttribute("resource", previously);
+            }
         }
+    }).then(function(data){
+        data.results.bindings.push({
+            s: {type:'uri', value: data.head.link[0]},
+            p: {type:'uri', value: 'http://purl.org/dc/terms/created'},
+            o: {
+                type:'literal',
+                value: new Date().toISOString(),
+                datatype: "http://www.w3.org/2001/XMLSchema#dateTime"
+            }
+        });
+        return data;
+    }).then(function(data){
+        return calli.postTurtle(calli.getFormAction(form), data);
     }).then(function(redirect){
         if (redirect) {
             if (window.parent != window && parent.postMessage) {

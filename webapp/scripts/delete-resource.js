@@ -1,80 +1,31 @@
 // delete-resource.js
 /*
-   Copyright (c) 2011 3 Round Stones Inc., Some Rights Reserved
+   Copyright (c) 2011-2014 3 Round Stones Inc., Some Rights Reserved
    Licensed under the Apache License, Version 2.0, http://www.apache.org/licenses/LICENSE-2.0
 */
 
-(function($, jQuery){
+(function($){
 
-if (!window.calli) {
-    window.calli = {};
-}
-window.calli.deleteResource = function(event, redirect) {
-    var waiting = calli.wait();
-    try {
-        var form = $(calli.fixEvent(event).target).closest('form');
-    
-        if (event && event.type) {
-            var prompt = event.message;
-            if (typeof prompt === "undefined") {
-                prompt = "Are you sure you want to delete " + document.title + "?";
-            }
-            if (prompt && !confirm(prompt))
-                return;
-        }
+var calli = window.calli || (window.calli={});
 
-        var url = calli.getPageUrl();
-        if (form.length) {
-            url = calli.getFormAction(form[0]);
-        } else {
-            form = $(document);
-        }
-        var de = jQuery.Event("calliDelete");
-        de.location = event.location || url;
-        de.resource = event.resource || de.location.replace(/\?.*/,'');
-        form.trigger(de);
-        if (!de.isDefaultPrevented()) {
-            var xhr = $.ajax({ type: "DELETE", url: de.location, dataType: "text", xhrFields: calli.withCredentials, beforeSend: function(xhr){
-                var lastmod = calli.lastModified(de.location);
-                if (lastmod) {
-                    xhr.setRequestHeader("If-Unmodified-Since", lastmod);
-                }
-            }, complete: function(xhr) {
-                try {
-                    if (200 <= xhr.status && xhr.status < 300) {
-                        var event = jQuery.Event("calliRedirect");
-                        event.cause = de;
-                        event.resource = de.resource;
-                        event.location = redirect;
-                        var contentType = xhr.getResponseHeader('Content-Type');
-                        if (!event.location && contentType !== null && contentType.indexOf('text/uri-list') === 0) {
-                            event.location = xhr.responseText;
-                        }
-                        if (!event.location && window.location.pathname.match(/\/$/)) {
-                            event.location = '../';
-                        } else if (!event.location) {
-                            event.location = './';
-                        }
-                        form.trigger(event);
-                        if (!event.isDefaultPrevented()) {
-                            if (event.location) {
-                                window.location.replace(event.location);
-                            } else {
-                                window.location.replace('/');
-                            }
-                        }
-                    }
-                } catch(e) {
-                    throw calli.error(e);
-                }
-            }});
-        }
-    } catch(e) {
-        calli.error(e);
-    } finally {
-        waiting.over();
-    }
+calli.deleteResource = function(event) {
+    if (!confirm("Are you sure you want to delete " + document.title + "?"))
+        return;
+    var btn = $(calli.fixEvent(event).target);
+    btn.button('loading');
+    return calli.resolve(btn).then(function(btn){
+        return btn.closest('form')[0];
+    }).then(function(form){
+        return calli.getFormAction(form);
+    }).then(function(url){
+        return calli.deleteText(url);
+    }).then(function(redirect){
+        window.location.replace(redirect);
+    }, function(error){
+        btn.button('reset');
+        return calli.error(error);
+    });
 };
 
-})(jQuery, jQuery);
+})(jQuery);
 

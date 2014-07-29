@@ -18,7 +18,6 @@
 
 jQuery(function($) {
     $('#create-menu').one('click', function() {
-        var wait = calli.wait();
         var url = $('#create-menu-json')[0].href + encodeURIComponent(calli.getUserIri());
         calli.getJSON(url).then(function(data) {
             var ul = $('#create-menu-more');
@@ -49,7 +48,7 @@ jQuery(function($) {
                 li.append(a);
                 ul.append(li);
             });
-        }).catch(calli.error).then(wait.over, wait.over);
+        }).catch(calli.error);
         return true;
     });
 });

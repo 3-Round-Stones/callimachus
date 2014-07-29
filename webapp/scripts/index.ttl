@@ -27,20 +27,20 @@
     calli:reader </auth/groups/public>;
     rdf:_1 </?baseuri>;
     rdf:_2 <../assets/jquery/jquery.js>;
+    rdf:_8 <wait.js>;
     rdf:_3 <resolve.js>;
     rdf:_4 <location.js>;
     rdf:_5 <last-modified.js>;
     rdf:_6 <ajax.js>;
     rdf:_7 <iframe.js>;
-    rdf:_8 <wait.js>;
     rdf:_9 <error.js>;
     rdf:_10 <flash.js>;
     rdf:_11 <accounts.js>;
     rdf:_12 <resource-iri.js>;
-    rdf:_13 <optional.js>;
-    rdf:_14 <time.js>;
+    rdf:_13 <empty-resource.js>;
+    rdf:_14 <parse-date-time.js>;
     rdf:_15 <flex.js>;
-    rdf:_16 <sorted.js>;
+    rdf:_16 <compare-elements-by.js>;
     rdf:_17 <../assets/bootstrap/js/affix.js>;
     rdf:_18 <../assets/bootstrap/js/alert.js>;
     rdf:_19 <../assets/bootstrap/js/button.js>;
@@ -55,25 +55,22 @@
     rdf:_28 <../assets/bootstrap/js/popover.js>;
     rdf:_29 <../assets/selectize.js/js/standalone/selectize.js>;
     rdf:_30 <../assets/creole/creole.js>;
-    rdf:_31 <wiki.js>;
+    rdf:_31 <parse-creole.js>;
     rdf:_32 <slugify.js>;
     rdf:_33 <rdfaparser.js>;
-    rdf:_34 <rdfxmlserializer.js>;
     rdf:_35 <turtle-serializer.js>;
     rdf:_36 <fix-event.js>;
-    rdf:_37 <data-options.js>;
-    rdf:_38 <input-expression.js>;
     rdf:_39 <add-resource.js>;
     rdf:_40 <remove-resource.js>;
     rdf:_41 <dropzone.js>;
     rdf:_42 <dialog.js>;
     rdf:_43 <create-resource.js>;
-    rdf:_44 <document-ready.js>;
-    rdf:_45 <save-resource-as.js>;
-    rdf:_46 <select-resource.js>;
-    rdf:_47 <submit-rdfxml.js>;
-    rdf:_48 <submit-turtle.js>;
-    rdf:_49 <submit-form-data.js>;
+    rdf:_44 <prompt-for-new-resource.js>;
+    rdf:_45 <select-resource.js>;
+    rdf:_46 <submit-turtle.js>;
+    rdf:_47 <submit-turtle-as.js>;
+    rdf:_48 <submit-form.js>;
+    rdf:_49 <copy-resource-data.js>;
     rdf:_50 <submit-update.js>;
     rdf:_51 <delete-resource.js>;
     rdf:_52 <insert-resource.js>;
@@ -82,8 +79,7 @@
     rdf:_55 <discussion.js>;
     rdf:_56 <decode-html.js>;
     rdf:_57 <load-editor.js>;
-    rdf:_58 <put-file.js>;
-    rdf:_59 <node-inserted.js>.
+    rdf:_58 <submit-file.js>.
 
 <text_bundle> a calli:ScriptBundle;
     calli:reader </auth/groups/public>;

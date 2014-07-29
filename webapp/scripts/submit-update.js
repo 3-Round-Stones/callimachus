@@ -8,13 +8,7 @@
 
 (function($){
 
-var calli = window.calli = window.calli || {};
-
-calli.copyResourceData = (function(memo, element) {
-    var form = calli.fixEvent(element).target;
-    $(form).find(':input').change();
-    return readRDF(form);
-}).bind(this, {});
+var calli = window.calli || (window.calli={});
 
 calli.submitUpdate = function(comparedData, event) {
     event.preventDefault();
@@ -51,161 +45,6 @@ calli.postUpdate = function(url, deleteData, insertData) {
         var payload = asSparqlUpdate(insertData.prefix, diff.removed, diff.added);
         return calli.postText(url, payload, "application/sparql-update");
     });
-}
-
-$(function(){
-    $('form[enctype="application/sparql-update"]').each(function() {
-        try {
-            var form = $(this);
-            form.find(":input").change(); // give update-resource.js a chance to initialize
-            var stored = readRDF(form[0]).results.bindings;
-            form.bind('reset', function() {
-                stored = readRDF(form[0]).results.bindings;
-            });
-            form.submit(function(event, onlyHandlers) {
-                if (this.getAttribute("enctype") != "application/sparql-update")
-                    return true;
-                form.find(":input").change(); // IE may not have called onchange before onsubmit
-                if (!onlyHandlers && !event.isDefaultPrevented()) {
-                    event.preventDefault();
-                    event.stopImmediatePropagation();
-                    form.triggerHandler(event.type, true);
-                } else if (onlyHandlers) {
-                    setTimeout(function(){
-                        var resource = form.attr('about') || form.attr('resource');
-                        if (resource && !event.isDefaultPrevented()) {
-                            submitRDFForm(form[0], resource, stored);
-                        }
-                    }, 0);
-                }
-            });
-        } catch (e) {
-            throw calli.error(e);
-        }
-    });
-});
-
-function submitRDFForm(form, resource, stored) {
-    var waiting = calli.wait();
-    try {
-        var parser = new RDFaParser();
-        var uri = parser.parseURI(parser.getNodeBase(form)).resolve(resource);
-        var data = parseRDF(parser, uri, form);
-        var revised = data.results.bindings;
-        var diff = diffTriples(stored, revised);
-        var se = $.Event("calliSubmit");
-        se.resource = uri;
-        se.location = calli.getFormAction(form);
-        se.payload = asSparqlUpdate(data.prefix, diff.removed, diff.added);
-        $(form).trigger(se);
-        if (!se.isDefaultPrevented()) {
-            var method = form.getAttribute('method') || form.method || "POST";
-            patchData(method, calli.getFormAction(form), se.payload, function(data, textStatus, xhr) {
-                try {
-                    var redirect = null;
-                    var contentType = xhr.getResponseHeader('Content-Type');
-                    if (contentType !== null && contentType.indexOf('text/uri-list') === 0) {
-                        redirect = xhr.responseText;
-                    }
-                    if (!redirect) {
-                        redirect = calli.getFormAction(form);
-                        if (redirect.indexOf('?') > 0) {
-                            redirect = redirect.substring(0, redirect.indexOf('?'));
-                        }
-                    }
-                    var event = $.Event("calliRedirect");
-                    event.cause = se;
-                    event.resource = se.resource;
-                    event.location = redirect;
-                    $(form).trigger(event);
-                    if (!event.isDefaultPrevented()) {
-                        if (window.parent != window && parent.postMessage) {
-                            parent.postMessage('PUT src\n\n' + event.location, '*');
-                        }
-                        window.location.replace(event.location);
-                    }
-                } catch(e) {
-                    throw calli.error(e);
-                }
-            });
-        }
-    } catch(e) {
-        throw calli.error(e);
-    } finally {
-        waiting.over();
-    }
-    return false;
-}
-
-function readRDF(form) {
-    var parser = new RDFaParser();
-    var base = parser.getNodeBase(form);
-    var resource = $(form).attr("about") || $(form).attr("resource") || '';
-    var formSubject = resource ? parser.parseURI(base).resolve(resource) : base;
-    return parseRDF(parser, formSubject, form);
-}
-
-function parseRDF(parser, formSubject, form) {
-    var 
-        formHash = formSubject + "#",
-        bindings = [],
-        usedBlanks = {},
-        selfRefs = []
-    ;
-    parser.parse(form, function(s, p, o, dt, lang) {
-        // keep subjects matching the form's subject and blank subjects if already introduced as objects
-        if ((s == formSubject || s.indexOf(formHash) === 0 || usedBlanks[s]) && !isDecendent(this, selfRefs)) {
-            // Resources linking to themselves don't need any triples under the reference.
-            if (!dt && s == o) {
-                selfRefs.push(this);
-            }
-            var binding = {
-                s: bind(s),
-                p: bind(p),
-                o: bind(o, dt, lang)
-            };
-            bindings.push(binding);
-            // log blank objects, they may be used as subjects in later triples
-            if (!dt && o.indexOf('_:') === 0) {
-                usedBlanks[o] = true;
-            }
-        }
-    });
-    return {
-        base: parser.getNodeBase(form),
-        prefix: parser.getMappings(),
-        head: {
-            link: [formSubject],
-            vars: ['s', 'p', 'o']
-        },
-        results: {
-            bindings: bindings
-        }
-    };
-}
-
-function isDecendent(child, parents) {
-    var node = child;
-    while (node) {
-        if (parents.indexOf(node) >= 0)
-            return true;
-        node = node.parentNode;
-    }
-    return false;
-}
-
-function bind(o, dt, lang) {
-    if (lang) {
-        return {type:"literal", value: o, "xml:lang": lang};
-    } else if (dt == "http://www.w3.org/2001/XMLSchema#string") {
-        return {type:"literal", value: o};
-    } else if (dt) {
-        return {type:"literal", value: o, datatype: dt};
-    } else if (o.match(/^_:/)) {
-        return {type:"bnode", value: o.substring(2)};
-    } else {
-        return {type:"uri", value: o};
-    }
 }
 
 /**
@@ -264,21 +103,6 @@ function asSparqlUpdate(namespaces, removed, added) {
     }
 
     return writer.toString() || 'INSERT {} WHERE {}';
-}
-
-function patchData(method, action, data, callback) {
-    var xhr = $.ajax({ type: method, url: action, contentType: "application/sparql-update", data: data, dataType: "text", xhrFields: calli.withCredentials, beforeSend: function(xhr){
-        var modified = calli.lastModified(action);
-        if (modified) {
-            xhr.setRequestHeader("If-Unmodified-Since", modified);
-        }
-    }, success: function(data, textStatus) {
-        calli.lastModified(action, xhr.getResponseHeader('Last-Modified'));
-        if (callback) {
-            callback(data, textStatus, xhr);
-        }
-    }, error: calli.error});
-    return xhr;
 }
 
 function UpdateWriter() {

@@ -89,6 +89,13 @@ div, footer, iframe {
 /* add a border to the iframe */
 form iframe {
     border: 1px solid @gray-light;
+    transition: background-color 100ms linear;
+    transition: border-color 100ms linear;
+}
+
+.wait form iframe {
+    border-color: @state-warning-border;
+    background-color: @state-warning-bg;
 }
 
 form {

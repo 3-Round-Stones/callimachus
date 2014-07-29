@@ -188,18 +188,6 @@ function bindFormEvents(form, editor, idempotent) {
     if (boundForms[form])
         return false;
     boundForms[form] = true;
-    $(document).ajaxSend(function(event, XMLHttpRequest, ajaxOptions) {
-        $(form).css('background-color', 'lightyellow');
-    });
-    $(document).ajaxSuccess(function(event, XMLHttpRequest, ajaxOptions) {
-        $(form).css('background-color', 'inherit');
-    });
-    $(document).ajaxError(function(event, XMLHttpRequest, ajaxOptions) {
-        $(form).css('background-color', '#FF9999');
-        setTimeout(function() {
-            $(form).css('background-color', 'inherit');
-        }, 1000);
-    });
     if (idempotent) {
         $(form).bind('calliSave', function(event) {
             saveFile(form, event.text);

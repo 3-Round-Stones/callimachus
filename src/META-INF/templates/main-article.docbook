@@ -25,7 +25,7 @@
 
 <itemizedlist>
 	<listitem><simpara>Please refer to the <link xl:href="http://callimachusproject.org/">Callimachus Website</link> for support options, including the community <link xl:href="http://groups.google.com/group/callimachus-discuss">mailing list</link>.</simpara></listitem>
-	<listitem><simpara>The README.txt in the install directory contains hints for technical problems.</simpara></listitem>
+	<listitem><simpara>The README in the install directory contains hints for technical problems.</simpara></listitem>
 </itemizedlist>
 
 <para><link xl:href="https://raw2.github.com/3-Round-Stones/callimachus/master/LICENSE.txt">License</link></para>

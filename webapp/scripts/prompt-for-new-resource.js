@@ -9,14 +9,8 @@
 var calli = window.calli || (window.calli={});
 
 calli.promptForNewResource = function(container, localPart) {
-    return calli.resolve().then(function(){
-        return new Promise(function(resolve, reject){
-            try {
-                openSaveAsDialog(localPart, container, resolve);
-            } catch(e){
-                reject(e);
-            }
-        });
+    return calli.promise(function(callback){
+        openSaveAsDialog(localPart, container, callback);
     });
 };
 

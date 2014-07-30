@@ -7,18 +7,10 @@
     jQuery(function($){
         $('#body').val($('#body').val().replace(/@@REGISTRATION_URL@@/g, window.location.protocol + '//' + window.location.host + '/?register'));
         $('#form').submit(function() {
-            document.getElementById("success").style.display = "none"
-            jQuery.ajax({type: "POST", url: this.action,
-                data: {
-                    "email": this.elements.email.value,
-                    "subject": this.elements.subject.value,
-                    "body": this.elements.body.value,
-                },
-                success: function() {
-                    document.getElementById("success").style.display = "block"
-                },
-                error: calli.error
-            });
+            $("#success").hide();
+            calil.createText(this.action, $(this).serialize(), "application/x-www-form-urlencoded").then(function() {
+                $("#success").show();
+            }, calli.error);
             return false;
         });
     });

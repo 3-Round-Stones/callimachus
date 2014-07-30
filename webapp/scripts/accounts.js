@@ -26,18 +26,17 @@ $(document).ready(function(){
 });
 
 function logout(url, return_to) {
-    jQuery.ajax({ type: 'POST', url: url,
-        username: '-', password: 'logout',
-        success: function(data) {
-            try {
-                window.localStorage.removeItem('username');
-                window.localStorage.removeItem('userIri');
-                window.localStorage.removeItem("digestPassword");
-            } catch(e) {}
-            $(document).trigger("calliLoggedOut");
-            if (return_to) {
-                window.location = return_to;
-            }
+    return calli.resolve($.ajax({ type: 'POST', url: url,
+        username: '-', password: 'logout'
+    })).then(function(data) {
+        try {
+            window.localStorage.removeItem('username');
+            window.localStorage.removeItem('userIri');
+            window.localStorage.removeItem("digestPassword");
+        } catch(e) {}
+        $(document).trigger("calliLoggedOut");
+        if (return_to) {
+            window.location = return_to;
         }
     });
 }
@@ -53,7 +52,7 @@ window.calli.getUserIri = function() {
             return iri;
     } catch(e) {}
     if (isLoggedIn()) {
-        jQuery.ajax({ url: "/?profile", async: false,
+        $.ajax({ url: "/?profile", async: false,
             success: function(doc) {
                 iri = /resource="([^" >]*)"/i.exec(doc)[1];
                 loadProfile(doc);
@@ -133,34 +132,32 @@ if (isLoggedIn()) {
     }
     if (digestPassword) {
         // stay signed in with a digest password
-        jQuery.ajax({ url: "/?profile",
+        calli.resolve($.ajax({ url: "/?profile",
             username: window.localStorage.getItem("username"),
-            password: window.localStorage.getItem("digestPassword"),
-            success: function(doc) {
-                loadProfile(doc);
-                nowLoggedIn();
-            },
-            error: nowLoggedOut
-        });
+            password: window.localStorage.getItem("digestPassword")
+        })).then(function(doc) {
+            loadProfile(doc);
+            nowLoggedIn();
+        }, nowLoggedOut);
     } else if (getUsername()) {
         activelyLogin();
     } else {
         nowLoggedOut();
         // hasn't logged in using the login form; is this page protected?
-        var xhr = jQuery.ajax({type: 'GET', url: calli.getPageUrl(),
-            xhrFields: calli.withCredentials,
-            success: function() {
-                var cc = xhr.getResponseHeader("Cache-Control");
-                if (cc && cc.indexOf("public") < 0) {
-                    activelyLogin();
-                }
+        var xhr = $.ajax({type: 'HEAD', url: calli.getPageUrl(),
+            xhrFields: {withCredentials: true}
+        });
+        calli.resolve(xhr).then(function() {
+            var cc = xhr.getResponseHeader("Cache-Control");
+            if (cc && cc.indexOf("public") < 0) {
+                activelyLogin();
             }
         });
     }
 }
 
 function activelyLogin() {
-    calli.getText("/?profile").then(loadProfile).then(nowLoggedIn, nowLoggedOut);
+    return calli.getText("/?profile").then(loadProfile).then(nowLoggedIn, nowLoggedOut);
 }
 
 function nowLoggedIn() {
@@ -171,7 +168,7 @@ function nowLoggedIn() {
         } catch(error) {}
         var e = jQuery.Event("calliLoggedIn");
         e.title = name;
-        $(document).ready(function() {
+        return calli.ready().then(function() {
             $(document).trigger(e);
         });
     } else {
@@ -187,7 +184,7 @@ function nowLoggedOut() {
         window.localStorage.removeItem("username");
         window.localStorage.removeItem("digestPassword");
     } catch(e) {}
-    $(document).ready(function() {
+    return calli.ready().then(function() {
         $(document).trigger("calliLoggedOut");
     });
 }

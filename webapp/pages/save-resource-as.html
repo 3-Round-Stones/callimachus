@@ -21,7 +21,9 @@
                 parent.postMessage('POST save', '*');
                 return false;
             });
-            $('#saveas-iframe').load(calli.wait().over);
+            calli.promise(function(callback){
+                $('#saveas-iframe').load(callback);
+            });
             calli.fillElement('#saveas-iframe');
             if (window.location.hash) {
                 var i = window.location.hash.indexOf('!');

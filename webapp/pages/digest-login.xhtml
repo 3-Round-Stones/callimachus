@@ -28,7 +28,7 @@
             var options = {type: "POST", url: "?login",
                 username: username,
                 password: password,
-                xhrFields: calli.withCredentials,
+                xhrFields: {withCredentials: true},
                 contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
                 data: {persistent: persistent},
                 success: function(doc) {
@@ -43,12 +43,12 @@
                 error: calli.error
             };
             try {
-                jQuery.ajax(options);
+                calli.resolve($.ajax(options));
             } catch (e) {
                 // Opera don't support spaces in ajax passwords
                 if (options.password) {
                     delete options.password;
-                    jQuery.ajax(options);
+                    calli.resolve($.ajax(options));
                 }
             }
             event.preventDefault();

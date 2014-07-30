@@ -126,7 +126,9 @@ window.calli.openDialog = function(url, title, options) {
             backdrop: window.parent == window,
             show: true
         });
-        iframe.load(calli.wait().over);
+        calli.promise(function(callback){
+            iframe.load(callback);
+        });
         iframe[0].src = url;
         if (typeof settings.onlookup == 'function') {
             var dialogTitle = modal.find(".modal-title");

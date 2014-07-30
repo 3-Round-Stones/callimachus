@@ -27,7 +27,6 @@ $(window).load(function(event){
 });
 
 var flexTO;
-var flexWait;
 function fillOutFlex(e){
     var el = e ? e.target : window;
     // use timeout to reduce cpu stress during resize and eternal loops
@@ -35,13 +34,8 @@ function fillOutFlex(e){
         clearTimeout(flexTO);
         flexTO = null;
     }
-    if (!flexWait) {
-        flexWait = calli.wait();
-    }
     flexTO = window.setTimeout(function() {
         $('.flex').each(function() { calli.fillElement(this); });
-        flexWait.over();
-        flexWait = null;
         flexTO = null;
     }, 50);
     return;

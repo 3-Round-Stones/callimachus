@@ -8,51 +8,70 @@
 
 var calli = window.calli || (window.calli={});
 
-var polyfill;
-
 calli.resolve = function(obj) {
-    if (typeof self.Promise == 'function')
-        return waitForPromise(when(obj));
-    var delayed = delayedPromise();
-    if (!polyfill) {
-        polyfill = $.ajax({
-            url: calli.getCallimachusUrl("assets/promise-1.0.0.js"),
-            dataType: "script",
-            cache: true
-        });
-    }
-    polyfill.done(function(){
-        delayed._apply(when(obj));
-    }).fail(function(xhr){
-        delayed._apply(self.Promise.reject(xhr));
+    return load.then(function(){
+        if (obj && typeof obj.done == 'function' && typeof obj.then == 'function') {
+            return new self.Promise(function(resolve, reject){
+                obj.then(resolve, reject);
+            });
+        }
+        return obj;
     });
-    return waitForPromise(delayed);
 };
 
 calli.reject = function(obj) {
-    if (typeof self.Promise == 'function')
-        return waitForPromise(self.Promise.reject(obj));
-    return calli.resolve().then(function(){
+    return load.then(function(){
         return self.Promise.reject(obj);
     });
 };
 
 calli.all = function(array) {
-    if (typeof self.Promise == 'function')
-        return waitForPromise(self.Promise.all(array));
-    return calli.resolve().then(function(){
+    return load.then(function(){
         return self.Promise.all(array);
     });
 };
 
-function when(deferredPromise) {
-    if (deferredPromise && typeof deferredPromise.done == 'function' && typeof deferredPromise.then == 'function') {
-        return new self.Promise(function(resolve, reject){
-            deferredPromise.then(resolve, reject);
+calli.promise = function(constructor) {
+    return load.then(function(){
+        return new self.Promise(constructor);
+    });
+};
+
+calli.sleep = function(milliseconds) {
+    return load.then(function(){
+        return new self.Promise(function(callback){
+            setTimeout(callback, milliseconds);
         });
-    }
-    return self.Promise.resolve(deferredPromise);
-}
+    });
+};
+
+var load = waitForPromise((typeof self.Promise == 'function' ? self.Promise.resolve.bind(self.Promise) : function(){
+    var delayed = delayedPromise();
+    $.ajax({
+        url: calli.getCallimachusUrl("assets/promise-1.0.0.js"),
+        dataType: "script",
+        cache: true
+    }).done(function(){
+        delayed._apply(self.Promise.resolve());
+    }).fail(function(xhr){
+        delayed._apply(self.Promise.reject(xhr));
+    });
+    return delayed;
+})());
+
+var ready = load.then(function(){
+    return new self.Promise(function(callback){
+        $(function() {
+            callback();
+        });
+    });
+});
+
+calli.ready = function(obj) {
+    return ready.then(function(){
+        return obj;
+    });
+};
 
 function delayedPromise() {
     var calls = [];
@@ -87,13 +106,29 @@ function delayedPromise() {
     };
 }
 
+var waiting;
+function waitMore() {
+    if (waiting) {
+        waiting++;
+    } else {
+        $(document.documentElement).addClass("wait");
+        waiting = 1;
+    }
+}
+function waitLess() {
+    waiting--;
+    if (!waiting) {
+        $(document.documentElement).removeClass("wait");
+    }
+}
+
 function waitForPromise(promise) {
-    var waiting = calli.wait();
+    waitMore();
     var p = promise.then(function(resolve){
-        waiting.over();
+        waitLess();
         return resolve;
     }, function(reject) {
-        waiting.over();
+        waitLess();
         return self.Promise.reject(reject);
     });
     return {

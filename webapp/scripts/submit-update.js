@@ -86,7 +86,6 @@ $(function(){
 });
 
 function submitRDFForm(form, resource, stored) {
-    var waiting = calli.wait();
     try {
         var parser = new RDFaParser();
         var uri = parser.parseURI(parser.getNodeBase(form)).resolve(resource);
@@ -131,8 +130,6 @@ function submitRDFForm(form, resource, stored) {
         }
     } catch(e) {
         throw calli.error(e);
-    } finally {
-        waiting.over();
     }
     return false;
 }
@@ -267,7 +264,7 @@ function asSparqlUpdate(namespaces, removed, added) {
 }
 
 function patchData(method, action, data, callback) {
-    var xhr = $.ajax({ type: method, url: action, contentType: "application/sparql-update", data: data, dataType: "text", xhrFields: calli.withCredentials, beforeSend: function(xhr){
+    var xhr = $.ajax({ type: method, url: action, contentType: "application/sparql-update", data: data, dataType: "text", xhrFields: {withCredentials: true}, beforeSend: function(xhr){
         var modified = calli.lastModified(action);
         if (modified) {
             xhr.setRequestHeader("If-Unmodified-Since", modified);

@@ -18,13 +18,9 @@
 
 (function($) {
 
-var waiting = null;
 var calli = window.calli || (window.calli={});
 
 calli.initEditor = function(event, text) {
-    if (!waiting) {
-        waiting = calli.wait();
-    }
     event = calli.fixEvent(event);
     var iframe = $(event.target);
     var editor = iframe[0].contentWindow;
@@ -32,13 +28,10 @@ calli.initEditor = function(event, text) {
 
     bindEditorEvents(editor);
     bindFormEvents(form, editor, false);
-    setText(form, text, editor);
+    return setText(form, text, editor);
 };
 
 calli.loadEditor = function(event, url) {
-    if (!waiting) {
-        waiting = calli.wait();
-    }
     event = calli.fixEvent(event);
     var iframe = $(event.target);
     var editor = iframe[0].contentWindow;
@@ -46,7 +39,7 @@ calli.loadEditor = function(event, url) {
 
     bindEditorEvents(editor, iframe);
     bindFormEvents(form, editor, true);
-    loadText(form, url, editor);
+    return loadText(form, url, editor);
 };
 
 calli.submitEditor = function(event, local) {
@@ -116,6 +109,7 @@ window.calli.submitEditorAs = function(event, local, create, folder) {
     });
 };
 
+var waiting = [];
 $(window).bind('message', function(event) {
     var msg = event.originalEvent.data;
     if (msg.indexOf('OK\n\nGET text\nCallbackID: ') === 0) {
@@ -129,20 +123,17 @@ $(window).bind('message', function(event) {
             callback(text);
         }
     } else if (msg.indexOf('OK\n\nPUT text') === 0) {
-        if (waiting) {
-            waiting.over();
-            waiting = null;
+        if (waiting.length) {
+            waiting.shift()();
         }
     }
 });
 var sourceCallbacks = [];
 calli.readEditorText = function(editorWindow, callback) {
-    return calli.resolve().then(function(){
-        return new Promise(function(callback){
-            var idx = sourceCallbacks.length;
-            sourceCallbacks[idx] = callback;
-            editorWindow.postMessage('GET text\nCallbackID: ' + idx, '*');
-        });
+    return calli.promise(function(callback){
+        var idx = sourceCallbacks.length;
+        sourceCallbacks[idx] = callback;
+        editorWindow.postMessage('GET text\nCallbackID: ' + idx, '*');
     }).then(callback);
 };
 
@@ -250,13 +241,13 @@ function saveFile(form, text, callback) {
         saving[form] = true;
         var method = form.getAttribute('method');
         var url = calli.getFormAction(form);
-        $.ajax({
+        calli.resolve($.ajax({
             type: method,
             url: url,
             contentType: form.getAttribute("enctype"),
             data: se.payload,
             dataType: "text",
-            xhrFields: calli.withCredentials,
+            xhrFields: {withCredentials: true},
             beforeSend: function(xhr) {
                 if (calli.lastModified(url) && method == 'PUT') {
                     xhr.setRequestHeader('If-Unmodified-Since', calli.lastModified(url));
@@ -279,7 +270,7 @@ function saveFile(form, text, callback) {
                     }
                 }
             }
-        });
+        }));
     }
 }
 
@@ -287,11 +278,14 @@ function saveFile(form, text, callback) {
 function setText(form, text, editor) {
     if (window.location.hash.indexOf('#!') === 0) {
         var url = window.location.hash.substring(2);
-        calli.getText(url).then(function(text){
+        return calli.getText(url).then(function(text){
             editor.postMessage('PUT text\nIf-None-Match: *' +
                 '\nContent-Location: ' + url +
                 '\nContent-Type: '+ form.getAttribute("enctype") +
                 '\n\n' + text, '*');
+            return calli.promise(function(callback){
+                waiting.push(callback);
+            });
         }).catch(calli.error);
     } else if (text) {
         editor.postMessage('PUT text\nIf-None-Match: *' +
@@ -304,6 +298,9 @@ function setText(form, text, editor) {
             '\nContent-Type: '+ form.getAttribute("enctype") +
             '\n\n', '*');
     }
+    return calli.promise(function(callback){
+        waiting.push(callback);
+    });
 }
 
 // loadText
@@ -313,6 +310,9 @@ function loadText(form, url, editor) {
             '\nContent-Type: '+ form.getAttribute("enctype") +
             '\n\n' + text, '*');
         onhashchange(editor)();
+        return calli.promise(function(callback){
+            waiting.push(callback);
+        });
     }).catch(calli.error);
 }
 

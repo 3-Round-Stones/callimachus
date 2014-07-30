@@ -28,7 +28,6 @@ $('form').submit(function(event, onlyHandlers) {
 });
 
 function submitRDFForm(form, uri) {
-    var waiting = calli.wait();
     try {
         var parser = new RDFaParser();
         var resource = parser.parseURI(parser.getNodeBase(form)).resolve(uri);
@@ -69,8 +68,6 @@ function submitRDFForm(form, uri) {
         }
     } catch(e) {
         throw calli.error(e);
-    } finally {
-        waiting.over();
     }
 }
 
@@ -118,7 +115,7 @@ function postData(form, data, callback) {
         contentType: type,
         data: data,
 		dataType: "text", 
-        xhrFields: calli.withCredentials,
+        xhrFields: {withCredentials: true},
         success: function(data, textStatus) {
             calli.lastModified(action, xhr.getResponseHeader('Last-Modified'));
             calli.lastModified(xhr.getResponseHeader('Location'), xhr.getResponseHeader('Last-Modified'));

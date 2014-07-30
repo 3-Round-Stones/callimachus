@@ -38,7 +38,7 @@ calli.postForm = function(form) {
         iframe.name = newIframeName();
         iframe.style.display = "none";
         $('body').append(iframe);
-        return new Promise(function(resolve){
+        return calli.promise(function(resolve){
             var finalTarget = form.target;
             $(iframe).bind('load', function(event){
                 var doc = iframe.contentDocument;

@@ -31,10 +31,9 @@
         $("a[href='?discussion']:visible").each(function() {
             var tab = $(this);
             var url = this.href;
-            jQuery.ajax({ type: 'GET', url: url,
-                xhrFields: calli.withCredentials,
-                success: function(doc) { handleDiscussion(tab, url, doc); }
-            });
+            return calli.getText(url).then(function(doc) {
+                handleDiscussion(tab, url, doc);
+            }, calli.error);
         });
     }
     function handleDiscussion(tab, url, data) {

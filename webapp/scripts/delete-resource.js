@@ -10,7 +10,6 @@ if (!window.calli) {
     window.calli = {};
 }
 window.calli.deleteResource = function(event, redirect) {
-    var waiting = calli.wait();
     try {
         var form = $(calli.fixEvent(event).target).closest('form');
     
@@ -34,45 +33,38 @@ window.calli.deleteResource = function(event, redirect) {
         de.resource = event.resource || de.location.replace(/\?.*/,'');
         form.trigger(de);
         if (!de.isDefaultPrevented()) {
-            var xhr = $.ajax({ type: "DELETE", url: de.location, dataType: "text", xhrFields: calli.withCredentials, beforeSend: function(xhr){
+            var xhr = $.ajax({ type: "DELETE", url: de.location, dataType: "text", xhrFields: {withCredentials: true}, beforeSend: function(xhr){
                 var lastmod = calli.lastModified(de.location);
                 if (lastmod) {
                     xhr.setRequestHeader("If-Unmodified-Since", lastmod);
                 }
-            }, complete: function(xhr) {
-                try {
-                    if (200 <= xhr.status && xhr.status < 300) {
-                        var event = jQuery.Event("calliRedirect");
-                        event.cause = de;
-                        event.resource = de.resource;
-                        event.location = redirect;
-                        var contentType = xhr.getResponseHeader('Content-Type');
-                        if (!event.location && contentType !== null && contentType.indexOf('text/uri-list') === 0) {
-                            event.location = xhr.responseText;
-                        }
-                        if (!event.location && window.location.pathname.match(/\/$/)) {
-                            event.location = '../';
-                        } else if (!event.location) {
-                            event.location = './';
-                        }
-                        form.trigger(event);
-                        if (!event.isDefaultPrevented()) {
-                            if (event.location) {
-                                window.location.replace(event.location);
-                            } else {
-                                window.location.replace('/');
-                            }
-                        }
-                    }
-                } catch(e) {
-                    throw calli.error(e);
-                }
             }});
+            calli.resolve(xhr).then(function(xhr) {
+                var event = jQuery.Event("calliRedirect");
+                event.cause = de;
+                event.resource = de.resource;
+                event.location = redirect;
+                var contentType = xhr.getResponseHeader('Content-Type');
+                if (!event.location && contentType !== null && contentType.indexOf('text/uri-list') === 0) {
+                    event.location = xhr.responseText;
+                }
+                if (!event.location && window.location.pathname.match(/\/$/)) {
+                    event.location = '../';
+                } else if (!event.location) {
+                    event.location = './';
+                }
+                form.trigger(event);
+                if (!event.isDefaultPrevented()) {
+                    if (event.location) {
+                        window.location.replace(event.location);
+                    } else {
+                        window.location.replace('/');
+                    }
+                }
+            }, calli.error);
         }
     } catch(e) {
         calli.error(e);
-    } finally {
-        waiting.over();
     }
 };
 

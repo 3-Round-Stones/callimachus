@@ -248,18 +248,23 @@ declare function calli:login-href($a as element()) as element() {
         $a/node()
     }
 };
-declare function calli:profile-href($a as element()) as element() {
-    element {node-name($a)} {
+declare function calli:profile-href($a as element()) as element()+ {
+    (element {node-name($a)} {
         attribute href {concat($calli:realm,'?profile')},
-        attribute id {"profile-link"},
-        $a/@*[name()!='href' and name()!='id'],
+        $a/@*[name()!='href'],
         $a/node()
-    }
+    }, <script type="text/javascript">
+        calli.resolve($('{node-name($a)}').last()).then(function(node){{
+            calli.getCurrentUserName().then(function(username){{
+                node.text(username || '');
+            }});
+        }});
+    </script>)
 };
 declare function calli:logout-href($a as element()) as element() {
     element {node-name($a)} {
-        attribute href {concat($calli:realm,'?logout')},
-        attribute id {"logout-link"},
+        attribute href {$calli:realm},
+        attribute onclick {concat('calli.logout("',$calli:realm,'").then(location.assign.bind(location,"',$calli:realm,'"));return false')},
         $a/@*[name()!='href' and name()!='id'],
         $a/node()
     }

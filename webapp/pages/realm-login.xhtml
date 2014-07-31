@@ -9,8 +9,8 @@
     <link rel="help" href="../../callimachus-for-web-developers" target="_blank" title="Help" />
     <script type="text/javascript">
     // <![CDATA[
-        $(document).bind("calliLoggedIn", function(event) {
-            $(document).trigger("calliLogout");
+        calli.getCurrentUserName().then(function(username){
+            if (username) calli.logout();
         });
         $(function(){
             var links = $('.add-query');

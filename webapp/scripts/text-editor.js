@@ -42,22 +42,6 @@ jQuery(function($) {
     $(window).bind('hashchange', onhashchange);
     onhashchange();
 
-    var onresize = function() {
-        setTimeout(function() {
-            var pane = $('.ace_scroller')[0];
-            if (pane.scrollWidth > pane.clientWidth && window.parent != window) {
-                var width = pane.scrollWidth - pane.clientWidth + $(pane).outerWidth(true);
-                width += $('.ace_gutter').outerWidth(true);
-                width += 32; // scrollbar width
-                $(pane).parents().each(function() {
-                    width += $(this).outerWidth(true) - $(this).width();
-                });
-                parent.postMessage('PUT width\n\n' + width, '*');
-            }
-        }, 100);
-    };
-    $(window).bind('resize', onresize);
-
     var saved = null;
     window.onbeforeunload = function(event){
         event = event || window.event;

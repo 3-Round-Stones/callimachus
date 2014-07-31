@@ -48,7 +48,7 @@ public class CalliPage {
 	public CalliPage logout() {
 		browser.focusInTopWindow();
 		browser.click(By.cssSelector("button.navbar-btn.dropdown-toggle"));
-		browser.click(By.id("logout-link"));
+		browser.click(By.linkText("Sign out"));
 		return page();
 	}
 	

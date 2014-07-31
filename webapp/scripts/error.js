@@ -44,8 +44,8 @@ $(window).bind('message', function(event) {
 // calli.error({message:getter,stack:getter});
 // calli.error({description:getter});
 // calli.error(xhr);
-window.calli.error = function(message, stack) {
-    var e = jQuery.Event("error");
+calli.error = function(message, stack) {
+    var e = {};
     if (typeof message == 'object') {
         if (message.status >= 400 && message.statusText) {
             return calli.error(message.statusText, message.responseText);
@@ -74,38 +74,17 @@ window.calli.error = function(message, stack) {
     } else if (stack) {
         e.stack = asHtml(stack);
     }
-    if (e.message) {
-        try {
-            $(document).trigger(e);
-        } catch (e) {
-            setTimeout(function(){throw e;}, 0);
-        }
-    }
-    var error;
-    if (!message) {
-        error = new Error();
-    } else if (message instanceof Error) {
-        error = message;
-    } else if (typeof message == 'string') {
-        error = new Error(message);
-    } else if (message.nodeType) {
-        error = new Error($('<p/>').append($(message).clone()).text());
-    } else if (typeof message == 'function') {
-        error = new Error(message.toSource());
-    } else if (message.message) {
-        error = new Error(message.message);
-    } else {
-        error = new Error(message.toString());
-    }
     if (window.console && window.console.error) {
         console.error(message);
     }
-    if (!e.isPropagationStopped() && parent != window && parent.postMessage) {
-        if (stack) {
-            parent.postMessage('ERROR ' + error.message + '\n\n' + stack, '*');
+    if (parent != window && parent.postMessage) {
+        if (e.stack) {
+            parent.postMessage('ERROR ' + e.message + '\n\n' + e.stack, '*');
         } else {
-            parent.postMessage('ERROR ' + error.message, '*');
+            parent.postMessage('ERROR ' + e.message, '*');
         }
+    } else {
+        flash(e.message, e.stack);
     }
     return calli.reject(error);
 };
@@ -124,6 +103,38 @@ function asHtml(obj) {
     } else {
         return $('<p/>').text(obj.toString()).html();
     }
+}
+
+var unloading = false;
+$(window).bind('beforeunload', function() {
+    unloading = true;
+});
+
+function flash(message, stack) {
+    var msg = $("#calli-error");
+    var template = $('#calli-error-template').children();
+    if (!msg.length || !template.length)
+        return false;
+    var widget = template.clone();
+    widget.append(message);
+    if (stack) {
+        var pre = $("<pre/>");
+        pre.append(stack);
+        pre.hide();
+        var more = $('<a/>');
+        more.text(" » ");
+        more.click(function() {
+            pre.toggle();
+        });
+        widget.append(more);
+        widget.append(pre);
+    }
+    setTimeout(function() {
+        if (!unloading) {
+            msg.append(widget);
+            scroll(0,0);
+        }
+    }, 0);
 }
 
 })(jQuery, jQuery);

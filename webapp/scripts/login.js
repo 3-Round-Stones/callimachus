@@ -132,7 +132,7 @@ function readUserResource(doc) {
             window.localStorage.setItem("userIri", iri[1]);
         } catch(e) {}
     }
-    return iri;
+    return iri[1];
 }
 
 function nowLoggedIn() {

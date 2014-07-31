@@ -17,7 +17,7 @@
  */
 (function($,jQuery){
 
-$(document).ready(function(){
+calli.ready().then(function(){
     $('a#logout-link').click(function(event) {
         logout(this.href, '/');
         event.preventDefault();
@@ -79,7 +79,7 @@ $(document).bind("calliLoggedIn", function(event) {
 });
 
 $(document).bind("calliLoggedIn", function(event) {
-    $(document).ready(function() {
+    calli.ready().then(function() {
         if (event.title) {
             $("#profile-link").contents().filter(function(){
                 return this.nodeType === 3 && this.nodeValue.replace(/\s+/g,'');

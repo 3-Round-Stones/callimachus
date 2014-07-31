@@ -49,6 +49,23 @@ calli.getCurrentUserAccount = function() {
     return iri;
 };
 
+calli.getUserIri = function() {
+    var iri = null;
+    try {
+        iri = window.localStorage.getItem('userIri');
+        if (iri)
+            return iri;
+    } catch(e) {}
+    if (isLoggedIn()) {
+        $.ajax({ url: "/?profile", async: false,
+            success: function(doc) {
+                iri = readUserResource(doc);
+            }
+        });
+    }
+    return iri;
+};
+
 calli.getCurrentUserName = function(){
     return promiseUserName;
 };

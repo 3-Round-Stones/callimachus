@@ -18,8 +18,11 @@
 
 jQuery(function($) {
     $('#create-menu').one('click', function() {
-        var url = $('#create-menu-json')[0].href + encodeURIComponent(calli.getUserIri());
-        calli.getJSON(url).then(function(data) {
+        calli.getCurrentUserAccount().then(function(iri){
+            return $('#create-menu-json')[0].href + encodeURIComponent(iri);
+        }).then(function(url){
+            return calli.getJSON(url);
+        }).then(function(data) {
             var ul = $('#create-menu-more');
             var section;
             $(data.rows).each(function(){

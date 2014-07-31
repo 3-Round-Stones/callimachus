@@ -49,34 +49,9 @@ calli.getCurrentUserAccount = function() {
     return iri;
 };
 
-calli.getUserIri = function() {
-    var iri = null;
-    try {
-        iri = window.localStorage.getItem('userIri');
-        if (iri)
-            return iri;
-    } catch(e) {}
-    if (isLoggedIn()) {
-        $.ajax({ url: "/?profile", async: false,
-            success: function(doc) {
-                iri = readUserResource(doc);
-            }
-        });
-    }
-    return iri;
-};
-
 calli.getCurrentUserName = function(){
     return promiseUserName;
 };
-
-var broadcastLoggedIn;
-$(document).bind("calliLoggedIn", function(event) {
-    broadcastLoggedIn = true;
-});
-$(document).bind("calliLoggedOut", function(event) {
-    broadcastLoggedIn = false;
-});
 
 var promiseUserName = calli.resolve().then(function(){
     if (isLoggedIn()) return true;
@@ -143,12 +118,6 @@ function nowLoggedIn() {
         try {
             window.localStorage.setItem("username", name);
         } catch(error) {}
-        var e = jQuery.Event("calliLoggedIn");
-        e.title = name;
-        calli.ready().then(function() {
-            if (!broadcastLoggedIn)
-                $(document).trigger(e);
-        });
         return name;
     } else {
         return nowLoggedOut();
@@ -167,10 +136,6 @@ function nowLoggedOut() {
         window.localStorage.removeItem("digestProfile");
         window.localStorage.removeItem("digestPassword");
     } catch(e) {}
-    calli.ready().then(function() {
-        if (broadcastLoggedIn != false)
-            $(document).trigger("calliLoggedOut");
-    });
     return null;
 }
 

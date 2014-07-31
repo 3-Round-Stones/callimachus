@@ -34,7 +34,7 @@
     rdf:_7 <iframe.js>;
     rdf:_8 <error.js>;
     rdf:_9 <flash.js>;
-    rdf:_10 <accounts.js>;
+    rdf:_10 <login.js>;
     rdf:_11 <resource-iri.js>;
     rdf:_12 <empty-resource.js>;
     rdf:_13 <optional.js>;

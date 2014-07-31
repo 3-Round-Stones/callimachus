@@ -33,9 +33,9 @@ jQuery(function($){
                 return credential.then(function(credential){
                     if (credential && credential == uri) {
                         // need to log user out gracefully since they deleted themselves
-                        var e = jQuery.Event("calliLogout");
-                        e.location = '/';
-                        $(document).trigger(e);
+                        return calli.logout().then(function(){
+                            window.location.replace('/');
+                        });
                     } else {
                         window.location.replace('./');
                     }

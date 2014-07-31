@@ -16,26 +16,32 @@
  *
  */
 
-(function($, jQuery){
+jQuery(function($){
+
+    calli.getCurrentUserName().then(function(username){
+        if (username) checkTab();
+    });
 
     function checkTab() {
         if (location.search == '?discussion') {
-            var url = calli.getPageUrl();
-            var posts = $(".comment").parent().find("time").map(function(){ return $(this).attr("content"); });
-            try {
-                if (posts.length) {
-                    window.localStorage.setItem(url, posts.get().join(','));
-                }
-            } catch (e) { }
+            return calli.ready(calli.getPageUrl()).then(function(url){
+                var posts = $(".comment").parent().find("time").map(function(){ return $(this).attr("content"); });
+                try {
+                    if (posts.length) {
+                        window.localStorage.setItem(url, posts.get().join(','));
+                    }
+                } catch (e) { }
+            });
         }
         $("a[href='?discussion']:visible").each(function() {
             var tab = $(this);
             var url = this.href;
             return calli.getText(url).then(function(doc) {
-                handleDiscussion(tab, url, doc);
+                return handleDiscussion(tab, url, doc);
             }, calli.error);
         });
     }
+
     function handleDiscussion(tab, url, data) {
         var posts = $(".comment", data).parent().find("time").map(function(){ return $(this).text(); });
         if (posts.length) {
@@ -64,7 +70,6 @@
             }
         }
     }
-    $(document).bind('calliLoggedIn', function(){setTimeout(checkTab,0)});
 
-})(jQuery, jQuery);
+});
 

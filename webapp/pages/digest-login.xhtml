@@ -10,16 +10,7 @@
     <script type="text/javascript" src="../assets/jshash/md5.js"></script>
     <script type="text/javascript">
     // <![CDATA[
-    $(document).bind("calliLoggedIn", function(event) {
-        var return_to = /&return_to=([^&]*)/.exec(window.location.search);
-        if (return_to && return_to[1]) {
-            return_to = decodeURIComponent(return_to[1]);
-        } else {
-            return_to = '/';
-        }
-        window.location.replace(return_to);
-    });
-    $(function(){
+    jQuery(function($){
         $('#form').submit(function(event){
             var username = $("#username").val();
             var authName = $("#authName").text();
@@ -35,10 +26,19 @@
                     if (persistent && window.localStorage) {
                         var hash = hex_md5(username + ':' + authName + ':' + password);
                         var digestPassword = hex_md5(hash + ':' + doc);
+                        var digestProfile = calli.getPageUrl().replace(/\?.*/,'?profile');
                         localStorage.setItem("username", username);
                         localStorage.setItem("digestPassword", digestPassword);
+                        localStorage.setItem("digestProfile", digestProfile);
                     }
-                    $(document).trigger("calliLoggedIn");
+                    calli.login(username);
+                    var return_to = /&return_to=([^&]*)/.exec(window.location.search);
+                    if (return_to && return_to[1]) {
+                        return_to = decodeURIComponent(return_to[1]);
+                    } else {
+                        return_to = '/';
+                    }
+                    window.location.replace(return_to);
                 },
                 error: calli.error
             };

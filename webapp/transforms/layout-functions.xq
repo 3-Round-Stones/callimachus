@@ -243,8 +243,7 @@ declare function calli:introspect-href($a as element()) as element() {
 declare function calli:login-href($a as element()) as element() {
     element {node-name($a)} {
         attribute href {concat($calli:realm,'?login')},
-        attribute id {"login-link"},
-        $a/@*[name()!='href' and name()!='id'],
+        $a/@*[name()!='href'],
         $a/node()
     }
 };

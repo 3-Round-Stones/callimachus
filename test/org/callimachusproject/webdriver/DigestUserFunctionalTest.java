@@ -89,7 +89,7 @@ public class DigestUserFunctionalTest extends BrowserFunctionalTestCase {
 				.registerWithDigest()
 				.with(testuser, "Password1", fullname, email).signup()
 				.with(testuser, "Password1".toCharArray()).login()
-				.openProfile().getCurrentUrl();
+				.openProfile(testuser).getCurrentUrl();
 		page.logout();
 		String username = getUsername();
 		logger.info("Login {}", username);

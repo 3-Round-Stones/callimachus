@@ -28,6 +28,7 @@ import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.ElementNotVisibleException;
 import org.openqa.selenium.Keys;
+import org.openqa.selenium.NoAlertPresentException;
 import org.openqa.selenium.NoSuchFrameException;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
@@ -203,6 +204,8 @@ public class WebBrowserDriver {
 	}
 
 	public void confirm(String msg) {
+		new WebDriverWait(driver, 120).ignoring(NoAlertPresentException.class)
+				.until(ExpectedConditions.alertIsPresent());
 		Alert alert = driver.switchTo().alert();
 		assertTrue(alert.getText().contains(msg));
 	    alert.accept();

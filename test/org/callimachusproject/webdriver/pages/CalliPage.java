@@ -41,7 +41,7 @@ public class CalliPage {
 
 	public Login openLogin() {
 		browser.focusInTopWindow();
-		browser.click(By.id("login-link"));
+		browser.click(By.linkText("Sign in"));
 		return page(SignIn.class).loginWithDigest();
 	}
 
@@ -133,10 +133,10 @@ public class CalliPage {
 		return page(SearchResults.class);
 	}
 
-	public CalliPage openProfile() {
+	public CalliPage openProfile(String username) {
 		browser.focusInTopWindow();
 		browser.click(By.cssSelector("button.navbar-btn.dropdown-toggle"));
-		browser.click(By.id("profile-link"));
+		browser.click(By.linkText(username));
 		return page();
 	
 	}

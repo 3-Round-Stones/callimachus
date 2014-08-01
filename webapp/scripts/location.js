@@ -18,11 +18,9 @@
 
 (function($,jQuery){
 
-if (!window.calli) {
-    window.calli = {};
-}
+var calli = window.calli || (window.calli={});
 
-window.calli.getPageUrl = function(ref) {
+calli.getPageUrl = function(ref) {
     // window.location.href needlessly encodes/decodes reserved characters in the URI path
     // https://bugs.webkit.org/show_bug.cgi?id=30225
     // https://bugzilla.mozilla.org/show_bug.cgi?id=1040285
@@ -32,8 +30,8 @@ window.calli.getPageUrl = function(ref) {
     return location.href;
 };
 
-window.calli.getCallimachusUrl = function(suffix) {
-    var base = window.calli.baseURI;
+calli.getCallimachusUrl = function(suffix) {
+    var base = calli.baseURI;
     var home = base.substring(0, base.length - 1);
     while (home.lastIndexOf('/') === 0 || home.lastIndexOf('/') > home.indexOf('//') + 1) {
         home = home.substring(0, home.lastIndexOf('/'));
@@ -47,10 +45,10 @@ window.calli.getCallimachusUrl = function(suffix) {
     return url.replace(/\/\.\//g,'/').replace(/\/[^\/]+\/\.\.\//g, '/');
 };
 
-window.calli.getFormAction = function(form) {
+calli.getFormAction = function(form) {
     if (form.getAttribute("action"))
         return form.action;
-    var url = window.calli.getPageUrl();
+    var url = calli.getPageUrl();
     if (url.indexOf('#') > 0)
         return url.substring(0, url.indexOf('#'));
     return url;

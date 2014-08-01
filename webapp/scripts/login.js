@@ -78,6 +78,11 @@ $(document).bind("calliLoggedOut", function(event) {
     broadcastLoggedIn = false;
 });
 
+if (isLoggedIn())
+    $(document.documentElement).addClass('login');
+else
+    $(document.documentElement).addClass('logout');
+
 var promiseUserName = calli.resolve().then(function(){
     if (isLoggedIn()) return true;
     var digestProfile;
@@ -89,7 +94,6 @@ var promiseUserName = calli.resolve().then(function(){
         digestPassword = null;
         digestProfile = null;
     }
-    $(document.documentElement).addClass('logout');
     if (digestPassword || digestProfile) {
         // stay signed in with a digest password
         return calli.resolve($.ajax({ url: digestProfile || "/?profile",

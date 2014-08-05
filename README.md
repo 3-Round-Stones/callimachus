@@ -86,13 +86,16 @@ service. Execute a callimachus-stop script located in the bin/ directory to
 stop the server. To start the server again use the provided start script.
 
 On Linux server run (as root):
+
     # bin/callimachus-install.sh
     # bin/callimachus-setup.sh
 
 On Linux or Mac desktop run:
+
     $ bin/callimachus-setup.sh
 
 On Windows desktop run:
+
     # bin/callimachus-setup.bat
 
 To monitor the activity of the server watch the log/callimachus.log.0 file for

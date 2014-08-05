@@ -79,12 +79,12 @@ available in 1.4.0.
      `$('[rel="dcterms:type"].hidden').each(calli.checkEachResourceIn('#type')).remove();`
  * View templates should replace `<pre class="wiki" property="rdfs:comment" />` with
      `<p property="rdfs:comment" />` if no wiki syntax is used or
-```
+
      <pre property="rdfs:comment" />
      <script type="text/javascript">$(function($){
          $('pre[property]').replaceWith(calli.parseCreole);
      });</script>
-```
+
  * Replace `<iframe class="flex"/>` with `calli.fillElement('iframe')`
  * Replace `<asibe class="optional"/>` with `$('aside').filter(calli.isEmptyResource).remove();`
  * calliSubmit, calliRedirect and other calli* events should no longer be used

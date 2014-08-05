@@ -23,7 +23,7 @@ calli.addTemplate = calli.addResource = function(event, container) {
         } else {
             node.before(child);
         }
-        child.find(':input').andSelf().filter(':input:first').focus();
+        child.find('input,textarea,select,button,a').addBack('input,textarea,select,button,a').first().focus();
     }).catch(calli.error);
     return false;
 };

@@ -12,7 +12,7 @@ var calli = window.calli || (window.calli={});
 
 calli.copyResourceData = (function(memo, element) {
     var form = calli.fixEvent(element).target;
-    $(form).find(':input').change();
+    $(form).find('input,textarea,select').change();
     return readRDF(form);
 }).bind(this, {});
 
@@ -51,13 +51,13 @@ calli.postUpdate = function(url, deleteData, insertData) {
         var payload = asSparqlUpdate(insertData.prefix, diff.removed, diff.added);
         return calli.postText(url, payload, "application/sparql-update");
     });
-}
+};
 
 $(function(){
     $('form[enctype="application/sparql-update"]').each(function() {
         try {
             var form = $(this);
-            form.find(":input").change(); // give update-resource.js a chance to initialize
+            form.find("input,textarea,select").change(); // give update-resource.js a chance to initialize
             var stored = readRDF(form[0]).results.bindings;
             form.bind('reset', function() {
                 stored = readRDF(form[0]).results.bindings;
@@ -65,7 +65,7 @@ $(function(){
             form.submit(function(event, onlyHandlers) {
                 if (this.getAttribute("enctype") != "application/sparql-update")
                     return true;
-                form.find(":input").change(); // IE may not have called onchange before onsubmit
+                form.find("input,textarea,select").change(); // IE may not have called onchange before onsubmit
                 if (!onlyHandlers && !event.isDefaultPrevented()) {
                     event.preventDefault();
                     event.stopImmediatePropagation();

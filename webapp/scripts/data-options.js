@@ -12,7 +12,7 @@ $(document).ready(function () {
 });
 
 $(document).bind('DOMNodeInserted', function (event) {
-    loadOptions($(event.target).find("[data-options]").andSelf().filter("[data-options]"));
+    loadOptions($(event.target).find("[data-options]").addBack().filter("[data-options]"));
 });
 
 function loadOptions(selects) {
@@ -46,14 +46,14 @@ function loadOptions(selects) {
             $(selectedOptions).each(function() {
                 this.selected = true;
             });
-            select.find('input:radio').each(function() {
+            select.find('input[type="radio"]').each(function() {
                 this.checked = this.getAttribute('checked') != null;
             });
-            var controls = select.parents().andSelf().filter('select').add(select.find('input'));
+            var controls = select.parents().addBack().filter('select').add(select.find('input'));
             controls.change(function() {
                 select.children("option,label").each(function(){
                     var option = $(this);
-                    if (option.is('option:selected') || option.children('input:checked').length) {
+                    if (option.is('option:selected') || option.children('input[type="checked"]').length) {
                         enableRDFa(option);
                     } else {
                         disableRDFa(option);
@@ -84,7 +84,7 @@ function countDifferentAttributes(selected, option) {
 }
 
 function disableRDFa(element) {
-    element.find('*').andSelf().each(function() {
+    element.find('*').addBack().each(function() {
         var node = $(this);
         for (var i = 0; i < RDFATTR.length; i++) {
             disableAttribute(node, RDFATTR[i]);
@@ -93,7 +93,7 @@ function disableRDFa(element) {
 }
 
 function enableRDFa(element) {
-    element.find('*').andSelf().each(function() {
+    element.find('*').addBack().each(function() {
         var node = $(this);
         for (var i = 0; i < RDFATTR.length; i++) {
             enableAttribute(node, RDFATTR[i]);

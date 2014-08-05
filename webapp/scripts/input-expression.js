@@ -19,7 +19,7 @@ $(document).bind("DOMNodeInserted", function (event) {
 });
 
 function select(node, selector) {
-    return $(node).find(selector).andSelf().filter(selector);
+    return $(node).find(selector).addBack().filter(selector);
 }
 
 function bindInputChange(inputs) {
@@ -52,7 +52,7 @@ function addTextAreaPropertyExpression(areas) {
 }
 
 function propagate(node, expression, value) {// Executed several times per field change, might benefit from refactoring
-    var declaration = filter(node.parents().andSelf(), expression);
+    var declaration = filter(node.parents().addBack(), expression);
     if (declaration.length) {
         if (value) {
             enableRDFa(declaration);
@@ -102,7 +102,7 @@ function subsitute(expression, value, set) {
 var RDFATTR = ["about", "typeof", "rel", "rev", "resource", "property", "href", "src"];
 
 function disableRDFa(element) {
-    element.find('*').andSelf().each(function() {
+    element.find('*').addBack().each(function() {
         var node = $(this);
         for (var i = 0; i < RDFATTR.length; i++) {
             disableAttribute(node, RDFATTR[i]);
@@ -111,7 +111,7 @@ function disableRDFa(element) {
 }
 
 function enableRDFa(element) {
-    element.find('*').andSelf().each(function() {
+    element.find('*').addBack().each(function() {
         var node = $(this);
         for (var i = 0; i < RDFATTR.length; i++) {
             enableAttribute(node, RDFATTR[i]);

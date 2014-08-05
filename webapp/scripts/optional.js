@@ -34,7 +34,7 @@ $(document).ready(function() {
 $(document).bind("DOMNodeInserted", handle);
 
 function select(node, selector) {
-    return $(node).find(selector).add($(node).parents(selector)).andSelf().filter(selector);
+    return $(node).find(selector).add($(node).parents(selector)).addBack().filter(selector);
 }
 
 function handle(event) {

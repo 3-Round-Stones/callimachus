@@ -145,7 +145,7 @@
         upload_queue++;
         queueTotalSize += file.size;
         var next = function(){
-            upload_queue.shift();
+            upload_queue--;
             queueCompleteSize += file.size;
             uploadProgress(0);
             if (upload_queue < 1) {
@@ -295,7 +295,9 @@
                 event.stopPropagation();
                 event.preventDefault();
                 var files = event.originalEvent.dataTransfer.files;
-                calli.all(files.map(queue)).catch(calli.error);
+                calli.resolve().then(function(){
+                    return calli.all(Array.prototype.map.call(files, queue));
+                }).catch(calli.error);
             });
         }
     });

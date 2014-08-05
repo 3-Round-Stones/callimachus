@@ -19,7 +19,7 @@
 (function($){
 
 var unloading = false;
-$(window).bind('beforeunload', function() {
+$(window).unload(function() {
     unloading = true;
 });
 

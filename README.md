@@ -48,17 +48,15 @@ An SMTP server is required to send an invite email and password and reset user's
 The SMTP server can be configured in the file etc/mail.properties.
 A typical file might contain the following block:
 
-```
-mail.transport.protocol = smtp
-mail.from = system@example.com
-mail.host = example.com
-mail.smtp.port = 25
-mail.smtp.auth = true
-mail.smtp.starttls.enable = true
-mail.smtp.starttls.required = true
-mail.user = system
-mail.password = secret
-```
+    mail.transport.protocol = smtp
+    mail.from = system@example.com
+    mail.host = example.com
+    mail.smtp.port = 25
+    mail.smtp.auth = true
+    mail.smtp.starttls.enable = true
+    mail.smtp.starttls.required = true
+    mail.user = system
+    mail.password = secret
 
 For more options see:
 > http://java.sun.com/javaee/5/docs/api/javax/mail/package-summary.html
@@ -88,19 +86,14 @@ service. Execute a callimachus-stop script located in the bin/ directory to
 stop the server. To start the server again use the provided start script.
 
 On Linux server run (as root):
-```
- # bin/callimachus-install.sh
- # bin/callimachus-setup.sh
-```
+    # bin/callimachus-install.sh
+    # bin/callimachus-setup.sh
 
 On Linux or Mac desktop run:
-```
- $ bin/callimachus-setup.sh
-```
+    $ bin/callimachus-setup.sh
+
 On Windows desktop run:
-```
- # bin/callimachus-setup.bat
-```
+    # bin/callimachus-setup.bat
 
 To monitor the activity of the server watch the log/callimachus.log.0 file for
 log messages. Windows users may find the callimachus-log.bat script useful to
@@ -120,20 +113,18 @@ and run "ant run" again.
 
 To test the build run "ant test", to run a single functional test use the follow.
 
-```
-$ ant dist test-compile
-$ jrunscript -J-Djava.ext.dirs=lib:dist:test/lib -cp build/test
-js> importPackage(org.openqa.selenium);
-js> importPackage(org.callimachusproject.webdriver.pages);
-js> var test = null;
-js> test = new org.callimachusproject.webdriver.HelloWorldFunctionalTest(test);
-js> test.init();
-js> var page = test.page, browser = test.browser, driver = test.driver;
-js> test.setUp();
-js> test.testHelloWorld();
-js> test.tearDown();
-js> test.destroy();
-```
+    $ ant dist test-compile
+    $ jrunscript -J-Djava.ext.dirs=lib:dist:test/lib -cp build/test
+    js> importPackage(org.openqa.selenium);
+    js> importPackage(org.callimachusproject.webdriver.pages);
+    js> var test = null;
+    js> test = new org.callimachusproject.webdriver.HelloWorldFunctionalTest(test);
+    js> test.init();
+    js> var page = test.page, browser = test.browser, driver = test.driver;
+    js> test.setUp();
+    js> test.testHelloWorld();
+    js> test.tearDown();
+    js> test.destroy();
 
 Additional documentation regarding usage and application development may
 be found on the project's wiki at:

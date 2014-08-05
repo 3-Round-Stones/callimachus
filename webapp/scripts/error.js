@@ -69,8 +69,8 @@ calli.error = function(message, stack) {
         e.message = asHtml(message);
     }
     if (typeof message == 'string' && stack && stack.indexOf('<') === 0) {
-        e.message = $(stack).find("h1").andSelf().filter("h1").html();
-        e.stack = $(stack).find("pre").andSelf().filter("pre").html();
+        e.message = $(stack).find("h1").addBack().filter("h1").html();
+        e.stack = $(stack).find("pre").addBack().filter("pre").html();
     } else if (stack) {
         e.stack = asHtml(stack);
     }
@@ -106,7 +106,7 @@ function asHtml(obj) {
 }
 
 var unloading = false;
-$(window).bind('beforeunload', function() {
+$(window).bind('unload', function() {
     unloading = true;
 });
 

@@ -27,9 +27,6 @@ calli.login = function(username) {
     }
 };
 
-$(window).bind('storage', calli.login);
-$(document).bind('storage', calli.login); // IE
-
 calli.logout = function(realm) {
     var url = (realm || '/') + "?logout";
     return calli.resolve($.ajax({ type: 'POST', url: url,
@@ -46,7 +43,6 @@ calli.getCurrentUserAccount = function() {
         if (iri || !isLoggedIn()) return iri;
         return calli.getText("/?profile").then(readUserResource);
     });
-    return iri;
 };
 
 calli.getCurrentUserName = function(){

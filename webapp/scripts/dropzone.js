@@ -12,7 +12,7 @@ $(document).ready(function() {
 });
 
 $(document).bind('DOMNodeInserted', function (event) {
-    initDropArea($(event.target).find("[data-construct]").andSelf().filter("[data-construct]"));
+    initDropArea($(event.target).find("[data-construct]").addBack().filter("[data-construct]"));
 });
 
 function initDropArea(construct) {
@@ -34,7 +34,7 @@ function initDropArea(construct) {
     });
     dropzone.bind('calliLink', function(event) {
         var de = jQuery.Event('drop');
-        de.dataTransfer = {getData:function(){return event.location}};
+        de.dataTransfer = {getData:function(){return event.location;}};
         de.errorMessage = "Invalid Relationship";
         $(event.target).trigger(de);
     });

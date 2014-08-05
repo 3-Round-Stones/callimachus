@@ -80,10 +80,10 @@ available in 1.4.0.
  * View templates should replace `<pre class="wiki" property="rdfs:comment" />` with
      `<p property="rdfs:comment" />` if no wiki syntax is used or
 ```
-     <pre property="rdfs:comment" />
-     <script type="text/javascript">$(function($){
-         $('pre[property]').replaceWith(calli.parseCreole);
-     });</script>
+    <pre property="rdfs:comment" />
+    <script type="text/javascript">$(function($){
+        $('pre[property]').replaceWith(calli.parseCreole);
+    });</script>
 ```
  * Replace `<iframe class="flex"/>` with `calli.fillElement('iframe')`
  * Replace `<asibe class="optional"/>` with `$('aside').filter(calli.isEmptyResource).remove();`

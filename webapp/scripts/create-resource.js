@@ -64,7 +64,7 @@ function listSearchResults(url, win, button) {
     calli.getText(url, function(data) {
         if (data) {
             var result = $(data).children("[data-var-about],[data-var-resource]");
-            result.find(':input').remove();
+            result.find('input,textarea,select').remove();
             var ul = $("<ul/>");
             result.each(function() {
                 var resource = $(this).attr("about") || $(this).attr("resource");

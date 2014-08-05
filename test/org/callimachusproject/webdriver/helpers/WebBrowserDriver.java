@@ -350,26 +350,31 @@ public class WebBrowserDriver {
 
 	public void waitUntilTextPresent(final By locator, final String needle) {
 		waitForScript();
-		Wait<WebDriver> wait = new WebDriverWait(driver, 60);
-		Boolean present = wait.until(new ExpectedCondition<Boolean>() {
-			public Boolean apply(WebDriver driver) {
-				for (WebElement element : driver.findElements(locator)) {
-					try {
-						if (element.getText().contains(needle)) {
-							return true;
+		try {
+			driver.manage().timeouts().implicitlyWait(0, TimeUnit.SECONDS);
+			Wait<WebDriver> wait = new WebDriverWait(driver, 60);
+			Boolean present = wait.until(new ExpectedCondition<Boolean>() {
+				public Boolean apply(WebDriver driver) {
+					for (WebElement element : driver.findElements(locator)) {
+						try {
+							if (element.getText().contains(needle)) {
+								return true;
+							}
+						} catch (StaleElementReferenceException e) {
+							continue;
 						}
-					} catch (StaleElementReferenceException e) {
-						continue;
 					}
+					return null;
 				}
-				return null;
-			}
 
-			public String toString() {
-				return "text " + needle + " to be present in " + locator;
-			}
-		});
-		assertTrue(present);
+				public String toString() {
+					return "text " + needle + " to be present in " + locator;
+				}
+			});
+			assertTrue(present);
+		} finally {
+			driver.manage().timeouts().implicitlyWait(IMPLICITLY_WAIT, TimeUnit.SECONDS);
+		}
 	}
 
 	public void waitForScript() {

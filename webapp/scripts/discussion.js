@@ -33,7 +33,7 @@ jQuery(function($){
                 } catch (e) { }
             });
         }
-        $("a[href='?discussion']:visible").each(function() {
+        $("a[href='?discussion']").filter(":visible").each(function() {
             var tab = $(this);
             var url = this.href;
             return calli.getText(url).then(function(doc) {

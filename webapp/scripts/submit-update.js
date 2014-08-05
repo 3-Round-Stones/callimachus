@@ -45,7 +45,7 @@ calli.postUpdate = function(url, deleteData, insertData) {
         var payload = asSparqlUpdate(insertData.prefix, diff.removed, diff.added);
         return calli.postText(url, payload, "application/sparql-update");
     });
-}
+};
 
 /**
  * Makes sure blank subjects and objects get complemented with incoming and outgoing triples (transitive closure).

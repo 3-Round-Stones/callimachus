@@ -10,7 +10,7 @@ var calli = window.calli || (window.calli={});
 
 calli.copyResourceData = function(element) {
     var form = calli.fixEvent(element).target;
-    $(form).find(':input').change();
+    $(form).find('input,textarea,select').change();
     return readRDF(form);
 };
 

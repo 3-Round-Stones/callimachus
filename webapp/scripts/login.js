@@ -27,9 +27,6 @@ calli.login = function(username) {
     }
 };
 
-$(window).bind('storage', calli.login);
-$(document).bind('storage', calli.login); // IE
-
 calli.logout = function(realm) {
     var url = (realm || '/') + "?logout";
     return calli.resolve($.ajax({ type: 'POST', url: url,
@@ -46,7 +43,6 @@ calli.getCurrentUserAccount = function() {
         if (iri || !isLoggedIn()) return iri;
         return calli.getText("/?profile").then(readUserResource);
     });
-    return iri;
 };
 
 calli.getUserIri = function() {
@@ -77,6 +73,18 @@ $(document).bind("calliLoggedIn", function(event) {
 $(document).bind("calliLoggedOut", function(event) {
     broadcastLoggedIn = false;
 });
+var storageChanged = function() {
+    if (isLoggedIn() && !broadcastLoggedIn) {
+        nowLoggedIn();
+        broadcastLoggedIn = true;
+    } else if (!isLoggedIn() && broadcastLoggedIn){
+        nowLoggedOut();
+        broadcastLoggedIn = false;
+    }
+    return true;
+};
+$(window).bind('storage', storageChanged);
+$(document).bind('storage', storageChanged); // IE
 
 if (isLoggedIn())
     $(document.documentElement).addClass('login');

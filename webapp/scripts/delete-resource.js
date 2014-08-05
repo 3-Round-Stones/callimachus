@@ -39,7 +39,7 @@ window.calli.deleteResource = function(event, redirect) {
                     xhr.setRequestHeader("If-Unmodified-Since", lastmod);
                 }
             }});
-            calli.resolve(xhr).then(function(xhr) {
+            calli.resolve(xhr).then(function(responseText) {
                 var event = jQuery.Event("calliRedirect");
                 event.cause = de;
                 event.resource = de.resource;
@@ -61,7 +61,7 @@ window.calli.deleteResource = function(event, redirect) {
                         window.location.replace('/');
                     }
                 }
-            }, calli.error);
+            }).catch(calli.error);
         }
     } catch(e) {
         calli.error(e);

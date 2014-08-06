@@ -86,7 +86,7 @@ calli.error = function(message, stack) {
     } else {
         flash(e.message, e.stack);
     }
-    return calli.reject(error);
+    return calli.reject(message);
 };
 
 function asHtml(obj) {

@@ -77,15 +77,6 @@
                     <xsl:text>&amp;resource={resource}</xsl:text>
                 </xsl:attribute>
             </xsl:if>
-            <xsl:if test="*[@about or @resource] and not(@data-search)">
-                <!-- Lookup possible members by label -->
-                <xsl:attribute name="data-search">
-                    <xsl:value-of select="$callback" />
-                    <xsl:text>?options&amp;element=</xsl:text>
-                    <xsl:apply-templates mode="xptr-element" select="." />
-                    <xsl:text>&amp;q={searchTerms}</xsl:text>
-                </xsl:attribute>
-            </xsl:if>
             <xsl:if test="*[@about or @typeof or @resource or @property] and not(@data-add)">
                 <!-- Called to insert another property value or node -->
                 <xsl:attribute name="data-add">

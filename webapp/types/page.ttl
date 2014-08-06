@@ -260,9 +260,8 @@
         var template = this.getTemplateFor(this.toString()).getElement(optionsElement);
         var attrs = template.getAttributes();
         if (attrs.containsKey("data-options")
-                || optionsResource && attrs.containsKey("data-construct")
-                || optionsKeyword && attrs.containsKey("data-search")) {
-            var results = template.evaluatePartner(partner, optionsKeyword, con);
+                || optionsResource && attrs.containsKey("data-construct")) {
+            var results = template.evaluatePartner(partner, con);
             return this.Render(template.toString(), null, null, optionsElement, results);
         }
         throw new BadRequest("Bad element parameter");
@@ -272,11 +271,6 @@
     rdfs:domain :GetElementOptions;
     rdfs:range xsd:string;
     calli:query "element".
-
-:optionsKeyword a owl:FunctionalProperty, owl:DatatypeProperty;
-    rdfs:domain :GetElementOptions;
-    rdfs:range xsd:string;
-    calli:query "q".
 
 :optionsResource a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :GetElementOptions;

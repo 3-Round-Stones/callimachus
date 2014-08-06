@@ -27,28 +27,15 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.stream.Location;
-
 import org.callimachusproject.engine.RDFEventReader;
 import org.callimachusproject.engine.RDFParseException;
-import org.callimachusproject.engine.events.BuiltInCall;
-import org.callimachusproject.engine.events.Exists;
-import org.callimachusproject.engine.events.Filter;
-import org.callimachusproject.engine.events.Namespace;
 import org.callimachusproject.engine.events.RDFEvent;
 import org.callimachusproject.engine.events.TriplePattern;
-import org.callimachusproject.engine.events.VarOrTermExpression;
-import org.callimachusproject.engine.model.AbsoluteTermFactory;
 import org.callimachusproject.engine.model.TermOrigin;
 import org.callimachusproject.engine.model.Var;
 import org.callimachusproject.engine.model.VarOrTerm;
 
 public class SPARQLPosteditor extends RDFEventPipe {
-	private static final String KEYWORD_NS = "http://www.openrdf.org/rdf/2011/keyword#";
-	private static boolean OPEN = true, CLOSE = false;
-
-	private static AbsoluteTermFactory tf = AbsoluteTermFactory.newInstance();
-
 	List<Editor> editors = new LinkedList<Editor>();
 	Map<String, TermOrigin> origins;
 	
@@ -69,88 +56,6 @@ public class SPARQLPosteditor extends RDFEventPipe {
 				return true;
 			return false;
 		}
-	}
-	
-	public class PhoneMatchInsert implements Editor {
-		String keyword;
-		boolean includesNamespace = false;
-		public PhoneMatchInsert(String keyword) {
-			super();
-			this.keyword = keyword;
-		}
-		@Override
-		public boolean edit(RDFEvent event) {
-			Location location = event.getLocation();
-			if (!includesNamespace && event.isNamespace()) {
-				if (event.asNamespace().getPrefix().equals("keyword")) {
-					includesNamespace = true;
-				}
-			} else if (!includesNamespace && !event.isStartDocument() && !event.isComment()) {
-				add(new Namespace("keyword", KEYWORD_NS, location));
-				includesNamespace = true;
-			}
-			if (!event.isEndSubject()) return false;
-			VarOrTerm vt = event.asSubject().getSubject();
-			if (vt.isVar() 
-			&& match(vt)) {
-				Var var = tf.var(vt.stringValue() + "_phone");
-				add(new TriplePattern(vt,tf.curie(KEYWORD_NS, "phone", "keyword"),var, location));
-				// eg. FILTER sameTerm(?vt,keyword:soundex(keyword))
-				add(new Filter(OPEN, location));
-				add(new BuiltInCall(OPEN, "sameTerm", location));
-				add(new VarOrTermExpression(var, location));
-				add(new BuiltInCall(OPEN, "keyword:soundex", location));
-				add(new VarOrTermExpression(tf.literal(keyword), location));
-				add(new BuiltInCall(CLOSE, "keyword:soundex", location));
-				add(new BuiltInCall(CLOSE, "sameTerm", location));
-				add(new Filter(CLOSE, location));
-			}
-			return false;
-		}
-	}
-	
-	public class FilterKeywordExists implements Editor {
-		VarOrTerm subject, object;
-		String keyword;
-		public FilterKeywordExists(String keyword) {
-			super();
-			this.keyword = keyword;
-		}
-		@Override
-		public boolean edit(RDFEvent event) {
-			// the subject of the filter is the first matching subject
-			if (event.isTriplePattern()) {
-				TriplePattern t = event.asTriplePattern();
-				if (subject==null && match(t.getSubject())) {
-					subject = t.getAbout();
-					object = tf.var("__label");
-				}
-			}
-			// add the filter exists at the end, use "__" prefix for introduced variables
-			// these variables are extraneous to the template (having no origin)
-			else if (event.isEndWhere() && subject!=null) {
-				Location location = event.getLocation();
-				add(new Filter(OPEN, location));
-				add(new Exists(OPEN, location));
-				
-				VarOrTerm subj = subject;
-				Var pred = tf.var("__label_property");
-				add(new TriplePattern(subj,pred,object, location));
-				// eg. FILTER regex(?object,keyword:regex($keyword))
-				add(new Filter(OPEN, location));
-				add(new BuiltInCall(OPEN, "regex", location));
-				add(new VarOrTermExpression(object, location));
-				add(new BuiltInCall(OPEN, "keyword:regex", location));
-				add(new VarOrTermExpression(tf.literal(keyword), location));
-				add(new BuiltInCall(CLOSE, "keyword:regex", location));
-				add(new BuiltInCall(CLOSE, "regex", location));
-				add(new Filter(CLOSE, location));
-
-				add(new Exists(CLOSE, location));
-				add(new Filter(CLOSE, location));
-			}
-			return false;
-		}		
 	}
 	
 	public class TriplePatternRecorder implements Editor {

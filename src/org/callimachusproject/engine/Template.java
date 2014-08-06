@@ -286,7 +286,7 @@ public class Template {
 	 * @return
 	 * @throws TemplateException
 	 */
-	public TupleQueryResult evaluatePartner(Resource partner, String keyword,
+	public TupleQueryResult evaluatePartner(Resource partner,
 			RepositoryConnection con) throws TemplateException {
 		try {
 			RDFEventReader reader = new RDFaReader(getSystemId(), openSource(),
@@ -302,16 +302,6 @@ public class Template {
 			// find top-level new subjects to bind
 			SPARQLPosteditor.TriplePatternRecorder rec;
 			ed.addEditor(rec = ed.new TriplePatternRecorder());
-
-			if (keyword != null && keyword.length() > 0) {
-				// add soundex conditions to @about siblings on the next level only
-				// The regex should not match properties and property-expressions with info following the xptr
-				ed.addEditor(ed.new PhoneMatchInsert(keyword));
-				
-				// add filters to soundex labels at the next level (only direct properties of the top-level subject)
-				//ed.addEditor(ed.new FilterInsert("^(/\\d+){2}$",LABELS,regexStartsWith(q)));
-				ed.addEditor(ed.new FilterKeywordExists(keyword));
-			}
 
 			String sparql = toSafeSparql(new OrderedSparqlReader(ed)) + "\nLIMIT 1000";
 			assert sparql.contains("SELECT REDUCED");

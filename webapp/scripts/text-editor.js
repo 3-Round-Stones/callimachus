@@ -73,7 +73,6 @@ jQuery(function($) {
                 if (!editor.getSession().getValue()) {
                     editor.insert(body);
                     saved = editor.getSession().getValue();
-                    onresize();
                 }
                 return true;
             } else {
@@ -82,7 +81,6 @@ jQuery(function($) {
                 if (body != editor.getSession().getValue()) {
                     editor.getSession().setValue(body);
                     saved = editor.getSession().getValue();
-                    onresize();
                 }
                 if (row != editor.getSelectionRange().start.row) {
                     editor.gotoLine(row + 1, col);

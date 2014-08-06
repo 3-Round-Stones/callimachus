@@ -130,25 +130,6 @@ window.calli.openDialog = function(url, title, options) {
             iframe.load(callback);
         });
         iframe[0].src = url;
-        if (typeof settings.onlookup == 'function') {
-            var dialogTitle = modal.find(".modal-title");
-            var form = $("<form></form>");
-            var searchTerms = $("<input/>");
-            searchTerms.attr("placeholder", "Lookup..");
-            searchTerms.addClass("form-control");
-            form.append(searchTerms);
-            form.attr("role", "form");
-            form.addClass('pull-right form-inline');
-            form.css('padding-right', '15px');
-            dialogTitle.append(form);
-            form.submit(function(event) {
-                event.preventDefault();
-                if (searchTerms.val()) {
-                    settings.onlookup(searchTerms.val());
-                }
-                return false;
-            });
-        }
         var win = iframe[0].contentWindow;
         try {
             win.close = function() { // not sure when this is called

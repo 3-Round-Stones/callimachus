@@ -21,7 +21,7 @@
                     fullname: parameter("fullname") || parameter("email").replace(/@.*/,'')
                 }, true), "application/x-www-form-urlencoded").then(function() {
                     window.location.replace('?login&return_to=' + encodeURIComponent(parameter('return_to')));
-                }).catch(calli.error);
+                }).then(undefined, calli.error);
                 return false;
                });
         });

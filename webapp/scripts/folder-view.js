@@ -130,7 +130,7 @@
                 }
             };
             return calli.sleep(100).then(checkForCompleteImg);
-        }).catch(calli.error);
+        }).then(undefined, calli.error);
     }
     reload();
     var queueStarted = null;
@@ -297,7 +297,7 @@
                 var files = event.originalEvent.dataTransfer.files;
                 calli.resolve().then(function(){
                     return calli.all(Array.prototype.map.call(files, queue));
-                }).catch(calli.error);
+                }).then(undefined, calli.error);
             });
         }
     });

@@ -61,7 +61,7 @@ window.calli.deleteResource = function(event, redirect) {
                         window.location.replace('/');
                     }
                 }
-            }).catch(calli.error);
+            }).then(undefined, calli.error);
         }
     } catch(e) {
         calli.error(e);

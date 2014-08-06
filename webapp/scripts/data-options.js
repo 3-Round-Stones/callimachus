@@ -61,7 +61,7 @@ function loadOptions(selects) {
                 });
             });
             controls.change();
-        }).catch(calli.error);
+        }).then(undefined, calli.error);
     });
 }
 

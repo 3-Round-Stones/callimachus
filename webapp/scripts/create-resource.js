@@ -104,7 +104,7 @@ function listSearchResults(url, win, button) {
                 doc.close();
             }
         }
-    }).catch(calli.error);
+    }).then(undefined, calli.error);
 }
 
 })(jQuery, jQuery);

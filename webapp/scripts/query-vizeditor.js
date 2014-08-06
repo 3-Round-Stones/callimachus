@@ -596,7 +596,7 @@
                 }
             }, function() {
                 return calli.resolve($.ajax(request));
-            }).catch(calli.error);
+            }).then(undefined, calli.error);
         },
         
         /**

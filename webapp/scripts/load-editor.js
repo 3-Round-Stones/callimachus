@@ -286,7 +286,7 @@ function setText(form, text, editor) {
             return calli.promise(function(callback){
                 waiting.push(callback);
             });
-        }).catch(calli.error);
+        }).then(undefined, calli.error);
     } else if (text) {
         editor.postMessage('PUT text\nIf-None-Match: *' +
             '\nContent-Location: ' + window.location.href +
@@ -313,7 +313,7 @@ function loadText(form, url, editor) {
         return calli.promise(function(callback){
             waiting.push(callback);
         });
-    }).catch(calli.error);
+    }).then(undefined, calli.error);
 }
 
 })(jQuery);

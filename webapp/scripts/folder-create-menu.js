@@ -51,7 +51,7 @@ jQuery(function($) {
                 li.append(a);
                 ul.append(li);
             });
-        }).catch(calli.error);
+        }).then(undefined, calli.error);
         return true;
     });
 });

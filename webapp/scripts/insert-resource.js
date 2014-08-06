@@ -48,7 +48,7 @@ function addSetItem(uri, script, errorMessage) {
         } else if (errorMessage) {
             calli.error(errorMessage);
         }
-    }).catch(calli.error);
+    }).then(undefined, calli.error);
 }
 
 })(jQuery, jQuery);

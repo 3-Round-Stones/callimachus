@@ -83,7 +83,7 @@ $('form[method="PUT"]').each(function(event){
                                 }
                                 window.location.replace(event.location);
                             }
-                        }).catch(calli.error);
+                        }).then(undefined, calli.error);
                     }
                 }
             }, 0);

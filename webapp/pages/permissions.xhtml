@@ -34,7 +34,7 @@
                     $('.composite').hide();
                 }
             });
-        }).catch(calli.error);
+        }).then(undefined, calli.error);
     })(jQuery);
     jQuery(function($) {
         $('.party:empty').each(function(){

@@ -157,7 +157,7 @@ function bindEditorEvents(editor) {
                 var se = $.Event("calliSave", {text: text});
                 $(editor.frameElement).trigger(se);
             } else if (msg.indexOf('Error\n\n') === 0) {
-                calli.error(msg.substring(msg.indexOf('\n\n', msg.indexOf('\n\n') + 2)));
+                calli.error(msg.substring(msg.indexOf('\n\n', msg.indexOf('\n\n') + 2) + 2));
             }
         }
     });

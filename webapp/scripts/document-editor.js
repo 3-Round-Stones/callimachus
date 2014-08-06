@@ -474,6 +474,7 @@ jQuery(function($) {
                     parent.postMessage('OK\n\n' + header, '*');
                 }
             } catch (e) {
+                window.console && window.console.error(e);
                 parent.postMessage('Error\n\n' + header + '\n\n' + e, '*');
             }
         }

@@ -6,21 +6,23 @@
 
 (function($){
 
-    calli.removeResource = function(event) {
-        event = calli.fixEvent(event);
-        var node = event.target;
-        var selector = "[data-var-about],[data-var-resource],[data-var-href],[data-var-src],[typeof],[typeof='']";
-        if ($(node).is(selector)) {
-            $(node).remove();
-            return false;
-        }
-        var pNodes = $(node).parents(selector);
-        if (pNodes.length) {
-            $(pNodes[0]).remove();
-            return false;
-        }
-        return true;
+var calli = window.calli || (window.calli={});
+
+calli.removeResource = function(event) {
+    event = calli.fixEvent(event);
+    var node = event.target;
+    var selector = "[about][resource][property],[typeof],[typeof='']";
+    if ($(node).is(selector)) {
+        $(node).remove();
+        return false;
     }
+    var pNodes = $(node).parents(selector);
+    if (pNodes.length) {
+        $(pNodes[0]).remove();
+        return false;
+    }
+    return true;
+};
 
 })(jQuery);
 

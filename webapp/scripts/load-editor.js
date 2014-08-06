@@ -155,7 +155,7 @@ function bindEditorEvents(form, editor, idempotent) {
                 var action = calli.getFormAction(form[0]);
                 calli.putText(action, text, form.getAttribute("enctype"));
             } else if (msg.indexOf('Error\n\n') === 0) {
-                calli.error(msg.substring(msg.indexOf('\n\n', msg.indexOf('\n\n') + 2)));
+                calli.error(msg.substring(msg.indexOf('\n\n', msg.indexOf('\n\n') + 2) + 2));
             }
         }
     });

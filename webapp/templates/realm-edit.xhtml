@@ -42,7 +42,7 @@
             calli.deleteText('?archive').then(function() {
                 event.message = '';
                 calli.deleteResource(event);
-            }).catch(calli.error);
+            }).then(undefined, calli.error);
         };
         $('#layout').bind('calliLinked', function(event) {
             $(this).children(':not(:last-child)').remove();

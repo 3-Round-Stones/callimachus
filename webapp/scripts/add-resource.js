@@ -24,7 +24,7 @@ calli.addResource = function(event, container) {
             node.before(child);
         }
         child.find('input,textarea,select,button,a').addBack('input,textarea,select,button,a').first().focus();
-    }).catch(calli.error);
+    }).then(undefined, calli.error);
     return false;
 };
 

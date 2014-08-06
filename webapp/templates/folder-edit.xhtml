@@ -39,7 +39,7 @@
             calli.deleteText('?archive').then(function() {
                 event.message = '';
                 return calli.deleteResource(event);
-            }).catch(function(error){
+            }).then(undefined, function(error){
                 btn.button('reset');
                 return calli.error(error);
             });

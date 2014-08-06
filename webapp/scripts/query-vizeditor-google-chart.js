@@ -147,7 +147,7 @@
                         container.append('<input type="text" name="' + param + '" placeholder="Enter a ' + param + '…" value="' + value.replace(/"/g, '') + '"/>');
                     }
                 }
-            }).catch(calli.error);
+            }).then(undefined, calli.error);
         },
         
         /**

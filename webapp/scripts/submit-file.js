@@ -33,7 +33,7 @@ calli.submitFile = function(event) {
             parent.postMessage('PUT src\n\n' + redirect, '*');
         }
         window.location.replace(redirect);
-    }).catch(calli.error);
+    }).then(undefined, calli.error);
 };
 
 })(jQuery);

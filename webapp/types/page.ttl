@@ -259,8 +259,8 @@
         var con = this.objectConnection;
         var template = this.getTemplateFor(this.toString()).getElement(optionsElement);
         var attrs = template.getAttributes();
-        if (attrs.containsKey("data-options")
-                || optionsResource && attrs.containsKey("data-construct")) {
+        if (!optionsResource) throw new BadRequest("Missing resource parameter");
+        if (attrs.containsKey("data-construct")) {
             var results = template.evaluatePartner(partner, con);
             return this.Render(template.toString(), null, null, optionsElement, results);
         }

@@ -10,7 +10,6 @@ jQuery(function($){
         $('#type').val(this.getAttribute('property'));
     });
     $('#type').change(function(){
-        $('#get textarea.pattern').attr('data-text-expression', this.value);
         $('#get textarea.pattern').attr('property', this.value);
     }).change();
     $('#form').each(function(){

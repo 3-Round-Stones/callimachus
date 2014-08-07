@@ -31,6 +31,9 @@ calli.updateProperty = function(event, property) {
         if (this.value && (this.value != "on" || !this.checked)) {
             this.setAttribute('content', this.value);
         }
+        if (this.getAttributeNode('value')) {
+            this.removeAttribute('value');
+        }
     });
 };
 

@@ -49,13 +49,6 @@
 
     <xsl:template name="data-attributes">
         <xsl:if test="$callback and ancestor-or-self::*[@id and not(self::xhtml:html)]">
-            <xsl:apply-templates mode="data-var" select="@*"/>
-            <xsl:apply-templates mode="data-expression" select="@*"/>
-            <xsl:if test="text() and not(*|comment())">
-                <xsl:call-template name="data-text-expression">
-                    <xsl:with-param name="text" select="string(.)"/>
-                </xsl:call-template>
-            </xsl:if>
             <xsl:if test="xhtml:option[@selected='selected'][@about or @resource] or xhtml:label[@about or @resource]/xhtml:input[@checked='checked']">
                 <xsl:if test=".//*[@typeof or @rel and @resource and not(starts-with(@resource,'?')) or @rev and @resource and not(starts-with(@resource,'?'))]">
                     <xsl:if test="not(@data-options)">
@@ -85,37 +78,6 @@
                     <xsl:apply-templates mode="xptr-element" select="." />
                 </xsl:attribute>
             </xsl:if>
-        </xsl:if>
-    </xsl:template>
-
-    <!-- variable expressions -->
-    <xsl:template mode="data-var" match="@*" />
-    <xsl:template mode="data-var" match="@about|@resource|@content|@href|@src">
-        <xsl:if test="starts-with(., '?')">
-            <xsl:attribute name="data-var-{name()}">
-                <xsl:value-of select="." />
-            </xsl:attribute>
-        </xsl:if>
-    </xsl:template>
-    <xsl:template mode="data-expression" match="@*">
-        <xsl:variable name="expression">
-            <xsl:value-of select="substring-before(substring-after(., '{'), '}')"/>
-        </xsl:variable>
-        <xsl:if test="string(.) = concat('{', $expression, '}')">
-            <xsl:attribute name="data-expression-{name()}">
-                <xsl:value-of select="$expression" />
-            </xsl:attribute>
-        </xsl:if>
-    </xsl:template>
-    <xsl:template name="data-text-expression">
-        <xsl:param name="text" />
-        <xsl:variable name="expression">
-            <xsl:value-of select="substring-before(substring-after($text, '{'), '}')"/>
-        </xsl:variable>
-        <xsl:if test="$text = concat('{', $expression, '}')">
-            <xsl:attribute name="data-text-expression">
-                <xsl:value-of select="$expression" />
-            </xsl:attribute>
         </xsl:if>
     </xsl:template>
 

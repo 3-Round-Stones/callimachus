@@ -44,8 +44,10 @@
                 calli.deleteResource(event);
             }).then(undefined, calli.error);
         };
-        $('#layout').bind('calliLinked', function(event) {
-            $(this).children(':not(:last-child)').remove();
+        $('#layout').bind('drop', function(event) {
+            calli.insertResource(event).then(function(){
+                $('[rel="calli:layout"]').children(':not(:last-child)').remove();
+            });
         });
     });
     // ]]>
@@ -62,11 +64,10 @@
                 <div class="row">
                     <fieldset class="col-sm-6">
                         <legend>Realm settings</legend>
-                        <div dropzone="link string:text/uri-list" class="form-group"
-                                ondrop="return calli.insertResource(event)">
+                        <div id="layout" dropzone="link string:text/uri-list" class="form-group">
                           <label>Layout <a href="../types/XQuery?create" title="Customize"
-                              onclick="return calli.createResource(event, this.href + '#!' + $('#layout-sample').attr('href'))" class="glyphicon glyphicon-list-alt" /></label>
-                          <div id="layout" rel="calli:layout">
+                              onclick="calli.createResource(event, this.href + '#!' + $('#layout-sample').attr('href'))" class="glyphicon glyphicon-list-alt" /></label>
+                          <div rel="calli:layout">
                             <span resource="?layout" class="label label-info">
                               <span property="rdfs:label" />
                             </span>
@@ -82,9 +83,9 @@
                             </div>
                         </div>
                         <div dropzone="link string:text/uri-list" class="form-group"
-                                ondrop="return calli.insertResource(event)">
+                                ondrop="calli.insertResource(event)">
                           <label>Authentication <a href="../types/AuthManager" title="Create authentication manager"
-                              onclick="return calli.createResource(event, $('#auth-folder').attr('href') + '?create=' + encodeURIComponent(this.href) + '#' + $('#form').attr('resource'))" class="glyphicon glyphicon-list-alt" /></label>
+                              onclick="calli.createResource(event, $('#auth-folder').attr('href') + '?create=' + encodeURIComponent(this.href) + '#' + $('#form').attr('resource'))" class="glyphicon glyphicon-list-alt" /></label>
                           <div id="authentication" rel="calli:authentication">
                             <span resource="?authentication" typeof="calli:AuthenticationManager" class="label label-info">
                                 <span property="rdfs:label" />
@@ -93,9 +94,9 @@
                           </div>
                         </div>
                         <div dropzone="link string:text/uri-list" class="form-group"
-                                ondrop="return calli.insertResource(event)">
+                                ondrop="calli.insertResource(event)">
                           <label>Credentials <a href="../types/Credential" title="Create credential"
-                              onclick="return calli.createResource(event, $('#credentials-folder').attr('href') + '?create=' + encodeURIComponent(this.href))" class="glyphicon glyphicon-list-alt" /></label>
+                              onclick="calli.createResource(event, $('#credentials-folder').attr('href') + '?create=' + encodeURIComponent(this.href))" class="glyphicon glyphicon-list-alt" /></label>
                           <div id="credentials" rel="calli:credentials">
                             <span resource="?credential" typeof="calli:Credential" class="label label-info">
                                 <span property="rdfs:label" />

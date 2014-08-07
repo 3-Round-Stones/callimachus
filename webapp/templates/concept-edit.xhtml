@@ -72,9 +72,9 @@
                 </fieldset>
                 <fieldset class="row">
                     <div id="related" dropzone="link string:text/uri-list" class="form-group col-sm-6"
-                            ondrop="return calli.insertResource(event)">
+                            ondrop="calli.insertResource(event)">
                         <label>Related <a href="../types/Concept" title="Create"
-                                onclick="return calli.createResource(event, './?create=' + encodeURIComponent(this.href))" class="glyphicon glyphicon-list-alt" /></label>
+                                onclick="calli.createResource(event, './?create=' + encodeURIComponent(this.href))" class="glyphicon glyphicon-list-alt" /></label>
                         <div rel="skos:related">
                             <span resource="?related" typeof="skos:Concept" class="label label-info">
                                 <span property="skos:prefLabel" />
@@ -83,9 +83,9 @@
                         </div>
                     </div>
                     <div id="narrower" dropzone="link string:text/uri-list" class="form-group col-sm-6"
-                            ondrop="return calli.insertResource(event)">
+                            ondrop="calli.insertResource(event)">
                         <label>Narrower <a href="../types/Concept" title="Create"
-                                onclick="return calli.createResource(event, './?create=' + encodeURIComponent(this.href))" class="glyphicon glyphicon-list-alt" /></label>
+                                onclick="calli.createResource(event, './?create=' + encodeURIComponent(this.href))" class="glyphicon glyphicon-list-alt" /></label>
                         <div rel="skos:narrower">
                             <span resource="?narrower" typeof="skos:Concept" class="label label-info">
                                 <span property="skos:prefLabel" />
@@ -96,7 +96,7 @@
                 </fieldset>
                 <hr />
                 <fieldset id="image" dropzone="link string:text/uri-list" class="form-group"
-                        ondrop="return calli.insertResource(event)">
+                        ondrop="calli.insertResource(event)">
                     <label>Image <a href="/?view" title="Browse" onclick="return calli.selectResource(event)" class="glyphicon glyphicon-folder-open" /></label>
                      <div rel="foaf:depiction">
                         <span resource="?depiction" typeof="foaf:Image" class="label label-info">

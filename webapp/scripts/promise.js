@@ -1,4 +1,4 @@
-// resolve.js
+// promise.js
 /*
    Copyright (c) 2014 3 Round Stones Inc., Some Rights Reserved
    Licensed under the Apache License, Version 2.0, http://www.apache.org/licenses/LICENSE-2.0
@@ -7,6 +7,12 @@
 (function($){
 
 var calli = window.calli || (window.calli={});
+
+calli.promise = function(constructor) {
+    return load.then(function(){
+        return new self.Promise(constructor);
+    });
+};
 
 calli.resolve = function(obj) {
     return load.then(function(){
@@ -28,12 +34,6 @@ calli.reject = function(obj) {
 calli.all = function(array) {
     return load.then(function(){
         return self.Promise.all(array);
-    });
-};
-
-calli.promise = function(constructor) {
-    return load.then(function(){
-        return new self.Promise(constructor);
     });
 };
 

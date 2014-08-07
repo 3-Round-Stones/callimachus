@@ -30,10 +30,10 @@
                     </fieldset>
                     <fieldset class="col-sm-6">
                         <div id="members" dropzone="link string:text/uri-list" class="form-group"
-                                ondrop="return calli.insertResource(event)">
+                                ondrop="calli.insertResource(event)">
                             <label>Members <a href="../types/InvitedUser?create" title="Invite"
                                     onmousedown="href=calli.getCallimachusUrl('/auth/invited-users/') + '?create=' + encodeURIComponent(calli.getCallimachusUrl('types/InvitedUser'))"
-                                    onclick="return calli.createResource(event)" class="glyphicon glyphicon-plus" /></label>
+                                    onclick="calli.createResource(event)" class="glyphicon glyphicon-plus" /></label>
                             <div rel="calli:member">
                                 <span resource="?member" typeof="calli:User" class="label label-info">
                                     <span property="rdfs:label" />

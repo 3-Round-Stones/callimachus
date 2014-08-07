@@ -8,6 +8,7 @@
 
 calli.selectResource = function(event, src) {
     event = calli.fixEvent(event);
+    event.preventDefault();
     var node = event.target;
     var list = $(node).closest('[dropzone]');
     if (!list.length)
@@ -38,47 +39,54 @@ calli.selectResource = function(event, src) {
             // ignore
         }
     }
-    var options = {
-        onmessage: function(event) {
-            if (event.data.indexOf('PUT src\n') == 0) {
-                var data = event.data;
-                src = data.substring(data.indexOf('\n\n') + 2);
-            }
-        },
-        buttons: {
-            "Select": function() {
-                var uri = src.replace(/\?.*/,'');
-                var de = jQuery.Event('drop');
-                de.dataTransfer = {getData:function(){return uri}};
-                de.errorMessage = "Invalid Selection";
-                $(node).trigger(de);
-                calli.closeDialog(dialog);
+    return calli.promise(function(callback){
+        var closed = false;
+        var options = {
+            onmessage: function(event) {
+                if (event.data.indexOf('PUT src\n') === 0) {
+                    var data = event.data;
+                    src = data.substring(data.indexOf('\n\n') + 2);
+                }
             },
-            "Cancel": function() {
-                calli.closeDialog(dialog);
+            buttons: {
+                "Select": function() {
+                    var uri = src.replace(/\?.*/,'');
+                    var de = jQuery.Event('drop');
+                    de.dataTransfer = {getData:function(){return uri;}};
+                    de.errorMessage = "Invalid Selection";
+                    $(node).trigger(de);
+                    closed = true;
+                    calli.closeDialog(dialog);
+                    callback(uri);
+                },
+                "Cancel": function() {
+                    closed = true;
+                    calli.closeDialog(dialog);
+                    callback();
+                }
+            },
+            onclose: function() {
+                try {
+                    $(node)[0].focus();
+                } catch (e) {
+                    // ignore
+                }
+                if (!closed) callback();
             }
-        },
-        onclose: function() {
-            try {
-                $(node)[0].focus();
-            } catch (e) {
-                // ignore
-            }
-        }
-    };
-    var openBrowseDialog = function(url) {
-        dialog = calli.openDialog(url, title, options);
-    };
-    if (url) {
-        calli.headText(url).then(function(){
-            openBrowseDialog(url);
-        }, function(){
+        };
+        var openBrowseDialog = function(url) {
+            dialog = calli.openDialog(url, title, options);
+        };
+        if (url) {
+            calli.headText(url).then(function(){
+                openBrowseDialog(url);
+            }, function(){
+                openBrowseDialog(src);
+            });
+        } else {
             openBrowseDialog(src);
-        });
-    } else {
-        openBrowseDialog(src);
-    }
-    return false;
+        }
+    });
 };
 
 })(jQuery, jQuery);

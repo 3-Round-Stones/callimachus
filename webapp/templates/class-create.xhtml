@@ -113,11 +113,11 @@
                             <div id="icon" dropzone="link string:text/uri-list" class="form-group col-sm-2"
                                     ondrop="calli.insertResource(event)">
                                 <label>Icon <a href="/?view" title="Browse"
-                                        onclick="return calli.selectResource(event)" class="glyphicon glyphicon-folder-open" /></label>
+                                        onclick="calli.selectResource(event)" class="glyphicon glyphicon-folder-open" /></label>
                                 <div rel="calli:icon">
                                     <span resource="?icon" typeof="foaf:Image" class="label label-info">
                                         <img src="{?icon}" />
-                                        <a href="{?icon}" title="Remove from class" onclick="return calli.removeResource(event)" class="glyphicon glyphicon-remove" />
+                                        <a href="{?icon}" title="Remove from class" onclick="calli.removeResource(event)" class="glyphicon glyphicon-remove" />
                                     </span>
                                 </div>
                             </div>
@@ -133,11 +133,11 @@
                     <div id="thumbnail" dropzone="link string:text/uri-list" class="form-group col-sm-6"
                             ondrop="calli.insertResource(event)">
                         <label>Thumbnail <a href="/?view" title="Browse"
-                                onclick="return calli.selectResource(event)" class="glyphicon glyphicon-folder-open" /></label>
+                                onclick="calli.selectResource(event)" class="glyphicon glyphicon-folder-open" /></label>
                         <div rel="calli:thumbnail">
                             <span resource="?thumbnail" typeof="foaf:Image" class="label label-info">
                                 <img src="{?thumbnail}" />
-                                <a href="{?thumbnail}" title="Remove from class" onclick="return calli.removeResource(event)" class="glyphicon glyphicon-remove" />
+                                <a href="{?thumbnail}" title="Remove from class" onclick="calli.removeResource(event)" class="glyphicon glyphicon-remove" />
                             </span>
                         </div>
                     </div>
@@ -146,22 +146,22 @@
                     <div id="authors" dropzone="link string:text/uri-list" class="form-group col-sm-4"
                             ondrop="calli.insertResource(event)">
                         <label>Authors <a href="/auth/groups/" title="Select Group"
-                                onclick="return calli.selectResource(event)" class="glyphicon glyphicon-folder-open" /></label>
+                                onclick="calli.selectResource(event)" class="glyphicon glyphicon-folder-open" /></label>
                         <div rel="calli:author">
                             <span resource="?author" typeof="calli:Party" class="label label-info">
                                 <span property="rdfs:label" />
-                                <a href="{?author}" title="Remove permission" onclick="return calli.removeResource(event)" class="glyphicon glyphicon-remove" />
+                                <a href="{?author}" title="Remove permission" onclick="calli.removeResource(event)" class="glyphicon glyphicon-remove" />
                             </span>
                         </div>
                     </div>
                     <div id="subClassOf" dropzone="link string:text/uri-list" class="form-group col-sm-4"
                             ondrop="calli.insertResource(event)">
                         <label>Super <a href="/?view" title="Create"
-                                onclick="return calli.selectResource(event)" class="glyphicon glyphicon-folder-open" /></label>
+                                onclick="calli.selectResource(event)" class="glyphicon glyphicon-folder-open" /></label>
                         <div rel="rdfs:subClassOf">
                             <span resource="?subClassOf" typeof="owl:Class" class="label label-info">
                                 <span property="rdfs:label" />
-                                <a href="{?subClassOf}" title="Don't extend" onclick="return calli.removeResource(event)" class="glyphicon glyphicon-remove" />
+                                <a href="{?subClassOf}" title="Don't extend" onclick="calli.removeResource(event)" class="glyphicon glyphicon-remove" />
                             </span>
                         </div>
                     </div>
@@ -172,7 +172,7 @@
                             <span resource="?equivalentClass" typeof="owl:Class" class="label label-info">
                                 <span class="equivalentLabel" property="rdfs:label" />
                                 <span style="display:none" class="equivalentComment">{rdfs:comment}</span>
-                                <a href="{?equivalentClass}" title="Not equivalent" onclick="return calli.removeResource(event)" class="glyphicon glyphicon-remove" />
+                                <a href="{?equivalentClass}" title="Not equivalent" onclick="calli.removeResource(event)" class="glyphicon glyphicon-remove" />
                             </span>
                         </div>
                     </div>
@@ -192,7 +192,7 @@
                             <div rel="calli:create">
                                 <span resource="?create" typeof="calli:Page" class="label label-info">
                                     <a href="{?create}?edit" property="rdfs:label" onclick="calli.openDialog(this.href, 'Template for creating');return false" />
-                                    <a href="{?create}" title="Don't use this template" onclick="return calli.removeResource(event)" class="glyphicon glyphicon-remove" />
+                                    <a href="{?create}" title="Don't use this template" onclick="calli.removeResource(event)" class="glyphicon glyphicon-remove" />
                                 </span>
                             </div>
                         </div>
@@ -202,7 +202,7 @@
                             <div rel="calli:view">
                                 <span resource="?view" typeof="calli:Page" class="label label-info">
                                     <a href="{?view}?edit" property="rdfs:label" onclick="calli.openDialog(this.href, 'Template for viewing');return false" />
-                                    <a href="{?view}" title="Don't use this template" onclick="return calli.removeResource(event)" class="glyphicon glyphicon-remove" />
+                                    <a href="{?view}" title="Don't use this template" onclick="calli.removeResource(event)" class="glyphicon glyphicon-remove" />
                                 </span>
                             </div>
                         </div>
@@ -212,7 +212,7 @@
                             <div rel="calli:edit">
                                 <span resource="?edit" typeof="calli:Page" class="label label-info">
                                     <a href="{?edit}?edit" property="rdfs:label" onclick="calli.openDialog(this.href, 'Template for editing');return false" />
-                                    <a href="{?edit}" title="Don't use this template" onclick="return calli.removeResource(event)" class="glyphicon glyphicon-remove" />
+                                    <a href="{?edit}" title="Don't use this template" onclick="calli.removeResource(event)" class="glyphicon glyphicon-remove" />
                                 </span>
                             </div>
                         </div>

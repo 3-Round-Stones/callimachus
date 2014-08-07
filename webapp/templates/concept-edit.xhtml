@@ -34,7 +34,7 @@
                         <div>
                             <input type="text" id="altLabel" property="skos:altLabel" content="?alt" value="{?alt}" class="form-control"
                                 onchange="calli.updateProperty(event, 'skos:altLabel')" />
-                            <a href="javascript:void(0)" title="More" onclick="return calli.addResource(event)" class="glyphicon glyphicon-plus" />
+                            <a href="javascript:void(0)" title="More" onclick="calli.addResource(event)" class="glyphicon glyphicon-plus" />
                         </div>
                     </div>
                 </fieldset>
@@ -78,7 +78,7 @@
                         <div rel="skos:related">
                             <span resource="?related" typeof="skos:Concept" class="label label-info">
                                 <span property="skos:prefLabel" />
-                                <a href="{?related}" title="Remove relationship" onclick="return calli.removeResource(event)" class="glyphicon glyphicon-remove" />
+                                <a href="{?related}" title="Remove relationship" onclick="calli.removeResource(event)" class="glyphicon glyphicon-remove" />
                             </span>
                         </div>
                     </div>
@@ -89,7 +89,7 @@
                         <div rel="skos:narrower">
                             <span resource="?narrower" typeof="skos:Concept" class="label label-info">
                                 <span property="skos:prefLabel" />
-                                <a href="{?narrower}" title="Remove relationship" onclick="return calli.removeResource(event)" class="glyphicon glyphicon-remove" />
+                                <a href="{?narrower}" title="Remove relationship" onclick="calli.removeResource(event)" class="glyphicon glyphicon-remove" />
                             </span>
                         </div>
                     </div>
@@ -97,11 +97,11 @@
                 <hr />
                 <fieldset id="image" dropzone="link string:text/uri-list" class="form-group"
                         ondrop="calli.insertResource(event)">
-                    <label>Image <a href="/?view" title="Browse" onclick="return calli.selectResource(event)" class="glyphicon glyphicon-folder-open" /></label>
+                    <label>Image <a href="/?view" title="Browse" onclick="calli.selectResource(event)" class="glyphicon glyphicon-folder-open" /></label>
                      <div rel="foaf:depiction">
                         <span resource="?depiction" typeof="foaf:Image" class="label label-info">
                             <img src="{?depiction}?small" />
-                            <a href="{?depiction}" title="Remove from this concept" onclick="return calli.removeResource(event)" class="glyphicon glyphicon-remove" />
+                            <a href="{?depiction}" title="Remove from this concept" onclick="calli.removeResource(event)" class="glyphicon glyphicon-remove" />
                         </span>
                     </div>
                 </fieldset>

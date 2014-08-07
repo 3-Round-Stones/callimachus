@@ -10,18 +10,15 @@ var calli = window.calli || (window.calli={});
 
 calli.removeResource = function(event) {
     event = calli.fixEvent(event);
+    event.preventDefault();
     var node = event.target;
     var selector = "[about][resource][property],[typeof],[typeof='']";
-    if ($(node).is(selector)) {
-        $(node).remove();
-        return false;
-    }
-    var pNodes = $(node).parents(selector);
+    var pNodes = $(node).closest(selector);
     if (pNodes.length) {
         $(pNodes[0]).remove();
-        return false;
+        return calli.resolve(pNodes[0]);
     }
-    return true;
+    return calli.reject(new Error("No resource found"));
 };
 
 })(jQuery);

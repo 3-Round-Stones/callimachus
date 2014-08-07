@@ -6,7 +6,7 @@
 
 (function($, jQuery){
 
-calli.insertResource = function(event) {
+calli.insertResource = function(event, container) {
     event = calli.fixEvent(event);
     var target = event.target;
     event.preventDefault();
@@ -15,9 +15,9 @@ calli.insertResource = function(event) {
         text = event.dataTransfer.getData("Text");
     }
     var errorMessage = event.errorMessage ? event.errorMessage : "Invalid Relationship";
-    var script = select(target, '[data-construct]');
+    var script = container ? $(container) : $(event.target).find('[rel]').first();
     return calli.all(listResourceIRIs(text).map(function(iri) {
-        return addSetItem(iri, $(script), errorMessage);
+        return addSetItem(iri, script, errorMessage);
     })).then(undefined, calli.error);
 };
 

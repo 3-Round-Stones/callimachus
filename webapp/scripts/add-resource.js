@@ -4,22 +4,21 @@
    Licensed under the Apache License, Version 2.0, http://www.apache.org/licenses/LICENSE-2.0
 */
 
-(function($,jQuery){
+(function($){
 
 calli.addTemplate = calli.addResource = function(event, container) {
     event = calli.fixEvent(event);
     event.preventDefault();
     // container can be null, or a jQuery object, or a container node?
-    var node = (container && (container.length || container.nodeType)) ? $(container) : $(event.target);
-    var rel = node.closest('[data-add]');
-    var add = rel.attr("data-add");
+    var node = container ? $(container) : $(event.target.parentNode);
+    var add = node.attr("data-add");
     if (!add)
         return true;
     return calli.getText(add, function(data) {
         var clone = $(data).clone();
         var child = clone.children("[about],[typeof],[typeof=''],[resource],[property]");
         if (!child.length) return; // child may be empty
-        if (node.attr("data-add")) {
+        if (container) {
             node.append(child);
         } else {
             node.before(child);
@@ -29,5 +28,5 @@ calli.addTemplate = calli.addResource = function(event, container) {
     }).then(undefined, calli.error);
 };
 
-})(jQuery, jQuery);
+})(jQuery);
 

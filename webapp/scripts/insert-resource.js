@@ -15,40 +15,44 @@ calli.insertResource = function(event) {
         text = event.dataTransfer.getData("Text");
     }
     var errorMessage = event.errorMessage ? event.errorMessage : "Invalid Relationship";
-    select(target, '[data-construct]').each(function(i, script) {
-        window.calli.listResourceIRIs(text).each(function() {
-            addSetItem(this, $(script), errorMessage);
-        });
-    });
-    return false;
+    var script = select(target, '[data-construct]');
+    return calli.all(listResourceIRIs(text).map(function(iri) {
+        return addSetItem(iri, $(script), errorMessage);
+    })).then(undefined, calli.error);
 };
 
 function select(node, selector) {
-    set = $(node).find(selector).first();
+    set = $(node).find(selector);
     if (set.length)
-        return set;
-    set = $(node).closest('[dropzone]').find(selector).first();
-    return set;
+        return set[0];
+    return $(node).closest('[dropzone]').find(selector)[0];
+}
+
+function listResourceIRIs(text) {
+    var set = text ? text.replace(/\s+$/,"").replace(/^\s+/,"").replace(/\s+/g,'\n') : "";
+    return set.split(/[^a-zA-Z0-9\-\._~%!\$\&'\(\)\*\+,;=:\/\?\#\[\]@]+/).filter(function(str) {
+        if (!str || str.indexOf('_:') >= 0)
+            return false;
+        return str.indexOf(':') >= 0 || str.indexOf('/') >= 0;
+    }).map(function(url) {
+        if (url.indexOf('?view') >= 0) {
+            return url.substring(0, url.indexOf('?view'));
+        }
+        return url.substring(0);
+    });
 }
 
 function addSetItem(uri, script, errorMessage) {
-    var position = 0;
     var url = script.attr("data-construct").replace("{resource}", encodeURIComponent(uri));
-    calli.getText(url).then(function(data) {
-        var input = data ? $(data).children("[data-var-about],[data-var-resource]") : data;
+    return calli.getText(url).then(function(data) {
+        var input = data ? $(data).children("[about],[resource]") : data;
         if (input && input.length) {
-            if (position > 0 && script.children().length >= position) {
-                script.children()[position - 1].before(input);
-            } else {
-                script.append(input);
-            }
-            var de = jQuery.Event('calliLinked');
-            de.location = uri;
-            $(input).trigger(de);
+            script.append(input);
+            return input[0];
         } else if (errorMessage) {
-            calli.error(errorMessage);
+            return calli.reject(errorMessage);
         }
-    }).then(undefined, calli.error);
+    });
 }
 
 })(jQuery, jQuery);

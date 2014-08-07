@@ -19,28 +19,34 @@
     <link rel="sample-edit" href="../pages/sample-edit.xhtml" />
     <script type="text/javascript"> // <![CDATA[
     jQuery(function($){
-        $('#create').bind('calliLinked', function() {
-            $('link[rel="group"]').each(function(){
-                var href = this.href;
-                var de = jQuery.Event('drop');
-                de.dataTransfer = {getData:function(){return href}};
-                $('#authors').trigger(de);
+        $('#create').bind('drop', function(event) {
+            calli.insertResource(event).then(function(){
+                $('link[rel="group"]').each(function(){
+                    var href = this.href;
+                    var de = jQuery.Event('drop');
+                    de.dataTransfer = {getData:function(){return href}};
+                    $('#authors').trigger(de);
+                });
             });
         });
-        $('#view').bind('calliLinked', function() {
-            $('link[rel="viewable"]').each(function(){
-                var href = this.href;
-                var de = jQuery.Event('drop');
-                de.dataTransfer = {getData:function(){return href}};
-                $('#subClassOf').trigger(de);
+        $('#view').bind('drop', function(event) {
+            calli.insertResource(event).then(function() {
+                $('link[rel="viewable"]').each(function(){
+                    var href = this.href;
+                    var de = jQuery.Event('drop');
+                    de.dataTransfer = {getData:function(){return href}};
+                    $('#subClassOf').trigger(de);
+                });
             });
         });
-        $('#edit').bind('calliLinked', function() {
-            $('link[rel="editable"]').each(function(){
-                var href = this.href;
-                var de = jQuery.Event('drop');
-                de.dataTransfer = {getData:function(){return href}};
-                $('#subClassOf').trigger(de);
+        $('#edit').bind('drop', function(event) {
+            calli.insertResource(event).then(function() {
+                $('link[rel="editable"]').each(function(){
+                    var href = this.href;
+                    var de = jQuery.Event('drop');
+                    de.dataTransfer = {getData:function(){return href}};
+                    $('#subClassOf').trigger(de);
+                });
             });
         });
         $('#composite').click(function(){
@@ -83,7 +89,7 @@
                                 </div>
                             </div>
                             <div id="icon" dropzone="link string:text/uri-list" class="form-group col-sm-2"
-                                    ondrop="return calli.insertResource(event)">
+                                    ondrop="calli.insertResource(event)">
                                 <label>Icon <a href="/?view" title="Browse"
                                         onclick="return calli.selectResource(event)" class="glyphicon glyphicon-folder-open" /></label>
                                 <div rel="calli:icon">
@@ -103,7 +109,7 @@
                         </fieldset>
                     </div>
                     <div id="thumbnail" dropzone="link string:text/uri-list" class="form-group col-sm-6"
-                            ondrop="return calli.insertResource(event)">
+                            ondrop="calli.insertResource(event)">
                         <label>Thumbnail <a href="/?view" title="Browse"
                                 onclick="return calli.selectResource(event)" class="glyphicon glyphicon-folder-open" /></label>
                         <div rel="calli:thumbnail">
@@ -116,7 +122,7 @@
                 </div>
                 <fieldset class="row">
                     <div id="authors" dropzone="link string:text/uri-list" class="form-group col-sm-6"
-                            ondrop="return calli.insertResource(event)">
+                            ondrop="calli.insertResource(event)">
                         <label>Authors <a href="/auth/groups/" title="Select Group"
                                 onclick="return calli.selectResource(event)" class="glyphicon glyphicon-folder-open" /></label>
                         <div rel="calli:author">
@@ -127,7 +133,7 @@
                         </div>
                     </div>
                     <div id="subClassOf" dropzone="link string:text/uri-list" class="form-group col-sm-6"
-                            ondrop="return calli.insertResource(event)">
+                            ondrop="calli.insertResource(event)">
                         <label>Super <a href="/?view" title="Create"
                                 onclick="return calli.selectResource(event)" class="glyphicon glyphicon-folder-open" /></label>
                         <div rel="rdfs:subClassOf">
@@ -147,10 +153,9 @@
                 <fieldset>
                     <legend>Page Templates</legend>
                     <div class="row">
-                        <div id="create" dropzone="link string:text/uri-list" class="form-group col-sm-4"
-                                ondrop="return calli.insertResource(event)">
+                        <div id="create" dropzone="link string:text/uri-list" class="form-group col-sm-4">
                             <label>Template for creating <a href="../types/Page" title="Create a new template" class="glyphicon glyphicon-list-alt"
-                                    onclick="return calli.createResource(event, './?create=' + encodeURIComponent(this.href) + '#!' + $('link[rel=sample-create]').attr('href'))" /></label>
+                                    onclick="calli.createResource(event, './?create=' + encodeURIComponent(this.href) + '#!' + $('link[rel=sample-create]').attr('href'))" /></label>
                             <div rel="calli:create">
                                 <span resource="?create" typeof="calli:Page" class="label label-info">
                                     <a href="{?create}?edit" property="rdfs:label" onclick="calli.openDialog(this.href, 'Template for creating');return false" />
@@ -158,10 +163,9 @@
                                 </span>
                             </div>
                         </div>
-                        <div id="view" dropzone="link string:text/uri-list" class="form-group col-sm-4"
-                                ondrop="return calli.insertResource(event)">
+                        <div id="view" dropzone="link string:text/uri-list" class="form-group col-sm-4">
                             <label>Template for viewing <a href="../types/Page" title="Create a new template" class="glyphicon glyphicon-list-alt"
-                                    onclick="return calli.createResource(event, './?create=' + encodeURIComponent(this.href) + '#!' + $('link[rel=sample-view]').attr('href'))" /></label>
+                                    onclick="calli.createResource(event, './?create=' + encodeURIComponent(this.href) + '#!' + $('link[rel=sample-view]').attr('href'))" /></label>
                             <div rel="calli:view">
                                 <span resource="?view" typeof="calli:Page" class="label label-info">
                                     <a href="{?view}?edit" property="rdfs:label" onclick="calli.openDialog(this.href, 'Template for viewing');return false" />
@@ -169,10 +173,9 @@
                                 </span>
                             </div>
                         </div>
-                        <div id="edit" dropzone="link string:text/uri-list" class="form-group col-sm-4"
-                                ondrop="return calli.insertResource(event)">
+                        <div id="edit" dropzone="link string:text/uri-list" class="form-group col-sm-4">
                             <label>Template for editing <a href="../types/Page" title="Create a new template" class="glyphicon glyphicon-list-alt"
-                                    onclick="return calli.createResource(event, './?create=' + encodeURIComponent(this.href) + '#!' + $('link[rel=sample-edit]').attr('href'))" /></label>
+                                    onclick="calli.createResource(event, './?create=' + encodeURIComponent(this.href) + '#!' + $('link[rel=sample-edit]').attr('href'))" /></label>
                             <div rel="calli:edit">
                                 <span resource="?edit" typeof="calli:Page" class="label label-info">
                                     <a href="{?edit}?edit" property="rdfs:label" onclick="calli.openDialog(this.href, 'Template for editing');return false" />

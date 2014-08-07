@@ -90,7 +90,7 @@
                 </fieldset>
                 <fieldset class="row">
                     <div dropzone="link string:text/uri-list" class="form-group private col-sm-4 col-md-3"
-                            ondrop="return calli.insertResource(event)">
+                            ondrop="calli.insertResource(event)">
                         <label>Reader <a href="/auth/groups/" title="Select Group"
                                 onclick="return calli.selectResource(event)" class="glyphicon glyphicon-folder-open" /></label>
                         <div rel="calli:reader">
@@ -101,7 +101,7 @@
                         </div>
                     </div>
                     <div dropzone="link string:text/uri-list" class="form-group col-sm-4 col-md-3"
-                            ondrop="return calli.insertResource(event)">
+                            ondrop="calli.insertResource(event)">
                         <label>Subscriber <a href="/auth/groups/" title="Select Group"
                                 onclick="return calli.selectResource(event)" class="glyphicon glyphicon-folder-open" /></label>
                         <div rel="calli:subscriber">
@@ -112,7 +112,7 @@
                         </div>
                     </div>
                     <div class="creatable form-group col-sm-4 col-md-3" dropzone="link string:text/uri-list"
-                            ondrop="return calli.insertResource(event)">
+                            ondrop="calli.insertResource(event)">
                         <label>Author <a href="/auth/groups/" title="Select Group"
                                 onclick="return calli.selectResource(event)" class="glyphicon glyphicon-folder-open" /></label>
                         <div rel="calli:author">
@@ -123,7 +123,7 @@
                         </div>
                     </div>
                     <div class="composite class form-group col-sm-4 col-md-3" dropzone="link string:text/uri-list"
-                            ondrop="return calli.insertResource(event)">
+                            ondrop="calli.insertResource(event)">
                         <label>Contributor <a href="/auth/groups/" title="Select Group"
                                 onclick="return calli.selectResource(event)" class="glyphicon glyphicon-folder-open" /></label>
                         <div rel="calli:contributor">
@@ -134,7 +134,7 @@
                         </div>
                     </div>
                     <div dropzone="link string:text/uri-list" class="form-group col-sm-4 col-md-3"
-                            ondrop="return calli.insertResource(event)">
+                            ondrop="calli.insertResource(event)">
                         <label>Editor <a href="/auth/groups/" title="Select Group"
                                 onclick="return calli.selectResource(event)" class="glyphicon glyphicon-folder-open" /></label>
                         <div rel="calli:editor">
@@ -145,7 +145,7 @@
                         </div>
                     </div>
                     <div dropzone="link string:text/uri-list" class="form-group col-sm-4 col-md-3"
-                            ondrop="return calli.insertResource(event)">
+                            ondrop="calli.insertResource(event)">
                         <label>Administrator <a href="/auth/groups/" title="Select Group"
                                 onclick="return calli.selectResource(event)" class="glyphicon glyphicon-folder-open" /></label>
                         <div rel="calli:administrator">

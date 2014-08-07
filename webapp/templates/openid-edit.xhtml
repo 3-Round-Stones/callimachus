@@ -62,7 +62,7 @@
                             onchange="calli.updateProperty(event, 'calli:openIdRealm')" />
                     </div>
                 </div>
-                <div id="authButton" dropzone="link string:text/uri-list" class="form-group" ondrop="return calli.insertResource(event)">
+                <div id="authButton" dropzone="link string:text/uri-list" class="form-group" ondrop="calli.insertResource(event)">
                     <label for="authButton-select">Authentication button</label>
                     <div>
                         <select id="authButton-select" placeholder="Choose a button graphic"

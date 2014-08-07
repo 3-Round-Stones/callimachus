@@ -22,7 +22,8 @@ var calli = window.calli || (window.calli={});
 
 calli.parseDateTime = function(element) {
     var el = element && typeof element == 'object' ? element : this;
-    var formatted = el && el.getAttribute && el.getAttribute('datetime') || el;
+    var datetime = el && el.getAttribute && el.getAttribute('datetime');
+    var formatted = element && typeof element == 'string' ? element : datetime;
     return new Date(parseDateTime(formatted));
 };
 

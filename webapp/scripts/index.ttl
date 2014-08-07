@@ -28,7 +28,7 @@
     rdf:_1 </?baseuri>;
     rdf:_2 <../assets/jquery/jquery.js>;
     rdf:_3 <location.js>;
-    rdf:_4 <resolve.js>;
+    rdf:_4 <promise.js>;
     rdf:_5 <last-modified.js>;
     rdf:_6 <ajax.js>;
     rdf:_7 <iframe.js>;

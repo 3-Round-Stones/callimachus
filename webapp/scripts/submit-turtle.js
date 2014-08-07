@@ -75,7 +75,7 @@ calli.postTurtle = function(url, data) {
     data.results.bindings.forEach(function(triple){
         serializer.addTriple(triple);
     });
-    return calli.createText(url, serializer.toString(), "text/turtle");
+    return calli.postText(url, serializer.toString(), "text/turtle");
 };
 
 })(jQuery);

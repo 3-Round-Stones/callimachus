@@ -55,7 +55,7 @@ calli.submitEditor = function(event, local) {
         if (local) {
             var resource = encodeURI(local).replace(/%25(\w\w)/g, '%$1').replace(/%20/g, '-');
             var url = action + "&resource=" + encodeURIComponent(local);
-            return calli.createText(url, text, form.attr('enctype')).then(function(redirect){
+            return calli.postText(url, text, form.attr('enctype')).then(function(redirect){
                 return redirect && redirect + '?view';
             });
         } else {
@@ -93,7 +93,7 @@ window.calli.submitEditorAs = function(event, local, create, folder) {
             var action = two[0] + '?create=' + encodeURIComponent(create);
             var iri = two[0].replace(/\/?$/, '/') + two[1].replace(/%20/g, '+');
             var url = action + "&resource=" + encodeURIComponent(iri);
-            return calli.createText(url, text, form.attr('enctype'));
+            return calli.postText(url, text, form.attr('enctype'));
         });
     }).then(function(redirect){
         return redirect && redirect + '?view';

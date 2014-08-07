@@ -37,12 +37,24 @@
                 select.val(authButton).change();
             }
         }
-        $('#authButton-select').selectize({
+        var selectize = $('#authButton-select').selectize({
             render: {
                 option: function(item, escape) {
                     return '<img src="' + escape(item.value) + '" alt="' + escape(item.text) + '" />';
                 }
             }
+        })[0].selectize;
+        $('#authButton').on("dragenter dragover dragleave", function(event){
+            event.preventDefault();
+            return false;
+        }).on("drop", function(event){
+            event.preventDefault();
+            var url = event.dataTransfer.getData('URL') || vent.dataTransfer.getData('Text');
+            if (!url) return;
+            var iri = url.trim().replace(/\?.*/,'');
+            var label = iri.replace(/.*\//,'');
+            selectize.addOption({text: label, value: iri});
+            selectize.setValue(iri);
         });
     }); // ]]>
     </script>
@@ -85,7 +97,7 @@
                             onchange="calli.updateProperty(event, 'calli:openIdRealm')" />
                     </div>
                 </div>
-                <div id="authButton" dropzone="link string:text/uri-list" class="form-group" ondrop="calli.insertResource(event)">
+                <div id="authButton" dropzone="link string:text/uri-list" class="form-group">
                     <label for="authButton-select">Authentication button</label>
                     <div>
                         <select id="authButton-select" placeholder="Choose a button graphic"

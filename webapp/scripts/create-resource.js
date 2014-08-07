@@ -55,14 +55,18 @@ calli.createResource = function(event, href) {
         if (searchTerms.length && searchTerms.attr("data-search").indexOf('{searchTerms}') >= 0) {
             options.onlookup = function(terms) {
                 var searchUrl = searchTerms.attr("data-search").replace('{searchTerms}', encodeURIComponent(terms));
-                listSearchResults(searchUrl, dialog, node);
+                listSearchResults(searchUrl, dialog, node, function(href){
+                    closed = true;
+                    calli.closeDialog(dialog);
+                    callback(href);
+                });
             };
         }
         var dialog = calli.openDialog(href, title, options);
     });
 };
 
-function listSearchResults(url, win, button) {
+function listSearchResults(url, win, button, callback) {
     calli.getText(url, function(data) {
         if (data) {
             var result = $(data).children("[data-var-about],[data-var-resource]");
@@ -90,15 +94,12 @@ function listSearchResults(url, win, button) {
                 doc.write("<ul>" + html + "</ul>");
                 doc.close();
                 $('a.option', doc).click(function(event) {
-                    var href = this.href;
+                    event.preventDefault();
+                    var href = event.target.href;
                     var de = jQuery.Event('drop');
                     de.dataTransfer = {getData:function(){return href;}};
                     $(button).trigger(de);
-                    if (de.isDefaultPrevented()) {
-                        event.preventDefault();
-                        return false;
-                    }
-                    return true;
+                    callback(href);
                 });
             } else {
                 doc.open();

@@ -59,14 +59,11 @@ calli.postText = function(url, data, contentType) {
         data: data,
         xhrFields: {
             withCredentials: true
-        },
-        headers: {
-            "If-Unmodified-Since": calli.lastModified(url)
         }
     });
 };
 
-calli.createText = function(url, data, contentType) {
+calli.updateText = function(url, data, contentType) {
     return ajax({
         type: "POST",
         url: url,
@@ -76,6 +73,9 @@ calli.createText = function(url, data, contentType) {
         data: data,
         xhrFields: {
             withCredentials: true
+        },
+        headers: {
+            "If-Unmodified-Since": calli.lastModified(url)
         }
     });
 };

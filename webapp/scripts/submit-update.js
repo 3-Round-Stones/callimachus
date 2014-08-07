@@ -43,7 +43,7 @@ calli.postUpdate = function(url, deleteData, insertData) {
     return calli.resolve().then(function(){
         var diff = diffTriples(deleteData.results.bindings, insertData.results.bindings);
         var payload = asSparqlUpdate(insertData.prefix, diff.removed, diff.added);
-        return calli.postText(url, payload, "application/sparql-update");
+        return calli.updateText(url, payload, "application/sparql-update");
     });
 };
 

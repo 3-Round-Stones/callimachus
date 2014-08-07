@@ -20,8 +20,12 @@ html {
     overflow-y: scroll;
 }
 
-.wait,.wait * {
-    cursor:wait;
+html.wait {
+    cursor:progress;
+}
+
+html.wait * {
+    cursor:inherit;
 }
 
 html.logout .protected,

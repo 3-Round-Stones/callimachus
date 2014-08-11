@@ -12,10 +12,12 @@ calli.updateResource = function(event, rel) {
     return update(event, function(){
         this.removeAttribute('rel');
     }, function(){
-        if (!this.getAttribute('rel')) {
+        if (this.value && !this.getAttribute('rel')) {
             this.setAttribute('rel', rel);
+        } else if (!this.value) {
+            this.removeAttribute('rel');
         }
-        if (this.value && (this.value != "on" || !this.checked)) {
+        if (this.value != "on" || !this.checked) {
             this.setAttribute('resource', this.value);
         }
     });
@@ -25,13 +27,13 @@ calli.updateProperty = function(event, property) {
     return update(event, function(){
         this.removeAttribute('property');
     }, function(){
-        if (!this.getAttribute('property')) {
+        if (this.value && !this.getAttribute('property')) {
             this.setAttribute('property', property);
+        } else if (!this.value) {
+            this.removeAttribute('property');
         }
-        if (this.value && (this.value != "on" || !this.checked)) {
+        if (this.value != "on" || !this.checked) {
             this.setAttribute('value', this.value);
-        } else if (!this.checked && this.getAttributeNode('value')) {
-            this.removeAttribute('value');
         }
     });
 };
@@ -39,9 +41,9 @@ calli.updateProperty = function(event, property) {
 function update(event, deselect, select) {
     var target = $(calli.fixEvent(event).target);
     var name = target.prop('name');
-    var group = name ? $(document.getElementsByName(name)) : target;
+    var group = $(name ? document.getElementsByName(name) : []);
     var checked = target.find('option:checked').addBack(':checked');
-    var unchecked = target.find('option:not(:checked)').add(group.filter('option:not(:checked),:radio:not(:checked),:checkbox:not(:checked)'));
+    var unchecked = target.find('option:not(:checked)').add(group.filter(':radio:not(:checked),:checkbox:not(:checked)'));
     var deselected = target.prop('value') || target.is('select') ? unchecked : unchecked.add(target);
     var selected = target.prop('value') && !target.is('select,option,:radio,:checkbox') ? checked.add(target) : checked;
     deselected.each(deselect);

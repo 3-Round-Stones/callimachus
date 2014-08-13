@@ -74,8 +74,14 @@ var ready = polyfill.then(function(){
     });
 });
 
+var loaded = false;
+$(window).load(function(){
+    loaded = true;
+});
+
 var load = polyfill.then(function(){
     return new self.Promise(function(callback){
+        if (loaded) return callback();
         $(window).load(function() {
             callback();
         });

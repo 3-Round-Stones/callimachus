@@ -16,15 +16,13 @@ calli.submitForm = function(event) {
     var btn = $(form).find('button[type="submit"]');
     btn.button('loading');
     return calli.postForm(form).then(function(redirect){
-        return redirect && redirect + "?view";
-    }).then(function(redirect){
         if (finalTarget && window.frames[finalTarget]) {
-            window.frames[finalTarget].location.href = redirect;
+            window.frames[finalTarget].location.href = redirect + "?view";
         } else {
             if (window.parent != window && parent.postMessage) {
-                parent.postMessage('PUT src\n\n' + redirect, '*');
+                parent.postMessage('POST resource\n\n' + redirect, '*');
             }
-            window.location.href = redirect;
+            window.location.href = redirect + "?view";
         }
     }, function(error) {
         btn.button('reset');

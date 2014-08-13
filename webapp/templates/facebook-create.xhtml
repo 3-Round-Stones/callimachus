@@ -55,7 +55,7 @@
                             <label>Secret</label>
                             <div rel="calli:facebookSecret">
                                 <span resource="?secret" typeof="foaf:Document">
-                                    <a onclick="var dialog = calli.openDialog(this.href,'Facebook App Secret',{onmessage:function(event){if(event.data.indexOf('PUT src\n') == 0)calli.closeDialog(dialog);}});return false"
+                                    <a onclick="var dialog = calli.openDialog(this.href,'Facebook App Secret',{onmessage:function(event){if(event.data.indexOf('POST resource\n') == 0)calli.closeDialog(dialog);}});return false"
                                         id="secret-link" href="{?secret}?edit" title="{?secret}">Change and view the facebook app secret</a>
                                 </span>
                             </div>

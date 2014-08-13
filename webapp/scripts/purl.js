@@ -63,12 +63,10 @@ jQuery(function($){
     
                 }
             }).then(function(redirect){
-                return redirect + '?view';
-            }).then(function(redirect){
                 if (window.parent != window && parent.postMessage) {
-                    parent.postMessage('PUT src\n\n' + redirect, '*');
+                    parent.postMessage('POST resource\n\n' + redirect, '*');
                 }
-                window.location.replace(redirect);
+                window.location.replace(redirect + '?view');
             }, function(error){
                 btn.button('reset');
                 return calli.error(error);

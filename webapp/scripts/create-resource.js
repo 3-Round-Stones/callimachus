@@ -30,10 +30,9 @@ calli.createResource = function(event, href) {
         var closed = false;
         var options = {
             onmessage: function(event) {
-                if (event.data.indexOf('PUT src\n') === 0) {
+                if (event.data.indexOf('POST resource\n') === 0) {
                     var data = event.data;
-                    var src = data.substring(data.indexOf('\n\n') + 2);
-                    var uri = src.replace(/\?.*/,'');
+                    var uri = data.substring(data.indexOf('\n\n') + 2);
                     var de = jQuery.Event('drop');
                     de.dataTransfer = {getData:function(){return uri;}};
                     $(node).trigger(de);

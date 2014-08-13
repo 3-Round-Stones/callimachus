@@ -658,14 +658,10 @@
                     } else if (event.data.indexOf('OK\n\nGET label\n\n') == 0) {
                         var data = event.data;
                         label = data.substring(data.indexOf('\n\n', data.indexOf('\n\n') + 2) + 2);
-                        dialog.postMessage('GET url', '*');
-                    } else if (event.data.indexOf('OK\n\nGET url\n\n') == 0) {
+                        dialog.postMessage('GET resource', '*');
+                    } else if (event.data.indexOf('OK\n\nGET resource\n\n') == 0) {
                         var data = event.data;
-                        var src = data.substring(data.indexOf('\n\n', data.indexOf('\n\n') + 2) + 2);
-                        if (src.indexOf('?') >= 0) {
-                            src = src.substring(0, src.indexOf('?'));
-                        }
-                        var ns = src.replace(/\?.*/,'');
+                        var ns = data.substring(data.indexOf('\n\n', data.indexOf('\n\n') + 2) + 2);
                         if (ns.lastIndexOf('/') != ns.length - 1) {
                             ns += '/';
                         }

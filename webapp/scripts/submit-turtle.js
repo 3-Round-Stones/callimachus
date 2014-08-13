@@ -57,7 +57,7 @@ calli.submitTurtle = function(event, local) {
     }).then(function(redirect){
         if (redirect) {
             if (window.parent != window && parent.postMessage) {
-                parent.postMessage('PUT src\n\n' + redirect, '*');
+                parent.postMessage('POST resource\n\n' + redirect, '*');
             }
             window.location.replace(redirect);
         } else {

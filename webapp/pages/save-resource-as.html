@@ -44,15 +44,15 @@
             } else {
                 $('#saveas-iframe')[0].src = "/?view";
             }
-            var src = $('#saveas-iframe')[0].src;
+            var resource = $('#saveas-iframe')[0].src.replace(/\?.*/,'');
             $(window).bind('message', function(event) {
                 var data = event.originalEvent.data;
-                if (event.originalEvent.source == $('#saveas-iframe')[0].contentWindow && data.indexOf('PUT src\n\n') == 0) {
-                    src = data.substring(data.indexOf('\n\n') + 2);
+                if (event.originalEvent.source == $('#saveas-iframe')[0].contentWindow && data.indexOf('POST resource\n\n') == 0) {
+                    resource = data.substring(data.indexOf('\n\n') + 2);
                 } else if (event.originalEvent.source == parent && data == 'GET label') {
                     parent.postMessage('OK\n\nGET label\n\n' + $('#label').val(), '*');
-                } else if (event.originalEvent.source == parent && data == 'GET url') {
-                    parent.postMessage('OK\n\nGET url\n\n' + src, '*');
+                } else if (event.originalEvent.source == parent && data == 'GET resource') {
+                    parent.postMessage('OK\n\nGET resource\n\n' + resource, '*');
                 }
             });
             var i=$('#label').val().search(/[\.\/]/);

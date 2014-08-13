@@ -44,9 +44,7 @@ public class ClassEdit extends CalliPage {
 
 	public TextEditor openCreateTemplate() {
 		browser.click(By.cssSelector("#create label a"));
-		browser.waitForScript();
 		browser.focusInModalFrame("template-for-creating");
-		browser.waitForScript();
 		final ClassEdit edit = this;
 		return new TextEditor("template-for-creating", browser) {
 			@Override
@@ -60,9 +58,7 @@ public class ClassEdit extends CalliPage {
 
 	public TextEditor openViewTemplate() {
 		browser.click(By.cssSelector("#view label a"));
-		browser.waitForScript();
 		browser.focusInModalFrame("template-for-viewing");
-		browser.waitForScript();
 		final ClassEdit edit = this;
 		return new TextEditor("template-for-viewing", browser) {
 			@Override
@@ -76,9 +72,7 @@ public class ClassEdit extends CalliPage {
 
 	public TextEditor openEditTemplate() {
 		browser.click(By.cssSelector("#edit label a"));
-		browser.waitForScript();
 		browser.focusInModalFrame("template-for-editing");
-		browser.waitForScript();
 		final ClassEdit edit = this;
 		return new TextEditor("template-for-editing", browser) {
 			@Override

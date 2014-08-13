@@ -105,7 +105,6 @@ public class WebBrowserDriver {
 
 	public void focusInFrame(String... frameNames) {
 		driver.switchTo().window(driver.getWindowHandle());
-		waitForScript();
 		for (final String frameName : frameNames) {
 			if (frameName != null) {
 				driver.switchTo().frame(driver.findElement(By.name(frameName)));
@@ -116,7 +115,6 @@ public class WebBrowserDriver {
 
 	public void focusInFrameIndex(int... frames) {
 		driver.switchTo().window(driver.getWindowHandle());
-		waitForScript();
 		for (final int frame : frames) {
 			new WebDriverWait(driver, 60)
 					.until(new ExpectedCondition<WebDriver>() {
@@ -138,7 +136,7 @@ public class WebBrowserDriver {
 
 	public void focusInModalFrame(String... frameNames) {
 		if (frameNames.length < 2) {
-			focusInTopWindow();
+			driver.switchTo().window(driver.getWindowHandle());
 		} else {
 			String[] parent = new String[frameNames.length - 1];
 			System.arraycopy(frameNames, 0, parent, 0, parent.length);

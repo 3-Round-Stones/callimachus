@@ -9,38 +9,38 @@
 var calli = window.calli || (window.calli={});
 
 calli.promise = function(constructor) {
-    return load.then(function(){
+    return polyfill.then(function(){
         return new self.Promise(constructor);
     });
 };
 
 calli.resolve = function(obj) {
-    return load.then(function(){
+    return polyfill.then(function(){
         return self.Promise.resolve(obj);
     });
 };
 
 calli.reject = function(obj) {
-    return load.then(function(){
+    return polyfill.then(function(){
         return self.Promise.reject(obj);
     });
 };
 
 calli.all = function(array) {
-    return load.then(function(){
+    return polyfill.then(function(){
         return self.Promise.all(array);
     });
 };
 
 calli.sleep = function(milliseconds) {
-    return load.then(function(){
+    return polyfill.then(function(){
         return new self.Promise(function(callback){
             setTimeout(callback, milliseconds);
         });
     });
 };
 
-var load = waitForPromise((typeof self.Promise == 'function' ? self.Promise.resolve.bind(self.Promise) : function(){
+var polyfill = waitForPromise((typeof self.Promise == 'function' ? self.Promise.resolve.bind(self.Promise) : function(){
     var delayed = delayedPromise();
     $.ajax({
         url: calli.getCallimachusUrl("assets/promise-1.0.0.js"),
@@ -54,7 +54,19 @@ var load = waitForPromise((typeof self.Promise == 'function' ? self.Promise.reso
     return delayed;
 })());
 
-var ready = load.then(function(){
+calli.ready = function(obj) {
+    return ready.then(function(){
+        return obj;
+    });
+};
+
+calli.load = function(obj) {
+    return load.then(function(){
+        return obj;
+    });
+};
+
+var ready = polyfill.then(function(){
     return new self.Promise(function(callback){
         $(function() {
             callback();
@@ -62,11 +74,13 @@ var ready = load.then(function(){
     });
 });
 
-calli.ready = function(obj) {
-    return ready.then(function(){
-        return obj;
+var load = polyfill.then(function(){
+    return new self.Promise(function(callback){
+        $(window).load(function() {
+            callback();
+        });
     });
-};
+});
 
 function delayedPromise() {
     var calls = [];

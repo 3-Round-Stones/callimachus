@@ -15,17 +15,17 @@ calli.insertResource = function(event, container) {
         text = event.dataTransfer.getData("Text");
     }
     var errorMessage = event.errorMessage ? event.errorMessage : "Invalid Relationship";
-    var script = container ? $(container) : $(event.target).find('[rel]').first();
+    var script = container ? $(container) : select($(event.target), '[rel]');
     return calli.all(listResourceIRIs(text).map(function(iri) {
         return addSetItem(iri, script, errorMessage);
     })).then(undefined, calli.error);
 };
 
 function select(node, selector) {
-    set = $(node).find(selector);
+    var set = node.find(selector);
     if (set.length)
-        return set[0];
-    return $(node).closest('[dropzone]').find(selector)[0];
+        return set.first();
+    return select(node.parent(), selector);
 }
 
 function listResourceIRIs(text) {

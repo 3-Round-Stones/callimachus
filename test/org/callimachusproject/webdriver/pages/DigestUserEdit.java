@@ -27,9 +27,7 @@ public class DigestUserEdit extends CalliPage {
 
 	public FileUploadForm openPhotoUpload() {
 		browser.click(By.cssSelector("#photo label a"));
-		browser.waitForScript();
 		browser.focusInModalFrame("photo");
-		browser.waitForScript();
 		final DigestUserEdit edit = this;
 		return new FileUploadForm(browser) {
 			@Override

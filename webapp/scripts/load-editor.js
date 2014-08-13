@@ -52,21 +52,20 @@ calli.submitEditor = function(event, local) {
         var action = calli.getFormAction(form[0]);
         if (local) {
             var resource = encodeURI(local).replace(/%25(\w\w)/g, '%$1').replace(/%20/g, '-');
-            var url = action + "&resource=" + encodeURIComponent(local);
-            return calli.postText(url, text, form.attr('enctype')).then(function(redirect){
-                return redirect && redirect + '?view';
-            });
+            var amp = action.indexOf('?') < 0 ? '?' : '&';
+            var url = action + amp + "resource=" + encodeURIComponent(local);
+            return calli.postText(url, text, form.attr('enctype'));
         } else {
             return calli.putText(action, text, form.attr('enctype')).then(function(){
-                return action.replace(/\?.*/,'') + "?view";
+                return action.replace(/\?.*/,'');
             });
         }
     }).then(function(redirect){
         if (redirect) {
             if (window.parent != window && parent.postMessage) {
-                parent.postMessage('PUT src\n\n' + redirect, '*');
+                parent.postMessage('POST resource\n\n' + redirect, '*');
             }
-            window.location.href = redirect;
+            window.location.href = redirect + '?view';
         } else {
             btn.button('reset');
         }

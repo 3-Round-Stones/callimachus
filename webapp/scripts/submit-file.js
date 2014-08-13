@@ -24,15 +24,16 @@ calli.submitFile = function(event) {
     event.preventDefault();
     var form = $(calli.fixEvent(event).target).closest('form')[0];
     var action = calli.getFormAction(form);
+    var resource = action.replace(/\?.*/, '');
     var enctype = form.getAttribute("enctype") || "application/octet-stream";
     var files = $(form).find('input[type="file"]').toArray().reduce(function(files, input) {
-        return files.concat(input.files);
+        return Array.prototype.concat.apply(files, input.files);
     }, []);
-    return calli.putText(action, files[0], enctype).then(function(redirect){
+    return calli.putText(action, files[0], enctype).then(function(){
         if (window.parent != window && parent.postMessage) {
-            parent.postMessage('PUT src\n\n' + redirect, '*');
+            parent.postMessage('POST resource\n\n' + resource, '*');
         }
-        window.location.replace(redirect);
+        window.location.replace(resource + '?view');
     }).then(undefined, calli.error);
 };
 

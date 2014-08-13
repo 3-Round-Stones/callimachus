@@ -19,29 +19,31 @@ calli.submitTurtleAs = function(event, fileName, create, folder) {
         if (!two) return undefined;
         var url = two[0] + '?create=' + encodeURIComponent(create);
         var iri = two[0].replace(/\/?$/, '/') + two[1].replace(/%20/g, '+');
-        form.attr("resource", iri);
-        try {
-            return calli.copyResourceData(form);
-        } finally {
-            if (resource) {
-                form.attr("resource", resource);
+        return calli.resolve().then(function(){
+            form.attr("resource", iri);
+            try {
+                return calli.copyResourceData(form);
+            } finally {
+                if (resource) {
+                    form.attr("resource", resource);
+                }
             }
-        }
-    }).then(function(data){
-        if (!data) return data;
-        data.results.bindings.push({
-            s: {type:'uri', value: data.head.link[0]},
-            p: {type:'uri', value: 'http://purl.org/dc/terms/created'},
-            o: {
-                type:'literal',
-                value: new Date().toISOString(),
-                datatype: "http://www.w3.org/2001/XMLSchema#dateTime"
-            }
+        }).then(function(data){
+            if (!data) return data;
+            data.results.bindings.push({
+                s: {type:'uri', value: data.head.link[0]},
+                p: {type:'uri', value: 'http://purl.org/dc/terms/created'},
+                o: {
+                    type:'literal',
+                    value: new Date().toISOString(),
+                    datatype: "http://www.w3.org/2001/XMLSchema#dateTime"
+                }
+            });
+            return data;
+        }).then(function(data){
+            if (!data) return data;
+            return calli.postTurtle(url, data);
         });
-        return data;
-    }).then(function(data){
-        if (!data) return data;
-        return calli.createTurtle(url, data);
     }).then(function(redirect){
         if (redirect) {
             window.location.href = redirect;

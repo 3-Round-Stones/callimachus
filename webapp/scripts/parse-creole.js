@@ -24,7 +24,8 @@ var calli = window.calli || (window.calli={});
 
 calli.parseCreole = function(element) {
     var pre = element && typeof element == 'object' ? element : this;
-    var text = pre && pre.textContent || pre && pre.innerText || pre;
+    var textContent = pre && pre.textContent || pre && pre.innerText;
+    var text = typeof element == 'string' ? element : textContent;
     var div = document.createElement('div');
     if (text && typeof text == 'string') {
         parser.parse(div, text);

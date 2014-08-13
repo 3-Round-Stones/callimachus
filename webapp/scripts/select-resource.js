@@ -41,23 +41,23 @@ calli.selectResource = function(event, src) {
     }
     return calli.promise(function(callback){
         var closed = false;
+        var resource = src.replace(/\?.*/,'');
         var options = {
             onmessage: function(event) {
-                if (event.data.indexOf('PUT src\n') === 0) {
+                if (event.data.indexOf('POST resource\n') === 0) {
                     var data = event.data;
-                    src = data.substring(data.indexOf('\n\n') + 2);
+                    resource = data.substring(data.indexOf('\n\n') + 2);
                 }
             },
             buttons: {
                 "Select": function() {
-                    var uri = src.replace(/\?.*/,'');
                     var de = jQuery.Event('drop');
-                    de.dataTransfer = {getData:function(){return uri;}};
+                    de.dataTransfer = {getData:function(){return resource;}};
                     de.errorMessage = "Invalid Selection";
                     $(node).trigger(de);
                     closed = true;
                     calli.closeDialog(dialog);
-                    callback(uri);
+                    callback(resource);
                 },
                 "Cancel": function() {
                     closed = true;

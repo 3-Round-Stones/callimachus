@@ -28,7 +28,11 @@ calli.compareElementsBy = function(valueOf) {
             return text;
         return int;
     } : function(element) {
-        return $(element).text();
+        var text = $(element).text();
+        var int = parseInt(text, 10);
+        if (isNaN(int))
+            return text;
+        return int;
     };
     return function(a,b) {
         var v1 = val(a);

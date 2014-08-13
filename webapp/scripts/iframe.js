@@ -25,7 +25,7 @@
                 var url = calli.getPageUrl();
                 if (url != src) {
                     src = url;
-                    parent.postMessage('PUT src\n\n' + url, '*');
+                    parent.postMessage('POST resource\n\n' + url.replace(/\?.*$/,''), '*');
                 }
             }
         }

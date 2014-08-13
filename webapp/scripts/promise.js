@@ -16,12 +16,7 @@ calli.promise = function(constructor) {
 
 calli.resolve = function(obj) {
     return load.then(function(){
-        if (obj && typeof obj.done == 'function' && typeof obj.then == 'function') {
-            return new self.Promise(function(resolve, reject){
-                obj.then(resolve, reject);
-            });
-        }
-        return obj;
+        return self.Promise.resolve(obj);
     });
 };
 

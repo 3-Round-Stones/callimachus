@@ -52,13 +52,9 @@ function openSaveAsDialog(label, folder, callback) {
                 dialog.postMessage('GET label', '*');
             } else if (data.indexOf('OK\n\nGET label\n\n') === 0) {
                 label = data.substring(data.indexOf('\n\n', data.indexOf('\n\n') + 2) + 2);
-                dialog.postMessage('GET url', '*');
-            } else if (data.indexOf('OK\n\nGET url\n\n') === 0) {
-                var src = data.substring(data.indexOf('\n\n', data.indexOf('\n\n') + 2) + 2);
-                if (src.indexOf('?') >= 0) {
-                    src = src.substring(0, src.indexOf('?'));
-                }
-                var ns = src.replace(/\?.*/,'');
+                dialog.postMessage('GET resource', '*');
+            } else if (data.indexOf('OK\n\nGET resource\n\n') === 0) {
+                var ns = data.substring(data.indexOf('\n\n', data.indexOf('\n\n') + 2) + 2);
                 var local = encodeURI(label).replace(/%25(\w\w)/g, '%$1');
                 called = true;
                 callback([ns, local]);

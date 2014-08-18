@@ -29,6 +29,7 @@ SELECT (concat('?create=', encode_for_uri(str(?cls))) AS ?url)
 WHERE {
     ?cls calli:create ?create;
         rdfs:label ?label
+    FILTER (strstarts(str(?cls),str(<../>)) || !strstarts(str(?cls),str(<../../>)))
     FILTER (?create != <../templates/file-create.xhtml>)
     FILTER EXISTS {
         ?cls calli:author ?domain

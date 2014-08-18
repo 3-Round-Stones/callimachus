@@ -221,7 +221,7 @@ public class TripleAnalyzer extends QueryModelVisitorBase<RDFHandlerException> {
 	public void meet(DeleteData node) throws RDFHandlerException {
 		TripleVerifier previous = verifier;
 		verifier = deleteVerifier.clone();
-		node.getDeleteExpr().visit(this);
+		node.visit(this);
 		verifiers.add(verifier);
 		verifier = previous;
 	}
@@ -230,7 +230,7 @@ public class TripleAnalyzer extends QueryModelVisitorBase<RDFHandlerException> {
 	public void meet(InsertData node) throws RDFHandlerException {
 		TripleVerifier previous = verifier;
 		verifier = insertVerifier.clone();
-		node.getInsertExpr().visit(this);
+		node.visit(this);
 		verifiers.add(verifier);
 		verifier = previous;
 	}

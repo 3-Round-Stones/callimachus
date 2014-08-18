@@ -51,7 +51,7 @@ function changeDateLocale(node, now) {
             ie8 = true;
         }
         if (!text) return;
-        var timestamp = calli.parseDateTime(text);
+        var timestamp = calli.parseDateTime(text).valueOf();
         if (!isNaN(timestamp)) {
             node.attr("content", text);
             node.attr("datetime", text);

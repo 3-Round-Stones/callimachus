@@ -37,7 +37,7 @@
         jQuery(function($) {
             var link = $('#file-create')[0];
             link.href = '?create=' + encodeURIComponent(link.href);
-            $('span[rel="prov:wasGeneratedBy"]').text(function(){
+            $('span[rel="prov:wasGeneratedBy"] time').text(function(){
                 return calli.parseDateTime(this).toLocaleString();
             });
         });

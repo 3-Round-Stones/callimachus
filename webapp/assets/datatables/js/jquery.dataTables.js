@@ -6182,7 +6182,7 @@
 			}
 			
 			
-			/*
+			/**
 			 * Sorting
 			 * @todo For modularisation (1.11) this needs to do into a sort start up handler
 			 */

@@ -115,6 +115,7 @@ public abstract class ScriptBundleSupport implements ScriptBundle, CalliObject {
 		options.setLanguageIn(LanguageMode.ECMASCRIPT5);
 		options.setLanguageOut(LanguageMode.ECMASCRIPT5);
 		options.setWarningLevel(DiagnosticGroups.NON_STANDARD_JSDOC, CheckLevel.OFF);
+		options.setWarningLevel(DiagnosticGroups.CHECK_USELESS_CODE, CheckLevel.OFF);
 		getCompilationLevel(minification).setOptionsForCompilationLevel(options);
 
 		List<SourceFile> externals = CommandLineRunner.getDefaultExterns();

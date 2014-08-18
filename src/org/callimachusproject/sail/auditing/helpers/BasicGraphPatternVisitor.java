@@ -28,6 +28,9 @@
  */
 package org.callimachusproject.sail.auditing.helpers;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+
 import info.aduna.iteration.CloseableIteration;
 import info.aduna.iteration.ConvertingIteration;
 import info.aduna.iteration.EmptyIteration;
@@ -40,7 +43,9 @@ import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.QueryEvaluationException;
+import org.openrdf.query.algebra.DeleteData;
 import org.openrdf.query.algebra.Extension;
+import org.openrdf.query.algebra.InsertData;
 import org.openrdf.query.algebra.MultiProjection;
 import org.openrdf.query.algebra.Projection;
 import org.openrdf.query.algebra.Reduced;
@@ -52,17 +57,61 @@ import org.openrdf.query.algebra.evaluation.TripleSource;
 import org.openrdf.query.algebra.evaluation.impl.EvaluationStrategyImpl;
 import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
 import org.openrdf.query.impl.EmptyBindingSet;
+import org.openrdf.repository.sail.helpers.SPARQLUpdateDataBlockParser;
+import org.openrdf.rio.RDFHandler;
+import org.openrdf.rio.RDFHandlerException;
+import org.openrdf.rio.helpers.BasicParserSettings;
 
 /**
  * Triples in DATA clauses are sent to the meet(StatementPattern) method.
  */
 public abstract class BasicGraphPatternVisitor extends
-		QueryModelVisitorBase<QueryEvaluationException> {
+		QueryModelVisitorBase<QueryEvaluationException> implements RDFHandler {
 	private final ValueFactory vf = ValueFactoryImpl.getInstance();
 
 	@Override
 	public abstract void meet(StatementPattern node)
 			throws QueryEvaluationException;
+
+	@Override
+	public void startRDF() throws RDFHandlerException {
+		// ignore
+	}
+
+	@Override
+	public void endRDF() throws RDFHandlerException {
+		// ignore
+	}
+
+	@Override
+	public void handleNamespace(String prefix, String uri)
+			throws RDFHandlerException {
+		// ignore
+	}
+
+	@Override
+	public void handleComment(String comment) throws RDFHandlerException {
+		// ignore
+	}
+
+	@Override
+	public void handleStatement(Statement st) throws RDFHandlerException {
+		Resource subj = st.getSubject();
+		URI pred = st.getPredicate();
+		Value obj = st.getObject();
+		Resource ctx = st.getContext();
+		try {
+			if (ctx == null) {
+				meet(new StatementPattern(new Var("", subj), new Var("",
+						pred), new Var("", obj)));
+			} else {
+				meet(new StatementPattern(new Var("", subj), new Var("",
+						pred), new Var("", obj), new Var("", ctx)));
+			}
+		} catch (QueryEvaluationException e) {
+			throw new RDFHandlerException(e);
+		}
+	}
 
 	@Override
 	public void meet(Projection node) throws QueryEvaluationException {
@@ -85,6 +134,31 @@ public abstract class BasicGraphPatternVisitor extends
 			if (arg2 instanceof SingletonSet) {
 				evaluate(node);
 			}
+		}
+	}
+
+	@Override
+	public void meet(DeleteData node) throws QueryEvaluationException {
+		SPARQLUpdateDataBlockParser parser = new SPARQLUpdateDataBlockParser(vf);
+		parser.setAllowBlankNodes(false); // no blank nodes allowed in DELETE DATA.
+		parser.setRDFHandler(this);
+		try {
+			parser.parse(new ByteArrayInputStream(node.getDataBlock().getBytes()), "");
+		} catch (org.openrdf.rio.RDFParseException | IOException | RDFHandlerException e) {
+			throw new QueryEvaluationException(e);
+		}
+	}
+
+	@Override
+	public void meet(InsertData node) throws QueryEvaluationException {
+		SPARQLUpdateDataBlockParser parser = new SPARQLUpdateDataBlockParser(vf);
+		parser.setRDFHandler(this);
+		parser.getParserConfig().addNonFatalError(BasicParserSettings.VERIFY_DATATYPE_VALUES);
+		parser.getParserConfig().addNonFatalError(BasicParserSettings.FAIL_ON_UNKNOWN_DATATYPES);
+		try {
+			parser.parse(new ByteArrayInputStream(node.getDataBlock().getBytes()), "");
+		} catch (org.openrdf.rio.RDFParseException | IOException | RDFHandlerException e) {
+			throw new QueryEvaluationException(e);
 		}
 	}
 

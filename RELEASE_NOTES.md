@@ -59,7 +59,7 @@ Templates using the 1.3 syntax should be updated to use the new calli. functions
 available in 1.4.0.
  * Create pages should not be accessed using the "Create a new ..." Class menu
      item, instead should be access from the folder create menu
- * Links to <aClass?create> should be changed to <aFolder?create=aClass> syntax
+ * Links to <aClass?create> should be changed to `<aFolder?create=aClass>` syntax
  * Save-As dialogue is now deprecated in create pages and should not be used
  * Create forms should be changed to have `enctype="text/turtle"`
  * Create forms should now have

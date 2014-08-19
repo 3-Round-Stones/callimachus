@@ -392,7 +392,8 @@ public abstract class BrowserFunctionalTestCase extends TestCase {
 		if (folderUrl != null) {
 			String folderName = getFolderName();
 			logger.info("Delete folder {}", folderName);
-			page.open(folderUrl, FolderView.class).openEdit()
+			page.open(folderUrl, FolderView.class)
+					.waitUntilFolderOpen(folderName).openEdit()
 					.waitUntilTitle(folderName).delete();
 		}
 		logger.info("Logout");

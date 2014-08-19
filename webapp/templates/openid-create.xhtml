@@ -29,7 +29,7 @@
                     return this.value == authButton;
                 });
                 if (!option.length) {
-                    select.preppend($('<option></option>', {
+                    select.prepend($('<option></option>', {
                         selected: 'selected',
                         value: authButton
                     }).text(authButton.replace(/.*\//,'')));

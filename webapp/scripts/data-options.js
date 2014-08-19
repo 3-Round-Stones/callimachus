@@ -53,7 +53,7 @@ function loadOptions(selects) {
             controls.change(function() {
                 select.children("option,label").each(function(){
                     var option = $(this);
-                    if (option.is('option:selected') || option.children('input:checked]').length) {
+                    if (option.is('option:selected') || option.children('input:checked').length) {
                         enableRDFa(option);
                     } else {
                         disableRDFa(option);

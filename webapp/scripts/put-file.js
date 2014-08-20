@@ -54,8 +54,8 @@ $('form[method="PUT"]').each(function(event){
                             xhrFields: {withCredentials: true},
                             beforeSend: function(xhr) {
                                 var lastModified = calli.lastModified(action);
-                                if (modified) {
-                                    xhr.setRequestHeader('If-Unmodified-Since', modified);
+                                if (lastModified) {
+                                    xhr.setRequestHeader('If-Unmodified-Since', lastModified);
                                 }
                             }
                         });

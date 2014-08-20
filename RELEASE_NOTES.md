@@ -71,7 +71,7 @@ available in 1.4.0.
  * Both create and edit forms' input and textarea tags should include
      `onchange="calli.updateProperty(event, 'rdfs:label')"`
      Where rdfs:label is the datatype property of the field
- * <select/>, type="checkbox", and type="radio" fields that are populated from
+ * `<select/>`, `type="checkbox"`, and `type="radio"` fields that are populated from
      the RDF store should be replaced with an RDF Named Query and included using
      `<xi:include href="select-query.rq?select" />` or another pragrma
      ?select, ?checkbox, ?checkbox-include, ?radio, ?radio-inline.

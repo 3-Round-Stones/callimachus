@@ -67,7 +67,7 @@ available in 1.4.0.
  * Edit template body tags should be
      `<body resource="?this" onload="comparison=calli.copyResourceData('#form')">`
      Where "form" is the @id of the form tag.
- * Edit forms should have onsubmit="calli.submitUpdate(comparison,event)"
+ * Edit forms should have `onsubmit="calli.submitUpdate(comparison,event)"`
  * Both create and edit forms' input and textarea tags should include
      `onchange="calli.updateProperty(event, 'rdfs:label')"`
      Where rdfs:label is the datatype property of the field

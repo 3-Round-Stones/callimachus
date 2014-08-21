@@ -8720,7 +8720,7 @@ CSSLint._Reporter = Reporter;
  * Utility functions that make life easier.
  */
 CSSLint.Util = {
-    /*
+    /**
      * Adds all properties from supplier onto receiver,
      * overwriting if the same name already exists on
      * reciever.
@@ -8740,7 +8740,7 @@ CSSLint.Util = {
         return prop;
     },
 
-    /*
+    /**
      * Polyfill for array indexOf() method.
      * @param {Array} values The array to search.
      * @param {Variant} value The value to search for.
@@ -8759,7 +8759,7 @@ CSSLint.Util = {
         }
     },
 
-    /*
+    /**
      * Polyfill for array forEach() method.
      * @param {Array} values The array to operate on.
      * @param {Function} func The function to call on each item.

@@ -20,6 +20,7 @@ import info.aduna.iteration.CloseableIteration;
 import info.aduna.iteration.ConvertingIteration;
 import info.aduna.iteration.EmptyIteration;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -68,9 +69,12 @@ import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
 import org.openrdf.query.impl.EmptyBindingSet;
 import org.openrdf.query.parser.ParsedUpdate;
 import org.openrdf.query.parser.sparql.SPARQLParser;
+import org.openrdf.repository.sail.helpers.SPARQLUpdateDataBlockParser;
+import org.openrdf.rio.RDFHandler;
 import org.openrdf.rio.RDFHandlerException;
+import org.openrdf.rio.helpers.BasicParserSettings;
 
-public class TripleAnalyzer extends QueryModelVisitorBase<RDFHandlerException> {
+public class TripleAnalyzer extends QueryModelVisitorBase<RDFHandlerException> implements RDFHandler {
 	private final List<TripleVerifier> verifiers = new ArrayList<TripleVerifier>();
 	private final ValueFactory vf = new ValueFactoryImpl();
 	private final Map<String, Resource> anonymous = new HashMap<String, Resource>();
@@ -218,10 +222,38 @@ public class TripleAnalyzer extends QueryModelVisitorBase<RDFHandlerException> {
 	}
 
 	@Override
+	public void startRDF() throws RDFHandlerException {
+		// ignore
+	}
+
+	@Override
+	public void endRDF() throws RDFHandlerException {
+		// ignore
+	}
+
+	@Override
+	public void handleNamespace(String prefix, String uri)
+			throws RDFHandlerException {
+		// ignore
+	}
+
+	@Override
+	public void handleComment(String comment) throws RDFHandlerException {
+		// ignore
+	}
+
+	@Override
 	public void meet(DeleteData node) throws RDFHandlerException {
 		TripleVerifier previous = verifier;
 		verifier = deleteVerifier.clone();
-		node.getDeleteExpr().visit(this);
+		SPARQLUpdateDataBlockParser parser = new SPARQLUpdateDataBlockParser(vf);
+		parser.setAllowBlankNodes(false); // no blank nodes allowed in DELETE DATA.
+		parser.setRDFHandler(this);
+		try {
+			parser.parse(new ByteArrayInputStream(node.getDataBlock().getBytes()), "");
+		} catch (org.openrdf.rio.RDFParseException | IOException e) {
+			throw new RDFHandlerException(e);
+		}
 		verifiers.add(verifier);
 		verifier = previous;
 	}
@@ -230,7 +262,15 @@ public class TripleAnalyzer extends QueryModelVisitorBase<RDFHandlerException> {
 	public void meet(InsertData node) throws RDFHandlerException {
 		TripleVerifier previous = verifier;
 		verifier = insertVerifier.clone();
-		node.getInsertExpr().visit(this);
+		SPARQLUpdateDataBlockParser parser = new SPARQLUpdateDataBlockParser(vf);
+		parser.setRDFHandler(this);
+		parser.getParserConfig().addNonFatalError(BasicParserSettings.VERIFY_DATATYPE_VALUES);
+		parser.getParserConfig().addNonFatalError(BasicParserSettings.FAIL_ON_UNKNOWN_DATATYPES);
+		try {
+			parser.parse(new ByteArrayInputStream(node.getDataBlock().getBytes()), "");
+		} catch (org.openrdf.rio.RDFParseException | IOException e) {
+			throw new RDFHandlerException(e);
+		}
 		verifiers.add(verifier);
 		verifier = previous;
 	}
@@ -289,6 +329,18 @@ public class TripleAnalyzer extends QueryModelVisitorBase<RDFHandlerException> {
 			throw new RDFHandlerException("Only the default graph can be used");
 		} else if (ctx == null) {
 			verifier.verify((Resource) subj, (URI) pred, obj);
+		} else {
+			throw new RDFHandlerException("Invalid graph: " + ctx);
+		}
+	}
+
+	@Override
+	public void handleStatement(Statement st) throws RDFHandlerException {
+		Resource ctx = st.getContext();
+		if (ctx instanceof Resource) {
+			throw new RDFHandlerException("Only the default graph can be used");
+		} else if (ctx == null) {
+			verifier.verify(st.getSubject(), st.getPredicate(), st.getObject());
 		} else {
 			throw new RDFHandlerException("Invalid graph: " + ctx);
 		}

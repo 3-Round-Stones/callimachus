@@ -4209,7 +4209,7 @@ org.antlr.runtime.BitSet.prototype = {
         return str;
     }
 
-    /*
+    /**
      * Dump a comma-separated list of the words making up the bit set.
      * Split each 32 bit number into two more manageable 16 bit numbers.
      * @returns {String} comma separated list view of the this.bits property.

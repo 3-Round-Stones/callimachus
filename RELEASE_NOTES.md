@@ -59,7 +59,7 @@ Templates using the 1.3 syntax should be updated to use the new calli. functions
 available in 1.4.0.
  * Create pages should not be accessed using the "Create a new ..." Class menu
      item, instead should be access from the folder create menu
- * Links to <aClass?create> should be changed to <aFolder?create=aClass> syntax
+ * Links to <aClass?create> should be changed to `<aFolder?create=aClass>` syntax
  * Save-As dialogue is now deprecated in create pages and should not be used
  * Create forms should be changed to have `enctype="text/turtle"`
  * Create forms should now have
@@ -67,11 +67,11 @@ available in 1.4.0.
  * Edit template body tags should be
      `<body resource="?this" onload="comparison=calli.copyResourceData('#form')">`
      Where "form" is the @id of the form tag.
- * Edit forms should have onsubmit="calli.submitUpdate(comparison,event)"
+ * Edit forms should have `onsubmit="calli.submitUpdate(comparison,event)"`
  * Both create and edit forms' input and textarea tags should include
      `onchange="calli.updateProperty(event, 'rdfs:label')"`
      Where rdfs:label is the datatype property of the field
- * <select/>, type="checkbox", and type="radio" fields that are populated from
+ * `<select/>`, `type="checkbox"`, and `type="radio"` fields that are populated from
      the RDF store should be replaced with an RDF Named Query and included using
      `<xi:include href="select-query.rq?select" />` or another pragrma
      ?select, ?checkbox, ?checkbox-include, ?radio, ?radio-inline.
@@ -87,5 +87,6 @@ available in 1.4.0.
 ```
  * Replace `<iframe class="flex"/>` with `calli.fillElement('iframe')`
  * Replace `<asibe class="optional"/>` with `$('aside').filter(calli.isEmptyResource).remove();`
- * calliSubmit, calliRedirect and other calli* events should no longer be used
+ * Remove class attributes from `<time/>` and use [calli.parseDateTime](http://callimachusproject.org/docs/1.4/callimachus-reference.docbook?view#parseDateTime) to format
+ * calliSubmit, calliRedirect and other calli* events should be replaced with [a function call](http://callimachusproject.org/docs/1.4/callimachus-reference.docbook?view#JavaScript_Reference)
 

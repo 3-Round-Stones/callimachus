@@ -31,7 +31,7 @@ function parseDateTime(text, asof) {
     if (/^\s*([\d]+\-?){1,2}\s*$/.exec(text))
         return NaN;
     var struct = /(?:(\d{4})-?(\d{2})-?(\d{2}))?(?:[T ]?(\d{2}):?(\d{2}):?(\d{2})(?:\.(\d{3,}))?)?(?:(Z)|([+\-])(\d{2})(?::?(\d{2}))?)?/.exec(text);
-    if (!struct)
+    if (!struct || !struct[0])
         return Date.parse(text);
     var minutesOffset = 0;
     if (struct[8] !== 'Z' && struct[9]) {

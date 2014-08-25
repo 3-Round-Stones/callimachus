@@ -20,7 +20,7 @@ DELETE {
     GRAPH ?schema { ?class a owl:Class ; owl:equivalentClass ?equivalent }
     FILTER (?equivalent != ?class)
     ?resource a ?equivalent .
-    FILTER (!strstarts(str(?resource),str(</callimachus/>)))
+    FILTER (!strstarts(str(?resource),str(</callimachus/>)) || strstarts(str(?resource),str(</callimachus/changes/>)))
 };
 
 DELETE {

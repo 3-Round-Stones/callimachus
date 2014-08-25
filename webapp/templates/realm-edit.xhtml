@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <html version="XHTML+RDFa 1.0" xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:xi="http://www.w3.org/2001/XInclude"
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
     xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
@@ -44,10 +45,16 @@
                 calli.deleteResource(event);
             }).then(undefined, calli.error);
         };
-        $('#layout').bind('drop', function(event) {
-            calli.insertResource(event).then(function(){
-                $('[rel="calli:layout"]').children(':not(:last-child)').remove();
-            });
+        $('#layout').on("dragenter dragover dragleave", function(event){
+            event.preventDefault();
+            return false;
+        }).on("drop", function(event){
+            event.preventDefault();
+            var url = event.dataTransfer.getData('URL') || vent.dataTransfer.getData('Text');
+            if (!url) return;
+            var iri = url.trim().replace(/\?.*/,'');
+            var label = iri.replace(/.*\//,'').replace(/\.xq$/,'');
+            $('#layout select').append($('<option/>', {value: iri}).text(label)).val(iri).change();
         });
     });
     // ]]>
@@ -65,13 +72,15 @@
                     <fieldset class="col-sm-6">
                         <legend>Realm settings</legend>
                         <div id="layout" dropzone="link string:text/uri-list" class="form-group">
-                          <label>Layout <a href="../types/XQuery?create" title="Customize"
-                              onclick="calli.createResource(event, this.href + '#!' + $('#layout-sample').attr('href'))" class="glyphicon glyphicon-list-alt" /></label>
-                          <div rel="calli:layout">
-                            <span resource="?layout" class="label label-info">
-                              <span property="rdfs:label" />
-                            </span>
-                          </div>
+                          <label>Layout <a href="../types/XQuery" title="Customize"
+                              onclick="calli.createResource(event, '?create=' + encodeURIComponent(this.href) + '#!' + $('#layout-sample').attr('href'))" class="glyphicon glyphicon-list-alt" /></label>
+                        <div>
+                            <select placeholder="Choose a layout" class="form-control" onchange="calli.updateResource(event,'calli:layout')">
+                                <option selected="selected" rel="calli:layout" resource="?layout" value="{?layout}">{rdfs:label}</option>
+                                <option resource="../../default-layout.xq">Default layout</option>
+                                <xi:include href="../queries/realm-layout-list.rq?select" xpointer="xpath(/*/node())" />
+                            </select>
+                        </div>
                         </div>
                         <div class="form-group">
                             <label for="allowOrigin">Allowed origins</label>
@@ -110,7 +119,7 @@
                         <div class="form-group">
                             <label for="type">Type</label>
                             <div>
-                                <select id="type">
+                                <select id="type" class="form-control">
                                     <option value="calli:copy">Copy (200)</option>
                                     <option value="calli:canonical">Canonical (301)</option>
                                     <option value="calli:alternate">Alternate (302)</option>

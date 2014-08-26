@@ -43,8 +43,9 @@ calli.submitTurtle = function(event, local) {
                 return calli.postTurtle(action, data);
             });
         } else if (confirm("This create page is deprecated, use a different link next time, do you still want to continue")) {
-            return calli.promptForNewResource(null, local).then(function(folder, local){
-                if (!folder || !local) return undefined;
+            return calli.promptForNewResource(null, local).then(function(two){
+                if (!two || !two.length) return undefined;
+                var folder = two[0], local = two[1];
                 var type = window.location.href.replace(/\?.*|\#.*/, '');
                 var url = folder + '?create=' + encodeURIComponent(type);
                 var resource = folder.replace(/\/?$/, '/') + local.replace(/%20/g, '+');

@@ -242,11 +242,9 @@ function UpdateWriter() {
                 buf.push(term["xml:lang"].replace(/[^0-9a-zA-Z\-]/g, ''));
             }
             // datatype
-            else if (term.dataype && term.datatype != "http://www.w3.org/2001/XMLSchema#string") {
+            else if (term.datatype && term.datatype != "http://www.w3.org/2001/XMLSchema#string") {
                 buf.push('^^');
-                buf.push('<');
                 buf.push(this.term({type:'uri',value:term.datatype}));
-                buf.push('>');
             }
             return buf.join('');
         }

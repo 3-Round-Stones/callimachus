@@ -97,7 +97,7 @@ form {
 
 .navbar + .container > *.breadcrumb:first-child {
     margin-bottom: 0px;
-    padding: 5px 2px;
+    padding: 5px;
     background-color: transparent;
     opacity: 0.8;
 }
@@ -115,7 +115,7 @@ body {
     height: 100%;
     margin: 0;
     padding: 0;
-    margin-bottom: @navbar-large-height;
+    margin-bottom: @navbar-large-height !important;
 }
 
 html.iframe,
@@ -123,34 +123,31 @@ html.iframe body {
     height: auto;
 }
 
-.navbar-relative-bottom {
+.navbar.navbar-relative-bottom {
     width: 100%;
     clear: both;
     border-top: 1px solid @navbar-default-border;
     height: @navbar-height;
-    margin-bottom: 0;
     box-sizing: border-box;
+    position: absolute;
+    right: 0;
+    left: 0;
+    z-index: auto;
+    margin-bottom: 0; // remove 18px margin for default navbar
+    border-radius: 0;
+}
+.navbar.navbar-relative-bottom .navbar-inner {
+  border-width: 1px 0 0;
 }
 
-.navbar-large {
+.navbar.navbar-large {
     height: @navbar-large-height;
 }
 
-.navbar-large .navbar-inner {
+.navbar.navbar-large .navbar-inner {
     min-height: @navbar-large-height;
     padding-top: 0.5em;
     padding-bottom: 0.5em;
-}
-
-.navbar-relative-bottom {
-  position: absolute;
-  right: 0;
-  left: 0;
-  z-index: auto;
-  margin-bottom: 0; // remove 18px margin for default navbar
-}
-.navbar-relative-bottom .navbar-inner {
-  border-width: 1px 0 0;
 }
 
 .navbar-relative-bottom {

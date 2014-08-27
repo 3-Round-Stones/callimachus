@@ -48,8 +48,6 @@
 
     <target name="clean" description="clean up temporary files">
         <!-- Delete the directory trees -->
-        <delete dir="${reports.tests}" />
-        <delete dir="${build.tests}" />
         <delete dir="${build}" />
         <delete dir="${dist}" />
         <delete dir="${lib}" />

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <html version="XHTML+RDFa 1.0" xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:xi="http://www.w3.org/2001/XInclude"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
     xmlns:skos="http://www.w3.org/2004/02/skos/core#" xmlns:dcterms="http://purl.org/dc/terms/"
@@ -8,6 +9,9 @@
 <head>
     <title>New Concept</title>
     <link rel="help" href="../../callimachus-for-web-developers#Concept" target="_blank" title="Help" />
+    <link id="type" href="../types/Concept" />
+    <link id="concept-search" href="../queries/concept-search.rq?results&amp;tqx=out:sparql-json&amp;q={q}" />
+    <script type="text/javascript" src="../scripts/concept.js"></script>
 </head>
 <body>
     <form role="form" id="form" method="POST" action="" enctype="text/turtle" typeof="skos:Concept" class="container"
@@ -52,28 +56,20 @@
                     <div property="skos:scopeNote"></div>
                     <div property="skos:historyNote"></div>
                 </fieldset>
-                <fieldset class="row hidden-iframe">
-                    <div id="related" dropzone="link string:text/uri-list" class="form-group col-sm-6"
-                            ondrop="calli.insertResource(event)">
-                        <label>Related <a href="../types/Concept" title="Create"
-                                onclick="calli.createResource(event, './?create=' + encodeURIComponent(this.href))" class="glyphicon glyphicon-list-alt" /></label>
-                        <div rel="skos:related">
-                            <span resource="?related" typeof="skos:Concept" class="label label-info">
-                                <span property="skos:prefLabel" />
-                                <a href="{?related}" title="Remove relationship" onclick="calli.removeResource(event)" class="glyphicon glyphicon-remove" />
-                            </span>
-                        </div>
+                <fieldset class="row">
+                    <div dropzone="link string:text/uri-list" class="form-group col-sm-6">
+                        <label>Related</label>
+                        <select id="related" class="form-control" multiple="multiple"
+                                onchange="calli.updateResource(event,'skos:related')">
+                            <option selected="selected" rel="skos:related" resource="?related" value="{?related}">{skos:prefLabel}</option>
+                        </select>
                     </div>
-                    <div id="narrower" dropzone="link string:text/uri-list" class="form-group col-sm-6"
-                            ondrop="calli.insertResource(event)">
-                        <label>Narrower <a href="../types/Concept" title="Create"
-                                onclick="calli.createResource(event, './?create=' + encodeURIComponent(this.href))" class="glyphicon glyphicon-list-alt" /></label>
-                        <div rel="skos:narrower">
-                            <span resource="?narrower" typeof="skos:Concept" class="label label-info">
-                                <span property="skos:prefLabel" />
-                                <a href="{?narrower}" title="Remove relationship" onclick="calli.removeResource(event)" class="glyphicon glyphicon-remove" />
-                            </span>
-                        </div>
+                    <div dropzone="link string:text/uri-list" class="form-group col-sm-6">
+                        <label>Narrower</label>
+                        <select id="narrower" class="form-control" multiple="multiple"
+                                onchange="calli.updateResource(event,'skos:narrower')">
+                            <option selected="selected" rel="skos:narrower" resource="?narrower" value="{?narrower}">{skos:prefLabel}</option>
+                        </select>
                     </div>
                 </fieldset>
                 <hr />

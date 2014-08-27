@@ -72,6 +72,7 @@ calli.submitTurtle = function(event, local) {
 
 calli.postTurtle = function(url, data) {
     var serializer = new TurtleSerializer();
+    serializer.setBaseUri(data.base);
     serializer.setMappings(data.prefix);
     data.results.bindings.forEach(function(triple){
         serializer.addTriple(triple);

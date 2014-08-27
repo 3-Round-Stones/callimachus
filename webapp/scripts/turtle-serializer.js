@@ -23,12 +23,17 @@ function TurtleSerializer() {
     this.XMLLiteralURI = "http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral"; 
     this.StringURI = "http://www.w3.org/2001/XMLSchema#string";
     this.LangStringURI = "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString"; 
-    
+
+    this.baseBuffer = '';
     this.prefixes = {};
-    
+
     this.subjectBuffer = {};
     this.prefixBuffer = {};
-    
+
+    this.setBaseUri = function(baseUri) {
+        this.baseBuffer = '@base <' + baseUri + '>.';
+    };
+
     /**
      * Sets a single namespace and prefix
      */
@@ -118,6 +123,8 @@ function TurtleSerializer() {
     this.toString = function() {
         // generate doc
         var result = [];
+        // base
+        if (this.baseBuffer) result.push(this.baseBuffer);
         // prefixes
         for (var prefix in this.prefixBuffer) {
             result.push(this.prefixBuffer[prefix]);

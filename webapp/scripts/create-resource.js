@@ -13,7 +13,7 @@ calli.createResource = function(event, href) {
     if (!href && $(node).closest("[href]").length) {
         href = $(node).closest("[href]").attr("href");
     }
-    var list = $(node).closest('[dropzone]');
+    var list = $(node).closest('.form-group,[dropzone]');
     if (!href)
         return true;
     var title = '';

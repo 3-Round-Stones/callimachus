@@ -27,7 +27,7 @@ import org.callimachusproject.webdriver.pages.SampleResourceCreate;
 import org.openqa.selenium.By;
 
 public class MeetingNotesFunctionalTest extends BrowserFunctionalTestCase {
-	private static final String DOWNLOAD_URL = "http://callimachus.googlecode.com/files/notes.car";
+	private static final String DOWNLOAD_URL = "https://github.com/3-Round-Stones/meeting-notes/archive/master.zip";
 
 	public static TestSuite suite() throws Exception {
 		return BrowserFunctionalTestCase
@@ -64,11 +64,10 @@ public class MeetingNotesFunctionalTest extends BrowserFunctionalTestCase {
 		browser.click(By.linkText("Edit"));
 		browser.focusInTopWindow();
 		logger.info("Creating tag");
-		browser.click(By.xpath("//label[@for='topic']/a"));
+		browser.type(By.xpath("//div[label/@for='topics']//input"), "Callimachus Tag");
 		browser.focusInModalFrame("topics");
-		browser.type(By.id("label"), "Callimachus Tag");
 		browser.type(By.id("comment"), "Anything about Callimachus");
-		browser.click(By.xpath("//button[text()='Create']"));
+		browser.click(By.xpath("//button[text()='Add']"));
 		browser.waitForFrameToClose("topics");
 		browser.click(By.xpath("//button[text()='Save']"));
 		browser.focusInTopWindow();

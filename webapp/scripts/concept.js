@@ -57,7 +57,7 @@ jQuery(function($){
             if (xhr.status != 404) return calli.reject(xhr);
             return calli.createResource(document, url);
         }).then(function(resource){
-            return {
+            return resource && {
                 value: resource,
                 text: resource.replace(/.*\//,'')
             };

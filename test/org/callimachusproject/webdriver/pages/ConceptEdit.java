@@ -41,8 +41,8 @@ public class ConceptEdit extends CalliPage {
 		return page();
 	}
 
-	public ConceptCreate openNarrowDialogue() {
-		browser.click(By.cssSelector("#narrower label a"));
+	public ConceptCreate openNarrowDialogue(String label) {
+		browser.type(By.xpath("//div[select/@id='narrower']//input"), label);
 		browser.focusInModalFrame("narrower");
 		final ConceptEdit edit = this;
 		return new ConceptCreate(browser) {

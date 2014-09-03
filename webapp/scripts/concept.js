@@ -16,7 +16,7 @@ jQuery(function($){
             return false;
         }).on('drop', dropConcept.bind(this, $(selector).selectize({
             load: conceptSearch,
-            create: conceptCreate
+            create: conceptCreate.bind(this, selector)
         })[0].selectize));
     });
 
@@ -46,7 +46,7 @@ jQuery(function($){
         });
     }
 
-    function conceptCreate(label, callback) {
+    function conceptCreate(selector, label, callback) {
         if (!label) return callback();
         var folder = $('#folder').prop('href') || window.location.pathname;
         var url = folder + '?create=' + encodeURIComponent($('#type').prop('href')) + '#' + label;
@@ -55,7 +55,7 @@ jQuery(function($){
             return resource; // already exists
         }, function(xhr) {
             if (xhr.status != 404) return calli.reject(xhr);
-            return calli.createResource(document, url);
+            return calli.createResource(selector, url);
         }).then(function(resource){
             return resource && {
                 value: resource,

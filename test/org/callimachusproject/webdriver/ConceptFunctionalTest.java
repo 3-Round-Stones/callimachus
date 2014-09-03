@@ -103,7 +103,7 @@ public class ConceptFunctionalTest extends BrowserFunctionalTestCase {
 				.waitUntilTitle(conceptLabel);
 		logger.info("Create concept {}", sun[0]);
 		ConceptEdit edit = page.openEdit(ConceptEdit.class);
-		edit.openNarrowDialogue().with(sun[0], sun[1], sun[2], sun[3]).create();
+		edit.openNarrowDialogue(sun[1]).with(sun[0], sun[1], sun[2], sun[3]).create();
 		edit.save().openRelatedChanges().openResource(sun[1])
 				.waitUntilTitle(sun[1]).openWhatLinksHere()
 				.openResult(conceptLabel);

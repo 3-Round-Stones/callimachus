@@ -10,9 +10,7 @@ calli.selectResource = function(event, src) {
     event = calli.fixEvent(event);
     event.preventDefault();
     var node = event.target;
-    var list = $(node).closest('[dropzone]');
-    if (!list.length)
-        return true;
+    var list = $(node).closest('.form-group,[dropzone]');
     var title = '';
     if (list.attr("id")) {
         title = $("label[for='" + list.attr("id") + "']").text();

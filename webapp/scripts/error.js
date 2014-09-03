@@ -108,6 +108,8 @@ function asHtml(obj) {
 var unloading = false;
 $(window).bind('unload', function() {
     unloading = true;
+}).bind('beforeunload', function(){
+    unloading = true;
 });
 
 function flash(message, stack) {

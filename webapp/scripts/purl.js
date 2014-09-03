@@ -20,6 +20,10 @@ jQuery(function($){
             var btn = $(form).find('button[type="submit"]');
             btn.button('loading');
             calli.resolve($(form).attr("enctype")).then(function(enctype){
+                var getTextarea = $('#get').find('textarea');
+                if (!getTextarea.val()) {
+                    getTextarea.val('?view');
+                }
                 var action = calli.getFormAction(form);
                 if (enctype == "text/turtle") {
                     return calli.resolve(form).then(function(form){
@@ -43,9 +47,7 @@ jQuery(function($){
                         return calli.postTurtle(action, data);
                     });
                 } else {
-                    return calli.resolve(form).then(function(form){
-                        return calli.copyResourceData(form);
-                    }).then(function(insertData){
+                    return calli.resolve(form).then(calli.copyResourceData).then(function(insertData){
                         insertData.results.bindings.push({
                             s: {type:'uri', value: insertData.head.link[0]},
                             p: {type:'uri', value: 'http://purl.org/dc/terms/modified'},

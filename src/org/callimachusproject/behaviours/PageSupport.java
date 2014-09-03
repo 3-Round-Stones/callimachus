@@ -108,8 +108,6 @@ public abstract class PageSupport implements CalliObject {
 			String base, final RDFObject target) throws Exception {
 		try {
 			ObjectConnection con = target.getObjectConnection();
-			if (target.toString().equals(base))
-				throw new RDFHandlerException("Target resource URI not provided");
 			if (isResourceAlreadyPresent(con, target.toString()))
 				throw new Conflict("Resource already exists: " + target);
 			StatementCollector statements = new StatementCollector();

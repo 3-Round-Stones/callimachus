@@ -26,6 +26,7 @@ import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.StringEntity;
 import org.callimachusproject.client.HttpUriResponse;
+import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidException;
@@ -64,7 +65,7 @@ public abstract class PurlSupport implements CalliObject {
 		};
 		String location = PercentCodec.encodeOthers(line.group(2),
 				PercentCodec.ALLOWED);
-		URI target = URI.create(this.toString()).resolve(location);
+		URI target = URI.create(TermFactory.newInstance(this.toString()).resolve(location));
 		request.setURI(target.normalize());
 		Matcher body = HTTP_BODY.matcher(requestMessage);
 		StringEntity entity = null;

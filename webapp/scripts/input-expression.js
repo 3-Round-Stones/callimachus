@@ -26,7 +26,8 @@ function bindInputChange(inputs) {
     var onchange = function() {
         var input = $(this);
         var expression = input.attr("data-expression-value");
-        propagate(input, expression, input.val());
+        if (this.getAttribute('rel') != expression)
+            propagate(input, expression, input.val());
     };
     inputs.change(onchange);
     inputs.each(onchange);
@@ -36,7 +37,8 @@ function bindTextAreaChange(areas) {
     var onchange = function() {
         var area = $(this);
         var expression = area.attr("data-text-expression");
-        propagate(area, expression, area.val());
+        if (this.getAttribute('rel') != expression)
+            propagate(area, expression, area.val());
     };
     areas.change(onchange);
     areas.each(onchange);

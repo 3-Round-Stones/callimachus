@@ -21,6 +21,8 @@
 var unloading = false;
 $(window).unload(function() {
     unloading = true;
+}).bind('beforeunload', function(){
+    unloading = true;
 });
 
 $(document).error(function(event) {

@@ -144,7 +144,7 @@
         }
         upload_queue++;
         queueTotalSize += file.size;
-        var next = function(){
+        var updateProgress = function(){
             upload_queue--;
             queueCompleteSize += file.size;
             uploadProgress(0);
@@ -154,6 +154,10 @@
                 queueCompleteSize = 0;
                 notifyProgressComplete();
             }
+        };
+        var updateProgressAfterError = function(error) {
+            updateProgress();
+            return calli.reject(error);
         };
         var slug = calli.slugify(file.name.replace(/[\-\s]+/g, '-'));
         var xhr = $.ajax({
@@ -168,12 +172,12 @@
                     contentType = xhr.getResponseHeader('Content-Type');
                 }
                 return uploading.then(function() {
-                    return putFile(file, contentType, slug).then(next);
+                    return putFile(file, contentType, slug).then(updateProgress, updateProgressAfterError);
                 });
             }
         }, function() {
             return uploading.then(function() {
-                return postCreate(file, slug).then(next);
+                return postCreate(file, slug).then(updateProgress, updateProgressAfterError);
             });
         });
     }
@@ -199,7 +203,7 @@
                 }
                 return xhr;
             }
-        })).then(reload, calli.error);
+        })).then(reload);
     }
     function putFile(file, contentType, slug) {
         var classFile = $('#file-class-link').attr('href');
@@ -221,7 +225,7 @@
                 }
                 return xhr;
             }
-        })).then(reload, calli.error);
+        })).then(reload);
     }
     var uploadedSize = 0;
     function uploadProgress(complete, estimated) {

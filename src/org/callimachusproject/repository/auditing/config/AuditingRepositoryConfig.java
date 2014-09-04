@@ -29,6 +29,7 @@
 package org.callimachusproject.repository.auditing.config;
 
 import static org.callimachusproject.repository.auditing.config.AuditingSchema.ACTIVITY_NAMESPACE;
+import static org.callimachusproject.repository.auditing.config.AuditingSchema.AUDIT_REMOVAL;
 import static org.callimachusproject.repository.auditing.config.AuditingSchema.MAX_RECENT;
 import static org.callimachusproject.repository.auditing.config.AuditingSchema.MIN_RECENT;
 import static org.callimachusproject.repository.auditing.config.AuditingSchema.PURGE_AFTER;
@@ -59,6 +60,7 @@ public class AuditingRepositoryConfig extends ContextAwareConfig {
 	private int maxRecent;
 	private Duration purgeAfter;
 	private Boolean transactional;
+	private boolean auditingRemoval = true;
 
 	public String getNamespace() {
 		return ns;
@@ -100,6 +102,14 @@ public class AuditingRepositoryConfig extends ContextAwareConfig {
 		this.transactional = transactional;
 	}
 
+	public boolean isAuditingRemoval() {
+		return auditingRemoval;
+	}
+
+	public void setAuditingRemoval(boolean auditingRemoval) {
+		this.auditingRemoval = auditingRemoval;
+	}
+
 	@Override
 	public Resource export(Graph model) {
 		ValueFactory vf = ValueFactoryImpl.getInstance();
@@ -116,6 +126,7 @@ public class AuditingRepositoryConfig extends ContextAwareConfig {
 		if (transactional != null) {
 			model.add(self, TRANSACTIONAL, vf.createLiteral(transactional));
 		}
+		model.add(self, AUDIT_REMOVAL, vf.createLiteral(auditingRemoval));
 		return self;
 	}
 
@@ -145,6 +156,10 @@ public class AuditingRepositoryConfig extends ContextAwareConfig {
 		lit = model.filter(implNode, TRANSACTIONAL, null).objectLiteral();
 		if (lit != null) {
 			setTransactional(lit.booleanValue());
+		}
+		lit = model.filter(implNode, AUDIT_REMOVAL, null).objectLiteral();
+		if (lit != null) {
+			setAuditingRemoval(lit.booleanValue());
 		}
 	}
 

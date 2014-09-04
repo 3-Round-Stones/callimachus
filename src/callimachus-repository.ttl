@@ -22,6 +22,7 @@
         audit:purgeObsoleteActivitiesAfter "P7D"^^xsd:dayTimeDuration ;
         audit:minimumRecentActivities 100 ;
         audit:maximumRecentActivities 1000 ;
+        audit:auditRemoval true ;
         rep:delegate [
             rep:repositoryType "openrdf:SailRepository" ;
             sr:sailImpl [

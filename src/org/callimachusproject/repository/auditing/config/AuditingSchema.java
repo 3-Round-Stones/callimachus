@@ -48,6 +48,7 @@ public class AuditingSchema {
 	public static final URI MAX_RECENT = new URIImpl(NAMESPACE + "maximumRecentActivities");
 	public static final URI PURGE_AFTER = new URIImpl(NAMESPACE + "purgeObsoleteActivitiesAfter");
 	public static final URI TRANSACTIONAL = new URIImpl(NAMESPACE + "isTransactional");
+	public static final URI AUDIT_REMOVAL = new URIImpl(NAMESPACE + "auditRemoval");
 
 	private AuditingSchema() {
 		// no constructor

@@ -7,7 +7,7 @@
 jQuery(function($){
 
     if (window.location.hash.substring(1) && !$('#label').val()){
-        $('#label').val(window.location.hash.substring(1)).change()[0].select();
+        $('#label').val(decodeURIComponent(window.location.hash.substring(1))).change()[0].select();
     }
 
     ['#related', '#narrower'].forEach(function(selector){
@@ -49,7 +49,7 @@ jQuery(function($){
     function conceptCreate(selector, label, callback) {
         if (!label) return callback();
         var folder = $('#folder').prop('href') || window.location.pathname;
-        var url = folder + '?create=' + encodeURIComponent($('#type').prop('href')) + '#' + label;
+        var url = folder + '?create=' + encodeURIComponent($('#type').prop('href')) + '#' + encodeURIComponent(label);
         var resource = folder.replace(/\/?$/,'/') + calli.slugify(label);
         calli.headText(resource).then(function(){
             return resource; // already exists

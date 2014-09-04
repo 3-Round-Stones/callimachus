@@ -252,7 +252,10 @@ rdfs:label a rdf:Property.
             var name = new java.util.Scanner(inputStream).useDelimiter('\\n').next();
             inputStream.close();
             inputStream = multipart.next();
-            folder = this.designateAsFolder(this.resolve(name), Folder);
+            var resolved = this.resolve(name);
+            if (resolved.indexOf(this.toString()) !== 0)
+                throw new BadRequest("Subfolder must be within " + this.toString());
+            folder = this.designateAsFolder(resolved, Folder);
         }
         try {
             println("Importing folder content from " + multipart.headers.get("content-disposition"));

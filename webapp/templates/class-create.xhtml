@@ -18,79 +18,9 @@
     <link rel="sample-create" href="../pages/sample-create.xhtml" />
     <link rel="sample-view" href="../pages/sample-view.xhtml" />
     <link rel="sample-edit" href="../pages/sample-edit.xhtml" />
-    <script type="text/javascript"> // <![CDATA[
-    jQuery(function($){
-        $('link[rel="super"]').each(function(){
-            var href = this.href;
-            var de = jQuery.Event('drop');
-            de.dataTransfer = {getData:function(){return href}};
-            $('#subClassOf').trigger(de);
-        });
-        $('#create').bind('drop', function(event) {
-            calli.insertResource(event).then(function(){
-                $('link[rel="group"]').each(function(){
-                    var href = this.href;
-                    var de = jQuery.Event('drop');
-                    de.dataTransfer = {getData:function(){return href}};
-                    $('#authors').trigger(de);
-                });
-            });
-        });
-        $('#view').bind('drop', function(event) {
-            calli.insertResource(event).then(function() {
-                $('link[rel="viewable"]').each(function(){
-                    var href = this.href;
-                    var de = jQuery.Event('drop');
-                    de.dataTransfer = {getData:function(){return href}};
-                    $('#subClassOf').trigger(de);
-                });
-            });
-        });
-        $('#edit').bind('drop', function(event) {
-            calli.insertResource(event).then(function() {
-                $('link[rel="editable"]').each(function(){
-                    var href = this.href;
-                    var de = jQuery.Event('drop');
-                    de.dataTransfer = {getData:function(){return href}};
-                    $('#subClassOf').trigger(de);
-                });
-            });
-        });
-        $('#composite').click(function(){
-            $('link[rel="composite"]').each(function(){
-                var composite = $('#subClassOf').find('[about$="' + this.href + '"]');
-                if ($('#composite').is(':checked')) {
-                    if (!composite.length) {
-                        var href = this.href;
-                        var de = jQuery.Event('drop');
-                        de.dataTransfer = {getData:function(){return href}};
-                        $('#subClassOf').trigger(de);
-                    }
-                } else {
-                    composite.remove();
-                }
-            });
-        });
-        $(document).bind('DOMNodeInserted', function(event) {
-            var label = $('.equivalentLabel', event.target).text();
-            var comment = $('.equivalentComment', event.target).text();
-            if (label && !$('#label').val()) {
-                $('#label').val(label);
-                $('#label').change();
-            }
-            if (comment && !$('#comment').val()) {
-                $('#comment').val(comment);
-                $('#comment').change();
-            }
-        });
-        var equivalentURL = unescape(window.location.hash.substring(2));
-        if (equivalentURL.length > 0) {
-            var de = jQuery.Event('drop');
-            de.dataTransfer = {getData:function(){return equivalentURL}};
-            $('#equivalentClass').trigger(de);
-        }
-    }); // ]]>
-    </script>
+    <link id="class-search" href="../queries/class-search.rq?results&amp;tqx=out:sparql-json&amp;q={q}" />
+    <link id="class-lookup" href="../queries/class-search.rq?results&amp;tqx=out:sparql-json&amp;iri={iri}" />
+    <script type="text/javascript" src="../scripts/class.js"></script>
 </head>
 <body>
     <form role="form" id="form" method="POST" action="" enctype="text/turtle" typeof="owl:Class" class="container"
@@ -154,27 +84,19 @@
                             </span>
                         </div>
                     </div>
-                    <div id="subClassOf" dropzone="link string:text/uri-list" class="form-group col-sm-4"
-                            ondrop="calli.insertResource(event)">
-                        <label>Super <a href="/?view" title="Create"
-                                onclick="calli.selectResource(event)" class="glyphicon glyphicon-folder-open" /></label>
-                        <div rel="rdfs:subClassOf">
-                            <span resource="?subClassOf" typeof="owl:Class" class="label label-info">
-                                <span property="rdfs:label" />
-                                <a href="{?subClassOf}" title="Don't extend" onclick="calli.removeResource(event)" class="glyphicon glyphicon-remove" />
-                            </span>
-                        </div>
+                    <div dropzone="link string:text/uri-list" class="form-group col-sm-4">
+                        <label for="subClassOf">Super</label>
+                        <select id="subClassOf" class="form-control" multiple="multiple"
+                                onchange="calli.updateResource(event,'rdfs:subClassOf')">
+                            <option selected="selected" rel="rdfs:subClassOf" resource="?subClassOf" value="{?subClassOf}">{rdfs:label}</option>
+                        </select>
                     </div>
-                    <div id="equivalentClass" dropzone="link string:text/uri-list" class="form-group col-sm-4"
-                            ondrop="calli.insertResource(event)">
-                        <label>Equivalent</label>
-                        <div rel="owl:equivalentClass">
-                            <span resource="?equivalentClass" typeof="owl:Class" class="label label-info">
-                                <span class="equivalentLabel" property="rdfs:label" />
-                                <span style="display:none" class="equivalentComment">{rdfs:comment}</span>
-                                <a href="{?equivalentClass}" title="Not equivalent" onclick="calli.removeResource(event)" class="glyphicon glyphicon-remove" />
-                            </span>
-                        </div>
+                    <div dropzone="link string:text/uri-list" class="form-group col-sm-4">
+                        <label for="equivalentClass">Equivalent</label>
+                        <select id="equivalentClass" class="form-control" multiple="multiple"
+                                onchange="calli.updateResource(event,'owl:equivalentClass')">
+                            <option selected="selected" rel="owl:equivalentClass" resource="?equivalentClass" value="{?equivalentClass}">{rdfs:label}</option>
+                        </select>
                     </div>
                 </fieldset>
                 <fieldset class="form-group">

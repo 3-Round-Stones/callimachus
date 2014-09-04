@@ -9,16 +9,27 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX skos:<http://www.w3.org/2004/02/skos/core#>
 PREFIX keyword:<http://www.openrdf.org/rdf/2011/keyword#>
 
-SELECT ?resource ?label {
+SELECT REDUCED ?resource ?label ?definition {
     {
-        SELECT * {
-            ?resource a skos:Concept; keyword:phone ?soundex
-            FILTER sameTerm(?soundex, keyword:soundex("$q"))
-            FILTER (strlen("$q") > 0)
+        SELECT REDUCED ?resource {
+            {
+                ?resource a skos:Concept; keyword:phone ?soundex
+                FILTER sameTerm(?soundex, keyword:soundex("$q"))
+                FILTER (strlen("$q") > 2)
+            } UNION {
+                ?resource a skos:Concept; skos:prefLabel "$q"
+                FILTER (strlen("$q") < 3)
+            } UNION {
+                ?resource a skos:Concept
+                FILTER sameTerm(?resource, iri(<$iri>))
+            }
         } LIMIT 100
     }
     FILTER (isIRI(?resource))
     ?resource skos:prefLabel ?label
     FILTER isLiteral(?label)
-    FILTER regex(?label, keyword:regex("$q"))
+    FILTER (strlen("$q") < 3 || regex(?label, keyword:regex("$q")))
+    OPTIONAL {
+        ?resource skos:definition ?definition
+    }
 } ORDER BY ?label LIMIT 100

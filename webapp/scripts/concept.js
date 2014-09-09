@@ -16,7 +16,7 @@ jQuery(function($){
             return false;
         }).on('drop', dropConcept.bind(this, $(selector).selectize({
             load: conceptSearch,
-            create: conceptCreate.bind(this, selector),
+            create: window.parent == window && conceptCreate.bind(this, selector),
             render: {
                 option: renderConceptOption,
                 item: renderConceptItem
@@ -25,7 +25,7 @@ jQuery(function($){
     });
 
     function renderConceptItem(data, escape){
-        return '<div title="' + escape(data.value) + '">' + escape(data.text) + '</div>';
+        return '<div title="' + escape(data.value) + '" onclick="calli.createResource(this, this.title + \'?edit\').then(undefined, calli.error)">' + escape(data.text) + '</div>';
     }
 
     function renderConceptOption(data, escape){
@@ -72,7 +72,7 @@ jQuery(function($){
                 return {
                     value: bindings.resource.value,
                     text: bindings.label.value,
-                    definition: bindings.definition.value
+                    definition: bindings.definition && bindings.definition.value
                 };
             });
         }).then(callback, function(error){

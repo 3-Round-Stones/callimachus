@@ -7,16 +7,18 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX skos:<http://www.w3.org/2004/02/skos/core#>
+PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
 PREFIX keyword:<http://www.openrdf.org/rdf/2011/keyword#>
 
 SELECT REDUCED ?resource ?label ?comment {
     {
         SELECT REDUCED ?resource {
             {
-                ?resource a owl:Class; keyword:phone ?soundex
+                ?resource a calli:Page; keyword:phone ?soundex
                 FILTER sameTerm(?soundex, keyword:soundex("$q"))
+                FILTER (!strstarts(str(?resource),str(<../../>)))
             } UNION {
-                ?resource a owl:Class
+                ?resource a calli:Page
                 FILTER sameTerm(?resource, iri(<$iri>))
             }
         } LIMIT 100

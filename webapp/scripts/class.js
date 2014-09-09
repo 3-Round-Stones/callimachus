@@ -6,36 +6,6 @@
 
 
 jQuery(function($){
-    $('#create').bind('drop', function(event) {
-        calli.insertResource(event).then(function(){
-            $('link[rel="group"]').each(function(){
-                var href = this.href;
-                var de = jQuery.Event('drop');
-                de.dataTransfer = {getData:function(){return href;}};
-                $('#authors').trigger(de);
-            });
-        });
-    });
-    $('#view').bind('drop', function(event) {
-        calli.insertResource(event).then(function() {
-            $('link[rel="viewable"]').each(function(){
-                var href = this.href;
-                var de = jQuery.Event('drop');
-                de.dataTransfer = {getData:function(){return href;}};
-                $('#subClassOf').trigger(de);
-            });
-        });
-    });
-    $('#edit').bind('drop', function(event) {
-        calli.insertResource(event).then(function() {
-            $('link[rel="editable"]').each(function(){
-                var href = this.href;
-                var de = jQuery.Event('drop');
-                de.dataTransfer = {getData:function(){return href;}};
-                $('#subClassOf').trigger(de);
-            });
-        });
-    });
     if ($('#subClassOf').find('[resource$="Composite"]').length) {
         $('#composite').attr('checked','checked');
     }
@@ -64,7 +34,7 @@ jQuery(function($){
             option: renderOption,
             item: renderItem
         }
-    })[0].selectize));
+    }).prop('selectize')));
 
     $('#subClassOf').closest('[dropzone]').on("dragenter dragover dragleave", function(event){
         event.preventDefault();
@@ -75,7 +45,7 @@ jQuery(function($){
             option: renderOption,
             item: renderItem
         }
-    })[0].selectize));
+    }).prop('selectize')));
     $('link[rel="super"]').each(function(){
         var href = this.href;
         var de = jQuery.Event('drop');
@@ -100,8 +70,27 @@ jQuery(function($){
         $('#equivalentClass').trigger(de);
     }
 
+    ['create', 'view', 'edit'].forEach(function(pragma){
+        var selector = '#' + pragma;
+        $(selector).closest('[dropzone]').on("dragenter dragover dragleave", function(event){
+            event.preventDefault();
+            return false;
+        }).on('drop', dropResourceURL.bind(this, $('#page-lookup').prop('href'), $(selector).selectize({
+            load: resourceSearch.bind(this, $('#page-search').prop('href')),
+            create: createTemplate.bind(this, $('#sample-' + pragma).prop('href'), selector),
+            render: {
+                option: renderOption,
+                item: renderEditItem
+            }
+        }).prop('selectize')));
+    });
+
     function renderItem(data, escape){
         return '<div title="' + escape(data.value) + '" onclick="calli.selectResource(this, this.title)">' + escape(data.text) + '</div>';
+    }
+
+    function renderEditItem(data, escape){
+        return '<div title="' + escape(data.value) + '" onclick="calli.selectResource(this, this.title + \'?edit\')">' + escape(data.text) + '</div>';
     }
 
     function renderOption(data, escape){
@@ -161,6 +150,20 @@ jQuery(function($){
                     comment: bindings.comment ? bindings.comment.value : ''
                 };
             });
+        }).then(callback, function(error){
+            callback();
+            return calli.error(error);
+        });
+    }
+
+    function createTemplate(template, selector, label, callback) {
+        if (!label) return callback();
+        var url = './?create=' + encodeURIComponent($('#page').prop('href')) + '#' + encodeURIComponent(label) + '!' + template;
+        return calli.createResource(selector, url).then(function(resource){
+            return resource && {
+                value: resource,
+                text: resource.replace(/.*\//,'')
+            };
         }).then(callback, function(error){
             callback();
             return calli.error(error);

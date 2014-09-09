@@ -15,13 +15,16 @@
     <link rel="viewable" href="../types/Viewable" />
     <link rel="editable" href="../types/Editable" />
     <link rel="composite" href="../types/Composite" />
-    <link rel="sample-create" href="../pages/sample-create.xhtml" />
-    <link rel="sample-view" href="../pages/sample-view.xhtml" />
-    <link rel="sample-edit" href="../pages/sample-edit.xhtml" />
+    <link id="page" href="../types/Page" />
+    <link id="sample-create" href="../pages/sample-create.xhtml" />
+    <link id="sample-view" href="../pages/sample-view.xhtml" />
+    <link id="sample-edit" href="../pages/sample-edit.xhtml" />
     <link id="party-search" href="../queries/party-search.rq?results&amp;tqx=out:sparql-json&amp;q={q}" />
     <link id="party-lookup" href="../queries/party-search.rq?results&amp;tqx=out:sparql-json&amp;iri={iri}" />
     <link id="class-search" href="../queries/class-search.rq?results&amp;tqx=out:sparql-json&amp;q={q}" />
     <link id="class-lookup" href="../queries/class-search.rq?results&amp;tqx=out:sparql-json&amp;iri={iri}" />
+    <link id="page-search" href="../queries/page-search.rq?results&amp;tqx=out:sparql-json&amp;q={q}" />
+    <link id="page-lookup" href="../queries/page-search.rq?results&amp;tqx=out:sparql-json&amp;iri={iri}" />
     <script type="text/javascript" src="../scripts/class.js"></script>
 </head>
 <body>
@@ -106,35 +109,26 @@
                 <fieldset>
                     <legend>Page Templates</legend>
                     <div class="row">
-                        <div id="create" dropzone="link string:text/uri-list" class="form-group col-sm-4">
-                            <label>Template for creating <a href="../types/Page" title="Create a new template" class="glyphicon glyphicon-list-alt"
-                                    onclick="calli.createResource(event, './?create=' + encodeURIComponent(this.href) + '#!' + $('link[rel=sample-create]').attr('href'))" /></label>
-                            <div rel="calli:create">
-                                <span resource="?create" typeof="calli:Page" class="label label-info">
-                                    <a href="{?create}?edit" property="rdfs:label" onclick="calli.openDialog(this.href, 'Template for creating');return false" />
-                                    <a href="{?create}" title="Don't use this template" onclick="calli.removeResource(event)" class="glyphicon glyphicon-remove" />
-                                </span>
-                            </div>
+                        <div dropzone="link string:text/uri-list" class="form-group col-sm-4">
+                            <label for="create">Template for creating</label>
+                            <select id="create" class="form-control"
+                                    onchange="calli.updateResource(event,'calli:create')">
+                                <option selected="selected" rel="calli:create" resource="?create" value="{?create}">{rdfs:label}</option>
+                            </select>
                         </div>
-                        <div id="view" dropzone="link string:text/uri-list" class="form-group col-sm-4">
-                            <label>Template for viewing <a href="../types/Page" title="Create a new template" class="glyphicon glyphicon-list-alt"
-                                    onclick="calli.createResource(event, './?create=' + encodeURIComponent(this.href) + '#!' + $('link[rel=sample-view]').attr('href'))" /></label>
-                            <div rel="calli:view">
-                                <span resource="?view" typeof="calli:Page" class="label label-info">
-                                    <a href="{?view}?edit" property="rdfs:label" onclick="calli.openDialog(this.href, 'Template for viewing');return false" />
-                                    <a href="{?view}" title="Don't use this template" onclick="calli.removeResource(event)" class="glyphicon glyphicon-remove" />
-                                </span>
-                            </div>
+                        <div dropzone="link string:text/uri-list" class="form-group col-sm-4">
+                            <label for="view">Template for viewing</label>
+                            <select id="view" class="form-control"
+                                    onchange="calli.updateResource(event,'calli:view')">
+                                <option selected="selected" rel="calli:view" resource="?view" value="{?view}">{rdfs:label}</option>
+                            </select>
                         </div>
-                        <div id="edit" dropzone="link string:text/uri-list" class="form-group col-sm-4">
-                            <label>Template for editing <a href="../types/Page" title="Create a new template" class="glyphicon glyphicon-list-alt"
-                                    onclick="calli.createResource(event, './?create=' + encodeURIComponent(this.href) + '#!' + $('link[rel=sample-edit]').attr('href'))" /></label>
-                            <div rel="calli:edit">
-                                <span resource="?edit" typeof="calli:Page" class="label label-info">
-                                    <a href="{?edit}?edit" property="rdfs:label" onclick="calli.openDialog(this.href, 'Template for editing');return false" />
-                                    <a href="{?edit}" title="Don't use this template" onclick="calli.removeResource(event)" class="glyphicon glyphicon-remove" />
-                                </span>
-                            </div>
+                        <div dropzone="link string:text/uri-list" class="form-group col-sm-4">
+                            <label for="edit">Template for editing</label>
+                            <select id="edit" class="form-control"
+                                    onchange="calli.updateResource(event,'calli:edit')">
+                                <option selected="selected" rel="calli:edit" resource="?edit" value="{?edit}">{rdfs:label}</option>
+                            </select>
                         </div>
                     </div>
                 </fieldset>

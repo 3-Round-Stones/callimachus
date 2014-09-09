@@ -276,8 +276,8 @@ function saveFile(form, text, callback) {
 
 // setText
 function setText(form, text, editor) {
-    if (window.location.hash.indexOf('#!') === 0) {
-        var url = window.location.hash.substring(2);
+    if (window.location.hash.indexOf('!') > 0) {
+        var url = window.location.hash.substring(window.location.hash.indexOf('!') + 1);
         return calli.getText(url).then(function(text){
             editor.postMessage('PUT text\nIf-None-Match: *' +
                 '\nContent-Location: ' + url +

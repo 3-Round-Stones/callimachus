@@ -55,14 +55,25 @@ jQuery(function($){
         });
     });
 
+    $('#authors').closest('[dropzone]').on("dragenter dragover dragleave", function(event){
+        event.preventDefault();
+        return false;
+    }).on('drop', dropResourceURL.bind(this, $('#party-lookup').prop('href'), $('#authors').selectize({
+        load: resourceSearch.bind(this, $('#party-search').prop('href')),
+        render: {
+            option: renderOption,
+            item: renderItem
+        }
+    })[0].selectize));
+
     $('#subClassOf').closest('[dropzone]').on("dragenter dragover dragleave", function(event){
         event.preventDefault();
         return false;
-    }).on('drop', dropClassURL.bind(this, $('#subClassOf').selectize({
-        load: classSearch,
+    }).on('drop', dropResourceURL.bind(this, $('#class-lookup').prop('href'), $('#subClassOf').selectize({
+        load: resourceSearch.bind(this, $('#class-search').prop('href')),
         render: {
-            option: renderClassOption,
-            item: renderClassItem
+            option: renderOption,
+            item: renderItem
         }
     })[0].selectize));
     $('link[rel="super"]').each(function(){
@@ -75,13 +86,13 @@ jQuery(function($){
     $('#equivalentClass').closest('[dropzone]').on("dragenter dragover dragleave", function(event){
         event.preventDefault();
         return false;
-    }).on('drop', dropEquivalentClassURL.bind(this, $('#equivalentClass').selectize({
-        load: classSearch,
+    }).on('drop', dropEquivalentClassURL.bind(this, $('#class-lookup').prop('href'), $('#equivalentClass').selectize({
+        load: resourceSearch.bind(this, $('#class-search').prop('href')),
         render: {
-            option: renderClassOption,
-            item: renderClassItem
+            option: renderOption,
+            item: renderItem
         }
-    })[0].selectize));
+    }).prop('selectize')));
     var equivalentURL = unescape(window.location.hash.substring(2));
     if (equivalentURL.length > 0) {
         var de = jQuery.Event('drop');
@@ -89,11 +100,11 @@ jQuery(function($){
         $('#equivalentClass').trigger(de);
     }
 
-    function renderClassItem(data, escape){
-        return '<div title="' + escape(data.value) + '">' + escape(data.text) + '</div>';
+    function renderItem(data, escape){
+        return '<div title="' + escape(data.value) + '" onclick="calli.selectResource(this, this.title)">' + escape(data.text) + '</div>';
     }
 
-    function renderClassOption(data, escape){
+    function renderOption(data, escape){
         return [
             '<div><p>' + escape(data.text) + '</p>',
             data.comment ? ('<p class="text-info">' + escape(data.comment) + '</p>') : '',
@@ -102,8 +113,8 @@ jQuery(function($){
         ].join('\n');
     }
 
-    function dropEquivalentClassURL(selectize, event) {
-        return dropClassURL(selectize, event).then(function(data){
+    function dropEquivalentClassURL(template, selectize, event) {
+        return dropResourceURL(template, selectize, event).then(function(data){
             if (data && !$('#label').val()) {
                 $('#label').val(data.text);
                 $('#label').change();
@@ -115,12 +126,12 @@ jQuery(function($){
         });
     }
 
-    function dropClassURL(selectize, event) {
+    function dropResourceURL(template, selectize, event) {
         event.preventDefault();
         var text = event.dataTransfer.getData('URL') || event.dataTransfer.getData('Text');
         if (!text) return calli.resolve();
         var iri = text.trim().replace(/\?.*/,'');
-        var url = $('#class-lookup').prop('href').replace('{iri}', encodeURIComponent(iri));
+        var url = template.replace('{iri}', encodeURIComponent(iri));
         return calli.getJSON(url).then(function(json){
             return json.results.bindings[0];
         }).then(function(bindings){
@@ -128,7 +139,7 @@ jQuery(function($){
             return {
                 value: bindings.resource.value,
                 text: bindings.label.value,
-                comment: bindings.comment && bindings.comment.value
+                comment: bindings.comment ? bindings.comment.value : ''
             };
         }).then(function(data){
             if (!data) return;
@@ -139,15 +150,15 @@ jQuery(function($){
         }).then(undefined, calli.error);
     }
 
-    function classSearch(query, callback) {
+    function resourceSearch(template, query, callback) {
         if (!query) return callback();
-        var url = $('#class-search').prop('href').replace('{q}', encodeURIComponent(query));
+        var url = template.replace('{q}', encodeURIComponent(query));
         calli.getJSON(url).then(function(json){
             return json.results.bindings.map(function(bindings){
                 return {
                     value: bindings.resource.value,
                     text: bindings.label.value,
-                    comment: bindings.comment.value
+                    comment: bindings.comment ? bindings.comment.value : ''
                 };
             });
         }).then(callback, function(error){

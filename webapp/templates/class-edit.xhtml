@@ -17,6 +17,8 @@
     <link rel="sample-create" href="../pages/sample-create.xhtml" />
     <link rel="sample-view" href="../pages/sample-view.xhtml" />
     <link rel="sample-edit" href="../pages/sample-edit.xhtml" />
+    <link id="party-search" href="../queries/party-search.rq?results&amp;tqx=out:sparql-json&amp;q={q}" />
+    <link id="party-lookup" href="../queries/party-search.rq?results&amp;tqx=out:sparql-json&amp;iri={iri}" />
     <link id="class-search" href="../queries/class-search.rq?results&amp;tqx=out:sparql-json&amp;q={q}" />
     <link id="class-lookup" href="../queries/class-search.rq?results&amp;tqx=out:sparql-json&amp;iri={iri}" />
     <script type="text/javascript" src="../scripts/class.js"></script>
@@ -72,16 +74,12 @@
                     </div>
                 </div>
                 <fieldset class="row">
-                    <div id="authors" dropzone="link string:text/uri-list" class="form-group col-sm-6"
-                            ondrop="calli.insertResource(event)">
-                        <label>Authors <a href="/auth/groups/" title="Select Group"
-                                onclick="calli.selectResource(event)" class="glyphicon glyphicon-folder-open" /></label>
-                        <div rel="calli:author">
-                            <span resource="?author" typeof="calli:Party" class="label label-info">
-                                <span property="rdfs:label" />
-                                <a href="{?author}" title="Remove permission" onclick="calli.removeResource(event)" class="glyphicon glyphicon-remove" />
-                            </span>
-                        </div>
+                    <div dropzone="link string:text/uri-list" class="form-group col-sm-4">
+                        <label for="authors">Authors</label>
+                        <select id="authors" class="form-control" multiple="multiple"
+                                onchange="calli.updateResource(event, 'calli:author')">
+                            <option selected="selected" rel="calli:author" resource="?author" value="{?author}">{rdfs:label}</option>
+                        </select>
                     </div>
                     <div dropzone="link string:text/uri-list" class="form-group col-sm-4">
                         <label for="subClassOf">Super</label>

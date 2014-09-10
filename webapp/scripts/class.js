@@ -6,24 +6,6 @@
 
 
 jQuery(function($){
-    if ($('#subClassOf').find('[resource$="Composite"]').length) {
-        $('#composite').attr('checked','checked');
-    }
-    $('#composite').click(function(){
-        $('link[rel="composite"]').each(function(){
-            var composite = $('#subClassOf').find('[resource$="' + this.href + '"]');
-            if ($('#composite').is(':checked')) {
-                if (!composite.length) {
-                    var href = this.href;
-                    var de = jQuery.Event('drop');
-                    de.dataTransfer = {getData:function(){return href;}};
-                    $('#subClassOf').trigger(de);
-                }
-            } else {
-                composite.remove();
-            }
-        });
-    });
 
     $('#authors').closest('[dropzone]').on("dragenter dragover dragleave", function(event){
         event.preventDefault();
@@ -52,11 +34,35 @@ jQuery(function($){
         de.dataTransfer = {getData:function(){return href;}};
         $('#subClassOf').trigger(de);
     });
+    if (($('#subClassOf').val() || []).filter(function(value){
+                return value.match(/\bComposite$/);
+            }).length) {
+        $('#composite').attr('checked','checked');
+    }
+    $('#composite').click(function(){
+        $('link[rel="composite"]').each(function(){
+            var composite = ($('#subClassOf').val() || []).filter(function(value){
+                return value.match(/\bComposite$/);
+            }).length;
+            if ($('#composite').is(':checked')) {
+                if (!composite) {
+                    var href = this.href;
+                    var de = jQuery.Event('drop');
+                    de.dataTransfer = {getData:function(){return href;}};
+                    $('#subClassOf').trigger(de);
+                }
+            } else {
+                $('#subClassOf').prop('selectize').setValue(($('#subClassOf').val() || []).filter(function(value){
+                    return !value.match(/\bComposite$/);
+                }));
+            }
+        });
+    });
 
     $('#equivalentClass').closest('[dropzone]').on("dragenter dragover dragleave", function(event){
         event.preventDefault();
         return false;
-    }).on('drop', dropEquivalentClassURL.bind(this, $('#class-lookup').prop('href'), $('#equivalentClass').selectize({
+    }).on('drop', dropResourceURL.bind(this, $('#class-lookup').prop('href'), $('#equivalentClass').selectize({
         load: resourceSearch.bind(this, $('#class-search').prop('href')),
         render: {
             option: renderOption,
@@ -69,6 +75,20 @@ jQuery(function($){
         de.dataTransfer = {getData:function(){return equivalentURL;}};
         $('#equivalentClass').trigger(de);
     }
+    $('#equivalentClass').change(function(event){
+        ($('#equivalentClass').val() || []).forEach(function(iri){
+            return resourceLookup($('#class-lookup').prop('href'), iri).then(function(data){
+                if (data && !$('#label').val()) {
+                    $('#label').val(data.text);
+                    $('#label').change();
+                }
+                if (data && data.comment && !$('#comment').val()) {
+                    $('#comment').val(data.comment);
+                    $('#comment').change();
+                }
+            });
+        });
+    });
 
     ['create', 'view', 'edit'].forEach(function(pragma){
         var selector = '#' + pragma;
@@ -83,6 +103,36 @@ jQuery(function($){
                 item: renderEditItem
             }
         }).prop('selectize')));
+    });
+    $("#create").change(function(event){
+        if ($(event.target).val()) {
+            $('link[rel="group"]').each(function(){
+                var href = this.href;
+                var de = jQuery.Event('drop');
+                de.dataTransfer = {getData:function(){return href;}};
+                $('#authors').trigger(de);
+            });
+        }
+    });
+    $('#view').change(function(event) {
+        if ($(event.target).val()) {
+            $('link[rel="viewable"]').each(function(){
+                var href = this.href;
+                var de = jQuery.Event('drop');
+                de.dataTransfer = {getData:function(){return href;}};
+                $('#subClassOf').trigger(de);
+            });
+        }
+    });
+    $('#edit').change(function(event) {
+        if ($(event.target).val()) {
+            $('link[rel="editable"]').each(function(){
+                var href = this.href;
+                var de = jQuery.Event('drop');
+                de.dataTransfer = {getData:function(){return href;}};
+                $('#subClassOf').trigger(de);
+            });
+        }
     });
 
     function renderItem(data, escape){
@@ -102,24 +152,21 @@ jQuery(function($){
         ].join('\n');
     }
 
-    function dropEquivalentClassURL(template, selectize, event) {
-        return dropResourceURL(template, selectize, event).then(function(data){
-            if (data && !$('#label').val()) {
-                $('#label').val(data.text);
-                $('#label').change();
-            }
-            if (data && data.comment && !$('#comment').val()) {
-                $('#comment').val(data.comment);
-                $('#comment').change();
-            }
-        });
-    }
-
     function dropResourceURL(template, selectize, event) {
         event.preventDefault();
         var text = event.dataTransfer.getData('URL') || event.dataTransfer.getData('Text');
         if (!text) return calli.resolve();
         var iri = text.trim().replace(/\?.*/,'');
+        return resourceLookup(template, iri).then(function(data){
+            if (!data) return;
+            selectize.addOption(data);
+            var value = selectize.getValue() || [];
+            selectize.setValue(value.concat(data.value));
+            return data;
+        }).then(undefined, calli.error);
+    }
+
+    function resourceLookup(template, iri) {
         var url = template.replace('{iri}', encodeURIComponent(iri));
         return calli.getJSON(url).then(function(json){
             return json.results.bindings[0];
@@ -130,13 +177,7 @@ jQuery(function($){
                 text: bindings.label.value,
                 comment: bindings.comment ? bindings.comment.value : ''
             };
-        }).then(function(data){
-            if (!data) return;
-            selectize.addOption(data);
-            var value = selectize.getValue() || [];
-            selectize.setValue(value.concat(data.value));
-            return data;
-        }).then(undefined, calli.error);
+        });
     }
 
     function resourceSearch(template, query, callback) {

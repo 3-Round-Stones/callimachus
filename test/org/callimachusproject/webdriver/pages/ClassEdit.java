@@ -42,8 +42,8 @@ public class ClassEdit extends CalliPage {
 		return page();
 	}
 
-	public TextEditor openCreateTemplate() {
-		browser.click(By.cssSelector("#create label a"));
+	public TextEditor openCreateTemplate(String label) {
+		browser.type(By.xpath("//div[select/@id='create']//input"), label);
 		browser.focusInModalFrame("template-for-creating");
 		final ClassEdit edit = this;
 		return new TextEditor("template-for-creating", browser) {
@@ -56,8 +56,8 @@ public class ClassEdit extends CalliPage {
 		};
 	}
 
-	public TextEditor openViewTemplate() {
-		browser.click(By.cssSelector("#view label a"));
+	public TextEditor openViewTemplate(String label) {
+		browser.type(By.xpath("//div[select/@id='view']//input"), label);
 		browser.focusInModalFrame("template-for-viewing");
 		final ClassEdit edit = this;
 		return new TextEditor("template-for-viewing", browser) {
@@ -70,8 +70,8 @@ public class ClassEdit extends CalliPage {
 		};
 	}
 
-	public TextEditor openEditTemplate() {
-		browser.click(By.cssSelector("#edit label a"));
+	public TextEditor openEditTemplate(String label) {
+		browser.type(By.xpath("//div[select/@id='edit']//input"), label);
 		browser.focusInModalFrame("template-for-editing");
 		final ClassEdit edit = this;
 		return new TextEditor("template-for-editing", browser) {

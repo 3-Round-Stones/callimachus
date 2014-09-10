@@ -27,7 +27,7 @@
     foaf:primaryTopic <Composite>.
 
 <Composite> a owl:Class;
-    rdfs:label "Composite resource";
+    rdfs:label "Composite";
     rdfs:subClassOf <Serviceable>, calli:Composite;
     owl:equivalentClass </callimachus/Composite>, </callimachus/1.0/types/Composite>, </callimachus/1.3/types/Composite>;
     rdfs:isDefinedBy <../../ontology>.

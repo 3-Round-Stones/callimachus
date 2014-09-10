@@ -708,9 +708,11 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 				int rp = inet.getRemotePort();
 				InetAddress la = inet.getLocalAddress();
 				int lp = inet.getLocalPort();
-				InetSocketAddress remote = new InetSocketAddress(ra, rp);
-				InetSocketAddress local = new InetSocketAddress(la, lp);
-				bean.setStatus(bean.getStatus() + " " + remote + "->" + local);
+				if (ra != null && la != null) {
+					InetSocketAddress remote = new InetSocketAddress(ra, rp);
+					InetSocketAddress local = new InetSocketAddress(la, lp);
+					bean.setStatus(bean.getStatus() + " " + remote + "->" + local);
+				}
 			}
 			HttpRequest req = conn.getHttpRequest();
 			if (req != null) {

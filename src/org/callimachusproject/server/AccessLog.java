@@ -19,6 +19,7 @@ package org.callimachusproject.server;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.InetAddress;
 import java.net.URLDecoder;
 import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
@@ -270,8 +271,11 @@ public class AccessLog implements AsyncExecChain {
 		if (context == null)
 			return null;
 		HttpConnection con = HttpCoreContext.adapt(context).getConnection();
-		if (con instanceof HttpInetConnection)
-			return ((HttpInetConnection) con).getRemoteAddress().getHostAddress();
+		if (con instanceof HttpInetConnection) {
+			InetAddress remoteAddress = ((HttpInetConnection) con).getRemoteAddress();
+			if (remoteAddress != null)
+				return remoteAddress.getHostAddress();
+		}
 		return null;
 	}
 

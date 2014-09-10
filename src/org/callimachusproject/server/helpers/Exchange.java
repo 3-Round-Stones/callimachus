@@ -358,7 +358,11 @@ public class Exchange implements Cancellable {
 
 		@Override
 		public void failed(Exception ex) {
-			logger.warn(ex.toString());
+			if ("Broken pipe".equalsIgnoreCase(ex.getMessage())) {
+				logger.warn(ex.toString(), ex);
+			} else {
+				logger.warn(ex.toString());
+			}
 		}
 
 		@Override

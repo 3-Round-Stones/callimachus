@@ -55,10 +55,6 @@ import org.openrdf.repository.RepositoryException;
 import org.openrdf.rio.turtle.TurtleUtil;
 
 public class ParameterizedQuery {
-	private static final Pattern INFER = Pattern
-			.compile(
-					"(?:^|\n|\r).*#[ \t]*@infer[ \t]*(?::[ \t]*)?(true|false)[ \t]*(?:$|\n|\r)",
-					Pattern.CASE_INSENSITIVE);
 	private static final Pattern CACHE_CONTROL = Pattern
 			.compile(
 					"(?:^|\n|\r).*#[ \t]*@Cache-Control[ \t]*(?::[ \t]*)?(\\w[\\w ,=\\-\"]+)[ \t]*(?:$|\n|\r)",
@@ -124,13 +120,6 @@ public class ParameterizedQuery {
 
 	public boolean isParameterPresent() {
 		return !bindings.isEmpty();
-	}
-
-	public Boolean getIncludeInferred() {
-		Matcher matcher = INFER.matcher(sparql);
-		if (matcher.find())
-			return Boolean.valueOf(matcher.group(1));
-		return null;
 	}
 
 	public String getCacheControl() {
@@ -208,10 +197,6 @@ public class ParameterizedQuery {
 					}
 				}
 			}
-		}
-		Boolean includeInferred = getIncludeInferred();
-		if (includeInferred != null) {
-			qry.setIncludeInferred(includeInferred);
 		}
 		return qry.evaluate();
 	}

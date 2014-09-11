@@ -829,6 +829,7 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 		// Create server-side HTTP protocol handler
 		HttpAsyncService protocolHandler = new HttpAsyncService(httpproc,
 				service) {
+			private final Logger logger = LoggerFactory.getLogger(WebServer.class);
 	
 			@Override
 			public void connected(final NHttpServerConnection conn) {
@@ -845,7 +846,25 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 				}
 				super.closed(conn);
 			}
-	
+
+			@Override
+			public void exception(NHttpServerConnection conn, Exception cause) {
+				try {
+					super.exception(conn, cause);
+				} finally {
+					try {
+						conn.shutdown();
+					} catch (IOException e) {
+						log(e);
+					}
+				}
+			}
+
+			@Override
+			protected void log(Exception ex) {
+				logger.warn(ex.toString(), ex);
+			}
+
 		};
 		return protocolHandler;
 	}

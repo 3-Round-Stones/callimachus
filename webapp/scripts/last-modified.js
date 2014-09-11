@@ -52,9 +52,27 @@ calli.lastModified = function(url, value) {
     }
 };
 if (window.sessionStorage) {
-    calli.lastModified(calli.getPageUrl(), new Date(document.lastModified).toUTCString());
+    if (bug4363()) {
+        calli.lastModified(calli.getPageUrl(), new Date(document.lastModified + ' GMT').toUTCString());
+    } else {
+        calli.lastModified(calli.getPageUrl(), new Date(document.lastModified).toUTCString());
+    }
 } else {
     calli.lastModified = function(){return undefined;};
+}
+
+// https://bugs.webkit.org/show_bug.cgi?id=4363
+function bug4363() {
+    if (navigator.userAgent.indexOf('WebKit') < 0)
+        return false;
+    var chrome = navigator.userAgent.match(/Chrome\/(3\d)\b/);
+    if (!chrome)
+        return true; // Apple has not fixed this as of Safari 7.0
+    try {
+        return parseInt(chrome[1],10) < 38; // Google fixed this in Chrome 38
+    } catch(e) {
+        return false;
+    }
 }
 
 })(jQuery);

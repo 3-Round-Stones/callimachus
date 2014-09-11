@@ -52,7 +52,7 @@ calli.lastModified = function(url, value) {
     }
 };
 if (window.sessionStorage) {
-    calli.lastModified(calli.getPageUrl(), document.lastModified);
+    calli.lastModified(calli.getPageUrl(), new Date(document.lastModified).toUTCString());
 } else {
     calli.lastModified = function(){return undefined;};
 }

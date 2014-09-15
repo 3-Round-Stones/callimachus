@@ -39,13 +39,13 @@ public class MediaType implements Serializable {
 	public static MediaType valueOf(String mediaType)
 			throws IllegalArgumentException {
 		try {
-			if (mediaType == null || mediaType.equals("*/*")
-					|| mediaType.equals("*")) {
+			if (mediaType == null || mediaType.length() == 0
+					|| mediaType.equals("*/*") || mediaType.equals("*")) {
 				return WILD;
 			}
 			if (mediaType.indexOf('/') < 0) {
 				int dash = mediaType.indexOf('-');
-				if (dash >= 0) {
+				if (dash > 0) {
 					String primary = mediaType.substring(0, dash);
 					String rest = mediaType.substring(dash + 1);
 					String lexical = primary + "/" + rest;

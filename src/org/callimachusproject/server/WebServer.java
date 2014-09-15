@@ -850,6 +850,7 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 			@Override
 			public void exception(NHttpServerConnection conn, Exception cause) {
 				try {
+					logger.warn(cause.toString(), cause);
 					super.exception(conn, cause);
 				} finally {
 					try {

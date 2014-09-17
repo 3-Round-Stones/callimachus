@@ -35,6 +35,28 @@
         </xsl:attribute>
     </xsl:template>
 
+    <xsl:template match="@srcset">
+        <xsl:variable name="base" select="base-uri(.)" />
+        <xsl:attribute name="{name()}">
+            <xsl:analyze-string select="."
+                regex="([a-zA-Z0-9\-\._~%!\$&amp;'\(\)\*\+;=:/\?#\[\]@][a-zA-Z0-9\-\._~%!\$&amp;'\(\)\*\+,;=:/\?#\[\]@]*[a-zA-Z0-9\-\._~%!\$&amp;'\(\)\*\+;=:/\?#\[\]@])(\s+\+?(\d+\.\d*|\.\d+|\d+)[wx])?">
+                <xsl:matching-substring>
+                    <xsl:call-template name="resolve-path">
+                        <xsl:with-param name="relative" select="regex-group(1)" />
+                        <xsl:with-param name="base" select="$base" />
+                    </xsl:call-template>
+                    <xsl:value-of select="regex-group(2)" />
+                </xsl:matching-substring>
+                <xsl:non-matching-substring>
+                    <xsl:value-of select="." />
+                </xsl:non-matching-substring>
+                <xsl:fallback>
+                    <xsl:value-of select="." />
+                </xsl:fallback>
+            </xsl:analyze-string>
+        </xsl:attribute>
+    </xsl:template>
+
     <xsl:template name="resolve-path">
         <xsl:param name="relative" />
         <xsl:param name="base" />

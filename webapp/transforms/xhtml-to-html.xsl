@@ -36,7 +36,7 @@
     </xsl:template>
 
     <!-- void elements -->
-    <xsl:template match="xhtml:area|xhtml:base|xhtml:br|xhtml:col|xhtml:command|xhtml:embed|xhtml:hr|xhtml:img|xhtml:input|xhtml:keygen|xhtml:link|xhtml:meta|xhtml:param|xhtml:source|xhtml:track|xhtml:wbr">
+    <xsl:template match="xhtml:area|xhtml:base|xhtml:br|xhtml:col|xhtml:command|xhtml:embed|xhtml:hr|xhtml:img|xhtml:input|xhtml:keygen|xhtml:link|xhtml:meta|xhtml:param|xhtml:source|xhtml:track|xhtml:wbr|xhtml:source">
         <xsl:element name="{local-name()}">
             <xsl:apply-templates select="@*"/>
         </xsl:element>

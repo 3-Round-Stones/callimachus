@@ -54,8 +54,9 @@
                                 onchange="calli.updateProperty(event, 'skos:example')">{skos:example}</textarea>
                         </div>
                     </div>
-                    <div property="skos:scopeNote"></div>
-                    <div property="skos:historyNote"></div>
+                    <!-- Allow save-as with notes -->
+                    <div class="hidden">{skos:scopeNote}</div>
+                    <div class="hidden">{skos:historyNote}</div>
                 </fieldset>
                 <fieldset class="row">
                     <div dropzone="link string:text/uri-list" class="form-group col-sm-6">

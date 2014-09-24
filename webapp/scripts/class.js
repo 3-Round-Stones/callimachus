@@ -160,8 +160,11 @@ jQuery(function($){
         return resourceLookup(template, iri).then(function(data){
             if (!data) return;
             selectize.addOption(data);
-            var value = selectize.getValue() || [];
-            selectize.setValue(value.concat(data.value));
+            var value = selectize.getValue();
+            if (value instanceof Array)
+                selectize.setValue(value.concat(data.value));
+            else
+                selectize.setValue(data.value);
             return data;
         }).then(undefined, calli.error);
     }
@@ -200,7 +203,7 @@ jQuery(function($){
     function createTemplate(template, selector, label, callback) {
         if (!label) return callback();
         var url = './?create=' + encodeURIComponent($('#page').prop('href')) + '#' + encodeURIComponent(label) + '!' + template;
-        return calli.createResource(selector, url).then(function(resource){
+        calli.createResource(selector, url).then(function(resource){
             return resource && {
                 value: resource,
                 text: resource.replace(/.*\//,'')

@@ -127,7 +127,7 @@ public abstract class PurlSupport implements CalliObject {
 			split = sb.length();
 		}
 		int q = sb.indexOf("?");
-		if (0 < q && q < split)
+		if (0 <= q && q < split)
 			return result;
 		sb.insert(split, qs);
 		return sb;

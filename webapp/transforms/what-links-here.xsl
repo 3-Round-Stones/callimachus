@@ -26,7 +26,7 @@
         <html>
             <head>
                 <title>What Links Here</title>
-                <link rel="help" href="../../callimachus-for-web-developers#System_menu" target="_blank" title="Help" />
+                <link rel="help" href="../../getting-started-with-callimachus#System_menu" target="_blank" title="Help" />
                 <script>
                 // <![CDATA[
                 jQuery(function($) {

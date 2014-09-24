@@ -27,7 +27,7 @@
         <html>
             <head>
                 <title><xsl:value-of select="sparql:sparql/sparql:results/sparql:result[1]/sparql:binding[@name='title']/*" /></title>
-                <link rel="help" href="../../callimachus-for-web-developers#History_tab" target="_blank" title="Help" />
+                <link rel="help" href="../../getting-started-with-callimachus#History_tab" target="_blank" title="Help" />
                 <script type="text/javascript">
                     jQuery(function($){
                         $('h2 time').text(function(){

@@ -13,7 +13,7 @@
 	<listitem><simpara>Switch to the <link xl:href="./?view">Home folder</link> and create your first data object.
 	
 	</simpara><itemizedlist>
-		<listitem><simpara>A selection of resource editors (e.g. for <link xl:href="/callimachus/1.4/types/Concept?create">Concepts</link> and <link xl:href="/callimachus/1.4/types/Class?create">Classes</link>) are provided out of the box.</simpara></listitem>
+		<listitem><simpara>A selection of resource editors (e.g. for Concepts and Classes) are provided out of the box.</simpara></listitem>
 		<listitem><simpara>Find the menu for creating Callimachus resources in the upper left corner of any folder view.</simpara></listitem>
 	</itemizedlist></listitem>
 	<listitem><simpara>To manage groups and invite new users visit the <link xl:href="/admin">/admin</link> page.</simpara></listitem>

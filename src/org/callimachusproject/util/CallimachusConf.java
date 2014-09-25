@@ -112,9 +112,9 @@ public class CallimachusConf {
 		for (String item : items) {
 			int idx = item.indexOf('#');
 			if (idx < 0) {
-				map.put(item, DEFAULT_REPOSITORY_ID);
+				map.put(item.toLowerCase(), DEFAULT_REPOSITORY_ID);
 			} else {
-				map.put(item.substring(0, idx), item.substring(idx + 1));
+				map.put(item.substring(0, idx).toLowerCase(), item.substring(idx + 1));
 			}
 		}
 		return map;

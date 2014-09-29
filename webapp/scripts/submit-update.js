@@ -172,7 +172,7 @@ function parseRDF(parser, formSubject, form) {
         base: fixedEncodeURI(parser.getNodeBase(form)),
         prefix: parser.getMappings(),
         head: {
-            link: [fixedEncodeURI(formSubject)],
+            link: [formSubject],
             vars: ['s', 'p', 'o']
         },
         results: {
@@ -197,16 +197,16 @@ function bind(o, dt, lang) {
     } else if (dt == "http://www.w3.org/2001/XMLSchema#string") {
         return {type:"literal", value: o};
     } else if (dt) {
-        return {type:"literal", value: o, datatype: fixedEncodeURI(dt)};
+        return {type:"literal", value: o, datatype: dt};
     } else if (o.match(/^_:/)) {
         return {type:"bnode", value: o.substring(2)};
     } else {
-        return {type:"uri", value: fixedEncodeURI(o)};
+        return {type:"uri", value: o};
     }
 }
 
 function fixedEncodeURI (str) {
-    return encodeURI(str).replace(/%5B/g, '[').replace(/%5D/g, ']');
+    return encodeURI(str).replace(/%5B/g, '[').replace(/%5D/g, ']').replace(/%25(\d\d)/g, '%$1');
 }
 
 /**

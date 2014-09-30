@@ -33,6 +33,23 @@
     rdfs:isDefinedBy <../../ontology>.
 
 ################################
+# GET describedby
+################################
+
+:GetRdfContainerDescription owl:intersectionOf ( <serviceable.ttl#GetRdfDescription>
+        [owl:onProperty msg:target; owl:allValuesFrom <Composite>]);
+    calli:title "RDF Describe";
+    calli:rel "describedby";
+    calli:method "GET";
+    calli:query "describe";
+    calli:requires calli:reader;
+    calli:type "text/turtle", "application/ld+json;q=0.5", "application/rdf+xml;q=0.4";
+    calli:header "Link:<http://www.w3.org/ns/ldp#IndirectContainer>;rel=\"type\"";
+    calli:script """
+        return new org.callimachusproject.io.DescribeResult(this.resource, this.objectConnection);
+    """.
+
+################################
 # POST INSERT DATA
 ################################
 

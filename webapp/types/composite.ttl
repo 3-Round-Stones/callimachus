@@ -50,6 +50,85 @@
     """.
 
 ################################
+# POST RDF
+################################
+
+:PostRdfData rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Composite>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    calli:method "POST";
+    calli:query "describe";
+    calli:requires calli:administrator;
+    calli:expect "201-created";
+    calli:type "text/uri-list";
+    calli:imports <java:org.callimachusproject.form.helpers.TripleInserter>;
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <java:org.callimachusproject.server.exceptions.Forbidden>;
+    calli:imports <java:org.callimachusproject.server.exceptions.Conflict>;
+    calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
+    calli:imports <Editable>;
+    calli:script """
+        var con = this.objectConnection;
+        var vf = con.valueFactory;
+        var of = con.objectFactory;
+
+        //# Insert RDF DATA
+        var tracker = new TripleInserter(con);
+        tracker.insert(rdfData);
+
+        //# Verify input
+		if (tracker.isEmpty())
+			throw new BadRequest("Missing Information");
+		if (!tracker.isSingleton())
+			throw new BadRequest("Wrong Subject");
+		if (tracker.isDisconnectedNodePresent())
+			throw new BadRequest("Blank nodes must be connected");
+        var location = tracker.subject;
+        var newCopy = of.createObject(location, tracker.getTypes(location));
+        if (this.calliHasComponent.contains(newCopy))
+            throw new Conflict("Resource " + newCopy + " already exists");
+        if (!(newCopy instanceof Editable))
+            throw new BadRequest("Resource is not Editable: " + newCopy);
+
+        //# Add permissions and component membership
+        newCopy.calliEditor.addAll(this.FindContributor(newCopy));
+        newCopy.calliReader.addAll(this.calliReader);
+        newCopy.calliSubscriber.addAll(this.calliSubscriber);
+        newCopy.calliEditor.addAll(this.calliEditor);
+        newCopy.calliAdministrator.addAll(this.calliAdministrator);
+        this.calliHasComponent.add(newCopy);
+
+        var iter = this.FindCreator(newCopy).iterator();
+        if (!iter.hasNext())
+            throw new InternalServerError("Auditing is disabled");
+        while (iter.hasNext()) {
+            var user = iter.next();
+            var jter = this.FindCreatablesOf(newCopy).iterator();
+            if (!jter.hasNext())
+                throw new Forbidden("You are not permitted to create this type of resource");
+            while (jter.hasNext()) {
+                var cls = jter.next();
+                if (!this.isAuthorized(user.toString(), cls, ["http://callimachusproject.org/rdf/2009/framework#author"]))
+                    throw new Forbidden(user + " is not permitted to create " + cls + " resources");
+                cls.VerifyCreate(newCopy);
+            }
+        }
+        var iter = tracker.partners.iterator();
+        while (iter.hasNext()) {
+            var partner = iter.next();
+            if (!partner.toString().equals(this.toString())) {
+                con.getObject(partner).touchRevision(); // FIXME this shouldn't be needed
+            }
+        }
+        return newCopy + '?describe';
+    """.
+
+:rdfData a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :PostRdfData;
+    rdfs:range <java:org.openrdf.query.GraphQueryResult>;
+    calli:type "text/turtle", "application/ld+json;q=0.5", "application/rdf+xml;q=0.4".
+
+################################
 # POST INSERT DATA
 ################################
 
@@ -60,14 +139,11 @@
     calli:requires calli:administrator;
     calli:expect "201-created";
     calli:type "text/uri-list";
-    calli:imports <java:org.openrdf.annotations.Iri>;
-    calli:imports <java:org.openrdf.query.QueryLanguage>;
     calli:imports <java:org.callimachusproject.form.helpers.EntityUpdater>;
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
     calli:imports <java:org.callimachusproject.server.exceptions.Forbidden>;
     calli:imports <java:org.callimachusproject.server.exceptions.Conflict>;
     calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
-    calli:imports <Creatable>;
     calli:imports <Editable>;
     calli:script """
         var con = this.objectConnection;
@@ -101,43 +177,6 @@
         //# Execute input
         updater.executeUpdate(string, con);
 
-        var iter = this.FindCreator(newCopy).iterator();
-        var authorization = this;
-        while (iter.hasNext()) {
-            var user = iter.next();
-            function findConcepts(klass, visited, callback) {
-                if (visited.contains(klass))
-                    return true;
-                visited.add(klass);
-                if (klass.isAnnotationPresent(Iri)) {
-                    callback(klass.getAnnotation(Iri).value());
-                }
-                var sup = klass.getSuperclass();
-                if (sup) {
-                    findConcepts(sup, visited, callback);
-                }
-                var interfaces = klass.getInterfaces();
-                for (var i = 0; i < interfaces.length; i++) {
-                    findConcepts(interfaces[i], visited, callback);
-                }
-                return false;
-            }
-            var creatable = false;
-            findConcepts(newCopy.getClass(), new java.util.HashSet(), function(type) {
-                var cls = con.getObject(type);
-                if (!(cls instanceof Creatable)) {
-                    cls = authorization.FindCreatableVersion(cls);
-                }
-                if (cls instanceof Creatable) {
-                    creatable = true;
-                    if (!authorization.isAuthorized(user.toString(), cls, ["http://callimachusproject.org/rdf/2009/framework#author"]))
-                        throw new Forbidden(user + " is not permitted to create " + cls + " resources");
-                }
-            });
-            if (!creatable)
-                throw new Forbidden("You are not permitted to create this type of resource");
-        }
-
         //# Add permissions and component membership
         newCopy.calliEditor.addAll(this.FindContributor(newCopy));
         newCopy.calliReader.addAll(this.calliReader);
@@ -145,6 +184,22 @@
         newCopy.calliEditor.addAll(this.calliEditor);
         newCopy.calliAdministrator.addAll(this.calliAdministrator);
         this.calliHasComponent.add(newCopy);
+
+        var iter = this.FindCreator(newCopy).iterator();
+        if (!iter.hasNext())
+            throw new InternalServerError("Auditing is disabled");
+        while (iter.hasNext()) {
+            var user = iter.next();
+            var jter = this.FindCreatablesOf(newCopy).iterator();
+            if (!jter.hasNext())
+                throw new Forbidden("You are not permitted to create this type of resource");
+            while (jter.hasNext()) {
+                var cls = jter.next();
+                if (!this.isAuthorized(user.toString(), cls, ["http://callimachusproject.org/rdf/2009/framework#author"]))
+                    throw new Forbidden(user + " is not permitted to create " + cls + " resources");
+                cls.VerifyCreate(newCopy);
+            }
+        }
         var iter = updater.partners.iterator();
         while (iter.hasNext()) {
             var partner = iter.next();
@@ -152,7 +207,7 @@
                 con.getObject(partner).touchRevision(); // FIXME this shouldn't be needed
             }
         }
-        return newCopy;
+        return newCopy + '?describe';
     """.
 
 ################################
@@ -308,6 +363,7 @@
         } else {
             this.calliHasComponent.add(newCopy);
         }
+        construct.VerifyCreate(location);
         return { status:201, message:'Created', headers:{ location:newCopy.toString(), 'content-type':'text/plain' }, body:[newCopy.toString()] };
     """.
 
@@ -414,6 +470,21 @@
 # Helper Messages
 ################################
 
+:FindCreatablesOf rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Composite>];
+    rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom <Creatable>];
+    msg:sparql """
+        PREFIX owl:<http://www.w3.org/2002/07/owl#>
+        SELECT REDUCED ?creatable {
+            $of a [rdfs:subClassOf* ?cls] .
+            ?creatable owl:equivalentClass* ?cls .
+            ?creatable a [rdfs:subClassOf* </callimachus/1.4/types/Creatable>]
+        }
+    """.
+
+:of a owl:ObjectProperty, owl:FunctionalProperty;
+    rdfs:domain :FindCreatablesOf.
+
 :FindCreatableVersion rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Composite>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <Creatable>];
@@ -421,8 +492,8 @@
         PREFIX owl:<http://www.w3.org/2002/07/owl#>
         SELECT ?creatable {
             ?creatable owl:equivalentClass* $create .
-            ?creatable a <Creatable>
-        }
+            ?creatable a [rdfs:subClassOf* </callimachus/1.4/types/Creatable>]
+        } LIMIT 1
     """.
 
 # find the user that will create $thing

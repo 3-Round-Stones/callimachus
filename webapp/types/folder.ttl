@@ -43,14 +43,13 @@
     calli:create <../templates/folder-create.xhtml>.
 
 # when a Folder is created
-:CreateFolder owl:intersectionOf (<creatable.ttl#PostCreate>
+:VerifyFolder owl:intersectionOf (<creatable.ttl#VerifyCreate>
         [owl:onProperty msg:target; owl:hasValue <Folder> ]);
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
     calli:script """
         var uri = location.toString();
         if (uri.lastIndexOf('/') != uri.length - 1)
             throw new BadRequest("Folders must end with a slash");
-        return proceed();
     """.
 
 ################################

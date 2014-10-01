@@ -20,6 +20,7 @@
 package org.callimachusproject.form.helpers;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.callimachusproject.engine.RDFEventReader;
@@ -34,6 +35,8 @@ import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ContextStatementImpl;
 import org.openrdf.model.impl.StatementImpl;
+import org.openrdf.query.GraphQueryResult;
+import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
@@ -96,6 +99,17 @@ public class TripleInserter implements RDFHandler {
 	 */
 	public void setGraph(URI graph) {
 		this.graph = graph;
+	}
+
+	public void insert(GraphQueryResult graph) throws QueryEvaluationException, RDFHandlerException {
+		this.startRDF();
+		for (Map.Entry<String, String> e : graph.getNamespaces().entrySet()) {
+			this.handleNamespace(e.getKey(), e.getValue());
+		}
+		while (graph.hasNext()) {
+			this.handleStatement(graph.next());
+		}
+		this.endRDF();
 	}
 
 	@Override

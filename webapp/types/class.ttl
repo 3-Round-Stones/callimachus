@@ -51,17 +51,18 @@
     calli:copy "../pipelines/class-index.xpl?results&target={0}".
 
 # when a class is created
-:CreateClass owl:intersectionOf (<creatable.ttl#PostCreate>
+:VerifyClass owl:intersectionOf (<creatable.ttl#VerifyCreate>
         [owl:onProperty msg:target; owl:hasValue <Class> ]);
     calli:imports <java:org.openrdf.model.vocabulary.RDF>;
     calli:imports <RdfSchemaGraph>;
+    calli:imports <java:org.callimachusproject.server.exceptions.Conflict>;
     calli:script """
-        var ret = proceed();
+        var existing = this.FindExistingClassEquivalence(location);
+        if (existing) throw new Conflict("An equivalent class already exists: " + existing);
         var con = this.objectConnection;
         var of = con.objectFactory;
         con.addDesignation(of.createObject(con.getVersionBundle()), RdfSchemaGraph);
         con.recompileSchemaOnClose();
-        return ret;
     """.
 
 :PostClassEdit owl:intersectionOf (<editable.ttl#PostEdit>
@@ -82,3 +83,17 @@
         return ret;
     """.
 
+:FindExistingClassEquivalence rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <Class>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <Class>];
+    msg:sparql """
+        PREFIX owl:<http://www.w3.org/2002/07/owl#>
+        SELECT REDUCED ?otherClass {
+            $createdClass owl:equivalentClass+ ?equivalent .
+            ?otherClass owl:equivalentClass* ?equivalent; a <Class>
+            FILTER ($createdClass != ?otherClass)
+        } LIMIT 1
+    """.
+
+:createdClass a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :FindExistingClassEquivalence.

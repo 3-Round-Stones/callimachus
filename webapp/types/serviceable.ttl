@@ -205,7 +205,7 @@ skos:editorialNote a owl:AnnotationProperty.
 # another version to work in IE, overridden in composite.ttl
 :PostDeleteInsert rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Serviceable>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <Serviceable>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
     calli:method "POST";
     calli:query "describe";
     calli:requires calli:administrator;

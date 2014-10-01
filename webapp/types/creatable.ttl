@@ -192,10 +192,16 @@
     calli:type "*/*".
 
 :location a owl:FunctionalProperty, owl:ObjectProperty;
-    rdfs:domain :PostCreate;
+    rdfs:domain [owl:unionOf (:PostCreate :VerifyCreate)];
     calli:type "text/uri-list".
 
 :type a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :PostCreate;
     rdfs:range xsd:string.
+
+# override this method for subclass verify create methods
+:VerifyCreate rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Creatable>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+    calli:script "".
 

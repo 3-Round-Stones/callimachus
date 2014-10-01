@@ -17,6 +17,12 @@ SELECT REDUCED ?resource ?label ?comment {
             } UNION {
                 ?resource a owl:Class
                 FILTER sameTerm(?resource, iri(<$iri>))
+            } UNION {
+                ?resource a rdfs:Class; keyword:phone ?soundex
+                FILTER sameTerm(?soundex, keyword:soundex("$q"))
+            } UNION {
+                ?resource a rdfs:Class
+                FILTER sameTerm(?resource, iri(<$iri>))
             }
         } LIMIT 100
     }

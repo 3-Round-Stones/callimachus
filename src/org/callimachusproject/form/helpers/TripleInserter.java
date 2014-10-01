@@ -19,14 +19,16 @@
  */
 package org.callimachusproject.form.helpers;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.callimachusproject.engine.RDFEventReader;
 import org.callimachusproject.engine.RDFParseException;
 import org.callimachusproject.engine.events.TriplePattern;
 import org.callimachusproject.engine.model.TermFactory;
+import org.openrdf.OpenRDFException;
 import org.openrdf.model.Namespace;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
@@ -35,14 +37,15 @@ import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ContextStatementImpl;
 import org.openrdf.model.impl.StatementImpl;
-import org.openrdf.query.GraphQueryResult;
-import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
 import org.openrdf.repository.util.RDFInserter;
+import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandler;
 import org.openrdf.rio.RDFHandlerException;
+import org.openrdf.rio.RDFParser;
+import org.openrdf.rio.RDFParserRegistry;
 
 /**
  * Track what node the triples are about and ensures they match one of the given
@@ -52,6 +55,7 @@ import org.openrdf.rio.RDFHandlerException;
  * 
  */
 public class TripleInserter implements RDFHandler {
+	private static final String FOAF_PRIMARY_TOPIC = "http://xmlns.com/foaf/0.1/primaryTopic";
 	private final RepositoryConnection con;
 	private final ValueFactory vf;
 	private final TripleVerifier verifier = new TripleVerifier();
@@ -59,6 +63,8 @@ public class TripleInserter implements RDFHandler {
 	private final Set<String> prefixes = new HashSet<String>();
 	private final Set<String> namespaces = new HashSet<String>();
 	private URI graph = null;
+	private URI documentURI;
+	private URI primaryTopic;
 
 	public TripleInserter(RepositoryConnection con) throws RepositoryException {
 		this(new RDFInserter(con), con);
@@ -101,15 +107,15 @@ public class TripleInserter implements RDFHandler {
 		this.graph = graph;
 	}
 
-	public void insert(GraphQueryResult graph) throws QueryEvaluationException, RDFHandlerException {
-		this.startRDF();
-		for (Map.Entry<String, String> e : graph.getNamespaces().entrySet()) {
-			this.handleNamespace(e.getKey(), e.getValue());
-		}
-		while (graph.hasNext()) {
-			this.handleStatement(graph.next());
-		}
-		this.endRDF();
+	public synchronized void parseAndInsert(InputStream in, String type, String base)
+			throws IOException, OpenRDFException {
+		RDFFormat format = RDFFormat.forMIMEType(type);
+		RDFParserRegistry registry = RDFParserRegistry.getInstance();
+		RDFParser parser = registry.get(format).getParser();
+		parser.setValueFactory(con.getValueFactory());
+		parser.setRDFHandler(this);
+		documentURI = con.getValueFactory().createURI(base);
+		parser.parse(in, base);
 	}
 
 	@Override
@@ -144,6 +150,12 @@ public class TripleInserter implements RDFHandler {
 	}
 
 	public URI getSubject() {
+		return verifier.getSubject();
+	}
+
+	public URI getPrimaryTopic() {
+		if (primaryTopic != null)
+			return primaryTopic;
 		return verifier.getSubject();
 	}
 
@@ -187,7 +199,14 @@ public class TripleInserter implements RDFHandler {
 		Resource subj = canonicalize(st.getSubject());
 		URI pred = canonicalize(st.getPredicate());
 		Value obj = canonicalize(st.getObject());
-		verifier.verify(subj, pred, obj);
+		if (subj.equals(documentURI)
+				&& pred.stringValue().equals(FOAF_PRIMARY_TOPIC)
+				&& obj instanceof URI) {
+			primaryTopic = (URI) obj;
+			verifier.addSubject(primaryTopic);
+		} else {
+			verifier.verify(subj, pred, obj);
+		}
 		URI graph = getGraph();
 		if (graph != null) {
 			return new ContextStatementImpl(subj, pred, obj, graph);

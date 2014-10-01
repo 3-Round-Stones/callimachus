@@ -40,7 +40,6 @@ public class RdfSourceIntegrationTest extends
 			"		rdfs:subClassOf </callimachus/1.4/types/Editable>;",
 			"		calli:author </auth/groups/users>, </auth/groups/admin>, </auth/groups/staff>.");
 	private static String RESOURCE_TURTLE = cat("@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.",
-			"",
 			"<my-resource> a <http://www.w3.org/ns/ldp#RDFSource>; rdfs:label \"my resource\".");
 	private static String RESOURCE_RDF = cat(
 			"<?xml version='1.0' encoding='UTF-8'?>",
@@ -57,6 +56,12 @@ public class RdfSourceIntegrationTest extends
 			"  \"@type\" : [ \"http://www.w3.org/ns/ldp#RDFSource\" ],",
 			"  \"http://www.w3.org/2000/01/rdf-schema#label\" : [ {",
 			"    \"@value\" : \"my-resource\"", "  } ]", "} ]");
+	private static String NULL_RESOURCE = cat("@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.",
+			"<> a <http://www.w3.org/ns/ldp#RDFSource>; rdfs:label \"Who am I?\".");
+	private static String TOPIC_RESOURCE = cat("@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.",
+			"@prefix foaf:<http://xmlns.com/foaf/0.1/>.",
+			"<> foaf:primaryTopic <my-topic>.",
+			"<my-topic> a <http://www.w3.org/ns/ldp#RDFSource>; rdfs:label \"my topic\".");
 
 	public RdfSourceIntegrationTest(String name) {
 		super(name);
@@ -155,6 +160,83 @@ public class RdfSourceIntegrationTest extends
 		try {
 			my_resource = getHomeFolder().link("describedby").create("application/ld+json", RESOURCE_JSON.getBytes());
 			return;
+		} finally {
+			if (my_resource != null) {
+				my_resource.delete();
+			}
+			MyClass.delete();
+		}
+	}
+
+	public void testNullCreate() throws Exception {
+		WebResource MyClass = waitForCompile(new Callable<WebResource>() {
+			public WebResource call() throws Exception {
+				return getHomeFolder().link("describedby").create("text/turtle", CALLI_CLASS.getBytes());
+			}
+		});
+		WebResource my_resource = null;
+		try {
+			my_resource = getHomeFolder().link("describedby").create("text/turtle", NULL_RESOURCE.getBytes());
+		} finally {
+			if (my_resource != null) {
+				my_resource.delete();
+			}
+			MyClass.delete();
+		}
+	}
+
+	public void testSlugCreate() throws Exception {
+		WebResource MyClass = waitForCompile(new Callable<WebResource>() {
+			public WebResource call() throws Exception {
+				return getHomeFolder().link("describedby").create("text/turtle", CALLI_CLASS.getBytes());
+			}
+		});
+		WebResource my_resource = null;
+		try {
+			my_resource = getHomeFolder().link("describedby").create("slug", "text/turtle", NULL_RESOURCE.getBytes());
+			if (!my_resource.toString().contains("slug")) {
+				assertEquals(getHomeFolder().toString() + "slug?describe", my_resource.toString());
+			}
+		} finally {
+			if (my_resource != null) {
+				my_resource.delete();
+			}
+			MyClass.delete();
+		}
+	}
+
+	public void testTopicCreate() throws Exception {
+		WebResource MyClass = waitForCompile(new Callable<WebResource>() {
+			public WebResource call() throws Exception {
+				return getHomeFolder().link("describedby").create("text/turtle", CALLI_CLASS.getBytes());
+			}
+		});
+		WebResource my_resource = null;
+		try {
+			my_resource = getHomeFolder().link("describedby").create("text/turtle", TOPIC_RESOURCE.getBytes());
+			if (!my_resource.toString().contains("my-topic")) {
+				assertEquals(getHomeFolder().toString() + "my-topic?describe", my_resource.toString());
+			}
+		} finally {
+			if (my_resource != null) {
+				my_resource.delete();
+			}
+			MyClass.delete();
+		}
+	}
+
+	public void testSlugTopicCreate() throws Exception {
+		WebResource MyClass = waitForCompile(new Callable<WebResource>() {
+			public WebResource call() throws Exception {
+				return getHomeFolder().link("describedby").create("text/turtle", CALLI_CLASS.getBytes());
+			}
+		});
+		WebResource my_resource = null;
+		try {
+			my_resource = getHomeFolder().link("describedby").create("slug", "text/turtle", TOPIC_RESOURCE.getBytes());
+			if (!my_resource.toString().contains("my-topic")) {
+				assertEquals(getHomeFolder().toString() + "my-topic?describe", my_resource.toString());
+			}
 		} finally {
 			if (my_resource != null) {
 				my_resource.delete();

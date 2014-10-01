@@ -206,7 +206,7 @@ function bind(o, dt, lang) {
 }
 
 function fixedEncodeURI (str) {
-    return encodeURI(str).replace(/%5B/g, '[').replace(/%5D/g, ']').replace(/%25(\d\d)/g, '%$1');
+    return encodeURI(str).replace(/%5B/g, '[').replace(/%5D/g, ']').replace(/%25(\w\w)/g, '%$1');
 }
 
 /**

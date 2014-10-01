@@ -54,8 +54,6 @@ import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.ObjectFactory;
 import org.openrdf.repository.object.RDFObject;
 import org.openrdf.repository.object.traits.RDFObjectBehaviour;
-import org.openrdf.rio.RDFParser;
-import org.openrdf.rio.RDFParserRegistry;
 import org.openrdf.rio.RDFWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -112,12 +110,7 @@ public abstract class FolderSupport implements RDFObject, RDFObjectBehaviour, Co
 			URI graph) throws OpenRDFException, IOException {
 		TripleInserter inserter = new TripleInserter(this.getObjectConnection());
 		inserter.setGraph(graph);
-		RDFParserRegistry registry = RDFParserRegistry.getInstance();
-		RDFParser parser = registry
-				.get(registry.getFileFormatForMIMEType(type)).getParser();
-		parser.setValueFactory(this.getObjectConnection().getValueFactory());
-		parser.setRDFHandler(inserter);
-		parser.parse(entryStream, uri);
+		inserter.parseAndInsert(entryStream, type, uri);
 		if (inserter.isEmpty())
 			throw new BadRequest("Missing resource information for: " + uri);
 		if (!inserter.isSingleton())

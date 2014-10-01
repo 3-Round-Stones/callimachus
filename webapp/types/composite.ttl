@@ -73,18 +73,8 @@
         var of = con.objectFactory;
 
         //# Insert RDF DATA
-        var tracker = new TripleInserter(con);
-        tracker.insert(rdfData);
-
-        //# Verify input
-		if (tracker.isEmpty())
-			throw new BadRequest("Missing Information");
-		if (!tracker.isSingleton())
-			throw new BadRequest("Wrong Subject");
-		if (tracker.isDisconnectedNodePresent())
-			throw new BadRequest("Blank nodes must be connected");
-        var location = tracker.subject;
-        var newCopy = of.createObject(location, tracker.getTypes(location));
+        var local = rdfSlug && encodeURI(rdfSlug).replace(/%25(\\w\\w)/g, '%$1').replace(/%20/g, '+');
+        var newCopy = this.insertComponentGraph(rdfData, rdfType, local);
         if (this.calliHasComponent.contains(newCopy))
             throw new Conflict("Resource " + newCopy + " already exists");
         if (!(newCopy instanceof Editable))
@@ -99,8 +89,6 @@
         this.calliHasComponent.add(newCopy);
 
         var iter = this.FindCreator(newCopy).iterator();
-        if (!iter.hasNext())
-            throw new InternalServerError("Auditing is disabled");
         while (iter.hasNext()) {
             var user = iter.next();
             var jter = this.FindCreatablesOf(newCopy).iterator();
@@ -113,20 +101,25 @@
                 cls.VerifyCreate(newCopy);
             }
         }
-        var iter = tracker.partners.iterator();
-        while (iter.hasNext()) {
-            var partner = iter.next();
-            if (!partner.toString().equals(this.toString())) {
-                con.getObject(partner).touchRevision(); // FIXME this shouldn't be needed
-            }
-        }
         return newCopy + '?describe';
     """.
 
 :rdfData a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :PostRdfData;
-    rdfs:range <java:org.openrdf.query.GraphQueryResult>;
+    rdfs:range <java:java.io.InputStream>;
     calli:type "text/turtle", "application/ld+json;q=0.5", "application/rdf+xml;q=0.4".
+
+:rdfSlug a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:domain :PostRdfData;
+    rdfs:range xsd:string;
+    calli:header "Slug";
+    calli:type "text/plain".
+
+:rdfType a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:domain :PostRdfData;
+    rdfs:range xsd:string;
+    calli:header "Content-Type";
+    calli:type "text/plain".
 
 ################################
 # POST INSERT DATA
@@ -166,13 +159,12 @@
                 parent.touchRevision();
             }
             return null;
-        } else {
-            var newCopy = of.createObject(location, updater.getTypes(location));
-            if (this.calliHasComponent.contains(newCopy))
-                throw new Conflict("Resource " + newCopy + " already exists");
-            if (!(newCopy instanceof Editable))
-                throw new BadRequest("Resource is not Editable");
         }
+        var newCopy = of.createObject(location, updater.getTypes(location));
+        if (this.calliHasComponent.contains(newCopy))
+            throw new Conflict("Resource " + newCopy + " already exists");
+        if (!(newCopy instanceof Editable))
+            throw new BadRequest("Resource is not Editable");
 
         //# Execute input
         updater.executeUpdate(string, con);
@@ -186,8 +178,6 @@
         this.calliHasComponent.add(newCopy);
 
         var iter = this.FindCreator(newCopy).iterator();
-        if (!iter.hasNext())
-            throw new InternalServerError("Auditing is disabled");
         while (iter.hasNext()) {
             var user = iter.next();
             var jter = this.FindCreatablesOf(newCopy).iterator();

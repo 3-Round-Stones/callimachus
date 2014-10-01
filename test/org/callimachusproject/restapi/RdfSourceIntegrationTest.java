@@ -62,6 +62,9 @@ public class RdfSourceIntegrationTest extends
 			"@prefix foaf:<http://xmlns.com/foaf/0.1/>.",
 			"<> foaf:primaryTopic <my-topic>.",
 			"<my-topic> a <http://www.w3.org/ns/ldp#RDFSource>; rdfs:label \"my topic\".");
+	private static String RESOURCE_CONTAINS = cat("@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.",
+			"@prefix ldp:<http://www.w3.org/ns/ldp#>.",
+			"<my-resource> a <http://www.w3.org/ns/ldp#RDFSource>; rdfs:label \"my resource\"; ldp:contains <my-topic>.");
 
 	public RdfSourceIntegrationTest(String name) {
 		super(name);
@@ -243,6 +246,26 @@ public class RdfSourceIntegrationTest extends
 			}
 			MyClass.delete();
 		}
+	}
+
+	public void testCreateContainsConflict() throws Exception {
+		WebResource MyClass = waitForCompile(new Callable<WebResource>() {
+			public WebResource call() throws Exception {
+				return getHomeFolder().link("describedby").create("text/turtle", CALLI_CLASS.getBytes());
+			}
+		});
+		WebResource my_resource = null;
+		try {
+			my_resource = getHomeFolder().link("describedby").create("text/turtle", RESOURCE_CONTAINS.getBytes());
+		} catch (AssertionFailedError e) {
+			return;
+		} finally {
+			if (my_resource != null) {
+				my_resource.delete();
+			}
+			MyClass.delete();
+		}
+		fail();
 	}
 
 	private static String cat(String... strings) {

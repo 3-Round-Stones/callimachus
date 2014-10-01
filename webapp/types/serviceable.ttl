@@ -147,6 +147,12 @@ skos:editorialNote a owl:AnnotationProperty.
         return new org.callimachusproject.io.DescribeResult(this.resource, this.objectConnection);
     """.
 
+:preferDescription a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:domain :GetRdfDescription;
+    rdfs:range xsd:string;
+    calli:header "Prefer";
+    calli:type "text/plain".
+
 :GetHtmlDescription rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Serviceable>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
@@ -156,8 +162,9 @@ skos:editorialNote a owl:AnnotationProperty.
     calli:query "describe";
     calli:requires calli:reader;
     calli:type "text/html";
+    calli:header "Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
     calli:script """
-        return this.TransformDescription(this.GetRdfDescription());
+        return this.TransformDescription(this.GetRdfDescription(null));
     """.
 
 :TransformDescription rdfs:subClassOf msg:Message;

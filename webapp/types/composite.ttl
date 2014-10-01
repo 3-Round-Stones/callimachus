@@ -45,8 +45,107 @@
     calli:requires calli:reader;
     calli:type "text/turtle", "application/ld+json;q=0.5", "application/rdf+xml;q=0.4";
     calli:header "Link:<http://www.w3.org/ns/ldp#IndirectContainer>;rel=\"type\"";
+    calli:imports <java:org.callimachusproject.io.DescribeResult>;
+    calli:imports <java:org.callimachusproject.io.FilteredGraphResult>;
     calli:script """
-        return new org.callimachusproject.io.DescribeResult(this.resource, this.objectConnection);
+        var con = this.objectConnection;
+        if (preferDescription && preferDescription.match(/^ *return *= *representation *;/)) {
+            var m = preferDescription.match(/; *(include|omit) *= *"([^"]*)"/);
+            if (m && m[1] == 'include') {
+                var inc = m[2];
+                var result = new FilteredGraphResult();
+                if (inc.indexOf("http://www.w3.org/ns/ldp#PreferMinimalContainer") >= 0) {
+                    result.addResult(new DescribeResult(this.resource, con))
+                        .addResult(this.FindMinimalContainer());
+                } else if (inc.indexOf("http://www.w3.org/ns/ldp#PreferMembership") >= 0) {
+                    result.addResult(this.FindMembershipTriples());
+                }
+                if (inc.indexOf("http://www.w3.org/ns/ldp#PreferMembership") < 0) {
+                    result.omitPredicate(con.valueFactory.createURI("http://callimachusproject.org/rdf/2009/framework#hasComponent"));
+                }
+                if (inc.indexOf("http://www.w3.org/ns/ldp#PreferContainment") >= 0) {
+                    result.addResult(this.FindContainmentTriples());
+                }
+                return result;
+            } else if (m && m[1] == 'omit') {
+                var omit = m[2];
+                var result = new FilteredGraphResult();
+                if (omit.indexOf("http://www.w3.org/ns/ldp#PreferMinimalContainer") < 0) {
+                    result.addResult(new DescribeResult(this.resource, con))
+                        .addResult(this.FindMinimalContainer());
+                } else if (omit.indexOf("http://www.w3.org/ns/ldp#PreferMembership") < 0) {
+                    result.addResult(this.FindMembershipTriples());
+                }
+                if (omit.indexOf("http://www.w3.org/ns/ldp#PreferMembership") >= 0) {
+                    result.omitPredicate(con.valueFactory.createURI("http://callimachusproject.org/rdf/2009/framework#hasComponent"));
+                }
+                if (omit.indexOf("http://www.w3.org/ns/ldp#PreferContainment") < 0) {
+                    result.addResult(this.FindContainmentTriples());
+                }
+                return result;
+            }
+        }
+        return new FilteredGraphResult()
+            .addResult(new DescribeResult(this.resource, con))
+            .addResult(this.FindMinimalContainer())
+            .addResult(this.FindContainmentTriples());
+    """.
+
+:FindMinimalContainer rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Composite>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.openrdf.query.GraphQueryResult>];
+    msg:sparql """
+        PREFIX dcterms: <http://purl.org/dc/terms/>
+        PREFIX skos:<http://www.w3.org/2004/02/skos/core#>
+        PREFIX ldp: <http://www.w3.org/ns/ldp#>
+        PREFIX foaf:<http://xmlns.com/foaf/0.1/>
+        PREFIX calli: <http://callimachusproject.org/rdf/2009/framework#>
+        CONSTRUCT {
+            ?container foaf:primaryTopic $this;
+                a ldp:IndirectContainer;
+                dcterms:title ?label;
+                ldp:membershipResource $this;
+                ldp:hasMemberRelation calli:hasComponent;
+                ldp:insertedContentRelation foaf:primaryTopic
+        } WHERE {
+            BIND (iri(concat(str($this), "?describe")) AS ?container)
+            OPTIONAL {
+                $this dcterms:title ?label
+            } OPTIONAL {
+                $this rdfs:label ?label
+            } OPTIONAL {
+                $this skos:prefLabel ?label
+            } OPTIONAL {
+                $this foaf:name ?label
+            }
+        }
+    """.
+
+:FindContainmentTriples rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Composite>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.openrdf.query.GraphQueryResult>];
+    msg:sparql """
+        PREFIX ldp: <http://www.w3.org/ns/ldp#>
+        PREFIX calli: <http://callimachusproject.org/rdf/2009/framework#>
+        CONSTRUCT {
+            ?container ldp:contains ?member
+        } WHERE {
+            $this calli:hasComponent ?component
+            BIND (iri(concat(str($this), "?describe")) AS ?container)
+            BIND (iri(concat(str(?component), "?describe")) AS ?member)
+        }
+    """.
+
+:FindMembershipTriples rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Composite>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.openrdf.query.GraphQueryResult>];
+    msg:sparql """
+        PREFIX calli: <http://callimachusproject.org/rdf/2009/framework#>
+        CONSTRUCT {
+            $this calli:hasComponent ?component
+        } WHERE {
+            $this calli:hasComponent ?component
+        }
     """.
 
 ################################

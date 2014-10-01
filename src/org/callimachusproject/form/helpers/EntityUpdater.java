@@ -26,6 +26,7 @@ import org.callimachusproject.engine.RDFEventReader;
 import org.callimachusproject.engine.RDFParseException;
 import org.callimachusproject.engine.events.TriplePattern;
 import org.callimachusproject.server.exceptions.BadRequest;
+import org.callimachusproject.server.exceptions.Conflict;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
@@ -145,6 +146,8 @@ public class EntityUpdater {
 			throw new BadRequest("Blank nodes must be connected");
 		if (analyzer.isComplicated())
 			throw new BadRequest("Only basic graph patterns are permitted");
+		if (analyzer.isContainmentTriplePresent())
+			throw new Conflict("ldp:contains is prohibited");
 	}
 
 	private Set<Resource> selectBlankNodes(TripleAnalyzer analyzer,

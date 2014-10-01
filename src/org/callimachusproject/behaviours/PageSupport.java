@@ -127,6 +127,8 @@ public abstract class PageSupport implements CalliObject {
 				throw new BadRequest("Wrong Subject");
 			if (tracker.isDisconnectedNodePresent())
 				throw new BadRequest("Blank nodes must be connected");
+			if (tracker.isContainmentTriplePresent())
+				throw new Conflict("ldp:contains is prohibited");
 			URI created = tracker.getSubject();
 			verifyCreatedStatements(created, statements.getStatements(), con);
 

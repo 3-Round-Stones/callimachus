@@ -192,6 +192,16 @@ public class TripleAnalyzer extends QueryModelVisitorBase<RDFHandlerException> i
 		return ret;
 	}
 
+	public boolean isContainmentTriplePresent() {
+		boolean ret = false;
+		for (TripleVerifier verifier : verifiers) {
+			if (verifier.isContainmentTriplePresent()) {
+				ret = true;
+			}
+		}
+		return ret;
+	}
+
 	public URI getSubject() {
 		for (TripleVerifier verifier : verifiers) {
 			URI subj = verifier.getSubject();

@@ -34,6 +34,7 @@ import org.callimachusproject.io.ProducerStream;
 import org.callimachusproject.io.ProducerStream.OutputProducer;
 import org.callimachusproject.io.TurtleStreamWriterFactory;
 import org.callimachusproject.server.exceptions.BadRequest;
+import org.callimachusproject.server.exceptions.Conflict;
 import org.openrdf.OpenRDFException;
 import org.openrdf.annotations.Bind;
 import org.openrdf.annotations.Sparql;
@@ -119,6 +120,8 @@ public abstract class FolderSupport implements RDFObject, RDFObjectBehaviour, Co
 			throw new BadRequest("Wrong subject of " + inserter.getSubject() + " for: " + uri);
 		if (inserter.isDisconnectedNodePresent())
 			throw new BadRequest("Blank nodes must be connected in: " + uri);
+		if (inserter.isContainmentTriplePresent())
+			throw new Conflict("ldp:contains is prohibited");
 	}
 
 	public Set<String> getComponentsWithExternalDependent() {

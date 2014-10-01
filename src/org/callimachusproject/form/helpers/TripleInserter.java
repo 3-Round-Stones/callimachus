@@ -149,6 +149,10 @@ public class TripleInserter implements RDFHandler {
 		return verifier.isSingleton();
 	}
 
+	public boolean isContainmentTriplePresent() {
+		return verifier.isContainmentTriplePresent();
+	}
+
 	public URI getSubject() {
 		return verifier.getSubject();
 	}

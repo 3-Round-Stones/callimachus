@@ -27,6 +27,7 @@ import org.callimachusproject.auth.AuthorizationManager;
 import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.form.helpers.TripleInserter;
 import org.callimachusproject.server.exceptions.BadRequest;
+import org.callimachusproject.server.exceptions.Conflict;
 import org.callimachusproject.traits.CalliObject;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Statement;
@@ -65,6 +66,8 @@ public abstract class CompositeSupport implements CalliObject {
 				throw new BadRequest("Wrong Subject");
 			if (tracker.isDisconnectedNodePresent())
 				throw new BadRequest("Blank nodes must be connected");
+			if (tracker.isContainmentTriplePresent())
+				throw new Conflict("ldp:contains is prohibited");
 			URI created = tracker.getPrimaryTopic();
 
 			ObjectFactory of = con.getObjectFactory();

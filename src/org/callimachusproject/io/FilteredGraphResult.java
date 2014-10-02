@@ -36,11 +36,6 @@ public class FilteredGraphResult implements GraphQueryResult {
 		return this;
 	}
 
-	public FilteredGraphResult omitSubject(Resource subject) {
-		omit.add(subject);
-		return this;
-	}
-
 	public FilteredGraphResult omitPredicate(URI predicate) {
 		omit.add(predicate);
 		return this;
@@ -58,7 +53,7 @@ public class FilteredGraphResult implements GraphQueryResult {
 		while (statements.isEmpty() && !results.isEmpty()) {
 			if (results.getFirst().hasNext()) {
 				Statement st = results.getFirst().next();
-				if (!omit.contains(st.getSubject()) && !omit.contains(st.getPredicate())) {
+				if (!omit.contains(st.getPredicate())) {
 					statements.add(st);
 				}
 			} else {

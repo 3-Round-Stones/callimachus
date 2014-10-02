@@ -115,7 +115,7 @@
         PREFIX calli: <http://callimachusproject.org/rdf/2009/framework#>
         CONSTRUCT {
             ?container foaf:primaryTopic $this;
-                a ldp:IndirectContainer;
+                a ldp:IndirectContainer, ldp:Container;
                 dcterms:title ?label;
                 ldp:membershipResource $this;
                 ldp:hasMemberRelation calli:hasComponent;

@@ -263,9 +263,7 @@ skos:editorialNote a owl:AnnotationProperty.
 
         //# Parse DELETE INSERT
         var updater = new EntityUpdater(this.resource);
-        updater.executeReplacement(new DescribeResult(this.resource, con),
-            new FilteredGraphResult().addResult(replacementData)
-                .omitSubject(vf.createURI(this.toString() + "?describe")), con);
+        updater.executeReplacement(this.GetRdfDescription(null), replacementData, con);
 
         this.touchRevision();
         //# FIXME we shouldn't need to touch anything

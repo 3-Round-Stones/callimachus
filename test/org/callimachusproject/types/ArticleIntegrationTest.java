@@ -48,7 +48,7 @@ public class ArticleIntegrationTest extends TemporaryServerIntegrationTestCase {
 	public void testDocbookCreate() throws Exception {
 		WebResource create = getHomeFolder().ref("?create="+ getCallimachusUrl("types/Article") + "&resource=test-article.docbook");
 		WebResource article = create.create("application/docbook+xml", DOCBOOK.getBytes());
-		WebResource edit = article.link("edit-media", "application/docbook+xml");
+		WebResource edit = article.rel("edit-media", "application/docbook+xml");
 		edit.get("application/docbook+xml");
 		edit.put("application/docbook+xml", DOCBOOK.getBytes());
 		edit.delete();
@@ -58,7 +58,7 @@ public class ArticleIntegrationTest extends TemporaryServerIntegrationTestCase {
 	public void testXhtmlCreate() throws Exception {
 		WebResource create = getHomeFolder().ref("?create="+ getCallimachusUrl("types/Article") + "&resource=test-article.docbook");
 		WebResource article = create.create("application/xhtml+xml", XHTML.getBytes());
-		WebResource edit = article.link("edit-media", "application/xhtml+xml");
+		WebResource edit = article.rel("edit-media", "application/xhtml+xml");
 		edit.get("application/xhtml+xml");
 		edit.put("application/xhtml+xml", XHTML.getBytes());
 		edit.delete();
@@ -68,7 +68,7 @@ public class ArticleIntegrationTest extends TemporaryServerIntegrationTestCase {
 	public void testXhtmlHeadingCreate() throws Exception {
 		WebResource create = getHomeFolder().ref("?create="+ getCallimachusUrl("types/Article") + "&resource=test-article.docbook");
 		WebResource article = create.create("application/xhtml+xml", XHTML.getBytes());
-		WebResource edit = article.link("edit-media", "application/xhtml+xml");
+		WebResource edit = article.rel("edit-media", "application/xhtml+xml");
 		edit.get("application/xhtml+xml");
 		edit.put("application/xhtml+xml", XHTML_H2.getBytes());
 		edit.delete();

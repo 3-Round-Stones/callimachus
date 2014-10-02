@@ -180,20 +180,20 @@ public class BlobIntegrationTest extends TemporaryServerIntegrationTestCase {
 	
 	public void runTest() throws Exception {
 		WebResource blob = getHomeFolder()
-				.link("contents", "application/atom+xml")
+				.rel("contents", "application/atom+xml")
 				.getAppCollection()
 				.create(requestSlug, requestContentType,
 						outputString.getBytes());
-		WebResource edit = blob.link("edit-media", requestContentType);
+		WebResource edit = blob.rel("edit-media", requestContentType);
 		edit.get(requestContentType);
-		blob.link("alternate", "text/html").get("text/html");
-		blob.link("edit-form", "text/html").get("text/html");
-		blob.link("comments").get("text/html");
-		blob.link("describedby", "text/turtle").get("text/turtle");
-		blob.link("describedby", "application/rdf+xml").get("application/rdf+xml");
-		blob.link("describedby", "text/html").get("text/html");
-		blob.link("version-history", "text/html").get("text/html");
-		blob.link("version-history", "application/atom+xml").get("application/atom+xml");
+		blob.rel("alternate", "text/html").get("text/html");
+		blob.rel("edit-form", "text/html").get("text/html");
+		blob.rel("comments").get("text/html");
+		blob.rel("describedby", "text/turtle").get("text/turtle");
+		blob.rel("describedby", "application/rdf+xml").get("application/rdf+xml");
+		blob.rel("describedby", "text/html").get("text/html");
+		blob.rel("version-history", "text/html").get("text/html");
+		blob.rel("version-history", "application/atom+xml").get("application/atom+xml");
 		blob.ref("?permissions").get("text/html");
 		blob.ref("?rdftype").get("text/uri-list");
 		blob.ref("?relatedchanges").get("text/html");

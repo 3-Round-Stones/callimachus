@@ -87,25 +87,25 @@ public class RdfSourceIntegrationTest extends
 		});
 		WebResource my_resource = null;
 		try {
-			my_resource = getHomeFolder().link("describedby").create("text/turtle", RESOURCE_TURTLE.getBytes());
+			my_resource = getHomeFolder().rel("describedby").create("text/turtle", RESOURCE_TURTLE.getBytes());
 			return;
 		} finally {
 			if (my_resource != null) {
 				my_resource.delete();
 			}
-			MyClass.link("describedby").delete();
+			MyClass.rel("describedby").delete();
 		}
 	}
 
 	public void testEquivalentConflict() throws Exception {
 		WebResource MyClass = waitForCompile(new Callable<WebResource>() {
 			public WebResource call() throws Exception {
-				return getHomeFolder().link("describedby").create("text/turtle", CALLI_CLASS.getBytes());
+				return getHomeFolder().rel("describedby").create("text/turtle", CALLI_CLASS.getBytes());
 			}
 		});
 		WebResource my_resource = null;
 		try {
-			my_resource = getHomeFolder().link("describedby").create("text/turtle", CLASS_CONFLICT.getBytes());
+			my_resource = getHomeFolder().rel("describedby").create("text/turtle", CLASS_CONFLICT.getBytes());
 		} catch (AssertionFailedError e) {
 			return;
 		} finally {
@@ -120,12 +120,12 @@ public class RdfSourceIntegrationTest extends
 	public void testTurtleCreate() throws Exception {
 		WebResource MyClass = waitForCompile(new Callable<WebResource>() {
 			public WebResource call() throws Exception {
-				return getHomeFolder().link("describedby").create("text/turtle", CALLI_CLASS.getBytes());
+				return getHomeFolder().rel("describedby").create("text/turtle", CALLI_CLASS.getBytes());
 			}
 		});
 		WebResource my_resource = null;
 		try {
-			my_resource = getHomeFolder().link("describedby").create("text/turtle", RESOURCE_TURTLE.getBytes());
+			my_resource = getHomeFolder().rel("describedby").create("text/turtle", RESOURCE_TURTLE.getBytes());
 			return;
 		} finally {
 			if (my_resource != null) {
@@ -138,12 +138,12 @@ public class RdfSourceIntegrationTest extends
 	public void testRdfCreate() throws Exception {
 		WebResource MyClass = waitForCompile(new Callable<WebResource>() {
 			public WebResource call() throws Exception {
-				return getHomeFolder().link("describedby").create("text/turtle", CALLI_CLASS.getBytes());
+				return getHomeFolder().rel("describedby").create("text/turtle", CALLI_CLASS.getBytes());
 			}
 		});
 		WebResource my_resource = null;
 		try {
-			my_resource = getHomeFolder().link("describedby").create("application/rdf+xml", RESOURCE_RDF.getBytes());
+			my_resource = getHomeFolder().rel("describedby").create("application/rdf+xml", RESOURCE_RDF.getBytes());
 			return;
 		} finally {
 			if (my_resource != null) {
@@ -156,12 +156,12 @@ public class RdfSourceIntegrationTest extends
 	public void testJsonCreate() throws Exception {
 		WebResource MyClass = waitForCompile(new Callable<WebResource>() {
 			public WebResource call() throws Exception {
-				return getHomeFolder().link("describedby").create("text/turtle", CALLI_CLASS.getBytes());
+				return getHomeFolder().rel("describedby").create("text/turtle", CALLI_CLASS.getBytes());
 			}
 		});
 		WebResource my_resource = null;
 		try {
-			my_resource = getHomeFolder().link("describedby").create("application/ld+json", RESOURCE_JSON.getBytes());
+			my_resource = getHomeFolder().rel("describedby").create("application/ld+json", RESOURCE_JSON.getBytes());
 			return;
 		} finally {
 			if (my_resource != null) {
@@ -174,12 +174,12 @@ public class RdfSourceIntegrationTest extends
 	public void testNullCreate() throws Exception {
 		WebResource MyClass = waitForCompile(new Callable<WebResource>() {
 			public WebResource call() throws Exception {
-				return getHomeFolder().link("describedby").create("text/turtle", CALLI_CLASS.getBytes());
+				return getHomeFolder().rel("describedby").create("text/turtle", CALLI_CLASS.getBytes());
 			}
 		});
 		WebResource my_resource = null;
 		try {
-			my_resource = getHomeFolder().link("describedby").create("text/turtle", NULL_RESOURCE.getBytes());
+			my_resource = getHomeFolder().rel("describedby").create("text/turtle", NULL_RESOURCE.getBytes());
 		} finally {
 			if (my_resource != null) {
 				my_resource.delete();
@@ -191,12 +191,12 @@ public class RdfSourceIntegrationTest extends
 	public void testSlugCreate() throws Exception {
 		WebResource MyClass = waitForCompile(new Callable<WebResource>() {
 			public WebResource call() throws Exception {
-				return getHomeFolder().link("describedby").create("text/turtle", CALLI_CLASS.getBytes());
+				return getHomeFolder().rel("describedby").create("text/turtle", CALLI_CLASS.getBytes());
 			}
 		});
 		WebResource my_resource = null;
 		try {
-			my_resource = getHomeFolder().link("describedby").create("slug", "text/turtle", NULL_RESOURCE.getBytes());
+			my_resource = getHomeFolder().rel("describedby").create("slug", "text/turtle", NULL_RESOURCE.getBytes());
 			if (!my_resource.toString().contains("slug")) {
 				assertEquals(getHomeFolder().toString() + "slug?describe", my_resource.toString());
 			}
@@ -211,12 +211,12 @@ public class RdfSourceIntegrationTest extends
 	public void testTopicCreate() throws Exception {
 		WebResource MyClass = waitForCompile(new Callable<WebResource>() {
 			public WebResource call() throws Exception {
-				return getHomeFolder().link("describedby").create("text/turtle", CALLI_CLASS.getBytes());
+				return getHomeFolder().rel("describedby").create("text/turtle", CALLI_CLASS.getBytes());
 			}
 		});
 		WebResource my_resource = null;
 		try {
-			my_resource = getHomeFolder().link("describedby").create("text/turtle", TOPIC_RESOURCE.getBytes());
+			my_resource = getHomeFolder().rel("describedby").create("text/turtle", TOPIC_RESOURCE.getBytes());
 			if (!my_resource.toString().contains("my-topic")) {
 				assertEquals(getHomeFolder().toString() + "my-topic?describe", my_resource.toString());
 			}
@@ -231,12 +231,12 @@ public class RdfSourceIntegrationTest extends
 	public void testSlugTopicCreate() throws Exception {
 		WebResource MyClass = waitForCompile(new Callable<WebResource>() {
 			public WebResource call() throws Exception {
-				return getHomeFolder().link("describedby").create("text/turtle", CALLI_CLASS.getBytes());
+				return getHomeFolder().rel("describedby").create("text/turtle", CALLI_CLASS.getBytes());
 			}
 		});
 		WebResource my_resource = null;
 		try {
-			my_resource = getHomeFolder().link("describedby").create("slug", "text/turtle", TOPIC_RESOURCE.getBytes());
+			my_resource = getHomeFolder().rel("describedby").create("slug", "text/turtle", TOPIC_RESOURCE.getBytes());
 			if (!my_resource.toString().contains("my-topic")) {
 				assertEquals(getHomeFolder().toString() + "my-topic?describe", my_resource.toString());
 			}
@@ -251,12 +251,12 @@ public class RdfSourceIntegrationTest extends
 	public void testCreateContainsConflict() throws Exception {
 		WebResource MyClass = waitForCompile(new Callable<WebResource>() {
 			public WebResource call() throws Exception {
-				return getHomeFolder().link("describedby").create("text/turtle", CALLI_CLASS.getBytes());
+				return getHomeFolder().rel("describedby").create("text/turtle", CALLI_CLASS.getBytes());
 			}
 		});
 		WebResource my_resource = null;
 		try {
-			my_resource = getHomeFolder().link("describedby").create("text/turtle", RESOURCE_CONTAINS.getBytes());
+			my_resource = getHomeFolder().rel("describedby").create("text/turtle", RESOURCE_CONTAINS.getBytes());
 		} catch (AssertionFailedError e) {
 			return;
 		} finally {

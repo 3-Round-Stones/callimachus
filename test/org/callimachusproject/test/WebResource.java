@@ -62,7 +62,7 @@ public class WebResource {
 		return new WebResource(TermFactory.newInstance(uri).resolve(reference));
 	}
 
-	public WebResource link(String rel, String... types) throws IOException {
+	public WebResource rel(String rel, String... types) throws IOException {
 		return findLink(rel, false, types);
 	}
 
@@ -115,7 +115,7 @@ public class WebResource {
 		sb.append("rdfs:label \"").append(slug).append("\" ;\n");
 		sb.append("calli:").append(property).append(" \"\"\"").append(target).append("\"\"\"\n");
 		sb.append("}");
-		return link("describedby").create("application/sparql-update", sb.toString().getBytes("UTF-8")).rev("describedby");
+		return rel("describedby").create("application/sparql-update", sb.toString().getBytes("UTF-8")).rev("describedby");
 	}
 
 	public WebResource createFolder(String slug) throws IOException {
@@ -127,7 +127,7 @@ public class WebResource {
 		sb.append(" a calli:Folder, </callimachus/1.4/types/Folder>;\n");
 		sb.append("rdfs:label \"").append(slug).append("\"\n");
 		sb.append("}");
-		return link("describedby").create("application/sparql-update", sb.toString().getBytes("UTF-8")).rev("describedby");
+		return rel("describedby").create("application/sparql-update", sb.toString().getBytes("UTF-8")).rev("describedby");
 	}
 
 	public WebResource createRdfDatasource(String slug) throws IOException {
@@ -149,7 +149,7 @@ public class WebResource {
 		sb.append("sd:resultFormat <http://www.w3.org/ns/formats/RDF_XML>;\n");
 		sb.append("sd:resultFormat <http://www.w3.org/ns/formats/SPARQL_Results_XML>\n");
 		sb.append("}");
-		return link("describedby").create("application/sparql-update", sb.toString().getBytes("UTF-8")).rev("describedby");
+		return rel("describedby").create("application/sparql-update", sb.toString().getBytes("UTF-8")).rev("describedby");
 	}
 
 	public String getRedirectLocation() throws IOException {
@@ -291,7 +291,7 @@ public class WebResource {
 	}
 
 	public WebResource search(String searchTerm) throws Exception {
-		String text = new String(link("search", "application/opensearchdescription+xml").get("application/opensearchdescription+xml"));
+		String text = new String(rel("search", "application/opensearchdescription+xml").get("application/opensearchdescription+xml"));
 		int pos = text.indexOf("template");
 		int start = text.indexOf("\"", pos);
 		int stop = text.indexOf("\"", start + 1);

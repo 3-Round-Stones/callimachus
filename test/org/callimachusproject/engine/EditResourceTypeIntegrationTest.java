@@ -195,7 +195,7 @@ public class EditResourceTypeIntegrationTest extends TemporaryServerIntegrationT
 
 	public void testCreate() throws Exception {
 		final WebResource my_create_xhtml = getHomeFolder()
-				.link("contents", "application/atom+xml")
+				.rel("contents", "application/atom+xml")
 				.getAppCollection().create("my-create.xhtml", "application/xhtml+xml", CREATE_TEMPLATE.getBytes());
 		WebResource MyClass = waitForCompile(new Callable<WebResource>() {
 			public WebResource call() throws Exception {
@@ -204,7 +204,7 @@ public class EditResourceTypeIntegrationTest extends TemporaryServerIntegrationT
 				return getHomeFolder().ref(createClass).create("text/turtle", turtle.getBytes());
 			}
 		});
-		WebResource types_ttl = getHomeFolder().link("contents", "application/atom+xml")
+		WebResource types_ttl = getHomeFolder().rel("contents", "application/atom+xml")
 				.getAppCollection()
 				.create("types.ttl", "text/turtle", TYPES_TURTLE.getBytes());
 		String createResource = "?create=" + MyClass;
@@ -214,17 +214,17 @@ public class EditResourceTypeIntegrationTest extends TemporaryServerIntegrationT
 			return;
 		} finally {
 			if (my_resource != null) {
-				my_resource.link("describedby").delete();
+				my_resource.rel("describedby").delete();
 			}
-			MyClass.link("describedby").delete();
-			my_create_xhtml.link("edit-media", "application/xhtml+xml").delete();
-			types_ttl.link("describedby").delete();
+			MyClass.rel("describedby").delete();
+			my_create_xhtml.rel("edit-media", "application/xhtml+xml").delete();
+			types_ttl.rel("describedby").delete();
 		}
 	}
 
 	public void testBadCreate() throws Exception {
 		final WebResource my_create_xhtml = getHomeFolder()
-				.link("contents", "application/atom+xml")
+				.rel("contents", "application/atom+xml")
 				.getAppCollection().create("my-create.xhtml", "application/xhtml+xml", CREATE_TEMPLATE.getBytes());
 		WebResource MyClass = waitForCompile(new Callable<WebResource>() {
 			public WebResource call() throws Exception {
@@ -233,7 +233,7 @@ public class EditResourceTypeIntegrationTest extends TemporaryServerIntegrationT
 				return getHomeFolder().ref(createClass).create("text/turtle", turtle.getBytes());
 			}
 		});
-		WebResource types_ttl = getHomeFolder().link("contents", "application/atom+xml")
+		WebResource types_ttl = getHomeFolder().rel("contents", "application/atom+xml")
 				.getAppCollection()
 				.create("types.ttl", "text/turtle", TYPES_TURTLE.getBytes());
 		String createResource = "?create=" + MyClass;
@@ -246,19 +246,19 @@ public class EditResourceTypeIntegrationTest extends TemporaryServerIntegrationT
 			if (my_resource != null) {
 				my_resource.delete();
 			}
-			MyClass.link("describedby").delete();
-			my_create_xhtml.link("edit-media", "application/xhtml+xml").delete();
-			types_ttl.link("describedby").delete();
+			MyClass.rel("describedby").delete();
+			my_create_xhtml.rel("edit-media", "application/xhtml+xml").delete();
+			types_ttl.rel("describedby").delete();
 		}
 		fail();
 	}
 
 	public void testEdit() throws Exception {
 		final WebResource my_create_xhtml = getHomeFolder()
-				.link("contents", "application/atom+xml")
+				.rel("contents", "application/atom+xml")
 				.getAppCollection().create("my-create.xhtml", "application/xhtml+xml", CREATE_TEMPLATE.getBytes());
 		final WebResource my_edit_xhtml = getHomeFolder()
-				.link("contents", "application/atom+xml")
+				.rel("contents", "application/atom+xml")
 				.getAppCollection().create("my-edit.xhtml", "application/xhtml+xml", EDIT_TEMPLATE.getBytes());
 		WebResource MyClass = waitForCompile(new Callable<WebResource>() {
 			public WebResource call() throws Exception {
@@ -267,7 +267,7 @@ public class EditResourceTypeIntegrationTest extends TemporaryServerIntegrationT
 				return getHomeFolder().ref(createClass).create("text/turtle", turtle.getBytes());
 			}
 		});
-		WebResource types_ttl = getHomeFolder().link("contents", "application/atom+xml")
+		WebResource types_ttl = getHomeFolder().rel("contents", "application/atom+xml")
 				.getAppCollection()
 				.create("types.ttl", "text/turtle", TYPES_TURTLE.getBytes());
 		String createResource = "?create=" + MyClass;
@@ -276,20 +276,20 @@ public class EditResourceTypeIntegrationTest extends TemporaryServerIntegrationT
 			my_resource.ref("?edit").post("application/sparql-update", RESOURCE_UPDATE.getBytes(), "text/uri-list");
 			return;
 		} finally {
-			my_resource.link("describedby").delete();
-			MyClass.link("describedby").delete();
-			my_edit_xhtml.link("edit-media", "application/xhtml+xml").delete();
-			my_create_xhtml.link("edit-media", "application/xhtml+xml").delete();
-			types_ttl.link("describedby").delete();
+			my_resource.rel("describedby").delete();
+			MyClass.rel("describedby").delete();
+			my_edit_xhtml.rel("edit-media", "application/xhtml+xml").delete();
+			my_create_xhtml.rel("edit-media", "application/xhtml+xml").delete();
+			types_ttl.rel("describedby").delete();
 		}
 	}
 
 	public void testBadDelete1() throws Exception {
 		final WebResource my_create_xhtml = getHomeFolder()
-				.link("contents", "application/atom+xml")
+				.rel("contents", "application/atom+xml")
 				.getAppCollection().create("my-create.xhtml", "application/xhtml+xml", CREATE_TEMPLATE.getBytes());
 		final WebResource my_edit_xhtml = getHomeFolder()
-				.link("contents", "application/atom+xml")
+				.rel("contents", "application/atom+xml")
 				.getAppCollection().create("my-edit.xhtml", "application/xhtml+xml", EDIT_TEMPLATE.getBytes());
 		WebResource MyClass = waitForCompile(new Callable<WebResource>() {
 			public WebResource call() throws Exception {
@@ -298,7 +298,7 @@ public class EditResourceTypeIntegrationTest extends TemporaryServerIntegrationT
 				return getHomeFolder().ref(createClass).create("text/turtle", turtle.getBytes());
 			}
 		});
-		WebResource types_ttl = getHomeFolder().link("contents", "application/atom+xml")
+		WebResource types_ttl = getHomeFolder().rel("contents", "application/atom+xml")
 				.getAppCollection()
 				.create("types.ttl", "text/turtle", TYPES_TURTLE.getBytes());
 		String createResource = "?create=" + MyClass;
@@ -308,21 +308,21 @@ public class EditResourceTypeIntegrationTest extends TemporaryServerIntegrationT
 		} catch (AssertionFailedError e) {
 			return;
 		} finally {
-			my_resource.link("describedby").delete();
-			MyClass.link("describedby").delete();
-			my_edit_xhtml.link("edit-media", "application/xhtml+xml").delete();
-			my_create_xhtml.link("edit-media", "application/xhtml+xml").delete();
-			types_ttl.link("describedby").delete();
+			my_resource.rel("describedby").delete();
+			MyClass.rel("describedby").delete();
+			my_edit_xhtml.rel("edit-media", "application/xhtml+xml").delete();
+			my_create_xhtml.rel("edit-media", "application/xhtml+xml").delete();
+			types_ttl.rel("describedby").delete();
 		}
 		fail();
 	}
 
 	public void testBadDelete2() throws Exception {
 		final WebResource my_create_xhtml = getHomeFolder()
-				.link("contents", "application/atom+xml")
+				.rel("contents", "application/atom+xml")
 				.getAppCollection().create("my-create.xhtml", "application/xhtml+xml", CREATE_TEMPLATE.getBytes());
 		final WebResource my_edit_xhtml = getHomeFolder()
-				.link("contents", "application/atom+xml")
+				.rel("contents", "application/atom+xml")
 				.getAppCollection().create("my-edit.xhtml", "application/xhtml+xml", EDIT_TEMPLATE.getBytes());
 		WebResource MyClass = waitForCompile(new Callable<WebResource>() {
 			public WebResource call() throws Exception {
@@ -331,7 +331,7 @@ public class EditResourceTypeIntegrationTest extends TemporaryServerIntegrationT
 				return getHomeFolder().ref(createClass).create("text/turtle", turtle.getBytes());
 			}
 		});
-		WebResource types_ttl = getHomeFolder().link("contents", "application/atom+xml")
+		WebResource types_ttl = getHomeFolder().rel("contents", "application/atom+xml")
 				.getAppCollection()
 				.create("types.ttl", "text/turtle", TYPES_TURTLE.getBytes());
 		String createResource = "?create=" + MyClass;
@@ -341,21 +341,21 @@ public class EditResourceTypeIntegrationTest extends TemporaryServerIntegrationT
 		} catch (AssertionFailedError e) {
 			return;
 		} finally {
-			my_resource.link("describedby").delete();
-			MyClass.link("describedby").delete();
-			my_edit_xhtml.link("edit-media", "application/xhtml+xml").delete();
-			my_create_xhtml.link("edit-media", "application/xhtml+xml").delete();
-			types_ttl.link("describedby").delete();
+			my_resource.rel("describedby").delete();
+			MyClass.rel("describedby").delete();
+			my_edit_xhtml.rel("edit-media", "application/xhtml+xml").delete();
+			my_create_xhtml.rel("edit-media", "application/xhtml+xml").delete();
+			types_ttl.rel("describedby").delete();
 		}
 		fail();
 	}
 
 	public void testBadINSERT() throws Exception {
 		final WebResource my_create_xhtml = getHomeFolder()
-				.link("contents", "application/atom+xml")
+				.rel("contents", "application/atom+xml")
 				.getAppCollection().create("my-create.xhtml", "application/xhtml+xml", CREATE_TEMPLATE.getBytes());
 		final WebResource my_edit_xhtml = getHomeFolder()
-				.link("contents", "application/atom+xml")
+				.rel("contents", "application/atom+xml")
 				.getAppCollection().create("my-edit.xhtml", "application/xhtml+xml", EDIT_TEMPLATE.getBytes());
 		WebResource MyClass = waitForCompile(new Callable<WebResource>() {
 			public WebResource call() throws Exception {
@@ -364,7 +364,7 @@ public class EditResourceTypeIntegrationTest extends TemporaryServerIntegrationT
 				return getHomeFolder().ref(createClass).create("text/turtle", turtle.getBytes());
 			}
 		});
-		WebResource types_ttl = getHomeFolder().link("contents", "application/atom+xml")
+		WebResource types_ttl = getHomeFolder().rel("contents", "application/atom+xml")
 				.getAppCollection()
 				.create("types.ttl", "text/turtle", TYPES_TURTLE.getBytes());
 		String createResource = "?create=" + MyClass;
@@ -374,11 +374,11 @@ public class EditResourceTypeIntegrationTest extends TemporaryServerIntegrationT
 		} catch (AssertionFailedError e) {
 			return;
 		} finally {
-			my_resource.link("describedby").delete();
-			MyClass.link("describedby").delete();
-			my_edit_xhtml.link("edit-media", "application/xhtml+xml").delete();
-			my_create_xhtml.link("edit-media", "application/xhtml+xml").delete();
-			types_ttl.link("describedby").delete();
+			my_resource.rel("describedby").delete();
+			MyClass.rel("describedby").delete();
+			my_edit_xhtml.rel("edit-media", "application/xhtml+xml").delete();
+			my_create_xhtml.rel("edit-media", "application/xhtml+xml").delete();
+			types_ttl.rel("describedby").delete();
 		}
 		fail();
 	}

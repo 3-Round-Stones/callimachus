@@ -49,7 +49,7 @@ public class DatasourceIntegrationTest extends TemporaryServerIntegrationTestCas
 	@Override
 	@After
 	public void tearDown() throws Exception {
-		datasource.link("describedby").delete();
+		datasource.rel("describedby").delete();
 		super.tearDown();
 	}
 

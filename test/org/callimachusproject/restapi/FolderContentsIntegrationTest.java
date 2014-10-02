@@ -25,7 +25,7 @@ public class FolderContentsIntegrationTest extends TemporaryServerIntegrationTes
 	}
 	
 	public void test() throws Exception {
-		assertNotNull(getHomeFolder().link("contents", "application/atom+xml").getAppCollection());
+		assertNotNull(getHomeFolder().rel("contents", "application/atom+xml").getAppCollection());
 	}
 
 }

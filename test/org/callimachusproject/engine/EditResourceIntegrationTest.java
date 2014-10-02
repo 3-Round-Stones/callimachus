@@ -167,7 +167,7 @@ public class EditResourceIntegrationTest extends TemporaryServerIntegrationTestC
 
 	public void testCreate1() throws Exception {
 		final WebResource my_create_xhtml = getHomeFolder()
-				.link("contents", "application/atom+xml")
+				.rel("contents", "application/atom+xml")
 				.getAppCollection().create("my-create.xhtml", "application/xhtml+xml", CREATE_TEMPLATE.getBytes());
 		WebResource MyClass = waitForCompile(new Callable<WebResource>() {
 			public WebResource call() throws Exception {
@@ -183,16 +183,16 @@ public class EditResourceIntegrationTest extends TemporaryServerIntegrationTestC
 			return;
 		} finally {
 			if (my_resource != null) {
-				my_resource.link("describedby").delete();
+				my_resource.rel("describedby").delete();
 			}
-			MyClass.link("describedby").delete();
-			my_create_xhtml.link("edit-media", "application/xhtml+xml").delete();
+			MyClass.rel("describedby").delete();
+			my_create_xhtml.rel("edit-media", "application/xhtml+xml").delete();
 		}
 	}
 
 	public void testCreate2() throws Exception {
 		final WebResource my_create_xhtml = getHomeFolder()
-				.link("contents", "application/atom+xml")
+				.rel("contents", "application/atom+xml")
 				.getAppCollection().create("my-create.xhtml", "application/xhtml+xml", CREATE_TEMPLATE.getBytes());
 		WebResource MyClass = waitForCompile(new Callable<WebResource>() {
 			public WebResource call() throws Exception {
@@ -208,16 +208,16 @@ public class EditResourceIntegrationTest extends TemporaryServerIntegrationTestC
 			return;
 		} finally {
 			if (my_resource != null) {
-				my_resource.link("describedby").delete();
+				my_resource.rel("describedby").delete();
 			}
-			MyClass.link("describedby").delete();
-			my_create_xhtml.link("edit-media", "application/xhtml+xml").delete();
+			MyClass.rel("describedby").delete();
+			my_create_xhtml.rel("edit-media", "application/xhtml+xml").delete();
 		}
 	}
 
 	public void testBadCreate1() throws Exception {
 		final WebResource my_create_xhtml = getHomeFolder()
-				.link("contents", "application/atom+xml")
+				.rel("contents", "application/atom+xml")
 				.getAppCollection().create("my-create.xhtml", "application/xhtml+xml", CREATE_TEMPLATE.getBytes());
 		WebResource MyClass = waitForCompile(new Callable<WebResource>() {
 			public WebResource call() throws Exception {
@@ -236,15 +236,15 @@ public class EditResourceIntegrationTest extends TemporaryServerIntegrationTestC
 			if (my_resource != null) {
 				my_resource.delete();
 			}
-			MyClass.link("describedby").delete();
-			my_create_xhtml.link("edit-media", "application/xhtml+xml").delete();
+			MyClass.rel("describedby").delete();
+			my_create_xhtml.rel("edit-media", "application/xhtml+xml").delete();
 		}
 		fail();
 	}
 
 	public void testBadCreate2() throws Exception {
 		final WebResource my_create_xhtml = getHomeFolder()
-				.link("contents", "application/atom+xml")
+				.rel("contents", "application/atom+xml")
 				.getAppCollection().create("my-create.xhtml", "application/xhtml+xml", CREATE_TEMPLATE.getBytes());
 		WebResource MyClass = waitForCompile(new Callable<WebResource>() {
 			public WebResource call() throws Exception {
@@ -263,18 +263,18 @@ public class EditResourceIntegrationTest extends TemporaryServerIntegrationTestC
 			if (my_resource != null) {
 				my_resource.delete();
 			}
-			MyClass.link("describedby").delete();
-			my_create_xhtml.link("edit-media", "application/xhtml+xml").delete();
+			MyClass.rel("describedby").delete();
+			my_create_xhtml.rel("edit-media", "application/xhtml+xml").delete();
 		}
 		fail();
 	}
 
 	public void testEdit1() throws Exception {
 		final WebResource my_create_xhtml = getHomeFolder()
-				.link("contents", "application/atom+xml")
+				.rel("contents", "application/atom+xml")
 				.getAppCollection().create("my-create.xhtml", "application/xhtml+xml", CREATE_TEMPLATE.getBytes());
 		final WebResource my_edit_xhtml = getHomeFolder()
-				.link("contents", "application/atom+xml")
+				.rel("contents", "application/atom+xml")
 				.getAppCollection().create("my-edit.xhtml", "application/xhtml+xml", EDIT_TEMPLATE.getBytes());
 		WebResource MyClass = waitForCompile(new Callable<WebResource>() {
 			public WebResource call() throws Exception {
@@ -289,19 +289,19 @@ public class EditResourceIntegrationTest extends TemporaryServerIntegrationTestC
 			my_resource.ref("?edit").post("application/sparql-update", RESOURCE_UPDATE1.getBytes(), "text/uri-list");
 			return;
 		} finally {
-			my_resource.link("describedby").delete();
-			MyClass.link("describedby").delete();
-			my_edit_xhtml.link("edit-media", "application/xhtml+xml").delete();
-			my_create_xhtml.link("edit-media", "application/xhtml+xml").delete();
+			my_resource.rel("describedby").delete();
+			MyClass.rel("describedby").delete();
+			my_edit_xhtml.rel("edit-media", "application/xhtml+xml").delete();
+			my_create_xhtml.rel("edit-media", "application/xhtml+xml").delete();
 		}
 	}
 
 	public void testEdit2() throws Exception {
 		final WebResource my_create_xhtml = getHomeFolder()
-				.link("contents", "application/atom+xml")
+				.rel("contents", "application/atom+xml")
 				.getAppCollection().create("my-create.xhtml", "application/xhtml+xml", CREATE_TEMPLATE.getBytes());
 		final WebResource my_edit_xhtml = getHomeFolder()
-				.link("contents", "application/atom+xml")
+				.rel("contents", "application/atom+xml")
 				.getAppCollection().create("my-edit.xhtml", "application/xhtml+xml", EDIT_TEMPLATE.getBytes());
 		WebResource MyClass = waitForCompile(new Callable<WebResource>() {
 			public WebResource call() throws Exception {
@@ -316,19 +316,19 @@ public class EditResourceIntegrationTest extends TemporaryServerIntegrationTestC
 			my_resource.ref("?edit").post("application/sparql-update", RESOURCE_UPDATE2.getBytes(), "text/uri-list");
 			return;
 		} finally {
-			my_resource.link("describedby").delete();
-			MyClass.link("describedby").delete();
-			my_edit_xhtml.link("edit-media", "application/xhtml+xml").delete();
-			my_create_xhtml.link("edit-media", "application/xhtml+xml").delete();
+			my_resource.rel("describedby").delete();
+			MyClass.rel("describedby").delete();
+			my_edit_xhtml.rel("edit-media", "application/xhtml+xml").delete();
+			my_create_xhtml.rel("edit-media", "application/xhtml+xml").delete();
 		}
 	}
 
 	public void testBadEdit1() throws Exception {
 		final WebResource my_create_xhtml = getHomeFolder()
-				.link("contents", "application/atom+xml")
+				.rel("contents", "application/atom+xml")
 				.getAppCollection().create("my-create.xhtml", "application/xhtml+xml", CREATE_TEMPLATE.getBytes());
 		final WebResource my_edit_xhtml = getHomeFolder()
-				.link("contents", "application/atom+xml")
+				.rel("contents", "application/atom+xml")
 				.getAppCollection().create("my-edit.xhtml", "application/xhtml+xml", EDIT_TEMPLATE.getBytes());
 		WebResource MyClass = waitForCompile(new Callable<WebResource>() {
 			public WebResource call() throws Exception {
@@ -344,20 +344,20 @@ public class EditResourceIntegrationTest extends TemporaryServerIntegrationTestC
 		} catch (AssertionFailedError e) {
 			return;
 		} finally {
-			my_resource.link("describedby").delete();
-			MyClass.link("describedby").delete();
-			my_edit_xhtml.link("edit-media", "application/xhtml+xml").delete();
-			my_create_xhtml.link("edit-media", "application/xhtml+xml").delete();
+			my_resource.rel("describedby").delete();
+			MyClass.rel("describedby").delete();
+			my_edit_xhtml.rel("edit-media", "application/xhtml+xml").delete();
+			my_create_xhtml.rel("edit-media", "application/xhtml+xml").delete();
 		}
 		fail();
 	}
 
 	public void testBadEdit2() throws Exception {
 		final WebResource my_create_xhtml = getHomeFolder()
-				.link("contents", "application/atom+xml")
+				.rel("contents", "application/atom+xml")
 				.getAppCollection().create("my-create.xhtml", "application/xhtml+xml", CREATE_TEMPLATE.getBytes());
 		final WebResource my_edit_xhtml = getHomeFolder()
-				.link("contents", "application/atom+xml")
+				.rel("contents", "application/atom+xml")
 				.getAppCollection().create("my-edit.xhtml", "application/xhtml+xml", EDIT_TEMPLATE.getBytes());
 		WebResource MyClass = waitForCompile(new Callable<WebResource>() {
 			public WebResource call() throws Exception {
@@ -373,10 +373,10 @@ public class EditResourceIntegrationTest extends TemporaryServerIntegrationTestC
 		} catch (AssertionFailedError e) {
 			return;
 		} finally {
-			my_resource.link("describedby").delete();
-			MyClass.link("describedby").delete();
-			my_edit_xhtml.link("edit-media", "application/xhtml+xml").delete();
-			my_create_xhtml.link("edit-media", "application/xhtml+xml").delete();
+			my_resource.rel("describedby").delete();
+			MyClass.rel("describedby").delete();
+			my_edit_xhtml.rel("edit-media", "application/xhtml+xml").delete();
+			my_create_xhtml.rel("edit-media", "application/xhtml+xml").delete();
 		}
 		fail();
 	}

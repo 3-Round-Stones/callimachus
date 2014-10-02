@@ -40,42 +40,42 @@ public class NamedGraphIntegrationTest extends TemporaryServerIntegrationTestCas
 
 	public void testCreate() throws MalformedURLException, Exception {
 		getHomeFolder()
-				.link("contents", "application/atom+xml")
+				.rel("contents", "application/atom+xml")
 				.getAppCollection()
 				.create(requestSlug, requestContentType,
 						outputString.getBytes())
-				.link("edit-media", requestContentType).delete();
+				.rel("edit-media", requestContentType).delete();
 	}
 
 	public void testRetrieve() throws Exception {
 		WebResource resource = getHomeFolder()
-				.link("contents", "application/atom+xml")
+				.rel("contents", "application/atom+xml")
 				.getAppCollection()
 				.create(requestSlug, requestContentType,
 						outputString.getBytes());
 		String text = new String(resource
-				.link("edit-media", requestContentType).get(requestContentType));
-		resource.link("edit-media", requestContentType).delete();
+				.rel("edit-media", requestContentType).get(requestContentType));
+		resource.rel("edit-media", requestContentType).delete();
 		assertTrue(text.contains("urn:x-states:New%20York"));
 	}
 
 	public void testUpdate() throws Exception {
 		WebResource resource = getHomeFolder()
-				.link("contents", "application/atom+xml")
+				.rel("contents", "application/atom+xml")
 				.getAppCollection()
 				.create(requestSlug, requestContentType,
 						outputString.getBytes());
-		resource.link("edit-media", requestContentType).put(requestContentType,
+		resource.rel("edit-media", requestContentType).put(requestContentType,
 				updateOutputString.getBytes());
-		resource.link("edit-media", requestContentType).delete();
+		resource.rel("edit-media", requestContentType).delete();
 	}
 
 	public void testDelete() throws Exception {
 		getHomeFolder()
-				.link("contents", "application/atom+xml")
+				.rel("contents", "application/atom+xml")
 				.getAppCollection()
 				.create(requestSlug, requestContentType,
 						outputString.getBytes())
-				.link("edit-media", requestContentType).delete();
+				.rel("edit-media", requestContentType).delete();
 	}
 }

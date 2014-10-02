@@ -102,23 +102,23 @@ public class RdfIntegrationTest extends TemporaryServerIntegrationTestCase {
 	
 	public void runTest() throws Exception {
 		String sparql = "BASE <" + getHomeFolder() + "> \n" + create;
-		WebResource resource = getHomeFolder().link("describedby")
+		WebResource resource = getHomeFolder().rel("describedby")
 				.create("application/sparql-update", sparql.getBytes());
-		resource.link("alternate", "text/html").get("text/html");
-		resource.link("edit-form", "text/html").get("text/html");
-		resource.link("comments").get("text/html");
-		resource.link("describedby", "text/turtle").get("text/turtle");
-		resource.link("describedby", "application/rdf+xml").get("application/rdf+xml");
-		resource.link("describedby", "text/html").get("text/html");
-		resource.link("version-history", "text/html").get("text/html");
-		resource.link("version-history", "application/atom+xml").get("application/atom+xml");
+		resource.rel("alternate", "text/html").get("text/html");
+		resource.rel("edit-form", "text/html").get("text/html");
+		resource.rel("comments").get("text/html");
+		resource.rel("describedby", "text/turtle").get("text/turtle");
+		resource.rel("describedby", "application/rdf+xml").get("application/rdf+xml");
+		resource.rel("describedby", "text/html").get("text/html");
+		resource.rel("version-history", "text/html").get("text/html");
+		resource.rel("version-history", "application/atom+xml").get("application/atom+xml");
 		resource.ref("?permissions").get("text/html");
 		resource.ref("?rdftype").get("text/uri-list");
 		resource.ref("?relatedchanges").get("text/html");
 		resource.ref("?whatlinkshere").get("text/html");
 		resource.ref("?introspect").get("text/html");
-		resource.link("describedby").patch("application/sparql-update", update.getBytes());
-		resource.link("describedby").delete();
+		resource.rel("describedby").patch("application/sparql-update", update.getBytes());
+		resource.rel("describedby").delete();
 	}
 
 }

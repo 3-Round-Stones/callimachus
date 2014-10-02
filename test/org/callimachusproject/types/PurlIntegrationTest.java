@@ -163,7 +163,7 @@ public class PurlIntegrationTest extends TemporaryServerIntegrationTestCase {
 		sb.append(" a skos:Concept, </callimachus/Concept>;\n");
 		sb.append("skos:prefLabel 'accept'\n");
 		sb.append("}");
-		WebResource concept = getHomeFolder().rel("describedby").create("application/sparql-update", sb.toString().getBytes("UTF-8"));
+		WebResource concept = getHomeFolder().rel("describedby").create("application/sparql-update", sb.toString().getBytes("UTF-8")).rev("describedby");
 		WebResource rdf = getHomeFolder().createPurl("accept.rdf", "copy", concept.toString() + "?describe\nAccept: application/rdf+xml");
 		WebResource ttl = getHomeFolder().createPurl("accept.ttl", "copy", concept.toString() + "?describe\nAccept: text/turtle");
 		try {

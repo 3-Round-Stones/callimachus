@@ -143,8 +143,14 @@ skos:editorialNote a owl:AnnotationProperty.
     calli:requires calli:reader;
     calli:type "text/turtle", "application/ld+json;q=0.5", "application/rdf+xml;q=0.4";
     calli:header "Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
+    calli:imports <java:org.callimachusproject.io.DescribeResult>;
+    calli:imports <java:org.callimachusproject.io.FilteredGraphResult>;
     calli:script """
-        return new org.callimachusproject.io.DescribeResult(this.resource, this.objectConnection);
+        var con = this.objectConnection;
+        var vf = con.valueFactory;
+        return new FilteredGraphResult()
+            .addTriple(vf.createURI(this.toString() + "?describe"), vf.createURI("http://xmlns.com/foaf/0.1/primaryTopic"), this.resource)
+            .addResult(new DescribeResult(this.resource, con));
     """.
 
 :preferDescription a owl:FunctionalProperty, owl:DatatypeProperty;

@@ -36,6 +36,19 @@
 # GET describedby
 ################################
 
+:GetHtmlContainerDescription owl:intersectionOf ( <serviceable.ttl#GetHtmlDescription>
+        [owl:onProperty msg:target; owl:allValuesFrom <Composite>]);
+    calli:title "RDF Describe";
+    calli:rel "describedby";
+    calli:method "GET";
+    calli:query "describe";
+    calli:requires calli:reader;
+    calli:type "text/html";
+    calli:header "Link:<http://www.w3.org/ns/ldp#IndirectContainer>;rel=\"type\"";
+    calli:script """
+        return proceed();
+    """.
+
 :GetRdfContainerDescription owl:intersectionOf ( <serviceable.ttl#GetRdfDescription>
         [owl:onProperty msg:target; owl:allValuesFrom <Composite>]);
     calli:title "RDF Describe";
@@ -55,8 +68,8 @@
                 var inc = m[2];
                 var result = new FilteredGraphResult();
                 if (inc.indexOf("http://www.w3.org/ns/ldp#PreferMinimalContainer") >= 0) {
-                    result.addResult(new DescribeResult(this.resource, con))
-                        .addResult(this.FindMinimalContainer());
+                    result.addResult(this.FindMinimalContainer())
+                        .addResult(new DescribeResult(this.resource, con));
                 } else if (inc.indexOf("http://www.w3.org/ns/ldp#PreferMembership") >= 0) {
                     result.addResult(this.FindMembershipTriples());
                 }
@@ -71,8 +84,8 @@
                 var omit = m[2];
                 var result = new FilteredGraphResult();
                 if (omit.indexOf("http://www.w3.org/ns/ldp#PreferMinimalContainer") < 0) {
-                    result.addResult(new DescribeResult(this.resource, con))
-                        .addResult(this.FindMinimalContainer());
+                    result.addResult(this.FindMinimalContainer())
+                        .addResult(new DescribeResult(this.resource, con));
                 } else if (omit.indexOf("http://www.w3.org/ns/ldp#PreferMembership") < 0) {
                     result.addResult(this.FindMembershipTriples());
                 }

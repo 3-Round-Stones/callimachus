@@ -1,5 +1,7 @@
 package org.callimachusproject.io;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -9,13 +11,24 @@ import java.util.Set;
 
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
+import org.openrdf.model.Value;
+import org.openrdf.model.impl.StatementImpl;
 import org.openrdf.query.GraphQueryResult;
 import org.openrdf.query.QueryEvaluationException;
+import org.openrdf.query.impl.GraphQueryResultImpl;
 
 public class FilteredGraphResult implements GraphQueryResult {
 	public final LinkedList<Statement> statements = new LinkedList<>();
 	public final LinkedList<GraphQueryResult> results = new LinkedList<>();
 	private final Set<URI> omit = new HashSet<URI>();
+
+	public FilteredGraphResult addTriple(URI subj, URI pred, Value obj) {
+		Map<String, String> ns = Collections.emptyMap();
+		StatementImpl st = new StatementImpl(subj, pred, obj);
+		GraphQueryResultImpl result = new GraphQueryResultImpl(ns,
+				Arrays.asList(new Statement[] { st }));
+		return this.addResult(result);
+	}
 
 	public FilteredGraphResult addResult(GraphQueryResult result) {
 		results.add(result);

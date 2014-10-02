@@ -90,7 +90,7 @@ public class SqlDatasourceIntegrationTest extends TemporaryServerIntegrationTest
 		sb.append("calli:driverClassName \"").append(DRIVER_CLASSNAME).append("\";\n");
 		sb.append("calli:driverJar <").append(jar).append(">\n");
 		sb.append("}");
-		return getHomeFolder().rel("describedby").create("application/sparql-update", sb.toString().getBytes("UTF-8"));
+		return getHomeFolder().rel("describedby").create("application/sparql-update", sb.toString().getBytes("UTF-8")).rev("describedby");
 	}
 
 	@Test
@@ -209,7 +209,7 @@ public class SqlDatasourceIntegrationTest extends TemporaryServerIntegrationTest
 		sb.append("calli:copy \"\"\"").append(copy.replace("\\", "\\\\")).append("\"\"\";");
 		sb.append("calli:post \"\"\"").append(post.replace("\\", "\\\\")).append("\"\"\"");
 		sb.append("}");
-		WebResource testdata = getHomeFolder().rel("describedby").create("application/sparql-update", sb.toString().getBytes("UTF-8"));
+		WebResource testdata = getHomeFolder().rel("describedby").create("application/sparql-update", sb.toString().getBytes("UTF-8")).rev("describedby");
 		String foo = datasource.toString();
 		testdata.ref("?id=1&foo=" + URLEncoder.encode(foo, "UTF-8") + "&bar=1").post();
 		assertEquals("id,foo,bar\r\n1," + foo + ",1\r\n", new String(testdata.get("*/*"), "UTF-8"));

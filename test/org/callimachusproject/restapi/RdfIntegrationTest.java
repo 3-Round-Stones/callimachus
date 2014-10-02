@@ -103,7 +103,7 @@ public class RdfIntegrationTest extends TemporaryServerIntegrationTestCase {
 	public void runTest() throws Exception {
 		String sparql = "BASE <" + getHomeFolder() + "> \n" + create;
 		WebResource resource = getHomeFolder().rel("describedby")
-				.create("application/sparql-update", sparql.getBytes());
+				.create("application/sparql-update", sparql.getBytes()).rev("describedby");
 		resource.rel("alternate", "text/html").get("text/html");
 		resource.rel("edit-form", "text/html").get("text/html");
 		resource.rel("comments").get("text/html");

@@ -268,6 +268,50 @@ public class RdfSourceIntegrationTest extends
 		fail();
 	}
 
+	public void testPutResource() throws Exception {
+		WebResource MyClass = waitForCompile(new Callable<WebResource>() {
+			public WebResource call() throws Exception {
+				return getHomeFolder().rel("describedby").create("text/turtle", CALLI_CLASS.getBytes());
+			}
+		});
+		WebResource my_resource = null;
+		try {
+			my_resource = getHomeFolder().rel("describedby").create("text/turtle", RESOURCE_TURTLE.getBytes());
+			String turtle = new String(my_resource.get("text/turtle"));
+			my_resource.put("text/turtle", (turtle.replace("my resource", "My resource")).getBytes());
+			String alt = new String(my_resource.get("text/turtle"));
+			if (!alt.contains("My resource")) {
+				assertEquals(turtle.replace("my resource", "My resource"), alt);
+			}
+		} finally {
+			if (my_resource != null) {
+				my_resource.delete();
+			}
+			MyClass.delete();
+		}
+	}
+
+	public void testPutOtherResource() throws Exception {
+		WebResource MyClass = waitForCompile(new Callable<WebResource>() {
+			public WebResource call() throws Exception {
+				return getHomeFolder().rel("describedby").create("text/turtle", CALLI_CLASS.getBytes());
+			}
+		});
+		WebResource my_resource = null;
+		try {
+			my_resource = getHomeFolder().rel("describedby").create("text/turtle", RESOURCE_TURTLE.getBytes());
+			my_resource.put("text/turtle", TOPIC_RESOURCE.getBytes());
+		} catch (AssertionFailedError e) {
+			return;
+		} finally {
+			if (my_resource != null) {
+				my_resource.delete();
+			}
+			MyClass.delete();
+		}
+		fail();
+	}
+
 	private static String cat(String... strings) {
 		StringBuilder sb = new StringBuilder();
 		for (String string : strings) {

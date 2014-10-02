@@ -219,7 +219,7 @@
 :rdfData a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :PostRdfData;
     rdfs:range <java:java.io.InputStream>;
-    calli:type "text/turtle", "application/ld+json;q=0.5", "application/rdf+xml;q=0.4".
+    calli:type "text/turtle", "application/ld+json;q=0.4", "application/rdf+xml;q=0.2".
 
 :rdfSlug a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :PostRdfData;

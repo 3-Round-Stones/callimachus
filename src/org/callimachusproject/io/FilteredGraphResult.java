@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
@@ -20,7 +21,7 @@ import org.openrdf.query.impl.GraphQueryResultImpl;
 public class FilteredGraphResult implements GraphQueryResult {
 	public final LinkedList<Statement> statements = new LinkedList<>();
 	public final LinkedList<GraphQueryResult> results = new LinkedList<>();
-	private final Set<URI> omit = new HashSet<URI>();
+	private final Set<Resource> omit = new HashSet<Resource>();
 
 	public FilteredGraphResult addTriple(URI subj, URI pred, Value obj) {
 		Map<String, String> ns = Collections.emptyMap();
@@ -32,6 +33,11 @@ public class FilteredGraphResult implements GraphQueryResult {
 
 	public FilteredGraphResult addResult(GraphQueryResult result) {
 		results.add(result);
+		return this;
+	}
+
+	public FilteredGraphResult omitSubject(Resource subject) {
+		omit.add(subject);
 		return this;
 	}
 
@@ -52,7 +58,7 @@ public class FilteredGraphResult implements GraphQueryResult {
 		while (statements.isEmpty() && !results.isEmpty()) {
 			if (results.getFirst().hasNext()) {
 				Statement st = results.getFirst().next();
-				if (!omit.contains(st.getPredicate())) {
+				if (!omit.contains(st.getSubject()) && !omit.contains(st.getPredicate())) {
 					statements.add(st);
 				}
 			} else {

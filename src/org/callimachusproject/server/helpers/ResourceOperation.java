@@ -479,7 +479,7 @@ public class ResourceOperation {
 		}
 		String location = request.getResolvedHeader("Content-Location");
 		if (location == null) {
-			location = request.getIRI();
+			location = request.getRequestURL();
 		} else {
 			location = createURI(location).stringValue();
 		}

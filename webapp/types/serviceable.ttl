@@ -149,6 +149,7 @@ skos:editorialNote a owl:AnnotationProperty.
         var con = this.objectConnection;
         var vf = con.valueFactory;
         return new FilteredGraphResult()
+            .addTriple(vf.createURI(this.toString() + "?describe"), vf.createURI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"), vf.createURI("http://www.w3.org/ns/ldp#RDFSource"))
             .addTriple(vf.createURI(this.toString() + "?describe"), vf.createURI("http://xmlns.com/foaf/0.1/primaryTopic"), this.resource)
             .addResult(new DescribeResult(this.resource, con));
     """.

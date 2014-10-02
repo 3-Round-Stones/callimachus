@@ -24,7 +24,9 @@ import java.net.Authenticator;
 import java.net.Authenticator.RequestorType;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
+import java.net.MalformedURLException;
 import java.net.PasswordAuthentication;
+import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.List;
@@ -49,7 +51,7 @@ import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.io.ChannelUtil;
 
 public class WebResource {
-	private static final Pattern LINK = Pattern.compile("<([^>]*)>(?:\\s*;\\s*anchor=\"([^\"]*)\"|\\s*;\\s*rel=\"([^\"]*)\"|\\s*;\\s*rel=([a-z0-9\\.\\-]*)|\\s*;\\s*type=\"([^\"]*)\"|\\s*;\\s*type=([a-zA-z0-9\\.\\-\\+]*))*");
+	private static final Pattern LINK = Pattern.compile("<([^>]*)>(?:\\s*;\\s*anchor=\"([^\"]*)\"|\\s*;\\s*(?:rel|rev)=\"([^\"]*)\"|\\s*;\\s*rel=([a-z0-9\\.\\-]*)|\\s*;\\s*type=\"([^\"]*)\"|\\s*;\\s*type=([a-zA-z0-9\\.\\-\\+]*))*");
 	private final String uri;
 
 	public WebResource(String uri) {
@@ -61,49 +63,11 @@ public class WebResource {
 	}
 
 	public WebResource link(String rel, String... types) throws IOException {
-		HttpURLConnection con = (HttpURLConnection) new URL(uri)
-				.openConnection();
-		con.setRequestMethod("OPTIONS");
-		Assert.assertEquals(con.getResponseMessage(), 204,
-				con.getResponseCode());
-		for (Map.Entry<String, List<String>> e : con.getHeaderFields().entrySet()) {
-			if (!"Link".equalsIgnoreCase(e.getKey()))
-				continue;
-			for (String header : e.getValue()) {
-				Assert.assertNotNull(header);
-				Matcher m = LINK.matcher(header);
-				while (m.find()) {
-					String href = m.group(1);
-					String a = m.group(2);
-					String r = m.group(3) != null ? m.group(3) : m.group(4);
-					String t = m.group(5) != null ? m.group(5) : m.group(6);
-					if (a != null
-							&& !TermFactoryImpl.newInstance(uri).resolve(a).equals(uri))
-						continue;
-					if (!rel.equals(r))
-						continue;
-					if (types.length == 0 || t == null)
-						return ref(href);
-					for (String type : types) {
-						for (String t1 : t.split("\\s+")) {
-							if (t1.length() > 0 && t1.startsWith(type)) {
-								return ref(href);
-							}
-						}
-					}
-				}
-			}
-		}
-		StringBuilder sb = new StringBuilder();
-		sb.append("<").append(uri).append("?").append(rel);
-		sb.append(">; rel=\"").append(rel).append("\"; type=\"");
-		for (String type : types) {
-			sb.append(type).append(' ');
-		}
-		sb.setLength(sb.length() - 1);
-		sb.append("\"");
-		Assert.assertEquals(sb.toString(), con.getHeaderField("Link"));
-		return null;
+		return findLink(rel, false, types);
+	}
+
+	public WebResource rev(String rev, String... types) throws IOException {
+		return findLink(rev, true, types);
 	}
 
 	public WebResource getAppCollection() throws IOException {
@@ -151,7 +115,7 @@ public class WebResource {
 		sb.append("rdfs:label \"").append(slug).append("\" ;\n");
 		sb.append("calli:").append(property).append(" \"\"\"").append(target).append("\"\"\"\n");
 		sb.append("}");
-		return link("describedby").create("application/sparql-update", sb.toString().getBytes("UTF-8"));
+		return link("describedby").create("application/sparql-update", sb.toString().getBytes("UTF-8")).rev("describedby");
 	}
 
 	public WebResource createFolder(String slug) throws IOException {
@@ -163,7 +127,7 @@ public class WebResource {
 		sb.append(" a calli:Folder, </callimachus/1.4/types/Folder>;\n");
 		sb.append("rdfs:label \"").append(slug).append("\"\n");
 		sb.append("}");
-		return link("describedby").create("application/sparql-update", sb.toString().getBytes("UTF-8"));
+		return link("describedby").create("application/sparql-update", sb.toString().getBytes("UTF-8")).rev("describedby");
 	}
 
 	public WebResource createRdfDatasource(String slug) throws IOException {
@@ -185,7 +149,7 @@ public class WebResource {
 		sb.append("sd:resultFormat <http://www.w3.org/ns/formats/RDF_XML>;\n");
 		sb.append("sd:resultFormat <http://www.w3.org/ns/formats/SPARQL_Results_XML>\n");
 		sb.append("}");
-		return link("describedby").create("application/sparql-update", sb.toString().getBytes("UTF-8"));
+		return link("describedby").create("application/sparql-update", sb.toString().getBytes("UTF-8")).rev("describedby");
 	}
 
 	public String getRedirectLocation() throws IOException {
@@ -397,6 +361,61 @@ public class WebResource {
 		int start = text.indexOf("\"", pos);
 		int stop = text.indexOf("\"", start + 1);
 		return text.substring(start + 1, stop).replace("&amp;", "&");
+	}
+
+	private WebResource findLink(String rel, boolean rev, String... types)
+			throws IOException, MalformedURLException, ProtocolException {
+		HttpURLConnection con = (HttpURLConnection) new URL(uri)
+				.openConnection();
+		con.setRequestMethod("OPTIONS");
+		Assert.assertEquals(con.getResponseMessage(), 204,
+				con.getResponseCode());
+		for (Map.Entry<String, List<String>> e : con.getHeaderFields().entrySet()) {
+			if (!"Link".equalsIgnoreCase(e.getKey()))
+				continue;
+			for (String header : e.getValue()) {
+				Assert.assertNotNull(header);
+				Matcher m = LINK.matcher(header);
+				while (m.find()) {
+					if (rev && !header.contains("rev="))
+						continue;
+					String href = m.group(1);
+					String a = m.group(2);
+					String r = m.group(3) != null ? m.group(3) : m.group(4);
+					String t = m.group(5) != null ? m.group(5) : m.group(6);
+					if (a != null
+							&& !TermFactoryImpl.newInstance(uri).resolve(a).equals(uri))
+						continue;
+					if (!rel.equals(r))
+						continue;
+					if (types.length == 0 || t == null)
+						return ref(href);
+					for (String type : types) {
+						for (String t1 : t.split("\\s+")) {
+							if (t1.length() > 0 && t1.startsWith(type)) {
+								return ref(href);
+							}
+						}
+					}
+				}
+			}
+		}
+		StringBuilder sb = new StringBuilder();
+		sb.append("<").append(uri).append("?").append(rel);
+		sb.append(">");
+		if (rev) {
+			sb.append("; rev=\"");
+		} else {
+			sb.append("; rel=\"");
+		}
+		sb.append(rel).append("\"; type=\"");
+		for (String type : types) {
+			sb.append(type).append(' ');
+		}
+		sb.setLength(sb.length() - 1);
+		sb.append("\"");
+		Assert.assertEquals(sb.toString(), con.getHeaderField("Link"));
+		return null;
 	}
 
 }

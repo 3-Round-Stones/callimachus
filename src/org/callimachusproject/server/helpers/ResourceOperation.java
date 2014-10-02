@@ -281,7 +281,7 @@ public class ResourceOperation {
 		if (getOperationMethods("DELETE", false).containsKey(name)) {
 			set.add("DELETE");
 		}
-		Map<String, List<Method>> map = getPostMethods(target);
+		Map<String, List<Method>> map = getPostMethods(target, name);
 		for (String method : map.keySet()) {
 			set.add(method);
 			if ("GET".equals(method)) {
@@ -892,10 +892,17 @@ public class ResourceOperation {
 		return new String[0];
 	}
 
-	private Map<String, List<Method>> getPostMethods(RDFObject target) {
+	private Map<String, List<Method>> getPostMethods(RDFObject target, String name) {
 		Map<String, List<Method>> map = new HashMap<String, List<Method>>();
 		for (Method m : target.getClass().getMethods()) {
 			if (m.isAnnotationPresent(ParameterTypes.class))
+				continue;
+			String[] query = null;
+			if (m.isAnnotationPresent(query.class)) {
+				query = m.getAnnotation(query.class).value();
+			}
+			if (query == null && name != null || query != null
+					&& !Arrays.asList(query).contains(name))
 				continue;
 			method ann = m.getAnnotation(method.class);
 			if (ann == null) {

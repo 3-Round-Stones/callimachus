@@ -143,6 +143,9 @@ skos:editorialNote a owl:AnnotationProperty.
     calli:requires calli:reader;
     calli:type "text/turtle;q=0.6", "application/ld+json;q=0.4", "application/rdf+xml;q=0.2";
     calli:header "Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
+    calli:header "Allow:DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT";
+    calli:header "Accept-Patch:application/sparql-update";
+    calli:header "Accept-Post:text/turtle,application/ld+json,application/rdf+xml,application/sparql-update";
     calli:imports <java:org.callimachusproject.io.DescribeResult>;
     calli:imports <java:org.callimachusproject.io.FilteredGraphResult>;
     calli:script """
@@ -170,6 +173,9 @@ skos:editorialNote a owl:AnnotationProperty.
     calli:requires calli:reader;
     calli:type "text/html";
     calli:header "Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
+    calli:header "Allow:DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT";
+    calli:header "Accept-Patch:application/sparql-update";
+    calli:header "Accept-Post:text/turtle,application/ld+json,application/rdf+xml,application/sparql-update";
     calli:script """
         return this.TransformDescription(this.GetRdfDescription(null));
     """.

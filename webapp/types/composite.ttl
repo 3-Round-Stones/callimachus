@@ -45,6 +45,9 @@
     calli:requires calli:reader;
     calli:type "text/html";
     calli:header "Link:<http://www.w3.org/ns/ldp#IndirectContainer>;rel=\"type\",<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
+    calli:header "Allow:DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT";
+    calli:header "Accept-Patch:application/sparql-update";
+    calli:header "Accept-Post:text/turtle,application/ld+json,application/rdf+xml,application/sparql-update";
     calli:script """
         return proceed();
     """.
@@ -58,6 +61,9 @@
     calli:requires calli:reader;
     calli:type "text/turtle", "application/ld+json;q=0.5", "application/rdf+xml;q=0.4";
     calli:header "Link:<http://www.w3.org/ns/ldp#IndirectContainer>;rel=\"type\",<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
+    calli:header "Allow:DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT";
+    calli:header "Accept-Patch:application/sparql-update";
+    calli:header "Accept-Post:text/turtle,application/ld+json,application/rdf+xml,application/sparql-update";
     calli:imports <java:org.callimachusproject.io.DescribeResult>;
     calli:imports <java:org.callimachusproject.io.FilteredGraphResult>;
     calli:script """

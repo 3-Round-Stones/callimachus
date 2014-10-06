@@ -200,7 +200,7 @@ skos:editorialNote a owl:AnnotationProperty.
         var con = this.objectConnection;
 
         //# Parse DELETE INSERT
-        var updater = new EntityUpdater(this.resource);
+        var updater = new EntityUpdater(this.resource, "?describe");
         updater.executeUpdate(deleteInsert, con);
 
         this.touchRevision();
@@ -230,7 +230,7 @@ skos:editorialNote a owl:AnnotationProperty.
         var con = this.objectConnection;
 
         //# Parse DELETE INSERT
-        var updater = new EntityUpdater(this.resource);
+        var updater = new EntityUpdater(this.resource, "?describe");
         updater.executeUpdate(insertData, con);
 
         this.touchRevision();
@@ -263,7 +263,7 @@ skos:editorialNote a owl:AnnotationProperty.
         var vf = con.valueFactory;
 
         //# Parse DELETE INSERT
-        var updater = new EntityUpdater(this.resource);
+        var updater = new EntityUpdater(this.resource, "?describe");
         updater.executeReplacement(this.GetRdfDescription(null), replacementData, con);
 
         this.touchRevision();

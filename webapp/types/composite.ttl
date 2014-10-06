@@ -173,7 +173,6 @@
     calli:requires calli:administrator;
     calli:expect "201-created";
     calli:type "text/uri-list";
-    calli:imports <java:org.callimachusproject.form.helpers.TripleInserter>;
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
     calli:imports <java:org.callimachusproject.server.exceptions.Forbidden>;
     calli:imports <java:org.callimachusproject.server.exceptions.Conflict>;
@@ -256,7 +255,7 @@
         var of = con.objectFactory;
 
         //# Parse INSERT DATA
-        var updater = new EntityUpdater(this.resource, true);
+        var updater = new EntityUpdater(this.resource, "?describe", true);
         var string = updater.parseUpdate(insertData);
         
         //# Verify input

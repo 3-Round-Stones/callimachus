@@ -26,6 +26,7 @@ import org.callimachusproject.engine.RDFEventReader;
 import org.callimachusproject.engine.RDFParseException;
 import org.callimachusproject.engine.events.TriplePattern;
 import org.callimachusproject.engine.helpers.SparqlUpdateFactory;
+import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.server.exceptions.Conflict;
 import org.openrdf.OpenRDFException;
@@ -46,14 +47,16 @@ import org.openrdf.rio.RDFHandlerException;
 public class EntityUpdater {
 	private final TripleAnalyzer analyzer = new TripleAnalyzer();
 	private final URI entity;
+	private final String base;
 	private final boolean components;
 
-	public EntityUpdater(URI entity) {
-		this(entity, false);
+	public EntityUpdater(URI entity, String base) {
+		this(entity, base, false);
 	}
 
-	public EntityUpdater(URI entity, boolean components) {
+	public EntityUpdater(URI entity, String base, boolean components) {
 		this.entity = entity;
+		this.base = TermFactory.newInstance(entity.stringValue()).resolve(base);
 		this.components = components;
 		if (!components) {
 			analyzer.addSubject(entity);
@@ -97,9 +100,9 @@ public class EntityUpdater {
 	public void executeReplacement(GraphQueryResult deleteData,
 			GraphQueryResult insertData, ObjectConnection con)
 			throws IOException, OpenRDFException {
-		SparqlUpdateFactory factory = new SparqlUpdateFactory();
+		SparqlUpdateFactory factory = new SparqlUpdateFactory(base);
 		String sparql = factory.replacement(deleteData, insertData);
-		analyzer.analyzeUpdate(sparql, entity.stringValue());
+		analyzer.analyzeUpdate(sparql, base);
 		verify();
 		executeUpdate(sparql, con);
 	}
@@ -112,14 +115,14 @@ public class EntityUpdater {
 
 	public String parseUpdate(InputStream in) throws OpenRDFException,
 			IOException {
-		String ret = analyzer.parseUpdate(in, entity.stringValue());
+		String ret = analyzer.parseUpdate(in, base);
 		verify();
 		return ret;
 	}
 
 	public void analyzeUpdate(String input)
 			throws MalformedQueryException, RDFHandlerException {
-		analyzer.analyzeUpdate(input, entity.stringValue());
+		analyzer.analyzeUpdate(input, base);
 		verify();
 	}
 

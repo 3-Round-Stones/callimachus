@@ -113,6 +113,7 @@ public abstract class PageSupport implements CalliObject {
 			StatementCollector statements = new StatementCollector();
 			RDFHandler handler = new RDFHandlerWrapper(new RDFInserter(con), statements);
 			TripleInserter tracker = new TripleInserter(handler, con);
+			tracker.setBaseURI(base);
 			tracker.accept(openPatternReader(target.toString()));
 			tracker.accept(created((URI) target.getResource()));
 			RDFFormat format = RDFFormat.forMIMEType(type);
@@ -154,7 +155,7 @@ public abstract class PageSupport implements CalliObject {
 		try {
 			ObjectConnection con = target.getObjectConnection();
 			URI resource = (URI) target.getResource();
-			EntityUpdater update = new EntityUpdater(resource);
+			EntityUpdater update = new EntityUpdater(resource, resource.stringValue());
 	
 			// delete clause uses existing triples
 			update.acceptDelete(loadEditTriples(resource, con));
@@ -220,7 +221,7 @@ public abstract class PageSupport implements CalliObject {
 	private void verifyInsertClause(String sparqlUpdate, URI resource,
 			ObjectConnection con) throws RDFParseException, IOException,
 			TemplateException, OpenRDFException {
-		EntityUpdater postUpdate = new EntityUpdater(resource);
+		EntityUpdater postUpdate = new EntityUpdater(resource, resource.stringValue());
 		postUpdate.acceptInsert(loadEditTriples(resource, con));
 		postUpdate.acceptInsert(changeNoteOf(resource));
 		postUpdate.acceptInsert(modified(resource));

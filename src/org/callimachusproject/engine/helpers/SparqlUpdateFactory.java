@@ -36,16 +36,23 @@ import org.callimachusproject.engine.model.IRI;
 import org.callimachusproject.engine.model.Node;
 import org.callimachusproject.engine.model.Term;
 import org.callimachusproject.engine.model.VarOrTerm;
+import org.callimachusproject.server.exceptions.BadRequest;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
+import org.openrdf.model.impl.StatementImpl;
 import org.openrdf.query.GraphQueryResult;
 import org.openrdf.query.QueryEvaluationException;
 
 public class SparqlUpdateFactory {
 	private final AbsoluteTermFactory tf = AbsoluteTermFactory.newInstance();
+	private final String base;
+
+	public SparqlUpdateFactory(String base) {
+		this.base = base;
+	}
 
 	public String replacement(GraphQueryResult deleteData,
 			GraphQueryResult insertData) throws QueryEvaluationException,
@@ -64,7 +71,13 @@ public class SparqlUpdateFactory {
 			throws QueryEvaluationException {
 		Collection<Statement> set = new HashSet<Statement>();
 		while (data.hasNext()) {
-			set.add(data.next());
+			Statement st = data.next();
+			if (st.getContext() != null
+					&& !st.getContext().stringValue().equals(base))
+				throw new BadRequest("Only the default graph can be used, not "
+						+ st.getContext());
+			set.add(new StatementImpl(st.getSubject(), st.getPredicate(), st
+					.getObject()));
 		}
 		return set;
 	}

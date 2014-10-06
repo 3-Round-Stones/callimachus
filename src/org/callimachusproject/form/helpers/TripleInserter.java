@@ -62,7 +62,8 @@ public class TripleInserter implements RDFHandler {
 	private final RDFHandler inserter;
 	private final Set<String> prefixes = new HashSet<String>();
 	private final Set<String> namespaces = new HashSet<String>();
-	private URI graph = null;
+	private String base;
+	private URI graph;
 	private URI documentURI;
 	private URI primaryTopic;
 
@@ -84,6 +85,14 @@ public class TripleInserter implements RDFHandler {
 		} finally {
 			currently.close();
 		}
+	}
+
+	public String getBaseURI() {
+		return base;
+	}
+
+	public void setBaseURI(String base) {
+		this.base = base;
 	}
 
 	/**
@@ -109,6 +118,7 @@ public class TripleInserter implements RDFHandler {
 
 	public synchronized void parseAndInsert(InputStream in, String type, String base)
 			throws IOException, OpenRDFException {
+		setBaseURI(base);
 		RDFFormat format = RDFFormat.forMIMEType(type);
 		RDFParserRegistry registry = RDFParserRegistry.getInstance();
 		RDFParser parser = registry.get(format).getParser();
@@ -120,8 +130,11 @@ public class TripleInserter implements RDFHandler {
 
 	@Override
 	public void handleStatement(Statement st) throws RDFHandlerException {
-		if (st.getContext() != null)
-			throw new RDFHandlerException("Only the default graph can be used");
+		if (st.getContext() != null
+				&& !st.getContext().stringValue().equals(base))
+			throw new RDFHandlerException(
+					"Only the default graph can be used, not "
+							+ st.getContext());
 		inserter.handleStatement(canonicalize(st));
 	}
 

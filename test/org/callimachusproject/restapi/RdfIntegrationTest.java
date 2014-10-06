@@ -41,7 +41,7 @@ public class RdfIntegrationTest extends TemporaryServerIntegrationTestCase {
         		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
         		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
         		    " prefix skos: <http://www.w3.org/2004/02/skos/core#> \n " + 
-        			" DELETE { <> skos:prefLabel \"concept\" } INSERT { <> skos:prefLabel \"UPDATED\" } WHERE {}"
+        			" DELETE { <created-concept> skos:prefLabel \"concept\" } INSERT { <created-concept> skos:prefLabel \"UPDATED\" } WHERE {}"
         	});
         	
         	put("Folder", new String[] {
@@ -53,7 +53,7 @@ public class RdfIntegrationTest extends TemporaryServerIntegrationTestCase {
         			"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n" +
         		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
         		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
-        			" DELETE { <> rdfs:label \"test\" } INSERT { <> rdfs:label \"UPDATED\" } WHERE {}"
+        			" DELETE { <.> rdfs:label \"test\" } INSERT { <.> rdfs:label \"UPDATED\" } WHERE {}"
         	});
         	
         	put("Group", new String[] {
@@ -65,7 +65,7 @@ public class RdfIntegrationTest extends TemporaryServerIntegrationTestCase {
         			"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n" +
         		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
         		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
-        			" DELETE { <> rdfs:label \"testGroup\" } INSERT { <> rdfs:label \"UPDATED\" } WHERE {}"
+        			" DELETE { <created-testGroup> rdfs:label \"testGroup\" } INSERT { <created-testGroup> rdfs:label \"UPDATED\" } WHERE {}"
         	});
         	
         	put("PURL", new String[] {
@@ -77,7 +77,7 @@ public class RdfIntegrationTest extends TemporaryServerIntegrationTestCase {
         			"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n" +
         		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
         		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
-        			" DELETE { <> rdfs:label \"purl\" } INSERT { <> rdfs:label \"UPDATED\" } WHERE {}"
+        			" DELETE { <created-purl> rdfs:label \"purl\" } INSERT { <created-purl> rdfs:label \"UPDATED\" } WHERE {}"
         	});
         }
     };

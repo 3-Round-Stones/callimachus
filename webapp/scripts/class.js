@@ -23,6 +23,7 @@ jQuery(function($){
         return false;
     }).on('drop', dropResourceURL.bind(this, $('#class-lookup').prop('href'), $('#subClassOf').selectize({
         load: resourceSearch.bind(this, $('#class-search').prop('href')),
+        create: createClass,
         render: {
             option: renderOption,
             item: renderItem
@@ -64,6 +65,7 @@ jQuery(function($){
         return false;
     }).on('drop', dropResourceURL.bind(this, $('#class-lookup').prop('href'), $('#equivalentClass').selectize({
         load: resourceSearch.bind(this, $('#class-search').prop('href')),
+        create: createClass,
         render: {
             option: renderOption,
             item: renderItem
@@ -134,6 +136,16 @@ jQuery(function($){
             });
         }
     });
+
+    function createClass(input, callback) {
+        var name = input.replace(/([a-z])\s+([A-Z])/g, '$1$2').replace(/\s+/g,'_');
+        var uri = encodeURI(name).replace(/%5B/g, '[').replace(/%5D/g, ']').replace(/%25(\w\w)/g, '%$1');
+        callback({
+            value: uri,
+            text: input.replace(/.*[#\/]/,''),
+            comment: ''
+        });
+    }
 
     function renderItem(data, escape){
         return '<div title="' + escape(data.value) + '" onclick="calli.selectResource(this, this.title)">' + escape(data.text) + '</div>';

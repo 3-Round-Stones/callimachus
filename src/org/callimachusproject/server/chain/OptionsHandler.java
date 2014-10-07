@@ -39,6 +39,9 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.Future;
 
+import javax.activation.MimeType;
+import javax.activation.MimeTypeParseException;
+
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
@@ -113,17 +116,13 @@ public class OptionsHandler implements AsyncExecChain {
 			if (max != null) {
 				rb.addHeader("Access-Control-Max-Age", max);
 			}
-			Collection<String> acceptPost = getAccept(trans, "POST");
-			if (!acceptPost.isEmpty()) {
-				for (String accept : acceptPost) {
-					rb.addHeader("Accept-Post", accept);
-				}
+			String acceptPost = getAccept(trans, "POST");
+			if (acceptPost != null && acceptPost.length() > 0) {
+				rb.addHeader("Accept-Post", acceptPost);
 			}
-			Collection<String> acceptPatch = getAccept(trans, "PATCH");
-			if (!acceptPatch.isEmpty()) {
-				for (String accept : acceptPatch) {
-					rb.addHeader("Accept-Patch", accept);
-				}
+			String acceptPatch = getAccept(trans, "PATCH");
+			if (acceptPatch != null && acceptPatch.length() > 0) {
+				rb.addHeader("Accept-Patch", acceptPatch);
 			}
 			BasicFuture<HttpResponse> future;
 			future = new BasicFuture<HttpResponse>(callback);
@@ -215,17 +214,33 @@ public class OptionsHandler implements AsyncExecChain {
 		return null;
 	}
 
-	private Collection<String> getAccept(ResourceOperation trans, String req_method) {
+	private String getAccept(ResourceOperation trans, String req_method) {
 		Collection<String> types = new HashSet<>();
 		for (Method method : trans.findMethodHandlers(req_method)) {
 			for (Annotation[] anns : method.getParameterAnnotations()) {
-				if (trans.getParameterNames(anns) != null || trans.getHeaderNames(anns) != null)
+				if (trans.getParameterNames(anns) != null
+						|| trans.getHeaderNames(anns) != null)
 					continue;
-				types.addAll(Arrays.asList(trans.getParameterMediaTypes(anns)));
+				for (String media : trans.getParameterMediaTypes(anns)) {
+					if ("*/*".equals(media))
+						continue;
+					try {
+						MimeType type = new MimeType(media);
+						if (!"*".equals(type.getPrimaryType())
+								|| !"*".equals(type.getSubType())) {
+							type.removeParameter("q");
+							types.add(type.toString());
+						}
+					} catch (MimeTypeParseException e) {
+						continue;
+					}
+				}
 			}
 		}
-		types.remove("*/*");
-		return types;
+		if (types.isEmpty())
+			return null;
+		String string = types.toString();
+		return string.substring(1, string.length() - 1);
 	}
 
 }

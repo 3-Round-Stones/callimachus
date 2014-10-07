@@ -151,7 +151,7 @@ public class EntityUpdater {
 				if (local.indexOf('/') >= 0)
 					throw new BadRequest("Can only created nested components here");
 			} else {
-				throw new BadRequest("Wrong Subject: " + analyzer.getSubject());
+				throw new BadRequest("Wrong Resource");
 			}
 		}
 		if (!analyzer.isSingleton())

@@ -85,6 +85,8 @@ public abstract class ResponseException extends RuntimeException {
 			return new Gone(msg, stack);
 		case 415:
 			return new UnsupportedMediaType(msg, stack);
+		case 428:
+			return new PreconditionRequired(msg, stack);
 		case 429:
 			return new TooManyRequests(msg, stack);
 		case 500:

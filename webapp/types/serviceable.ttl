@@ -143,9 +143,6 @@ skos:editorialNote a owl:AnnotationProperty.
     calli:requires calli:reader;
     calli:type "text/turtle;q=0.6", "application/ld+json;q=0.4", "application/rdf+xml;q=0.2";
     calli:header "Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
-    calli:header "Allow:DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT";
-    calli:header "Accept-Patch:application/sparql-update";
-    calli:header "Accept-Post:text/turtle,application/ld+json,application/rdf+xml,application/sparql-update";
     calli:imports <java:org.callimachusproject.io.DescribeResult>;
     calli:imports <java:org.callimachusproject.io.FilteredGraphResult>;
     calli:script """
@@ -173,9 +170,6 @@ skos:editorialNote a owl:AnnotationProperty.
     calli:requires calli:reader;
     calli:type "text/html";
     calli:header "Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
-    calli:header "Allow:DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT";
-    calli:header "Accept-Patch:application/sparql-update";
-    calli:header "Accept-Post:text/turtle,application/ld+json,application/rdf+xml,application/sparql-update";
     calli:script """
         return this.TransformDescription(this.GetRdfDescription(null));
     """.
@@ -226,6 +220,7 @@ skos:editorialNote a owl:AnnotationProperty.
 :PostDeleteInsert rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Serviceable>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    rdfs:subClassOf [owl:onProperty :fileClass; owl:hasValue <File>];
     calli:method "POST";
     calli:query "describe";
     calli:requires calli:administrator;
@@ -253,7 +248,22 @@ skos:editorialNote a owl:AnnotationProperty.
     rdfs:range <java:java.io.InputStream>;
     calli:type "application/sparql-update".
 
-:PutDataReplace rdfs:subClassOf msg:Message;
+:insertSlug a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:domain :PostDeleteInsert;
+    rdfs:range xsd:string;
+    calli:header "Slug";
+    calli:type "text/plain".
+
+:insertLink a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:domain :PostDeleteInsert;
+    rdfs:range xsd:string;
+    calli:header "Link";
+    calli:type "text/plain".
+
+:fileClass a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :PostDeleteInsert.
+
+:PutDescribe rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Serviceable>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
     calli:method "PUT";
@@ -264,9 +274,12 @@ skos:editorialNote a owl:AnnotationProperty.
     calli:imports <java:org.callimachusproject.io.DescribeResult>;
     calli:imports <java:org.callimachusproject.io.FilteredGraphResult>;
     calli:imports <java:org.callimachusproject.form.helpers.EntityUpdater>;
+    calli:imports <java:org.callimachusproject.server.exceptions.PreconditionRequired>;
     calli:script """
         var con = this.objectConnection;
         var vf = con.valueFactory;
+
+        if (!replaceIfMatch) throw new PreconditionRequired("If-Match request header is required");
 
         //# Parse DELETE INSERT
         var updater = new EntityUpdater(this.resource, "?describe");
@@ -281,8 +294,14 @@ skos:editorialNote a owl:AnnotationProperty.
         return null;
     """.
 
+:replaceIfMatch a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:domain :PutDescribe;
+    rdfs:range xsd:string;
+    calli:header "If-Match";
+    calli:type "text/plain".
+
 :replacementData a owl:FunctionalProperty, owl:ObjectProperty;
-    rdfs:domain :PutDataReplace;
+    rdfs:domain :PutDescribe;
     rdfs:range <java:org.openrdf.query.GraphQueryResult>;
     calli:type "text/turtle", "application/ld+json;q=0.4", "application/rdf+xml;q=0.2".
 

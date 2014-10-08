@@ -21,7 +21,6 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Set;
-import java.util.UUID;
 
 import org.callimachusproject.auth.AuthorizationManager;
 import org.callimachusproject.engine.model.TermFactory;
@@ -45,21 +44,12 @@ import org.openrdf.rio.helpers.RDFHandlerBase;
 
 public abstract class CompositeSupport implements CalliObject {
 
-	public Object insertComponentGraph(InputStream in, String type, String local)
+	public Object insertComponentGraph(InputStream in, String type, String uri)
 			throws OpenRDFException, RDFParseException, IOException {
 		try {
-			String base = this.getResource().stringValue();
-			if (!base.endsWith("/")) {
-				base = base + "/";
-			}
-			if (local == null || local.length() == 0) {
-				base = base + UUID.randomUUID().toString();
-			} else {
-				base = base + local;
-			}
 			ObjectConnection con = this.getObjectConnection();
 			TripleInserter tracker = new TripleInserter(con);
-			tracker.parseAndInsert(in, type, base);
+			tracker.parseAndInsert(in, type, uri);
 			if (tracker.isEmpty())
 				throw new BadRequest("Missing Information");
 			if (!tracker.isSingleton())
@@ -72,7 +62,7 @@ public abstract class CompositeSupport implements CalliObject {
 
 			ObjectFactory of = con.getObjectFactory();
 			for (URI partner : tracker.getPartners()) {
-				if (!partner.toString().equals(base)) {
+				if (!partner.toString().equals(uri)) {
 					of.createObject(partner, CalliObject.class).touchRevision();
 				}
 			}

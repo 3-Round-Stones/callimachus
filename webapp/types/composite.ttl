@@ -45,9 +45,6 @@
     calli:requires calli:reader;
     calli:type "text/html";
     calli:header "Link:<http://www.w3.org/ns/ldp#IndirectContainer>;rel=\"type\",<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
-    calli:header "Allow:DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT";
-    calli:header "Accept-Patch:application/sparql-update";
-    calli:header "Accept-Post:text/turtle,application/ld+json,application/rdf+xml,application/sparql-update";
     calli:script """
         return proceed();
     """.
@@ -61,9 +58,6 @@
     calli:requires calli:reader;
     calli:type "text/turtle", "application/ld+json;q=0.5", "application/rdf+xml;q=0.4";
     calli:header "Link:<http://www.w3.org/ns/ldp#IndirectContainer>;rel=\"type\",<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
-    calli:header "Allow:DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT";
-    calli:header "Accept-Patch:application/sparql-update";
-    calli:header "Accept-Post:text/turtle,application/ld+json,application/rdf+xml,application/sparql-update";
     calli:imports <java:org.callimachusproject.io.DescribeResult>;
     calli:imports <java:org.callimachusproject.io.FilteredGraphResult>;
     calli:script """
@@ -167,12 +161,89 @@
         }
     """.
 
+:PostLDPCreate rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Composite>];
+    rdfs:subClassOf [owl:onProperty :fileClass; owl:hasValue <File>];
+    calli:method "POST";
+    calli:query "describe";
+    calli:requires calli:administrator;
+    calli:expect "201-created";
+    calli:type "text/uri-list".
+
+:slug a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:domain :PostLDPCreate;
+    rdfs:range xsd:string;
+    calli:header "Slug";
+    calli:type "text/plain".
+
+:type a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:domain :PostLDPCreate;
+    rdfs:range xsd:string;
+    calli:header "Content-Type";
+    calli:type "text/plain".
+
+:link a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:domain :PostLDPCreate;
+    rdfs:range xsd:string;
+    calli:header "Link";
+    calli:type "text/plain".
+
+:fileClass a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :PostLDPCreate.
+
+################################
+# POST Non-RDF
+################################
+
+:PostNonRDFSource rdfs:subClassOf :PostLDPCreate;
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
+    calli:method "POST";
+    calli:query "describe";
+    calli:requires calli:administrator;
+    calli:type "message/x-response";
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <java:org.callimachusproject.server.exceptions.Forbidden>;
+    calli:imports <java:org.callimachusproject.server.exceptions.Conflict>;
+    calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
+    calli:imports <Editable>;
+    calli:imports <Composite>;
+    calli:imports <Serviceable>;
+    calli:script """
+        var con = this.objectConnection;
+        var vf = con.valueFactory;
+        var of = con.objectFactory;
+
+        var local = slug && encodeURI(slug).replace(/%25(\\w\\w)/g, '%$1').replace(/%20/g, '+');
+    	var uri = this.getResource().stringValue();
+		if (uri.charAt(uri.length-1) != '/') {
+			uri = uri + "/";
+		}
+		if (local == null || local.length === 0) {
+			uri = uri + java.util.UUID.randomUUID().toString();
+		} else {
+			uri = uri + local;
+		}
+
+        if (link && link.match(/<http:..www.w3.org.ns.ldp#[a-zA-Z]Container>[^<]*; *rel="type"/))
+            throw new BadRequest("Unknown RDFSource media type: " + nrType);
+        if (link && link.match(/<http:..www.w3.org.ns.ldp#RDFSource>[^<]*; *rel="type"/))
+            throw new BadRequest("Unknown RDFSource media type: " + nrType);
+        var resp = this.PostFactoryCreate(nrData, fileClass, false, of.createObject(uri), type);
+        var location = resp.headers.location;
+        resp.headers['link'] = '<' + location + '?describe>;rel="describedby";anchor="' + location + '"';
+        return resp;
+    """.
+
+:nrData a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :PostNonRDFSource;
+    rdfs:range <java:java.io.InputStream>;
+    calli:type "*/*;q=0.1".
+
 ################################
 # POST RDF
 ################################
 
-:PostRdfData rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Composite>];
+:PostRdfData rdfs:subClassOf :PostLDPCreate;
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
     calli:method "POST";
     calli:query "describe";
@@ -184,18 +255,41 @@
     calli:imports <java:org.callimachusproject.server.exceptions.Conflict>;
     calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
     calli:imports <Editable>;
+    calli:imports <Composite>;
+    calli:imports <Serviceable>;
     calli:script """
         var con = this.objectConnection;
         var vf = con.valueFactory;
         var of = con.objectFactory;
 
+        var local = slug && encodeURI(slug).replace(/%25(\\w\\w)/g, '%$1').replace(/%20/g, '+');
+		var uri = this.getResource().stringValue();
+		if (uri.charAt(uri.length-1) != '/') {
+			uri = uri + "/";
+		}
+		if (local == null || local.length === 0) {
+			uri = uri + java.util.UUID.randomUUID().toString();
+		} else {
+			uri = uri + local;
+		}
+
+        if (link && link.match(/<http:..www.w3.org.ns.ldp#BasicContainer>[^<]*; *rel="type"/))
+            throw new BadRequest("ldp:BasicContainer interaction model is not supported");
+        if (link && link.match(/<http:..www.w3.org.ns.ldp#DirectContainer>[^<]*; *rel="type"/))
+            throw new BadRequest("ldp:DirectContainer interaction model is not supported");
+        if (link && link.match(/<http:..www.w3.org.ns.ldp#NonRDFSource>[^<]*; *rel="type"/))
+            return this.PostFactoryCreate(rdfData, fileClass, false, of.createObject(uri), type).headers.location + '?describe';
+
         //# Insert RDF DATA
-        var local = rdfSlug && encodeURI(rdfSlug).replace(/%25(\\w\\w)/g, '%$1').replace(/%20/g, '+');
-        var newCopy = this.insertComponentGraph(rdfData, rdfType, local);
+        var newCopy = this.insertComponentGraph(rdfData, type, uri);
         if (this.calliHasComponent.contains(newCopy))
             throw new Conflict("Resource " + newCopy + " already exists");
         if (!(newCopy instanceof Editable))
             throw new BadRequest("Resource is not Editable: " + newCopy);
+        if (!(newCopy instanceof Serviceable))
+            throw new BadRequest("Resource is not Serviceable: " + newCopy);
+        if (!(newCopy instanceof Composite) && link && link.match(/<http:..www.w3.org.ns.ldp#[a-zA-Z]*Container>[^<]*; *rel="type"/))
+            throw new BadRequest("Resource is not a Container: " + newCopy);
 
         //# Add permissions and component membership
         newCopy.calliEditor.addAll(this.FindContributor(newCopy));
@@ -226,18 +320,6 @@
     rdfs:range <java:java.io.InputStream>;
     calli:type "text/turtle", "application/ld+json;q=0.4", "application/rdf+xml;q=0.2".
 
-:rdfSlug a owl:FunctionalProperty, owl:DatatypeProperty;
-    rdfs:domain :PostRdfData;
-    rdfs:range xsd:string;
-    calli:header "Slug";
-    calli:type "text/plain".
-
-:rdfType a owl:FunctionalProperty, owl:DatatypeProperty;
-    rdfs:domain :PostRdfData;
-    rdfs:range xsd:string;
-    calli:header "Content-Type";
-    calli:type "text/plain".
-
 ################################
 # POST INSERT DATA
 ################################
@@ -255,13 +337,33 @@
     calli:imports <java:org.callimachusproject.server.exceptions.Conflict>;
     calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
     calli:imports <Editable>;
+    calli:imports <Composite>;
+    calli:imports <Serviceable>;
     calli:script """
         var con = this.objectConnection;
         var vf = con.valueFactory;
         var of = con.objectFactory;
 
+        var local = rdfSlug && encodeURI(rdfSlug).replace(/%25(\\w\\w)/g, '%$1').replace(/%20/g, '+');
+    	var uri = this.getResource().stringValue();
+		if (uri.charAt(uri.length-1) != '/') {
+			uri = uri + "/";
+		}
+		if (local == null || local.length === 0) {
+			uri = uri + java.util.UUID.randomUUID().toString();
+		} else {
+			uri = uri + local;
+		}
+
+        if (insertLink && insertLink.match(/<http:..www.w3.org.ns.ldp#BasicContainer>[^<]*; *rel="type"/))
+            throw new BadRequest("ldp:BasicContainer interaction model is not supported");
+        if (insertLink && insertLink.match(/<http:..www.w3.org.ns.ldp#DirectContainer>[^<]*; *rel="type"/))
+            throw new BadRequest("ldp:DirectContainer interaction model is not supported");
+        if (insertLink && insertLink.match(/<http:..www.w3.org.ns.ldp#NonRDFSource>[^<]*; *rel="type"/))
+            return this.PostFactoryCreate(insertData, fileClass, false, of.createObject(uri), "application/sparql-update").headers.location + '?describe';
+
         //# Parse INSERT DATA
-        var updater = new EntityUpdater(this.resource, "?describe", true);
+        var updater = new EntityUpdater(this.resource, uri, true);
         var string = updater.parseUpdate(insertData);
         
         //# Verify input
@@ -277,11 +379,16 @@
             }
             return null;
         }
+
         var newCopy = of.createObject(location, updater.getTypes(location));
         if (this.calliHasComponent.contains(newCopy))
             throw new Conflict("Resource " + newCopy + " already exists");
         if (!(newCopy instanceof Editable))
             throw new BadRequest("Resource is not Editable");
+        if (!(newCopy instanceof Serviceable))
+            throw new BadRequest("Resource is not Serviceable: " + newCopy);
+        if (!(newCopy instanceof Composite) && insertLink && insertLink.match(/<http:..www.w3.org.ns.ldp#[a-zA-Z]*Container>[^<]*; *rel="type"/))
+            throw new BadRequest("Resource is not a Container: " + newCopy);
 
         //# Execute input
         updater.executeUpdate(string, con);

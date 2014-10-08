@@ -111,6 +111,7 @@ public abstract class FolderSupport implements RDFObject, RDFObjectBehaviour, Co
 			URI graph) throws OpenRDFException, IOException {
 		TripleInserter inserter = new TripleInserter(this.getObjectConnection());
 		inserter.setGraph(graph);
+		inserter.setIgnoringDocumentMetadata(true); // CAR resources don't distinguish document vs topic
 		inserter.parseAndInsert(entryStream, type, uri);
 		if (inserter.isEmpty())
 			throw new BadRequest("Missing resource information for: " + uri);

@@ -180,7 +180,7 @@
         if (type != "application/rdf+xml" && type.indexOf("application/rdf+xml;") != 0
                 && type != "text/turtle" && type.indexOf("text/turtle;") != 0)
             throw new UnsupportedMediaType("File format is not recognized: " + type + " for " + location);
-        var newCopy = template.calliCreateResource(body, type, location.toString(), location);
+        var newCopy = template.calliCreateResource(body, type, this.toString(), location);
         newCopy = newCopy.objectConnection.addDesignation(newCopy, this.toString());
         this.touchRevision(); // FIXME this shouldn't be needed
         return newCopy;

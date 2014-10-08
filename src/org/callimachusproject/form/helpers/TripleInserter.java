@@ -37,6 +37,7 @@ import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ContextStatementImpl;
 import org.openrdf.model.impl.StatementImpl;
+import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
@@ -55,6 +56,7 @@ import org.openrdf.rio.RDFParserRegistry;
  * 
  */
 public class TripleInserter implements RDFHandler {
+	private static final String LDP_RDF_SOURCE = "http://www.w3.org/ns/ldp#RDFSource";
 	private static final String FOAF_PRIMARY_TOPIC = "http://xmlns.com/foaf/0.1/primaryTopic";
 	private final RepositoryConnection con;
 	private final ValueFactory vf;
@@ -62,6 +64,7 @@ public class TripleInserter implements RDFHandler {
 	private final RDFHandler inserter;
 	private final Set<String> prefixes = new HashSet<String>();
 	private final Set<String> namespaces = new HashSet<String>();
+	private boolean ignoringDocumentMetadata;
 	private String base;
 	private URI graph;
 	private URI documentURI;
@@ -116,6 +119,14 @@ public class TripleInserter implements RDFHandler {
 		this.graph = graph;
 	}
 
+	public boolean isIgnoringDocumentMetadata() {
+		return ignoringDocumentMetadata;
+	}
+
+	public void setIgnoringDocumentMetadata(boolean ignoringDocumentMetadata) {
+		this.ignoringDocumentMetadata = ignoringDocumentMetadata;
+	}
+
 	public synchronized void parseAndInsert(InputStream in, String type, String base)
 			throws IOException, OpenRDFException {
 		setBaseURI(base);
@@ -135,7 +146,23 @@ public class TripleInserter implements RDFHandler {
 			throw new RDFHandlerException(
 					"Only the default graph can be used, not "
 							+ st.getContext());
-		inserter.handleStatement(canonicalize(st));
+		Statement s = canonicalize(st);
+		Resource subj = s.getSubject();
+		URI pred = s.getPredicate();
+		Value obj = s.getObject();
+		if (!ignoringDocumentMetadata && subj.equals(documentURI)
+				&& pred.equals(RDF.TYPE) && obj instanceof URI
+				&& obj.stringValue().equals(LDP_RDF_SOURCE)) {
+			// ignore
+		} else if (!ignoringDocumentMetadata && subj.equals(documentURI)
+				&& pred.stringValue().equals(FOAF_PRIMARY_TOPIC)
+				&& obj instanceof URI) {
+			primaryTopic = (URI) obj;
+			verifier.addSubject(primaryTopic);
+		} else {
+			verifier.verify(subj, pred, obj);
+			inserter.handleStatement(s);
+		}
 	}
 
 	public void accept(RDFEventReader reader) throws RDFParseException {
@@ -216,14 +243,6 @@ public class TripleInserter implements RDFHandler {
 		Resource subj = canonicalize(st.getSubject());
 		URI pred = canonicalize(st.getPredicate());
 		Value obj = canonicalize(st.getObject());
-		if (subj.equals(documentURI)
-				&& pred.stringValue().equals(FOAF_PRIMARY_TOPIC)
-				&& obj instanceof URI) {
-			primaryTopic = (URI) obj;
-			verifier.addSubject(primaryTopic);
-		} else {
-			verifier.verify(subj, pred, obj);
-		}
 		URI graph = getGraph();
 		if (graph != null) {
 			return new ContextStatementImpl(subj, pred, obj, graph);

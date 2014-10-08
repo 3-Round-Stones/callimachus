@@ -79,7 +79,8 @@ public class LinksFilter implements AsyncExecChain {
 	public Future<HttpResponse> execute(HttpHost target,
 			HttpRequest request, HttpContext context,
 			FutureCallback<HttpResponse> callback) {
-		if ("OPTIONS".equals(request.getRequestLine().getMethod())) {
+		String m = request.getRequestLine().getMethod();
+		if ("GET".equals(m) || "HEAD".equals(m) || "OPTIONS".equals(m)) {
 			final ResourceOperation req = CalliContext.adapt(context).getResourceTransaction();
 			return delegate.execute(target, request, context, new ResponseCallback(callback) {
 				public void completed(HttpResponse result) {
@@ -122,10 +123,11 @@ public class LinksFilter implements AsyncExecChain {
 	}
 
 	private List<String> getRevLinks(ResourceOperation request, String name) {
-		List<Method> methods = request.getOperationMethods("GET", true).get(
-				name);
-		List<String> result = new ArrayList<String>(methods.size());
-		getLinks(request, null, true, methods, result);
+		List<Method> list = request.getOperationMethods("GET", true).get(name);
+		if (list == null)
+			return Collections.emptyList();
+		List<String> result = new ArrayList<String>(list.size());
+		getLinks(request, null, true, list, result);
 		return result;
 	}
 

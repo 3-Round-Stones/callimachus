@@ -48,6 +48,7 @@
     calli:requires calli:reader;
     calli:type "application/zip";
     calli:header "cache-control:cache-range";
+    calli:header "Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
     calli:script "return this.openInputStream()".
 
 # GET /archive.zip?contents
@@ -59,7 +60,6 @@
     calli:rel "contents";
     calli:requires calli:reader;
     calli:type "application/atom+xml";
-    calli:header "cache-control:cache-range";
     calli:script """
         var id = this.toString() + '?contents';
         var pattern = this.toString() + '?entry={entry}';

@@ -87,6 +87,7 @@
     calli:requires calli:reader;
     calli:type "image/gif";
     calli:header "cache-control:cache-range";
+    calli:header "Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
     calli:script "return this.openInputStream()".
 
 # GET /image.ico
@@ -98,6 +99,7 @@
     calli:requires calli:reader;
     calli:type "image/vnd.microsoft.icon";
     calli:header "cache-control:cache-range";
+    calli:header "Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
     calli:script "return this.openInputStream()".
 
 # GET /image.png
@@ -109,6 +111,7 @@
     calli:requires calli:reader;
     calli:type "image/png";
     calli:header "cache-control:cache-range";
+    calli:header "Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
     calli:script "return this.openInputStream()".
 
 # POST ?create=/callimachus/ImageGraphic

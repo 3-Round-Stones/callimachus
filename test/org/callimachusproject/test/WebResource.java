@@ -29,6 +29,7 @@ import java.net.PasswordAuthentication;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -82,14 +83,19 @@ public class WebResource {
 	}
 
 	public WebResource create(String type, byte[] body) throws IOException {
-		return create(null, type, body);
+		Map<String, String> headers = Collections.emptyMap();
+		return create(headers, type, body);
 	}
 
 	public WebResource create(String slug, String type, byte[] body) throws IOException {
+		return create(Collections.singletonMap("Slug", slug), type, body);
+	}
+
+	public WebResource create(Map<String, String> headers, String type, byte[] body) throws IOException {
 		HttpURLConnection con = (HttpURLConnection) new URL(uri).openConnection();
 		con.setRequestMethod("POST");
-		if (slug != null) {
-			con.setRequestProperty("Slug", slug);
+		for (Map.Entry<String, String> e : headers.entrySet()) {
+			con.setRequestProperty(e.getKey(), e.getValue());
 		}
 		con.setRequestProperty("Content-Type", type);
 		con.setDoOutput(true);

@@ -159,7 +159,10 @@ public class BlobIntegrationTest extends TemporaryServerIntegrationTestCase {
     public static TestSuite suite() throws Exception {
         TestSuite suite = new TestSuite(BlobIntegrationTest.class.getName());
         for (String name : parameters.keySet()) {
-            suite.addTest(new BlobIntegrationTest(name));
+            suite.addTest(new BlobIntegrationTest("atompub " + name));
+        }
+        for (String name : parameters.keySet()) {
+            suite.addTest(new BlobIntegrationTest("describe " + name));
         }
         return suite;
     }
@@ -171,7 +174,7 @@ public class BlobIntegrationTest extends TemporaryServerIntegrationTestCase {
 
 	public BlobIntegrationTest(String name) throws Exception {
 		super(name);
-		String [] args = parameters.get(name);
+		String[] args = parameters.get(name.substring(name.indexOf(' ')+1));
 		requestSlug = args[0];
 		requestContentType = args[1];
 		outputString = args[2];
@@ -179,6 +182,14 @@ public class BlobIntegrationTest extends TemporaryServerIntegrationTestCase {
 	}
 	
 	public void runTest() throws Exception {
+		if (getName().startsWith("atompub")) {
+			atompub();
+		} else {
+			describe();
+		}
+	}
+	
+	public void atompub() throws Exception {
 		WebResource blob = getHomeFolder()
 				.rel("contents", "application/atom+xml")
 				.getAppCollection()
@@ -201,5 +212,17 @@ public class BlobIntegrationTest extends TemporaryServerIntegrationTestCase {
 		blob.ref("?introspect").get("text/html");
 		edit.put(requestContentType, updateOutputString.getBytes());
 		edit.delete();
+	}
+	
+	public void describe() throws Exception {
+		Map<String, String> headers = new LinkedHashMap<>();
+		headers.put("Slug", requestSlug);
+		headers.put("Link", "<http://www.w3.org/ns/ldp#NonRDFSource>;rel=\"type\"");
+		WebResource blob = getHomeFolder()
+				.rel("describedby").create(headers, requestContentType,
+						outputString.getBytes());
+		blob.rel("describedby", "text/turtle").get("text/turtle");
+		blob.rel("describedby", "text/html").get("text/html");
+		blob.delete();
 	}
 }

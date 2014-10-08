@@ -37,6 +37,7 @@ import javax.xml.stream.events.Namespace;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 import org.callimachusproject.engine.helpers.XMLEventReaderBase;
+import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.traits.CalliObject;
 import org.callimachusproject.util.PercentCodec;
 
@@ -60,6 +61,7 @@ public abstract class ZipArchiveSupport implements CalliObject, FileObject {
 		try {
 			byte[] buf = new byte[1024];
 			ZipArchiveEntry entry = zip.getNextZipEntry();
+			if (entry == null) throw new BadRequest("Archive is empty");
 			do {
 				entry.getName();
 				entry.getMethod();

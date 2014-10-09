@@ -57,18 +57,16 @@
 
 :PutMetadata rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Editable>];
-    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     calli:method "PUT";
     calli:query "edit";
     calli:requires calli:editor;
-    calli:expect "204-no-content";
-    calli:type "text/uri-list";
     calli:imports <java:org.callimachusproject.engine.helpers.SparqlUpdateFactory>;
     calli:imports <java:org.callimachusproject.server.exceptions.PreconditionRequired>;
     calli:script """
         if (!ifMatch) throw new PreconditionRequired("If-Match request header is required");
         var sparql = new SparqlUpdateFactory(this.resource + "?edit").replacement(this.GetRdfDescription(null, 'edit'), metaData);
-        return this.PostEdit(new java.io.ByteArrayInputStream(new java.lang.String(sparql).getBytes("UTF-8")));
+        this.PostEdit(new java.io.ByteArrayInputStream(new java.lang.String(sparql).getBytes("UTF-8")));
     """.
 
 :ifMatch a owl:FunctionalProperty, owl:DatatypeProperty;
@@ -141,7 +139,7 @@
 :PostEdit rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Editable>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-    calli:method "POST";
+    calli:method "POST", "PATCH";
     calli:query "edit";
     calli:requires calli:editor;
     calli:expect "200-modified";

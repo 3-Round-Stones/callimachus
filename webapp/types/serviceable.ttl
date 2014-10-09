@@ -271,12 +271,10 @@ skos:editorialNote a owl:AnnotationProperty.
 
 :PutDescribe rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Serviceable>];
-    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     calli:method "PUT";
     calli:query "describe";
     calli:requires calli:administrator;
-    calli:expect "204-no-content";
-    calli:type "text/uri-list";
     calli:imports <java:org.callimachusproject.form.helpers.EntityUpdater>;
     calli:imports <java:org.callimachusproject.server.exceptions.PreconditionRequired>;
     calli:script """
@@ -295,7 +293,6 @@ skos:editorialNote a owl:AnnotationProperty.
         if (parent) {
             parent.touchRevision();
         }
-        return null;
     """.
 
 :replaceIfMatch a owl:FunctionalProperty, owl:DatatypeProperty;

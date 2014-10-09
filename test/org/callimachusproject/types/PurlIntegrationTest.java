@@ -158,12 +158,10 @@ public class PurlIntegrationTest extends TemporaryServerIntegrationTestCase {
 		sb.append("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n");
 		sb.append("PREFIX calli: <http://callimachusproject.org/rdf/2009/framework#>\n");
 		sb.append("PREFIX skos: <http://www.w3.org/2004/02/skos/core#>\n");
-		sb.append("INSERT DATA {\n");
 		sb.append("<accept>");
 		sb.append(" a skos:Concept, </callimachus/Concept>;\n");
-		sb.append("skos:prefLabel 'accept'\n");
-		sb.append("}");
-		WebResource concept = getHomeFolder().rel("describedby").create("application/sparql-update", sb.toString().getBytes("UTF-8")).rev("describedby");
+		sb.append("skos:prefLabel 'accept'.\n");
+		WebResource concept = getHomeFolder().rel("describedby").create("text/turtle", sb.toString().getBytes("UTF-8")).rev("describedby");
 		WebResource rdf = getHomeFolder().createPurl("accept.rdf", "copy", concept.toString() + "?describe\nAccept: application/rdf+xml");
 		WebResource ttl = getHomeFolder().createPurl("accept.ttl", "copy", concept.toString() + "?describe\nAccept: text/turtle");
 		try {

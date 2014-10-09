@@ -25,85 +25,85 @@ import org.callimachusproject.test.TemporaryServerIntegrationTestCase;
 import org.callimachusproject.test.WebResource;
 
 public class RdfIntegrationTest extends TemporaryServerIntegrationTestCase {
-	
+
 	private static Map<String, String[]> parameters = new LinkedHashMap<String, String[]>() {
-        private static final long serialVersionUID = -4308917786147773821L;
+		private static final long serialVersionUID = -4308917786147773821L;
 
-        {
-        	put("Concept", new String[] {
-        			"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n" +
-        		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
-        		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
-        		    " prefix skos: <http://www.w3.org/2004/02/skos/core#> \n " + 
-        			" INSERT DATA {  \n <created-concept> a skos:Concept, </callimachus/Concept> ;  \n" +
-        			" skos:prefLabel \"concept\" . }",
-        			"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n" +
-        		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
-        		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
-        		    " prefix skos: <http://www.w3.org/2004/02/skos/core#> \n " + 
-        			" DELETE { <created-concept> skos:prefLabel \"concept\" } INSERT { <created-concept> skos:prefLabel \"UPDATED\" } WHERE {}"
-        	});
-        	
-        	put("Folder", new String[] {
-        			"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n" +
-        		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
-        		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
-        			" INSERT DATA {  \n <created-test/> a calli:Folder, </callimachus/Folder> ;  \n" +
-        			" rdfs:label \"test\" . }",
-        			"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n" +
-        		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
-        		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
-        			" DELETE { <.> rdfs:label \"test\" } INSERT { <.> rdfs:label \"UPDATED\" } WHERE {}"
-        	});
-        	
-        	put("Group", new String[] {
-        			"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n" +
-        		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
-        		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
-        			" INSERT DATA {  \n <created-testGroup> a calli:Party, calli:Group, </callimachus/Group> ;  \n" +
-        			" rdfs:label \"testGroup\" . }",
-        			"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n" +
-        		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
-        		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
-        			" DELETE { <created-testGroup> rdfs:label \"testGroup\" } INSERT { <created-testGroup> rdfs:label \"UPDATED\" } WHERE {}"
-        	});
-        	
-        	put("PURL", new String[] {
-        			"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n" +
-        		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
-        		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
-        			" INSERT DATA {  \n <created-purl> a calli:Purl, </callimachus/PURL> ;  \n" +
-        			" rdfs:label \"purl\" ; calli:alternate \"http://purl.org/\" . }",
-        			"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n" +
-        		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
-        		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
-        			" DELETE { <created-purl> rdfs:label \"purl\" } INSERT { <created-purl> rdfs:label \"UPDATED\" } WHERE {}"
-        	});
-        }
-    };
+		{
+			put("Concept",
+					new String[] {
+							"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n"
+									+ " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n"
+									+ " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n"
+									+ " prefix skos: <http://www.w3.org/2004/02/skos/core#> \n "
+									+ "<created-concept> a skos:Concept, </callimachus/Concept> ;  \n"
+									+ " skos:prefLabel \"concept\" .",
+							"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n"
+									+ " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n"
+									+ " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n"
+									+ " prefix skos: <http://www.w3.org/2004/02/skos/core#> \n "
+									+ " DELETE { <created-concept> skos:prefLabel \"concept\" } INSERT { <created-concept> skos:prefLabel \"UPDATED\" } WHERE {}" });
 
-	public static TestSuite suite() throws Exception{
-        TestSuite suite = new TestSuite(RdfIntegrationTest.class.getName());
-        for (String name : parameters.keySet()) {
-            suite.addTest(new RdfIntegrationTest(name));
-        }
-        return suite;
-    }
-	
+			put("Folder",
+					new String[] {
+							"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n"
+									+ " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n"
+									+ " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n"
+									+ "<created-test/> a calli:Folder, </callimachus/Folder> ;  \n"
+									+ " rdfs:label \"test\" .",
+							"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n"
+									+ " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n"
+									+ " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n"
+									+ " DELETE { <.> rdfs:label \"test\" } INSERT { <.> rdfs:label \"UPDATED\" } WHERE {}" });
+
+			put("Group",
+					new String[] {
+							"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n"
+									+ " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n"
+									+ " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n"
+									+ "<created-testGroup> a calli:Party, calli:Group, </callimachus/Group> ;  \n"
+									+ " rdfs:label \"testGroup\" .",
+							"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n"
+									+ " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n"
+									+ " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n"
+									+ " DELETE { <created-testGroup> rdfs:label \"testGroup\" } INSERT { <created-testGroup> rdfs:label \"UPDATED\" } WHERE {}" });
+
+			put("PURL",
+					new String[] {
+							"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n"
+									+ " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n"
+									+ " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n"
+									+ "<created-purl> a calli:Purl, </callimachus/PURL> ;  \n"
+									+ " rdfs:label \"purl\" ; calli:alternate \"http://purl.org/\" .",
+							"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n"
+									+ " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n"
+									+ " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n"
+									+ " DELETE { <created-purl> rdfs:label \"purl\" } INSERT { <created-purl> rdfs:label \"UPDATED\" } WHERE {}" });
+		}
+	};
+
+	public static TestSuite suite() throws Exception {
+		TestSuite suite = new TestSuite(RdfIntegrationTest.class.getName());
+		for (String name : parameters.keySet()) {
+			suite.addTest(new RdfIntegrationTest(name));
+		}
+		return suite;
+	}
+
 	private String create;
 	private String update;
 
 	public RdfIntegrationTest(String name) throws Exception {
 		super(name);
-		String [] args = parameters.get(name);
+		String[] args = parameters.get(name);
 		create = args[0];
 		update = args[1];
 	}
-	
+
 	public void runTest() throws Exception {
 		String sparql = "BASE <" + getHomeFolder() + "> \n" + create;
 		WebResource resource = getHomeFolder().rel("describedby")
-				.create("application/sparql-update", sparql.getBytes()).rev("describedby");
+				.create("text/turtle", sparql.getBytes()).rev("describedby");
 		resource.rel("alternate", "text/html").get("text/html");
 		resource.rel("edit-form", "text/html").get("text/html");
 		resource.rel("comments").get("text/html");

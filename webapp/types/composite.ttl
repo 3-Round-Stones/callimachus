@@ -463,7 +463,7 @@
         var vf = con.valueFactory;
         var of = con.objectFactory;
 
-        var local = rdfSlug && encodeURI(rdfSlug).replace(/%25(\\w\\w)/g, '%$1').replace(/%20/g, '+');
+        var local = insertSlug && encodeURI(insertSlug).replace(/%25(\\w\\w)/g, '%$1').replace(/%20/g, '+');
     	var uri = this.getResource().stringValue();
 		if (uri.charAt(uri.length-1) != '/') {
 			uri = uri + "/";
@@ -479,7 +479,7 @@
         if (insertLink && insertLink.match(/<http:..www.w3.org.ns.ldp#DirectContainer>[^<]*; *rel="type"/))
             throw new BadRequest("ldp:DirectContainer interaction model is not supported");
         if (insertLink && insertLink.match(/<http:..www.w3.org.ns.ldp#NonRDFSource>[^<]*; *rel="type"/))
-            return this.PostFactoryCreate(insertData, fileClass, false, of.createObject(uri), "application/sparql-update").headers.location + '?describe';
+            return this.PostFactoryCreate(insertData, fileClass, false, of.createObject(uri), "application/sparql-update").headers.location;
 
         //# Parse INSERT DATA
         var updater = new EntityUpdater(this.resource, uri, true);
@@ -541,7 +541,7 @@
                 con.getObject(partner).touchRevision(); // FIXME this shouldn't be needed
             }
         }
-        return newCopy + '?describe';
+        return newCopy.toString();
     """.
 
 ################################

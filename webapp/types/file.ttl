@@ -52,7 +52,7 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.openrdf.query.GraphQueryResult>];
     calli:method "GET";
     calli:requires calli:reader;
-    calli:type "text/turtle;q=0.6", "application/ld+json;q=0.4", "application/rdf+xml;q=0.2";
+    calli:type "text/turtle;q=0.06", "application/ld+json;q=0.04", "application/rdf+xml;q=0.02";
     calli:header "Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
     calli:script "return this.GetRdfDescription(prefer, 'describe')".
 
@@ -78,5 +78,5 @@
 :metaData a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :PutMetadata;
     rdfs:range <java:org.openrdf.query.GraphQueryResult>;
-    calli:type "text/turtle;q=0.6", "application/ld+json;q=0.4", "application/rdf+xml;q=0.2".
+    calli:type "text/turtle;q=0.06", "application/ld+json;q=0.04", "application/rdf+xml;q=0.02".
 

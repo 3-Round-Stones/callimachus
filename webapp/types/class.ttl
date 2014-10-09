@@ -57,6 +57,7 @@
     calli:imports <RdfSchemaGraph>;
     calli:imports <java:org.callimachusproject.server.exceptions.Conflict>;
     calli:script """
+        proceed();
         var existing = this.FindExistingClassEquivalence(location);
         if (existing) throw new Conflict("An equivalent class already exists: " + existing);
         var con = this.objectConnection;

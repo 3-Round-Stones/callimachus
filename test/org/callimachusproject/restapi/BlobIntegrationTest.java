@@ -164,6 +164,9 @@ public class BlobIntegrationTest extends TemporaryServerIntegrationTestCase {
         for (String name : parameters.keySet()) {
             suite.addTest(new BlobIntegrationTest("describe " + name));
         }
+        for (String name : parameters.keySet()) {
+            suite.addTest(new BlobIntegrationTest("edit " + name));
+        }
         return suite;
     }
 
@@ -184,6 +187,8 @@ public class BlobIntegrationTest extends TemporaryServerIntegrationTestCase {
 	public void runTest() throws Exception {
 		if (getName().startsWith("atompub")) {
 			atompub();
+		} else if (getName().startsWith("edit")) {
+			edit();
 		} else {
 			describe();
 		}
@@ -223,6 +228,18 @@ public class BlobIntegrationTest extends TemporaryServerIntegrationTestCase {
 						outputString.getBytes());
 		blob.rel("describedby", "text/turtle").get("text/turtle");
 		blob.rel("describedby", "text/html").get("text/html");
+		blob.put(requestContentType, updateOutputString.getBytes());
+		blob.delete();
+	}
+	
+	public void edit() throws Exception {
+		Map<String, String> headers = new LinkedHashMap<>();
+		headers.put("Slug", requestSlug);
+		headers.put("Link", "<http://www.w3.org/ns/ldp#NonRDFSource>;rel=\"type\"");
+		WebResource blob = getHomeFolder()
+				.ref("?edit").create(headers, requestContentType,
+						outputString.getBytes());
+		blob.put(requestContentType, updateOutputString.getBytes());
 		blob.delete();
 	}
 }

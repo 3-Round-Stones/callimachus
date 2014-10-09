@@ -47,6 +47,7 @@
         [owl:onProperty msg:target; owl:hasValue <Folder> ]);
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
     calli:script """
+        proceed();
         var uri = location.toString();
         if (uri.lastIndexOf('/') != uri.length - 1)
             throw new BadRequest("Folders must end with a slash");

@@ -104,6 +104,33 @@ public abstract class PageSupport implements CalliObject {
 		return getEngine().getTemplate(url);
 	}
 
+	public void calliVerifyCreatedResource(RDFObject target,
+			Collection<Statement> statements, String base) throws Exception {
+		try {
+			TripleInserter tracker = new TripleInserter();
+			tracker.setBaseURI(base);
+			tracker.accept(openPatternReader(target.toString()));
+			tracker.accept(created((URI) target.getResource()));
+			tracker.startRDF();
+			for (Statement st : statements) {
+				tracker.handleStatement(st);
+			}
+			tracker.endRDF();
+			if (tracker.isEmpty())
+				throw new BadRequest("Missing Information");
+			if (!tracker.isSingleton())
+				throw new BadRequest("Wrong Subject");
+			if (tracker.isDisconnectedNodePresent())
+				throw new BadRequest("Blank nodes must be connected");
+			if (tracker.isContainmentTriplePresent())
+				throw new Conflict("ldp:contains is prohibited");
+			ObjectConnection con = target.getObjectConnection();
+			verifyCreatedStatements(tracker.getPrimaryTopic(), statements, con);
+		} catch (RDFHandlerException e) {
+			throw new BadRequest(e);
+		}
+	}
+
 	public RDFObject calliCreateResource(InputStream in, String type,
 			String base, final RDFObject target) throws Exception {
 		try {

@@ -35,20 +35,27 @@ import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.ObjectFactory;
 import org.openrdf.repository.object.RDFObject;
+import org.openrdf.repository.util.RDFInserter;
 import org.openrdf.rio.RDFFormat;
+import org.openrdf.rio.RDFHandler;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParseException;
 import org.openrdf.rio.RDFParser;
 import org.openrdf.rio.RDFParserRegistry;
 import org.openrdf.rio.helpers.RDFHandlerBase;
+import org.openrdf.rio.helpers.RDFHandlerWrapper;
 
 public abstract class CompositeSupport implements CalliObject {
 
-	public Object insertComponentGraph(InputStream in, String type, String uri)
-			throws OpenRDFException, RDFParseException, IOException {
+	public Object insertComponentGraph(InputStream in, String type, String uri,
+			RDFHandler collector) throws OpenRDFException, IOException {
 		try {
 			ObjectConnection con = this.getObjectConnection();
-			TripleInserter tracker = new TripleInserter(con);
+			RDFHandler handler = new RDFInserter(con);
+			if (collector != null) {
+				handler = new RDFHandlerWrapper(handler, collector);
+			}
+			TripleInserter tracker = new TripleInserter(handler, con);
 			tracker.parseAndInsert(in, type, uri);
 			if (tracker.isEmpty())
 				throw new BadRequest("Missing Information");

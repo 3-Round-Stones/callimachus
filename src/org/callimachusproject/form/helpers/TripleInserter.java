@@ -37,6 +37,7 @@ import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ContextStatementImpl;
 import org.openrdf.model.impl.StatementImpl;
+import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -47,6 +48,7 @@ import org.openrdf.rio.RDFHandler;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParser;
 import org.openrdf.rio.RDFParserRegistry;
+import org.openrdf.rio.helpers.RDFHandlerWrapper;
 
 /**
  * Track what node the triples are about and ensures they match one of the given
@@ -58,7 +60,6 @@ import org.openrdf.rio.RDFParserRegistry;
 public class TripleInserter implements RDFHandler {
 	private static final String LDP_RDF_SOURCE = "http://www.w3.org/ns/ldp#RDFSource";
 	private static final String FOAF_PRIMARY_TOPIC = "http://xmlns.com/foaf/0.1/primaryTopic";
-	private final RepositoryConnection con;
 	private final ValueFactory vf;
 	private final TripleVerifier verifier = new TripleVerifier();
 	private final RDFHandler inserter;
@@ -75,9 +76,7 @@ public class TripleInserter implements RDFHandler {
 	}
 
 	public TripleInserter(RDFHandler handler, RepositoryConnection con) throws RepositoryException {
-		this.con = con;
-		this.vf = con.getValueFactory();
-		this.inserter = handler;
+		this(handler, con.getValueFactory());
 		RepositoryResult<Namespace> currently = con.getNamespaces();
 		try {
 			while (currently.hasNext()) {
@@ -88,6 +87,19 @@ public class TripleInserter implements RDFHandler {
 		} finally {
 			currently.close();
 		}
+	}
+
+	public TripleInserter() throws RepositoryException {
+		this(new RDFHandlerWrapper(), ValueFactoryImpl.getInstance());
+	}
+
+	public TripleInserter(RDFHandler handler) throws RepositoryException {
+		this(handler, ValueFactoryImpl.getInstance());
+	}
+
+	public TripleInserter(RDFHandler handler, ValueFactory vf) throws RepositoryException {
+		this.vf = vf;
+		this.inserter = handler;
 	}
 
 	public String getBaseURI() {
@@ -133,9 +145,9 @@ public class TripleInserter implements RDFHandler {
 		RDFFormat format = RDFFormat.forMIMEType(type);
 		RDFParserRegistry registry = RDFParserRegistry.getInstance();
 		RDFParser parser = registry.get(format).getParser();
-		parser.setValueFactory(con.getValueFactory());
+		parser.setValueFactory(vf);
 		parser.setRDFHandler(this);
-		documentURI = con.getValueFactory().createURI(base);
+		documentURI = vf.createURI(base);
 		parser.parse(in, base);
 	}
 
@@ -216,7 +228,7 @@ public class TripleInserter implements RDFHandler {
 	}
 
 	public String toString() {
-		return con.toString();
+		return base;
 	}
 
 	public void startRDF() throws RDFHandlerException {

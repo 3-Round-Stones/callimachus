@@ -36,6 +36,26 @@
 # GET describedby
 ################################
 
+:GetEditContainerPage owl:intersectionOf ( <editable.ttl#GetEditPage>
+        [owl:onProperty msg:target; owl:allValuesFrom [owl:intersectionOf (<Editable> <Composite>)]]);
+    calli:rel "edit-form";
+    calli:method "GET";
+    calli:query "edit";
+    calli:requires calli:editor;
+    calli:type "text/html";
+    calli:header "cache-control:no-cache";
+    calli:header "Link:<http://www.w3.org/ns/ldp#IndirectContainer>;rel=\"type\",<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
+    calli:script "return proceed();".
+
+:GetContainerMetadata owl:intersectionOf ( <editable.ttl#GetMetadata>
+        [owl:onProperty msg:target; owl:allValuesFrom [owl:intersectionOf (<Editable> <Composite>)]]);
+    calli:method "GET";
+    calli:query "edit";
+    calli:requires calli:editor;
+    calli:type "text/turtle;q=0.6", "application/ld+json;q=0.4", "application/rdf+xml;q=0.2";
+    calli:header "Link:<http://www.w3.org/ns/ldp#IndirectContainer>;rel=\"type\",<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
+    calli:script "return proceed();".
+
 :GetHtmlContainerDescription owl:intersectionOf ( <serviceable.ttl#GetHtmlDescription>
         [owl:onProperty msg:target; owl:allValuesFrom <Composite>]);
     calli:title "RDF Describe";
@@ -45,9 +65,7 @@
     calli:requires calli:reader;
     calli:type "text/html";
     calli:header "Link:<http://www.w3.org/ns/ldp#IndirectContainer>;rel=\"type\",<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
-    calli:script """
-        return proceed();
-    """.
+    calli:script "return proceed();".
 
 :GetRdfContainerDescription owl:intersectionOf ( <serviceable.ttl#GetRdfDescription>
         [owl:onProperty msg:target; owl:allValuesFrom <Composite>]);
@@ -68,7 +86,7 @@
                 var inc = m[2];
                 var result = new FilteredGraphResult();
                 if (inc.indexOf("http://www.w3.org/ns/ldp#PreferMinimalContainer") >= 0) {
-                    result.addResult(this.FindMinimalContainer())
+                    result.addResult(this.FindMinimalContainer(queryDescription))
                         .addResult(new DescribeResult(this.resource, con));
                 } else if (inc.indexOf("http://www.w3.org/ns/ldp#PreferMembership") >= 0) {
                     result.addResult(this.FindMembershipTriples());
@@ -77,14 +95,14 @@
                     result.omitPredicate(con.valueFactory.createURI("http://callimachusproject.org/rdf/2009/framework#hasComponent"));
                 }
                 if (inc.indexOf("http://www.w3.org/ns/ldp#PreferContainment") >= 0) {
-                    result.addResult(this.FindContainmentTriples());
+                    result.addResult(this.FindContainmentTriples(queryDescription));
                 }
                 return result;
             } else if (m && m[1] == 'omit') {
                 var omit = m[2];
                 var result = new FilteredGraphResult();
                 if (omit.indexOf("http://www.w3.org/ns/ldp#PreferMinimalContainer") < 0) {
-                    result.addResult(this.FindMinimalContainer())
+                    result.addResult(this.FindMinimalContainer(queryDescription))
                         .addResult(new DescribeResult(this.resource, con));
                 } else if (omit.indexOf("http://www.w3.org/ns/ldp#PreferMembership") < 0) {
                     result.addResult(this.FindMembershipTriples());
@@ -93,15 +111,15 @@
                     result.omitPredicate(con.valueFactory.createURI("http://callimachusproject.org/rdf/2009/framework#hasComponent"));
                 }
                 if (omit.indexOf("http://www.w3.org/ns/ldp#PreferContainment") < 0) {
-                    result.addResult(this.FindContainmentTriples());
+                    result.addResult(this.FindContainmentTriples(queryDescription));
                 }
                 return result;
             }
         }
         return new FilteredGraphResult()
             .addResult(new DescribeResult(this.resource, con))
-            .addResult(this.FindMinimalContainer())
-            .addResult(this.FindContainmentTriples());
+            .addResult(this.FindMinimalContainer(queryDescription))
+            .addResult(this.FindContainmentTriples(queryDescription));
     """.
 
 :FindMinimalContainer rdfs:subClassOf msg:Message;
@@ -121,7 +139,7 @@
                 ldp:hasMemberRelation calli:hasComponent;
                 ldp:insertedContentRelation foaf:primaryTopic
         } WHERE {
-            BIND (iri(concat(str($this), "?describe")) AS ?container)
+            BIND (iri(concat(str($this), "?", $queryContainer)) AS ?container)
             OPTIONAL {
                 $this dcterms:title ?label
             } OPTIONAL {
@@ -134,6 +152,10 @@
         }
     """.
 
+:queryContainer a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:domain :FindMinimalContainer;
+    rdfs:range xsd:string.
+
 :FindContainmentTriples rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Composite>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.openrdf.query.GraphQueryResult>];
@@ -144,10 +166,14 @@
             ?container ldp:contains ?member
         } WHERE {
             $this calli:hasComponent ?component
-            BIND (iri(concat(str($this), "?describe")) AS ?container)
-            BIND (iri(concat(str(?component), "?describe")) AS ?member)
+            BIND (iri(concat(str($this), "?", $queryMember)) AS ?container)
+            BIND (iri(concat(str(?component), "?", $queryMember)) AS ?member)
         }
     """.
+
+:queryMember a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:domain :FindContainmentTriples;
+    rdfs:range xsd:string.
 
 :FindMembershipTriples rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Composite>];
@@ -198,7 +224,7 @@
 
 :PostNonRDFSource rdfs:subClassOf :PostLDPCreate;
     calli:method "POST";
-    calli:query "describe";
+    calli:query "describe", "edit";
     calli:requires calli:contributor;
     calli:type "message/x-response";
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
@@ -259,7 +285,7 @@
         var of = con.objectFactory;
 
         var local = slug && encodeURI(slug).replace(/%25(\\w\\w)/g, '%$1').replace(/%20/g, '+');
-		var uri = this.getResource().stringValue();
+    	var uri = this.getResource().stringValue();
 		if (uri.charAt(uri.length-1) != '/') {
 			uri = uri + "/";
 		}
@@ -277,7 +303,7 @@
             return this.PostFactoryCreate(rdfData, fileClass, false, of.createObject(uri), type);
 
         //# Insert RDF DATA
-        var newCopy = this.insertComponentGraph(rdfData, type, uri);
+        var newCopy = this.insertComponentGraph(rdfData, type, uri, null);
         if (this.calliHasComponent.contains(newCopy))
             throw new Conflict("Resource " + newCopy + " already exists");
         if (!(newCopy instanceof Editable))
@@ -295,18 +321,19 @@
         newCopy.calliAdministrator.addAll(this.calliAdministrator);
         this.calliHasComponent.add(newCopy);
 
-        var iter = this.FindCreator(newCopy).iterator();
+        var creators = this.FindCreator(newCopy);
+        var iter = this.FindCreatablesOf(newCopy).iterator();
+        if (!iter.hasNext())
+            throw new Forbidden("Cannot create this type of resource");
         while (iter.hasNext()) {
-            var user = iter.next();
-            var jter = this.FindCreatablesOf(newCopy).iterator();
-            if (!jter.hasNext())
-                throw new Forbidden("You are not permitted to create this type of resource");
+            var cls = iter.next();
+            var jter = creators.iterator();
             while (jter.hasNext()) {
-                var cls = jter.next();
+                var user = jter.next();
                 if (!this.isAuthorized(user.toString(), cls, ["http://callimachusproject.org/rdf/2009/framework#author"]))
                     throw new Forbidden(user + " is not permitted to create " + cls + " resources");
-                cls.VerifyCreate(newCopy);
             }
+            cls.VerifyCreate(newCopy, null);
         }
         return {
             status:201,
@@ -322,6 +349,93 @@
 
 :rdfData a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :PostRdfData;
+    rdfs:range <java:java.io.InputStream>;
+    calli:type "text/turtle", "application/ld+json;q=0.4", "application/rdf+xml;q=0.2".
+
+:PostEditData rdfs:subClassOf :PostLDPCreate;
+    calli:method "POST";
+    calli:query "edit";
+    calli:requires calli:contributor;
+    calli:expect "201-created";
+    calli:type "message/x-response";
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <java:org.callimachusproject.server.exceptions.Forbidden>;
+    calli:imports <java:org.callimachusproject.server.exceptions.Conflict>;
+    calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
+    calli:imports <java:org.openrdf.rio.helpers.StatementCollector>;
+    calli:imports <Editable>;
+    calli:imports <Composite>;
+    calli:imports <Serviceable>;
+    calli:script """
+        var con = this.objectConnection;
+        var vf = con.valueFactory;
+        var of = con.objectFactory;
+
+        var local = slug && encodeURI(slug).replace(/%25(\\w\\w)/g, '%$1').replace(/%20/g, '+');
+    	var uri = this.getResource().stringValue();
+		if (uri.charAt(uri.length-1) != '/') {
+			uri = uri + "/";
+		}
+		if (local == null || local.length === 0) {
+			uri = uri + java.util.UUID.randomUUID().toString();
+		} else {
+			uri = uri + local;
+		}
+
+        if (link && link.match(/<http:..www.w3.org.ns.ldp#BasicContainer>[^<]*; *rel="type"/))
+            throw new BadRequest("ldp:BasicContainer interaction model is not supported");
+        if (link && link.match(/<http:..www.w3.org.ns.ldp#DirectContainer>[^<]*; *rel="type"/))
+            throw new BadRequest("ldp:DirectContainer interaction model is not supported");
+        if (link && link.match(/<http:..www.w3.org.ns.ldp#NonRDFSource>[^<]*; *rel="type"/))
+            return this.PostFactoryCreate(editData, fileClass, false, of.createObject(uri), type);
+
+        //# Insert RDF DATA
+        var statements = new StatementCollector();
+        var newCopy = this.insertComponentGraph(editData, type, uri, statements);
+        if (this.calliHasComponent.contains(newCopy))
+            throw new Conflict("Resource " + newCopy + " already exists");
+        if (!(newCopy instanceof Editable))
+            throw new BadRequest("Resource is not Editable: " + newCopy);
+        if (!(newCopy instanceof Serviceable))
+            throw new BadRequest("Resource is not Serviceable: " + newCopy);
+        if (!(newCopy instanceof Composite) && link && link.match(/<http:..www.w3.org.ns.ldp#[a-zA-Z]*Container>[^<]*; *rel="type"/))
+            throw new BadRequest("Resource is not a Container: " + newCopy);
+
+        //# Add permissions and component membership
+        newCopy.calliEditor.addAll(this.FindContributor(newCopy));
+        newCopy.calliReader.addAll(this.calliReader);
+        newCopy.calliSubscriber.addAll(this.calliSubscriber);
+        newCopy.calliEditor.addAll(this.calliEditor);
+        newCopy.calliAdministrator.addAll(this.calliAdministrator);
+        this.calliHasComponent.add(newCopy);
+
+        var creators = this.FindCreator(newCopy);
+        var iter = this.FindCreatablesOf(newCopy).iterator();
+        if (!iter.hasNext())
+            throw new Forbidden("Cannot create this type of resource");
+        while (iter.hasNext()) {
+            var cls = iter.next();
+            var jter = creators.iterator();
+            while (jter.hasNext()) {
+                var user = jter.next();
+                if (!this.isAuthorized(user.toString(), cls, ["http://callimachusproject.org/rdf/2009/framework#author"]))
+                    throw new Forbidden(user + " is not permitted to create " + cls + " resources");
+            }
+            cls.VerifyCreate(newCopy, new java.util.HashSet(statements.getStatements()));
+        }
+        return {
+            status:201,
+            message:'Created',
+            headers:{
+                location:newCopy.toString() + '?edit',
+                'content-type':'text/uri-list'
+            },
+            body:[newCopy.toString() + '?edit']
+        };
+    """.
+
+:editData a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :PostEditData;
     rdfs:range <java:java.io.InputStream>;
     calli:type "text/turtle", "application/ld+json;q=0.4", "application/rdf+xml;q=0.2".
 
@@ -406,18 +520,19 @@
         newCopy.calliAdministrator.addAll(this.calliAdministrator);
         this.calliHasComponent.add(newCopy);
 
-        var iter = this.FindCreator(newCopy).iterator();
+        var creators = this.FindCreator(newCopy);
+        var iter = this.FindCreatablesOf(newCopy).iterator();
+        if (!iter.hasNext())
+            throw new Forbidden("Cannot create this type of resource");
         while (iter.hasNext()) {
-            var user = iter.next();
-            var jter = this.FindCreatablesOf(newCopy).iterator();
-            if (!jter.hasNext())
-                throw new Forbidden("You are not permitted to create this type of resource");
+            var cls = iter.next();
+            var jter = creators.iterator();
             while (jter.hasNext()) {
-                var cls = jter.next();
+                var user = jter.next();
                 if (!this.isAuthorized(user.toString(), cls, ["http://callimachusproject.org/rdf/2009/framework#author"]))
                     throw new Forbidden(user + " is not permitted to create " + cls + " resources");
-                cls.VerifyCreate(newCopy);
             }
+            cls.VerifyCreate(newCopy, null);
         }
         var iter = updater.partners.iterator();
         while (iter.hasNext()) {
@@ -582,7 +697,7 @@
         } else {
             this.calliHasComponent.add(newCopy);
         }
-        construct.VerifyCreate(location);
+        construct.VerifyCreate(location, null);
         return {
             status:201,
             message:'Created',

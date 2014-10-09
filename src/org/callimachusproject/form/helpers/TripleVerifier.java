@@ -36,6 +36,7 @@ import org.callimachusproject.engine.model.GraphNodePath;
 import org.callimachusproject.engine.model.IRI;
 import org.callimachusproject.engine.model.Node;
 import org.callimachusproject.engine.model.Term;
+import org.callimachusproject.server.exceptions.BadRequest;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
@@ -56,6 +57,7 @@ import org.openrdf.rio.RDFHandlerException;
  * 
  */
 public final class TripleVerifier implements Cloneable {
+	private static final String NOT_IN_EDIT_TEMPLATE = "http://callimachusproject.org/callimachus-for-web-developers#Edit_template";
 	private static final String LDP = "http://www.w3.org/ns/ldp#";
 	private static final String LDP_CONTAINS = LDP + "contains";
 	private final AbsoluteTermFactory tf = AbsoluteTermFactory.newInstance();
@@ -236,11 +238,12 @@ public final class TripleVerifier implements Cloneable {
 			throws RDFHandlerException {
 		Set<TriplePattern> alternatives = findAlternatives(subj, pred, obj);
 		if (alternatives != null && alternatives.isEmpty())
-			throw new RDFHandlerException("Triple pattern " + subj + " "
-					+ pred + " " + obj + " must be present in template to use it");
+			throw new BadRequest("Triple pattern " + subj + " " + pred + " "
+					+ obj + " must be present in template to use it")
+					.addLdpConstraint(NOT_IN_EDIT_TEMPLATE);
 		if (alternatives != null)
-			throw new RDFHandlerException("Triple " + subj + " "
-					+ pred + " " + obj + " must match one of " + alternatives);
+			throw new BadRequest("Triple " + subj + " " + pred + " " + obj
+					+ " must match one of " + alternatives);
 		if (subj instanceof URI) {
 			addSubject((URI) subj);
 		}

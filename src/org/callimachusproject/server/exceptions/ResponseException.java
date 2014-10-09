@@ -34,18 +34,22 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.zip.GZIPInputStream;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
+import org.apache.http.message.BasicHeader;
 import org.apache.http.util.EntityUtils;
 
 /**
  * Base class for HTTP exceptions.
  */
 public abstract class ResponseException extends RuntimeException {
+	private final List<Header> headers = new ArrayList<>();
 
 	public static ResponseException create(HttpResponse resp) throws IOException {
 		return create(resp, null);
@@ -200,7 +204,20 @@ public abstract class ResponseException extends RuntimeException {
 	public abstract int getStatusCode();
 
 	public Header[] getResponseHeaders() {
-		return new Header[0];
+		return headers.toArray(new Header[headers.size()]);
+	}
+
+	public ResponseException addLdpConstraint(String target) {
+		return addLink(target, "http://www.w3.org/ns/ldp#constrainedBy");
+	}
+
+	public ResponseException addLink(String target, String rel) {
+		return addHeader("Link", "<" + target + ">;rel=\"" + rel + "\"");
+	}
+
+	public ResponseException addHeader(String name, String value) {
+		headers.add(new BasicHeader(name, value));
+		return this;
 	}
 
 	@Override

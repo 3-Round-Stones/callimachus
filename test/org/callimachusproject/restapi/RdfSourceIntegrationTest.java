@@ -13,9 +13,9 @@ public class RdfSourceIntegrationTest extends
 			"@prefix owl:<http://www.w3.org/2002/07/owl#>.",
 			"@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.",
 			"",
-			"<RDFSource> a owl:Class;",
+			"<Resource> a owl:Class;",
 			"		rdfs:label \"RDFSource\";",
-			"		owl:equivalentClass <http://www.w3.org/ns/ldp#RDFSource>;",
+			"		owl:equivalentClass <http://example.com/ns#Resource>;",
 			"		rdfs:subClassOf </callimachus/1.4/types/Serviceable>;",
 			"		rdfs:subClassOf </callimachus/1.4/types/Editable>;",
 			"		calli:author </auth/groups/users>, </auth/groups/admin>, </auth/groups/staff>.");
@@ -23,9 +23,9 @@ public class RdfSourceIntegrationTest extends
 			"@prefix owl:<http://www.w3.org/2002/07/owl#>.",
 			"@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.",
 			"",
-			"<RDFSource> a </callimachus/1.4/types/Class>, owl:Class;",
+			"<Resource> a </callimachus/1.4/types/Class>, owl:Class;",
 			"		rdfs:label \"RDFSource\";",
-			"		owl:equivalentClass <http://www.w3.org/ns/ldp#RDFSource>;",
+			"		owl:equivalentClass <http://example.com/ns#Resource>;",
 			"		rdfs:subClassOf </callimachus/1.4/types/Serviceable>;",
 			"		rdfs:subClassOf </callimachus/1.4/types/Editable>;",
 			"		calli:author </auth/groups/users>, </auth/groups/admin>, </auth/groups/staff>.");
@@ -33,14 +33,14 @@ public class RdfSourceIntegrationTest extends
 			"@prefix owl:<http://www.w3.org/2002/07/owl#>.",
 			"@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.",
 			"",
-			"<RDFSource2> a </callimachus/1.4/types/Class>, owl:Class;",
+			"<Resource2> a </callimachus/1.4/types/Class>, owl:Class;",
 			"		rdfs:label \"RDFSource\";",
-			"		owl:equivalentClass <http://www.w3.org/ns/ldp#RDFSource>;",
+			"		owl:equivalentClass <http://example.com/ns#Resource>;",
 			"		rdfs:subClassOf </callimachus/1.4/types/Serviceable>;",
 			"		rdfs:subClassOf </callimachus/1.4/types/Editable>;",
 			"		calli:author </auth/groups/users>, </auth/groups/admin>, </auth/groups/staff>.");
 	private static String RESOURCE_TURTLE = cat("@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.",
-			"<my-resource> a <http://www.w3.org/ns/ldp#RDFSource>; rdfs:label \"my resource\".");
+			"<my-resource> a <http://example.com/ns#Resource>; rdfs:label \"my resource\".");
 	private static String RESOURCE_RDF = cat(
 			"<?xml version='1.0' encoding='UTF-8'?>",
 			"<rdf:RDF",
@@ -48,23 +48,23 @@ public class RdfSourceIntegrationTest extends
 			"	xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'>",
 			"",
 			"<rdf:Description rdf:about='my-resource'>",
-			"	<rdf:type rdf:resource='http://www.w3.org/ns/ldp#RDFSource'/>",
+			"	<rdf:type rdf:resource='http://example.com/ns#Resource'/>",
 			"	<rdfs:label>my-resource</rdfs:label>",
 			"</rdf:Description>", "", "</rdf:RDF>");
 	private static String RESOURCE_JSON = cat("[ {",
 			"  \"@id\" : \"my-resource\",",
-			"  \"@type\" : [ \"http://www.w3.org/ns/ldp#RDFSource\" ],",
+			"  \"@type\" : [ \"http://example.com/ns#Resource\" ],",
 			"  \"http://www.w3.org/2000/01/rdf-schema#label\" : [ {",
 			"    \"@value\" : \"my-resource\"", "  } ]", "} ]");
 	private static String NULL_RESOURCE = cat("@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.",
-			"<> a <http://www.w3.org/ns/ldp#RDFSource>; rdfs:label \"Who am I?\".");
+			"<> a <http://example.com/ns#Resource>; rdfs:label \"Who am I?\".");
 	private static String TOPIC_RESOURCE = cat("@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.",
 			"@prefix foaf:<http://xmlns.com/foaf/0.1/>.",
 			"<> foaf:primaryTopic <my-topic>.",
-			"<my-topic> a <http://www.w3.org/ns/ldp#RDFSource>; rdfs:label \"my topic\".");
+			"<my-topic> a <http://example.com/ns#Resource>; rdfs:label \"my topic\".");
 	private static String RESOURCE_CONTAINS = cat("@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.",
 			"@prefix ldp:<http://www.w3.org/ns/ldp#>.",
-			"<my-resource> a <http://www.w3.org/ns/ldp#RDFSource>; rdfs:label \"my resource\"; ldp:contains <my-topic>.");
+			"<my-resource> a <http://example.com/ns#Resource>; rdfs:label \"my resource\"; ldp:contains <my-topic>.");
 
 	public RdfSourceIntegrationTest(String name) {
 		super(name);

@@ -163,11 +163,17 @@
         PREFIX ldp: <http://www.w3.org/ns/ldp#>
         PREFIX calli: <http://callimachusproject.org/rdf/2009/framework#>
         CONSTRUCT {
-            ?container ldp:contains ?member
+            ?container ldp:contains ?member, ?media
         } WHERE {
             $this calli:hasComponent ?component
             BIND (iri(concat(str($this), "?", $queryMember)) AS ?container)
             BIND (iri(concat(str(?component), "?", $queryMember)) AS ?member)
+            OPTIONAL {
+                ?component a ?type .
+                ?doctype owl:equivalentClass* ?type .
+                ?doctype rdfs:subClassOf* <File>
+                BIND (?component AS ?media)
+            }
         }
     """.
 
@@ -821,7 +827,7 @@
         SELECT REDUCED ?creatable {
             $of a [rdfs:subClassOf* ?cls] .
             ?creatable owl:equivalentClass* ?cls .
-            ?creatable a [rdfs:subClassOf* </callimachus/1.4/types/Creatable>]
+            ?creatable a [rdfs:subClassOf* <Creatable>]
         }
     """.
 
@@ -835,7 +841,7 @@
         PREFIX owl:<http://www.w3.org/2002/07/owl#>
         SELECT ?creatable {
             ?creatable owl:equivalentClass* $create .
-            ?creatable a [rdfs:subClassOf* </callimachus/1.4/types/Creatable>]
+            ?creatable a [rdfs:subClassOf* <Creatable>]
         } LIMIT 1
     """.
 

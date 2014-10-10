@@ -46,37 +46,3 @@
     calli:script """
         return this.DeleteIfNotUsed();
     """.
-
-:GetMetadata rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <File>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.openrdf.query.GraphQueryResult>];
-    calli:method "GET";
-    calli:requires calli:reader;
-    calli:type "text/turtle;q=0.06", "application/ld+json;q=0.04", "application/rdf+xml;q=0.02";
-    calli:header "Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
-    calli:script "return this.GetRdfDescription(prefer, 'describe')".
-
-:prefer a owl:FunctionalProperty, owl:DatatypeProperty;
-    rdfs:domain :GetMetadata;
-    rdfs:range xsd:string;
-    calli:header "Prefer";
-    calli:type "text/plain".
-
-:PutMetadata rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <File>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-    calli:method "PUT";
-    calli:requires calli:administrator;
-    calli:script "return this.PutDescribe(ifMatch, metaData);".
-
-:ifMatch a owl:FunctionalProperty, owl:DatatypeProperty;
-    rdfs:domain :PutMetadata;
-    rdfs:range xsd:string;
-    calli:header "If-Match";
-    calli:type "text/plain".
-
-:metaData a owl:FunctionalProperty, owl:ObjectProperty;
-    rdfs:domain :PutMetadata;
-    rdfs:range <java:org.openrdf.query.GraphQueryResult>;
-    calli:type "text/turtle;q=0.06", "application/ld+json;q=0.04", "application/rdf+xml;q=0.02".
-

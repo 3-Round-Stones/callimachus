@@ -38,6 +38,14 @@ jQuery(function($){
             $(this).val(this.value.replace(/.*</, '').replace(/>.*/, '')).change();
         }
     });
+    if (window.location.hash) {
+        var decoded = decodeURIComponent(window.location.hash.substring(1));
+        if (decoded.indexOf('@') > 0) {
+            $('#email').val(decoded).change();
+        } else {
+            $('#label').val(decoded).change();
+        }
+    }
     $('#invite').click(function(event){
         if ($('#msgForm')[0].checkValidity()) {
             event.preventDefault();

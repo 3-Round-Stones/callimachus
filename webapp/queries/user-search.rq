@@ -9,22 +9,24 @@ PREFIX skos:<http://www.w3.org/2004/02/skos/core#>
 PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
 PREFIX keyword:<http://www.openrdf.org/rdf/2011/keyword#>
 
-SELECT REDUCED ?resource ?label ?comment {
+SELECT REDUCED ?resource ?label ?email ?comment {
     {
         SELECT REDUCED ?resource {
             {
-                ?resource a calli:Party; keyword:phone ?soundex
+                ?resource a calli:User; keyword:phone ?soundex
                 FILTER sameTerm(?soundex, keyword:soundex("$q"))
             } UNION {
-                ?resource a calli:Party
+                ?resource a calli:User; calli:email "$q"
+            } UNION {
+                ?resource a calli:User
                 FILTER sameTerm(?resource, <$iri>)
             }
         } LIMIT 100
     }
     FILTER (isIRI(?resource))
-    ?resource rdfs:label ?label
+    ?resource rdfs:label ?label; calli:email ?email
     FILTER isLiteral(?label)
-    FILTER (strlen("$q") < 3 || regex(?label, keyword:regex("$q")))
+    FILTER (strlen("$q") < 3 || regex(?label, keyword:regex("$q")) || ?email = "$q")
     OPTIONAL {
         ?resource rdfs:comment ?comment
     }

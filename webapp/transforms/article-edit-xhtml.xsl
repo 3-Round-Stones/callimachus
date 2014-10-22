@@ -187,11 +187,20 @@
 </xsl:template>
 
 <xsl:template match="d:programlisting">
-    <pre class="prettyprint">
-        <xsl:apply-templates select="@*" />
-        <xsl:apply-templates mode="anchor" select="@xml:id" />
-        <xsl:apply-templates />
+    <pre>
+        <code>
+            <xsl:apply-templates select="@*" />
+            <xsl:apply-templates mode="anchor" select="@xml:id" />
+            <xsl:apply-templates />
+        </code>
     </pre>
+</xsl:template>
+
+<xsl:template match="d:programlisting/@language">
+    <xsl:attribute name="class">
+        <xsl:text>language-</xsl:text>
+        <xsl:value-of select="." />
+    </xsl:attribute>
 </xsl:template>
 
 <xsl:template match="d:screen">

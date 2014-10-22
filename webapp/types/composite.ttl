@@ -74,7 +74,7 @@
     calli:method "GET";
     calli:query "describe";
     calli:requires calli:reader;
-    calli:type "text/turtle", "application/ld+json;q=0.5", "application/rdf+xml;q=0.4";
+    calli:type "text/turtle;q=0.6", "application/ld+json;q=0.4", "application/rdf+xml;q=0.2";
     calli:header "Link:<http://www.w3.org/ns/ldp#IndirectContainer>;rel=\"type\",<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
     calli:imports <java:org.callimachusproject.io.DescribeResult>;
     calli:imports <java:org.callimachusproject.io.FilteredGraphResult>;

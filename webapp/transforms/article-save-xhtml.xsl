@@ -242,7 +242,23 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
     </programlisting>
 </xsl:template>
 
-<xsl:template match="xhtml:pre[not(@class='prettyprint')]">
+<xsl:template match="xhtml:pre[xhtml:code]">
+    <xsl:apply-templates select="xhtml:code" />
+</xsl:template>
+
+<xsl:template match="xhtml:pre/xhtml:code">
+    <programlisting>
+        <xsl:call-template name="id" />
+        <xsl:if test="matches(@class,'language-\S')">
+            <xsl:attribute name="language">
+                <xsl:value-of select="replace(@class,'^.*language-(\S+).*$','$1')" />
+            </xsl:attribute>
+        </xsl:if>
+        <xsl:apply-templates />
+    </programlisting>
+</xsl:template>
+
+<xsl:template match="xhtml:pre[not(@class='prettyprint')][not(xhtml:code)]">
     <screen>
         <xsl:call-template name="id" />
         <xsl:apply-templates select="@*" />

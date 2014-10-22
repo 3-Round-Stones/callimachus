@@ -13,10 +13,10 @@
  * (1) http://ckeditor.com/builder
  *     Visit online builder to build CKEditor from scratch.
  *
- * (2) http://ckeditor.com/builder/8b85669eb1149bd14a64950d72dbaa50
+ * (2) http://ckeditor.com/builder/a40e7b487ec1a99ac4b40bf90dd4b9f3
  *     Visit online builder to build CKEditor, starting with the same setup as before.
  *
- * (3) http://ckeditor.com/builder/download/8b85669eb1149bd14a64950d72dbaa50
+ * (3) http://ckeditor.com/builder/download/a40e7b487ec1a99ac4b40bf90dd4b9f3
  *     Straight download link to the latest version of CKEditor (Optimized) with the same setup as before.
  *
  * NOTE:
@@ -28,11 +28,24 @@ var CKBUILDER_CONFIG = {
 	skin: 'moono',
 	preset: 'standard',
 	ignore: [
+		'.bender',
+		'bender.js',
+		'bender-err.log',
+		'bender-out.log',
 		'dev',
-		'.gitignore',
+		'.DS_Store',
 		'.gitattributes',
+		'.gitignore',
+		'Gruntfile.js',
+		'.idea',
+		'.jscsrc',
+		'.jshintignore',
+		'.jshintrc',
+		'.mailmap',
+		'node_modules',
+		'package.json',
 		'README.md',
-		'.mailmap'
+		'tests'
 	],
 	plugins : {
 		'a11yhelp' : 1,
@@ -59,7 +72,7 @@ var CKBUILDER_CONFIG = {
 		'maximize' : 1,
 		'pastefromword' : 1,
 		'pastetext' : 1,
-		'pbckcode' : 1,
+		'quicktable' : 1,
 		'removeformat' : 1,
 		'resize' : 1,
 		'showblocks' : 1,
@@ -69,6 +82,7 @@ var CKBUILDER_CONFIG = {
 		'stylescombo' : 1,
 		'tab' : 1,
 		'table' : 1,
+		'tableresize' : 1,
 		'tabletools' : 1,
 		'toolbar' : 1,
 		'undo' : 1,

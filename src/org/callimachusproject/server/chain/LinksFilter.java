@@ -40,6 +40,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Future;
 
+import javax.activation.MimeType;
+import javax.activation.MimeTypeParseException;
+
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
@@ -141,7 +144,15 @@ public class LinksFilter implements AsyncExecChain {
 			Collection<String> mrel = getMethodRel(m);
 			if (!mrel.isEmpty()) {
 				rels.addAll(mrel);
-				types.addAll(getMethodResponseTypes(m, request));
+				for (String type : getMethodResponseTypes(m, request)) {
+					try {
+						MimeType mtype = new MimeType(type);
+						mtype.removeParameter("q");
+						types.add(mtype.toString());
+					} catch (MimeTypeParseException e) {
+						types.add(type);
+					}
+				}
 				titles.addAll(getMethodTitles(m));
 			}
 		}

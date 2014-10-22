@@ -163,6 +163,17 @@ public class FluidType extends GenericType {
 		return false;
 	}
 
+	public double getQuality() {
+		double max = Double.MIN_VALUE;
+		for (MediaType mime : mediaTypes) {
+			double q = mime.getQuality();
+			if (q > max) {
+				max = q;
+			}
+		}
+		return max;
+	}
+
 	public FluidType as(Type type) {
 		return new FluidType(type, mediaTypes, true);
 	}

@@ -36,6 +36,7 @@ import org.callimachusproject.engine.model.GraphNodePath;
 import org.callimachusproject.engine.model.IRI;
 import org.callimachusproject.engine.model.Node;
 import org.callimachusproject.engine.model.Term;
+import org.callimachusproject.server.exceptions.BadRequest;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
@@ -56,6 +57,9 @@ import org.openrdf.rio.RDFHandlerException;
  * 
  */
 public final class TripleVerifier implements Cloneable {
+	private static final String NOT_IN_EDIT_TEMPLATE = "http://callimachusproject.org/callimachus-for-web-developers#Edit_template";
+	private static final String LDP = "http://www.w3.org/ns/ldp#";
+	private static final String LDP_CONTAINS = LDP + "contains";
 	private final AbsoluteTermFactory tf = AbsoluteTermFactory.newInstance();
 	private final Set<URI> subjects;
 	private final Set<URI> partners;
@@ -63,6 +67,7 @@ public final class TripleVerifier implements Cloneable {
 	private final Map<Resource, Set<Statement>> disconnected;
 	private final Set<URI> allTypes;
 	private final Map<Resource, Set<URI>> types;
+	private final Set<URI> ldpURIs;
 	private boolean empty = true;
 	private Set<TriplePattern> patterns;
 
@@ -73,6 +78,7 @@ public final class TripleVerifier implements Cloneable {
 		disconnected = new HashMap<Resource, Set<Statement>>();
 		allTypes = new LinkedHashSet<URI>();
 		types = new HashMap<Resource, Set<URI>>();
+		ldpURIs = new HashSet<>();
 		empty = true;
 	}
 
@@ -88,6 +94,7 @@ public final class TripleVerifier implements Cloneable {
 		disconnected = new HashMap<Resource, Set<Statement>>(cloned.disconnected);
 		allTypes = new LinkedHashSet<URI>(cloned.allTypes);
 		types = new HashMap<Resource, Set<URI>>(cloned.types);
+		ldpURIs = new HashSet<>(cloned.ldpURIs);
 		empty = cloned.empty;
 		patterns = cloned.patterns;
 	}
@@ -190,6 +197,10 @@ public final class TripleVerifier implements Cloneable {
 		return true;
 	}
 
+	public boolean isContainmentTriplePresent() {
+		return ldpURIs.contains(new URIImpl(LDP_CONTAINS));
+	}
+
 	public URI getSubject() {
 		URI about = null;
 		for (URI subj : subjects) {
@@ -227,11 +238,12 @@ public final class TripleVerifier implements Cloneable {
 			throws RDFHandlerException {
 		Set<TriplePattern> alternatives = findAlternatives(subj, pred, obj);
 		if (alternatives != null && alternatives.isEmpty())
-			throw new RDFHandlerException("Triple pattern " + subj + " "
-					+ pred + " " + obj + " must be present in template to use it");
+			throw new BadRequest("Triple pattern " + subj + " " + pred + " "
+					+ obj + " must be present in template to use it")
+					.addLdpConstraint(NOT_IN_EDIT_TEMPLATE);
 		if (alternatives != null)
-			throw new RDFHandlerException("Triple " + subj + " "
-					+ pred + " " + obj + " must match one of " + alternatives);
+			throw new BadRequest("Triple " + subj + " " + pred + " " + obj
+					+ " must match one of " + alternatives);
 		if (subj instanceof URI) {
 			addSubject((URI) subj);
 		}
@@ -241,6 +253,11 @@ public final class TripleVerifier implements Cloneable {
 			}
 			types.get(subj).add((URI) obj);
 			allTypes.add((URI) obj);
+			if (obj.stringValue().startsWith(LDP)) {
+				ldpURIs.add((URI) obj);
+			}
+		} else if (pred.stringValue().startsWith(LDP)) {
+			ldpURIs.add(pred);
 		}
 		link(subj, pred, obj);
 		empty = false;

@@ -7,7 +7,7 @@
     xmlns:foaf="http://xmlns.com/foaf/0.1/">
 <head>
     <title>New Class</title>
-    <link rel="help" href="../../callimachus-for-web-developers#Class" target="_blank" title="Help" />
+    <link rel="help" href="../../callimachus-reference#Class" target="_blank" title="Help" />
     <link rel="group" href="/auth/groups/users" />
     <link rel="group" href="/auth/groups/staff" />
     <link rel="group" href="/auth/groups/admin" />
@@ -15,86 +15,21 @@
     <link rel="viewable" href="../types/Viewable" />
     <link rel="editable" href="../types/Editable" />
     <link rel="composite" href="../types/Composite" />
-    <link rel="sample-create" href="../pages/sample-create.xhtml" />
-    <link rel="sample-view" href="../pages/sample-view.xhtml" />
-    <link rel="sample-edit" href="../pages/sample-edit.xhtml" />
-    <script type="text/javascript"> // <![CDATA[
-    jQuery(function($){
-        $('link[rel="super"]').each(function(){
-            var href = this.href;
-            var de = jQuery.Event('drop');
-            de.dataTransfer = {getData:function(){return href}};
-            $('#subClassOf').trigger(de);
-        });
-        $('#create').bind('drop', function(event) {
-            calli.insertResource(event).then(function(){
-                $('link[rel="group"]').each(function(){
-                    var href = this.href;
-                    var de = jQuery.Event('drop');
-                    de.dataTransfer = {getData:function(){return href}};
-                    $('#authors').trigger(de);
-                });
-            });
-        });
-        $('#view').bind('drop', function(event) {
-            calli.insertResource(event).then(function() {
-                $('link[rel="viewable"]').each(function(){
-                    var href = this.href;
-                    var de = jQuery.Event('drop');
-                    de.dataTransfer = {getData:function(){return href}};
-                    $('#subClassOf').trigger(de);
-                });
-            });
-        });
-        $('#edit').bind('drop', function(event) {
-            calli.insertResource(event).then(function() {
-                $('link[rel="editable"]').each(function(){
-                    var href = this.href;
-                    var de = jQuery.Event('drop');
-                    de.dataTransfer = {getData:function(){return href}};
-                    $('#subClassOf').trigger(de);
-                });
-            });
-        });
-        $('#composite').click(function(){
-            $('link[rel="composite"]').each(function(){
-                var composite = $('#subClassOf').find('[about$="' + this.href + '"]');
-                if ($('#composite').is(':checked')) {
-                    if (!composite.length) {
-                        var href = this.href;
-                        var de = jQuery.Event('drop');
-                        de.dataTransfer = {getData:function(){return href}};
-                        $('#subClassOf').trigger(de);
-                    }
-                } else {
-                    composite.remove();
-                }
-            });
-        });
-        $(document).bind('DOMNodeInserted', function(event) {
-            var label = $('.equivalentLabel', event.target).text();
-            var comment = $('.equivalentComment', event.target).text();
-            if (label && !$('#label').val()) {
-                $('#label').val(label);
-                $('#label').change();
-            }
-            if (comment && !$('#comment').val()) {
-                $('#comment').val(comment);
-                $('#comment').change();
-            }
-        });
-        var equivalentURL = unescape(window.location.hash.substring(2));
-        if (equivalentURL.length > 0) {
-            var de = jQuery.Event('drop');
-            de.dataTransfer = {getData:function(){return equivalentURL}};
-            $('#equivalentClass').trigger(de);
-        }
-    }); // ]]>
-    </script>
+    <link id="page" href="../types/Page" />
+    <link id="sample-create" href="../pages/sample-create.xhtml" />
+    <link id="sample-view" href="../pages/sample-view.xhtml" />
+    <link id="sample-edit" href="../pages/sample-edit.xhtml" />
+    <link id="party-search" href="../queries/party-search.rq?results&amp;tqx=out:sparql-json&amp;q={q}" />
+    <link id="party-lookup" href="../queries/party-search.rq?results&amp;tqx=out:sparql-json&amp;iri={iri}" />
+    <link id="class-search" href="../queries/class-search.rq?results&amp;tqx=out:sparql-json&amp;q={q}" />
+    <link id="class-lookup" href="../queries/class-search.rq?results&amp;tqx=out:sparql-json&amp;iri={iri}" />
+    <link id="page-search" href="../queries/page-search.rq?results&amp;tqx=out:sparql-json&amp;q={q}" />
+    <link id="page-lookup" href="../queries/page-search.rq?results&amp;tqx=out:sparql-json&amp;iri={iri}" />
+    <script type="text/javascript" src="../scripts/class.js"></script>
 </head>
 <body>
     <form role="form" id="form" method="POST" action="" enctype="text/turtle" typeof="owl:Class" class="container"
-            onsubmit="calli.submitTurtle(event,encodeURIComponent($('#label').val().replace(/([a-z])\s([A-Z])/g, '$1$2').replace(/\s+/g,'_')))">
+            onsubmit="calli.submitTurtle(event,encodeURIComponent($('#label').val().replace(/([a-z])\s+([A-Z])/g, '$1$2').replace(/\s+/g,'_')))">
         <div class="row">
             <div class="col-sm-8">
                 <div class="page-header">
@@ -143,38 +78,26 @@
                     </div>
                 </div>
                 <fieldset class="row">
-                    <div id="authors" dropzone="link string:text/uri-list" class="form-group col-sm-4"
-                            ondrop="calli.insertResource(event)">
-                        <label>Authors <a href="/auth/groups/" title="Select Group"
-                                onclick="calli.selectResource(event)" class="glyphicon glyphicon-folder-open" /></label>
-                        <div rel="calli:author">
-                            <span resource="?author" typeof="calli:Party" class="label label-info">
-                                <span property="rdfs:label" />
-                                <a href="{?author}" title="Remove permission" onclick="calli.removeResource(event)" class="glyphicon glyphicon-remove" />
-                            </span>
-                        </div>
+                    <div dropzone="link string:text/uri-list" class="form-group col-sm-4">
+                        <label for="authors">Authors</label>
+                        <select id="authors" class="form-control" multiple="multiple"
+                                onchange="calli.updateResource(event, 'calli:author')">
+                            <option selected="selected" rel="calli:author" resource="?author" value="{?author}">{rdfs:label}</option>
+                        </select>
                     </div>
-                    <div id="subClassOf" dropzone="link string:text/uri-list" class="form-group col-sm-4"
-                            ondrop="calli.insertResource(event)">
-                        <label>Super <a href="/?view" title="Create"
-                                onclick="calli.selectResource(event)" class="glyphicon glyphicon-folder-open" /></label>
-                        <div rel="rdfs:subClassOf">
-                            <span resource="?subClassOf" typeof="owl:Class" class="label label-info">
-                                <span property="rdfs:label" />
-                                <a href="{?subClassOf}" title="Don't extend" onclick="calli.removeResource(event)" class="glyphicon glyphicon-remove" />
-                            </span>
-                        </div>
+                    <div dropzone="link string:text/uri-list" class="form-group col-sm-4">
+                        <label for="subClassOf">Super</label>
+                        <select id="subClassOf" class="form-control" multiple="multiple"
+                                onchange="calli.updateResource(event,'rdfs:subClassOf')">
+                            <option selected="selected" rel="rdfs:subClassOf" resource="?subClassOf" value="{?subClassOf}">{rdfs:label}</option>
+                        </select>
                     </div>
-                    <div id="equivalentClass" dropzone="link string:text/uri-list" class="form-group col-sm-4"
-                            ondrop="calli.insertResource(event)">
-                        <label>Equivalent</label>
-                        <div rel="owl:equivalentClass">
-                            <span resource="?equivalentClass" typeof="owl:Class" class="label label-info">
-                                <span class="equivalentLabel" property="rdfs:label" />
-                                <span style="display:none" class="equivalentComment">{rdfs:comment}</span>
-                                <a href="{?equivalentClass}" title="Not equivalent" onclick="calli.removeResource(event)" class="glyphicon glyphicon-remove" />
-                            </span>
-                        </div>
+                    <div dropzone="link string:text/uri-list" class="form-group col-sm-4">
+                        <label for="equivalentClass">Equivalent</label>
+                        <select id="equivalentClass" class="form-control" multiple="multiple"
+                                onchange="calli.updateResource(event,'owl:equivalentClass')">
+                            <option selected="selected" rel="owl:equivalentClass" resource="?equivalentClass" value="{?equivalentClass}">{rdfs:label}</option>
+                        </select>
                     </div>
                 </fieldset>
                 <fieldset class="form-group">
@@ -186,35 +109,26 @@
                 <fieldset>
                     <legend>Page Templates</legend>
                     <div class="row">
-                        <div id="create" dropzone="link string:text/uri-list" class="form-group col-sm-4">
-                            <label>Template for creating <a href="../types/Page" title="Create a new template" class="glyphicon glyphicon-list-alt"
-                                    onclick="calli.createResource(event, './?create=' + encodeURIComponent(this.href) + '#!' + $('link[rel=sample-create]').attr('href'))" /></label>
-                            <div rel="calli:create">
-                                <span resource="?create" typeof="calli:Page" class="label label-info">
-                                    <a href="{?create}?edit" property="rdfs:label" onclick="calli.openDialog(this.href, 'Template for creating');return false" />
-                                    <a href="{?create}" title="Don't use this template" onclick="calli.removeResource(event)" class="glyphicon glyphicon-remove" />
-                                </span>
-                            </div>
+                        <div dropzone="link string:text/uri-list" class="form-group col-sm-4">
+                            <label for="create">Template for creating</label>
+                            <select id="create" class="form-control"
+                                    onchange="calli.updateResource(event,'calli:create')">
+                                <option selected="selected" rel="calli:create" resource="?create" value="{?create}">{rdfs:label}</option>
+                            </select>
                         </div>
-                        <div id="view" dropzone="link string:text/uri-list" class="form-group col-sm-4">
-                            <label>Template for viewing <a href="../types/Page" title="Create a new template" class="glyphicon glyphicon-list-alt"
-                                    onclick="calli.createResource(event, './?create=' + encodeURIComponent(this.href) + '#!' + $('link[rel=sample-view]').attr('href'))" /></label>
-                            <div rel="calli:view">
-                                <span resource="?view" typeof="calli:Page" class="label label-info">
-                                    <a href="{?view}?edit" property="rdfs:label" onclick="calli.openDialog(this.href, 'Template for viewing');return false" />
-                                    <a href="{?view}" title="Don't use this template" onclick="calli.removeResource(event)" class="glyphicon glyphicon-remove" />
-                                </span>
-                            </div>
+                        <div dropzone="link string:text/uri-list" class="form-group col-sm-4">
+                            <label for="view">Template for viewing</label>
+                            <select id="view" class="form-control"
+                                    onchange="calli.updateResource(event,'calli:view')">
+                                <option selected="selected" rel="calli:view" resource="?view" value="{?view}">{rdfs:label}</option>
+                            </select>
                         </div>
-                        <div id="edit" dropzone="link string:text/uri-list" class="form-group col-sm-4">
-                            <label>Template for editing <a href="../types/Page" title="Create a new template" class="glyphicon glyphicon-list-alt"
-                                    onclick="calli.createResource(event, './?create=' + encodeURIComponent(this.href) + '#!' + $('link[rel=sample-edit]').attr('href'))" /></label>
-                            <div rel="calli:edit">
-                                <span resource="?edit" typeof="calli:Page" class="label label-info">
-                                    <a href="{?edit}?edit" property="rdfs:label" onclick="calli.openDialog(this.href, 'Template for editing');return false" />
-                                    <a href="{?edit}" title="Don't use this template" onclick="calli.removeResource(event)" class="glyphicon glyphicon-remove" />
-                                </span>
-                            </div>
+                        <div dropzone="link string:text/uri-list" class="form-group col-sm-4">
+                            <label for="edit">Template for editing</label>
+                            <select id="edit" class="form-control"
+                                    onchange="calli.updateResource(event,'calli:edit')">
+                                <option selected="selected" rel="calli:edit" resource="?edit" value="{?edit}">{rdfs:label}</option>
+                            </select>
                         </div>
                     </div>
                 </fieldset>

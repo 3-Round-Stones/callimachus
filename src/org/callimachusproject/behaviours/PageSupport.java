@@ -104,6 +104,33 @@ public abstract class PageSupport implements CalliObject {
 		return getEngine().getTemplate(url);
 	}
 
+	public void calliVerifyCreatedResource(RDFObject target,
+			Collection<Statement> statements, String base) throws Exception {
+		try {
+			TripleInserter tracker = new TripleInserter();
+			tracker.setBaseURI(base);
+			tracker.accept(openPatternReader(target.toString()));
+			tracker.accept(created((URI) target.getResource()));
+			tracker.startRDF();
+			for (Statement st : statements) {
+				tracker.handleStatement(st);
+			}
+			tracker.endRDF();
+			if (tracker.isEmpty())
+				throw new BadRequest("Missing Information");
+			if (!tracker.isSingleton())
+				throw new BadRequest("Wrong Subject");
+			if (tracker.isDisconnectedNodePresent())
+				throw new BadRequest("Blank nodes must be connected");
+			if (tracker.isContainmentTriplePresent())
+				throw new Conflict("ldp:contains is prohibited");
+			ObjectConnection con = target.getObjectConnection();
+			verifyCreatedStatements(tracker.getPrimaryTopic(), statements, con);
+		} catch (RDFHandlerException e) {
+			throw new BadRequest(e);
+		}
+	}
+
 	public RDFObject calliCreateResource(InputStream in, String type,
 			String base, final RDFObject target) throws Exception {
 		try {
@@ -113,6 +140,7 @@ public abstract class PageSupport implements CalliObject {
 			StatementCollector statements = new StatementCollector();
 			RDFHandler handler = new RDFHandlerWrapper(new RDFInserter(con), statements);
 			TripleInserter tracker = new TripleInserter(handler, con);
+			tracker.setBaseURI(base);
 			tracker.accept(openPatternReader(target.toString()));
 			tracker.accept(created((URI) target.getResource()));
 			RDFFormat format = RDFFormat.forMIMEType(type);
@@ -127,6 +155,8 @@ public abstract class PageSupport implements CalliObject {
 				throw new BadRequest("Wrong Subject");
 			if (tracker.isDisconnectedNodePresent())
 				throw new BadRequest("Blank nodes must be connected");
+			if (tracker.isContainmentTriplePresent())
+				throw new Conflict("ldp:contains is prohibited");
 			URI created = tracker.getSubject();
 			verifyCreatedStatements(created, statements.getStatements(), con);
 
@@ -152,7 +182,7 @@ public abstract class PageSupport implements CalliObject {
 		try {
 			ObjectConnection con = target.getObjectConnection();
 			URI resource = (URI) target.getResource();
-			EntityUpdater update = new EntityUpdater(resource);
+			EntityUpdater update = new EntityUpdater(resource, resource.stringValue());
 	
 			// delete clause uses existing triples
 			update.acceptDelete(loadEditTriples(resource, con));
@@ -218,7 +248,7 @@ public abstract class PageSupport implements CalliObject {
 	private void verifyInsertClause(String sparqlUpdate, URI resource,
 			ObjectConnection con) throws RDFParseException, IOException,
 			TemplateException, OpenRDFException {
-		EntityUpdater postUpdate = new EntityUpdater(resource);
+		EntityUpdater postUpdate = new EntityUpdater(resource, resource.stringValue());
 		postUpdate.acceptInsert(loadEditTriples(resource, con));
 		postUpdate.acceptInsert(changeNoteOf(resource));
 		postUpdate.acceptInsert(modified(resource));

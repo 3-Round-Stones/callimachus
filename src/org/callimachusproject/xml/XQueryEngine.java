@@ -88,6 +88,7 @@ public class XQueryEngine {
 		xqcomp.setModuleURIResolver(resolver);
 		XQueryExecutable xqexec = xqcomp.compile(queryStream);
 		final XQueryEvaluator xqeval = xqexec.load();
+		xqeval.setURIResolver(resolver);
 		if (parameters != null) {
 			for (Map.Entry<String, String[]> e : parameters.entrySet()) {
 				QName name = new QName(e.getKey());

@@ -8,7 +8,11 @@
     xmlns:skos="http://www.w3.org/2004/02/skos/core#">
 <head>
     <title resource="?this">{rdfs:label}</title>
-    <link rel="help" href="../../callimachus-for-web-developers" target="_blank" title="Help" />
+    <link rel="help" href="../../callimachus-reference#User_Group" target="_blank" title="Help" />
+    <link id="invitedUser" href="../types/InvitedUser" />
+    <link id="user-search" href="../queries/user-search.rq?results&amp;tqx=out:sparql-json&amp;q={q}" />
+    <link id="user-lookup" href="../queries/user-search.rq?results&amp;tqx=out:sparql-json&amp;iri={iri}" />
+    <script type="text/javascript" src="../scripts/group.js"></script>
 </head>
 <body resource="?this" onload="comparison=calli.copyResourceData('#form')">
     <form role="form" id="form" method="POST" action="" enctype="application/sparql-update" resource="?this" class="container"
@@ -29,17 +33,12 @@
                         </div>
                     </fieldset>
                     <fieldset class="col-sm-6">
-                        <div id="members" dropzone="link string:text/uri-list" class="form-group"
-                                ondrop="calli.insertResource(event)">
-                            <label>Members <a href="../types/InvitedUser" title="Invite"
-                                    onmousedown="href=calli.getCallimachusUrl('/auth/invited-users/') + '?create=' + encodeURIComponent(calli.getCallimachusUrl('types/InvitedUser'))"
-                                    onclick="calli.createResource(event)" class="glyphicon glyphicon-plus" /></label>
-                            <div rel="calli:member">
-                                <span resource="?member" typeof="calli:User" class="label label-info">
-                                    <span property="rdfs:label" />
-                                    <a href="{?member}" title="Remove user from group" onclick="calli.removeResource(event)" class="glyphicon glyphicon-remove" />
-                                </span>
-                            </div>
+                        <div dropzone="link string:text/uri-list" class="form-group">
+                            <label for="members">Members</label>
+                            <select id="members" class="form-control" multiple="multiple"
+                                    onchange="calli.updateResource(event, 'calli:member')">
+                                <option selected="selected" rel="calli:member" resource="?member" value="{?member}">{rdfs:label}</option>
+                            </select>
                         </div>
                     </fieldset>
                 </div>

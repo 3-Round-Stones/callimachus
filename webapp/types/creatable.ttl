@@ -180,7 +180,7 @@
         if (type != "application/rdf+xml" && type.indexOf("application/rdf+xml;") != 0
                 && type != "text/turtle" && type.indexOf("text/turtle;") != 0)
             throw new UnsupportedMediaType("File format is not recognized: " + type + " for " + location);
-        var newCopy = template.calliCreateResource(body, type, location.toString(), location);
+        var newCopy = template.calliCreateResource(body, type, this.toString(), location);
         newCopy = newCopy.objectConnection.addDesignation(newCopy, this.toString());
         this.touchRevision(); // FIXME this shouldn't be needed
         return newCopy;
@@ -192,10 +192,27 @@
     calli:type "*/*".
 
 :location a owl:FunctionalProperty, owl:ObjectProperty;
-    rdfs:domain :PostCreate;
+    rdfs:domain [owl:unionOf (:PostCreate :VerifyCreate)];
     calli:type "text/uri-list".
 
 :type a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :PostCreate;
     rdfs:range xsd:string.
+
+# override this method for subclass verify create methods
+:VerifyCreate rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Creatable>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+    calli:script """
+        if (statements && !statements.isEmpty()) {
+            var template = this.calliCreate.iterator().next();
+            if (!template)
+                throw new InternalServerError("Cannot create " + this.toString() + ", no create template");
+            template.calliVerifyCreatedResource(location, statements, this.toString());
+        }
+    """.
+
+:statements a owl:ObjectProperty;
+    rdfs:domain :VerifyCreate;
+    calli:range <java:org.openrdf.model.Statement>.
 

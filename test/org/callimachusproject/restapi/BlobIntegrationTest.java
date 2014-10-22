@@ -159,7 +159,13 @@ public class BlobIntegrationTest extends TemporaryServerIntegrationTestCase {
     public static TestSuite suite() throws Exception {
         TestSuite suite = new TestSuite(BlobIntegrationTest.class.getName());
         for (String name : parameters.keySet()) {
-            suite.addTest(new BlobIntegrationTest(name));
+            suite.addTest(new BlobIntegrationTest("atompub " + name));
+        }
+        for (String name : parameters.keySet()) {
+            suite.addTest(new BlobIntegrationTest("describe " + name));
+        }
+        for (String name : parameters.keySet()) {
+            suite.addTest(new BlobIntegrationTest("edit " + name));
         }
         return suite;
     }
@@ -171,7 +177,7 @@ public class BlobIntegrationTest extends TemporaryServerIntegrationTestCase {
 
 	public BlobIntegrationTest(String name) throws Exception {
 		super(name);
-		String [] args = parameters.get(name);
+		String[] args = parameters.get(name.substring(name.indexOf(' ')+1));
 		requestSlug = args[0];
 		requestContentType = args[1];
 		outputString = args[2];
@@ -179,21 +185,31 @@ public class BlobIntegrationTest extends TemporaryServerIntegrationTestCase {
 	}
 	
 	public void runTest() throws Exception {
+		if (getName().startsWith("atompub")) {
+			atompub();
+		} else if (getName().startsWith("edit")) {
+			edit();
+		} else {
+			describe();
+		}
+	}
+	
+	public void atompub() throws Exception {
 		WebResource blob = getHomeFolder()
-				.link("contents", "application/atom+xml")
+				.rel("contents", "application/atom+xml")
 				.getAppCollection()
 				.create(requestSlug, requestContentType,
 						outputString.getBytes());
-		WebResource edit = blob.link("edit-media", requestContentType);
+		WebResource edit = blob.rel("edit-media", requestContentType);
 		edit.get(requestContentType);
-		blob.link("alternate", "text/html").get("text/html");
-		blob.link("edit-form", "text/html").get("text/html");
-		blob.link("comments").get("text/html");
-		blob.link("describedby", "text/turtle").get("text/turtle");
-		blob.link("describedby", "application/rdf+xml").get("application/rdf+xml");
-		blob.link("describedby", "text/html").get("text/html");
-		blob.link("version-history", "text/html").get("text/html");
-		blob.link("version-history", "application/atom+xml").get("application/atom+xml");
+		blob.rel("alternate", "text/html").get("text/html");
+		blob.rel("edit-form", "text/html").get("text/html");
+		blob.rel("comments").get("text/html");
+		blob.rel("describedby", "text/turtle").get("text/turtle");
+		blob.rel("describedby", "application/rdf+xml").get("application/rdf+xml");
+		blob.rel("describedby", "text/html").get("text/html");
+		blob.rel("version-history", "text/html").get("text/html");
+		blob.rel("version-history", "application/atom+xml").get("application/atom+xml");
 		blob.ref("?permissions").get("text/html");
 		blob.ref("?rdftype").get("text/uri-list");
 		blob.ref("?relatedchanges").get("text/html");
@@ -201,5 +217,29 @@ public class BlobIntegrationTest extends TemporaryServerIntegrationTestCase {
 		blob.ref("?introspect").get("text/html");
 		edit.put(requestContentType, updateOutputString.getBytes());
 		edit.delete();
+	}
+	
+	public void describe() throws Exception {
+		Map<String, String> headers = new LinkedHashMap<>();
+		headers.put("Slug", requestSlug);
+		headers.put("Link", "<http://www.w3.org/ns/ldp#NonRDFSource>;rel=\"type\"");
+		WebResource blob = getHomeFolder()
+				.rel("describedby").create(headers, requestContentType,
+						outputString.getBytes());
+		blob.rel("describedby", "text/turtle").get("text/turtle");
+		blob.rel("describedby", "text/html").get("text/html");
+		blob.put(requestContentType, updateOutputString.getBytes());
+		blob.delete();
+	}
+	
+	public void edit() throws Exception {
+		Map<String, String> headers = new LinkedHashMap<>();
+		headers.put("Slug", requestSlug);
+		headers.put("Link", "<http://www.w3.org/ns/ldp#NonRDFSource>;rel=\"type\"");
+		WebResource blob = getHomeFolder()
+				.ref("?edit").create(headers, requestContentType,
+						outputString.getBytes());
+		blob.put(requestContentType, updateOutputString.getBytes());
+		blob.delete();
 	}
 }

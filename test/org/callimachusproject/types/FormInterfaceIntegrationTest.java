@@ -133,11 +133,11 @@ public class FormInterfaceIntegrationTest extends TemporaryServerIntegrationTest
 	}
 
 	private WebResource getRelContents() throws IOException, OpenRDFException {
-		return getHomeFolder().link("contents", "application/atom+xml");
+		return getHomeFolder().rel("contents", "application/atom+xml");
 	}
 
 	private String getOptions(WebResource uri) throws Exception {
-		WebResource page = uri.link("alternate", "text/html");
+		WebResource page = uri.rel("alternate", "text/html");
 		String view = new String(page.get("text/html"));
 		assertContains("<select", view);
 		assertContains("data-options=", view);

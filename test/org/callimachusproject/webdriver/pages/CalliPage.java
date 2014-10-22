@@ -42,7 +42,7 @@ public class CalliPage {
 	public Login openLogin() {
 		browser.focusInTopWindow();
 		browser.click(By.linkText("Sign in"));
-		return page(SignIn.class).loginWithDigest();
+		return page(Login.class);
 	}
 
 	public CalliPage logout() {

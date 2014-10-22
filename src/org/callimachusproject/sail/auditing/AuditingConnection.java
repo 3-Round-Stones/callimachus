@@ -90,6 +90,7 @@ public class AuditingConnection extends SailConnectionWrapper {
 	private final URI subject;
 	private final URI predicate;
 	private final URI object;
+	private boolean auditingRemoval = true;
 	private final Map<UpdateContext,URI> entities = Collections.synchronizedMap(new HashMap<UpdateContext, URI>());
 
 	public AuditingConnection(AuditingSail sail, SailConnection wrappedCon) {
@@ -103,6 +104,14 @@ public class AuditingConnection extends SailConnectionWrapper {
 		subject = vf.createURI(RDF.SUBJECT.stringValue());
 		predicate = vf.createURI(RDF.PREDICATE.stringValue());
 		object = vf.createURI(RDF.OBJECT.stringValue());
+	}
+
+	public boolean isAuditingRemoval() {
+		return auditingRemoval;
+	}
+
+	public void setAuditingRemoval(boolean auditingRemoval) {
+		this.auditingRemoval = auditingRemoval;
 	}
 
 	@Override
@@ -130,7 +139,7 @@ public class AuditingConnection extends SailConnectionWrapper {
 			Value obj, Resource... ctx) throws SailException {
 		Dataset ds = uc.getDataset();
 		URI bundle = ds.getDefaultInsertGraph();
-		if (bundle == null) {
+		if (bundle == null || !isAuditingRemoval()) {
 			super.removeStatement(uc, subj, pred, obj, ctx);
 		} else {
 			QueryModelNode node = uc.getUpdateExpr();

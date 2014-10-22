@@ -45,8 +45,11 @@ calli.postForm = function(form) {
                 }
             });
             form.target = iframe.name;
-            form.submit();
-            form.target = finalTarget;
+            calli.sleep(0).then(function(){
+                // give chrome a chance to notice the new target value
+                form.submit();
+                form.target = finalTarget;
+            });
         }).then(function(redirect){
             if (redirect && redirect.indexOf('http') === 0) {
                 $(iframe).remove();

@@ -170,8 +170,11 @@ public class AsyncRequestHandler implements HttpAsyncRequestHandlerMapper,
 		if (context == null)
 			return LOCALHOST;
 		HttpConnection con = HttpCoreContext.adapt(context).getConnection();
-		if (con instanceof HttpInetConnection)
-			return ((HttpInetConnection) con).getRemoteAddress();
+		if (con instanceof HttpInetConnection) {
+			InetAddress remoteAddress = ((HttpInetConnection) con).getRemoteAddress();
+			if (remoteAddress != null)
+				return remoteAddress;
+		}
 		return LOCALHOST;
 	}
 

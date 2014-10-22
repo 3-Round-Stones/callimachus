@@ -57,7 +57,7 @@ public class SqlDatasourceIntegrationTest extends TemporaryServerIntegrationTest
 		if (200 == datasource.ref("?table=TESTDATA").headCode()) {
 			datasource.ref("?table=TESTDATA").delete();
 		}
-		datasource.link("describedby").delete();
+		datasource.rel("describedby").delete();
 		super.tearDown();
 	}
 
@@ -79,7 +79,6 @@ public class SqlDatasourceIntegrationTest extends TemporaryServerIntegrationTest
 		StringBuilder sb = new StringBuilder();
 		sb.append("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n");
 		sb.append("PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>\n");
-		sb.append("INSERT DATA {\n");
 		sb.append("<").append(slug).append(">");
 		sb.append(" a calli:SqlDatasource, </callimachus/1.4/types/SqlDatasource>;\n");
 		sb.append("rdfs:label \"").append(slug).append("\";\n");
@@ -88,9 +87,8 @@ public class SqlDatasourceIntegrationTest extends TemporaryServerIntegrationTest
 		sb.append("calli:maxWait 1;\n");
 		sb.append("calli:jdbcUrl \"").append(JDBC_URL).append("\";\n");
 		sb.append("calli:driverClassName \"").append(DRIVER_CLASSNAME).append("\";\n");
-		sb.append("calli:driverJar <").append(jar).append(">\n");
-		sb.append("}");
-		return getHomeFolder().link("describedby").create("application/sparql-update", sb.toString().getBytes("UTF-8"));
+		sb.append("calli:driverJar <").append(jar).append(">.\n");
+		return getHomeFolder().rel("describedby").create("text/turtle", sb.toString().getBytes("UTF-8")).rev("describedby");
 	}
 
 	@Test
@@ -202,18 +200,16 @@ public class SqlDatasourceIntegrationTest extends TemporaryServerIntegrationTest
 		StringBuilder sb = new StringBuilder();
 		sb.append("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n");
 		sb.append("PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>\n");
-		sb.append("INSERT DATA {\n");
 		sb.append("<").append("testdata").append(">");
 		sb.append(" a calli:Purl, </callimachus/1.4/types/Purl>;\n");
 		sb.append("rdfs:label \"").append("testdata").append("\";\n");
 		sb.append("calli:copy \"\"\"").append(copy.replace("\\", "\\\\")).append("\"\"\";");
-		sb.append("calli:post \"\"\"").append(post.replace("\\", "\\\\")).append("\"\"\"");
-		sb.append("}");
-		WebResource testdata = getHomeFolder().link("describedby").create("application/sparql-update", sb.toString().getBytes("UTF-8"));
+		sb.append("calli:post \"\"\"").append(post.replace("\\", "\\\\")).append("\"\"\".");
+		WebResource testdata = getHomeFolder().rel("describedby").create("text/turtle", sb.toString().getBytes("UTF-8")).rev("describedby");
 		String foo = datasource.toString();
 		testdata.ref("?id=1&foo=" + URLEncoder.encode(foo, "UTF-8") + "&bar=1").post();
 		assertEquals("id,foo,bar\r\n1," + foo + ",1\r\n", new String(testdata.get("*/*"), "UTF-8"));
-		testdata.link("describedby").delete();
+		testdata.rel("describedby").delete();
 	}
 
 }

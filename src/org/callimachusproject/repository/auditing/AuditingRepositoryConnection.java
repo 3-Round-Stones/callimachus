@@ -38,6 +38,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.callimachusproject.repository.auditing.helpers.BasicGraphPatternVisitor;
+import org.callimachusproject.sail.auditing.AuditingConnection;
 import org.openrdf.model.BNode;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Resource;
@@ -68,9 +69,13 @@ import org.openrdf.query.algebra.Var;
 import org.openrdf.query.parser.ParsedUpdate;
 import org.openrdf.query.parser.QueryParser;
 import org.openrdf.query.parser.QueryParserUtil;
+import org.openrdf.repository.DelegatingRepositoryConnection;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.contextaware.ContextAwareConnection;
+import org.openrdf.repository.sail.SailRepositoryConnection;
+import org.openrdf.sail.SailConnection;
+import org.openrdf.sail.helpers.SailConnectionWrapper;
 
 /**
  * RepositoryConnection that exposes the activityFactory property for a connection.
@@ -163,8 +168,9 @@ public class AuditingRepositoryConnection extends ContextAwareConnection {
 		return auditingRemoval;
 	}
 
-	public void setAuditingRemoval(boolean auditingRemoval) {
+	public void setAuditingRemoval(boolean auditingRemoval) throws RepositoryException {
 		this.auditingRemoval = auditingRemoval;
+		setAuditingRemoval(getDelegate(), auditingRemoval);
 	}
 
 	@Override
@@ -338,6 +344,26 @@ public class AuditingRepositoryConnection extends ContextAwareConnection {
 			executeDelete(subject, predicate, object);
 		} else {
 			getDelegate().remove(subject, predicate, object, contexts);
+		}
+	}
+
+	private void setAuditingRemoval(RepositoryConnection delegate,
+			boolean auditingRemoval) throws RepositoryException {
+		if (delegate instanceof AuditingRepositoryConnection) {
+			((AuditingRepositoryConnection) delegate).setAuditingRemoval(auditingRemoval);
+		} else if (delegate instanceof DelegatingRepositoryConnection) {
+			setAuditingRemoval(((DelegatingRepositoryConnection) delegate).getDelegate(), auditingRemoval);
+		} else if (delegate instanceof SailRepositoryConnection) {
+			setAuditingRemoval(((SailRepositoryConnection) delegate).getSailConnection(), auditingRemoval);
+		}
+	}
+
+	private void setAuditingRemoval(SailConnection delegate,
+			boolean auditingRemoval) {
+		if (delegate instanceof AuditingConnection) {
+			((AuditingConnection) delegate).setAuditingRemoval(auditingRemoval);
+		} else if (delegate instanceof SailConnectionWrapper) {
+			setAuditingRemoval(((SailConnectionWrapper) delegate).getWrappedConnection(), auditingRemoval);
 		}
 	}
 

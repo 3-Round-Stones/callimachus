@@ -31,6 +31,13 @@ public class FluidTypeTest extends TestCase {
 	}
 
 	public void testQuality() throws Exception {
+		FluidType acceptable = new FluidType(HttpEntity.class, "text/html", "application/xhtml+xml", "image/webp", "application/xml", "*/*");
+		FluidType rdf = acceptable.as(new FluidType(HttpEntity.class, "text/turtle;q=0.06", "application/ld+json;q=0.04", "application/rdf+xml;q=0.02"));
+		FluidType turtle = acceptable.as(new FluidType(HttpEntity.class, "text/turtle"));
+		assertTrue(turtle.getQuality() > rdf.getQuality());
+	}
+
+	public void testPreferred() throws Exception {
 		FluidType acceptable = new FluidType(HttpEntity.class, "text/html", "application/xhtml+xml", "message/x-response");
 		FluidType possible = new FluidType(HttpEntity.class, "text/html", "application/xml", "text/csv", "text/tab-separated-values", "text/xml");
 		assertEquals("text/html", possible.as(acceptable).preferred());

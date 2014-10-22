@@ -98,6 +98,7 @@ public class AuditingRepositoryFactory extends ContextAwareFactory {
 		repo.setMaxRecent(config.getMaxRecent());
 		repo.setPurgeAfter(config.getPurgeAfter());
 		repo.setTransactional(config.getTransactional());
+		repo.setAuditingRemoval(config.isAuditingRemoval());
 		return repo;
 	}
 

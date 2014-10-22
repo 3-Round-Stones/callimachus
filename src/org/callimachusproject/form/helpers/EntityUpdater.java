@@ -25,7 +25,10 @@ import java.util.Set;
 import org.callimachusproject.engine.RDFEventReader;
 import org.callimachusproject.engine.RDFParseException;
 import org.callimachusproject.engine.events.TriplePattern;
+import org.callimachusproject.engine.helpers.SparqlUpdateFactory;
+import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.server.exceptions.BadRequest;
+import org.callimachusproject.server.exceptions.Conflict;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
@@ -44,14 +47,16 @@ import org.openrdf.rio.RDFHandlerException;
 public class EntityUpdater {
 	private final TripleAnalyzer analyzer = new TripleAnalyzer();
 	private final URI entity;
+	private final String base;
 	private final boolean components;
 
-	public EntityUpdater(URI entity) {
-		this(entity, false);
+	public EntityUpdater(URI entity, String base) {
+		this(entity, base, false);
 	}
 
-	public EntityUpdater(URI entity, boolean components) {
+	public EntityUpdater(URI entity, String base, boolean components) {
 		this.entity = entity;
+		this.base = TermFactory.newInstance(entity.stringValue()).resolve(base);
 		this.components = components;
 		if (!components) {
 			analyzer.addSubject(entity);
@@ -92,6 +97,16 @@ public class EntityUpdater {
 		return analyzer.getTypes(subject);
 	}
 
+	public void executeReplacement(GraphQueryResult deleteData,
+			GraphQueryResult insertData, ObjectConnection con)
+			throws IOException, OpenRDFException {
+		SparqlUpdateFactory factory = new SparqlUpdateFactory(base);
+		String sparql = factory.replacement(deleteData, insertData);
+		analyzer.analyzeUpdate(sparql, base);
+		verify();
+		executeUpdate(sparql, con);
+	}
+
 	public void executeUpdate(InputStream in, ObjectConnection con)
 			throws OpenRDFException, IOException {
 		String sparqlUpdate = parseUpdate(in);
@@ -100,14 +115,14 @@ public class EntityUpdater {
 
 	public String parseUpdate(InputStream in) throws OpenRDFException,
 			IOException {
-		String ret = analyzer.parseUpdate(in, entity.stringValue());
+		String ret = analyzer.parseUpdate(in, base);
 		verify();
 		return ret;
 	}
 
 	public void analyzeUpdate(String input)
 			throws MalformedQueryException, RDFHandlerException {
-		analyzer.analyzeUpdate(input, entity.stringValue());
+		analyzer.analyzeUpdate(input, base);
 		verify();
 	}
 
@@ -136,7 +151,7 @@ public class EntityUpdater {
 				if (local.indexOf('/') >= 0)
 					throw new BadRequest("Can only created nested components here");
 			} else {
-				throw new BadRequest("Wrong Subject: " + analyzer.getSubject());
+				throw new BadRequest("Wrong Resource");
 			}
 		}
 		if (!analyzer.isSingleton())
@@ -145,6 +160,8 @@ public class EntityUpdater {
 			throw new BadRequest("Blank nodes must be connected");
 		if (analyzer.isComplicated())
 			throw new BadRequest("Only basic graph patterns are permitted");
+		if (analyzer.isContainmentTriplePresent())
+			throw new Conflict("ldp:contains is prohibited");
 	}
 
 	private Set<Resource> selectBlankNodes(TripleAnalyzer analyzer,

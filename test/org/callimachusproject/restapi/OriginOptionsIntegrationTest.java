@@ -25,7 +25,7 @@ public class OriginOptionsIntegrationTest extends TemporaryServerIntegrationTest
 	}
 	
 	public void test() throws Exception {
-		assertNotNull(getHomeFolder().link("contents", "application/atom+xml"));
+		assertNotNull(getHomeFolder().rel("contents", "application/atom+xml"));
 	}
 
 }

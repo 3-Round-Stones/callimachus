@@ -220,7 +220,7 @@ public class Request extends EditableHttpEntityEnclosingRequest {
 		String host = getHeader("Host");
 		if (host != null)
 			return host.toLowerCase();
-		throw new BadRequest("Missing Host Header");
+		throw new BadRequest("Missing Host Header for request-uri: " + uri);
 	}
 
 	public String getScheme() {

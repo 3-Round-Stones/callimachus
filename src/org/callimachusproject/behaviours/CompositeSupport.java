@@ -19,23 +19,68 @@ package org.callimachusproject.behaviours;
 import java.io.BufferedInputStream;
 import java.io.FilterInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Set;
 
 import org.callimachusproject.auth.AuthorizationManager;
 import org.callimachusproject.engine.model.TermFactory;
+import org.callimachusproject.form.helpers.TripleInserter;
+import org.callimachusproject.server.exceptions.BadRequest;
+import org.callimachusproject.server.exceptions.Conflict;
 import org.callimachusproject.traits.CalliObject;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.repository.RepositoryException;
+import org.openrdf.repository.object.ObjectConnection;
+import org.openrdf.repository.object.ObjectFactory;
 import org.openrdf.repository.object.RDFObject;
+import org.openrdf.repository.util.RDFInserter;
 import org.openrdf.rio.RDFFormat;
+import org.openrdf.rio.RDFHandler;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParseException;
 import org.openrdf.rio.RDFParser;
 import org.openrdf.rio.RDFParserRegistry;
 import org.openrdf.rio.helpers.RDFHandlerBase;
+import org.openrdf.rio.helpers.RDFHandlerWrapper;
 
 public abstract class CompositeSupport implements CalliObject {
+
+	public Object insertComponentGraph(InputStream in, String type, String uri,
+			RDFHandler collector) throws OpenRDFException, IOException {
+		try {
+			ObjectConnection con = this.getObjectConnection();
+			RDFHandler handler = new RDFInserter(con);
+			if (collector != null) {
+				handler = new RDFHandlerWrapper(handler, collector);
+			}
+			TripleInserter tracker = new TripleInserter(handler, con);
+			tracker.parseAndInsert(in, type, uri);
+			if (tracker.isEmpty())
+				throw new BadRequest("Missing Information");
+			if (!tracker.isSingleton())
+				throw new BadRequest("Wrong Subject");
+			if (tracker.isDisconnectedNodePresent())
+				throw new BadRequest("Blank nodes must be connected");
+			if (tracker.isContainmentTriplePresent())
+				throw new Conflict("ldp:contains is prohibited");
+			URI created = tracker.getPrimaryTopic();
+
+			ObjectFactory of = con.getObjectFactory();
+			for (URI partner : tracker.getPartners()) {
+				if (!partner.toString().equals(uri)) {
+					of.createObject(partner, CalliObject.class).touchRevision();
+				}
+			}
+			Set<URI> types = tracker.getTypes(created);
+			return of.createObject(created, types);
+		} catch (RDFHandlerException e) {
+			throw new BadRequest(e);
+		} finally {
+			in.close();
+		}
+	}
 
 	public boolean isAuthorized(String user, RDFObject target, String[] roles)
 			throws RepositoryException, OpenRDFException {

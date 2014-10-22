@@ -84,22 +84,22 @@ public class AlternativeHandler implements ClientExecChain {
 	private HttpUriResponse findAlternate(HttpRequest request, HttpContext context) {
 		ResourceOperation req = CalliContext.adapt(context).getResourceTransaction();
 		String m = req.getMethod();
-		if (req.getOperation() != null
-				|| !("GET".equals(m) || "HEAD".equals(m)))
+		if (!"GET".equals(m) && !"HEAD".equals(m))
 			return null;
 		Method operation;
-		if ((operation = req.getAlternativeMethod("alternate")) != null) {
+		if (req.getOperation() != null && req.findMethodHandlers().isEmpty()) {
+			return new ResponseBuilder(request, context).notFound(req.getRequestURL());
+		} else if (req.getOperation() != null) {
+			return null;
+		} else if ((operation = req.getAlternativeMethod("alternate")) != null) {
 			String loc = req.getRequestURI() + "?" + getQuery(operation);
 			return new ResponseBuilder(request, context).found(loc);
 		} else if ((operation = req.getAlternativeMethod("describedby")) != null) {
 			String loc = req.getRequestURI() + "?" + getQuery(operation);
 			return new ResponseBuilder(request, context).see(loc);
-		} else if (req.getOperation() == null && ("GET".equals(m) || "HEAD".equals(m))) {
-			return new ResponseBuilder(request, context).notFound(req.getRequestURL());
-		} else if (req.findMethodHandlers().isEmpty() && ("GET".equals(m) || "HEAD".equals(m))) {
+		} else {
 			return new ResponseBuilder(request, context).notFound(req.getRequestURL());
 		}
-		return null;
 	}
 
 	private String getQuery(Method operation) {

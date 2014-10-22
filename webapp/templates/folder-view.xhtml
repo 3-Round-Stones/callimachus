@@ -13,7 +13,7 @@
     <link rel="edit-form" href="?edit" />
     <link rel="comments" href="?discussion" />
     <link rel="version-history" href="?history" />
-    <link rel="help" href="../../callimachus-for-web-developers#Folder" target="_blank" title="Help" />
+    <link rel="help" href="../../getting-started-with-callimachus#Folder" target="_blank" title="Help" />
     <link id="folder-tour" href="../scripts/folder-tour?minified" />
     <link rel="help" href="#" onclick="$.getScript($('#folder-tour').attr('href'))" title="Tour the Folder view" />
     <link id="file-class-link" href="../types/File" />
@@ -48,11 +48,13 @@
         <div id="folder-box" class="panel panel-default" dropzone="copy">
             <div class="panel-heading">
                 <span class="hidden-logout">
-                    <nav class="pull-left dropdown btn-group">
-                        <a id="create-menu" href="javascript:void(0)" class="btn btn-sm btn-danger" title="Create menu" data-toggle="dropdown">Create<i class="glyphicon" style="width:0px"></i></a>
-                        <ul id="create-menu-more" class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
-                        </ul>
-                        <a id="file-create" href="../types/File" class="btn btn-sm btn-icon btn-danger" title="Upload file"><i class="glyphicon glyphicon-upload"></i></a>
+                    <nav class="pull-left">
+                        <span class="dropdown">
+                            <a id="create-menu" href="javascript:void(0)" class="btn btn-sm btn-danger" title="Create menu" data-toggle="dropdown">Create <span class="caret"></span></a>
+                            <ul id="create-menu-more" class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
+                            </ul>
+                        </span>
+                        <a id="file-create" href="../types/File" class="btn btn-sm btn-icon btn-danger" title="Upload file">Upload <i class="glyphicon glyphicon-open"></i></a>
                     </nav>
                 </span>
                 <h3 class="panel-title text-center btn-sm">

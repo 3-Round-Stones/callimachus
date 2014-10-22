@@ -51,6 +51,7 @@
     calli:type "application/xproc+xml";
     calli:header "cache-control:no-cache";
     calli:header "cache-control:cache-range";
+    calli:header "Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
     calli:script "return this.openInputStream()".
 
 # POST ?create=/callimachus/Pipeline

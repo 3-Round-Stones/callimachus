@@ -141,11 +141,11 @@ if [ -z "$JAVA_HOME" ] ; then
   fi
 fi
 
-if [ -z "$JDK_HOME" -a -x "$JAVA_HOME/../lib/tools.jar" ]; then
+if [ -z "$JDK_HOME" -a -r "$JAVA_HOME/../lib/tools.jar" ]; then
   JDK_HOME="$JAVA_HOME/.."
-elif [ -z "$JDK_HOME" -a -x "$JAVA_HOME/lib/tools.jar" ]; then
+elif [ -z "$JDK_HOME" -a -r "$JAVA_HOME/lib/tools.jar" ]; then
   JDK_HOME="$JAVA_HOME"
-elif [ -z "$JDK_HOME" -a -x "$JAVA_HOME/../Classes/classes.jar" ]; then
+elif [ -z "$JDK_HOME" -a -r "$JAVA_HOME/../Classes/classes.jar" ]; then
   JDK_HOME="$JAVA_HOME"
 fi
 

@@ -68,7 +68,7 @@ import org.openrdf.repository.RepositoryException;
 
 public class Template {
 	private static final Pattern PROLOGUE = Pattern.compile("BASE\\s*<([^>\\s]*)>|PREFIX\\s+([^:\\s]*)\\s*:\\s*<([^>\\s]*)>|\\#(.*)[\r\n]", Pattern.CASE_INSENSITIVE);
-	private static final Pattern SELECT = Pattern.compile("\\s*(?:#.*(?:$|\n|\r)\\s*)*SELECT\\s+\\?([^\\{\\s]*)\\s*(?:WHERE\\s*)?\\{", Pattern.CASE_INSENSITIVE);
+	private static final Pattern SELECT = Pattern.compile("\\s*(?:#.*(?:$|\n|\r)\\s*)*SELECT\\s+(?:REDUCED\\s+|DISTINCT\\s+)?\\?([^\\{\\s]*)\\s*(?:WHERE\\s*)?\\{", Pattern.CASE_INSENSITIVE);
 	private final TermFactory systemId;
 	private final XMLEventList source;
 

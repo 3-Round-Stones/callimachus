@@ -48,14 +48,14 @@ INSERT {
 };
 
 INSERT {
-	$origin calli:authentication ?digest, ?yahoo, ?google;
+	$origin calli:authentication ?digest;
 		calli:hasComponent ?auth .
 	?auth a <types/Folder>, calli:Folder;
 	    rdfs:label "auth";
 		calli:reader </auth/groups/public>;
 		calli:subscriber </auth/groups/everyone>;
 	    calli:administrator </auth/groups/admin>;
-	    calli:hasComponent ?digest, ?yahoo, ?google .
+	    calli:hasComponent ?digest .
 	?digest a <types/DigestManager>, calli:DigestManager, calli:AuthenticationManager;
 		rdfs:label "Digest accounts";
 		rdfs:comment "Sign in with your email address and a site password";
@@ -65,24 +65,6 @@ INSERT {
 		calli:authButton <../digest_64.png>;
 		calli:authName ?name;
 		calli:authNamespace ?space .
-	?yahoo a <types/OpenIDManager>, calli:OpenIDManager, calli:AuthenticationManager;
-		rdfs:label "Yahoo! accounts";
-		rdfs:comment "Sign in with your Yahoo! account";
-		calli:reader </auth/groups/public>;
-		calli:subscriber </auth/groups/everyone>;
-		calli:administrator </auth/groups/admin>;
-		calli:authButton <../yahoo_64.png>;
-		calli:openIdEndpointUrl "https://open.login.yahooapis.com/openid/op/auth";
-		calli:openIdRealm ?realmPattern .
-	?google a <types/OpenIDManager>, calli:OpenIDManager, calli:AuthenticationManager;
-		rdfs:label "Google accounts";
-		rdfs:comment "Sign in with your Google account";
-		calli:reader </auth/groups/public>;
-		calli:subscriber </auth/groups/everyone>;
-		calli:administrator </auth/groups/admin>;
-		calli:authButton <../google_64.png>;
-		calli:openIdEndpointUrl "https://www.google.com/accounts/o8/ud";
-		calli:openIdRealm ?realmPattern .
 } WHERE {
 	{
 		</> calli:authentication [calli:authName ?name; calli:authNamespace ?space]
@@ -93,8 +75,6 @@ INSERT {
 	}
 	BIND (iri(concat(str($origin),"auth/")) AS ?auth)
 	BIND (iri(concat(str($origin),"auth/digest+accounts")) AS ?digest)
-	BIND (iri(concat(str($origin),"auth/yahoo+accounts")) AS ?yahoo)
-	BIND (iri(concat(str($origin),"auth/google+accounts")) AS ?google)
 	BIND (str($origin) AS ?realmPattern)
 	FILTER NOT EXISTS { $origin calli:hasComponent ?auth }
 };

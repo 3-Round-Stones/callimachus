@@ -7,65 +7,10 @@
     xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
     <title resource="?this">{rdfs:label} Permissions</title>
-    <link rel="help" href="../../callimachus-for-web-developers#Permissions" target="_blank" title="Help" />
-    <script type="text/javascript"><![CDATA[
-    (function($) {
-        var xhr = $.ajax({type:'GET', url:'?rdftype'});
-        calli.resolve(xhr).then(function(text) {
-            jQuery(function($) {
-                var list = text.split('\r\n');
-                var calli = "http://callimachusproject.org/rdf/2009/framework#";
-                if (text.indexOf('types/Creatable') < 0) {
-                    $('.creatable').hide();
-                }
-                if (jQuery.inArray('http://www.w3.org/2002/07/owl#Class', list) >= 0) {
-                    $('.class').show();
-                    $('.private').show();
-                } else {
-                    $('.class').hide();
-                    var control = xhr.getResponseHeader('Cache-Control');
-                    if (control && control.indexOf('public') >= 0) {
-                        $('.private').hide();
-                    }
-                }
-                if (jQuery.inArray(calli + 'Composite', list) >= 0) {
-                    $('.composite').show();
-                } else {
-                    $('.composite').hide();
-                }
-            });
-        }).then(undefined, calli.error);
-    })(jQuery);
-    jQuery(function($) {
-        $('.party:empty').each(function(){
-            $(this).text($(this).parent().attr('resource'));
-        });
-        var comparison = calli.copyResourceData('#form');
-        $('#form').submit(function(event){
-            event.preventDefault();
-            var form = this;
-            var btn = $(form).find('button[type="submit"]');
-            btn.button('loading');
-            return calli.resolve(form).then(function(form){
-                return calli.copyResourceData(form);
-            }).then(function(insertData){
-                var action = calli.getFormAction(form);
-                return calli.postUpdate(action, comparison, insertData);
-            }).then(function(redirect){
-                if (window.parent != window) {
-                    window.parent.postMessage('POST close', '*');
-                }
-                setTimeout(function(){
-                    window.location = $('body').attr('resource') + '?view';
-                }, 500);
-            }, function(error){
-                btn.button('reset');
-                return calli.error(error);
-            });
-        })
-    });
-    // ]]>
-    </script>
+    <link rel="help" href="../../callimachus-for-administrators#Permissions" target="_blank" title="Help" />
+    <link id="party-search" href="../queries/party-search.rq?results&amp;tqx=out:sparql-json&amp;q={q}" />
+    <link id="party-lookup" href="../queries/party-search.rq?results&amp;tqx=out:sparql-json&amp;iri={iri}" />
+    <script type="text/javascript" src="../scripts/permissions.js"></script>
 </head>
 <body resource="?this">
     <form role="form" id="form" method="POST" action="" enctype="application/sparql-update" resource="?this" class="container">
@@ -74,86 +19,48 @@
                 <div class="page-header">
                     <h1><span property="rdfs:label" /> Permissions</h1>
                 </div>
-                <fieldset class="class form-group">
-                    <label for="realm">Authentication of resources of this class</label>
-                    <div id="realm">
-                        <label class="radio-inline">
-                            <input type="radio" name="realm" checked="checked" />
-                            <span>Public</span>
-                        </label>
-                        <label class="radio-inline" rel="msg:realm" resource="?realm">
-                            <input type="radio" name="realm" checked="checked" />
-                            <span rel="rdf:type" resource="http://callimachusproject.org/rdf/2009/framework#Realm">Protected</span>
-                            <span property="rdfs:label" content="?realm_label">by {?realm_label}</span>
-                        </label>
+                <fieldset id="party-fieldset" class="row">
+                    <div dropzone="link string:text/uri-list" class="form-group col-sm-4">
+                        <label for="reader">Reader</label>
+                        <select id="reader" class="form-control" multiple="multiple"
+                                onchange="calli.updateResource(event, 'calli:reader')">
+                            <option selected="selected" rel="calli:reader" resource="?reader" value="{?reader}">{rdfs:label}</option>
+                        </select>
                     </div>
-                </fieldset>
-                <fieldset class="row">
-                    <div dropzone="link string:text/uri-list" class="form-group private col-sm-4 col-md-3"
-                            ondrop="calli.insertResource(event)">
-                        <label>Reader <a href="/auth/groups/" title="Select Group"
-                                onclick="calli.selectResource(event)" class="glyphicon glyphicon-folder-open" /></label>
-                        <div rel="calli:reader">
-                            <span resource="?reader" class="label label-info">
-                                <span class="party"><span property="rdfs:label" /></span>
-                                <a href="{?reader}" title="Remove permission" onclick="calli.removeResource(event)" class="glyphicon glyphicon-remove" />
-                            </span>
-                        </div>
+                    <div dropzone="link string:text/uri-list" class="form-group col-sm-4">
+                        <label for="subscriber">Subscriber</label>
+                        <select id="subscriber" class="form-control" multiple="multiple"
+                                onchange="calli.updateResource(event, 'calli:subscriber')">
+                            <option selected="selected" rel="calli:subscriber" resource="?subscriber" value="{?subscriber}">{rdfs:label}</option>
+                        </select>
                     </div>
-                    <div dropzone="link string:text/uri-list" class="form-group col-sm-4 col-md-3"
-                            ondrop="calli.insertResource(event)">
-                        <label>Subscriber <a href="/auth/groups/" title="Select Group"
-                                onclick="calli.selectResource(event)" class="glyphicon glyphicon-folder-open" /></label>
-                        <div rel="calli:subscriber">
-                            <span resource="?subscriber" class="label label-info">
-                                <span class="party"><span property="rdfs:label" /></span>
-                                <a href="{?subscriber}" title="Remove permission" onclick="calli.removeResource(event)" class="glyphicon glyphicon-remove" />
-                            </span>
-                        </div>
+                    <div dropzone="link string:text/uri-list" class="form-group col-sm-4">
+                        <label for="author">Author</label>
+                        <select id="author" class="form-control" multiple="multiple"
+                                onchange="calli.updateResource(event, 'calli:author')">
+                            <option selected="selected" rel="calli:author" resource="?author" value="{?author}">{rdfs:label}</option>
+                        </select>
                     </div>
-                    <div class="creatable form-group col-sm-4 col-md-3" dropzone="link string:text/uri-list"
-                            ondrop="calli.insertResource(event)">
-                        <label>Author <a href="/auth/groups/" title="Select Group"
-                                onclick="calli.selectResource(event)" class="glyphicon glyphicon-folder-open" /></label>
-                        <div rel="calli:author">
-                            <span resource="?author" class="label label-info">
-                                <span class="party"><span property="rdfs:label" /></span>
-                                <a href="{?author}" title="Remove permission" onclick="calli.removeResource(event)" class="glyphicon glyphicon-remove" />
-                            </span>
-                        </div>
+                    <div dropzone="link string:text/uri-list" class="form-group col-sm-4">
+                        <label for="contributor">Contributor</label>
+                        <select id="contributor" class="form-control" multiple="multiple"
+                                onchange="calli.updateResource(event, 'calli:contributor')">
+                            <option selected="selected" rel="calli:contributor" resource="?contributor" value="{?contributor}">{rdfs:label}</option>
+                        </select>
                     </div>
-                    <div class="composite class form-group col-sm-4 col-md-3" dropzone="link string:text/uri-list"
-                            ondrop="calli.insertResource(event)">
-                        <label>Contributor <a href="/auth/groups/" title="Select Group"
-                                onclick="calli.selectResource(event)" class="glyphicon glyphicon-folder-open" /></label>
-                        <div rel="calli:contributor">
-                            <span resource="?contributor" class="label label-info">
-                                <span class="party"><span property="rdfs:label" /></span>
-                                <a href="{?contributor}" title="Remove permission" onclick="calli.removeResource(event)" class="glyphicon glyphicon-remove" />
-                            </span>
-                        </div>
+                    <div dropzone="link string:text/uri-list" class="form-group col-sm-4">
+                        <label for="editor">Editor</label>
+                        <select id="editor" class="form-control" multiple="multiple"
+                                onchange="calli.updateResource(event, 'calli:editor')">
+                            <option selected="selected" rel="calli:editor" resource="?editor" value="{?editor}">{rdfs:label}</option>
+                        </select>
                     </div>
-                    <div dropzone="link string:text/uri-list" class="form-group col-sm-4 col-md-3"
-                            ondrop="calli.insertResource(event)">
-                        <label>Editor <a href="/auth/groups/" title="Select Group"
-                                onclick="calli.selectResource(event)" class="glyphicon glyphicon-folder-open" /></label>
-                        <div rel="calli:editor">
-                            <span resource="?editor" class="label label-info">
-                                <span class="party"><span property="rdfs:label" /></span>
-                                <a href="{?editor}" title="Remove permission" onclick="calli.removeResource(event)" class="glyphicon glyphicon-remove" />
-                            </span>
-                        </div>
-                    </div>
-                    <div dropzone="link string:text/uri-list" class="form-group col-sm-4 col-md-3"
-                            ondrop="calli.insertResource(event)">
-                        <label>Administrator <a href="/auth/groups/" title="Select Group"
-                                onclick="calli.selectResource(event)" class="glyphicon glyphicon-folder-open" /></label>
-                        <div rel="calli:administrator">
-                            <span resource="?administrator" class="label label-info">
-                                <span class="party"><span property="rdfs:label" /></span>
-                                <a href="{?administrator}" title="Remove permission" onclick="calli.removeResource(event)" class="glyphicon glyphicon-remove" />
-                            </span>
-                        </div>
+                    <div dropzone="link string:text/uri-list" class="form-group col-sm-4">
+                        <label for="administrator">Administrator</label>
+                        <select id="administrator" class="form-control" multiple="multiple"
+                                onchange="calli.updateResource(event, 'calli:administrator')">
+                            <option selected="selected" rel="calli:administrator" resource="?administrator" value="{?administrator}">{rdfs:label}</option>
+                        </select>
                     </div>
                 </fieldset>
                 <fieldset class="form-group">

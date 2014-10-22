@@ -28,9 +28,6 @@
  */
 package org.callimachusproject.server.exceptions;
 
-import org.apache.http.Header;
-import org.apache.http.message.BasicHeader;
-
 /**
  * The 429 status code indicates that the user has sent too many requests in a
  * given amount of time ("rate limiting").
@@ -41,34 +38,28 @@ import org.apache.http.message.BasicHeader;
  */
 public class TooManyRequests extends ResponseException {
 	private static final long serialVersionUID = -3593948846440460801L;
-	private final int after;
 
 	public TooManyRequests(int after) {
 		super("Too Many Requests");
-		this.after = after;
+		if (after > 0) {
+			addHeader("Retry-After", Integer.toString(after));
+		}
 	}
 
 	public TooManyRequests(String message, int after) {
 		super(message);
-		this.after = after;
+		if (after > 0) {
+			addHeader("Retry-After", Integer.toString(after));
+		}
 	}
 
 	public TooManyRequests(String message, String stack) {
 		super(message, stack);
-		this.after = 0;
 	}
 
 	@Override
 	public int getStatusCode() {
 		return 429;
-	}
-
-	@Override
-	public Header[] getResponseHeaders() {
-		if (after > 0)
-			return new Header[] { new BasicHeader("Retry-After",
-					Integer.toString(after)) };
-		return super.getResponseHeaders();
 	}
 
 }

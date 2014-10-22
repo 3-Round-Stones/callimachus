@@ -104,6 +104,22 @@ public class RDFEvent {
 		return isEnd() && this instanceof Where;
 	}
 
+	public boolean isStartInsert() {
+		return isStart() && this instanceof Insert;
+	}
+
+	public boolean isEndInsert() {
+		return isEnd() && this instanceof Insert;
+	}
+
+	public boolean isStartDeleteWhere() {
+		return isStart() && this instanceof DeleteWhere;
+	}
+
+	public boolean isEndDeleteWhere() {
+		return isEnd() && this instanceof DeleteWhere;
+	}
+
 	public boolean isStartExists() {
 		return isStart() && this instanceof Exists;
 	}

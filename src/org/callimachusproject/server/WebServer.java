@@ -52,6 +52,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLEngine;
+import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLSession;
 
 import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
@@ -85,6 +88,8 @@ import org.apache.http.nio.protocol.HttpAsyncService;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 import org.apache.http.nio.reactor.IOReactorStatus;
+import org.apache.http.nio.reactor.IOSession;
+import org.apache.http.nio.reactor.ssl.SSLSetupHandler;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
 import org.apache.http.protocol.BasicHttpContext;
@@ -95,6 +100,7 @@ import org.apache.http.protocol.ResponseConnControl;
 import org.apache.http.protocol.ResponseContent;
 import org.apache.http.protocol.ResponseDate;
 import org.apache.http.util.EntityUtils;
+import org.apache.http.util.TextUtils;
 import org.callimachusproject.Version;
 import org.callimachusproject.client.HttpUriResponse;
 import org.callimachusproject.concurrent.ManagedExecutors;
@@ -116,10 +122,10 @@ import org.callimachusproject.server.chain.MD5ValidationFilter;
 import org.callimachusproject.server.chain.ModifiedSinceHandler;
 import org.callimachusproject.server.chain.NotFoundHandler;
 import org.callimachusproject.server.chain.OptionsHandler;
+import org.callimachusproject.server.chain.PingOptionsHandler;
 import org.callimachusproject.server.chain.ResponseExceptionHandler;
 import org.callimachusproject.server.chain.SecureChannelFilter;
 import org.callimachusproject.server.chain.ServerNameFilter;
-import org.callimachusproject.server.chain.PingOptionsHandler;
 import org.callimachusproject.server.chain.TransactionHandler;
 import org.callimachusproject.server.chain.UnmodifiedSinceHandler;
 import org.callimachusproject.server.exceptions.BadGateway;
@@ -708,9 +714,11 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 				int rp = inet.getRemotePort();
 				InetAddress la = inet.getLocalAddress();
 				int lp = inet.getLocalPort();
-				InetSocketAddress remote = new InetSocketAddress(ra, rp);
-				InetSocketAddress local = new InetSocketAddress(la, lp);
-				bean.setStatus(bean.getStatus() + " " + remote + "->" + local);
+				if (ra != null && la != null) {
+					InetSocketAddress remote = new InetSocketAddress(ra, rp);
+					InetSocketAddress local = new InetSocketAddress(la, lp);
+					bean.setStatus(bean.getStatus() + " " + remote + "->" + local);
+				}
 			}
 			HttpRequest req = conn.getHttpRequest();
 			if (req != null) {
@@ -786,8 +794,40 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 		ConnectionConfig params = getDefaultConnectionConfig();
 		handler = createProtocolHandler(getHttpProcessor("https"), service);
 		DefaultHttpRequestParserFactory rparser = new DefaultHttpRequestParserFactory(null, requestFactory);
-		factory = new SSLNHttpServerConnectionFactory(sslcontext, null, rparser, null, allocator, params);
+		factory = new SSLNHttpServerConnectionFactory(sslcontext, getSSLSetupHandler(), rparser, null, allocator, params);
 		return new DefaultHttpServerIODispatch(handler, factory);
+	}
+
+	private SSLSetupHandler getSSLSetupHandler() {
+		return new SSLSetupHandler() {
+			private final String[] supportedProtocols = split(System
+					.getProperty("https.protocols"));
+			private final String[] supportedCipherSuites = split(System
+					.getProperty("https.cipherSuites"));
+
+			@Override
+			public void verify(IOSession iosession, SSLSession sslsession)
+					throws SSLException {
+				// no-op
+			}
+
+			@Override
+			public void initalize(SSLEngine sslengine) throws SSLException {
+				if (supportedProtocols != null) {
+					sslengine.setEnabledProtocols(supportedProtocols);
+				}
+				if (supportedCipherSuites != null) {
+					sslengine.setEnabledCipherSuites(supportedCipherSuites);
+				}
+			}
+
+			private String[] split(final String s) {
+				if (TextUtils.isBlank(s)) {
+					return null;
+				}
+				return s.split(" *, *");
+			}
+		};
 	}
 
 	private ImmutableHttpProcessor getHttpProcessor(final String protocol) {
@@ -827,6 +867,7 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 		// Create server-side HTTP protocol handler
 		HttpAsyncService protocolHandler = new HttpAsyncService(httpproc,
 				service) {
+			private final Logger logger = LoggerFactory.getLogger(WebServer.class);
 	
 			@Override
 			public void connected(final NHttpServerConnection conn) {
@@ -843,7 +884,30 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 				}
 				super.closed(conn);
 			}
-	
+
+			@Override
+			public void exception(NHttpServerConnection conn, Exception cause) {
+				try {
+					if (cause.getClass().equals(IOException.class)) {
+						logger.warn(cause.toString());
+					} else {
+						logger.warn(cause.toString(), cause);
+					}
+					super.exception(conn, cause);
+				} finally {
+					try {
+						conn.shutdown();
+					} catch (IOException e) {
+						log(e);
+					}
+				}
+			}
+
+			@Override
+			protected void log(Exception ex) {
+				logger.warn(ex.toString(), ex);
+			}
+
 		};
 		return protocolHandler;
 	}

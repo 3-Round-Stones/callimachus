@@ -49,7 +49,7 @@ function parseRDF(parser, formSubject, form) {
         }
     });
     return {
-        base: parser.getNodeBase(form),
+        base: fixedEncodeURI(parser.getNodeBase(form)),
         prefix: parser.getMappings(),
         head: {
             link: [formSubject],
@@ -83,6 +83,10 @@ function bind(o, dt, lang) {
     } else {
         return {type:"uri", value: o};
     }
+}
+
+function fixedEncodeURI (str) {
+    return encodeURI(str).replace(/%5B/g, '[').replace(/%5D/g, ']').replace(/%25(\w\w)/g, '%$1');
 }
 
 })(jQuery);

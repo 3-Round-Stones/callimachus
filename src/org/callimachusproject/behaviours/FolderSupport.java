@@ -34,6 +34,7 @@ import org.callimachusproject.io.ProducerStream;
 import org.callimachusproject.io.ProducerStream.OutputProducer;
 import org.callimachusproject.io.TurtleStreamWriterFactory;
 import org.callimachusproject.server.exceptions.BadRequest;
+import org.callimachusproject.server.exceptions.Conflict;
 import org.openrdf.OpenRDFException;
 import org.openrdf.annotations.Bind;
 import org.openrdf.annotations.Sparql;
@@ -54,8 +55,6 @@ import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.ObjectFactory;
 import org.openrdf.repository.object.RDFObject;
 import org.openrdf.repository.object.traits.RDFObjectBehaviour;
-import org.openrdf.rio.RDFParser;
-import org.openrdf.rio.RDFParserRegistry;
 import org.openrdf.rio.RDFWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -112,12 +111,8 @@ public abstract class FolderSupport implements RDFObject, RDFObjectBehaviour, Co
 			URI graph) throws OpenRDFException, IOException {
 		TripleInserter inserter = new TripleInserter(this.getObjectConnection());
 		inserter.setGraph(graph);
-		RDFParserRegistry registry = RDFParserRegistry.getInstance();
-		RDFParser parser = registry
-				.get(registry.getFileFormatForMIMEType(type)).getParser();
-		parser.setValueFactory(this.getObjectConnection().getValueFactory());
-		parser.setRDFHandler(inserter);
-		parser.parse(entryStream, uri);
+		inserter.setIgnoringDocumentMetadata(true); // CAR resources don't distinguish document vs topic
+		inserter.parseAndInsert(entryStream, type, uri);
 		if (inserter.isEmpty())
 			throw new BadRequest("Missing resource information for: " + uri);
 		if (!inserter.isSingleton())
@@ -126,6 +121,8 @@ public abstract class FolderSupport implements RDFObject, RDFObjectBehaviour, Co
 			throw new BadRequest("Wrong subject of " + inserter.getSubject() + " for: " + uri);
 		if (inserter.isDisconnectedNodePresent())
 			throw new BadRequest("Blank nodes must be connected in: " + uri);
+		if (inserter.isContainmentTriplePresent())
+			throw new Conflict("ldp:contains is prohibited");
 	}
 
 	public Set<String> getComponentsWithExternalDependent() {

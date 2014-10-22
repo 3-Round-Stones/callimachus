@@ -240,6 +240,13 @@ declare function calli:introspect-href($a as element()) as element() {
         $a/node()
     }
 };
+declare function calli:admin-href($a as element()) as element() {
+    element {node-name($a)} {
+        attribute href {resolve-uri('../pages/invite-users.xhtml?view')},
+        $a/@*[name()!='href'],
+        $a/node()
+    }
+};
 declare function calli:login-href($a as element()) as element() {
     element {node-name($a)} {
         attribute href {concat($calli:realm,'?login')},

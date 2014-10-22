@@ -566,7 +566,7 @@
                 '   <link rel="edit-form" href="?edit" />',
                 '   <link rel="comments" href="?discussion" />',
                 '   <link rel="version-history" href="?history" />',
-                '   <link rel="help" href="' + calli.getCallimachusUrl('../callimachus-for-web-developers#Named_query') + '" target="_blank" title="Help" />',
+                '   <link rel="help" href="' + calli.getCallimachusUrl('../callimachus-reference#Named_query') + '" target="_blank" title="Help" />',
                 '   <link href="#vizeditor" title="Edit visualization" />',
                 '   <link rel="edit-media" href="?" title="Raw SPARQL file" type="application/sparql-query" />',
                 '   <link href="?results" title="Results document" type="application/sparql-results+xml" />',

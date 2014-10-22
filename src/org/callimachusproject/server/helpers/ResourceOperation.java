@@ -281,7 +281,7 @@ public class ResourceOperation {
 		if (getOperationMethods("DELETE", false).containsKey(name)) {
 			set.add("DELETE");
 		}
-		Map<String, List<Method>> map = getPostMethods(target);
+		Map<String, List<Method>> map = getPostMethods(target, name);
 		for (String method : map.keySet()) {
 			set.add(method);
 			if ("GET".equals(method)) {
@@ -479,7 +479,7 @@ public class ResourceOperation {
 		}
 		String location = request.getResolvedHeader("Content-Location");
 		if (location == null) {
-			location = request.getIRI();
+			location = request.getRequestURL();
 		} else {
 			location = createURI(location).stringValue();
 		}
@@ -733,40 +733,59 @@ public class ResourceOperation {
 		if (methods.size() == 1) {
 			return methods.iterator().next();
 		}
-		FluidType acceptable = getAcceptable();
-		Set<String> possible = new LinkedHashSet<String>();
-		for (Method m : methods) {
-			possible.addAll(getAllMimeTypesOf(m));
-		}
+		Collection<Method> filtered = filterPreferResponseType(methods);
+		if (filtered.size() == 1)
+			return filtered.iterator().next();
+		Collection<Method> submethods = filterSubMethods(filtered);
+		if (submethods.isEmpty())
+			return null;
+		Method best = findBestMethodByRequestType(submethods);
+		if (best == null)
+			return submethods.iterator().next();
+		return best;
+	}
+
+	private Collection<Method> filterSubMethods(Collection<Method> methods) {
 		Map<String, Method> map = new LinkedHashMap<String, Method>();
-		String[] mediaTypes = possible.toArray(new String[possible.size()]);
-		FluidType ftype = new FluidType(acceptable.asType(), mediaTypes);
-		String preferred = ftype.as(acceptable).preferred();
 		for (Method m : methods) {
-			possible.clear();
-			possible.addAll(getAllMimeTypesOf(m));
-			String[] media = possible.toArray(new String[possible.size()]);
-			if (preferred == null || new FluidType(acceptable.asType(), media).is(preferred)) {
-				String iri;
-				Iri ann = m.getAnnotation(Iri.class);
-				if (ann == null) {
-					iri = m.toString();
-				} else {
-					iri = ann.value();
-				}
-				map.put(iri, m);
+			String iri;
+			Iri ann = m.getAnnotation(Iri.class);
+			if (ann == null) {
+				iri = m.toString();
+			} else {
+				iri = ann.value();
 			}
+			map.put(iri, m);
 		}
-		if (map.size() == 1)
-			return map.values().iterator().next();
-		for (Method method : map.values().toArray(new Method[map.size()])) {
+		for (Method method : methods) {
 			for (String iri : getAnnotationStringValue(method, SUB_CLASS_OF)) {
 				map.remove(iri);
 			}
 		}
 		if (map.isEmpty())
-			return null;
-		return map.values().iterator().next();
+			return methods;
+		return map.values();
+	}
+
+	private Collection<Method> filterPreferResponseType(
+			Collection<Method> methods) {
+		FluidType acceptable = getAcceptable();
+		Collection<Method> filtered = new ArrayList<Method>(methods.size());
+		double quality = Double.MIN_VALUE;
+		for (Method m : methods) {
+			Collection<String> possible = getAllMimeTypesOf(m);
+			String[] media = possible.toArray(new String[possible.size()]);
+			double q = acceptable.as(new FluidType(acceptable.asType(), media))
+					.getQuality();
+			if (q > quality) {
+				quality = q;
+				filtered.clear();
+			}
+			if (q >= quality) {
+				filtered.add(m);
+			}
+		}
+		return filtered;
 	}
 
 	private String[] getAnnotationStringValue(Method method, String iri) {
@@ -804,6 +823,32 @@ public class ResourceOperation {
 			result.add("*/*");
 		}
 		return result;
+	}
+
+	private Method findBestMethodByRequestType(Collection<Method> methods) {
+		Method best = null;
+		double quality = Double.MIN_VALUE;
+		Fluid body = getBody();
+		for (Method method : methods) {
+			Type[] gtypes = method.getGenericParameterTypes();
+			Annotation[][] params = method.getParameterAnnotations();
+			for (int i=0; i<params.length; i++) {
+				Type gtype = gtypes[i];
+				Annotation[] anns = params[i];
+				if (getHeaderNames(anns) != null || getParameterNames(anns) != null)
+					continue;
+				String[] types = getParameterMediaTypes(anns);
+				if (types.length == 0)
+					continue;
+				FluidType fluidType = new FluidType(gtype, types);
+				double q = fluidType.as(body.getFluidType()).getQuality();
+				if (q > quality) {
+					quality = q;
+					best = method;
+				}
+			}
+		}
+		return best;
 	}
 
 	private Collection<Method> findAcceptableMethods(Collection<Method> methods, boolean messageBody) {
@@ -892,10 +937,17 @@ public class ResourceOperation {
 		return new String[0];
 	}
 
-	private Map<String, List<Method>> getPostMethods(RDFObject target) {
+	private Map<String, List<Method>> getPostMethods(RDFObject target, String name) {
 		Map<String, List<Method>> map = new HashMap<String, List<Method>>();
 		for (Method m : target.getClass().getMethods()) {
 			if (m.isAnnotationPresent(ParameterTypes.class))
+				continue;
+			String[] query = null;
+			if (m.isAnnotationPresent(query.class)) {
+				query = m.getAnnotation(query.class).value();
+			}
+			if (query == null && name != null || query != null
+					&& !Arrays.asList(query).contains(name))
 				continue;
 			method ann = m.getAnnotation(method.class);
 			if (ann == null) {

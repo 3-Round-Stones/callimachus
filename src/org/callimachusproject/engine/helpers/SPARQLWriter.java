@@ -54,6 +54,7 @@ public class SPARQLWriter implements Closeable, Flushable {
 			while (reader.hasNext()) {
 				writer.write(reader.next());
 			}
+			writer.close();
 			return str.toString();
 		} finally {
 			reader.close();
@@ -121,6 +122,24 @@ public class SPARQLWriter implements Closeable, Flushable {
 			indent--;
 			indent(indent);
 			writer.append("}\n");
+		} else if (event.isStartInsert()) {
+			flushInternalState();
+			indent(indent);
+			writer.append("INSERT {\n");
+			indent++;
+		} else if (event.isEndInsert()) {
+			indent--;
+			indent(indent);
+			writer.append("}\n");
+		} else if (event.isStartDeleteWhere()) {
+			flushInternalState();
+			indent(indent);
+			writer.append("DELETE WHERE {\n");
+			indent++;
+		} else if (event.isEndDeleteWhere()) {
+			indent--;
+			indent(indent);
+			writer.append("};\n");
 		} else if (event.isStartExists()) {
 			indent(indent);
 			writer.append("EXISTS {\n");

@@ -26,7 +26,7 @@
         <html>
             <head>
                 <title>Recent Changes</title>
-                <link rel="help" href="../../callimachus-for-web-developers#System_menu" target="_blank" title="Help" />
+                <link rel="help" href="../../getting-started-with-callimachus#System_menu" target="_blank" title="Help" />
                 <script type="text/javascript">
                     jQuery(function($){
                         $('h2 time').text(function(){

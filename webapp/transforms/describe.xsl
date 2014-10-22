@@ -32,7 +32,7 @@
                         <xsl:with-param name="iri" select="/rdf:RDF/rdf:Description/@rdf:about[1]"/>
                     </xsl:call-template>
                 </title>
-    <link rel="help" href="{resolve-uri('../../callimachus-for-web-developers#Describe_tab')}" target="_blank" title="Help" />
+    <link rel="help" href="{resolve-uri('../../getting-started-with-callimachus#Describe_tab')}" target="_blank" title="Help" />
                 <style>
                     ul.properties { margin-top: 0px; }
                     li.triple { list-style-type: none }

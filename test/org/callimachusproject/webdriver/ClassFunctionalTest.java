@@ -54,9 +54,9 @@ public class ClassFunctionalTest extends BrowserFunctionalTestCase {
 		String name = "Test Class";
 		logger.info("Create class templates for {}", name);
 		ClassEdit create = page.openCurrentFolder().openClassCreate();
-		create.openCreateTemplate().saveAs("test-create.xhtml");
-		create.openViewTemplate().saveAs("test-view.xhtml");
-		create.openEditTemplate().saveAs("test-edit.xhtml");
+		create.openCreateTemplate("test-create").saveAs("test-create.xhtml");
+		create.openViewTemplate("test-view").saveAs("test-view.xhtml");
+		create.openEditTemplate("test-edit").saveAs("test-edit.xhtml");
 		logger.info("Create class {}", name);
 		ClassView cls = create.with(name, "testing").create().waitUntilTitle(name);
 		String view = cls.getCurrentUrl();

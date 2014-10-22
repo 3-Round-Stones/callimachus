@@ -29,7 +29,7 @@ public class PurlIntegrationTest extends TemporaryServerIntegrationTestCase {
 		super.setUp();
 		String slug = "file" + ++count + ".txt";
 		file = getHomeFolder()
-				.link("contents", "application/atom+xml")
+				.rel("contents", "application/atom+xml")
 				.getAppCollection()
 				.create(slug, "text/plain",
 						"User-agent: *\nDisallow:".getBytes());
@@ -48,7 +48,7 @@ public class PurlIntegrationTest extends TemporaryServerIntegrationTestCase {
 		try {
 			assertEquals(new String(file.get("text/plain")), new String(purl.get("text/plain")));
 		} finally {
-			purl.link("describedby").delete();
+			purl.rel("describedby").delete();
 		}
 	}
 
@@ -58,7 +58,7 @@ public class PurlIntegrationTest extends TemporaryServerIntegrationTestCase {
 			assertEquals("http://www.google.ca/", purl.getRedirectLocation());
 			assertEquals(301, purl.headCode());
 		} finally {
-			purl.link("describedby").delete();
+			purl.rel("describedby").delete();
 		}
 	}
 
@@ -68,7 +68,7 @@ public class PurlIntegrationTest extends TemporaryServerIntegrationTestCase {
 			assertEquals("http://www.google.ca/", purl.getRedirectLocation());
 			assertEquals(302, purl.headCode());
 		} finally {
-			purl.link("describedby").delete();
+			purl.rel("describedby").delete();
 		}
 	}
 
@@ -78,7 +78,7 @@ public class PurlIntegrationTest extends TemporaryServerIntegrationTestCase {
 			assertEquals("http://www.google.ca/", purl.getRedirectLocation());
 			assertEquals(303, purl.headCode());
 		} finally {
-			purl.link("describedby").delete();
+			purl.rel("describedby").delete();
 		}
 	}
 
@@ -88,7 +88,7 @@ public class PurlIntegrationTest extends TemporaryServerIntegrationTestCase {
 			assertEquals("http://www.google.ca/", purl.getRedirectLocation());
 			assertEquals(307, purl.headCode());
 		} finally {
-			purl.link("describedby").delete();
+			purl.rel("describedby").delete();
 		}
 	}
 
@@ -98,7 +98,7 @@ public class PurlIntegrationTest extends TemporaryServerIntegrationTestCase {
 			assertEquals("http://www.google.ca/", purl.getRedirectLocation());
 			assertEquals(308, purl.headCode());
 		} finally {
-			purl.link("describedby").delete();
+			purl.rel("describedby").delete();
 		}
 	}
 
@@ -107,7 +107,7 @@ public class PurlIntegrationTest extends TemporaryServerIntegrationTestCase {
 		try {
 			assertEquals(404, purl.headCode());
 		} finally {
-			purl.link("describedby").delete();
+			purl.rel("describedby").delete();
 		}
 	}
 
@@ -116,7 +116,7 @@ public class PurlIntegrationTest extends TemporaryServerIntegrationTestCase {
 		try {
 			assertEquals(410, purl.headCode());
 		} finally {
-			purl.link("describedby").delete();
+			purl.rel("describedby").delete();
 		}
 	}
 
@@ -127,7 +127,7 @@ public class PurlIntegrationTest extends TemporaryServerIntegrationTestCase {
 			WebResource url = purl.ref("?search=callimachus");
 			assertEquals(302, url.headCode());
 		} finally {
-			purl.link("describedby").delete();
+			purl.rel("describedby").delete();
 		}
 	}
 
@@ -138,7 +138,7 @@ public class PurlIntegrationTest extends TemporaryServerIntegrationTestCase {
 			assertEquals("http://www.google.ca/search?q=callimachus", url.getRedirectLocation());
 			assertEquals(302, url.headCode());
 		} finally {
-			purl.link("describedby").delete();
+			purl.rel("describedby").delete();
 		}
 	}
 
@@ -148,8 +148,8 @@ public class PurlIntegrationTest extends TemporaryServerIntegrationTestCase {
 		try {
 			assertEquals(404, missing.headCode());
 		} finally {
-			missing.link("describedby").delete();
-			alt.link("describedby").delete();
+			missing.rel("describedby").delete();
+			alt.rel("describedby").delete();
 		}
 	}
 
@@ -158,12 +158,10 @@ public class PurlIntegrationTest extends TemporaryServerIntegrationTestCase {
 		sb.append("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n");
 		sb.append("PREFIX calli: <http://callimachusproject.org/rdf/2009/framework#>\n");
 		sb.append("PREFIX skos: <http://www.w3.org/2004/02/skos/core#>\n");
-		sb.append("INSERT DATA {\n");
 		sb.append("<accept>");
 		sb.append(" a skos:Concept, </callimachus/Concept>;\n");
-		sb.append("skos:prefLabel 'accept'\n");
-		sb.append("}");
-		WebResource concept = getHomeFolder().link("describedby").create("application/sparql-update", sb.toString().getBytes("UTF-8"));
+		sb.append("skos:prefLabel 'accept'.\n");
+		WebResource concept = getHomeFolder().rel("describedby").create("text/turtle", sb.toString().getBytes("UTF-8")).rev("describedby");
 		WebResource rdf = getHomeFolder().createPurl("accept.rdf", "copy", concept.toString() + "?describe\nAccept: application/rdf+xml");
 		WebResource ttl = getHomeFolder().createPurl("accept.ttl", "copy", concept.toString() + "?describe\nAccept: text/turtle");
 		try {
@@ -174,9 +172,9 @@ public class PurlIntegrationTest extends TemporaryServerIntegrationTestCase {
 			assertEquals(rdfxml, new String(rdf.get("*/*")));
 			assertEquals(turtle, new String(ttl.get("*/*")));
 		} finally {
-			ttl.link("describedby").delete();
-			rdf.link("describedby").delete();
-			concept.link("describedby").delete();
+			ttl.rel("describedby").delete();
+			rdf.rel("describedby").delete();
+			concept.rel("describedby").delete();
 		}
 	}
 
@@ -187,7 +185,7 @@ public class PurlIntegrationTest extends TemporaryServerIntegrationTestCase {
 			purl.post("text/plain", bytes);
 			assertEquals(new String(bytes), new String(file.get("text/plain")));
 		} finally {
-			purl.link("describedby").delete();
+			purl.rel("describedby").delete();
 		}
 	}
 
@@ -198,7 +196,7 @@ public class PurlIntegrationTest extends TemporaryServerIntegrationTestCase {
 			purl.put("text/plain", bytes);
 			assertEquals(new String(bytes), new String(file.get("text/plain")));
 		} finally {
-			purl.link("describedby").delete();
+			purl.rel("describedby").delete();
 		}
 	}
 
@@ -209,7 +207,7 @@ public class PurlIntegrationTest extends TemporaryServerIntegrationTestCase {
 			assertEquals(404, file.headCode());
 			file = null;
 		} finally {
-			purl.link("describedby").delete();
+			purl.rel("describedby").delete();
 		}
 	}
 

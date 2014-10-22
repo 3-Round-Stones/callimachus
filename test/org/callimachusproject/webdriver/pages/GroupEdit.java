@@ -36,8 +36,8 @@ public class GroupEdit extends CalliPage {
 		return page();
 	}
 
-	public InviteUser openInviteUser() {
-		browser.click(By.cssSelector("#members label a"));
+	public InviteUser openInviteUser(String email) {
+		browser.type(By.xpath("//div[select/@id='members']//input"), email);
 		browser.focusInModalFrame("members");
 		final GroupEdit edit = this;
 		return new InviteUser(browser) {

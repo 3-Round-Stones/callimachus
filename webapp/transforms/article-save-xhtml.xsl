@@ -235,6 +235,10 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
     </blockquote>
 </xsl:template>
 
+<xsl:template match="xhtml:div[@contenteditable='false'][xhtml:pre]">
+    <xsl:apply-templates select="xhtml:pre" />
+</xsl:template>
+
 <xsl:template match="xhtml:pre[@class='prettyprint']">
     <programlisting>
         <xsl:call-template name="id" />
@@ -254,7 +258,7 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
                 <xsl:value-of select="replace(@class,'^.*language-(\S+).*$','$1')" />
             </xsl:attribute>
         </xsl:if>
-        <xsl:apply-templates />
+        <xsl:value-of select="." />
     </programlisting>
 </xsl:template>
 

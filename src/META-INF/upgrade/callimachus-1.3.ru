@@ -200,6 +200,17 @@ DELETE {
     <../callimachus-reference> calli:alternate "http://callimachusproject.org/docs/1.3/callimachus-reference.docbook?view"
 };
 
+INSERT {
+    <../> calli:hasComponent <../callimachus-for-administrators> .
+    <../callimachus-for-administrators> a <types/Purl>, calli:Purl ;
+	rdfs:label "callimachus-for-administrators";
+	calli:alternate "http://callimachusproject.org/docs/1.4/callimachus-for-administrators.docbook?view";
+	calli:administrator </auth/groups/super>;
+	calli:reader </auth/groups/public> .
+} WHERE {
+	FILTER NOT EXISTS { <../callimachus-for-administrators> a calli:Purl }
+};
+
 DELETE {
     ?purl a <../1.3/types/Purl>; calli:alternate ?previous
 } INSERT {

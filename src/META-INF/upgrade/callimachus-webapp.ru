@@ -52,9 +52,6 @@ INSERT {
     calli:hasComponent
         <../profile>,
         <../changes/>,
-        <../getting-started-with-callimachus>,
-        <../callimachus-for-web-developers>,
-        <../callimachus-reference>,
         <../scripts.js>,
         <../library.xpl>,
         <../error.xpl>,
@@ -108,6 +105,7 @@ INSERT {
 };
 
 INSERT {
+    <../> calli:hasComponent <../getting-started-with-callimachus> .
     <../getting-started-with-callimachus> a <types/Purl>, calli:Purl ;
 	rdfs:label "getting-started-with-callimachus";
 	calli:alternate "http://callimachusproject.org/docs/1.4/getting-started-with-callimachus.docbook?view";
@@ -118,6 +116,7 @@ INSERT {
 };
 
 INSERT {
+    <../> calli:hasComponent <../callimachus-for-web-developers> .
     <../callimachus-for-web-developers> a <types/Purl>, calli:Purl ;
 	rdfs:label "callimachus-for-web-developers";
 	calli:alternate "http://callimachusproject.org/docs/1.4/callimachus-for-web-developers.docbook?view";
@@ -128,6 +127,18 @@ INSERT {
 };
 
 INSERT {
+    <../> calli:hasComponent <../callimachus-for-administrators> .
+    <../callimachus-for-administrators> a <types/Purl>, calli:Purl ;
+	rdfs:label "callimachus-for-administrators";
+	calli:alternate "http://callimachusproject.org/docs/1.4/callimachus-for-administrators.docbook?view";
+	calli:administrator </auth/groups/super>;
+	calli:reader </auth/groups/public> .
+} WHERE {
+	FILTER NOT EXISTS { <../callimachus-for-administrators> a calli:Purl }
+};
+
+INSERT {
+    <../> calli:hasComponent <../callimachus-reference> .
     <../callimachus-reference> a <types/Purl>, calli:Purl ;
 	rdfs:label "callimachus-reference";
 	calli:alternate "http://callimachusproject.org/docs/1.4/callimachus-reference.docbook?view";

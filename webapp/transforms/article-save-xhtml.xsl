@@ -239,6 +239,14 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
     <xsl:apply-templates select="xhtml:pre" />
 </xsl:template>
 
+<xsl:template match="xhtml:pre[not(@class='prettyprint')][not(xhtml:code)]">
+    <screen>
+        <xsl:call-template name="id" />
+        <xsl:apply-templates select="@*" />
+        <xsl:apply-templates />
+    </screen>
+</xsl:template>
+
 <xsl:template match="xhtml:pre[@class='prettyprint']">
     <programlisting>
         <xsl:call-template name="id" />
@@ -260,14 +268,6 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
         </xsl:if>
         <xsl:value-of select="." />
     </programlisting>
-</xsl:template>
-
-<xsl:template match="xhtml:pre[not(@class='prettyprint')][not(xhtml:code)]">
-    <screen>
-        <xsl:call-template name="id" />
-        <xsl:apply-templates select="@*" />
-        <xsl:apply-templates />
-    </screen>
 </xsl:template>
 
 <!-- Hyperlinks -->
@@ -629,169 +629,177 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
     <code>
         <xsl:call-template name="id" />
         <xsl:apply-templates select="@*" />
-        <xsl:apply-templates />
+        <xsl:apply-templates mode="code" />
     </code>
 </xsl:template>
 
 <xsl:template match="xhtml:code[@class='classname']">
     <classname>
         <xsl:call-template name="id" />
-        <xsl:apply-templates />
+        <xsl:apply-templates mode="code" />
     </classname>
 </xsl:template>
 
 <xsl:template match="xhtml:code[@class='command']">
     <command>
         <xsl:call-template name="id" />
-        <xsl:apply-templates />
+        <xsl:apply-templates mode="code" />
     </command>
 </xsl:template>
 
 <xsl:template match="xhtml:code[@class='envar']">
     <envar>
         <xsl:call-template name="id" />
-        <xsl:apply-templates />
+        <xsl:apply-templates mode="code" />
     </envar>
 </xsl:template>
 
 <xsl:template match="xhtml:code[@class='exceptionname']">
     <exceptionname>
         <xsl:call-template name="id" />
-        <xsl:apply-templates />
+        <xsl:apply-templates mode="code" />
     </exceptionname>
 </xsl:template>
 
 <xsl:template match="xhtml:code[@class='filename']">
     <filename>
         <xsl:call-template name="id" />
-        <xsl:apply-templates />
+        <xsl:apply-templates mode="code" />
     </filename>
 </xsl:template>
 
 <xsl:template match="xhtml:code[@class='function']">
     <function>
         <xsl:call-template name="id" />
-        <xsl:apply-templates />
+        <xsl:apply-templates mode="code" />
     </function>
 </xsl:template>
 
 <xsl:template match="xhtml:code[@class='initializer']">
     <initializer>
         <xsl:call-template name="id" />
-        <xsl:apply-templates />
+        <xsl:apply-templates mode="code" />
     </initializer>
 </xsl:template>
 
 <xsl:template match="xhtml:code[@class='interfacename']">
     <interfacename>
         <xsl:call-template name="id" />
-        <xsl:apply-templates />
+        <xsl:apply-templates mode="code" />
     </interfacename>
 </xsl:template>
 
 <xsl:template match="xhtml:code[@class='literal']">
     <literal>
         <xsl:call-template name="id" />
-        <xsl:apply-templates />
+        <xsl:apply-templates mode="code" />
     </literal>
 </xsl:template>
 
 <xsl:template match="xhtml:code[@class='methodname']">
     <methodname>
         <xsl:call-template name="id" />
-        <xsl:apply-templates />
+        <xsl:apply-templates mode="code" />
     </methodname>
 </xsl:template>
 
 <xsl:template match="xhtml:code[@class='modifier']">
     <modifier>
         <xsl:call-template name="id" />
-        <xsl:apply-templates />
+        <xsl:apply-templates mode="code" />
     </modifier>
 </xsl:template>
 
 <xsl:template match="xhtml:code[@class='ooclass']">
     <ooclass>
         <xsl:call-template name="id" />
-        <xsl:apply-templates />
+        <xsl:apply-templates mode="code" />
     </ooclass>
 </xsl:template>
 
 <xsl:template match="xhtml:code[@class='ooexception']">
     <ooexception>
         <xsl:call-template name="id" />
-        <xsl:apply-templates />
+        <xsl:apply-templates mode="code" />
     </ooexception>
 </xsl:template>
 
 <xsl:template match="xhtml:code[@class='oointerface']">
     <oointerface>
         <xsl:call-template name="id" />
-        <xsl:apply-templates />
+        <xsl:apply-templates mode="code" />
     </oointerface>
 </xsl:template>
 
 <xsl:template match="xhtml:code[@class='parameter']">
     <parameter>
         <xsl:call-template name="id" />
-        <xsl:apply-templates />
+        <xsl:apply-templates mode="code" />
     </parameter>
 </xsl:template>
 
 <xsl:template match="xhtml:code[@class='prompt']">
     <prompt>
         <xsl:call-template name="id" />
-        <xsl:apply-templates />
+        <xsl:apply-templates mode="code" />
     </prompt>
 </xsl:template>
 
 <xsl:template match="xhtml:code[@class='property']">
     <property>
         <xsl:call-template name="id" />
-        <xsl:apply-templates />
+        <xsl:apply-templates mode="code" />
     </property>
 </xsl:template>
 
 <xsl:template match="xhtml:code[@class='returnvalue']">
     <returnvalue>
         <xsl:call-template name="id" />
-        <xsl:apply-templates />
+        <xsl:apply-templates mode="code" />
     </returnvalue>
 </xsl:template>
 
 <xsl:template match="xhtml:code[@class='symbol']">
     <symbol>
         <xsl:call-template name="id" />
-        <xsl:apply-templates />
+        <xsl:apply-templates mode="code" />
     </symbol>
 </xsl:template>
 
 <xsl:template match="xhtml:code[@class='token']">
     <token>
         <xsl:call-template name="id" />
-        <xsl:apply-templates />
+        <xsl:apply-templates mode="code" />
     </token>
 </xsl:template>
 
 <xsl:template match="xhtml:code[@class='type']">
     <type>
         <xsl:call-template name="id" />
-        <xsl:apply-templates />
+        <xsl:apply-templates mode="code" />
     </type>
 </xsl:template>
 
 <xsl:template match="xhtml:code[@class='uri']">
     <uri>
         <xsl:call-template name="id" />
-        <xsl:apply-templates />
+        <xsl:apply-templates mode="code" />
     </uri>
 </xsl:template>
 
 <xsl:template match="xhtml:code[@class='userinput']">
     <userinput>
         <xsl:call-template name="id" />
-        <xsl:apply-templates />
+        <xsl:apply-templates mode="code" />
     </userinput>
+</xsl:template>
+
+<xsl:template mode="code" match="node()">
+    <xsl:apply-templates select="." />
+</xsl:template>
+
+<xsl:template mode="code" match="xhtml:code">
+    <xsl:apply-templates />
 </xsl:template>
 
 <xsl:template match="xhtml:var|xhtml:code[@class='varname']">

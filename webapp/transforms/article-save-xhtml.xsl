@@ -531,7 +531,7 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
     </listitem>
 </xsl:template>
 
-<xsl:template match="xhtml:caption|xhtml:tbody|xhtml:tr|xhtml:thead|xhtml:tfoot|xhtml:colgroup|xhtml:col|xhtml:td|xhtml:th">
+<xsl:template match="xhtml:caption|xhtml:tbody|xhtml:tr|xhtml:thead|xhtml:tfoot|xhtml:colgroup|xhtml:col">
     <xsl:element name="{local-name()}" 
                  namespace="http://docbook.org/ns/docbook">
         <xsl:call-template name="id" />
@@ -539,6 +539,44 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
         <xsl:apply-templates select="@align|@colspan|@rowspan|@valign" />
         <xsl:apply-templates />
     </xsl:element>
+</xsl:template>
+
+<xsl:template match="xhtml:td|xhtml:th">
+    <xsl:element name="{local-name()}"
+                 namespace="http://docbook.org/ns/docbook">
+        <xsl:call-template name="id" />
+        <xsl:apply-templates select="@lang" />
+        <xsl:apply-templates select="@align|@colspan|@rowspan|@valign" />
+        <xsl:apply-templates />
+    </xsl:element>
+</xsl:template>
+
+<xsl:template match="xhtml:td[xhtml:p|xhtml:blockquote|xhtml:div|xhtml:pre|xhtml:figure|xhtml:ul|xhtml:ol|xhtml:dl|xhtml:table]|xhtml:th[xhtml:p|xhtml:blockquote|xhtml:div|xhtml:pre|xhtml:figure|xhtml:ul|xhtml:ol|xhtml:dl|xhtml:table]">
+    <xsl:element name="{local-name()}"
+                 namespace="http://docbook.org/ns/docbook">
+        <xsl:call-template name="id" />
+        <xsl:apply-templates select="@lang" />
+        <xsl:apply-templates select="@align|@colspan|@rowspan|@valign" />
+        <xsl:apply-templates mode="block" />
+    </xsl:element>
+</xsl:template>
+
+<xsl:template mode="block" match="text()">
+    <xsl:if test="string-length(normalize-space())!=0">
+        <para>
+            <xsl:apply-templates select="." />
+        </para>
+    </xsl:if>
+</xsl:template>
+
+<xsl:template mode="block" match="*">
+    <para>
+        <xsl:apply-templates select="." />
+    </para>
+</xsl:template>
+
+<xsl:template mode="block" match="comment()|xhtml:p|xhtml:blockquote|xhtml:div|xhtml:pre|xhtml:figure|xhtml:ul|xhtml:ol|xhtml:dl|xhtml:table">
+    <xsl:apply-templates select="." />
 </xsl:template>
 
 

@@ -305,6 +305,11 @@ function setText(form, text, editor) {
 
 // loadText
 function loadText(form, url, editor) {
+    if (url.indexOf('://') < 0) {
+        var a = document.createElement('a');
+        a.setAttribute('href', url);
+        url = a.href;
+    }
     calli.getText(url).then(function(text){
         editor.postMessage('PUT text\nContent-Location: '+ url +
             '\nContent-Type: '+ form.getAttribute("enctype") +

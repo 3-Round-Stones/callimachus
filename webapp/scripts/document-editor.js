@@ -350,7 +350,10 @@ jQuery(function($) {
      * Adds custom css to the editing interface, even when in fullPage mode.
      */ 
     function injectCss(html) {
+        var link = document.createElement('a');
+        link.setAttribute('href', "../assets/ckeditor/plugins/codesnippet/lib/highlight/styles/github.css");
         var styles = [
+            '@import url("' + link.href + '");',
             'body { background-color: #f5f5f5; }',
             'body.cke_editable.cke_show_blocks > * { background-color: #fff; padding-bottom: 5px;}'
         ];

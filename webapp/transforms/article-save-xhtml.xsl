@@ -235,6 +235,18 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
     </blockquote>
 </xsl:template>
 
+<xsl:template match="xhtml:div[@contenteditable='false'][xhtml:pre]">
+    <xsl:apply-templates select="xhtml:pre" />
+</xsl:template>
+
+<xsl:template match="xhtml:pre[not(@class='prettyprint')][not(xhtml:code)]">
+    <screen>
+        <xsl:call-template name="id" />
+        <xsl:apply-templates select="@*" />
+        <xsl:apply-templates />
+    </screen>
+</xsl:template>
+
 <xsl:template match="xhtml:pre[@class='prettyprint']">
     <programlisting>
         <xsl:call-template name="id" />
@@ -254,16 +266,8 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
                 <xsl:value-of select="replace(@class,'^.*language-(\S+).*$','$1')" />
             </xsl:attribute>
         </xsl:if>
-        <xsl:apply-templates />
+        <xsl:value-of select="." />
     </programlisting>
-</xsl:template>
-
-<xsl:template match="xhtml:pre[not(@class='prettyprint')][not(xhtml:code)]">
-    <screen>
-        <xsl:call-template name="id" />
-        <xsl:apply-templates select="@*" />
-        <xsl:apply-templates />
-    </screen>
 </xsl:template>
 
 <!-- Hyperlinks -->
@@ -527,7 +531,7 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
     </listitem>
 </xsl:template>
 
-<xsl:template match="xhtml:caption|xhtml:tbody|xhtml:tr|xhtml:thead|xhtml:tfoot|xhtml:colgroup|xhtml:col|xhtml:td|xhtml:th">
+<xsl:template match="xhtml:caption|xhtml:tbody|xhtml:tr|xhtml:thead|xhtml:tfoot|xhtml:colgroup|xhtml:col">
     <xsl:element name="{local-name()}" 
                  namespace="http://docbook.org/ns/docbook">
         <xsl:call-template name="id" />
@@ -535,6 +539,44 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
         <xsl:apply-templates select="@align|@colspan|@rowspan|@valign" />
         <xsl:apply-templates />
     </xsl:element>
+</xsl:template>
+
+<xsl:template match="xhtml:td|xhtml:th">
+    <xsl:element name="{local-name()}"
+                 namespace="http://docbook.org/ns/docbook">
+        <xsl:call-template name="id" />
+        <xsl:apply-templates select="@lang" />
+        <xsl:apply-templates select="@align|@colspan|@rowspan|@valign" />
+        <xsl:apply-templates />
+    </xsl:element>
+</xsl:template>
+
+<xsl:template match="xhtml:td[xhtml:p|xhtml:blockquote|xhtml:div|xhtml:pre|xhtml:figure|xhtml:ul|xhtml:ol|xhtml:dl|xhtml:table]|xhtml:th[xhtml:p|xhtml:blockquote|xhtml:div|xhtml:pre|xhtml:figure|xhtml:ul|xhtml:ol|xhtml:dl|xhtml:table]">
+    <xsl:element name="{local-name()}"
+                 namespace="http://docbook.org/ns/docbook">
+        <xsl:call-template name="id" />
+        <xsl:apply-templates select="@lang" />
+        <xsl:apply-templates select="@align|@colspan|@rowspan|@valign" />
+        <xsl:apply-templates mode="block" />
+    </xsl:element>
+</xsl:template>
+
+<xsl:template mode="block" match="text()">
+    <xsl:if test="string-length(normalize-space())!=0">
+        <para>
+            <xsl:apply-templates select="." />
+        </para>
+    </xsl:if>
+</xsl:template>
+
+<xsl:template mode="block" match="*">
+    <para>
+        <xsl:apply-templates select="." />
+    </para>
+</xsl:template>
+
+<xsl:template mode="block" match="comment()|xhtml:p|xhtml:blockquote|xhtml:div|xhtml:pre|xhtml:figure|xhtml:ul|xhtml:ol|xhtml:dl|xhtml:table">
+    <xsl:apply-templates select="." />
 </xsl:template>
 
 
@@ -587,169 +629,177 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
     <code>
         <xsl:call-template name="id" />
         <xsl:apply-templates select="@*" />
-        <xsl:apply-templates />
+        <xsl:apply-templates mode="code" />
     </code>
 </xsl:template>
 
 <xsl:template match="xhtml:code[@class='classname']">
     <classname>
         <xsl:call-template name="id" />
-        <xsl:apply-templates />
+        <xsl:apply-templates mode="code" />
     </classname>
 </xsl:template>
 
 <xsl:template match="xhtml:code[@class='command']">
     <command>
         <xsl:call-template name="id" />
-        <xsl:apply-templates />
+        <xsl:apply-templates mode="code" />
     </command>
 </xsl:template>
 
 <xsl:template match="xhtml:code[@class='envar']">
     <envar>
         <xsl:call-template name="id" />
-        <xsl:apply-templates />
+        <xsl:apply-templates mode="code" />
     </envar>
 </xsl:template>
 
 <xsl:template match="xhtml:code[@class='exceptionname']">
     <exceptionname>
         <xsl:call-template name="id" />
-        <xsl:apply-templates />
+        <xsl:apply-templates mode="code" />
     </exceptionname>
 </xsl:template>
 
 <xsl:template match="xhtml:code[@class='filename']">
     <filename>
         <xsl:call-template name="id" />
-        <xsl:apply-templates />
+        <xsl:apply-templates mode="code" />
     </filename>
 </xsl:template>
 
 <xsl:template match="xhtml:code[@class='function']">
     <function>
         <xsl:call-template name="id" />
-        <xsl:apply-templates />
+        <xsl:apply-templates mode="code" />
     </function>
 </xsl:template>
 
 <xsl:template match="xhtml:code[@class='initializer']">
     <initializer>
         <xsl:call-template name="id" />
-        <xsl:apply-templates />
+        <xsl:apply-templates mode="code" />
     </initializer>
 </xsl:template>
 
 <xsl:template match="xhtml:code[@class='interfacename']">
     <interfacename>
         <xsl:call-template name="id" />
-        <xsl:apply-templates />
+        <xsl:apply-templates mode="code" />
     </interfacename>
 </xsl:template>
 
 <xsl:template match="xhtml:code[@class='literal']">
     <literal>
         <xsl:call-template name="id" />
-        <xsl:apply-templates />
+        <xsl:apply-templates mode="code" />
     </literal>
 </xsl:template>
 
 <xsl:template match="xhtml:code[@class='methodname']">
     <methodname>
         <xsl:call-template name="id" />
-        <xsl:apply-templates />
+        <xsl:apply-templates mode="code" />
     </methodname>
 </xsl:template>
 
 <xsl:template match="xhtml:code[@class='modifier']">
     <modifier>
         <xsl:call-template name="id" />
-        <xsl:apply-templates />
+        <xsl:apply-templates mode="code" />
     </modifier>
 </xsl:template>
 
 <xsl:template match="xhtml:code[@class='ooclass']">
     <ooclass>
         <xsl:call-template name="id" />
-        <xsl:apply-templates />
+        <xsl:apply-templates mode="code" />
     </ooclass>
 </xsl:template>
 
 <xsl:template match="xhtml:code[@class='ooexception']">
     <ooexception>
         <xsl:call-template name="id" />
-        <xsl:apply-templates />
+        <xsl:apply-templates mode="code" />
     </ooexception>
 </xsl:template>
 
 <xsl:template match="xhtml:code[@class='oointerface']">
     <oointerface>
         <xsl:call-template name="id" />
-        <xsl:apply-templates />
+        <xsl:apply-templates mode="code" />
     </oointerface>
 </xsl:template>
 
 <xsl:template match="xhtml:code[@class='parameter']">
     <parameter>
         <xsl:call-template name="id" />
-        <xsl:apply-templates />
+        <xsl:apply-templates mode="code" />
     </parameter>
 </xsl:template>
 
 <xsl:template match="xhtml:code[@class='prompt']">
     <prompt>
         <xsl:call-template name="id" />
-        <xsl:apply-templates />
+        <xsl:apply-templates mode="code" />
     </prompt>
 </xsl:template>
 
 <xsl:template match="xhtml:code[@class='property']">
     <property>
         <xsl:call-template name="id" />
-        <xsl:apply-templates />
+        <xsl:apply-templates mode="code" />
     </property>
 </xsl:template>
 
 <xsl:template match="xhtml:code[@class='returnvalue']">
     <returnvalue>
         <xsl:call-template name="id" />
-        <xsl:apply-templates />
+        <xsl:apply-templates mode="code" />
     </returnvalue>
 </xsl:template>
 
 <xsl:template match="xhtml:code[@class='symbol']">
     <symbol>
         <xsl:call-template name="id" />
-        <xsl:apply-templates />
+        <xsl:apply-templates mode="code" />
     </symbol>
 </xsl:template>
 
 <xsl:template match="xhtml:code[@class='token']">
     <token>
         <xsl:call-template name="id" />
-        <xsl:apply-templates />
+        <xsl:apply-templates mode="code" />
     </token>
 </xsl:template>
 
 <xsl:template match="xhtml:code[@class='type']">
     <type>
         <xsl:call-template name="id" />
-        <xsl:apply-templates />
+        <xsl:apply-templates mode="code" />
     </type>
 </xsl:template>
 
 <xsl:template match="xhtml:code[@class='uri']">
     <uri>
         <xsl:call-template name="id" />
-        <xsl:apply-templates />
+        <xsl:apply-templates mode="code" />
     </uri>
 </xsl:template>
 
 <xsl:template match="xhtml:code[@class='userinput']">
     <userinput>
         <xsl:call-template name="id" />
-        <xsl:apply-templates />
+        <xsl:apply-templates mode="code" />
     </userinput>
+</xsl:template>
+
+<xsl:template mode="code" match="node()">
+    <xsl:apply-templates select="." />
+</xsl:template>
+
+<xsl:template mode="code" match="xhtml:code">
+    <xsl:apply-templates />
 </xsl:template>
 
 <xsl:template match="xhtml:var|xhtml:code[@class='varname']">

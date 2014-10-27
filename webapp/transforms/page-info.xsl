@@ -109,7 +109,10 @@
 
     <xsl:template match="xhtml:nav[@id='calli-if-breadcrumb']">
         <xsl:if test="string-length($target) &gt; 0">
-            <xsl:apply-templates />
+            <xsl:variable name="url" select="concat('../queries/page-info.rq?results&amp;target=',encode-for-uri($target))" />
+            <xsl:if test="count(document($url)//sparql:result[sparql:binding/@name='iri']) > 1">
+                <xsl:apply-templates />
+            </xsl:if>
         </xsl:if>
     </xsl:template>
 

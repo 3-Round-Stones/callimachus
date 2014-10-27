@@ -26,10 +26,11 @@
                     if (persistent && window.localStorage) {
                         var hash = hex_md5(username + ':' + authName + ':' + password);
                         var digestPassword = hex_md5(hash + ':' + doc);
-                        var digestProfile = calli.getPageUrl().replace(/\?.*/,'?profile');
+                        var digestProfile = document.createElement('a');
+                        digestProfile.setAttribute('href', "/?profile");
                         localStorage.setItem("username", username);
                         localStorage.setItem("digestPassword", digestPassword);
-                        localStorage.setItem("digestProfile", digestProfile);
+                        localStorage.setItem("digestProfile", digestProfile.href);
                     }
                     calli.login(username);
                     var return_to = /&return_to=([^&]*)/.exec(window.location.search);

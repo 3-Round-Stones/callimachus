@@ -134,6 +134,7 @@ body {
 html.iframe,
 html.iframe body {
     height: auto;
+    margin-bottom: 0 !important;
 }
 
 .navbar.navbar-relative-bottom {
@@ -161,6 +162,15 @@ html.iframe body {
     min-height: @navbar-large-height;
     padding-top: 0.5em;
     padding-bottom: 0.5em;
+}
+
+/* footer overflow */
+.navbar.navbar-large.navbar-default .navbar-inner {
+    background-color: @navbar-default-bg;
+}
+
+.navbar.navbar-large.navbar-inverse .navbar-inner {
+    background-color: @navbar-inverse-bg;
 }
 
 .navbar-relative-bottom {

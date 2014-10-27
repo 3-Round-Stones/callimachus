@@ -51,7 +51,7 @@
     calli:requires calli:reader;
     calli:type "text/javascript";
     calli:script """
-        return 'if(!window.calli)window.calli={};window.calli.baseURI="' + baseuri + '";\\n';
+        return new java.lang.String('if(!window.calli)window.calli={};window.calli.baseURI="' + baseuri + '";\\n');
     """.
 
 :baseuri a owl:FunctionalProperty, owl:ObjectProperty;

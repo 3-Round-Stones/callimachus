@@ -216,7 +216,6 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 		ClientExecChain handler = new InvokeHandler();
 		handler = new NotFoundHandler(handler);
 		handler = new AlternativeHandler(handler);
-		handler = new GZipFilter(handler);
 		// exec in triaging thread
 		AsyncExecChain filter = new PooledExecChain(handler, handling);
 		filter = new ExpectContinueHandler(filter);
@@ -229,6 +228,7 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 		filter = new ResponseExceptionHandler(filter);
 		filter = transaction = new TransactionHandler(filter, closing);
 		filter = env = new HttpResponseFilter(filter);
+		filter = new GZipFilter(filter);
 		filter = new PingOptionsHandler(filter);
 		// exec in i/o thread
 		filter = new PooledExecChain(filter, triaging);

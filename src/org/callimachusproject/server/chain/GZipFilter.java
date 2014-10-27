@@ -29,42 +29,57 @@
  */
 package org.callimachusproject.server.chain;
 
-import java.io.IOException;
+import java.util.concurrent.Future;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpException;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpExecutionAware;
-import org.apache.http.client.methods.HttpRequestWrapper;
-import org.apache.http.client.protocol.HttpClientContext;
-import org.apache.http.conn.routing.HttpRoute;
-import org.apache.http.impl.execchain.ClientExecChain;
+import org.apache.http.concurrent.FutureCallback;
+import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.client.CloseableEntity;
 import org.callimachusproject.client.GUnzipEntity;
 import org.callimachusproject.client.GZipEntity;
+import org.callimachusproject.server.AsyncExecChain;
+import org.callimachusproject.server.helpers.DelegatingFuture;
 
 /**
  * Compresses safe responses.
  */
-public class GZipFilter implements ClientExecChain {
-	private final ClientExecChain delegate;
+public class GZipFilter implements AsyncExecChain {
+	private final AsyncExecChain delegate;
 
-	public GZipFilter(ClientExecChain delegate) {
+	public GZipFilter(AsyncExecChain delegate) {
 		this.delegate = delegate;
 	}
 
 	@Override
-	public CloseableHttpResponse execute(HttpRoute route,
-			HttpRequestWrapper request, HttpClientContext context,
-			HttpExecutionAware execAware) throws IOException, HttpException {
-		CloseableHttpResponse resp = delegate.execute(route, request, context, execAware);
+	public Future<HttpResponse> execute(HttpHost target, HttpRequest request,
+			HttpContext context, FutureCallback<HttpResponse> callback) {
 		String method = request.getRequestLine().getMethod();
-		int code = resp.getStatusLine().getStatusCode();
-		boolean safe = method.equals("HEAD") || method.equals("GET") || method.equals("PROFIND");
+		if (!method.equals("GET") && !method.equals("HEAD")
+				&& !method.equals("PROFIND"))
+			return delegate.execute(target, request, context, callback);
+		final DelegatingFuture future = new DelegatingFuture(callback) {
+			public void completed(HttpResponse result) {
+				try {
+					super.completed(gzip(result));
+				} catch (IllegalArgumentException ex) {
+					super.failed(ex);
+				} catch (RuntimeException ex) {
+					super.failed(ex);
+				}
+			}
+		};
+		future.setDelegate(delegate.execute(target, request, context, future));
+		return future;
+	}
+
+	protected HttpResponse gzip(HttpResponse resp) {
+		int code = resp.getStatusLine().getStatusCode();;
 		boolean compressed = isAlreadyCompressed(resp.getEntity());
-		if (code < 500 && safe && isCompressable(resp) || compressed) {
+		if (code < 500 && isCompressable(resp) || compressed) {
 			long len = getContentLength(resp);
 			if (compressed || len < 0 || len > 500) {
 				resp.removeHeaders("Content-MD5");

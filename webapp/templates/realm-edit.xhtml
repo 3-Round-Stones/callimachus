@@ -76,7 +76,7 @@
                               onclick="calli.createResource(event, '?create=' + encodeURIComponent(this.href) + '#!' + $('#layout-sample').attr('href'))" class="glyphicon glyphicon-list-alt" /></label>
                         <div>
                             <select placeholder="Choose a layout" class="form-control" onchange="calli.updateResource(event,'calli:layout')">
-                                <option selected="selected" rel="calli:layout" resource="?layout" value="{?layout}">{rdfs:label}</option>
+                                <option selected="selected" rel="calli:layout" resource="?layout">{rdfs:label}</option>
                                 <option resource="../../default-layout.xq">Default layout</option>
                                 <xi:include href="../queries/realm-layout-list.rq?select" xpointer="xpath(/*/node())" />
                             </select>

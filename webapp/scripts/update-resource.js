@@ -17,8 +17,10 @@ calli.updateResource = function(event, rel) {
         } else if (!this.value) {
             this.removeAttribute('rel');
         }
-        if (this.value != "on" || !this.checked) {
+        if (this.tagName.match(/INPUT/i)) {
             this.setAttribute('resource', this.value);
+        } else if (this.getAttribute('value')) {
+            this.setAttribute('resource', this.getAttribute('value'));
         }
     });
 };
@@ -32,7 +34,7 @@ calli.updateProperty = function(event, property) {
         } else if (!this.value) {
             this.removeAttribute('property');
         }
-        if (this.value != "on" || !this.checked) {
+        if (this.tagName.match(/INPUT/i)) {
             this.setAttribute('value', this.value);
         }
     });

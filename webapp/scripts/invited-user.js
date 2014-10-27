@@ -18,7 +18,8 @@
 
 jQuery(function($){
     var origin = window.location.protocol + '//' + window.location.host;
-    $('#body').val($('#body').val().replace(/@@REGISTRATION_URL@@/g, origin + '/?register') + origin);
+    $('#subject').val($('#subject').val().replace(/@@HOSTNAME@@/g, window.location.hostname));
+    $('#body').val($('#body').val().replace(/@@REGISTRATION_URL@@/g, origin + '/?register').replace(/@@HOSTNAME@@/g, window.location.hostname));
     var messageChanged = false;
     $('#body').change(function(){
         messageChanged = true;

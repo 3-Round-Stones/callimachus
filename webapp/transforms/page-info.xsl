@@ -107,6 +107,12 @@
         </xsl:copy>
     </xsl:template>
 
+    <xsl:template match="xhtml:nav[@id='calli-if-breadcrumb']">
+        <xsl:if test="string-length($target) &gt; 0">
+            <xsl:apply-templates />
+        </xsl:if>
+    </xsl:template>
+
     <xsl:template match="xhtml:nav[@id='calli-breadcrumb']">
         <xsl:variable name="last" select="*[last()]" />
         <xsl:if test="string-length($target) &gt; 0 and count(*) = 1">

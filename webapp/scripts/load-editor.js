@@ -147,8 +147,8 @@ function bindEditorEvents(form, editor, idempotent) {
             var msg = event.originalEvent.data;
             if (msg.indexOf('PUT text\n\n') === 0 && form.getAttribute("method") == "PUT") {
                 var text = msg.substring('PUT text\n\n'.length);
-                var action = calli.getFormAction(form[0]);
-                calli.putText(action, text, form.getAttribute("enctype"));
+                var action = calli.getFormAction(form);
+                calli.putText(action, text, form.getAttribute("enctype")).then(undefined, calli.error);
             } else if (msg.indexOf('Error\n\n') === 0) {
                 calli.error(msg.substring(msg.indexOf('\n\n', msg.indexOf('\n\n') + 2) + 2));
             }

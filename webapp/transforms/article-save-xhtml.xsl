@@ -586,7 +586,12 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
         <xsl:call-template name="id" />
         <xsl:apply-templates select="@lang" />
         <xsl:apply-templates select="@summary|@width|@border|@cellspacing|@cellpadding|@frame|@rules" />
-        <xsl:apply-templates mode="col" select="(xhtml:thead/xhtml:tr|xhtml:tbody/xhtml:tr)[1]/(xhtml:th|xhtml:td)" />
+        <xsl:if test="not(@width) and matches(@style, 'width:\s*\d+px')">
+            <xsl:attribute name="width">
+                <xsl:value-of select="replace(@style, '.*width:\s*(\d+)px.*', '$1')" />
+            </xsl:attribute>
+        </xsl:if>
+        <xsl:apply-templates mode="col" select="(xhtml:thead/xhtml:tr|xhtml:tbody/xhtml:tr)[not(*/@colspan)][1]/(xhtml:th|xhtml:td)" />
         <xsl:apply-templates select="*[not(self::xhtml:col)]" />
     </informaltable>
 </xsl:template>
@@ -597,7 +602,7 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
         <xsl:apply-templates select="@lang" />
         <xsl:apply-templates select="@summary|@width|@border|@cellspacing|@cellpadding|@frame|@rules" />
         <xsl:apply-templates select="xhtml:caption" />
-        <xsl:apply-templates mode="col" select="(xhtml:thead/xhtml:tr|xhtml:tbody/xhtml:tr)[1]/(xhtml:th|xhtml:td)" />
+        <xsl:apply-templates mode="col" select="(xhtml:thead/xhtml:tr|xhtml:tbody/xhtml:tr)[not(*/@colspan)][1]/(xhtml:th|xhtml:td)" />
         <xsl:apply-templates select="*[not(self::xhtml:caption or self::xhtml:col)]" />
     </table>
 </xsl:template>

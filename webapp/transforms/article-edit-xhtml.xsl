@@ -604,7 +604,7 @@
             <xsl:value-of select="@valign" />
             <xsl:text>;</xsl:text>
         </xsl:if>
-        <xsl:if test="../../../d:col[$colnum]/@width and 0=count(../preceding-sibling::d:tr) and 0=count(../../preceding-sibling::d:thead)">
+        <xsl:if test="../../../d:col[$colnum]/@width and not(@colspan) and not(preceding-sibling::*/@colspan)">
             <xsl:text>width:</xsl:text>
             <xsl:value-of select="../../../d:col[$colnum]/@width" />
             <xsl:if test="not(contains(../../../d:col[$colnum]/@width,'%'))">

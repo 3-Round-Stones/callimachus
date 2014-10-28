@@ -61,7 +61,7 @@ import module namespace calli = "http://callimachusproject.org/rdf/2009/framewor
         </header>
     </nav>
     <div class="container">
-        <ol class="breadcrumb navbar-left hidden-iframe">{calli:breadcrumb-links(<li><a/></li>, <li class="active"/>)}</ol>
+        {calli:breadcrumb-list(<ol class="breadcrumb navbar-left hidden-iframe"></ol>)}
         {calli:activate-nav(<nav class="hidden-logout hidden-iframe hidden-print">
             <div class="nav nav-tabs clearfix">
                 <ul class="nav nav-tabs navbar-right" style="border-bottom:none">

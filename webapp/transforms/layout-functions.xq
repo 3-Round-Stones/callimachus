@@ -126,6 +126,15 @@ declare function calli:callimachus-feedback-href($a as element()) as element() {
     }
 };
 
+declare function calli:breadcrumb-list($ol as element()) as element(nav) {
+    <nav id="calli-if-breadcrumb">{
+        element {node-name($ol)} {
+            $ol/@*,
+            $ol/node(),
+            <nav id="calli-breadcrumb"><li><a/></li><li class="active"/></nav>
+        }
+    }</nav>
+};
 declare function calli:breadcrumb-links($breadcrumb as element(), $divider as item(), $active as element()) as element(nav) {
     <nav id="calli-breadcrumb">{$breadcrumb}{$divider}{$active}</nav>
 };

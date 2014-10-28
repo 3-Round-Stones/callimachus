@@ -15,7 +15,7 @@ window.calli.checkEachResourceIn = function(container) {
     return function(element) {
         var el = element && typeof element == 'object' ? element : this;
         var resource = el.getAttribute('resource');
-        var checkbox = group.find('[value="' + resource + '"]').first();
+        var checkbox = group.find('[resource="' + resource + '"],[value="' + resource + '"]').first();
         return checkbox.prop('checked', true).change().get(0);
     };
 };
@@ -25,7 +25,7 @@ window.calli.selectEachResourceIn = function(container) {
     return function(element) {
         var el = element && typeof element == 'object' ? element : this;
         var resource = el.getAttribute('resource');
-        var option = group.find('[value="' + resource + '"]').first();
+        var option = group.find('[resource="' + resource + '"],[value="' + resource + '"]').first();
         option.prop('selected', true).closest('select').change();
         return option.get(0);
     };

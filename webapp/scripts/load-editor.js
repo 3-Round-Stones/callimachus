@@ -53,11 +53,8 @@ calli.submitEditor = function(event, local) {
     }).then(function(text) {
         var action = calli.getFormAction(form[0]);
         if (local) {
-            var name = encodeURI(local).replace(/%25(\w\w)/g, '%$1').replace(/%20/g, '-');
-            var resource = action.replace(/\/?([\?\#].*)?$/,'/') + name;
-            var amp = action.indexOf('?') < 0 ? '?' : '&';
-            var url = action + amp + "resource=" + encodeURIComponent(resource);
-            return calli.postText(url, text, form.attr('enctype'));
+            var slug = encodeURI(local).replace(/%25(\w\w)/g, '%$1').replace(/%20/g, '-');
+            return calli.postText(action, text, form.attr('enctype'), slug);
         } else {
             return calli.putText(action, text, form.attr('enctype')).then(function(){
                 return action.replace(/\?.*/,'');

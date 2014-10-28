@@ -169,6 +169,7 @@ public class PurlFunctionalTest extends BrowserFunctionalTestCase {
 		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 		con.setInstanceFollowRedirects(false);
 		con.setRequestMethod("GET");
+		con.setRequestProperty("Accept-Encoding", "gzip");
 		
 		// Retrieve Status Code response header and assert
 		assertEquals(url, code, con.getResponseCode());

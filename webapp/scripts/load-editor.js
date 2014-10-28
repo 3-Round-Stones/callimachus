@@ -91,9 +91,7 @@ window.calli.submitEditorAs = function(event, local, create, folder) {
         return calli.promptForNewResource(folder, local).then(function(two){
             if (!two) return undefined;
             var action = two[0] + '?create=' + encodeURIComponent(create);
-            var iri = two[0].replace(/\/?$/, '/') + two[1].replace(/%20/g, '+');
-            var url = action + "&resource=" + encodeURIComponent(iri);
-            return calli.postText(url, text, form.attr('enctype'));
+            return calli.postText(action, text, form.attr('enctype'), two[1].replace(/%20/g, '+'));
         });
     }).then(function(redirect){
         return redirect && redirect + '?view';

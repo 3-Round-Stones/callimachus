@@ -34,9 +34,20 @@ jQuery(function($){
                 }));
             }
         }, function(xhr){
-            if (xhr.status == 404)
-                return calli.submitForm(event);
-            return calli.reject(xhr);
+            if (xhr.status != 404) return calli.reject(xhr);
+            return calli.all(input.toArray().reduce(function(files, input) {
+                return Array.prototype.concat.apply(files, input.files);
+            }, []).map(function(file){
+                var slug = calli.slugify(file.name.replace(/[\-\s]+/g, '-'));
+                var contentType = file.type && file.type.indexOf('/x-') < 0 && file.type ||
+                    "application/octet-stream";
+                return calli.postText(action, file, contentType, slug).then(function(resource){
+                    if (window.parent != window && parent.postMessage) {
+                        parent.postMessage('POST resource\n\n' + resource, '*');
+                    }
+                    window.location.replace(resource + '?view');
+                });
+            }));
         }).then(undefined, calli.error);
     });
 });

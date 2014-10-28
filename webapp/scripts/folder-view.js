@@ -183,14 +183,14 @@
     }
     function postCreate(file, slug) {
         var classFile = $('#file-class-link').attr('href');
-        var formData = new FormData();
-        formData.append(file.name, file);
+        var contentType = file.type && file.type.indexOf('/x-') < 0 && file.type || "application/octet-stream";
         return calli.resolve($.ajax({
-            type:'POST',
-            url:'?create=' + classFile + '&resource=' + encodeURIComponent(slug),
-            contentType:"multipart/form-data",
-            processData:false,
-            data:formData,
+            type: 'POST',
+            url: '?create=' + encodeURIComponent(classFile),
+            contentType: contentType,
+            headers: {Slug: slug},
+            processData: false,
+            data: file,
             xhrFields: {withCredentials: true},
             xhr: function() {
                 var xhr = $.ajaxSettings.xhr();

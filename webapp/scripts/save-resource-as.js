@@ -50,7 +50,7 @@ window.calli.saveResourceAs = function(event, fileName, create, folder) {
                 resource = ns + local;
                 $(form).removeAttr('about');
                 $(form).attr('resource', resource);
-                overrideLocation(form, resource);
+                overrideLocation(form);
                 return true;
             }
         } else if (resource) {
@@ -76,7 +76,7 @@ window.calli.saveResourceAs = function(event, fileName, create, folder) {
         var resource = ns + local;
         $(form).removeAttr('about');
         $(form).attr('resource', resource);
-        overrideLocation(form, resource);
+        overrideLocation(form);
         if (form.getAttribute("enctype") == "application/sparql-update") {
             form.setAttribute("enctype", "text/turtle");
         }
@@ -151,14 +151,8 @@ function updateFormAction(form, target, create) {
     }
 }
 
-function overrideLocation(form, uri) {
+function overrideLocation(form) {
     var action = calli.getFormAction(form);
-    if (action.indexOf('&resource=') > 0) {
-        var m = action.match(/^(.*&resource=)([^&=]*)(.*)$/);
-        form.action = m[1] + encodeURIComponent(uri) + m[3];
-    } else if (action.indexOf('?create') >= 0) {
-        form.action = action + '&resource=' + encodeURIComponent(uri);
-    }
     if (action.indexOf('?create') >= 0 && action.indexOf('&intermediate=') < 0 && isIntermidate(action)) {
         form.action += '&intermediate=true';
     }

@@ -49,12 +49,13 @@ calli.getText = function(url, success) {
     }).then(success);
 };
 
-calli.postText = function(url, data, contentType) {
+calli.postText = function(url, data, contentType, slug) {
     return ajax({
         type: "POST",
         url: url,
         dataType: "text",
         contentType: contentType || "text/plain",
+        headers: slug && {Slug: slug},
         processData: false,
         data: data,
         xhrFields: {

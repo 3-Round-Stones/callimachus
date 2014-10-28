@@ -82,7 +82,7 @@
         }
         name = name.replace(/[^\\w\\+\\-\\_\\.\\!\\~\\*\\'\\(\\);\\,\\&\\=\\$\\[\\]]+/g,'_');
         var uri = this.resolve(name);
-        return this.PostFactoryCreate(content, fileClass, false, con.getObject(uri), contentType);
+        return this.PostFactoryCreate(content, fileClass, false, con.getObject(uri), slug, contentType);
     """.
 
 :slug a owl:FunctionalProperty, owl:DatatypeProperty;
@@ -345,7 +345,8 @@ rdfs:label a rdf:Property.
                     this.designateAsFolder(uri, Folder);
                     dependency.remove(uri);
                 } else if (carStream.isFileEntry()) {
-                    container.PostFactoryCreate(entryStream, File, null, location, type);
+                    var slug = name.replace(/\\s+/g, '+').replace(/.*\\/(.)/,'$1');
+                    container.PostFactoryCreate(entryStream, File, null, location, slug, type);
                     dependency.remove(uri);
                 } else if (carStream.isResourceEntry()) {
                     this.readFrom(type, entryStream, uri, null);

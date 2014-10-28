@@ -261,7 +261,7 @@
             throw new BadRequest("Unknown RDFSource media type: " + nrType);
         if (link && link.match(/<http:..www.w3.org.ns.ldp#RDFSource>[^<]*; *rel="type"/))
             throw new BadRequest("Unknown RDFSource media type: " + nrType);
-        return this.PostFactoryCreate(nrData, fileClass, false, of.createObject(uri), type);
+        return this.PostFactoryCreate(nrData, fileClass, false, of.createObject(uri), local, type);
     """.
 
 :nrData a owl:FunctionalProperty, owl:ObjectProperty;
@@ -307,7 +307,7 @@
         if (link && link.match(/<http:..www.w3.org.ns.ldp#DirectContainer>[^<]*; *rel="type"/))
             throw new BadRequest("ldp:DirectContainer interaction model is not supported");
         if (link && link.match(/<http:..www.w3.org.ns.ldp#NonRDFSource>[^<]*; *rel="type"/))
-            return this.PostFactoryCreate(rdfData, fileClass, false, of.createObject(uri), type);
+            return this.PostFactoryCreate(rdfData, fileClass, false, of.createObject(uri), local, type);
 
         //# Insert RDF DATA
         var newCopy = this.insertComponentGraph(rdfData, type, uri, null);
@@ -394,7 +394,7 @@
         if (link && link.match(/<http:..www.w3.org.ns.ldp#DirectContainer>[^<]*; *rel="type"/))
             throw new BadRequest("ldp:DirectContainer interaction model is not supported");
         if (link && link.match(/<http:..www.w3.org.ns.ldp#NonRDFSource>[^<]*; *rel="type"/))
-            return this.PostFactoryCreate(editData, fileClass, false, of.createObject(uri), type);
+            return this.PostFactoryCreate(editData, fileClass, false, of.createObject(uri), local, type);
 
         //# Insert RDF DATA
         var statements = new StatementCollector();
@@ -486,7 +486,7 @@
         if (insertLink && insertLink.match(/<http:..www.w3.org.ns.ldp#DirectContainer>[^<]*; *rel="type"/))
             throw new BadRequest("ldp:DirectContainer interaction model is not supported");
         if (insertLink && insertLink.match(/<http:..www.w3.org.ns.ldp#NonRDFSource>[^<]*; *rel="type"/))
-            return this.PostFactoryCreate(insertData, fileClass, false, of.createObject(uri), "application/sparql-update").headers.location;
+            return this.PostFactoryCreate(insertData, fileClass, false, of.createObject(uri), local, "application/sparql-update").headers.location;
 
         //# Parse INSERT DATA
         var updater = new EntityUpdater(this.resource, uri, true);
@@ -595,6 +595,14 @@
             if (!(createAlternate instanceof Creatable))
                 throw new BadRequest("Cannot create: " + create);
             create = createAlternate;
+        }
+        if (slug && !location) {
+            var ns = this.toString();
+            if (ns.lastIndexOf('/') < ns.length - 1) {
+                ns = ns + '/';
+            }
+            var local = encodeURI(slug).replace(/%25(\\w\\w)/g, '%$1').replace(/%20/g, '-');
+            location = this.objectConnection.objectFactory.createObject(ns + local);
         }
         var ftype = type;
         var documentTag = null;
@@ -736,6 +744,12 @@
     rdfs:domain :PostFactoryCreate;
     calli:query "resource";
     calli:type "text/uri-list".
+
+:slug a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:domain :PostFactoryCreate;
+    rdfs:range xsd:string;
+    calli:header "Slug";
+    calli:type "text/plain".
 
 :type a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :PostFactoryCreate;

@@ -42,7 +42,7 @@ calli.submitTurtleAs = function(event, fileName, create, folder) {
             return data;
         }).then(function(data){
             if (!data) return data;
-            return calli.postTurtle(url, data);
+            return calli.postTurtle(url, data, local);
         });
     }).then(function(redirect){
         if (redirect) {

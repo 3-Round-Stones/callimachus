@@ -11,12 +11,13 @@ var calli = window.calli || (window.calli={});
 calli.submitTurtle = function(event, local) {
     event.preventDefault();
     var form = calli.fixEvent(event).target;
+    var slug = encodeURI(local).replace(/%25(\w\w)/g, '%$1').replace(/%20/g, '+');
     var btn = $(form).find('button[type="submit"]');
     btn.button('loading');
     return calli.resolve(form).then(function(form){
         var previously = form.getAttribute("resource");
         var ns = window.location.pathname.replace(/\/?$/, '/');
-        var resource = ns + encodeURI(local).replace(/%25(\w\w)/g, '%$1').replace(/%20/g, '+');
+        var resource = ns + slug;
         form.setAttribute("resource", resource);
         try {
             return calli.copyResourceData(form);
@@ -37,7 +38,7 @@ calli.submitTurtle = function(event, local) {
         });
         return data;
     }).then(function(data){
-        return calli.postTurtle(calli.getFormAction(form), data);
+        return calli.postTurtle(calli.getFormAction(form), data, slug);
     }).then(function(redirect){
         if (redirect) {
             if (window.parent != window && parent.postMessage) {
@@ -53,14 +54,14 @@ calli.submitTurtle = function(event, local) {
     });
 };
 
-calli.postTurtle = function(url, data) {
+calli.postTurtle = function(url, data, slug) {
     var serializer = new TurtleSerializer();
     serializer.setBaseUri(data.base);
     serializer.setMappings(data.prefix);
     data.results.bindings.forEach(function(triple){
         serializer.addTriple(triple);
     });
-    return calli.postText(url, serializer.toString(), "text/turtle");
+    return calli.postText(url, serializer.toString(), "text/turtle", slug);
 };
 
 })(jQuery);

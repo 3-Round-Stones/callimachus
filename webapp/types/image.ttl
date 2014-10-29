@@ -114,78 +114,12 @@
     calli:header "Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
     calli:script "return this.openInputStream()".
 
-# POST ?create=/callimachus/ImageGraphic
-:PostImageCreate owl:intersectionOf (<creatable.ttl#PostCreate>
-        [owl:onProperty msg:target; owl:allValuesFrom [owl:oneOf (<NetworkGraphic> <IconGraphic> <AnimatedGraphic>)] ]);
-    calli:imports <java:java.net.URLEncoder>;
-    calli:imports <java:javax.mail.util.ByteArrayDataSource>;
-    calli:imports <java:javax.mail.internet.MimeMultipart>;
-    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    calli:imports <java:org.callimachusproject.server.exceptions.Conflict>;
-    calli:imports <java:org.openrdf.model.vocabulary.RDFS>;
-    calli:imports <java:org.openrdf.model.vocabulary.DCTERMS>;
-    calli:imports <java:javax.xml.datatype.DatatypeFactory>;
-    calli:imports <java:java.util.GregorianCalendar>;
-    calli:imports <java:java.util.TimeZone>;
-    calli:imports <File>;
-    calli:imports foaf:Image ;
-    calli:script """
-        var con = this.objectConnection;
-        var vf = con.getValueFactory();
-
-        //# image resource
-        var obj = location;
-        if (!obj)
-            throw new BadRequest("Missing location");
-
-        //# designate as foaf:Image
-        obj = con.addDesignation(obj, this.toString()) ;
-        obj = con.addDesignation(obj, Image);
-
-        //# add the image label
-        var fileName = location.resource.localName;
-        var label = fileName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
-        con.add(obj.resource, RDFS.LABEL, vf.createLiteral(label), []);
-
-        //# dcterms:created
-        var now = DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar(TimeZone.getTimeZone("UTC")));
-        con.add(obj.resource, DCTERMS.CREATED, vf.createLiteral(now), []);
-
-        var depiction = vf.createURI("http://xmlns.com/foaf/0.1/depiction");
-        con.add(obj.resource, depiction, obj.resource, []);
-
-        //# load image data
-        var out = obj.PutImage(body) ;
-
-        return obj;
-    """.
-
 :PutImage rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Image> ];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     calli:method "PUT";
     calli:requires calli:editor;
-    calli:imports <java:org.openrdf.model.vocabulary.DCTERMS>;
-    calli:imports <java:javax.xml.datatype.DatatypeFactory>;
-    calli:imports <java:java.util.GregorianCalendar>;
-    calli:imports <java:java.util.TimeZone>;
-    calli:script """
-        //# dcterms:modified
-        var now = DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar(TimeZone.getTimeZone("UTC")));
-        this.objectConnection.add(this.resource, DCTERMS.MODIFIED, this.objectConnection.valueFactory.createLiteral(now), []);
-
-        var out = this.openOutputStream() ;
-        var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
-        var read;
-        try {
-            while ((read = imageStream.read(buf)) >= 0) {
-                out.write(buf, 0, read);
-            }
-        } finally {
-            out.close();
-        }
-        this.touchRevision();
-    """.
+    calli:script "return this.ReplaceFileContent(imageStream, 'image/*', true);".
 
 :imageStream a owl:DatatypeProperty, owl:FunctionalProperty ;
     rdfs:domain :PutImage ;

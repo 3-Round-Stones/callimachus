@@ -198,6 +198,15 @@
     calli:type "application/sparql-update".
 
 ################################
+# Validate
+################################
+
+:Validate rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Editable>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+    calli:script "".
+
+################################
 # DELETE
 ################################
 

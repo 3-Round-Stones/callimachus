@@ -40,63 +40,41 @@
     calli:mediaType "application/docbook+xml";
     calli:documentTag <http://docbook.org/ns/docbook#article>.
 
-# POST ?create=/callimachus/Article
-:CreateArticle owl:intersectionOf (<creatable.ttl#PostCreate>
-        [owl:onProperty msg:target; owl:hasValue <Article> ]);
-    calli:imports <java:org.openrdf.model.vocabulary.RDFS>;
-    calli:imports <java:java.net.URLDecoder>;
-    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
+:ReplaceArticle owl:intersectionOf (<file.ttl#ReplaceFileContent>
+        [owl:onProperty msg:target; owl:allValuesFrom <Article> ]);
     calli:imports <java:org.callimachusproject.server.exceptions.ServiceUnavailable>;
     calli:imports <java:org.openrdf.model.vocabulary.DCTERMS>;
     calli:imports <java:javax.xml.datatype.DatatypeFactory>;
     calli:imports <java:java.util.GregorianCalendar>;
     calli:imports <java:java.util.TimeZone>;
-    calli:imports <File>;
     calli:imports foaf:Document;
     calli:script """
-        var con = this.objectConnection;
-        var vf = con.valueFactory;
-        if (!location)
-            throw new BadRequest("Missing location request header");
-        var created = location;
+        if (modified) {
+            //# dcterms:modified
+            var now = DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar(TimeZone.getTimeZone("UTC")));
+            this.objectConnection.add(this.resource, DCTERMS.MODIFIED, this.objectConnection.valueFactory.createLiteral(now), []);
+        }
 
-        var filename = created.resource.localName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
-        var label = vf.createLiteral(URLDecoder.decode(filename, "UTF-8").replace(/[_\\-\\+\\s]+/g, " "));
-        con.add(created.resource, RDFS.LABEL, label, []);
-
-        //# dcterms:created
-        var now = DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar(TimeZone.getTimeZone("UTC")));
-        con.add(created.resource, DCTERMS.CREATED, vf.createLiteral(now), []);
-
-        created = con.addDesignation(created, this.toString());
-        created = con.addDesignation(created, Document);
+        if (contentType.indexOf("application/xhtml+xml") == 0) {
+            content = this.ConvertXhtmlDocbook(content);
+        }
 
         var read;
-        var stream = body;
-        if (type.indexOf("application/xhtml+xml") == 0) {
-            stream = created.ConvertXhtmlDocbook(body);
-        }
+        var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
+        var out = this.openOutputStream();
         try {
-            var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
-            var out = created.openOutputStream();
-            try {
-                while ((read = stream.read(buf)) >= 0) {
-                    out.write(buf, 0, read);
-                }
-            } finally {
-                out.close();
+            while ((read = content.read(buf)) >= 0) {
+                out.write(buf, 0, read);
             }
         } finally {
-            stream.close();
+            out.close();
         }
+
         try {
-            created.ValidateBook();
-            created.CheckBook();
+            this.Validate();
         } catch (e if e.javaException instanceof ServiceUnavailable) {
-            java.lang.System.err.println("Storing " + created);
+            java.lang.System.err.println("Storing " + this);
         }
-        return created;
     """.
 
 # PUT /books/main-article.docbook?xhtml
@@ -106,35 +84,7 @@
     calli:method "PUT";
     calli:query "xhtml";
     calli:requires calli:editor;
-    calli:imports foaf:Document;
-    calli:imports <java:org.openrdf.model.vocabulary.DCTERMS>;
-    calli:imports <java:javax.xml.datatype.DatatypeFactory>;
-    calli:imports <java:java.util.GregorianCalendar>;
-    calli:imports <java:java.util.TimeZone>;
-    calli:script """
-        //# dcterms:modified
-        var now = DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar(TimeZone.getTimeZone("UTC")));
-        this.objectConnection.add(this.resource, DCTERMS.MODIFIED, this.objectConnection.valueFactory.createLiteral(now), []);
-
-        var read;
-        var docbookStream = this.ConvertXhtmlDocbook(xhtmlStream);
-        try {
-            var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
-            var out = this.openOutputStream();
-            try {
-                while ((read = docbookStream.read(buf)) >= 0) {
-                    out.write(buf, 0, read);
-                }
-            } finally {
-                out.close();
-            }
-        } finally {
-            docbookStream.close();
-        }
-        this.ValidateBook();
-        this.CheckBook();
-        this.touchRevision();
-    """.
+    calli:script "return this.ReplaceFileContent(xhtmlStream, 'application/xhtml+xml', true);".
 
 :xhtmlStream a owl:ObjectProperty; a owl:FunctionalProperty;
     rdfs:domain :UploadXhtmlArticle;

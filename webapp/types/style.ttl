@@ -53,77 +53,23 @@
     calli:header "Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
     calli:script "return this.openReader(true)".
 
-# POST ?create=/callimachus/Style
-:CreateStyle owl:intersectionOf (<creatable.ttl#PostCreate>
-        [owl:onProperty msg:target; owl:hasValue <StyleSheet> ]);
-    calli:imports <java:org.openrdf.model.vocabulary.RDFS>;
-    calli:imports <java:org.openrdf.model.vocabulary.DCTERMS>;
-    calli:imports <java:javax.xml.datatype.DatatypeFactory>;
-    calli:imports <java:java.util.GregorianCalendar>;
-    calli:imports <java:java.util.TimeZone>;
-    calli:imports <java:java.net.URLDecoder>;
-    calli:imports <java:org.callimachusproject.server.WebServer>;
-    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
-    calli:imports <File>;
-    calli:imports foaf:Document;
-    calli:script """
-        var con = this.objectConnection;
-        var vf = con.valueFactory;
-        if (!location)
-            throw new BadRequest("Missing location request header");
-        var created = location;
-
-        var filename = created.resource.localName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
-        var label = vf.createLiteral(URLDecoder.decode(filename, "UTF-8").replace(/[_\\-\\+\\s]+/g, " "));
-        con.add(created.resource, RDFS.LABEL, label, []);
-
-        //# dcterms:created
-        var now = DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar(TimeZone.getTimeZone("UTC")));
-        con.add(created.resource, DCTERMS.CREATED, vf.createLiteral(now), []);
-
-        created = con.addDesignation(created, this.toString());
-        created = con.addDesignation(created, Document);
-
-        created.UploadStyle(new org.callimachusproject.io.TextReader(body, "UTF-8"));
-        return created;
-    """.
-
 # PUT /style.css
 :UploadStyle rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <StyleSheet>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     calli:method "PUT";
     calli:requires calli:editor;
-    calli:imports <java:org.openrdf.model.vocabulary.RDFS>;
-    calli:imports <java:java.net.URLDecoder>;
-    calli:imports <java:org.callimachusproject.server.WebServer>;
-    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    calli:imports <StyleSheet>;
-    calli:imports <java:org.openrdf.query.QueryLanguage>;
-    calli:imports <java:org.openrdf.model.vocabulary.DCTERMS>;
-    calli:imports <java:javax.xml.datatype.DatatypeFactory>;
-    calli:imports <java:java.util.GregorianCalendar>;
-    calli:imports <java:java.util.TimeZone>;
+    calli:imports <java:org.apache.commons.io.input.ReaderInputStream>;
+    calli:imports <java:java.nio.charset.Charset>;
     calli:script """
-        //# dcterms:modified
-        var now = DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar(TimeZone.getTimeZone("UTC")));
-        this.objectConnection.add(this.resource, DCTERMS.MODIFIED, this.objectConnection.valueFactory.createLiteral(now), []);
-
-        if (!reader)
-            throw new BadRequest("Missing PUT request payload");
-        var read;
-        var buf = java.lang.reflect.Array.newInstance(java.lang.Character.TYPE, 1024);
-        var out = this.openWriter();
-        try {
-            while ((read = reader.read(buf)) >= 0) {
-                out.write(buf, 0, read);
-            }
-        } finally {
-            out.close();
-        }
-        this.touchRevision();
+        var stream = new ReaderInputStream(reader, Charset.defaultCharset());
+        return this.ReplaceFileContent(stream, 'text/css', true);
     """.
+
+:reader a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :UploadStyle;
+    rdfs:range <java:java.io.Reader>;
+    calli:type "text/css".
 
 :DeleteStyle owl:intersectionOf ( <editable.ttl#Delete>
         [owl:onProperty msg:target; owl:allValuesFrom <StyleSheet>]);
@@ -132,11 +78,6 @@
         this.objectConnection.getBlobObject(systemId)['delete']();
         return proceed();
     """.
-
-:reader a owl:FunctionalProperty, owl:ObjectProperty;
-    rdfs:domain :UploadStyle;
-    rdfs:range <java:java.io.Reader>;
-    calli:type "text/css".
 
 # GET /style.css?less
 :CompressLess rdfs:subClassOf msg:Message;

@@ -670,7 +670,7 @@
             throw new BadRequest("Fragement or name resources are not supported: " + createdUri);
         if (this.calliHasComponent.contains(location))
             throw new Conflict("Resource " + location + " already exists");
-        var subclass = create.LookupConstructor(documentTag, ftype.replace(/\\s*;.*/,''));
+        var subclass = this.LookupConstructor(create, documentTag, ftype.replace(/\\s*;.*/,''));
         var bootstrap = !subclass && ftype.indexOf('text/turtle') === 0 && create.toString().indexOf('/File') > 0;
         var construct = subclass || bootstrap && this.objectConnection.objectFactory.createObject(create.resource.namespace + "RdfTurtle", Creatable) || create;
         var newCopy = construct.PostCreate(bio, location, ftype);
@@ -714,7 +714,7 @@
     calli:type "*/*".
 
 :create a owl:FunctionalProperty, owl:ObjectProperty;
-    rdfs:domain [owl:unionOf (:GetCreatorPage :PostFactoryCreate :FindCreatableVersion)];
+    rdfs:domain [owl:unionOf (:GetCreatorPage :PostFactoryCreate :FindCreatableVersion :LookupConstructor)];
     calli:query "create";
     calli:type "text/uri-list".
 
@@ -835,6 +835,60 @@
     rdfs:domain :PostNonRDFSource;
     rdfs:range <java:java.io.InputStream>;
     calli:type "*/*;q=0.1".
+
+:LookupConstructor rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Composite>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
+    msg:sparql """
+        PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
+        SELECT REDUCED ?class {
+            {
+                # xml type with correct document tag
+                ?class rdfs:subClassOf+ $create
+                FILTER bound($documentTag)
+                FILTER EXISTS { ?class calli:documentTag $documentTag }
+                BIND (0 AS ?preference)
+            } UNION {
+                # non-xml type or xml type without document tag
+                ?class rdfs:subClassOf+ $create
+                FILTER bound($mediaType)
+                FILTER EXISTS { ?class calli:mediaType $mediaType }
+                FILTER NOT EXISTS { ?class calli:documentTag ?tag }
+                BIND (1 AS ?preference)
+            } UNION {
+                # supported media type alias (document tag not considered)
+                ?class rdfs:subClassOf+ $create; calli:mediaType ?typ2
+                FILTER (
+                    (
+                        (sameTerm($mediaType,"application/javascript") || sameTerm($mediaType,"text/javascript"))
+                        && (sameTerm(?typ2,"application/javascript") || sameTerm(?typ2,"text/javascript"))
+                    ) || (
+                        (sameTerm($mediaType,"application/xslt+xml") || sameTerm($mediaType,"text/xsl"))
+                        && (sameTerm(?typ2,"application/xslt+xml") || sameTerm(?typ2,"text/xsl"))
+                    ) || (
+                        (sameTerm($mediaType,"application/java-archive") || sameTerm($mediaType,"application/zip"))
+                        && (sameTerm(?typ2,"application/java-archive") || sameTerm(?typ2,"application/zip"))
+                    ) || (
+                        (sameTerm($mediaType,"image/x-png") || sameTerm($mediaType,"image/png"))
+                        && (sameTerm(?typ2,"image/x-png") || sameTerm(?typ2,"image/png"))
+                    ) || (
+                        (sameTerm($mediaType,"image/pjpeg") || sameTerm($mediaType,"image/jpeg"))
+                        && (sameTerm(?typ2,"image/pjpeg") || sameTerm(?typ2,"image/jpeg"))
+                    )
+                )
+                BIND (2 AS ?preference)
+            }
+        } ORDER BY ?preference LIMIT 1
+    """.
+
+:documentTag a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :LookupConstructor;
+    calli:type "text/uri-list".
+
+:mediaType a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :LookupConstructor;
+    rdfs:range xsd:string.
 
 ################################
 # Delete

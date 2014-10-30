@@ -35,61 +35,6 @@
     owl:equivalentClass </callimachus/Creatable>, </callimachus/1.0/types/Creatable>, </callimachus/1.3/types/Creatable>;
     rdfs:isDefinedBy <../../ontology>.
 
-# POST ?create=/callimachus/File
-:LookupConstructor rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Creatable>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <Creatable>];
-    msg:sparql """
-        PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
-        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
-        SELECT REDUCED ?class {
-            {
-                # xml type with correct document tag
-                ?class rdfs:subClassOf+ $this
-                FILTER bound($documentTag)
-                FILTER EXISTS { ?class calli:documentTag $documentTag }
-                BIND (0 AS ?preference)
-            } UNION {
-                # non-xml type or xml type without document tag
-                ?class rdfs:subClassOf+ $this
-                FILTER bound($mediaType)
-                FILTER EXISTS { ?class calli:mediaType $mediaType }
-                FILTER NOT EXISTS { ?class calli:documentTag ?tag }
-                BIND (1 AS ?preference)
-            } UNION {
-                # supported media type alias (document tag not considered)
-                ?class rdfs:subClassOf+ $this; calli:mediaType ?typ2
-                FILTER (
-                    (
-                        (sameTerm($mediaType,"application/javascript") || sameTerm($mediaType,"text/javascript"))
-                        && (sameTerm(?typ2,"application/javascript") || sameTerm(?typ2,"text/javascript"))
-                    ) || (
-                        (sameTerm($mediaType,"application/xslt+xml") || sameTerm($mediaType,"text/xsl"))
-                        && (sameTerm(?typ2,"application/xslt+xml") || sameTerm(?typ2,"text/xsl"))
-                    ) || (
-                        (sameTerm($mediaType,"application/java-archive") || sameTerm($mediaType,"application/zip"))
-                        && (sameTerm(?typ2,"application/java-archive") || sameTerm(?typ2,"application/zip"))
-                    ) || (
-                        (sameTerm($mediaType,"image/x-png") || sameTerm($mediaType,"image/png"))
-                        && (sameTerm(?typ2,"image/x-png") || sameTerm(?typ2,"image/png"))
-                    ) || (
-                        (sameTerm($mediaType,"image/pjpeg") || sameTerm($mediaType,"image/jpeg"))
-                        && (sameTerm(?typ2,"image/pjpeg") || sameTerm(?typ2,"image/jpeg"))
-                    )
-                )
-                BIND (2 AS ?preference)
-            }
-        } ORDER BY ?preference LIMIT 1
-    """.
-
-:documentTag a owl:FunctionalProperty, owl:ObjectProperty;
-    rdfs:domain :LookupConstructor;
-    calli:type "text/uri-list".
-
-:mediaType a owl:FunctionalProperty, owl:ObjectProperty;
-    rdfs:domain :LookupConstructor;
-    rdfs:range xsd:string.
-
 # override this method for subclass create methods
 :PostCreate rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Creatable>];

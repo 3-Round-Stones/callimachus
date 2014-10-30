@@ -246,8 +246,33 @@
                 throw new BadRequest("Cannot create: " + create);
             create = createAlternate;
         }
-        return create.GetCreatePage(this);
+        if (!create.calliCreate || create.calliCreate.isEmpty())
+            throw new InternalServerError("No create template");
+        if (create.calliCreate.size() != 1)
+            throw new InternalServerError("Multiple create templates");
+        var page = create.calliCreate.iterator().next();
+        var stream = page.openInputStream();
+        if (!stream)
+            throw new InternalServerError(page + " does not exist");
+        try {
+            return this.TransformCreatePage(page, stream);
+        } finally {
+            stream.close();
+        }
     """.
+
+:TransformCreatePage rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Composite>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
+    calli:post "../pipelines/creatable-html.xpl?results&target={0}\nContent-Location: {+createPage}\nContent-Type: application/xhtml+xml".
+
+:createPage a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :TransformCreatePage.
+
+:createPageStream a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :TransformCreatePage;
+    rdfs:range <java:java.io.InputStream>;
+    calli:type "application/xhtml+xml".
 
 ################################
 # POST RDF

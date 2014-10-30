@@ -35,50 +35,6 @@
     owl:equivalentClass </callimachus/Creatable>, </callimachus/1.0/types/Creatable>, </callimachus/1.3/types/Creatable>;
     rdfs:isDefinedBy <../../ontology>.
 
-:GetCreatePage rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Creatable>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
-    calli:rel "create-form";
-    calli:method "GET";
-    calli:query "create";
-    calli:requires calli:author;
-    calli:type "text/html";
-    calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
-    calli:script """
-        if (!this.calliCreate || this.calliCreate.isEmpty())
-            throw new InternalServerError("No create template");
-        if (this.calliCreate.size() != 1)
-            throw new InternalServerError("Multiple create templates");
-        var page = this.calliCreate.iterator().next();
-        var stream = page.openInputStream();
-        if (!stream)
-            throw new InternalServerError(page + " does not exist");
-        try {
-            return this.TransformCreatePage(page, stream, targetOfCreate);
-        } finally {
-            stream.close();
-        }
-    """.
-
-:targetOfCreate a owl:FunctionalProperty, owl:ObjectProperty;
-    rdfs:domain :GetCreatePage.
-
-:TransformCreatePage rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Creatable>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
-    calli:post "../pipelines/creatable-html.xpl?results&target={targetOfHtml}\nContent-Location: {+createPage}\nContent-Type: application/xhtml+xml".
-
-:createPage a owl:FunctionalProperty, owl:ObjectProperty;
-    rdfs:domain :TransformCreatePage.
-
-:createPageStream a owl:FunctionalProperty, owl:ObjectProperty;
-    rdfs:domain :TransformCreatePage;
-    rdfs:range <java:java.io.InputStream>;
-    calli:type "application/xhtml+xml".
-
-:targetOfHtml a owl:FunctionalProperty, owl:ObjectProperty;
-    rdfs:domain :TransformCreatePage.
-
 # POST ?create=/callimachus/File
 :LookupConstructor rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Creatable>];

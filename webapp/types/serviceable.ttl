@@ -130,15 +130,6 @@ skos:editorialNote a owl:AnnotationProperty.
     calli:type "application/xhtml+xml".
 
 ################################
-# Validate
-################################
-
-:Validate rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Serviceable>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-    calli:script "".
-
-################################
 # GET describedby
 ################################
 
@@ -199,6 +190,78 @@ skos:editorialNote a owl:AnnotationProperty.
     rdfs:domain :TransformDescription;
     rdfs:range <java:org.openrdf.query.GraphQueryResult>;
     calli:type "application/rdf+xml".
+
+################################
+# DELETE INSERT
+################################
+
+:PutDescribe rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Serviceable>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+    calli:method "PUT";
+    calli:query "describe";
+    calli:requires calli:administrator;
+    calli:imports <java:org.callimachusproject.engine.helpers.SparqlUpdateFactory>;
+    calli:imports <java:org.callimachusproject.server.exceptions.PreconditionRequired>;
+    calli:script """
+        if (!replaceIfMatch) throw new PreconditionRequired("If-Match request header is required");
+        var sparql = new SparqlUpdateFactory(this.resource + "?describe").replacement(this.GetRdfDescription(null, "describe"), replacementData);
+        this.PatchDeleteInsert(new java.io.ByteArrayInputStream(new java.lang.String(sparql).getBytes("UTF-8")));
+    """.
+
+:replaceIfMatch a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:domain :PutDescribe;
+    rdfs:range xsd:string;
+    calli:header "If-Match";
+    calli:type "text/plain".
+
+:replacementData a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :PutDescribe;
+    rdfs:range <java:org.openrdf.query.GraphQueryResult>;
+    calli:type "text/turtle;q=0.6", "application/ld+json;q=0.4", "application/rdf+xml;q=0.2".
+
+:PatchDeleteInsert rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Serviceable>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+    calli:method "PATCH";
+    calli:query "describe";
+    calli:requires calli:administrator;
+    calli:imports <java:org.callimachusproject.form.helpers.EntityUpdater>;
+    calli:imports <java:org.callimachusproject.server.exceptions.ServiceUnavailable>;
+    calli:script """
+        var con = this.objectConnection;
+
+        //# Parse DELETE INSERT
+        var updater = new EntityUpdater(this.resource, "?describe");
+        updater.executeUpdate(deleteInsert, con);
+
+        try {
+            this.Validate();
+        } catch (e if e.javaException instanceof ServiceUnavailable) {
+            java.lang.System.err.println("Storing " + this);
+        }
+
+        this.touchRevision();
+        //# FIXME we shouldn't need to touch anything
+        var parent = this.SelectParentComposite();
+        if (parent) {
+            parent.touchRevision();
+        }
+    """.
+
+:deleteInsert a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :PatchDeleteInsert;
+    rdfs:range <java:java.io.InputStream>;
+    calli:type "application/sparql-update".
+
+################################
+# Validate
+################################
+
+:Validate rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Serviceable>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+    calli:script "".
 
 ################################
 # Permissions

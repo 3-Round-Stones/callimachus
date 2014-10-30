@@ -369,7 +369,6 @@
     calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
     calli:imports <java:org.callimachusproject.server.exceptions.ServiceUnavailable>;
     calli:imports <java:org.openrdf.rio.helpers.StatementCollector>;
-    calli:imports <Editable>;
     calli:imports <Composite>;
     calli:imports <Serviceable>;
     calli:script """
@@ -410,8 +409,6 @@
         }
         if (this.calliHasComponent.contains(created))
             throw new Conflict("Resource " + created + " already exists");
-        if (!(created instanceof Editable))
-            throw new BadRequest("Resource is not Editable: " + created);
         if (!(created instanceof Serviceable))
             throw new BadRequest("Resource is not Serviceable: " + created);
         if (!(created instanceof Composite) && link && link.match(/<http:..www.w3.org.ns.ldp#[a-zA-Z]*Container>[^<]*; *rel="type"/))
@@ -506,7 +503,6 @@
     calli:imports <java:org.callimachusproject.server.exceptions.Forbidden>;
     calli:imports <java:org.callimachusproject.server.exceptions.Conflict>;
     calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
-    calli:imports <Editable>;
     calli:imports <Composite>;
     calli:imports <Serviceable>;
     calli:script """
@@ -572,8 +568,6 @@
         }
         if (this.calliHasComponent.contains(created))
             throw new Conflict("Resource " + created + " already exists");
-        if (!(created instanceof Editable))
-            throw new BadRequest("Resource is not Editable: " + created);
         if (!(created instanceof Serviceable))
             throw new BadRequest("Resource is not Serviceable: " + created);
         if (!(created instanceof Composite) && link && link.match(/<http:..www.w3.org.ns.ldp#[a-zA-Z]*Container>[^<]*; *rel="type"/))
@@ -692,7 +686,6 @@
     calli:imports foaf:Document;
     calli:imports foaf:Image;
     calli:imports <Creatable>;
-    calli:imports <Editable>;
     calli:imports <Composite>;
     calli:imports <Serviceable>;
     calli:script """

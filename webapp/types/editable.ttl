@@ -356,6 +356,8 @@
                         redirect = subj.stringValue();
                     }
                     con.remove(st.subject, st.predicate, st.object, []);
+                } else if (st.predicate.stringValue() == "http://www.w3.org/1999/02/22-rdf-syntax-ns#type") {
+                    throw new Conflict("Members of " + this + " must be deleted first");
                 }
             }
         } finally {

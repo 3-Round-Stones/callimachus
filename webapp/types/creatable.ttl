@@ -35,30 +35,6 @@
     owl:equivalentClass </callimachus/Creatable>, </callimachus/1.0/types/Creatable>, </callimachus/1.3/types/Creatable>;
     rdfs:isDefinedBy <../../ontology>.
 
-:DeleteCreatable owl:intersectionOf ( <editable.ttl#DeleteIfNotUsed>
-        [owl:onProperty msg:target; owl:allValuesFrom [owl:intersectionOf (<Editable> <Creatable>)]]);
-    calli:method "DELETE";
-    calli:query "edit", "describe";
-    calli:requires calli:editor;
-    calli:type "message/x-response";
-    calli:imports <java:org.callimachusproject.server.exceptions.Conflict>;
-    calli:script """
-        if (this.HasInstanceChildren())
-            throw new Conflict("Members of " + this + " must be deleted first");
-        return proceed();
-    """.
-
-:HasInstanceChildren rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Creatable>];
-    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:boolean];
-    rdfs:subClassOf [owl:onProperty msg:literal; owl:cardinality 1];
-    msg:sparql """
-        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
-        ASK {
-            ?child a $this
-        }
-    """.
-
 :GetCreatePage rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Creatable>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];

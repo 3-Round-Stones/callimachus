@@ -54,58 +54,6 @@
     """.
 
 ################################
-# POST file
-################################
-
-:PostFileSlug rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
-    rdfs:subClassOf [owl:onProperty :fileClass; owl:hasValue <File>];
-    calli:method "POST";
-    calli:query "contents";
-    calli:requires calli:contributor;
-    calli:type "message/x-response";
-    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    calli:script """
-        if (!slug)
-            throw new BadRequest("Missing Slug HTTP header");
-        if (!contentType)
-            throw new BadRequest("Missing Content-Type HTTP header");
-        if (!content)
-            throw new BadRequest("Missing request content");
-        var con = this.objectConnection;
-        var name = decodeURIComponent(slug);
-        name = name.replace(/[-\\s]+/g, '-');
-        name = java.text.Normalizer.normalize(name, java.text.Normalizer.Form.NFD);
-        if (!name.match(/[a-z][A-Z]/)) {
-            name = name.toLowerCase();
-        }
-        name = name.replace(/[^\\w\\+\\-\\_\\.\\!\\~\\*\\'\\(\\);\\,\\&\\=\\$\\[\\]]+/g,'_');
-        var uri = this.resolve(name);
-        return this.PostFactoryCreate(content, fileClass, false, con.getObject(uri), slug, contentType);
-    """.
-
-:slug a owl:FunctionalProperty, owl:DatatypeProperty;
-    rdfs:domain :PostFileSlug;
-    rdfs:range xsd:string;
-    calli:header "Slug";
-    calli:type "text/plain".
-
-:contentType a owl:FunctionalProperty, owl:DatatypeProperty;
-    rdfs:domain :PostFileSlug;
-    rdfs:range xsd:string;
-    calli:header "Content-Type";
-    calli:type "text/plain".
-
-:content a owl:FunctionalProperty, owl:ObjectProperty;
-    rdfs:domain :PostFileSlug;
-    rdfs:range <java:java.io.InputStream>;
-    calli:type "*/*".
-
-:fileClass a owl:FunctionalProperty, owl:ObjectProperty;
-    rdfs:domain :PostFileSlug.
-
-################################
 # List folder contents
 ################################
 

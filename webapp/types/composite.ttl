@@ -727,14 +727,6 @@
         var now = DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar(TimeZone.getTimeZone("UTC")));
         con.add(created.resource, DCTERMS.CREATED, vf.createLiteral(now), []);
 
-        if (!create) {
-            create = fileClass;
-        } else if (!(create instanceof Creatable)) {
-            var createAlternate = this.FindCreatableVersion(create);
-            if (!(createAlternate instanceof Creatable))
-                throw new BadRequest("Cannot create: " + create);
-            create = createAlternate;
-        }
         if (!type || type == "application/octet-stream") {
             var mimetypes = new javax.activation.MimetypesFileTypeMap();
             type = mimetypes.getContentType(local);
@@ -766,9 +758,9 @@
         } catch (e if e.javaException) {
             throw new BadRequest(e.javaException);
         }
-        var subclass = this.LookupConstructor(create, documentTag, type.replace(/\\s*;.*/,''));
+        var subclass = this.LookupConstructor(create || fileClass, documentTag, type.replace(/\\s*;.*/,''));
         var bootstrap = !subclass && type.indexOf('text/turtle') === 0 && create == fileClass;
-        var construct = subclass || bootstrap && this.objectConnection.objectFactory.createObject(create.resource.namespace + "RdfTurtle", Creatable) || create;
+        var construct = subclass || bootstrap && this.objectConnection.objectFactory.createObject(fileClass.resource.namespace + "RdfTurtle", Creatable) || create;
         var iter = this.FindCreator(created).iterator();
         while (iter.hasNext()) {
             var user = iter.next();

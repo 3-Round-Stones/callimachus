@@ -146,15 +146,6 @@
                     )
                 )
                 BIND (2 AS ?preference)
-            } UNION {
-                # boot strap graphs before calli:mediaType triples are loaded
-                BIND (<RdfTurtle> AS ?class)
-                FILTER sameTerm($mediaType,"text/turtle")
-                FILTER sameTerm($this, <File>)
-                BIND (3 AS ?preference)
-            } UNION {
-                BIND ($this AS ?class)
-                BIND (4 AS ?preference)
             }
         } ORDER BY ?preference LIMIT 1
     """.

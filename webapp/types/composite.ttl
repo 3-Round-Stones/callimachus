@@ -645,7 +645,9 @@
             throw new BadRequest("Fragement or name resources are not supported: " + createdUri);
         if (this.calliHasComponent.contains(location))
             throw new Conflict("Resource " + location + " already exists");
-        var construct = create.LookupConstructor(documentTag, ftype.replace(/\\s*;.*/,''));
+        var subclass = create.LookupConstructor(documentTag, ftype.replace(/\\s*;.*/,''));
+        var bootstrap = !subclass && ftype.indexOf('text/turtle') === 0 && create.toString().indexOf('/File') > 0;
+        var construct = subclass || bootstrap && this.objectConnection.objectFactory.createObject(create.resource.namespace + "RdfTurtle", Creatable) || create;
         var newCopy = construct.PostCreate(bio, location, ftype);
         if (!newCopy) throw new InternalServerError("Could not create " + location + " using " + construct);
         if (newCopy != location && this.calliHasComponent.contains(newCopy))

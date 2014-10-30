@@ -207,6 +207,43 @@
 # PATCH DELETE INSERT
 ################################
 
+:PutDescribe rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Editable>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+    calli:method "PUT";
+    calli:query "describe";
+    calli:requires calli:administrator;
+    calli:imports <java:org.callimachusproject.form.helpers.EntityUpdater>;
+    calli:imports <java:org.callimachusproject.server.exceptions.PreconditionRequired>;
+    calli:script """
+        var con = this.objectConnection;
+        var vf = con.valueFactory;
+
+        if (!replaceIfMatch) throw new PreconditionRequired("If-Match request header is required");
+
+        //# Parse DELETE INSERT
+        var updater = new EntityUpdater(this.resource, "?describe");
+        updater.executeReplacement(this.GetRdfDescription(null, "describe"), replacementData, con);
+
+        this.touchRevision();
+        //# FIXME we shouldn't need to touch anything
+        var parent = this.SelectParentComposite();
+        if (parent) {
+            parent.touchRevision();
+        }
+    """.
+
+:replaceIfMatch a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:domain :PutDescribe;
+    rdfs:range xsd:string;
+    calli:header "If-Match";
+    calli:type "text/plain".
+
+:replacementData a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :PutDescribe;
+    rdfs:range <java:org.openrdf.query.GraphQueryResult>;
+    calli:type "text/turtle", "application/ld+json;q=0.4", "application/rdf+xml;q=0.2".
+
 :PatchDeleteInsert rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Editable>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
@@ -280,43 +317,6 @@
 
 :fileClass a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :PostDeleteInsert.
-
-:PutDescribe rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Editable>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-    calli:method "PUT";
-    calli:query "describe";
-    calli:requires calli:administrator;
-    calli:imports <java:org.callimachusproject.form.helpers.EntityUpdater>;
-    calli:imports <java:org.callimachusproject.server.exceptions.PreconditionRequired>;
-    calli:script """
-        var con = this.objectConnection;
-        var vf = con.valueFactory;
-
-        if (!replaceIfMatch) throw new PreconditionRequired("If-Match request header is required");
-
-        //# Parse DELETE INSERT
-        var updater = new EntityUpdater(this.resource, "?describe");
-        updater.executeReplacement(this.GetRdfDescription(null, "describe"), replacementData, con);
-
-        this.touchRevision();
-        //# FIXME we shouldn't need to touch anything
-        var parent = this.SelectParentComposite();
-        if (parent) {
-            parent.touchRevision();
-        }
-    """.
-
-:replaceIfMatch a owl:FunctionalProperty, owl:DatatypeProperty;
-    rdfs:domain :PutDescribe;
-    rdfs:range xsd:string;
-    calli:header "If-Match";
-    calli:type "text/plain".
-
-:replacementData a owl:FunctionalProperty, owl:ObjectProperty;
-    rdfs:domain :PutDescribe;
-    rdfs:range <java:org.openrdf.query.GraphQueryResult>;
-    calli:type "text/turtle", "application/ld+json;q=0.4", "application/rdf+xml;q=0.2".
 
 ################################
 # DELETE

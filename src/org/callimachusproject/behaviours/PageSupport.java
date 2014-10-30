@@ -18,14 +18,10 @@
 package org.callimachusproject.behaviours;
 
 import static org.callimachusproject.util.PercentCodec.encode;
-import static org.openrdf.query.QueryLanguage.SPARQL;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringWriter;
-import java.net.URISyntaxException;
 import java.util.Collection;
-import java.util.Set;
 
 import org.callimachusproject.auth.DetachedRealm;
 import org.callimachusproject.engine.RDFEventReader;
@@ -33,17 +29,11 @@ import org.callimachusproject.engine.RDFParseException;
 import org.callimachusproject.engine.Template;
 import org.callimachusproject.engine.TemplateEngine;
 import org.callimachusproject.engine.TemplateException;
-import org.callimachusproject.engine.events.Ask;
-import org.callimachusproject.engine.events.Group;
 import org.callimachusproject.engine.events.RDFEvent;
 import org.callimachusproject.engine.events.TriplePattern;
-import org.callimachusproject.engine.events.Union;
-import org.callimachusproject.engine.events.Where;
-import org.callimachusproject.engine.helpers.SPARQLWriter;
 import org.callimachusproject.engine.model.AbsoluteTermFactory;
 import org.callimachusproject.engine.model.IRI;
 import org.callimachusproject.engine.model.TermFactory;
-import org.callimachusproject.engine.model.Var;
 import org.callimachusproject.engine.model.VarOrTerm;
 import org.callimachusproject.form.helpers.EntityUpdater;
 import org.callimachusproject.form.helpers.TripleInserter;
@@ -54,22 +44,13 @@ import org.callimachusproject.traits.CalliObject;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
-import org.openrdf.model.ValueFactory;
 import org.openrdf.model.vocabulary.DCTERMS;
-import org.openrdf.query.BooleanQuery;
 import org.openrdf.query.GraphQueryResult;
 import org.openrdf.query.impl.MapBindingSet;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.ObjectFactory;
 import org.openrdf.repository.object.RDFObject;
-import org.openrdf.repository.util.RDFInserter;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFHandler;
 import org.openrdf.rio.RDFHandlerException;
-import org.openrdf.rio.RDFParser;
-import org.openrdf.rio.RDFParserRegistry;
-import org.openrdf.rio.helpers.RDFHandlerWrapper;
-import org.openrdf.rio.helpers.StatementCollector;
 
 /**
  * Removes and saves the provided RDF/XML triples from and into the RDF store
@@ -80,7 +61,6 @@ import org.openrdf.rio.helpers.StatementCollector;
  */
 public abstract class PageSupport implements CalliObject {
 	private static final String CHANGE_NOTE = "http://www.w3.org/2004/02/skos/core#changeNote";
-	private static final String HAS_COMPONENT = "http://callimachusproject.org/rdf/2009/framework#" + "hasComponent";
 
 	/**
 	 * Called from page.ttl
@@ -128,52 +108,6 @@ public abstract class PageSupport implements CalliObject {
 			verifyCreatedStatements(tracker.getPrimaryTopic(), statements, con);
 		} catch (RDFHandlerException e) {
 			throw new BadRequest(e);
-		}
-	}
-
-	public RDFObject calliCreateResource(InputStream in, String type,
-			String base, final RDFObject target) throws Exception {
-		try {
-			ObjectConnection con = target.getObjectConnection();
-			if (isResourceAlreadyPresent(con, target.toString()))
-				throw new Conflict("Resource already exists: " + target);
-			StatementCollector statements = new StatementCollector();
-			RDFHandler handler = new RDFHandlerWrapper(new RDFInserter(con), statements);
-			TripleInserter tracker = new TripleInserter(handler, con);
-			tracker.setBaseURI(base);
-			tracker.accept(openPatternReader(target.toString()));
-			tracker.accept(created((URI) target.getResource()));
-			RDFFormat format = RDFFormat.forMIMEType(type);
-			RDFParserRegistry registry = RDFParserRegistry.getInstance();
-			RDFParser parser = registry.get(format).getParser();
-			parser.setValueFactory(con.getValueFactory());
-			parser.setRDFHandler(tracker);
-			parser.parse(in, base);
-			if (tracker.isEmpty())
-				throw new BadRequest("Missing Information");
-			if (!tracker.isSingleton())
-				throw new BadRequest("Wrong Subject");
-			if (tracker.isDisconnectedNodePresent())
-				throw new BadRequest("Blank nodes must be connected");
-			if (tracker.isContainmentTriplePresent())
-				throw new Conflict("ldp:contains is prohibited");
-			URI created = tracker.getSubject();
-			verifyCreatedStatements(created, statements.getStatements(), con);
-
-			ObjectFactory of = con.getObjectFactory();
-			for (URI partner : tracker.getPartners()) {
-				if (!partner.toString().equals(base)) {
-					of.createObject(partner, CalliObject.class).touchRevision();
-				}
-			}
-			Set<URI> types = tracker.getTypes(created);
-			return of.createObject(created, types);
-		} catch (URISyntaxException  e) {
-			throw new BadRequest(e);
-		} catch (RDFHandlerException e) {
-			throw new BadRequest(e);
-		} finally {
-			in.close();
 		}
 	}
 
@@ -262,55 +196,6 @@ public abstract class PageSupport implements CalliObject {
 		MapBindingSet bindings = new MapBindingSet();
 		bindings.addBinding("this", resource);
 		return template.evaluateGraph(bindings, con);
-	}
-
-	private boolean isResourceAlreadyPresent(ObjectConnection con, String about)
-			throws Exception {
-		AbsoluteTermFactory tf = AbsoluteTermFactory.newInstance();
-		RDFEventReader reader = openPatternReader(about);
-		try {
-			boolean first = true;
-			StringWriter str = new StringWriter();
-			SPARQLWriter writer = new SPARQLWriter(str);
-			while (reader.hasNext()) {
-				RDFEvent next = reader.next();
-				if (next.isStartDocument() || next.isBase()
-						|| next.isNamespace()) {
-					writer.write(next);
-				} else if (first) {
-					first = false;
-					writer.write(new Ask(next.getLocation()));
-					writer.write(new Where(true, next.getLocation()));
-					writer.write(new Group(true, next.getLocation()));
-					IRI has = tf.iri(HAS_COMPONENT);
-					Var var = tf.var("calliHasComponent");
-					writer.write(new TriplePattern(var, has, tf.var("this"), next.getLocation()));
-					writer.write(new Group(false, next.getLocation()));
-				}
-				if (next.isTriplePattern()) {
-					VarOrTerm subj = next.asTriplePattern().getSubject();
-					if (subj.isIRI() && subj.stringValue().equals(about)
-							|| subj.isVar()
-							&& subj.stringValue().equals("this")) {
-						writer.write(new Union(next.getLocation()));
-						writer.write(new Group(true, next.getLocation()));
-						writer.write(next);
-						writer.write(new Group(false, next.getLocation()));
-					}
-				} else if (next.isEndDocument()) {
-					writer.write(new Where(false, next.getLocation()));
-					writer.write(next);
-				}
-			}
-			writer.close();
-			String qry = str.toString();
-			ValueFactory vf = con.getValueFactory();
-			BooleanQuery query = con.prepareBooleanQuery(SPARQL, qry, this.toString());
-			query.setBinding("this", vf.createURI(about));
-			return query.evaluate();
-		} finally {
-			reader.close();
-		}
 	}
 
 	private RDFEventReader openPatternReader(String about)

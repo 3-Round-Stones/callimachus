@@ -266,60 +266,6 @@
     rdfs:range <java:java.io.InputStream>;
     calli:type "application/sparql-update".
 
-# another version to work in IE, overridden in composite.ttl
-:PostDeleteInsert rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Editable>];
-    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-    rdfs:subClassOf [owl:onProperty :fileClass; owl:hasValue <File>];
-    calli:method "POST";
-    calli:query "describe";
-    calli:requires calli:administrator;
-    calli:expect "204-no-content";
-    calli:type "text/uri-list";
-    calli:imports <java:org.callimachusproject.form.helpers.EntityUpdater>;
-    calli:imports <java:org.callimachusproject.server.exceptions.ServiceUnavailable>;
-    calli:script """
-        var con = this.objectConnection;
-
-        //# Parse DELETE INSERT
-        var updater = new EntityUpdater(this.resource, "?describe");
-        updater.executeUpdate(insertData, con);
-
-        try {
-            this.Validate();
-        } catch (e if e.javaException instanceof ServiceUnavailable) {
-            java.lang.System.err.println("Storing " + this);
-        }
-
-        this.touchRevision();
-        //# FIXME we shouldn't need to touch anything
-        var parent = this.SelectParentComposite();
-        if (parent) {
-            parent.touchRevision();
-        }
-        return null;
-    """.
-
-:insertData a owl:FunctionalProperty, owl:ObjectProperty;
-    rdfs:domain :PostDeleteInsert;
-    rdfs:range <java:java.io.InputStream>;
-    calli:type "application/sparql-update".
-
-:insertSlug a owl:FunctionalProperty, owl:DatatypeProperty;
-    rdfs:domain :PostDeleteInsert;
-    rdfs:range xsd:string;
-    calli:header "Slug";
-    calli:type "text/plain".
-
-:insertLink a owl:FunctionalProperty, owl:DatatypeProperty;
-    rdfs:domain :PostDeleteInsert;
-    rdfs:range xsd:string;
-    calli:header "Link";
-    calli:type "text/plain".
-
-:fileClass a owl:FunctionalProperty, owl:ObjectProperty;
-    rdfs:domain :PostDeleteInsert.
-
 ################################
 # DELETE
 ################################

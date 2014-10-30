@@ -283,6 +283,7 @@ rdfs:label a rdf:Property.
         var name;
         var carStream = new org.callimachusproject.io.CarInputStream(payload);
         while (name = carStream.readEntryName()) {
+            var slug = name.replace(/\\s+/g, '+').replace(/.*\\/(.)/,'$1');
             var uri = baseURI + name.replace(/\\s+/g, '+');
             var location = con.objectFactory.createObject(uri);
             var container = this.findContainer(uri, Folder);
@@ -293,12 +294,10 @@ rdfs:label a rdf:Property.
                     this.designateAsFolder(uri, Folder);
                     dependency.remove(uri);
                 } else if (carStream.isFileEntry()) {
-                    var slug = name.replace(/\\s+/g, '+').replace(/.*\\/(.)/,'$1');
-                    container.PostFactoryCreate(entryStream, File, null, location, slug, type);
+                    container.PostNonRDFSource(null, File, true, null, entryStream, slug, type);
                     dependency.remove(uri);
                 } else if (carStream.isResourceEntry()) {
-                    this.readFrom(type, entryStream, uri, null);
-                    container.calliHasComponent.add(location);
+                    container.PostRDFSource(null, File, true, null, entryStream, slug, type, false);
                     dependency.remove(uri);
                 } else if (carStream.isSchemaEntry()) {
                     var graphURI = vf.createURI(con.getVersionBundle().stringValue() + "#schema");

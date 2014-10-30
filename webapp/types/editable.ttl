@@ -121,7 +121,7 @@
     calli:imports <java:org.callimachusproject.server.exceptions.PreconditionRequired>;
     calli:script """
         if (!ifMatch) throw new PreconditionRequired("If-Match request header is required");
-        var sparql = new SparqlUpdateFactory(this.resource + "?edit").replacement(this.GetRdfDescription(null, 'edit'), metaData);
+        var sparql = new SparqlUpdateFactory(this.resource + "?edit").replacement(this.GetMetadata(null), metaData);
         this.PostEdit(new java.io.ByteArrayInputStream(new java.lang.String(sparql).getBytes("UTF-8")));
     """.
 
@@ -204,7 +204,7 @@
     calli:type "application/sparql-update".
 
 ################################
-# PATCH DELETE INSERT
+# DELETE INSERT
 ################################
 
 :PutDescribe rdfs:subClassOf msg:Message;
@@ -213,24 +213,12 @@
     calli:method "PUT";
     calli:query "describe";
     calli:requires calli:administrator;
-    calli:imports <java:org.callimachusproject.form.helpers.EntityUpdater>;
+    calli:imports <java:org.callimachusproject.engine.helpers.SparqlUpdateFactory>;
     calli:imports <java:org.callimachusproject.server.exceptions.PreconditionRequired>;
     calli:script """
-        var con = this.objectConnection;
-        var vf = con.valueFactory;
-
         if (!replaceIfMatch) throw new PreconditionRequired("If-Match request header is required");
-
-        //# Parse DELETE INSERT
-        var updater = new EntityUpdater(this.resource, "?describe");
-        updater.executeReplacement(this.GetRdfDescription(null, "describe"), replacementData, con);
-
-        this.touchRevision();
-        //# FIXME we shouldn't need to touch anything
-        var parent = this.SelectParentComposite();
-        if (parent) {
-            parent.touchRevision();
-        }
+        var sparql = new SparqlUpdateFactory(this.resource + "?describe").replacement(this.GetRdfDescription(null, "describe"), replacementData);
+        this.PatchDeleteInsert(new java.io.ByteArrayInputStream(new java.lang.String(sparql).getBytes("UTF-8")));
     """.
 
 :replaceIfMatch a owl:FunctionalProperty, owl:DatatypeProperty;
@@ -242,7 +230,7 @@
 :replacementData a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :PutDescribe;
     rdfs:range <java:org.openrdf.query.GraphQueryResult>;
-    calli:type "text/turtle", "application/ld+json;q=0.4", "application/rdf+xml;q=0.2".
+    calli:type "text/turtle;q=0.6", "application/ld+json;q=0.4", "application/rdf+xml;q=0.2".
 
 :PatchDeleteInsert rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Editable>];
@@ -251,12 +239,19 @@
     calli:query "describe";
     calli:requires calli:administrator;
     calli:imports <java:org.callimachusproject.form.helpers.EntityUpdater>;
+    calli:imports <java:org.callimachusproject.server.exceptions.ServiceUnavailable>;
     calli:script """
         var con = this.objectConnection;
 
         //# Parse DELETE INSERT
         var updater = new EntityUpdater(this.resource, "?describe");
         updater.executeUpdate(deleteInsert, con);
+
+        try {
+            this.Validate();
+        } catch (e if e.javaException instanceof ServiceUnavailable) {
+            java.lang.System.err.println("Storing " + this);
+        }
 
         this.touchRevision();
         //# FIXME we shouldn't need to touch anything
@@ -282,12 +277,19 @@
     calli:expect "204-no-content";
     calli:type "text/uri-list";
     calli:imports <java:org.callimachusproject.form.helpers.EntityUpdater>;
+    calli:imports <java:org.callimachusproject.server.exceptions.ServiceUnavailable>;
     calli:script """
         var con = this.objectConnection;
 
         //# Parse DELETE INSERT
         var updater = new EntityUpdater(this.resource, "?describe");
         updater.executeUpdate(insertData, con);
+
+        try {
+            this.Validate();
+        } catch (e if e.javaException instanceof ServiceUnavailable) {
+            java.lang.System.err.println("Storing " + this);
+        }
 
         this.touchRevision();
         //# FIXME we shouldn't need to touch anything

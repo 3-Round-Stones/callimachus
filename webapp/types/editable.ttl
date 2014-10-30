@@ -55,33 +55,8 @@
     calli:header "Prefer";
     calli:type "text/plain".
 
-:PutMetadata rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Editable>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-    calli:method "PUT";
-    calli:query "edit";
-    calli:requires calli:editor;
-    calli:imports <java:org.callimachusproject.engine.helpers.SparqlUpdateFactory>;
-    calli:imports <java:org.callimachusproject.server.exceptions.PreconditionRequired>;
-    calli:script """
-        if (!ifMatch) throw new PreconditionRequired("If-Match request header is required");
-        var sparql = new SparqlUpdateFactory(this.resource + "?edit").replacement(this.GetRdfDescription(null, 'edit'), metaData);
-        this.PostEdit(new java.io.ByteArrayInputStream(new java.lang.String(sparql).getBytes("UTF-8")));
-    """.
-
-:ifMatch a owl:FunctionalProperty, owl:DatatypeProperty;
-    rdfs:domain :PutMetadata;
-    rdfs:range xsd:string;
-    calli:header "If-Match";
-    calli:type "text/plain".
-
-:metaData a owl:FunctionalProperty, owl:ObjectProperty;
-    rdfs:domain :PutMetadata;
-    rdfs:range <java:org.openrdf.query.GraphQueryResult>;
-    calli:type "text/turtle;q=0.6", "application/ld+json;q=0.4", "application/rdf+xml;q=0.2".
-
 ################################
-# GET describedby
+# edit-form
 ################################
 
 :GetEditPage rdfs:subClassOf msg:Message;
@@ -136,6 +111,31 @@
         return findTemplate(this, Packages.calli.edit).Construct(this, 'edit');
     """.
 
+:PutMetadata rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Editable>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+    calli:method "PUT";
+    calli:query "edit";
+    calli:requires calli:editor;
+    calli:imports <java:org.callimachusproject.engine.helpers.SparqlUpdateFactory>;
+    calli:imports <java:org.callimachusproject.server.exceptions.PreconditionRequired>;
+    calli:script """
+        if (!ifMatch) throw new PreconditionRequired("If-Match request header is required");
+        var sparql = new SparqlUpdateFactory(this.resource + "?edit").replacement(this.GetMetadata(null), metaData);
+        this.PostEdit(new java.io.ByteArrayInputStream(new java.lang.String(sparql).getBytes("UTF-8")));
+    """.
+
+:ifMatch a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:domain :PutMetadata;
+    rdfs:range xsd:string;
+    calli:header "If-Match";
+    calli:type "text/plain".
+
+:metaData a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :PutMetadata;
+    rdfs:range <java:org.openrdf.query.GraphQueryResult>;
+    calli:type "text/turtle;q=0.6", "application/ld+json;q=0.4", "application/rdf+xml;q=0.2".
+
 :PostEdit rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Editable>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
@@ -145,6 +145,7 @@
     calli:expect "200-modified";
     calli:type "text/uri-list";
     calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
+    calli:imports <java:org.callimachusproject.server.exceptions.ServiceUnavailable>;
     calli:script """
         function findTemplate(obj, ann) {
             var annotated = findAnnotatedClass(obj.getClass(), ann);
@@ -185,6 +186,11 @@
 
         var template = findTemplate(this, Packages.calli.edit);
         template.calliEditResource(this, inputStream);
+        try {
+            this.Validate();
+        } catch (e if e.javaException instanceof ServiceUnavailable) {
+            java.lang.System.err.println("Storing " + this);
+        }
         var parent = this.SelectParentComposite();
         if (parent) {
             parent.touchRevision();
@@ -235,6 +241,8 @@
                         redirect = subj.stringValue();
                     }
                     con.remove(st.subject, st.predicate, st.object, []);
+                } else if (st.predicate.stringValue() == "http://www.w3.org/1999/02/22-rdf-syntax-ns#type") {
+                    throw new Conflict("Members of " + this + " must be deleted first");
                 }
             }
         } finally {

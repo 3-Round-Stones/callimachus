@@ -54,84 +54,21 @@
     calli:header "Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
     calli:script "return this.openInputStream()".
 
-# POST ?create=/callimachus/Pipeline
-:CreatePipeline owl:intersectionOf (<creatable.ttl#PostCreate>
-        [owl:onProperty msg:target; owl:hasValue <Pipeline> ]);
-    calli:imports <java:org.openrdf.model.vocabulary.RDFS>;
-    calli:imports <java:org.openrdf.model.vocabulary.DCTERMS>;
-    calli:imports <java:javax.xml.datatype.DatatypeFactory>;
-    calli:imports <java:java.util.GregorianCalendar>;
-    calli:imports <java:java.util.TimeZone>;
-    calli:imports <java:java.net.URLDecoder>;
-    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
-    calli:imports <File>;
-    calli:imports foaf:Document;
-    calli:script """
-        var con = this.objectConnection;
-        var vf = con.valueFactory;
-        if (!location)
-            throw new BadRequest("Missing location request header");
-        var created = location;
-
-        var filename = created.resource.localName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
-        var label = vf.createLiteral(URLDecoder.decode(filename, "UTF-8").replace(/[_\\-\\+\\s]+/g, " "));
-        con.add(created.resource, RDFS.LABEL, label, []);
-
-        //# dcterms:created
-        var now = DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar(TimeZone.getTimeZone("UTC")));
-        con.add(created.resource, DCTERMS.CREATED, vf.createLiteral(now), []);
-
-        created = con.addDesignation(created, this.toString());
-        created = con.addDesignation(created, Document);
-
-        created.UploadPipeline(body);
-        return created;
-    """.
-
 # PUT /pipeline/pipe.xpl
 :UploadPipeline rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Pipeline>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     calli:method "PUT";
     calli:requires calli:editor;
-    calli:imports <java:org.callimachusproject.server.exceptions.ServiceUnavailable>;
-    calli:imports foaf:Document;
-    calli:imports <java:org.openrdf.model.vocabulary.DCTERMS>;
-    calli:imports <java:javax.xml.datatype.DatatypeFactory>;
-    calli:imports <java:java.util.GregorianCalendar>;
-    calli:imports <java:java.util.TimeZone>;
-    calli:script """
-        //# dcterms:modified
-        var now = DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar(TimeZone.getTimeZone("UTC")));
-        this.objectConnection.add(this.resource, DCTERMS.MODIFIED, this.objectConnection.valueFactory.createLiteral(now), []);
-
-        var read;
-        var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
-        var out = this.openOutputStream();
-        try {
-            while ((read = xprocStream.read(buf)) >= 0) {
-                out.write(buf, 0, read);
-            }
-        } finally {
-            out.close();
-        }
-        try {
-            this.ValidatePipeline();
-        } catch (e if e.javaException instanceof ServiceUnavailable) {
-            java.lang.System.err.println("Storing " + this);
-        }
-        this.touchRevision();
-    """.
+    calli:script "return this.ReplaceFileContent(xprocStream, 'application/xproc+xml', true);".
 
 :xprocStream a owl:ObjectProperty; a owl:FunctionalProperty;
     rdfs:domain :UploadPipeline;
     rdfs:range <java:java.io.InputStream>;
     calli:type "application/xproc+xml".
 
-:ValidatePipeline rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Pipeline>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+:ValidatePipeline owl:intersectionOf (<serviceable.ttl#Validate>
+        [owl:onProperty msg:target; owl:allValuesFrom <Pipeline>]);
     calli:post "../schemas/xproc.rng?validate\nContent-Location: {+0}\nContent-Type: application/xml".
 
 ################################

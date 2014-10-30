@@ -40,16 +40,10 @@
     calli:edit <../templates/domain-edit.xhtml>;
     calli:create <../templates/domain-create.xhtml>.
 
-:PostDomainEdit owl:intersectionOf (<editable.ttl#PostEdit>
+:ValidateDomain owl:intersectionOf (<serviceable.ttl#Validate>
         [owl:onProperty msg:target; owl:allValuesFrom <Domain>]);
-    calli:method "POST";
-    calli:query "edit";
-    calli:requires calli:editor;
-    calli:expect "201-modified";
-    calli:type "text/uri-list";
     calli:script """
-        var ret = proceed();
         this.resetCache();
-        return ret;
+        return proceed();
     """.
 

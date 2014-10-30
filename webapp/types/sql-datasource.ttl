@@ -48,17 +48,11 @@
         return proceed();
     """.
 
-:PostDatasourceEdit owl:intersectionOf (<editable.ttl#PostEdit>
+:ValidateSqlDatasource owl:intersectionOf (<serviceable.ttl#Validate>
         [owl:onProperty msg:target; owl:allValuesFrom <SqlDatasource>]);
-    calli:method "POST";
-    calli:query "edit";
-    calli:requires calli:editor;
-    calli:expect "201-modified";
-    calli:type "text/uri-list";
     calli:script """
-        var ret = proceed();
         this.reset();
-        return ret;
+        return proceed();
     """.
 
 # GET query parameter

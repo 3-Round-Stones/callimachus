@@ -52,88 +52,20 @@
     calli:header "Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
     calli:script "return this.openInputStream()".
 
-# POST ?create=/callimachus/Schematron
-:PostSchematronCreate owl:intersectionOf (<creatable.ttl#PostCreate>
-        [owl:onProperty msg:target; owl:hasValue <Schematron> ]);
-    calli:imports <java:java.net.URLEncoder>;
-    calli:imports <java:javax.mail.util.ByteArrayDataSource>;
-    calli:imports <java:javax.mail.internet.MimeMultipart>;
-    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    calli:imports <java:org.callimachusproject.server.exceptions.Conflict>;
-    calli:imports <java:org.openrdf.model.vocabulary.RDFS>;
-    calli:imports <java:org.openrdf.model.vocabulary.DCTERMS>;
-    calli:imports <java:javax.xml.datatype.DatatypeFactory>;
-    calli:imports <java:java.util.GregorianCalendar>;
-    calli:imports <java:java.util.TimeZone>;
-    calli:imports foaf:Document;
-    calli:script """
-        var con = this.objectConnection;
-        var vf = con.getValueFactory();
-
-        //# resource
-        var obj = location;
-        if (!obj)
-            throw new BadRequest("Missing location");
-
-        obj = con.addDesignation(obj, this.toString());
-        obj = con.addDesignation(obj, Document);
-
-        //# add the label
-        var fileName = location.resource.localName;
-        var label = fileName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
-        con.add(obj.resource, RDFS.LABEL, vf.createLiteral(label), []);
-
-        //# dcterms:created
-        var now = DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar(TimeZone.getTimeZone("UTC")));
-        con.add(obj.resource, DCTERMS.CREATED, vf.createLiteral(now), []);
-
-        //# load data
-        var out = obj.PutSchematron(body) ;
-
-        return obj;
-    """.
-
 :PutSchematron rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Schematron> ];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     calli:method "PUT";
     calli:requires calli:editor;
-    calli:imports <java:org.callimachusproject.server.exceptions.ServiceUnavailable>;
-    calli:imports <java:org.openrdf.model.vocabulary.DCTERMS>;
-    calli:imports <java:javax.xml.datatype.DatatypeFactory>;
-    calli:imports <java:java.util.GregorianCalendar>;
-    calli:imports <java:java.util.TimeZone>;
-    calli:script """
-        //# dcterms:modified
-        var now = DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar(TimeZone.getTimeZone("UTC")));
-        this.objectConnection.add(this.resource, DCTERMS.MODIFIED, this.objectConnection.valueFactory.createLiteral(now), []);
-
-        var out = this.openOutputStream() ;
-        var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
-        var read;
-        try {
-            while ((read = stream.read(buf)) >= 0) {
-                out.write(buf, 0, read);
-            }
-        } finally {
-            out.close();
-        }
-        try {
-            this.ValidateSchematron();
-        } catch (e if e.javaException instanceof ServiceUnavailable) {
-            java.lang.System.err.println("Storing " + this);
-        }
-        this.touchRevision();
-    """.
+    calli:script "return this.ReplaceFileContent(stream, 'application/xml', true);".
 
 :stream a owl:DatatypeProperty, owl:FunctionalProperty ;
     rdfs:domain :PutSchematron ;
     rdfs:range <java:java.io.InputStream> ;
     calli:type "application/xml" .
 
-:ValidateSchematron rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Schematron>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+:ValidateSchematron owl:intersectionOf (<serviceable.ttl#Validate>
+        [owl:onProperty msg:target; owl:allValuesFrom <Schematron>]);
     calli:post "../schemas/iso-schematron.rng?validate\nContent-Location: {+0}\nContent-Type: application/xml".
 
 ################################

@@ -43,67 +43,15 @@
     calli:create <../templates/folder-create.xhtml>.
 
 # when a Folder is created
-:VerifyFolder owl:intersectionOf (<creatable.ttl#VerifyCreate>
-        [owl:onProperty msg:target; owl:hasValue <Folder> ]);
+:ValidateFolder owl:intersectionOf (<serviceable.ttl#Validate>
+        [owl:onProperty msg:target; owl:allValuesFrom <Folder>]);
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
     calli:script """
-        proceed();
-        var uri = location.toString();
+        var uri = this.toString();
         if (uri.lastIndexOf('/') != uri.length - 1)
             throw new BadRequest("Folders must end with a slash");
+        return proceed();
     """.
-
-################################
-# POST file
-################################
-
-:PostFileSlug rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
-    rdfs:subClassOf [owl:onProperty :fileClass; owl:hasValue <File>];
-    calli:method "POST";
-    calli:query "contents";
-    calli:requires calli:contributor;
-    calli:type "message/x-response";
-    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    calli:script """
-        if (!slug)
-            throw new BadRequest("Missing Slug HTTP header");
-        if (!contentType)
-            throw new BadRequest("Missing Content-Type HTTP header");
-        if (!content)
-            throw new BadRequest("Missing request content");
-        var con = this.objectConnection;
-        var name = decodeURIComponent(slug);
-        name = name.replace(/[-\\s]+/g, '-');
-        name = java.text.Normalizer.normalize(name, java.text.Normalizer.Form.NFD);
-        if (!name.match(/[a-z][A-Z]/)) {
-            name = name.toLowerCase();
-        }
-        name = name.replace(/[^\\w\\+\\-\\_\\.\\!\\~\\*\\'\\(\\);\\,\\&\\=\\$\\[\\]]+/g,'_');
-        var uri = this.resolve(name);
-        return this.PostFactoryCreate(content, fileClass, false, con.getObject(uri), slug, contentType);
-    """.
-
-:slug a owl:FunctionalProperty, owl:DatatypeProperty;
-    rdfs:domain :PostFileSlug;
-    rdfs:range xsd:string;
-    calli:header "Slug";
-    calli:type "text/plain".
-
-:contentType a owl:FunctionalProperty, owl:DatatypeProperty;
-    rdfs:domain :PostFileSlug;
-    rdfs:range xsd:string;
-    calli:header "Content-Type";
-    calli:type "text/plain".
-
-:content a owl:FunctionalProperty, owl:ObjectProperty;
-    rdfs:domain :PostFileSlug;
-    rdfs:range <java:java.io.InputStream>;
-    calli:type "*/*".
-
-:fileClass a owl:FunctionalProperty, owl:ObjectProperty;
-    rdfs:domain :PostFileSlug.
 
 ################################
 # List folder contents
@@ -335,6 +283,7 @@ rdfs:label a rdf:Property.
         var name;
         var carStream = new org.callimachusproject.io.CarInputStream(payload);
         while (name = carStream.readEntryName()) {
+            var slug = name.replace(/\\s+/g, '+').replace(/.*\\/(.)/,'$1');
             var uri = baseURI + name.replace(/\\s+/g, '+');
             var location = con.objectFactory.createObject(uri);
             var container = this.findContainer(uri, Folder);
@@ -345,12 +294,10 @@ rdfs:label a rdf:Property.
                     this.designateAsFolder(uri, Folder);
                     dependency.remove(uri);
                 } else if (carStream.isFileEntry()) {
-                    var slug = name.replace(/\\s+/g, '+').replace(/.*\\/(.)/,'$1');
-                    container.PostFactoryCreate(entryStream, File, null, location, slug, type);
+                    container.PostNonRDFSource(File, File, true, null, entryStream, slug, type);
                     dependency.remove(uri);
                 } else if (carStream.isResourceEntry()) {
-                    this.readFrom(type, entryStream, uri, null);
-                    container.calliHasComponent.add(location);
+                    container.PostRDFSource(null, File, true, null, entryStream, slug, type, false);
                     dependency.remove(uri);
                 } else if (carStream.isSchemaEntry()) {
                     var graphURI = vf.createURI(con.getVersionBundle().stringValue() + "#schema");

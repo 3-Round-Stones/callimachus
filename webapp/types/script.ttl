@@ -53,62 +53,13 @@
     calli:header "Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
     calli:script "return this.openReader(true)".
 
-# POST ?create=/callimachus/Script
-:CreateScript owl:intersectionOf (<creatable.ttl#PostCreate>
-        [owl:onProperty msg:target; owl:hasValue <Script> ]);
-    calli:imports <java:org.openrdf.model.vocabulary.RDFS>;
-    calli:imports <java:org.openrdf.model.vocabulary.DCTERMS>;
-    calli:imports <java:javax.xml.datatype.DatatypeFactory>;
-    calli:imports <java:java.util.GregorianCalendar>;
-    calli:imports <java:java.util.TimeZone>;
-    calli:imports <java:java.net.URLDecoder>;
-    calli:imports <java:org.callimachusproject.server.WebServer>;
-    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
-    calli:imports <File>;
-    calli:imports foaf:Document;
-    calli:script """
-        var con = this.objectConnection;
-        var vf = con.valueFactory;
-        if (!location)
-            throw new BadRequest("Missing location request header");
-        var created = location;
-
-        var filename = created.resource.localName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
-        var label = vf.createLiteral(URLDecoder.decode(filename, "UTF-8").replace(/[_\\-\\+\\s]+/g, " "));
-        con.add(created.resource, RDFS.LABEL, label, []);
-
-        //# dcterms:created
-        var now = DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar(TimeZone.getTimeZone("UTC")));
-        con.add(created.resource, DCTERMS.CREATED, vf.createLiteral(now), []);
-
-        created = con.addDesignation(created, this.toString());
-        created = con.addDesignation(created, Document);
-
-        created.UploadScript(new org.callimachusproject.io.TextReader(body, "UTF-8"));
-        return created;
-    """.
-
 # PUT /script.js
 :UploadBinaryScript rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Script>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     calli:method "PUT";
     calli:requires calli:editor;
-    calli:imports <java:java.io.InputStreamReader>;
-    calli:imports <java:org.openrdf.model.vocabulary.DCTERMS>;
-    calli:imports <java:javax.xml.datatype.DatatypeFactory>;
-    calli:imports <java:java.util.GregorianCalendar>;
-    calli:imports <java:java.util.TimeZone>;
-    calli:script """
-        //# dcterms:modified
-        var now = DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar(TimeZone.getTimeZone("UTC")));
-        this.objectConnection.add(this.resource, DCTERMS.MODIFIED, this.objectConnection.valueFactory.createLiteral(now), []);
-
-        if (!stream)
-            throw new BadRequest("Missing PUT request payload");
-        this.UploadScript(new java.io.InputStreamReader(stream, "UTF-8"));
-    """.
+    calli:script "return this.ReplaceFileContent(stream, 'application/javascript', true);".
 
 :stream a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :UploadBinaryScript;
@@ -121,32 +72,22 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     calli:method "PUT";
     calli:requires calli:editor;
-    calli:imports <java:org.openrdf.model.vocabulary.RDFS>;
-    calli:imports <java:java.net.URLDecoder>;
-    calli:imports <java:org.callimachusproject.server.WebServer>;
-    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    calli:imports <java:org.openrdf.query.QueryLanguage>;
-    calli:imports <java:org.openrdf.model.vocabulary.DCTERMS>;
-    calli:imports <java:javax.xml.datatype.DatatypeFactory>;
-    calli:imports <java:java.util.GregorianCalendar>;
-    calli:imports <java:java.util.TimeZone>;
+    calli:imports <java:org.apache.commons.io.input.ReaderInputStream>;
+    calli:imports <java:java.nio.charset.Charset>;
     calli:script """
-        //# dcterms:modified
-        var now = DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar(TimeZone.getTimeZone("UTC")));
-        this.objectConnection.add(this.resource, DCTERMS.MODIFIED, this.objectConnection.valueFactory.createLiteral(now), []);
+        var stream = new ReaderInputStream(reader, Charset.defaultCharset());
+        return this.ReplaceFileContent(stream, 'text/javascript', true);
+    """.
 
-        if (!reader)
-            throw new BadRequest("Missing PUT request payload");
-        var read;
-        var buf = java.lang.reflect.Array.newInstance(java.lang.Character.TYPE, 1024);
-        var out = this.openWriter();
-        try {
-            while ((read = reader.read(buf)) >= 0) {
-                out.write(buf, 0, read);
-            }
-        } finally {
-            out.close();
-        }
+:reader a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :UploadScript;
+    rdfs:range <java:java.io.Reader>;
+    calli:type "text/javascript".
+
+:ValidateScript owl:intersectionOf (<serviceable.ttl#Validate>
+        [owl:onProperty msg:target; owl:allValuesFrom <Script>]);
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:script """
         var saved = this.openReader(true);
         try {
             var compiler = new com.google.javascript.jscomp.Compiler();
@@ -177,11 +118,5 @@
         } finally {
             bundles.close();
         }
-        this.touchRevision();
     """.
-
-:reader a owl:FunctionalProperty, owl:ObjectProperty;
-    rdfs:domain :UploadScript;
-    rdfs:range <java:java.io.Reader>;
-    calli:type "text/javascript".
 

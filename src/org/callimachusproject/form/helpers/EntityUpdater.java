@@ -25,7 +25,6 @@ import java.util.Set;
 import org.callimachusproject.engine.RDFEventReader;
 import org.callimachusproject.engine.RDFParseException;
 import org.callimachusproject.engine.events.TriplePattern;
-import org.callimachusproject.engine.helpers.SparqlUpdateFactory;
 import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.server.exceptions.Conflict;
@@ -95,16 +94,6 @@ public class EntityUpdater {
 
 	public Set<URI> getTypes(URI subject) {
 		return analyzer.getTypes(subject);
-	}
-
-	public void executeReplacement(GraphQueryResult deleteData,
-			GraphQueryResult insertData, ObjectConnection con)
-			throws IOException, OpenRDFException {
-		SparqlUpdateFactory factory = new SparqlUpdateFactory(base);
-		String sparql = factory.replacement(deleteData, insertData);
-		analyzer.analyzeUpdate(sparql, base);
-		verify();
-		executeUpdate(sparql, con);
 	}
 
 	public void executeUpdate(InputStream in, ObjectConnection con)

@@ -46,3 +46,51 @@
     calli:script """
         return this.DeleteIfNotUsed();
     """.
+
+:ReplaceFileContent rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <File>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+    calli:imports <java:org.callimachusproject.server.exceptions.ServiceUnavailable>;
+    calli:imports <java:org.openrdf.model.vocabulary.DCTERMS>;
+    calli:imports <java:javax.xml.datatype.DatatypeFactory>;
+    calli:imports <java:java.util.GregorianCalendar>;
+    calli:imports <java:java.util.TimeZone>;
+    calli:imports foaf:Document;
+    calli:script """
+        if (modified) {
+            //# dcterms:modified
+            var now = DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar(TimeZone.getTimeZone("UTC")));
+            this.objectConnection.add(this.resource, DCTERMS.MODIFIED, this.objectConnection.valueFactory.createLiteral(now), []);
+        }
+
+        var read;
+        var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
+        var out = this.openOutputStream();
+        try {
+            while ((read = content.read(buf)) >= 0) {
+                out.write(buf, 0, read);
+            }
+        } finally {
+            out.close();
+        }
+
+        try {
+            this.Validate();
+        } catch (e if e.javaException instanceof ServiceUnavailable) {
+            java.lang.System.err.println("Storing " + this);
+        }
+
+        this.touchRevision();
+    """.
+
+:content a owl:ObjectProperty; a owl:FunctionalProperty;
+    rdfs:domain :ReplaceFileContent;
+    rdfs:range <java:java.io.InputStream>.
+
+:contentType a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:domain :ReplaceFileContent;
+    rdfs:range xsd:string.
+
+:modified a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:domain :ReplaceFileContent;
+    rdfs:range xsd:boolean.

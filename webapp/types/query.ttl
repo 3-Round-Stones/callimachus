@@ -119,79 +119,24 @@
     calli:query "*";
     calli:type "application/x-www-form-urlencoded".
 
-# POST ?create=/callimachus/NamedQuery
-:CreateNamedQuery owl:intersectionOf (<creatable.ttl#PostCreate>
-        [owl:onProperty msg:target; owl:hasValue <RdfQuery> ]);
-    calli:imports <java:org.openrdf.model.vocabulary.RDFS>;
-    calli:imports <java:org.openrdf.model.vocabulary.DCTERMS>;
-    calli:imports <java:javax.xml.datatype.DatatypeFactory>;
-    calli:imports <java:java.util.GregorianCalendar>;
-    calli:imports <java:java.util.TimeZone>;
-    calli:imports <java:java.net.URLDecoder>;
-    calli:imports <java:org.callimachusproject.server.WebServer>;
-    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
-    calli:imports <File>;
-    calli:imports foaf:Document;
-    calli:script """
-        var con = this.objectConnection;
-        var vf = con.valueFactory;
-        if (!location)
-            throw new BadRequest("Missing location request header");
-        var created = location;
-
-        var filename = created.resource.localName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
-        var label = vf.createLiteral(URLDecoder.decode(filename, "UTF-8").replace(/[_\\-\\+\\s]+/g, " "));
-        con.add(created.resource, RDFS.LABEL, label, []);
-
-        //# dcterms:created
-        var now = DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar(TimeZone.getTimeZone("UTC")));
-        con.add(created.resource, DCTERMS.CREATED, vf.createLiteral(now), []);
-
-        created = con.addDesignation(created, this.toString());
-        created = con.addDesignation(created, Document);
-
-        created.UploadNamedQuery(body);
-        return created;
-    """.
-
 # PUT /query/my-query.rq
 :UploadNamedQuery rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfQuery>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     calli:method "PUT";
     calli:requires calli:editor;
-    calli:imports <java:org.openrdf.model.vocabulary.RDFS>;
-    calli:imports <java:java.net.URLDecoder>;
+    calli:script "return this.ReplaceFileContent(stream, 'application/sparql-query', true);".
+
+:stream a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :UploadNamedQuery;
+    rdfs:range <java:java.io.InputStream>;
+    calli:type "application/sparql-query".
+
+:ValidateRdfQuery owl:intersectionOf (<serviceable.ttl#Validate>
+        [owl:onProperty msg:target; owl:allValuesFrom <RdfQuery>]);
     calli:imports <java:org.callimachusproject.engine.ParameterizedQueryParser>;
-    calli:imports <java:org.callimachusproject.server.WebServer>;
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    calli:imports <RdfQuery>;
-    calli:imports <java:org.openrdf.query.QueryLanguage>;
-    calli:imports <java:org.openrdf.model.vocabulary.DCTERMS>;
-    calli:imports <java:javax.xml.datatype.DatatypeFactory>;
-    calli:imports <java:java.util.GregorianCalendar>;
-    calli:imports <java:java.util.TimeZone>;
     calli:script """
-        //# dcterms:modified
-        var now = DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar(TimeZone.getTimeZone("UTC")));
-        this.objectConnection.add(this.resource, DCTERMS.MODIFIED, this.objectConnection.valueFactory.createLiteral(now), []);
-
-        if (!stream)
-            throw new BadRequest("Missing PUT request payload");
-        var read;
-        var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
-        var out = this.openOutputStream();
-        try {
-            while ((read = stream.read(buf)) >= 0) {
-                out.write(buf, 0, read);
-            }
-        } finally {
-            out.close();
-        }
-        this.touchRevision();
-
-        var con = this.objectConnection;
         var parser = ParameterizedQueryParser.newInstance();
         try {
             parser.parseQuery(this.openInputStream(), this.toString());
@@ -199,11 +144,6 @@
             throw new BadRequest("Could not parse " + this + " " + e.javaException.getMessage(), e);
         }
     """.
-
-:stream a owl:FunctionalProperty, owl:ObjectProperty;
-    rdfs:domain :UploadNamedQuery;
-    rdfs:range <java:java.io.InputStream>;
-    calli:type "application/sparql-query".
 
 ################################
 # Form Elements                #

@@ -52,6 +52,6 @@
     calli:header "Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
     calli:script "return this.openInputStream()".
 
-:ValidateVectorGraphic owl:intersectionOf (<editable.ttl#Validate>
+:ValidateVectorGraphic owl:intersectionOf (<serviceable.ttl#Validate>
         [owl:onProperty msg:target; owl:allValuesFrom <VectorGraphic>]);
     calli:post "../schemas/svg.rng?validate\nContent-Location: {+0}\nContent-Type: application/xml".

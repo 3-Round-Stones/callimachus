@@ -54,7 +54,7 @@
     calli:header "Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
     calli:script "return this.openInputStream()".
 
-:ValidatePhoto owl:intersectionOf (<editable.ttl#Validate>
+:ValidatePhoto owl:intersectionOf (<serviceable.ttl#Validate>
         [owl:onProperty msg:target; owl:allValuesFrom <Photo>]);
     calli:imports <java:javax.imageio.ImageIO>;
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;

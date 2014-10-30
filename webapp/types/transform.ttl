@@ -67,7 +67,7 @@
     rdfs:range <java:java.io.InputStream>;
     calli:type "text/xsl", "application/xslt+xml".
 
-:ValidateTransform owl:intersectionOf (<editable.ttl#Validate>
+:ValidateTransform owl:intersectionOf (<serviceable.ttl#Validate>
         [owl:onProperty msg:target; owl:allValuesFrom <XslTransform>]);
     calli:post "../schemas/xslt.rng?validate\nContent-Location: {+0}\nContent-Type: application/xml".
 

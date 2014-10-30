@@ -64,7 +64,7 @@
     rdfs:range <java:java.io.InputStream> ;
     calli:type "application/xml" .
 
-:ValidateSchematron owl:intersectionOf (<editable.ttl#Validate>
+:ValidateSchematron owl:intersectionOf (<serviceable.ttl#Validate>
         [owl:onProperty msg:target; owl:allValuesFrom <Schematron>]);
     calli:post "../schemas/iso-schematron.rng?validate\nContent-Location: {+0}\nContent-Type: application/xml".
 

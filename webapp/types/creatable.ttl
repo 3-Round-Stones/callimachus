@@ -219,12 +219,18 @@
 :VerifyCreate rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Creatable>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+    calli:imports <java:org.callimachusproject.server.exceptions.ServiceUnavailable>;
     calli:script """
         if (statements && !statements.isEmpty()) {
             var template = this.calliCreate.iterator().next();
             if (!template)
                 throw new InternalServerError("Cannot create " + this.toString() + ", no create template");
             template.calliVerifyCreatedResource(location, statements, this.toString());
+        }
+        try {
+            location.Validate();
+        } catch (e if e.javaException instanceof ServiceUnavailable) {
+            java.lang.System.err.println("Storing " + location);
         }
     """.
 

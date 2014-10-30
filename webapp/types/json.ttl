@@ -65,7 +65,7 @@
     rdfs:range <java:java.io.InputStream>;
     calli:type "application/json".
 
-:ValidateJavaScriptObjectNotation owl:intersectionOf (<editable.ttl#Validate>
+:ValidateJavaScriptObjectNotation owl:intersectionOf (<serviceable.ttl#Validate>
         [owl:onProperty msg:target; owl:allValuesFrom <JavaScriptObjectNotation>]);
     calli:script "JSON.parse(this.getCharContent(true).toString());".
 

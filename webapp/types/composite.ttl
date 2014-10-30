@@ -670,7 +670,7 @@
         } else {
             this.calliHasComponent.add(newCopy);
         }
-        construct.VerifyCreate(location, null);
+        construct.VerifyCreate(newCopy, null);
         return {
             status:201,
             message:'Created',

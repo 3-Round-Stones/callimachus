@@ -84,7 +84,7 @@
     rdfs:range <java:java.io.Reader>;
     calli:type "text/javascript".
 
-:ValidateScript owl:intersectionOf (<editable.ttl#Validate>
+:ValidateScript owl:intersectionOf (<serviceable.ttl#Validate>
         [owl:onProperty msg:target; owl:allValuesFrom <Script>]);
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
     calli:script """

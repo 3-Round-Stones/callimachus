@@ -104,7 +104,7 @@
     rdfs:range <java:java.io.InputStream> ;
     calli:type "application/zip" .
 
-:ValidateZip owl:intersectionOf (<editable.ttl#Validate>
+:ValidateZip owl:intersectionOf (<serviceable.ttl#Validate>
         [owl:onProperty msg:target; owl:allValuesFrom <ZipArchive>]);
     calli:script "this.validateZipAndClose(this.openInputStream());".
 

@@ -89,7 +89,7 @@
     rdfs:range <java:java.io.InputStream>;
     calli:type "application/docbook+xml".
 
-:ValidateAndCheckBook owl:intersectionOf (<editable.ttl#Validate>
+:ValidateAndCheckBook owl:intersectionOf (<serviceable.ttl#Validate>
         [owl:onProperty msg:target; owl:allValuesFrom <Book>]);
     calli:script "this.ValidateBook(); this.CheckBook();".
 

@@ -64,6 +64,6 @@
     rdfs:range <java:java.io.InputStream>;
     calli:type "application/xml".
 
-:ValidateExtensibleMarkup owl:intersectionOf (<editable.ttl#Validate>
+:ValidateExtensibleMarkup owl:intersectionOf (<serviceable.ttl#Validate>
         [owl:onProperty msg:target; owl:allValuesFrom <ExtensibleMarkup>]);
     calli:post "../schemas/xml.rng?validate\nContent-Location: {+0}\nContent-Type: application/xml".

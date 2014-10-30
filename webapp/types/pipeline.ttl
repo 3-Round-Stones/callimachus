@@ -67,7 +67,7 @@
     rdfs:range <java:java.io.InputStream>;
     calli:type "application/xproc+xml".
 
-:ValidatePipeline owl:intersectionOf (<editable.ttl#Validate>
+:ValidatePipeline owl:intersectionOf (<serviceable.ttl#Validate>
         [owl:onProperty msg:target; owl:allValuesFrom <Pipeline>]);
     calli:post "../schemas/xproc.rng?validate\nContent-Location: {+0}\nContent-Type: application/xml".
 

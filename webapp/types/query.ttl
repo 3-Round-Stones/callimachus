@@ -132,7 +132,7 @@
     rdfs:range <java:java.io.InputStream>;
     calli:type "application/sparql-query".
 
-:ValidateRdfQuery owl:intersectionOf (<editable.ttl#Validate>
+:ValidateRdfQuery owl:intersectionOf (<serviceable.ttl#Validate>
         [owl:onProperty msg:target; owl:allValuesFrom <RdfQuery>]);
     calli:imports <java:org.callimachusproject.engine.ParameterizedQueryParser>;
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;

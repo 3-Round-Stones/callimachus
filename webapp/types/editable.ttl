@@ -145,6 +145,7 @@
     calli:expect "200-modified";
     calli:type "text/uri-list";
     calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
+    calli:imports <java:org.callimachusproject.server.exceptions.ServiceUnavailable>;
     calli:script """
         function findTemplate(obj, ann) {
             var annotated = findAnnotatedClass(obj.getClass(), ann);
@@ -185,6 +186,11 @@
 
         var template = findTemplate(this, Packages.calli.edit);
         template.calliEditResource(this, inputStream);
+        try {
+            this.Validate();
+        } catch (e if e.javaException instanceof ServiceUnavailable) {
+            java.lang.System.err.println("Storing " + this);
+        }
         var parent = this.SelectParentComposite();
         if (parent) {
             parent.touchRevision();
@@ -311,15 +317,6 @@
     rdfs:domain :PutDescribe;
     rdfs:range <java:org.openrdf.query.GraphQueryResult>;
     calli:type "text/turtle", "application/ld+json;q=0.4", "application/rdf+xml;q=0.2".
-
-################################
-# Validate
-################################
-
-:Validate rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Editable>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-    calli:script "".
 
 ################################
 # DELETE

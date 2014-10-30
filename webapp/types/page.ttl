@@ -89,7 +89,7 @@
     rdfs:range <java:java.io.InputStream>;
     calli:type "application/xhtml+xml".
 
-:ValidatePageAndReset owl:intersectionOf (<editable.ttl#Validate>
+:ValidatePageAndReset owl:intersectionOf (<serviceable.ttl#Validate>
         [owl:onProperty msg:target; owl:allValuesFrom <Page>]);
     calli:imports <java:org.callimachusproject.server.WebServer>;
     calli:script """

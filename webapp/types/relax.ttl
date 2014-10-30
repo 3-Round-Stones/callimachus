@@ -65,7 +65,7 @@
     rdfs:range <java:java.io.InputStream> ;
     calli:type "application/xml" .
 
-:ValidateRelax owl:intersectionOf (<editable.ttl#Validate>
+:ValidateRelax owl:intersectionOf (<serviceable.ttl#Validate>
         [owl:onProperty msg:target; owl:allValuesFrom <Relax>]);
     calli:post "../schemas/relaxng.rng?validate\nContent-Location: {+0}\nContent-Type: application/xml".
 

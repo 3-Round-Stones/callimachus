@@ -259,24 +259,7 @@ public class EmbeddedScriptEngine {
 					throw (Error) exc.getCause();
 				throw exc;
 			} else if (ret instanceof ScriptException) {
-				ScriptException se = (ScriptException) ret;
-				String m = se.getMessage();
-				String f = se.getFileName();
-				int l = se.getLineNumber();
-				int c = se.getColumnNumber();
-				StringBuilder sb = new StringBuilder(m);
-				if (f != null) {
-					sb.append(" in ").append(f);
-				}
-				if (l > 0) {
-					sb.append(" on line ").append(l);
-				}
-				if (c > 0) {
-					sb.append(" at column ").append(c);
-				}
-				ScriptException exec = new ScriptException(sb.toString(), f, l, c);
-				exec.initCause(se);
-				throw se;
+				throw (ScriptException) ret;
 			}
 			return new ScriptResult(ret);
 		} catch (NullPointerException e) {

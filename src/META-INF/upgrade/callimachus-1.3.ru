@@ -256,6 +256,15 @@ DELETE {
 	</> a <../1.3/types/Origin>
 };
 
+DELETE {
+    ?origin calli:layout ?layout
+} INSERT {
+    ?origin calli:layout <../default-layout.xq>
+} WHERE {
+    ?origin calli:layout ?layout
+    FILTER strstarts(str(?layout),str(</callimachus/>))
+}
+
 # Setup process determins upgrade file based on versionInfo
 DELETE {
 	</callimachus/ontology> a <../1.3/types/Serviceable>; owl:versionInfo "1.3"

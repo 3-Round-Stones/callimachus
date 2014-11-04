@@ -91,6 +91,13 @@
                             <option selected="selected" rel="rdfs:subClassOf" resource="?subClassOf" value="{?subClassOf}">{rdfs:label}</option>
                         </select>
                     </div>
+                    <div dropzone="link string:text/uri-list" class="form-group col-sm-4">
+                        <label for="equivalentClass">Equivalent</label>
+                        <select id="equivalentClass" class="form-control" multiple="multiple"
+                                onchange="calli.updateResource(event,'owl:equivalentClass')">
+                            <option selected="selected" rel="owl:equivalentClass" resource="?equivalentClass" value="{?equivalentClass}">{rdfs:label}</option>
+                        </select>
+                    </div>
                 </fieldset>
                 <fieldset class="control-gorup">
                     <label for="composite">Nested resources</label>

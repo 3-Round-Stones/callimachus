@@ -21,7 +21,6 @@ import static org.callimachusproject.util.PercentCodec.encode;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collection;
 
 import org.callimachusproject.auth.DetachedRealm;
 import org.callimachusproject.engine.RDFEventReader;
@@ -29,20 +28,14 @@ import org.callimachusproject.engine.RDFParseException;
 import org.callimachusproject.engine.Template;
 import org.callimachusproject.engine.TemplateEngine;
 import org.callimachusproject.engine.TemplateException;
-import org.callimachusproject.engine.events.RDFEvent;
 import org.callimachusproject.engine.events.TriplePattern;
 import org.callimachusproject.engine.model.AbsoluteTermFactory;
 import org.callimachusproject.engine.model.IRI;
 import org.callimachusproject.engine.model.TermFactory;
-import org.callimachusproject.engine.model.VarOrTerm;
 import org.callimachusproject.form.helpers.EntityUpdater;
-import org.callimachusproject.form.helpers.TripleInserter;
-import org.callimachusproject.form.helpers.TripleVerifier;
 import org.callimachusproject.server.exceptions.BadRequest;
-import org.callimachusproject.server.exceptions.Conflict;
 import org.callimachusproject.traits.CalliObject;
 import org.openrdf.OpenRDFException;
-import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.vocabulary.DCTERMS;
 import org.openrdf.query.GraphQueryResult;
@@ -63,14 +56,7 @@ public abstract class PageSupport implements CalliObject {
 	private static final String CHANGE_NOTE = "http://www.w3.org/2004/02/skos/core#changeNote";
 
 	/**
-	 * Called from page.ttl
-	 */
-	public Template getTemplate() throws IOException, TemplateException, OpenRDFException {
-		return getEngine().getTemplate(this.getResource().stringValue());
-	}
-
-	/**
-	 * Called from page.ttl and query.ttl
+	 * Called from page.ttl query.ttl and composite.ttl
 	 */
 	public Template getTemplateFor(String uri) throws IOException, TemplateException, OpenRDFException {
 		assert uri != null;
@@ -82,33 +68,6 @@ public abstract class PageSupport implements CalliObject {
 		}
 		String url = self + "?layout&realm=" + encode(realm.toString());
 		return getEngine().getTemplate(url);
-	}
-
-	public void calliVerifyCreatedResource(RDFObject target,
-			Collection<Statement> statements, String base) throws Exception {
-		try {
-			TripleInserter tracker = new TripleInserter();
-			tracker.setBaseURI(base);
-			tracker.accept(openPatternReader(target.toString()));
-			tracker.accept(created((URI) target.getResource()));
-			tracker.startRDF();
-			for (Statement st : statements) {
-				tracker.handleStatement(st);
-			}
-			tracker.endRDF();
-			if (tracker.isEmpty())
-				throw new BadRequest("Missing Information");
-			if (!tracker.isSingleton())
-				throw new BadRequest("Wrong Subject");
-			if (tracker.isDisconnectedNodePresent())
-				throw new BadRequest("Blank nodes must be connected");
-			if (tracker.isContainmentTriplePresent())
-				throw new Conflict("ldp:contains is prohibited");
-			ObjectConnection con = target.getObjectConnection();
-			verifyCreatedStatements(tracker.getPrimaryTopic(), statements, con);
-		} catch (RDFHandlerException e) {
-			throw new BadRequest(e);
-		}
 	}
 
 	public void calliEditResource(RDFObject target, InputStream in)
@@ -139,43 +98,6 @@ public abstract class PageSupport implements CalliObject {
 			}
 		} catch (RDFHandlerException e) {
 			throw new BadRequest(e);
-		}
-	}
-
-	private void verifyCreatedStatements(URI created,
-			Collection<Statement> statements, ObjectConnection con)
-			throws IOException, TemplateException, RDFParseException,
-			OpenRDFException {
-		Template template = getEngine()
-				.getTemplate(this.getResource().stringValue());
-		String variable = getFirstVariable(template);
-		assert variable != null;
-		MapBindingSet bindings = new MapBindingSet();
-		bindings.addBinding(variable, created);
-		GraphQueryResult construct = template.evaluateGraph(bindings, con);
-		TripleVerifier verifier = new TripleVerifier();
-		verifier.accept(construct);
-		verifier.accept(created(created));
-		for (Statement st : statements) {
-			verifier.verify(st.getSubject(), st.getPredicate(), st.getObject());
-		}
-	}
-
-	private String getFirstVariable(Template template) throws TemplateException,
-			RDFParseException {
-		RDFEventReader query = template.openQuery();
-		try {
-			while (query.hasNext()) {
-				RDFEvent event = query.next();
-				if (event.isTriplePattern()) {
-					VarOrTerm subj = event.asTriplePattern().getSubject();
-					if (subj.isVar())
-						return subj.stringValue();
-				}
-			}
-			return null;
-		} finally {
-			query.close();
 		}
 	}
 
@@ -218,11 +140,5 @@ public abstract class PageSupport implements CalliObject {
 		AbsoluteTermFactory tf = AbsoluteTermFactory.newInstance();
 		IRI subj = tf.iri(resource.stringValue());
 		return new TriplePattern(subj, tf.iri(DCTERMS.MODIFIED.stringValue()), tf.node());
-	}
-
-	private TriplePattern created(URI resource) {
-		AbsoluteTermFactory tf = AbsoluteTermFactory.newInstance();
-		IRI subj = tf.iri(resource.stringValue());
-		return new TriplePattern(subj, tf.iri(DCTERMS.CREATED.stringValue()), tf.node());
 	}
 }

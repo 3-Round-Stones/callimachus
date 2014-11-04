@@ -395,7 +395,7 @@
         } else {
             createdUri = creatorUri + local;
         }
-        if (local.indexOf('/') >= 0)
+        if (local.indexOf('/') >= 0 && local.indexOf('/') != local.length-1)
             throw new BadRequest("Resource " + local + " must not include a slash");
         if (local.search(/[\\s\\#\\?]/) >= 0)
             throw new BadRequest("Fragement or name resources are not supported as primary topic: '" + local + "'");
@@ -424,6 +424,7 @@
         var iter = this.FindCreatablesOf(created).iterator();
         if (!iter.hasNext())
             throw new Forbidden("Cannot create this type of resource");
+        var templates = new java.util.ArrayList();
         while (iter.hasNext()) {
             var cls = iter.next();
             var jter = creators.iterator();
@@ -432,12 +433,13 @@
                 if (!this.isAuthorized(user.toString(), cls, ["http://callimachusproject.org/rdf/2009/framework#author"]))
                     throw new Forbidden(user + " is not permitted to create " + cls + " resources");
             }
-            if (verify) {
-                var template = cls.calliCreate.iterator().next();
-                if (!template)
-                    throw new InternalServerError("Cannot create " + cls.toString() + ", no create template");
-                template.calliVerifyCreatedResource(created, statements.getStatements(), cls.toString());
+            var kter = cls.calliCreate.iterator();
+            while (kter.hasNext()) {
+                templates.add(kter.next().getTemplateFor(createdUri));
             }
+        }
+        if (verify) {
+            this.calliVerifyCreatedResource(created, templates, statements.getStatements(), createdUri);
         }
 
         if (verify) {
@@ -758,9 +760,7 @@
         } catch (e if e.javaException) {
             throw new BadRequest(e.javaException);
         }
-        var subclass = this.LookupConstructor(create || fileClass, documentTag, type.replace(/\\s*;.*/,''));
-        var bootstrap = !subclass && type.indexOf('text/turtle') === 0 && create == fileClass;
-        var construct = subclass || bootstrap && this.objectConnection.objectFactory.createObject(fileClass.resource.namespace + "RdfTurtle", Creatable) || create;
+        var construct = this.LookupConstructor(create || fileClass, documentTag, type.replace(/\\s*;.*/,''));
         var iter = this.FindCreator(created).iterator();
         while (iter.hasNext()) {
             var user = iter.next();
@@ -812,40 +812,43 @@
         PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
         SELECT REDUCED ?class {
             {
-                # xml type with correct document tag
-                ?class rdfs:subClassOf+ $create
-                FILTER bound($documentTag)
-                FILTER EXISTS { ?class calli:documentTag $documentTag }
-                BIND (0 AS ?preference)
-            } UNION {
-                # non-xml type or xml type without document tag
-                ?class rdfs:subClassOf+ $create
-                FILTER bound($mediaType)
-                FILTER EXISTS { ?class calli:mediaType $mediaType }
-                FILTER NOT EXISTS { ?class calli:documentTag ?tag }
+                ?class rdfs:subClassOf*/owl:equivalentClass* $create .
+                ?class rdfs:subClassOf* <File> .
+                FILTER (
+                    bound($documentTag) && EXISTS { ?class calli:documentTag $documentTag } ||
+                    bound($mediaType) && NOT EXISTS { ?class calli:documentTag ?tag } && EXISTS { ?class calli:mediaType $mediaType } ||
+                    bound($mediaType) && EXISTS {
+                        ?class calli:mediaType ?typ2
+                        FILTER (
+                            (
+                                (sameTerm($mediaType,"application/javascript") || sameTerm($mediaType,"text/javascript"))
+                                && (sameTerm(?typ2,"application/javascript") || sameTerm(?typ2,"text/javascript"))
+                            ) || (
+                                (sameTerm($mediaType,"application/xslt+xml") || sameTerm($mediaType,"text/xsl"))
+                                && (sameTerm(?typ2,"application/xslt+xml") || sameTerm(?typ2,"text/xsl"))
+                            ) || (
+                                (sameTerm($mediaType,"application/java-archive") || sameTerm($mediaType,"application/zip"))
+                                && (sameTerm(?typ2,"application/java-archive") || sameTerm(?typ2,"application/zip"))
+                            ) || (
+                                (sameTerm($mediaType,"image/x-png") || sameTerm($mediaType,"image/png"))
+                                && (sameTerm(?typ2,"image/x-png") || sameTerm(?typ2,"image/png"))
+                            ) || (
+                                (sameTerm($mediaType,"image/pjpeg") || sameTerm($mediaType,"image/jpeg"))
+                                && (sameTerm(?typ2,"image/pjpeg") || sameTerm(?typ2,"image/jpeg"))
+                            )
+                        )
+                    }
+                )
                 BIND (1 AS ?preference)
             } UNION {
-                # supported media type alias (document tag not considered)
-                ?class rdfs:subClassOf+ $create; calli:mediaType ?typ2
-                FILTER (
-                    (
-                        (sameTerm($mediaType,"application/javascript") || sameTerm($mediaType,"text/javascript"))
-                        && (sameTerm(?typ2,"application/javascript") || sameTerm(?typ2,"text/javascript"))
-                    ) || (
-                        (sameTerm($mediaType,"application/xslt+xml") || sameTerm($mediaType,"text/xsl"))
-                        && (sameTerm(?typ2,"application/xslt+xml") || sameTerm(?typ2,"text/xsl"))
-                    ) || (
-                        (sameTerm($mediaType,"application/java-archive") || sameTerm($mediaType,"application/zip"))
-                        && (sameTerm(?typ2,"application/java-archive") || sameTerm(?typ2,"application/zip"))
-                    ) || (
-                        (sameTerm($mediaType,"image/x-png") || sameTerm($mediaType,"image/png"))
-                        && (sameTerm(?typ2,"image/x-png") || sameTerm(?typ2,"image/png"))
-                    ) || (
-                        (sameTerm($mediaType,"image/pjpeg") || sameTerm($mediaType,"image/jpeg"))
-                        && (sameTerm(?typ2,"image/pjpeg") || sameTerm(?typ2,"image/jpeg"))
-                    )
-                )
-                BIND (2 AS ?preference)
+                # boot strap graphs before calli:mediaType triples are loaded
+                BIND (<RdfTurtle> AS ?class)
+                FILTER sameTerm($mediaType,"text/turtle")
+                FILTER sameTerm($create, <File>)
+                BIND (3 AS ?preference)
+            } UNION {
+                BIND ($create AS ?class)
+                BIND (4 AS ?preference)
             }
         } ORDER BY ?preference LIMIT 1
     """.

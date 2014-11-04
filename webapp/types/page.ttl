@@ -142,7 +142,7 @@
     calli:query "sparql";
     calli:requires calli:administrator;
     calli:script """
-        var query = this.getTemplateFor('/').getRawQueryString();
+        var query = this.getTemplateFor(this.toString()).getRawQueryString();
         return new java.lang.String(query).getBytes("UTF-8");
     """.
 
@@ -176,7 +176,7 @@
         var con = this.objectConnection;
         var bindings = new org.openrdf.query.impl.MapBindingSet();
         bindings.addBinding("this", rawConstructTarget.resource);
-        var results = this.getTemplate().evaluate(bindings, con);
+        var results = this.getTemplateFor(this.toString()).evaluate(bindings, con);
         return this.Render(this.toString(), rawConstructTarget, '', '/1', results);
     """.
 

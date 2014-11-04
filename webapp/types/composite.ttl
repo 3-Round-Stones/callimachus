@@ -424,9 +424,11 @@
                 if (!this.isAuthorized(user.toString(), cls, ["http://callimachusproject.org/rdf/2009/framework#author"]))
                     throw new Forbidden(user + " is not permitted to create " + cls + " resources");
             }
-            var kter = cls.calliCreate.iterator();
-            while (kter.hasNext()) {
-                templates.add(kter.next().getTemplateFor(createdUri));
+            if (verify) {
+                var kter = cls.calliCreate.iterator();
+                while (kter.hasNext()) {
+                    templates.add(kter.next().getTemplateFor(createdUri));
+                }
             }
         }
         if (verify) {
@@ -583,12 +585,6 @@
                 var user = jter.next();
                 if (!this.isAuthorized(user.toString(), cls, ["http://callimachusproject.org/rdf/2009/framework#author"]))
                     throw new Forbidden(user + " is not permitted to create " + cls + " resources");
-            }
-            if (verify) {
-                var template = cls.calliCreate.iterator().next();
-                if (!template)
-                    throw new InternalServerError("Cannot create " + cls.toString() + ", no create template");
-                template.calliVerifyCreatedResource(created, statements.getStatements(), cls.toString());
             }
         }
 

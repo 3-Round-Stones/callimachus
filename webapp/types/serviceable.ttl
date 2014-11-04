@@ -281,7 +281,7 @@ skos:editorialNote a owl:AnnotationProperty.
     """.
 
 :permissions_xhtml a owl:FunctionalProperty, owl:ObjectProperty;
-    rdfs:domain [owl:unionOf (:GetPermissions :PostPermissions)].
+    rdfs:domain :GetPermissions .
 
 # used by permissions.xhtml
 :GetRdfTypes rdfs:subClassOf msg:Message;
@@ -317,20 +317,13 @@ skos:editorialNote a owl:AnnotationProperty.
 :PostPermissions rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Serviceable>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:cardinality 1];
-    rdfs:subClassOf [owl:onProperty :permissions_xhtml; owl:hasValue <../pages/permissions.xhtml>];
     calli:method "POST";
     calli:query "permissions";
     calli:requires calli:administrator;
     calli:expect "201-modified";
     calli:type "text/uri-list";
-    calli:script """
-        permissions_xhtml.calliEditResource(this, inputStream);
-        var parent = this.SelectParentComposite();
-        if (parent) {
-            parent.touchRevision();
-        }
-        return this;
-    """.
+    calli:imports <java:org.callimachusproject.form.helpers.EntityUpdater>;
+    calli:script "this.PatchDeleteInsert(inputStream); return this;".
 
 :inputStream a owl:ObjectProperty; a owl:FunctionalProperty;
     rdfs:domain :PostPermissions;

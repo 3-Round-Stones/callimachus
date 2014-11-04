@@ -25,6 +25,7 @@ import java.util.Set;
 import org.callimachusproject.engine.RDFEventReader;
 import org.callimachusproject.engine.RDFParseException;
 import org.callimachusproject.engine.events.TriplePattern;
+import org.callimachusproject.engine.model.AbsoluteTermFactory;
 import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.server.exceptions.Conflict;
@@ -71,6 +72,11 @@ public class EntityUpdater {
 		analyzer.acceptDelete(result);
 	}
 
+	public void acceptDelete(URI subj, String pred) {
+		AbsoluteTermFactory tf = AbsoluteTermFactory.newInstance();
+		analyzer.acceptDelete(new TriplePattern(tf.iri(subj.stringValue()), tf.iri(pred), tf.node()));
+	}
+
 	public void acceptInsert(RDFEventReader template) throws RDFParseException {
 		analyzer.acceptInsert(template);
 	}
@@ -80,8 +86,9 @@ public class EntityUpdater {
 		analyzer.acceptInsert(result);
 	}
 
-	public void acceptInsert(TriplePattern pattern) {
-		analyzer.acceptInsert(pattern);
+	public void acceptInsert(URI subj, String pred) {
+		AbsoluteTermFactory tf = AbsoluteTermFactory.newInstance();
+		analyzer.acceptInsert(new TriplePattern(tf.iri(subj.stringValue()), tf.iri(pred), tf.node()));
 	}
 
 	public URI getSubject() {

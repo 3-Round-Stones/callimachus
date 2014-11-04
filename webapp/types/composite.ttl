@@ -933,6 +933,8 @@
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Composite>];
     rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom <Creatable>];
     msg:sparql """
+        PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
         PREFIX owl:<http://www.w3.org/2002/07/owl#>
         SELECT REDUCED ?creatable {
             $of a [rdfs:subClassOf* ?cls] .
@@ -948,6 +950,8 @@
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Composite>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <Creatable>];
     msg:sparql """
+        PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
         PREFIX owl:<http://www.w3.org/2002/07/owl#>
         SELECT ?creatable {
             ?creatable owl:equivalentClass* $create .

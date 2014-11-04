@@ -46,8 +46,8 @@ public class ArticleIntegrationTest extends TemporaryServerIntegrationTestCase {
 
 	@Test
 	public void testDocbookCreate() throws Exception {
-		WebResource create = getHomeFolder().ref("?create="+ getCallimachusUrl("types/Article") + "&resource=test-article.docbook");
-		WebResource article = create.create("application/docbook+xml", DOCBOOK.getBytes());
+		WebResource create = getHomeFolder().ref("?create="+ getCallimachusUrl("types/Article"));
+		WebResource article = create.create("test-article.docbook", "application/docbook+xml", DOCBOOK.getBytes());
 		WebResource edit = article.rel("edit-media", "application/docbook+xml");
 		edit.get("application/docbook+xml");
 		edit.put("application/docbook+xml", DOCBOOK.getBytes());
@@ -56,8 +56,8 @@ public class ArticleIntegrationTest extends TemporaryServerIntegrationTestCase {
 
 	@Test
 	public void testXhtmlCreate() throws Exception {
-		WebResource create = getHomeFolder().ref("?create="+ getCallimachusUrl("types/Article") + "&resource=test-article.docbook");
-		WebResource article = create.create("application/xhtml+xml", XHTML.getBytes());
+		WebResource create = getHomeFolder().ref("?create="+ getCallimachusUrl("types/Article"));
+		WebResource article = create.create("test-article.docbook", "application/xhtml+xml", XHTML.getBytes());
 		WebResource edit = article.rel("edit-media", "application/xhtml+xml");
 		edit.get("application/xhtml+xml");
 		edit.put("application/xhtml+xml", XHTML.getBytes());
@@ -66,8 +66,8 @@ public class ArticleIntegrationTest extends TemporaryServerIntegrationTestCase {
 
 	@Test
 	public void testXhtmlHeadingCreate() throws Exception {
-		WebResource create = getHomeFolder().ref("?create="+ getCallimachusUrl("types/Article") + "&resource=test-article.docbook");
-		WebResource article = create.create("application/xhtml+xml", XHTML.getBytes());
+		WebResource create = getHomeFolder().ref("?create="+ getCallimachusUrl("types/Article"));
+		WebResource article = create.create("test-article.docbook", "application/xhtml+xml", XHTML.getBytes());
 		WebResource edit = article.rel("edit-media", "application/xhtml+xml");
 		edit.get("application/xhtml+xml");
 		edit.put("application/xhtml+xml", XHTML_H2.getBytes());

@@ -133,23 +133,14 @@
         PREFIX foaf:<http://xmlns.com/foaf/0.1/>
         PREFIX calli: <http://callimachusproject.org/rdf/2009/framework#>
         CONSTRUCT {
-            ?container foaf:primaryTopic $this;
+            ?container foaf:primaryTopic ?self;
                 a ldp:IndirectContainer, ldp:Container, ldp:RDFSource;
-                dcterms:title ?label;
-                ldp:membershipResource $this;
+                ldp:membershipResource ?self;
                 ldp:hasMemberRelation calli:hasComponent;
                 ldp:insertedContentRelation foaf:primaryTopic
         } WHERE {
+            BIND ($this AS ?self)
             BIND (iri(concat(str($this), "?", $queryContainer)) AS ?container)
-            OPTIONAL {
-                $this dcterms:title ?label
-            } OPTIONAL {
-                $this rdfs:label ?label
-            } OPTIONAL {
-                $this skos:prefLabel ?label
-            } OPTIONAL {
-                $this foaf:name ?label
-            }
         }
     """.
 

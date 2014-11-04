@@ -97,8 +97,7 @@ INSERT {
     rdfs:label "admin";
     rdfs:comment "Use the link below to manage groups and invite new users";
 	calli:alternate ?alternate;
-	calli:administrator </auth/groups/super>;
-	calli:reader </auth/groups/admin> .
+	calli:administrator </auth/groups/admin> .
 } WHERE {
     BIND (str(<pages/invite-users.xhtml?view>) AS ?alternate)
 	FILTER NOT EXISTS { </admin> a calli:Purl }

@@ -265,6 +265,16 @@ DELETE {
     FILTER strstarts(str(?layout),str(</callimachus/>))
 };
 
+DELETE {
+	</admin> calli:reader </auth/groups/admin> .
+	</admin> calli:administrator </auth/groups/super> .
+} INSERT {
+    </admin> calli:administrator </auth/groups/admin> .
+} WHERE {
+	</admin> calli:reader </auth/groups/admin> .
+	</admin> calli:administrator </auth/groups/super> .
+};
+
 # Setup process determins upgrade file based on versionInfo
 DELETE {
 	</callimachus/ontology> a <../1.3/types/Serviceable>; owl:versionInfo "1.3"

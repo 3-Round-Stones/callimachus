@@ -263,7 +263,7 @@ DELETE {
 } WHERE {
     ?origin calli:layout ?layout
     FILTER strstarts(str(?layout),str(</callimachus/>))
-}
+};
 
 # Setup process determins upgrade file based on versionInfo
 DELETE {

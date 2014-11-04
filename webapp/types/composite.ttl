@@ -381,7 +381,8 @@
         }
         var createdUri;
         var creatorUri = this.getResource().stringValue();
-        if (creatorUri.charAt(creatorUri.length-1) != '/') {
+        var needSlash = creatorUri.charAt(creatorUri.length-1) != '/';
+        if (needSlash) {
             createdUri = creatorUri + "/" + local;
         } else {
             createdUri = creatorUri + local;
@@ -404,6 +405,17 @@
             throw new BadRequest("Resource is not Serviceable: " + created);
         if (!(created instanceof Composite) && link && link.match(/<http:..www.w3.org.ns.ldp#[a-zA-Z]*Container>[^<]*; *rel="type"/))
             throw new BadRequest("Resource is not a Container: " + created);
+        if (created.resource.stringValue().indexOf(creatorUri) !== 0)
+            throw new BadRequest("Resource identifier must start with " + this + " was " + created);
+        if (needSlash && created.resource.stringValue().charAt(creatorUri.length) != '/')
+            throw new BadRequest("A Slash must separate the container and it's member, was " + created.resource.stringValue().substring(creatorUri.length));
+        var localPart = created.resource.stringValue().substring(needSlash ? creatorUri.length+1 : creatorUri.length);
+        if (localPart.indexOf('/') >= 0 && localPart.indexOf('/') != localPart.length-1)
+            throw new BadRequest("Resource " + localPart + " must not include a slash");
+        if (localPart.search(/[\\s\\#\\?]/) >= 0)
+            throw new BadRequest("Fragement or name resources are not supported as primary topic: '" + localPart + "'");
+        if (localPart.search(/[a-zA-Z0-9\\-_%!\\$\\&'\\(\\)\\*\\+,;=]/) < 0)
+            throw new BadRequest("A path segment is required for members");
 
         try {
             created.Validate();

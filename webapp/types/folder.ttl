@@ -297,7 +297,8 @@ rdfs:label a rdf:Property.
                     container.PostNonRDFSource(File, File, true, null, entryStream, slug, type);
                     dependency.remove(uri);
                 } else if (carStream.isResourceEntry()) {
-                    container.PostRDFSource(null, File, true, null, entryStream, slug, type, false);
+                    this.readFrom(type, entryStream, uri, null);
+                    container.calliHasComponent.add(location);
                     dependency.remove(uri);
                 } else if (carStream.isSchemaEntry()) {
                     var graphURI = vf.createURI(con.getVersionBundle().stringValue() + "#schema");

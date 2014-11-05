@@ -41,7 +41,7 @@ calli.submitTurtle = function(event, local) {
                 });
                 return data;
             }).then(function(data){
-                return calli.postTurtle(action, data, slug);
+                return calli.postTurtle(action, data, {Slug: slug});
             });
         } else if (confirm("This create page is deprecated, use a different link next time, do you still want to continue")) {
             return calli.promptForNewResource(null, local).then(function(two){
@@ -71,14 +71,14 @@ calli.submitTurtle = function(event, local) {
     });
 };
 
-calli.postTurtle = function(url, data, slug) {
+calli.postTurtle = function(url, data, headers) {
     var serializer = new TurtleSerializer();
     serializer.setBaseUri(data.base);
     serializer.setMappings(data.prefix);
     data.results.bindings.forEach(function(triple){
         serializer.addTriple(triple);
     });
-    return calli.postText(url, serializer.toString(), "text/turtle", slug);
+    return calli.postText(url, serializer.toString(), "text/turtle", headers);
 };
 
 })(jQuery);

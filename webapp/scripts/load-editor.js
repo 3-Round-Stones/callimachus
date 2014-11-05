@@ -54,7 +54,10 @@ calli.submitEditor = function(event, local) {
         var action = calli.getFormAction(form[0]);
         if (local) {
             var slug = encodeURI(local).replace(/%25(\w\w)/g, '%$1').replace(/%20/g, '-');
-            return calli.postText(action, text, form.attr('enctype'), slug);
+            return calli.postText(action, text, form.attr('enctype'), {
+                Slug: slug,
+                Link: '<http://www.w3.org/ns/ldp#NonRDFSource>;rel="type"'
+            });
         } else {
             return calli.putText(action, text, form.attr('enctype')).then(function(){
                 return action.replace(/\?.*/,'');
@@ -88,7 +91,11 @@ window.calli.submitEditorAs = function(event, local, create, folder) {
         return calli.promptForNewResource(folder, local).then(function(two){
             if (!two) return undefined;
             var action = two[0] + '?create=' + encodeURIComponent(create);
-            return calli.postText(action, text, form.attr('enctype'), two[1].replace(/%20/g, '+'));
+            var slug = two[1].replace(/%20/g, '+');
+            return calli.postText(action, text, form.attr('enctype'), {
+                Slug: slug,
+                Link: '<http://www.w3.org/ns/ldp#NonRDFSource>;rel="type"'
+            });
         });
     }).then(function(redirect){
         return redirect && redirect + '?view';

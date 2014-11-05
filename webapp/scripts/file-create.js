@@ -41,7 +41,10 @@ jQuery(function($){
                 var slug = calli.slugify(file.name.replace(/[\-\s]+/g, '-'));
                 var contentType = file.type && file.type.indexOf('/x-') < 0 && file.type ||
                     "application/octet-stream";
-                return calli.postText(action, file, contentType, slug).then(function(resource){
+                return calli.postText(action, file, contentType, {
+                    Slug: slug,
+                    Link: '<http://www.w3.org/ns/ldp#NonRDFSource>;rel="type"'
+                }).then(function(resource){
                     if (window.parent != window && parent.postMessage) {
                         parent.postMessage('POST resource\n\n' + resource, '*');
                     }

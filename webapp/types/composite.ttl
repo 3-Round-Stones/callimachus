@@ -945,9 +945,8 @@
         PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
         PREFIX owl:<http://www.w3.org/2002/07/owl#>
         SELECT REDUCED ?creatable {
-            $of a [rdfs:subClassOf* ?cls] .
-            ?creatable owl:equivalentClass* ?cls .
-            ?creatable a [rdfs:subClassOf* <Creatable>]
+            $of a [rdfs:subClassOf*/^owl:equivalentClass* ?creatable] .
+            ?creatable a [^owl:equivalentClass*/rdfs:subClassOf* <Creatable>] .
         }
     """.
 

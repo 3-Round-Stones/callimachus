@@ -10,47 +10,49 @@
         <div class="page-header">
             <h1>Upload File</h1>
         </div>
-        <div class="row">
-            <fieldset class="col-sm-6">
-                <div class="form-group">
-                    <label for="file">File</label>
-                    <div>
-                        <input type="file" id="file" name="file" class="form-control" autofocus="autofocus" />
+        <fieldset>
+            <div class="form-group">
+                <label for="file">File</label>
+                <div>
+                    <input type="file" id="file" name="file" class="form-control" autofocus="autofocus" />
+                </div>
+            </div>
+            <div class="well well-sm">
+                <legend>Supported File Types</legend>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <ul>
+                            <li>CSS (.css)</li>
+                            <li>Docbook (.docbook)</li>
+                            <li>HTML (.html, .xhtml)</li>
+                            <li>Icons (.ico)</li>
+                            <li>Images (.svg, .gif, .jpg, .png)</li>
+                            <li>JavaScript (.js)</li>
+                            <li>JSON (.json)</li>
+                            <li>Markdown (.md)</li>
+                        </ul>
+                    </div>
+                    <div class="col-sm-6">
+                        <ul>
+                            <li>Pipeline (.xpl)</li>
+                            <li>RDF (.ttl, .rdf)</li>
+                            <li>SPARQL Query (.rq)</li>
+                            <li>Text (.txt)</li>
+                            <li>Web Open Font (.woff)</li>
+                            <li>XQuery (.xq)</li>
+                            <li>XML (.xml)</li>
+                            <li>XSLT (.xsl)</li>
+                        </ul>
                     </div>
                 </div>
-                <div class="form-group">
-                    <button type="submit" class="btn btn-primary" id="upload">Upload</button>
-                </div>
-            </fieldset>
-            <fieldset class="col-sm-5 col-sm-offset-1">
-                <div class="well well-sm row">
-                    <legend>Supported File Types</legend>
-                    <ul class="col-sm-6">
-                        <li>CSS (.css)</li>
-                        <li>Docbook (.docbook)</li>
-                        <li>HTML (.html, .xhtml)</li>
-                        <li>Icons (.ico)</li>
-                        <li>Images (.svg, .gif, .jpg, .png)</li>
-                        <li>JavaScript (.js)</li>
-                        <li>JSON (.json)</li>
-                        <li>Markdown (.md)</li>
-                    </ul>
-                    <ul class="col-sm-6">
-                        <li>Pipeline (.xpl)</li>
-                        <li>RDF (.ttl, .rdf)</li>
-                        <li>SPARQL Query (.rq)</li>
-                        <li>Text (.txt)</li>
-                        <li>Web Open Font (.woff)</li>
-                        <li>XQuery (.xq)</li>
-                        <li>XML (.xml)</li>
-                        <li>XSLT (.xsl)</li>
-                    </ul>
-                     <p class="col-sm-12">Archive files (.car, .zip) may be uploaded and will be served as files.
-                     If you want to replace the contents of a folder using an archive file, look in the main menu
-                     on a folder view for the menu item "Import folder contents".</p>
-                </div>
-            </fieldset>
-        </div>
+                 <p>Archive files (.car, .zip) may be uploaded and will be served as files.
+                 If you want to replace the contents of a folder using an archive file, look in the main menu
+                 on a folder view for the menu item "Import folder contents".</p>
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary" id="upload">Upload</button>
+            </div>
+        </fieldset>
     </form>
 </body>
 </html>

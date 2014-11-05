@@ -23,6 +23,19 @@
     try {
         window.localStorage.setItem("LastFolder", location.href);
     } catch(e) {}
+    $(function($){
+        $('#file-create').click(function(event) {
+            var dialog = calli.openDialog(this.href, this.title, {
+                onmessage: function(event) {
+                    if (event.data.indexOf('POST resource\n') === 0) {
+                        reload();
+                        calli.closeDialog(dialog);
+                    }
+                }
+            });
+            event.preventDefault();
+        });
+    });
     function createTextCell(text, url, type, src) {
         if (!src) {
             src = calli.getCallimachusUrl('images/rdf_flyer.png');

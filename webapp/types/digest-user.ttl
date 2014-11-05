@@ -40,7 +40,7 @@
     calli:view <../templates/digest-user-view.xhtml>;
     calli:edit <../templates/digest-user-edit.xhtml>.
 
-:DeleteUser owl:intersectionOf ( <editable.ttl#Delete>
+:DeleteUser owl:intersectionOf ( <serviceable.ttl#Delete>
         [owl:onProperty msg:target; owl:allValuesFrom <User>]);
     calli:script """
         var iter = this.calliPasswordDigest.iterator();

@@ -44,7 +44,7 @@
         return proceed();
     """.
 
-:DeleteRealm owl:intersectionOf ( <editable.ttl#Delete>
+:DeleteRealm owl:intersectionOf ( <serviceable.ttl#Delete>
         [owl:onProperty msg:target; owl:allValuesFrom <Realm>]);
     calli:script """
         if (this.calliSecret && this.calliSecret.DeleteIfNotUsed) {

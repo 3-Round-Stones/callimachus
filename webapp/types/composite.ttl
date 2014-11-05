@@ -917,7 +917,7 @@
         }
     """.
 
-:DeleteComposite owl:intersectionOf ( <editable.ttl#DeleteIfNotUsed>
+:DeleteComposite owl:intersectionOf ( <serviceable.ttl#DeleteIfNotUsed>
         [owl:onProperty msg:target; owl:allValuesFrom [owl:intersectionOf (<Editable> <Composite>)]]);
     calli:method "DELETE";
     calli:query "edit", "describe";

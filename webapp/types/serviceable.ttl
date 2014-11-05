@@ -255,6 +255,100 @@ skos:editorialNote a owl:AnnotationProperty.
     calli:type "application/sparql-update".
 
 ################################
+# DELETE
+################################
+
+:DeleteIfNotUsed rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Serviceable>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
+    calli:method "DELETE";
+    calli:query "describe";
+    calli:requires calli:administrator;
+    calli:type "message/x-response";
+    calli:imports <java:org.openrdf.model.BNode>;
+    calli:imports <java:org.openrdf.model.URI>;
+    calli:imports <java:javax.tools.FileObject>;
+    calli:imports <java:org.callimachusproject.server.exceptions.Conflict>;
+    calli:script """
+        this.Delete();
+
+        //# check if any hanging triples still exist
+        var con = this.objectConnection;
+        var stmts = con.getStatements(null, null, this.resource, []);
+        var redirect = "/";
+        try {
+            while (stmts.hasNext()) {
+                var st = stmts.next();
+                var subj = st.subject;
+                var pred = st.predicate.namespace;
+                if (pred != "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+                        && pred != "http://www.w3.org/ns/prov#") {
+                    //# Don't allow removal if used in a complex structure (like an rdf:List)
+                    if (subj instanceof BNode)
+                        throw new Conflict(st.object + " is currently is use and cannot be removed");
+                    if (subj.stringValue().indexOf('#') >= 0)
+                        throw new Conflict(st.object + " resource is currently referenced by " + subj);
+                    if (st.predicate.stringValue() == "http://callimachusproject.org/rdf/2009/framework#hasComponent") {
+                        redirect = subj.stringValue();
+                    }
+                    con.remove(st.subject, st.predicate, st.object, []);
+                } else if (st.predicate.stringValue() == "http://www.w3.org/1999/02/22-rdf-syntax-ns#type") {
+                    throw new Conflict("Members of " + this + " must be deleted first");
+                }
+            }
+        } finally {
+            stmts.close();
+        }
+
+        return {
+            status:200,message:"Deleted",
+            headers:{'content-type':"text/uri-list"},
+            body:[redirect]
+        };
+    """.
+
+:Delete rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Serviceable>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+    calli:imports <java:org.openrdf.model.BNode>;
+    calli:imports <java:org.openrdf.model.URI>;
+    calli:imports <java:javax.tools.FileObject>;
+    calli:imports <java:org.callimachusproject.server.exceptions.Conflict>;
+    calli:script """
+        var con = this.objectConnection;
+        function removeTriples(subject, hash, qry) {
+            var stmts = con.getStatements(subject, null, null, []);
+            try {
+                while (stmts.hasNext()) {
+                    var st = stmts.next();
+                    con.remove(st.subject, st.predicate, st.object, []);
+                    if (st.object instanceof BNode && !st.object.equals(subject)) {
+                        removeTriples(st.object, hash, qry);
+                    } else if (st.object instanceof URI && !st.object.equals(subject)) {
+                        if (st.object.stringValue().indexOf(hash) == 0) {
+                            removeTriples(st.object, hash, qry);
+                        } else if (st.object.stringValue().indexOf(qry) == 0) {
+                            removeTriples(st.object, hash, qry);
+                        } else {
+                            con.getObjectFactory().createObject(st.object).touchRevision();
+                        }
+                    }
+                }
+            } finally {
+                stmts.close();
+            }
+        }
+
+        con.clear([this.resource]); //# clear graph
+        var hash = this.resource.stringValue() + '#';
+        var qry = this.resource.stringValue() + '?';
+        removeTriples(this.resource, hash, qry); //# follow blank, hash and query references
+        if (this instanceof FileObject) {
+            this['delete'](); //# remove document
+        }
+    """.
+
+################################
 # Validate
 ################################
 

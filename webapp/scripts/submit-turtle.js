@@ -11,13 +11,14 @@ var calli = window.calli || (window.calli={});
 calli.submitTurtle = function(event, local) {
     event.preventDefault();
     var form = calli.fixEvent(event).target;
-    var slug = encodeURI(local).replace(/%25(\w\w)/g, '%$1').replace(/%20/g, '+');
+    var slug = encodeURI(local || '').replace(/%25(\w\w)/g, '%$1').replace(/%20/g, '+');
     var btn = $(form).find('button[type="submit"]');
     btn.button('loading');
     return calli.resolve(form).then(function(form){
         var action = calli.getFormAction(form);
         if (action.indexOf('?create=') > 0) {
             return calli.resolve(form).then(function(form){
+                if (!local) return calli.copyResourceData(form);
                 var previously = form.getAttribute("resource");
                 var ns = window.location.pathname.replace(/\/?$/, '/');
                 var resource = ns + slug;
@@ -73,7 +74,7 @@ calli.submitTurtle = function(event, local) {
 
 calli.postTurtle = function(url, data, headers) {
     var serializer = new TurtleSerializer();
-    serializer.setBaseUri(data.base);
+    serializer.setNullUri(data.base);
     serializer.setMappings(data.prefix);
     data.results.bindings.forEach(function(triple){
         serializer.addTriple(triple);

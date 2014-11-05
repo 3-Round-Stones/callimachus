@@ -11,7 +11,7 @@ jQuery(function($){
         var input = $(event.target).find('input[type="file"]');
         var fileName = input.val().replace(/.*\/|.*\\/,'');
         var local = encodeURI(fileName).replace(/%25(\\w\\w)/g, '%$1').replace(/%20/g, '-');
-        var ns = action.replace(/\/?\?.*|\/?#.*/,'/');
+        var ns = action.replace(/\/?\?.*|\/?#.*|\/?$/,'/');
         var resource = ns + local;
         var xhr = $.ajax({
             type: 'HEAD',

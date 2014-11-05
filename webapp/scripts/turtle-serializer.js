@@ -25,10 +25,17 @@ function TurtleSerializer() {
     this.LangStringURI = "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString"; 
 
     this.baseBuffer = '';
+    this.nullUri = '';
+    this.hashUri = '#';
     this.prefixes = {};
 
     this.subjectBuffer = {};
     this.prefixBuffer = {};
+
+    this.setNullUri = function(nullUri) {
+        this.nullUri = nullUri;
+        this.hashUri = nullUri + '#';
+    };
 
     this.setBaseUri = function(baseUri) {
         this.baseBuffer = '@base <' + baseUri + '>.';
@@ -60,6 +67,9 @@ function TurtleSerializer() {
 
     this.buildUri = function(uri) {
         if (uri == "http://www.w3.org/1999/02/22-rdf-syntax-ns#type") return 'a';
+        if (uri == this.nullUri) return '<>';
+        if (uri.indexOf(this.hashUri) === 0)
+            return '<#' + uri.substring(this.hashUri.length) + '>';
         var namespace = uri.replace(/[\w_\-\.\\%]+$/, '');
         for (var prefix in this.prefixes) {
             if (prefix && this.prefixes[prefix] == namespace) {

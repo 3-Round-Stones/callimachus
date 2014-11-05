@@ -575,12 +575,19 @@ public class SPARQLProducer extends RDFEventPipe {
 		if (!term.isReference())
 			return term;
 		String var = term.asReference().getRelative();
-		if (!isVariable(var)) return term;
-		String name = var.substring(1);
+		String name = asVarName(var);
+		if (name == null) return term;
+		if (label!=null && addOrigin) addOrigin(name, term.asReference(), term.getOrigin());
+		return tf.var('?', name);
+	}
+
+	private String asVarName(String lexical) throws RDFParseException {
+		if (lexical.length() == 0) return "_";
+		if (!isVariable(lexical)) return null;
+		String name = lexical.substring(1);
 		if (!VAR_REGEX.matcher(name).matches())
 			throw new RDFParseException("Invalid Variable Name: " + name);
-		if (label!=null && addOrigin) addOrigin(name, term.asReference(), term.getOrigin());
-		return tf.var(var.charAt(0), name);
+		return name;
 	}
 
 	private boolean isVariable(String lexical) {

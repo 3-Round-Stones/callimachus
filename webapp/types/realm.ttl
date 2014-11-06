@@ -140,7 +140,7 @@
                 var Origin = vf.createURI("http://callimachusproject.org/rdf/2009/framework#Origin");
                 authority = origin && con.hasStatement(vf.createURI(origin), RDF.TYPE, Origin, []);
             }
-            if (authority) {
+            if (authority && loginReferer.indexOf('?login') < 0) {
                 query = query + '&return_to=' + encodeURIComponent(loginReferer);
             } else {
                 query = query + '&return_to=' + encodeURIComponent(this.toString());

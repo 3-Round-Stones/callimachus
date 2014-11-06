@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.TreeSet;
@@ -43,6 +44,7 @@ import org.apache.http.HttpVersion;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
+import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.server.exceptions.InternalServerError;
 import org.callimachusproject.setup.SecretOriginProvider;
 import org.callimachusproject.util.PasswordGenerator;
@@ -209,9 +211,12 @@ public class DigestPasswordAccessor implements DigestAccessor {
 		int i = 0;
 		Set<Object> set = new LinkedHashSet<Object>();
 		for (URI uuid : getPasswordFiles(files, passwords.length, webapp, con)) {
+			String password = passwords[i++];
+			if (password == null || password.length() == 0)
+				throw new BadRequest("New password cannot be empty");
 			Writer writer = con.getBlobObject(uuid).openWriter();
 			try {
-				writer.write(passwords[i++]);
+				writer.write(password);
 			} finally {
 				writer.close();
 			}
@@ -352,8 +357,8 @@ public class DigestPasswordAccessor implements DigestAccessor {
 			} finally {
 				reader.close();
 			}
-		} catch (IOException e) {
-			logger.error(e.toString(), e);
+		} catch (IOException | NoSuchElementException e) {
+			logger.error(file.toUri().toASCIIString(), e);
 			return null;
 		}
 	}

@@ -524,30 +524,15 @@
         var vf = con.valueFactory;
         var of = con.objectFactory;
 
-        var nfd = slug && java.text.Normalizer.normalize(decodeURIComponent(slug), java.text.Normalizer.Form.NFD);
-        var local = nfd && encodeURI(nfd).replace(/%25(\\w\\w)/g, '%$1').replace(/%20/g, '+');
-    	if (local == null || local.length === 0) {
-			local = java.util.UUID.randomUUID().toString();
-		}
-        var createdUri;
         var creatorUri = this.getResource().stringValue();
-    	if (creatorUri.charAt(creatorUri.length-1) != '/') {
-			createdUri = creatorUri + "/" + local;
-    	} else {
-			createdUri = creatorUri + local;
-		}
-        if (local.indexOf('/') >= 0)
-            throw new BadRequest("Resource " + local + " must not include a slash");
-        if (local.search(/[\\s\\#\\?]/) >= 0)
-            throw new BadRequest("Fragement or name resources are not supported as primary topic: '" + local + "'");
+        var needSlash = creatorUri.charAt(this.resource.stringValue().length-1) != '/';
 
         //# Parse INSERT DATA
-        var updater = new EntityUpdater(this.resource, createdUri, true);
+        var updater = new EntityUpdater(this.resource, "?describe", true);
         var string = updater.parseUpdate(insertData);
         
         //# Verify input
-        var location = updater.subject;
-        if (location == this.resource) {
+        if (updater.subject.stringValue() == this.resource.stringValue()) {
             //# PATCH itself
             updater.executeUpdate(string, con);
 
@@ -568,7 +553,7 @@
 
         //# Execute input
         updater.executeUpdate(string, con);
-        var created = of.createObject(createdUri, updater.getTypes(vf.createURI(createdUri)));
+        var created = of.createObject(updater.subject, updater.getTypes(updater.subject));
         if (create) {
             created = created.objectConnection.addDesignation(created, create.toString());
             create.touchRevision(); // FIXME this shouldn't be needed
@@ -579,6 +564,17 @@
             throw new BadRequest("Resource is not Serviceable: " + created);
         if (!(created instanceof Composite) && link && link.match(/<http:..www.w3.org.ns.ldp#[a-zA-Z]*Container>[^<]*; *rel="type"/))
             throw new BadRequest("Resource is not a Container: " + created);
+        if (created.resource.stringValue().indexOf(creatorUri) !== 0)
+            throw new BadRequest("Resource identifier must start with " + this + " was " + created);
+        if (needSlash && created.resource.stringValue().charAt(creatorUri.length) != '/')
+            throw new BadRequest("A Slash must separate the container and it's member, was " + created.resource.stringValue().substring(creatorUri.length));
+        var localPart = created.resource.stringValue().substring(needSlash ? creatorUri.length+1 : creatorUri.length);
+        if (localPart.indexOf('/') >= 0 && localPart.indexOf('/') != localPart.length-1)
+            throw new BadRequest("Resource " + localPart + " must not include a slash");
+        if (localPart.search(/[\\s\\#\\?]/) >= 0)
+            throw new BadRequest("Fragement or name resources are not supported as primary topic: '" + localPart + "'");
+        if (localPart.search(/[a-zA-Z0-9\\-_%!\\$\\&'\\(\\)\\*\\+,;=]/) < 0)
+            throw new BadRequest("A path segment is required for members");
 
         try {
             created.Validate();
@@ -627,7 +623,7 @@
 :insertData a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :PostDeleteInsert;
     rdfs:range <java:java.io.InputStream>;
-    calli:type "application/sparql-update".
+    calli:type "application/sparql-update;q=1.1". # higher than serviceable.ttl#PatchDeleteInsert
 
 ################################
 # POST Non-RDF

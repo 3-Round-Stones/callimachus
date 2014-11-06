@@ -223,7 +223,7 @@ skos:editorialNote a owl:AnnotationProperty.
 :PatchDeleteInsert rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Serviceable>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-    calli:method "PATCH";
+    calli:method "POST", "PATCH";
     calli:query "describe";
     calli:requires calli:administrator;
     calli:imports <java:org.callimachusproject.form.helpers.EntityUpdater>;

@@ -78,7 +78,7 @@ window.calli.saveResourceAs = function(event, fileName, create, folder) {
         $(form).attr('resource', resource);
         overrideLocation(form);
         if (form.getAttribute("enctype") == "application/sparql-update") {
-            form.setAttribute("enctype", "text/turtle");
+            form.setAttribute("enctype", "application/rdf+xml");
         }
         try {
             nestedSubmit = true;

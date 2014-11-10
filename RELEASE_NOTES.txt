@@ -2,9 +2,9 @@ Callimachus Project Release Notes
 
 http://callimachusproject.org/
 
-13 June 2014
+10 November 2014
 
-= REQUIREMENTS FOR CALLIMACHUS 1.3.3 (Open Source) =
+= REQUIREMENTS FOR CALLIMACHUS 1.3.4 (Open Source) =
 
 Callimachus works best on browsers that are closely tracking the development
 of HTML5.  At the time of this writing, Callimachus works best on Chrome and
@@ -20,6 +20,10 @@ Details of browser support may be found at:
   http://callimachusproject.org/docs/1.2/articles/browser-support.docbook?view
 
 The Callimachus server requires Java JDK 1.7 on the server to run.
+
+= NEW IN VERSION 1.3.4 =
+
+ * Fixed critical Digest Authentication overflow
 
 = NEW IN VERSION 1.3.3 =
 

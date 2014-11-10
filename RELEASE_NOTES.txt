@@ -24,6 +24,8 @@ The Callimachus server requires Java JDK 1.7 on the server to run.
 = NEW IN VERSION 1.3.4 =
 
  * Fixed critical Digest Authentication overflow
+ * Close SSL v3 POODLE Vulnerability by default on new installs
+ * Remove Google authentication option and just use Digest auth by default
 
 = NEW IN VERSION 1.3.3 =
 

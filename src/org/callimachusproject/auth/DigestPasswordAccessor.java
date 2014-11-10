@@ -84,7 +84,7 @@ public class DigestPasswordAccessor implements DigestAccessor {
 			+ "$this calli:authNamespace ?folder .\n"
 			+ "?folder calli:hasComponent ?user .\n"
 			+ "OPTIONAL { ?user calli:passwordDigest ?passwordDigest }\n"
-			+ "}}";
+			+ "}} LIMIT 10";
 	private static final String COPY_PERM = PREFIX
 			+ "INSERT { $dst\n"
 			+ "calli:reader ?reader; calli:subscriber ?subscriber; calli:contributor ?contributor; calli:editor ?editor; calli:administrator ?administrator\n"
@@ -263,16 +263,15 @@ public class DigestPasswordAccessor implements DigestAccessor {
 				if (r == null || r.getOriginSecret() == null)
 					continue;
 				String secret = r.getOriginSecret();
+				String usrlm = username + ':' + realm + ':';
 				if (nonce != null && hash != null) {
 					String password = md5(hash + ":" + md5(nonce + ":" + secret));
-					map.put(md5(username + ':' + realm + ':' + password), iri);
+					map.put(md5(usrlm + password), iri);
 				}
 				long now = System.currentTimeMillis();
-				short halfDay = getHalfDay(now);
-				for (short d = halfDay; d >= halfDay - 1; d--) {
-					String daypass = getDaypass(d, username, secret);
-					map.put(md5(username + ':' + realm + ':' + daypass), iri);
-				}
+				int d = getHalfDay(now);
+				map.put(md5(usrlm + getDaypass(d, username, secret)), iri);
+				map.put(md5(usrlm + getDaypass(d - 1, username, secret)), iri);
 			}
 			return map;
 		} finally {
@@ -363,12 +362,12 @@ public class DigestPasswordAccessor implements DigestAccessor {
 		}
 	}
 
-	private short getHalfDay(long now) {
+	private int getHalfDay(long now) {
 		long halfDay = now / 1000 / 60 / 60 / 12;
-		return (short) halfDay;
+		return (int) halfDay;
 	}
 
-	private String getDaypass(short day, String email, String secret) {
+	private String getDaypass(int day, String email, String secret) {
 		if (secret == null)
 			return null;
 		byte[] random = readBytes(secret);

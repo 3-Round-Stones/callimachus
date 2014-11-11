@@ -247,10 +247,12 @@ public class DigestPasswordAccessor implements DigestAccessor {
 				BindingSet result = results.next();
 				String iri = result.getValue("id").stringValue();
 				assert iri != null;
+				// user (legacy) inline password
 				if (result.hasBinding("encoded")) {
 					map.put(encodeHex(result.getValue("encoded")), iri);
 				}
 				String hash = null;
+				// user secret password
 				if (result.hasBinding("passwordDigest")) {
 					Resource value = (Resource) result.getValue("passwordDigest");
 					Object file = con.getObjectFactory().createObject(value);
@@ -262,12 +264,14 @@ public class DigestPasswordAccessor implements DigestAccessor {
 				DetachedRealm r = realms.getRealm(iri);
 				if (r == null || r.getOriginSecret() == null)
 					continue;
+				// remember me
 				String secret = r.getOriginSecret();
 				String usrlm = username + ':' + realm + ':';
 				if (nonce != null && hash != null) {
 					String password = md5(hash + ":" + md5(nonce + ":" + secret));
 					map.put(md5(usrlm + password), iri);
 				}
+				// temporary password
 				long now = System.currentTimeMillis();
 				int d = getHalfDay(now);
 				map.put(md5(usrlm + getDaypass(d, username, secret)), iri);
@@ -372,7 +376,7 @@ public class DigestPasswordAccessor implements DigestAccessor {
 			return null;
 		byte[] random = readBytes(secret);
 		byte[] id = email.getBytes(Charset.forName("UTF-8"));
-		byte[] seed = new byte[random.length + id.length + Short.SIZE / Byte.SIZE];
+		byte[] seed = new byte[random.length + id.length + Integer.SIZE / Byte.SIZE];
 		System.arraycopy(random, 0, seed, 0, random.length);
 		System.arraycopy(id, 0, seed, random.length, id.length);
 		for (int i = random.length + id.length; i < seed.length; i++) {

@@ -19,7 +19,7 @@
                 return m ? decodeURIComponent(m[1]) : null;
             }
             $('#email').val(parameter("email"));
-            $('#username').val(parameter("email").replace(/@.*/,''));
+            $('#username').val(parameter("email").replace(/@.*/,'').toLowerCase());
             $('#fullname').val(parameter("fullname") || $('#username').val());
             $("#form").validate({submitHandler: function(form) {
                 var username = $("#username").val();

@@ -101,7 +101,7 @@
     rdf:_4 <../assets/ace/src/mode-javascript.js>;
     rdf:_5 <../assets/ace/src/mode-json.js>;
     rdf:_6 <../assets/ace/src/mode-less.js>;
-    rdf:_7 <../assets/ace/src/mode-sparql.js>;
+    rdf:_7 <mode-sparql.js>;
     rdf:_8 <../assets/ace/src/mode-svg.js>;
     rdf:_9 <../assets/ace/src/mode-text.js>;
     rdf:_10 <../assets/ace/src/mode-xml.js>;

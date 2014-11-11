@@ -27,11 +27,43 @@ var SparqlHighlightRules = function() {
     "str|lang|langmatches|datatype|bound|sameterm|isiri|isuri|isblank|isliteral|union|a".split("|")
   );
 
-  var keywords = lang.arrayToMap(
-    ("base|BASE|prefix|PREFIX|select|SELECT|ask|ASK|construct|CONSTRUCT|describe|DESCRIBE|where|WHERE|"+
-     "from|FROM|reduced|REDUCED|named|NAMED|order|ORDER|limit|LIMIT|offset|OFFSET|filter|FILTER|"+
-     "optional|OPTIONAL|graph|GRAPH|by|BY|asc|ASC|desc|DESC").split("|")
-  );
+  var keywords = lang.arrayToMap(['a'].concat([
+        'ABS', 'ADD', 'ALL', 'AS', 'ASC', 'ASK', 'AVG', 'BASE', 'BIND',
+        'BNODE', 'BOUND', 'BY', 'CEIL', 'CLEAR', 'COALESCE', 'CONCAT',
+        'CONSTRUCT', 'CONTAINS', 'COPY', 'COUNT', 'CREATE',
+        'DATATYPE', 'DAY', 'DEFAULT', 'DELETE', 'DESC', 'DESCRIBE',
+        'DISTINCT', 'DROP', 'EXISTS', 'FILTER', 'FLOOR', 'FROM',
+        'GRAPH', 'GROUP', 'HAVING', 'HOURS', 'IF', 'IN', 'INSERT',
+        'INTO', 'IRI', 'isBLANK', 'isIRI', 'isLITERAL', 'isNUMERIC',
+        'isURI', 'LANG', 'LANGMATCHES', 'LCASE', 'LIMIT', 'LOAD',
+        'MAX', 'MD5', 'MIN', 'MINUS', 'MINUTES', 'MONTH', 'MOVE',
+        'NAMED', 'NOT', 'NOW', 'OFFSET', 'OPTIONAL', 'ORDER',
+        'PREFIX', 'RAND', 'REDUCED', 'REGEX', 'REPLACE', 'ROUND',
+        'sameTerm', 'SAMPLE', 'SECONDS', 'SELECT', 'SEPARATOR',
+        'SERVICE', 'SHA1', 'SHA256', 'SHA384', 'SHA512', 'SILENT',
+        'STR', 'STRAFTER', 'STRBEFORE', 'STRDT', 'STRENDS', 'STRLANG',
+        'STRLEN', 'STRSTARTS', 'STRUUID', 'SUBSTR', 'SUM', 'TIMEZONE',
+        'TO', 'TZ', 'UCASE', 'UNDEF', 'UNION', 'URI', 'USING', 'UUID',
+        'VALUES', 'WHERE', 'WITH', 'YEAR'
+    ], [
+        'abs', 'add', 'all', 'as', 'asc', 'ask', 'avg', 'base', 'bind',
+        'bnode', 'bound', 'by', 'ceil', 'clear', 'coalesce', 'concat',
+        'construct', 'contains', 'copy', 'count', 'create',
+        'datatype', 'day', 'default', 'delete', 'desc', 'describe',
+        'distinct', 'drop', 'exists', 'filter', 'floor', 'from',
+        'graph', 'group', 'having', 'hours', 'if', 'in', 'insert',
+        'into', 'iri', 'isblank', 'isiri', 'isliteral', 'isnumeric',
+        'isuri', 'lang', 'langmatches', 'lcase', 'limit', 'load',
+        'max', 'md5', 'min', 'minus', 'minutes', 'month', 'move',
+        'named', 'not', 'now', 'offset', 'optional', 'order',
+        'prefix', 'rand', 'reduced', 'regex', 'replace', 'round',
+        'sameterm', 'sample', 'seconds', 'select', 'separator',
+        'service', 'sha1', 'sha256', 'sha384', 'sha512', 'silent',
+        'str', 'strafter', 'strbefore', 'strdt', 'strends', 'strlang',
+        'strlen', 'strstarts', 'struuid', 'substr', 'sum', 'timezone',
+        'to', 'tz', 'ucase', 'undef', 'union', 'uri', 'using', 'uuid',
+        'values', 'where', 'with', 'year'
+    ]));
 
   var buildinConstants = lang.arrayToMap(
     "true|TRUE|false|FALSE".split("|")

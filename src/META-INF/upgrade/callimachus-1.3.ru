@@ -275,6 +275,18 @@ DELETE {
 	</admin> calli:administrator </auth/groups/super> .
 };
 
+INSERT {
+<../> calli:hasComponent <../markdown-editor.html> .
+<../markdown-editor.html> a <types/Purl>, calli:Purl ;
+	rdfs:label "markdown-editor.html";
+	calli:alternate ?alternate;
+	calli:administrator </auth/groups/super>;
+	calli:reader </auth/groups/public> .
+} WHERE {
+    BIND (str(<pages/text-editor.html#markdown>) AS ?alternate)
+	FILTER NOT EXISTS { <../markdown-editor.html> a calli:Purl }
+};
+
 # Setup process determins upgrade file based on versionInfo
 DELETE {
 	</callimachus/ontology> a <../1.3/types/Serviceable>; owl:versionInfo "1.3"

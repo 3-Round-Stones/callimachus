@@ -371,6 +371,18 @@ INSERT {
 };
 
 INSERT {
+<../> calli:hasComponent <../markdown-editor.html> .
+<../markdown-editor.html> a <types/Purl>, calli:Purl ;
+	rdfs:label "markdown-editor.html";
+	calli:alternate ?alternate;
+	calli:administrator </auth/groups/super>;
+	calli:reader </auth/groups/public> .
+} WHERE {
+    BIND (str(<pages/text-editor.html#markdown>) AS ?alternate)
+	FILTER NOT EXISTS { <../markdown-editor.html> a calli:Purl }
+};
+
+INSERT {
 <../> calli:hasComponent <../digest_64.png> .
 <../digest_64.png> a <types/Purl>, calli:Purl ;
 	rdfs:label "digest_64.png";

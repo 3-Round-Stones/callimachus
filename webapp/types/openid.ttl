@@ -65,17 +65,11 @@
     calli:administrator </auth/groups/super>;
     calli:create <../templates/authmanager-create.xhtml>.
 
-:PostEditDigest owl:intersectionOf (<editable.ttl#PostEdit>
+:ValidateAuthManager owl:intersectionOf (<serviceable.ttl#Validate>
         [owl:onProperty msg:target; owl:allValuesFrom <AuthManager>]);
-    calli:method "POST";
-    calli:query "edit";
-    calli:requires calli:editor;
-    calli:expect "201-modified";
-    calli:type "text/uri-list";
     calli:script """
-        var ret = proceed();
         this.resetCache();
-        return ret;
+        return proceed();
     """.
 
 ################################

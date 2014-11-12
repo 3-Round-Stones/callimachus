@@ -651,12 +651,21 @@
     calli:query "create", "describe", "edit", "contents";
     calli:requires calli:contributor;
     calli:type "message/x-response";
+    calli:imports <Photo>;
     calli:imports foaf:Image;
     calli:script """
         var con = this.objectConnection;
+        var vf = con.valueFactory;
         var resp = this.PostNonRDFSource(create, fileClass, intermediate, link, imageData, slug, type);
         var createdUri = resp.headers.location;
-        con.addDesignation(con.objectFactory.createObject(createdUri), Image);
+        var obj = con.addDesignation(con.getObject(createdUri), Image);
+        var depiction = vf.createURI("http://xmlns.com/foaf/0.1/depiction");
+        if (obj instanceof Photo) {
+            var small = vf.createURI(obj.resource.stringValue() + '?small');
+            con.add(obj.resource, depiction, small, []);
+        } else {
+            con.add(obj.resource, depiction, obj.resource, []);
+        }
         return resp;
     """.
 

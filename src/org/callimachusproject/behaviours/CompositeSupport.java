@@ -35,6 +35,7 @@ import org.callimachusproject.form.helpers.TripleInserter;
 import org.callimachusproject.form.helpers.TripleVerifier;
 import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.server.exceptions.Conflict;
+import org.callimachusproject.server.exceptions.InternalServerError;
 import org.callimachusproject.traits.CalliObject;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Statement;
@@ -123,11 +124,12 @@ public abstract class CompositeSupport implements CalliObject {
 			TripleVerifier verifier = new TripleVerifier();
 			for (Template template : templates) {
 				String variable = getFirstVariable(template);
-				assert variable != null;
-				MapBindingSet bindings = new MapBindingSet();
-				bindings.addBinding(variable, created);
-				GraphQueryResult construct = template.evaluateGraph(bindings, con);
-				verifier.accept(construct);
+				if (variable != null) {
+					MapBindingSet bindings = new MapBindingSet();
+					bindings.addBinding(variable, created);
+					GraphQueryResult construct = template.evaluateGraph(bindings, con);
+					verifier.accept(construct);
+				}
 			}
 			verifier.accept(created(created));
 			for (Statement st : statements) {

@@ -58,9 +58,13 @@ calli.submitEditor = function(event, local) {
                 Slug: slug,
                 Link: '<http://www.w3.org/ns/ldp#NonRDFSource>;rel="type"'
             });
-        } else {
+        } else if (form.attr('method') == 'PUT') {
             return calli.putText(action, text, form.attr('enctype')).then(function(){
                 return action.replace(/\?.*/,'');
+            });
+        } else {
+            return calli.postText(action, text, form.attr('enctype'), {
+                Link: '<http://www.w3.org/ns/ldp#NonRDFSource>;rel="type"'
             });
         }
     }).then(function(redirect){

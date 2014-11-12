@@ -13,10 +13,9 @@ jQuery(function($){
         if (event.target.value) {
             var url = $('[rel="calli:facebookSecret"]').attr('resource');
             if (url) {
-                calli.putText(url, event.target.value, "text/plain").then(undefined, calli.error);
+                calli.putText(url, event.target.value).then(undefined, calli.error);
             } else {
-                var type = $('#TextFile').prop('href');
-                calli.postText("/auth/secrets/?create=" + encodeURIComponent(type), event.target.value).then(function(url){
+                calli.postText("/auth/secrets/?create", event.target.value).then(function(url){
                     $('#secret').before($('<span></span>', {
                         rel: "calli:facebookSecret",
                         resource: url

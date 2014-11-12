@@ -2,7 +2,7 @@
 
 > http://callimachusproject.org/
 
-29 July 2014
+12 November 2014
 
 ## REQUIREMENTS FOR CALLIMACHUS 1.4.0 (Open Source)
 
@@ -11,8 +11,8 @@ of HTML5.  At the time of this writing, Callimachus works best on Chrome and
 Firefox.  It is recommended that Callimachus users track updates to their
 browsers for the best usage experience.
 
-Chrome 35 has been thoroughly tested.
-Firefox 31 has no known issues.
+Chrome 38 has been thoroughly tested.
+Firefox 33 has no known issues.
 Safari 6.1 and 7 has known issues.
 Internet Explorer 11 has known issues.
 
@@ -35,11 +35,10 @@ The Callimachus server requires Java JDK 1.7 on the server to run.
      http://brianreavis.github.io/selectize.js/
  * Many new calli. javascript functions to make it easier to build complicated
      Callimachus applications
+ * LDP Support on the describedby URLs
 
 ## KNOWN ISSUES IN 1.4.0
 
- * All possible options in check boxes must have a label.
- * rdf:XMLLiteral on form create auto adds xmlns to elements.
  * When resource labels are updated, referencing resource may not display new
    label until they are modified as well or the callimachus-reset script is run.
  * Template variables are only bound if there is at least one triple binding after them.

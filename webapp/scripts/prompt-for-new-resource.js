@@ -57,7 +57,7 @@ function openSaveAsDialog(label, folder, callback) {
                 var ns = data.substring(data.indexOf('\n\n', data.indexOf('\n\n') + 2) + 2);
                 var local = encodeURI(label).replace(/%25(\w\w)/g, '%$1');
                 called = true;
-                callback([ns, local]);
+                callback({container: ns, slug: local});
                 calli.closeDialog(dialog);
             }
         },

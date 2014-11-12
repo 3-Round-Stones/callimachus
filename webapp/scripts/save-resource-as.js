@@ -62,8 +62,8 @@ window.calli.saveResourceAs = function(event, fileName, create, folder) {
     var label = fileName || findLabel(form) || localPart(resource);
     calli.promptForNewResource(folder, label).then(function(twoPartArray) {
         if (!twoPartArray) return; // dialogue cancelled
-        var ns = twoPartArray[0];
-        var local = twoPartArray[1];
+        var ns = twoPartArray.container;
+        var local = twoPartArray.slug;
         updateFormAction(form, ns, create);
         if (fileName) {
             local = local.replace(/(%20|\-)+/g,'-');

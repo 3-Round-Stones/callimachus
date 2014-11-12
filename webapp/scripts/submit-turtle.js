@@ -46,13 +46,13 @@ calli.submitTurtle = function(event, local) {
             });
         } else if (confirm("This create page is deprecated, use a different link next time, do you still want to continue")) {
             return calli.promptForNewResource(null, local).then(function(two){
-                if (!two || !two.length) return undefined;
-                var folder = two[0], local = two[1].replace(/%20/g, '+');
+                if (!two) return undefined;
+                var folder = two.container, local = two.slug.replace(/%20/g, '+');
                 var type = window.location.href.replace(/\?.*|\#.*/, '');
                 var url = folder + '?create=' + encodeURIComponent(type);
                 var resource = folder.replace(/\/?$/, '/') + local;
                 form.setAttribute("resource", resource);
-                return calli.postTurtle(url, calli.copyResourceData(form), local);
+                return calli.postTurtle(url, calli.copyResourceData(form), {Slug: local});
             });
         } else {
             return undefined;

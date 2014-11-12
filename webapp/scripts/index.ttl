@@ -95,22 +95,26 @@
 
 <text_bundle> a calli:ScriptBundle;
     calli:reader </auth/groups/public>;
-    rdf:_1 <../assets/ace/src/ace.js>;
-    rdf:_2 <../assets/ace/src/mode-css.js>;
-    rdf:_3 <../assets/ace/src/mode-html.js>;
-    rdf:_4 <../assets/ace/src/mode-javascript.js>;
-    rdf:_5 <../assets/ace/src/mode-json.js>;
-    rdf:_6 <../assets/ace/src/mode-less.js>;
-    rdf:_7 <mode-sparql.js>;
-    rdf:_8 <../assets/ace/src/mode-svg.js>;
-    rdf:_9 <../assets/ace/src/mode-text.js>;
-    rdf:_10 <../assets/ace/src/mode-xml.js>;
-    rdf:_11 <../assets/ace/src/mode-xquery.js>;
-    rdf:_11 <../assets/ace/src/mode-markdown.js>;
-    rdf:_12 <../assets/jquery/jquery.js>;
-    rdf:_13 <error.js>;
-    rdf:_14 <location.js>;
-    rdf:_15 <text-editor.js>.
+    rdf:_1 <../assets/emmet.js>;
+    rdf:_2 <../assets/ace/src/ace.js>;
+    rdf:_3 <../assets/ace/src/ext-searchbox.js>;
+    rdf:_4 <../assets/ace/src/ext-language_tools.js>;
+    rdf:_5 <../assets/ace/src/ext-emmet.js>;
+    rdf:_6 <../assets/ace/src/mode-css.js>;
+    rdf:_7 <../assets/ace/src/mode-html.js>;
+    rdf:_8 <../assets/ace/src/mode-javascript.js>;
+    rdf:_9 <../assets/ace/src/mode-json.js>;
+    rdf:_10 <../assets/ace/src/mode-less.js>;
+    rdf:_11 <../assets/ace/src/mode-svg.js>;
+    rdf:_12 <../assets/ace/src/mode-text.js>;
+    rdf:_13 <../assets/ace/src/mode-xml.js>;
+    rdf:_14 <../assets/ace/src/mode-xquery.js>;
+    rdf:_15 <../assets/ace/src/mode-markdown.js>;
+    rdf:_16 <mode-sparql.js>;
+    rdf:_17 <../assets/jquery/jquery.js>;
+    rdf:_18 <error.js>;
+    rdf:_19 <location.js>;
+    rdf:_20 <text-editor.js>.
 
 <document_bundle> a calli:ScriptBundle ;
     calli:reader </auth/groups/public>;

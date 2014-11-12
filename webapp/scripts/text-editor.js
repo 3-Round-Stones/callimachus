@@ -19,6 +19,14 @@
 jQuery(function($) {
     var editor = ace.edit("editor");
 
+    // enable autocompletion and snippets
+    editor.setOptions({
+        enableBasicAutocompletion: true,
+        enableSnippets: true,
+        enableLiveAutocompletion: false,
+        enableEmmet: true
+    });
+
     $('#editor').one('mouseenter', function() {
         try {
             editor.focus();

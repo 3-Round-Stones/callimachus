@@ -23,6 +23,7 @@ The Callimachus server requires Java JDK 1.7 on the server to run.
 
 ## NEW IN VERSION 1.4.0
 
+ * LDP Support on the describedby URLs http://www.w3.org/TR/ldp/
  * .xsl and .xq files now have ?results pragma to execute without a pipeline
  * Markdown .md files can now be created and stored in Callimachus
  * SPARQL property paths can now be used within template expressions, such as
@@ -31,11 +32,10 @@ The Callimachus server requires Java JDK 1.7 on the server to run.
      in http://www.w3.org/TR/sparql11-results-json/
  * ?select, ?checkbox, and ?radio pragmas are now available to RDF Named Query
      for use as XInclude targets in templates
- * Selectize.js is now included per default in every Callimachus page
+ * Selectize.js is now included per default in every Callimachus page to easily create an autocomplete widget, powered by a named RDF query
      http://brianreavis.github.io/selectize.js/
  * Many new calli. javascript functions to make it easier to build complicated
      Callimachus applications
- * LDP Support on the describedby URLs
 
 ## KNOWN ISSUES IN 1.4.0
 

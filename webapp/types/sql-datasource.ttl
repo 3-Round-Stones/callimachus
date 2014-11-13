@@ -41,7 +41,7 @@
     calli:edit <../templates/sql-datasource-edit.xhtml>;
     calli:create <../templates/sql-datasource-create.xhtml>.
 
-:DeleteDatasource owl:intersectionOf ( <editable.ttl#Delete>
+:DeleteDatasource owl:intersectionOf ( <serviceable.ttl#Delete>
         [owl:onProperty msg:target; owl:allValuesFrom <SqlDatasource>]);
     calli:script """
         this.reset();

@@ -265,6 +265,7 @@ public class Setup {
 		String cmd = launch;
 		if (cmd != null) {
 			if (cmd.length() > 0) {
+				System.gc();
 				launch(cmd);
 				Thread.sleep(5000);
 				waitUntilServing(webapps);

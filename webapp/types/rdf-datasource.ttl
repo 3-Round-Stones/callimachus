@@ -43,7 +43,7 @@
     calli:edit <../templates/rdf-datasource-edit.xhtml>;
     calli:create <../templates/rdf-datasource-create.xhtml>.
 
-:DeleteDatasource owl:intersectionOf ( <editable.ttl#Delete>
+:DeleteDatasource owl:intersectionOf ( <serviceable.ttl#Delete>
         [owl:onProperty msg:target; owl:allValuesFrom <RdfDatasource>]);
     calli:script """
         this.getCalliRepository().getDatasourceManager().purgeDatasource(this.resource);

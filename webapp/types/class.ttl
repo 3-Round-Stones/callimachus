@@ -52,6 +52,7 @@
 
 :ValidateClass owl:intersectionOf (<serviceable.ttl#Validate>
         [owl:onProperty msg:target; owl:allValuesFrom <Class>]);
+    calli:imports <java:org.callimachusproject.server.exceptions.Conflict>;
     calli:imports <java:org.openrdf.model.vocabulary.RDF>;
     calli:imports <RdfSchemaGraph>;
     calli:script """
@@ -71,7 +72,7 @@
         PREFIX owl:<http://www.w3.org/2002/07/owl#>
         SELECT REDUCED ?otherClass {
             $this owl:equivalentClass+ ?equivalent .
-            ?otherClass owl:equivalentClass* ?equivalent; a <Class>
-            FILTER ($this != ?otherClass)
+            ?otherClass owl:equivalentClass* ?equivalent .
+            FILTER ($this != ?otherClass && EXISTS {?otherClass a <Class>})
         } LIMIT 1
     """.

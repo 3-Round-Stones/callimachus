@@ -133,23 +133,14 @@
         PREFIX foaf:<http://xmlns.com/foaf/0.1/>
         PREFIX calli: <http://callimachusproject.org/rdf/2009/framework#>
         CONSTRUCT {
-            ?container foaf:primaryTopic $this;
+            ?container foaf:primaryTopic ?self;
                 a ldp:IndirectContainer, ldp:Container, ldp:RDFSource;
-                dcterms:title ?label;
-                ldp:membershipResource $this;
+                ldp:membershipResource ?self;
                 ldp:hasMemberRelation calli:hasComponent;
                 ldp:insertedContentRelation foaf:primaryTopic
         } WHERE {
+            BIND ($this AS ?self)
             BIND (iri(concat(str($this), "?", $queryContainer)) AS ?container)
-            OPTIONAL {
-                $this dcterms:title ?label
-            } OPTIONAL {
-                $this rdfs:label ?label
-            } OPTIONAL {
-                $this skos:prefLabel ?label
-            } OPTIONAL {
-                $this foaf:name ?label
-            }
         }
     """.
 
@@ -390,12 +381,13 @@
         }
         var createdUri;
         var creatorUri = this.getResource().stringValue();
-        if (creatorUri.charAt(creatorUri.length-1) != '/') {
+        var needSlash = creatorUri.charAt(creatorUri.length-1) != '/';
+        if (needSlash) {
             createdUri = creatorUri + "/" + local;
         } else {
             createdUri = creatorUri + local;
         }
-        if (local.indexOf('/') >= 0)
+        if (local.indexOf('/') >= 0 && local.indexOf('/') != local.length-1)
             throw new BadRequest("Resource " + local + " must not include a slash");
         if (local.search(/[\\s\\#\\?]/) >= 0)
             throw new BadRequest("Fragement or name resources are not supported as primary topic: '" + local + "'");
@@ -407,23 +399,38 @@
             created = created.objectConnection.addDesignation(created, create.toString());
             create.touchRevision(); // FIXME this shouldn't be needed
         }
+        var iter = this.FindCreatablesOf(created).iterator();
+        if (!iter.hasNext()) {
+            var subclasses = this.FindSubClassFor(created).iterator();
+            if (!subclasses.hasNext()) throw new Forbidden("Cannot create this type of resource");
+            while (subclasses.hasNext()) {
+                var subclass = subclasses.next();
+                created = created.objectConnection.addDesignation(created, subclass.toString());
+                subclass.touchRevision(); // FIXME this shouldn't be needed
+            }
+            iter = this.FindCreatablesOf(created).iterator();
+            if (!iter.hasNext()) throw new Forbidden("No creatable subclasses exit for this resource");
+        }
         if (this.calliHasComponent.contains(created))
             throw new Conflict("Resource " + created + " already exists");
         if (!(created instanceof Serviceable))
             throw new BadRequest("Resource is not Serviceable: " + created);
         if (!(created instanceof Composite) && link && link.match(/<http:..www.w3.org.ns.ldp#[a-zA-Z]*Container>[^<]*; *rel="type"/))
             throw new BadRequest("Resource is not a Container: " + created);
-
-        try {
-            created.Validate();
-        } catch (e if e.javaException instanceof ServiceUnavailable) {
-            java.lang.System.err.println("Storing " + this);
-        }
+        if (created.resource.stringValue().indexOf(creatorUri) !== 0)
+            throw new BadRequest("Resource identifier must start with " + this + " was " + created);
+        if (needSlash && created.resource.stringValue().charAt(creatorUri.length) != '/')
+            throw new BadRequest("A Slash must separate the container and it's member, was " + created.resource.stringValue().substring(creatorUri.length));
+        var localPart = created.resource.stringValue().substring(needSlash ? creatorUri.length+1 : creatorUri.length);
+        if (localPart.indexOf('/') >= 0 && localPart.indexOf('/') != localPart.length-1)
+            throw new BadRequest("Resource " + localPart + " must not include a slash");
+        if (localPart.search(/[\\s\\#\\?]/) >= 0)
+            throw new BadRequest("Fragement or name resources are not supported as primary topic: '" + localPart + "'");
+        if (localPart.search(/[a-zA-Z0-9\\-_%!\\$\\&'\\(\\)\\*\\+,;=]/) < 0)
+            throw new BadRequest("A path segment is required for members");
 
         var creators = this.FindCreator(created);
-        var iter = this.FindCreatablesOf(created).iterator();
-        if (!iter.hasNext())
-            throw new Forbidden("Cannot create this type of resource");
+        var templates = new java.util.ArrayList();
         while (iter.hasNext()) {
             var cls = iter.next();
             var jter = creators.iterator();
@@ -433,14 +440,21 @@
                     throw new Forbidden(user + " is not permitted to create " + cls + " resources");
             }
             if (verify) {
-                var template = cls.calliCreate.iterator().next();
-                if (!template)
-                    throw new InternalServerError("Cannot create " + cls.toString() + ", no create template");
-                template.calliVerifyCreatedResource(created, statements.getStatements(), cls.toString());
+                var kter = cls.calliCreate.iterator();
+                while (kter.hasNext()) {
+                    templates.add(kter.next().getTemplateFor(createdUri));
+                }
             }
         }
 
+        try {
+            created.Validate();
+        } catch (e if e.javaException instanceof ServiceUnavailable) {
+            java.lang.System.err.println("Storing " + this);
+        }
+
         if (verify) {
+            this.calliVerifyCreatedResource(created, templates, statements.getStatements(), createdUri);
             //# Add permissions and component membership
             created.calliReader.addAll(this.calliReader);
             created.calliSubscriber.addAll(this.calliSubscriber);
@@ -517,30 +531,15 @@
         var vf = con.valueFactory;
         var of = con.objectFactory;
 
-        var nfd = slug && java.text.Normalizer.normalize(decodeURIComponent(slug), java.text.Normalizer.Form.NFD);
-        var local = nfd && encodeURI(nfd).replace(/%25(\\w\\w)/g, '%$1').replace(/%20/g, '+');
-    	if (local == null || local.length === 0) {
-			local = java.util.UUID.randomUUID().toString();
-		}
-        var createdUri;
         var creatorUri = this.getResource().stringValue();
-    	if (creatorUri.charAt(creatorUri.length-1) != '/') {
-			createdUri = creatorUri + "/" + local;
-    	} else {
-			createdUri = creatorUri + local;
-		}
-        if (local.indexOf('/') >= 0)
-            throw new BadRequest("Resource " + local + " must not include a slash");
-        if (local.search(/[\\s\\#\\?]/) >= 0)
-            throw new BadRequest("Fragement or name resources are not supported as primary topic: '" + local + "'");
+        var needSlash = creatorUri.charAt(this.resource.stringValue().length-1) != '/';
 
         //# Parse INSERT DATA
-        var updater = new EntityUpdater(this.resource, createdUri, true);
+        var updater = new EntityUpdater(this.resource, "?describe", true);
         var string = updater.parseUpdate(insertData);
         
         //# Verify input
-        var location = updater.subject;
-        if (location == this.resource) {
+        if (updater.subject.stringValue() == this.resource.stringValue()) {
             //# PATCH itself
             updater.executeUpdate(string, con);
 
@@ -561,7 +560,7 @@
 
         //# Execute input
         updater.executeUpdate(string, con);
-        var created = of.createObject(createdUri, updater.getTypes(vf.createURI(createdUri)));
+        var created = of.createObject(updater.subject, updater.getTypes(updater.subject));
         if (create) {
             created = created.objectConnection.addDesignation(created, create.toString());
             create.touchRevision(); // FIXME this shouldn't be needed
@@ -572,6 +571,17 @@
             throw new BadRequest("Resource is not Serviceable: " + created);
         if (!(created instanceof Composite) && link && link.match(/<http:..www.w3.org.ns.ldp#[a-zA-Z]*Container>[^<]*; *rel="type"/))
             throw new BadRequest("Resource is not a Container: " + created);
+        if (created.resource.stringValue().indexOf(creatorUri) !== 0)
+            throw new BadRequest("Resource identifier must start with " + this + " was " + created);
+        if (needSlash && created.resource.stringValue().charAt(creatorUri.length) != '/')
+            throw new BadRequest("A Slash must separate the container and it's member, was " + created.resource.stringValue().substring(creatorUri.length));
+        var localPart = created.resource.stringValue().substring(needSlash ? creatorUri.length+1 : creatorUri.length);
+        if (localPart.indexOf('/') >= 0 && localPart.indexOf('/') != localPart.length-1)
+            throw new BadRequest("Resource " + localPart + " must not include a slash");
+        if (localPart.search(/[\\s\\#\\?]/) >= 0)
+            throw new BadRequest("Fragement or name resources are not supported as primary topic: '" + localPart + "'");
+        if (localPart.search(/[a-zA-Z0-9\\-_%!\\$\\&'\\(\\)\\*\\+,;=]/) < 0)
+            throw new BadRequest("A path segment is required for members");
 
         try {
             created.Validate();
@@ -590,12 +600,6 @@
                 var user = jter.next();
                 if (!this.isAuthorized(user.toString(), cls, ["http://callimachusproject.org/rdf/2009/framework#author"]))
                     throw new Forbidden(user + " is not permitted to create " + cls + " resources");
-            }
-            if (verify) {
-                var template = cls.calliCreate.iterator().next();
-                if (!template)
-                    throw new InternalServerError("Cannot create " + cls.toString() + ", no create template");
-                template.calliVerifyCreatedResource(created, statements.getStatements(), cls.toString());
             }
         }
 
@@ -626,7 +630,7 @@
 :insertData a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :PostDeleteInsert;
     rdfs:range <java:java.io.InputStream>;
-    calli:type "application/sparql-update".
+    calli:type "application/sparql-update;q=1.1". # higher than serviceable.ttl#PatchDeleteInsert
 
 ################################
 # POST Non-RDF
@@ -654,12 +658,21 @@
     calli:query "create", "describe", "edit", "contents";
     calli:requires calli:contributor;
     calli:type "message/x-response";
+    calli:imports <Photo>;
     calli:imports foaf:Image;
     calli:script """
         var con = this.objectConnection;
+        var vf = con.valueFactory;
         var resp = this.PostNonRDFSource(create, fileClass, intermediate, link, imageData, slug, type);
         var createdUri = resp.headers.location;
-        con.addDesignation(con.objectFactory.createObject(createdUri), Image);
+        var obj = con.addDesignation(con.getObject(createdUri), Image);
+        var depiction = vf.createURI("http://xmlns.com/foaf/0.1/depiction");
+        if (obj instanceof Photo) {
+            var small = vf.createURI(obj.resource.stringValue() + '?small');
+            con.add(obj.resource, depiction, small, []);
+        } else {
+            con.add(obj.resource, depiction, obj.resource, []);
+        }
         return resp;
     """.
 
@@ -758,9 +771,7 @@
         } catch (e if e.javaException) {
             throw new BadRequest(e.javaException);
         }
-        var subclass = this.LookupConstructor(create || fileClass, documentTag, type.replace(/\\s*;.*/,''));
-        var bootstrap = !subclass && type.indexOf('text/turtle') === 0 && create == fileClass;
-        var construct = subclass || bootstrap && this.objectConnection.objectFactory.createObject(fileClass.resource.namespace + "RdfTurtle", Creatable) || create;
+        var construct = this.LookupConstructor(create || fileClass, documentTag, type.replace(/\\s*;.*/,''));
         var iter = this.FindCreator(created).iterator();
         while (iter.hasNext()) {
             var user = iter.next();
@@ -812,40 +823,43 @@
         PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
         SELECT REDUCED ?class {
             {
-                # xml type with correct document tag
-                ?class rdfs:subClassOf+ $create
-                FILTER bound($documentTag)
-                FILTER EXISTS { ?class calli:documentTag $documentTag }
-                BIND (0 AS ?preference)
-            } UNION {
-                # non-xml type or xml type without document tag
-                ?class rdfs:subClassOf+ $create
-                FILTER bound($mediaType)
-                FILTER EXISTS { ?class calli:mediaType $mediaType }
-                FILTER NOT EXISTS { ?class calli:documentTag ?tag }
+                ?class rdfs:subClassOf*/owl:equivalentClass* $create .
+                ?class rdfs:subClassOf* <File> .
+                FILTER (
+                    bound($documentTag) && EXISTS { ?class calli:documentTag $documentTag } ||
+                    bound($mediaType) && NOT EXISTS { ?class calli:documentTag ?tag } && EXISTS { ?class calli:mediaType $mediaType } ||
+                    bound($mediaType) && EXISTS {
+                        ?class calli:mediaType ?typ2
+                        FILTER (
+                            (
+                                (sameTerm($mediaType,"application/javascript") || sameTerm($mediaType,"text/javascript"))
+                                && (sameTerm(?typ2,"application/javascript") || sameTerm(?typ2,"text/javascript"))
+                            ) || (
+                                (sameTerm($mediaType,"application/xslt+xml") || sameTerm($mediaType,"text/xsl"))
+                                && (sameTerm(?typ2,"application/xslt+xml") || sameTerm(?typ2,"text/xsl"))
+                            ) || (
+                                (sameTerm($mediaType,"application/java-archive") || sameTerm($mediaType,"application/zip"))
+                                && (sameTerm(?typ2,"application/java-archive") || sameTerm(?typ2,"application/zip"))
+                            ) || (
+                                (sameTerm($mediaType,"image/x-png") || sameTerm($mediaType,"image/png"))
+                                && (sameTerm(?typ2,"image/x-png") || sameTerm(?typ2,"image/png"))
+                            ) || (
+                                (sameTerm($mediaType,"image/pjpeg") || sameTerm($mediaType,"image/jpeg"))
+                                && (sameTerm(?typ2,"image/pjpeg") || sameTerm(?typ2,"image/jpeg"))
+                            )
+                        )
+                    }
+                )
                 BIND (1 AS ?preference)
             } UNION {
-                # supported media type alias (document tag not considered)
-                ?class rdfs:subClassOf+ $create; calli:mediaType ?typ2
-                FILTER (
-                    (
-                        (sameTerm($mediaType,"application/javascript") || sameTerm($mediaType,"text/javascript"))
-                        && (sameTerm(?typ2,"application/javascript") || sameTerm(?typ2,"text/javascript"))
-                    ) || (
-                        (sameTerm($mediaType,"application/xslt+xml") || sameTerm($mediaType,"text/xsl"))
-                        && (sameTerm(?typ2,"application/xslt+xml") || sameTerm(?typ2,"text/xsl"))
-                    ) || (
-                        (sameTerm($mediaType,"application/java-archive") || sameTerm($mediaType,"application/zip"))
-                        && (sameTerm(?typ2,"application/java-archive") || sameTerm(?typ2,"application/zip"))
-                    ) || (
-                        (sameTerm($mediaType,"image/x-png") || sameTerm($mediaType,"image/png"))
-                        && (sameTerm(?typ2,"image/x-png") || sameTerm(?typ2,"image/png"))
-                    ) || (
-                        (sameTerm($mediaType,"image/pjpeg") || sameTerm($mediaType,"image/jpeg"))
-                        && (sameTerm(?typ2,"image/pjpeg") || sameTerm(?typ2,"image/jpeg"))
-                    )
-                )
-                BIND (2 AS ?preference)
+                # boot strap graphs before calli:mediaType triples are loaded
+                BIND (<RdfTurtle> AS ?class)
+                FILTER sameTerm($mediaType,"text/turtle")
+                FILTER sameTerm($create, <File>)
+                BIND (3 AS ?preference)
+            } UNION {
+                BIND ($create AS ?class)
+                BIND (4 AS ?preference)
             }
         } ORDER BY ?preference LIMIT 1
     """.
@@ -915,7 +929,7 @@
         }
     """.
 
-:DeleteComposite owl:intersectionOf ( <editable.ttl#DeleteIfNotUsed>
+:DeleteComposite owl:intersectionOf ( <serviceable.ttl#DeleteIfNotUsed>
         [owl:onProperty msg:target; owl:allValuesFrom [owl:intersectionOf (<Editable> <Composite>)]]);
     calli:method "DELETE";
     calli:query "edit", "describe";
@@ -939,21 +953,47 @@
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Composite>];
     rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom <Creatable>];
     msg:sparql """
+        PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
         PREFIX owl:<http://www.w3.org/2002/07/owl#>
         SELECT REDUCED ?creatable {
-            $of a [rdfs:subClassOf* ?cls] .
-            ?creatable owl:equivalentClass* ?cls .
-            ?creatable a [rdfs:subClassOf* <Creatable>]
+            $of a [rdfs:subClassOf*/^owl:equivalentClass* ?creatable] .
+            ?creatable a [^owl:equivalentClass*/rdfs:subClassOf* <Creatable>] .
         }
     """.
 
 :of a owl:ObjectProperty, owl:FunctionalProperty;
     rdfs:domain :FindCreatablesOf.
 
+:FindSubClassFor rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Composite>];
+    rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom <Creatable>];
+    msg:sparql """
+        PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX owl:<http://www.w3.org/2002/07/owl#>
+        SELECT REDUCED ?creatable {
+            $for a ?type .
+            ?creatable rdfs:subClassOf+ ?type .
+            ?creatable a [rdfs:subClassOf* <Creatable>] .
+            FILTER NOT EXISTS {
+                ?creatable rdfs:subClassOf+ ?superClass .
+                ?superClass rdfs:subClassOf+ ?type .
+                ?superClass a [rdfs:subClassOf* <Creatable>] .
+                FILTER (?superClass != ?creatable)
+            }
+        }
+    """.
+
+:for a owl:ObjectProperty, owl:FunctionalProperty;
+    rdfs:domain :FindSubClassFor.
+
 :FindCreatableVersion rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Composite>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <Creatable>];
     msg:sparql """
+        PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
         PREFIX owl:<http://www.w3.org/2002/07/owl#>
         SELECT ?creatable {
             ?creatable owl:equivalentClass* $create .

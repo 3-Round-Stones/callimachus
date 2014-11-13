@@ -146,55 +146,63 @@
     calli:type "text/uri-list";
     calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
     calli:imports <java:org.callimachusproject.server.exceptions.ServiceUnavailable>;
+    calli:imports <java:org.callimachusproject.form.helpers.EntityUpdater>;
+    calli:imports <java:org.openrdf.query.impl.MapBindingSet>;
     calli:script """
-        function findTemplate(obj, ann) {
-            var annotated = findAnnotatedClass(obj.getClass(), ann);
-            if (annotated) {
-                var uri = annotated.getAnnotation(ann).value();
-                if (uri.length != 1)
-                    throw new InternalServerError("Multiple templates for " + annotated.simpleName);
-                var template = obj.objectConnection.getObject(uri[0]);
-                if (template.Construct)
-                    return template;
-                throw new InternalServerError("Missing template");
-            }
-            throw new InternalServerError("No template");
+        var con = this.getObjectConnection();
+        var resource = this.getResource();
+
+        var templates = [];
+        var iter = this.FindEditTemplates().iterator();
+        if (!iter.hasNext()) throw InternalServerError("No edit template for " + resource);
+        while (iter.hasNext()) {
+            templates.push(iter.next().getTemplateFor(resource.stringValue()));
         }
 
-        function findAnnotatedClass(klass, ann) {
-            if (klass.isAnnotationPresent(ann)) {
-                return klass;
-            }
-            var result;
-            if (klass.getSuperclass()) {
-                result = findAnnotatedClass(klass.getSuperclass(), ann);
-            }
-            var interfaces = klass.getInterfaces();
-            for (var i = interfaces.length; i--;) {
-                var face = findAnnotatedClass(interfaces[i], ann);
-                if (face) {
-                    if (!result || result.isAssignableFrom(face)) {
-                        result = face;
-                    } else if (!face.isAssignableFrom(result)) {
-                        throw new InternalServerError("Conflicting templates for "
-                            + result.simpleName +  " and " + face.simpleName);
-                    }
-                }
-            }
-            return result;
-        }
+		var update = new EntityUpdater(resource, resource.stringValue());
+        templates.forEach(function(template){
+            var bindings = new MapBindingSet();
+            bindings.addBinding("this", resource);
+            // check delete clause against existing triples
+            update.acceptDelete(template.evaluateGraph(bindings, con));
+            update.acceptInsert(template.openQuery());
+        });
+		update.acceptInsert(resource, "http://www.w3.org/2004/02/skos/core#changeNote");
+		update.acceptInsert(resource, "http://purl.org/dc/terms/modified");
 
-        var template = findTemplate(this, Packages.calli.edit);
-        template.calliEditResource(this, inputStream);
+		var sparqlUpdate = update.parseUpdate(inputStream);
+		update.executeUpdate(sparqlUpdate, con);
+
+        // insert clause uses triples that can be edited
+        var postUpdate = new EntityUpdater(resource, resource.stringValue());
+        templates.forEach(function(template){
+            var bindings = new MapBindingSet();
+            bindings.addBinding("this", resource);
+            // check the structure
+            postUpdate.acceptInsert(template.evaluateGraph(bindings, con));
+        });
+		postUpdate.acceptInsert(resource, "http://www.w3.org/2004/02/skos/core#changeNote");
+		postUpdate.acceptInsert(resource, "http://purl.org/dc/terms/modified");
+		postUpdate.analyzeUpdate(sparqlUpdate);
+
         try {
             this.Validate();
         } catch (e if e.javaException instanceof ServiceUnavailable) {
             java.lang.System.err.println("Storing " + this);
         }
+
+        var iter = update.partners.iterator();
+        while (iter.hasNext()) {
+            var partner = iter.next();
+            if (!partner.toString().equals(this.toString())) {
+                con.getObject(partner).touchRevision(); // FIXME this shouldn't be needed
+            }
+        }
         var parent = this.SelectParentComposite();
         if (parent) {
             parent.touchRevision();
         }
+        this.touchRevision();
         return this.toString();
     """.
 
@@ -203,97 +211,29 @@
     rdfs:range <java:java.io.InputStream>;
     calli:type "application/sparql-update".
 
+:FindEditTemplates rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Editable>];
+    rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom <Page>];
+    msg:sparql """
+        PREFIX owl:<http://www.w3.org/2002/07/owl#>
+        PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
+        SELECT REDUCED ?edit {
+            $this a [rdfs:subClassOf* ?cls] .
+            ?editable owl:equivalentClass* ?cls .
+            ?editable calli:edit ?edit
+        }
+    """.
+
 ################################
 # DELETE
 ################################
 
-:DeleteIfNotUsed rdfs:subClassOf msg:Message;
+:DeleteEditable rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Editable>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
     calli:method "DELETE";
-    calli:query "edit", "describe";
+    calli:query "edit";
     calli:requires calli:editor;
     calli:type "message/x-response";
-    calli:imports <java:org.openrdf.model.BNode>;
-    calli:imports <java:org.openrdf.model.URI>;
-    calli:imports <java:javax.tools.FileObject>;
-    calli:imports <java:org.callimachusproject.server.exceptions.Conflict>;
-    calli:script """
-        this.Delete();
-
-        //# check if any hanging triples still exist
-        var con = this.objectConnection;
-        var stmts = con.getStatements(null, null, this.resource, []);
-        var redirect = "/";
-        try {
-            while (stmts.hasNext()) {
-                var st = stmts.next();
-                var subj = st.subject;
-                var pred = st.predicate.namespace;
-                if (pred != "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-                        && pred != "http://www.w3.org/ns/prov#") {
-                    //# Don't allow removal if used in a complex structure (like an rdf:List)
-                    if (subj instanceof BNode)
-                        throw new Conflict(st.object + " is currently is use and cannot be removed");
-                    if (subj.stringValue().indexOf('#') >= 0)
-                        throw new Conflict(st.object + " resource is currently referenced by " + subj);
-                    if (st.predicate.stringValue() == "http://callimachusproject.org/rdf/2009/framework#hasComponent") {
-                        redirect = subj.stringValue();
-                    }
-                    con.remove(st.subject, st.predicate, st.object, []);
-                } else if (st.predicate.stringValue() == "http://www.w3.org/1999/02/22-rdf-syntax-ns#type") {
-                    throw new Conflict("Members of " + this + " must be deleted first");
-                }
-            }
-        } finally {
-            stmts.close();
-        }
-
-        return {
-            status:200,message:"Deleted",
-            headers:{'content-type':"text/uri-list"},
-            body:[redirect]
-        };
-    """.
-
-:Delete rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Editable>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-    calli:imports <java:org.openrdf.model.BNode>;
-    calli:imports <java:org.openrdf.model.URI>;
-    calli:imports <java:javax.tools.FileObject>;
-    calli:imports <java:org.callimachusproject.server.exceptions.Conflict>;
-    calli:script """
-        var con = this.objectConnection;
-        function removeTriples(subject, hash, qry) {
-            var stmts = con.getStatements(subject, null, null, []);
-            try {
-                while (stmts.hasNext()) {
-                    var st = stmts.next();
-                    con.remove(st.subject, st.predicate, st.object, []);
-                    if (st.object instanceof BNode && !st.object.equals(subject)) {
-                        removeTriples(st.object, hash, qry);
-                    } else if (st.object instanceof URI && !st.object.equals(subject)) {
-                        if (st.object.stringValue().indexOf(hash) == 0) {
-                            removeTriples(st.object, hash, qry);
-                        } else if (st.object.stringValue().indexOf(qry) == 0) {
-                            removeTriples(st.object, hash, qry);
-                        } else {
-                            con.getObjectFactory().createObject(st.object).touchRevision();
-                        }
-                    }
-                }
-            } finally {
-                stmts.close();
-            }
-        }
-
-        con.clear([this.resource]); //# clear graph
-        var hash = this.resource.stringValue() + '#';
-        var qry = this.resource.stringValue() + '?';
-        removeTriples(this.resource, hash, qry); //# follow blank, hash and query references
-        if (this instanceof FileObject) {
-            this['delete'](); //# remove document
-        }
-    """.
-
+    calli:script "return this.DeleteIfNotUsed()".

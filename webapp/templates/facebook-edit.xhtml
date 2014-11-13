@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8" ?>
 <html version="XHTML+RDFa 1.0" xmlns="http://www.w3.org/1999/xhtml"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
@@ -9,14 +8,7 @@
 <head>
     <title resource="?this">{rdfs:label}</title>
     <link rel="help" href="../../callimachus-for-administrators#Facebook_Authentication" target="_blank" title="Help" />
-    <script type="text/javascript">// <![CDATA[
-        jQuery(function($) {
-            if ($('#secret-link').length) {
-                $('#add-secret').hide();
-            }
-        });
-    // ]]>
-    </script>
+    <script type="text/javascript" src="../scripts/facebook.js"></script>
 </head>
 <body resource="?this" onload="comparison=calli.copyResourceData('#rdfForm')">
     <form role="form" id="rdfForm" method="POST" action="" enctype="application/sparql-update" resource="?this" class="container"
@@ -49,17 +41,12 @@
                             onchange="calli.updateProperty(event, 'calli:facebookAppId')" />
                     </div>
                 </div>
-                <div id="secret" dropzone="link string:text/uri-list" class="form-group"
-                        ondrop="if(!event.dataTransfer.getData('text/plain').match(/.xhtml$/)){$('#add-secret').hide();calli.insertResource(event);}return false">
-                    <label>Secret</label>
-                    <div rel="calli:facebookSecret">
-                        <span resource="?secret" typeof="foaf:Document">
-                            <a onclick="var dialog = calli.openDialog(this.href,'Facebook App Secret',{onmessage:function(event){if(event.data.indexOf('POST resource\n') == 0)calli.closeDialog(dialog);}});return false"
-                                id="secret-link" href="{?secret}?edit" title="{?secret}">Change and view the facebook app secret</a>
-                        </span>
+                <div class="form-group">
+                    <label for="secret">Secret</label>
+                    <div>
+                        <span rel="calli:facebookSecret" resource="?secret"></span>
+                        <input id="secret" type="text" class="form-control" prompt="Provide the Facebook app seceret here" />
                     </div>
-                    <a id="add-secret" href="../pages/facebook-secret.xhtml?view"
-                        onclick="calli.createResource(event)">Provide the Facebook app seceret</a>
                 </div>
             </fieldset>
         </div>

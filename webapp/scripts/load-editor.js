@@ -52,10 +52,17 @@ calli.submitEditor = function(event, local) {
         var action = calli.getFormAction(form[0]);
         if (local) {
             var slug = encodeURI(local).replace(/%25(\w\w)/g, '%$1').replace(/%20/g, '-');
-            return calli.postText(action, text, form.attr('enctype'), slug);
-        } else {
+            return calli.postText(action, text, form.attr('enctype'), {
+                Slug: slug,
+                Link: '<http://www.w3.org/ns/ldp#NonRDFSource>;rel="type"'
+            });
+        } else if (form.attr('method') == 'PUT') {
             return calli.putText(action, text, form.attr('enctype')).then(function(){
                 return action.replace(/\?.*/,'');
+            });
+        } else {
+            return calli.postText(action, text, form.attr('enctype'), {
+                Link: '<http://www.w3.org/ns/ldp#NonRDFSource>;rel="type"'
             });
         }
     }).then(function(redirect){
@@ -85,8 +92,12 @@ window.calli.submitEditorAs = function(event, local, create, folder) {
     }).then(function(text) {
         return calli.promptForNewResource(folder, local).then(function(two){
             if (!two) return undefined;
-            var action = two[0] + '?create=' + encodeURIComponent(create);
-            return calli.postText(action, text, form.attr('enctype'), two[1].replace(/%20/g, '+'));
+            var action = two.container + '?create=' + encodeURIComponent(create);
+            var slug = two.slug.replace(/%20/g, '+');
+            return calli.postText(action, text, form.attr('enctype'), {
+                Slug: slug,
+                Link: '<http://www.w3.org/ns/ldp#NonRDFSource>;rel="type"'
+            });
         });
     }).then(function(redirect){
         return redirect && redirect + '?view';

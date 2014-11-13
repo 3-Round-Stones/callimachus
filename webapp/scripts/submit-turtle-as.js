@@ -17,8 +17,8 @@ calli.submitTurtleAs = function(event, fileName, create, folder) {
     btn.button('loading');
     return calli.promptForNewResource(folder, local).then(function(two){
         if (!two) return undefined;
-        var url = two[0] + '?create=' + encodeURIComponent(create);
-        var iri = two[0].replace(/\/?$/, '/') + two[1].replace(/%20/g, '+');
+        var url = two.container + '?create=' + encodeURIComponent(create);
+        var iri = two.container.replace(/\/?$/, '/') + two.slug.replace(/%20/g, '+');
         return calli.resolve().then(function(){
             form.attr("resource", iri);
             try {
@@ -42,7 +42,7 @@ calli.submitTurtleAs = function(event, fileName, create, folder) {
             return data;
         }).then(function(data){
             if (!data) return data;
-            return calli.postTurtle(url, data, local);
+            return calli.postTurtle(url, data, {Slug: local});
         });
     }).then(function(redirect){
         if (redirect) {

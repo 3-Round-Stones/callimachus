@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.TreeSet;
@@ -43,6 +44,7 @@ import org.apache.http.HttpVersion;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
+import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.server.exceptions.InternalServerError;
 import org.callimachusproject.setup.SecretOriginProvider;
 import org.callimachusproject.util.PasswordGenerator;
@@ -82,7 +84,7 @@ public class DigestPasswordAccessor implements DigestAccessor {
 			+ "$this calli:authNamespace ?folder .\n"
 			+ "?folder calli:hasComponent ?user .\n"
 			+ "OPTIONAL { ?user calli:passwordDigest ?passwordDigest }\n"
-			+ "}}";
+			+ "}} LIMIT 10";
 	private static final String COPY_PERM = PREFIX
 			+ "INSERT { $dst\n"
 			+ "calli:reader ?reader; calli:subscriber ?subscriber; calli:contributor ?contributor; calli:editor ?editor; calli:administrator ?administrator\n"
@@ -209,9 +211,12 @@ public class DigestPasswordAccessor implements DigestAccessor {
 		int i = 0;
 		Set<Object> set = new LinkedHashSet<Object>();
 		for (URI uuid : getPasswordFiles(files, passwords.length, webapp, con)) {
+			String password = passwords[i++];
+			if (password == null || password.length() == 0)
+				throw new BadRequest("New password cannot be empty");
 			Writer writer = con.getBlobObject(uuid).openWriter();
 			try {
-				writer.write(passwords[i++]);
+				writer.write(password);
 			} finally {
 				writer.close();
 			}
@@ -242,10 +247,12 @@ public class DigestPasswordAccessor implements DigestAccessor {
 				BindingSet result = results.next();
 				String iri = result.getValue("id").stringValue();
 				assert iri != null;
+				// user (legacy) inline password
 				if (result.hasBinding("encoded")) {
 					map.put(encodeHex(result.getValue("encoded")), iri);
 				}
 				String hash = null;
+				// user secret password
 				if (result.hasBinding("passwordDigest")) {
 					Resource value = (Resource) result.getValue("passwordDigest");
 					Object file = con.getObjectFactory().createObject(value);
@@ -257,17 +264,18 @@ public class DigestPasswordAccessor implements DigestAccessor {
 				DetachedRealm r = realms.getRealm(iri);
 				if (r == null || r.getOriginSecret() == null)
 					continue;
+				// remember me
 				String secret = r.getOriginSecret();
+				String usrlm = username + ':' + realm + ':';
 				if (nonce != null && hash != null) {
 					String password = md5(hash + ":" + md5(nonce + ":" + secret));
-					map.put(md5(username + ':' + realm + ':' + password), iri);
+					map.put(md5(usrlm + password), iri);
 				}
+				// temporary password
 				long now = System.currentTimeMillis();
-				short halfDay = getHalfDay(now);
-				for (short d = halfDay; d >= halfDay - 1; d--) {
-					String daypass = getDaypass(d, username, secret);
-					map.put(md5(username + ':' + realm + ':' + daypass), iri);
-				}
+				int d = getHalfDay(now);
+				map.put(md5(usrlm + getDaypass(d, username, secret)), iri);
+				map.put(md5(usrlm + getDaypass(d - 1, username, secret)), iri);
 			}
 			return map;
 		} finally {
@@ -352,23 +360,23 @@ public class DigestPasswordAccessor implements DigestAccessor {
 			} finally {
 				reader.close();
 			}
-		} catch (IOException e) {
-			logger.error(e.toString(), e);
+		} catch (IOException | NoSuchElementException e) {
+			logger.error(file.toUri().toASCIIString(), e);
 			return null;
 		}
 	}
 
-	private short getHalfDay(long now) {
+	private int getHalfDay(long now) {
 		long halfDay = now / 1000 / 60 / 60 / 12;
-		return (short) halfDay;
+		return (int) halfDay;
 	}
 
-	private String getDaypass(short day, String email, String secret) {
+	private String getDaypass(int day, String email, String secret) {
 		if (secret == null)
 			return null;
 		byte[] random = readBytes(secret);
 		byte[] id = email.getBytes(Charset.forName("UTF-8"));
-		byte[] seed = new byte[random.length + id.length + Short.SIZE / Byte.SIZE];
+		byte[] seed = new byte[random.length + id.length + Integer.SIZE / Byte.SIZE];
 		System.arraycopy(random, 0, seed, 0, random.length);
 		System.arraycopy(id, 0, seed, random.length, id.length);
 		for (int i = random.length + id.length; i < seed.length; i++) {

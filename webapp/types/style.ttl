@@ -71,7 +71,7 @@
     rdfs:range <java:java.io.Reader>;
     calli:type "text/css".
 
-:DeleteStyle owl:intersectionOf ( <editable.ttl#Delete>
+:DeleteStyle owl:intersectionOf ( <serviceable.ttl#Delete>
         [owl:onProperty msg:target; owl:allValuesFrom <StyleSheet>]);
     calli:script """
         var systemId = this.toString() + "?less";

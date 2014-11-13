@@ -256,11 +256,42 @@ DELETE {
 	</> a <../1.3/types/Origin>
 };
 
+DELETE {
+    ?origin calli:layout ?layout
+} INSERT {
+    ?origin calli:layout <../default-layout.xq>
+} WHERE {
+    ?origin calli:layout ?layout
+    FILTER strstarts(str(?layout),str(</callimachus/>))
+};
+
+DELETE {
+	</admin> calli:reader </auth/groups/admin> .
+	</admin> calli:administrator </auth/groups/super> .
+} INSERT {
+    </admin> calli:administrator </auth/groups/admin> .
+} WHERE {
+	</admin> calli:reader </auth/groups/admin> .
+	</admin> calli:administrator </auth/groups/super> .
+};
+
+INSERT {
+<../> calli:hasComponent <../markdown-editor.html> .
+<../markdown-editor.html> a <types/Purl>, calli:Purl ;
+	rdfs:label "markdown-editor.html";
+	calli:alternate ?alternate;
+	calli:administrator </auth/groups/super>;
+	calli:reader </auth/groups/public> .
+} WHERE {
+    BIND (str(<pages/text-editor.html#markdown>) AS ?alternate)
+	FILTER NOT EXISTS { <../markdown-editor.html> a calli:Purl }
+};
+
 # Setup process determins upgrade file based on versionInfo
 DELETE {
 	</callimachus/ontology> a <../1.3/types/Serviceable>; owl:versionInfo "1.3"
 } INSERT {
-	</callimachus/ontology> a <../1.3/types/Serviceable>; owl:versionInfo "1.3"
+	</callimachus/ontology> a <../1.3/types/Serviceable>; owl:versionInfo "1.4"
 } WHERE {
 	</callimachus/ontology> a <../1.3/types/Serviceable>; owl:versionInfo "1.3"
 };

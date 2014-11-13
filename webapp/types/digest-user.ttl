@@ -40,7 +40,7 @@
     calli:view <../templates/digest-user-view.xhtml>;
     calli:edit <../templates/digest-user-edit.xhtml>.
 
-:DeleteUser owl:intersectionOf ( <editable.ttl#Delete>
+:DeleteUser owl:intersectionOf ( <serviceable.ttl#Delete>
         [owl:onProperty msg:target; owl:allValuesFrom <User>]);
     calli:script """
         var iter = this.calliPasswordDigest.iterator();
@@ -94,7 +94,7 @@
         var password = form.get("password");
         if (this.toString().equals(credential.toString())) {
             //# check if they know their own password
-            if (!current)
+            if (!current || !current[0])
                 throw new BadRequest("What is your current password?");
             if (!accounts.isDigestPassword(authorization, current))
                 throw new BadRequest("That is not your current password");
@@ -104,7 +104,7 @@
             this.calliEmail = email;
         }
         //# save password
-        if (password && password.length) {
+        if (password && password[0]) {
             this.calliPasswordDigest = accounts.changeDigestPassword(this.calliPasswordDigest, password);
         }
         return this + "?view";

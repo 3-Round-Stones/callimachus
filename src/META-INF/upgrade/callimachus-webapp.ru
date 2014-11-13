@@ -97,8 +97,7 @@ INSERT {
     rdfs:label "admin";
     rdfs:comment "Use the link below to manage groups and invite new users";
 	calli:alternate ?alternate;
-	calli:administrator </auth/groups/super>;
-	calli:reader </auth/groups/admin> .
+	calli:administrator </auth/groups/admin> .
 } WHERE {
     BIND (str(<pages/invite-users.xhtml?view>) AS ?alternate)
 	FILTER NOT EXISTS { </admin> a calli:Purl }
@@ -369,6 +368,18 @@ INSERT {
 } WHERE {
     BIND (str(<pages/text-editor.html#xquery>) AS ?alternate)
 	FILTER NOT EXISTS { <../xquery-editor.html> a calli:Purl }
+};
+
+INSERT {
+<../> calli:hasComponent <../markdown-editor.html> .
+<../markdown-editor.html> a <types/Purl>, calli:Purl ;
+	rdfs:label "markdown-editor.html";
+	calli:alternate ?alternate;
+	calli:administrator </auth/groups/super>;
+	calli:reader </auth/groups/public> .
+} WHERE {
+    BIND (str(<pages/text-editor.html#markdown>) AS ?alternate)
+	FILTER NOT EXISTS { <../markdown-editor.html> a calli:Purl }
 };
 
 INSERT {

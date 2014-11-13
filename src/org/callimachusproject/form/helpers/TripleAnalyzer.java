@@ -122,6 +122,10 @@ public class TripleAnalyzer extends QueryModelVisitorBase<RDFHandlerException> i
 		deleteVerifier.accept(result);
 	}
 
+	public void acceptDelete(TriplePattern pattern) {
+		deleteVerifier.accept(pattern);
+	}
+
 	public void acceptInsert(RDFEventReader reader) throws RDFParseException {
 		insertVerifier.accept(reader);
 	}

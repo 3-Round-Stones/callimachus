@@ -28,8 +28,8 @@ public class BookIntegrationTest extends TemporaryServerIntegrationTestCase {
 
 	@Test
 	public void testDocbookCreate() throws Exception {
-		WebResource create = getHomeFolder().ref("?create="+ getCallimachusUrl("types/Book") + "&resource=test-book.docbook");
-		WebResource book = create.create("application/docbook+xml", DOCBOOK.getBytes());
+		WebResource create = getHomeFolder().ref("?create="+ getCallimachusUrl("types/Book"));
+		WebResource book = create.create("test-book.docbook", "application/docbook+xml", DOCBOOK.getBytes());
 		WebResource edit = book.rel("edit-media", "application/docbook+xml");
 		edit.get("application/docbook+xml");
 		edit.put("application/docbook+xml", DOCBOOK.getBytes());

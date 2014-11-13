@@ -88,4 +88,6 @@ available in 1.4.0.
  * Replace `<asibe class="optional"/>` with `$('aside').filter(calli.isEmptyResource).remove();`
  * Remove class attributes from `<time/>` and use [calli.parseDateTime](http://callimachusproject.org/docs/1.4/callimachus-reference.docbook?view#parseDateTime) to format
  * calliSubmit, calliRedirect and other calli* events should be replaced with [a function call](http://callimachusproject.org/docs/1.4/callimachus-reference.docbook?view#JavaScript_Reference)
+ * When [creating RDF resources using the Callimachus REST API](http://callimachusproject.org/docs/1.4/callimachus-reference.docbook?view#RDF_Create), use text/turtle instead of sparql-update
+ 
 

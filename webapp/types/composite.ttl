@@ -399,6 +399,18 @@
             created = created.objectConnection.addDesignation(created, create.toString());
             create.touchRevision(); // FIXME this shouldn't be needed
         }
+        var iter = this.FindCreatablesOf(created).iterator();
+        if (!iter.hasNext()) {
+            var subclasses = this.FindSubClassFor(created).iterator();
+            if (!subclasses.hasNext()) throw new Forbidden("Cannot create this type of resource");
+            while (subclasses.hasNext()) {
+                var subclass = subclasses.next();
+                created = created.objectConnection.addDesignation(created, subclass.toString());
+                subclass.touchRevision(); // FIXME this shouldn't be needed
+            }
+            iter = this.FindCreatablesOf(created).iterator();
+            if (!iter.hasNext()) throw new Forbidden("No creatable subclasses exit for this resource");
+        }
         if (this.calliHasComponent.contains(created))
             throw new Conflict("Resource " + created + " already exists");
         if (!(created instanceof Serviceable))
@@ -417,16 +429,7 @@
         if (localPart.search(/[a-zA-Z0-9\\-_%!\\$\\&'\\(\\)\\*\\+,;=]/) < 0)
             throw new BadRequest("A path segment is required for members");
 
-        try {
-            created.Validate();
-        } catch (e if e.javaException instanceof ServiceUnavailable) {
-            java.lang.System.err.println("Storing " + this);
-        }
-
         var creators = this.FindCreator(created);
-        var iter = this.FindCreatablesOf(created).iterator();
-        if (!iter.hasNext())
-            throw new Forbidden("Cannot create this type of resource");
         var templates = new java.util.ArrayList();
         while (iter.hasNext()) {
             var cls = iter.next();
@@ -443,11 +446,15 @@
                 }
             }
         }
-        if (verify) {
-            this.calliVerifyCreatedResource(created, templates, statements.getStatements(), createdUri);
+
+        try {
+            created.Validate();
+        } catch (e if e.javaException instanceof ServiceUnavailable) {
+            java.lang.System.err.println("Storing " + this);
         }
 
         if (verify) {
+            this.calliVerifyCreatedResource(created, templates, statements.getStatements(), createdUri);
             //# Add permissions and component membership
             created.calliReader.addAll(this.calliReader);
             created.calliSubscriber.addAll(this.calliSubscriber);
@@ -957,6 +964,29 @@
 
 :of a owl:ObjectProperty, owl:FunctionalProperty;
     rdfs:domain :FindCreatablesOf.
+
+:FindSubClassFor rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Composite>];
+    rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom <Creatable>];
+    msg:sparql """
+        PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX owl:<http://www.w3.org/2002/07/owl#>
+        SELECT REDUCED ?creatable {
+            $for a ?type .
+            ?creatable rdfs:subClassOf+ ?type .
+            ?creatable a [rdfs:subClassOf* <Creatable>] .
+            FILTER NOT EXISTS {
+                ?creatable rdfs:subClassOf+ ?superClass .
+                ?superClass rdfs:subClassOf+ ?type .
+                ?superClass a [rdfs:subClassOf* <Creatable>] .
+                FILTER (?superClass != ?creatable)
+            }
+        }
+    """.
+
+:for a owl:ObjectProperty, owl:FunctionalProperty;
+    rdfs:domain :FindSubClassFor.
 
 :FindCreatableVersion rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Composite>];

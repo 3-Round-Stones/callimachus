@@ -30,11 +30,10 @@
 package org.callimachusproject.fluid.consumers;
 
 import java.io.IOException;
-import java.nio.channels.WritableByteChannel;
+import java.io.OutputStream;
 import java.nio.charset.Charset;
 
 import org.callimachusproject.fluid.consumers.helpers.MessageWriterBase;
-import org.callimachusproject.io.ChannelUtil;
 import org.openrdf.query.resultio.BooleanQueryResultFormat;
 import org.openrdf.query.resultio.BooleanQueryResultWriterFactory;
 import org.openrdf.query.resultio.BooleanQueryResultWriterRegistry;
@@ -56,10 +55,9 @@ public class BooleanMessageWriter
 
 	@Override
 	public void writeTo(BooleanQueryResultWriterFactory factory,
-			Boolean result, WritableByteChannel out, Charset charset,
+			Boolean result, OutputStream out, Charset charset,
 			String base, ObjectConnection con) throws IOException {
-		factory.getWriter(ChannelUtil.newOutputStream(out)).write(
-				result != null && result);
+		factory.getWriter(out).write(result != null && result);
 	}
 
 	@Override

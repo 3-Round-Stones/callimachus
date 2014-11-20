@@ -29,13 +29,12 @@
  */
 package org.callimachusproject.fluid.consumers;
 
-import java.nio.channels.WritableByteChannel;
+import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.List;
 
 import org.callimachusproject.fluid.consumers.helpers.MessageWriterBase;
-import org.callimachusproject.io.ChannelUtil;
 import org.openrdf.OpenRDFException;
 import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.QueryResultUtil;
@@ -69,11 +68,10 @@ public class TupleMessageWriter
 
 	@Override
 	public void writeTo(TupleQueryResultWriterFactory factory,
-			TupleQueryResult result, WritableByteChannel out, Charset charset,
+			TupleQueryResult result, OutputStream out, Charset charset,
 			String base, ObjectConnection con)
 			throws TupleQueryResultHandlerException, QueryEvaluationException {
-		TupleQueryResultWriter handler = factory.getWriter(ChannelUtil
-				.newOutputStream(out));
+		TupleQueryResultWriter handler = factory.getWriter(out);
 		if (result == null) {
 			List<String> emptyList = Collections.emptyList();
 			handler.startQueryResult(emptyList);

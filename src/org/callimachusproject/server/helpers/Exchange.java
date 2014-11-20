@@ -29,10 +29,7 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.concurrent.Cancellable;
 import org.apache.http.nio.ContentDecoder;
-import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
-import org.apache.http.nio.entity.EntityAsyncContentProducer;
-import org.apache.http.nio.entity.HttpAsyncContentProducer;
 import org.apache.http.nio.protocol.HttpAsyncExchange;
 import org.apache.http.nio.protocol.HttpAsyncRequestConsumer;
 import org.apache.http.nio.protocol.HttpAsyncResponseProducer;
@@ -51,11 +48,10 @@ public class Exchange implements Cancellable {
 	private final Consumer consumer;
 	private HttpAsyncExchange exchange;
 	private HttpResponse response;
-	private HttpAsyncContentProducer producer;
+	private HttpAsyncResponseProducer producer;
 	private int timeout = -1;
 	private boolean expectContinue;
-	private HttpResponse submitContinue;
-	private boolean ready;
+	private HttpAsyncResponseProducer submitContinue;
 	private boolean cancelled;
 
 	public Exchange(Request request, Queue<Exchange> queue)
@@ -90,10 +86,11 @@ public class Exchange implements Cancellable {
 	}
 
 	public synchronized void submitContinue(HttpResponse response) {
-		setSubmitContinue(response);
-		if (expectContinue && exchange != null) {
-			exchange.submitResponse(new Producer());
-			ready = true;
+		if (expectContinue && response != null) {
+			this.submitContinue = new LoggingResponseProducer(response);
+			if (exchange != null) {
+				exchange.submitResponse(submitContinue);
+			}
 		}
 	}
 
@@ -102,14 +99,16 @@ public class Exchange implements Cancellable {
 	}
 
 	public synchronized void setHttpAsyncExchange(HttpAsyncExchange exchange) {
+		assert exchange != null;
 		this.exchange = exchange;
 		exchange.setCallback(this);
 		if (timeout != -1) {
 			exchange.setTimeout(timeout);
 		}
-		if (response != null || getSubmitContinue() != null) {
-			exchange.submitResponse(new Producer());
-			ready = true;
+		if (response != null) {
+			exchange.submitResponse(producer = new LoggingResponseProducer(response));
+		} else if (submitContinue != null) {
+			exchange.submitResponse(submitContinue);
 		}
 	}
 
@@ -150,25 +149,15 @@ public class Exchange implements Cancellable {
 		closeRequest();
 		assert response != null;
 		if (this.response != null && this.exchange != null) {
-			consume(response);
-		} else {
-			if (this.response != null) {
-				consume(this.response);
-			}
+			consume(response); // too late! already committed a response
+		} else if (this.response != null) {
+			consume(this.response); // discard the previous response
 			this.response = response;
-			HttpEntity entity = response.getEntity();
-			if (entity != null) {
-				if (entity instanceof HttpAsyncContentProducer) {
-					this.producer = (HttpAsyncContentProducer) entity;
-				} else {
-					this.producer = new EntityAsyncContentProducer(entity);
-				}
-			}
-			notifyAll();
-			if (exchange != null && !ready) {
-				exchange.submitResponse(new Producer());
-				ready = true;
-			}
+		} else if (exchange != null) {
+			this.response = response;
+			exchange.submitResponse(producer = new LoggingResponseProducer(response));
+		} else {
+			this.response = response;
 		}
 	}
 
@@ -200,16 +189,6 @@ public class Exchange implements Cancellable {
 
 	synchronized void setExpectContinue(boolean expectContinue) {
 		this.expectContinue = expectContinue;
-	}
-
-	private synchronized HttpResponse getSubmitContinue() {
-		if (expectContinue)
-			return submitContinue;
-		return null;
-	}
-
-	private synchronized void setSubmitContinue(HttpResponse submitContinue) {
-		this.submitContinue = submitContinue;
 	}
 
 	private void consume(HttpResponse response) {
@@ -320,56 +299,6 @@ public class Exchange implements Cancellable {
 
 		public String toString() {
 			return String.valueOf(request);
-		}
-	}
-
-	private class Producer implements HttpAsyncResponseProducer {
-
-		@Override
-		public synchronized HttpResponse generateResponse() {
-			while (response == null) {
-				HttpResponse _100 = getSubmitContinue();
-				if (_100 != null)
-					return _100;
-				try {
-					wait();
-				} catch (InterruptedException e) {
-					Thread.currentThread().interrupt();
-				}
-			}
-			return response;
-		}
-
-		@Override
-		public synchronized void produceContent(ContentEncoder encoder,
-				IOControl ioctrl) throws IOException {
-			if (producer != null) {
-				producer.produceContent(encoder, ioctrl);
-				if (encoder.isCompleted()) {
-					close();
-				}
-			}
-		}
-
-		@Override
-		public void responseCompleted(HttpContext context) {
-			logger.trace("Response completed: {}", context);
-		}
-
-		@Override
-		public void failed(Exception ex) {
-			logger.warn(ex.toString());
-		}
-
-		@Override
-		public void close() throws IOException {
-			if (producer != null) {
-				producer.close();
-			}
-		}
-
-		public String toString() {
-			return String.valueOf(response);
 		}
 	}
 

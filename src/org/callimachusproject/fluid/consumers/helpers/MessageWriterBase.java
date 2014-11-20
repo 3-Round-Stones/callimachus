@@ -33,8 +33,8 @@ import info.aduna.lang.FileFormat;
 import info.aduna.lang.service.FileFormatServiceRegistry;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.channels.ReadableByteChannel;
-import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -43,14 +43,15 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerException;
 
-import org.callimachusproject.fluid.FluidException;
-import org.callimachusproject.fluid.Vapor;
 import org.callimachusproject.fluid.Consumer;
 import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
+import org.callimachusproject.fluid.FluidException;
 import org.callimachusproject.fluid.FluidType;
-import org.callimachusproject.io.ProducerChannel;
-import org.callimachusproject.io.ProducerChannel.WritableProducer;
+import org.callimachusproject.fluid.Vapor;
+import org.callimachusproject.io.ChannelUtil;
+import org.callimachusproject.io.ProducerStream;
+import org.callimachusproject.io.ProducerStream.OutputProducer;
 import org.openrdf.OpenRDFException;
 import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.TupleQueryResultHandlerException;
@@ -160,8 +161,8 @@ public abstract class MessageWriterBase<FF extends FileFormat, S, T> implements
 	final ReadableByteChannel write(final FluidType mtype,
 			final ObjectConnection con, final T result, final String base)
 			throws IOException {
-		return new ProducerChannel(new WritableProducer() {
-			public void produce(WritableByteChannel out) throws IOException {
+		return ChannelUtil.newChannel(new ProducerStream(new OutputProducer() {
+			public void produce(OutputStream out) throws IOException {
 				try {
 					writeTo(mtype, con, result, base, out, 1024);
 				} catch (OpenRDFException e) {
@@ -182,11 +183,11 @@ public abstract class MessageWriterBase<FF extends FileFormat, S, T> implements
 			public String toString() {
 				return String.valueOf(result);
 			}
-		});
+		}));
 	}
 
 	private void writeTo(FluidType mtype, ObjectConnection con, T result,
-			String base, WritableByteChannel out, int bufSize)
+			String base, OutputStream out, int bufSize)
 			throws IOException, OpenRDFException {
 		Charset charset = mtype.getCharset();
 		String mimeType = mtype.preferred();
@@ -231,7 +232,7 @@ public abstract class MessageWriterBase<FF extends FileFormat, S, T> implements
 	}
 
 	protected abstract void writeTo(S factory, T result,
-			WritableByteChannel out, Charset charset, String base,
+			OutputStream out, Charset charset, String base,
 			ObjectConnection con) throws IOException, RDFHandlerException,
 			QueryEvaluationException, TupleQueryResultHandlerException;
 

@@ -50,15 +50,13 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.callimachusproject.fluid.Vapor;
 import org.callimachusproject.fluid.Consumer;
 import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
+import org.callimachusproject.fluid.Vapor;
 import org.callimachusproject.io.ChannelUtil;
-import org.callimachusproject.io.ProducerChannel;
 import org.callimachusproject.io.ProducerStream;
-import org.callimachusproject.io.ProducerChannel.WritableProducer;
 import org.callimachusproject.io.ProducerStream.OutputProducer;
 import org.callimachusproject.xml.DocumentFactory;
 import org.openrdf.OpenRDFException;
@@ -148,11 +146,10 @@ public class DOMMessageWriter implements Consumer<Node> {
 					throws IOException {
 				if (node == null)
 					return null;
-				return new ProducerChannel(new WritableProducer() {
-					public void produce(WritableByteChannel out)
-							throws IOException {
+				return ChannelUtil.newChannel(new ProducerStream(new OutputProducer() {
+					public void produce(OutputStream out) throws IOException {
 						try {
-							streamTo(ChannelUtil.newOutputStream(out), media);
+							streamTo(out, media);
 						} catch (TransformerException e) {
 							throw new IOException(e);
 						} finally {
@@ -163,7 +160,7 @@ public class DOMMessageWriter implements Consumer<Node> {
 					public String toString() {
 						return String.valueOf(node);
 					}
-				});
+				}));
 			}
 
 			@Override

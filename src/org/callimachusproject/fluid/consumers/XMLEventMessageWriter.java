@@ -39,7 +39,6 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
 import java.nio.channels.ReadableByteChannel;
-import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -54,8 +53,8 @@ import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.fluid.Vapor;
 import org.callimachusproject.io.ChannelUtil;
-import org.callimachusproject.io.ProducerChannel;
-import org.callimachusproject.io.ProducerChannel.WritableProducer;
+import org.callimachusproject.io.ProducerStream;
+import org.callimachusproject.io.ProducerStream.OutputProducer;
 import org.callimachusproject.xml.DocumentFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -229,8 +228,8 @@ public class XMLEventMessageWriter implements Consumer<XMLEventReader> {
 			final XMLEventReader result, final String base) throws IOException {
 		if (result == null)
 			return null;
-		return new ProducerChannel(new WritableProducer() {
-			public void produce(WritableByteChannel out) throws IOException {
+		return ChannelUtil.newChannel(new ProducerStream(new OutputProducer() {
+			public void produce(OutputStream out) throws IOException {
 				try {
 					writeTo(mtype, result, base, out, 1024);
 				} catch (XMLStreamException e) {
@@ -243,19 +242,19 @@ public class XMLEventMessageWriter implements Consumer<XMLEventReader> {
 			public String toString() {
 				return result.toString();
 			}
-		});
+		}));
 	}
 
 	private void writeTo(FluidType mtype, XMLEventReader result, String base,
-			WritableByteChannel out, int bufSize) throws IOException,
+			OutputStream out, int bufSize) throws IOException,
 			XMLStreamException {
 		try {
 			Charset charset = mtype.getCharset();
 			if (charset == null) {
 				charset = Charset.defaultCharset();
 			}
-			XMLEventWriter writer = factory.createXMLEventWriter(
-					ChannelUtil.newOutputStream(out), charset.name());
+			XMLEventWriter writer = factory.createXMLEventWriter(out,
+					charset.name());
 			try {
 				writer.add(result);
 				writer.flush();

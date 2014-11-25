@@ -113,8 +113,8 @@ public class ManagedThreadPool implements ExecutorService, ThreadPoolMXBean {
 	}
 
 	public void setCorePoolSize(int corePoolSize) {
-		if (getCorePoolSize() > corePoolSize)
-			logger.info("Increasing {} thread  pool size to {}", toString(),
+		if (getCorePoolSize() < corePoolSize)
+			logger.info("Increasing {} thread pool size to {}", toString(),
 					corePoolSize);
 		getDelegate().setCorePoolSize(corePoolSize);
 	}

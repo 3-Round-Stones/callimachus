@@ -30,11 +30,12 @@
 package org.callimachusproject.concurrent;
 
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-
 
 /**
  * {@link ThreadPoolExecutor} that will increase the number of threads when the
@@ -46,6 +47,8 @@ import java.util.concurrent.TimeUnit;
 public class AntiDeadlockThreadPool extends ManagedThreadPool {
 	private static ScheduledExecutorService scheduler = ManagedExecutors
 			.getInstance().getTimeoutThreadPool();
+	private final long delay;
+	private final TimeUnit delayUnit;
 	private int corePoolSize;
 	private int maximumPoolSize;
 	private BlockingQueue<Runnable> queue;
@@ -53,16 +56,59 @@ public class AntiDeadlockThreadPool extends ManagedThreadPool {
 
 	public AntiDeadlockThreadPool(int corePoolSize, int maximumPoolSize,
 			BlockingQueue<Runnable> queue, String name) {
-		super(corePoolSize, maximumPoolSize, 60L,
-				TimeUnit.MINUTES, queue, name, true);
+		this(corePoolSize, maximumPoolSize, queue, name, 5, TimeUnit.SECONDS);
+	}
+
+	public AntiDeadlockThreadPool(int corePoolSize, int maximumPoolSize,
+			BlockingQueue<Runnable> queue, String name, long delay,
+			TimeUnit delayUnit) {
+		super(corePoolSize, maximumPoolSize, 60L, TimeUnit.MINUTES, queue,
+				name, true);
 		this.queue = queue;
 		this.corePoolSize = corePoolSize;
 		this.maximumPoolSize = maximumPoolSize;
 		this.setAllowCoreThreadTimeOut(true);
+		this.delay = delay;
+		this.delayUnit = delayUnit;
 	}
 
+	@Override
 	public synchronized void execute(Runnable command) {
-		super.execute(command);
+		try {
+			super.execute(command);
+		} finally {
+			checkQueue();
+		}
+	}
+
+	@Override
+	public Future<?> submit(Runnable task) {
+		try {
+			return super.submit(task);
+		} finally {
+			checkQueue();
+		}
+	}
+
+	@Override
+	public <T> Future<T> submit(Runnable task, T result) {
+		try {
+			return super.submit(task, result);
+		} finally {
+			checkQueue();
+		}
+	}
+
+	@Override
+	public synchronized <T> Future<T> submit(Callable<T> task) {
+		try {
+			return super.submit(task);
+		} finally {
+			checkQueue();
+		}
+	}
+
+	private void checkQueue() {
 		if (corePoolSize >= maximumPoolSize)
 			return;
 		final Runnable top = queue.peek();
@@ -87,7 +133,7 @@ public class AntiDeadlockThreadPool extends ManagedThreadPool {
 						}
 					}
 				}
-			}, 5, 5, TimeUnit.SECONDS);
+			}, delay, delay, delayUnit);
 		}
 	}
 

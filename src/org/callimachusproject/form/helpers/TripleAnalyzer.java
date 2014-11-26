@@ -478,8 +478,8 @@ public class TripleAnalyzer extends QueryModelVisitorBase<RDFHandlerException> i
 	}
 
 	private String readString(InputStream in) throws IOException {
+		Reader reader = new InputStreamReader(in, "UTF-8");
 		try {
-			Reader reader = new InputStreamReader(in, "UTF-8");
 			StringWriter writer = new StringWriter(8192);
 			int read;
 			char[] cbuf = new char[1024];
@@ -488,9 +488,9 @@ public class TripleAnalyzer extends QueryModelVisitorBase<RDFHandlerException> i
 				if (writer.getBuffer().length() > 1048576)
 					throw new IOException("Input Stream is too big");
 			}
-			reader.close();
 			return writer.toString();
 		} finally {
+			reader.close();
 			in.close();
 		}
 	}

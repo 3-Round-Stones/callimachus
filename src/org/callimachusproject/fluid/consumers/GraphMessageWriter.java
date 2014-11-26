@@ -32,7 +32,6 @@ package org.callimachusproject.fluid.consumers;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.URISyntaxException;
-import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -44,7 +43,6 @@ import java.util.Set;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.fluid.consumers.helpers.MessageWriterBase;
-import org.callimachusproject.io.ChannelUtil;
 import org.callimachusproject.io.TurtleStreamWriterFactory;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Literal;
@@ -92,12 +90,11 @@ public class GraphMessageWriter extends
 
 	@Override
 	public void writeTo(RDFWriterFactory factory, GraphQueryResult result,
-			WritableByteChannel out, Charset charset, String base,
+			OutputStream out, Charset charset, String base,
 			ObjectConnection con) throws RDFHandlerException,
 			QueryEvaluationException {
 		RDFFormat rdfFormat = factory.getRDFFormat();
-		RDFWriter writer = getWriter(ChannelUtil.newOutputStream(out), charset,
-				factory, base);
+		RDFWriter writer = getWriter(out, charset, factory, base);
 		// writer.setBaseURI(base);
 		writer.startRDF();
 

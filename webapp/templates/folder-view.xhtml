@@ -18,7 +18,7 @@
     <link id="file-class-link" href="../types/File" />
     <link id="create-menu-json" href="../queries/folder-create-menu.rq?results&amp;tqx=out:table&amp;user=" />
     <link href="?archive" title="Export folder contents" />
-    <link href="?import" title="Import folder contents" />
+    <link class="dialog" href="?import" title="Import folder contents" />
     <style type="text/css">
         #table td { white-space: nowrap; }
         .screen-center {
@@ -32,15 +32,6 @@
     </style>
     <script type="text/javascript" src="../scripts/folder-view.js"></script>
     <script type="text/javascript" src="../scripts/folder-create-menu.js"></script>
-    <script type="text/javascript">
-        jQuery(function($) {
-            var link = $('#file-create')[0];
-            link.href = '?create=' + encodeURIComponent(link.href);
-            $('span[rel="prov:wasGeneratedBy"] time').text(function(){
-                return calli.parseDateTime(this).toLocaleString();
-            });
-        });
-    </script>
 </head>
 <body resource="?this">
     <div class="container">
@@ -53,7 +44,7 @@
                             <ul id="create-menu-more" class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
                             </ul>
                         </span>
-                        <a id="file-create" href="../types/File" class="btn btn-sm btn-icon btn-danger" title="Upload file">Upload <i class="glyphicon glyphicon-open"></i></a>
+                        <a id="file-create" href="../types/File" class="dialog btn btn-sm btn-icon btn-danger" title="Upload file">Upload <i class="glyphicon glyphicon-open"></i></a>
                     </nav>
                 </span>
                 <h3 class="panel-title text-center btn-sm">

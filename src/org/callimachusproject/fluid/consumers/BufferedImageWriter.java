@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.channels.ReadableByteChannel;
-import java.nio.channels.WritableByteChannel;
 import java.util.Iterator;
 
 import javax.imageio.IIOException;
@@ -37,8 +36,8 @@ import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.fluid.Vapor;
 import org.callimachusproject.io.ChannelUtil;
-import org.callimachusproject.io.ProducerChannel;
-import org.callimachusproject.io.ProducerChannel.WritableProducer;
+import org.callimachusproject.io.ProducerStream;
+import org.callimachusproject.io.ProducerStream.OutputProducer;
 
 public class BufferedImageWriter implements Consumer<BufferedImage> {
 
@@ -78,12 +77,10 @@ public class BufferedImageWriter implements Consumer<BufferedImage> {
 					throws IOException {
 				if (result == null)
 					return null;
-				return new ProducerChannel(new WritableProducer() {
-					public void produce(WritableByteChannel out)
-							throws IOException {
+				return ChannelUtil.newChannel(new ProducerStream(new OutputProducer() {
+					public void produce(OutputStream out) throws IOException {
 						try {
-							streamTo(ChannelUtil.newOutputStream(out),
-									ftype.as(toChannelMedia(media)));
+							streamTo(out, ftype.as(toChannelMedia(media)));
 						} finally {
 							out.close();
 						}
@@ -92,7 +89,7 @@ public class BufferedImageWriter implements Consumer<BufferedImage> {
 					public String toString() {
 						return result.toString();
 					}
-				});
+				}));
 			}
 
 			@Override

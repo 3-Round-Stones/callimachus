@@ -39,7 +39,6 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.CharBuffer;
 import java.nio.channels.ReadableByteChannel;
-import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -54,9 +53,7 @@ import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.fluid.Vapor;
 import org.callimachusproject.io.ChannelUtil;
-import org.callimachusproject.io.ProducerChannel;
 import org.callimachusproject.io.ProducerStream;
-import org.callimachusproject.io.ProducerChannel.WritableProducer;
 import org.callimachusproject.io.ProducerStream.OutputProducer;
 import org.callimachusproject.xml.DocumentFactory;
 import org.callimachusproject.xml.XMLEventReaderFactory;
@@ -106,11 +103,10 @@ public class ReadableBodyWriter implements Consumer<Readable> {
 					throws IOException {
 				if (result == null)
 					return null;
-				return new ProducerChannel(new WritableProducer() {
-					public void produce(WritableByteChannel out)
-							throws IOException {
+				return ChannelUtil.newChannel(new ProducerStream(new OutputProducer() {
+					public void produce(OutputStream out) throws IOException {
 						try {
-							streamTo(ChannelUtil.newOutputStream(out), media);
+							streamTo(out, media);
 						} catch (XMLStreamException e) {
 							throw new IOException(e);
 						}
@@ -119,7 +115,7 @@ public class ReadableBodyWriter implements Consumer<Readable> {
 					public String toString() {
 						return String.valueOf(result);
 					}
-				});
+				}));
 			}
 
 			@Override

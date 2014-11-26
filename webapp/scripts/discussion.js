@@ -16,13 +16,17 @@
  *
  */
 
-jQuery(function($){
+(function($){
 
-    calli.getCurrentUserName().then(function(username){
-        if (username) checkTab();
-    });
+    var calli = window.calli || (window.calli={});
 
-    function checkTab() {
+    calli.insertDiscussionBadge = function(url, element) {
+        return calli.getCurrentUserName().then(function(username){
+            if (username && element.offsetWidth > 0) return checkTab(url, element);
+        });
+    };
+
+    function checkTab(url, element) {
         if (location.search == '?discussion') {
             return calli.ready(calli.getPageUrl()).then(function(url){
                 var posts = $(".comment").parent().find("time").map(function(){ return $(this).attr("content"); });
@@ -33,22 +37,20 @@ jQuery(function($){
                 } catch (e) { }
             });
         }
-        $("a[href='?discussion']").filter(":visible").each(function() {
-            var tab = $(this);
-            var url = this.href;
-            return calli.getText(url).then(function(doc) {
-                return handleDiscussion(tab, url, doc);
-            }, calli.error);
-        });
+        var a = document.createElement('a');
+        a.setAttribute('href', url);
+        return calli.getText(a.href).then(function(doc) {
+            return handleDiscussion($(element), a.href, doc);
+        }, calli.error);
     }
 
-    function handleDiscussion(tab, url, data) {
+    function handleDiscussion(tab, key, data) {
         var posts = $(".comment", data).parent().find("time").map(function(){ return $(this).text(); });
         if (posts.length) {
             var span = $('<span class="badge pull-right"></span>');
             try {
-                if (window.localStorage.getItem(url)) {
-                    var seen = window.localStorage.getItem(url).split(',');
+                if (window.localStorage.getItem(key)) {
+                    var seen = window.localStorage.getItem(key).split(',');
                     var newer = posts.filter(function(){
                         for (var i=0; i<seen.length; i++) {
                             if (seen[i] == this)
@@ -71,5 +73,5 @@ jQuery(function($){
         }
     }
 
-});
+})(jQuery);
 

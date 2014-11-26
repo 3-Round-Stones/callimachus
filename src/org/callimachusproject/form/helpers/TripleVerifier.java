@@ -331,7 +331,7 @@ public final class TripleVerifier implements Cloneable {
 			} else {
 				partners.add(uri);
 			}
-		} else if (obj instanceof Resource && !connected.containsKey(obj)) {
+		} else if (obj instanceof Resource) {
 			if (subjConnected) {
 				connect(new StatementImpl(subj, pred, obj));
 			} else {
@@ -344,12 +344,12 @@ public final class TripleVerifier implements Cloneable {
 		Set<Statement> set = connected.get(st.getObject());
 		if (set == null) {
 			connected.put((Resource) st.getObject(), set = new HashSet<Statement>());
-			set.add(st);
-			Set<Statement> removed = disconnected.remove(st.getObject());
-			if (removed != null) {
-				for (Statement connecting : removed) {
-					connect(connecting);
-				}
+		}
+		set.add(st);
+		Set<Statement> removed = disconnected.remove(st.getObject());
+		if (removed != null) {
+			for (Statement connecting : removed) {
+				connect(connecting);
 			}
 		}
 	}

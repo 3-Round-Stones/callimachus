@@ -24,7 +24,13 @@
         window.localStorage.setItem("LastFolder", location.href);
     } catch(e) {}
     $(function($){
-        $('#file-create').click(function(event) {
+        $('span[rel="prov:wasGeneratedBy"] time').text(function(){
+            return calli.parseDateTime(this).toLocaleString();
+        });
+        $('#file-create').each(function(){
+            this.href = '?create=' + encodeURIComponent(this.href);
+        });
+        $('.dialog').click(function(event){
             var dialog = calli.openDialog(this.href, this.title, {
                 onmessage: function(event) {
                     if (event.data.indexOf('POST resource\n') === 0) {

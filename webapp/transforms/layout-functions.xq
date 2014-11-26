@@ -202,6 +202,9 @@ declare function calli:discussion-href($a as element()) as element() {
     element {node-name($a)} {
         attribute href {"?discussion"},
         $a/@*[name()!='href'],
+        <script type="text/javascript">
+            calli.insertDiscussionBadge('?discussion', $('script').get(-1).parentNode);
+        </script>,
         $a/node()
     }
 };

@@ -49,7 +49,7 @@ public class SchoolWardFunctionalTest extends BrowserFunctionalTestCase {
 				.selectFile(car).replaceContents().importCar().openCurrentFolder();
 		String archive = folder.getCurrentUrl().replaceAll("\\?.*", "?archive");
 		File ex = new AssetDownloader(getUsername(), getPassword()).downloadAsset(archive, "schools.car");
-		folder.openImportDialogue().selectFile(ex).replaceContents().importCar();
+		folder.openImportDialogue().selectFile(ex).replaceContents().importCar().open("./");
 		ex.delete();
 		browser.click(By.linkText("Bartley Green"));
 		browser.focusInTopWindow();

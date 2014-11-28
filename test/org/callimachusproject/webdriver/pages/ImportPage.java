@@ -38,7 +38,6 @@ public class ImportPage extends CalliPage {
 	}
 
 	public CalliPage importCar() {
-		browser.focusInTopWindow();
 		browser.click(By.id("import"));
 		return page();
 	}

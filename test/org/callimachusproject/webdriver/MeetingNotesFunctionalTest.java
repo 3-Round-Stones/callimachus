@@ -44,7 +44,7 @@ public class MeetingNotesFunctionalTest extends BrowserFunctionalTestCase {
 	public void testMeetingNotes() throws Exception {
 		File car = new AssetDownloader(new File("downloads"))
 				.getLocalAsset(DOWNLOAD_URL);
-		page.openCurrentFolder().openImportPage().selectFile(car).importCar();
+		page.openCurrentFolder().openImportDialogue().selectFile(car).replaceContents().importCar();
 		logger.info("Creating Journal");
 		page.openCurrentFolder().openCreateHref("Journal", SampleResourceCreate.class)
 				.with("R & D", "Research and Development journal").create();

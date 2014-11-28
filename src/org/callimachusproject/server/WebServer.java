@@ -111,6 +111,7 @@ import org.callimachusproject.server.chain.AlternativeHandler;
 import org.callimachusproject.server.chain.AuthenticationHandler;
 import org.callimachusproject.server.chain.CacheHandler;
 import org.callimachusproject.server.chain.ContentHeadersFilter;
+import org.callimachusproject.server.chain.ContentPeekHandler;
 import org.callimachusproject.server.chain.ExpectContinueHandler;
 import org.callimachusproject.server.chain.GUnzipFilter;
 import org.callimachusproject.server.chain.GZipFilter;
@@ -214,6 +215,7 @@ public class WebServer implements WebServerMXBean, IOReactorExceptionHandler, Cl
 		cacheDir.mkdirs();
 		// exec in handling thread
 		ClientExecChain handler = new InvokeHandler();
+		handler = new ContentPeekHandler(handler);
 		handler = new NotFoundHandler(handler);
 		handler = new AlternativeHandler(handler);
 		// exec in triaging thread

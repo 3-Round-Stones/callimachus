@@ -23,7 +23,8 @@ import java.io.InputStream;
 
 /**
  * {@link BufferedInputStream} that does not terminate stream if nothing is
- * available.
+ * available. If {@link #read(byte[], int, int)} or {@link #skip(long)} return
+ * non-positive number then EOF has been reached (unless used with a non-positive parameter).
  * 
  * @author James Leigh
  * 

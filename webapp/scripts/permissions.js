@@ -91,16 +91,19 @@ jQuery(function($) {
             var action = calli.getFormAction(form);
             return calli.postUpdate(action, comparison, insertData);
         }).then(function(redirect){
-            if (window.parent != window) {
-                window.parent.postMessage('POST close', '*');
-            }
-            setTimeout(function(){
-                window.location = $('body').attr('resource') + '?view';
-            }, 500);
+            $('#cancel').click();
         }, function(error){
             btn.button('reset');
             return calli.error(error);
         });
+    });
+    $('#cancel').click(function(){
+        if (window.parent != window) {
+            window.parent.postMessage('POST close', '*');
+        }
+        setTimeout(function(){
+            window.location = $('body').attr('resource') + '?view';
+        }, 500);
     });
 
     function renderItem(data, escape){

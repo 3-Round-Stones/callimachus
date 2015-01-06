@@ -52,6 +52,8 @@ public class MarkupExpression implements Expression {
 	private static final Pattern PATH = Pattern.compile("^\\{([" + NCNameChar
 			+ URIChar + "]*[" + PathChar + "][" + NCNameChar + URIChar
 			+ PathChar + "]*)\\}");
+	private static final Pattern PASSED_THROUGH = Pattern
+			.compile("^(\\{\\{[^\\{]*\\}\\}|\\{\\{\\{[^\\{]*\\}\\}\\})");
 
 	private final List<Expression> exprs;
 	private final Expression expression;
@@ -148,6 +150,11 @@ public class MarkupExpression implements Expression {
 				if (p != 0) {
 					exprs.add(new TextExpression(text.subSequence(0, p), loc));
 					text = text.subSequence(p, text.length());
+					p = 0;
+					continue;
+				} else if ((m = PASSED_THROUGH.matcher(text)).find()) {
+					exprs.add(new TextExpression(m.group(1), loc));
+					text = text.subSequence(m.end(), text.length());
 					p = 0;
 					continue;
 				} else if ((m = VARIABLE.matcher(text)).find()) {

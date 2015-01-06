@@ -1,0 +1,18 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>Mustache</title>
+	</head>
+	<body>
+		<h1>Mustache</h1>
+		<ul>
+			<li>{{name}}</li>
+			<li>{{company}}</li>
+			<li>{{{company}}}</li>
+			<li>{{&amp;company}}</li>
+			<li>{{name.first}} {{name.last}}</li>
+			<li>{{#musketeers}} {{.}} {{/musketeers}}</li>
+			<li>{{^repos}}No repos :({{/repos}}</li>
+			<li>{{! ignore me }}</li>
+		</ul>
+	</body>
+</html>

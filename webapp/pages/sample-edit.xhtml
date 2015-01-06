@@ -7,10 +7,10 @@
 <head>
     <title resource="?this">{rdfs:label}</title>
 </head>
-<body resource="?this" onload="comparison=calli.copyResourceData('#form')">
+<body resource="?this">
     <div class="container">
         <div class="page-header">
-            <h1 property="rdfs:label" />
+            <h1 property="rdfs:label"></h1>
         </div>
         <form id="form" role="form" method="POST" action="" enctype="application/sparql-update" resource="?this" class="row"
                 onsubmit="calli.submitUpdate(comparison,event)">
@@ -32,6 +32,9 @@
                 </div>
             </fieldset>
         </form>
+        <script type="text/javascript">
+            comparison = calli.copyResourceData('#form');
+        </script>
     </div>
 </body>
 </html>

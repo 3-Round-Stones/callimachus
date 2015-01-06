@@ -89,7 +89,5 @@ jQuery(function($){
             });
         }
     });
-    $('#layout-fork').click(function(event){
-        calli.createResource(event, '?create=' + encodeURIComponent(this.href) + '#!' + $('#layout-sample').attr('href'));
-    });
+    $('#form').submit(calli.submitUpdate.bind(calli, calli.copyResourceData('#form')));
 });

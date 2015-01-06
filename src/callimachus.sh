@@ -574,66 +574,67 @@ do_start()
     KEYTOOL_OPTS=$(perl -pe 's/\s*\#.*$//g' "$SSL" 2>/dev/null |perl -pe 's/(\S+)=(.*)/-J-D$1=$2/' 2>/dev/null |tr -s '\n' ' ')
     grep -E '^javax.net.ssl.trustStorePassword=' "$SSL" |perl -pe 's/^javax.net.ssl.trustStorePassword=(.*)/$1/' 2>/dev/null > "$SSL.password"
     TRUSTSTORE=$(grep -E '^javax.net.ssl.trustStore=' $SSL |perl -pe 's/^javax.net.ssl.trustStore=(.*)/$1/' 2>/dev/null)
+    rm -f "$SSL.import"
+    touch "$SSL.import"
     for cert in etc/*.pem etc/*.cer etc/*.crt etc/*.cert etc/*.der ; do
       if [ -r "$cert" -a -r "$TRUSTSTORE" ] ; then
         ALIAS="$(basename "$cert" | sed 's/\.[a-z]\+$//' )"
-        if ! "$KEYTOOL" -list -keystore "$TRUSTSTORE" -storepass "$(cat "$SSL.password")" |grep -q "^$ALIAS," ; then
-          "$KEYTOOL" -import -alias "$ALIAS" -file "$cert" -noprompt -trustcacerts -keystore "$TRUSTSTORE" -storepass "$(cat "$SSL.password")" $KEYTOOL_OPTS
-          if [ $? = 0 ] ; then
-            log_success_msg "Imported new trusted certificate $cert into $TRUSTSTORE"
-          else
-            log_warning_msg "Could not import new trusted certificate $cert into $TRUSTSTORE"
-          fi
-        elif [ "$cert" -nt "$TRUSTSTORE" ] ; then
+        if [ "$cert" -nt "$TRUSTSTORE" ] || ! "$KEYTOOL" -list -keystore "$TRUSTSTORE" -storepass "$(cat "$SSL.password")" |grep -q "^$ALIAS," ; then
+          echo "$cert" >> "$SSL.import"
+        fi
+      fi
+    done
+    cat "$SSL.import" |while read cert ; do
+      if [ -r "$cert" -a -r "$TRUSTSTORE" ] ; then
+        ALIAS="$(basename "$cert" | sed 's/\.[a-z]\+$//' )"
+        RTYPE="$("$KEYTOOL" -list -keystore "$TRUSTSTORE" -storepass "$(cat "$SSL.password")" |grep "^$ALIAS,")"
+        if [ -n "$RTYPE" ] ; then
           "$KEYTOOL" -delete -alias "$ALIAS" -keystore "$TRUSTSTORE" -storepass "$(cat "$SSL.password")" $KEYTOOL_OPTS
-          "$KEYTOOL" -import -alias "$ALIAS" -file "$cert" -noprompt -trustcacerts -keystore "$TRUSTSTORE" -storepass "$(cat "$SSL.password")" $KEYTOOL_OPTS
-          if [ $? = 0 ] ; then
-            log_success_msg "Imported updated trusted certificate $cert into $TRUSTSTORE"
-          else
-            log_warning_msg "Could not updated certificate $cert into $TRUSTSTORE"
-          fi
+        fi
+        "$KEYTOOL" -import -alias "$ALIAS" -file "$cert" -noprompt -trustcacerts -keystore "$TRUSTSTORE" -storepass "$(cat "$SSL.password")" $KEYTOOL_OPTS
+        if [ $? = 0 ] ; then
+          log_success_msg "Imported trusted certificate $cert into $TRUSTSTORE"
+        else
+          log_warning_msg "Could not import trusted certificate $cert into $TRUSTSTORE"
         fi
       fi
     done
     rm "$SSL.password"
+    rm "$SSL.import"
   fi
   if [ -r "$SSL" ] && grep -q "keyStore" "$SSL" ; then
     KEYTOOL_OPTS=$(perl -pe 's/\s*\#.*$//g' "$SSL" 2>/dev/null |perl -pe 's/(\S+)=(.*)/-J-D$1=$2/' 2>/dev/null |tr -s '\n' ' ')
     grep -E '^javax.net.ssl.keyStorePassword=' "$SSL" |perl -pe 's/^javax.net.ssl.keyStorePassword=(.*)/$1/' 2>/dev/null > "$SSL.password"
     KEYSTORE=$(grep -E '^javax.net.ssl.keyStore=' $SSL |perl -pe 's/^javax.net.ssl.keyStore=(.*)/$1/' 2>/dev/null)
+    rm -f "$SSL.import"
+    touch "$SSL.import"
     for cert in etc/*.pem etc/*.cer etc/*.crt etc/*.cert etc/*.der ; do
       if [ -r "$cert" -a -r "$KEYSTORE" ] ; then
         ALIAS="$(basename "$cert" | sed 's/\.[a-z]\+$//' )"
-        if ! "$KEYTOOL" -list -keystore "$KEYSTORE" -storepass "$(cat "$SSL.password")" |grep -q "^$ALIAS," ; then
+        if [ "$cert" -nt "$KEYSTORE" ] || ! "$KEYTOOL" -list -keystore "$KEYSTORE" -storepass "$(cat "$SSL.password")" |grep -q "^$ALIAS," ; then
+          echo "$cert" >> "$SSL.import"
+        fi
+      fi
+    done
+    cat "$SSL.import" |while read cert ; do
+      if [ -r "$cert" -a -r "$KEYSTORE" ] ; then
+        ALIAS="$(basename "$cert" | sed 's/\.[a-z]\+$//' )"
+        RTYPE="$("$KEYTOOL" -list -keystore "$KEYSTORE" -storepass "$(cat "$SSL.password")" |grep "^$ALIAS,")"
+        if [ -n "$RTYPE" ] && ! echo "$RTYPE" |grep -q "PrivateKeyEntry," ; then
+          "$KEYTOOL" -delete -alias "$ALIAS" -keystore "$KEYSTORE" -storepass "$(cat "$SSL.password")" $KEYTOOL_OPTS
+        fi
+        if [ -z "$RTYPE" -o "$cert" != "etc/$ALIAS.cer" ] || ! echo "$RTYPE" |grep -q "PrivateKeyEntry," ; then
           "$KEYTOOL" -import -alias "$ALIAS" -file "$cert" -noprompt -trustcacerts -keystore "$KEYSTORE" -storepass "$(cat "$SSL.password")" $KEYTOOL_OPTS
           if [ $? = 0 ] ; then
             log_success_msg "Imported $cert into $KEYSTORE"
           else
             log_warning_msg "Could not import $cert into $KEYSTORE"
           fi
-        elif [ "$cert" -nt "$KEYSTORE" ] ; then
-            if "$KEYTOOL" -list -keystore "$KEYSTORE" -storepass "$(cat "$SSL.password")" |grep "^$ALIAS," |grep -q "PrivateKeyEntry," ; then
-              if [ "$cert" != "etc/$ALIAS.cer" ] ; then
-                "$KEYTOOL" -import -alias "$ALIAS" -file "$cert" -noprompt -trustcacerts -keystore "$KEYSTORE" -storepass "$(cat "$SSL.password")" $KEYTOOL_OPTS
-                if [ $? = 0 ] ; then
-                  log_success_msg "Imported certificate reply $cert into $KEYSTORE"
-                else
-                  log_warning_msg "Could not import certificate reply $cert into $KEYSTORE"
-                fi
-              fi
-          else
-              "$KEYTOOL" -delete -alias "$ALIAS" -keystore "$KEYSTORE" -storepass "$(cat "$SSL.password")" $KEYTOOL_OPTS
-              "$KEYTOOL" -import -alias "$ALIAS" -file "$cert" -noprompt -trustcacerts -keystore "$KEYSTORE" -storepass "$(cat "$SSL.password")" $KEYTOOL_OPTS
-              if [ $? = 0 ] ; then
-                log_success_msg "Imported $cert into $KEYSTORE"
-              else
-                log_warning_msg "Could not import $cert into $KEYSTORE"
-              fi
-          fi
         fi
       fi
     done
     rm "$SSL.password"
+    rm "$SSL.import"
   fi
 
   if [ -e "$STDOUT_LOG" ]; then

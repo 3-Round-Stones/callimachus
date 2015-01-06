@@ -226,11 +226,11 @@ public class ResponseBuilder {
 			print.append("</title></head>\n");
 			print.append("<body>\n");
 			print.append("<div class='container'>\n");
-			print.append("<h1>");
+			print.append("<h1 class='text-error'>");
 			print.append(html(exception.getLongMessage()));
 			print.append("</h1>\n");
 			if (exception.getCause() != null) {
-				print.append("<pre>");
+				print.append("<pre class='text-error'>");
 				Writer sw = new StringWriter();
 				PrintWriter print1 = new PrintWriter(sw);
 				exception.printStackTrace(print1);
@@ -238,7 +238,7 @@ public class ResponseBuilder {
 				print.append(enc(sw.toString()));
 				print.append("</pre>\n");
 			} else if (exception.getStatusCode() >= 500) {
-				print.append("<pre>");
+				print.append("<pre class='text-error'>");
 				print.append(enc(exception.getDetailMessage()));
 				print.append("</pre>\n");
 			}
@@ -261,7 +261,7 @@ public class ResponseBuilder {
 			print.append("</title></head>\n");
 			print.append("<body>\n");
 			print.append("<div class='container'>\n");
-			print.append("<h1>");
+			print.append("<h1 class='text-error'>");
 			print.append(html(title));
 			print.append("</h1>\n");
 			print.append("</div>\n");

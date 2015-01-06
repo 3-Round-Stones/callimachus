@@ -53,7 +53,7 @@ function createIframeRedirect(iname, finalTarget, resource, cause) {
                 }
             }
         } else {
-            var h1 = $(doc).find('h1').clone();
+            var h1 = $(doc).find('h1.text-error').add($(doc).find('h1')).first().clone();
             var frag = document.createDocumentFragment();
             h1.contents().each(function() {
                 frag.appendChild(this);

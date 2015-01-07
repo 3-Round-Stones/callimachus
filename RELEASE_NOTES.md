@@ -2,17 +2,17 @@
 
 > http://callimachusproject.org/
 
-12 November 2014
+12 January 2015
 
-## REQUIREMENTS FOR CALLIMACHUS 1.4.0 (Open Source)
+## REQUIREMENTS FOR CALLIMACHUS 1.4.1 (Open Source)
 
 Callimachus works best on browsers that are closely tracking the development
 of HTML5.  At the time of this writing, Callimachus works best on Chrome and
 Firefox.  It is recommended that Callimachus users track updates to their
 browsers for the best usage experience.
 
-Chrome 38 has been thoroughly tested.
-Firefox 33 has no known issues.
+Chrome 39 has been thoroughly tested.
+Firefox 34 has no known issues.
 Safari 6.1 and 7 has known issues.
 Internet Explorer 11 has known issues.
 

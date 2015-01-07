@@ -89,7 +89,7 @@ SELECT * {
                 OPTIONAL { ?url prov:wasGeneratedBy ?revision
                     OPTIONAL { ?revision prov:endedAtTime ?modified }
                 } OPTIONAL {
-                    ?id a [calli:type ?content_type]
+                    ?url a [calli:type ?content_type]
                 }
             }
             GROUP BY ?url ORDER BY ?title ?id ?icon

@@ -16,9 +16,13 @@
  */
 package org.callimachusproject.auth;
 
+import java.net.InetAddress;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.TreeSet;
 
+import org.callimachusproject.util.DomainNameSystemResolver;
 import org.callimachusproject.util.PrefixMap;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
@@ -38,10 +42,12 @@ public class Group {
 		publicGroup.anonymousFrom.put(".", ".");
 	}
 
+	private final DomainNameSystemResolver dns = DomainNameSystemResolver.getInstance();
 	private final PrefixMap<String> anonymousFrom = new PrefixMap<String>();
 	private final PrefixMap<String> everyoneFrom = new PrefixMap<String>();
 	private final PrefixMap<String> nobodyFrom = new PrefixMap<String>();
 	private final TreeSet<String> members = new TreeSet<String>();
+	private final Set<InetAddress> fromHosts = new HashSet<>();
 	@SuppressWarnings("unchecked")
 	private final PrefixMap<String>[] sets = new PrefixMap[]{anonymousFrom,
 			everyoneFrom, nobodyFrom};
@@ -57,17 +63,27 @@ public class Group {
 			while (stmts.hasNext()) {
 				Statement st = stmts.next();
 				String pred = st.getPredicate().stringValue();
+				String obj = st.getObject().stringValue();
 				if (CALLI_ANONYMOUSFROM.equals(pred)) {
-					String key = key(st.getObject().stringValue());
+					String key = key(obj);
 					anonymousFrom.put(key, key);
+					if (!obj.startsWith(".")) {
+						fromHosts.add(dns.getByName(obj));
+					}
 				} else if (CALLI_EVERYONEFROM.equals(pred)) {
-					String key = key(st.getObject().stringValue());
+					String key = key(obj);
 					everyoneFrom.put(key, key);
+					if (!obj.startsWith(".")) {
+						fromHosts.add(dns.getByName(obj));
+					}
 				} else if (CALLI_NOBODYFROM.equals(pred)) {
-					String key = key(st.getObject().stringValue());
+					String key = key(obj);
 					nobodyFrom.put(key, key);
+					if (!obj.startsWith(".")) {
+						fromHosts.add(dns.getByName(obj));
+					}
 				} else if (CALLI_MEMBER.equals(pred)) {
-					members.add(st.getObject().stringValue());
+					members.add(obj);
 				}
 			}
 		} finally {
@@ -80,6 +96,10 @@ public class Group {
 
 	public boolean isPublic() {
 		return this.equals(publicGroup);
+	}
+
+	public boolean isHostReferenced(InetAddress host) {
+		return host != null && fromHosts.contains(host);
 	}
 
 	public boolean isAnonymousAllowed(String from) {

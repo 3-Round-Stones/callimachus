@@ -123,7 +123,7 @@ public class AuthorizationManager {
 		String m = request.getMethod();
 		RDFObject target = request.getRequestedResource();
 		String or = request.getVaryHeader("Origin");
-		Map<String, String[]> map = getAuthorizationMap(request, now, clientAddr);
+		Map<String, String[]> map = getAuthorizationMap(request, now, clientAddr, groups);
 		List<String> from = getAgentFrom(map.get("via"));
 		if (isAnonymousAllowed(from, groups))
 			return null;
@@ -198,7 +198,7 @@ public class AuthorizationManager {
 		long now = ctx.getReceivedOn();
 		String m = request.getMethod();
 		RDFObject target = request.getRequestedResource();
-		Map<String, String[]> map = getAuthorizationMap(request, now, clientAddr);
+		Map<String, String[]> map = getAuthorizationMap(request, now, clientAddr, null);
 		return realm.authenticationInfo(m, target, map, ctx.getObjectConnection());
 	}
 
@@ -382,7 +382,9 @@ public class AuthorizationManager {
 		}
 	}
 
-	private Map<String, String[]> getAuthorizationMap(ResourceOperation request, long now, InetAddress clientAddr) {
+	private Map<String, String[]> getAuthorizationMap(
+			ResourceOperation request, long now, InetAddress clientAddr,
+			Set<Group> groups) {
 		Map<String, String[]> map = new HashMap<String, String[]>();
 		map.put("request-target", new String[] { request.getRequestLine().getUri() });
 		map.put("request-scheme", new String[] { request.getScheme() });
@@ -399,7 +401,7 @@ public class AuthorizationManager {
 		if (ho != null && ho.length > 0) {
 			map.put("host", toStringArray(ho));
 		}
-		String via = getRequestSource(request, clientAddr);
+		String via = getRequestSource(request, clientAddr, groups);
 		map.put("via", via.split("\\s*,\\s*"));
 		return map;
 	}
@@ -412,14 +414,15 @@ public class AuthorizationManager {
 		return result;
 	}
 
-	private String getRequestSource(ResourceOperation request, InetAddress clientAddr) {
+	private String getRequestSource(ResourceOperation request,
+			InetAddress clientAddr, Set<Group> groups) {
 		StringBuilder via = new StringBuilder();
 		for (String hd : request.getVaryHeaders("X-Forwarded-For")) {
 			for (String ip : hd.split("\\s*,\\s*")) {
 				if (via.length() > 0) {
 					via.append(",");
 				}
-				via.append("1.1 ").append(dnsResolver.reverse(ip));
+				via.append("1.1 ").append(getHostName(ip, groups));
 			}
 		}
 		for (String hd : request.getVaryHeaders("Via")) {
@@ -431,8 +434,28 @@ public class AuthorizationManager {
 		if (via.length() > 0) {
 			via.append(",");
 		}
-		via.append("1.1 ").append(dnsResolver.reverse(clientAddr));
+		via.append("1.1 ").append(getHostName(clientAddr, groups));
 		return via.toString();
+	}
+
+	private String getHostName(String ip, Set<Group> groups) {
+		InetAddress clientAddr = dnsResolver.getByName(ip);
+		if (clientAddr == null)
+			return ip;
+		return getHostName(clientAddr, groups);
+	}
+
+	private String getHostName(InetAddress clientAddr, Set<Group> groups) {
+		if (dnsResolver.isNetworkLocalAddress(clientAddr))
+			return dnsResolver.reverse(clientAddr);
+		if (groups != null) {
+			for (Group group : groups) {
+				if (group.isHostReferenced(clientAddr)) {
+					return dnsResolver.reverse(clientAddr);
+				}
+			}
+		}
+		return dnsResolver.getArpaName(clientAddr);
 	}
 
 	private boolean isOriginAllowed(Collection<String> allowed, String o) {

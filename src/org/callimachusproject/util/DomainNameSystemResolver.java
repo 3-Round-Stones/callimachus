@@ -278,9 +278,12 @@ public class DomainNameSystemResolver {
 	}
 
 	private boolean isWithinSubnetMask(byte[] addr, InterfaceAddress ifconfig) {
+		int n = ifconfig.getNetworkPrefixLength();
+		if (addr.length < n || n < 8)
+			return false;
 		byte[] ifaddr = ifconfig.getAddress().getAddress();
 		boolean mask = true;
-		for (short i=0,n=ifconfig.getNetworkPrefixLength();i<n;i++) {
+		for (short i=0;i<n;i++) {
 			mask &= ifaddr[i] == addr[i];
 		}
 		return mask;

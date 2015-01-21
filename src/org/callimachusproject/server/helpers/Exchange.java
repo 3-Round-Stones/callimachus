@@ -148,7 +148,7 @@ public class Exchange implements Cancellable {
 	public synchronized void submitResponse(HttpResponse response) {
 		closeRequest();
 		assert response != null;
-		if (this.response != null && this.exchange != null) {
+		if (cancelled || this.response != null && this.exchange != null) {
 			consume(response); // too late! already committed a response
 		} else if (this.response != null) {
 			consume(this.response); // discard the previous response
@@ -165,6 +165,9 @@ public class Exchange implements Cancellable {
 	public synchronized boolean cancel() {
 		cancelled = true;
 		closeRequest();
+		if (response != null) {
+			consume(response);
+		}
 		if (producer != null) {
 			try {
 				producer.close();
@@ -239,6 +242,14 @@ public class Exchange implements Cancellable {
 				final IOControl ioctrl) throws IOException {
 			setExpectContinue(false);
 			assert pipe != null;
+			if (pipe.isStale()) {
+				try {
+					cancel();
+				} finally {
+					ioctrl.shutdown();
+				}
+				return;
+			}
 			pipe.sink(new AsyncPipe.Sink() {
 				public int read(ByteBuffer dst) throws IOException {
 					return decoder.read(dst);

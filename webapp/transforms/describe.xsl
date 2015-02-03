@@ -65,7 +65,7 @@
                             if (req.readyState != 4) return;
                             if (req.status == 200 || req.status == 304) {
                                 var win = window.open('', document.URL);
-                                win.document.write('<pre>\n' + req.responseText.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '\n</pre>');
+                                win.document.write('<pre>\n' + req.responseText.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '\n</pre>');
                             }
                         }
                         if (req.readyState == 4) return false;

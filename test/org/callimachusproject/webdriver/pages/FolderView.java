@@ -86,11 +86,20 @@ public class FolderView extends CalliPage {
 		return openEdit(FolderEdit.class);
 	}
 
-	public ImportPage openImportPage() {
+	public ImportPage openImportDialogue() {
 		browser.focusInTopWindow();
 		browser.click(By.cssSelector("button.navbar-btn.dropdown-toggle"));
 		browser.click(By.linkText("Import folder contents"));
-		return page(ImportPage.class);
+		browser.focusInModalFrame("import-folder-contents");
+		final FolderView folder = this;
+		return new ImportPage(browser) {
+			@Override
+			public FolderView importCar() {
+				super.importCar();
+				browser.waitForFrameToClose("import-folder-contents");
+				return folder;
+			}
+		};
 	}
 
 	public void assertLayout() {

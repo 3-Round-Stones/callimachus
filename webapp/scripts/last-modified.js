@@ -63,13 +63,13 @@ if (window.sessionStorage) {
 
 // https://bugs.webkit.org/show_bug.cgi?id=4363
 function bug4363() {
-    if (navigator.userAgent.indexOf('WebKit') < 0)
+    if (navigator.userAgent.indexOf('Safari') < 0)
         return false;
-    var chrome = navigator.userAgent.match(/Chrome\/(3\d)\b/);
-    if (!chrome)
+    if (navigator.userAgent.indexOf('Chrom') < 0)
         return true; // Apple has not fixed this as of Safari 7.0
     try {
-        return parseInt(chrome[1],10) < 38; // Google fixed this in Chrome 38
+        var chrome = navigator.userAgent.match(/Chrome\/(3\d)\b/);
+        return chrome && parseInt(chrome[1],10) < 38; // Google fixed this in Chrome 38
     } catch(e) {
         return false;
     }

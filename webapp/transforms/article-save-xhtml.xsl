@@ -235,6 +235,11 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
     </blockquote>
 </xsl:template>
 
+<xsl:template match="xhtml:div">
+    <!-- ignore sections nested in div (they will be pulled out after this section) -->
+    <xsl:apply-templates select="*[not(name()='h1' or name()='h2' or name()='h3' or name()='h4' or name()='h5' or name()='h6') and not(preceding-sibling::xhtml:h1 or preceding-sibling::xhtml:h2 or preceding-sibling::xhtml:h3 or preceding-sibling::xhtml:h4 or preceding-sibling::xhtml:h5 or preceding-sibling::xhtml:h6)]" />
+</xsl:template>
+
 <xsl:template match="xhtml:div[@contenteditable='false'][xhtml:pre]">
     <xsl:apply-templates select="xhtml:pre" />
 </xsl:template>

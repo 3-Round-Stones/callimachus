@@ -23,6 +23,11 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 
 public class AsyncPipe {
+	/**
+	 * Grace period to wait while the sink buffer is under capacity.
+	 */
+	private static final int CAPACITY_TIMEOUT = 10 * 1000;
+
 	public abstract static class Sink implements ReadableByteChannel {
 		private boolean closed;
 
@@ -51,6 +56,8 @@ public class AsyncPipe {
 	private Throwable error;
 	private boolean closed;
 	private Runnable action;
+	boolean stale;
+	long expiresAt;
 
 	public AsyncPipe() {
 		this(65536);
@@ -58,10 +65,19 @@ public class AsyncPipe {
 
 	public AsyncPipe(int capacity) {
 		this.buf = ByteBuffer.allocate(capacity);
+		resetTimeout();
 	}
 
 	public synchronized boolean isOpen() {
 		return !closed;
+	}
+
+	/**
+	 * If the source pipeline was aborted because the sink buffer was empty past
+	 * the grace period.
+	 */
+	public synchronized boolean isStale() {
+		return stale;
 	}
 
 	/**
@@ -144,6 +160,9 @@ public class AsyncPipe {
 
 			public int read(final ByteBuffer dst) throws IOException {
 				synchronized (AsyncPipe.this) {
+					if (!buf.hasRemaining()) {
+						resetTimeout();
+					}
 					int n = 0;
 					while (n == 0) {
 						n = source(new Source() {
@@ -153,7 +172,13 @@ public class AsyncPipe {
 						});
 						if (n == 0) {
 							try {
-								AsyncPipe.this.wait();
+								long timeout = expiresAt - System.currentTimeMillis();
+								if (timeout <= 0) {
+									stale = true;
+									close();
+									throw new InterruptedIOException("Read timeout");
+								}
+								AsyncPipe.this.wait(timeout);
 							} catch (InterruptedException e) {
 								InterruptedIOException ie = new InterruptedIOException(
 										e.toString());
@@ -218,6 +243,10 @@ public class AsyncPipe {
 				action = null;
 			}
 		}
+	}
+
+	private synchronized void resetTimeout() {
+		this.expiresAt = System.currentTimeMillis() + CAPACITY_TIMEOUT;
 	}
 
 }

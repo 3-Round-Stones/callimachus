@@ -74,12 +74,9 @@
     <xsl:template match="sparql:result">
         <li class="result">
             <a>
-                <xsl:if test="sparql:binding[@name='id']">
+                <xsl:if test="sparql:binding[@name='link_href']">
                     <xsl:attribute name="href">
-                        <xsl:value-of select="sparql:binding[@name='id']/*" />
-                    </xsl:attribute>
-                    <xsl:attribute name="class">
-                        <xsl:value-of select="'view'" />
+                        <xsl:value-of select="sparql:binding[@name='link_href']/*" />
                     </xsl:attribute>
                 </xsl:if>
                 <xsl:if test="sparql:binding[@name='icon']">
@@ -90,12 +87,9 @@
                 </xsl:if>
             </a>
             <a>
-                <xsl:if test="sparql:binding[@name='id']">
+                <xsl:if test="sparql:binding[@name='link_href']">
                     <xsl:attribute name="href">
-                        <xsl:value-of select="sparql:binding[@name='id']/*" />
-                    </xsl:attribute>
-                    <xsl:attribute name="class">
-                        <xsl:value-of select="'view'" />
+                        <xsl:value-of select="sparql:binding[@name='link_href']/*" />
                     </xsl:attribute>
                 </xsl:if>
                 <xsl:value-of select="sparql:binding[@name='title']/*" />

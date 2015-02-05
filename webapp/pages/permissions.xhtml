@@ -16,45 +16,45 @@
         <div class="row">
             <div class="col-sm-8">
                 <div class="page-header">
-                    <h1><span property="rdfs:label" /> Permissions</h1>
+                    <h1><span property="rdfs:label"></span> Permissions</h1>
                 </div>
                 <fieldset id="party-fieldset" class="row">
-                    <div dropzone="link string:text/uri-list" class="form-group col-sm-4">
+                    <div dropzone="link string:text/uri-list" class="form-group col-sm-6">
                         <label for="reader">Reader</label>
                         <select id="reader" class="form-control" multiple="multiple"
                                 onchange="calli.updateResource(event, 'calli:reader')">
                             <option selected="selected" rel="calli:reader" resource="?reader" value="{?reader}">{rdfs:label}</option>
                         </select>
                     </div>
-                    <div dropzone="link string:text/uri-list" class="form-group col-sm-4">
+                    <div dropzone="link string:text/uri-list" class="form-group col-sm-6">
                         <label for="subscriber">Subscriber</label>
                         <select id="subscriber" class="form-control" multiple="multiple"
                                 onchange="calli.updateResource(event, 'calli:subscriber')">
                             <option selected="selected" rel="calli:subscriber" resource="?subscriber" value="{?subscriber}">{rdfs:label}</option>
                         </select>
                     </div>
-                    <div dropzone="link string:text/uri-list" class="form-group col-sm-4">
+                    <div dropzone="link string:text/uri-list" class="creatable form-group col-sm-6">
                         <label for="author">Author</label>
                         <select id="author" class="form-control" multiple="multiple"
                                 onchange="calli.updateResource(event, 'calli:author')">
                             <option selected="selected" rel="calli:author" resource="?author" value="{?author}">{rdfs:label}</option>
                         </select>
                     </div>
-                    <div dropzone="link string:text/uri-list" class="form-group col-sm-4">
+                    <div dropzone="link string:text/uri-list" class="form-group col-sm-6">
                         <label for="contributor">Contributor</label>
                         <select id="contributor" class="form-control" multiple="multiple"
                                 onchange="calli.updateResource(event, 'calli:contributor')">
                             <option selected="selected" rel="calli:contributor" resource="?contributor" value="{?contributor}">{rdfs:label}</option>
                         </select>
                     </div>
-                    <div dropzone="link string:text/uri-list" class="form-group col-sm-4">
+                    <div dropzone="link string:text/uri-list" class="form-group col-sm-6">
                         <label for="editor">Editor</label>
                         <select id="editor" class="form-control" multiple="multiple"
                                 onchange="calli.updateResource(event, 'calli:editor')">
                             <option selected="selected" rel="calli:editor" resource="?editor" value="{?editor}">{rdfs:label}</option>
                         </select>
                     </div>
-                    <div dropzone="link string:text/uri-list" class="form-group col-sm-4">
+                    <div dropzone="link string:text/uri-list" class="form-group col-sm-6">
                         <label for="administrator">Administrator</label>
                         <select id="administrator" class="form-control" multiple="multiple"
                                 onchange="calli.updateResource(event, 'calli:administrator')">
@@ -64,7 +64,7 @@
                 </fieldset>
                 <fieldset class="form-group">
                     <button id="save" type="submit" class="btn btn-primary">Save</button>
-                    <button id="cancel" type="button" onclick="$(this.form).trigger('calliRedirect');" class="btn btn-default">Cancel</button>
+                    <button id="cancel" type="button" class="btn btn-default">Cancel</button>
                 </fieldset>
             </div>
             <div class="col-sm-4">

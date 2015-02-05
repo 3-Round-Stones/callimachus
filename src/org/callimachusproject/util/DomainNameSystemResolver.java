@@ -17,6 +17,7 @@
 package org.callimachusproject.util;
 
 import java.net.InetAddress;
+import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
@@ -124,35 +125,83 @@ public class DomainNameSystemResolver {
 		}
 	}
 
-	public Collection<String> reverseAllLocalHosts() throws SocketException {
-		Set<String> set = new TreeSet<String>();
-		Enumeration<NetworkInterface> ifaces = NetworkInterface
-				.getNetworkInterfaces();
-		while (ifaces.hasMoreElements()) {
-			NetworkInterface iface = ifaces.nextElement();
-			Enumeration<InetAddress> raddrs = iface.getInetAddresses();
-			while (raddrs.hasMoreElements()) {
-				InetAddress raddr = raddrs.nextElement();
-				addAllNames(raddr, set);
-			}
-			Enumeration<NetworkInterface> virtualIfaces = iface
-					.getSubInterfaces();
-			while (virtualIfaces.hasMoreElements()) {
-				NetworkInterface viface = virtualIfaces.nextElement();
-				Enumeration<InetAddress> vaddrs = viface.getInetAddresses();
-				while (vaddrs.hasMoreElements()) {
-					InetAddress vaddr = vaddrs.nextElement();
-					addAllNames(vaddr, set);
+	public Collection<InetAddress> getAllLocalHosts() {
+		Set<InetAddress> set = new TreeSet<InetAddress>();
+		try {
+			Enumeration<NetworkInterface> ifaces = NetworkInterface
+					.getNetworkInterfaces();
+			while (ifaces.hasMoreElements()) {
+				NetworkInterface iface = ifaces.nextElement();
+				Enumeration<InetAddress> raddrs = iface.getInetAddresses();
+				while (raddrs.hasMoreElements()) {
+					set.add(raddrs.nextElement());
+				}
+				Enumeration<NetworkInterface> virtualIfaces = iface
+						.getSubInterfaces();
+				while (virtualIfaces.hasMoreElements()) {
+					NetworkInterface viface = virtualIfaces.nextElement();
+					Enumeration<InetAddress> vaddrs = viface.getInetAddresses();
+					while (vaddrs.hasMoreElements()) {
+						set.add(vaddrs.nextElement());
+					}
 				}
 			}
+		} catch (SocketException e) {
+			// ignore
 		}
 		try {
-			addAllNames(InetAddress.getLocalHost(), set);
+			set.add(InetAddress.getLocalHost());
 		} catch (UnknownHostException e) {
-			set.add(getLocalHostName());
+			// ignore
 		}
-		addAllNames(getLocalHost(), set);
+		set.add(getLocalHost());
+		set.remove(null);
 		return set;
+	}
+
+	public boolean isNetworkLocalAddress(InetAddress iaddr) {
+		if (iaddr.isLoopbackAddress())
+			return true;
+		try {
+			byte[] addr = iaddr.getAddress();
+			Enumeration<NetworkInterface> ifaces = NetworkInterface
+					.getNetworkInterfaces();
+			while (ifaces.hasMoreElements()) {
+				NetworkInterface iface = ifaces.nextElement();
+				for (InterfaceAddress ifconfig : iface.getInterfaceAddresses()) {
+					if (isWithinSubnetMask(addr, ifconfig))
+						return true;
+				}
+				Enumeration<NetworkInterface> virtualIfaces = iface
+						.getSubInterfaces();
+				while (virtualIfaces.hasMoreElements()) {
+					NetworkInterface viface = virtualIfaces.nextElement();
+					for (InterfaceAddress ifconfig : viface.getInterfaceAddresses()) {
+						if (isWithinSubnetMask(addr, ifconfig))
+							return true;
+					}
+				}
+			}
+		} catch (SocketException e) {
+			// ignore
+		}
+		return false;
+	}
+
+	public Collection<String> reverseAllLocalHosts() throws SocketException {
+		Set<String> set = new TreeSet<String>();
+		for (InetAddress addr : getAllLocalHosts()) {
+			addAllNames(addr, set);
+		}
+		return set;
+	}
+
+	public InetAddress getByName(String host) {
+		try {
+			return InetAddress.getByName(host);
+		} catch (UnknownHostException e) {
+			return null;
+		}
 	}
 
 	public String reverse(String ip) {
@@ -182,7 +231,7 @@ public class DomainNameSystemResolver {
 		} catch (UnknownHostException e) {
 			// use reverse name
 		}
-		String address = getAddress(netAddr);
+		String address = getArpaName(netAddr);
 		if (address == null)
 			return name;
 		try {
@@ -195,19 +244,7 @@ public class DomainNameSystemResolver {
 		return address;
 	}
 
-	private void addAllNames(InetAddress addr, Set<String> set) {
-		if (addr == null)
-			return;
-		set.add(addr.getHostAddress());
-		set.add(addr.getHostName());
-		set.add(addr.getCanonicalHostName());
-		String address = getAddress(addr);
-		if (address != null) {
-			set.add(address);
-		}
-	}
-
-	private String getAddress(InetAddress netAddr) {
+	public String getArpaName(InetAddress netAddr) {
 		byte[] addr = netAddr.getAddress();
 		if (addr.length == 4) { // IPv4 Address
 			StringBuilder sb = new StringBuilder();
@@ -226,5 +263,29 @@ public class DomainNameSystemResolver {
 			return sb.append("ip6.arpa").toString();
 		}
 		return null;
+	}
+
+	private void addAllNames(InetAddress addr, Set<String> set) {
+		if (addr == null)
+			return;
+		set.add(addr.getHostAddress());
+		set.add(addr.getHostName());
+		set.add(addr.getCanonicalHostName());
+		String address = getArpaName(addr);
+		if (address != null) {
+			set.add(address);
+		}
+	}
+
+	private boolean isWithinSubnetMask(byte[] addr, InterfaceAddress ifconfig) {
+		int n = ifconfig.getNetworkPrefixLength();
+		if (addr.length < n || n < 8)
+			return false;
+		byte[] ifaddr = ifconfig.getAddress().getAddress();
+		boolean mask = true;
+		for (short i=0;i<n;i++) {
+			mask &= ifaddr[i] == addr[i];
+		}
+		return mask;
 	}
 }

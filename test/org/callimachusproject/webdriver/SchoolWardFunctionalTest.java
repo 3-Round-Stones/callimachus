@@ -45,11 +45,11 @@ public class SchoolWardFunctionalTest extends BrowserFunctionalTestCase {
 	public void testSchoolWard() throws Exception {
 		File car = new AssetDownloader(new File("downloads"))
 				.getLocalAsset(DOWNLOAD_URL);
-		FolderView folder = page.openCurrentFolder().openImportPage()
-				.selectFile(car).importCar().openCurrentFolder();
+		FolderView folder = page.openCurrentFolder().openImportDialogue()
+				.selectFile(car).replaceContents().importCar().openCurrentFolder();
 		String archive = folder.getCurrentUrl().replaceAll("\\?.*", "?archive");
 		File ex = new AssetDownloader(getUsername(), getPassword()).downloadAsset(archive, "schools.car");
-		folder.openImportPage().selectFile(ex).replaceContents().importCar();
+		folder.openImportDialogue().selectFile(ex).replaceContents().importCar().open("./");
 		ex.delete();
 		browser.click(By.linkText("Bartley Green"));
 		browser.focusInTopWindow();

@@ -313,6 +313,9 @@ if [ "$genkey" = "yes" -a "$VERBOSE" != no ] ; then
     echo "Distribute etc/$cname.cer to all remote management agents"
   fi
   "$KEYTOOL" -certreq -alias "$cname" -keypass "$(cat "$SSL.password")" -keystore "$KEYSTORE" -storepass "$(cat "$SSL.password")" -file "etc/$cname.csr" $KEYTOOL_OPTS
+  if [ -e "etc/$cname.csr" ] ; then
+    echo "Provide etc/$cname.csr to a signing authority to create a signed certificate and save it in etc/$cname.crt"
+  fi
   chmod go-rwx "$SSL"
   chmod go-rwx ".keystore"
   rm "$SSL.password"

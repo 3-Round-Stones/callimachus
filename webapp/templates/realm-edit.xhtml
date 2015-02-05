@@ -10,58 +10,14 @@
     <title resource="?this">{rdfs:label}</title>
     <link rel="help" href="../../getting-started-with-callimachus#Home_Folder_Edit_Tab" target="_blank" title="Help" />
     <link id="layout-sample" href="../../default-layout.xq" />
+    <link id="realm-layout-list" href="../queries/realm-layout-list.rq?results&amp;tqx=out:sparql-json" />
+    <link id="XQuery" href="../types/XQuery" />
     <link id="auth-folder" href="/auth/" />
     <link id="credentials-folder" href="/auth/credentials/" />
-    <script type="text/javascript">
-    // <![CDATA[
-    jQuery(function($){
-        $('#pattern').change(function(event){
-            $('span.pattern').remove();
-            var type = $('#type').prop('value');
-            if (event.target.value && type) {
-                $(event.target).parent().append($('<span/>', {
-                    "class": "pattern",
-                    property: type,
-                    content: event.target.value
-                }));
-            }
-        });
-        $('#type').change(function(){
-            $('#pattern').change();
-        });
-        $('span.pattern[property]').each(function(){
-            if (this.getAttribute('content')) {
-                $('#pattern').val(this.getAttribute('content'));
-                $('#type').val(this.getAttribute('property'));
-            }
-        });
-        $('#type').change();
-        window.deleteFolder = function(event) {
-            if (!confirm("Are you sure you want to delete this folder and all the contents of this folder?"))
-                return false;
-            calli.deleteText('?archive').then(function() {
-                event.message = '';
-                calli.deleteResource(event);
-            }).then(undefined, calli.error);
-        };
-        $('#layout').on("dragenter dragover dragleave", function(event){
-            event.preventDefault();
-            return false;
-        }).on("drop", function(event){
-            event.preventDefault();
-            var url = event.dataTransfer.getData('URL') || vent.dataTransfer.getData('Text');
-            if (!url) return;
-            var iri = url.trim().replace(/\?.*/,'');
-            var label = iri.replace(/.*\//,'').replace(/\.xq$/,'');
-            $('#layout select').append($('<option/>', {value: iri}).text(label)).val(iri).change();
-        });
-    });
-    // ]]>
-    </script>
+    <script type="text/javascript" src="../scripts/realm-edit.js"></script>
 </head>
-<body resource="?this" onload="comparison=calli.copyResourceData('#form')">
-    <form role="form" id='form' method="POST" action="" enctype="application/sparql-update" resource="?this" class="container"
-            onsubmit="calli.submitUpdate(comparison, event)">
+<body resource="?this">
+    <form role="form" id='form' method="POST" action="" enctype="application/sparql-update" resource="?this" class="container">
         <div class="row">
             <div class="col-sm-8">
                 <div class="page-header">
@@ -71,15 +27,11 @@
                     <fieldset class="col-sm-6">
                         <legend>Realm settings</legend>
                         <div id="layout" dropzone="link string:text/uri-list" class="form-group">
-                          <label>Layout <a href="../types/XQuery" title="Customize"
-                              onclick="calli.createResource(event, '?create=' + encodeURIComponent(this.href) + '#!' + $('#layout-sample').attr('href'))" class="glyphicon glyphicon-list-alt" /></label>
-                        <div>
+                            <label>Layout</label>
                             <select placeholder="Choose a layout" class="form-control" onchange="calli.updateResource(event,'calli:layout')">
-                                <option selected="selected" rel="calli:layout" resource="?layout">{rdfs:label}</option>
+                                <option selected="selected" rel="calli:layout" resource="?layout" value="{?layout}">{rdfs:label}</option>
                                 <option resource="../../default-layout.xq">Default layout</option>
-                                <xi:include href="../queries/realm-layout-list.rq?select" xpointer="xpath(/*/node())" />
                             </select>
-                        </div>
                         </div>
                         <div class="form-group">
                             <label for="allowOrigin">Allowed origins</label>
@@ -156,7 +108,7 @@
                 <fieldset class="form-group">
                     <button id="save" type="submit" class="btn btn-primary">Save</button>
                     <button id="cancel" type="button" onclick="window.location.replace('?view')" class="btn btn-default">Cancel</button>
-                    <button id="delete" type="button" onclick="deleteFolder(event)" class="btn btn-danger">Delete</button>
+                    <button id="delete" type="button" class="btn btn-danger">Delete</button>
                 </fieldset>
             </div>
             <div class="col-sm-4">

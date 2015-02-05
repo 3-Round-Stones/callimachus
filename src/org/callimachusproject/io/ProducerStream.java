@@ -51,7 +51,7 @@ import org.callimachusproject.concurrent.ManagedExecutors;
  * 
  */
 public class ProducerStream extends FilterInputStream {
-	private static final int PACKET_SIZE = 65536;
+	private static final int PACKET_SIZE = 1500;
 
 	public interface OutputProducer {
 		void produce(OutputStream out) throws IOException;

@@ -1,13 +1,13 @@
 #
-# @Cache-Control: 
+# @Cache-Control: no-store
 # @view 
 #
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-SELECT ?url ?label {
+SELECT ?resource ?label {
     <../types/XQuery> owl:equivalentClass? ?cls .
-    ?url a ?cls; rdfs:label ?label .
-    FILTER (!strstarts(str(?url),str(<../../>)))
-} ORDER BY ?label
+    ?resource a ?cls; rdfs:label ?label .
+    FILTER (!strstarts(str(?resource),str(<../../>)))
+} ORDER BY ?label LIMIT 100

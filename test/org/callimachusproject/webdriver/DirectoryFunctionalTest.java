@@ -44,7 +44,7 @@ public class DirectoryFunctionalTest extends BrowserFunctionalTestCase {
 	public void testDirectory() throws Exception {
 		File car = new AssetDownloader(new File("downloads"))
 				.getLocalAsset(DOWNLOAD_URL);
-		page.openCurrentFolder().openImportPage().selectFile(car).importCar();
+		page.openCurrentFolder().openImportDialogue().selectFile(car).replaceContents().importCar();
 		page.openCurrentFolder().openCreateHref("Organization", CalliPage.class);
 		browser.type(By.id("legal"), "3 Round Stones Inc.");
 		browser.select(By.id("orgtype"), "Commercial");

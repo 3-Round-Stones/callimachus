@@ -16,13 +16,13 @@
                     $(this).find('a').click();
                 }
             });
+            $('#form').submit(calli.submitUpdate.bind(calli, calli.copyResourceData('#form')));
         });
     // ]]>
     </script>
 </head>
-<body resource="?this" onload="comparison=calli.copyResourceData('#form')">
-    <form role="form" id="form" method="POST" action="" enctype="application/sparql-update" resource="?this" class="container"
-            onsubmit="calli.submitUpdate(comparison, event)">
+<body resource="?this">
+    <form role="form" id="form" method="POST" action="" enctype="application/sparql-update" resource="?this" class="container">
         <div class="page-header">
             <h1><span property="rdfs:label" /> Domain</h1>
         </div>
@@ -74,9 +74,8 @@
             <div class="col-sm-4">
                 <aside class="well">
                     <p>Use Wiki text to describe the purpose of this domain</p>
-                    <p>You must specify the Domain Name System suffix to enable access for this group</p>
+                    <p>You must specify the list of reversed DNS host name of computer agents to enable access for this group</p>
                     <p>To allow access from any network use a single dot character '.'</p>
-                    <p>The longest domain suffix overrides shorter domain suffixes</p>
                 </aside>
             </div>
         </div>

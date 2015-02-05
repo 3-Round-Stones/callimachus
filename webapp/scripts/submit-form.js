@@ -56,7 +56,7 @@ calli.postForm = function(form) {
                 return redirect;
             } else {
                 var doc = iframe.contentDocument;
-                var h1 = $(doc).find('h1').clone();
+                var h1 = $(doc).find('h1.text-error').add($(doc).find('h1')).first().clone();
                 var frag = document.createDocumentFragment();
                 h1.contents().each(function() {
                     frag.appendChild(this);

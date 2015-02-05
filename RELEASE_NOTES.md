@@ -2,17 +2,17 @@
 
 > http://callimachusproject.org/
 
-12 November 2014
+12 January 2015
 
-## REQUIREMENTS FOR CALLIMACHUS 1.4.0 (Open Source)
+## REQUIREMENTS FOR CALLIMACHUS 1.4.1 (Open Source)
 
 Callimachus works best on browsers that are closely tracking the development
 of HTML5.  At the time of this writing, Callimachus works best on Chrome and
 Firefox.  It is recommended that Callimachus users track updates to their
 browsers for the best usage experience.
 
-Chrome 38 has been thoroughly tested.
-Firefox 33 has no known issues.
+Chrome 39 has been thoroughly tested.
+Firefox 34 has no known issues.
 Safari 6.1 and 7 has known issues.
 Internet Explorer 11 has known issues.
 
@@ -89,5 +89,6 @@ available in 1.4.0.
  * Remove class attributes from `<time/>` and use [calli.parseDateTime](http://callimachusproject.org/docs/1.4/callimachus-reference.docbook?view#parseDateTime) to format
  * calliSubmit, calliRedirect and other calli* events should be replaced with [a function call](http://callimachusproject.org/docs/1.4/callimachus-reference.docbook?view#JavaScript_Reference)
  * When [creating RDF resources using the Callimachus REST API](http://callimachusproject.org/docs/1.4/callimachus-reference.docbook?view#RDF_Create), use text/turtle instead of sparql-update
+ * Links with class "view" and "diverted" have no special behaviour
  
 

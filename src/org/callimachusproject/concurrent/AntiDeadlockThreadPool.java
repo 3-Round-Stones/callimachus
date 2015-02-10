@@ -124,8 +124,10 @@ public class AntiDeadlockThreadPool extends ManagedThreadPool {
 					synchronized (AntiDeadlockThreadPool.this) {
 						Runnable peek = queue.peek();
 						if (peek == null || corePoolSize >= maximumPoolSize) {
-							schedule.cancel(false);
-							schedule = null;
+							if (schedule != null) {
+								schedule.cancel(false);
+								schedule = null;
+							}
 						} else if (previous == peek) {
 							setCorePoolSize(++corePoolSize);
 						} else {

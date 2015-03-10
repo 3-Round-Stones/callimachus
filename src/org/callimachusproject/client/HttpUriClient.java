@@ -34,8 +34,6 @@ import org.apache.http.client.utils.URIUtils;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.DefaultRedirectStrategy;
-import org.apache.http.impl.client.RedirectLocations;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.engine.model.TermFactory;
@@ -136,8 +134,7 @@ public abstract class HttpUriClient extends CloseableHttpClient implements HttpC
 		try {
 			URI original = request.getURI();
 			HttpHost target = ctx.getTargetHost();
-			RedirectLocations redirects = (RedirectLocations) ctx.getAttribute(DefaultRedirectStrategy.REDIRECT_LOCATIONS);
-			List<URI> list = redirects == null ? null : redirects.getAll();
+			List<URI> list = ctx.getRedirectLocations();
 			URI absolute = URIUtils.resolve(original, target, list);
 			return new URI(TermFactory.newInstance(absolute.toASCIIString()).getSystemId());
 		} catch (URISyntaxException e) {

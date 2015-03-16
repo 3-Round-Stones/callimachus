@@ -160,17 +160,16 @@ public class AsyncPipe {
 
 			public int read(final ByteBuffer dst) throws IOException {
 				synchronized (AsyncPipe.this) {
-					if (!buf.hasRemaining()) {
-						resetTimeout();
-					}
 					int n = 0;
-					while (n == 0) {
+					while (n == 0 && dst.hasRemaining()) {
 						n = source(new Source() {
 							public int write(ByteBuffer src) throws IOException {
 								return copy(src, dst);
 							}
 						});
-						if (n == 0) {
+						if (!dst.hasRemaining()) {
+							resetTimeout();
+						} else if (n == 0) {
 							try {
 								long timeout = expiresAt - System.currentTimeMillis();
 								if (timeout <= 0) {

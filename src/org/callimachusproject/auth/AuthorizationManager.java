@@ -35,11 +35,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 
-import org.apache.commons.httpclient.util.DateUtil;
 import org.apache.http.Header;
 import org.apache.http.HttpMessage;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
+import org.apache.http.client.utils.DateUtils;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
@@ -388,7 +388,7 @@ public class AuthorizationManager {
 		Map<String, String[]> map = new HashMap<String, String[]>();
 		map.put("request-target", new String[] { request.getRequestLine().getUri() });
 		map.put("request-scheme", new String[] { request.getScheme() });
-		map.put("date", new String[] { DateUtil.formatDate(new Date(now)) });
+		map.put("date", new String[] { DateUtils.formatDate(new Date(now)) });
 		Header[] au = request.getHeaders("Authorization");
 		if (au != null && au.length > 0) {
 			map.put("authorization", toStringArray(au));

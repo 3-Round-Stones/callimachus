@@ -23,6 +23,7 @@ import info.aduna.net.ParsedURI;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -34,12 +35,11 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.httpclient.util.DateParseException;
-import org.apache.commons.httpclient.util.DateUtil;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpMessage;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
+import org.apache.http.client.utils.DateUtils;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
@@ -480,7 +480,6 @@ public class DigestAuthenticationManager implements DetachedAuthenticationManage
 		if (!realm.equals(authName))
 			return false;
 		try {
-			long now = DateUtil.parseDate(date).getTime();
 			String nonce = authorization.get("nonce");
 			if (nonce == null)
 				return false;
@@ -495,13 +494,13 @@ public class DigestAuthenticationManager implements DetachedAuthenticationManage
 				return false;
 			String time = nonce.substring(0, first);
 			Long ms = Long.valueOf(time, Character.MAX_RADIX);
-			long age = now - ms;
+			Date now = DateUtils.parseDate(date);
+			if (now == null)
+				return false;
+			long age = now.getTime() - ms;
 			return age < MAX_NONCE_AGE;
 		} catch (NumberFormatException e) {
 			logger.debug(e.toString(), e);
-			return false;
-		} catch (DateParseException e) {
-			logger.warn(e.toString(), e);
 			return false;
 		}
 	}

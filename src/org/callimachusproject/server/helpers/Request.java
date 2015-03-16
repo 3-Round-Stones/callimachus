@@ -32,13 +32,13 @@ package org.callimachusproject.server.helpers;
 import info.aduna.net.ParsedURI;
 
 import java.net.URISyntaxException;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.Vector;
 
-import org.apache.commons.httpclient.util.DateParseException;
-import org.apache.commons.httpclient.util.DateUtil;
 import org.apache.http.Header;
 import org.apache.http.HttpRequest;
+import org.apache.http.client.utils.DateUtils;
 import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.server.exceptions.BadRequest;
@@ -99,11 +99,10 @@ public class Request extends EditableHttpEntityEnclosingRequest {
 		String value = getHeader(name);
 		if (value == null)
 			return -1;
-		try {
-			return DateUtil.parseDate(value).getTime();
-		} catch (DateParseException e) {
+		Date date = DateUtils.parseDate(value);
+		if (date == null)
 			return -1;
-		}
+		return date.getTime();
 	}
 
 	public String getResolvedHeader(String name) {

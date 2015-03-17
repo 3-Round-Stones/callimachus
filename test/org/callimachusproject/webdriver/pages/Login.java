@@ -41,4 +41,10 @@ public class Login extends CalliPage {
 		return page();
 	}
 
+	public PasswordRequestForm forgotPassword() {
+		browser.click(By.cssSelector("#form .btn.btn-default"));
+		browser.waitForScript();
+		return page(PasswordRequestForm.class);
+	}
+
 }

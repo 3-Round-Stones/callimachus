@@ -26,6 +26,7 @@ import org.apache.commons.compress.archivers.zip.ZipShort;
 class MetaTypeExtraField implements ZipExtraField {
 	static final MetaTypeExtraField FILE = new MetaTypeExtraField("FILE");
 	static final MetaTypeExtraField FOLDER = new MetaTypeExtraField("FOLDER");
+	static final MetaTypeExtraField SOURCE = new MetaTypeExtraField("SOURCE");
 	static final MetaTypeExtraField RDF = new MetaTypeExtraField("RDF");
 	static final MetaTypeExtraField RDFS = new MetaTypeExtraField("RDFS");
 	static MetaTypeExtraField parseExtraField(ZipArchiveEntry entry) {
@@ -39,6 +40,8 @@ class MetaTypeExtraField implements ZipExtraField {
 				return FILE;
 			if ("FOLDER".equals(str))
 				return FOLDER;
+			if ("SOURCE".equals(str))
+				return SOURCE;
 			if ("RDF".equals(str))
 				return RDF;
 			if ("RDFS".equals(str))

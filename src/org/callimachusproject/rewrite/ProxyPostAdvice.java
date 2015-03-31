@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,13 +28,13 @@ import javax.tools.FileObject;
 import org.apache.http.Header;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
-import org.callimachusproject.annotations.type;
-import org.callimachusproject.client.StreamEntity;
-import org.callimachusproject.fluid.Fluid;
-import org.callimachusproject.fluid.FluidBuilder;
-import org.callimachusproject.fluid.FluidException;
-import org.callimachusproject.fluid.FluidType;
+import org.apache.http.entity.InputStreamEntity;
 import org.openrdf.annotations.Iri;
+import org.openrdf.annotations.Type;
+import org.openrdf.http.object.fluid.Fluid;
+import org.openrdf.http.object.fluid.FluidBuilder;
+import org.openrdf.http.object.fluid.FluidException;
+import org.openrdf.http.object.fluid.FluidType;
 import org.openrdf.repository.object.traits.ObjectMessage;
 
 public class ProxyPostAdvice extends ProxyGetAdvice {
@@ -48,13 +47,13 @@ public class ProxyPostAdvice extends ProxyGetAdvice {
 			Substitution[] replacers, Method method) {
 		super(bindingNames, bindingTypes, replacers, method);
 		Annotation[][] panns = method.getParameterAnnotations();
-		Type[] gtypes = method.getGenericParameterTypes();
+		java.lang.reflect.Type[] gtypes = method.getGenericParameterTypes();
 		for (int i = 0; i < panns.length; i++) {
 			if (bindingNames[i] == null) {
 				for (Annotation ann : panns[i]) {
-					if (ann instanceof type) {
+					if (ann instanceof Type) {
 						bodyIndices.put(method, i);
-						String[] media = ((type) ann).value();
+						String[] media = ((Type) ann).value();
 						bodyFluidType = new FluidType(gtypes[i], media);
 						for (Annotation bann : panns[i]) {
 							if (bann instanceof Iri) {
@@ -83,7 +82,7 @@ public class ProxyPostAdvice extends ProxyGetAdvice {
 					String uri = file.toUri().toASCIIString();
 					req.setHeader("Content-Location", uri);
 				}
-				req.setEntity(new StreamEntity(in));
+				req.setEntity(new InputStreamEntity(in));
 				return req;
 			}
 		}

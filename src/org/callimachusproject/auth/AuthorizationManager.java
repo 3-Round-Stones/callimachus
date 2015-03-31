@@ -16,11 +16,14 @@
  */
 package org.callimachusproject.auth;
 
+import info.aduna.net.ParsedURI;
+
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
+import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,22 +39,26 @@ import java.util.Set;
 import java.util.TimeZone;
 
 import org.apache.http.Header;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpMessage;
+import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.client.utils.DateUtils;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
+import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
-import org.callimachusproject.server.chain.AuthenticationHandler;
-import org.callimachusproject.server.exceptions.ResponseException;
-import org.callimachusproject.server.exceptions.TooManyRequests;
-import org.callimachusproject.server.helpers.CalliContext;
-import org.callimachusproject.server.helpers.ResourceOperation;
 import org.callimachusproject.util.DomainNameSystemResolver;
 import org.openrdf.OpenRDFException;
 import org.openrdf.annotations.Iri;
+import org.openrdf.http.object.exceptions.BadRequest;
+import org.openrdf.http.object.exceptions.ResponseException;
+import org.openrdf.http.object.exceptions.TooManyRequests;
+import org.openrdf.http.object.helpers.ObjectContext;
+import org.openrdf.http.object.util.URLUtil;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Value;
 import org.openrdf.query.QueryLanguage;
@@ -65,7 +72,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class AuthorizationManager {
-
+    public static final String CREDENTIAL_ATTR = AuthorizationManager.class.getName() + "#credential";
 	public static final TimeZone GMT = TimeZone.getTimeZone("GMT");
 	private static final BasicStatusLine _403 = new BasicStatusLine(
 			HttpVersion.HTTP_1_1, 403, "Forbidden");
@@ -116,19 +123,22 @@ public class AuthorizationManager {
 		return false;
 	}
 
-	public HttpResponse authorize(ResourceOperation request, Set<Group> groups, CalliContext ctx)
+	public HttpResponse authorize(HttpRequest request, Set<Group> groups, HttpContext context)
 			throws OpenRDFException, IOException {
+		ObjectContext ctx = ObjectContext.adapt(context);
 		InetAddress clientAddr = ctx.getClientAddr();
 		long now = ctx.getReceivedOn();
-		String m = request.getMethod();
-		RDFObject target = request.getRequestedResource();
-		String or = request.getVaryHeader("Origin");
-		Map<String, String[]> map = getAuthorizationMap(request, now, clientAddr, groups);
+		String scheme = ctx.getProtocolScheme();
+		HttpRequest oreq = ctx.getOriginalRequest();
+		String m = (oreq == null ? request : oreq).getRequestLine().getMethod();
+		RDFObject target = ctx.getResourceTarget().getTargetObject();
+		Header[] or = request.getHeaders("Origin");
+		Map<String, String[]> map = getAuthorizationMap(request, scheme, now, clientAddr, groups);
 		List<String> from = getAgentFrom(map.get("via"));
 		if (isAnonymousAllowed(from, groups))
 			return null;
 		// loop through first to see if further authorisation is needed
-		DetachedRealm realm = getRealm(request);
+		DetachedRealm realm = getRealm(request, ctx);
 		HttpResponse unauth = null;
 		boolean validOrigin = false;
 		boolean noRealm = true;
@@ -136,11 +146,14 @@ public class AuthorizationManager {
 			String cred = null;
 			Collection<String> allowed = realm.allowOrigin();
 			try {
-				if (or == null || isOriginAllowed(allowed, or)) {
-					ObjectConnection con = ctx.getObjectConnection();
-					cred = realm.authenticateRequest(m, target, map, con);
+				if (or.length == 0 || isOriginAllowed(allowed, or)) {
+					cred = (String) ctx.getAttribute(CREDENTIAL_ATTR);
+					if (cred == null) {
+						ObjectConnection con = target.getObjectConnection();
+						cred = realm.authenticateRequest(m, target, map, con);
+					}
 					if (cred != null && isMember(cred, from, groups)) {
-						ctx.setCredential(cred);
+						ctx.setAttribute(CREDENTIAL_ATTR, cred);
 						return null; // this request is good
 					}
 				}
@@ -161,7 +174,7 @@ public class AuthorizationManager {
 			try {
 				if (cred == null) {
 					unauth = choose(unauth,
-							realm.unauthorized(m, target, map, request.getEntity()));
+							realm.unauthorized(m, target, map, getRequestEntity(request)));
 				} else {
 					unauth = choose(unauth, realm.forbidden(m, target, map));
 				}
@@ -189,33 +202,42 @@ public class AuthorizationManager {
 		return resp;
 	}
 
-	public HttpMessage authenticationInfo(ResourceOperation request, CalliContext ctx)
+	public HttpMessage authenticationInfo(HttpRequest request, HttpContext context)
 			throws IOException, OpenRDFException {
-		DetachedRealm realm = getRealm(request);
+		ObjectContext ctx = ObjectContext.adapt(context);
+		DetachedRealm realm = getRealm(request, ctx);
 		if (realm == null)
 			return null;
 		InetAddress clientAddr = ctx.getClientAddr();
 		long now = ctx.getReceivedOn();
-		String m = request.getMethod();
-		RDFObject target = request.getRequestedResource();
-		Map<String, String[]> map = getAuthorizationMap(request, now, clientAddr, null);
-		return realm.authenticationInfo(m, target, map, ctx.getObjectConnection());
+		String scheme = ctx.getProtocolScheme();
+		HttpRequest oreq = ctx.getOriginalRequest();
+		String m = (oreq == null ? request : oreq).getRequestLine().getMethod();
+		RDFObject target = ctx.getResourceTarget().getTargetObject();
+		Map<String, String[]> map = getAuthorizationMap(request, scheme, now, clientAddr, null);
+		return realm.authenticationInfo(m, target, map, target.getObjectConnection());
 	}
 
-	public boolean withAgentCredentials(ResourceOperation request,
+	public boolean withAgentCredentials(HttpRequest request, HttpContext context,
 			String origin) throws OpenRDFException, IOException {
-		DetachedRealm realm = getRealm(request);
+		DetachedRealm realm = getRealm(request, ObjectContext.adapt(context));
 		return realm != null && realm.withAgentCredentials(origin);
 	}
 
-	public Set<String> allowOrigin(ResourceOperation request)
+	public Set<String> allowOrigin(HttpRequest request, HttpContext context)
 			throws OpenRDFException, IOException {
 		Set<String> set = new LinkedHashSet<String>();
-		DetachedRealm realm = getRealm(request);
+		DetachedRealm realm = getRealm(request, ObjectContext.adapt(context));
 		if (realm != null) {
 			set.addAll(realm.allowOrigin());
 		}
 		return set;
+	}
+
+	private HttpEntity getRequestEntity(HttpRequest request) {
+		if (request instanceof HttpEntityEnclosingRequest)
+			return ((HttpEntityEnclosingRequest) request).getEntity();
+		return null;
 	}
 
 	private Set<String> getAnnotationValuesOf(RDFObject target, Set<String> roles) throws OpenRDFException {
@@ -285,12 +307,48 @@ public class AuthorizationManager {
 		}
 	}
 
-	private DetachedRealm getRealm(ResourceOperation request)
+	private DetachedRealm getRealm(HttpRequest request, ObjectContext ctx)
 			throws OpenRDFException, IOException {
-		DetachedRealm realm = realmManager.getRealm(request.getIRI());
-		if (realm == null)
-			return realmManager.getRealm(request.getRequestURI());
+		String url = getRequestURI(request, ctx);
+		DetachedRealm realm = realmManager.getRealm(URLUtil.canonicalize(url));
+		if (realm == null) {
+			return realmManager.getRealm(url);
+		}
 		return realm;
+	}
+
+	private String getRequestURI(HttpRequest request, ObjectContext ctx) {
+		String path = request.getRequestLine().getUri();
+		try {
+			int qx = path.indexOf('?');
+			if (qx > 0) {
+				path = path.substring(0, qx);
+			}
+			if (!path.startsWith("/"))
+				return path;
+			String scheme = ctx.getProtocolScheme().toLowerCase();
+			String host = getAuthority(request).toLowerCase();
+			return new ParsedURI(scheme, host, path, null, null).toString();
+		} catch (IllegalArgumentException e) {
+			throw new BadRequest(e);
+		}
+	}
+
+	private String getAuthority(HttpRequest request) {
+		String uri = request.getRequestLine().getUri();
+		if (uri != null && !uri.equals("*") && !uri.startsWith("/")) {
+			try {
+				String authority = new java.net.URI(uri).getAuthority();
+				if (authority != null)
+					return authority;
+			} catch (URISyntaxException e) {
+				// try the host header
+			}
+		}
+		Header host = request.getLastHeader("Host");
+		if (host != null)
+			return host.getValue().toLowerCase();
+		throw new BadRequest("Missing Host Header for request-uri: " + uri);
 	}
 
 	private List<String> getAgentFrom(String[] sources) {
@@ -382,12 +440,11 @@ public class AuthorizationManager {
 		}
 	}
 
-	private Map<String, String[]> getAuthorizationMap(
-			ResourceOperation request, long now, InetAddress clientAddr,
-			Set<Group> groups) {
+	private Map<String, String[]> getAuthorizationMap(HttpRequest request,
+			String scheme, long now, InetAddress clientAddr, Set<Group> groups) {
 		Map<String, String[]> map = new HashMap<String, String[]>();
 		map.put("request-target", new String[] { request.getRequestLine().getUri() });
-		map.put("request-scheme", new String[] { request.getScheme() });
+		map.put("request-scheme", new String[] { scheme });
 		map.put("date", new String[] { DateUtils.formatDate(new Date(now)) });
 		Header[] au = request.getHeaders("Authorization");
 		if (au != null && au.length > 0) {
@@ -414,22 +471,22 @@ public class AuthorizationManager {
 		return result;
 	}
 
-	private String getRequestSource(ResourceOperation request,
+	private String getRequestSource(HttpRequest request,
 			InetAddress clientAddr, Set<Group> groups) {
 		StringBuilder via = new StringBuilder();
-		for (String hd : request.getVaryHeaders("X-Forwarded-For")) {
-			for (String ip : hd.split("\\s*,\\s*")) {
+		for (Header hd : request.getHeaders("X-Forwarded-For")) {
+			for (String ip : hd.getValue().split("\\s*,\\s*")) {
 				if (via.length() > 0) {
 					via.append(",");
 				}
 				via.append("1.1 ").append(getHostName(ip, groups));
 			}
 		}
-		for (String hd : request.getVaryHeaders("Via")) {
+		for (Header hd : request.getHeaders("Via")) {
 			if (via.length() > 0) {
 				via.append(",");
 			}
-			via.append(hd);
+			via.append(hd.getValue());
 		}
 		if (via.length() > 0) {
 			via.append(",");
@@ -458,13 +515,16 @@ public class AuthorizationManager {
 		return dnsResolver.getArpaName(clientAddr);
 	}
 
-	private boolean isOriginAllowed(Collection<String> allowed, String o) {
+	private boolean isOriginAllowed(Collection<String> allowed, Header[] origin) {
 		if (allowed == null)
 			return false;
 		for (String ao : allowed) {
-			if (ao.equals("*") || o.startsWith(ao) || ao.startsWith(o)
-					&& ao.charAt(o.length()) == '/')
-				return true;
+			for (Header hd : origin) {
+				String o = hd.getValue();
+				if (ao.equals("*") || o.startsWith(ao) || ao.startsWith(o)
+						&& ao.charAt(o.length()) == '/')
+					return true;
+			}
 		}
 		return false;
 	}

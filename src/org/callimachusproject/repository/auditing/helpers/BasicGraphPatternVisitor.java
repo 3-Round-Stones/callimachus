@@ -145,7 +145,11 @@ public abstract class BasicGraphPatternVisitor extends
 		parser.setRDFHandler(this);
 		try {
 			parser.parse(new ByteArrayInputStream(node.getDataBlock().getBytes()), "");
-		} catch (org.openrdf.rio.RDFParseException | IOException | RDFHandlerException e) {
+		} catch (org.openrdf.rio.RDFParseException e) {
+			throw new QueryEvaluationException(e);
+		} catch (IOException e) {
+			throw new QueryEvaluationException(e);
+		} catch (RDFHandlerException e) {
 			throw new QueryEvaluationException(e);
 		}
 	}
@@ -158,7 +162,11 @@ public abstract class BasicGraphPatternVisitor extends
 		parser.getParserConfig().addNonFatalError(BasicParserSettings.FAIL_ON_UNKNOWN_DATATYPES);
 		try {
 			parser.parse(new ByteArrayInputStream(node.getDataBlock().getBytes()), "");
-		} catch (org.openrdf.rio.RDFParseException | IOException | RDFHandlerException e) {
+		} catch (org.openrdf.rio.RDFParseException e) {
+			throw new QueryEvaluationException(e);
+		} catch (IOException e) {
+			throw new QueryEvaluationException(e);
+		} catch (RDFHandlerException e) {
 			throw new QueryEvaluationException(e);
 		}
 	}
@@ -176,7 +184,7 @@ public abstract class BasicGraphPatternVisitor extends
 							throws QueryEvaluationException {
 						return new EmptyIteration<Statement, QueryEvaluationException>();
 					}
-				});
+				}, null);
 		CloseableIteration<BindingSet, QueryEvaluationException> bindingsIter;
 		bindingsIter = strategy.evaluate(new Reduced(node.clone()),
 				new EmptyBindingSet());

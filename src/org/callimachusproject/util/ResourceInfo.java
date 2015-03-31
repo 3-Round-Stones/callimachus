@@ -23,8 +23,6 @@ import java.beans.MethodDescriptor;
 import java.beans.ParameterDescriptor;
 import java.beans.PropertyDescriptor;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -36,12 +34,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.callimachusproject.annotations.header;
-import org.callimachusproject.annotations.method;
-import org.callimachusproject.annotations.query;
-import org.callimachusproject.annotations.type;
 import org.openrdf.annotations.Bind;
+import org.openrdf.annotations.HeaderParam;
 import org.openrdf.annotations.Iri;
+import org.openrdf.annotations.Method;
+import org.openrdf.annotations.Path;
+import org.openrdf.annotations.Type;
 import org.openrdf.model.impl.URIImpl;
 
 public class ResourceInfo {
@@ -69,7 +67,7 @@ public class ResourceInfo {
 			return getMethod().getAnnotations();
 		}
 
-		public Type getGenericReturnType() {
+		public java.lang.reflect.Type getGenericReturnType() {
 			return getMethod().getGenericReturnType();
 		}
 
@@ -86,21 +84,21 @@ public class ResourceInfo {
 		}
 
 		public String getRemoteName() {
-			if (isAnnotationPresent(method.class)
-					&& isAnnotationPresent(query.class)) {
-				return join(getAnnotation(method.class).value(), "/") + " ?"
-						+ join(getAnnotation(query.class).value(), "&");
-			} else if (isAnnotationPresent(method.class)) {
-				return join(getAnnotation(method.class).value(), "/");
-			} else if (isAnnotationPresent(query.class)) {
-				return "?" + join(getAnnotation(query.class).value(), "&");
+			if (isAnnotationPresent(Method.class)
+					&& isAnnotationPresent(Path.class)) {
+				return join(getAnnotation(Method.class).value(), "/")
+						+ join(getAnnotation(Path.class).value(), "&");
+			} else if (isAnnotationPresent(Method.class)) {
+				return join(getAnnotation(Method.class).value(), "/");
+			} else if (isAnnotationPresent(Path.class)) {
+				return join(getAnnotation(Path.class).value(), "&");
 			}
 			return getName();
 		}
 
 		public String getType() {
-			if (isAnnotationPresent(type.class)) {
-				return join(getAnnotation(type.class).value(), ", ");
+			if (isAnnotationPresent(Type.class)) {
+				return join(getAnnotation(Type.class).value(), ", ");
 			}
 			return null;
 		}
@@ -180,13 +178,13 @@ public class ResourceInfo {
 			return info.getMethod().getParameterAnnotations()[idx];
 		}
 
-		public Type getGenericType() {
+		public java.lang.reflect.Type getGenericType() {
 			return info.getMethod().getGenericParameterTypes()[idx];
 		}
 
 		public String getHeader() {
-			if (isAnnotationPresent(header.class)) {
-				return join(getAnnotation(header.class).value(), ", ");
+			if (isAnnotationPresent(HeaderParam.class)) {
+				return join(getAnnotation(HeaderParam.class).value(), ", ");
 			}
 			return null;
 		}
@@ -211,15 +209,15 @@ public class ResourceInfo {
 		}
 
 		public String getQuery() {
-			if (isAnnotationPresent(query.class)) {
-				return join(getAnnotation(query.class).value(), ", ");
+			if (isAnnotationPresent(Path.class)) {
+				return join(getAnnotation(Path.class).value(), ", ");
 			}
 			return null;
 		}
 
 		public String getType() {
-			if (isAnnotationPresent(type.class)) {
-				return join(getAnnotation(type.class).value(), ", ");
+			if (isAnnotationPresent(Type.class)) {
+				return join(getAnnotation(Type.class).value(), ", ");
 			}
 			return null;
 		}
@@ -276,7 +274,7 @@ public class ResourceInfo {
 			return getReadMethod().getAnnotations();
 		}
 
-		public Type getGenericType() {
+		public java.lang.reflect.Type getGenericType() {
 			return getReadMethod().getGenericReturnType();
 		}
 
@@ -303,7 +301,7 @@ public class ResourceInfo {
 	}
 
 	public ResourceInfo.MethodInfo[] getMethodDescriptors() {
-		Set<Method> accessors = new HashSet<Method>();
+		Set<java.lang.reflect.Method> accessors = new HashSet<java.lang.reflect.Method>();
 		for (PropertyDescriptor p : getPropertyDescriptors()) {
 			accessors.add(p.getReadMethod());
 			accessors.add(p.getWriteMethod());
@@ -333,9 +331,9 @@ public class ResourceInfo {
 		operations.addAll(Arrays.asList(info.getMethodDescriptors()));
 		Iterator<MethodDescriptor> iter = operations.iterator();
 		while (iter.hasNext()) {
-			Method m = iter.next().getMethod();
-			if (!m.isAnnotationPresent(method.class)
-					&& !m.isAnnotationPresent(query.class)) {
+			java.lang.reflect.Method m = iter.next().getMethod();
+			if (!m.isAnnotationPresent(Method.class)
+					&& !m.isAnnotationPresent(Path.class)) {
 				iter.remove();
 			}
 		}

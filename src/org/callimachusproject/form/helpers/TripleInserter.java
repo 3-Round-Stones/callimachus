@@ -29,6 +29,7 @@ import org.callimachusproject.engine.RDFParseException;
 import org.callimachusproject.engine.events.TriplePattern;
 import org.callimachusproject.engine.model.TermFactory;
 import org.openrdf.OpenRDFException;
+import org.openrdf.model.Model;
 import org.openrdf.model.Namespace;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
@@ -65,7 +66,7 @@ public class TripleInserter implements RDFHandler {
 	private final RDFHandler inserter;
 	private final Set<String> prefixes = new HashSet<String>();
 	private final Set<String> namespaces = new HashSet<String>();
-	private boolean ignoringDocumentMetadata;
+	private boolean includeDocumentMetadata;
 	private String base;
 	private URI graph;
 	private URI documentURI;
@@ -131,24 +132,37 @@ public class TripleInserter implements RDFHandler {
 		this.graph = graph;
 	}
 
-	public boolean isIgnoringDocumentMetadata() {
-		return ignoringDocumentMetadata;
+	public boolean isIncludingDocumentMetadata() {
+		return includeDocumentMetadata;
 	}
 
-	public void setIgnoringDocumentMetadata(boolean ignoringDocumentMetadata) {
-		this.ignoringDocumentMetadata = ignoringDocumentMetadata;
+	public void setIncludingDocumentMetadata(boolean includeDocumentMetadata) {
+		this.includeDocumentMetadata = includeDocumentMetadata;
 	}
 
 	public synchronized void parseAndInsert(InputStream in, String type, String base)
 			throws IOException, OpenRDFException {
 		setBaseURI(base);
+		documentURI = vf.createURI(base);
 		RDFFormat format = RDFFormat.forMIMEType(type);
 		RDFParserRegistry registry = RDFParserRegistry.getInstance();
 		RDFParser parser = registry.get(format).getParser();
 		parser.setValueFactory(vf);
 		parser.setRDFHandler(this);
-		documentURI = vf.createURI(base);
 		parser.parse(in, base);
+	}
+
+	public synchronized void insert(Model model, String base) throws OpenRDFException {
+		setBaseURI(base);
+		documentURI = vf.createURI(base);
+		startRDF();
+		for (Namespace ns : model.getNamespaces()) {
+			handleNamespace(ns.getPrefix(), ns.getName());
+		}
+		for (Statement st : model) {
+			handleStatement(st);
+		}
+		endRDF();
 	}
 
 	@Override
@@ -162,11 +176,11 @@ public class TripleInserter implements RDFHandler {
 		Resource subj = s.getSubject();
 		URI pred = s.getPredicate();
 		Value obj = s.getObject();
-		if (!ignoringDocumentMetadata && subj.equals(documentURI)
+		if (!includeDocumentMetadata && subj.equals(documentURI)
 				&& pred.equals(RDF.TYPE) && obj instanceof URI
 				&& obj.stringValue().equals(LDP_RDF_SOURCE)) {
 			// ignore
-		} else if (!ignoringDocumentMetadata && subj.equals(documentURI)
+		} else if (!includeDocumentMetadata && subj.equals(documentURI)
 				&& pred.stringValue().equals(FOAF_PRIMARY_TOPIC)
 				&& obj instanceof URI) {
 			primaryTopic = (URI) obj;

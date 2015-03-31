@@ -29,6 +29,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.LinkedHashMap;
@@ -226,7 +227,7 @@ public abstract class AuthenticationManagerSupport implements CalliObject,
 	
 	}
 
-	public void resetCache() throws RepositoryException {
+	public void resetCache() throws OpenRDFException, IOException {
 		this.getObjectConnection().commit();
 		getCalliRepository().resetCache();
 	}
@@ -454,6 +455,10 @@ public abstract class AuthenticationManagerSupport implements CalliObject,
 	}
 
 	private Map<String, String> keyByName(String cookie) {
+		if (cookie == null || cookie.length() == 0)
+			return Collections.emptyMap();
+		if (cookie.charAt(0) == '?')
+			return keyByName(cookie.substring(1));
 		Map<String, String> map = new LinkedHashMap<String, String>();
 		if (cookie != null) {
 			for (String pair : cookie.split("&")) {

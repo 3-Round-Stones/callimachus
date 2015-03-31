@@ -21,7 +21,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -70,7 +69,7 @@ public class CarStreamTest {
 		CarOutputStream out = new CarOutputStream(new FileOutputStream(car));
 		out.writeFolderEntry("dir/", now).close();
 		out.close();
-		CarInputStream in = new CarInputStream(new FileInputStream(car));
+		CarInputStream in = new CarInputStream(car);
 		assertEquals("dir/", in.readEntryName());
 		assertTrue(in.isFolderEntry());
 		assertEquals(now, in.getEntryTime());
@@ -86,7 +85,7 @@ public class CarStreamTest {
 		CarOutputStream out = new CarOutputStream(new FileOutputStream(car));
 		out.writeFileEntry("file", now, "text/plain").close();
 		out.close();
-		CarInputStream in = new CarInputStream(new FileInputStream(car));
+		CarInputStream in = new CarInputStream(car);
 		assertEquals("file", in.readEntryName());
 		assertTrue(in.isFileEntry());
 		assertEquals(now, in.getEntryTime());
@@ -104,7 +103,7 @@ public class CarStreamTest {
 		CarOutputStream out = new CarOutputStream(new FileOutputStream(car));
 		out.writeResourceEntry("resource", now, "text/plain").close();
 		out.close();
-		CarInputStream in = new CarInputStream(new FileInputStream(car));
+		CarInputStream in = new CarInputStream(car);
 		assertEquals("resource", in.readEntryName());
 		assertTrue(in.isResourceEntry());
 		assertEquals(now, in.getEntryTime());
@@ -122,7 +121,7 @@ public class CarStreamTest {
 		CarOutputStream out = new CarOutputStream(new FileOutputStream(car));
 		out.writeSchemaEntry("schema", now, "text/plain").close();
 		out.close();
-		CarInputStream in = new CarInputStream(new FileInputStream(car));
+		CarInputStream in = new CarInputStream(car);
 		assertEquals("schema", in.readEntryName());
 		assertTrue(in.isSchemaEntry());
 		assertEquals(now, in.getEntryTime());
@@ -143,7 +142,7 @@ public class CarStreamTest {
 		out.writeResourceEntry("resource", now, "text/plain").close();
 		out.writeSchemaEntry("schema", now, "text/plain").close();
 		out.close();
-		CarInputStream in = new CarInputStream(new FileInputStream(car));
+		CarInputStream in = new CarInputStream(car);
 		assertEquals("dir/", in.readEntryName());
 		assertTrue(in.isFolderEntry());
 		assertEquals(now, in.getEntryTime());
@@ -179,7 +178,7 @@ public class CarStreamTest {
 		ZipOutputStream out = new ZipOutputStream(new FileOutputStream(car));
 		out.putNextEntry(new ZipEntry("dir/"));
 		out.close();
-		CarInputStream in = new CarInputStream(new FileInputStream(car));
+		CarInputStream in = new CarInputStream(car);
 		assertEquals("dir/", in.readEntryName());
 		assertTrue(in.isFolderEntry());
 		assertNull(in.getEntryType());
@@ -193,7 +192,7 @@ public class CarStreamTest {
 		ZipOutputStream out = new ZipOutputStream(new FileOutputStream(car));
 		out.putNextEntry(new ZipEntry("file.txt"));
 		out.close();
-		CarInputStream in = new CarInputStream(new FileInputStream(car));
+		CarInputStream in = new CarInputStream(car);
 		assertEquals("file.txt", in.readEntryName());
 		assertTrue(in.isFileEntry());
 		assertEquals("text/plain", in.getEntryType());
@@ -209,7 +208,7 @@ public class CarStreamTest {
 		ZipOutputStream out = new ZipOutputStream(new FileOutputStream(car));
 		out.putNextEntry(new ZipEntry("resource"));
 		out.close();
-		CarInputStream in = new CarInputStream(new FileInputStream(car));
+		CarInputStream in = new CarInputStream(car);
 		assertEquals("resource", in.readEntryName());
 		assertTrue(in.isResourceEntry());
 		assertEquals("text/turtle", in.getEntryType());
@@ -229,7 +228,7 @@ public class CarStreamTest {
 		writer.handleStatement(new StatementImpl(vf.createURI("urn:test:schema"), RDF.TYPE, OWL.ONTOLOGY));
 		writer.endRDF();
 		out.close();
-		CarInputStream in = new CarInputStream(new FileInputStream(car));
+		CarInputStream in = new CarInputStream(car);
 		assertEquals("schema", in.readEntryName());
 		assertTrue(in.isSchemaEntry());
 		assertEquals("application/rdf+xml", in.getEntryType());

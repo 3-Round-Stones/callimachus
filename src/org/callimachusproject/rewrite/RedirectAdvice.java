@@ -22,9 +22,9 @@ import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.message.BasicHttpResponse;
-import org.callimachusproject.fluid.Fluid;
-import org.callimachusproject.fluid.FluidBuilder;
-import org.callimachusproject.fluid.FluidType;
+import org.openrdf.http.object.fluid.Fluid;
+import org.openrdf.http.object.fluid.FluidBuilder;
+import org.openrdf.http.object.fluid.FluidType;
 import org.openrdf.repository.object.traits.ObjectMessage;
 
 public class RedirectAdvice extends RewriteAdvice {

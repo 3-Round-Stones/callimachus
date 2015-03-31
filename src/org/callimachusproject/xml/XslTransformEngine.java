@@ -9,7 +9,7 @@ import net.sf.saxon.s9api.SaxonApiException;
 import net.sf.saxon.s9api.XsltCompiler;
 import net.sf.saxon.s9api.XsltExecutable;
 
-import org.callimachusproject.client.HttpUriClient;
+import org.openrdf.http.object.client.HttpUriClient;
 
 public class XslTransformEngine {
 	private final String baseURI;

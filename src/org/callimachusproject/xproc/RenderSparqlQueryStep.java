@@ -36,10 +36,10 @@ import org.callimachusproject.engine.Template;
 import org.callimachusproject.engine.TemplateEngine;
 import org.callimachusproject.engine.TemplateException;
 import org.callimachusproject.engine.model.TermFactory;
-import org.callimachusproject.fluid.FluidBuilder;
-import org.callimachusproject.fluid.FluidException;
-import org.callimachusproject.fluid.FluidFactory;
 import org.callimachusproject.xml.DocumentFactory;
+import org.openrdf.http.object.fluid.FluidBuilder;
+import org.openrdf.http.object.fluid.FluidException;
+import org.openrdf.http.object.fluid.FluidFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

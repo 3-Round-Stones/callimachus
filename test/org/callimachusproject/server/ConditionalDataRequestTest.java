@@ -19,10 +19,8 @@ package org.callimachusproject.server;
 import java.io.ByteArrayOutputStream;
 
 import org.callimachusproject.server.base.MetadataServerTestCase;
-import org.callimachusproject.server.behaviours.DescribeSupport;
 import org.callimachusproject.server.behaviours.PUTSupport;
 import org.callimachusproject.server.behaviours.TextFile;
-import org.openrdf.model.vocabulary.RDFS;
 
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterfaceException;

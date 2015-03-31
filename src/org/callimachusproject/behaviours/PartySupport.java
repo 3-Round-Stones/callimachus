@@ -16,13 +16,15 @@
  */
 package org.callimachusproject.behaviours;
 
+import java.io.IOException;
+
 import org.callimachusproject.concepts.Party;
 import org.callimachusproject.traits.CalliObject;
-import org.openrdf.repository.RepositoryException;
+import org.openrdf.OpenRDFException;
 
 public abstract class PartySupport implements Party, CalliObject {
 
-	public void resetCache() throws RepositoryException {
+	public void resetCache() throws OpenRDFException, IOException {
 		this.getObjectConnection().commit();
 		getCalliRepository().resetCache();
 	}

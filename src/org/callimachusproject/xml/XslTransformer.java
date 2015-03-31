@@ -72,7 +72,7 @@ public class XslTransformer {
 		if (parameters != null) {
 			for (Map.Entry<String, String[]> e : parameters.entrySet()) {
 				QName name = new QName(e.getKey());
-				ArrayList<XdmItem> values = new ArrayList<>(e.getValue().length);
+				ArrayList<XdmItem> values = new ArrayList<XdmItem>(e.getValue().length);
 				for (String value : e.getValue()) {
 					values.add(new XdmAtomicValue(value, ItemType.STRING));
 				}

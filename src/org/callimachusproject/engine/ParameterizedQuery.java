@@ -253,7 +253,7 @@ public class ParameterizedQuery {
 					throws QueryEvaluationException {
 				return new EmptyIteration<Statement, QueryEvaluationException>();
 			}
-		}).evaluate(expr, bindings);
+		}, null).evaluate(expr, bindings);
 		try {
 			if (!iter.hasNext())
 				return defaultValue;

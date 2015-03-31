@@ -24,6 +24,7 @@ import org.openrdf.query.MalformedQueryException;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.ObjectRepository;
+import org.openrdf.repository.object.config.ObjectRepositoryConfig;
 import org.openrdf.repository.object.config.ObjectRepositoryFactory;
 import org.openrdf.repository.object.exceptions.BehaviourException;
 import org.openrdf.repository.object.exceptions.ObjectStoreException;
@@ -39,17 +40,18 @@ public class ScriptExceptionTest extends CodeGenTestCase {
 	public void setUp() throws Exception {
 		super.setUp();
 		addRdfSource("exceptions.ttl");
+		ObjectRepositoryConfig converter = new ObjectRepositoryConfig();
+		converter.addConceptJar(createJar("scripts.jar").toURI().toURL());
 		ObjectRepositoryFactory ofm = new ObjectRepositoryFactory();
 		repository = ofm.getRepository(converter);
 		repository.setDelegate(new SailRepository(new MemoryStore()));
 		repository.setDataDir(targetDir);
 		repository.initialize();
 		con = repository.getConnection();
-		for (URL imp : converter.getImports()) {
-			ValueFactory vf = con.getValueFactory();
-			String graph = imp.toExternalForm();
-			con.add(imp, graph, RDFFormat.TURTLE, vf.createURI(graph));
-		}
+		URL imp = find("exceptions.ttl");
+		ValueFactory vf = con.getValueFactory();
+		String graph = imp.toExternalForm();
+		con.add(imp, graph, RDFFormat.TURTLE, vf.createURI(graph));
 	}
 
 	public void tearDown() throws Exception {

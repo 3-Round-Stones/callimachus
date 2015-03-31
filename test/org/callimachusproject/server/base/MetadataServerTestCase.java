@@ -31,16 +31,17 @@ import java.util.logging.Logger;
 
 import junit.framework.TestCase;
 
-import org.callimachusproject.repository.CalliRepository;
+import org.callimachusproject.behaviours.CalliObjectSupport;
 import org.callimachusproject.repository.auditing.AuditingRepository;
 import org.callimachusproject.repository.auditing.config.AuditingRepositoryFactory;
 import org.callimachusproject.sail.auditing.AuditingSail;
-import org.callimachusproject.server.WebServer;
 import org.callimachusproject.server.concepts.AnyThing;
+import org.openrdf.http.object.management.WebServer;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.object.ObjectConnection;
+import org.openrdf.repository.object.ObjectRepository;
 import org.openrdf.repository.object.config.ObjectRepositoryConfig;
 import org.openrdf.repository.object.config.ObjectRepositoryFactory;
 import org.openrdf.repository.sail.SailRepository;
@@ -100,7 +101,7 @@ public abstract class MetadataServerTestCase extends TestCase {
 	private final Random rand = new Random();
 	private int port;
 	private boolean failed;
-	protected CalliRepository repository;
+	protected ObjectRepository repository;
 	protected ObjectRepositoryConfig config = new ObjectRepositoryConfig();
 	protected WebServer server;
 	protected File dataDir;
@@ -120,7 +121,7 @@ public abstract class MetadataServerTestCase extends TestCase {
 		vf = repository.getValueFactory();
 		initDataset(repository);
 		server = createServer();
-		server.addOrigin(getOrigin(), repository);
+		server.addRepository(getOrigin(), repository);
 		server.listen(new int[] { getPort() }, new int[0]);
 		server.start();
 		server.resetCache();
@@ -131,7 +132,9 @@ public abstract class MetadataServerTestCase extends TestCase {
 	}
 
 	protected WebServer createServer() throws Exception {
-		return new WebServer(new File(dataDir, "cache"));
+		File dir = new File(dataDir, "cache");
+		dir.mkdirs();
+		return new WebServer(dir);
 	}
 
 	protected void addContentEncoding(WebResource client) {
@@ -213,21 +216,21 @@ public abstract class MetadataServerTestCase extends TestCase {
 		return port = (seed % range) + range + MIN_PORT;
 	}
 
-	private CalliRepository createRepository() throws Exception {
+	private ObjectRepository createRepository() throws Exception {
 		Sail sail = new MemoryStore(dataDir);
 		sail = new AuditingSail(sail);
 		Repository delegate = new SailRepository(new OptimisticSail(sail));
 		AuditingRepositoryFactory af = new AuditingRepositoryFactory();
 		AuditingRepository auditing = af.getRepository(af.getConfig());
 		auditing.setDelegate(delegate);
+		auditing.setDataDir(dataDir);
 		auditing.initialize();
 		ObjectRepositoryFactory factory = new ObjectRepositoryFactory();
-		Repository repo = factory.createRepository(config, auditing);
-		return new CalliRepository(repo, dataDir);
+		return factory.createRepository(config, auditing);
 	}
 
-	private void initDataset(CalliRepository repository) throws Exception {
-		repository.setChangeFolder("http://example.com/changes/");
+	private void initDataset(ObjectRepository repository) throws Exception {
+		CalliObjectSupport.getCalliRepositroyFor(repository).setChangeFolder("http://example.com/changes/");
 		ObjectConnection con = repository.getConnection();
 		try {
 			ValueFactory vf = con.getValueFactory();

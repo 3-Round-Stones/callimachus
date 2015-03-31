@@ -23,6 +23,8 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import org.apache.http.protocol.HttpContext;
+import org.callimachusproject.auth.AuthorizationManager;
 import org.callimachusproject.repository.auditing.ActivityFactory;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
@@ -36,11 +38,11 @@ public class RequestActivityFactory implements ActivityFactory {
 	private final URI activity;
 	private final ActivityFactory delegate;
 	private final DatatypeFactory df;
-	private final CalliContext ctx;
+	private final HttpContext ctx;
 	private final long receivedOn;
 
 	public RequestActivityFactory(URI activity, ActivityFactory delegate,
-			CalliContext ctx, long receivedOn) throws DatatypeConfigurationException {
+			HttpContext ctx, long receivedOn) throws DatatypeConfigurationException {
 		this.activity = activity;
 		this.delegate = delegate;
 		this.ctx = ctx;
@@ -72,9 +74,9 @@ public class RequestActivityFactory implements ActivityFactory {
 		cal.setTimeInMillis(receivedOn);
 		XMLGregorianCalendar now = df.newXMLGregorianCalendar(cal);
 		con.add(prov, vf.createURI(STARTED_AT), vf.createLiteral(now), graph);
-		String cred = ctx.getCredential();
+		Object cred = ctx.getAttribute(AuthorizationManager.CREDENTIAL_ATTR);
 		if (cred != null) {
-			con.add(prov, vf.createURI(ASSOC_WITH), vf.createURI(cred), graph);
+			con.add(prov, vf.createURI(ASSOC_WITH), vf.createURI(cred.toString()), graph);
 		}
 	}
 

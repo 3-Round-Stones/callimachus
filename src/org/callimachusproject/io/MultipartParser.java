@@ -23,6 +23,8 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.openrdf.http.object.io.LatencyInputStream;
+
 /**
  * Parses multipart inputsteams into multiple streamed serial inputstreams.
  * 

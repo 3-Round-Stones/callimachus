@@ -18,7 +18,6 @@ package org.callimachusproject.rewrite;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 
 import org.apache.http.HttpVersion;
 import org.apache.http.StatusLine;
@@ -28,9 +27,9 @@ import org.callimachusproject.annotations.canonical;
 import org.callimachusproject.annotations.describedby;
 import org.callimachusproject.annotations.moved;
 import org.callimachusproject.annotations.resides;
-import org.callimachusproject.annotations.type;
-import org.callimachusproject.fluid.FluidType;
 import org.openrdf.annotations.Iri;
+import org.openrdf.annotations.Type;
+import org.openrdf.http.object.fluid.FluidType;
 import org.openrdf.repository.object.advice.Advice;
 import org.openrdf.repository.object.advice.AdviceFactory;
 import org.openrdf.repository.object.advice.AdviceProvider;
@@ -80,15 +79,15 @@ public class RedirectAdviceFactory implements AdviceProvider, AdviceFactory {
 	}
 
 	FluidType[] getBindingTypes(Method method, String[] bindingNames) {
-		Type[] types = method.getGenericParameterTypes();
+		java.lang.reflect.Type[] types = method.getGenericParameterTypes();
 		Annotation[][] anns = method.getParameterAnnotations();
 		FluidType[] bindingTypes = new FluidType[anns.length];
 		loop: for (int i = 0; i < bindingTypes.length; i++) {
 			if (bindingNames[i] == null)
 				continue;
 			for (Annotation ann : anns[i]) {
-				if (type.class.equals(ann.annotationType())) {
-					bindingTypes[i] = new FluidType(types[i], ((type) ann).value());
+				if (Type.class.equals(ann.annotationType())) {
+					bindingTypes[i] = new FluidType(types[i], ((Type) ann).value());
 					continue loop;
 				}
 			}

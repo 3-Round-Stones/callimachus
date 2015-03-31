@@ -209,9 +209,8 @@ IF NOT EXIST "%BASEDIR%\run" MKDIR "%BASEDIR%\run"
 
 rem ----- Execute The Requested Command ---------------------------------------
 
-set MAINCLASS=org.callimachusproject.Server
-set SETUPCLASS=org.callimachusproject.Setup
-set MONITORCLASS=org.callimachusproject.ServerMonitor
+set MAINCLASS=org.openrdf.http.object.Server
+set MONITORCLASS=org.openrdf.http.object.ServerControl
 
 echo Using BASEDIR:   %BASEDIR%
 echo Using PORT:      %PORT% %SSLPORT%
@@ -241,7 +240,7 @@ goto setStartArgs
 :doneSetStartArgs
 
 rem Execute Java with the applicable properties
-"%JAVA_HOME%\bin\java" -server "-Duser.home=%BASEDIR%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" "-Djava.mail.properties=%MAIL%" "-Dorg.callimachusproject.config.repository=%REPOSITORY_CONFIG%" "-Dorg.callimachusproject.config.backups=%BASEDIR%\backups" -classpath "%CLASSPATH%" -Djava.awt.headless=true -XX:OnOutOfMemoryError="taskkill /F /PID %%p" %JAVA_OPTS% %SSL_OPTS% %MAINCLASS% --pid "%PID%" -b "%BASEDIR%" -c "%CONFIG%" %OPTS% %CMD_LINE_ARGS%
+"%JAVA_HOME%\bin\java" -server "-Duser.home=%BASEDIR%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" "-Djava.mail.properties=%MAIL%" "-Dorg.callimachusproject.config.repository=%REPOSITORY_CONFIG%" "-Dorg.callimachusproject.config.backups=%BASEDIR%\backups" -classpath "%CLASSPATH%" -Djava.awt.headless=true -XX:OnOutOfMemoryError="taskkill /F /PID %%p" %JAVA_OPTS% %SSL_OPTS% %MAINCLASS% --pid "%PID%" -d "%BASEDIR%" %OPTS% %CMD_LINE_ARGS%
 goto end
 
 :doStart
@@ -260,7 +259,7 @@ goto setStartArgs
 :doneSetStartArgs
 
 rem Execute Java with the applicable properties
-start "%NAME%" "%JAVA_HOME%\bin\javaw" -server "-Duser.home=%BASEDIR%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" "-Djava.mail.properties=%MAIL%" "-Dorg.callimachusproject.config.repository=%REPOSITORY_CONFIG%" "-Dorg.callimachusproject.config.backups=%BASEDIR%\backups" -classpath "%CLASSPATH%" -Djava.awt.headless=true -XX:OnOutOfMemoryError="taskkill /F /PID %%p" %JAVA_OPTS% %SSL_OPTS% %MAINCLASS% --pid "%PID%" -q -b "%BASEDIR%" -c "%CONFIG%" %OPTS% %CMD_LINE_ARGS%
+start "%NAME%" "%JAVA_HOME%\bin\javaw" -server "-Duser.home=%BASEDIR%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" "-Djava.mail.properties=%MAIL%" "-Dorg.callimachusproject.config.repository=%REPOSITORY_CONFIG%" "-Dorg.callimachusproject.config.backups=%BASEDIR%\backups" -classpath "%CLASSPATH%" -Djava.awt.headless=true -XX:OnOutOfMemoryError="taskkill /F /PID %%p" %JAVA_OPTS% %SSL_OPTS% %MAINCLASS% --pid "%PID%" -q -d "%BASEDIR%" %OPTS% %CMD_LINE_ARGS%
 goto end
 
 :doStop

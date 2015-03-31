@@ -20,7 +20,7 @@ import java.lang.reflect.Method;
 
 import org.callimachusproject.annotations.copy;
 import org.callimachusproject.annotations.post;
-import org.callimachusproject.fluid.FluidType;
+import org.openrdf.http.object.fluid.FluidType;
 import org.openrdf.repository.object.advice.Advice;
 import org.openrdf.repository.object.advice.AdviceFactory;
 import org.openrdf.repository.object.advice.AdviceProvider;

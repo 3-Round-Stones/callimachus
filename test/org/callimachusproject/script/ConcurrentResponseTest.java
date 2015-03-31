@@ -27,15 +27,15 @@ import junit.framework.TestCase;
 
 import org.apache.http.HttpResponse;
 import org.callimachusproject.annotations.script;
-import org.callimachusproject.fluid.FluidBuilder;
-import org.callimachusproject.fluid.FluidFactory;
-import org.callimachusproject.repository.CalliRepository;
 import org.openrdf.annotations.Iri;
+import org.openrdf.http.object.fluid.FluidBuilder;
+import org.openrdf.http.object.fluid.FluidFactory;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.object.ObjectConnection;
+import org.openrdf.repository.object.ObjectRepository;
 import org.openrdf.repository.object.config.ObjectRepositoryConfig;
 import org.openrdf.repository.object.config.ObjectRepositoryFactory;
 import org.openrdf.repository.sail.SailRepository;
@@ -48,7 +48,7 @@ public class ConcurrentResponseTest extends TestCase {
 	public static final String REDIRECT_TYPE = "http://example.com/types/Redirect";
 
 	private File dataDir;
-	private CalliRepository repository;
+	private ObjectRepository repository;
 	private ObjectConnection con;
 
 	@Iri(REDIRECT_TYPE)
@@ -74,7 +74,7 @@ public class ConcurrentResponseTest extends TestCase {
 		Redirect thing = con.getObject(Redirect.class, THING);
 		FluidBuilder fb = FluidFactory.getInstance().builder(con);
 		String uri = thing.toString();
-		HttpResponse response = fb.consume(thing.redirect(), uri, Object.class, "message/x-response").asHttpResponse();
+		HttpResponse response = fb.consume(thing.redirect(), uri, Object.class, "message/http").asHttpResponse();
 		assertEquals(302, response.getStatusLine().getStatusCode());
 		assertEquals("Alternate", response.getStatusLine().getReasonPhrase());
 		assertEquals(1, response.getHeaders("Location").length);
@@ -123,16 +123,16 @@ public class ConcurrentResponseTest extends TestCase {
 		FileUtil.deltree(dataDir);
 	}
 
-	private CalliRepository createRepository(File dataDir, ObjectRepositoryConfig config) throws Exception {
+	private ObjectRepository createRepository(File dataDir, ObjectRepositoryConfig config) throws Exception {
 		Sail sail = new MemoryStore();
 		Repository delegate = new SailRepository(sail);
+		delegate.setDataDir(dataDir);
 		delegate.initialize();
 		ObjectRepositoryFactory factory = new ObjectRepositoryFactory();
-		Repository repo = factory.createRepository(config, delegate);
-		return new CalliRepository(repo, dataDir);
+		return factory.createRepository(config, delegate);
 	}
 
-	private void initDataset(CalliRepository repository) throws Exception {
+	private void initDataset(ObjectRepository repository) throws Exception {
 		ObjectConnection con = repository.getConnection();
 		try {
 			ValueFactory vf = con.getValueFactory();

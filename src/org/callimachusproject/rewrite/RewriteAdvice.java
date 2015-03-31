@@ -19,7 +19,6 @@ package org.callimachusproject.rewrite;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,18 +28,18 @@ import java.util.Map;
 
 import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
-import org.callimachusproject.annotations.type;
 import org.callimachusproject.engine.model.TermFactory;
-import org.callimachusproject.fluid.Fluid;
-import org.callimachusproject.fluid.FluidBuilder;
-import org.callimachusproject.fluid.FluidException;
-import org.callimachusproject.fluid.FluidFactory;
-import org.callimachusproject.fluid.FluidType;
-import org.callimachusproject.server.exceptions.GatewayTimeout;
-import org.callimachusproject.server.exceptions.ResponseException;
 import org.callimachusproject.util.PercentCodec;
 import org.openrdf.OpenRDFException;
 import org.openrdf.annotations.Iri;
+import org.openrdf.annotations.Type;
+import org.openrdf.http.object.exceptions.GatewayTimeout;
+import org.openrdf.http.object.exceptions.ResponseException;
+import org.openrdf.http.object.fluid.Fluid;
+import org.openrdf.http.object.fluid.FluidBuilder;
+import org.openrdf.http.object.fluid.FluidException;
+import org.openrdf.http.object.fluid.FluidFactory;
+import org.openrdf.http.object.fluid.FluidType;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.RDFObject;
 import org.openrdf.repository.object.advice.Advice;
@@ -50,7 +49,7 @@ public abstract class RewriteAdvice implements Advice {
 	private final Substitution[] replacers;
 	private final String[] bindingNames;
 	private final FluidType[] bindingTypes;
-	private final Type returnType;
+	private final java.lang.reflect.Type returnType;
 	private final String[] returnMedia;
 	private final TermFactory systemId;
 
@@ -116,8 +115,8 @@ public abstract class RewriteAdvice implements Advice {
 	}
 
 	private String[] getMediaType(Method method) {
-		if (method.isAnnotationPresent(type.class))
-			return method.getAnnotation(type.class).value();
+		if (method.isAnnotationPresent(Type.class))
+			return method.getAnnotation(Type.class).value();
 		return new String[0];
 	}
 

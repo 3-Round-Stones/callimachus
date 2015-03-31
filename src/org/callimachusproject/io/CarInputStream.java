@@ -21,10 +21,13 @@ import info.aduna.io.IOUtil;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.Closeable;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
+import java.text.Normalizer;
 import java.util.regex.Pattern;
 
 import javax.activation.FileTypeMap;
@@ -32,32 +35,51 @@ import javax.activation.MimetypesFileTypeMap;
 
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
+import org.callimachusproject.util.PercentCodec;
+import org.openrdf.OpenRDFException;
+import org.openrdf.http.object.io.LatencyInputStream;
+import org.openrdf.http.object.util.URLUtil;
+import org.openrdf.model.Model;
+import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
+import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.model.impl.URIImpl;
 import org.openrdf.model.vocabulary.OWL;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.model.vocabulary.RDFS;
+import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParseException;
 import org.openrdf.rio.RDFParser;
 import org.openrdf.rio.RDFParserRegistry;
+import org.openrdf.rio.Rio;
+import org.openrdf.rio.helpers.RDFHandlerBase;
 import org.openrdf.rio.helpers.StatementCollector;
 
 public class CarInputStream implements Closeable {
 	private static final int RDFS_PEEK_SIZE = 1024 * 1024;
+	private static final Pattern SOURCE_NAME = Pattern
+			.compile("[^/]+\\.source\\.ttl$");
 	private static final Pattern FILE_NAME = Pattern
 			.compile("[^/]+\\.[a-zA-Z]+$");
 	private final ZipArchiveInputStream zipStream;
 	private final FileTypeMap mimetypes;
-	private ZipArchiveEntry entry;
+	ZipArchiveEntry entry;
 	private MetaTypeExtraField entryMetaType;
 	private String entryType;
 	private BufferedInputStream entryStream;
+	private final String base;
+	boolean advance;
 
-	public CarInputStream(InputStream in) throws IOException {
+	public CarInputStream(File file) throws IOException {
+		this(new FileInputStream(file), file.toURI().toASCIIString());
+	}
+
+	public CarInputStream(InputStream in, String base) throws IOException {
 		zipStream = new ZipArchiveInputStream(in);
 		mimetypes = MimetypesFileTypeMap.getDefaultFileTypeMap();
+		this.base = base;
 	}
 
 	public void close() throws IOException {
@@ -65,12 +87,24 @@ public class CarInputStream implements Closeable {
 	}
 
 	public synchronized String readEntryName() throws IOException {
-		if (entry == null) {
+		if (entry == null || advance) {
 			entry = next();
 		}
 		if (entry == null)
 			return null;
 		return entry.getName();
+	}
+
+	public synchronized String getEntryName() throws IOException {
+		return entry.getName();
+	}
+
+	public synchronized String getEntryIRI() throws IOException {
+		String decoded = PercentCodec.decode(entry.getName());
+		String normalized = Normalizer.normalize(decoded, Normalizer.Form.NFD);
+		String encoded = PercentCodec.encodeOthers(normalized);
+		String cleaned = encoded.replaceAll("%20", "+").replace('#', '_');
+		return URLUtil.resolve(cleaned, base);
 	}
 
 	public synchronized long getEntryTime() throws IOException {
@@ -87,6 +121,10 @@ public class CarInputStream implements Closeable {
 		return MetaTypeExtraField.FOLDER == entryMetaType;
 	}
 
+	public synchronized boolean isSourceEntry() throws IOException {
+		return MetaTypeExtraField.SOURCE == entryMetaType;
+	}
+
 	public synchronized boolean isResourceEntry() throws IOException {
 		return MetaTypeExtraField.RDF == entryMetaType;
 	}
@@ -100,9 +138,32 @@ public class CarInputStream implements Closeable {
 	}
 
 	public synchronized InputStream getEntryStream() throws IOException {
-		if (entryStream == null)
-			return null;
 		return entryStream;
+	}
+
+	public synchronized Model getEntryModel(ValueFactory vf) throws IOException, OpenRDFException {
+		final Model model = new LinkedHashModel();
+		RDFFormat format = Rio.getParserFormatForMIMEType(getEntryType());
+		RDFParserRegistry registry = RDFParserRegistry.getInstance();
+		RDFParser parser = registry.get(format).getParser();
+		parser.setValueFactory(vf);
+		parser.setRDFHandler(new RDFHandlerBase() {
+			public void handleNamespace(String prefix, String uri)
+					throws RDFHandlerException {
+				model.setNamespace(prefix, uri);
+			}
+			public void handleStatement(Statement st)
+					throws RDFHandlerException {
+				model.add(st);
+			}
+		});
+		InputStream in = getEntryStream();
+		try {
+			parser.parse(in, getEntryIRI());
+		} finally {
+			in.close();
+		}
+		return model;
 	}
 
 	private ZipArchiveEntry next() throws IOException {
@@ -118,9 +179,7 @@ public class CarInputStream implements Closeable {
 		entryStream = new LatencyInputStream(new FilterInputStream(zipStream) {
 			public void close() throws IOException {
 				if (openEntry == entry) {
-					entry = null;
-					entryStream = null;
-					entryMetaType = null;
+					advance = true;
 				}
 			}
 		}, RDFS_PEEK_SIZE);
@@ -129,6 +188,8 @@ public class CarInputStream implements Closeable {
 		if (entryMetaType == null) {
 			if (entry.isDirectory()) {
 				entryMetaType = MetaTypeExtraField.FOLDER;
+			} else if (SOURCE_NAME.matcher(entry.getName()).find()) {
+				entryMetaType = MetaTypeExtraField.SOURCE;
 			} else if (FILE_NAME.matcher(entry.getName()).find()) {
 				entryMetaType = MetaTypeExtraField.FILE;
 			} else if (scanForClass(entryStream, entryType)) {
@@ -156,10 +217,15 @@ public class CarInputStream implements Closeable {
 		in.mark(200);
 		int len = IOUtil.readBytes(in, peek);
 		in.reset();
-		int first = new TextReader(new ByteArrayInputStream(peek, 0, len)).read();
-		if (first == '<')
-			return "application/rdf+xml";
-		return "text/turtle";
+		TextReader reader = new TextReader(new ByteArrayInputStream(peek, 0, len));
+		try {
+			int first = reader.read();
+			if (first == '<')
+				return "application/rdf+xml";
+			return "text/turtle";
+		} finally {
+			reader.close();
+		}
 	}
 
 	private boolean scanForClass(BufferedInputStream in, String type) throws IOException {

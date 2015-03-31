@@ -25,6 +25,7 @@ import java.io.InputStreamReader;
 import java.net.ConnectException;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -45,9 +46,7 @@ import java.util.concurrent.Future;
 
 import org.callimachusproject.cli.Command;
 import org.callimachusproject.cli.CommandSet;
-import org.callimachusproject.concurrent.ManagedExecutors;
 import org.callimachusproject.repository.CalliRepository;
-import org.callimachusproject.repository.DatasourceManager;
 import org.callimachusproject.setup.CallimachusSetup;
 import org.callimachusproject.setup.SetupTool;
 import org.callimachusproject.util.BackupTool;
@@ -55,16 +54,12 @@ import org.callimachusproject.util.CallimachusConf;
 import org.callimachusproject.util.DomainNameSystemResolver;
 import org.callimachusproject.util.SystemProperties;
 import org.openrdf.OpenRDFException;
-import org.openrdf.model.Graph;
-import org.openrdf.model.impl.LinkedHashModel;
-import org.openrdf.model.util.ModelUtil;
+import org.openrdf.http.object.concurrent.ManagedExecutors;
+import org.openrdf.http.object.management.ObjectRepositoryManager;
 import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.config.RepositoryConfig;
 import org.openrdf.repository.config.RepositoryConfigException;
 import org.openrdf.repository.config.RepositoryImplConfig;
-import org.openrdf.repository.manager.LocalRepositoryManager;
-import org.openrdf.repository.manager.RepositoryProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -136,7 +131,7 @@ public class Setup {
 		e.printStackTrace();
 	}
 
-	private final Logger logger = LoggerFactory.getLogger(Setup.class);
+	final Logger logger = LoggerFactory.getLogger(Setup.class);
 	private final ExecutorService executor = ManagedExecutors
 			.getInstance().newFixedThreadPool(
 					Runtime.getRuntime().availableProcessors(),
@@ -226,8 +221,7 @@ public class Setup {
 
 	public void start() throws Exception {
 		final CallimachusConf conf = new CallimachusConf(confFile);
-		final LocalRepositoryManager manager = RepositoryProvider
-				.getRepositoryManager(basedir);
+		final ObjectRepositoryManager manager = new ObjectRepositoryManager(basedir);
 		Set<String> webapps = new LinkedHashSet<String>();
 		final List<String> links = new ArrayList<String>();
 		try {
@@ -246,10 +240,6 @@ public class Setup {
 			}
 			conf.setAppVersion(Version.getInstance().getVersionCode());
 		} finally {
-			// manager thinks these are initialise, so make sure they are
-			for (String id : manager.getInitializedRepositoryIDs()) {
-				manager.getRepository(id);
-			}
 			manager.shutDown();
 		}
 		if (!links.isEmpty()) {
@@ -284,25 +274,35 @@ public class Setup {
 	}
 
 	Collection<String> setupRepository(String repositoryID,
-			LocalRepositoryManager manager, CallimachusConf conf,
+			ObjectRepositoryManager manager, CallimachusConf conf,
 			Collection<String> links) throws IOException,
-			MalformedURLException, OpenRDFException, NoSuchAlgorithmException {
+			MalformedURLException, OpenRDFException, NoSuchAlgorithmException,
+			URISyntaxException {
 		Set<String> webappOrigins = getWebappsInRepository(repositoryID, conf);
-		File dataDir = manager.getRepositoryDir(repositoryID);
-		if (backup != null && dataDir.isDirectory()) {
-			backup.backup(repositoryID, conf.getAppVersion(), dataDir);
+		if (manager.isRepositoryPresent(repositoryID)) {
+			URL dataURL = manager.getRepositoryLocation(repositoryID);
+			if ("file".equalsIgnoreCase(dataURL.getProtocol())) {
+				File dataDir = new File(dataURL.toURI());
+				if (backup != null && dataDir != null && dataDir.isDirectory()) {
+					backup.backup(repositoryID, conf.getAppVersion(), dataDir);
+				}
+			}
+		} else {
+			updateRepositoryConfig(manager, repositoryID);
 		}
-		updateRepositoryConfig(manager, repositoryID);
+		String[] prefixes = new String[webappOrigins.size()];
+		int i=0;
+		for (String origin : webappOrigins) {
+			prefixes[i++] = origin + "/";
+		}
+		manager.setRepositoryPrefixes(repositoryID, prefixes);
 		Repository repo = manager.getRepository(repositoryID);
 		if (repo == null)
 			throw new RepositoryConfigException(
-					"Missing repository configuration for "
-							+ dataDir.getAbsolutePath());
+					"Missing repository configuration for " + repositoryID);
 		Map<String, String> webapps = new LinkedHashMap<String, String>();
-		DatasourceManager datasources = new DatasourceManager(manager, repositoryID);
-		CalliRepository repository = new CalliRepository(repo, dataDir);
+		CalliRepository repository = new CalliRepository(repositoryID, manager);
 		try {
-			repository.setDatasourceManager(datasources);
 			CallimachusSetup setup = new CallimachusSetup(repository);
 			if (upgrade) {
 				upgradeRepository(setup, webappOrigins, links);
@@ -339,7 +339,6 @@ public class Setup {
 			}
 		} finally {
 			repository.shutDown();
-			datasources.shutDown();
 		}
 		return webapps.values();
 	}
@@ -371,11 +370,10 @@ public class Setup {
 				iter.remove();
 			}
 		}
-		Set<String> webappOrigins = map.keySet();
-		return webappOrigins;
+		return map.keySet();
 	}
 
-	private boolean updateRepositoryConfig(final LocalRepositoryManager manager,
+	private boolean updateRepositoryConfig(final ObjectRepositoryManager manager,
 			String repositoryID) throws IOException,
 			MalformedURLException, OpenRDFException {
 		File repositoryConfig = SystemProperties.getRepositoryConfigFile();
@@ -385,51 +383,19 @@ public class Setup {
 		if (repositoryID.equals(config.getID())) {
 			return updateRepositoryConfig(manager, config);
 		} else {
-			String title = null;
-			try {
-				RepositoryConfig stored = manager.getRepositoryConfig(repositoryID);
-				if (stored != null) {
-					title = stored.getTitle();
-				}
-			} catch (RepositoryConfigException e) {
-				logger.warn("Could not read repository configuration");
-			}
 			RepositoryImplConfig impl = config.getRepositoryImplConfig();
-			config = new RepositoryConfig(repositoryID, title, impl);
+			config = new RepositoryConfig(repositoryID, config.getTitle(), impl);
 			return updateRepositoryConfig(manager, config);
 		}
 	}
 
-	private boolean updateRepositoryConfig(LocalRepositoryManager manager,
-			RepositoryConfig config) throws RepositoryException,
-			RepositoryConfigException {
+	private boolean updateRepositoryConfig(ObjectRepositoryManager manager,
+			RepositoryConfig config) throws OpenRDFException {
 		config.validate();
 		String id = config.getID();
-		if (manager.hasRepositoryConfig(id)) {
-			try {
-				RepositoryConfig oldConfig = manager.getRepositoryConfig(id);
-				if (equal(config, oldConfig))
-					return false;
-			} catch (RepositoryConfigException e) {
-				logger.warn("Could not read repository configuration");
-			}
-			logger.warn("Replacing repository configuration");
-		} else {
-			logger.info("Creating repository: {}", id);
-		}
-		manager.addRepositoryConfig(config);
-		if (manager.getInitializedRepositoryIDs().contains(id)) {
-			manager.getRepository(id).shutDown();
-		}
+		logger.info("Creating repository: {}", id);
+		manager.addRepository(config);
 		return true;
-	}
-
-	private boolean equal(RepositoryConfig c1, RepositoryConfig c2) {
-		Graph g1 = new LinkedHashModel();
-		Graph g2 = new LinkedHashModel();
-		c1.export(g1);
-		c2.export(g2);
-		return ModelUtil.equals(g1, g2);
 	}
 
 	private void launch(String cmd) throws IOException {

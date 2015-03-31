@@ -24,8 +24,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import javax.script.ScriptException;
 import javax.script.SimpleBindings;
 
+import org.apache.http.HttpResponse;
 import org.callimachusproject.annotations.imports;
 import org.callimachusproject.script.EmbeddedScriptEngine.ScriptResult;
 import org.openrdf.annotations.Iri;
@@ -208,7 +210,8 @@ public class ScriptAdvice implements Advice {
 		return con.getObject(type, value);
 	}
 
-	private Object cast(ScriptResult result) {
+	private Object cast(ScriptResult result) throws NoSuchMethodException,
+			ScriptException {
 		if (Set.class.equals(rty)) {
 			return result.asSet();
 
@@ -231,6 +234,8 @@ public class ScriptAdvice implements Advice {
 		} else if (Short.class.equals(rty) || Short.TYPE.equals(rty)) {
 			return result.asShortObject();
 
+		} else if (HttpResponse.class.equals(rty)) {
+			return result.asHttpResponse();
 		} else if (Number.class.equals(rty)) {
 			return result.asNumberObject();
 

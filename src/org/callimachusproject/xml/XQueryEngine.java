@@ -38,9 +38,9 @@ import net.sf.saxon.s9api.XdmItem;
 import net.sf.saxon.s9api.XdmValue;
 import net.sf.saxon.trans.XPathException;
 
-import org.callimachusproject.client.HttpUriClient;
-import org.callimachusproject.io.ProducerStream;
-import org.callimachusproject.io.ProducerStream.OutputProducer;
+import org.openrdf.http.object.client.HttpUriClient;
+import org.openrdf.http.object.io.ProducerStream;
+import org.openrdf.http.object.io.ProducerStream.OutputProducer;
 import org.xml.sax.SAXException;
 
 public class XQueryEngine {
@@ -92,7 +92,7 @@ public class XQueryEngine {
 		if (parameters != null) {
 			for (Map.Entry<String, String[]> e : parameters.entrySet()) {
 				QName name = new QName(e.getKey());
-				ArrayList<XdmItem> values = new ArrayList<>(e.getValue().length);
+				ArrayList<XdmItem> values = new ArrayList<XdmItem>(e.getValue().length);
 				for (String value : e.getValue()) {
 					values.add(new XdmAtomicValue(value, ItemType.STRING));
 				}

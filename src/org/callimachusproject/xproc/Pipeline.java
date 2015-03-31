@@ -30,12 +30,12 @@ import net.sf.saxon.s9api.SaxonApiException;
 import net.sf.saxon.s9api.XdmNode;
 
 import org.apache.http.client.HttpClient;
-import org.callimachusproject.fluid.FluidType;
-import org.callimachusproject.server.exceptions.InternalServerError;
 import org.callimachusproject.xml.CloseableEntityResolver;
 import org.callimachusproject.xml.CloseableURIResolver;
 import org.callimachusproject.xml.DocumentFactory;
 import org.callimachusproject.xml.XdmNodeFactory;
+import org.openrdf.http.object.exceptions.InternalServerError;
+import org.openrdf.http.object.fluid.FluidType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;

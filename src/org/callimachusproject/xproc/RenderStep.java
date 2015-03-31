@@ -35,10 +35,10 @@ import org.callimachusproject.engine.Template;
 import org.callimachusproject.engine.TemplateEngine;
 import org.callimachusproject.engine.TemplateException;
 import org.callimachusproject.engine.model.TermFactory;
-import org.callimachusproject.fluid.Fluid;
-import org.callimachusproject.fluid.FluidBuilder;
-import org.callimachusproject.fluid.FluidException;
-import org.callimachusproject.fluid.FluidFactory;
+import org.openrdf.http.object.fluid.Fluid;
+import org.openrdf.http.object.fluid.FluidBuilder;
+import org.openrdf.http.object.fluid.FluidException;
+import org.openrdf.http.object.fluid.FluidFactory;
 import org.openrdf.query.TupleQueryResult;
 
 import com.xmlcalabash.core.XProcException;

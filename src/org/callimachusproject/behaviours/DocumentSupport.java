@@ -29,8 +29,8 @@ import javax.tools.FileObject;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.callimachusproject.concepts.Activity;
-import org.callimachusproject.io.ChannelUtil;
 import org.callimachusproject.traits.CalliObject;
+import org.openrdf.http.object.io.ChannelUtil;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.store.blob.BlobObject;
 import org.slf4j.Logger;

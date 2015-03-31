@@ -25,12 +25,12 @@ import java.util.Set;
 import javax.xml.stream.FactoryConfigurationError;
 import javax.xml.stream.XMLStreamException;
 
-import org.callimachusproject.annotations.query;
-import org.callimachusproject.server.util.XHTMLInfoWriter;
 import org.callimachusproject.util.ResourceInfo;
+import org.callimachusproject.util.XHTMLInfoWriter;
 import org.callimachusproject.util.ResourceInfo.MethodInfo;
 import org.callimachusproject.util.ResourceInfo.ParameterInfo;
 import org.callimachusproject.util.ResourceInfo.PropertyInfo;
+import org.openrdf.annotations.Path;
 import org.openrdf.model.URI;
 import org.openrdf.repository.object.RDFObject;
 
@@ -201,7 +201,7 @@ public class IntrospectSupport {
 				accept = params[i].getType();
 			}
 		}
-		if (!parameters.isEmpty() && info.getMethod().isAnnotationPresent(query.class)) {
+		if (!parameters.isEmpty() && info.getMethod().isAnnotationPresent(Path.class)) {
 			out.writeCharacters("&");
 		} else if (!parameters.isEmpty()) {
 			out.writeCharacters("?");

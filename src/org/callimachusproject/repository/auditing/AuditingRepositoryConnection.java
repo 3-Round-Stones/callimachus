@@ -297,6 +297,16 @@ public class AuditingRepositoryConnection extends ContextAwareConnection {
 			public boolean getIncludeInferred() {
 				return prepared.getIncludeInferred();
 			}
+
+			@Override
+			public void setMaxExecutionTime(int maxExecTime) {
+				prepared.setMaxExecutionTime(maxExecTime);
+			}
+
+			@Override
+			public int getMaxExecutionTime() {
+				return prepared.getMaxExecutionTime();
+			}
 		};
 	}
 

@@ -24,12 +24,15 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.callimachusproject.annotations.header;
-import org.callimachusproject.annotations.method;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpVersion;
+import org.apache.http.message.BasicHttpResponse;
 import org.callimachusproject.annotations.requires;
-import org.callimachusproject.annotations.type;
 import org.callimachusproject.server.base.MetadataServerTestCase;
+import org.openrdf.annotations.HeaderParam;
 import org.openrdf.annotations.Iri;
+import org.openrdf.annotations.Method;
+import org.openrdf.annotations.Type;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.repository.object.ObjectConnection;
@@ -59,10 +62,16 @@ public class AuthenticationTest extends MetadataServerTestCase {
 	public static class MyProtectedResource {
 		public static String body = "body";
 
-		@method("GET")
+		@Method("HEAD")
+		public HttpResponse head() {
+			HttpResponse head = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
+			head.addHeader("Cache-Control", "max-age=5");
+			return head;
+		}
+
+		@Method("GET")
 		@requires("urn:test:reader")
-		@type("text/plain")
-		@header("Cache-Control:max-age=5")
+		@Type("text/plain")
 		public String getResponse() {
 			return body;
 		}
@@ -73,18 +82,18 @@ public class AuthenticationTest extends MetadataServerTestCase {
 	@Iri("urn:test:MyResource")
 	public static class MyResource {
 
-		@method("GET")
+		@Method("GET")
 		@requires("urn:test:reader")
-		@type("text/plain")
-		public String get(@header("Authorization") String auth) {
+		@Type("text/plain")
+		public String get(@HeaderParam("Authorization") String auth) {
 			return auth;
 		}
 
-		@method("POST")
+		@Method("POST")
 		@requires("urn:test:writer")
-		@type("text/plain")
-		public String post(@type("text/plain") String input,
-				@header("Authorization") String auth) {
+		@Type("text/plain")
+		public String post(@Type("text/plain") String input,
+				@HeaderParam("Authorization") String auth) {
 			return auth;
 		}
 	}
@@ -178,14 +187,14 @@ public class AuthenticationTest extends MetadataServerTestCase {
 		ClientResponse resp;
 		resp = web("/resource", "bob").get(ClientResponse.class);
 		assertTrue(resp.getEntity(String.class).contains("username=\"bob\""));
-		assertTrue(resp.toString(), resp.getHeaders().get("Cache-Control").get(0).contains("private"));
+		assertTrue(resp.getHeaders().get("Cache-Control").get(0), resp.getHeaders().get("Cache-Control").get(0).contains("private"));
 		assertNotNull(resp.toString(), resp.getHeaders().get("ETag"));
-		assertFalse(resp.toString(), resp.getHeaders().get("Vary").toString().contains("Authorization"));
+		assertFalse(resp.toString(), String.valueOf(resp.getHeaders().get("Vary")).contains("Authorization"));
 		resp = web("/resource", "jim").get(ClientResponse.class);
 		assertTrue(resp.getEntity(String.class).contains("username=\"jim\""));
 		assertTrue(resp.toString(), resp.getHeaders().get("Cache-Control").get(0).contains("private"));
 		assertNotNull(resp.toString(), resp.getHeaders().get("ETag"));
-		assertFalse(resp.toString(), resp.getHeaders().get("Vary").toString().contains("Authorization"));
+		assertFalse(resp.toString(), String.valueOf(resp.getHeaders().get("Vary")).contains("Authorization"));
 	}
 
 	protected void addContentEncoding(WebResource client) {

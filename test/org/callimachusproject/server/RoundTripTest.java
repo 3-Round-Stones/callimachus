@@ -40,11 +40,12 @@ import org.apache.http.HttpResponse;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.message.BasicHttpResponse;
-import org.callimachusproject.annotations.query;
-import org.callimachusproject.annotations.type;
-import org.callimachusproject.io.ChannelUtil;
 import org.callimachusproject.server.base.MetadataServerTestCase;
 import org.callimachusproject.server.helpers.XMLEventQueue;
+import org.openrdf.annotations.Method;
+import org.openrdf.annotations.Path;
+import org.openrdf.annotations.Type;
+import org.openrdf.http.object.io.ChannelUtil;
 import org.openrdf.repository.object.ObjectConnection;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentFragment;
@@ -53,121 +54,121 @@ import org.w3c.dom.Element;
 public class RoundTripTest extends MetadataServerTestCase {
 
 	public static class Trip {
-		@query("bool")
-		public boolean bool(@type("*/*") boolean param) {
+		@Method("POST")@Path("?bool")
+		public boolean bool(@Type("*/*") boolean param) {
 			return param;
 		}
 
-		@query("boolean")
-		public Boolean boolObject(@type("*/*") Boolean param) {
+		@Method("POST")@Path("?boolean")
+		public Boolean boolObject(@Type("*/*") Boolean param) {
 			return param;
 		}
 
-		@query("setOfBoolean")
-		public Set<Boolean> boolSet(@type("*/*") Set<Boolean> param) {
+		@Method("POST")@Path("?setOfBoolean")
+		public Set<Boolean> boolSet(@Type("*/*") Set<Boolean> param) {
 			return param;
 		}
 
-		@query("byteArray")
-		public byte[] byteArray(@type("*/*") byte[] param) {
+		@Method("POST")@Path("?byteArray")
+		public byte[] byteArray(@Type("*/*") byte[] param) {
 			return param;
 		}
 
-		@query("setOfbyteArray")
-		public Set<byte[]> byteArraySet(@type("*/*") Set<byte[]> param) {
+		@Method("POST")@Path("?setOfbyteArray")
+		public Set<byte[]> byteArraySet(@Type("*/*") Set<byte[]> param) {
 			return param;
 		}
 
-		@query("byteArrayStream")
-		public ByteArrayOutputStream byteArrayStream(@type("*/*") ByteArrayOutputStream param) {
+		@Method("POST")@Path("?byteArrayStream")
+		public ByteArrayOutputStream byteArrayStream(@Type("*/*") ByteArrayOutputStream param) {
 			return param;
 		}
 
-		@query("setOfbyteArrayStream")
+		@Method("POST")@Path("?setOfbyteArrayStream")
 		public Set<ByteArrayOutputStream> byteArrayStreamSet(
-				@type("*/*") Set<ByteArrayOutputStream> param) {
+				@Type("*/*") Set<ByteArrayOutputStream> param) {
 			return param;
 		}
 
-		@query("int")
-		public int integ(@type("*/*") int param) {
+		@Method("POST")@Path("?int")
+		public int integ(@Type("*/*") int param) {
 			return param;
 		}
 
-		@query("integer")
-		public Integer integer(@type("*/*") Integer param) {
+		@Method("POST")@Path("?integer")
+		public Integer integer(@Type("*/*") Integer param) {
 			return param;
 		}
 
-		@query("setOfInteger")
-		public Set<Integer> setOfInteger(@type("*/*") Set<Integer> param) {
+		@Method("POST")@Path("?setOfInteger")
+		public Set<Integer> setOfInteger(@Type("*/*") Set<Integer> param) {
 			return param;
 		}
 
-		@query("bigInteger")
-		public BigInteger bigInteger(@type("*/*") BigInteger param) {
+		@Method("POST")@Path("?bigInteger")
+		public BigInteger bigInteger(@Type("*/*") BigInteger param) {
 			return param;
 		}
 
-		@query("setOfBigInteger")
-		public Set<BigInteger> setOfBigInteger(@type("*/*") Set<BigInteger> param) {
+		@Method("POST")@Path("?setOfBigInteger")
+		public Set<BigInteger> setOfBigInteger(@Type("*/*") Set<BigInteger> param) {
 			return param;
 		}
 
-		@query("document")
-		public Document document(@type("*/*") Document param) {
+		@Method("POST")@Path("?document")
+		public Document document(@Type("*/*") Document param) {
 			return param;
 		}
 
-		@query("setOfDocument")
-		public Set<Document> setOfDocument(@type("*/*") Set<Document> param) {
+		@Method("POST")@Path("?setOfDocument")
+		public Set<Document> setOfDocument(@Type("*/*") Set<Document> param) {
 			return param;
 		}
 
-		@query("documentFragment")
-		public DocumentFragment documentFragment(@type("*/*") DocumentFragment param) {
+		@Method("POST")@Path("?documentFragment")
+		public DocumentFragment documentFragment(@Type("*/*") DocumentFragment param) {
 			return param;
 		}
 
-		@query("setOfDocumentFragment")
+		@Method("POST")@Path("?setOfDocumentFragment")
 		public Set<DocumentFragment> setOfDocumentFragment(
-				@type("*/*") Set<DocumentFragment> param) {
+				@Type("*/*") Set<DocumentFragment> param) {
 			return param;
 		}
 
-		@query("element")
-		public Element element(@type("*/*") Element param) {
+		@Method("POST")@Path("?element")
+		public Element element(@Type("*/*") Element param) {
 			return param;
 		}
 
-		@query("setOfElement")
-		public Set<Element> setOfElement(@type("*/*") Set<Element> param) {
+		@Method("POST")@Path("?setOfElement")
+		public Set<Element> setOfElement(@Type("*/*") Set<Element> param) {
 			return param;
 		}
 
-		@query("map")
-		public Map<String, String> map(@type("*/*") Map<String, String> param) {
+		@Method("POST")@Path("?map")
+		public Map<String, String> map(@Type("*/*") Map<String, String> param) {
 			return param;
 		}
 
-		@query("setOfMap")
-		public Set<Map<String, String>> setOfMap(@type("*/*") Set<Map<String, String>> param) {
+		@Method("POST")@Path("?setOfMap")
+		public Set<Map<String, String>> setOfMap(@Type("*/*") Set<Map<String, String>> param) {
 			return param;
 		}
 
-		@query("mapOfIntegerToSetOfInteger")
+		@Method("POST")@Path("?mapOfIntegerToSetOfInteger")
 		public Map<Integer, Set<Integer>> mapOfIntegerToSetOfInteger(
-				@type("*/*") Map<Integer, Set<Integer>> param) {
+				@Type("*/*") Map<Integer, Set<Integer>> param) {
 			return param;
 		}
 
-		@query("httpMessage")
-		public HttpMessage httpMessage(@type("*/*") HttpMessage param) {
+		@Method("POST")@Path("?httpMessage")
+		public HttpMessage httpMessage(@Type("*/*") HttpMessage param) {
 			return param;
 		}
 
-		@query("inputStream")
-		public InputStream inputStream(@type("*/*") InputStream param) throws IOException {
+		@Method("POST")@Path("?inputStream")
+		public InputStream inputStream(@Type("*/*") InputStream param) throws IOException {
 			if (param == null)
 				return null;
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -175,8 +176,8 @@ public class RoundTripTest extends MetadataServerTestCase {
 			return new ByteArrayInputStream(out.toByteArray());
 		}
 
-		@query("setOfInputStream")
-		public Set<InputStream> setOfInputStream(@type("*/*") Set<InputStream> param)
+		@Method("POST")@Path("?setOfInputStream")
+		public Set<InputStream> setOfInputStream(@Type("*/*") Set<InputStream> param)
 				throws IOException {
 			if (param == null || param.isEmpty())
 				return param;
@@ -186,8 +187,8 @@ public class RoundTripTest extends MetadataServerTestCase {
 					.toByteArray()));
 		}
 
-		@query("readableByteChannel")
-		public ReadableByteChannel readableByteChannel(@type("*/*") ReadableByteChannel param)
+		@Method("POST")@Path("?readableByteChannel")
+		public ReadableByteChannel readableByteChannel(@Type("*/*") ReadableByteChannel param)
 				throws IOException {
 			if (param == null)
 				return null;
@@ -196,13 +197,13 @@ public class RoundTripTest extends MetadataServerTestCase {
 			return ChannelUtil.newChannel(out.toByteArray());
 		}
 
-		@query("string")
-		public String string(@type("*/*") String param) throws IOException {
+		@Method("POST")@Path("?string")
+		public String string(@Type("*/*") String param) throws IOException {
 			return param;
 		}
 
-		@query("xmlEventReader")
-		public XMLEventReader xmlEventReader(@type("*/*") XMLEventReader param)
+		@Method("POST")@Path("?xmlEventReader")
+		public XMLEventReader xmlEventReader(@Type("*/*") XMLEventReader param)
 				throws XMLStreamException {
 			if (param == null)
 				return null;

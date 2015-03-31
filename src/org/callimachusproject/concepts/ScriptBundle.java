@@ -19,13 +19,13 @@ package org.callimachusproject.concepts;
 import java.io.IOException;
 import java.util.Set;
 
-import org.callimachusproject.annotations.method;
-import org.callimachusproject.annotations.query;
 import org.callimachusproject.annotations.requires;
-import org.callimachusproject.annotations.type;
-import org.callimachusproject.server.exceptions.GatewayTimeout;
 import org.openrdf.OpenRDFException;
 import org.openrdf.annotations.Iri;
+import org.openrdf.annotations.Method;
+import org.openrdf.annotations.Path;
+import org.openrdf.annotations.Type;
+import org.openrdf.http.object.exceptions.GatewayTimeout;
 
 @Iri("http://callimachusproject.org/rdf/2009/framework#ScriptBundle")
 public interface ScriptBundle {
@@ -38,15 +38,15 @@ public interface ScriptBundle {
 	@Iri("http://callimachusproject.org/rdf/2009/framework#minified")
 	void setCalliMinified(Set<Number> minified);
 
-	@method("GET")
-	@query("source")
-	@type("text/javascript")
+	@Method("GET")
+	@Path("?source")
+	@Type("text/javascript")
 	@requires("http://callimachusproject.org/rdf/2009/framework#reader")
 	String calliGetBundleSource() throws GatewayTimeout, IOException, OpenRDFException;
 
-	@method("GET")
-	@query("minified")
-	@type("text/javascript")
+	@Method("GET")
+	@Path("?minified")
+	@Type("text/javascript")
 	@requires("http://callimachusproject.org/rdf/2009/framework#reader")
 	String calliGetMinifiedBundle() throws Exception;
 }

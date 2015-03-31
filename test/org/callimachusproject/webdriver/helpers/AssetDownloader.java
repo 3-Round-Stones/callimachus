@@ -26,7 +26,7 @@ import java.net.PasswordAuthentication;
 import java.net.URI;
 import java.net.URL;
 
-import org.callimachusproject.io.ChannelUtil;
+import org.openrdf.http.object.io.ChannelUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

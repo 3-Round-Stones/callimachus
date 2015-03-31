@@ -37,9 +37,9 @@ import javax.xml.stream.events.Namespace;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 import org.callimachusproject.engine.helpers.XMLEventReaderBase;
-import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.traits.CalliObject;
 import org.callimachusproject.util.PercentCodec;
+import org.openrdf.http.object.exceptions.BadRequest;
 
 public abstract class ZipArchiveSupport implements CalliObject, FileObject {
 	static final QName FEED = new QName("http://www.w3.org/2005/Atom", "feed");
@@ -85,6 +85,7 @@ public abstract class ZipArchiveSupport implements CalliObject, FileObject {
 	}
 
 	public InputStream readZipEntry(String match) throws IOException {
+		boolean close = true;
 		InputStream in = this.openInputStream();
 		try {
 			ZipArchiveInputStream zip = new ZipArchiveInputStream(in);
@@ -92,6 +93,7 @@ public abstract class ZipArchiveSupport implements CalliObject, FileObject {
 			ZipArchiveEntry entry = zip.getNextZipEntry();
 			do {
 				if (entry.getName().equals(match)) {
+					close = false;
 					return zip;
 				}
 				long size = entry.getSize();
@@ -104,9 +106,10 @@ public abstract class ZipArchiveSupport implements CalliObject, FileObject {
 				entry = zip.getNextZipEntry();
 			} while (entry != null);
 			zip.close();
-		} catch (RuntimeException | Error | IOException e) {
-			in.close();
-			throw e;
+		} finally {
+			if (close) {
+				in.close();
+			}
 		}
 		return null;
 	}

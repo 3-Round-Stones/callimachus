@@ -52,7 +52,7 @@ import org.callimachusproject.engine.helpers.XMLEventList;
 import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.engine.model.TermOrigin;
 import org.callimachusproject.engine.model.VarOrTerm;
-import org.callimachusproject.server.exceptions.InternalServerError;
+import org.openrdf.http.object.exceptions.InternalServerError;
 import org.openrdf.model.Resource;
 import org.openrdf.query.Binding;
 import org.openrdf.query.BindingSet;

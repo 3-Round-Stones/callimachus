@@ -220,7 +220,7 @@ public class BlobIntegrationTest extends TemporaryServerIntegrationTestCase {
 	}
 	
 	public void describe() throws Exception {
-		Map<String, String> headers = new LinkedHashMap<>();
+		Map<String, String> headers = new LinkedHashMap<String, String>();
 		headers.put("Slug", requestSlug);
 		headers.put("Link", "<http://www.w3.org/ns/ldp#NonRDFSource>;rel=\"type\"");
 		WebResource blob = getHomeFolder()
@@ -233,7 +233,7 @@ public class BlobIntegrationTest extends TemporaryServerIntegrationTestCase {
 	}
 	
 	public void edit() throws Exception {
-		Map<String, String> headers = new LinkedHashMap<>();
+		Map<String, String> headers = new LinkedHashMap<String, String>();
 		headers.put("Slug", requestSlug);
 		headers.put("Link", "<http://www.w3.org/ns/ldp#NonRDFSource>;rel=\"type\"");
 		WebResource blob = getHomeFolder()

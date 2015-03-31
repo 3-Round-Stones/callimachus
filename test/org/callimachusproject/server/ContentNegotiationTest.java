@@ -20,14 +20,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
 
-import org.callimachusproject.annotations.method;
-import org.callimachusproject.annotations.query;
 import org.callimachusproject.annotations.rel;
 import org.callimachusproject.annotations.requires;
-import org.callimachusproject.annotations.type;
 import org.callimachusproject.server.base.MetadataServerTestCase;
 import org.callimachusproject.server.behaviours.PUTSupport;
 import org.callimachusproject.server.concepts.HTTPFileObject;
+import org.openrdf.annotations.Method;
+import org.openrdf.annotations.Path;
+import org.openrdf.annotations.Type;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Model;
 import org.openrdf.model.URI;
@@ -42,25 +42,28 @@ import com.sun.jersey.api.client.WebResource;
 public class ContentNegotiationTest extends MetadataServerTestCase {
 
 	public static class Alternate {
+		@Method("GET")
 		@rel("alternate")
-		@query("boolean")
+		@Path("?boolean")
 		@requires("urn:test:grant")
-		@type("application/sparql-results+xml")
+		@Type("application/sparql-results+xml")
 		public boolean getBoolean() {
 			return true;
 		}
 
+		@Method("GET")
 		@rel("alternate")
-		@query("rdf")
+		@Path("?rdf")
 		@requires("urn:test:grant")
-		@type("application/rdf+xml")
+		@Type("application/rdf+xml")
 		public Model getModel() {
 			return new LinkedHashModel();
 		}
 
-		@query("my")
+		@Method("GET")
+		@Path("?my")
 		@requires("urn:test:grant")
-		@type({"application/rdf+xml", "text/turtle", "application/x-turtle"})
+		@Type({"application/rdf+xml", "text/turtle", "application/x-turtle"})
 		public Model getMyModel() {
 			LinkedHashModel model = new LinkedHashModel();
 			URI uri = new URIImpl("urn:root");
@@ -69,43 +72,48 @@ public class ContentNegotiationTest extends MetadataServerTestCase {
 			return model;
 		}
 
-		@query("my")
+		@Method("PUT")
+		@Path("?my")
 		@requires("urn:test:grant")
-		public void setMyModel(@type("application/rdf+xml") Model model) {
+		public void setMyModel(@Type("application/rdf+xml") Model model) {
 		}
 
-		@query("my")
+		@Method("GET")
+		@Path("?my")
 		@requires("urn:test:grant")
-		@type({"application/sparql-results+xml", "text/plain"})
+		@Type({"application/sparql-results+xml", "text/plain"})
 		public boolean getMyBoolean() {
 			return true;
 		}
 
-		@query("my")
+		@Method("PUT")
+		@Path("?my")
 		@requires("urn:test:grant")
-		public void setMyBoolean(@type("application/sparql-results+xml") boolean bool) {
+		public void setMyBoolean(@Type("application/sparql-results+xml") boolean bool) {
 		}
 
-		@query("my")
+		@Method("POST")
+		@Path("?my")
 		@requires("urn:test:grant")
-		public String postRDF(@type("application/rdf+xml") InputStream in) {
+		public String postRDF(@Type("application/rdf+xml") InputStream in) {
 			return "rdf+xml";
 		}
 
-		@query("my")
+		@Method("POST")
+		@Path("?my")
 		@requires("urn:test:grant")
-		@type("text/plain")
+		@Type("text/plain")
 		public String postSPARQL(
-				@type("application/sparql-results+xml") InputStream in) {
+				@Type("application/sparql-results+xml") InputStream in) {
 			return "sparql-results+xml";
 		}
 	}
 
 	public static abstract class RDFXMLFile implements HTTPFileObject {
-		@method("GET")
-		@query({})
+		@Method("GET")
+		@Path("$")
 		@requires("urn:test:grant")
-		@type("application/rdf+xml")
+		@Type("application/rdf+xml")
 		public InputStream getInputStream() throws IOException {
 			return openInputStream();
 		}

@@ -16,11 +16,12 @@
  */
 package org.callimachusproject.server;
 
-import org.callimachusproject.annotations.header;
-import org.callimachusproject.annotations.method;
-import org.callimachusproject.annotations.query;
 import org.callimachusproject.annotations.requires;
 import org.callimachusproject.server.base.MetadataServerTestCase;
+import org.openrdf.annotations.HeaderParam;
+import org.openrdf.annotations.Method;
+import org.openrdf.annotations.Param;
+import org.openrdf.annotations.Path;
 import org.openrdf.model.vocabulary.RDFS;
 
 import com.sun.jersey.api.client.WebResource;
@@ -28,31 +29,31 @@ import com.sun.jersey.api.client.WebResource;
 public class ParameterTest extends MetadataServerTestCase {
 
 	public static abstract class Behaviour {
-		@method("GET")
-		@query("query")
+		@Method("GET")
+		@Path("?query")
 		@requires("urn:test:grant")
-		public String query(@query("q1") String q1) {
+		public String query(@Param("q1") String q1) {
 			return "hello " + q1;
 		}
 
-		@method("GET")
-		@query("star")
+		@Method("GET")
+		@Path("\\?(star.*)")
 		@requires("urn:test:grant")
-		public String star(@query("*") String qs) {
+		public String star(@Param("1") String qs) {
 			return "hello " + qs;
 		}
 
-		@method("GET")
-		@query("header")
+		@Method("GET")
+		@Path("?header")
 		@requires("urn:test:grant")
-		public String header(@header("h1") String h1) {
+		public String header(@HeaderParam("h1") String h1) {
 			return "hello " + h1;
 		}
 
-		@method("GET")
-		@query("either")
+		@Method("GET")
+		@Path("?either")
 		@requires("urn:test:grant")
-		public String either(@query("q1") @header("h1") String value) {
+		public String either(@Param("q1") @HeaderParam("h1") String value) {
 			return "hello " + value;
 		}
 	}
@@ -73,8 +74,8 @@ public class ParameterTest extends MetadataServerTestCase {
 	}
 
 	public void testStar() throws Exception {
-		WebResource q1 = client.path("/").queryParam("star", "");
-		assertEquals("hello star", q1.get(String.class));
+		WebResource q1 = client.path("/").queryParam("star", "light");
+		assertEquals("hello star=light", q1.get(String.class));
 	}
 
 	public void testJustHeader() throws Exception {

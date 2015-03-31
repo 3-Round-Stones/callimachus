@@ -38,17 +38,16 @@ import javax.tools.FileObject;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
-import org.callimachusproject.server.exceptions.BadRequest;
-import org.callimachusproject.server.exceptions.InternalServerError;
 import org.callimachusproject.setup.SecretOriginProvider;
 import org.callimachusproject.util.PasswordGenerator;
 import org.openrdf.OpenRDFException;
+import org.openrdf.http.object.exceptions.BadRequest;
+import org.openrdf.http.object.exceptions.InternalServerError;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
@@ -134,7 +133,7 @@ public class DigestPasswordAccessor implements DigestAccessor {
 	}
 
 	public HttpResponse getNotLoggedInResponse(String method, String url,
-			String[] via, Collection<String> cookies, HttpEntity body) throws AssertionError {
+			String[] via, Collection<String> cookies) throws AssertionError {
 		HttpResponse resp = new BasicHttpResponse(_401);
 		resp.setHeader("Content-Type", "text/plain;charset=\"UTF-8\"");
 		try {
@@ -146,7 +145,7 @@ public class DigestPasswordAccessor implements DigestAccessor {
 	}
 
 	public HttpResponse getBadCredentialResponse(String method, String url,
-			String[] via, Collection<String> cookies, HttpEntity body) throws AssertionError {
+			String[] via, Collection<String> cookies) throws AssertionError {
 		HttpResponse resp = new BasicHttpResponse(_401);
 		resp.setHeader("Content-Type", "text/plain;charset=\"UTF-8\"");
 		try {
@@ -360,7 +359,10 @@ public class DigestPasswordAccessor implements DigestAccessor {
 			} finally {
 				reader.close();
 			}
-		} catch (IOException | NoSuchElementException e) {
+		} catch (IOException e) {
+			logger.error(file.toUri().toASCIIString(), e);
+			return null;
+		} catch (NoSuchElementException e) {
 			logger.error(file.toUri().toASCIIString(), e);
 			return null;
 		}

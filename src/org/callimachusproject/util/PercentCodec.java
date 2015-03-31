@@ -61,6 +61,11 @@ public class PercentCodec {
 		}
 	}
 
+	public static String encodeOthers(String sourceValue)
+			throws UnsupportedEncodingException {
+		return encodeOthers(sourceValue, ALLOWED);
+	}
+
 	public static String encodeOthers(String sourceValue, BitSet allowed)
 			throws UnsupportedEncodingException {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();

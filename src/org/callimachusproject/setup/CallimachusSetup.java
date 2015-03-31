@@ -38,11 +38,11 @@ import java.util.TreeSet;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.callimachusproject.auth.DetachedRealm;
 import org.callimachusproject.behaviours.DigestManagerSupport;
-import org.callimachusproject.client.HttpUriClient;
 import org.callimachusproject.concepts.Activity;
 import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.repository.CalliRepository;
 import org.openrdf.OpenRDFException;
+import org.openrdf.http.object.client.HttpUriClient;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
@@ -585,6 +585,10 @@ public class CallimachusSetup {
 
 					public String revision() {
 						throw new UnsupportedOperationException();
+					}
+
+					public void resetAllCache() {
+						// no-op
 					}
 				});
 			}

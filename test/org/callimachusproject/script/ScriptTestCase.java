@@ -16,6 +16,7 @@
  */
 package org.callimachusproject.script;
 
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -28,6 +29,8 @@ import org.openrdf.model.ValueFactory;
 import org.openrdf.model.vocabulary.RDFS;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.ObjectRepository;
+import org.openrdf.repository.object.compiler.OWLCompiler;
+import org.openrdf.repository.object.compiler.OntologyLoader;
 import org.openrdf.repository.object.config.ObjectRepositoryConfig;
 import org.openrdf.repository.object.config.ObjectRepositoryFactory;
 import org.openrdf.repository.sail.SailRepository;
@@ -82,10 +85,17 @@ public class ScriptTestCase extends TestCase {
 	private static ObjectRepository createRepository(String ontology)
 			throws Exception {
 		URL url = new URL(ontology);
+		OntologyLoader ontologies = new OntologyLoader();
+		ontologies.loadOntology(url);
+		OWLCompiler compiler = new OWLCompiler();
+		compiler.setModel(ontologies.getModel());
+		compiler.setPrefixNamespaces(ontologies.getNamespaces());
+		File jar = File.createTempFile("schema", ".jar");
+		jar.deleteOnExit();
+		ClassLoader cl = compiler.createJar(jar);
+		ObjectRepositoryConfig config = new ObjectRepositoryConfig(cl);
 		ObjectRepositoryFactory ofm = new ObjectRepositoryFactory();
-		ObjectRepositoryConfig config = ofm.getConfig();
 		config.addBehaviour(AssertSupport.class, RDFS.RESOURCE);
-		config.addImports(url);
 		ObjectRepository repository = ofm.getRepository(config);
 		repository.setDelegate(new SailRepository(new MemoryStore()));
 		repository.initialize();

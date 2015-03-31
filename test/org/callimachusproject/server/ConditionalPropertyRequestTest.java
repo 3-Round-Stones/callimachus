@@ -16,12 +16,15 @@
  */
 package org.callimachusproject.server;
 
-import org.callimachusproject.annotations.header;
-import org.callimachusproject.annotations.query;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpVersion;
+import org.apache.http.message.BasicHttpResponse;
 import org.callimachusproject.annotations.requires;
-import org.callimachusproject.annotations.type;
 import org.callimachusproject.server.base.MetadataServerTestCase;
 import org.openrdf.annotations.Iri;
+import org.openrdf.annotations.Method;
+import org.openrdf.annotations.Path;
+import org.openrdf.annotations.Type;
 import org.openrdf.model.vocabulary.RDFS;
 
 import com.sun.jersey.api.client.ClientResponse;
@@ -31,26 +34,37 @@ import com.sun.jersey.api.client.WebResource;
 public class ConditionalPropertyRequestTest extends MetadataServerTestCase {
 
 	@Iri(RDFS.NAMESPACE + "Resource")
-	public interface Resource {
-		@query("property")
+	public abstract static class Resource {
+		@Method("GET")
+		@Path("?property")
 		@requires("urn:test:grant")
-		@type("text/plain")
+		@Type("text/plain")
 		@Iri("urn:test:property")
-		String getProperty();
-		@query("property")
+		public abstract String getProperty();
+		@Method({"PUT", "DELETE"})
+		@Path("?property")
 		@requires("urn:test:grant")
 		@Iri("urn:test:property")
-		void setProperty(@type("text/plain") String property);
-		@query("other")
+		public abstract void setProperty(@Type("text/plain") String property);
+		@Method("HEAD")
+		@Path("?other")
 		@requires("urn:test:grant")
-		@type("text/plain")
-		@header("Cache-Control:no-store")
+		public HttpResponse head() {
+			HttpResponse head = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
+			head.setHeader("Cache-Control", "no-store");
+			return head;
+		}
+		@Method("GET")
+		@Path("?other")
+		@requires("urn:test:grant")
+		@Type("text/plain")
 		@Iri("urn:test:other")
-		String getOtherProperty();
-		@query("other")
+		public abstract String getOtherProperty();
+		@Method({"PUT", "DELETE"})
+		@Path("?other")
 		@requires("urn:test:grant")
 		@Iri("urn:test:other")
-		void setOtherProperty(@type("text/plain") String property);
+		public abstract void setOtherProperty(@Type("text/plain") String property);
 	}
 
 	public void setUp() throws Exception {

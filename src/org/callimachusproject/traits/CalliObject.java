@@ -31,11 +31,11 @@ package org.callimachusproject.traits;
 import java.io.IOException;
 
 import org.callimachusproject.auth.DetachedRealm;
-import org.callimachusproject.client.HttpUriClient;
 import org.callimachusproject.concepts.Activity;
 import org.callimachusproject.repository.CalliRepository;
 import org.openrdf.OpenRDFException;
 import org.openrdf.annotations.Iri;
+import org.openrdf.http.object.client.HttpUriClient;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.RDFObject;
 
@@ -51,14 +51,16 @@ public interface CalliObject extends RDFObject {
 	@Iri("http://www.w3.org/ns/prov#wasGeneratedBy")
 	void setProvWasGeneratedBy(Activity activity);
 
-	CalliRepository getCalliRepository();
+	CalliRepository getCalliRepository() throws OpenRDFException, IOException;
 
 	DetachedRealm getRealm() throws OpenRDFException, IOException;
 
-	HttpUriClient getHttpClient() throws OpenRDFException;
+	HttpUriClient getHttpClient() throws OpenRDFException, IOException;
 
 	void touchRevision() throws RepositoryException;
 
 	String revision();
+
+	void resetAllCache();
 
 }

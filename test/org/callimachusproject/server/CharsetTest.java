@@ -19,11 +19,12 @@ package org.callimachusproject.server;
 import java.io.IOException;
 import java.nio.CharBuffer;
 
-import org.callimachusproject.annotations.query;
 import org.callimachusproject.annotations.requires;
-import org.callimachusproject.annotations.type;
 import org.callimachusproject.server.base.MetadataServerTestCase;
 import org.callimachusproject.server.behaviours.PUTSupport;
+import org.openrdf.annotations.Method;
+import org.openrdf.annotations.Path;
+import org.openrdf.annotations.Type;
 import org.openrdf.model.vocabulary.RDFS;
 
 import com.sun.jersey.api.client.ClientResponse;
@@ -32,16 +33,18 @@ import com.sun.jersey.api.client.WebResource;
 public class CharsetTest extends MetadataServerTestCase {
 
 	public static class Resource {
-		@query("string")
+		@Method("GET")
+		@Path("?string")
 		@requires("urn:test:grant")
-		@type("text/plain")
+		@Type("text/plain")
 		public String hello() {
 			return "Hello World!";
 		}
 
-		@query("stream")
+		@Method("GET")
+		@Path("?stream")
 		@requires("urn:test:grant")
-		@type("text/plain; charset=UTF-8")
+		@Type("text/plain; charset=UTF-8")
 		public Readable stream() {
 			return new Readable() {
 				private boolean written;

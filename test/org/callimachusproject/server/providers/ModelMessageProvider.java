@@ -41,8 +41,8 @@ import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.MessageBodyWriter;
 
-import org.callimachusproject.concurrent.ManagedExecutors;
-import org.callimachusproject.server.util.BackgroundGraphResult;
+import org.openrdf.http.object.concurrent.ManagedExecutors;
+import org.openrdf.http.object.util.BackgroundGraphResult;
 import org.openrdf.model.Model;
 import org.openrdf.model.Namespace;
 import org.openrdf.model.Statement;

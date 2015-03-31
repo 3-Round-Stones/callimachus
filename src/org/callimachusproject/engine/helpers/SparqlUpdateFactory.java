@@ -19,8 +19,8 @@ package org.callimachusproject.engine.helpers;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.clerezza.rdf.core.BNode;
@@ -36,8 +36,9 @@ import org.callimachusproject.engine.model.IRI;
 import org.callimachusproject.engine.model.Node;
 import org.callimachusproject.engine.model.Term;
 import org.callimachusproject.engine.model.VarOrTerm;
-import org.callimachusproject.server.exceptions.BadRequest;
+import org.openrdf.http.object.exceptions.BadRequest;
 import org.openrdf.model.Literal;
+import org.openrdf.model.Model;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
@@ -61,10 +62,24 @@ public class SparqlUpdateFactory {
 		Collection<Statement> newTriples = slurp(insertData);
 		Collection<Statement> removed = copyMissing(oldTriples, newTriples);
 		Collection<Statement> added = copyMissing(newTriples, oldTriples);
-		Map<String, String> ns = new HashMap<String, String>();
+		Map<String, String> ns = new LinkedHashMap<String, String>();
 		ns.putAll(deleteData.getNamespaces());
 		ns.putAll(insertData.getNamespaces());
 		return serialize(ns, removed, added);
+	}
+
+	public String replacement(Model deleteData, Model insertData)
+			throws QueryEvaluationException, IOException {
+		Collection<Statement> removed = copyMissing(deleteData, insertData);
+		Collection<Statement> added = copyMissing(insertData, deleteData);
+		Map<String, String> map = new LinkedHashMap<String, String>();
+		for (org.openrdf.model.Namespace ns : deleteData.getNamespaces()) {
+			map.put(ns.getPrefix(), ns.getName());
+		}
+		for (org.openrdf.model.Namespace ns : insertData.getNamespaces()) {
+			map.put(ns.getPrefix(), ns.getName());
+		}
+		return serialize(map, removed, added);
 	}
 
 	private Collection<Statement> slurp(GraphQueryResult data)

@@ -17,15 +17,14 @@
 package org.callimachusproject.rewrite;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.message.BasicHttpResponse;
-import org.callimachusproject.annotations.type;
-import org.callimachusproject.fluid.Fluid;
-import org.callimachusproject.fluid.FluidBuilder;
-import org.callimachusproject.fluid.FluidFactory;
+import org.openrdf.annotations.Type;
+import org.openrdf.http.object.fluid.Fluid;
+import org.openrdf.http.object.fluid.FluidBuilder;
+import org.openrdf.http.object.fluid.FluidFactory;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.RDFObject;
 import org.openrdf.repository.object.advice.Advice;
@@ -33,7 +32,7 @@ import org.openrdf.repository.object.traits.ObjectMessage;
 
 public class MissingAdvice implements Advice {
 	private final StatusLine status;
-	private final Type returnType;
+	private final java.lang.reflect.Type returnType;
 	private final String[] returnMedia;
 
 	public MissingAdvice(StatusLine status, Method method) {
@@ -58,8 +57,8 @@ public class MissingAdvice implements Advice {
 	}
 
 	private String[] getMediaType(Method method) {
-		if (method.isAnnotationPresent(type.class))
-			return method.getAnnotation(type.class).value();
+		if (method.isAnnotationPresent(Type.class))
+			return method.getAnnotation(Type.class).value();
 		return new String[0];
 	}
 

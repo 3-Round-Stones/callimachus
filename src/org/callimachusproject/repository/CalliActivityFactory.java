@@ -28,8 +28,8 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import org.callimachusproject.concurrent.ManagedExecutors;
 import org.callimachusproject.repository.auditing.ActivityFactory;
+import org.openrdf.http.object.concurrent.ManagedExecutors;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.vocabulary.RDF;

@@ -24,14 +24,14 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 
 import org.apache.http.util.EntityUtils;
-import org.callimachusproject.client.HttpUriClient;
-import org.callimachusproject.client.HttpUriEntity;
 import org.callimachusproject.concepts.ScriptBundle;
-import org.callimachusproject.server.exceptions.GatewayTimeout;
-import org.callimachusproject.server.exceptions.InternalServerError;
 import org.callimachusproject.traits.CalliObject;
 import org.openrdf.OpenRDFException;
 import org.openrdf.annotations.Sparql;
+import org.openrdf.http.object.client.HttpUriClient;
+import org.openrdf.http.object.client.HttpUriEntity;
+import org.openrdf.http.object.exceptions.GatewayTimeout;
+import org.openrdf.http.object.exceptions.InternalServerError;
 
 import com.google.javascript.jscomp.CheckLevel;
 import com.google.javascript.jscomp.CommandLineRunner;

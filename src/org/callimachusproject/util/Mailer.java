@@ -32,8 +32,8 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.naming.NamingException;
 
-import org.callimachusproject.server.exceptions.BadRequest;
-import org.callimachusproject.server.exceptions.NotImplemented;
+import org.openrdf.http.object.exceptions.BadRequest;
+import org.openrdf.http.object.exceptions.NotImplemented;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

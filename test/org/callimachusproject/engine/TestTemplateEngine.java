@@ -22,7 +22,7 @@ import java.io.StringReader;
 import junit.framework.TestCase;
 
 import org.apache.http.client.HttpClient;
-import org.callimachusproject.client.HttpClientFactory;
+import org.openrdf.http.object.client.HttpClientFactory;
 
 public class TestTemplateEngine extends TestCase {
 	private static final String SYSTEM_ID = "http://example.com/";

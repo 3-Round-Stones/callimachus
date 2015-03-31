@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
 
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Resource;
@@ -41,11 +40,11 @@ public interface DigestAccessor {
 	HttpResponse getLogoutResponse();
 
 	HttpResponse getBadCredentialResponse(String method, String url,
-			String[] via, Collection<String> cookies, HttpEntity body)
+			String[] via, Collection<String> cookies)
 			throws IOException;
 
 	HttpResponse getNotLoggedInResponse(String method, String url,
-			String[] via, Collection<String> cookies, HttpEntity body)
+			String[] via, Collection<String> cookies)
 			throws IOException;
 
 }

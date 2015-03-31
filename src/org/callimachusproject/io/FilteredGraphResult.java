@@ -19,8 +19,8 @@ import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.impl.GraphQueryResultImpl;
 
 public class FilteredGraphResult implements GraphQueryResult {
-	public final LinkedList<Statement> statements = new LinkedList<>();
-	public final LinkedList<GraphQueryResult> results = new LinkedList<>();
+	public final LinkedList<Statement> statements = new LinkedList<Statement>();
+	public final LinkedList<GraphQueryResult> results = new LinkedList<GraphQueryResult>();
 	private final Set<Resource> omit = new HashSet<Resource>();
 
 	public FilteredGraphResult addTriple(URI subj, URI pred, Value obj) {

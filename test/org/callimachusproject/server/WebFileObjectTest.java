@@ -21,10 +21,10 @@ import java.io.Writer;
 
 import javax.tools.FileObject;
 
-import org.callimachusproject.annotations.method;
-import org.callimachusproject.annotations.type;
 import org.callimachusproject.server.base.MetadataServerTestCase;
 import org.openrdf.annotations.Iri;
+import org.openrdf.annotations.Method;
+import org.openrdf.annotations.Type;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.RDFObject;
@@ -33,8 +33,8 @@ public class WebFileObjectTest extends MetadataServerTestCase {
 
 	@Iri("urn:test:Item")
 	public static abstract class Item implements FileObject {
-		@method("PUT")
-		public void setBody(@type("*/*") String body) throws IOException {
+		@Method("PUT")
+		public void setBody(@Type("*/*") String body) throws IOException {
 			Writer writer = openWriter();
 			writer.write(body);
 			writer.close();
@@ -43,8 +43,8 @@ public class WebFileObjectTest extends MetadataServerTestCase {
 
 	@Iri("urn:test:Container")
 	public static abstract class Container implements RDFObject, FileObject {
-		@method("POST")
-		public void addItem(@type("text/plain") String body) throws RepositoryException, IOException {
+		@Method("POST")
+		public void addItem(@Type("text/plain") String body) throws RepositoryException, IOException {
 			ObjectConnection con = getObjectConnection();
 			Object obj = con.getObject(toUri().resolve("item").toASCIIString());
 			Item item = con.addDesignation(obj, Item.class);

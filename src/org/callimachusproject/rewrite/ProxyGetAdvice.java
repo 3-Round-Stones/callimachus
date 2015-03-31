@@ -23,15 +23,15 @@ import java.lang.reflect.Method;
 import org.apache.http.Header;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
-import org.callimachusproject.client.HttpUriResponse;
-import org.callimachusproject.fluid.Fluid;
-import org.callimachusproject.fluid.FluidBuilder;
-import org.callimachusproject.fluid.FluidException;
-import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.repository.CalliRepository;
-import org.callimachusproject.server.exceptions.ResponseException;
 import org.callimachusproject.traits.CalliObject;
 import org.openrdf.OpenRDFException;
+import org.openrdf.http.object.client.HttpUriResponse;
+import org.openrdf.http.object.exceptions.ResponseException;
+import org.openrdf.http.object.fluid.Fluid;
+import org.openrdf.http.object.fluid.FluidBuilder;
+import org.openrdf.http.object.fluid.FluidException;
+import org.openrdf.http.object.fluid.FluidType;
 import org.openrdf.repository.object.traits.ObjectMessage;
 
 public class ProxyGetAdvice extends RewriteAdvice {

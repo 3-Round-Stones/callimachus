@@ -25,8 +25,8 @@ import java.util.Map;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.util.EntityUtils;
-import org.callimachusproject.client.HttpUriClient;
 import org.callimachusproject.engine.model.TermFactory;
+import org.openrdf.http.object.client.HttpUriClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

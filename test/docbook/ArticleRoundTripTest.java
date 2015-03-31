@@ -26,9 +26,9 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import org.apache.http.client.HttpClient;
-import org.callimachusproject.client.HttpClientFactory;
 import org.callimachusproject.xproc.Pipeline;
 import org.callimachusproject.xproc.PipelineFactory;
+import org.openrdf.http.object.client.HttpClientFactory;
 
 public class ArticleRoundTripTest extends TestCase {
 	private static final File testDir = new File("test/docbook/tests/");

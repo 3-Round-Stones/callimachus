@@ -23,10 +23,8 @@ import org.apache.http.HttpResponse;
 import org.callimachusproject.auth.DetachedRealm;
 import org.callimachusproject.auth.RealmManager;
 import org.callimachusproject.concepts.Realm;
-import org.callimachusproject.server.WebServer;
 import org.callimachusproject.traits.CalliObject;
 import org.openrdf.OpenRDFException;
-import org.openrdf.repository.RepositoryException;
 
 public abstract class RealmSupport implements CalliObject, Realm {
 
@@ -40,10 +38,10 @@ public abstract class RealmSupport implements CalliObject, Realm {
 		return realm.logout(tokens, logoutContinue);
 	}
 
-	public void resetCache() throws RepositoryException {
+	public void resetCache() throws OpenRDFException, IOException {
 		this.getObjectConnection().commit();
 		getCalliRepository().resetCache();
-		WebServer.resetAllCache();
+		this.resetAllCache();
 	}
 
 	public String getPreferredManagerCookie(String manager) {

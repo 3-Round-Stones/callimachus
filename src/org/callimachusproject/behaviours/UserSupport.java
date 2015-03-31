@@ -20,9 +20,9 @@ import java.io.IOException;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.callimachusproject.concepts.User;
-import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.traits.CalliObject;
 import org.openrdf.OpenRDFException;
+import org.openrdf.http.object.exceptions.BadRequest;
 
 public abstract class UserSupport implements User, CalliObject {
 

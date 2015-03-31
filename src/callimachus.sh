@@ -85,8 +85,8 @@ fi
 PIDFILE="$BASEDIR/run/$NAME.pid"
 SCRIPTNAME=$0
 
-MAINCLASS=org.callimachusproject.Server
-MONITORCLASS=org.callimachusproject.ServerMonitor
+MAINCLASS=org.openrdf.http.object.Server
+MONITORCLASS=org.openrdf.http.object.ServerControl
 
 # Ensure that any user defined CLASSPATH variables are not used on startup.
 CLASSPATH=
@@ -659,7 +659,7 @@ do_start()
     -classpath "$CLASSPATH" \
     -Djava.awt.headless=true \
     -XX:OnOutOfMemoryError="kill %p" \
-    $DAEMON_OPTS $SSL_OPTS $JMXRMI_OPTS "$MAINCLASS" -q -b "$BASEDIR" -c "$CONFIG" $OPTS "$@"
+    $DAEMON_OPTS $SSL_OPTS $JMXRMI_OPTS "$MAINCLASS" -q -d "$BASEDIR" $OPTS "$@"
 
   RETURN_VAL=$?
   sleep 4
@@ -813,7 +813,7 @@ do_run() {
     -Djava.awt.headless=true \
     -XX:OnOutOfMemoryError="kill %p" \
     -classpath "$CLASSPATH" \
-    $DAEMON_OPTS $SSL_OPTS $JMXRMI_OPTS "$MAINCLASS" -q -b "$BASEDIR" -c "$CONFIG" --pid "$PIDFILE" "$@"
+    $DAEMON_OPTS $SSL_OPTS $JMXRMI_OPTS "$MAINCLASS" -q -d "$BASEDIR" --pid "$PIDFILE" "$@"
 }
 
 case "$1" in

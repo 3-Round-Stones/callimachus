@@ -43,10 +43,10 @@ import org.apache.http.client.utils.DateUtils;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
-import org.callimachusproject.server.exceptions.BadRequest;
-import org.callimachusproject.server.exceptions.TooManyRequests;
 import org.callimachusproject.traits.CalliObject;
 import org.openrdf.OpenRDFException;
+import org.openrdf.http.object.exceptions.BadRequest;
+import org.openrdf.http.object.exceptions.TooManyRequests;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
 import org.openrdf.repository.object.ObjectConnection;
@@ -166,9 +166,9 @@ public class DigestAuthenticationManager implements DetachedAuthenticationManage
 			String[] via = request.get("via");
 			Collection<String> cookie = asList(request.get("cookie"));
 			if (options == null) {
-				 resp = accessor.getNotLoggedInResponse(method, url, via, cookie, body);
+				 resp = accessor.getNotLoggedInResponse(method, url, via, cookie);
 			} else {
-				resp = accessor.getBadCredentialResponse(method, url, via, cookie, body);
+				resp = accessor.getBadCredentialResponse(method, url, via, cookie);
 			}
 		}
 		if (!resp.containsHeader("Cache-Control")) {

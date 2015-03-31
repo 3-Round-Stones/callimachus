@@ -20,13 +20,14 @@ import java.io.OutputStream;
 
 import javax.xml.stream.XMLEventReader;
 
-import org.callimachusproject.annotations.query;
 import org.callimachusproject.annotations.requires;
-import org.callimachusproject.annotations.type;
 import org.callimachusproject.server.base.MetadataServerTestCase;
-import org.callimachusproject.server.exceptions.BadRequest;
 import org.openrdf.annotations.Iri;
 import org.openrdf.annotations.Matching;
+import org.openrdf.annotations.Method;
+import org.openrdf.annotations.Path;
+import org.openrdf.annotations.Type;
+import org.openrdf.http.object.exceptions.BadRequest;
 import org.openrdf.model.vocabulary.RDFS;
 import org.openrdf.repository.object.ObjectConnection;
 
@@ -47,29 +48,37 @@ public class ExceptionTest extends MetadataServerTestCase {
 			this.invalid = invalid;
 		}
 
-		@query("bad")
+		@Method("POST")
+		@Path("?bad")
+		@Type("text/plain")
 		@requires("urn:test:grant")
-		public String badRequest(@type("*/*") String body) throws Exception {
+		public String badRequest(@Type("*/*") String body) throws Exception {
 			setInvalid(true);
 			throw new BadRequest("this in a bad request");
 		}
 
-		@query("exception")
+		@Method("POST")
+		@Path("?exception")
+		@Type("text/plain")
 		@requires("urn:test:grant")
-		public String throwException(@type("*/*") String body) throws Exception {
+		public String throwException(@Type("*/*") String body) throws Exception {
 			setInvalid(true);
 			throw new Exception("this in an exception");
 		}
 
-		@query("stream")
+		@Method("GET")
+		@Path("?stream")
+		@Type("application/octet-stream")
 		@requires("urn:test:grant")
 		public OutputStream getStream() {
 			return System.out;
 		}
 
-		@query("xml")
+		@Method("POST")
+		@Path("?xml")
+		@Type("text/plain")
 		@requires("urn:test:grant")
-		public String postXML(@type("application/xml") XMLEventReader xml) {
+		public String postXML(@Type("application/xml") XMLEventReader xml) {
 			return "xml";
 		}
 	}

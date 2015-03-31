@@ -16,11 +16,11 @@
  */
 package org.callimachusproject.server;
 
-import org.callimachusproject.annotations.method;
 import org.callimachusproject.annotations.requires;
-import org.callimachusproject.annotations.type;
 import org.callimachusproject.server.base.MetadataServerTestCase;
 import org.callimachusproject.server.behaviours.NamedGraphSupport;
+import org.openrdf.annotations.Method;
+import org.openrdf.annotations.Type;
 import org.openrdf.model.Model;
 import org.openrdf.model.URI;
 import org.openrdf.model.impl.LinkedHashModel;
@@ -32,9 +32,9 @@ import com.sun.jersey.api.client.WebResource;
 public class TransactionResourceTest extends MetadataServerTestCase {
 
 	public static class HelloWorld {
-		@method("POST")
+		@Method("POST")
 		@requires("urn:test:grant")
-		public String hello(@type("*/*") String input) {
+		public String hello(@Type("*/*") String input) {
 			return input + " world!";
 		}
 	}

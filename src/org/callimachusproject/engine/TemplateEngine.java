@@ -26,11 +26,11 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerException;
 
 import org.apache.http.client.HttpClient;
-import org.callimachusproject.client.HttpUriClient;
-import org.callimachusproject.client.HttpUriEntity;
-import org.callimachusproject.fluid.FluidBuilder;
-import org.callimachusproject.fluid.FluidException;
-import org.callimachusproject.fluid.FluidFactory;
+import org.openrdf.http.object.client.HttpUriClient;
+import org.openrdf.http.object.client.HttpUriEntity;
+import org.openrdf.http.object.fluid.FluidBuilder;
+import org.openrdf.http.object.fluid.FluidException;
+import org.openrdf.http.object.fluid.FluidFactory;
 
 public class TemplateEngine {
 

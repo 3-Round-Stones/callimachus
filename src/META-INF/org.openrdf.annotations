@@ -3,18 +3,12 @@ org.callimachusproject.annotations.canonical
 org.callimachusproject.annotations.deleted
 org.callimachusproject.annotations.describedby
 org.callimachusproject.annotations.disabled
-org.callimachusproject.annotations.expect = http://www.openrdf.org/rdf/2011/messaging#expect
 org.callimachusproject.annotations.copy
-org.callimachusproject.annotations.header = http://www.openrdf.org/rdf/2011/messaging#header
 org.callimachusproject.annotations.imports = http://www.openrdf.org/rdf/2011/messaging#imports
-org.callimachusproject.annotations.method = http://www.openrdf.org/rdf/2011/messaging#method
 org.callimachusproject.annotations.moved
 org.callimachusproject.annotations.post
-org.callimachusproject.annotations.query = http://www.openrdf.org/rdf/2011/messaging#query
 org.callimachusproject.annotations.requires
 org.callimachusproject.annotations.rel = http://www.openrdf.org/rdf/2011/messaging#rel
 org.callimachusproject.annotations.resides
 org.callimachusproject.annotations.script = http://www.openrdf.org/rdf/2011/messaging#script
 org.callimachusproject.annotations.title = http://www.openrdf.org/rdf/2011/messaging#title
-org.callimachusproject.annotations.type = http://www.openrdf.org/rdf/2011/messaging#type
-org.callimachusproject.annotations.xproc

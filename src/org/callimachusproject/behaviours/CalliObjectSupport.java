@@ -30,26 +30,39 @@ package org.callimachusproject.behaviours;
 
 import static java.lang.Integer.toHexString;
 
+import java.io.File;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.lang.ref.WeakReference;
+import java.net.MalformedURLException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.WeakHashMap;
 
+import javax.management.JMX;
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
+import javax.management.Query;
+import javax.management.QueryExp;
+
 import org.callimachusproject.auth.DetachedRealm;
-import org.callimachusproject.client.HttpUriClient;
 import org.callimachusproject.concepts.Activity;
 import org.callimachusproject.repository.CalliRepository;
 import org.callimachusproject.repository.auditing.ActivityFactory;
 import org.callimachusproject.repository.auditing.AuditingRepositoryConnection;
 import org.callimachusproject.traits.CalliObject;
 import org.openrdf.OpenRDFException;
+import org.openrdf.http.object.client.HttpUriClient;
+import org.openrdf.http.object.management.ObjectServerMXBean;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.base.RepositoryConnectionWrapper;
+import org.openrdf.repository.manager.LocalRepositoryManager;
+import org.openrdf.repository.manager.RepositoryManager;
+import org.openrdf.repository.manager.RepositoryProvider;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.ObjectFactory;
 import org.openrdf.repository.object.ObjectRepository;
@@ -61,34 +74,65 @@ import org.openrdf.repository.object.RDFObject;
 public abstract class CalliObjectSupport implements CalliObject {
 	private final static Map<ObjectRepository, WeakReference<CalliRepository>> repositories = new WeakHashMap<ObjectRepository, WeakReference<CalliRepository>>();
 
-	public static void associate(CalliRepository repository, ObjectRepository repo) {
-		synchronized (repositories) {
-			Iterator<ObjectRepository> iter = repositories.keySet().iterator();
-			while (iter.hasNext()) {
-				ObjectRepository key = iter.next();
-				if (!key.isInitialized()) {
-					iter.remove();
-				}
+	public static synchronized void associate(CalliRepository repository,
+			ObjectRepository repo) throws MalformedURLException {
+		Iterator<ObjectRepository> iter = repositories.keySet().iterator();
+		while (iter.hasNext()) {
+			ObjectRepository key = iter.next();
+			if (!key.isInitialized()) {
+				iter.remove();
 			}
-			repositories.put(repo, new WeakReference<CalliRepository>(repository));
+		}
+		repositories.put(repo, new WeakReference<CalliRepository>(repository));
+	}
+
+	public static synchronized CalliRepository getCalliRepositroyFor(
+			ObjectRepository repository) throws OpenRDFException, IOException {
+		WeakReference<CalliRepository> ref = repositories.get(repository);
+		if (ref != null) {
+			CalliRepository result = ref.get();
+			if (result != null)
+				return result;
+		}
+		File dataDir = repository.getDataDir();
+		if (dataDir == null)
+			throw new IllegalArgumentException("Not a local repsitory: " + repository);
+		try {
+			String url = dataDir.toURI().toASCIIString();
+			RepositoryManager manager = RepositoryProvider.getRepositoryManagerOfRepository(url);
+			if (!(manager instanceof LocalRepositoryManager))
+				throw new IllegalArgumentException("Not a local repsitory manager: " + url);
+			LocalRepositoryManager lrm = (LocalRepositoryManager) manager;
+			String id = RepositoryProvider.getRepositoryIdOfRepository(url);
+			CalliRepository result = new CalliRepository(id, repository, lrm);
+			associate(result, repository);
+			return result;
+		} catch (IllegalArgumentException e) {
+			LocalRepositoryManager manager = new LocalRepositoryManager(dataDir);
+			CalliRepository result = new CalliRepository(null, repository, manager);
+			associate(result, repository);
+			return result;
 		}
 	}
 
-	public CalliRepository getCalliRepository() {
-		ObjectRepository key = getObjectConnection().getRepository();
-		synchronized (repositories) {
-			WeakReference<CalliRepository> ref = repositories.get(key);
-			assert ref != null;
-			assert ref.get() != null;
-			return ref.get();
+	public void resetAllCache() {
+		MBeanServer mbsc = ManagementFactory.getPlatformMBeanServer();
+		QueryExp instanceOf = Query.isInstanceOf(Query.value(ObjectServerMXBean.class.getName()));
+		for (ObjectName name : mbsc.queryNames(ObjectName.WILDCARD, instanceOf)) {
+			ObjectServerMXBean server = JMX.newMXBeanProxy(mbsc, name, ObjectServerMXBean.class);
+			server.resetCache();
 		}
+	}
+
+	public CalliRepository getCalliRepository() throws OpenRDFException, IOException {
+		return getCalliRepositroyFor(getObjectConnection().getRepository());
 	}
 
 	public DetachedRealm getRealm() throws OpenRDFException, IOException {
 		return getCalliRepository().getRealm(this.getResource().stringValue());
 	}
 
-	public HttpUriClient getHttpClient() throws OpenRDFException {
+	public HttpUriClient getHttpClient() throws OpenRDFException, IOException {
 		return getCalliRepository().getHttpClient(this.getResource().stringValue());
 	}
 

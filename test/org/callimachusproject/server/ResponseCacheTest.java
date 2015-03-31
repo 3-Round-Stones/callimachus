@@ -18,13 +18,15 @@ package org.callimachusproject.server;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.callimachusproject.annotations.header;
-import org.callimachusproject.annotations.query;
 import org.callimachusproject.annotations.requires;
-import org.callimachusproject.annotations.type;
 import org.callimachusproject.server.base.MetadataServerTestCase;
 import org.callimachusproject.server.behaviours.PUTSupport;
+import org.openrdf.annotations.Header;
+import org.openrdf.annotations.HeaderParam;
 import org.openrdf.annotations.Iri;
+import org.openrdf.annotations.Method;
+import org.openrdf.annotations.Path;
+import org.openrdf.annotations.Type;
 
 import com.sun.jersey.api.client.WebResource;
 
@@ -38,45 +40,53 @@ public class ResponseCacheTest extends MetadataServerTestCase {
 		@Iri("urn:test:display")
 		private Display display;
 
-		@query("display")
+		@Method("GET")
+		@Path("?display")
+		@Type("text/uri-list")
 		@requires("urn:test:grant")
 		public Display getDisplay() {
 			return display;
 		}
 
-		@query("display")
+		@Method("PUT")
+		@Path("?display")
 		@requires("urn:test:grant")
-		public void setDisplay(@type("*/*") Display display) {
+		public void setDisplay(@Type("*/*") Display display) {
 			this.display = display;
 		}
 
-		@query("date")
+		@Method("PUT")
+		@Path("?date")
 		@requires("urn:test:grant")
-		public void setDate(@type("*/*") String date) {
+		public void setDate(@Type("*/*") String date) {
 			display.setDate(date);
 		}
 
-		@query("time")
+		@Method("PUT")
+		@Path("?time")
 		@requires("urn:test:grant")
-		public void setTime(@type("*/*") String time) {
+		public void setTime(@Type("*/*") String time) {
 			display.setTime(time);
 		}
 	}
 
 	@Iri("urn:mimetype:application/display")
 	public interface Display {
-		@query("date")
+
+		@Method("GET")
+		@Path("?date")
+		@Header("Cache-Control:max-age=3")
 		@requires("urn:test:grant")
-		@header("Cache-Control:max-age=3")
 		@Iri("urn:test:date")
 		String getDate();
 
 		void setDate(String date);
 
-		@query("time")
+		@Method("GET")
+		@Path("?time")
+		@Header("Cache-Control:no-cache")
 		@requires("urn:test:grant")
 		@Iri("urn:test:time")
-		@header("Cache-Control:no-cache")
 		String getTime();
 
 		void setTime(String time);
@@ -86,51 +96,57 @@ public class ResponseCacheTest extends MetadataServerTestCase {
 	public static class Seq {
 		private static AtomicLong seq = new AtomicLong();
 
-		@query("next")
+		@Method("GET")
+		@Path("?next")
+		@Header("Cache-Control:max-age=1")
 		@requires("urn:test:grant")
-		@type("text/plain")
-		@header("Cache-Control:max-age=1")
+		@Type("text/plain")
 		public String next() {
 			return Long.toHexString(seq.incrementAndGet());
 		}
 
-		@query("auth")
+		@Method("GET")
+		@Path("?auth")
+		@Header("Cache-Control:max-age=10")
 		@requires("urn:test:grant")
-		@type("text/plain")
-		@header("Cache-Control:max-age=10")
+		@Type("text/plain")
 		public String auth() {
 			return Long.toHexString(seq.incrementAndGet());
 		}
 
-		@query("private")
+		@Method("GET")
+		@Path("?private")
+		@Header("Cache-Control:private")
 		@requires("urn:test:grant")
-		@type("text/plain")
-		@header("Cache-Control:private")
+		@Type("text/plain")
 		public String _private() {
 			return Long.toHexString(seq.incrementAndGet());
 		}
 
-		@query("number")
+		@Method("GET")
+		@Path("?number")
+		@Header("Cache-Control:public,max-age=1")
 		@requires("urn:test:grant")
-		@type("text/plain")
-		@header("Cache-Control:public,max-age=1")
+		@Type("text/plain")
 		public String number() {
 			return Long.toHexString(seq.incrementAndGet());
 		}
 
-		@query("seq")
+		@Method("GET")
+		@Path("?seq")
+		@Header("Cache-Control:no-cache")
 		@requires("urn:test:grant")
-		@type("text/plain")
-		@header("Cache-Control:no-cache")
+		@Type("text/plain")
 		public String seq() {
 			return Long.toHexString(seq.incrementAndGet());
 		}
 
-		@query("add")
+		@Method("GET")
+		@Path("?add")
+		@Header("Cache-Control:max-age=1")
 		@requires("urn:test:grant")
-		@type("text/plain")
-		@header("Cache-Control:max-age=1")
-		public String add(@header("amount") int amount) {
+		@Type("text/plain")
+		public String add(@HeaderParam("amount") int amount) {
 			return Long.toHexString(seq.addAndGet(amount));
 		}
 	}

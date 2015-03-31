@@ -74,7 +74,7 @@ public final class SqlTupleResult implements TupleQueryResult {
 			throws QueryEvaluationException {
 		try {
 			int n = md.getColumnCount();
-			List<String> names = new ArrayList<>(n);
+			List<String> names = new ArrayList<String>(n);
 			for (int col = 1; col <= n; col++) {
 				names.add(md.getColumnName(col));
 			}

@@ -27,11 +27,11 @@ import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
 import org.apache.http.nio.entity.NStringEntity;
 import org.apache.http.util.EntityUtils;
-import org.callimachusproject.annotations.header;
-import org.callimachusproject.annotations.method;
-import org.callimachusproject.annotations.type;
 import org.callimachusproject.server.base.MetadataServerTestCase;
+import org.openrdf.annotations.HeaderParam;
 import org.openrdf.annotations.Matching;
+import org.openrdf.annotations.Method;
+import org.openrdf.annotations.Type;
 import org.openrdf.repository.object.ObjectConnection;
 
 public class HttpResponseTest extends MetadataServerTestCase {
@@ -40,10 +40,9 @@ public class HttpResponseTest extends MetadataServerTestCase {
 
 	@Matching("/echo")
 	public static class Echo {
-		@method("POST")
-		@type("message/x-response")
-		public HttpResponse echo(@header("Content-Type") String type,
-				@type("*/*") String body) throws IOException {
+		@Method("POST")
+		public HttpResponse echo(@HeaderParam("Content-Type") String type,
+				@Type("*/*") String body) throws IOException {
 			ProtocolVersion HTTP11 = HttpVersion.HTTP_1_1;
 			BasicStatusLine line = new BasicStatusLine(HTTP11, 200, "OK");
 			HttpResponse resp = new BasicHttpResponse(line);;
@@ -58,7 +57,6 @@ public class HttpResponseTest extends MetadataServerTestCase {
 	public void setUp() throws Exception {
 		config.addConcept(Echo.class);
 		super.setUp();
-		server.setEnvelopeType("message/x-response");
 		con = repository.getConnection();
 	}
 

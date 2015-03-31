@@ -28,16 +28,16 @@ import org.callimachusproject.concepts.Composite;
 import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.form.helpers.TripleInserter;
 import org.callimachusproject.io.CarOutputStream;
-import org.callimachusproject.io.ChannelUtil;
 import org.callimachusproject.io.DescribeResult;
-import org.callimachusproject.io.ProducerStream;
-import org.callimachusproject.io.ProducerStream.OutputProducer;
-import org.callimachusproject.io.TurtleStreamWriterFactory;
-import org.callimachusproject.server.exceptions.BadRequest;
-import org.callimachusproject.server.exceptions.Conflict;
 import org.openrdf.OpenRDFException;
 import org.openrdf.annotations.Bind;
 import org.openrdf.annotations.Sparql;
+import org.openrdf.http.object.exceptions.BadRequest;
+import org.openrdf.http.object.exceptions.Conflict;
+import org.openrdf.http.object.io.ChannelUtil;
+import org.openrdf.http.object.io.ProducerStream;
+import org.openrdf.http.object.io.ProducerStream.OutputProducer;
+import org.openrdf.http.object.io.TurtleStreamWriterFactory;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Namespace;
 import org.openrdf.model.Resource;
@@ -111,7 +111,7 @@ public abstract class FolderSupport implements RDFObject, RDFObjectBehaviour, Co
 			URI graph) throws OpenRDFException, IOException {
 		TripleInserter inserter = new TripleInserter(this.getObjectConnection());
 		inserter.setGraph(graph);
-		inserter.setIgnoringDocumentMetadata(true); // CAR resources don't distinguish document vs topic
+		inserter.setIncludingDocumentMetadata(true); // CAR resources don't distinguish document vs topic
 		inserter.parseAndInsert(entryStream, type, uri);
 		if (inserter.isEmpty())
 			throw new BadRequest("Missing resource information for: " + uri);

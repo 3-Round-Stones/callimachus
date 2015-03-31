@@ -22,10 +22,10 @@ import java.io.StringReader;
 import junit.framework.TestCase;
 
 import org.apache.http.client.HttpClient;
-import org.callimachusproject.client.HttpClientFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.openrdf.http.object.client.HttpClientFactory;
 import org.xml.sax.SAXException;
 
 public class PipelineTest extends TestCase {

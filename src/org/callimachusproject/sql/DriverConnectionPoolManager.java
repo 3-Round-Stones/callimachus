@@ -28,7 +28,7 @@ import org.apache.commons.pool.ObjectPool;
 import org.apache.commons.pool.impl.GenericObjectPool;
 
 public class DriverConnectionPoolManager {
-	private final HashMap<String, ObjectPool<PoolableDriverConnection>> pools = new HashMap<>();
+	private final HashMap<String, ObjectPool<PoolableDriverConnection>> pools = new HashMap<String, ObjectPool<PoolableDriverConnection>>();
 
 	public synchronized void registerDriver(String name, Driver driver,
 			String url, Properties info, GenericObjectPool.Config config,

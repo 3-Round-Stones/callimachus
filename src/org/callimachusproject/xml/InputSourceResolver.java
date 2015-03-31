@@ -43,9 +43,9 @@ import net.sf.saxon.lib.UnparsedTextURIResolver;
 import net.sf.saxon.trans.XPathException;
 
 import org.apache.http.client.HttpClient;
-import org.callimachusproject.client.HttpUriClient;
-import org.callimachusproject.client.HttpUriEntity;
-import org.callimachusproject.server.exceptions.NotFound;
+import org.openrdf.http.object.client.HttpUriClient;
+import org.openrdf.http.object.client.HttpUriEntity;
+import org.openrdf.http.object.exceptions.NotFound;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.EntityResolver;

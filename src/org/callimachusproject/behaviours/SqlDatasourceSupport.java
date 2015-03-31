@@ -50,13 +50,13 @@ import org.apache.http.entity.ContentType;
 import org.callimachusproject.auth.DetachedRealm;
 import org.callimachusproject.concepts.SqlDatasource;
 import org.callimachusproject.io.CharsetDetector;
-import org.callimachusproject.server.exceptions.BadRequest;
-import org.callimachusproject.server.exceptions.NotFound;
 import org.callimachusproject.sql.DriverConnectionPoolManager;
 import org.callimachusproject.sql.PoolableDriverConnection;
 import org.callimachusproject.sql.SqlTupleResult;
 import org.callimachusproject.traits.CalliObject;
 import org.openrdf.OpenRDFException;
+import org.openrdf.http.object.exceptions.BadRequest;
+import org.openrdf.http.object.exceptions.NotFound;
 import org.openrdf.model.Literal;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
@@ -73,7 +73,7 @@ public abstract class SqlDatasourceSupport implements SqlDatasource,
 	private static final Pattern HOST_POST_REGEX = Pattern
 			.compile("([\\w\\-\\.]+):(\\d+)");
 	private static final DriverConnectionPoolManager manager = new DriverConnectionPoolManager();
-	private static final Map<String, List<Driver>> drivers = new HashMap<>();
+	private static final Map<String, List<Driver>> drivers = new HashMap<String, List<Driver>>();
 	private static final int BATCH_SIZE = 1000;
 
 	private final Logger logger = LoggerFactory
@@ -245,7 +245,7 @@ public abstract class SqlDatasourceSupport implements SqlDatasource,
 			OpenRDFException, IOException {
 		Exception cause = null;
 		String url = this.getCalliJdbcUrl();
-		List<String> classnames = new ArrayList<>(this.getCalliDriverClassName());
+		List<String> classnames = new ArrayList<String>(this.getCalliDriverClassName());
 		ClassLoader cl = createClassLoader();
 		for (String classname : classnames) {
 			try {
@@ -419,7 +419,7 @@ public abstract class SqlDatasourceSupport implements SqlDatasource,
 
 	private Map<String, Integer> getColumnTypes(String tablename,
 			Connection conn) throws SQLException {
-		Map<String, Integer> columnNames = new LinkedHashMap<>();
+		Map<String, Integer> columnNames = new LinkedHashMap<String, Integer>();
 		ResultSet columns = conn.getMetaData().getColumns(null, null,
 				tablename, null);
 		try {

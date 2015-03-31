@@ -52,11 +52,11 @@ import junit.framework.TestSuite;
 import junit.textui.TestRunner;
 
 import org.apache.http.client.HttpClient;
-import org.callimachusproject.client.HttpClientFactory;
 import org.callimachusproject.engine.RDFaReader;
 import org.callimachusproject.engine.Template;
 import org.callimachusproject.engine.TemplateEngine;
 import org.callimachusproject.engine.helpers.XMLEventList;
+import org.openrdf.http.object.client.HttpClientFactory;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;

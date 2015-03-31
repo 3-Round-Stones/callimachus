@@ -1,0 +1,4 @@
+org.callimachusproject.auth.AuthenticationHandler
+org.callimachusproject.interceptors.AlternativeHandler
+org.callimachusproject.interceptors.LinksFilter
+org.callimachusproject.interceptors.ActivityProcessor

@@ -22,14 +22,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.callimachusproject.annotations.header;
-import org.callimachusproject.annotations.method;
-import org.callimachusproject.annotations.query;
 import org.callimachusproject.annotations.requires;
-import org.callimachusproject.annotations.type;
 import org.callimachusproject.server.concepts.Alias;
 import org.callimachusproject.server.concepts.HTTPFileObject;
-import org.callimachusproject.server.exceptions.BadRequest;
+import org.openrdf.annotations.HeaderParam;
+import org.openrdf.annotations.Method;
+import org.openrdf.annotations.Path;
+import org.openrdf.annotations.Type;
+import org.openrdf.http.object.exceptions.BadRequest;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.repository.RepositoryException;
@@ -39,11 +39,11 @@ import org.openrdf.repository.object.exceptions.BehaviourException;
 
 public abstract class PUTSupport implements HTTPFileObject, RDFObject {
 
-	@query( {})
-	@method("PUT")
+	@Path("$")
+	@Method("PUT")
 	@requires("urn:test:grant")
-	public void putIntputStream(@header("Content-Location") String location,
-			@header("Content-Type") String mediaType, @type("*/*") InputStream in)
+	public void putIntputStream(@HeaderParam("Content-Location") String location,
+			@HeaderParam("Content-Type") String mediaType, @Type("*/*") InputStream in)
 			throws RepositoryException {
 		ObjectConnection con = getObjectConnection();
 		if (location == null) {

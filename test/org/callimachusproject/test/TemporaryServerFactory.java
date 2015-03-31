@@ -28,18 +28,14 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Scanner;
 
-import org.apache.http.HttpHost;
-import org.apache.http.client.utils.URIUtils;
-import org.callimachusproject.client.HttpClientFactory;
 import org.callimachusproject.repository.CalliRepository;
-import org.callimachusproject.repository.DatasourceManager;
-import org.callimachusproject.server.WebServer;
 import org.callimachusproject.setup.CallimachusSetup;
 import org.callimachusproject.util.SystemProperties;
 import org.openrdf.OpenRDFException;
+import org.openrdf.http.object.management.ObjectRepositoryManager;
+import org.openrdf.http.object.management.ObjectServer;
 import org.openrdf.model.Graph;
 import org.openrdf.model.Resource;
-import org.openrdf.model.URI;
 import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.model.util.GraphUtil;
 import org.openrdf.model.util.GraphUtilException;
@@ -48,7 +44,7 @@ import org.openrdf.repository.Repository;
 import org.openrdf.repository.config.RepositoryConfig;
 import org.openrdf.repository.config.RepositoryConfigException;
 import org.openrdf.repository.config.RepositoryConfigSchema;
-import org.openrdf.repository.manager.LocalRepositoryManager;
+import org.openrdf.repository.manager.RepositoryManager;
 import org.openrdf.repository.manager.RepositoryProvider;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandlerException;
@@ -62,7 +58,6 @@ public class TemporaryServerFactory {
 	private static int MIN_PORT = 49152;
 	private static int MAX_PORT = 65535;
 	private static final String CHANGES_PATH = "../changes/";
-	private static final String SCHEMA_GRAPH = "types/RdfSchemaGraph";
 	private static final File WEBAPP_CAR = findCallimachusWebappCar();
 	private static final int PORT = findPort(WEBAPP_CAR.getAbsolutePath().hashCode());
 	private static final TemporaryServerFactory instance = new TemporaryServerFactory("http://localhost:" + PORT, PORT, "test@example.com", "test".toCharArray());
@@ -166,42 +161,21 @@ public class TemporaryServerFactory {
 		try {
 			final File dir = createCallimachus(origin);
 			return new TemporaryServer(){
-				private LocalRepositoryManager manager;
-				private WebServer server;
+				private RepositoryManager manager;
+				private ObjectServer server;
 				private CalliRepository repository;
 				private boolean stopped;
 
 				public synchronized void start() throws InterruptedException, Exception {
 					manager = RepositoryProvider.getRepositoryManager(dir);
-					File dataDir = manager.getRepositoryDir("callimachus");
-					Repository repo = manager.getRepository("callimachus");
-					repository = new CalliRepository(repo, dataDir);
-					repository.setDatasourceManager(new DatasourceManager(
-							manager, "callimachus") {
-						protected CalliRepository createCalliRepository(
-								URI uri, Repository delegate, File dataDir)
-								throws OpenRDFException, IOException {
-							CalliRepository secondary;
-							secondary = super.createCalliRepository(uri,
-									delegate, dataDir);
-							String uriSpace = repository.getChangeFolder();
-							String webapp = repository
-									.getCallimachusWebapp(uriSpace);
-							secondary.setChangeFolder(uriSpace, webapp);
-							return secondary;
-						}
-					});
+					server = new ObjectServer(dir);
+					server.addRepositoryPrefix("callimachus", origin + "/");
+					repository = new CalliRepository("callimachus", server.getRepository("callimachus"), manager);
 					String url = repository.getCallimachusUrl(origin, CHANGES_PATH);
-					String schema = repository.getCallimachusUrl(origin, SCHEMA_GRAPH);
-					repository.addSchemaGraphType(schema);
 					repository.setChangeFolder(url);
-					repository.setCompileRepository(true);
-					server = new WebServer(new File(dataDir, "cache/server"));
-					server.addOrigin(origin, repository);
-					server.listen(new int[]{port}, new int[0]);
+					server.setPorts(String.valueOf(port));
+					server.init();
 					server.start();
-					HttpHost host = URIUtils.extractHost(java.net.URI.create(origin + "/"));
-					HttpClientFactory.getInstance().setProxy(host, server);
 					Thread.sleep(100);
 				}
 
@@ -279,17 +253,16 @@ public class TemporaryServerFactory {
 				FileUtil.deleteDir(dir);
 			}
 			dir.delete();
+			dir.mkdirs();
 			String configStr = readRepositoryConfigFile();
 			System.setProperty("org.callimachusproject.config.webapp", WEBAPP_CAR.getAbsolutePath());
 			RepositoryConfig config = getRepositoryConfig(configStr);
-			LocalRepositoryManager manager = RepositoryProvider.getRepositoryManager(dir);
+			ObjectRepositoryManager manager = new ObjectRepositoryManager(dir);
 			Repository repo = getRepository(manager, config);
 			if (repo == null)
 				throw new RepositoryConfigException(
 						"Missing repository configuration");
-			File dataDir = manager.getRepositoryDir(config.getID());
-			CalliRepository repository = new CalliRepository(repo, dataDir);
-			repository.setDatasourceManager(new DatasourceManager(manager, config.getID()));
+			CalliRepository repository = new CalliRepository(config.getID(), manager);
 			CallimachusSetup setup = new CallimachusSetup(repository);
 			setup.prepareWebappOrigin(origin);
 			setup.createWebappOrigin(origin);
@@ -316,18 +289,15 @@ public class TemporaryServerFactory {
 		}
 	}
 
-	private Repository getRepository(LocalRepositoryManager manager, RepositoryConfig config)
+	private Repository getRepository(ObjectRepositoryManager manager, RepositoryConfig config)
 			throws OpenRDFException, MalformedURLException, IOException {
 		if (config == null || manager == null)
 			return null;
 		String id = config.getID();
-		if (manager.hasRepositoryConfig(id))
+		if (manager.isRepositoryPresent(id))
 			return manager.getRepository(id);
 		config.validate();
-		manager.addRepositoryConfig(config);
-		if (manager.getInitializedRepositoryIDs().contains(id)) {
-			manager.getRepository(id).shutDown();
-		}
+		manager.addRepository(config);
 		return manager.getRepository(id);
 	}
 

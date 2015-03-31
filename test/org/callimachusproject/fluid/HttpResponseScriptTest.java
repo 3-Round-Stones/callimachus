@@ -26,12 +26,12 @@ import junit.framework.TestCase;
 
 import org.apache.http.HttpResponse;
 import org.callimachusproject.annotations.script;
-import org.callimachusproject.fluid.FluidException;
-import org.callimachusproject.fluid.FluidFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.openrdf.annotations.Iri;
+import org.openrdf.http.object.fluid.FluidException;
+import org.openrdf.http.object.fluid.FluidFactory;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.ObjectRepository;
 import org.openrdf.repository.object.config.ObjectRepositoryConfig;
@@ -44,11 +44,11 @@ public class HttpResponseScriptTest extends TestCase {
 	@Iri("file:///tmp/test/BooleanTester")
 	public interface BooleanTester {
 		@script("return { headers:{'content-type':'text/plain'}, body:'hello' }")
-		Object returnBodyString();
+		HttpResponse returnBodyString();
 		@script("return { headers:{'content-type':'text/plain'}, body:['hello'] }")
-		Object returnBodyArray();
+		HttpResponse returnBodyArray();
 		@script("return { status:201, statusText:'Created', headers:{'content-type':'text/plain', 'location':'about:blank'}, body:['hello'] }")
-		Object returnStatus201();
+		HttpResponse returnStatus201();
 	}
 
 	private File targetDir;
@@ -81,7 +81,7 @@ public class HttpResponseScriptTest extends TestCase {
 	public void testBodyString() throws Exception {
 		BooleanTester tester = con.addDesignation(
 				con.getObject("file:///tmp/test"), BooleanTester.class);
-		HttpResponse http = asHttpResponse(tester.returnBodyString());
+		HttpResponse http = tester.returnBodyString();
 		assertEquals(200, http.getStatusLine().getStatusCode());
 		assertEquals("text/plain", http.getFirstHeader("Content-Type")
 				.getValue());
@@ -93,7 +93,7 @@ public class HttpResponseScriptTest extends TestCase {
 	public void testBodyArray() throws Exception {
 		BooleanTester tester = con.addDesignation(
 				con.getObject("file:///tmp/test"), BooleanTester.class);
-		HttpResponse http = asHttpResponse(tester.returnBodyArray());
+		HttpResponse http = tester.returnBodyArray();
 		assertEquals(200, http.getStatusLine().getStatusCode());
 		assertEquals("text/plain", http.getFirstHeader("Content-Type")
 				.getValue());
@@ -105,17 +105,12 @@ public class HttpResponseScriptTest extends TestCase {
 	public void testStatus201() throws Exception {
 		BooleanTester tester = con.addDesignation(
 				con.getObject("file:///tmp/test"), BooleanTester.class);
-		HttpResponse http = asHttpResponse(tester.returnStatus201());
+		HttpResponse http = tester.returnStatus201();
 		assertEquals(201, http.getStatusLine().getStatusCode());
 		assertEquals("text/plain", http.getFirstHeader("Content-Type")
 				.getValue());
 		assertEquals("hello", new Scanner(http.getEntity().getContent())
 				.useDelimiter("\n").next());
-	}
-
-	private HttpResponse asHttpResponse(Object obj) throws IOException,
-			FluidException {
-		return FluidFactory.getInstance().builder(con).consume(obj, null, Object.class, "message/http").asHttpResponse();
 	}
 
 }

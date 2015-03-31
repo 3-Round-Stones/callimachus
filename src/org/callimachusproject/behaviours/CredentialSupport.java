@@ -16,10 +16,12 @@
  */
 package org.callimachusproject.behaviours;
 
+import java.io.IOException;
+
 import org.callimachusproject.repository.CalliRepository;
-import org.callimachusproject.server.WebServer;
 import org.callimachusproject.setup.SecretOriginProvider;
 import org.callimachusproject.traits.CalliObject;
+import org.openrdf.OpenRDFException;
 import org.openrdf.model.URI;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.ObjectConnection;
@@ -33,9 +35,9 @@ public abstract class CredentialSupport implements CalliObject {
 		return con.getObject(file);
 	}
 
-	public void resetCache() throws RepositoryException {
+	public void resetCache() throws OpenRDFException, IOException {
 		this.getObjectConnection().commit();
 		getCalliRepository().resetCache();
-		WebServer.resetAllCache();
+		this.resetAllCache();
 	}
 }

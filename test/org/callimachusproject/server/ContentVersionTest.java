@@ -18,14 +18,16 @@ package org.callimachusproject.server;
 
 import java.util.concurrent.CountDownLatch;
 
-import org.callimachusproject.annotations.header;
-import org.callimachusproject.annotations.method;
-import org.callimachusproject.annotations.query;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpVersion;
+import org.apache.http.message.BasicHttpResponse;
 import org.callimachusproject.annotations.requires;
-import org.callimachusproject.annotations.type;
 import org.callimachusproject.server.base.MetadataServerTestCase;
 import org.callimachusproject.traits.CalliObject;
 import org.openrdf.annotations.Iri;
+import org.openrdf.annotations.Method;
+import org.openrdf.annotations.Path;
+import org.openrdf.annotations.Type;
 import org.openrdf.repository.object.ObjectConnection;
 
 import com.sun.jersey.api.client.ClientResponse;
@@ -43,22 +45,35 @@ public class ContentVersionTest extends MetadataServerTestCase {
 		@Iri("urn:test:label")
 		void setLabel(String label);
 
-		@method("GET")
-		@query("no-store")
+		@Method("HEAD")
+		@Path("?no-store")
 		@requires("urn:test:grant")
-		@type("text/plain")
-		@header("Cache-Control:no-store")
+		HttpResponse headNoStore();
+
+		@Method("GET")
+		@Path("?no-store")
+		@requires("urn:test:grant")
+		@Type("text/plain")
 		String GetNoStoreLabel();
 
-		@method("GET")
-		@query("validated")
+		@Method("HEAD")
+		@Path("?validated")
 		@requires("urn:test:grant")
-		@type("text/plain")
-		@header("Cache-Control:must-revalidate")
+		HttpResponse headValidated();
+
+		@Method("GET")
+		@Path("?validated")
+		@requires("urn:test:grant")
+		@Type("text/plain")
 		String GetValidatedLabel();
 	}
 
 	public static abstract class MyEntitySupport implements MyEntity {
+		public HttpResponse headNoStore() {
+			HttpResponse head = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
+			head.setHeader("Cache-Control", "no-store");
+			return head;
+		}
 		public String GetNoStoreLabel() {
 			String label = getLabel();
 			hasRead.countDown();
@@ -68,6 +83,11 @@ public class ContentVersionTest extends MetadataServerTestCase {
 				// stop waiting
 			}
 			return label;
+		}
+		public HttpResponse headValidated() {
+			HttpResponse head = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
+			head.setHeader("Cache-Control", "must-revalidate");
+			return head;
 		}
 		public String GetValidatedLabel() {
 			String label = getLabel();

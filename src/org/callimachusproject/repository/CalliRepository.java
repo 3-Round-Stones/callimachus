@@ -18,19 +18,14 @@ package org.callimachusproject.repository;
 
 import info.aduna.net.ParsedURI;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -43,47 +38,38 @@ import org.callimachusproject.auth.AuthorizationManager;
 import org.callimachusproject.auth.DetachedRealm;
 import org.callimachusproject.auth.RealmManager;
 import org.callimachusproject.behaviours.CalliObjectSupport;
-import org.callimachusproject.client.HttpUriClient;
 import org.callimachusproject.engine.model.TermFactory;
-import org.callimachusproject.io.ArrangedWriter;
 import org.callimachusproject.repository.auditing.ActivityFactory;
 import org.callimachusproject.repository.auditing.AuditingRepository;
 import org.callimachusproject.repository.trace.Trace;
 import org.callimachusproject.repository.trace.TracerService;
 import org.openrdf.OpenRDFException;
+import org.openrdf.http.object.client.HttpUriClient;
+import org.openrdf.http.object.management.ObjectRepositoryManager;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.vocabulary.RDF;
-import org.openrdf.query.BooleanQuery;
-import org.openrdf.query.GraphQuery;
-import org.openrdf.query.Query;
-import org.openrdf.query.QueryLanguage;
-import org.openrdf.query.TupleQuery;
-import org.openrdf.query.resultio.text.tsv.SPARQLResultsTSVWriter;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
 import org.openrdf.repository.base.RepositoryWrapper;
 import org.openrdf.repository.config.RepositoryConfigException;
+import org.openrdf.repository.manager.RepositoryManager;
+import org.openrdf.repository.manager.RepositoryProvider;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.ObjectRepository;
-import org.openrdf.repository.object.config.ObjectRepositoryConfig;
-import org.openrdf.repository.object.config.ObjectRepositoryFactory;
 import org.openrdf.repository.object.exceptions.ObjectStoreConfigException;
 import org.openrdf.rio.ParserConfig;
 import org.openrdf.rio.helpers.BasicParserSettings;
-import org.openrdf.rio.turtle.TurtleWriter;
 import org.openrdf.store.blob.BlobStore;
-import org.openrdf.store.blob.file.FileBlobStoreProvider;
-import org.slf4j.LoggerFactory;
 
-public class CalliRepository extends RepositoryWrapper implements CalliRepositoryMXBean {
+public class CalliRepository extends RepositoryWrapper {
 	public class HttpRepositoryClient extends HttpUriClient {
 		private final String source;
 
-		private HttpRepositoryClient(String source) {
+		HttpRepositoryClient(String source) {
 			this.source = source;
 		}
 
@@ -127,21 +113,29 @@ public class CalliRepository extends RepositoryWrapper implements CalliRepositor
 		}
 	}
 
-	private final org.slf4j.Logger logger = LoggerFactory.getLogger(CalliRepository.class);
 	private final TracerService service = TracerService.newInstance();
 	private final RealmManager realms;
 	private final AuthorizationManager auth;
 	private final AuditingRepository auditing;
 	private final ObjectRepository object;
-	private DatasourceManager datasources;
+	private final RepositoryManager manager;
+	private final String repositoryID;
 	private String changeFolder;
 	private ParserConfig parserConfig;
 
-	public CalliRepository(Repository repository, File dataDir)
-			throws RepositoryConfigException, RepositoryException,
-			IOException {
-		assert repository != null;
-		object = createObjectRepository(dataDir, repository);
+	public CalliRepository(String repositoryID, ObjectRepositoryManager manager)
+			throws OpenRDFException, IOException {
+		this(repositoryID, manager.getObjectRepository(repositoryID),
+				RepositoryProvider.getRepositoryManager(manager.getLocation()
+						.toExternalForm()));
+	}
+
+	public CalliRepository(String repositoryID, ObjectRepository repository, RepositoryManager manager)
+			throws OpenRDFException, IOException {
+		assert manager != null && repositoryID != null && repository != null;
+		this.repositoryID = repositoryID;
+		this.manager = manager;
+		object = repository;
 		auditing = findAuditingRepository(repository, object);
 		RepositoryWrapper wrapper = object;
 		while (wrapper.getDelegate() instanceof RepositoryWrapper) {
@@ -156,16 +150,30 @@ public class CalliRepository extends RepositoryWrapper implements CalliRepositor
 		parserConfig.set(BasicParserSettings.PRESERVE_BNODE_IDS, true);
 	}
 
+	public String getRepositoryID() {
+		return repositoryID;
+	}
+
+	public RepositoryManager getRepositoryManager() {
+		return manager;
+	}
+
 	public AuthorizationManager getAuthorizationManager() {
 		return auth;
 	}
 
-	public DatasourceManager getDatasourceManager() {
-		return datasources;
-	}
-
-	public void setDatasourceManager(DatasourceManager datasources) {
-		this.datasources = datasources;
+	public String getDatasourceRepositoryId(URI uri) {
+		int hash = uri.stringValue().hashCode();
+		String code = Integer.toHexString(Math.abs(hash));
+		String local = uri.getLocalName().replaceAll("[^a-zA-Z0-9\\-.]", "_");
+		String id = getRepositoryID();
+		StringBuilder sb = new StringBuilder();
+		if (id != null) {
+			sb.append(id).append("/");
+		}
+		sb.append("datasources/").append(local.toLowerCase());
+		sb.append("-").append(code);
+		return sb.toString();
 	}
 
 	public void resetCache() {
@@ -186,7 +194,6 @@ public class CalliRepository extends RepositoryWrapper implements CalliRepositor
 		return object;
 	}
 
-	@Override
 	public String getChangeFolder() throws OpenRDFException {
 		return changeFolder;
 	}
@@ -228,32 +235,7 @@ public class CalliRepository extends RepositoryWrapper implements CalliRepositor
 		object.setIncludeInferred(includeInferred);
 	}
 
-	public void addSchemaGraph(URI graphURI) throws RepositoryException {
-		object.addSchemaGraph(graphURI);
-	}
-
-	public void removeSchemaGraph(URI graphURI) throws RepositoryException {
-		object.removeSchemaGraph(graphURI);
-	}
-
-	public void addSchemaGraphType(String rdfType) throws RepositoryException {
-		object.addSchemaGraphType(getValueFactory().createURI(rdfType));
-	}
-
-	public void setSchemaGraphType(String rdfType) throws RepositoryException {
-		object.setSchemaGraphType(getValueFactory().createURI(rdfType));
-	}
-
-	public boolean isCompileRepository() {
-		return object.isCompileRepository();
-	}
-
-	public void setCompileRepository(boolean compileRepository)
-			throws ObjectStoreConfigException, RepositoryException {
-		object.setCompileRepository(compileRepository);
-	}
-
-	public BlobStore getBlobStore() {
+	public BlobStore getBlobStore() throws ObjectStoreConfigException {
 		return object.getBlobStore();
 	}
 
@@ -261,7 +243,6 @@ public class CalliRepository extends RepositoryWrapper implements CalliRepositor
 		object.setBlobStore(store);
 	}
 
-	@Override
 	public boolean isTracingCalls() {
 		for (String prefix : service.getTracingPackages()) {
 			if (prefix.equals("org.openrdf.repository"))
@@ -270,7 +251,6 @@ public class CalliRepository extends RepositoryWrapper implements CalliRepositor
 		return false;
 	}
 
-	@Override
 	public void setTracingCalls(boolean trace) {
 		if (trace) {
 			service.setTracingPackages("org.openrdf.repository", "org.openrdf.query", "org.openrdf.model");
@@ -279,12 +259,10 @@ public class CalliRepository extends RepositoryWrapper implements CalliRepositor
 		}
 	}
 
-	@Override
 	public boolean isLoggingCalls() {
 		return isTracingCalls() && service.getLogger(RepositoryConnection.class).isTraceEnabled();
 	}
 
-	@Override
 	public void setLoggingCalls(boolean trace) {
 		if (trace) {
 			setTracingCalls(trace);
@@ -298,7 +276,6 @@ public class CalliRepository extends RepositoryWrapper implements CalliRepositor
 		}
 	}
 
-	@Override
 	public String[] showActiveCalls() {
 		Trace[] threads = service.getActiveCallTraces();
 		String[] result = new String[threads.length];
@@ -314,7 +291,6 @@ public class CalliRepository extends RepositoryWrapper implements CalliRepositor
 		return result;
 	}
 
-	@Override
 	public String[] showTraceSummary() throws IOException {
 		Trace[] traces1 = service.getActiveCallTraces();
 		Trace[] traces2 = service.getTracesByAverageTime();
@@ -335,75 +311,8 @@ public class CalliRepository extends RepositoryWrapper implements CalliRepositor
 		return list.toArray(new String[list.size()]);
 	}
 
-	@Override
 	public void resetTraceAnalysis() {
 		service.resetAnalysis();
-	}
-
-	public String[] sparqlQuery(String query) throws OpenRDFException, IOException {
-		RepositoryConnection conn = this.getConnection();
-		try {
-			Query qry = conn.prepareQuery(QueryLanguage.SPARQL, query);
-			if (qry instanceof TupleQuery) {
-				ByteArrayOutputStream out = new ByteArrayOutputStream();
-				SPARQLResultsTSVWriter writer = new SPARQLResultsTSVWriter(out);
-				((TupleQuery) qry).evaluate(writer);
-				return new String(out.toByteArray(), "UTF-8").split("\r?\n");
-			} else if (qry instanceof BooleanQuery) {
-				return new String[]{String.valueOf(((BooleanQuery) qry).evaluate())};
-			} else if (qry instanceof GraphQuery) {
-				StringWriter string = new StringWriter(65536);
-				TurtleWriter writer = new TurtleWriter(string);
-				((GraphQuery) qry).evaluate(new ArrangedWriter(writer));
-				return string.toString().split("(?<=\\.)\r?\n");
-			} else {
-				throw new RepositoryException("Unknown query type: " + qry.getClass().getSimpleName());
-			}
-		} finally {
-			conn.close();
-		}
-	}
-
-	public void sparqlUpdate(String update) throws OpenRDFException, IOException {
-		RepositoryConnection conn = this.getConnection();
-		try {
-			logger.info(update);
-			conn.prepareUpdate(QueryLanguage.SPARQL, update).execute();
-		} finally {
-			conn.close();
-		}
-	}
-
-	public String getBlob(String uri) throws OpenRDFException, IOException {
-		ObjectConnection conn = getConnection();
-		try {
-			return conn.getBlobObject(uri).getCharContent(true).toString();
-		} finally {
-			conn.close();
-		}
-	}
-
-	public void storeBlob(String uri, String content) throws OpenRDFException, IOException {
-		ObjectConnection conn = getConnection();
-		try {
-			logger.warn("Replacing {}", uri);
-			Writer writer = conn.getBlobObject(uri).openWriter();
-			try {
-				writer.write(content);
-			} finally {
-				writer.close();
-			}
-		} finally {
-			conn.close();
-		}
-	}
-
-	public boolean addSchemaListener(Runnable action) {
-		return object.addSchemaListener(action);
-	}
-
-	public boolean removeSchemaListener(Runnable action) {
-		return object.removeSchemaListener(action);
 	}
 
 	public ObjectConnection getConnection() throws RepositoryException {
@@ -426,6 +335,11 @@ public class CalliRepository extends RepositoryWrapper implements CalliRepositor
 		}
 		con.setParserConfig(parserConfig);
 		return con;
+	}
+
+	public RepositoryConnection openSchemaConnection()
+			throws RepositoryException {
+		return manager.getSystemRepository().getConnection();
 	}
 
 	/**
@@ -480,33 +394,7 @@ public class CalliRepository extends RepositoryWrapper implements CalliRepositor
 		repository.setDelegate(traced);
 	}
 
-	private ObjectRepository createObjectRepository(File dataDir,
-			Repository repository) throws RepositoryConfigException,
-			RepositoryException, IOException {
-		if (repository instanceof ObjectRepository)
-			return (ObjectRepository) repository;
-		// AdviceService used in ObjectRepository#compileSchema
-		// uses java.util.ServiceLoader in a non-thread safe way
-		synchronized (CalliRepository.class) {
-			ObjectRepositoryFactory factory = new ObjectRepositoryFactory();
-			ObjectRepositoryConfig config = factory.getConfig();
-			config.setObjectDataDir(dataDir);
-			File wwwDir = new File(dataDir, "www");
-			File blobDir = new File(dataDir, "blob");
-			if (wwwDir.isDirectory() && !blobDir.isDirectory()) {
-				config.setBlobStore(wwwDir.toURI().toString());
-				Map<String, String> map = new HashMap<String, String>();
-				map.put("provider", FileBlobStoreProvider.class.getName());
-				config.setBlobStoreParameters(map);
-			} else {
-				config.setBlobStore(blobDir.toURI().toString());
-			}
-			return factory.createRepository(config, repository);
-		}
-	}
-
 	private void setLoggerLevel(String fragment, Level level) {
-		boolean found = false;
 		Enumeration<String> names = LogManager.getLogManager().getLoggerNames();
 		while (names.hasMoreElements()) {
 			String name = names.nextElement();
@@ -514,11 +402,8 @@ public class CalliRepository extends RepositoryWrapper implements CalliRepositor
 				Logger logger = Logger.getLogger(name);
 				logger.setLevel(level);
 				setHandlerLevel(logger, level);
-				found = true;
 			}
 		}
-		if (!found)
-			throw new IllegalArgumentException("No such logger: " + fragment);
 	}
 
 	private void setHandlerLevel(Logger logger, Level level) {

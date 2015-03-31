@@ -46,9 +46,10 @@ import javax.script.ScriptException;
 import javax.script.SimpleBindings;
 
 import org.apache.http.HttpEntity;
-import org.callimachusproject.client.HttpUriClient;
+import org.apache.http.HttpResponse;
 import org.callimachusproject.traits.CalliObject;
 import org.openrdf.OpenRDFException;
+import org.openrdf.http.object.client.HttpUriClient;
 import org.openrdf.repository.object.exceptions.BehaviourException;
 import org.openrdf.repository.object.traits.ObjectMessage;
 import org.slf4j.Logger;
@@ -81,6 +82,14 @@ public class EmbeddedScriptEngine {
 		}
 		if (Context == null)
 			throw new AssertionError("Could not find rhino context");
+	}
+	private static HttpResponseScriptBuilder rb;
+	static {
+		try {
+			rb = new HttpResponseScriptBuilder();
+		} catch (ScriptException e) {
+			throw new AssertionError(e);
+		}
 	}
 
 	public static EmbeddedScriptEngine newInstance(ClassLoader cl,
@@ -201,6 +210,11 @@ public class EmbeddedScriptEngine {
 			if (number == null)
 				return null;
 			return new Double(number.doubleValue());
+		}
+
+		public HttpResponse asHttpResponse() throws NoSuchMethodException,
+				ScriptException {
+			return rb.asHttpResponse(asObject());
 		}
 	}
 

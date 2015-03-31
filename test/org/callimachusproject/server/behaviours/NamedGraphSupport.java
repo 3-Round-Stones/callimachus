@@ -36,16 +36,16 @@ import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.callimachusproject.annotations.header;
-import org.callimachusproject.annotations.method;
-import org.callimachusproject.annotations.query;
 import org.callimachusproject.annotations.rel;
 import org.callimachusproject.annotations.requires;
 import org.callimachusproject.annotations.title;
-import org.callimachusproject.annotations.type;
 import org.callimachusproject.server.concepts.HTTPFileObject;
-import org.callimachusproject.server.exceptions.BadRequest;
-import org.callimachusproject.server.exceptions.MethodNotAllowed;
+import org.openrdf.annotations.HeaderParam;
+import org.openrdf.annotations.Method;
+import org.openrdf.annotations.Path;
+import org.openrdf.annotations.Type;
+import org.openrdf.http.object.exceptions.BadRequest;
+import org.openrdf.http.object.exceptions.MethodNotAllowed;
 import org.openrdf.model.Namespace;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
@@ -75,9 +75,10 @@ public abstract class NamedGraphSupport implements HTTPFileObject, RDFObject {
 
 	@rel("alternate")
 	@title("RDF Graph")
-	@query("graph")
+	@Method("GET")
+	@Path("?graph")
 	@requires("urn:test:grant")
-	@type( { "application/rdf+xml", "application/x-turtle", "text/rdf+n3",
+	@Type( { "application/rdf+xml", "application/x-turtle", "text/rdf+n3",
 			"application/trix", "application/x-trig" })
 	public GraphQueryResult exportNamedGraph() throws RepositoryException,
 			RDFHandlerException, QueryEvaluationException,
@@ -104,8 +105,8 @@ public abstract class NamedGraphSupport implements HTTPFileObject, RDFObject {
 		}
 	}
 
-	@query({})
-	@method("DELETE")
+	@Path("$")
+	@Method("DELETE")
 	@requires("urn:test:grant")
 	public void deleteObject() throws RepositoryException {
 		ObjectConnection con = getObjectConnection();
@@ -114,12 +115,12 @@ public abstract class NamedGraphSupport implements HTTPFileObject, RDFObject {
 			throw new MethodNotAllowed();
 	}
 
-	@query( {})
-	@method("PUT")
+	@Path("$")
+	@Method("PUT")
 	@requires("urn:test:grant")
 	public void putRDFIntputStream(
-			@header("Content-Type") String mediaType,
-			@type( { "application/rdf+xml", "application/x-turtle",
+			@HeaderParam("Content-Type") String mediaType,
+			@Type( { "application/rdf+xml", "application/x-turtle",
 					"text/rdf+n3", "application/trix", "application/x-trig" }) InputStream in)
 			throws RepositoryException {
 		try {

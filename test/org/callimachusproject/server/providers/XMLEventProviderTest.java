@@ -28,11 +28,12 @@ import javax.xml.stream.events.Characters;
 import javax.xml.stream.events.Comment;
 import javax.xml.stream.events.XMLEvent;
 
-import org.callimachusproject.annotations.query;
 import org.callimachusproject.annotations.requires;
-import org.callimachusproject.annotations.type;
 import org.callimachusproject.server.base.MetadataServerTestCase;
 import org.callimachusproject.xml.XMLEventReaderFactory;
+import org.openrdf.annotations.Method;
+import org.openrdf.annotations.Path;
+import org.openrdf.annotations.Type;
 import org.openrdf.model.vocabulary.RDFS;
 
 public class XMLEventProviderTest extends MetadataServerTestCase {
@@ -40,9 +41,10 @@ public class XMLEventProviderTest extends MetadataServerTestCase {
 	public static abstract class Hello {
 		private XMLEventFactory factory = XMLEventFactory.newInstance();
 
-		@query("hello")
+		@Method("GET")
+		@Path("?hello")
 		@requires("urn:test:grant")
-		@type("application/xml")
+		@Type("application/xml")
 		public XMLEventReader hello() {
 			LinkedList<XMLEvent> list = new LinkedList<XMLEvent>();
 			list.add(factory.createStartDocument());

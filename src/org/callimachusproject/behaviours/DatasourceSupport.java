@@ -26,21 +26,19 @@ import java.util.regex.Pattern;
 import javax.xml.datatype.DatatypeConfigurationException;
 
 import org.apache.http.HttpEntity;
-import org.callimachusproject.client.CloseableEntity;
-import org.callimachusproject.fluid.FluidBuilder;
-import org.callimachusproject.fluid.FluidException;
-import org.callimachusproject.fluid.FluidFactory;
 import org.callimachusproject.io.DescribeResult;
-import org.callimachusproject.repository.CalliRepository;
-import org.callimachusproject.repository.DatasourceManager;
 import org.callimachusproject.repository.auditing.ActivityFactory;
 import org.callimachusproject.repository.auditing.AuditingRepositoryConnection;
-import org.callimachusproject.server.exceptions.BadRequest;
-import org.callimachusproject.server.exceptions.InternalServerError;
 import org.callimachusproject.server.helpers.RequestActivityFactory;
 import org.callimachusproject.traits.CalliObject;
 import org.openrdf.OpenRDFException;
 import org.openrdf.annotations.Sparql;
+import org.openrdf.http.object.client.CloseableEntity;
+import org.openrdf.http.object.exceptions.BadRequest;
+import org.openrdf.http.object.exceptions.InternalServerError;
+import org.openrdf.http.object.fluid.FluidBuilder;
+import org.openrdf.http.object.fluid.FluidException;
+import org.openrdf.http.object.fluid.FluidFactory;
 import org.openrdf.model.Namespace;
 import org.openrdf.model.URI;
 import org.openrdf.query.GraphQuery;
@@ -57,10 +55,14 @@ import org.openrdf.query.parser.ParsedQuery;
 import org.openrdf.query.parser.ParsedTupleQuery;
 import org.openrdf.query.parser.QueryParser;
 import org.openrdf.query.parser.QueryParserRegistry;
+import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
 import org.openrdf.repository.base.RepositoryConnectionWrapper;
+import org.openrdf.repository.config.RepositoryConfig;
+import org.openrdf.repository.contextaware.ContextAwareConnection;
+import org.openrdf.repository.manager.RepositoryManager;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.sail.config.SailRepositoryConfig;
 import org.openrdf.rio.RDFFormat;
@@ -294,15 +296,18 @@ public abstract class DatasourceSupport implements CalliObject {
 		ObjectConnection con1 = this.getObjectConnection();
 		URI bundle = con1.getVersionBundle();
 		AuditingRepositoryConnection audit1 = findAuditing(con1);
-		DatasourceManager manager = getCalliRepository().getDatasourceManager();
+		String id = getCalliRepository().getDatasourceRepositoryId(uri);
+		RepositoryManager manager = getCalliRepository().getRepositoryManager();
 		if (manager == null)
 			throw new IllegalArgumentException(
 					"Datasources are not configured correctly");
-		if (!manager.isDatasourcePresent(uri)) {
-			manager.setDatasourceConfig(uri, getDefaultConfig());
+		if (!manager.hasRepositoryConfig(id)) {
+			manager.addRepositoryConfig(new RepositoryConfig(id, uri
+					.stringValue(), getDefaultConfig()));
+		
 		}
-		CalliRepository repo2 = manager.getDatasource(uri);
-		ObjectConnection con2 = repo2.getDelegate().getConnection();
+		Repository repo2 = manager.getRepository(id);
+		RepositoryConnection con2 = repo2.getConnection();
 		AuditingRepositoryConnection audit2 = findAuditing(con2);
 		if (bundle != null && audit1 != null && audit2 != null) {
 			ActivityFactory af1 = audit1.getActivityFactory();
@@ -313,8 +318,15 @@ public abstract class DatasourceSupport implements CalliObject {
 				audit2.setActivityFactory(af);
 			}
 		}
-		con2.setVersionBundle(con1.getVersionBundle());
-		return con2;
+		if (con2 instanceof ContextAwareConnection) {
+			ContextAwareConnection con3 = (ContextAwareConnection) con2;
+			con3.setInsertContext(con1.getVersionBundle());
+			return con3;
+		} else {
+			ContextAwareConnection con3 = new ContextAwareConnection(con2);
+			con3.setInsertContext(con1.getVersionBundle());
+			return con3;
+		}
 	}
 
 	private SailRepositoryConfig getDefaultConfig() {

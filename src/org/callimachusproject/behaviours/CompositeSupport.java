@@ -33,17 +33,15 @@ import org.callimachusproject.engine.model.IRI;
 import org.callimachusproject.engine.model.VarOrTerm;
 import org.callimachusproject.form.helpers.TripleInserter;
 import org.callimachusproject.form.helpers.TripleVerifier;
-import org.callimachusproject.server.exceptions.BadRequest;
-import org.callimachusproject.server.exceptions.Conflict;
-import org.callimachusproject.server.exceptions.InternalServerError;
 import org.callimachusproject.traits.CalliObject;
 import org.openrdf.OpenRDFException;
+import org.openrdf.http.object.exceptions.BadRequest;
+import org.openrdf.http.object.exceptions.Conflict;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.vocabulary.DCTERMS;
 import org.openrdf.query.GraphQueryResult;
 import org.openrdf.query.impl.MapBindingSet;
-import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.ObjectFactory;
 import org.openrdf.repository.object.RDFObject;
@@ -90,7 +88,7 @@ public abstract class CompositeSupport implements CalliObject {
 	}
 
 	public boolean isAuthorized(String user, RDFObject target, String[] roles)
-			throws RepositoryException, OpenRDFException {
+			throws OpenRDFException, IOException {
 		AuthorizationManager manager = getCalliRepository().getAuthorizationManager();
 		return manager.isAuthorized(user, target, roles);
 	}

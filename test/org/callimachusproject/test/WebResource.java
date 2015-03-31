@@ -49,7 +49,7 @@ import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.callimachusproject.engine.impl.TermFactoryImpl;
 import org.callimachusproject.engine.model.TermFactory;
-import org.callimachusproject.io.ChannelUtil;
+import org.openrdf.http.object.io.ChannelUtil;
 
 public class WebResource {
 	private static final Pattern LINK = Pattern.compile("<([^>]*)>(?:\\s*;\\s*anchor=\"([^\"]*)\"|\\s*;\\s*(?:rel|rev)=\"([^\"]*)\"|\\s*;\\s*rel=([a-z0-9\\.\\-]*)|\\s*;\\s*type=\"([^\"]*)\"|\\s*;\\s*type=([a-zA-z0-9\\.\\-\\+]*))*");

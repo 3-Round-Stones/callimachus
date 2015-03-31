@@ -16,11 +16,11 @@
  */
 package org.callimachusproject.server;
 
-import org.callimachusproject.annotations.method;
-import org.callimachusproject.annotations.query;
 import org.callimachusproject.annotations.requires;
-import org.callimachusproject.annotations.type;
 import org.callimachusproject.server.base.MetadataServerTestCase;
+import org.openrdf.annotations.Method;
+import org.openrdf.annotations.Path;
+import org.openrdf.annotations.Type;
 import org.openrdf.model.vocabulary.RDFS;
 
 import com.sun.jersey.api.client.UniformInterfaceException;
@@ -31,37 +31,40 @@ public class OperationMethodTest extends MetadataServerTestCase {
 	public static class Resource1 {
 		public static String operation;
 
-		@query("op1")
+		@Method("GET")
+		@Path("?op1")
+		@Type("text/plain")
 		@requires("urn:test:grant")
 		public String getOperation1() {
 			return operation;
 		}
 
-		@query("op1")
-		@method("PUT")
+		@Path("?op1")
+		@Method("PUT")
 		@requires("urn:test:grant")
-		public void setOperation1(@type("*/*") String value) {
+		public void setOperation1(@Type("*/*") String value) {
 			operation = String.valueOf(value);
 		}
 
-		@query("op1")
-		@method("DELETE")
+		@Path("?op1")
+		@Method("DELETE")
 		@requires("urn:test:grant")
 		public void delOperation1() {
 			operation = null;
 		}
 
-		@query("op1")
+		@Method("POST")
+		@Path("?op1")
 		@requires("urn:test:grant")
-		public String setAndGetOperation1(@type("*/*") String value) {
+		public String setAndGetOperation1(@Type("*/*") String value) {
 			String pre = operation;
 			operation = value;
 			return pre;
 		}
 
-		@method("PUT")
+		@Method("PUT")
 		@requires("urn:test:grant")
-		public void putNothing(@type("*/*") byte[] data) {
+		public void putNothing(@Type("*/*") byte[] data) {
 			assertEquals(0, data.length);
 		}
 	}
@@ -69,29 +72,31 @@ public class OperationMethodTest extends MetadataServerTestCase {
 	public static class Resource2 {
 		public static String operation;
 
-		@query("op2")
+		@Method("GET")
+		@Path("?op2")
 		@requires("urn:test:grant")
 		public String getOperation2() {
 			return operation;
 		}
 
-		@query("op2")
-		@method("PUT")
+		@Path("?op2")
+		@Method("PUT")
 		@requires("urn:test:grant")
-		public void setOperation2(@type("text/plain") String value) {
+		public void setOperation2(@Type("text/plain") String value) {
 			operation = String.valueOf(value);
 		}
 
-		@query("op2")
-		@method("DELETE")
+		@Path("?op2")
+		@Method("DELETE")
 		@requires("urn:test:grant")
 		public void delOperation2() {
 			operation = null;
 		}
 
-		@query("op2")
+		@Method("POST")
+		@Path("?op2")
 		@requires("urn:test:grant")
-		public String setAndGetOperation2(@type("text/plain") String value) {
+		public String setAndGetOperation2(@Type("text/plain") String value) {
 			String pre = operation;
 			operation = value;
 			return pre;

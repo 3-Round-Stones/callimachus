@@ -20,13 +20,14 @@ import java.io.IOException;
 
 import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.repository.CalliRepository;
-import org.callimachusproject.repository.DatasourceManager;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.model.vocabulary.RDFS;
 import org.openrdf.repository.RepositoryException;
+import org.openrdf.repository.config.RepositoryConfig;
+import org.openrdf.repository.manager.RepositoryManager;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.sail.config.ProxyRepositoryConfig;
 
@@ -47,11 +48,13 @@ public class SparqlEndpointProvider extends UpdateProvider {
 					throws IOException, OpenRDFException {
 				ValueFactory vf = repository.getValueFactory();
 				URI uri = vf.createURI(origin + "/sparql");
-				DatasourceManager datasources = repository.getDatasourceManager();
-				if (datasources != null && !datasources.isDatasourcePresent(uri)) {
-					String proxiedID = datasources.getRepositoryId();
-					datasources.setDatasourceConfig(uri, new ProxyRepositoryConfig(
-							proxiedID));
+				String proxiedID = repository.getRepositoryID();
+				String datasourceID = repository.getDatasourceRepositoryId(uri);
+				RepositoryManager manager = repository.getRepositoryManager();
+				if (proxiedID != null && !manager.hasRepositoryConfig(datasourceID)) {
+					manager.addRepositoryConfig(new RepositoryConfig(
+							datasourceID, uri.stringValue(),
+							new ProxyRepositoryConfig(proxiedID)));
 					ObjectConnection con = repository.getConnection();
 					try {
 						con.begin();

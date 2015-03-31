@@ -22,8 +22,6 @@ import java.net.PasswordAuthentication;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import junit.framework.TestCase;
 
@@ -99,20 +97,9 @@ public abstract class TemporaryServerIntegrationTestCase extends TestCase {
 	}
 
 	public <T> T waitForCompile(Callable<T> callable) throws Exception {
-		final CountDownLatch latch = new CountDownLatch(1);
-		final Runnable listener = new Runnable() {
-			public void run() {
-				latch.countDown();
-			}
-		};
-		getRepository().addSchemaListener(listener);
-		try {
-			T ret = callable.call();
-			latch.await(1, TimeUnit.MINUTES);
-			return ret;
-		} finally {
-			getRepository().removeSchemaListener(listener);
-		}
+		T ret = callable.call();
+		Thread.sleep(1000);
+		return ret;
 	}
 
 }

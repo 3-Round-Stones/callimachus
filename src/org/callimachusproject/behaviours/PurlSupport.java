@@ -18,6 +18,7 @@ package org.callimachusproject.behaviours;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.Collections;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -25,17 +26,17 @@ import java.util.regex.Pattern;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.StringEntity;
-import org.callimachusproject.client.HttpUriResponse;
 import org.callimachusproject.engine.model.TermFactory;
-import org.callimachusproject.fluid.Fluid;
-import org.callimachusproject.fluid.FluidBuilder;
-import org.callimachusproject.fluid.FluidException;
-import org.callimachusproject.fluid.FluidFactory;
 import org.callimachusproject.rewrite.Substitution;
-import org.callimachusproject.server.exceptions.ResponseException;
 import org.callimachusproject.traits.CalliObject;
 import org.callimachusproject.util.PercentCodec;
 import org.openrdf.OpenRDFException;
+import org.openrdf.http.object.client.HttpUriResponse;
+import org.openrdf.http.object.exceptions.ResponseException;
+import org.openrdf.http.object.fluid.Fluid;
+import org.openrdf.http.object.fluid.FluidBuilder;
+import org.openrdf.http.object.fluid.FluidException;
+import org.openrdf.http.object.fluid.FluidFactory;
 
 public abstract class PurlSupport implements CalliObject {
 	private static final Pattern HTTP_LINE = Pattern
@@ -97,13 +98,15 @@ public abstract class PurlSupport implements CalliObject {
 	private CharSequence processUriTemplate(String pattern, String queryString)
 			throws IOException, FluidException {
 		String base = this.toString();
-		FluidFactory ff = FluidFactory.getInstance();
-		FluidBuilder fb = ff.builder(getObjectConnection());
-		Fluid fluid = fb.consume(queryString, base, String.class,
-				"application/x-www-form-urlencoded");
-		Map<String, ?> map = (Map) fluid.as(Map.class,
-				"application/x-www-form-urlencoded");
-		if (queryString != null) {
+		if (queryString != null && queryString.length() > 0) {
+			if (queryString.charAt(0) == '?')
+				return processUriTemplate(pattern, queryString.substring(1));
+			FluidFactory ff = FluidFactory.getInstance();
+			FluidBuilder fb = ff.builder(getObjectConnection());
+			Fluid fluid = fb.consume(queryString, base, String.class,
+					"application/x-www-form-urlencoded");
+			Map<String, ?> map = (Map) fluid.as(Map.class,
+					"application/x-www-form-urlencoded");
 			int size = base.length() + queryString.length() + 1;
 			StringBuilder sb = new StringBuilder(size);
 			sb.append(base).append('?').append(queryString);
@@ -113,6 +116,7 @@ public abstract class PurlSupport implements CalliObject {
 			return appendQueryString(result, qs);
 		} else {
 			Substitution substitution = Substitution.compile(pattern);
+			Map<String, ?> map = Collections.emptyMap();
 			return substitution.replace(base, map);
 		}
 	}

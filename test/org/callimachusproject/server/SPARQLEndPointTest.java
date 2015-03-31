@@ -31,13 +31,13 @@ import org.apache.http.ProtocolVersion;
 import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicHttpResponse;
-import org.callimachusproject.annotations.method;
 import org.callimachusproject.annotations.requires;
-import org.callimachusproject.annotations.type;
 import org.callimachusproject.server.base.MetadataServerTestCase;
 import org.callimachusproject.server.behaviours.NamedGraphSupport;
 import org.callimachusproject.server.behaviours.PUTSupport;
 import org.openrdf.annotations.Matching;
+import org.openrdf.annotations.Method;
+import org.openrdf.annotations.Type;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Model;
 import org.openrdf.model.URI;
@@ -74,10 +74,9 @@ public class SPARQLEndPointTest extends MetadataServerTestCase {
 	public static abstract class SPARQLEndPointSupport implements
 			SPARQLEndPoint, RDFObject {
 
-		@type("message/http")
-		@method("POST")
+		@Method("POST")
 		@requires("urn:test:grant")
-		public HttpResponse post(@type("*/*") Map<String, String> parameters)
+		public HttpResponse post(@Type("*/*") Map<String, String> parameters)
 				throws Exception {
 			ObjectConnection con = getObjectConnection();
 			ProtocolVersion ver = HttpVersion.HTTP_1_1;
@@ -196,7 +195,6 @@ public class SPARQLEndPointTest extends MetadataServerTestCase {
 		config.addBehaviour(PUTSupport.class);
 		config.addBehaviour(NamedGraphSupport.class);
 		super.setUp();
-		server.setEnvelopeType("message/http");
 	}
 
 	public void testGET_evaluateGraph() throws Exception {

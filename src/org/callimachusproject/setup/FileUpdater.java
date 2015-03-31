@@ -24,10 +24,9 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
 import org.callimachusproject.engine.model.TermFactory;
-import org.callimachusproject.io.ChannelUtil;
 import org.callimachusproject.repository.CalliRepository;
-import org.callimachusproject.setup.Updater;
 import org.openrdf.OpenRDFException;
+import org.openrdf.http.object.io.ChannelUtil;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.vocabulary.RDF;

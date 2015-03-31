@@ -31,11 +31,11 @@ import java.util.Scanner;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.util.EntityUtils;
-import org.callimachusproject.client.HttpUriClient;
-import org.callimachusproject.server.exceptions.BadGateway;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
+import org.openrdf.http.object.client.HttpUriClient;
+import org.openrdf.http.object.exceptions.BadGateway;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -16,15 +16,16 @@
  */
 package org.callimachusproject.server;
 
-import org.callimachusproject.annotations.header;
-import org.callimachusproject.annotations.query;
 import org.callimachusproject.annotations.rel;
 import org.callimachusproject.annotations.requires;
-import org.callimachusproject.annotations.type;
 import org.callimachusproject.server.base.MetadataServerTestCase;
 import org.callimachusproject.server.behaviours.PUTSupport;
+import org.openrdf.annotations.Header;
 import org.openrdf.annotations.Iri;
+import org.openrdf.annotations.Method;
+import org.openrdf.annotations.Path;
 import org.openrdf.annotations.Sparql;
+import org.openrdf.annotations.Type;
 import org.openrdf.query.GraphQueryResult;
 import org.openrdf.query.TupleQueryResult;
 
@@ -42,62 +43,71 @@ public class RequestCacheTest extends MetadataServerTestCase {
 		@Iri("urn:test:display")
 		private Display display;
 
-		@query("display")
+		@Method("GET")
+		@Path("?display")
 		@requires("urn:test:grant")
-		@type("text/uri-list")
+		@Type("text/uri-list")
 		public Display getDisplay() {
 			return display;
 		}
 
-		@query("display")
+		@Method("PUT")
+		@Path("?display")
 		@requires("urn:test:grant")
-		public void setDisplay(@type("*/*") Display display) {
+		public void setDisplay(@Type("*/*") Display display) {
 			this.display = display;
 		}
 
-		@query("date")
+		@Method("PUT")
+		@Path("?date")
 		@requires("urn:test:grant")
-		public void setDate(@type("*/*") String date) {
+		public void setDate(@Type("*/*") String date) {
 			display.setDate(date);
 		}
 
-		@query("time")
+		@Method("PUT")
+		@Path("?time")
 		@requires("urn:test:grant")
-		public void setTime(@type("*/*") String time) {
+		public void setTime(@Type("*/*") String time) {
 			display.setTime(time);
 		}
 	}
 
 	@Iri("urn:mimetype:application/display")
 	public interface Display {
-		@query("date")
-		@header("Cache-Control:max-age=3")
+		
+		@Method("GET")
+		@Path("?date")
 		@Iri("urn:test:date")
 		@requires("urn:test:grant")
-		@type("text/plain")
+		@Type("text/plain")
+		@Header("Cache-Control:max-age=3")
 		String getDate();
 
 		void setDate(String date);
 
-		@query("time")
+		@Method("GET")
+		@Path("?time")
 		@Iri("urn:test:time")
 		@requires("urn:test:grant")
-		@type("text/plain")
+		@Type("text/plain")
 		String getTime();
 
 		void setTime(String time);
 
+		@Method("GET")
 		@rel("alternate")
-		@query("construct")
+		@Path("?construct")
 		@requires("urn:test:grant")
-		@type("application/rdf+xml")
+		@Type("application/rdf+xml")
 		@Sparql("DESCRIBE $this")
 		GraphQueryResult construct();
 
+		@Method("GET")
 		@rel("alternate")
-		@query("select")
+		@Path("?select")
 		@requires("urn:test:grant")
-		@type("application/sparql-results+xml")
+		@Type("application/sparql-results+xml")
 		@Sparql("SELECT ?date ?time WHERE { $this <urn:test:date> ?date ; <urn:test:time> ?time }")
 		TupleQueryResult select();
 	}

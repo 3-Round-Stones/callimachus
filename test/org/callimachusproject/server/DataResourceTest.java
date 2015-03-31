@@ -22,17 +22,16 @@ import java.io.InputStream;
 import java.util.Date;
 import java.util.Set;
 
-import org.callimachusproject.annotations.grant;
-import org.callimachusproject.annotations.method;
-import org.callimachusproject.annotations.query;
 import org.callimachusproject.annotations.requires;
-import org.callimachusproject.annotations.type;
 import org.callimachusproject.server.base.MetadataServerTestCase;
 import org.callimachusproject.server.behaviours.AliasSupport;
 import org.callimachusproject.server.behaviours.PUTSupport;
 import org.callimachusproject.server.behaviours.TextFile;
 import org.callimachusproject.server.concepts.Alias;
 import org.callimachusproject.server.concepts.HTTPFileObject;
+import org.openrdf.annotations.Method;
+import org.openrdf.annotations.Path;
+import org.openrdf.annotations.Type;
 
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterfaceException;
@@ -41,16 +40,18 @@ import com.sun.jersey.api.client.WebResource;
 public class DataResourceTest extends MetadataServerTestCase {
 
 	public static abstract class WorldFile implements HTTPFileObject {
-		@method("GET")
-		@type("text/world")
+		@Method("GET")
+		@Type("text/world")
 		@requires("urn:test:grant")
 		public InputStream getInputStream() throws IOException {
 			return openInputStream();
 		}
 
-		@query("set")
+		@Method("POST")
+		@Path("?set")
 		@requires("urn:test:grant")
-		public byte[] postInputStream(@type("*/*") Set<InputStream> in) throws IOException {
+		@Type("application/octet-stream")
+		public byte[] postInputStream(@Type("*/*") Set<InputStream> in) throws IOException {
 			byte[] buf = new byte[1024];
 			int read = in.iterator().next().read(buf);
 			byte[] result = new byte[read];
@@ -140,7 +141,7 @@ public class DataResourceTest extends MetadataServerTestCase {
 		client.path("hello").put("world");
 		ClientResponse options = client.path("hello").options(ClientResponse.class);
 		String allows = options.getMetadata().getFirst("Allow");
-		assertEquals("OPTIONS, GET, HEAD, PUT, DELETE", allows);
+		assertEquals("OPTIONS, DELETE, GET, HEAD, PUT", allows);
 	}
 
 	public void testSetOfInputStream() throws Exception {

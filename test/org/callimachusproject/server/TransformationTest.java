@@ -16,11 +16,12 @@
  */
 package org.callimachusproject.server;
 
-import org.callimachusproject.annotations.header;
-import org.callimachusproject.annotations.query;
 import org.callimachusproject.annotations.requires;
-import org.callimachusproject.annotations.type;
 import org.callimachusproject.server.base.MetadataServerTestCase;
+import org.openrdf.annotations.Header;
+import org.openrdf.annotations.Method;
+import org.openrdf.annotations.Path;
+import org.openrdf.annotations.Type;
 import org.openrdf.model.vocabulary.RDFS;
 
 import com.sun.jersey.api.client.Client;
@@ -30,16 +31,19 @@ import com.sun.jersey.api.client.filter.GZIPContentEncodingFilter;
 public class TransformationTest extends MetadataServerTestCase {
 
 	public static abstract class Service {
-		@query("hello")
-		@type("text/plain")
-		@header("Cache-Control:no-transform")
+
+		@Method("GET")
+		@Path("?hello")
+		@Type("text/plain")
+		@Header("Cache-Control:no-transform")
 		@requires("urn:test:grant")
 		public String world() {
 			return "hello world!";
 		}
 
-		@query("hlo")
-		@type("text/plain")
+		@Method("GET")
+		@Path("?hlo")
+		@Type("text/plain")
 		@requires("urn:test:grant")
 		public String hlo() {
 			return "hello world!";

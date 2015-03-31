@@ -22,6 +22,7 @@ import org.openrdf.model.ValueFactory;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.ObjectFactory;
 import org.openrdf.repository.object.ObjectRepository;
+import org.openrdf.repository.object.config.ObjectRepositoryConfig;
 import org.openrdf.repository.object.config.ObjectRepositoryFactory;
 import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.sail.memory.MemoryStore;
@@ -41,6 +42,8 @@ public class MethodTest extends CodeGenTestCase {
 
 	public void testCandyJar() throws Exception {
 		addRdfSource("candy-ontology.owl");
+		ObjectRepositoryConfig converter = new ObjectRepositoryConfig();
+		converter.addConceptJar(createJar("method.jar").toURI().toURL());
 		ObjectRepositoryFactory ofm = new ObjectRepositoryFactory();
 		ObjectRepository repo = ofm.getRepository(converter);
 		repo.setDelegate(new SailRepository(new MemoryStore()));

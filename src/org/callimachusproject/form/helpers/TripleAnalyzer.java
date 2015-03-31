@@ -265,7 +265,9 @@ public class TripleAnalyzer extends QueryModelVisitorBase<RDFHandlerException> i
 		parser.setRDFHandler(this);
 		try {
 			parser.parse(new ByteArrayInputStream(node.getDataBlock().getBytes()), "");
-		} catch (org.openrdf.rio.RDFParseException | IOException e) {
+		} catch (org.openrdf.rio.RDFParseException e) {
+			throw new RDFHandlerException(e);
+		} catch (IOException e) {
 			throw new RDFHandlerException(e);
 		}
 		verifiers.add(verifier);
@@ -282,7 +284,9 @@ public class TripleAnalyzer extends QueryModelVisitorBase<RDFHandlerException> i
 		parser.getParserConfig().addNonFatalError(BasicParserSettings.FAIL_ON_UNKNOWN_DATATYPES);
 		try {
 			parser.parse(new ByteArrayInputStream(node.getDataBlock().getBytes()), "");
-		} catch (org.openrdf.rio.RDFParseException | IOException e) {
+		} catch (org.openrdf.rio.RDFParseException e) {
+			throw new RDFHandlerException(e);
+		} catch (IOException e) {
 			throw new RDFHandlerException(e);
 		}
 		verifiers.add(verifier);
@@ -429,7 +433,7 @@ public class TripleAnalyzer extends QueryModelVisitorBase<RDFHandlerException> i
 							throws QueryEvaluationException {
 						return new EmptyIteration<Statement, QueryEvaluationException>();
 					}
-				});
+				}, null);
 		try {
 			CloseableIteration<BindingSet, QueryEvaluationException> bindingsIter;
 			bindingsIter = strategy.evaluate(new Reduced(node.clone()),

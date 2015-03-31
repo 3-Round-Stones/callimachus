@@ -22,13 +22,13 @@ import static org.callimachusproject.util.PercentCodec.encode;
 import java.io.IOException;
 
 import org.callimachusproject.auth.DetachedRealm;
-import org.callimachusproject.client.HttpUriClient;
 import org.callimachusproject.engine.Template;
 import org.callimachusproject.engine.TemplateEngine;
 import org.callimachusproject.engine.TemplateException;
 import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.traits.CalliObject;
 import org.openrdf.OpenRDFException;
+import org.openrdf.http.object.client.HttpUriClient;
 
 /**
  * @author James Leigh

@@ -42,24 +42,24 @@
 :GetMarkdown rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Markdown>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
-    calli:method "GET";
+    msg:method "GET";
     calli:rel "edit-media";
     calli:requires calli:reader;
-    calli:type "text/x-markdown";
-    calli:header "cache-control:no-cache";
-    calli:header "cache-control:cache-range";
-    calli:header "Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
+    msg:type "text/x-markdown";
+    msg:header "cache-control:no-cache";
+    msg:header "cache-control:cache-range";
+    msg:header "Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
     calli:script "return this.openReader(true)".
 
 # GET /markdowmn.md?view
 :GetPage owl:intersectionOf (<viewable.ttl#GetViewPage>
         [owl:onProperty msg:target; owl:allValuesFrom <Markdown>]);
     calli:rel "alternate";
-    calli:method "GET";
-    calli:query "view";
+    msg:method "GET";
+    msg:path "?view";
     calli:requires calli:reader;
-    calli:type "text/html";
-    calli:header "cache-control:no-cache";
+    msg:type "text/html";
+    msg:header "cache-control:no-cache";
     calli:copy "../pipelines/markdown-view.xpl?results&target={0}&html={0}%3Fhtml".
 
 # GET /markdown.md?html
@@ -67,17 +67,17 @@
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Markdown>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom xsd:string];
     calli:rel "alternate";
-    calli:method "GET";
-    calli:query "html";
+    msg:method "GET";
+    msg:path "?html";
     calli:requires calli:reader;
-    calli:type "text/html";
-    calli:header "cache-control:no-cache".
+    msg:type "text/html";
+    msg:header "cache-control:no-cache".
 
 # PUT /markdown.md
 :UploadMarkdown rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Markdown>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-    calli:method "PUT";
+    msg:method "PUT";
     calli:requires calli:editor;
     calli:imports <java:org.apache.commons.io.input.ReaderInputStream>;
     calli:imports <java:java.nio.charset.Charset>;
@@ -89,4 +89,4 @@
 :reader a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :UploadMarkdown;
     rdfs:range <java:java.io.Reader>;
-    calli:type "text/x-markdown".
+    msg:type "text/x-markdown".

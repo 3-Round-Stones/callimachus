@@ -46,10 +46,10 @@
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Origin>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
     rdfs:subClassOf [owl:onProperty :baseuri; owl:hasValue <../>];
-    calli:method "GET";
-    calli:query "baseuri";
+    msg:method "GET";
+    msg:path "?baseuri";
     calli:requires calli:reader;
-    calli:type "text/javascript";
+    msg:type "text/javascript";
     calli:script """
         return new java.lang.String('if(!window.calli)window.calli={};window.calli.baseURI="' + baseuri + '";\\n');
     """.
@@ -65,10 +65,10 @@
 :GetListOfRealms rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Origin>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-    calli:method "GET";
-    calli:query "realms";
+    msg:method "GET";
+    msg:path "?realms";
     calli:rel calli:realms;
     calli:requires calli:subscriber;
-    calli:type "application/atom+xml;q=0.9";
-    calli:header "cache-control:no-cache";
+    msg:type "application/atom+xml;q=0.9";
+    msg:header "cache-control:no-cache";
     calli:copy "../pipelines/origin-realms-atom.xpl?results&target={0}".

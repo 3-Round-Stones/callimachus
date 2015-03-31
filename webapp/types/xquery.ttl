@@ -44,32 +44,31 @@
 :GetXQuery rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <XQuery>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-    calli:method "GET";
+    msg:method "GET";
     calli:rel "edit-media";
     calli:requires calli:reader;
-    calli:type "application/xquery";
-    calli:header "cache-control:no-cache";
-    calli:header "cache-control:cache-range";
-    calli:header "Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
+    msg:type "application/xquery";
+    msg:header "cache-control:no-cache";
+    msg:header "cache-control:cache-range";
+    msg:header "Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
     calli:script "return this.openInputStream()".
 
 # PUT /xquery/my-xquery.xq
 :UploadXQuery rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <XQuery>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-    calli:method "PUT";
+    msg:method "PUT";
     calli:requires calli:editor;
     calli:script "return this.ReplaceFileContent(stream, 'application/xquery', true);".
 
 :stream a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :UploadXQuery;
     rdfs:range <java:java.io.InputStream>;
-    calli:type "application/xquery".
+    msg:type "application/xquery".
 
 :ValidateXQuery owl:intersectionOf (<serviceable.ttl#Validate>
         [owl:onProperty msg:target; owl:allValuesFrom <XQuery>]);
-    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    calli:imports <java:org.callimachusproject.server.WebServer>;
+    calli:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
     calli:script """
         var queryStream = this.openInputStream();
         try {
@@ -77,7 +76,7 @@
             if (errors && errors.length > 0)
                 throw new BadRequest(errors[0], errors.join('\\n'));
             if (this.IsLayout()) {
-                WebServer.resetAllCache();
+                this.resetAllCache();
             }
         } finally {
             queryStream.close();
@@ -100,41 +99,41 @@
 :GetResult rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <XQuery>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-    calli:method "GET";
-    calli:query "results";
+    msg:method "GET";
+    msg:path "\\?(results.*)";
     calli:requires calli:reader;
-    calli:type "application/xml";
-    calli:header "cache-control:no-store,no-transform".
+    msg:type "application/xml";
+    msg:header "cache-control:no-store,no-transform".
 
 :queryGetParameters a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :GetResult;
     rdfs:range <java:java.util.Map>;
-    calli:query "*";
-    calli:type "application/x-www-form-urlencoded".
+    msg:param "1";
+    msg:type "application/x-www-form-urlencoded".
 
 # POST /xquery.xq?results
 :PostResult rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <XQuery>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-    calli:method "POST";
-    calli:query "results";
+    msg:method "POST";
+    msg:path "\\?(results.*)";
     calli:requires calli:reader;
-    calli:type "application/xml";
-    calli:header "cache-control:no-store,no-transform".
+    msg:type "application/xml";
+    msg:header "cache-control:no-store,no-transform".
 
 :queryPostParameters a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :PostResult;
     rdfs:range <java:java.util.Map>;
-    calli:query "*";
-    calli:type "application/x-www-form-urlencoded".
+    msg:param "1";
+    msg:type "application/x-www-form-urlencoded".
 
 :sourceLocation a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :PostResult;
     rdfs:range xsd:string;
-    calli:header "Content-Location";
-    calli:type "text/uri-list".
+    msg:headerParam "Content-Location";
+    msg:type "text/uri-list".
 
 :sourcePort a owl:ObjectProperty; a owl:FunctionalProperty;
     rdfs:domain :PostResult;
     rdfs:range <java:java.io.InputStream>;
-    calli:type "*/*".
+    msg:type "*/*".

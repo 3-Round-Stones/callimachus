@@ -43,23 +43,23 @@
 :GetZip rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <ZipArchive>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-    calli:method "GET";
+    msg:method "GET";
     calli:rel "edit-media";
     calli:requires calli:reader;
-    calli:type "application/zip";
-    calli:header "cache-control:cache-range";
-    calli:header "Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
+    msg:type "application/zip";
+    msg:header "cache-control:cache-range";
+    msg:header "Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
     calli:script "return this.openInputStream()".
 
 # GET /archive.zip?contents
 :GetZipContents rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <ZipArchive>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
-    calli:method "GET";
-    calli:query "contents";
+    msg:method "GET";
+    msg:path "?contents";
     calli:rel "contents";
     calli:requires calli:reader;
-    calli:type "application/atom+xml";
+    msg:type "application/atom+xml";
     calli:script """
         var id = this.toString() + '?contents';
         var pattern = this.toString() + '?entry={entry}';
@@ -69,16 +69,15 @@
 # GET /archive.zip?entry=/
 :GetZipEntry rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <ZipArchive>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
-    calli:method "GET";
-    calli:query "entry";
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
+    msg:method "GET";
+    msg:path "?entry";
     calli:requires calli:reader;
-    calli:type "message/x-response";
-    calli:header "cache-control:cache-range";
+    msg:header "cache-control:cache-range";
     calli:script """
         var type = this.getZipEntryType(entry);
         var stream = this.readZipEntry(entry);
-        if (!stream) throw new org.callimachusproject.server.exceptions.NotFound();
+        if (!stream) throw new org.openrdf.http.object.exceptions.NotFound();
         return {
             status: 200, message: "OK",
             headers:{"content-type": type},
@@ -89,20 +88,20 @@
 :entry a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :GetZipEntry;
     rdfs:range xsd:string;
-    calli:query "entry";
-    calli:type "text/plain".
+    msg:param "entry";
+    msg:type "text/plain".
 
 :PutZipArchive rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <ZipArchive> ];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-    calli:method "PUT";
+    msg:method "PUT";
     calli:requires calli:editor;
     calli:script "return this.ReplaceFileContent(stream, 'application/zip', true);".
 
 :stream a owl:DatatypeProperty, owl:FunctionalProperty ;
     rdfs:domain :PutZipArchive ;
     rdfs:range <java:java.io.InputStream> ;
-    calli:type "application/zip" .
+    msg:type "application/zip" .
 
 :ValidateZip owl:intersectionOf (<serviceable.ttl#Validate>
         [owl:onProperty msg:target; owl:allValuesFrom <ZipArchive>]);

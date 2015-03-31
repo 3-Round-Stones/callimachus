@@ -45,25 +45,25 @@
 :GetRelax rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Relax>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-    calli:method "GET";
+    msg:method "GET";
     calli:rel "edit-media";
     calli:requires calli:reader;
-    calli:type "application/xml";
-    calli:header "cache-control:cache-range";
-    calli:header "Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
+    msg:type "application/xml";
+    msg:header "cache-control:cache-range";
+    msg:header "Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
     calli:script "return this.openInputStream()".
 
 :PutRelax rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Relax> ];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-    calli:method "PUT";
+    msg:method "PUT";
     calli:requires calli:editor;
     calli:script "return this.ReplaceFileContent(stream, 'application/xml', true);".
 
 :stream a owl:DatatypeProperty, owl:FunctionalProperty ;
     rdfs:domain :PutRelax ;
     rdfs:range <java:java.io.InputStream> ;
-    calli:type "application/xml" .
+    msg:type "application/xml" .
 
 :ValidateRelax owl:intersectionOf (<serviceable.ttl#Validate>
         [owl:onProperty msg:target; owl:allValuesFrom <Relax>]);
@@ -76,10 +76,10 @@
 :Validate rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Relax>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-    calli:method "POST";
-    calli:query "validate";
+    msg:method "POST";
+    msg:path "?validate";
     calli:requires calli:reader;
-    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
     calli:script """
         try {
             var message = this.GetValidationError(sourceLocation, xmlToValidate).replace(/^\\s+|\\s+$/g,'');
@@ -93,13 +93,13 @@
 :sourceLocation a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :Validate;
     rdfs:range xsd:string;
-    calli:header "Content-Location";
-    calli:type "text/uri-list".
+    msg:headerParam "Content-Location";
+    msg:type "text/uri-list".
 
 :xmlToValidate a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :Validate;
     rdfs:range <java:java.io.InputStream>;
-    calli:type "application/xml".
+    msg:type "application/xml".
 
 :GetValidationError rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Relax>];
@@ -113,4 +113,4 @@
 :invalidXml a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :GetValidationError;
     rdfs:range <java:java.io.InputStream>;
-    calli:type "application/xml".
+    msg:type "application/xml".

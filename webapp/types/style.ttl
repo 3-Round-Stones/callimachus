@@ -44,20 +44,20 @@
 :GetStyleSheet rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <StyleSheet>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
-    calli:method "GET";
+    msg:method "GET";
     calli:rel "edit-media";
     calli:requires calli:reader;
-    calli:type "text/css";
-    calli:header "cache-control:no-cache";
-    calli:header "cache-control:cache-range";
-    calli:header "Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
+    msg:type "text/css";
+    msg:header "cache-control:no-cache";
+    msg:header "cache-control:cache-range";
+    msg:header "Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
     calli:script "return this.openReader(true)".
 
 # PUT /style.css
 :UploadStyle rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <StyleSheet>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-    calli:method "PUT";
+    msg:method "PUT";
     calli:requires calli:editor;
     calli:imports <java:org.apache.commons.io.input.ReaderInputStream>;
     calli:imports <java:java.nio.charset.Charset>;
@@ -69,7 +69,7 @@
 :reader a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :UploadStyle;
     rdfs:range <java:java.io.Reader>;
-    calli:type "text/css".
+    msg:type "text/css".
 
 :DeleteStyle owl:intersectionOf ( <serviceable.ttl#Delete>
         [owl:onProperty msg:target; owl:allValuesFrom <StyleSheet>]);
@@ -84,10 +84,10 @@
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <StyleSheet>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
     calli:rel "alternate";
-    calli:method "GET";
-    calli:query "less";
+    msg:method "GET";
+    msg:path "?less";
     calli:requires calli:reader;
-    calli:type "text/css";
+    msg:type "text/css";
     calli:script """
         var self = this;
         var systemId = this.toString() + "?less";
@@ -100,8 +100,8 @@
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <StyleSheet>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
     calli:imports <java:org.apache.http.client.methods.HttpGet>;
-    calli:imports <java:org.callimachusproject.server.exceptions.NotFound>;
-    calli:imports <java:org.callimachusproject.server.exceptions.ResponseException>;
+    calli:imports <java:org.openrdf.http.object.exceptions.NotFound>;
+    calli:imports <java:org.openrdf.http.object.exceptions.ResponseException>;
     calli:script ("""
         var window = {};
         var location = {port:0};

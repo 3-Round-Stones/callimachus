@@ -44,26 +44,26 @@
 :GetJavaScriptObjectNotation rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <JavaScriptObjectNotation>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-    calli:method "GET";
+    msg:method "GET";
     calli:rel "edit-media";
     calli:requires calli:reader;
-    calli:type "application/json";
-    calli:header "cache-control:cache-range";
-    calli:header "Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
+    msg:type "application/json";
+    msg:header "cache-control:cache-range";
+    msg:header "Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
     calli:script "return this.openInputStream()".
 
 # PUT /robots.txt
 :UploadJavaScriptObjectNotation rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <JavaScriptObjectNotation>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-    calli:method "PUT";
+    msg:method "PUT";
     calli:requires calli:editor;
     calli:script "return this.ReplaceFileContent(stream, 'application/json', true);".
 
 :stream a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :UploadJavaScriptObjectNotation;
     rdfs:range <java:java.io.InputStream>;
-    calli:type "application/json".
+    msg:type "application/json".
 
 :ValidateJavaScriptObjectNotation owl:intersectionOf (<serviceable.ttl#Validate>
         [owl:onProperty msg:target; owl:allValuesFrom <JavaScriptObjectNotation>]);

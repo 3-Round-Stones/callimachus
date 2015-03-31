@@ -49,15 +49,15 @@ rdfs:label a rdf:Property.
 :PostUserInvite rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <InvitedUser>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <InvitedUser>];
-    calli:method "POST";
-    calli:query "invite";
+    msg:method "POST";
+    msg:path "?invite";
     calli:requires calli:administrator;
     calli:expect "303-see-other";
-    calli:type "text/uri-list";
+    msg:type "text/uri-list";
     calli:imports <java:javax.mail.util.ByteArrayDataSource>;
     calli:imports <java:javax.mail.internet.MimeMultipart>;
-    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    calli:imports <java:org.callimachusproject.server.exceptions.Conflict>;
+    calli:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
+    calli:imports <java:org.openrdf.http.object.exceptions.Conflict>;
     calli:imports <java:org.apache.commons.codec.digest.DigestUtils>;
     calli:imports <java:java.net.URLEncoder>;
     calli:script """
@@ -95,7 +95,7 @@ rdfs:label a rdf:Property.
 :inviteForm a owl:ObjectProperty, owl:FunctionalProperty;
     rdfs:domain :PostUserInvite;
     rdfs:range <java:java.util.Map>;
-    calli:type "application/x-www-form-urlencoded".
+    msg:type "application/x-www-form-urlencoded".
 
 # find the user that created $this
 :FindUserCreator rdfs:subClassOf msg:Message;

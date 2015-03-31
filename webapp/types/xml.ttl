@@ -44,25 +44,25 @@
 :GetExtensibleMarkup rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <ExtensibleMarkup>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-    calli:method "GET";
+    msg:method "GET";
     calli:rel "edit-media";
     calli:requires calli:reader;
-    calli:type "application/xml";
-    calli:header "cache-control:cache-range";
-    calli:header "Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
+    msg:type "application/xml";
+    msg:header "cache-control:cache-range";
+    msg:header "Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
     calli:script "return this.openInputStream()".
 
 :PutExtensibleMarkup rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <ExtensibleMarkup>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-    calli:method "PUT";
+    msg:method "PUT";
     calli:requires calli:editor;
     calli:script "return this.ReplaceFileContent(stream, 'application/xml', true);".
 
 :stream a owl:ObjectProperty; a owl:FunctionalProperty;
     rdfs:domain :PutExtensibleMarkup;
     rdfs:range <java:java.io.InputStream>;
-    calli:type "application/xml".
+    msg:type "application/xml".
 
 :ValidateExtensibleMarkup owl:intersectionOf (<serviceable.ttl#Validate>
         [owl:onProperty msg:target; owl:allValuesFrom <ExtensibleMarkup>]);

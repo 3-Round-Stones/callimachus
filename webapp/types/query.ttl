@@ -44,26 +44,26 @@
 :GetNamedQuery rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfQuery>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-    calli:method "GET";
+    msg:method "GET";
     calli:rel "edit-media";
     calli:requires calli:reader;
-    calli:type "application/sparql-query";
-    calli:header "cache-control:no-cache";
-    calli:header "cache-control:cache-range";
-    calli:header "Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
+    msg:type "application/sparql-query";
+    msg:header "cache-control:no-cache";
+    msg:header "cache-control:cache-range";
+    msg:header "Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
     calli:script "return this.openInputStream()".
 
 # GET /queries/my-query.rq?view
 :GetViewPage owl:intersectionOf (<viewable.ttl#GetViewPage>
         [owl:onProperty msg:target; owl:allValuesFrom <RdfQuery>]);
     calli:rel "alternate";
-    calli:method "GET";
-    calli:query "view";
+    msg:method "GET";
+    msg:path "\\?(view.*)";
     calli:requires calli:reader;
-    calli:type "text/html";
-    calli:header "cache-control:no-store"; # TODO use cache-control from query string
+    msg:type "text/html";
+    msg:header "cache-control:no-store"; # TODO use cache-control from query string
     calli:imports <java:org.callimachusproject.engine.ParameterizedQueryParser>;
-    calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
+    calli:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
     calli:imports <java:org.openrdf.query.QueryLanguage>;
     calli:script """
         var parser = ParameterizedQueryParser.newInstance();
@@ -85,18 +85,18 @@
 :viewParameters a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :GetViewPage;
     rdfs:range <java:java.util.Map>;
-    calli:query "*";
-    calli:type "application/x-www-form-urlencoded".
+    msg:param "1";
+    msg:type "application/x-www-form-urlencoded".
 
 # GET /queries/my-query.rq?sparql
 :GetSparql rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfQuery>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:hexBinary];
-    calli:method "GET";
-    calli:query "sparql";
+    msg:method "GET";
+    msg:path "\\?(sparql.*)";
     calli:requires calli:reader;
-    calli:type "application/sparql-query";
-    calli:header "cache-control:no-cache";
+    msg:type "application/sparql-query";
+    msg:header "cache-control:no-cache";
     calli:imports <java:org.callimachusproject.engine.ParameterizedQueryParser>;
     calli:imports <java:org.openrdf.query.QueryLanguage>;
     calli:script """
@@ -116,26 +116,26 @@
 :sparqlParameters a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :GetSparql;
     rdfs:range <java:java.util.Map>;
-    calli:query "*";
-    calli:type "application/x-www-form-urlencoded".
+    msg:param "1";
+    msg:type "application/x-www-form-urlencoded".
 
 # PUT /query/my-query.rq
 :UploadNamedQuery rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfQuery>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-    calli:method "PUT";
+    msg:method "PUT";
     calli:requires calli:editor;
     calli:script "return this.ReplaceFileContent(stream, 'application/sparql-query', true);".
 
 :stream a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :UploadNamedQuery;
     rdfs:range <java:java.io.InputStream>;
-    calli:type "application/sparql-query".
+    msg:type "application/sparql-query".
 
 :ValidateRdfQuery owl:intersectionOf (<serviceable.ttl#Validate>
         [owl:onProperty msg:target; owl:allValuesFrom <RdfQuery>]);
     calli:imports <java:org.callimachusproject.engine.ParameterizedQueryParser>;
-    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
     calli:script """
         var parser = ParameterizedQueryParser.newInstance();
         try {
@@ -156,45 +156,45 @@
 :formQuery a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :GetFormResults;
     rdfs:range xsd:string;
-    calli:query "*";
-    calli:type "text/plain".
+    msg:param "1";
+    msg:type "text/plain".
 
 :formId a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :GetFormResults;
     rdfs:range xsd:string;
-    calli:query "id";
-    calli:type "text/plain".
+    msg:param "id";
+    msg:type "text/plain".
 
 :formName a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :GetFormResults;
     rdfs:range xsd:string;
-    calli:query "name";
-    calli:type "text/plain".
+    msg:param "name";
+    msg:type "text/plain".
 
 :formProperty a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :GetFormResults;
     rdfs:range xsd:string;
-    calli:query "property";
-    calli:type "text/plain".
+    msg:param "property";
+    msg:type "text/plain".
 
 :formRel a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :GetFormResults;
     rdfs:range xsd:string;
-    calli:query "rel";
-    calli:type "text/plain".
+    msg:param "rel";
+    msg:type "text/plain".
 
 :GetResultsAsSelect rdfs:subClassOf :GetFormResults;
-    calli:method "GET";
-    calli:query "select";
+    msg:method "GET";
+    msg:path "\\?(select.*)";
     calli:requires calli:reader;
-    calli:type "application/xml";
+    msg:type "application/xml";
     calli:post "../transforms/query-select.xq?results&query={0}%3Fresults%26{formQuery}&target=&mode={formQuery}&id={formId}&name={formName}&property={formProperty}&rel={formRel}".
 
 :GetResultsAsCheckbox rdfs:subClassOf :GetFormResults;
-    calli:method "GET";
-    calli:query "checkbox", "checkbox-inline", "radio", "radio-inline";
+    msg:method "GET";
+    msg:path "\\?((checkbox|checkbox-inline|radio|radio-inline).*)";
     calli:requires calli:reader;
-    calli:type "application/xml";
+    msg:type "application/xml";
     calli:post "../transforms/query-checkbox.xq?results&query={0}%3Fresults%26{formQuery}&target=&mode={formQuery}&id={formId}&name={formName}&property={formProperty}&rel={formRel}".
 
 ################################
@@ -203,13 +203,12 @@
 
 :GetResult rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfQuery>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
-    calli:method "GET";
-    calli:query "results", "tqx", "eval";
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
+    msg:method "GET";
+    msg:path "\\?((results|tqx|eval).*)";
     calli:requires calli:reader;
-    calli:type "message/x-response";
     calli:imports <java:org.callimachusproject.engine.ParameterizedQueryParser>;
-    calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
+    calli:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
     calli:imports <java:org.openrdf.query.QueryLanguage>;
     calli:imports <java:java.lang.IllegalArgumentException>;
     calli:imports <java:org.openrdf.query.MalformedQueryException>;
@@ -306,13 +305,13 @@
 :tqx a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :GetResult;
     rdfs:range xsd:string;
-    calli:query "tqx".
+    msg:param "tqx".
 
 :queryParameters a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :GetResult;
     rdfs:range <java:java.util.Map>;
-    calli:query "*";
-    calli:type "application/x-www-form-urlencoded".
+    msg:param "1";
+    msg:type "application/x-www-form-urlencoded".
 
 ################################
 # XSL Transformation methods
@@ -325,30 +324,30 @@
 :xml a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :TransformSparqlResult;
     rdfs:range <java:org.openrdf.query.TupleQueryResult>;
-    calli:type "application/sparql-results+xml".
+    msg:type "application/sparql-results+xml".
 
 :TransformIntoHtml rdfs:subClassOf :TransformSparqlResult;
-    calli:type "text/html;charset=UTF-8";
+    msg:type "text/html;charset=UTF-8";
     calli:post <../transforms/sparql-results-html.xsl?results>.
 
 :TransformIntoCSV rdfs:subClassOf :TransformSparqlResult;
-    calli:type "text/csv;charset=UTF-8";
+    msg:type "text/csv;charset=UTF-8";
     calli:post <../transforms/sparql-results-csv.xsl?results>.
 
 :TransformIntoTSV rdfs:subClassOf :TransformSparqlResult;
-    calli:type "text/tab-separated-values;charset=UTF-16LE";
+    msg:type "text/tab-separated-values;charset=UTF-16LE";
     calli:post <../transforms/sparql-results-tsv.xsl?results>.
 
 :TransformIntoJson rdfs:subClassOf :TransformSparqlResult;
-    calli:type "application/json";
+    msg:type "application/json";
     calli:post <../transforms/sparql-results-json.xsl?results>.
 
 :TransformIntoTable rdfs:subClassOf :TransformSparqlResult;
-    calli:type "application/json";
+    msg:type "application/json";
     calli:post <../transforms/sparql-results-table.xsl?results>.
 
 :TransformIntoWire rdfs:subClassOf :TransformSparqlResult;
-    calli:type "text/javascript;charset=UTF-8";
+    msg:type "text/javascript;charset=UTF-8";
     calli:post "../transforms/sparql-results-wire.xsl?results&handler={handler}&reqId={reqId}".
 
 :handler a owl:FunctionalProperty, owl:DatatypeProperty;

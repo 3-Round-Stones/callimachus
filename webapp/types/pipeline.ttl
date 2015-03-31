@@ -45,27 +45,27 @@
 :GetPipelineSource rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Pipeline>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-    calli:method "GET";
+    msg:method "GET";
     calli:rel "edit-media";
     calli:requires calli:reader;
-    calli:type "application/xproc+xml";
-    calli:header "cache-control:no-cache";
-    calli:header "cache-control:cache-range";
-    calli:header "Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
+    msg:type "application/xproc+xml";
+    msg:header "cache-control:no-cache";
+    msg:header "cache-control:cache-range";
+    msg:header "Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
     calli:script "return this.openInputStream()".
 
 # PUT /pipeline/pipe.xpl
 :UploadPipeline rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Pipeline>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-    calli:method "PUT";
+    msg:method "PUT";
     calli:requires calli:editor;
     calli:script "return this.ReplaceFileContent(xprocStream, 'application/xproc+xml', true);".
 
 :xprocStream a owl:ObjectProperty; a owl:FunctionalProperty;
     rdfs:domain :UploadPipeline;
     rdfs:range <java:java.io.InputStream>;
-    calli:type "application/xproc+xml".
+    msg:type "application/xproc+xml".
 
 :ValidatePipeline owl:intersectionOf (<serviceable.ttl#Validate>
         [owl:onProperty msg:target; owl:allValuesFrom <Pipeline>]);
@@ -78,12 +78,11 @@
 # GET /pipeline.xpl?results
 :GetResult rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Pipeline>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
-    calli:method "GET";
-    calli:query "results";
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
+    msg:method "GET";
+    msg:path "\\?(results.*)";
     calli:requires calli:reader;
-    calli:type "message/x-response";
-    calli:header "cache-control:no-store,no-transform";
+    msg:header "cache-control:no-store,no-transform";
     calli:script """
         var pipe = this.pipe();
         try {
@@ -91,7 +90,7 @@
             while(iterator.hasNext()){
                 var key = iterator.next();
                 var value = queryGetParameters.get(key);
-                if (key != "result" && value && value.length){
+                if (key != "results" && value && value.length){
                     pipe.passOption(key, value[0]);
                 } else if (value && value.length > 1) {
                     pipe.passOption(key, value[1]);
@@ -110,18 +109,17 @@
 :queryGetParameters a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :GetResult;
     rdfs:range <java:java.util.Map>;
-    calli:query "*";
-    calli:type "application/x-www-form-urlencoded".
+    msg:param "1";
+    msg:type "application/x-www-form-urlencoded".
 
 # POST /pipeline.xpl?results
 :PostResult rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Pipeline>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
-    calli:method "POST";
-    calli:query "results";
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
+    msg:method "POST";
+    msg:path "\\?(results.*)";
     calli:requires calli:reader;
-    calli:type "message/x-response";
-    calli:header "cache-control:no-store,no-transform";
+    msg:header "cache-control:no-store,no-transform";
     calli:script """
         var pipe = this.pipeStreamOf(sourcePort, sourceLocation, sourceType);
         try {
@@ -129,7 +127,7 @@
             while(iterator.hasNext()){
                 var key = iterator.next();
                 var value = queryPostParameters.get(key);
-                if (key != "result" && value && value.length){
+                if (key != "results" && value && value.length){
                     pipe.passOption(key, value[0]);
                 } else if (value && value.length > 1) {
                     pipe.passOption(key, value[1]);
@@ -148,23 +146,23 @@
 :queryPostParameters a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :PostResult;
     rdfs:range <java:java.util.Map>;
-    calli:query "*";
-    calli:type "application/x-www-form-urlencoded".
+    msg:param "1";
+    msg:type "application/x-www-form-urlencoded".
 
 :sourceLocation a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :PostResult;
     rdfs:range xsd:string;
-    calli:header "Content-Location";
-    calli:type "text/uri-list".
+    msg:headerParam "Content-Location";
+    msg:type "text/uri-list".
 
 :sourcePort a owl:ObjectProperty; a owl:FunctionalProperty;
     rdfs:domain :PostResult;
     rdfs:range <java:java.io.InputStream>;
-    calli:type "*/*".
+    msg:type "*/*".
 
 :sourceType a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :PostResult;
     rdfs:range xsd:string;
-    calli:header "Content-Type";
-    calli:type "text/plain".
+    msg:headerParam "Content-Type";
+    msg:type "text/plain".
 

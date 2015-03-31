@@ -243,29 +243,9 @@ calli:thumbnail a owl:AnnotationProperty;
     rdfs:comment "A 256x256 px Scalable Vector Graphic representing a single resource of this class";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
-calli:type a owl:AnnotationProperty;
-    rdfs:label "type";
-    rdfs:comment "The content type for binary or text representations of objects for this property, or msg:object for this message class";
-    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
-
 calli:expect a owl:AnnotationProperty;
     rdfs:label "expect";
     rdfs:comment "Placed on a method to indicate the HTTP response status code of a successful response. Possible values include '201-created', '202-accepted', '205-reset-content', '300-multiple-choices', '301-moved-permanently', and '302-found'";
-    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
-
-calli:header a owl:AnnotationProperty;
-    rdfs:label "header";
-    rdfs:comment "Placed on message parameters that should be populated with request headers. Placed on messages to add a response header. Response header of 'cache-control:no-validate' disable server side validation and 'cache-control:cache-range' use strong etag validation";
-    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
-
-calli:method a owl:AnnotationProperty;
-    rdfs:label "method";
-    rdfs:comment "Placed on messages that should be called for the given HTTP method";
-    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
-
-calli:query a owl:AnnotationProperty;
-    rdfs:label "query";
-    rdfs:comment "Placed on messages that should be called when the given request query parameter name is sent without a value. Placed on message properties that should be populated with request GET query parameters";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:requires a owl:AnnotationProperty;

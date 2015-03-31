@@ -78,12 +78,11 @@
 
 :RedirectReturnTo rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <AuthManager>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
-    calli:method "GET", "POST";
-    calli:query "login";
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
+    msg:method "GET", "POST";
+    msg:path "?login";
     calli:requires calli:subscriber;
-    calli:type "message/x-response";
-    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
     calli:script """
         if (!this.isProtected(returnTo))
             throw new BadRequest("Unprotected return_to: " + returnTo);
@@ -98,19 +97,19 @@
 :returnTo a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :RedirectReturnTo;
     rdfs:range xsd:string;
-    calli:query "return_to";
-    calli:type "text/uri-list".
+    msg:param "return_to";
+    msg:type "text/uri-list".
 
 :authForm a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :RedirectReturnTo;
     rdfs:range xsd:string;
-    calli:type "application/x-www-form-urlencoded".
+    msg:type "application/x-www-form-urlencoded".
 
 :loginCookies a owl:DatatypeProperty;
     rdfs:domain :RedirectReturnTo;
     rdfs:range xsd:string;
-    calli:header "Authorization", "Cookie";
-    calli:type "text/plain".
+    msg:headerParam "Authorization", "Cookie";
+    msg:type "text/plain".
 
 ################################
 # Registration
@@ -121,13 +120,13 @@
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <AuthManager>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
     rdfs:subClassOf [owl:onProperty :openid_register_xhtml; owl:hasValue <../pages/openid-register.xhtml>];
-    calli:method "GET";
-    calli:query "register";
+    msg:method "GET";
+    msg:path "?register";
     calli:requires calli:subscriber;
-    calli:type "text/html";
-    calli:header "cache-control:no-store";
+    msg:type "text/html";
+    msg:header "cache-control:no-store";
     calli:imports <java:org.apache.commons.codec.digest.DigestUtils>;
-    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
     calli:script """
         if (!token)
             throw new BadRequest("This is not a valid registration URL");
@@ -143,17 +142,17 @@
 :nonce a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :GetRegisterUserPage;
     rdfs:range xsd:string;
-    calli:query "nonce".
+    msg:param "nonce".
 
 :token a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :GetRegisterUserPage;
     rdfs:range xsd:string;
-    calli:query "token".
+    msg:param "token".
 
 :registeringUserEmail a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :GetRegisterUserPage;
     rdfs:range xsd:string;
-    calli:query "email".
+    msg:param "email".
 
 :openid_register_xhtml a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :GetRegisterUserPage.
@@ -162,8 +161,8 @@
 :PostUserRegistration rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <AuthManager>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-    calli:method "POST";
-    calli:query "register";
+    msg:method "POST";
+    msg:path "?register";
     calli:requires calli:subscriber;
     calli:script """
         var nonce = regForm.get("nonce")[0];
@@ -191,13 +190,13 @@
 :regCookies a owl:DatatypeProperty;
     rdfs:domain :PostUserRegistration;
     rdfs:range xsd:string;
-    calli:header "Authorization", "Cookie";
-    calli:type "text/plain".
+    msg:headerParam "Authorization", "Cookie";
+    msg:type "text/plain".
 
 :regForm a owl:ObjectProperty, owl:FunctionalProperty;
     rdfs:domain :PostUserRegistration;
     rdfs:range <java:java.util.Map>;
-    calli:type "application/x-www-form-urlencoded".
+    msg:type "application/x-www-form-urlencoded".
 
 # Looks up user by email address
 # Used to request password reset

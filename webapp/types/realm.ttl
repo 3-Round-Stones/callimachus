@@ -62,12 +62,11 @@
 # link from invite email
 :GetRegisterUserPage rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Realm>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
     rdfs:subClassOf [owl:onProperty :realm_register_xhtml; owl:hasValue <../pages/realm-login.xhtml>];
-    calli:method "GET";
-    calli:query "register";
+    msg:method "GET";
+    msg:path "\\?(register.*)";
     calli:requires calli:reader;
-    calli:type "message/x-response";
     calli:script """
         var query = registerQuery;
         if (query.indexOf('&return_to=') < 0) {
@@ -104,13 +103,13 @@
 :registerChoice a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :GetRegisterUserPage;
     rdfs:range calli:AuthenticationManager;
-    calli:query "choice";
-    calli:type "text/uri-list".
+    msg:param "choice";
+    msg:type "text/uri-list".
 
 :registerQuery a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :GetRegisterUserPage;
     rdfs:range xsd:string;
-    calli:query "*".
+    msg:param "1".
 
 :realm_register_xhtml a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :GetRegisterUserPage.
@@ -121,12 +120,11 @@
 
 :GetLogin rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Realm>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
     rdfs:subClassOf [owl:onProperty :realm_login_xhtml; owl:hasValue <../pages/realm-login.xhtml>];
-    calli:method "GET";
-    calli:query "login";
+    msg:method "GET";
+    msg:path "\\?(login.*)";
     calli:requires calli:reader;
-    calli:type "message/x-response";
     calli:imports <java:org.openrdf.model.vocabulary.RDF>;
     calli:script """
         var con = this.objectConnection;
@@ -184,30 +182,29 @@
 :loginQuery a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :GetLogin;
     rdfs:range xsd:string;
-    calli:query "*".
+    msg:param "1".
 
 :loginReferer a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :GetLogin;
     rdfs:range xsd:string;
-    calli:header "Referer";
-    calli:type "text/uri-list".
+    msg:headerParam "Referer";
+    msg:type "text/uri-list".
 
 :loginChoice a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :GetLogin;
     rdfs:range calli:AuthenticationManager;
-    calli:query "choice";
-    calli:type "text/uri-list".
+    msg:param "choice";
+    msg:type "text/uri-list".
 
 :realm_login_xhtml a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :GetLogin.
 
 :GetProfile rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Realm>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
-    calli:method "GET";
-    calli:query "profile";
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
+    msg:method "GET";
+    msg:path "?profile";
     calli:requires calli:subscriber;
-    calli:type "message/x-response";
     calli:script """
         var iter = this.calliAuthentication.iterator();
         while (iter.hasNext()) {
@@ -233,8 +230,8 @@
 :cookies a owl:DatatypeProperty;
     rdfs:domain :GetProfile;
     rdfs:range xsd:string;
-    calli:header "Authorization", "Cookie";
-    calli:type "text/plain".
+    msg:headerParam "Authorization", "Cookie";
+    msg:type "text/plain".
 
 ################################
 # logout
@@ -245,10 +242,9 @@
 :GetLogout  rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Realm>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
-    calli:method "GET", "POST";
-    calli:query "logout";
+    msg:method "GET", "POST";
+    msg:path "?logout";
     calli:requires calli:reader;
-    calli:type "message/x-response";
     calli:script """
         return this.logout(authorization, logoutContinue);
     """.
@@ -256,13 +252,13 @@
 :authorization a owl:DatatypeProperty;
     rdfs:domain :GetLogout;
     rdfs:range xsd:string;
-    calli:header "Authorization", "Cookie";
-    calli:type "text/plain".
+    msg:headerParam "Authorization", "Cookie";
+    msg:type "text/plain".
 
 :logoutContinue a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :GetLogout;
     rdfs:range xsd:string;
-    calli:query "continue".
+    msg:param "continue".
 
 ################################
 # Search
@@ -271,11 +267,11 @@
 :SearchDescription rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Realm>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-    calli:method "GET";
-    calli:query "search";
+    msg:method "GET";
+    msg:path "?search";
     calli:rel "search";
     calli:requires calli:subscriber;
-    calli:type "application/opensearchdescription+xml";
+    msg:type "application/opensearchdescription+xml";
     calli:script """
         var sb = [];
         sb.push('<?xml version="1.0" encoding="UTF-8"?>');
@@ -290,30 +286,30 @@
 :SearchFolder rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Realm>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
-    calli:method "GET";
-    calli:query "q";
+    msg:method "GET";
+    msg:path "?q";
     calli:requires calli:subscriber;
-    calli:type "text/html";
-    calli:header "cache-control:no-store";
+    msg:type "text/html";
+    msg:header "cache-control:no-store";
     calli:copy "../pipelines/realm-search-html.xpl?results&target={0}&q={qhtml}".
 
 :qhtml a owl:DatatypeProperty, owl:FunctionalProperty;
     rdfs:domain :SearchFolder;
     rdfs:range xsd:string;
-    calli:query "q".
+    msg:param "q".
 
 :SearchFolderAtom rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Realm>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-    calli:method "GET";
-    calli:query "q";
+    msg:method "GET";
+    msg:path "?q";
     calli:requires calli:subscriber;
-    calli:type "application/atom+xml;q=0.1";
-    calli:header "cache-control:no-store";
+    msg:type "application/atom+xml;q=0.1";
+    msg:header "cache-control:no-store";
     calli:copy "../pipelines/realm-search-atom.xpl?results&target={0}&q={qatom}".
 
 :qatom a owl:DatatypeProperty, owl:FunctionalProperty;
     rdfs:domain :SearchFolderAtom;
     rdfs:range xsd:string;
-    calli:query "q".
+    msg:param "q".
 

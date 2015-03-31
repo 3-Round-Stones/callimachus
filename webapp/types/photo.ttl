@@ -46,18 +46,18 @@
 :GetPhoto rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Photo>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-    calli:method "GET";
+    msg:method "GET";
     calli:rel "edit-media";
     calli:requires calli:reader;
-    calli:type "image/jpeg";
-    calli:header "cache-control:cache-range";
-    calli:header "Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
+    msg:type "image/jpeg";
+    msg:header "cache-control:cache-range";
+    msg:header "Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
     calli:script "return this.openInputStream()".
 
 :ValidatePhoto owl:intersectionOf (<serviceable.ttl#Validate>
         [owl:onProperty msg:target; owl:allValuesFrom <Photo>]);
     calli:imports <java:javax.imageio.ImageIO>;
-    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
     calli:script """
         var stream = this.openInputStream();
         try {
@@ -75,10 +75,10 @@
 :GetPhotoLarge rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Photo> ];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.awt.image.BufferedImage>];
-    calli:method "GET";
-    calli:query "large";
+    msg:method "GET";
+    msg:path "?large";
     calli:requires calli:reader;
-    calli:type "image/png";
+    msg:type "image/png";
     calli:imports <java:javax.imageio.ImageIO>;
     calli:script """
         var stream = this.openInputStream();
@@ -92,10 +92,10 @@
 :GetPhotoMedium rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Photo> ];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.awt.image.BufferedImage>];
-    calli:method "GET";
-    calli:query "medium";
+    msg:method "GET";
+    msg:path "?medium";
     calli:requires calli:reader;
-    calli:type "image/png";
+    msg:type "image/png";
     calli:script """
         return this.ResizePhoto(this.GetPhotoLarge(), 480);
     """.
@@ -103,10 +103,10 @@
 :GetPhotoSmall rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Photo> ];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.awt.image.BufferedImage>];
-    calli:method "GET";
-    calli:query "small";
+    msg:method "GET";
+    msg:path "?small";
     calli:requires calli:reader;
-    calli:type "image/png";
+    msg:type "image/png";
     calli:script """
         return this.ResizePhoto(this.GetPhotoMedium(), 240);
     """.
@@ -114,10 +114,10 @@
 :GetPhotoThumbnail rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Photo> ];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.awt.image.BufferedImage>];
-    calli:method "GET";
-    calli:query "thumbnail";
+    msg:method "GET";
+    msg:path "?thumbnail";
     calli:requires calli:reader;
-    calli:type "image/png";
+    msg:type "image/png";
     calli:script """
         return this.ResizePhoto(this.GetPhotoSmall(), 64);
     """.

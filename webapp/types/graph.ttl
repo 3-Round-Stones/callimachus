@@ -70,20 +70,20 @@
 :GetGraphDocument rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfTurtle>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
-    calli:method "GET";
+    msg:method "GET";
     calli:rel "edit-media";
     calli:requires calli:reader;
-    calli:type "text/turtle";
-    calli:header "cache-control:no-cache";
-    calli:header "cache-control:cache-range";
-    calli:header "Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
+    msg:type "text/turtle";
+    msg:header "cache-control:no-cache";
+    msg:header "cache-control:cache-range";
+    msg:header "Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
     calli:script "return this.openReader(true)".
 
 # PUT /graph.ttl
 :UploadGraphDocument rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfTurtle>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-    calli:method "PUT";
+    msg:method "PUT";
     calli:requires calli:editor;
     calli:imports <java:org.apache.commons.io.input.ReaderInputStream>;
     calli:imports <java:java.nio.charset.Charset>;
@@ -95,13 +95,12 @@
 :reader a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :UploadGraphDocument;
     rdfs:range <java:java.io.Reader>;
-    calli:type "text/turtle".
+    msg:type "text/turtle".
 
 :ReplaceGraphDocument owl:intersectionOf (<file.ttl#ReplaceFileContent>
         [owl:onProperty msg:target; owl:allValuesFrom <RdfTurtle>]);
-    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    calli:imports <java:org.callimachusproject.io.ProducerStream>;
-    calli:imports <java:org.callimachusproject.server.WebServer>;
+    calli:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
+    calli:imports <java:org.openrdf.http.object.io.ProducerStream>;
     calli:imports <java:org.openrdf.rio.RDFFormat>;
     calli:imports <java:org.openrdf.model.vocabulary.DCTERMS>;
     calli:imports <java:javax.xml.datatype.DatatypeFactory>;
@@ -143,7 +142,7 @@
 
         this.touchRevision();
         con.recompileSchemaOnClose();
-        WebServer.resetAllCache();
+        this.resetAllCache();
     """.
 
 ################################
@@ -154,20 +153,20 @@
 :GetNamedGraph rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfGraph>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-    calli:method "GET";
+    msg:method "GET";
     calli:rel "edit-media";
     calli:requires calli:reader;
-    calli:type "application/rdf+xml";
-    calli:header "cache-control:no-cache";
-    calli:header "cache-control:cache-range";
-    calli:header "Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
+    msg:type "application/rdf+xml";
+    msg:header "cache-control:no-cache";
+    msg:header "cache-control:cache-range";
+    msg:header "Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
     calli:script "return this.openInputStream()".
 
 # PUT /graph.rdf
 :UploadRdfGraph rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfGraph>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-    calli:method "PUT";
+    msg:method "PUT";
     calli:requires calli:editor;
     calli:imports <java:org.apache.commons.io.input.ReaderInputStream>;
     calli:imports <java:java.nio.charset.Charset>;
@@ -178,13 +177,12 @@
 :graphStream a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :UploadRdfGraph;
     rdfs:range <java:java.io.InputStream>;
-    calli:type "application/rdf+xml".
+    msg:type "application/rdf+xml".
 
 :ReplaceRdfGraph owl:intersectionOf (<file.ttl#ReplaceFileContent>
         [owl:onProperty msg:target; owl:allValuesFrom <RdfGraph>]);
-    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    calli:imports <java:org.callimachusproject.io.ProducerStream>;
-    calli:imports <java:org.callimachusproject.server.WebServer>;
+    calli:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
+    calli:imports <java:org.openrdf.http.object.io.ProducerStream>;
     calli:imports <java:org.openrdf.rio.RDFFormat>;
     calli:imports <java:org.openrdf.model.vocabulary.DCTERMS>;
     calli:imports <java:javax.xml.datatype.DatatypeFactory>;
@@ -224,6 +222,6 @@
 
         this.touchRevision();
         con.recompileSchemaOnClose();
-        WebServer.resetAllCache();
+        this.resetAllCache();
     """.
 

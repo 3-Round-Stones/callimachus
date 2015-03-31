@@ -45,27 +45,27 @@
 :GetTransform rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <XslTransform>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-    calli:method "GET";
+    msg:method "GET";
     calli:rel "edit-media";
     calli:requires calli:reader;
-    calli:type "text/xsl", "application/xslt+xml";
-    calli:header "cache-control:no-cache";
-    calli:header "cache-control:cache-range";
-    calli:header "Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
+    msg:type "text/xsl", "application/xslt+xml";
+    msg:header "cache-control:no-cache";
+    msg:header "cache-control:cache-range";
+    msg:header "Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
     calli:script "return this.openInputStream()".
 
 # PUT /transform.xsl
 :UploadTransform rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <XslTransform>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-    calli:method "PUT";
+    msg:method "PUT";
     calli:requires calli:editor;
     calli:script "return this.ReplaceFileContent(stream, 'application/xslt+xml', true);".
 
 :stream a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :UploadTransform;
     rdfs:range <java:java.io.InputStream>;
-    calli:type "text/xsl", "application/xslt+xml".
+    msg:type "text/xsl", "application/xslt+xml".
 
 :ValidateTransform owl:intersectionOf (<serviceable.ttl#Validate>
         [owl:onProperty msg:target; owl:allValuesFrom <XslTransform>]);
@@ -79,48 +79,46 @@
 :GetResult rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <XslTransform>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
-    calli:method "GET";
-    calli:query "results";
+    msg:method "GET";
+    msg:path "\\?(results.*)";
     calli:requires calli:reader;
-    calli:type "message/x-response";
-    calli:header "cache-control:no-store,no-transform".
+    msg:header "cache-control:no-store,no-transform".
 
 :queryGetParameters a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :GetResult;
     rdfs:range <java:java.util.Map>;
-    calli:query "*";
-    calli:type "application/x-www-form-urlencoded".
+    msg:param "1";
+    msg:type "application/x-www-form-urlencoded".
 
 :template-name a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :GetResult;
     rdfs:range xsd:string;
-    calli:query "initial-template";
-    calli:type "text/plain".
+    msg:param "initial-template";
+    msg:type "text/plain".
 
 # POST /stylesheet.xsl?results
 :PostResult rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <XslTransform>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
-    calli:method "POST";
-    calli:query "results";
+    msg:method "POST";
+    msg:path "\\?(results.*)";
     calli:requires calli:reader;
-    calli:type "message/x-response";
-    calli:header "cache-control:no-store,no-transform".
+    msg:header "cache-control:no-store,no-transform".
 
 :queryPostParameters a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :PostResult;
     rdfs:range <java:java.util.Map>;
-    calli:query "*";
-    calli:type "application/x-www-form-urlencoded".
+    msg:param "1";
+    msg:type "application/x-www-form-urlencoded".
 
 :sourceLocation a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :PostResult;
     rdfs:range xsd:string;
-    calli:header "Content-Location";
-    calli:type "text/uri-list".
+    msg:headerParam "Content-Location";
+    msg:type "text/uri-list".
 
 :sourcePort a owl:ObjectProperty; a owl:FunctionalProperty;
     rdfs:domain :PostResult;
     rdfs:range <java:java.io.InputStream>;
-    calli:type "application/xml".
+    msg:type "application/xml".
 

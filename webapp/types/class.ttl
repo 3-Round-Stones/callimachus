@@ -44,15 +44,15 @@
 :GetClassIndex rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Class> ];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader> ];
-    calli:method "GET";
-    calli:query "index";
+    msg:method "GET";
+    msg:path "?index";
     calli:requires calli:reader;
-    calli:type "text/html";
+    msg:type "text/html";
     calli:copy "../pipelines/class-index.xpl?results&target={0}".
 
 :ValidateClass owl:intersectionOf (<serviceable.ttl#Validate>
         [owl:onProperty msg:target; owl:allValuesFrom <Class>]);
-    calli:imports <java:org.callimachusproject.server.exceptions.Conflict>;
+    calli:imports <java:org.openrdf.http.object.exceptions.Conflict>;
     calli:imports <java:org.openrdf.model.vocabulary.RDF>;
     calli:imports <RdfSchemaGraph>;
     calli:script """

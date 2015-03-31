@@ -43,39 +43,38 @@
 
 :Redirect rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Purl>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource].
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>].
 
 :queryString a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :Redirect;
     rdfs:range xsd:string;
-    calli:type "application/x-www-form-urlencoded";
-    calli:query "*".
+    msg:type "application/x-www-form-urlencoded";
+    msg:param "0".
 
 :Proxy rdfs:subClassOf :Redirect.
 
 :contentType a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :Proxy;
     rdfs:range xsd:string;
-    calli:type "text/plain";
-    calli:header "Content-Type".
+    msg:type "text/plain";
+    msg:headerParam "Content-Type".
 
 :contentLocation a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :Proxy;
     rdfs:range xsd:string;
-    calli:type "text/plain";
-    calli:header "Content-Location".
+    msg:type "text/plain";
+    msg:headerParam "Content-Location".
 
 :contentEntity a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :Proxy;
     rdfs:range <java:org.apache.http.HttpEntity>;
-    calli:type "*/*".
+    msg:type "*/*".
 
 :GetRedirect rdfs:subClassOf :Redirect;
-    calli:method "GET";
+    msg:method "GET";
     calli:requires calli:reader;
-    calli:type "message/x-response";
     calli:imports <java:org.apache.http.client.methods.HttpGet>;
-    calli:imports <java:org.callimachusproject.server.exceptions.ResponseException>;
+    calli:imports <java:org.openrdf.http.object.exceptions.ResponseException>;
     calli:script """
         var cacheControl = this.calliCacheControl.toArray();
         var iter = this.FindPurlGetPattern().iterator();
@@ -130,7 +129,7 @@
             }
         }
         if (queryString) {
-            throw new org.callimachusproject.server.exceptions.MethodNotAllowed();
+            throw new org.openrdf.http.object.exceptions.MethodNotAllowed();
         } else {
             // default response
             return {
@@ -143,11 +142,10 @@
     """.
 
 :PostRedirect rdfs:subClassOf :Proxy;
-    calli:method "POST";
+    msg:method "POST";
     calli:requires calli:reader;
-    calli:type "message/x-response";
     calli:imports <java:org.apache.http.client.methods.HttpPost>;
-    calli:imports <java:org.callimachusproject.server.exceptions.ResponseException>;
+    calli:imports <java:org.openrdf.http.object.exceptions.ResponseException>;
     calli:script """
         var iter = this.FindPurlPostPattern().iterator();
         while (iter.hasNext()) {
@@ -203,15 +201,14 @@
                 };
             }
         }
-        throw new org.callimachusproject.server.exceptions.MethodNotAllowed();
+        throw new org.openrdf.http.object.exceptions.MethodNotAllowed();
     """.
 
 :PutRedirect rdfs:subClassOf :Proxy;
-    calli:method "PUT";
+    msg:method "PUT";
     calli:requires calli:reader;
-    calli:type "message/x-response";
     calli:imports <java:org.apache.http.client.methods.HttpPut>;
-    calli:imports <java:org.callimachusproject.server.exceptions.ResponseException>;
+    calli:imports <java:org.openrdf.http.object.exceptions.ResponseException>;
     calli:script """
         var iter = this.FindPurlPutPattern().iterator();
         while (iter.hasNext()) {
@@ -267,15 +264,14 @@
                 };
             }
         }
-        throw new org.callimachusproject.server.exceptions.MethodNotAllowed();
+        throw new org.openrdf.http.object.exceptions.MethodNotAllowed();
     """.
 
 :PatchRedirect rdfs:subClassOf :Proxy;
-    calli:method "PATCH";
+    msg:method "PATCH";
     calli:requires calli:reader;
-    calli:type "message/x-response";
     calli:imports <java:org.apache.http.client.methods.HttpPut>;
-    calli:imports <java:org.callimachusproject.server.exceptions.ResponseException>;
+    calli:imports <java:org.openrdf.http.object.exceptions.ResponseException>;
     calli:script """
         var iter = this.FindPurlPatchPattern().iterator();
         while (iter.hasNext()) {
@@ -331,15 +327,14 @@
                 };
             }
         }
-        throw new org.callimachusproject.server.exceptions.MethodNotAllowed();
+        throw new org.openrdf.http.object.exceptions.MethodNotAllowed();
     """.
 
 :DeleteRedirect rdfs:subClassOf :Redirect;
-    calli:method "DELETE";
+    msg:method "DELETE";
     calli:requires calli:reader;
-    calli:type "message/x-response";
     calli:imports <java:org.apache.http.client.methods.HttpDelete>;
-    calli:imports <java:org.callimachusproject.server.exceptions.ResponseException>;
+    calli:imports <java:org.openrdf.http.object.exceptions.ResponseException>;
     calli:script """
         var iter = this.FindPurlDeletePattern().iterator();
         while (iter.hasNext()) {
@@ -392,17 +387,17 @@
                 };
             }
         }
-        throw new org.callimachusproject.server.exceptions.MethodNotAllowed();
+        throw new org.openrdf.http.object.exceptions.MethodNotAllowed();
     """.
 
 :GetViewPage owl:intersectionOf (<viewable.ttl#GetViewPage>
         [owl:onProperty msg:target; owl:allValuesFrom <Purl> ]);
     calli:rel "alternate";
-    calli:method "GET";
-    calli:query "view";
+    msg:method "GET";
+    msg:path "?view";
     calli:requires calli:subscriber;
-    calli:type "text/html";
-    calli:header "cache-control:no-cache";
+    msg:type "text/html";
+    msg:header "cache-control:no-cache";
     calli:script """
         return proceed();
     """.

@@ -44,20 +44,20 @@
 :GetTextFile rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <TextFile>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
-    calli:method "GET";
+    msg:method "GET";
     calli:rel "edit-media";
     calli:requires calli:reader;
-    calli:type "text/plain";
-    calli:header "cache-control:no-cache";
-    calli:header "cache-control:cache-range";
-    calli:header "Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
+    msg:type "text/plain";
+    msg:header "cache-control:no-cache";
+    msg:header "cache-control:cache-range";
+    msg:header "Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
     calli:script "return this.openReader(true)".
 
 # PUT /robots.txt
 :UploadTextFile rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <TextFile>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-    calli:method "PUT";
+    msg:method "PUT";
     calli:requires calli:editor;
     calli:imports <java:org.apache.commons.io.input.ReaderInputStream>;
     calli:imports <java:java.nio.charset.Charset>;
@@ -69,5 +69,5 @@
 :reader a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :UploadTextFile;
     rdfs:range <java:java.io.Reader>;
-    calli:type "text/plain".
+    msg:type "text/plain".
 

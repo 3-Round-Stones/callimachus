@@ -42,18 +42,18 @@
 :GetMetadata rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Editable>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.openrdf.query.GraphQueryResult>];
-    calli:method "GET";
-    calli:query "edit";
+    msg:method "GET";
+    msg:path "?edit";
     calli:requires calli:editor;
-    calli:type "text/turtle;q=0.6", "application/ld+json;q=0.4", "application/rdf+xml;q=0.2";
-    calli:header "Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
+    msg:type "text/turtle;q=0.6", "application/ld+json;q=0.4", "application/rdf+xml;q=0.2";
+    msg:header "Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
     calli:script "return this.GetRdfDescription(prefer, 'edit')".
 
 :prefer a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :GetMetadata;
     rdfs:range xsd:string;
-    calli:header "Prefer";
-    calli:type "text/plain".
+    msg:headerParam "Prefer";
+    msg:type "text/plain".
 
 ################################
 # edit-form
@@ -63,13 +63,13 @@
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Editable>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
     calli:rel "edit-form";
-    calli:method "GET";
-    calli:query "edit";
+    msg:method "GET";
+    msg:path "?edit";
     calli:requires calli:editor;
-    calli:type "text/html";
-    calli:header "cache-control:no-cache";
-    calli:header "Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
-    calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
+    msg:type "text/html";
+    msg:header "cache-control:no-cache";
+    msg:header "Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
+    calli:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
     calli:script """
         function findTemplate(obj, ann) {
             var annotated = findAnnotatedClass(obj.getClass(), ann);
@@ -114,11 +114,11 @@
 :PutMetadata rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Editable>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-    calli:method "PUT";
-    calli:query "edit";
+    msg:method "PUT";
+    msg:path "?edit";
     calli:requires calli:editor;
     calli:imports <java:org.callimachusproject.engine.helpers.SparqlUpdateFactory>;
-    calli:imports <java:org.callimachusproject.server.exceptions.PreconditionRequired>;
+    calli:imports <java:org.openrdf.http.object.exceptions.PreconditionRequired>;
     calli:script """
         if (!ifMatch) throw new PreconditionRequired("If-Match request header is required");
         var sparql = new SparqlUpdateFactory(this.resource + "?edit").replacement(this.GetMetadata(null), metaData);
@@ -128,24 +128,24 @@
 :ifMatch a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :PutMetadata;
     rdfs:range xsd:string;
-    calli:header "If-Match";
-    calli:type "text/plain".
+    msg:headerParam "If-Match";
+    msg:type "text/plain".
 
 :metaData a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :PutMetadata;
     rdfs:range <java:org.openrdf.query.GraphQueryResult>;
-    calli:type "text/turtle;q=0.6", "application/ld+json;q=0.4", "application/rdf+xml;q=0.2".
+    msg:type "text/turtle;q=0.6", "application/ld+json;q=0.4", "application/rdf+xml;q=0.2".
 
 :PostEdit rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Editable>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-    calli:method "POST", "PATCH";
-    calli:query "edit";
+    msg:method "POST", "PATCH";
+    msg:path "?edit";
     calli:requires calli:editor;
     calli:expect "200-modified";
-    calli:type "text/uri-list";
-    calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
-    calli:imports <java:org.callimachusproject.server.exceptions.ServiceUnavailable>;
+    msg:type "text/uri-list";
+    calli:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
+    calli:imports <java:org.openrdf.http.object.exceptions.ServiceUnavailable>;
     calli:imports <java:org.callimachusproject.form.helpers.EntityUpdater>;
     calli:imports <java:org.openrdf.query.impl.MapBindingSet>;
     calli:script """
@@ -209,7 +209,7 @@
 :inputStream a owl:ObjectProperty; a owl:FunctionalProperty;
     rdfs:domain :PostEdit;
     rdfs:range <java:java.io.InputStream>;
-    calli:type "application/sparql-update".
+    msg:type "application/sparql-update".
 
 :FindEditTemplates rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Editable>];
@@ -231,9 +231,8 @@
 
 :DeleteEditable rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Editable>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
-    calli:method "DELETE";
-    calli:query "edit";
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
+    msg:method "DELETE";
+    msg:path "?edit";
     calli:requires calli:editor;
-    calli:type "message/x-response";
     calli:script "return this.DeleteIfNotUsed()".

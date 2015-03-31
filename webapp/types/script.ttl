@@ -44,33 +44,33 @@
 :GetJavaScript rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Script>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
-    calli:method "GET";
+    msg:method "GET";
     calli:rel "edit-media";
     calli:requires calli:reader;
-    calli:type "text/javascript";
-    calli:header "cache-control:no-cache";
-    calli:header "cache-control:cache-range";
-    calli:header "Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
+    msg:type "text/javascript";
+    msg:header "cache-control:no-cache";
+    msg:header "cache-control:cache-range";
+    msg:header "Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
     calli:script "return this.openReader(true)".
 
 # PUT /script.js
 :UploadBinaryScript rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Script>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-    calli:method "PUT";
+    msg:method "PUT";
     calli:requires calli:editor;
     calli:script "return this.ReplaceFileContent(stream, 'application/javascript', true);".
 
 :stream a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :UploadBinaryScript;
     rdfs:range <java:java.io.InputStream>;
-    calli:type "application/javascript".
+    msg:type "application/javascript".
 
 # PUT /script.js
 :UploadScript rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Script>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-    calli:method "PUT";
+    msg:method "PUT";
     calli:requires calli:editor;
     calli:imports <java:org.apache.commons.io.input.ReaderInputStream>;
     calli:imports <java:java.nio.charset.Charset>;
@@ -82,11 +82,11 @@
 :reader a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :UploadScript;
     rdfs:range <java:java.io.Reader>;
-    calli:type "text/javascript".
+    msg:type "text/javascript".
 
 :ValidateScript owl:intersectionOf (<serviceable.ttl#Validate>
         [owl:onProperty msg:target; owl:allValuesFrom <Script>]);
-    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
     calli:script """
         var saved = this.openReader(true);
         try {

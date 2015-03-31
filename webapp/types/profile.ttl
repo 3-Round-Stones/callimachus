@@ -35,11 +35,11 @@
 :GetRdfProfile rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfProfile>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.openrdf.model.impl.LinkedHashModel>];
-    calli:method "GET";
+    msg:method "GET";
     calli:requires calli:reader;
-    calli:type "application/rdf+xml;q=0.9", "text/turtle;q=0.9", "application/ld+json;q=0.9";
-    calli:header "cache-control:no-validate";
-    calli:header "cache-control:max-age=60";
+    msg:type "application/rdf+xml;q=0.9", "text/turtle;q=0.9", "application/ld+json;q=0.9";
+    msg:header "cache-control:no-validate";
+    msg:header "cache-control:max-age=60";
     calli:imports <java:org.openrdf.model.impl.LinkedHashModel>;
     calli:script """
         var vf = this.objectConnection.valueFactory;
@@ -65,12 +65,12 @@
 :GetHtmlProfile owl:intersectionOf (<viewable.ttl#GetViewPage>
         [owl:onProperty msg:target; owl:allValuesFrom <RdfProfile>]);
     calli:rel "alternate";
-    calli:method "GET";
-    calli:query "view";
+    msg:method "GET";
+    msg:path "?view";
     calli:requires calli:editor;
-    calli:type "text/html";
-    calli:header "cache-control:no-validate";
-    calli:header "cache-control:max-age=300";
+    msg:type "text/html";
+    msg:header "cache-control:no-validate";
+    msg:header "cache-control:max-age=300";
     calli:script """
         return this.TransformProfile(this.GetRdfProfile());
     """.
@@ -78,21 +78,21 @@
 :TransformProfile rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfProfile>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-    calli:type "text/html";
+    msg:type "text/html";
     calli:post "../pipelines/profile.xpl?results&target={0}".
 
 :model a owl:ObjectProperty, owl:FunctionalProperty;
     rdfs:domain :TransformProfile;
     rdfs:range <java:org.openrdf.model.impl.LinkedHashModel>;
-    calli:type "application/rdf+xml".
+    msg:type "application/rdf+xml".
 
 :PostProfile rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfProfile>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-    calli:method "POST";
+    msg:method "POST";
     calli:requires calli:editor;
     calli:expect "303-see-other";
-    calli:type "text/uri-list";
+    msg:type "text/uri-list";
     calli:script """
         var iter = form.entrySet().iterator();
         while (iter.hasNext()) {
@@ -112,5 +112,5 @@
 :form a owl:ObjectProperty, owl:FunctionalProperty;
     rdfs:domain :PostProfile;
     rdfs:range <java:java.util.Map>;
-    calli:type "application/x-www-form-urlencoded".
+    msg:type "application/x-www-form-urlencoded".
 

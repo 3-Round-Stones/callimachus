@@ -41,9 +41,9 @@
 :GetChangeView owl:intersectionOf (<viewable.ttl#GetViewPage>
         [owl:onProperty msg:target; owl:allValuesFrom <Change>]);
     calli:rel "alternate";
-    calli:method "GET";
-    calli:query "view";
+    msg:method "GET";
+    msg:path "?view";
     calli:requires calli:reader;
-    calli:type "text/html";
+    msg:type "text/html";
     calli:copy "../pipelines/change-view.xpl?results&target={0}".
 

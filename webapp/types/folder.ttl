@@ -45,7 +45,7 @@
 # when a Folder is created
 :ValidateFolder owl:intersectionOf (<serviceable.ttl#Validate>
         [owl:onProperty msg:target; owl:allValuesFrom <Folder>]);
-    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
     calli:script """
         var uri = this.toString();
         if (uri.lastIndexOf('/') != uri.length - 1)
@@ -60,12 +60,12 @@
 :GetFolderFeed rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-    calli:method "GET";
-    calli:query "contents";
+    msg:method "GET";
+    msg:path "?contents";
     calli:rel "contents";
     calli:requires calli:subscriber;
-    calli:type "application/atom+xml;q=0.9";
-    calli:header "cache-control:no-cache";
+    msg:type "application/atom+xml;q=0.9";
+    msg:header "cache-control:no-cache";
     calli:copy "../pipelines/folder-contents-atom.xpl?results&target={0}".
 
 ################################
@@ -75,23 +75,23 @@
 :GetFolderChanges rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
-    calli:method "GET";
-    calli:query "changes";
+    msg:method "GET";
+    msg:path "?changes";
     calli:rel "alternate";
     calli:requires calli:subscriber;
-    calli:type "text/html";
-    calli:header "cache-control:no-store";
+    msg:type "text/html";
+    msg:header "cache-control:no-store";
     calli:copy "../pipelines/folder-changes-html.xpl?results&target={0}".
 
 :GetFolderChangeAtom rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-    calli:method "GET";
-    calli:query "changes";
+    msg:method "GET";
+    msg:path "?changes";
     calli:rel "alternate";
     calli:requires calli:subscriber;
-    calli:type "application/atom+xml;q=0.9";
-    calli:header "cache-control:no-store";
+    msg:type "application/atom+xml;q=0.9";
+    msg:header "cache-control:no-store";
     calli:copy "../pipelines/folder-changes-atom.xpl?results&target={0}".
 
 ################################
@@ -100,13 +100,12 @@
 
 :DownloadFolderComponents rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
-    calli:method "GET";
-    calli:query "archive";
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
+    msg:method "GET";
+    msg:path "?archive";
     calli:rel calli:archive;
     calli:requires calli:administrator;
-    calli:type "message/x-response";
-    calli:header "cache-control:no-store";
+    msg:header "cache-control:no-store";
     calli:script """
         var baseURI = this.toString();
         if (this.calliHasComponent.isEmpty() || baseURI.charAt(baseURI.length - 1) != '/')
@@ -124,7 +123,7 @@
 :GetRdfFolderDescription rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.openrdf.query.GraphQueryResult>];
-    calli:type "application/rdf+xml;q=0.4", "text/turtle;q=0.5";
+    msg:type "application/rdf+xml;q=0.4", "text/turtle;q=0.5";
     msg:sparql """
         PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
@@ -164,11 +163,11 @@
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
     rdfs:subClassOf [owl:onProperty :folder_import_xhtml; owl:hasValue <../pages/folder-import.xhtml>];
-    calli:method "GET";
-    calli:query "import";
+    msg:method "GET";
+    msg:path "?import";
     calli:requires calli:administrator;
-    calli:type "text/html";
-    calli:header "cache-control:no-cache";
+    msg:type "text/html";
+    msg:header "cache-control:no-cache";
     calli:script """
         return folder_import_xhtml.Construct(this, 'import');
     """.
@@ -181,13 +180,13 @@ rdfs:label a rdf:Property.
 :ImportFolderComponents rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
-    calli:method "POST";
-    calli:query "import";
+    msg:method "POST";
+    msg:path "?import";
     calli:requires calli:administrator;
     calli:expect "302-see-other";
-    calli:type "text/uri-list";
+    msg:type "text/uri-list";
     calli:imports <Folder>;
-    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
     calli:script """
         var folder;
         var bio = new org.callimachusproject.io.LatencyInputStream(formData);
@@ -219,15 +218,15 @@ rdfs:label a rdf:Property.
 :formData a owl:ObjectProperty, owl:FunctionalProperty;
     rdfs:domain :ImportFolderComponents;
     rdfs:range <java:java.io.InputStream>;
-    calli:type "multipart/form-data".
+    msg:type "multipart/form-data".
 
 :DeleteFolderContents rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-    calli:method "DELETE";
-    calli:query "archive";
+    msg:method "DELETE";
+    msg:path "?archive";
     calli:requires calli:administrator;
-    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
     calli:script """
         var con = this.objectConnection;
         var vf = con.valueFactory;
@@ -260,15 +259,15 @@ rdfs:label a rdf:Property.
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     rdfs:subClassOf [owl:onProperty :uploadFileClass; owl:hasValue <File>];
     rdfs:subClassOf [owl:onProperty :schemaGraphClass; owl:hasValue <RdfSchemaGraph>];
-    calli:method "PUT";
-    calli:query "archive";
+    msg:method "PUT";
+    msg:path "?archive";
     calli:requires calli:administrator;
     calli:imports <Composite>;
     calli:imports <Folder>;
     calli:imports <java:org.openrdf.rio.RDFFormat>;
     calli:imports <java:org.openrdf.model.vocabulary.RDF>;
-    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
+    calli:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
+    calli:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
     calli:script """
         var con = this.objectConnection;
         var vf = con.getValueFactory();
@@ -340,7 +339,7 @@ rdfs:label a rdf:Property.
 :payload a owl:ObjectProperty, owl:FunctionalProperty;
     rdfs:domain :UploadFolderComponents;
     rdfs:range <java:java.io.InputStream>;
-    calli:type "application/zip".
+    msg:type "application/zip".
 
 :uploadFileClass a owl:ObjectProperty, owl:FunctionalProperty;
     rdfs:domain :UploadFolderComponents.

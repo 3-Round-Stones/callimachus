@@ -40,43 +40,43 @@
 :GetEditContainerPage owl:intersectionOf ( <editable.ttl#GetEditPage>
         [owl:onProperty msg:target; owl:allValuesFrom [owl:intersectionOf (<Editable> <Composite>)]]);
     calli:rel "edit-form";
-    calli:method "GET";
-    calli:query "edit";
+    msg:method "GET";
+    msg:path "?edit";
     calli:requires calli:editor;
-    calli:type "text/html";
-    calli:header "cache-control:no-cache";
-    calli:header "Link:<http://www.w3.org/ns/ldp#IndirectContainer>;rel=\"type\",<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
+    msg:type "text/html";
+    msg:header "cache-control:no-cache";
+    msg:header "Link:<http://www.w3.org/ns/ldp#IndirectContainer>;rel=\"type\",<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
     calli:script "return proceed();".
 
 :GetContainerMetadata owl:intersectionOf ( <editable.ttl#GetMetadata>
         [owl:onProperty msg:target; owl:allValuesFrom [owl:intersectionOf (<Editable> <Composite>)]]);
-    calli:method "GET";
-    calli:query "edit";
+    msg:method "GET";
+    msg:path "?edit";
     calli:requires calli:editor;
-    calli:type "text/turtle;q=0.6", "application/ld+json;q=0.4", "application/rdf+xml;q=0.2";
-    calli:header "Link:<http://www.w3.org/ns/ldp#IndirectContainer>;rel=\"type\",<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
+    msg:type "text/turtle;q=0.6", "application/ld+json;q=0.4", "application/rdf+xml;q=0.2";
+    msg:header "Link:<http://www.w3.org/ns/ldp#IndirectContainer>;rel=\"type\",<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
     calli:script "return proceed();".
 
 :GetHtmlContainerDescription owl:intersectionOf ( <serviceable.ttl#GetHtmlDescription>
         [owl:onProperty msg:target; owl:allValuesFrom <Composite>]);
     calli:title "RDF Describe";
     calli:rel "describedby";
-    calli:method "GET";
-    calli:query "describe";
+    msg:method "GET";
+    msg:path "?describe";
     calli:requires calli:reader;
-    calli:type "text/html";
-    calli:header "Link:<http://www.w3.org/ns/ldp#IndirectContainer>;rel=\"type\",<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
+    msg:type "text/html";
+    msg:header "Link:<http://www.w3.org/ns/ldp#IndirectContainer>;rel=\"type\",<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
     calli:script "return proceed();".
 
 :GetRdfContainerDescription owl:intersectionOf ( <serviceable.ttl#GetRdfDescription>
         [owl:onProperty msg:target; owl:allValuesFrom <Composite>]);
     calli:title "RDF Describe";
     calli:rel "describedby";
-    calli:method "GET";
-    calli:query "describe";
+    msg:method "GET";
+    msg:path "?describe";
     calli:requires calli:reader;
-    calli:type "text/turtle;q=0.6", "application/ld+json;q=0.4", "application/rdf+xml;q=0.2";
-    calli:header "Link:<http://www.w3.org/ns/ldp#IndirectContainer>;rel=\"type\",<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
+    msg:type "text/turtle;q=0.6", "application/ld+json;q=0.4", "application/rdf+xml;q=0.2";
+    msg:header "Link:<http://www.w3.org/ns/ldp#IndirectContainer>;rel=\"type\",<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
     calli:imports <java:org.callimachusproject.io.DescribeResult>;
     calli:imports <java:org.callimachusproject.io.FilteredGraphResult>;
     calli:script """
@@ -191,13 +191,13 @@
 
 :PostLDPCreate rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Composite>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
     rdfs:subClassOf [owl:onProperty :fileClass; owl:hasValue <File>].
 
 :create a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain [owl:unionOf (:GetCreatorPage :PostLDPCreate :FindCreatableVersion :LookupConstructor)];
-    calli:query "create";
-    calli:type "text/uri-list".
+    msg:param "create";
+    msg:type "text/uri-list".
 
 :fileClass a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :PostLDPCreate.
@@ -205,36 +205,36 @@
 :intermediate a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :PostLDPCreate;
     rdfs:range xsd:boolean;
-    calli:query "intermediate".
+    msg:param "intermediate".
 
 :link a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :PostLDPCreate;
     rdfs:range xsd:string;
-    calli:header "Link";
-    calli:type "text/plain".
+    msg:headerParam "Link";
+    msg:type "text/plain".
 
 :slug a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :PostLDPCreate;
     rdfs:range xsd:string;
-    calli:header "Slug";
-    calli:type "text/plain".
+    msg:headerParam "Slug";
+    msg:type "text/plain".
 
 :type a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :PostLDPCreate;
     rdfs:range xsd:string;
-    calli:header "Content-Type";
-    calli:type "text/plain".
+    msg:headerParam "Content-Type";
+    msg:type "text/plain".
 
 :GetCreatorPage rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Composite>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
-    calli:method "GET";
-    calli:query "create";
+    msg:method "GET";
+    msg:path "?create";
     calli:requires calli:contributor;
-    calli:type "text/html";
+    msg:type "text/html";
     calli:imports <Creatable>;
-    calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
-    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
+    calli:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
     calli:script """
         if (!(create instanceof Creatable)) {
             var createAlternate = this.FindCreatableVersion(create);
@@ -268,14 +268,13 @@
 :createPageStream a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :TransformCreatePage;
     rdfs:range <java:java.io.InputStream>;
-    calli:type "application/xhtml+xml".
+    msg:type "application/xhtml+xml".
 
 :PostRdfCreate rdfs:subClassOf :PostLDPCreate;
-    calli:method "POST";
-    calli:query "create";
+    msg:method "POST";
+    msg:path "?create";
     calli:requires calli:contributor;
     calli:expect "201-created";
-    calli:type "message/x-response";
     calli:script """
         return this.PostRDFSource(create, fileClass, intermediate, link, createData, slug, type, true);
     """.
@@ -283,14 +282,13 @@
 :createData a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :PostRdfCreate;
     rdfs:range <java:java.io.InputStream>;
-    calli:type "text/turtle", "application/ld+json;q=0.4", "application/rdf+xml;q=0.2".
+    msg:type "text/turtle", "application/ld+json;q=0.4", "application/rdf+xml;q=0.2".
 
 :PostRdfDescribe rdfs:subClassOf :PostLDPCreate;
-    calli:method "POST";
-    calli:query "describe";
+    msg:method "POST";
+    msg:path "?describe";
     calli:requires calli:administrator;
     calli:expect "201-created";
-    calli:type "message/x-response";
     calli:script """
         var resp = this.PostRDFSource(create, fileClass, intermediate, link, describeData, slug, type, false);
         if (resp.headers.link.indexOf('NonRDFSource') > 0) return resp;
@@ -310,14 +308,13 @@
 :describeData a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :PostRdfDescribe;
     rdfs:range <java:java.io.InputStream>;
-    calli:type "text/turtle", "application/ld+json;q=0.4", "application/rdf+xml;q=0.2".
+    msg:type "text/turtle", "application/ld+json;q=0.4", "application/rdf+xml;q=0.2".
 
 :PostRdfEdit rdfs:subClassOf :PostLDPCreate;
-    calli:method "POST";
-    calli:query "edit";
+    msg:method "POST";
+    msg:path "?edit";
     calli:requires calli:contributor;
     calli:expect "201-created";
-    calli:type "message/x-response";
     calli:script """
         var resp = this.PostRDFSource(create, fileClass, intermediate, link, editData, slug, type, true);
         var createdUri = resp.headers.location;
@@ -350,15 +347,14 @@
 :editData a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :PostRdfEdit;
     rdfs:range <java:java.io.InputStream>;
-    calli:type "text/turtle", "application/ld+json;q=0.4", "application/rdf+xml;q=0.2".
+    msg:type "text/turtle", "application/ld+json;q=0.4", "application/rdf+xml;q=0.2".
 
 :PostRDFSource rdfs:subClassOf :PostLDPCreate;
-    calli:type "message/x-response";
-    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    calli:imports <java:org.callimachusproject.server.exceptions.Forbidden>;
-    calli:imports <java:org.callimachusproject.server.exceptions.Conflict>;
-    calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
-    calli:imports <java:org.callimachusproject.server.exceptions.ServiceUnavailable>;
+    calli:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
+    calli:imports <java:org.openrdf.http.object.exceptions.Forbidden>;
+    calli:imports <java:org.openrdf.http.object.exceptions.Conflict>;
+    calli:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
+    calli:imports <java:org.openrdf.http.object.exceptions.ServiceUnavailable>;
     calli:imports <java:org.openrdf.rio.helpers.StatementCollector>;
     calli:imports <Composite>;
     calli:imports <Serviceable>;
@@ -496,7 +492,7 @@
 :rdfData a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :PostRDFSource;
     rdfs:range <java:java.io.InputStream>;
-    calli:type "text/turtle", "application/ld+json;q=0.4", "application/rdf+xml;q=0.2".
+    msg:type "text/turtle", "application/ld+json;q=0.4", "application/rdf+xml;q=0.2".
 
 :verify a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :PostRDFSource;
@@ -507,10 +503,9 @@
 ################################
 
 :PostText rdfs:subClassOf :PostLDPCreate;
-    calli:method "POST";
-    calli:query "create", "describe", "edit", "contents";
+    msg:method "POST";
+    msg:path "?create", "?describe", "?edit", "?contents";
     calli:requires calli:contributor;
-    calli:type "message/x-response";
     calli:imports <java:org.apache.commons.io.input.ReaderInputStream>;
     calli:imports <java:java.nio.charset.Charset>;
     calli:script """
@@ -521,13 +516,12 @@
 :textData a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :PostText;
     rdfs:range <java:java.io.Reader>;
-    calli:type "text/*;q=0.2".
+    msg:type "text/*;q=0.2".
 
 :PostImage rdfs:subClassOf :PostLDPCreate;
-    calli:method "POST";
-    calli:query "create", "describe", "edit", "contents";
+    msg:method "POST";
+    msg:path "?create", "?describe", "?edit", "?contents";
     calli:requires calli:contributor;
-    calli:type "message/x-response";
     calli:imports <Photo>;
     calli:imports foaf:Image;
     calli:script """
@@ -549,17 +543,16 @@
 :imageData a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :PostImage;
     rdfs:range <java:java.io.InputStream>;
-    calli:type "image/*;q=0.2".
+    msg:type "image/*;q=0.2".
 
 :PostNonRDFSource rdfs:subClassOf :PostLDPCreate;
-    calli:method "POST";
-    calli:query "create", "describe", "edit", "contents";
+    msg:method "POST";
+    msg:path "?create", "?describe", "?edit", "?contents";
     calli:requires calli:contributor;
-    calli:type "message/x-response";
-    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    calli:imports <java:org.callimachusproject.server.exceptions.Forbidden>;
-    calli:imports <java:org.callimachusproject.server.exceptions.Conflict>;
-    calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
+    calli:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
+    calli:imports <java:org.openrdf.http.object.exceptions.Forbidden>;
+    calli:imports <java:org.openrdf.http.object.exceptions.Conflict>;
+    calli:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
     calli:imports <java:org.callimachusproject.xml.XMLEventReaderFactory>;
     calli:imports <java:org.openrdf.model.vocabulary.RDFS>;
     calli:imports <java:org.openrdf.model.vocabulary.DCTERMS>;
@@ -683,7 +676,7 @@
 :nrData a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :PostNonRDFSource;
     rdfs:range <java:java.io.InputStream>;
-    calli:type "*/*;q=0.1".
+    msg:type "*/*;q=0.1".
 
 :LookupConstructor rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Composite>];
@@ -736,7 +729,7 @@
 
 :documentTag a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :LookupConstructor;
-    calli:type "text/uri-list".
+    msg:type "text/uri-list".
 
 :mediaType a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :LookupConstructor;
@@ -801,11 +794,10 @@
 
 :DeleteComposite owl:intersectionOf ( <serviceable.ttl#DeleteIfNotUsed>
         [owl:onProperty msg:target; owl:allValuesFrom [owl:intersectionOf (<Editable> <Composite>)]]);
-    calli:method "DELETE";
-    calli:query "edit", "describe";
+    msg:method "DELETE";
+    msg:path "?edit", "?describe";
     calli:requires calli:editor;
-    calli:type "message/x-response";
-    calli:imports <java:org.callimachusproject.server.exceptions.Conflict>;
+    calli:imports <java:org.openrdf.http.object.exceptions.Conflict>;
     calli:script """
         var size = this.calliHasComponent.size();
         if (size == 1)

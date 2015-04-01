@@ -85,21 +85,21 @@ public class DOMProviderTest extends MetadataServerTestCase {
 			return frag;
 		}
 
-		@Method("GET")
+		@Method("PUT")
 		@Path("?document")
 		@requires("urn:test:grant")
 		public void document(@Type("*/*") Document document) throws ParserConfigurationException {
 			assert document.hasChildNodes();
 		}
 
-		@Method("GET")
+		@Method("PUT")
 		@Path("?element")
 		@requires("urn:test:grant")
 		public void element(@Type("*/*") Element element) throws ParserConfigurationException {
 			assert element.getNodeName().equals("element");
 		}
 
-		@Method("GET")
+		@Method("PUT")
 		@Path("?fragment")
 		@requires("urn:test:grant")
 		public void fragment(@Type("*/*") DocumentFragment frag) throws ParserConfigurationException {

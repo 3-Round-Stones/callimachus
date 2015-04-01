@@ -132,7 +132,7 @@ public class CalliRepository extends RepositoryWrapper {
 
 	public CalliRepository(String repositoryID, ObjectRepository repository, RepositoryManager manager)
 			throws OpenRDFException, IOException {
-		assert manager != null && repositoryID != null && repository != null;
+		assert manager != null && repository != null;
 		this.repositoryID = repositoryID;
 		this.manager = manager;
 		object = repository;

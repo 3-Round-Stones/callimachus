@@ -41,20 +41,21 @@ public class HttpResponseScriptBuilder {
 			+ "if (contentType && contentType.indexOf('charset=') > 0) {\n"
 			+ "	charset = new javax.activation.MimeType(contentType).getParameter('charset');\n"
 			+ "}\n"
-			+ "if (typeof resp.body == 'string') {"
-			+ "	response.setEntity(new org.apache.http.entity.StringEntity(resp.body, contentType, charset));\n"
-			+ "} else if (resp.body && resp.body.length && resp.body.join) {\n"
-			+ "	response.setEntity(new org.apache.http.entity.StringEntity(resp.body.join(''), contentType, charset));\n"
-			+ "} else if (resp.body && typeof resp.body.getClass == 'function' && resp.body.getClass() instanceof java.lang.Class) {\n"
+			+ "var body = resp.entity || resp.body;\n"
+			+ "if (typeof body == 'string') {"
+			+ "	response.setEntity(new org.apache.http.entity.StringEntity(body, contentType, charset));\n"
+			+ "} else if (body && body.length && body.join) {\n"
+			+ "	response.setEntity(new org.apache.http.entity.StringEntity(body.join(''), contentType, charset));\n"
+			+ "} else if (body && typeof body.getClass == 'function' && body.getClass() instanceof java.lang.Class) {\n"
 			+ "	var factory = org.openrdf.http.object.fluid.FluidFactory.getInstance();\n"
 			+ "	var media = contentType ? [contentType] : [];\n"
-			+ "	var fluid = factory.builder().consume(resp.body, systemId, resp.body.getClass(), media);\n"
+			+ "	var fluid = factory.builder().consume(body, systemId, body.getClass(), media);\n"
 			+ "	response.setEntity(fluid.asHttpEntity(media));\n" + "}\n"
 			+ "return response;\n" + "}\n";
 	private final Invocable engine;
+	private final String systemId = getSystemId("SCRIPT");
 
 	public HttpResponseScriptBuilder() throws ScriptException {
-		String systemId = getSystemId("SCRIPT");
 		ScriptEngineManager man = new ScriptEngineManager();
 		ScriptEngine engine = man.getEngineByName("rhino");
 		engine.put(ScriptEngine.FILENAME, systemId);
@@ -64,7 +65,7 @@ public class HttpResponseScriptBuilder {
 
 	public HttpResponse asHttpResponse(Object result)
 			throws NoSuchMethodException, ScriptException {
-		return asHttpResponse(result, SCRIPT);
+		return asHttpResponse(result, systemId);
 	}
 
 	public HttpResponse asHttpResponse(Object result, String systemId)

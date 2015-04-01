@@ -291,8 +291,8 @@
     calli:expect "201-created";
     calli:script """
         var resp = this.PostRDFSource(create, fileClass, intermediate, link, describeData, slug, type, false);
-        if (resp.headers.link.indexOf('NonRDFSource') > 0) return resp;
-        var createdUri = resp.headers.location;
+        if (resp.getHeaders("Link").join(',').indexOf('NonRDFSource') > 0) return resp;
+        var createdUri = resp.getFirstHeader("Location").value;
         return {
             status: 201,
             message: 'Created',
@@ -317,8 +317,8 @@
     calli:expect "201-created";
     calli:script """
         var resp = this.PostRDFSource(create, fileClass, intermediate, link, editData, slug, type, true);
-        var createdUri = resp.headers.location;
-        if (resp.headers.link.indexOf('NonRDFSource') > 0) return {
+        var createdUri = resp.getFirstHeader("Location").value;
+        if (esp.getHeaders("Link").join(',').indexOf('NonRDFSource') > 0) return {
             status: 201,
             message: 'Created',
             headers:{
@@ -528,7 +528,7 @@
         var con = this.objectConnection;
         var vf = con.valueFactory;
         var resp = this.PostNonRDFSource(create, fileClass, intermediate, link, imageData, slug, type);
-        var createdUri = resp.headers.location;
+        var createdUri = resp.getFirstHeader("Location").value;
         var obj = con.addDesignation(con.getObject(createdUri), Image);
         var depiction = vf.createURI("http://xmlns.com/foaf/0.1/depiction");
         if (obj instanceof Photo) {
@@ -608,7 +608,7 @@
             type = mimetypes.getContentType(local);
         }
         var documentTag = null;
-        var bio = new org.callimachusproject.io.LatencyInputStream(nrData);
+        var bio = new org.openrdf.http.object.io.LatencyInputStream(nrData);
         try {
             if (type.indexOf("text/xml") == 0 || type.indexOf("application/xml") == 0 ||
                     type.indexOf("+xml") > 0) {
@@ -643,6 +643,7 @@
         }
         created = con.addDesignation(created, Document);
         created = con.addDesignation(created, construct.toString());
+        println(created + " is a " + construct);
         created.ReplaceFileContent(bio, type, false);
 
         created.calliReader.addAll(this.calliReader);

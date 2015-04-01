@@ -28,8 +28,6 @@ import junit.framework.TestCase;
 import org.apache.http.HttpResponse;
 import org.callimachusproject.annotations.script;
 import org.openrdf.annotations.Iri;
-import org.openrdf.http.object.fluid.FluidBuilder;
-import org.openrdf.http.object.fluid.FluidFactory;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.vocabulary.RDF;
@@ -55,7 +53,7 @@ public class ConcurrentResponseTest extends TestCase {
 	public interface Redirect {
 
 		@script("return {status:302,message:'Alternate',headers:{'location':'target','cache-control':[],'content-type':'text/plain'},body:['target']};")
-		public Object redirect();
+		public HttpResponse redirect();
 	}
 
 	public void setUp() throws Exception {
@@ -72,9 +70,7 @@ public class ConcurrentResponseTest extends TestCase {
 
 	public void testJsonResponse() throws Exception {
 		Redirect thing = con.getObject(Redirect.class, THING);
-		FluidBuilder fb = FluidFactory.getInstance().builder(con);
-		String uri = thing.toString();
-		HttpResponse response = fb.consume(thing.redirect(), uri, Object.class, "message/http").asHttpResponse();
+		HttpResponse response = thing.redirect();
 		assertEquals(302, response.getStatusLine().getStatusCode());
 		assertEquals("Alternate", response.getStatusLine().getReasonPhrase());
 		assertEquals(1, response.getHeaders("Location").length);

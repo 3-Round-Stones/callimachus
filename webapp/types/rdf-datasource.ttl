@@ -373,7 +373,7 @@
     msg:header "cache-control:no-validate";
     calli:script """
         var resp = this.GetQueryResult(htmlQueryStr);
-        var stream = resp && resp.body ? resp.body.content : null;
+        var stream = resp && resp.body ? resp.body.content : resp && resp.entity ? resp.entity.content : null;
         if (stream)
             return this.TransformResult(stream);
         return null;
@@ -393,7 +393,7 @@
     msg:type "text/html";
     calli:script """
         var resp = this.PostPercentEncoded(formMap);
-        var stream = resp && resp.body ? resp.body.content : null;
+        var stream = resp && resp.body ? resp.body.content : resp && resp.entity ? resp.entity.content : null;
         if (stream)
             return this.TransformResult(stream);
         return null;

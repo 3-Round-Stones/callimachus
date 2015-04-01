@@ -189,7 +189,7 @@ rdfs:label a rdf:Property.
     calli:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
     calli:script """
         var folder;
-        var bio = new org.callimachusproject.io.LatencyInputStream(formData);
+        var bio = new org.openrdf.http.object.io.LatencyInputStream(formData);
         var multipart = new org.callimachusproject.io.MultipartParser(bio);
         var inputStream = multipart.next();
         if (multipart.headers.get("content-type")) {

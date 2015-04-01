@@ -30,17 +30,27 @@ import org.openrdf.http.object.helpers.ObjectContext;
 import org.openrdf.http.object.helpers.ResourceTarget;
 import org.openrdf.http.object.util.HTTPDateFormat;
 import org.openrdf.model.URI;
+import org.openrdf.model.ValueFactory;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.base.RepositoryConnectionWrapper;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.RDFObject;
+import org.openrdf.rio.ParserConfig;
+import org.openrdf.rio.helpers.BasicParserSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ActivityProcessor implements HttpRequestChainInterceptor {
 	private final HTTPDateFormat format = new HTTPDateFormat();
 	private final Logger logger = LoggerFactory.getLogger(ActivityProcessor.class);
+
+	private ParserConfig parserConfig;
+
+	public ActivityProcessor() {
+		parserConfig = new ParserConfig();
+		parserConfig.set(BasicParserSettings.PRESERVE_BNODE_IDS, true);
+	}
 
 	@Override
 	public HttpResponse intercept(HttpRequest request, HttpContext context)
@@ -82,13 +92,29 @@ public class ActivityProcessor implements HttpRequestChainInterceptor {
 	private void initiateActivity(long now, ObjectConnection con,
 			HttpContext ctx) throws RepositoryException,
 			DatatypeConfigurationException {
-		AuditingRepositoryConnection audit = findAuditing(con);
-		if (audit != null) {
-			ActivityFactory delegate = audit.getActivityFactory();
+		con.setParserConfig(parserConfig);
+		AuditingRepositoryConnection auditing = findAuditing(con);
+		if (auditing != null) {
+			ActivityFactory delegate = auditing.getActivityFactory();
 			URI bundle = con.getVersionBundle();
-			assert bundle != null;
+			if (bundle == null) {
+				bundle = con.getInsertContext();
+				ActivityFactory activityFactory = auditing.getActivityFactory();
+				if (bundle == null && activityFactory != null) {
+					ValueFactory vf = con.getValueFactory();
+					URI activityURI = activityFactory.createActivityURI(bundle, vf);
+					String str = activityURI.stringValue();
+					int h = str.indexOf('#');
+					if (h > 0) {
+						bundle = vf.createURI(str.substring(0, h));
+					} else {
+						bundle = activityURI;
+					}
+				}
+				con.setVersionBundle(bundle); // use the same URI for blob version
+			}
 			URI activity = delegate.createActivityURI(bundle, con.getValueFactory());
-			audit.setActivityFactory(new RequestActivityFactory(activity, delegate, ctx, now));
+			auditing.setActivityFactory(new RequestActivityFactory(activity, delegate, ctx, now));
 		}
 	}
 
@@ -177,12 +203,18 @@ public class ActivityProcessor implements HttpRequestChainInterceptor {
 	private HttpUriResponse head(HttpRequest request, Header contentType,
 			ResourceTarget resource) throws IOException, HttpException {
 		HttpRequest head = new BasicHttpRequest("HEAD", request.getRequestLine().getUri());
-		head.setHeaders(request.getHeaders("Host"));
-		if (contentType != null) {
-			head.setHeader("Accept", contentType.getValue());
-		}
 		HttpRequest get = new BasicHttpRequest("GET", head.getRequestLine().getUri());
-		get.setHeaders(head.getAllHeaders());
+		head.setHeaders(request.getHeaders("Host"));
+		get.setHeaders(request.getHeaders("Host"));
+		if (contentType != null) {
+			get.setHeader("Accept", contentType.getValue());
+			if (resource.getHandlerMethod(get) == null) {
+				head.setHeader("Accept", "*/*");
+				get.setHeader("Accept", "*/*");
+			} else {
+				head.setHeader("Accept", contentType.getValue());
+			}
+		}
 		HttpUriResponse content = resource.head(get);
 		if (resource.getHandlerMethod(head) != null) {
 			HttpUriResponse result = resource.invoke(head);

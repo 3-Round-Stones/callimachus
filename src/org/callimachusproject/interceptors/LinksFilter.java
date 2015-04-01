@@ -101,7 +101,7 @@ public class LinksFilter implements HttpRequestChainInterceptor {
 		Map<String, List<Method>> map = new LinkedHashMap<String, List<Method>>();
 		for (java.lang.reflect.Method method : resource.getTargetObject().getClass().getMethods()) {
 			org.openrdf.annotations.Method m = method.getAnnotation(org.openrdf.annotations.Method.class);
-			if (m == null || !"GET".equals(m.value()))
+			if (m == null || !Arrays.asList(m.value()).contains("GET"))
 				continue;
 			Path p = method.getAnnotation(Path.class);
 			if (p == null) {

@@ -33,6 +33,7 @@ import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.vocabulary.RDF;
+import org.openrdf.model.vocabulary.XMLSchema;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFWriter;
@@ -159,8 +160,7 @@ public class RDFXMLStreamWriter implements RDFWriter {
 			Literal lit = (Literal) st.getObject();
 			if (lit.getLanguage() != null) {
 				writer.writeAttribute("xml:lang", lit.getLanguage());
-			}
-			if (lit.getDatatype() != null) {
+			} else if (lit.getDatatype() != null && !XMLSchema.STRING.equals(lit.getDatatype())) {
 				writer.writeAttribute("rdf", RDF.NAMESPACE, "datatype", lit.getDatatype().stringValue());
 			}
 			if (ESCAPED.matcher(lit.stringValue()).find()) {

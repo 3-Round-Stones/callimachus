@@ -51,6 +51,8 @@ import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ValueFactoryImpl;
+import org.openrdf.model.vocabulary.RDF;
+import org.openrdf.model.vocabulary.XMLSchema;
 import org.openrdf.query.Binding;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.QueryEvaluationException;
@@ -515,7 +517,10 @@ public class RDFaProducer extends XMLEventReaderBase {
 	
 	private URI getDatatype(Value content) {
 		if (content instanceof Literal) {
-			return ((Literal) content).getDatatype();
+			URI dt = ((Literal) content).getDatatype();
+			if (XMLSchema.STRING.equals(dt) || RDF.LANGSTRING.equals(dt))
+				return null;
+			return dt;
 		}
 		return null;
 	}

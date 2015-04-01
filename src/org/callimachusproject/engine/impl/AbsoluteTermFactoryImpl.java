@@ -70,7 +70,7 @@ public class AbsoluteTermFactoryImpl extends AbsoluteTermFactory {
 	public PlainLiteral literal(String label, String lang) {
 		if (label == null)
 			throw new IllegalArgumentException();
-		if (lang == null)
+		if (lang == null || lang.length() == 0)
 			return new PlainLiteralImpl(label, STRING);
 		return new PlainLiteralImpl(label, LANGSTRING, lang);
 	}

@@ -180,7 +180,12 @@ public class RDFaConformanceTest {
 		Value o = null;
 		if (term.isPlainLiteral()) {
 			PlainLiteral lit = term.asPlainLiteral();
-			o = f.createLiteral(lit.stringValue(), lit.getLang());
+			String lang = lit.getLang();
+			if (lang == null) {
+				o = f.createLiteral(lit.stringValue());
+			} else {
+				o = f.createLiteral(lit.stringValue(), lang);
+			}
 		}
 		else if (term.isIRI()) {
 			o = f.createURI(term.stringValue());

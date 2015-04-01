@@ -81,7 +81,7 @@ public class Setup {
 		commands.require("c", "conf")
 				.arg("file")
 				.desc("The local etc/callimachus.conf file to read settings from");
-		commands.option("b", "basedir").arg("directory")
+		commands.option("d", "dataDir").arg("directory")
 				.desc("Base directory used for local storage");
 		commands.option("k", "backups").arg("directory")
 				.desc("Backup directory");
@@ -98,7 +98,7 @@ public class Setup {
 				.desc("When the setup is complete launch this command and (if appropriate) open a Web browser to register");
 		commands.option("L", "no-launch").desc("Don't launch any commands and don't open any browsers");
 		commands.option("h", "help").desc("Print help (this message) and exit");
-		commands.option("V", "version").desc(
+		commands.option("v", "version").desc(
 				"Print version information and exit");
 	}
 
@@ -164,8 +164,8 @@ public class Setup {
 				System.exit(2);
 				return;
 			} else {
-				if (line.has("basedir")) {
-					basedir = new File(line.get("basedir"));
+				if (line.has("dataDir")) {
+					basedir = new File(line.get("dataDir"));
 				} else {
 					basedir = new File("").getCanonicalFile();
 				}
@@ -221,9 +221,9 @@ public class Setup {
 
 	public void start() throws Exception {
 		final CallimachusConf conf = new CallimachusConf(confFile);
-		final ObjectRepositoryManager manager = new ObjectRepositoryManager(basedir);
 		Set<String> webapps = new LinkedHashSet<String>();
 		final List<String> links = new ArrayList<String>();
+		final ObjectRepositoryManager manager = new ObjectRepositoryManager(basedir);
 		try {
 			Map<String, String> idByOrigin = conf.getOriginRepositoryIDs();
 			Set<String> repositoryIDs = new LinkedHashSet<String>(idByOrigin.values());
@@ -257,7 +257,7 @@ public class Setup {
 			if (cmd.length() > 0) {
 				System.gc();
 				launch(cmd);
-				Thread.sleep(5000);
+				Thread.sleep(2000);
 				waitUntilServing(webapps);
 			}
 			openWebBrowser(links);

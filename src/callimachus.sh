@@ -87,6 +87,7 @@ SCRIPTNAME=$0
 
 MAINCLASS=org.openrdf.http.object.Server
 MONITORCLASS=org.openrdf.http.object.ServerControl
+VERSIONCLASS=org.callimachusproject.Version
 
 # Ensure that any user defined CLASSPATH variables are not used on startup.
 CLASSPATH=
@@ -221,6 +222,10 @@ if [ "$("$JDK_HOME/bin/jrunscript" -e 'if(Array.isArray)println(true)')" != "tru
     echo "$JDK_HOME does not include ECMAScript 5 support" 1>&2
     echo "A newer JDK version (with at least ECMAScript 5 support) is required" 1>&2
     exit 5
+fi
+
+if [ -z "$SERVER_VERSION" ] ; then
+  SERVER_VERSION=$("$JAVA_HOME/bin/java" -cp "$BASEDIR"/'lib/*' $VERSIONCLASS)
 fi
 
 if [ -z "$KEYTOOL" ] ; then
@@ -659,7 +664,8 @@ do_start()
     -classpath "$CLASSPATH" \
     -Djava.awt.headless=true \
     -XX:OnOutOfMemoryError="kill %p" \
-    $DAEMON_OPTS $SSL_OPTS $JMXRMI_OPTS "$MAINCLASS" -q -d "$BASEDIR" $OPTS "$@"
+    $DAEMON_OPTS $SSL_OPTS $JMXRMI_OPTS "$MAINCLASS" -n "$SERVER_VERSION" \
+    -q -d "$BASEDIR" -p "$PORT" -s "$SSLPORT" $OPTS "$@"
 
   RETURN_VAL=$?
   sleep 4
@@ -813,7 +819,8 @@ do_run() {
     -Djava.awt.headless=true \
     -XX:OnOutOfMemoryError="kill %p" \
     -classpath "$CLASSPATH" \
-    $DAEMON_OPTS $SSL_OPTS $JMXRMI_OPTS "$MAINCLASS" -q -d "$BASEDIR" --pid "$PIDFILE" "$@"
+    $DAEMON_OPTS $SSL_OPTS $JMXRMI_OPTS "$MAINCLASS" -n "$SERVER_VERSION" \
+    -q -d "$BASEDIR" -p "$PORT" -s "$SSLPORT" --pid "$PIDFILE" "$@"
 }
 
 case "$1" in

@@ -61,7 +61,6 @@ import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.base.RepositoryConnectionWrapper;
 import org.openrdf.repository.manager.LocalRepositoryManager;
-import org.openrdf.repository.manager.RepositoryManager;
 import org.openrdf.repository.manager.RepositoryProvider;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.ObjectFactory;
@@ -98,12 +97,10 @@ public abstract class CalliObjectSupport implements CalliObject {
 		if (dataDir == null)
 			throw new IllegalArgumentException("Not a local repsitory: " + repository);
 		try {
-			String url = dataDir.toURI().toASCIIString();
-			RepositoryManager manager = RepositoryProvider.getRepositoryManagerOfRepository(url);
-			if (!(manager instanceof LocalRepositoryManager))
-				throw new IllegalArgumentException("Not a local repsitory manager: " + url);
+			File dir = dataDir.getParentFile().getParentFile();
+			LocalRepositoryManager manager = RepositoryProvider.getRepositoryManager(dir);
 			LocalRepositoryManager lrm = (LocalRepositoryManager) manager;
-			String id = RepositoryProvider.getRepositoryIdOfRepository(url);
+			String id = RepositoryProvider.getRepositoryIdOfRepository(dataDir.toURI().toASCIIString());
 			CalliRepository result = new CalliRepository(id, repository, lrm);
 			associate(result, repository);
 			return result;

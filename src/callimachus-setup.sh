@@ -300,5 +300,5 @@ exec "$JAVA_HOME/bin/java" \
     -classpath "$CLASSPATH" \
     -XX:OnOutOfMemoryError="kill -9 %p" \
     $JAVA_OPTS "$MAINCLASS" \
-    -b "$BASEDIR" -c "$CONFIG" -k "$BASEDIR/backups" -e -l "/bin/sh bin/$NAME-start.sh" "$@"
+    -d "$BASEDIR" -c "$CONFIG" -k "$BASEDIR/backups" -e -l "/bin/sh bin/$NAME-start.sh" "$@"
 

@@ -27,6 +27,7 @@
 
 <Markdown> a <Creatable>, owl:Class;
     rdfs:subClassOf <File>, calli:Markdown;
+    owl:equivalentClass </callimachus/1.4/types/Markdown>;
     rdfs:label "Markdown";
     rdfs:comment "A markdown file.";
     rdfs:isDefinedBy <../../ontology>;

@@ -29,7 +29,7 @@
     rdfs:subClassOf foaf:Image, <File>;
     rdfs:label "Image" ;
     rdfs:comment "Image file";
-    owl:equivalentClass </callimachus/Image>, </callimachus/1.0/types/Image>, </callimachus/1.3/types/Image>;
+    owl:equivalentClass </callimachus/Image>, </callimachus/1.0/types/Image>, </callimachus/1.3/types/Image>, </callimachus/1.4/types/Image>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/power>,</auth/groups/admin>;

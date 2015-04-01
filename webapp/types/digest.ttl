@@ -32,7 +32,7 @@
 
 <DigestManager> a <Creatable>, owl:Class;
     rdfs:subClassOf <Viewable>, <Editable>, calli:DigestManager;
-    owl:equivalentClass </callimachus/DigestManager>, </callimachus/1.0/types/DigestManager>, </callimachus/1.3/types/DigestManager>;
+    owl:equivalentClass </callimachus/DigestManager>, </callimachus/1.0/types/DigestManager>, </callimachus/1.3/types/DigestManager>, </callimachus/1.4/types/DigestManager>;
     rdfs:label "Digest manager";
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;

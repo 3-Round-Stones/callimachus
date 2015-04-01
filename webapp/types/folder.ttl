@@ -32,7 +32,7 @@
     rdfs:subClassOf <Composite>, <Purl>, calli:Folder;
     rdfs:label "Folder";
     rdfs:comment "A container of resources.";
-    owl:equivalentClass </callimachus/Folder>, </callimachus/1.0/types/Folder>, </callimachus/1.3/types/Folder>;
+    owl:equivalentClass </callimachus/Folder>, </callimachus/1.0/types/Folder>, </callimachus/1.3/types/Folder>, </callimachus/1.4/types/Folder>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/power>,</auth/groups/admin>;

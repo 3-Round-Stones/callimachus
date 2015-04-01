@@ -29,7 +29,7 @@
     rdfs:subClassOf <File>;
     rdfs:label "JavaScript file";
     rdfs:comment "A JavaScript file.";
-    owl:equivalentClass </callimachus/Script>, </callimachus/1.0/types/Script>, </callimachus/1.3/types/Script>;
+    owl:equivalentClass </callimachus/Script>, </callimachus/1.0/types/Script>, </callimachus/1.3/types/Script>, </callimachus/1.4/types/Script>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/staff>,</auth/groups/power>,</auth/groups/admin>;

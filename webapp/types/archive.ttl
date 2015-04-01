@@ -30,7 +30,7 @@
     rdfs:subClassOf calli:ZipArchive, <File>;
     rdfs:label "ZIP archive" ;
     rdfs:comment "A ZIP archive file.";
-    owl:equivalentClass </callimachus/1.3/types/ZipArchive>;
+    owl:equivalentClass </callimachus/1.3/types/ZipArchive>, </callimachus/1.4/types/ZipArchive>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/staff>,</auth/groups/power>,</auth/groups/admin>;

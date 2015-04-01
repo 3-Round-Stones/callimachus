@@ -30,7 +30,7 @@
 
 <Realm> a owl:Class;
     rdfs:subClassOf <Folder>, calli:Realm;
-    owl:equivalentClass </callimachus/Realm>, </callimachus/1.0/types/Realm>, </callimachus/1.3/types/Realm>;
+    owl:equivalentClass </callimachus/Realm>, </callimachus/1.0/types/Realm>, </callimachus/1.3/types/Realm>, </callimachus/1.4/types/Realm>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;
     calli:icon <../images/realm.png>;

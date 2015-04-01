@@ -29,7 +29,7 @@
     rdfs:subClassOf <File>, calli:XslTransform;
     rdfs:label "XSLT file";
     rdfs:comment "An XML Stylesheet Language Transform file.";
-    owl:equivalentClass </callimachus/Transform>, </callimachus/1.0/types/Transform>, </callimachus/1.3/types/XslTransform>;
+    owl:equivalentClass </callimachus/Transform>, </callimachus/1.0/types/Transform>, </callimachus/1.3/types/XslTransform>, </callimachus/1.4/types/XslTransform>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/staff>,</auth/groups/power>,</auth/groups/admin>;

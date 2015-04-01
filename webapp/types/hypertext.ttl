@@ -29,7 +29,7 @@
     rdfs:subClassOf <File>;
     rdfs:label "HTML file";
     rdfs:comment "Hypertext HTML files served verbatim without Callimachus preprocessing.";
-    owl:equivalentClass </callimachus/HypertextFile>, </callimachus/1.0/types/HypertextFile>, </callimachus/1.3/types/HypertextFile>;
+    owl:equivalentClass </callimachus/HypertextFile>, </callimachus/1.0/types/HypertextFile>, </callimachus/1.3/types/HypertextFile>, </callimachus/1.4/types/HypertextFile>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/staff>,</auth/groups/power>,</auth/groups/admin>;

@@ -29,7 +29,7 @@
     rdfs:subClassOf <File>, calli:XQuery;
     rdfs:label "XQuery file";
     rdfs:comment "An XQuery file.";
-    owl:equivalentClass </callimachus/XQuery>, </callimachus/1.0/types/XQuery>, </callimachus/1.3/types/XQuery>;
+    owl:equivalentClass </callimachus/XQuery>, </callimachus/1.0/types/XQuery>, </callimachus/1.3/types/XQuery>, </callimachus/1.4/types/XQuery>;
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/staff>, </auth/groups/power>,</auth/groups/admin>;

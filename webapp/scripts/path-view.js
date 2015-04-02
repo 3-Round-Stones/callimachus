@@ -1,4 +1,4 @@
-// folder-view.js
+// path-view.js
 /*
  * Copyright (c) 2014 3 Round Stones Inc., Some Rights Reserved
  *

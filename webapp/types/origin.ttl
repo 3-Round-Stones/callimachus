@@ -36,7 +36,7 @@
     rdfs:isDefinedBy <../../ontology>;
     calli:icon <../images/realm.png>;
     calli:thumbnail <../images/realm.svg>;
-    calli:view <../templates/folder-view.xhtml>.
+    calli:view <../templates/path-view.xhtml>.
 
 ################################
 # JavaScript base URI
@@ -56,7 +56,7 @@
 
 :baseuri a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :GetBaseUri;
-    rdfs:range <Folder>.
+    rdfs:range <PathSegment>.
 
 ################################
 # List realms defined by <Realm>

@@ -16,7 +16,7 @@
     <link id="folder-tour" href="../scripts/folder-tour?minified" />
     <link rel="help" href="#" onclick="$.getScript($('#folder-tour').attr('href'))" title="Tour the Folder view" />
     <link id="file-class-link" href="../types/File" />
-    <link id="create-menu-json" href="../queries/folder-create-menu.rq?results&amp;tqx=out:table&amp;user=" />
+    <link id="create-menu-json" href="../queries/path-create-menu.rq?results&amp;tqx=out:table&amp;user=" />
     <link href="?archive" title="Export folder contents" />
     <link class="dialog" href="?import" title="Import folder contents" />
     <style type="text/css">
@@ -30,8 +30,8 @@
             background: #ddd !important;
         }
     </style>
-    <script type="text/javascript" src="../scripts/folder-view.js"></script>
-    <script type="text/javascript" src="../scripts/folder-create-menu.js"></script>
+    <script type="text/javascript" src="../scripts/path-view.js"></script>
+    <script type="text/javascript" src="../scripts/path-create-menu.js"></script>
 </head>
 <body resource="?this">
     <div class="container">
@@ -70,7 +70,7 @@
                     </tr>
                 </thead>
                 <tbody id="tfolders" rel="calli:hasComponent">
-                    <tr resource="?folder" typeof="calli:Folder">
+                    <tr resource="?folder" typeof="calli:PathSegment">
                         <td class="filecell">
                             <a href="{?folder}?view" property="rdfs:label" content="?flabel">
                                 <img class="icon" src="../images/folder.png" /><span>{?flabel}</span>

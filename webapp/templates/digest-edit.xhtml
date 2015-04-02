@@ -44,7 +44,7 @@
                         <div id="authNamespace" dropzone="link string:text/uri-list" class="form-group" ondrop="calli.insertResource(event)">
                             <label for="authNamespace">User folder</label>
                             <div rel="calli:authNamespace">
-                                <span resource="?authNamespace" typeof="calli:Folder" class="label label-info">
+                                <span resource="?authNamespace" typeof="calli:PathSegment" class="label label-info">
                                     <span property="rdfs:label" />
                                     <a href="{?authNamespace}" title="Don't use users in this folder" onclick="calli.removeResource(event)" class="glyphicon glyphicon-remove" />
                                 </span>

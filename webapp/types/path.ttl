@@ -26,11 +26,11 @@
 @prefix :<#>.
 
 <> a <RdfSchemaGraph>;
-    foaf:primaryTopic <Folder>.
+    foaf:primaryTopic <PathSegment>.
 
-<Folder> a <Creatable>, owl:Class;
-    rdfs:subClassOf <Composite>, <Purl>, calli:Folder;
-    rdfs:label "Folder";
+<PathSegment> a <Creatable>, owl:Class;
+    rdfs:subClassOf <Composite>, <Purl>, calli:PathSegment;
+    rdfs:label "Path Segment";
     rdfs:comment "A container of resources.";
     owl:equivalentClass </callimachus/Folder>, </callimachus/1.0/types/Folder>, </callimachus/1.3/types/Folder>, </callimachus/1.4/types/Folder>;
     rdfs:isDefinedBy <../../ontology>;
@@ -38,13 +38,13 @@
     calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/power>,</auth/groups/admin>;
     calli:icon <../images/folder.png>;
     calli:thumbnail <../images/folder.svg>;
-    calli:view <../templates/folder-view.xhtml>;
-    calli:edit <../templates/folder-edit.xhtml>;
-    calli:create <../templates/folder-create.xhtml>.
+    calli:view <../templates/path-view.xhtml>;
+    calli:edit <../templates/path-edit.xhtml>;
+    calli:create <../templates/path-create.xhtml>.
 
 # when a Folder is created
 :ValidateFolder owl:intersectionOf (<serviceable.ttl#Validate>
-        [owl:onProperty msg:target; owl:allValuesFrom <Folder>]);
+        [owl:onProperty msg:target; owl:allValuesFrom <PathSegment>]);
     calli:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
     calli:script """
         var uri = this.toString();
@@ -58,7 +58,7 @@
 ################################
 
 :GetFolderFeed rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <PathSegment>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
     msg:method "GET";
     msg:path "?contents";
@@ -66,14 +66,14 @@
     calli:requires calli:subscriber;
     msg:type "application/atom+xml;q=0.9";
     msg:header "cache-control:no-cache";
-    calli:copy "../pipelines/folder-contents-atom.xpl?results&target={0}".
+    calli:copy "../pipelines/path-contents-atom.xpl?results&target={0}".
 
 ################################
 # Recent Changes
 ################################
 
 :GetFolderChanges rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <PathSegment>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
     msg:method "GET";
     msg:path "?changes";
@@ -81,10 +81,10 @@
     calli:requires calli:subscriber;
     msg:type "text/html";
     msg:header "cache-control:no-store";
-    calli:copy "../pipelines/folder-changes-html.xpl?results&target={0}".
+    calli:copy "../pipelines/path-changes-html.xpl?results&target={0}".
 
 :GetFolderChangeAtom rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <PathSegment>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
     msg:method "GET";
     msg:path "?changes";
@@ -92,14 +92,14 @@
     calli:requires calli:subscriber;
     msg:type "application/atom+xml;q=0.9";
     msg:header "cache-control:no-store";
-    calli:copy "../pipelines/folder-changes-atom.xpl?results&target={0}".
+    calli:copy "../pipelines/path-changes-atom.xpl?results&target={0}".
 
 ################################
 # Export folder contents
 ################################
 
 :DownloadFolderComponents rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <PathSegment>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
     msg:method "GET";
     msg:path "?archive";
@@ -121,7 +121,7 @@
     """.
 
 :GetRdfFolderDescription rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <PathSegment>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.openrdf.query.GraphQueryResult>];
     msg:type "application/rdf+xml;q=0.4", "text/turtle;q=0.5";
     msg:sparql """
@@ -130,7 +130,7 @@
         PREFIX prov:<http://www.w3.org/ns/prov#>
         PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
         CONSTRUCT {
-            $this a <Folder>, calli:Folder;
+            $this a <PathSegment>, calli:Folder;
                 rdfs:label ?label;
                 calli:describedby ?describedby;
                 calli:reader ?reader;
@@ -138,7 +138,7 @@
                 calli:editor ?editor;
                 calli:administrator ?administrator.
         } WHERE {
-            $this a <Folder>
+            $this a <PathSegment>
             {
                 $this rdfs:label ?label
             } UNION {
@@ -160,9 +160,9 @@
 ################################
 
 :GetFolderUploadPage rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <PathSegment>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-    rdfs:subClassOf [owl:onProperty :folder_import_xhtml; owl:hasValue <../pages/folder-import.xhtml>];
+    rdfs:subClassOf [owl:onProperty :folder_import_xhtml; owl:hasValue <../pages/path-import.xhtml>];
     msg:method "GET";
     msg:path "?import";
     calli:requires calli:administrator;
@@ -178,14 +178,14 @@
 rdfs:label a rdf:Property.
 
 :ImportFolderComponents rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <PathSegment>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
     msg:method "POST";
     msg:path "?import";
     calli:requires calli:administrator;
     calli:expect "302-see-other";
     msg:type "text/uri-list";
-    calli:imports <Folder>;
+    calli:imports <PathSegment>;
     calli:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
     calli:script """
         var folder;
@@ -221,7 +221,7 @@ rdfs:label a rdf:Property.
     msg:type "multipart/form-data".
 
 :DeleteFolderContents rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <PathSegment>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     msg:method "DELETE";
     msg:path "?archive";
@@ -255,7 +255,7 @@ rdfs:label a rdf:Property.
     """.
 
 :UploadFolderComponents rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <PathSegment>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     rdfs:subClassOf [owl:onProperty :uploadFileClass; owl:hasValue <File>];
     rdfs:subClassOf [owl:onProperty :schemaGraphClass; owl:hasValue <RdfSchemaGraph>];
@@ -263,7 +263,7 @@ rdfs:label a rdf:Property.
     msg:path "?archive";
     calli:requires calli:administrator;
     calli:imports <Composite>;
-    calli:imports <Folder>;
+    calli:imports <PathSegment>;
     calli:imports <java:org.openrdf.rio.RDFFormat>;
     calli:imports <java:org.openrdf.model.vocabulary.RDF>;
     calli:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
@@ -285,12 +285,12 @@ rdfs:label a rdf:Property.
             var slug = name.replace(/\\s+/g, '+').replace(/.*\\/(.)/,'$1');
             var uri = baseURI + name.replace(/\\s+/g, '+');
             var location = con.objectFactory.createObject(uri);
-            var container = this.findContainer(uri, Folder);
+            var container = this.findContainer(uri, PathSegment);
             var entryStream = carStream.getEntryStream();
             var type = carStream.getEntryType();
             try {
                 if (carStream.isFolderEntry()) {
-                    this.designateAsFolder(uri, Folder);
+                    this.designateAsFolder(uri, PathSegment);
                     dependency.remove(uri);
                 } else if (carStream.isFileEntry()) {
                     container.PostNonRDFSource(File, File, true, null, entryStream, slug, type);

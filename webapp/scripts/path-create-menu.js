@@ -1,4 +1,4 @@
-// folder-create-menu.js
+// path-create-menu.js
 /*
  * Copyright (c) 2014 3 Round Stones Inc., Some Rights Reserved
  *

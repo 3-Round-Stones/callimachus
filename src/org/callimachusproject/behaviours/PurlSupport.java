@@ -47,10 +47,10 @@ public abstract class PurlSupport implements CalliObject {
 			.compile("\r?\n\r?\n([\\S\\s]+)");
 
 	public HttpUriRequest buildRequest(final String defaultMethod,
-			String pattern, String queryString) throws IOException,
+			String pattern, String suffix) throws IOException,
 			FluidException {
 		final CharSequence requestMessage = processUriTemplate(pattern,
-				queryString);
+				suffix);
 		if (requestMessage == null)
 			return null;
 		Matcher line = HTTP_LINE.matcher(requestMessage);
@@ -95,25 +95,24 @@ public abstract class PurlSupport implements CalliObject {
 		return this.getHttpClient().getAnyResponse(request);
 	}
 
-	private CharSequence processUriTemplate(String pattern, String queryString)
+	private CharSequence processUriTemplate(String pattern, String suffix)
 			throws IOException, FluidException {
 		String base = this.toString();
-		if (queryString != null && queryString.length() > 0) {
-			if (queryString.charAt(0) == '?')
-				return processUriTemplate(pattern, queryString.substring(1));
+		if (suffix != null && suffix.length() > 0 && suffix.indexOf('?') >= 0) {
+			String qs = suffix.substring(suffix.indexOf('?') + 1);
 			FluidFactory ff = FluidFactory.getInstance();
 			FluidBuilder fb = ff.builder(getObjectConnection());
-			Fluid fluid = fb.consume(queryString, base, String.class,
+			Fluid fluid = fb.consume(qs, base, String.class,
 					"application/x-www-form-urlencoded");
 			Map<String, ?> map = (Map) fluid.as(Map.class,
 					"application/x-www-form-urlencoded");
-			int size = base.length() + queryString.length() + 1;
-			StringBuilder sb = new StringBuilder(size);
-			sb.append(base).append('?').append(queryString);
-			CharSequence qs = sb.subSequence(base.length(), sb.length());
 			Substitution substitution = Substitution.compile(pattern);
-			CharSequence result = substitution.replace(sb, map);
+			CharSequence result = substitution.replace(base + suffix, map);
 			return appendQueryString(result, qs);
+		} else if (suffix != null && suffix.length() > 0) {
+			Substitution substitution = Substitution.compile(pattern);
+			Map<String, ?> map = Collections.emptyMap();
+			return substitution.replace(base + suffix, map);
 		} else {
 			Substitution substitution = Substitution.compile(pattern);
 			Map<String, ?> map = Collections.emptyMap();

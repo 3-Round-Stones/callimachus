@@ -45,10 +45,10 @@
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Purl>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>].
 
-:queryString a owl:FunctionalProperty, owl:DatatypeProperty;
+:suffix a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :Redirect;
     rdfs:range xsd:string;
-    msg:type "application/x-www-form-urlencoded";
+    msg:type "text/plain";
     msg:param "0".
 
 :Proxy rdfs:subClassOf :Redirect.
@@ -72,6 +72,7 @@
 
 :GetRedirect rdfs:subClassOf :Redirect;
     msg:method "GET";
+    msg:path ".*";
     calli:requires calli:reader;
     calli:imports <java:org.apache.http.client.methods.HttpGet>;
     calli:imports <java:org.openrdf.http.object.exceptions.ResponseException>;
@@ -83,7 +84,7 @@
             var status = row[0];
             var phrase = row[1];
             var pattern = row[2];
-            var request = this.buildRequest("GET", pattern, queryString);
+            var request = this.buildRequest("GET", pattern, suffix);
             if (request) {
                 var location = request.getURI().toASCIIString();
                 if (300 <= status && status < 400 ) {
@@ -128,7 +129,7 @@
                 };
             }
         }
-        if (queryString) {
+        if (suffix) {
             throw new org.openrdf.http.object.exceptions.MethodNotAllowed();
         } else {
             // default response
@@ -143,6 +144,7 @@
 
 :PostRedirect rdfs:subClassOf :Proxy;
     msg:method "POST";
+    msg:path ".*";
     calli:requires calli:reader;
     calli:imports <java:org.apache.http.client.methods.HttpPost>;
     calli:imports <java:org.openrdf.http.object.exceptions.ResponseException>;
@@ -153,7 +155,7 @@
             var status = row[0];
             var phrase = row[1];
             var pattern = row[2];
-            var request = this.buildRequest("POST", pattern, queryString);
+            var request = this.buildRequest("POST", pattern, suffix);
             if (request) {
                 var location = request.getURI().toASCIIString();
                 if (300 <= status && status < 400 ) {
@@ -206,6 +208,7 @@
 
 :PutRedirect rdfs:subClassOf :Proxy;
     msg:method "PUT";
+    msg:path ".*";
     calli:requires calli:reader;
     calli:imports <java:org.apache.http.client.methods.HttpPut>;
     calli:imports <java:org.openrdf.http.object.exceptions.ResponseException>;
@@ -216,7 +219,7 @@
             var status = row[0];
             var phrase = row[1];
             var pattern = row[2];
-            var request = this.buildRequest("PUT", pattern, queryString);
+            var request = this.buildRequest("PUT", pattern, suffix);
             if (request) {
                 var location = request.getURI().toASCIIString();
                 if (300 <= status && status < 400 ) {
@@ -269,6 +272,7 @@
 
 :PatchRedirect rdfs:subClassOf :Proxy;
     msg:method "PATCH";
+    msg:path ".*";
     calli:requires calli:reader;
     calli:imports <java:org.apache.http.client.methods.HttpPut>;
     calli:imports <java:org.openrdf.http.object.exceptions.ResponseException>;
@@ -279,7 +283,7 @@
             var status = row[0];
             var phrase = row[1];
             var pattern = row[2];
-            var request = this.buildRequest("PATCH", pattern, queryString);
+            var request = this.buildRequest("PATCH", pattern, suffix);
             if (request) {
                 var location = request.getURI().toASCIIString();
                 if (300 <= status && status < 400 ) {
@@ -332,6 +336,7 @@
 
 :DeleteRedirect rdfs:subClassOf :Redirect;
     msg:method "DELETE";
+    msg:path ".*";
     calli:requires calli:reader;
     calli:imports <java:org.apache.http.client.methods.HttpDelete>;
     calli:imports <java:org.openrdf.http.object.exceptions.ResponseException>;
@@ -342,7 +347,7 @@
             var status = row[0];
             var phrase = row[1];
             var pattern = row[2];
-            var request = this.buildRequest("DELETE", pattern, queryString);
+            var request = this.buildRequest("DELETE", pattern, suffix);
             if (request) {
                 var location = request.getURI().toASCIIString();
                 if (300 <= status && status < 400 ) {

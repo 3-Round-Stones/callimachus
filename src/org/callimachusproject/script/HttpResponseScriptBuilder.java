@@ -70,6 +70,8 @@ public class HttpResponseScriptBuilder {
 
 	public HttpResponse asHttpResponse(Object result, String systemId)
 			throws NoSuchMethodException, ScriptException {
+		if (result == null)
+			return null;
 		return (HttpResponse) engine.invokeFunction(BUILD_HTTP_RESPONSE,
 				result, systemId);
 	}

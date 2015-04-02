@@ -89,7 +89,7 @@ public class CalliRepository extends RepositoryWrapper {
 
 	private static final String SLASH_ORIGIN = "/types/Origin";
 	private static final String CHANGE_TYPE = "types/Change";
-	private static final String FOLDER_TYPE = "types/Folder";
+	private static final String FOLDER_TYPE = "types/PathSegment";
 
 	public static String getCallimachusWebapp(String url, RepositoryConnection con)
 			throws RepositoryException {

@@ -16,28 +16,28 @@ public class RdfSourceIntegrationTest extends
 			"<Resource> a owl:Class;",
 			"		rdfs:label \"RDFSource\";",
 			"		owl:equivalentClass <http://example.com/ns#Resource>;",
-			"		rdfs:subClassOf </callimachus/1.4/types/Serviceable>;",
-			"		rdfs:subClassOf </callimachus/1.4/types/Editable>;",
+			"		rdfs:subClassOf </callimachus/1.5/types/Serviceable>;",
+			"		rdfs:subClassOf </callimachus/1.5/types/Editable>;",
 			"		calli:author </auth/groups/users>, </auth/groups/admin>, </auth/groups/staff>.");
 	private static String CALLI_CLASS = cat("@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.",
 			"@prefix owl:<http://www.w3.org/2002/07/owl#>.",
 			"@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.",
 			"",
-			"<Resource> a </callimachus/1.4/types/Class>, owl:Class;",
+			"<Resource> a </callimachus/1.5/types/Class>, owl:Class;",
 			"		rdfs:label \"RDFSource\";",
 			"		owl:equivalentClass <http://example.com/ns#Resource>;",
-			"		rdfs:subClassOf </callimachus/1.4/types/Serviceable>;",
-			"		rdfs:subClassOf </callimachus/1.4/types/Editable>;",
+			"		rdfs:subClassOf </callimachus/1.5/types/Serviceable>;",
+			"		rdfs:subClassOf </callimachus/1.5/types/Editable>;",
 			"		calli:author </auth/groups/users>, </auth/groups/admin>, </auth/groups/staff>.");
 	private static String CLASS_CONFLICT = cat("@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.",
 			"@prefix owl:<http://www.w3.org/2002/07/owl#>.",
 			"@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.",
 			"",
-			"<Resource2> a </callimachus/1.4/types/Class>, owl:Class;",
+			"<Resource2> a </callimachus/1.5/types/Class>, owl:Class;",
 			"		rdfs:label \"RDFSource\";",
 			"		owl:equivalentClass <http://example.com/ns#Resource>;",
-			"		rdfs:subClassOf </callimachus/1.4/types/Serviceable>;",
-			"		rdfs:subClassOf </callimachus/1.4/types/Editable>;",
+			"		rdfs:subClassOf </callimachus/1.5/types/Serviceable>;",
+			"		rdfs:subClassOf </callimachus/1.5/types/Editable>;",
 			"		calli:author </auth/groups/users>, </auth/groups/admin>, </auth/groups/staff>.");
 	private static String RESOURCE_TURTLE = cat("@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.",
 			"<my-resource> a <http://example.com/ns#Resource>; rdfs:label \"my resource\".");
@@ -81,7 +81,7 @@ public class RdfSourceIntegrationTest extends
 	public void testClassCreate() throws Exception {
 		WebResource MyClass = waitForCompile(new Callable<WebResource>() {
 			public WebResource call() throws Exception {
-				String createClass = "?create=/callimachus/1.4/types/Class";
+				String createClass = "?create=/callimachus/1.5/types/Class";
 				return getHomeFolder().ref(createClass).create("text/turtle", OWL_CLASS.getBytes());
 			}
 		});

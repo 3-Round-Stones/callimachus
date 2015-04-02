@@ -80,7 +80,7 @@ public class SqlDatasourceIntegrationTest extends TemporaryServerIntegrationTest
 		sb.append("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n");
 		sb.append("PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>\n");
 		sb.append("<").append(slug).append(">");
-		sb.append(" a calli:SqlDatasource, </callimachus/1.4/types/SqlDatasource>;\n");
+		sb.append(" a calli:SqlDatasource, </callimachus/1.5/types/SqlDatasource>;\n");
 		sb.append("rdfs:label \"").append(slug).append("\";\n");
 		sb.append("calli:maxActive 1;\n");
 		sb.append("calli:maxIdle 1;\n");
@@ -201,7 +201,7 @@ public class SqlDatasourceIntegrationTest extends TemporaryServerIntegrationTest
 		sb.append("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n");
 		sb.append("PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>\n");
 		sb.append("<").append("testdata").append(">");
-		sb.append(" a calli:Purl, </callimachus/1.4/types/Purl>;\n");
+		sb.append(" a calli:Purl, </callimachus/1.5/types/Purl>;\n");
 		sb.append("rdfs:label \"").append("testdata").append("\";\n");
 		sb.append("calli:copy \"\"\"").append(copy.replace("\\", "\\\\")).append("\"\"\";");
 		sb.append("calli:post \"\"\"").append(post.replace("\\", "\\\\")).append("\"\"\".");

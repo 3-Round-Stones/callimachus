@@ -92,7 +92,7 @@ public class WebappArchiveImporter {
 	private static final TimeZone UTC = TimeZone.getTimeZone("UTC");
 	private static final String REALM_TYPE = "types/Realm";
 	private static final String ORIGIN_TYPE = "types/Origin";
-	private static final String FOLDER_TYPE = "types/Folder";
+	private static final String FOLDER_TYPE = "types/PathSegment";
 	private static final String CALLI = "http://callimachusproject.org/rdf/2009/framework#";
 	private static final String CALLI_FOLDER = CALLI + "Folder";
 	private static final String CALLI_HASCOMPONENT = CALLI + "hasComponent";

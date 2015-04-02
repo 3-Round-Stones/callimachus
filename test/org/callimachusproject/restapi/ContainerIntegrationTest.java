@@ -15,12 +15,12 @@ public class ContainerIntegrationTest extends
 			"@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.",
 			"@prefix owl:<http://www.w3.org/2002/07/owl#>.",
 			"@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.",
-			"<Container> a </callimachus/1.4/types/Class>, owl:Class;",
+			"<Container> a </callimachus/1.5/types/Class>, owl:Class;",
 			"		rdfs:label \"Container\";",
 			"		owl:equivalentClass <http://www.w3.org/ns/ldp#Container>;",
-			"		rdfs:subClassOf </callimachus/1.4/types/Serviceable>;",
-			"		rdfs:subClassOf </callimachus/1.4/types/Composite>;",
-			"		rdfs:subClassOf </callimachus/1.4/types/Editable>;",
+			"		rdfs:subClassOf </callimachus/1.5/types/Serviceable>;",
+			"		rdfs:subClassOf </callimachus/1.5/types/Composite>;",
+			"		rdfs:subClassOf </callimachus/1.5/types/Editable>;",
 			"		calli:author </auth/groups/admin>.");
 	private static String CONTAINER_RESOURCE = cat(
 			"@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.",
@@ -29,11 +29,11 @@ public class ContainerIntegrationTest extends
 			"@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.",
 			"@prefix owl:<http://www.w3.org/2002/07/owl#>.",
 			"@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.",
-			"<RDFSource> a </callimachus/1.4/types/Class>, owl:Class;",
+			"<RDFSource> a </callimachus/1.5/types/Class>, owl:Class;",
 			"		rdfs:label \"Container\";",
 			"		owl:equivalentClass <http://www.w3.org/ns/ldp#RDFSource>;",
-			"		rdfs:subClassOf </callimachus/1.4/types/Serviceable>;",
-			"		rdfs:subClassOf </callimachus/1.4/types/Editable>;",
+			"		rdfs:subClassOf </callimachus/1.5/types/Serviceable>;",
+			"		rdfs:subClassOf </callimachus/1.5/types/Editable>;",
 			"		calli:author </auth/groups/admin>.");
 	private static String SOURCE_RESOURCE = cat(
 			"@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.",

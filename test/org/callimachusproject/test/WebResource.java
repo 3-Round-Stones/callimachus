@@ -116,7 +116,7 @@ public class WebResource {
 		sb.append("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n");
 		sb.append("PREFIX calli: <http://callimachusproject.org/rdf/2009/framework#>\n");
 		sb.append("<").append(slug).append(">");
-		sb.append(" a calli:Purl, </callimachus/1.4/types/Purl>;\n");
+		sb.append(" a calli:Purl, </callimachus/1.5/types/Purl>;\n");
 		sb.append("rdfs:label \"").append(slug).append("\" ;\n");
 		sb.append("calli:").append(property).append(" \"\"\"").append(target).append("\"\"\".\n");
 		return rel("describedby").create("text/turtle", sb.toString().getBytes("UTF-8")).rev("describedby");
@@ -127,7 +127,7 @@ public class WebResource {
 		sb.append("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n");
 		sb.append("PREFIX calli: <http://callimachusproject.org/rdf/2009/framework#>\n");
 		sb.append("<").append(slug).append(">");
-		sb.append(" a calli:Folder, </callimachus/1.4/types/Folder>;\n");
+		sb.append(" a calli:Folder, </callimachus/1.5/types/PathSegment>;\n");
 		sb.append("rdfs:label \"").append(slug).append("\".\n");
 		return rel("describedby").create("text/turtle", sb.toString().getBytes("UTF-8")).rev("describedby");
 	}
@@ -138,7 +138,7 @@ public class WebResource {
 		sb.append("PREFIX calli: <http://callimachusproject.org/rdf/2009/framework#>\n");
 		sb.append("PREFIX sd: <http://www.w3.org/ns/sparql-service-description#>\n");
 		sb.append("<").append(slug).append(">");
-		sb.append(" a sd:Service, calli:RdfDatasource, </callimachus/1.4/types/RdfDatasource>;\n");
+		sb.append(" a sd:Service, calli:RdfDatasource, </callimachus/1.5/types/RdfDatasource>;\n");
 		sb.append("rdfs:label \"").append(slug).append("\";\n");
 		sb.append("sd:endpoint <").append(slug).append(">;\n");
 		sb.append("sd:supportedLanguage sd:SPARQL11Query;\n");

@@ -142,6 +142,7 @@ public class ActivityProcessor implements HttpRequestChainInterceptor {
 				return uri;
 			return uri.substring(p, uri.length());
 		} catch (ClassCastException e) {
+			logger.warn(e.getMessage());
 			return null;
 		}
 	}
@@ -289,7 +290,7 @@ public class ActivityProcessor implements HttpRequestChainInterceptor {
 				}
 			}
 		} catch (ClassCastException e) {
-			logger.warn(e.toString(), e);
+			logger.warn(e.getMessage());
 		}
 		return 0;
 	}

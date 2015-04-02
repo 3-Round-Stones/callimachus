@@ -66,6 +66,7 @@ import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.ObjectFactory;
 import org.openrdf.repository.object.ObjectRepository;
 import org.openrdf.repository.object.RDFObject;
+import org.slf4j.LoggerFactory;
 
 /**
  * Provides access to CalliRepository and revision hash tag.
@@ -169,6 +170,7 @@ public abstract class CalliObjectSupport implements CalliObject {
 			String uri = ((RDFObject) activity).getResource().stringValue();
 			return toHexString(uri.hashCode());
 		} catch (ClassCastException e) {
+			LoggerFactory.getLogger(CalliObjectSupport.class).warn(e.getMessage());
 			return null;
 		}
 	}

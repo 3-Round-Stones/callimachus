@@ -260,7 +260,7 @@
 :TransformCreatePage rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Composite>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
-    calli:post "../pipelines/creatable-html.xpl?results&target={0}\nContent-Location: {+createPage}\nContent-Type: application/xhtml+xml".
+    calli:post "../pipelines/creatable-html.xpl?results&target={this}\nContent-Location: {+createPage}\nContent-Type: application/xhtml+xml".
 
 :createPage a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :TransformCreatePage.

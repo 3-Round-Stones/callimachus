@@ -69,7 +69,7 @@
 
 :ValidatePipeline owl:intersectionOf (<serviceable.ttl#Validate>
         [owl:onProperty msg:target; owl:allValuesFrom <Pipeline>]);
-    calli:post "../schemas/xproc.rng?validate\nContent-Location: {+0}\nContent-Type: application/xml".
+    calli:post "../schemas/xproc.rng?validate\nContent-Location: {+this}\nContent-Type: application/xml".
 
 ################################
 # Execute Pipeline             #

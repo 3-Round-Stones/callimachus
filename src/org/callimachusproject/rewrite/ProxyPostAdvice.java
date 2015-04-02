@@ -25,10 +25,11 @@ import java.util.Map;
 
 import javax.tools.FileObject;
 
-import org.apache.http.Header;
+import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.InputStreamEntity;
+import org.apache.http.message.HeaderGroup;
 import org.openrdf.annotations.Iri;
 import org.openrdf.annotations.Type;
 import org.openrdf.http.object.fluid.Fluid;
@@ -44,7 +45,7 @@ public class ProxyPostAdvice extends ProxyGetAdvice {
 	private FluidType bodyFluidType;
 
 	public ProxyPostAdvice(String[] bindingNames, FluidType[] bindingTypes,
-			Substitution[] replacers, Method method) {
+			URITemplate[] replacers, Method method) {
 		super(bindingNames, bindingTypes, replacers, method);
 		Annotation[][] panns = method.getParameterAnnotations();
 		java.lang.reflect.Type[] gtypes = method.getGenericParameterTypes();
@@ -66,36 +67,31 @@ public class ProxyPostAdvice extends ProxyGetAdvice {
 		}
 	}
 
-	protected HttpUriRequest createRequest(String location, Header[] headers,
-			ObjectMessage message, FluidBuilder fb) throws IOException,
-			FluidException {
+	protected HttpUriRequest createRequest(String location,
+			HeaderGroup headers, HttpEntity entity, ObjectMessage message,
+			FluidBuilder fb) throws IOException, FluidException {
 		Object target = message.getTarget();
 		Integer bodyIndex = getBodyIndex(message.getMethod());
-		if (bodyIndex == null && target instanceof FileObject
-				&& contains(headers, "Content-Type")) {
+		HttpPost req = new HttpPost(location);
+		req.setHeaders(headers.getAllHeaders());
+		if (entity != null) {
+			req.setEntity(entity);
+		} else if (bodyIndex != null) {
+			Object body = message.getParameters()[bodyIndex];
+			Fluid fluid = fb.consume(body, getSystemId(), bodyFluidType);
+			req.setEntity(fluid.asHttpEntity());
+		} else if (target instanceof FileObject
+				&& headers.containsHeader("Content-Type")) {
 			FileObject file = (FileObject) target;
 			InputStream in = file.openInputStream();
 			if (in != null) {
-				HttpPost req = new HttpPost(location);
-				req.setHeaders(headers);
-				if (!contains(headers, "Content-Location")) {
+				if (!headers.containsHeader("Content-Location")) {
 					String uri = file.toUri().toASCIIString();
 					req.setHeader("Content-Location", uri);
 				}
 				req.setEntity(new InputStreamEntity(in));
-				return req;
 			}
 		}
-		if (bodyIndex == null) {
-			HttpPost req = new HttpPost(location);
-			req.setHeaders(headers);
-			return req;
-		}
-		HttpPost req = new HttpPost(location);
-		req.setHeaders(headers);
-		Object body = message.getParameters()[bodyIndex];
-		Fluid fluid = fb.consume(body, getSystemId(), bodyFluidType);
-		req.setEntity(fluid.asHttpEntity());
 		return req;
 	}
 
@@ -117,14 +113,6 @@ public class ProxyPostAdvice extends ProxyGetAdvice {
 			}
 		}
 		return null;
-	}
-
-	private boolean contains(Header[] headers, String string) {
-		for (Header hd : headers) {
-			if (hd.getName().equalsIgnoreCase(string))
-				return true;
-		}
-		return false;
 	}
 
 }

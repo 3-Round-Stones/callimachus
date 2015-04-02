@@ -20,9 +20,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 
-import org.apache.http.Header;
+import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.message.HeaderGroup;
+import org.apache.http.util.EntityUtils;
 import org.callimachusproject.repository.CalliRepository;
 import org.callimachusproject.traits.CalliObject;
 import org.openrdf.OpenRDFException;
@@ -37,17 +39,18 @@ import org.openrdf.repository.object.traits.ObjectMessage;
 public class ProxyGetAdvice extends RewriteAdvice {
 
 	public ProxyGetAdvice(String[] bindingNames, FluidType[] bindingTypes,
-			Substitution[] replacers, Method method) {
+			URITemplate[] replacers, Method method) {
 		super(bindingNames, bindingTypes, replacers, method);
 	}
 
-	protected Fluid service(String location, Header[] headers,
-			ObjectMessage message, FluidBuilder fb) throws IOException,
-			FluidException, ResponseException, OpenRDFException {
+	protected Fluid service(String location, HeaderGroup headers,
+			HttpEntity entity, ObjectMessage message, FluidBuilder fb)
+			throws IOException, FluidException, ResponseException,
+			OpenRDFException {
 		String[] returnMedia = getReturnMedia();
 		if (location == null)
 			return fb.media(returnMedia);
-		HttpUriRequest req = createRequest(location, headers, message, fb);
+		HttpUriRequest req = createRequest(location, headers, entity, message, fb);
 		if (returnMedia.length > 0) {
 			for (String media : returnMedia) {
 				req.addHeader("Accept", media);
@@ -69,11 +72,12 @@ public class ProxyGetAdvice extends RewriteAdvice {
 		return fb.stream(content, systemId, contentType);
 	}
 
-	protected HttpUriRequest createRequest(String location, Header[] headers,
-			ObjectMessage message, FluidBuilder fb) throws IOException,
-			FluidException {
+	protected HttpUriRequest createRequest(String location,
+			HeaderGroup headers, HttpEntity entity, ObjectMessage message,
+			FluidBuilder fb) throws IOException, FluidException {
+		EntityUtils.consume(entity);
 		HttpGet req = new HttpGet(location);
-		req.setHeaders(headers);
+		req.setHeaders(headers.getAllHeaders());
 		return req;
 	}
 

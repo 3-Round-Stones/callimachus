@@ -49,7 +49,7 @@
     calli:requires calli:reader;
     msg:type "text/html";
     msg:header "cache-control:no-cache";
-    calli:post "../pipelines/page-layout-html.xpl?results&target={0}&query=view\nContent-Location: {+0}\nContent-Type: application/xhtml+xml".
+    calli:post "../pipelines/page-layout-html.xpl?results&target={this}&query=view\nContent-Location: {+this}\nContent-Type: application/xhtml+xml".
 
 # GET /pages/forbidden.xhtml?html
 :GetHtml rdfs:subClassOf msg:Message;
@@ -60,7 +60,7 @@
     calli:requires calli:reader;
     msg:type "text/html";
     msg:header "cache-control:no-cache";
-    calli:post "../pipelines/page-layout-html.xpl?results\nContent-Location: {+0}\nContent-Type: application/xhtml+xml".
+    calli:post "../pipelines/page-layout-html.xpl?results\nContent-Location: {+this}\nContent-Type: application/xhtml+xml".
 
 # GET /page/MainPage.xhtml
 :GetPageSource rdfs:subClassOf msg:Message;
@@ -99,7 +99,7 @@
 :ValidatePage rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Page>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-    calli:post "../schemas/xhtml.rng?validate\nContent-Location: {+0}\nContent-Type: application/xhtml+xml".
+    calli:post "../schemas/xhtml.rng?validate\nContent-Location: {+this}\nContent-Type: application/xhtml+xml".
 
 # GET /page/MainPage.xhtml?element=content/1&realm=/
 :GetElement rdfs:subClassOf msg:Message;
@@ -109,7 +109,7 @@
     msg:path "?element";
     calli:requires calli:reader;
     msg:type "text/html";
-    calli:post "../pipelines/page-element.xpl?results&element={element}\nContent-Location: {+0}\nContent-Type: application/xhtml+xml".
+    calli:post "../pipelines/page-element.xpl?results&element={element}\nContent-Location: {+this}\nContent-Type: application/xhtml+xml".
 
 :element a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :GetElement;
@@ -124,7 +124,7 @@
     msg:path "?layout";
     calli:requires calli:reader;
     msg:type "application/xhtml+xml";
-    calli:post "../pipelines/page-layout.xpl?results&realm={realm}\nContent-Location: {+0}\nContent-Type: application/xhtml+xml".
+    calli:post "../pipelines/page-layout.xpl?results&realm={realm}\nContent-Location: {+this}\nContent-Type: application/xhtml+xml".
 
 :realm a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :GetTemplate;

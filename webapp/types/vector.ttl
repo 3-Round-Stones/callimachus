@@ -54,4 +54,4 @@
 
 :ValidateVectorGraphic owl:intersectionOf (<serviceable.ttl#Validate>
         [owl:onProperty msg:target; owl:allValuesFrom <VectorGraphic>]);
-    calli:post "../schemas/svg.rng?validate\nContent-Location: {+0}\nContent-Type: application/xml".
+    calli:post "../schemas/svg.rng?validate\nContent-Location: {+this}\nContent-Type: application/xml".

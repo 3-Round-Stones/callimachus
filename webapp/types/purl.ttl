@@ -130,7 +130,7 @@
             }
         }
         if (suffix) {
-            throw new org.openrdf.http.object.exceptions.MethodNotAllowed();
+            throw new org.openrdf.http.object.exceptions.NotFound();
         } else {
             // default response
             return {

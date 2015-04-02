@@ -61,7 +61,7 @@
     calli:requires calli:reader;
     msg:type "text/html";
     msg:header "cache-control:no-cache";
-    calli:copy "../pipelines/markdown-view.xpl?results&target={0}&html={0}%3Fhtml".
+    calli:copy "../pipelines/markdown-view.xpl?results&target={this}&html={this}%3Fhtml".
 
 # GET /markdown.md?html
 :GetHTML rdfs:subClassOf msg:Message;

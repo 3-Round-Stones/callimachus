@@ -188,14 +188,14 @@
     msg:path "\\?(select.*)";
     calli:requires calli:reader;
     msg:type "application/xml";
-    calli:post "../transforms/query-select.xq?results&query={0}%3Fresults%26{formQuery}&target=&mode={formQuery}&id={formId}&name={formName}&property={formProperty}&rel={formRel}".
+    calli:post "../transforms/query-select.xq?results&query={this}%3Fresults%26{formQuery}&target=&mode={formQuery}&id={formId}&name={formName}&property={formProperty}&rel={formRel}".
 
 :GetResultsAsCheckbox rdfs:subClassOf :GetFormResults;
     msg:method "GET";
     msg:path "\\?((checkbox|checkbox-inline|radio|radio-inline).*)";
     calli:requires calli:reader;
     msg:type "application/xml";
-    calli:post "../transforms/query-checkbox.xq?results&query={0}%3Fresults%26{formQuery}&target=&mode={formQuery}&id={formId}&name={formName}&property={formProperty}&rel={formRel}".
+    calli:post "../transforms/query-checkbox.xq?results&query={this}%3Fresults%26{formQuery}&target=&mode={formQuery}&id={formId}&name={formName}&property={formProperty}&rel={formRel}".
 
 ################################
 # Google Chart Wire Protocol 0.6

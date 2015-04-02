@@ -25,9 +25,14 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.http.Header;
+import org.apache.http.HttpEntity;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHeader;
+import org.apache.http.message.HeaderGroup;
 import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.util.PercentCodec;
 import org.openrdf.OpenRDFException;
@@ -46,7 +51,11 @@ import org.openrdf.repository.object.advice.Advice;
 import org.openrdf.repository.object.traits.ObjectMessage;
 
 public abstract class RewriteAdvice implements Advice {
-	private final Substitution[] replacers;
+	private static final Pattern HTTP_HEAD = Pattern
+			.compile("(?<!\n)\r?\n(\\S+)\\s*:\\s*(.*)");
+	private static final Pattern HTTP_BODY = Pattern
+			.compile("\r?\n\r?\n([\\S\\s]+)");
+	private final URITemplate[] replacers;
 	private final String[] bindingNames;
 	private final FluidType[] bindingTypes;
 	private final java.lang.reflect.Type returnType;
@@ -54,7 +63,7 @@ public abstract class RewriteAdvice implements Advice {
 	private final TermFactory systemId;
 
 	public RewriteAdvice(String[] bindingNames, FluidType[] bindingTypes,
-			Substitution[] replacers, Method method) {
+			URITemplate[] replacers, Method method) {
 		this.replacers = replacers;
 		this.bindingNames = bindingNames;
 		this.bindingTypes = bindingTypes;
@@ -74,13 +83,34 @@ public abstract class RewriteAdvice implements Advice {
 		} else {
 			uri = target.toString();
 		}
+		HeaderGroup headers = new HeaderGroup();
 		FluidBuilder fb = FluidFactory.getInstance().builder(con);
 		Object[] parameters = message.getParameters();
 		String substitute = substitute(uri, getVariables(parameters, uri, fb));
-		String[] lines = substitute.split("\\s*\n\\s*");
-		String location = resolve(lines[0]);
-		Header[] headers = readHeaders(lines);
-		return service(location, headers, message, fb).as(returnType,
+		int n = substitute.indexOf('\n');
+		if (n < 0)
+			return service(resolve(substitute), headers, null, message, fb).as(
+					returnType, returnMedia);
+		String location = resolve(substitute.substring(0, n).trim());
+		Matcher body = HTTP_BODY.matcher(substitute);
+		StringEntity entity = null;
+		if (body.find()) {
+			entity = new StringEntity(body.group(1), "UTF-8");
+		}
+		Matcher header = HTTP_HEAD.matcher(substitute);
+		while (header.find()) {
+			String name = header.group(1);
+			String value = header.group(2);
+			headers.addHeader(new BasicHeader(name, value));
+			if (entity != null) {
+				if ("Content-Encoding".equalsIgnoreCase(name)) {
+					entity.setContentEncoding(value);
+				} else if ("Content-Type".equalsIgnoreCase(name)) {
+					entity.setContentType(value);
+				}
+			}
+		}
+		return service(location, headers, entity, message, fb).as(returnType,
 				returnMedia);
 	}
 
@@ -92,9 +122,10 @@ public abstract class RewriteAdvice implements Advice {
 		return returnMedia;
 	}
 
-	protected abstract Fluid service(String location, Header[] headers,
-			ObjectMessage message, FluidBuilder fb) throws GatewayTimeout,
-			IOException, FluidException, ResponseException, OpenRDFException;
+	protected abstract Fluid service(String location, HeaderGroup headers,
+			HttpEntity entity, ObjectMessage message, FluidBuilder fb)
+			throws GatewayTimeout, IOException, FluidException,
+			ResponseException, OpenRDFException;
 
 	private String getSystemId(Method m) {
 		if (m.isAnnotationPresent(Iri.class))
@@ -123,9 +154,10 @@ public abstract class RewriteAdvice implements Advice {
 	private Map<String, String> getVariables(Object[] parameters, String uri,
 			FluidBuilder fb) throws IOException, FluidException {
 		if (bindingNames == null || bindingNames.length == 0)
-			return Collections.emptyMap();
+			return Collections.singletonMap("this", uri);
 		Map<String, String> map = new HashMap<String, String>(
-				bindingNames.length);
+				bindingNames.length + 1);
+		map.put("this", uri);
 		for (int i = 0; i < bindingNames.length; i++) {
 			String key = bindingNames[i];
 			if (key != null) {
@@ -147,8 +179,8 @@ public abstract class RewriteAdvice implements Advice {
 	private String substitute(String uri, Map<String, String> variables) {
 		if (replacers == null || replacers.length <= 0)
 			return null;
-		for (Substitution pattern : replacers) {
-			CharSequence result = pattern.replace(uri, variables);
+		for (URITemplate template : replacers) {
+			CharSequence result = template.process(variables);
 			if (result != null)
 				return result.toString();
 		}

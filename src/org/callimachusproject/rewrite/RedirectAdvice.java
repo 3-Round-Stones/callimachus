@@ -16,12 +16,15 @@
  */
 package org.callimachusproject.rewrite;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 
-import org.apache.http.Header;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.message.BasicHttpResponse;
+import org.apache.http.message.HeaderGroup;
+import org.apache.http.util.EntityUtils;
 import org.openrdf.http.object.fluid.Fluid;
 import org.openrdf.http.object.fluid.FluidBuilder;
 import org.openrdf.http.object.fluid.FluidType;
@@ -31,13 +34,15 @@ public class RedirectAdvice extends RewriteAdvice {
 	private final StatusLine status;
 
 	public RedirectAdvice(String[] bindingNames, FluidType[] bindingTypes,
-			Substitution[] replacers, StatusLine status, Method method) {
+			URITemplate[] replacers, StatusLine status, Method method) {
 		super(bindingNames, bindingTypes, replacers, method);
 		this.status = status;
 	}
 
-	protected Fluid service(String location, Header[] headers,
-			ObjectMessage message, FluidBuilder fb) {
+	protected Fluid service(String location, HeaderGroup headers,
+			HttpEntity entity, ObjectMessage message, FluidBuilder fb)
+			throws IOException {
+		EntityUtils.consume(entity);
 		if (location == null)
 			return fb.consume(null, null, HttpResponse.class, "message/http");
 		HttpResponse resp = new BasicHttpResponse(status);

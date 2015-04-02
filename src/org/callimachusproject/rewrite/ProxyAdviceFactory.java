@@ -38,8 +38,8 @@ public class ProxyAdviceFactory extends RedirectAdviceFactory implements AdviceP
 
 	@Override
 	public Advice createAdvice(Method method) {
-		String[] commands = getCommands(method);
-		Substitution[] substitutions = createSubstitution(commands);
+		String[] templates = getTemplates(method);
+		URITemplate[] substitutions = createSubstitution(templates);
 		String[] bindingNames = getBindingNames(method, substitutions);
 		FluidType[] bindingTypes = getBindingTypes(method, bindingNames);
 		if (method.isAnnotationPresent(copy.class))
@@ -49,7 +49,7 @@ public class ProxyAdviceFactory extends RedirectAdviceFactory implements AdviceP
 		throw new AssertionError();
 	}
 
-	private String[] getCommands(Method method) {
+	private String[] getTemplates(Method method) {
 		if (method.isAnnotationPresent(copy.class))
 			return method.getAnnotation(copy.class).value();
 		if (method.isAnnotationPresent(post.class))

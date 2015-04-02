@@ -59,6 +59,7 @@
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <DigestManager>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
     msg:method "GET";
+    msg:path "\\?.*";
     calli:requires calli:reader;
     calli:script """
         return this.openIDProvider(openIdQueryParameters);

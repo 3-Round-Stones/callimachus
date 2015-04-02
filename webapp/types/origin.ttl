@@ -71,4 +71,4 @@
     calli:requires calli:subscriber;
     msg:type "application/atom+xml;q=0.9";
     msg:header "cache-control:no-cache";
-    calli:copy "../pipelines/origin-realms-atom.xpl?results&target={0}".
+    calli:copy "../pipelines/origin-realms-atom.xpl?results&target={this}".

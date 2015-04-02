@@ -66,7 +66,7 @@
 
 :ValidateSchematron owl:intersectionOf (<serviceable.ttl#Validate>
         [owl:onProperty msg:target; owl:allValuesFrom <Schematron>]);
-    calli:post "../schemas/iso-schematron.rng?validate\nContent-Location: {+0}\nContent-Type: application/xml".
+    calli:post "../schemas/iso-schematron.rng?validate\nContent-Location: {+this}\nContent-Type: application/xml".
 
 ################################
 # Validate
@@ -103,7 +103,7 @@
 :GetValidationError rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Schematron>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-    calli:post "../pipelines/schematron-validate.xpl?results&schema={0}\nContent-Location:{+invalidLocation}".
+    calli:post "../pipelines/schematron-validate.xpl?results&schema={this}\nContent-Location:{+invalidLocation}".
 
 :invalidLocation a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :GetValidationError;

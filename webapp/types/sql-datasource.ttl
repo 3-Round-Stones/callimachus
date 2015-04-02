@@ -189,7 +189,7 @@
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <SqlDatasource>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
     msg:type "text/html";
-    calli:post "../pipelines/sql-datasource-html.xpl?results&target={0}".
+    calli:post "../pipelines/sql-datasource-html.xpl?results&target={this}".
 
 :queryResult a owl:ObjectProperty, owl:FunctionalProperty;
     rdfs:domain :TransformResult;

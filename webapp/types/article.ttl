@@ -101,7 +101,7 @@
     calli:requires calli:reader;
     msg:type "application/xhtml+xml";
     msg:header "cache-control:no-cache";
-    calli:post "../transforms/article-edit-xhtml.xsl?results\nContent-Location: {+0}\nContent-Type: application/docbook+xml".
+    calli:post "../transforms/article-edit-xhtml.xsl?results\nContent-Location: {+this}\nContent-Type: application/docbook+xml".
 
 :ConvertXhtmlDocbook rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Article>];

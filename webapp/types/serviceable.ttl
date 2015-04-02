@@ -41,7 +41,7 @@
     calli:requires calli:subscriber;
     msg:type "text/html";
     msg:header "cache-control:no-cache";
-    calli:copy "../pipelines/history-html.xpl?results&target={0}".
+    calli:copy "../pipelines/history-html.xpl?results&target={this}".
 
 :GetHistoryAtom rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Serviceable>];
@@ -52,7 +52,7 @@
     calli:requires calli:subscriber;
     msg:type "application/atom+xml;q=0.9";
     msg:header "cache-control:no-store";
-    calli:copy "../pipelines/history-atom.xpl?results&target={0}".
+    calli:copy "../pipelines/history-atom.xpl?results&target={this}".
 
 :GetDiscussion rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Serviceable>];
@@ -62,7 +62,7 @@
     msg:path "?discussion";
     calli:requires calli:reader;
     msg:type "text/html";
-    calli:copy "../pipelines/discussion.xpl?results&target={0}".
+    calli:copy "../pipelines/discussion.xpl?results&target={this}".
 
 skos:editorialNote a owl:AnnotationProperty.
 
@@ -97,7 +97,7 @@ skos:editorialNote a owl:AnnotationProperty.
     calli:requires calli:subscriber;
     msg:type "text/html";
     msg:header "cache-control:no-store";
-    calli:copy "../pipelines/related-changes.xpl?results&target={0}".
+    calli:copy "../pipelines/related-changes.xpl?results&target={this}".
 
 :GetWhatLinksHere rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Serviceable>];
@@ -106,7 +106,7 @@ skos:editorialNote a owl:AnnotationProperty.
     msg:path "?whatlinkshere";
     calli:requires calli:subscriber;
     msg:type "text/html";
-    calli:copy "../pipelines/what-links-here.xpl?results&target={0}".
+    calli:copy "../pipelines/what-links-here.xpl?results&target={this}".
 
 :GetIntrospect rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Serviceable>];
@@ -122,7 +122,7 @@ skos:editorialNote a owl:AnnotationProperty.
 :TransformIntrospectLayout rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Serviceable>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-    calli:post "../pipelines/page-layout-html.xpl?results&target={0}&query=introspect".
+    calli:post "../pipelines/page-layout-html.xpl?results&target={this}&query=introspect".
 
 :xhtmlIntrospect a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :TransformIntrospectLayout;
@@ -184,7 +184,7 @@ skos:editorialNote a owl:AnnotationProperty.
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Serviceable>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
     msg:type "text/html";
-    calli:post "../pipelines/describe.xpl?results&query=describe&target={0}".
+    calli:post "../pipelines/describe.xpl?results&query=describe&target={this}".
 
 :graphResult a owl:ObjectProperty, owl:FunctionalProperty;
     rdfs:domain :TransformDescription;

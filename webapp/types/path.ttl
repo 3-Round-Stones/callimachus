@@ -66,7 +66,7 @@
     calli:requires calli:subscriber;
     msg:type "application/atom+xml;q=0.9";
     msg:header "cache-control:no-cache";
-    calli:copy "../pipelines/path-contents-atom.xpl?results&target={0}".
+    calli:copy "../pipelines/path-contents-atom.xpl?results&target={this}".
 
 ################################
 # Recent Changes
@@ -81,7 +81,7 @@
     calli:requires calli:subscriber;
     msg:type "text/html";
     msg:header "cache-control:no-store";
-    calli:copy "../pipelines/path-changes-html.xpl?results&target={0}".
+    calli:copy "../pipelines/path-changes-html.xpl?results&target={this}".
 
 :GetFolderChangeAtom rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <PathSegment>];
@@ -92,7 +92,7 @@
     calli:requires calli:subscriber;
     msg:type "application/atom+xml;q=0.9";
     msg:header "cache-control:no-store";
-    calli:copy "../pipelines/path-changes-atom.xpl?results&target={0}".
+    calli:copy "../pipelines/path-changes-atom.xpl?results&target={this}".
 
 ################################
 # Export folder contents

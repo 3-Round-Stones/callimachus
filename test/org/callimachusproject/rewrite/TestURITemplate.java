@@ -23,14 +23,14 @@ import java.net.URLEncoder;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import org.callimachusproject.util.PercentCodec;
+import org.openrdf.http.object.util.PathMatcher;
 
-public class SubstitutionTest extends TestCase {
+public class TestURITemplate extends TestCase {
 	private static Map<String, ?> values = new LinkedHashMap<String, Object>() {
 		{
 			put("count", new String[] { "one", "two", "three" });
@@ -241,26 +241,26 @@ public class SubstitutionTest extends TestCase {
 	};
 
 	public static TestSuite suite() {
-		Class<SubstitutionTest> testcase = SubstitutionTest.class;
+		Class<TestURITemplate> testcase = TestURITemplate.class;
 		TestSuite suite = new TestSuite(testcase.getName());
 		for (Method method : testcase.getMethods()) {
 			if (method.getName().startsWith("test")
 					&& method.getParameterTypes().length == 0
 					&& method.getReturnType().equals(Void.TYPE)) {
-				suite.addTest(new SubstitutionTest(method.getName()));
+				suite.addTest(new TestURITemplate(method.getName()));
 			}
 		}
 		for (String sub : tests.keySet()) {
-			suite.addTest(new SubstitutionTest(sub + " " + tests.get(sub)));
+			suite.addTest(new TestURITemplate(sub + " " + tests.get(sub)));
 		}
 		return suite;
 	}
 
-	public SubstitutionTest() {
+	public TestURITemplate() {
 		super();
 	}
 
-	public SubstitutionTest(String name) {
+	public TestURITemplate(String name) {
 		super(name);
 	}
 
@@ -288,28 +288,28 @@ public class SubstitutionTest extends TestCase {
 	}
 
 	public void testRequestBody() throws Exception {
-		String pattern = "(?<pres>.*) /request\nContent-Type: application/sparql\n\nSELECT * { <{+pres}> rdfs:label ?label}";
-		String actual = Substitution.compile(pattern).replace("http://example.com/").toString();
+		String pattern = "(?<pres>.*)";
+		String template = "/request\nContent-Type: application/sparql\n\nSELECT * { <{+pres}> rdfs:label ?label}";
+		Map<String, String> vars = new PathMatcher("http://example.com/", 0).match(pattern);
+		String actual = new URITemplate(template).process(vars).toString();
 		assertEquals("/request\nContent-Type: application/sparql\n\nSELECT * { <http://example.com/> rdfs:label ?label}", actual);
 	}
 
 	public void testNamedGroupReference() throws Exception {
 		String regex = "^https?://(?<server>[\\w\\.-]+)(?::\\d+)?/[^\\?]*\\?url=https?(://|%3A%2F%2F)\\k<server>(?::\\d+|%3A\\d+)?([/\\w\\.\\-\\_\\!\\~\\*\\'\\(\\)]|%2F|%25|%24|%2B|%3B|%2C|%26|%3D|%24|%5B|%5D)*$";
-		String pattern = regex + " {+url}";
 		String target = "http://example.org/target";
 		String url = "http://example.org/redirect?url=" + URLEncoder.encode(target, "UTF-8");
-		assertTrue(Pattern.matches(regex, url));
+		assertTrue(new PathMatcher(url, 0).matches(regex));
 		Map<String, String> param = Collections.singletonMap("url", target);
-		Substitution substitution = Substitution.compile(pattern);
-		String actual = substitution.replace(url, param).toString();
+		String actual = new URITemplate("{+url}").process(param).toString();
 		assertEquals(target, actual);
 		String com = "http://example.com/redirect?url=" + URLEncoder.encode(target, "UTF-8");
-		assertNull(substitution.replace(com, param));
+		assertNull(new PathMatcher(com, 0).match(regex));
 	}
 
 	private void assertSubstitution(String sub, String expected)
 			throws UnsupportedEncodingException {
-		String actual = Substitution.compile(sub).replace(sub, values).toString();
+		String actual = new URITemplate(sub).process(values).toString();
 		assertEquals(expected,
 				PercentCodec.encodeOthers(actual, PercentCodec.ALLOWED).replaceAll("%(?!\\w\\w)", "%25"));
 	}

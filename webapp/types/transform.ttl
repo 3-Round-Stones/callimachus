@@ -69,7 +69,7 @@
 
 :ValidateTransform owl:intersectionOf (<serviceable.ttl#Validate>
         [owl:onProperty msg:target; owl:allValuesFrom <XslTransform>]);
-    calli:post "../schemas/xslt.rng?validate\nContent-Location: {+0}\nContent-Type: application/xml".
+    calli:post "../schemas/xslt.rng?validate\nContent-Location: {+this}\nContent-Type: application/xml".
 
 ################################
 # Execute Pipeline             #

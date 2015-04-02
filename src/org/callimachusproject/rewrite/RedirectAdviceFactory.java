@@ -28,6 +28,7 @@ import org.callimachusproject.annotations.describedby;
 import org.callimachusproject.annotations.moved;
 import org.callimachusproject.annotations.resides;
 import org.openrdf.annotations.Iri;
+import org.openrdf.annotations.Param;
 import org.openrdf.annotations.Type;
 import org.openrdf.http.object.fluid.FluidType;
 import org.openrdf.repository.object.advice.Advice;
@@ -53,29 +54,21 @@ public class RedirectAdviceFactory implements AdviceProvider, AdviceFactory {
 
 	@Override
 	public Advice createAdvice(Method method) {
-		Substitution[] replacers = createSubstitution(getCommands(method));
+		URITemplate[] replacers = createSubstitution(getTemplates(method));
 		String[] bindingNames = getBindingNames(method, replacers);
 		FluidType[] bindingTypes = getBindingTypes(method, bindingNames);
 		StatusLine status = getStatusLine(method);
 		return new RedirectAdvice(bindingNames, bindingTypes, replacers, status, method);
 	}
 
-	String[] getBindingNames(Method method, Substitution[] substitutions) {
-		Annotation[][] anns = method.getParameterAnnotations();
-		String[] bindingNames = new String[anns.length];
-		for (int i = 0; i < bindingNames.length; i++) {
-			for (Annotation ann : anns[i]) {
-				if (Iri.class.equals(ann.annotationType())) {
-					String local = local(((Iri) ann).value());
-					for (Substitution substitution : substitutions) {
-						if (substitution.containsVariableName(local)) {
-							bindingNames[i] = local;
-						}
-					}
-				}
-			}
+	URITemplate[] createSubstitution(String[] templates) {
+		if (templates == null)
+			return null;
+		URITemplate[] result = new URITemplate[templates.length];
+		for (int i=0; i<result.length; i++) {
+			result[i] = new URITemplate(templates[i]);
 		}
-		return bindingNames;
+		return result;
 	}
 
 	FluidType[] getBindingTypes(Method method, String[] bindingNames) {
@@ -96,17 +89,42 @@ public class RedirectAdviceFactory implements AdviceProvider, AdviceFactory {
 		return bindingTypes;
 	}
 
-	Substitution[] createSubstitution(String[] commands) {
-		if (commands == null)
-			return null;
-		Substitution[] result = new Substitution[commands.length];
-		for (int i=0; i<result.length; i++) {
-			result[i] = Substitution.compile(commands[i]);
+	String[] getBindingNames(Method method, URITemplate[] substitutions) {
+		Annotation[][] anns = method.getParameterAnnotations();
+		String[] bindingNames = new String[anns.length];
+		for (int i = 0; i < bindingNames.length; i++) {
+			bindingNames[i] = getBindingName(substitutions, anns[i]);
 		}
-		return result;
+		return bindingNames;
 	}
 
-	String local(String iri) {
+	private String getBindingName(URITemplate[] substitutions,
+			Annotation[] anns) {
+		for (Annotation ann : anns) {
+			if (Param.class.equals(ann.annotationType())) {
+				for (String value : ((Param) ann).value()) {
+					for (URITemplate substitution : substitutions) {
+						if (substitution.containsVariableName(value)) {
+							return value;
+						}
+					}
+				}
+			}
+		}
+		for (Annotation ann : anns) {
+			if (Iri.class.equals(ann.annotationType())) {
+				String local = local(((Iri) ann).value());
+				for (URITemplate substitution : substitutions) {
+					if (substitution.containsVariableName(local)) {
+						return local;
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	private String local(String iri) {
 		String string = iri;
 		if (string.lastIndexOf('#') >= 0) {
 			string = string.substring(string.lastIndexOf('#') + 1);
@@ -123,7 +141,7 @@ public class RedirectAdviceFactory implements AdviceProvider, AdviceFactory {
 		return string;
 	}
 
-	private String[] getCommands(Method method) {
+	private String[] getTemplates(Method method) {
 		if (method.isAnnotationPresent(canonical.class))
 			return method.getAnnotation(canonical.class).value();
 		if (method.isAnnotationPresent(alternate.class))

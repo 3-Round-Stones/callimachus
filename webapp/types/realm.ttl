@@ -291,7 +291,7 @@
     calli:requires calli:subscriber;
     msg:type "text/html";
     msg:header "cache-control:no-store";
-    calli:copy "../pipelines/realm-search-html.xpl?results&target={0}&q={qhtml}".
+    calli:copy "../pipelines/realm-search-html.xpl?results&target={this}&q={qhtml}".
 
 :qhtml a owl:DatatypeProperty, owl:FunctionalProperty;
     rdfs:domain :SearchFolder;
@@ -306,7 +306,7 @@
     calli:requires calli:subscriber;
     msg:type "application/atom+xml;q=0.1";
     msg:header "cache-control:no-store";
-    calli:copy "../pipelines/realm-search-atom.xpl?results&target={0}&q={qatom}".
+    calli:copy "../pipelines/realm-search-atom.xpl?results&target={this}&q={qatom}".
 
 :qatom a owl:DatatypeProperty, owl:FunctionalProperty;
     rdfs:domain :SearchFolderAtom;

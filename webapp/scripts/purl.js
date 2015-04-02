@@ -6,8 +6,18 @@
 
 jQuery(function($){
     $('#get textarea.pattern.hidden').remove();
+    if (!$('#get textarea.pattern[property]').length) {
+        $('<textarea/>', {
+            "class": "pattern form-control",
+            rows: "1",
+            property: $('#type').val()
+        }).appendTo('#get');
+    }
     $('#get textarea.pattern[property]').each(function(){
         $('#type').val(this.getAttribute('property'));
+        $(this).change(function(event) {
+            calli.updateProperty(event, this.getAttribute('property'));
+        });
     });
     $('#type').change(function(){
         $('#get textarea.pattern').attr('property', this.value);

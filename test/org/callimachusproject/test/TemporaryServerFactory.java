@@ -27,6 +27,8 @@ import java.net.MalformedURLException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
 
 import org.callimachusproject.repository.CalliRepository;
 import org.callimachusproject.setup.CallimachusSetup;
@@ -41,11 +43,14 @@ import org.openrdf.model.util.GraphUtil;
 import org.openrdf.model.util.GraphUtilException;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.repository.Repository;
+import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.config.RepositoryConfig;
 import org.openrdf.repository.config.RepositoryConfigException;
 import org.openrdf.repository.config.RepositoryConfigSchema;
-import org.openrdf.repository.manager.RepositoryManager;
+import org.openrdf.repository.event.base.RepositoryConnectionListenerAdapter;
+import org.openrdf.repository.manager.LocalRepositoryManager;
 import org.openrdf.repository.manager.RepositoryProvider;
+import org.openrdf.repository.manager.SystemRepository;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParseException;
@@ -150,9 +155,12 @@ public class TemporaryServerFactory {
 				return getDelegate().getPassword();
 			}
 
-			@Override
 			public CalliRepository getRepository() {
 				return getDelegate().getRepository();
+			}
+
+			public <T> T waitUntilReCompiled(Callable<T> callable) throws Exception {
+				return getDelegate().waitUntilReCompiled(callable);
 			}
 		};
 	}
@@ -161,7 +169,7 @@ public class TemporaryServerFactory {
 		try {
 			final File dir = createCallimachus(origin);
 			return new TemporaryServer(){
-				private RepositoryManager manager;
+				private LocalRepositoryManager manager;
 				private ObjectServer server;
 				private CalliRepository repository;
 				private boolean stopped;
@@ -217,6 +225,28 @@ public class TemporaryServerFactory {
 				@Override
 				protected void finalize() throws Exception {
 					destroy();
+				}
+
+				@Override
+				public <T> T waitUntilReCompiled(Callable<T> callable) throws Exception {
+					final CountDownLatch latch = new CountDownLatch(1);
+					RepositoryConnectionListenerAdapter listener = new RepositoryConnectionListenerAdapter() {
+						public void close(RepositoryConnection conn) {
+							super.close(conn);
+							latch.countDown();
+						}
+					};
+					SystemRepository sys = manager.getSystemRepository();
+					sys.addRepositoryConnectionListener(listener);
+					T result = callable.call();
+					latch.await();
+					sys.removeRepositoryConnectionListener(listener);
+					synchronized (server) {
+						while (server.isCompilingInProgress()) {
+							server.wait();
+						}
+					}
+					return result;
 				}
 
 				public String getOrigin() {

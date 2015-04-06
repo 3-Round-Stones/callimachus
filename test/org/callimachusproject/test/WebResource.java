@@ -43,10 +43,13 @@ import org.apache.http.StatusLine;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.HttpClients;
 import org.callimachusproject.engine.impl.TermFactoryImpl;
 import org.callimachusproject.engine.model.TermFactory;
 import org.openrdf.http.object.io.ChannelUtil;
@@ -256,7 +259,6 @@ public class WebResource {
 		entity.setContentType(type);
 		HttpPatch req = new HttpPatch(uri);
 		req.setEntity(entity);
-		DefaultHttpClient client = new DefaultHttpClient();
 		URL url = req.getURI().toURL();
 		int port = url.getPort();
 		String host = url.getHost();
@@ -267,8 +269,10 @@ public class WebResource {
 						RequestorType.SERVER);
 		UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(
 				passAuth.getUserName(), new String(passAuth.getPassword()));
-		client.getCredentialsProvider().setCredentials(
-				new AuthScope(host, port), credentials);
+		CredentialsProvider credsProvider = new BasicCredentialsProvider();
+		credsProvider.setCredentials(new AuthScope(host, port), credentials);
+		HttpClient client = HttpClients.custom()
+				.setDefaultCredentialsProvider(credsProvider).build();
 		client.execute(req, new ResponseHandler<Void>() {
 			public Void handleResponse(HttpResponse response)
 					throws ClientProtocolException, IOException {

@@ -16,6 +16,8 @@
  */
 package org.callimachusproject.test;
 
+import java.util.concurrent.Callable;
+
 import org.callimachusproject.repository.CalliRepository;
 
 public interface TemporaryServer {
@@ -38,4 +40,5 @@ public interface TemporaryServer {
 
 	CalliRepository getRepository();
 
+	<T> T waitUntilReCompiled(Callable<T> callable) throws InterruptedException, Exception;
 }

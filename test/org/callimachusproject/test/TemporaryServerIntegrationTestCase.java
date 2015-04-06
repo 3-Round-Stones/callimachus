@@ -97,9 +97,7 @@ public abstract class TemporaryServerIntegrationTestCase extends TestCase {
 	}
 
 	public <T> T waitForCompile(Callable<T> callable) throws Exception {
-		T ret = callable.call();
-		Thread.sleep(1000);
-		return ret;
+		return server.waitUntilReCompiled(callable);
 	}
 
 }

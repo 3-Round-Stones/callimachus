@@ -28,7 +28,7 @@
     <property name="setup" value="org.callimachusproject.Setup" />
     <property name="server" value="org.openrdf.http.object.Server" />
     <property name="main-monitor" value="org.callimachusproject.ServerMonitor" />
-    <property name="jvmargs" value="-ea -server -mx512m -XX:MaxPermSize=256m -XX:+HeapDumpOnOutOfMemoryError -XX:+CMSClassUnloadingEnabled -Dfile.encoding=UTF-8 -Duser.home=${home} -Djava.mail.properties=${mail} -Djava.awt.headless=true -Dcom.sun.management.jmxremote -Djava.io.tmpdir=${tmp}" />
+    <property name="jvmargs" value="-ea -server -mx1024m -XX:MaxPermSize=256m -XX:+HeapDumpOnOutOfMemoryError -XX:+CMSClassUnloadingEnabled -Dfile.encoding=UTF-8 -Duser.home=${home} -Djava.mail.properties=${mail} -Djava.awt.headless=true -Dcom.sun.management.jmxremote -Djava.io.tmpdir=${tmp}" />
     <property name="curl" value="curl" />
     <property name="curl.args" value="-fSs --digest http://localhost:8080/callimachus/1.5/?archive" />
     <property name="setup.args" value="-c etc/callimachus.conf -g /auth/groups/super" />

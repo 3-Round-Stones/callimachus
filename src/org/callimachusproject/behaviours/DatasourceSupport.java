@@ -268,6 +268,13 @@ public abstract class DatasourceSupport implements CalliObject {
 		}
 	}
 
+	public void purgeDatasource() throws OpenRDFException, IOException {
+		URI uri = (URI) this.getResource();
+		String id = getCalliRepository().getDatasourceRepositoryId(uri);
+		RepositoryManager manager = getCalliRepository().getRepositoryManager();
+		manager.removeRepository(id);
+	}
+
 	private String addPrefix(String inputString) throws RepositoryException {
 		if (HAS_PREFIX.matcher(inputString).find())
 			return inputString;

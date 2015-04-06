@@ -54,15 +54,25 @@
         [owl:onProperty msg:target; owl:allValuesFrom <Class>]);
     calli:imports <java:org.openrdf.http.object.exceptions.Conflict>;
     calli:imports <java:org.openrdf.model.vocabulary.RDF>;
-    calli:imports <RdfSchemaGraph>;
+    calli:imports <java:org.callimachusproject.io.DescribeResult>;
     calli:script """
         var con = this.objectConnection;
         var of = con.objectFactory;
         var existing = this.FindExistingClassEquivalence();
         if (existing) throw new Conflict("An equivalent class already exists: " + existing);
-        con.addDesignation(of.createObject(con.getVersionBundle()), RdfSchemaGraph);
-        con.recompileSchemaOnClose();
-        return proceed();
+        var ret = proceed();
+        con.commit();
+        con.begin();
+        var schema = this.calliRepository.openSchemaConnection();
+        try {
+            schema.begin();
+            schema.clear([this.resource]);
+            schema.add(new DescribeResult(this.resource, con), [this.resource]);
+            schema.commit();
+        } finally {
+            schema.close();
+        }
+        return ret;
     """.
 
 :FindExistingClassEquivalence rdfs:subClassOf msg:Message;

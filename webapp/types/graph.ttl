@@ -141,9 +141,32 @@
         con.add(reader, this.toString(), RDFFormat.TURTLE, [this.resource]);
 
         this.touchRevision();
-        con.recompileSchemaOnClose();
+
+        if (this.IsRdfSchemaGraph()) {
+            con.commit();
+            con.begin();
+            var schema = this.calliRepository.openSchemaConnection();
+            try {
+                schema.begin();
+                schema.clear([this.resource]);
+                var stream = this.openInputStream();
+                try {
+                    schema.add(stream, this.toString(), RDFFormat.TURTLE, [this.resource]);
+                } finally {
+                    stream.close();
+                }
+                schema.commit();
+            } finally {
+                schema.close();
+            }
+        }
         this.resetAllCache();
     """.
+
+:IsRdfSchemaGraph rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfTurtle>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:boolean];
+    msg:sparql "ASK { $this a <RdfSchemaGraph> }".
 
 ################################
 # Named Graph
@@ -221,7 +244,6 @@
         con.add(inputStream, this.toString(), RDFFormat.RDFXML, [this.resource]);
 
         this.touchRevision();
-        con.recompileSchemaOnClose();
         this.resetAllCache();
     """.
 

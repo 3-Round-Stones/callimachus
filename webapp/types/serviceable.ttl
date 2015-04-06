@@ -139,7 +139,7 @@ skos:editorialNote a owl:AnnotationProperty.
     calli:title "RDF Describe";
     calli:rel "describedby";
     msg:method "GET";
-    msg:path "\\?(describe.*)";
+    msg:path "?describe", "\\?(describe.*)";
     calli:requires calli:reader;
     msg:type "text/turtle;q=0.6", "application/ld+json;q=0.4", "application/rdf+xml;q=0.2";
     msg:header "Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";

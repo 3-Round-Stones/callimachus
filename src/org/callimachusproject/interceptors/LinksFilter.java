@@ -39,7 +39,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
@@ -66,8 +68,10 @@ import org.openrdf.http.object.helpers.ResourceTarget;
  * 
  */
 public class LinksFilter implements HttpRequestChainInterceptor {
+	private static final Pattern STRIP_REGEX = Pattern
+			.compile("(?<!^|\\\\)[\\.\\$\\|\\(\\)\\[\\]\\{\\}\\^\\?\\*\\+]|\\\\(.)");
 	private final Pattern SIMPLE = Pattern
-			.compile("^\\??([^\\.\\$\\|\\(\\)\\[\\{\\^\\?\\*\\+\\\\]|\\\\[^a-zA-Z0-9])*$");
+			.compile("^\\??([^\\.\\$\\|\\[\\]\\{\\}\\^\\?\\*\\+\\\\]|\\\\[^a-zA-Z0-9])*");
 
 	@Override
 	public HttpResponse intercept(HttpRequest request, HttpContext context)
@@ -108,8 +112,17 @@ public class LinksFilter implements HttpRequestChainInterceptor {
 				putAdd(map, "", method);
 			} else {
 				for (String regex : p.value()) {
-					if (SIMPLE.matcher(regex).matches()) {
-						putAdd(map, regex.replace("\\", ""), method);
+					String strip = strip(regex);
+					if (strip == null || strip.length() < 1)
+						continue;
+					Matcher match = SIMPLE.matcher(regex);
+					try {
+						if (match.matches() || match.find()
+								&& Pattern.matches(regex, strip)) {
+							putAdd(map, strip, method);
+						}
+					} catch (PatternSyntaxException e) {
+						// ignore
 					}
 				}
 			}
@@ -122,6 +135,10 @@ public class LinksFilter implements HttpRequestChainInterceptor {
 			getLinks(iri, suffix, false, methods, result);
 		}
 		return result;
+	}
+
+	private String strip(String regex) {
+		return STRIP_REGEX.matcher(regex).replaceAll("$1");
 	}
 
 	private <T> void putAdd(Map<String, List<T>> map, String suffix, T method) {
@@ -140,7 +157,7 @@ public class LinksFilter implements HttpRequestChainInterceptor {
 		List<Method> list = new ArrayList<Method>();
 		for (java.lang.reflect.Method method : resource.getTargetObject().getClass().getMethods()) {
 			org.openrdf.annotations.Method m = method.getAnnotation(org.openrdf.annotations.Method.class);
-			if (m == null || !"GET".equals(m.value()))
+			if (m == null || !Arrays.asList(m.value()).contains("GET"))
 				continue;
 			Path path = method.getAnnotation(Path.class);
 			if (path != null && Arrays.asList(path.value()).containsAll(paths)) {

@@ -318,7 +318,7 @@
     calli:script """
         var resp = this.PostRDFSource(create, fileClass, intermediate, link, editData, slug, type, true);
         var createdUri = resp.getFirstHeader("Location").value;
-        if (esp.getHeaders("Link").join(',').indexOf('NonRDFSource') > 0) return {
+        if (resp.getHeaders("Link").join(',').indexOf('NonRDFSource') > 0) return {
             status: 201,
             message: 'Created',
             headers:{
@@ -643,7 +643,6 @@
         }
         created = con.addDesignation(created, Document);
         created = con.addDesignation(created, construct.toString());
-        println(created + " is a " + construct);
         created.ReplaceFileContent(bio, type, false);
 
         created.calliReader.addAll(this.calliReader);

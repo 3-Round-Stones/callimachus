@@ -99,7 +99,7 @@ public class AlternativeHandler implements HttpRequestChainInterceptor {
 		if (describedby != null){
 			BasicHttpResponse response = new BasicHttpResponse(_303);
 			response.addHeader("Location", iri + describedby);
-			response.setEntity(new StringEntity(alternate, ContentType.create("text/uri-list", UTF8)));
+			response.setEntity(new StringEntity(describedby, ContentType.create("text/uri-list", UTF8)));
 			return response;
 		}
 		return null;

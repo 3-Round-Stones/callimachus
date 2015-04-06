@@ -26,6 +26,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.openrdf.annotations.Iri;
+import org.openrdf.annotations.Param;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.model.vocabulary.RDFS;
 import org.openrdf.repository.Repository;
@@ -44,16 +45,16 @@ public class RedirectTest extends TestCase {
 		@alternate("http://example.com/")
 		HttpResponse literal();
 
-		@alternate("^http://(.*).example.com/(.*) http://example.com/{+1}/{+2}")
-		HttpResponse readDomain();
+		@alternate("http://example.com/{+1}/{+2}")
+		HttpResponse readDomain(@Param("1") String one, @Param("2") String two);
 
-		@alternate("{+0}{#frag}")
+		@alternate("{+this}{#frag}")
 		HttpResponse frag(@Iri("urn:test:frag") String frag);
 
-		@alternate("{+0}?{+query}")
+		@alternate("{+this}?{+query}")
 		HttpResponse replaceQuery(@Iri("urn:test:query") String query);
 
-		@alternate("{+0}?param={value}")
+		@alternate("{+this}?param={value}")
 		HttpResponse param(@Iri("urn:test:value") String value);
 
 		@alternate("{+value}")
@@ -126,7 +127,7 @@ public class RedirectTest extends TestCase {
 	public void testDomain() throws Exception {
 		concept = con.addDesignation(con.getObject("http://www.example.com/pathinfo"),
 				Concept.class);
-		assertEquals("http://example.com/www/pathinfo", concept.readDomain().getFirstHeader("Location").getValue());
+		assertEquals("http://example.com/www/pathinfo", concept.readDomain("www", "pathinfo").getFirstHeader("Location").getValue());
 	}
 
 	@Test

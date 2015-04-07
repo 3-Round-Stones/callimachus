@@ -130,7 +130,7 @@
         PREFIX prov:<http://www.w3.org/ns/prov#>
         PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
         CONSTRUCT {
-            $this a <PathSegment>, calli:Folder;
+            $this a <PathSegment>, calli:PathSegment;
                 rdfs:label ?label;
                 calli:describedby ?describedby;
                 calli:reader ?reader;

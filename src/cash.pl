@@ -1042,7 +1042,7 @@ prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 prefix calli: <http://callimachusproject.org/rdf/2009/framework#>
 
 INSERT DATA {
-    <$localpath$foldername> a calli:Folder, </callimachus/Folder> ;
+    <$localpath$foldername> a calli:PathSegment, </callimachus/Folder> ;
         rdfs:label "$folderslug" .
 }
 ENDOFMKDIRTTL

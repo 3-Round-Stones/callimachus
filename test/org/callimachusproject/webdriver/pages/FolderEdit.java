@@ -31,7 +31,7 @@ public class FolderEdit extends CalliPage {
 	}
 
 	public CalliPage delete() {
-		browser.click(By.id("delete"));
+		browser.click(By.id("delete-path"));
 		browser.confirm("Are you sure you want to delete this folder and all the contents of this folder");
 		return page();
 	}

@@ -40,7 +40,7 @@ public class FolderView extends CalliPage {
 
 	public FolderCreate openFolderCreate() {
 		browser.click(By.id("create-menu"));
-		browser.click(By.linkText("Folder"));
+		browser.click(By.linkText("Path Segment"));
 		return page(FolderCreate.class);
 	}
 

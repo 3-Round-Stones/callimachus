@@ -94,7 +94,7 @@ public class WebappArchiveImporter {
 	private static final String ORIGIN_TYPE = "types/Origin";
 	private static final String FOLDER_TYPE = "types/PathSegment";
 	private static final String CALLI = "http://callimachusproject.org/rdf/2009/framework#";
-	private static final String CALLI_FOLDER = CALLI + "Folder";
+	private static final String CALLI_FOLDER = CALLI + "PathSegment";
 	private static final String CALLI_HASCOMPONENT = CALLI + "hasComponent";
 	private static final String PREFIX = "PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>\n"
 			+ "PREFIX owl:<http://www.w3.org/2002/07/owl#>\n"

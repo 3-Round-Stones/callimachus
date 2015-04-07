@@ -17,16 +17,17 @@
     <script type="text/javascript">
     // <![CDATA[
     jQuery(function($){
-        $('#delete').click(function(event) {
+        $('#delete-path').click(function(event) {
             var btn = $(this);
             btn.button('loading');
             if (!confirm("Are you sure you want to delete this folder and all the contents of this folder?")) {
                 return false;
             }
             calli.deleteText('?archive').then(function() {
-                event.message = '';
-                return calli.deleteResource(event);
-            }).then(undefined, function(error){
+                return calli.deleteText(window.location.href);
+            }).then(function(redirect){
+                window.location.replace(redirect);
+            }, function(error){
                 btn.button('reset');
                 return calli.error(error);
             });
@@ -117,9 +118,9 @@
             </fieldset>
         </div>
         <fieldset class="form-group">
-            <button id="save" type="submit" class="btn btn-primary">Save</button>
-            <button id="cancel" type="button" onclick="window.location.replace('?view')" class="btn btn-default">Cancel</button>
-            <button id="delete" type="button" onclick="calli.deleteResource(event)" class="btn btn-danger">Delete</button>
+            <button id="save-path" type="submit" class="btn btn-primary">Save</button>
+            <button id="cancel-path" type="button" onclick="window.location.replace('?view')" class="btn btn-default">Cancel</button>
+            <button id="delete-path" type="button" class="btn btn-danger">Delete</button>
         </fieldset>
     </form>
 </body>

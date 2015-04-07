@@ -88,11 +88,9 @@
 
 :PostProfile rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfProfile>];
-    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
     msg:method "POST";
     calli:requires calli:editor;
-    calli:expect "303-see-other";
-    msg:type "text/uri-list";
     calli:script """
         var iter = form.entrySet().iterator();
         while (iter.hasNext()) {
@@ -106,7 +104,14 @@
                 this.objectConnection.removeNamespace(prefix);
             }
         }
-        return this + "?view";
+        return {
+            status: 303, message: "See Other",
+            headers: {
+                "Content-Type": "text/uri-list",
+                "Location": this + "?view"
+            },
+            body: this + "?view"
+        };
     """.
 
 :form a owl:ObjectProperty, owl:FunctionalProperty;

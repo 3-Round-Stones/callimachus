@@ -257,16 +257,21 @@
 
 # PUT graph parameter
 :PutNamedGraph rdfs:subClassOf :IndirectGraph, :IndirectPayload;
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
     msg:method "PUT";
     msg:path "?graph";
     calli:requires calli:editor;
-    msg:type "text/uri-list";
-    calli:expect "201-created";
     calli:script """
         if (!graph) graph = this;
         if (this.clearAndLoadGraph(rdfPayload, rdfType, graph.resource)) {
-            return graph;
+            return {
+                status: 201, message: "Created",
+                headers: {
+                    "Content-Type": "text/uri-list",
+                    "Location": graph.toString()
+                },
+                body: graph.toString()
+            };
         } else {
             return null;
         }
@@ -284,16 +289,21 @@
 
 # POST graph parameter
 :PostNamedGraph rdfs:subClassOf :IndirectGraph, :IndirectPayload;
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
     msg:method "POST";
     msg:path "?graph";
     calli:requires calli:editor;
-    msg:type "text/uri-list";
-    calli:expect "201-created";
     calli:script """
         if (!graph) graph = this;
         if (this.loadGraph(rdfPayload, rdfType, graph.resource)) {
-            return graph;
+            return {
+                status: 201, message: "Created",
+                headers: {
+                    "Content-Type": "text/uri-list",
+                    "Location": graph.toString()
+                },
+                body: graph.toString()
+            };
         } else {
             return null;
         }
@@ -301,15 +311,20 @@
 
 # POST graph store
 :PostNewGraph rdfs:subClassOf :IndirectPayload;
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom xsd:string];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
     msg:method "POST";
     calli:requires calli:editor;
-    msg:type "text/uri-list";
-    calli:expect "201-created";
     calli:script """
         var graph = this.objectConnection.insertContext;
         this.loadGraph(rdfPayload, rdfType, graph);
-        return graph.stringValue();
+        return {
+            status: 201, message: "Created",
+            headers: {
+                "Content-Type": "text/uri-list",
+                "Location": graph.stringValue()
+            },
+            body: graph.stringValue()
+        };
     """.
 
 :IndirectPatchGraph rdfs:subClassOf msg:Message;

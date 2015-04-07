@@ -274,7 +274,6 @@
     msg:method "POST";
     msg:path "?create";
     calli:requires calli:contributor;
-    calli:expect "201-created";
     calli:script """
         return this.PostRDFSource(create, fileClass, intermediate, link, createData, slug, type, true);
     """.
@@ -288,7 +287,6 @@
     msg:method "POST";
     msg:path "?describe";
     calli:requires calli:administrator;
-    calli:expect "201-created";
     calli:script """
         var resp = this.PostRDFSource(create, fileClass, intermediate, link, describeData, slug, type, false);
         if (resp.getHeaders("Link").join(',').indexOf('NonRDFSource') > 0) return resp;
@@ -314,7 +312,6 @@
     msg:method "POST";
     msg:path "?edit";
     calli:requires calli:contributor;
-    calli:expect "201-created";
     calli:script """
         var resp = this.PostRDFSource(create, fileClass, intermediate, link, editData, slug, type, true);
         var createdUri = resp.getFirstHeader("Location").value;

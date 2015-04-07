@@ -138,12 +138,10 @@
 
 :PostEdit rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Editable>];
-    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
     msg:method "POST", "PATCH";
     msg:path "?edit";
     calli:requires calli:editor;
-    calli:expect "200-modified";
-    msg:type "text/uri-list";
     calli:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
     calli:imports <java:org.openrdf.http.object.exceptions.ServiceUnavailable>;
     calli:imports <java:org.callimachusproject.form.helpers.EntityUpdater>;
@@ -203,7 +201,14 @@
             parent.touchRevision();
         }
         this.touchRevision();
-        return this.toString();
+        return {
+            status: 201, message: "Modified",
+            headers: {
+                "Content-Type": "text/uri-list",
+                "Location": this.toString()
+            },
+            body: this.toString()
+        };
     """.
 
 :inputStream a owl:ObjectProperty; a owl:FunctionalProperty;

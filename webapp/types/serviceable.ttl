@@ -68,15 +68,20 @@ skos:editorialNote a owl:AnnotationProperty.
 
 :PostDiscussion rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Serviceable>];
-    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
     msg:method "POST";
     msg:path "?discussion";
     calli:requires calli:subscriber;
-    calli:expect "303-see-other";
-    msg:type "text/uri-list";
     calli:script """
         this.skosEditorialNote.add(form.get('note')[0]);
-        return this.resource + "?discussion";
+        return {
+            status: 303, message: "See Other",
+            headers: {
+                "Content-Type": "text/uri-list",
+                "Location": this + "?discussion"
+            },
+            body: this + "?discussion"
+        };
     """.
 
 :form a owl:ObjectProperty, owl:FunctionalProperty;
@@ -409,14 +414,22 @@ skos:editorialNote a owl:AnnotationProperty.
 
 :PostPermissions rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Serviceable>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:cardinality 1];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
     msg:method "POST";
     msg:path "?permissions";
     calli:requires calli:administrator;
-    calli:expect "201-modified";
-    msg:type "text/uri-list";
     calli:imports <java:org.callimachusproject.form.helpers.EntityUpdater>;
-    calli:script "this.PatchDeleteInsert(inputStream); return this;".
+    calli:script """
+        this.PatchDeleteInsert(inputStream);
+        return {
+            status: 201, message: "Modified",
+            headers: {
+                "Content-Type": "text/uri-list",
+                "Location": this.toString()
+            },
+            body: this.toString()
+        };
+    """.
 
 :inputStream a owl:ObjectProperty; a owl:FunctionalProperty;
     rdfs:domain :PostPermissions;
@@ -428,8 +441,6 @@ skos:editorialNote a owl:AnnotationProperty.
     msg:method "POST";
     msg:path "?permissions";
     calli:requires calli:administrator;
-    calli:expect "201-modified";
-    msg:type "text/uri-list";
     calli:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
     calli:imports <java:org.openrdf.model.vocabulary.RDF>;
     calli:imports <RdfSchemaGraph>;

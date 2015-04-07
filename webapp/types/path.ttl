@@ -179,12 +179,10 @@ rdfs:label a rdf:Property.
 
 :ImportFolderComponents rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <PathSegment>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
     msg:method "POST";
     msg:path "?import";
     calli:requires calli:administrator;
-    calli:expect "302-see-other";
-    msg:type "text/uri-list";
     calli:imports <PathSegment>;
     calli:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
     calli:script """
@@ -209,7 +207,14 @@ rdfs:label a rdf:Property.
             println("Importing folder content from " + multipart.headers.get("content-disposition"));
             folder.UploadFolderComponents(inputStream, null, null);
             println("Imported folder content for: " + this);
-            return folder;
+            return {
+                status: 302, message: "See Other",
+                headers: {
+                    "Content-Type": "text/uri-list",
+                    "Location": folder.toString()
+                },
+                body: folder.toString()
+            };
         } finally {
             inputStream.close();
         }

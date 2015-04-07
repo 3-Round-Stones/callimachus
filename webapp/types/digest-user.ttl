@@ -77,12 +77,10 @@
 
 :PostUserPassword rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <DigestUser>];
-    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
     msg:method "POST";
     msg:path "?password";
     calli:requires calli:editor;
-    calli:expect "201-modified";
-    msg:type "text/uri-list";
     calli:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
     calli:imports <java:org.apache.commons.codec.binary.Hex>;
     calli:script """
@@ -107,7 +105,14 @@
         if (password && password[0]) {
             this.calliPasswordDigest = accounts.changeDigestPassword(this.calliPasswordDigest, password);
         }
-        return this + "?view";
+        return {
+            status: 201, message: "Modified",
+            headers: {
+                "Content-Type": "text/uri-list",
+                "Location": this + "?view"
+            },
+            body: this + "?view"
+        };
     """.
 
 :form a owl:ObjectProperty, owl:FunctionalProperty;

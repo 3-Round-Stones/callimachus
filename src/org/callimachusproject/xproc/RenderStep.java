@@ -21,6 +21,9 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.net.URI;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.transform.stream.StreamSource;
@@ -39,7 +42,9 @@ import org.openrdf.http.object.fluid.Fluid;
 import org.openrdf.http.object.fluid.FluidBuilder;
 import org.openrdf.http.object.fluid.FluidException;
 import org.openrdf.http.object.fluid.FluidFactory;
+import org.openrdf.query.BindingSet;
 import org.openrdf.query.TupleQueryResult;
+import org.openrdf.query.impl.TupleQueryResultImpl;
 
 import com.xmlcalabash.core.XProcException;
 import com.xmlcalabash.core.XProcRuntime;
@@ -184,7 +189,13 @@ public class RenderStep implements XProcStep {
 		S9apiUtils.serialize(runtime, document, serializer);
 		String media = "application/sparql-results+xml";
 		Fluid fluid = fb.consume(s, sysId, ByteArrayOutputStream.class, media);
-		return (TupleQueryResult) fluid.as(TupleQueryResult.class, media);
+		Object result = fluid.as(TupleQueryResult.class, media);
+		if (result == null) {
+			List<String> a1 = Collections.emptyList();
+			Set<BindingSet> a2 = Collections.emptySet();
+			return new TupleQueryResultImpl(a1, a2);
+		}
+		return (TupleQueryResult) result;
 	}
 
 	private Reader asReader(XMLEventReader xml, String base)

@@ -54,7 +54,7 @@ import org.callimachusproject.traits.CalliObject;
 import org.openrdf.OpenRDFException;
 import org.openrdf.http.object.client.HttpUriClient;
 import org.openrdf.http.object.management.ObjectRepositoryManager;
-import org.openrdf.http.object.management.ObjectServerMXBean;
+import org.openrdf.http.object.management.ObjectServerMBean;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
@@ -118,9 +118,9 @@ public abstract class CalliObjectSupport implements CalliObject {
 
 	public void resetAllCache() {
 		MBeanServer mbsc = ManagementFactory.getPlatformMBeanServer();
-		QueryExp instanceOf = Query.isInstanceOf(Query.value(ObjectServerMXBean.class.getName()));
+		QueryExp instanceOf = Query.isInstanceOf(Query.value(ObjectServerMBean.class.getName()));
 		for (ObjectName name : mbsc.queryNames(ObjectName.WILDCARD, instanceOf)) {
-			ObjectServerMXBean server = JMX.newMXBeanProxy(mbsc, name, ObjectServerMXBean.class);
+			ObjectServerMBean server = JMX.newMXBeanProxy(mbsc, name, ObjectServerMBean.class);
 			server.resetCache();
 		}
 	}

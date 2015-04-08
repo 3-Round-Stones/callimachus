@@ -53,6 +53,7 @@ import org.callimachusproject.repository.auditing.AuditingRepositoryConnection;
 import org.callimachusproject.traits.CalliObject;
 import org.openrdf.OpenRDFException;
 import org.openrdf.http.object.client.HttpUriClient;
+import org.openrdf.http.object.management.ObjectRepositoryManager;
 import org.openrdf.http.object.management.ObjectServerMXBean;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
@@ -72,42 +73,44 @@ import org.slf4j.LoggerFactory;
  * Provides access to CalliRepository and revision hash tag.
  */
 public abstract class CalliObjectSupport implements CalliObject {
+	private static final String CHANGES_PATH = "../changes/";
 	private final static Map<ObjectRepository, WeakReference<CalliRepository>> repositories = new WeakHashMap<ObjectRepository, WeakReference<CalliRepository>>();
 
-	public static synchronized void associate(CalliRepository repository,
+	public static void associate(CalliRepository repository,
 			ObjectRepository repo) throws MalformedURLException {
-		Iterator<ObjectRepository> iter = repositories.keySet().iterator();
-		while (iter.hasNext()) {
-			ObjectRepository key = iter.next();
-			if (!key.isInitialized()) {
-				iter.remove();
+		synchronized (repositories) {
+			Iterator<ObjectRepository> iter = repositories.keySet().iterator();
+			while (iter.hasNext()) {
+				ObjectRepository key = iter.next();
+				if (!key.isInitialized()) {
+					iter.remove();
+				}
 			}
+			repositories.put(repo, new WeakReference<CalliRepository>(repository));
 		}
-		repositories.put(repo, new WeakReference<CalliRepository>(repository));
 	}
 
-	public static synchronized CalliRepository getCalliRepositroyFor(
+	public static CalliRepository getCalliRepositroyFor(
 			ObjectRepository repository) throws OpenRDFException, IOException {
-		WeakReference<CalliRepository> ref = repositories.get(repository);
-		if (ref != null) {
-			CalliRepository result = ref.get();
-			if (result != null)
-				return result;
-		}
-		File dataDir = repository.getDataDir();
-		if (dataDir == null)
-			throw new IllegalArgumentException("Not a local repsitory: " + repository);
-		try {
+		synchronized (repositories) {
+			WeakReference<CalliRepository> ref = repositories.get(repository);
+			if (ref != null) {
+				CalliRepository result = ref.get();
+				if (result != null)
+					return result;
+			}
+			File dataDir = repository.getDataDir();
+			if (dataDir == null)
+				throw new IllegalArgumentException("Not a local repsitory: " + repository);
 			File dir = dataDir.getParentFile().getParentFile();
 			LocalRepositoryManager manager = RepositoryProvider.getRepositoryManager(dir);
-			LocalRepositoryManager lrm = (LocalRepositoryManager) manager;
 			String id = RepositoryProvider.getRepositoryIdOfRepository(dataDir.toURI().toASCIIString());
-			CalliRepository result = new CalliRepository(id, repository, lrm);
-			associate(result, repository);
-			return result;
-		} catch (IllegalArgumentException e) {
-			LocalRepositoryManager manager = new LocalRepositoryManager(dataDir);
-			CalliRepository result = new CalliRepository(null, repository, manager);
+			CalliRepository result = new CalliRepository(id, repository, manager);
+			ObjectRepositoryManager orm = new ObjectRepositoryManager(manager.getBaseDir());
+			String[] prefixes = orm.getRepositoryPrefixes(id);
+			if (prefixes.length > 0) {
+				result.setChangeFolder(result.getCallimachusUrl(prefixes[0], CHANGES_PATH));
+			}
 			associate(result, repository);
 			return result;
 		}

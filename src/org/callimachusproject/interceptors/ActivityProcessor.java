@@ -18,11 +18,14 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.protocol.HttpContext;
+import org.callimachusproject.behaviours.CalliObjectSupport;
 import org.callimachusproject.concepts.Activity;
+import org.callimachusproject.repository.CalliRepository;
 import org.callimachusproject.repository.auditing.ActivityFactory;
 import org.callimachusproject.repository.auditing.AuditingRepositoryConnection;
 import org.callimachusproject.server.helpers.RequestActivityFactory;
 import org.callimachusproject.traits.CalliObject;
+import org.openrdf.OpenRDFException;
 import org.openrdf.http.object.chain.HttpRequestChainInterceptor;
 import org.openrdf.http.object.client.HttpUriResponse;
 import org.openrdf.http.object.exceptions.InternalServerError;
@@ -61,7 +64,7 @@ public class ActivityProcessor implements HttpRequestChainInterceptor {
 			ObjectConnection con = ctx.getResourceTarget().getTargetObject().getObjectConnection();
 			initiateActivity(now, con, ctx);
 			return null;
-		} catch (RepositoryException e) {
+		} catch (OpenRDFException e) {
 			throw new InternalServerError(e);
 		} catch (DatatypeConfigurationException e) {
 			throw new InternalServerError(e);
@@ -90,19 +93,19 @@ public class ActivityProcessor implements HttpRequestChainInterceptor {
 	}
 
 	private void initiateActivity(long now, ObjectConnection con,
-			HttpContext ctx) throws RepositoryException,
-			DatatypeConfigurationException {
+			HttpContext ctx) throws DatatypeConfigurationException,
+			OpenRDFException, IOException {
 		con.setParserConfig(parserConfig);
+		CalliRepository repo = CalliObjectSupport.getCalliRepositroyFor(con.getRepository());
+		ActivityFactory delegate = repo.getActivityFactory();
 		AuditingRepositoryConnection auditing = findAuditing(con);
-		if (auditing != null) {
-			ActivityFactory delegate = auditing.getActivityFactory();
+		if (delegate != null && auditing != null) {
 			URI bundle = con.getVersionBundle();
 			if (bundle == null) {
 				bundle = con.getInsertContext();
-				ActivityFactory activityFactory = auditing.getActivityFactory();
-				if (bundle == null && activityFactory != null) {
+				if (bundle == null) {
 					ValueFactory vf = con.getValueFactory();
-					URI activityURI = activityFactory.createActivityURI(bundle, vf);
+					URI activityURI = delegate.createActivityURI(bundle, vf);
 					String str = activityURI.stringValue();
 					int h = str.indexOf('#');
 					if (h > 0) {

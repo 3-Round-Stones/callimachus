@@ -315,11 +315,17 @@ public class CalliRepository extends RepositoryWrapper {
 		service.resetAnalysis();
 	}
 
+	public ActivityFactory getActivityFactory() {
+		if (auditing == null)
+			return null;
+		return auditing.getActivityFactory();
+	}
+
 	public ObjectConnection getConnection() throws RepositoryException {
 		ObjectConnection con = object.getConnection();
 		if (auditing != null && con.getVersionBundle() == null) {
 			URI bundle = con.getInsertContext();
-			ActivityFactory activityFactory = auditing.getActivityFactory();
+			ActivityFactory activityFactory = getActivityFactory();
 			if (bundle == null && activityFactory != null) {
 				ValueFactory vf = getValueFactory();
 				URI activityURI = activityFactory.createActivityURI(bundle, vf);

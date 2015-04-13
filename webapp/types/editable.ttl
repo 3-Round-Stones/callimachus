@@ -202,7 +202,7 @@
         }
         this.touchRevision();
         return {
-            status: 201, message: "Modified",
+            status: 200, message: "Modified",
             headers: {
                 "Content-Type": "text/uri-list",
                 "Location": this.toString()

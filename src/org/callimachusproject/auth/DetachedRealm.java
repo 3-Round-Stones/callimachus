@@ -334,7 +334,8 @@ public class DetachedRealm {
 				}
 			}
 			resp.setHeader("Cache-Control", "no-store");
-			if (inUnauthorized.get() == null) {
+			if (inUnauthorized.get() == null
+					&& !unauthorized.equals(resource.toString())) {
 				inUnauthorized.set(true);
 				HttpEntity entity = client.getEntity(unauthorized,
 						"text/html;charset=UTF-8");

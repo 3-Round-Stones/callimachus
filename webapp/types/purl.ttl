@@ -51,6 +51,34 @@
     msg:type "text/plain";
     msg:param "0".
 
+:GetRedirect rdfs:subClassOf :Redirect;
+    msg:method "GET";
+    msg:path ".*";
+    calli:requires calli:reader;
+    calli:script """
+        var cacheControl = this.calliCacheControl.toArray();
+        var resp = this.createResponse("GET", suffix);
+        if (resp) {
+            if (cacheControl.length && resp.containsHeader("Cache-Control")) {
+                resp.removeHeaders("Cache-Control");
+            }
+            for (var i=0; i<cacheControl.length; i++) {
+                resp.addHeader("Cache-Control", cacheControl[i]);
+            }
+            return resp;
+        } else if (suffix) {
+            throw new org.openrdf.http.object.exceptions.NotFound();
+        } else {
+            // default response
+            return {
+                status:303,
+                message:'See Other',
+                headers:{'location':this.toString() + "?view",'content-type':"text/plain"},
+                body:[this.toString() + "?view"]
+            };
+        }
+    """.
+
 :Proxy rdfs:subClassOf :Redirect.
 
 :contentType a owl:FunctionalProperty, owl:DatatypeProperty;
@@ -70,139 +98,18 @@
     rdfs:range <java:org.apache.http.HttpEntity>;
     msg:type "*/*".
 
-:GetRedirect rdfs:subClassOf :Redirect;
-    msg:method "GET";
-    msg:path ".*";
-    calli:requires calli:reader;
-    calli:imports <java:org.apache.http.client.methods.HttpGet>;
-    calli:imports <java:org.openrdf.http.object.exceptions.ResponseException>;
-    calli:script """
-        var cacheControl = this.calliCacheControl.toArray();
-        var iter = this.FindPurlGetPattern().iterator();
-        while (iter.hasNext()) {
-            var row = iter.next();
-            var status = row[0];
-            var phrase = row[1];
-            var pattern = row[2];
-            var request = this.buildRequest("GET", pattern, suffix);
-            if (request) {
-                var location = request.getURI().toASCIIString();
-                if (300 <= status && status < 400 ) {
-                    // 301, 302, 303, 307, or 308 responses
-                    return {
-                        status:status,
-                        message:phrase,
-                        headers:{'location':location,'cache-control':cacheControl,'content-type':"text/plain"},
-                        body:[location]
-                    };
-                }
-                // 200, 203, 404, or 410 responses
-                var resp = this.executeRequest(request);
-                if (status < 300) {
-                    status = resp.statusLine.statusCode;
-                    phrase = resp.statusLine.reasonPhrase;
-                }
-                var headers = {'content-location': resp.getURI().toASCIIString(),'cache-control':cacheControl};
-                if (resp.getFirstHeader('location')) {
-                    headers['location'] = resp.getFirstHeader('location').value;
-                }
-                if (resp.getFirstHeader('content-type')) {
-                    headers['content-type'] = resp.getFirstHeader('content-type').value;
-                }
-                if (resp.getFirstHeader('content-location')) {
-                    headers['content-location'] = resp.getFirstHeader('content-location').value;
-                }
-                if (resp.getFirstHeader('last-modified')) {
-                    headers['last-modified'] = resp.getFirstHeader('last-modified').value;
-                }
-                if (resp.getFirstHeader('etag')) {
-                    headers['etag'] = resp.getFirstHeader('etag').value;
-                }
-                if (resp.getFirstHeader('content-version')) {
-                    headers['content-version'] = resp.getFirstHeader('content-version').value;
-                }
-                return {
-                    status:status,
-                    message:phrase,
-                    headers:headers,
-                    body:resp.entity
-                };
-            }
-        }
-        if (suffix) {
-            throw new org.openrdf.http.object.exceptions.NotFound();
-        } else {
-            // default response
-            return {
-                status:303,
-                message:'See Other',
-                headers:{'location':this.toString() + "?view",'content-type':"text/plain"},
-                body:[this.toString() + "?view"]
-            };
-        }
-    """.
-
 :PostRedirect rdfs:subClassOf :Proxy;
     msg:method "POST";
     msg:path ".*";
     calli:requires calli:reader;
-    calli:imports <java:org.apache.http.client.methods.HttpPost>;
-    calli:imports <java:org.openrdf.http.object.exceptions.ResponseException>;
+    calli:imports <java:org.apache.http.message.BasicHttpEntityEnclosingRequest>;
     calli:script """
-        var iter = this.FindPurlPostPattern().iterator();
-        while (iter.hasNext()) {
-            var row = iter.next();
-            var status = row[0];
-            var phrase = row[1];
-            var pattern = row[2];
-            var request = this.buildRequest("POST", pattern, suffix);
-            if (request) {
-                var location = request.getURI().toASCIIString();
-                if (300 <= status && status < 400 ) {
-                    // 301, 302, 303, 307, or 308 responses
-                    return {
-                        status:status,
-                        message:phrase,
-                        headers:{'location':location,'content-type':"text/plain"},
-                        body:[location]
-                    };
-                }
-                // 200, 203, 404, or 410 responses
-                if (contentType && !request.containsHeader('content-type')) {
-                    request.setHeader('content-type', contentType);
-                }
-                if (contentLocation && !request.containsHeader('content-location')) {
-                    request.setHeader('content-location', contentLocation);
-                }
-                if (contentEntity && !request.entity) {
-                    request.entity = contentEntity;
-                }
-                var resp = this.executeRequest(request);
-                if (status < 300) {
-                    status = resp.statusLine.statusCode;
-                    phrase = resp.statusLine.reasonPhrase;
-                }
-                var headers = {};
-                if (resp.getFirstHeader('location')) {
-                    headers['location'] = resp.getFirstHeader('location').value;
-                }
-                if (resp.getFirstHeader('content-type')) {
-                    headers['content-type'] = resp.getFirstHeader('content-type').value;
-                }
-                if (resp.getFirstHeader('content-location')) {
-                    headers['content-location'] = resp.getFirstHeader('content-location').value;
-                }
-                if (resp.getFirstHeader('content-version')) {
-                    headers['content-version'] = resp.getFirstHeader('content-version').value;
-                }
-                return {
-                    status:status,
-                    message:phrase,
-                    headers:headers,
-                    body:resp.entity
-                };
-            }
-        }
+        var req = new BasicHttpEntityEnclosingRequest("POST", suffix);
+        req.setHeader("Content-Type", contentType);
+        req.setHeader("Content-Location", contentLocation);
+        req.setEntity(contentEntity);
+        var resp = this.createResponse(req);
+        if (resp) return resp;
         throw new org.openrdf.http.object.exceptions.MethodNotAllowed();
     """.
 
@@ -210,63 +117,14 @@
     msg:method "PUT";
     msg:path ".*";
     calli:requires calli:reader;
-    calli:imports <java:org.apache.http.client.methods.HttpPut>;
-    calli:imports <java:org.openrdf.http.object.exceptions.ResponseException>;
+    calli:imports <java:org.apache.http.message.BasicHttpEntityEnclosingRequest>;
     calli:script """
-        var iter = this.FindPurlPutPattern().iterator();
-        while (iter.hasNext()) {
-            var row = iter.next();
-            var status = row[0];
-            var phrase = row[1];
-            var pattern = row[2];
-            var request = this.buildRequest("PUT", pattern, suffix);
-            if (request) {
-                var location = request.getURI().toASCIIString();
-                if (300 <= status && status < 400 ) {
-                    // 301, 302, 303, 307, or 308 responses
-                    return {
-                        status:status,
-                        message:phrase,
-                        headers:{'location':location,'content-type':"text/plain"},
-                        body:[location]
-                    };
-                }
-                // 200, 203, 404, or 410 responses
-                if (contentType && !request.containsHeader('content-type')) {
-                    request.setHeader('content-type', contentType);
-                }
-                if (contentLocation && !request.containsHeader('content-location')) {
-                    request.setHeader('content-location', contentLocation);
-                }
-                if (contentEntity && !request.entity) {
-                    request.entity = contentEntity;
-                }
-                var resp = this.executeRequest(request);
-                if (status < 300) {
-                    status = resp.statusLine.statusCode;
-                    phrase = resp.statusLine.reasonPhrase;
-                }
-                var headers = {};
-                if (resp.getFirstHeader('location')) {
-                    headers['location'] = resp.getFirstHeader('location').value;
-                }
-                if (resp.getFirstHeader('content-type')) {
-                    headers['content-type'] = resp.getFirstHeader('content-type').value;
-                }
-                if (resp.getFirstHeader('content-location')) {
-                    headers['content-location'] = resp.getFirstHeader('content-location').value;
-                }
-                if (resp.getFirstHeader('content-version')) {
-                    headers['content-version'] = resp.getFirstHeader('content-version').value;
-                }
-                return {
-                    status:status,
-                    message:phrase,
-                    headers:headers,
-                    body:resp.entity
-                };
-            }
-        }
+        var req = new BasicHttpEntityEnclosingRequest("PUT", suffix);
+        req.setHeader("Content-Type", contentType);
+        req.setHeader("Content-Location", contentLocation);
+        req.setEntity(contentEntity);
+        var resp = this.createResponse(req);
+        if (resp) return resp;
         throw new org.openrdf.http.object.exceptions.MethodNotAllowed();
     """.
 
@@ -274,63 +132,14 @@
     msg:method "PATCH";
     msg:path ".*";
     calli:requires calli:reader;
-    calli:imports <java:org.apache.http.client.methods.HttpPut>;
-    calli:imports <java:org.openrdf.http.object.exceptions.ResponseException>;
+    calli:imports <java:org.apache.http.message.BasicHttpEntityEnclosingRequest>;
     calli:script """
-        var iter = this.FindPurlPatchPattern().iterator();
-        while (iter.hasNext()) {
-            var row = iter.next();
-            var status = row[0];
-            var phrase = row[1];
-            var pattern = row[2];
-            var request = this.buildRequest("PATCH", pattern, suffix);
-            if (request) {
-                var location = request.getURI().toASCIIString();
-                if (300 <= status && status < 400 ) {
-                    // 301, 302, 303, 307, or 308 responses
-                    return {
-                        status:status,
-                        message:phrase,
-                        headers:{'location':location,'content-type':"text/plain"},
-                        body:[location]
-                    };
-                }
-                // 200, 203, 404, or 410 responses
-                if (contentType && !request.containsHeader('content-type')) {
-                    request.setHeader('content-type', contentType);
-                }
-                if (contentLocation && !request.containsHeader('content-location')) {
-                    request.setHeader('content-location', contentLocation);
-                }
-                if (contentEntity && !request.entity) {
-                    request.entity = contentEntity;
-                }
-                var resp = this.executeRequest(request);
-                if (status < 300) {
-                    status = resp.statusLine.statusCode;
-                    phrase = resp.statusLine.reasonPhrase;
-                }
-                var headers = {};
-                if (resp.getFirstHeader('location')) {
-                    headers['location'] = resp.getFirstHeader('location').value;
-                }
-                if (resp.getFirstHeader('content-type')) {
-                    headers['content-type'] = resp.getFirstHeader('content-type').value;
-                }
-                if (resp.getFirstHeader('content-location')) {
-                    headers['content-location'] = resp.getFirstHeader('content-location').value;
-                }
-                if (resp.getFirstHeader('content-version')) {
-                    headers['content-version'] = resp.getFirstHeader('content-version').value;
-                }
-                return {
-                    status:status,
-                    message:phrase,
-                    headers:headers,
-                    body:resp.entity
-                };
-            }
-        }
+        var req = new BasicHttpEntityEnclosingRequest("PATCH", suffix);
+        req.setHeader("Content-Type", contentType);
+        req.setHeader("Content-Location", contentLocation);
+        req.setEntity(contentEntity);
+        var resp = this.createResponse(req);
+        if (resp) return resp;
         throw new org.openrdf.http.object.exceptions.MethodNotAllowed();
     """.
 
@@ -338,60 +147,9 @@
     msg:method "DELETE";
     msg:path ".*";
     calli:requires calli:reader;
-    calli:imports <java:org.apache.http.client.methods.HttpDelete>;
-    calli:imports <java:org.openrdf.http.object.exceptions.ResponseException>;
     calli:script """
-        var iter = this.FindPurlDeletePattern().iterator();
-        while (iter.hasNext()) {
-            var row = iter.next();
-            var status = row[0];
-            var phrase = row[1];
-            var pattern = row[2];
-            var request = this.buildRequest("DELETE", pattern, suffix);
-            if (request) {
-                var location = request.getURI().toASCIIString();
-                if (300 <= status && status < 400 ) {
-                    // 301, 302, 303, 307, or 308 responses
-                    return {
-                        status:status,
-                        message:phrase,
-                        headers:{'location':location,'content-type':"text/plain"},
-                        body:[location]
-                    };
-                }
-                // 200, 203, 404, or 410 responses
-                var resp = this.executeRequest(request);
-                if (status < 300) {
-                    status = resp.statusLine.statusCode;
-                    phrase = resp.statusLine.reasonPhrase;
-                }
-                var headers = {};
-                if (resp.getFirstHeader('location')) {
-                    headers['location'] = resp.getFirstHeader('location').value;
-                }
-                if (resp.getFirstHeader('content-type')) {
-                    headers['content-type'] = resp.getFirstHeader('content-type').value;
-                }
-                if (resp.getFirstHeader('content-location')) {
-                    headers['content-location'] = resp.getFirstHeader('content-location').value;
-                }
-                if (resp.getFirstHeader('last-modified')) {
-                    headers['last-modified'] = resp.getFirstHeader('last-modified').value;
-                }
-                if (resp.getFirstHeader('etag')) {
-                    headers['etag'] = resp.getFirstHeader('etag').value;
-                }
-                if (resp.getFirstHeader('content-version')) {
-                    headers['content-version'] = resp.getFirstHeader('content-version').value;
-                }
-                return {
-                    status:status,
-                    message:phrase,
-                    headers:headers,
-                    body:resp.entity
-                };
-            }
-        }
+        var resp = this.createResponse("DELETE", suffix);
+        if (resp) return resp;
         throw new org.openrdf.http.object.exceptions.MethodNotAllowed();
     """.
 
@@ -405,166 +163,4 @@
     msg:header "cache-control:no-cache";
     calli:script """
         return proceed();
-    """.
-
-:FindPurlGetPattern rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Purl>];
-    rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom rdfs:Resource];
-    msg:sparql """
-        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
-        SELECT ?status ?phrase (str(?resource) AS ?pattern) {
-            {
-                $this calli:copy ?resource
-                BIND (200 AS ?status)
-                BIND ("Copy" AS ?phrase)
-            } UNION {
-                $this calli:canonical ?resource
-                BIND (301 AS ?status)
-                BIND ("Canonical" AS ?phrase)
-            } UNION {
-                $this calli:alternate ?resource
-                BIND (302 AS ?status)
-                BIND ("Alternate" AS ?phrase)
-            } UNION {
-                $this calli:describedby ?resource
-                BIND (303 AS ?status)
-                BIND ("Described by" AS ?phrase)
-            } UNION {
-                $this calli:resides ?resource
-                BIND (307 AS ?status)
-                BIND ("Resides" AS ?phrase)
-            } UNION {
-                $this calli:moved ?resource
-                BIND (308 AS ?status)
-                BIND ("Moved" AS ?phrase)
-            } UNION {
-                $this calli:missing ?resource
-                BIND (404 AS ?status)
-                BIND ("Not found" AS ?phrase)
-            } UNION {
-                $this calli:gone ?resource
-                BIND (410 AS ?status)
-                BIND ("Gone" AS ?phrase)
-            }
-        }
-    """.
-
-:FindPurlPostPattern rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Purl>];
-    rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom rdfs:Resource];
-    msg:sparql """
-        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
-        SELECT ?status ?phrase (str(?resource) AS ?pattern) {
-            {
-                $this calli:post ?resource
-                BIND (200 AS ?status)
-                BIND ("OK" AS ?phrase)
-            } UNION {
-                $this calli:resides ?resource
-                BIND (307 AS ?status)
-                BIND ("Resides" AS ?phrase)
-            } UNION {
-                $this calli:moved ?resource
-                BIND (308 AS ?status)
-                BIND ("Moved" AS ?phrase)
-            } UNION {
-                $this calli:missing ?resource
-                BIND (404 AS ?status)
-                BIND ("Not found" AS ?phrase)
-            } UNION {
-                $this calli:gone ?resource
-                BIND (410 AS ?status)
-                BIND ("Gone" AS ?phrase)
-            }
-        }
-    """.
-
-:FindPurlPutPattern rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Purl>];
-    rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom rdfs:Resource];
-    msg:sparql """
-        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
-        SELECT ?status ?phrase (str(?resource) AS ?pattern) {
-            {
-                $this calli:put ?resource
-                BIND (204 AS ?status)
-                BIND ("No Content" AS ?phrase)
-            } UNION {
-                $this calli:resides ?resource
-                BIND (307 AS ?status)
-                BIND ("Resides" AS ?phrase)
-            } UNION {
-                $this calli:moved ?resource
-                BIND (308 AS ?status)
-                BIND ("Moved" AS ?phrase)
-            } UNION {
-                $this calli:missing ?resource
-                BIND (404 AS ?status)
-                BIND ("Not found" AS ?phrase)
-            } UNION {
-                $this calli:gone ?resource
-                BIND (410 AS ?status)
-                BIND ("Gone" AS ?phrase)
-            }
-        }
-    """.
-
-:FindPurlPatchPattern rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Purl>];
-    rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom rdfs:Resource];
-    msg:sparql """
-        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
-        SELECT ?status ?phrase (str(?resource) AS ?pattern) {
-            {
-                $this calli:patch ?resource
-                BIND (204 AS ?status)
-                BIND ("No Content" AS ?phrase)
-            } UNION {
-                $this calli:resides ?resource
-                BIND (307 AS ?status)
-                BIND ("Resides" AS ?phrase)
-            } UNION {
-                $this calli:moved ?resource
-                BIND (308 AS ?status)
-                BIND ("Moved" AS ?phrase)
-            } UNION {
-                $this calli:missing ?resource
-                BIND (404 AS ?status)
-                BIND ("Not found" AS ?phrase)
-            } UNION {
-                $this calli:gone ?resource
-                BIND (410 AS ?status)
-                BIND ("Gone" AS ?phrase)
-            }
-        }
-    """.
-
-:FindPurlDeletePattern rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Purl>];
-    rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom rdfs:Resource];
-    msg:sparql """
-        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
-        SELECT ?status ?phrase (str(?resource) AS ?pattern) {
-            {
-                $this calli:delete ?resource
-                BIND (204 AS ?status)
-                BIND ("No Content" AS ?phrase)
-            } UNION {
-                $this calli:resides ?resource
-                BIND (307 AS ?status)
-                BIND ("Resides" AS ?phrase)
-            } UNION {
-                $this calli:moved ?resource
-                BIND (308 AS ?status)
-                BIND ("Moved" AS ?phrase)
-            } UNION {
-                $this calli:missing ?resource
-                BIND (404 AS ?status)
-                BIND ("Not found" AS ?phrase)
-            } UNION {
-                $this calli:gone ?resource
-                BIND (410 AS ?status)
-                BIND ("Gone" AS ?phrase)
-            }
-        }
     """.

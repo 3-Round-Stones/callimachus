@@ -179,7 +179,7 @@ public class PurlIntegrationTest extends TemporaryServerIntegrationTestCase {
 	}
 
 	public void testPost() throws Exception {
-		WebResource purl = getHomeFolder().createPurl("humans.txt", "post", ".* PUT " + file.toString());
+		WebResource purl = getHomeFolder().createPurl("humans.txt", "put", "POST .* " + file.toString());
 		try {
 			byte[] bytes = "post via purl".getBytes();
 			purl.post("text/plain", bytes);

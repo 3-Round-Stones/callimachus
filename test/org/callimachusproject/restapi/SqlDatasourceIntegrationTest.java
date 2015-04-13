@@ -194,7 +194,7 @@ public class SqlDatasourceIntegrationTest extends TemporaryServerIntegrationTest
 		String insert = "INSERT INTO \"testdata\" (\"id\", \"foo\", \"bar\") VALUES ({+id}, '{+foo}', {+bar})";
 		String copy = datasource + "?query=" + URLEncoder.encode(select, "UTF-8") + "\n" +
 				"Accept: text/csv";
-		String regex = "\\w+(://|%3A%2F%2F)([:\\w\\.-]|%3A)+([/\\w\\.-]*|%2F|%25)*";
+		String regex = "\\w+(://|%3A%2F%2F)([:\\w\\.-]|%3A)+([/\\w\\.-]|%2F|%25)*";
 		String post = "\\?id=\\d+&foo=" + regex + "&bar=\\d+$ " + datasource + "\n" +
 				"Content-Type: application/sql\n\n" + insert;
 		StringBuilder sb = new StringBuilder();

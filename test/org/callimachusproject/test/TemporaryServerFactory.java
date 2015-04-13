@@ -92,11 +92,11 @@ public class TemporaryServerFactory {
 		return (seed % range) + range + MIN_PORT;
 	}
 
-	private final String origin;
-	private final int port;
-	private final String email;
-	private final char[] password;
-	private final Map<Integer, TemporaryServer> running = new LinkedHashMap<Integer, TemporaryServer>();
+	final String origin;
+	final int port;
+	final String email;
+	final char[] password;
+	final Map<Integer, TemporaryServer> running = new LinkedHashMap<Integer, TemporaryServer>();
 
 	public TemporaryServerFactory(String origin, int port, String email,
 			char[] password) {
@@ -165,7 +165,7 @@ public class TemporaryServerFactory {
 		};
 	}
 
-	private synchronized TemporaryServer createTemporaryServer() {
+	synchronized TemporaryServer createTemporaryServer() {
 		try {
 			final File dir = createCallimachus(origin);
 			return new TemporaryServer(){
@@ -176,9 +176,10 @@ public class TemporaryServerFactory {
 
 				public synchronized void start() throws InterruptedException, Exception {
 					manager = RepositoryProvider.getRepositoryManager(dir);
+					String loc = manager.getRepositoryDir("callimachus").toURI().toASCIIString();
 					server = new ObjectServer(dir);
-					server.addRepositoryPrefix("callimachus", origin + "/");
-					repository = new CalliRepository("callimachus", server.getRepository("callimachus"), manager);
+					server.addRepositoryPrefix(loc, origin + "/");
+					repository = new CalliRepository("callimachus", server.getRepository(loc), manager);
 					String url = repository.getCallimachusUrl(origin, CHANGES_PATH);
 					repository.setChangeFolder(url);
 					server.setPorts(String.valueOf(port));

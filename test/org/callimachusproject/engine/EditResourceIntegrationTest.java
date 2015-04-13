@@ -24,7 +24,7 @@ import org.callimachusproject.test.TemporaryServerIntegrationTestCase;
 import org.callimachusproject.test.WebResource;
 
 public class EditResourceIntegrationTest extends TemporaryServerIntegrationTestCase {
-	private static String CLASS_TURTLE = cat("@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.",
+	static String CLASS_TURTLE = cat("@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.",
 			"@prefix owl:<http://www.w3.org/2002/07/owl#>.",
 			"@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.",
 			"",

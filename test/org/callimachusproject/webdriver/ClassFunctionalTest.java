@@ -51,7 +51,7 @@ public class ClassFunctionalTest extends BrowserFunctionalTestCase {
 	}
 
 	public void testCreatableClass() {
-		String name = "Test Class";
+		String name = "Class Test";
 		logger.info("Create class templates for {}", name);
 		ClassEdit create = page.openCurrentFolder().openClassCreate();
 		create.openCreateTemplate("test-create").saveAs("test-create.xhtml");
@@ -61,7 +61,7 @@ public class ClassFunctionalTest extends BrowserFunctionalTestCase {
 		ClassView cls = create.with(name, "testing").create().waitUntilTitle(name);
 		String view = cls.getCurrentUrl();
 		logger.info("Create resource {}", "resource");
-		page.openCurrentFolder().openCreateHref("TestClass", SampleResourceCreate.class)
+		page.openCurrentFolder().openCreateHref("ClassTest", SampleResourceCreate.class)
 				.with("resource", "A test resource").create();
 		logger.info("Delete resource {}", "resource");
 		cls = page.open(view, ClassView.class);

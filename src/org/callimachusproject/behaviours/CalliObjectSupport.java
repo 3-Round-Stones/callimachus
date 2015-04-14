@@ -38,6 +38,8 @@ import java.net.MalformedURLException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.WeakHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.management.JMX;
 import javax.management.MBeanServer;
@@ -53,7 +55,6 @@ import org.callimachusproject.repository.auditing.AuditingRepositoryConnection;
 import org.callimachusproject.traits.CalliObject;
 import org.openrdf.OpenRDFException;
 import org.openrdf.http.object.client.HttpUriClient;
-import org.openrdf.http.object.management.ObjectRepositoryManager;
 import org.openrdf.http.object.management.ObjectServerMBean;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
@@ -74,6 +75,8 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class CalliObjectSupport implements CalliObject {
 	private static final String CHANGES_PATH = "../changes/";
+	private static final Pattern URL_PATTERN = Pattern
+			.compile("https?://[a-zA-Z0-9\\-\\._~%!\\$\\&'\\(\\)\\*\\+,;=:/\\[\\]@]+/(?![a-zA-Z0-9\\-\\._~%!\\$\\&'\\(\\)\\*\\+,;=:/\\?\\#\\[\\]@])");
 	private final static Map<ObjectRepository, WeakReference<CalliRepository>> repositories = new WeakHashMap<ObjectRepository, WeakReference<CalliRepository>>();
 
 	public static void associate(CalliRepository repository,
@@ -106,10 +109,12 @@ public abstract class CalliObjectSupport implements CalliObject {
 			LocalRepositoryManager manager = RepositoryProvider.getRepositoryManager(dir);
 			String id = RepositoryProvider.getRepositoryIdOfRepository(dataDir.toURI().toASCIIString());
 			CalliRepository result = new CalliRepository(id, repository, manager);
-			ObjectRepositoryManager orm = new ObjectRepositoryManager(manager.getBaseDir());
-			String[] prefixes = orm.getRepositoryPrefixes(id);
-			if (prefixes.length > 0) {
-				result.setChangeFolder(result.getCallimachusUrl(prefixes[0], CHANGES_PATH));
+			String desc = manager.getRepositoryInfo(id).getDescription();
+			if (desc != null) {
+				Matcher m = URL_PATTERN.matcher(desc);
+				if (m.find()) {
+					result.setChangeFolder(result.getCallimachusUrl(m.group(), CHANGES_PATH));
+				}
 			}
 			associate(result, repository);
 			return result;

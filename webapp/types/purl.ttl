@@ -105,9 +105,9 @@
     calli:imports <java:org.apache.http.message.BasicHttpEntityEnclosingRequest>;
     calli:script """
         var req = new BasicHttpEntityEnclosingRequest("POST", suffix);
-        req.setHeader("Content-Type", contentType);
-        req.setHeader("Content-Location", contentLocation);
-        req.setEntity(contentEntity);
+        if (contentType) req.setHeader("Content-Type", contentType);
+        if (contentLocation) req.setHeader("Content-Location", contentLocation);
+        if (contentEntity) req.setEntity(contentEntity);
         var resp = this.createResponse(req);
         if (resp) return resp;
         throw new org.openrdf.http.object.exceptions.MethodNotAllowed();
@@ -120,9 +120,9 @@
     calli:imports <java:org.apache.http.message.BasicHttpEntityEnclosingRequest>;
     calli:script """
         var req = new BasicHttpEntityEnclosingRequest("PUT", suffix);
-        req.setHeader("Content-Type", contentType);
-        req.setHeader("Content-Location", contentLocation);
-        req.setEntity(contentEntity);
+        if (contentType) req.setHeader("Content-Type", contentType);
+        if (contentLocation) req.setHeader("Content-Location", contentLocation);
+        if (contentEntity) req.setEntity(contentEntity);
         var resp = this.createResponse(req);
         if (resp) return resp;
         throw new org.openrdf.http.object.exceptions.MethodNotAllowed();
@@ -135,9 +135,9 @@
     calli:imports <java:org.apache.http.message.BasicHttpEntityEnclosingRequest>;
     calli:script """
         var req = new BasicHttpEntityEnclosingRequest("PATCH", suffix);
-        req.setHeader("Content-Type", contentType);
-        req.setHeader("Content-Location", contentLocation);
-        req.setEntity(contentEntity);
+        if (contentType) req.setHeader("Content-Type", contentType);
+        if (contentLocation) req.setHeader("Content-Location", contentLocation);
+        if (contentEntity) req.setEntity(contentEntity);
         var resp = this.createResponse(req);
         if (resp) return resp;
         throw new org.openrdf.http.object.exceptions.MethodNotAllowed();

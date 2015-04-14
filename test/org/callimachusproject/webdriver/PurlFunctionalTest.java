@@ -179,10 +179,13 @@ public class PurlFunctionalTest extends BrowserFunctionalTestCase {
 		if (hd == null) {
 			hd = con.getHeaderField("Content-Location");
 		}
-		assertEquals(url, TermFactory.newInstance(url).resolve(location), hd);
+		assertEquals(url, TermFactory.newInstance(url).resolve(location), TermFactory.newInstance(url).resolve(hd));
 		
 		// Retrieve Cache-Control response header and print
-		assertEquals(url, cc, con.getHeaderField("Cache-Control"));
+		String actual = con.getHeaderField("Cache-Control");
+		if (actual == null || !actual.contains(cc)) {
+			assertEquals(url, cc, actual);
+		}
 	}
 
 }

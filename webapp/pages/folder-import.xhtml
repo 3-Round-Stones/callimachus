@@ -39,7 +39,7 @@
                     <label for="image">Content</label>
                     <div>
                         <input type="file" id="file" name="file" multiple="multiple" class="form-control" autofocus="autofocus"
-                            onchange="$('#label').val(this.value.replace(/.*[\/\\]/,'').replace(/.[a-zA-Z]+$/, '').replace(/\-/, ' '))" />
+                            onchange="$('#label').val(this.value.replace(/.*[\/\\]/,'').replace(/.[a-zA-Z]+$/, '').replace(/\-/g, ' '))" />
                     </div>
                 </div>
                 <div class="form-group">

@@ -29,6 +29,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -307,14 +308,15 @@ public class WebappArchiveImporter {
 		} finally {
 			car.close();
 		}
-		updatedNonSources.keySet().removeAll(existingSources);
 		updatedNonSources.keySet().removeAll(includedSources);
-		existingSources.removeAll(includedSources);
-		existingSources.removeAll(updatedNonSources.keySet());
-		deleteComponents(existingSources, con);
+		Set<URI> absent = new HashSet<URI>(existingSources);
+		absent.removeAll(includedSources);
+		absent.removeAll(updatedNonSources.keySet());
+		deleteComponents(absent, con);
 		missingDependees.removeAll(includedSources);
 		missingDependees.removeAll(updatedNonSources.keySet());
 		checkForMissingDependees(missingDependees, con);
+		updatedNonSources.keySet().removeAll(existingSources);
 		// FIXME LOOKUP_CONSTRUCTOR query is too complex for OptimisticSail
 		con.commit();
 		con.begin();

@@ -29,6 +29,8 @@
 package org.callimachusproject.traits;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
 
 import org.callimachusproject.auth.DetachedRealm;
 import org.callimachusproject.concepts.Activity;
@@ -36,8 +38,12 @@ import org.callimachusproject.repository.CalliRepository;
 import org.openrdf.OpenRDFException;
 import org.openrdf.annotations.Iri;
 import org.openrdf.http.object.client.HttpUriClient;
+import org.openrdf.model.Model;
+import org.openrdf.model.URI;
+import org.openrdf.query.GraphQueryResult;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.RDFObject;
+import org.openrdf.rio.RDFFormat;
 
 /**
  * An interface that exposes the auditing SAIL's revision and provides access to
@@ -62,5 +68,13 @@ public interface CalliObject extends RDFObject {
 	String revision();
 
 	void resetAllCache();
+
+	Model getSchemaModel();
+
+	void setSchemaGraph(URI graph, GraphQueryResult schema) throws OpenRDFException, IOException;
+
+	void setSchemaGraph(URI graph, Reader reader, RDFFormat format) throws OpenRDFException, IOException;
+
+	void setSchemaGraph(URI graph, InputStream stream, RDFFormat format) throws OpenRDFException, IOException;
 
 }

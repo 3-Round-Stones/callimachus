@@ -24,16 +24,20 @@ import java.net.URLDecoder;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.stream.XMLStreamException;
+
 import org.callimachusproject.concepts.Composite;
 import org.callimachusproject.engine.model.TermFactory;
-import org.callimachusproject.form.helpers.TripleInserter;
 import org.callimachusproject.io.CarOutputStream;
 import org.callimachusproject.io.DescribeResult;
+import org.callimachusproject.repository.CalliRepository;
+import org.callimachusproject.setup.WebappArchiveImporter;
+import org.callimachusproject.traits.CalliObject;
 import org.openrdf.OpenRDFException;
 import org.openrdf.annotations.Bind;
 import org.openrdf.annotations.Sparql;
 import org.openrdf.http.object.exceptions.BadRequest;
-import org.openrdf.http.object.exceptions.Conflict;
 import org.openrdf.http.object.io.ChannelUtil;
 import org.openrdf.http.object.io.ProducerStream;
 import org.openrdf.http.object.io.ProducerStream.OutputProducer;
@@ -59,7 +63,7 @@ import org.openrdf.rio.RDFWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class PathSegmentSupport implements RDFObject, RDFObjectBehaviour, Composite {
+public abstract class PathSegmentSupport implements RDFObject, RDFObjectBehaviour, CalliObject, Composite {
 	private static final String PHONE = "http://www.openrdf.org/rdf/2011/keyword#phone";
 	private static final String GENERATED_BY = "http://www.w3.org/ns/prov#wasGeneratedBy";
 	private static final String TURTLE = "text/turtle;charset=UTF-8";
@@ -107,22 +111,13 @@ public abstract class PathSegmentSupport implements RDFObject, RDFObjectBehaviou
 		});
 	}
 
-	public void readFrom(String type, InputStream entryStream, String uri,
-			URI graph) throws OpenRDFException, IOException {
-		TripleInserter inserter = new TripleInserter(this.getObjectConnection());
-		inserter.setGraph(graph);
-		inserter.setIncludingDocumentMetadata(true); // CAR resources don't distinguish document vs topic
-		inserter.parseAndInsert(entryStream, type, uri);
-		if (inserter.isEmpty())
-			throw new BadRequest("Missing resource information for: " + uri);
-		if (!inserter.isSingleton())
-			throw new BadRequest("Multiple resources for: " + uri);
-		if (!uri.equals(inserter.getSubject().stringValue()))
-			throw new BadRequest("Wrong subject of " + inserter.getSubject() + " for: " + uri);
-		if (inserter.isDisconnectedNodePresent())
-			throw new BadRequest("Blank nodes must be connected in: " + uri);
-		if (inserter.isContainmentTriplePresent())
-			throw new Conflict("ldp:contains is prohibited");
+	public void importComponents(InputStream stream, String webapp)
+			throws DatatypeConfigurationException, OpenRDFException,
+			IOException, ReflectiveOperationException, XMLStreamException {
+		CalliRepository repo = this.getCalliRepository();
+		ObjectConnection con = this.getObjectConnection();
+		WebappArchiveImporter importer = new WebappArchiveImporter(webapp, repo);
+		importer.importArchive(stream, this.getResource().stringValue(), con);
 	}
 
 	public Set<String> getComponentsWithExternalDependent() {
@@ -132,18 +127,6 @@ public abstract class PathSegmentSupport implements RDFObject, RDFObjectBehaviou
 			result.add(uri.stringValue());
 		}
 		return result;
-	}
-
-	public <F extends Composite> Composite findContainer(String uri,
-			Class<F> Folder) throws OpenRDFException, IOException {
-		ObjectConnection con = this.getObjectConnection();
-		ValueFactory vf = con.getValueFactory();
-		Composite container = this.findExistingContainer(vf.createURI(uri));
-		if (container == null) {
-			int idx = uri.lastIndexOf('/', uri.length() - 2) + 1;
-			container = designateAsFolder(uri.substring(0, idx), Folder);
-		}
-		return container;
 	}
 
 	public <F extends Composite> Composite designateAsFolder(String uri,

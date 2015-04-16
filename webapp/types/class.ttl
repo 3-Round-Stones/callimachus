@@ -60,19 +60,13 @@
         var of = con.objectFactory;
         var existing = this.FindExistingClassEquivalence();
         if (existing) throw new Conflict("An equivalent class already exists: " + existing);
-        var ret = proceed();
-        con.commit();
-        con.begin();
-        var schema = this.calliRepository.openSchemaConnection();
+        var result = new DescribeResult(this.resource, con);
         try {
-            schema.begin();
-            schema.clear([this.resource]);
-            schema.add(new DescribeResult(this.resource, con), [this.resource]);
-            schema.commit();
+            this.setSchemaGraph(this.resource, result);
         } finally {
-            schema.close();
+            result.close();
         }
-        return ret;
+        return proceed();
     """.
 
 :FindExistingClassEquivalence rdfs:subClassOf msg:Message;

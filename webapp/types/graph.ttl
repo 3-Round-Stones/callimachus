@@ -143,21 +143,11 @@
         this.touchRevision();
 
         if (this.IsRdfSchemaGraph()) {
-            con.commit();
-            con.begin();
-            var schema = this.calliRepository.openSchemaConnection();
+            var stream = this.openInputStream();
             try {
-                schema.begin();
-                schema.clear([this.resource]);
-                var stream = this.openInputStream();
-                try {
-                    schema.add(stream, this.toString(), RDFFormat.TURTLE, [this.resource]);
-                } finally {
-                    stream.close();
-                }
-                schema.commit();
+                this.setSchemaGraph(this.resource, stream, RDFFormat.TURTLE);
             } finally {
-                schema.close();
+                stream.close();
             }
         }
         this.resetAllCache();

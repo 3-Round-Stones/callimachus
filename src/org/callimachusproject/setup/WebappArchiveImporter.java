@@ -45,6 +45,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.XMLEvent;
 
 import org.apache.clerezza.rdf.core.BNode;
+import org.callimachusproject.behaviours.CalliObjectSupport;
 import org.callimachusproject.engine.helpers.SparqlUpdateFactory;
 import org.callimachusproject.form.helpers.EntityUpdater;
 import org.callimachusproject.form.helpers.TripleInserter;
@@ -60,6 +61,7 @@ import org.openrdf.http.object.fluid.MediaType;
 import org.openrdf.http.object.io.XMLEventReaderFactory;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Model;
+import org.openrdf.model.Namespace;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
@@ -80,9 +82,14 @@ import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
 import org.openrdf.repository.object.ObjectConnection;
+import org.openrdf.repository.util.RDFLoader;
+import org.openrdf.rio.ParserConfig;
 import org.openrdf.rio.RDFFormat;
+import org.openrdf.rio.RDFHandler;
+import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParseException;
 import org.openrdf.rio.Rio;
+import org.openrdf.rio.helpers.ContextStatementCollector;
 import org.openrdf.rio.helpers.StatementCollector;
 import org.openrdf.store.blob.BlobObject;
 import org.slf4j.Logger;
@@ -128,10 +135,16 @@ public class WebappArchiveImporter {
 			+ "        ?class rdfs:subClassOf* <types/File> .\n"
 			+ "        FILTER isIRI(?class)\n"
 			+ "        FILTER (\n"
-			+ "            bound($documentTag) && EXISTS { ?class calli:documentTag $documentTag } ||\n"
-			+ "            bound($mediaType) && NOT EXISTS { ?class calli:documentTag ?tag } && EXISTS { ?class calli:mediaType $mediaType }\n"
+			+ "            bound($documentTag) && EXISTS { ?class calli:documentTag $documentTag }\n"
 			+ "        )\n"
 			+ "        BIND (1 AS ?preference)\n"
+			+ "    } UNION {\n"
+			+ "        ?class rdfs:subClassOf* <types/File> .\n"
+			+ "        FILTER isIRI(?class)\n"
+			+ "        FILTER (\n"
+			+ "            bound($mediaType) && NOT EXISTS { ?class calli:documentTag ?tag } && EXISTS { ?class calli:mediaType $mediaType }\n"
+			+ "        )\n"
+			+ "        BIND (2 AS ?preference)\n"
 			+ "    } UNION {\n"
 			+ "        # boot strap graphs before calli:mediaType triples are loaded\n"
 			+ "        BIND (<types/RdfTurtle> AS ?class)\n"
@@ -183,20 +196,6 @@ public class WebappArchiveImporter {
 		df = DatatypeFactory.newInstance();
 	}
 
-	public void importArchive(InputStream carStream, String folder)
-			throws IOException, OpenRDFException, ReflectiveOperationException,
-			XMLStreamException {
-		ObjectConnection con = repository.getConnection();
-		try {
-			con.begin();
-			createFolder(folder, webapp, con);
-			con = importArchive(carStream, folder, webapp, con);
-			con.commit();
-		} finally {
-			con.close();
-		}
-	}
-
 	public void removeFolder(String folder) throws OpenRDFException {
 		ObjectConnection con = repository.getConnection();
 		try {
@@ -208,123 +207,176 @@ public class WebappArchiveImporter {
 		}
 	}
 
-	private ObjectConnection importArchive(InputStream carStream, String folderUri,
-			String webapp, ObjectConnection con) throws IOException,
-			OpenRDFException, ReflectiveOperationException, XMLStreamException {
-		RepositoryConnection schema = null;
+	public void importArchive(InputStream carStream, String folder)
+			throws IOException, OpenRDFException, ReflectiveOperationException,
+			XMLStreamException {
+		ObjectConnection con = repository.getConnection();
 		try {
-			Set<URI> missingDependees = getDependees(folderUri, con);
-			Set<URI> existingSources = getExistingSources(folderUri, con);
-			int capacity = Math.max(existingSources.size(), 256);
-			Set<URI> includedSources = new LinkedHashSet<URI>(capacity);
-			Set<URI> updatedSources = new LinkedHashSet<URI>(capacity);
-			Map<URI, MediaType> updatedNonSources = new LinkedHashMap<URI, MediaType>(capacity);
-			CarInputStream car = new CarInputStream(carStream, folderUri);
-			try {
-				while (car.readEntryName() != null) {
-					boolean error = true;
-					try {
-						URI uri = vf.createURI(car.getEntryIRI());
-						if (car.isFolderEntry()) {
-							URI entity = createFolder(car.getEntryIRI(), webapp, con);
-							includedSources.add(entity);
-						} else if (car.isSourceEntry()) {
-							Model insertData = car.getEntryModel(vf);
-							URI entity = insertData.filter(uri, primaryTopic, null).objectURI();
-							includedSources.add(entity);
-							if (!existingSources.contains(entity)) {
-								URI container = findContainer(entity, con);
-								insert(insertData, uri, entity, container, con);
-								updatedSources.add(entity);
-							} else if (update(insertData, uri, entity, con)) {
-								updatedSources.add(entity);
-							}
-							if (insertData.contains(entity, rdfType, owlClass)) {
-								if (schema == null) {
-									schema = openSchemaConnection();
-									schema.begin();
-								}
-								schema.clear(entity);
-								schema.add(insertData, entity);
-							}
-						} else if (car.isFileEntry()) {
-							MediaType type = MediaType.valueOf(car.getEntryType());
-							String charset = type.getParameter("charset");
-							if (charset == null) {
-								updatedNonSources.put(uri, type);
-								store(car.getEntryStream(), uri, con);
-							} else {
-								updatedNonSources.put(uri, type);
-								store(car.getEntryStream(), charset, uri, con);
-							}
-							String media = type.getBaseType();
-							schema = insertRdfGraph(uri, media, con, schema);
-						}
-						error = false;
-					} finally {
-						if (error) {
-							logger.error("Could not import {}", car.getEntryName());
-						}
-						car.getEntryStream().close();
-					}
-				}
-			} finally {
-				car.close();
-			}
-			updatedNonSources.keySet().removeAll(existingSources);
-			updatedNonSources.keySet().removeAll(includedSources);
-			existingSources.removeAll(includedSources);
-			existingSources.removeAll(updatedNonSources.keySet());
-			deleteComponents(existingSources, con);
-			missingDependees.removeAll(includedSources);
-			missingDependees.removeAll(updatedNonSources.keySet());
-			checkForMissingDependees(missingDependees, con);
-			// FIXME LOOKUP_CONSTRUCTOR query is too complex for OptimisticSail
-			con.commit();
 			con.begin();
-			Model mediaSources = new LinkedHashModel();
-			if (!updatedNonSources.isEmpty()) {
-				XMLGregorianCalendar now = df
-						.newXMLGregorianCalendar(new GregorianCalendar(UTC));
-				Map<String, URI> constructors = new HashMap<String, URI>();
-				for (URI file : updatedNonSources.keySet()) {
-					MediaType type = updatedNonSources.get(file);
-					try {
-						mediaSources.addAll(addMediaSource(file, type, constructors, con, now));
-					} catch (XMLStreamException e) {
-						logger.error("Could not parse {} of type {}", file, type);
-						throw e;
+			createFolder(folder, webapp, con);
+			importArchive(carStream, folder, con);
+			con.commit();
+		} finally {
+			con.close();
+		}
+	}
+
+	public void importArchive(InputStream carStream, String folderUri,
+			ObjectConnection con) throws IOException,
+			OpenRDFException, ReflectiveOperationException, XMLStreamException {
+		Set<URI> missingDependees = getDependees(folderUri, con);
+		Set<URI> existingSources = getExistingSources(folderUri, con);
+		int capacity = Math.max(existingSources.size(), 256);
+		Set<URI> includedSources = new LinkedHashSet<URI>(capacity);
+		Set<URI> updatedSources = new LinkedHashSet<URI>(capacity);
+		Map<URI, MediaType> updatedNonSources = new LinkedHashMap<URI, MediaType>(capacity);
+		Model schema = new LinkedHashModel();
+		CarInputStream car = new CarInputStream(carStream, folderUri);
+		try {
+			while (car.readEntryName() != null) {
+				boolean error = true;
+				try {
+					URI uri = vf.createURI(car.getEntryIRI());
+					if (car.isFolderEntry()) {
+						URI entity = createFolder(car.getEntryIRI(), webapp, con);
+						includedSources.add(entity);
+					} else if (car.isSourceEntry()) {
+						Model insertData = car.getEntryModel(vf);
+						URI entity = insertData.filter(uri, primaryTopic, null).objectURI();
+						includedSources.add(entity);
+						if (!existingSources.contains(entity)) {
+							URI container = findContainer(entity, con);
+							insert(insertData, uri, entity, container, con);
+							updatedSources.add(entity);
+						} else if (update(insertData, uri, entity, con)) {
+							updatedSources.add(entity);
+						}
+						if (insertData.contains(entity, rdfType, owlClass)) {
+							for (Statement st : insertData) {
+								Resource s = st.getSubject();
+								URI p = st.getPredicate();
+								schema.add(s, p, st.getObject(), entity);
+							}
+						}
+					} else if (car.isResourceEntry()) {
+						Model insertData = car.getEntryModel(vf);
+						includedSources.add(uri);
+						if (!existingSources.contains(uri)) {
+							URI container = findContainer(uri, con);
+							insert(insertData, uri, uri, container, con);
+							updatedSources.add(uri);
+						} else if (update(insertData, uri, uri, con)) {
+							updatedSources.add(uri);
+						}
+					} else if (car.isSchemaEntry()) {
+						Model insertData = car.getEntryModel(vf);
+						includedSources.add(uri);
+						if (!existingSources.contains(uri)) {
+							URI container = findContainer(uri, con);
+							insert(insertData, uri, uri, container, con);
+							updatedSources.add(uri);
+						} else if (update(insertData, uri, uri, con)) {
+							updatedSources.add(uri);
+						}
+						for (Statement st : insertData) {
+							Resource subj = st.getSubject();
+							URI pred = st.getPredicate();
+							schema.add(subj, pred, st.getObject(), uri);
+						}
+					} else if (car.isFileEntry()) {
+						MediaType type = MediaType.valueOf(car.getEntryType());
+						String charset = type.getParameter("charset");
+						if (charset == null) {
+							updatedNonSources.put(uri, type);
+							store(car.getEntryStream(), uri, con);
+						} else {
+							updatedNonSources.put(uri, type);
+							store(car.getEntryStream(), charset, uri, con);
+						}
+						String media = type.getBaseType();
+						insertRdfGraph(uri, media, con, schema);
 					}
+					error = false;
+				} finally {
+					if (error) {
+						logger.error("Could not import {}", car.getEntryName());
+					}
+					car.getEntryStream().close();
 				}
-			}
-			con.add(mediaSources);
-			updatedSources.addAll(updatedNonSources.keySet());
-			Set<URI> notValidated = validateSources(updatedSources, con);
-			if (schema != null) {
-				con.commit();
-				con.close();
-				schema.commit();
-				schema.close(); // recompiling
-				schema = null;
-				con = repository.getConnection();
-				con.begin();
-				Set<URI> couldNotValidate = validateSources(notValidated, con);
-				if (!couldNotValidate.isEmpty()) {
-					logger.warn("Could not validate: {}", couldNotValidate);
-				}
-				return con;
-			} else if (!notValidated.isEmpty()) {
-				logger.warn("Could not validate: {}", notValidated);
-				return con;
-			} else {
-				return con;
 			}
 		} finally {
-			if (schema != null) {
-				schema.rollback();
-				schema.close();
+			car.close();
+		}
+		updatedNonSources.keySet().removeAll(existingSources);
+		updatedNonSources.keySet().removeAll(includedSources);
+		existingSources.removeAll(includedSources);
+		existingSources.removeAll(updatedNonSources.keySet());
+		deleteComponents(existingSources, con);
+		missingDependees.removeAll(includedSources);
+		missingDependees.removeAll(updatedNonSources.keySet());
+		checkForMissingDependees(missingDependees, con);
+		// FIXME LOOKUP_CONSTRUCTOR query is too complex for OptimisticSail
+		con.commit();
+		con.begin();
+		Model mediaSources = new LinkedHashModel();
+		if (!updatedNonSources.isEmpty()) {
+			XMLGregorianCalendar now = df
+					.newXMLGregorianCalendar(new GregorianCalendar(UTC));
+			Map<String, URI> constructors = new HashMap<String, URI>();
+			for (URI file : updatedNonSources.keySet()) {
+				MediaType type = updatedNonSources.get(file);
+				try {
+					mediaSources.addAll(addMediaSource(file, type, constructors, con, now));
+				} catch (XMLStreamException e) {
+					logger.error("Could not parse {} of type {}", file, type);
+					throw e;
+				}
 			}
 		}
+		con.add(mediaSources);
+		updatedSources.addAll(updatedNonSources.keySet());
+		Set<URI> notValidated = validateSources(updatedSources, con);
+		if (!notValidated.isEmpty() && recompile(schema, con)) {
+			Set<URI> couldNotValidate = validateSources(notValidated, con);
+			if (!couldNotValidate.isEmpty()) {
+				logger.warn("Could not validate: {}", couldNotValidate);
+			}
+		} else if (!notValidated.isEmpty()) {
+			logger.warn("Could not validate: {}", notValidated);
+		}
+	}
+
+	private boolean recompile(Model schema, ObjectConnection con)
+			throws RepositoryException {
+		Model graphs = CalliObjectSupport.getSchemaModelFor(con);
+		if (schema == null) {
+			schema = graphs;
+		} else if (graphs != null) {
+			for (Namespace ns : schema.getNamespaces()) {
+				graphs.setNamespace(ns);
+			}
+			graphs.addAll(schema);
+			schema.clear();
+			schema = graphs;
+		}
+		if (schema == null || schema.isEmpty())
+			return false;
+		con.commit();
+		RepositoryConnection scon = this.openSchemaConnection();
+		try {
+			scon.begin();
+			scon.clear(schema.contexts().toArray(new Resource[0]));
+			for (Namespace ns : schema.getNamespaces()) {
+				scon.setNamespace(ns.getPrefix(), ns.getName());
+			}
+			scon.add(schema);
+			scon.commit();
+			schema.clear();
+		} finally {
+			scon.close(); // recompiling
+		}
+		con.begin();
+		return true;
 	}
 
 	private Model addMediaSource(URI file, MediaType type,
@@ -352,22 +404,15 @@ public class WebappArchiveImporter {
 		return model;
 	}
 
-	private RepositoryConnection insertRdfGraph(URI file, String media, ObjectConnection con, RepositoryConnection schema)
-			throws RepositoryException, IOException, RDFParseException {
+	private void insertRdfGraph(URI file, String media, ObjectConnection con, Model schema)
+			throws RepositoryException, IOException, RDFParseException, RDFHandlerException {
 		if (RDFFormat.TURTLE.hasDefaultMIMEType(media) || RDFFormat.RDFXML.hasDefaultMIMEType(media)) {
 			con.clear(file);
 			insertGraph(con.getBlobObject(file), file, media, con);
 			if (con.hasStatement(file, rdfType, rdfSchemaGraph, file)) {
-				if (schema == null) {
-					schema = openSchemaConnection();
-					schema.begin();
-				}
-				schema.clear(file);
-				insertGraph(con.getBlobObject(file), file, media, schema);
-				return schema;
+				insertGraph(con.getBlobObject(file), file, media, schema, con.getParserConfig());
 			}
 		}
-		return schema;
 	}
 
 	private void insertGraph(BlobObject blob, URI file, String media, RepositoryConnection con)
@@ -383,6 +428,36 @@ public class WebappArchiveImporter {
 			InputStream in = blob.openInputStream();
 			try {
 				con.add(in, file.stringValue(), Rio.getParserFormatForMIMEType(media), file);
+			} finally {
+				in.close();
+			}
+		}
+	}
+
+	private void insertGraph(BlobObject blob, URI file, String media,
+			final Model model, ParserConfig parserConfig) throws IOException,
+			RepositoryException, RDFParseException, RDFHandlerException {
+		RDFLoader loader = new RDFLoader(parserConfig,
+				repository.getValueFactory());
+		RDFHandler handler = new ContextStatementCollector(model, vf, file) {
+			public void handleNamespace(String prefix, String uri)
+					throws RDFHandlerException {
+				model.setNamespace(prefix, uri);
+			}
+		};
+		if (RDFFormat.TURTLE.hasDefaultMIMEType(media)) {
+			Reader reader = blob.openReader(false);
+			try {
+				loader.load(reader, file.stringValue(),
+						Rio.getParserFormatForMIMEType(media), handler);
+			} finally {
+				reader.close();
+			}
+		} else if (RDFFormat.RDFXML.hasDefaultMIMEType(media)) {
+			InputStream in = blob.openInputStream();
+			try {
+				loader.load(in, file.stringValue(),
+						Rio.getParserFormatForMIMEType(media), handler);
 			} finally {
 				in.close();
 			}

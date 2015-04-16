@@ -19,6 +19,7 @@ package org.callimachusproject.setup;
 import static org.callimachusproject.util.PercentCodec.encode;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
@@ -44,6 +45,7 @@ import org.callimachusproject.repository.CalliRepository;
 import org.openrdf.OpenRDFException;
 import org.openrdf.http.object.client.HttpUriClient;
 import org.openrdf.model.Literal;
+import org.openrdf.model.Model;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
@@ -53,6 +55,7 @@ import org.openrdf.model.vocabulary.OWL;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.model.vocabulary.RDFS;
 import org.openrdf.query.BindingSet;
+import org.openrdf.query.GraphQueryResult;
 import org.openrdf.query.QueryLanguage;
 import org.openrdf.query.TupleQueryResult;
 import org.openrdf.query.algebra.evaluation.util.ValueComparator;
@@ -61,6 +64,7 @@ import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.RDFObject;
+import org.openrdf.rio.RDFFormat;
 import org.openrdf.store.blob.BlobObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -589,6 +593,28 @@ public class CallimachusSetup {
 
 					public void resetAllCache() {
 						// no-op
+					}
+
+					public Model getSchemaModel() {
+						throw new UnsupportedOperationException();
+					}
+
+					public void setSchemaGraph(URI graph,
+							GraphQueryResult schema) throws OpenRDFException,
+							IOException {
+						throw new UnsupportedOperationException();
+					}
+
+					public void setSchemaGraph(URI graph, Reader reader,
+							RDFFormat format) throws OpenRDFException,
+							IOException {
+						throw new UnsupportedOperationException();
+					}
+
+					public void setSchemaGraph(URI graph, InputStream stream,
+							RDFFormat format) throws OpenRDFException,
+							IOException {
+						throw new UnsupportedOperationException();
 					}
 				});
 			}

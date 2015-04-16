@@ -180,6 +180,7 @@ rdfs:label a rdf:Property.
 :ImportFolderComponents rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <PathSegment>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
+    rdfs:subClassOf [owl:onProperty :webapp; owl:hasValue <../>];
     msg:method "POST";
     msg:path "?import";
     calli:requires calli:administrator;
@@ -201,11 +202,11 @@ rdfs:label a rdf:Property.
             var resolved = this.resolve(name);
             if (resolved.indexOf(this.toString()) !== 0)
                 throw new BadRequest("Subfolder must be within " + this.toString());
-            folder = this.designateAsFolder(resolved, Folder);
+            folder = this.designateAsFolder(resolved, PathSegment);
         }
         try {
             println("Importing folder content from " + multipart.headers.get("content-disposition"));
-            folder.UploadFolderComponents(inputStream, null, null);
+            folder.importComponents(inputStream, webapp.toString());
             println("Imported folder content for: " + this);
             return {
                 status: 302, message: "See Other",
@@ -224,6 +225,9 @@ rdfs:label a rdf:Property.
     rdfs:domain :ImportFolderComponents;
     rdfs:range <java:java.io.InputStream>;
     msg:type "multipart/form-data".
+
+:webapp a owl:ObjectProperty, owl:FunctionalProperty;
+    rdfs:domain :ImportFolderComponents.
 
 :DeleteFolderContents rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <PathSegment>];
@@ -258,97 +262,4 @@ rdfs:label a rdf:Property.
             }
         }
     """.
-
-:UploadFolderComponents rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <PathSegment>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-    rdfs:subClassOf [owl:onProperty :uploadFileClass; owl:hasValue <File>];
-    rdfs:subClassOf [owl:onProperty :schemaGraphClass; owl:hasValue <RdfSchemaGraph>];
-    msg:method "PUT";
-    msg:path "?archive";
-    calli:requires calli:administrator;
-    calli:imports <Composite>;
-    calli:imports <PathSegment>;
-    calli:imports <java:org.openrdf.rio.RDFFormat>;
-    calli:imports <java:org.openrdf.model.vocabulary.RDF>;
-    calli:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
-    calli:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
-    calli:script """
-        var con = this.objectConnection;
-        var vf = con.getValueFactory();
-        var baseURI = this.toString();
-        if (baseURI.lastIndexOf('/') != baseURI.length - 1) {
-            baseURI = baseURI + '/';
-        }
-        var File = uploadFileClass;
-        var SchemaGraph = schemaGraphClass.resource;
-        var dependency = this.getComponentsWithExternalDependent();
-        this.DeleteComponents(); //# remove existing components
-        var name;
-        var carStream = new org.callimachusproject.io.CarInputStream(payload);
-        while (name = carStream.readEntryName()) {
-            var slug = name.replace(/\\s+/g, '+').replace(/.*\\/(.)/,'$1');
-            var uri = baseURI + name.replace(/\\s+/g, '+');
-            var location = con.objectFactory.createObject(uri);
-            var container = this.findContainer(uri, PathSegment);
-            var entryStream = carStream.getEntryStream();
-            var type = carStream.getEntryType();
-            try {
-                if (carStream.isFolderEntry()) {
-                    this.designateAsFolder(uri, PathSegment);
-                    dependency.remove(uri);
-                } else if (carStream.isFileEntry()) {
-                    container.PostNonRDFSource(File, File, true, null, entryStream, slug, type);
-                    dependency.remove(uri);
-                } else if (carStream.isResourceEntry()) {
-                    this.readFrom(type, entryStream, uri, null);
-                    container.calliHasComponent.add(location);
-                    dependency.remove(uri);
-                } else if (carStream.isSchemaEntry()) {
-                    var graphURI = vf.createURI(con.getVersionBundle().stringValue() + "#schema");
-                    con.add(graphURI, RDF.TYPE, SchemaGraph, []);
-                    this.readFrom(type, entryStream, uri, graphURI);
-                    //# copy rdf:type to activity graph
-                    con.add(con.getStatements(vf.createURI(uri), RDF.TYPE, null, false, [graphURI]), [con.getVersionBundle()]);
-                    container.calliHasComponent.add(location);
-                    dependency.remove(uri);
-                    con.recompileSchemaOnClose();
-                }
-            } catch (e) {
-                throw new InternalServerError("Could not import " + name + " a " + type + " into " + container, e.javaException || e.toString());
-            } finally {
-                entryStream.close();
-            }
-        }
-        var iter = dependency.iterator();
-        while (iter.hasNext()) {
-            var stmts = con.getStatements(null, null, vf.createURI(iter.next()), true, []);
-            try {
-                while (stmts.hasNext()) {
-                    var st = stmts.next();
-                    var pred = st.predicate;
-                    if ("http://www.w3.org/1999/02/22-rdf-syntax-ns#".equals(pred.namespace))
-                        continue;
-                    if ("http://www.w3.org/ns/prov#".equals(pred.namespace))
-                        continue;
-                    if ("http://www.openrdf.org/rdf/2009/auditing#".equals(pred.namespace))
-                        continue;
-                    throw new BadRequest("Required resource(s) not present, including: " + st.object);
-                }
-            } finally {
-                stmts.close();
-            }
-        }
-    """.
-
-:payload a owl:ObjectProperty, owl:FunctionalProperty;
-    rdfs:domain :UploadFolderComponents;
-    rdfs:range <java:java.io.InputStream>;
-    msg:type "application/zip".
-
-:uploadFileClass a owl:ObjectProperty, owl:FunctionalProperty;
-    rdfs:domain :UploadFolderComponents.
-
-:schemaGraphClass a owl:ObjectProperty, owl:FunctionalProperty;
-    rdfs:domain :UploadFolderComponents.
 

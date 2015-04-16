@@ -32,6 +32,8 @@ import static java.lang.Integer.toHexString;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
 import java.lang.management.ManagementFactory;
 import java.lang.ref.WeakReference;
 import java.net.MalformedURLException;
@@ -56,9 +58,14 @@ import org.callimachusproject.traits.CalliObject;
 import org.openrdf.OpenRDFException;
 import org.openrdf.http.object.client.HttpUriClient;
 import org.openrdf.http.object.management.ObjectServerMBean;
+import org.openrdf.model.Model;
 import org.openrdf.model.Resource;
+import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
+import org.openrdf.model.impl.LinkedHashModel;
+import org.openrdf.query.GraphQueryResult;
+import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.base.RepositoryConnectionWrapper;
@@ -68,6 +75,11 @@ import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.ObjectFactory;
 import org.openrdf.repository.object.ObjectRepository;
 import org.openrdf.repository.object.RDFObject;
+import org.openrdf.repository.util.RDFLoader;
+import org.openrdf.rio.RDFFormat;
+import org.openrdf.rio.RDFHandler;
+import org.openrdf.rio.RDFHandlerException;
+import org.openrdf.rio.helpers.ContextStatementCollector;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -78,6 +90,7 @@ public abstract class CalliObjectSupport implements CalliObject {
 	private static final Pattern URL_PATTERN = Pattern
 			.compile("https?://[a-zA-Z0-9\\-\\._~%!\\$\\&'\\(\\)\\*\\+,;=:/\\[\\]@]+/(?![a-zA-Z0-9\\-\\._~%!\\$\\&'\\(\\)\\*\\+,;=:/\\?\\#\\[\\]@])");
 	private final static Map<ObjectRepository, WeakReference<CalliRepository>> repositories = new WeakHashMap<ObjectRepository, WeakReference<CalliRepository>>();
+	private final static WeakHashMap<ObjectConnection, Model> schemas = new WeakHashMap<ObjectConnection, Model>();
 
 	public static void associate(CalliRepository repository,
 			ObjectRepository repo) throws MalformedURLException {
@@ -118,6 +131,12 @@ public abstract class CalliObjectSupport implements CalliObject {
 			}
 			associate(result, repository);
 			return result;
+		}
+	}
+
+	public static Model getSchemaModelFor(ObjectConnection con) {
+		synchronized (schemas) {
+			return schemas.get(con);
 		}
 	}
 
@@ -180,6 +199,69 @@ public abstract class CalliObjectSupport implements CalliObject {
 		} catch (ClassCastException e) {
 			LoggerFactory.getLogger(CalliObjectSupport.class).warn(e.getMessage());
 			return null;
+		}
+	}
+
+	@Override
+	public Model getSchemaModel() {
+		ObjectConnection con = getObjectConnection();
+		synchronized (schemas) {
+			Model model = schemas.get(con);
+			if (model == null) {
+				schemas.put(con, model = new LinkedHashModel());
+			}
+			return model;
+		}
+	}
+
+	@Override
+	public void setSchemaGraph(URI graph, GraphQueryResult result)
+			throws QueryEvaluationException {
+		Model schema = getSchemaModel();
+		synchronized (schema) {
+			for (Map.Entry<String, String> e : result.getNamespaces().entrySet()) {
+				schema.setNamespace(e.getKey(), e.getValue());
+			}
+			while (result.hasNext()) {
+				Statement s = result.next();
+				schema.add(s.getSubject(), s.getPredicate(), s.getObject(), graph);
+			}
+		}
+	}
+
+	@Override
+	public void setSchemaGraph(URI g, Reader reader, RDFFormat format)
+			throws OpenRDFException, IOException {
+		ObjectConnection con = getObjectConnection();
+		ValueFactory vf = con.getValueFactory();
+		RDFLoader loader = new RDFLoader(con.getParserConfig(), vf);
+		final Model schema = getSchemaModel();
+		synchronized (schema) {
+			RDFHandler handler = new ContextStatementCollector(schema, vf, g) {
+				public void handleNamespace(String prefix, String uri)
+						throws RDFHandlerException {
+					schema.setNamespace(prefix, uri);
+				}
+			};
+			loader.load(reader, g.stringValue(), format, handler);
+		}
+	}
+
+	@Override
+	public void setSchemaGraph(URI g, InputStream stream, RDFFormat format)
+			throws OpenRDFException, IOException {
+		ObjectConnection con = getObjectConnection();
+		ValueFactory vf = con.getValueFactory();
+		RDFLoader loader = new RDFLoader(con.getParserConfig(), vf);
+		final Model schema = getSchemaModel();
+		synchronized (schema) {
+			RDFHandler handler = new ContextStatementCollector(schema, vf, g) {
+				public void handleNamespace(String prefix, String uri)
+						throws RDFHandlerException {
+					schema.setNamespace(prefix, uri);
+				}
+			};
+			loader.load(stream, g.stringValue(), format, handler);
 		}
 	}
 

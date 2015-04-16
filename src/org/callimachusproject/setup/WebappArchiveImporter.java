@@ -337,10 +337,21 @@ public class WebappArchiveImporter {
 		updatedSources.addAll(updatedNonSources.keySet());
 		Set<URI> notValidated = validateSources(updatedSources, con);
 		if (!notValidated.isEmpty() && recompile(schema, con)) {
-			Set<URI> couldNotValidate = validateSources(notValidated, con);
-			if (!couldNotValidate.isEmpty()) {
-				logger.warn("Could not validate: {}", couldNotValidate);
+			ObjectConnection con2 = con.getRepository().getConnection();
+			try {
+				Set<URI> couldNotValidate = validateSources(notValidated, con2);
+				if (!couldNotValidate.isEmpty()) {
+					if (couldNotValidate.equals(updatedSources)) {
+						logger.error("Could not validate anything in {}", folderUri);
+					} else {
+						logger.warn("Could not validate: {}", couldNotValidate);
+					}
+				}
+			} finally {
+				con2.close();
 			}
+		} else if (notValidated.equals(updatedSources)) {
+			logger.error("Could not validate anything in {}", folderUri);
 		} else if (!notValidated.isEmpty()) {
 			logger.warn("Could not validate: {}", notValidated);
 		}

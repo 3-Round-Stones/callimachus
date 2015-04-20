@@ -39,6 +39,7 @@ import org.callimachusproject.webdriver.helpers.BrowserFunctionalTestCase;
 import org.callimachusproject.webdriver.pages.DigestUserEdit;
 import org.callimachusproject.webdriver.pages.GroupEdit;
 import org.callimachusproject.webdriver.pages.Register;
+import org.openqa.selenium.By;
 
 /**
  * This test requires a etc/mail.properties file to be present.
@@ -90,6 +91,11 @@ public class DigestUserFunctionalTest extends BrowserFunctionalTestCase {
 				.with(testuser, "Password1".toCharArray()).login()
 				.openProfile(testuser).getCurrentUrl();
 		page.logout();
+		logger.info("Request password for {}", email);
+		page.openLogin().forgotPassword().with(email).request();
+		browser.waitUntilTextPresent(By.id("success"), "sent");
+		page.openLogin().with(email, getPasswordByEmail()).login();
+		page.logout();
 		String username = getUsername();
 		logger.info("Login {}", username);
 		page.openLogin().with(username, getPassword()).login();
@@ -104,6 +110,14 @@ public class DigestUserFunctionalTest extends BrowserFunctionalTestCase {
 				.matcher(html);
 		assertTrue(m.find());
 		return m.group(1).replace("&amp;", "&");
+	}
+
+	public String getPasswordByEmail() throws Exception {
+		String html = getEmailBySubject("Password", "text/plain");
+		assertNotNull(html);
+		Matcher m = Pattern.compile("password \"([^\"]+)\"").matcher(html);
+		assertTrue(m.find());
+		return m.group(1);
 	}
 
 	private String getEmailBySubject(String subject, String contentType) throws Exception {

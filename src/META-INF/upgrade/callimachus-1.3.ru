@@ -289,10 +289,10 @@ INSERT {
 
 # Setup process determins upgrade file based on versionInfo
 DELETE {
-	</callimachus/ontology> a <../1.3/types/Serviceable>; owl:versionInfo "1.3"
+	</callimachus/ontology> owl:versionInfo "1.3"
 } INSERT {
-	</callimachus/ontology> a <../1.3/types/Serviceable>; owl:versionInfo "1.4"
+	</callimachus/ontology> owl:versionInfo "1.4"
 } WHERE {
-	</callimachus/ontology> a <../1.3/types/Serviceable>; owl:versionInfo "1.3"
+	</callimachus/ontology> owl:versionInfo "1.3"
 };
 

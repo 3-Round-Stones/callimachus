@@ -27,7 +27,7 @@ INSERT {
 <../ontology> a <types/Serviceable>, owl:Ontology;
     rdfs:label "ontology";
     rdfs:comment "Vocabulary used to create local Callimachus applications";
-    owl:versionInfo "1.3";
+    owl:versionInfo "1.4";
     calli:administrator </auth/groups/admin>.
 } WHERE {
 	FILTER NOT EXISTS { <../ontology> a owl:Ontology }

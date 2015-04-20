@@ -7,7 +7,7 @@
         $('#body').val($('#body').val().replace(/@@REGISTRATION_URL@@/g, window.location.protocol + '//' + window.location.host + '/?register'));
         $('#form').submit(function() {
             $("#success").hide();
-            calil.createText(this.action, $(this).serialize(), "application/x-www-form-urlencoded").then(function() {
+            calli.postText(this.action, $(this).serialize(), "application/x-www-form-urlencoded").then(function() {
                 $("#success").show();
             }, calli.error);
             return false;

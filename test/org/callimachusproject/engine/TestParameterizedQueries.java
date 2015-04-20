@@ -395,6 +395,25 @@ public class TestParameterizedQueries extends TestCase {
 		result.close();
 	}
 
+	public void testMultiParameterValues() throws Exception {
+		String sparql = PREFIX + "SELECT * { <$thing> rdfs:label ?label }";
+		Map<String, String[]> parameters = Collections.singletonMap("thing", new String[]{"urn:test:thing1", "urn:test:thing2"});
+
+		con.add(vf.createURI("urn:test:thing1"), RDFS.LABEL, vf.createLiteral("Thing1"));
+		con.add(vf.createURI("urn:test:thing2"), RDFS.LABEL, vf.createLiteral("Thing2"));
+		con.add(vf.createURI("urn:test:thing3"), RDFS.LABEL, vf.createLiteral("Thing3"));
+		con.add(vf.createURI("urn:test:thing1"), RDF.VALUE, vf.createLiteral(1));
+		con.add(vf.createURI("urn:test:thing2"), RDF.VALUE, vf.createLiteral(2));
+		con.add(vf.createURI("urn:test:thing3"), RDF.VALUE, vf.createLiteral(3));
+		TupleQueryResult result = parser.parseQuery(sparql, EXAMPLE_COM).evaluate(parameters, con);
+		assertEquals(Arrays.asList("thing", "label"), result.getBindingNames());
+		assertTrue(result.hasNext());
+		assertEquals("Thing1", result.next().getValue("label").stringValue());
+		assertEquals("Thing2", result.next().getValue("label").stringValue());
+		assertFalse(result.hasNext());
+		result.close();
+	}
+
 	public void testValuesClauseAtEnd() throws Exception {
 		String sparql = PREFIX + "SELECT * { ?thing rdfs:label ?label } ORDER BY ?thing VALUES ?thing { <urn:test:thing2> }";
 		try {

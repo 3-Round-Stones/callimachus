@@ -77,7 +77,6 @@ import org.openrdf.model.vocabulary.RDFS;
 import org.openrdf.query.GraphQuery;
 import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.QueryLanguage;
-import org.openrdf.query.TupleQuery;
 import org.openrdf.query.TupleQueryResult;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -102,8 +101,6 @@ public class WebappArchiveImporter {
 	private static final String ORIGIN_TYPE = "types/Origin";
 	private static final String FOLDER_TYPE = "types/PathSegment";
 	private static final String CALLI = "http://callimachusproject.org/rdf/2009/framework#";
-	private static final String CALLI_FOLDER = CALLI + "PathSegment";
-	private static final String CALLI_HASCOMPONENT = CALLI + "hasComponent";
 	private static final String PREFIX = "PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>\n"
 			+ "PREFIX owl:<http://www.w3.org/2002/07/owl#>\n"
 			+ "PREFIX prov:<http://www.w3.org/ns/prov#>\n"
@@ -131,30 +128,18 @@ public class WebappArchiveImporter {
 			+ "} UNION {$resource calli:editor ?editor\n"
 			+ "} UNION {$resource calli:administrator ?administrator}" + "}";
 	private static final String LOOKUP_CONSTRUCTOR = PREFIX
-			+ "SELECT REDUCED ?class {\n"
-			+ "    {\n"
-			+ "        ?class rdfs:subClassOf* <types/File> .\n"
-			+ "        FILTER isIRI(?class)\n"
-			+ "        FILTER (\n"
-			+ "            bound($documentTag) && EXISTS { ?class calli:documentTag $documentTag }\n"
-			+ "        )\n"
-			+ "        BIND (1 AS ?preference)\n"
-			+ "    } UNION {\n"
-			+ "        ?class rdfs:subClassOf* <types/File> .\n"
-			+ "        FILTER isIRI(?class)\n"
-			+ "        FILTER (\n"
-			+ "            bound($mediaType) && NOT EXISTS { ?class calli:documentTag ?tag } && EXISTS { ?class calli:mediaType $mediaType }\n"
-			+ "        )\n"
-			+ "        BIND (2 AS ?preference)\n"
-			+ "    } UNION {\n"
-			+ "        # boot strap graphs before calli:mediaType triples are loaded\n"
-			+ "        BIND (<types/RdfTurtle> AS ?class)\n"
-			+ "        FILTER sameTerm($mediaType,\"text/turtle\")\n"
-			+ "        BIND (3 AS ?preference)\n"
-			+ "    } UNION {\n"
-			+ "        BIND (<types/File> AS ?class)\n"
-			+ "        BIND (4 AS ?preference)\n" + "    }\n"
-			+ "} ORDER BY ?preference LIMIT 1";
+			+ "CONSTRUCT {?class rdfs:subClassOf ?parent ; calli:documentTag ?tag ; calli:mediaType ?media }\n"
+			+ "WHERE {\n"
+			+ "    ?class rdfs:subClassOf* <types/File>\n"
+			+ "    OPTIONAL {\n"
+			+ "        {\n"
+			+ "            ?class calli:documentTag ?tag\n"
+			+ "        } UNION {\n"
+			+ "            ?class calli:mediaType ?media\n"
+			+ "        } UNION {\n"
+			+ "            ?class rdfs:subClassOf* ?parent .\n"
+			+ "        }\n"
+			+ "    }\n" + "}";
 	private static final Map<String, String> MEDIA_ALIAS = new HashMap<String, String>() {
 		private static final long serialVersionUID = 2360302068339109277L;
 
@@ -176,9 +161,17 @@ public class WebappArchiveImporter {
 	private final URI rdfType;
 	private final URI owlClass;
 	private final URI rdfsLabel;
+	private final URI subClassOf;
 	private final URI rdfSource;
 	private final URI hasComponent;
+	private final URI calliDocumentTag;
+	private final URI calliMediaType;
+	private final URI calliPathSegment;
+	private final URI pathSegment;
 	private final URI rdfSchemaGraph;
+	private final URI typesFile;
+	private final URI realm;
+	private final URI origin;
 	private final DatatypeFactory df;
 
 	public WebappArchiveImporter(String webapp, CalliRepository repository)
@@ -191,9 +184,17 @@ public class WebappArchiveImporter {
 		rdfType = vf.createURI(RDF.TYPE.stringValue());
 		owlClass = vf.createURI(OWL.CLASS.stringValue());
 		rdfsLabel = vf.createURI(RDFS.LABEL.stringValue());
+		subClassOf = vf.createURI(RDFS.SUBCLASSOF.stringValue());
 		rdfSource = vf.createURI("http://www.w3.org/ns/ldp#RDFSource");
-		hasComponent = vf.createURI(CALLI_HASCOMPONENT);
+		hasComponent = vf.createURI(CALLI, "hasComponent");
+		calliDocumentTag = vf.createURI(CALLI, "documentTag");
+		calliMediaType = vf.createURI(CALLI, "mediaType");
+		calliPathSegment = vf.createURI(CALLI, "PathSegment");
+		pathSegment = vf.createURI(webapp + FOLDER_TYPE);
 		rdfSchemaGraph = vf.createURI(webapp + "types/RdfSchemaGraph");
+		typesFile = vf.createURI(webapp + "types/File");
+		realm = vf.createURI(webapp + REALM_TYPE);
+		origin = vf.createURI(webapp + ORIGIN_TYPE);
 		df = DatatypeFactory.newInstance();
 	}
 
@@ -225,6 +226,7 @@ public class WebappArchiveImporter {
 	public void importArchive(InputStream carStream, String folderUri,
 			ObjectConnection con) throws IOException,
 			OpenRDFException, ReflectiveOperationException, XMLStreamException {
+		Model constructors = lookupConstructors(con);
 		Set<URI> missingDependees = getDependees(folderUri, con);
 		Set<URI> existingSources = getExistingSources(folderUri, con);
 		int capacity = Math.max(existingSources.size(), 256);
@@ -317,14 +319,11 @@ public class WebappArchiveImporter {
 		missingDependees.removeAll(updatedNonSources.keySet());
 		checkForMissingDependees(missingDependees, con);
 		updatedNonSources.keySet().removeAll(existingSources);
-		// FIXME LOOKUP_CONSTRUCTOR query is too complex for OptimisticSail
-		con.commit();
-		con.begin();
 		Model mediaSources = new LinkedHashModel();
 		if (!updatedNonSources.isEmpty()) {
 			XMLGregorianCalendar now = df
 					.newXMLGregorianCalendar(new GregorianCalendar(UTC));
-			Map<String, URI> constructors = new HashMap<String, URI>();
+			constructors.addAll(schema);
 			for (URI file : updatedNonSources.keySet()) {
 				MediaType type = updatedNonSources.get(file);
 				try {
@@ -393,7 +392,7 @@ public class WebappArchiveImporter {
 	}
 
 	private Model addMediaSource(URI file, MediaType type,
-			Map<String, URI> constructors, ObjectConnection con,
+			Model constructors, ObjectConnection con,
 			XMLGregorianCalendar now) throws RepositoryException, IOException,
 			XMLStreamException, OpenRDFException {
 		Model model = new LinkedHashModel();
@@ -515,29 +514,54 @@ public class WebappArchiveImporter {
 		}
 	}
 
-	private URI lookupConstructor(URI documentTag, String media,
-			ObjectConnection con, Map<String, URI> constructors) throws OpenRDFException {
-		String key = media + (documentTag == null ? "" : " " + documentTag.stringValue());
-		if (constructors.containsKey(key))
-			return constructors.get(key);
-		TupleQuery rq = con.prepareTupleQuery(QueryLanguage.SPARQL,
+	private Model lookupConstructors(ObjectConnection con)
+			throws OpenRDFException {
+		Model model = new LinkedHashModel();
+		GraphQuery rq = con.prepareGraphQuery(QueryLanguage.SPARQL,
 				LOOKUP_CONSTRUCTOR, webapp);
+		rq.evaluate(new StatementCollector(model));
+		return model;
+	}
+
+	private URI lookupConstructor(URI documentTag, String media,
+			ObjectConnection con, Model schema) throws OpenRDFException {
+		for (Resource cls : getFileClass(documentTag, media, schema)) {
+			HashSet<Value> exclude = new HashSet<Value>();
+			if (cls instanceof URI
+					&& isSubClassOf(cls, typesFile, schema, exclude))
+				return (URI) cls;
+		}
+		return typesFile;
+	}
+
+	private Set<? extends Resource> getFileClass(URI documentTag, String media,
+			Model schema) {
 		if (documentTag != null) {
-			rq.setBinding("documentTag", documentTag);
-		}
-		if (MEDIA_ALIAS.containsKey(media)) {
-			rq.setBinding("mediaType", vf.createLiteral(MEDIA_ALIAS.get(media)));
+			return schema.filter(null, calliDocumentTag, documentTag)
+					.subjects();
+		} else if (MEDIA_ALIAS.containsKey(media)) {
+			return schema.filter(null, calliMediaType,
+					vf.createLiteral(MEDIA_ALIAS.get(media))).subjects();
 		} else if (media != null) {
-			rq.setBinding("mediaType", vf.createLiteral(media));
+			return schema.filter(null, calliMediaType, vf.createLiteral(media))
+					.subjects();
+		} else {
+			return Collections.singleton(typesFile);
 		}
-		TupleQueryResult result = rq.evaluate();
-		try {
-			URI value = (URI) result.next().getValue("class");
-			constructors.put(key, value);
-			return value;
-		} finally {
-			result.close();
+	}
+
+	private boolean isSubClassOf(Resource cls, URI parent, Model schema,
+			Set<Value> exclude) {
+		if (cls.equals(parent))
+			return true;
+		if (schema.contains(cls, subClassOf, parent))
+			return true;
+		for (Value obj : schema.filter(cls, subClassOf, null).objects()) {
+			if (obj instanceof Resource && exclude.add(obj)
+					&& isSubClassOf((Resource) obj, parent, schema, exclude))
+				return true;
 		}
+		return false;
 	}
 
 	private Set<URI> getDependees(String folderUri, ObjectConnection con)
@@ -616,9 +640,8 @@ public class WebappArchiveImporter {
 
 	private URI getExistingContainer(URI uri, ObjectConnection con)
 			throws RepositoryException {
-		ValueFactory vf = con.getValueFactory();
 		RepositoryResult<Statement> stmts = con.getStatements(null,
-				vf.createURI(CALLI_HASCOMPONENT), uri);
+				hasComponent, uri);
 		try {
 			try {
 				if (stmts.hasNext())
@@ -803,14 +826,11 @@ public class WebappArchiveImporter {
 			throw new IllegalStateException(
 					"Can only import a CAR within a previously defined origin or realm");
 		} else {
-			if (con.hasStatement(uri, RDF.TYPE,
-					vf.createURI(webapp + ORIGIN_TYPE)))
+			if (con.hasStatement(uri, RDF.TYPE, origin))
 				return uri;
-			if (con.hasStatement(uri, RDF.TYPE,
-					vf.createURI(webapp + REALM_TYPE)))
+			if (con.hasStatement(uri, RDF.TYPE, realm))
 				return uri;
-			if (con.hasStatement(uri, RDF.TYPE,
-					vf.createURI(webapp + FOLDER_TYPE)))
+			if (con.hasStatement(uri, RDF.TYPE, pathSegment))
 				return uri;
 			URI container = vf.createURI(parent);
 			if (con.hasStatement(container, hasComponent, uri))
@@ -819,8 +839,8 @@ public class WebappArchiveImporter {
 			con.add(container, hasComponent, uri);
 			String label = folder.substring(parent.length())
 					.replace("/", "").replace('-', ' ');
-			con.add(uri, RDF.TYPE, vf.createURI(CALLI_FOLDER));
-			con.add(uri, RDF.TYPE, vf.createURI(webapp + FOLDER_TYPE));
+			con.add(uri, RDF.TYPE, calliPathSegment);
+			con.add(uri, RDF.TYPE, pathSegment);
 			con.add(uri, RDFS.LABEL, vf.createLiteral(label));
 			for (Statement st : constructPermissions(container, con)) {
 				con.add(uri, st.getPredicate(), st.getObject());

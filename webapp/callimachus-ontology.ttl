@@ -33,7 +33,7 @@
 <http://callimachusproject.org/rdf/2009/framework> a owl:Ontology;
     rdfs:label "Callimachus Ontology";
     rdfs:comment "Vocabulary used to create Callimachus applications";
-    owl:versionInfo "1.4".
+    owl:versionInfo "1.5".
 
 ################################
 # Class
@@ -50,6 +50,7 @@ calli:Composite a owl:Class;
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:PathSegment a owl:Class;
+    owl:equivalentClass calli:Folder;
     rdfs:subClassOf calli:Composite, calli:Purl;
     rdfs:label "Path Segment";
     rdfs:comment "A resource URI namespace ending in a slash";

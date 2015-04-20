@@ -253,7 +253,7 @@ public class CalliRepository extends RepositoryWrapper {
 
 	public void setTracingCalls(boolean trace) {
 		if (trace) {
-			service.setTracingPackages("org.openrdf.repository", "org.openrdf.query", "org.openrdf.model");
+			service.setTracingPackages("org.openrdf.repository", "org.openrdf.query");
 		} else {
 			service.setTracingPackages();
 		}

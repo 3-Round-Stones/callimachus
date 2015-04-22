@@ -690,6 +690,7 @@
     calli:imports <java:org.callimachusproject.server.exceptions.Forbidden>;
     calli:imports <java:org.callimachusproject.server.exceptions.Conflict>;
     calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
+    calli:imports <java:org.callimachusproject.server.exceptions.UnsupportedMediaType>;
     calli:imports <java:org.callimachusproject.xml.XMLEventReaderFactory>;
     calli:imports <java:org.openrdf.model.vocabulary.RDFS>;
     calli:imports <java:org.openrdf.model.vocabulary.DCTERMS>;
@@ -772,6 +773,8 @@
             throw new BadRequest(e.javaException);
         }
         var construct = this.LookupConstructor(create || fileClass, documentTag, type.replace(/\\s*;.*/,''));
+        if (fileClass.equals(construct))
+            throw new UnsupportedMediaType("File format is not recognized: " + type + " for " + createdUri);
         var iter = this.FindCreator(created).iterator();
         while (iter.hasNext()) {
             var user = iter.next();
@@ -828,7 +831,7 @@
                 FILTER (
                     bound($documentTag) && EXISTS { ?class calli:documentTag $documentTag } ||
                     bound($mediaType) && NOT EXISTS { ?class calli:documentTag ?tag } && EXISTS { ?class calli:mediaType $mediaType } ||
-                    bound($mediaType) && EXISTS {
+                    bound($mediaType) && NOT EXISTS { ?class calli:documentTag ?tag } && EXISTS {
                         ?class calli:mediaType ?typ2
                         FILTER (
                             (
@@ -837,6 +840,9 @@
                             ) || (
                                 (sameTerm($mediaType,"application/xslt+xml") || sameTerm($mediaType,"text/xsl"))
                                 && (sameTerm(?typ2,"application/xslt+xml") || sameTerm(?typ2,"text/xsl"))
+                            ) || (
+                                (sameTerm($mediaType,"application/xml") || sameTerm($mediaType,"text/xml"))
+                                && (sameTerm(?typ2,"application/xml") || sameTerm(?typ2,"text/xml"))
                             ) || (
                                 (sameTerm($mediaType,"application/java-archive") || sameTerm($mediaType,"application/zip"))
                                 && (sameTerm(?typ2,"application/java-archive") || sameTerm(?typ2,"application/zip"))

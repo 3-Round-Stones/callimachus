@@ -27,10 +27,12 @@ SELECT REDUCED ?resource ?label ?comment {
         } LIMIT 100
     }
     FILTER (isIRI(?resource))
-    ?resource rdfs:label ?label
-    FILTER isLiteral(?label)
-    FILTER (strlen("$q") < 3 || regex(?label, keyword:regex("$q")))
+    OPTIONAL {
+        ?resource rdfs:label ?label
+        FILTER isLiteral(?label)
+    }
     OPTIONAL {
         ?resource rdfs:comment ?comment
     }
+    FILTER (strlen("$q") < 3 || regex(?label, keyword:regex("$q")))
 } ORDER BY ?label LIMIT 100

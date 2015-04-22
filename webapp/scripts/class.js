@@ -71,12 +71,6 @@ jQuery(function($){
             item: renderItem
         }
     }).prop('selectize')));
-    var equivalentURL = unescape(window.location.hash.substring(2));
-    if (equivalentURL.length > 0) {
-        var de = jQuery.Event('drop');
-        de.dataTransfer = {getData:function(){return equivalentURL;}};
-        $('#equivalentClass').trigger(de);
-    }
     $('#equivalentClass').change(function(event){
         ($('#equivalentClass').val() || []).forEach(function(iri){
             return resourceLookup($('#class-lookup').prop('href'), iri).then(function(data){
@@ -91,6 +85,12 @@ jQuery(function($){
             });
         });
     });
+    var equivalentURL = unescape(window.location.hash.substring(2));
+    if (equivalentURL.length > 0) {
+        var de = jQuery.Event('drop');
+        de.dataTransfer = {getData:function(){return equivalentURL;}};
+        $('#equivalentClass').trigger(de);
+    }
 
     ['create', 'view', 'edit'].forEach(function(pragma){
         var selector = '#' + pragma;
@@ -189,7 +189,7 @@ jQuery(function($){
             if (!bindings) return;
             return {
                 value: bindings.resource.value,
-                text: bindings.label.value,
+                text: bindings.label ? bindings.label.value : bindings.resource.value.replace(/.*[\/#\?]/,''),
                 comment: bindings.comment ? bindings.comment.value : ''
             };
         });

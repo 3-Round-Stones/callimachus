@@ -58,6 +58,7 @@ import org.openrdf.OpenRDFException;
 import org.openrdf.http.object.exceptions.BadRequest;
 import org.openrdf.http.object.exceptions.Conflict;
 import org.openrdf.http.object.exceptions.ServiceUnavailable;
+import org.openrdf.http.object.exceptions.UnsupportedMediaType;
 import org.openrdf.http.object.fluid.MediaType;
 import org.openrdf.http.object.io.XMLEventReaderFactory;
 import org.openrdf.model.Literal;
@@ -146,6 +147,7 @@ public class WebappArchiveImporter {
 		{
 			this.put("application/javascript", "text/javascript");
 			this.put("text/xsl", "application/xslt+xml");
+			this.put("text/xml", "application/xml");
 			this.put("application/java-archive", "application/zip");
 			this.put("image/x-png", "image/png");
 			this.put("image/pjpeg", "image/jpeg");
@@ -405,6 +407,8 @@ public class WebappArchiveImporter {
 		model.add(file, DCTERMS.CREATED, vf.createLiteral(now));
 		URI documentTag = getDocumentTag(con.getBlobObject(file), media);
 		URI construct = lookupConstructor(documentTag, media, con, constructors);
+		if (construct == null)
+			throw new UnsupportedMediaType("File format is not recognized: " + type + " for " + file);
 		model.add(file, rdfType, foafDocument);
 		model.add(file, rdfType, construct);
 		URI container = findContainer(file, con);
@@ -531,7 +535,7 @@ public class WebappArchiveImporter {
 					&& isSubClassOf(cls, typesFile, schema, exclude))
 				return (URI) cls;
 		}
-		return typesFile;
+		return null;
 	}
 
 	private Set<? extends Resource> getFileClass(URI documentTag, String media,
@@ -546,7 +550,7 @@ public class WebappArchiveImporter {
 			return schema.filter(null, calliMediaType, vf.createLiteral(media))
 					.subjects();
 		} else {
-			return Collections.singleton(typesFile);
+			return Collections.emptySet();
 		}
 	}
 

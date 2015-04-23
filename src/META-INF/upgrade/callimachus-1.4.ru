@@ -23,6 +23,33 @@ INSERT {
 	FILTER NOT EXISTS { <../markdown-editor.html> a calli:Purl }
 };
 
+DELETE {
+    <../> a calli:Folder
+} INSERT {
+    <../> a calli:PathSegment
+} WHERE {
+    <../> a calli:Folder
+};
+
+# Setup process determins the Callimachus webapp location based on Origin path
+DELETE {
+	</> a <../1.4/types/Origin>
+} INSERT {
+	</> a <../1.5/types/Origin>
+} WHERE {
+	</> a <../1.4/types/Origin>
+};
+
+DELETE {
+    </admin> calli:alternate ?target
+} INSERT {
+    </admin> calli:alternate ?insertTarget
+} WHERE {
+    </admin> calli:alternate ?target
+    FILTER (str(?target) = str(<../1.4/pages/invite-users.xhtml?view>))
+    BIND (str(<../1.5/pages/invite-users.xhtml?view>) AS ?insertTarget)
+};
+
 # Setup process determins upgrade file based on versionInfo
 DELETE {
 	</callimachus/ontology> owl:versionInfo "1.4"

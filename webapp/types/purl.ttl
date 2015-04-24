@@ -67,6 +67,8 @@
             }
             return resp;
         } else if (suffix) {
+            var container = this.SelectContainer();
+            if (container && container.GetRedirect) return container.GetRedirect((this + suffix).substring(container.toString().length));
             throw new org.openrdf.http.object.exceptions.NotFound("Not Found: " + this + suffix);
         } else {
             // default response
@@ -81,11 +83,10 @@
 
 :Proxy rdfs:subClassOf :Redirect.
 
-:contentType a owl:FunctionalProperty, owl:DatatypeProperty;
+:contentEntity a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :Proxy;
-    rdfs:range xsd:string;
-    msg:type "text/plain";
-    msg:headerParam "Content-Type".
+    rdfs:range <java:org.apache.http.HttpEntity>;
+    msg:type "*/*".
 
 :contentLocation a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :Proxy;
@@ -93,10 +94,11 @@
     msg:type "text/plain";
     msg:headerParam "Content-Location".
 
-:contentEntity a owl:FunctionalProperty, owl:ObjectProperty;
+:contentType a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :Proxy;
-    rdfs:range <java:org.apache.http.HttpEntity>;
-    msg:type "*/*".
+    rdfs:range xsd:string;
+    msg:type "text/plain";
+    msg:headerParam "Content-Type".
 
 :PostRedirect rdfs:subClassOf :Proxy;
     msg:method "POST";
@@ -110,6 +112,9 @@
         if (contentEntity) req.setEntity(contentEntity);
         var resp = this.createResponse(req);
         if (resp) return resp;
+        var container = this.SelectContainer();
+        if (container && container.PostRedirect)
+            return container.PostRedirect(contentEntity, contentLocation, contentType, (this + suffix).substring(container.toString().length));
         throw new org.openrdf.http.object.exceptions.MethodNotAllowed("No such method for " + this + suffix);
     """.
 
@@ -125,6 +130,9 @@
         if (contentEntity) req.setEntity(contentEntity);
         var resp = this.createResponse(req);
         if (resp) return resp;
+        var container = this.SelectContainer();
+        if (container && container.PutRedirect)
+            return container.PutRedirect(contentEntity, contentLocation, contentType, (this + suffix).substring(container.toString().length));
         throw new org.openrdf.http.object.exceptions.MethodNotAllowed("No such method for " + this + suffix);
     """.
 
@@ -140,6 +148,9 @@
         if (contentEntity) req.setEntity(contentEntity);
         var resp = this.createResponse(req);
         if (resp) return resp;
+        var container = this.SelectContainer();
+        if (container && container.PatchRedirect)
+            return container.PatchRedirect(contentEntity, contentLocation, contentType, (this + suffix).substring(container.toString().length));
         throw new org.openrdf.http.object.exceptions.MethodNotAllowed("No such method for " + this + suffix);
     """.
 
@@ -150,7 +161,22 @@
     calli:script """
         var resp = this.createResponse("DELETE", suffix);
         if (resp) return resp;
+        var container = this.SelectContainer();
+        if (container && container.DeleteRedirect)
+            return container.DeleteRedirect((this + suffix).substring(container.toString()));
         throw new org.openrdf.http.object.exceptions.MethodNotAllowed("No such method for " + this + suffix);
+    """.
+
+:SelectContainer rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Purl>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <PathSegment>];
+    msg:sparql """
+        PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
+        SELECT ?container {
+            ?container calli:hasComponent $this ; a ?type .
+            ?type rdfs:subClassOf* <PathSegment>
+        }
     """.
 
 :GetViewPage owl:intersectionOf (<viewable.ttl#GetViewPage>

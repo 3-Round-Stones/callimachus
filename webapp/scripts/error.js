@@ -27,9 +27,9 @@ $(window).bind('message', function(event) {
             if (msg.indexOf('\n\n') > 0) {
                 var message = msg.substring('ERROR '.length, msg.indexOf('\n\n'));
                 var stack = msg.substring(msg.indexOf('\n\n') + 2);
-                calli.error(message, stack);
+                flash(message, stack) || parent != window && parent.postMessage && parent.postMessage(msg);
             } else {
-                calli.error(msg.substring('ERROR '.length));
+                flash(msg.substring('ERROR '.length)) || parent != window && parent.postMessage && parent.postMessage(msg);
             }
         }
     }
@@ -45,46 +45,41 @@ $(window).bind('message', function(event) {
 // calli.error({description:getter});
 // calli.error(xhr);
 calli.error = function(message, stack) {
-    var e = {};
     if (typeof message == 'object') {
         if (message.status >= 400 && message.statusText) {
             return calli.error(message.statusText, message.responseText);
         } else if (message.status <= 100) {
             return calli.error("Could not connect to server, please try again later");
+        } else if (message.message) {
+            return calli.error(message.message, stack || message.stack);
+        } else if (message.name) {
+            return calli.error(message.name, stack || message.stack);
+        } else if (message.description) {
+            return calli.error(message.description, stack || message.stack);
         }
-        if (message.description) {
-            e.message = asHtml(message.description);
-        }
-        if (message.name) {
-            e.name = asHtml(message.name);
-        }
-        if (message.message) {
-            e.message = asHtml(message.message);
-        }
-        if (message.stack) {
-            e.stack = asHtml(message.stack);
-        }
-    }
-    if (!e.message) {
-        e.message = asHtml(message);
-    }
-    if (typeof message == 'string' && stack && stack.indexOf('<') === 0) {
-        e.message = $(stack).find("h1.text-error").addBack().add($(stack).find("h1")).filter("h1").html();
-        e.stack = $(stack).find("pre.text-error").addBack().filter("pre").html();
-    } else if (stack) {
-        e.stack = asHtml(stack);
-    }
-    if (window.console && window.console.error) {
-        console.error(message);
-    }
-    if (!flash(e.message, e.stack) && parent != window && parent.postMessage) {
-        if (e.stack) {
-            parent.postMessage('ERROR ' + e.message + '\n\n' + e.stack, '*');
+    } else if (typeof message == 'function' && typeof message.toSource == 'function') {
+        return calli.error(message.toSource(), stack);
+    } else {
+        var mhtml, shtml;
+        if (stack && stack.indexOf('<') === 0) {
+            mhtml = $(stack).find("h1.text-error").addBack().add($(stack).find("h1")).filter("h1").html();
+            shtml = $(stack).find("pre.text-error").addBack().filter("pre").html();
         } else {
-            parent.postMessage('ERROR ' + e.message, '*');
+            mhtml = asHtml(message);
+            shtml = stack && asHtml(stack);
         }
+        if (window.console && window.console.error) {
+            console.error(message);
+        }
+        if (!flash(mhtml, shtml) && parent != window && parent.postMessage) {
+            if (shtml) {
+                parent.postMessage('ERROR ' + mhtml + '\n\n' + shtml, '*');
+            } else {
+                parent.postMessage('ERROR ' + mhtml, '*');
+            }
+        }
+        return calli.reject(message);
     }
-    return calli.reject(message);
 };
 
 function asHtml(obj) {
@@ -94,10 +89,6 @@ function asHtml(obj) {
         return $('<p/>').text(obj).html();
     } else if (obj.nodeType) {
         return $('<p/>').append($(obj).clone()).html();
-    } else if (typeof obj.toSource == 'function') {
-        return $('<p/>').text(obj.toSource()).html();
-    } else if (obj.message) {
-        return $('<p/>').text(obj.message).html();
     } else {
         return $('<p/>').text(obj.toString()).html();
     }

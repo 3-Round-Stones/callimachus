@@ -67,7 +67,7 @@
             }
             return resp;
         } else if (suffix) {
-            throw new org.openrdf.http.object.exceptions.NotFound();
+            throw new org.openrdf.http.object.exceptions.NotFound("Not Found: " + this + suffix);
         } else {
             // default response
             return {
@@ -110,7 +110,7 @@
         if (contentEntity) req.setEntity(contentEntity);
         var resp = this.createResponse(req);
         if (resp) return resp;
-        throw new org.openrdf.http.object.exceptions.MethodNotAllowed();
+        throw new org.openrdf.http.object.exceptions.MethodNotAllowed("No such method for " + this + suffix);
     """.
 
 :PutRedirect rdfs:subClassOf :Proxy;
@@ -125,7 +125,7 @@
         if (contentEntity) req.setEntity(contentEntity);
         var resp = this.createResponse(req);
         if (resp) return resp;
-        throw new org.openrdf.http.object.exceptions.MethodNotAllowed();
+        throw new org.openrdf.http.object.exceptions.MethodNotAllowed("No such method for " + this + suffix);
     """.
 
 :PatchRedirect rdfs:subClassOf :Proxy;
@@ -140,7 +140,7 @@
         if (contentEntity) req.setEntity(contentEntity);
         var resp = this.createResponse(req);
         if (resp) return resp;
-        throw new org.openrdf.http.object.exceptions.MethodNotAllowed();
+        throw new org.openrdf.http.object.exceptions.MethodNotAllowed("No such method for " + this + suffix);
     """.
 
 :DeleteRedirect rdfs:subClassOf :Redirect;
@@ -150,7 +150,7 @@
     calli:script """
         var resp = this.createResponse("DELETE", suffix);
         if (resp) return resp;
-        throw new org.openrdf.http.object.exceptions.MethodNotAllowed();
+        throw new org.openrdf.http.object.exceptions.MethodNotAllowed("No such method for " + this + suffix);
     """.
 
 :GetViewPage owl:intersectionOf (<viewable.ttl#GetViewPage>

@@ -77,14 +77,12 @@ calli.error = function(message, stack) {
     if (window.console && window.console.error) {
         console.error(message);
     }
-    if (parent != window && parent.postMessage) {
+    if (!flash(e.message, e.stack) && parent != window && parent.postMessage) {
         if (e.stack) {
             parent.postMessage('ERROR ' + e.message + '\n\n' + e.stack, '*');
         } else {
             parent.postMessage('ERROR ' + e.message, '*');
         }
-    } else {
-        flash(e.message, e.stack);
     }
     return calli.reject(message);
 };
@@ -131,7 +129,7 @@ function flash(message, stack) {
         widget.append(more);
         widget.append(pre);
     }
-    setTimeout(function() {
+    return setTimeout(function() {
         if (!unloading) {
             msg.append(widget);
             scroll(0,0);

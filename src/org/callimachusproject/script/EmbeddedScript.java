@@ -21,20 +21,20 @@ import java.util.Set;
 
 import javax.script.Bindings;
 import javax.script.Invocable;
-import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 
+import org.apache.commons.pool.ObjectPool;
 import org.openrdf.repository.object.exceptions.BehaviourException;
 import org.openrdf.repository.object.traits.ObjectMessage;
 
 final class EmbeddedScript {
 	private final String systemId;
-	private final ScriptEngine engine;
+	private final ObjectPool<Invocable> engines;
 	private final String invoke;
 	private final Set<String> bindingNames;
 
-	EmbeddedScript(ScriptEngine engine, String invoke, Set<String> bindingNames, String systemId) {
-		this.engine = engine;
+	EmbeddedScript(ObjectPool<Invocable> engines, String invoke, Set<String> bindingNames, String systemId) {
+		this.engines = engines;
 		this.invoke = invoke;
 		this.bindingNames = bindingNames;
 		this.systemId = systemId;
@@ -45,16 +45,15 @@ final class EmbeddedScript {
 		return String.valueOf(systemId);
 	}
 
-	public ScriptEngine getEngine() {
-		return engine;
-	}
-
 	public Object eval(ObjectMessage msg, Bindings bindings) throws ScriptException {
 		Object[] args = getArguments(msg, bindings);
+		Invocable engine = borrowObject();
 		try {
 			return ((Invocable) engine).invokeFunction(invoke, args);
 		} catch (NoSuchMethodException e) {
 			throw new BehaviourException(e, String.valueOf(systemId));
+		} finally {
+			returnObject(engine);
 		}
 	}
 
@@ -67,5 +66,25 @@ final class EmbeddedScript {
 			args[i] = bindings.get(iter.next());
 		}
 		return args;
+	}
+
+	private Invocable borrowObject() throws ScriptException {
+		try {
+			return engines.borrowObject();
+		} catch (ScriptException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new ScriptException(e);
+		}
+	}
+
+	private void returnObject(Invocable engine) throws ScriptException {
+		try {
+			engines.returnObject(engine);
+		} catch (ScriptException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new ScriptException(e);
+		}
 	}
 }

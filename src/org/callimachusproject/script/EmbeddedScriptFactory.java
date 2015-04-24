@@ -34,10 +34,13 @@ import java.io.StringWriter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
+import org.apache.commons.pool.BasePoolableObjectFactory;
+import org.apache.commons.pool.impl.SoftReferenceObjectPool;
 import org.openrdf.repository.object.exceptions.BehaviourException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -126,21 +129,29 @@ public class EmbeddedScriptFactory {
 		return out.toString();
 	}
 
-	private EmbeddedScript createCompiledScript(ClassLoader cl,
-			String systemId, String code) throws ScriptException {
+	private EmbeddedScript createCompiledScript(final ClassLoader cl,
+			final String systemId, final String code) throws ScriptException {
 		warnIfKeywordUsed(code);
-		Thread current = Thread.currentThread();
-		ClassLoader previously = current.getContextClassLoader();
-		try {
-			current.setContextClassLoader(cl);
-			ScriptEngineManager man = new ScriptEngineManager();
-			ScriptEngine engine = man.getEngineByName("rhino");
-			engine.put(ScriptEngine.FILENAME, systemId);
-			engine.eval(code);
-			return new EmbeddedScript(engine, getInvokeName(), context.getBindingNames(), systemId);
-		} finally {
-			current.setContextClassLoader(previously);
-		}
+		BasePoolableObjectFactory<Invocable> factory = new BasePoolableObjectFactory<Invocable>() {
+
+			@Override
+			public Invocable makeObject() throws ScriptException {
+				Thread current = Thread.currentThread();
+				ClassLoader previously = current.getContextClassLoader();
+				try {
+					current.setContextClassLoader(cl);
+					ScriptEngineManager man = new ScriptEngineManager();
+					ScriptEngine engine = man.getEngineByName("rhino");
+					engine.put(ScriptEngine.FILENAME, systemId);
+					engine.eval(code);
+					return (Invocable) engine;
+				} finally {
+					current.setContextClassLoader(previously);
+				}
+			}
+		};
+		return new EmbeddedScript(new SoftReferenceObjectPool<Invocable>(
+				factory), getInvokeName(), context.getBindingNames(), systemId);
 	}
 
 	private String getInvokeName() {

@@ -7,6 +7,9 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
+import org.apache.commons.pool.BasePoolableObjectFactory;
+import org.apache.commons.pool.ObjectPool;
+import org.apache.commons.pool.impl.SoftReferenceObjectPool;
 import org.apache.http.HttpResponse;
 
 public class HttpResponseScriptBuilder {
@@ -52,15 +55,21 @@ public class HttpResponseScriptBuilder {
 			+ "	var fluid = factory.builder().consume(body, systemId, body.getClass(), media);\n"
 			+ "	response.setEntity(fluid.asHttpEntity(media));\n" + "}\n"
 			+ "return response;\n" + "}\n";
-	private final Invocable engine;
-	private final String systemId = getSystemId("SCRIPT");
+	private final ObjectPool<Invocable> engines;
+	final String systemId = getSystemId("SCRIPT");
 
 	public HttpResponseScriptBuilder() throws ScriptException {
-		ScriptEngineManager man = new ScriptEngineManager();
-		ScriptEngine engine = man.getEngineByName("rhino");
-		engine.put(ScriptEngine.FILENAME, systemId);
-		engine.eval(SCRIPT);
-		this.engine = (Invocable) engine;
+		final ScriptEngineManager man = new ScriptEngineManager();
+		this.engines = new SoftReferenceObjectPool<Invocable>(new BasePoolableObjectFactory<Invocable>() {
+
+			@Override
+			public Invocable makeObject() throws ScriptException {
+				ScriptEngine engine = man.getEngineByName("rhino");
+				engine.put(ScriptEngine.FILENAME, systemId);
+				engine.eval(SCRIPT);
+				return (Invocable) engine;
+			}
+		});
 	}
 
 	public HttpResponse asHttpResponse(Object result)
@@ -72,8 +81,33 @@ public class HttpResponseScriptBuilder {
 			throws NoSuchMethodException, ScriptException {
 		if (result == null)
 			return null;
-		return (HttpResponse) engine.invokeFunction(BUILD_HTTP_RESPONSE,
-				result, systemId);
+		Invocable engine = borrowObject();
+		try {
+			return (HttpResponse) engine.invokeFunction(BUILD_HTTP_RESPONSE,
+					result, systemId);
+		} finally {
+			returnObject(engine);
+		}
+	}
+
+	private Invocable borrowObject() throws ScriptException {
+		try {
+			return engines.borrowObject();
+		} catch (ScriptException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new ScriptException(e);
+		}
+	}
+
+	private void returnObject(Invocable engine) throws ScriptException {
+		try {
+			engines.returnObject(engine);
+		} catch (ScriptException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new ScriptException(e);
+		}
 	}
 
 	private String getSystemId(String frag) {

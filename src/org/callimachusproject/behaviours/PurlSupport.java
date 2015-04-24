@@ -19,6 +19,7 @@ package org.callimachusproject.behaviours;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -91,7 +92,8 @@ public abstract class PurlSupport implements CalliObject {
 				String matching = m.group(1);
 				String regex = m.group(2);
 				URITemplate template = new URITemplate(m.group(3));
-				if (matching != null && !matching.equals(method)
+				if (matching != null
+						&& !Arrays.asList(matching.split(",")).contains(method)
 						|| matching == null && !bs.hasBinding("status")
 						&& bs.hasBinding("method")
 						&& !bs.getValue("method").stringValue().equals(method))

@@ -53,11 +53,11 @@
     </xsl:template>
     <xsl:template mode="describe" match="*[@rdf:resource]">
         <xsl:text> </xsl:text>
-        <a href="?query=describe%3C{encode-for-uri(@rdf:resource)}%3E" class="describe">»</a>
+        <a href="?query=describe%3C{encode-for-uri(@rdf:resource)}%3E" class="describe glyphicon glyphicon-chevron-right"></a>
     </xsl:template>
     <xsl:template mode="describe" match="*[@rdf:about]">
         <xsl:text> </xsl:text>
-        <a href="?query=describe%3C{encode-for-uri(@rdf:about)}%3E" class="describe">«</a>
+        <a href="?query=describe%3C{encode-for-uri(@rdf:about)}%3E" class="describe glyphicon glyphicon-chevron-left"></a>
     </xsl:template>
     <xsl:template match="sparql:sparql">
         <table id="sparql">
@@ -109,7 +109,7 @@
             </xsl:call-template>
         </a>
         <xsl:text> </xsl:text>
-        <a href="?query=describe%3C{encode-for-uri(text())}%3E" class="describe">»</a>
+        <a href="?query=describe%3C{encode-for-uri(text())}%3E" class="describe glyphicon glyphicon-chevron-right"></a>
     </xsl:template>
     <xsl:template match="sparql:bnode">
         <a class="bnode" resource="_:{text()}" name="{text()}">

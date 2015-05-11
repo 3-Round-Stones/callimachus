@@ -37,7 +37,6 @@
                     ul.properties { margin-top: 0px; }
                     li.triple { list-style-type: none }
                     .plain { font-size: large; }
-                    .describe { font-size: xx-small; }
                     .bnode, .plain { font-family: monospace; white-space: pre-wrap; }
                     .typed { color: magenta; }
                     .datatype, .language { color: gray; }
@@ -140,17 +139,17 @@
         <xsl:choose>
             <xsl:when test="'describe'!=$query">
                 <xsl:text> </xsl:text>
-                <a href="?uri={encode-for-uri(@rdf:resource)}" class="describe">»</a>
+                <a href="?uri={encode-for-uri(@rdf:resource)}" class="describe glyphicon glyphicon-chevron-right"></a>
             </xsl:when>
             <xsl:when test="contains(@rdf:resource, '?')" />
             <xsl:when test="not(starts-with(@rdf:resource, 'http'))" />
             <xsl:when test="contains(@rdf:resource, '#')">
                 <xsl:text> </xsl:text>
-                <a href="{substring-before(@rdf:resource,'#')}?describe#{substring-after(@rdf:resource,'#')}" class="describe">»</a>
+                <a href="{substring-before(@rdf:resource,'#')}?describe#{substring-after(@rdf:resource,'#')}" class="describe glyphicon glyphicon-chevron-right"></a>
             </xsl:when>
             <xsl:otherwise>
                 <xsl:text> </xsl:text>
-                <a href="{@rdf:resource}?describe" class="describe">»</a>
+                <a href="{@rdf:resource}?describe" class="describe glyphicon glyphicon-chevron-right"></a>
             </xsl:otherwise>
         </xsl:choose>
     </xsl:template>

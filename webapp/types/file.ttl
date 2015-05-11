@@ -37,6 +37,16 @@
     calli:view <../templates/file-view.xhtml>;
     calli:edit <../templates/file-edit.xhtml>.
 
+:GetViewPage owl:intersectionOf (<viewable.ttl#GetViewPage>
+        [owl:onProperty msg:target; owl:allValuesFrom <File> ]);
+    msg:method "GET";
+    msg:path "?view";
+    calli:requires calli:subscriber;
+    msg:type "text/html";
+    calli:script """
+        return proceed();
+    """.
+
 :DeleteFileIfNotUsed rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <File>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];

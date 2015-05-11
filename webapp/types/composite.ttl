@@ -63,7 +63,7 @@
     calli:rel "describedby";
     msg:method "GET";
     msg:path "?describe";
-    calli:requires calli:reader;
+    calli:requires calli:subscriber;
     msg:type "text/html";
     msg:header "Link:<http://www.w3.org/ns/ldp#IndirectContainer>;rel=\"type\",<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
     calli:script "return proceed();".
@@ -74,7 +74,7 @@
     calli:rel "describedby";
     msg:method "GET";
     msg:path "?describe";
-    calli:requires calli:reader;
+    calli:requires calli:subscriber;
     msg:type "text/turtle;q=0.6", "application/ld+json;q=0.4", "application/rdf+xml;q=0.2";
     msg:header "Link:<http://www.w3.org/ns/ldp#IndirectContainer>;rel=\"type\",<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
     calli:imports <java:org.callimachusproject.io.DescribeResult>;

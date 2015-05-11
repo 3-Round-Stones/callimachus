@@ -54,7 +54,7 @@
     calli:script "return this.openInputStream()".
 
 # GET /queries/my-query.rq?view
-:GetViewPage owl:intersectionOf (<viewable.ttl#GetViewPage>
+:GetViewPage owl:intersectionOf (<file.ttl#GetViewPage>
         [owl:onProperty msg:target; owl:allValuesFrom <RdfQuery>]);
     calli:rel "alternate";
     msg:method "GET";
@@ -94,7 +94,7 @@
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:hexBinary];
     msg:method "GET";
     msg:path "\\?(sparql.*)";
-    calli:requires calli:reader;
+    calli:requires calli:subscriber;
     msg:type "application/sparql-query";
     msg:header "cache-control:no-cache";
     calli:imports <java:org.callimachusproject.engine.ParameterizedQueryParser>;

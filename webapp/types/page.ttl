@@ -41,7 +41,7 @@
     calli:documentTag <http://www.w3.org/1999/xhtml#html>.
 
 # GET /page/MainPage.xhtml?view
-:GetPage owl:intersectionOf (<viewable.ttl#GetViewPage>
+:GetPage owl:intersectionOf (<file.ttl#GetViewPage>
         [owl:onProperty msg:target; owl:allValuesFrom <Page>]);
     calli:rel "alternate";
     msg:method "GET";
@@ -57,7 +57,7 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
     msg:method "GET";
     msg:path "?html";
-    calli:requires calli:reader;
+    calli:requires calli:subscriber;
     msg:type "text/html";
     msg:header "cache-control:no-cache";
     calli:post "../pipelines/page-layout-html.xpl?results\nContent-Location: {+this}\nContent-Type: application/xhtml+xml".
@@ -122,7 +122,7 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
     msg:method "GET";
     msg:path "?layout";
-    calli:requires calli:reader;
+    calli:requires calli:subscriber;
     msg:type "application/xhtml+xml";
     calli:post "../pipelines/page-layout.xpl?results&realm={realm}\nContent-Location: {+this}\nContent-Type: application/xhtml+xml".
 

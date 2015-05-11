@@ -53,7 +53,7 @@
     calli:script "return this.openReader(true)".
 
 # GET /markdowmn.md?view
-:GetPage owl:intersectionOf (<viewable.ttl#GetViewPage>
+:GetPage owl:intersectionOf (<file.ttl#GetViewPage>
         [owl:onProperty msg:target; owl:allValuesFrom <Markdown>]);
     calli:rel "alternate";
     msg:method "GET";

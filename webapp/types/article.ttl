@@ -98,7 +98,7 @@
     msg:method "GET";
     msg:path "?xhtml";
     calli:rel "edit-media";
-    calli:requires calli:reader;
+    calli:requires calli:subscriber;
     msg:type "application/xhtml+xml";
     msg:header "cache-control:no-cache";
     calli:post "../transforms/article-edit-xhtml.xsl?results\nContent-Location: {+this}\nContent-Type: application/docbook+xml".

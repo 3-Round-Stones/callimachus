@@ -60,7 +60,7 @@
     calli:rel "comments";
     msg:method "GET";
     msg:path "?discussion";
-    calli:requires calli:reader;
+    calli:requires calli:subscriber;
     msg:type "text/html";
     calli:copy "../pipelines/discussion.xpl?results&target={this}".
 
@@ -145,7 +145,7 @@ skos:editorialNote a owl:AnnotationProperty.
     calli:rel "describedby";
     msg:method "GET";
     msg:path "?describe", "\\?(describe.*)";
-    calli:requires calli:reader;
+    calli:requires calli:subscriber;
     msg:type "text/turtle;q=0.6", "application/ld+json;q=0.4", "application/rdf+xml;q=0.2";
     msg:header "Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
     calli:imports <java:org.callimachusproject.io.DescribeResult>;
@@ -178,7 +178,7 @@ skos:editorialNote a owl:AnnotationProperty.
     calli:rel "describedby";
     msg:method "GET";
     msg:path "?describe";
-    calli:requires calli:reader;
+    calli:requires calli:subscriber;
     msg:type "text/html";
     msg:header "Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
     calli:script """

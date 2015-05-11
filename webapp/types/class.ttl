@@ -46,7 +46,7 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader> ];
     msg:method "GET";
     msg:path "?index";
-    calli:requires calli:reader;
+    calli:requires calli:subscriber;
     msg:type "text/html";
     calli:copy "../pipelines/class-index.xpl?results&target={this}".
 

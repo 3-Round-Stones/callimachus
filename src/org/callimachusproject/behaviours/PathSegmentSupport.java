@@ -195,6 +195,7 @@ public abstract class PathSegmentSupport implements RDFObject, RDFObjectBehaviou
 			+ "UNION { ?component calli:delete ?target }\n"
 			+ "UNION { ?component calli:describedby ?target }\n"
 			+ "UNION { ?component calli:gone ?target }\n"
+			+ "UNION { ?component calli:illegal ?target }\n"
 			+ "UNION { ?component calli:missing ?target }\n"
 			+ "UNION { ?component calli:moved ?target }\n"
 			+ "UNION { ?component calli:patch ?target }\n"

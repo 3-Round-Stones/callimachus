@@ -149,12 +149,17 @@ public abstract class PurlSupport implements CalliObject {
 			+ "        $this calli:missing ?resource\n"
 			+ "        BIND (\"GET\" AS ?method)\n"
 			+ "        BIND (404 AS ?status)\n"
-			+ "        BIND (\"Not found\" AS ?phrase)\n"
+			+ "        BIND (\"Not Found\" AS ?phrase)\n"
 			+ "    } UNION {\n"
 			+ "        $this calli:gone ?resource\n"
 			+ "        BIND (\"GET\" AS ?method)\n"
 			+ "        BIND (410 AS ?status)\n"
 			+ "        BIND (\"Gone\" AS ?phrase)\n"
+			+ "    } UNION {\n"
+			+ "        $this calli:illegal ?resource\n"
+			+ "        BIND (\"GET\" AS ?method)\n"
+			+ "        BIND (451 AS ?status)\n"
+			+ "        BIND (\"Unavailable For Legal Reasons\" AS ?phrase)\n"
 			+ "}    } ORDER BY ?status\n")
 	protected abstract TupleQueryResult findPurlPatterns();
 

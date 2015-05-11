@@ -270,7 +270,7 @@ calli:transform a owl:DeprecatedProperty, owl:AnnotationProperty;
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:copy a owl:AnnotationProperty;
-    rdfs:label "get";
+    rdfs:label "copy";
     rdfs:comment "This request handler should return the GET response of the given template URL";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
@@ -327,6 +327,11 @@ calli:missing a owl:AnnotationProperty;
 calli:gone a owl:AnnotationProperty;
     rdfs:label "gone";
     rdfs:comment "Document describing that this resource is gone";
+    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
+calli:illegal a owl:AnnotationProperty;
+    rdfs:label "illegal";
+    rdfs:comment "Document describing that access to this resource is denied for legal reasons";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 ################################

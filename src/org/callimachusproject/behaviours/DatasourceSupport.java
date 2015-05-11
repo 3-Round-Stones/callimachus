@@ -21,6 +21,8 @@ import static org.openrdf.query.QueryLanguage.SPARQL;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import javax.xml.datatype.DatatypeConfigurationException;
@@ -151,6 +153,7 @@ public abstract class DatasourceSupport implements CalliObject {
 			boolean created = !con.hasStatement(null, null, null, true, graph);
 			con.add(rdf, this.toString(), RDFFormat.forMIMEType(type), graph);
 			con.commit();
+			mergeNamespaces(con.getNamespaces());
 			return created;
 		} finally {
 			con.rollback();
@@ -167,6 +170,7 @@ public abstract class DatasourceSupport implements CalliObject {
 			con.clear(graph);
 			con.add(rdf, this.toString(), RDFFormat.forMIMEType(type), graph);
 			con.commit();
+			mergeNamespaces(con.getNamespaces());
 			return created;
 		} finally {
 			con.rollback();
@@ -263,6 +267,7 @@ public abstract class DatasourceSupport implements CalliObject {
 			String base = this.getResource().stringValue();
 			con.prepareUpdate(QueryLanguage.SPARQL, update, base).execute();
 			logger.info(update);
+			mergeNamespaces(con.getNamespaces());
 		} finally {
 			con.close();
 		}
@@ -339,6 +344,24 @@ public abstract class DatasourceSupport implements CalliObject {
 	private SailRepositoryConfig getDefaultConfig() {
 		String indices = "spoc,pocs,oscp,cspo";
 		return new SailRepositoryConfig(new NativeStoreConfig(indices));
+	}
+
+	private void mergeNamespaces(RepositoryResult<Namespace> namespaces) throws RepositoryException {
+		ObjectConnection con = this.getObjectConnection();
+		Map<String, String> map = new LinkedHashMap<String, String>();
+		try {
+			while (namespaces.hasNext()) {
+				Namespace ns = namespaces.next();
+				if (con.getNamespace(ns.getPrefix()) == null) {
+					map.put(ns.getPrefix(), ns.getName());
+				}
+			}
+		} finally {
+			namespaces.close();
+		}
+		for (Map.Entry<String, String> e : map.entrySet()) {
+			con.setNamespace(e.getKey(), e.getValue());
+		}
 	}
 
 	private AuditingRepositoryConnection findAuditing(RepositoryConnection con)

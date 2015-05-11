@@ -122,7 +122,7 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
     msg:method "GET";
     msg:path "?layout";
-    calli:requires calli:subscriber;
+    calli:requires calli:reader;
     msg:type "application/xhtml+xml";
     calli:post "../pipelines/page-layout.xpl?results&realm={realm}\nContent-Location: {+this}\nContent-Type: application/xhtml+xml".
 

@@ -12,6 +12,7 @@
     <link href="http://www.w3.org/TR/sparql11-query/" target="_blank" title="SPARQL Query Language" />
     <link href="http://www.w3.org/TR/sparql11-update/" target="_blank" title="SPARQL Update" />
     <script type="text/javascript">
+    <![CDATA[
         $(function(){
             var sd = "http://www.w3.org/ns/sparql-service-description#";
             if (!$('span[rel="sd:supportedLanguage"][resource="' + sd + 'SPARQL11Query"]').length) {
@@ -19,6 +20,14 @@
             }
             if (!$('span[rel="sd:supportedLanguage"][resource="' + sd + 'SPARQL11Update"]').length) {
                 $('.SPARQL11Update').hide();
+            }
+            if (window.location.hash.indexOf('#query=') === 0) {
+                var frag = window.location.hash;
+                var query = frag.indexOf('&') > 0 ? frag.substring(7, frag.indexOf('&')) : frag.substring(7);
+                $('#sparql').val(decodeURIComponent(query.replace(/\+/g, ' ')));
+                if (frag.indexOf('&error=') > 0) {
+                    calli.error(decodeURIComponent(frag.substring(frag.indexOf('&error=') + 7).replace(/\+/g, ' ')));
+                }
             }
             calli.fillElement('#sparql');
             $('#evaluate').click(function(event){
@@ -39,6 +48,7 @@
                 });
             });
         });
+    ]]>
     </script>
 </head>
 <body resource="?this">
@@ -48,11 +58,11 @@
                 <textarea id="sparql" name="query" class="form-control" required="required" autofocus="autofocus"
                     onchange="$(form).find('button').removeAttr('disabled')"></textarea>
                 <div resource="?this" typeof="sd:Service">
-                    <span rel="sd:endpoint" resource="?endpoint" />
-                    <span rel="sd:feature" resource="?feature" />
-                    <span rel="sd:inputFormat" resource="?inputFormat" />
-                    <span rel="sd:resultFormat" resource="?resultFormat" />
-                    <span rel="sd:supportedLanguage" resource="?support" />
+                    <span rel="sd:endpoint" resource="?endpoint"></span>
+                    <span rel="sd:feature" resource="?feature"></span>
+                    <span rel="sd:inputFormat" resource="?inputFormat"></span>
+                    <span rel="sd:resultFormat" resource="?resultFormat"></span>
+                    <span rel="sd:supportedLanguage" resource="?support"></span>
                 </div>
                 <div class="form-group">
                     <button id="evaluate" type="submit" class="btn btn-primary SPARQL11Query">Evaluate Query</button>
@@ -63,10 +73,10 @@
             <div class="col-sm-4">
                 <aside class="panel panel-default">
                     <div class="panel-heading">
-                        <h1 class="panel-title" property="rdfs:label" />
+                        <h1 class="panel-title" property="rdfs:label"></h1>
                     </div>
                     <div class="panel-body">
-                        <p property="rdfs:comment" />
+                        <p property="rdfs:comment"></p>
                     </div>
                 </aside>
                 <aside class="well">

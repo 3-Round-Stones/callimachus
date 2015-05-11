@@ -338,6 +338,12 @@ calli:illegal a owl:AnnotationProperty;
 # Property
 ################################
 
+calli:hasResultLimit a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:label "result limit";
+    rdfs:comment "The number at which these graph results have been truncated";
+    rdfs:range xsd:integer;
+    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
 calli:authority a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:label "authority";
     rdfs:comment "An hostname, possiblely followed by a colon and port";

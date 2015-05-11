@@ -42,7 +42,10 @@ import org.openrdf.http.object.fluid.FluidBuilder;
 import org.openrdf.http.object.fluid.FluidException;
 import org.openrdf.http.object.fluid.FluidFactory;
 import org.openrdf.model.Namespace;
+import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
+import org.openrdf.model.ValueFactory;
+import org.openrdf.model.impl.StatementImpl;
 import org.openrdf.query.GraphQuery;
 import org.openrdf.query.GraphQueryResult;
 import org.openrdf.query.MalformedQueryException;
@@ -73,11 +76,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class DatasourceSupport implements CalliObject {
+	private static final int MAX_GRAPH_SIZE = 10001;
 	private static final String GET_GRAPH = "CONSTRUCT { ?s ?p ?o } WHERE { GRAPH $graph { ?s ?p ?o } }";
 	private static final String GET_DEFAULT = "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }";
 	private static final String PREFIX = "PREFIX sd:<http://www.w3.org/ns/sparql-service-description#>\n";
 	private static final Pattern HAS_PREFIX = Pattern.compile("^[^#]*\\bPREFIX\\b",
 			Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+	static final String TOO_MANY_RESULTS = "http://callimachusproject.org/rdf/2009/framework#hasResultLimit";
 
 	private final Logger logger = LoggerFactory.getLogger(DatasourceSupport.class);
 
@@ -206,10 +211,11 @@ public abstract class DatasourceSupport implements CalliObject {
 		String query = addPrefix(qry);
 		final RepositoryConnection con = openConnection();
 		try {
+			final ValueFactory vf = con.getValueFactory();
 			String mime;
 			Object rs;
 			Class<?> type;
-			String base = this.getResource().stringValue();
+			final String base = this.getResource().stringValue();
 			QueryParserRegistry reg = QueryParserRegistry.getInstance();
 			QueryParser parser = reg.get(QueryLanguage.SPARQL).getParser();
 			ParsedQuery parsed = parser.parseQuery(query, base);
@@ -220,8 +226,26 @@ public abstract class DatasourceSupport implements CalliObject {
 				type = java.lang.Boolean.TYPE;
 			} else if (parsed instanceof ParsedGraphQuery) {
 				mime = "application/rdf+xml";
-				rs = con.prepareGraphQuery(QueryLanguage.SPARQL, query, base)
-						.evaluate();
+				GraphQueryResult res = con.prepareGraphQuery(
+						QueryLanguage.SPARQL, query, base).evaluate();
+				rs = new GraphQueryResultImpl(res.getNamespaces(), res) {
+					private int count;
+
+					@Override
+					public boolean hasNext() throws QueryEvaluationException {
+						return count < MAX_GRAPH_SIZE && super.hasNext();
+					}
+
+					@Override
+					public Statement next() throws QueryEvaluationException {
+						if (++count >= MAX_GRAPH_SIZE) {
+							return new StatementImpl(vf.createURI(base),
+									vf.createURI(TOO_MANY_RESULTS),
+									vf.createLiteral(count - 1));
+						}
+						return super.next();
+					}
+				};
 				type = rs.getClass();
 			} else if (parsed instanceof ParsedTupleQuery) {
 				mime = "application/sparql-results+xml";

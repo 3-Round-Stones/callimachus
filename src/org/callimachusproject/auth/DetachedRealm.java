@@ -53,9 +53,7 @@ import org.apache.http.ProtocolVersion;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.NTCredentials;
 import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.HttpClient;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.SystemDefaultCredentialsProvider;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
@@ -203,15 +201,8 @@ public class DetachedRealm {
 		} finally {
 			results.close();
 		}
-		this.client = new HttpUriClient() {
-			private final CloseableHttpClient delegate = HttpClientFactory
-					.getInstance().createHttpClient(self.stringValue(),
-							getCredentialsProvider());
-
-			protected HttpClient getDelegate() throws IOException {
-				return delegate;
-			}
-		};
+		this.client = new HttpUriClient(HttpClientFactory.getInstance()
+				.createHttpClient(self.stringValue(), getCredentialsProvider()));
 		if (errorPipelineUrl != null) {
 			error = PipelineFactory.newInstance().createPipeline(errorPipelineUrl, client);
 		}

@@ -60,11 +60,7 @@ public class InputSourceResolver implements EntityResolver, URIResolver, ModuleU
 
 	public InputSourceResolver(String accept, final HttpClient client) {
 		this.accept = accept;
-		this.client = new HttpUriClient() {
-			protected HttpClient getDelegate() {
-				return client;
-			}
-		};
+		this.client = new HttpUriClient(client);
 	}
 
 	@Override

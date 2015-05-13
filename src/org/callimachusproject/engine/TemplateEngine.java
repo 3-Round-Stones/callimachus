@@ -44,11 +44,7 @@ public class TemplateEngine {
 		if (client instanceof HttpUriClient) {
 			this.client = (HttpUriClient) client;
 		} else {
-			this.client = new HttpUriClient() {
-				protected HttpClient getDelegate() {
-					return client;
-				}
-			};
+			this.client = new HttpUriClient(client);
 		}
 	}
 

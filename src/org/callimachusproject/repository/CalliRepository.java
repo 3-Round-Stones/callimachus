@@ -70,6 +70,7 @@ public class CalliRepository extends RepositoryWrapper {
 		private final String source;
 
 		HttpRepositoryClient(String source) {
+			super(null);
 			this.source = source;
 		}
 

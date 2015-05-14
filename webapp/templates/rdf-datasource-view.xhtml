@@ -21,13 +21,32 @@
             if (!$('span[rel="sd:supportedLanguage"][resource="' + sd + 'SPARQL11Update"]').length) {
                 $('.SPARQL11Update').hide();
             }
-            if (window.location.hash.indexOf('#query=') === 0) {
-                var frag = window.location.hash;
-                var query = frag.indexOf('&') > 0 ? frag.substring(7, frag.indexOf('&')) : frag.substring(7);
+            if (window.location.hash.indexOf('query=') > 0) {
+                var query = window.location.hash.match(/query=([^&]*)/)[1];
                 $('#sparql').val(decodeURIComponent(query.replace(/\+/g, ' ')));
-                if (frag.indexOf('&error=') > 0) {
-                    calli.error(decodeURIComponent(frag.substring(frag.indexOf('&error=') + 7).replace(/\+/g, ' ')));
-                }
+            }
+            if (window.location.hash.indexOf('error=') > 0) {
+                var error = window.location.hash.match(/error=([^&]*)/)[1];
+                calli.error(decodeURIComponent(error.replace(/\+/g, ' ')));
+            }
+            var m;
+            var defaultGraphs = /default-graph-uri=([^&]*)/g;
+            while (m = defaultGraphs.exec(window.location.hash)) {
+                var value = decodeURIComponent(m[1].replace(/\+/g, ' '));
+                $('<input/>', {
+                    type: "hidden",
+                    name: "default-graph-uri",
+                    value: value
+                }).insertAfter('#sparql');
+            }
+            var namdeGraphs = /named-graph-uri=([^&]*)/g;
+            while (m = namdeGraphs.exec(window.location.hash)) {
+                var value = decodeURIComponent(m[1].replace(/\+/g, ' '));
+                $('<input/>', {
+                    type: "hidden",
+                    name: "named-graph-uri",
+                    value: value
+                }).insertAfter('#sparql');
             }
             calli.fillElement('#sparql');
             $('#evaluate').click(function(event){

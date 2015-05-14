@@ -72,26 +72,38 @@
 # SPARQL Protocol 1.0          #
 ################################
 
+:SparqlDatasourceRequest rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfDatasource>].
+
+:defaultGraphs a owl:DatatypeProperty;
+    rdfs:domain :SparqlDatasourceRequest;
+    rdfs:range xsd:string;
+    msg:param "default-graph-uri".
+
+:namedGraphs a owl:DatatypeProperty;
+    rdfs:domain :SparqlDatasourceRequest;
+    rdfs:range xsd:string;
+    msg:param "named-graph-uri".
+
+:queryStr a owl:DatatypeProperty, owl:FunctionalProperty;
+    rdfs:domain :SparqlDatasourceRequest;
+    rdfs:range xsd:string;
+    msg:param "query".
+
 # GET query parameter
-:GetQueryResult rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfDatasource>];
+:GetQueryResult rdfs:subClassOf :SparqlDatasourceRequest;
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
     msg:method "GET";
-    msg:path "?query";
+    msg:path "\\?(.*\\&)?query=";
     calli:requires calli:reader;
     msg:header "cache-control:no-validate";
     calli:script """
         return {
             status: 200,
             message: "OK",
-            body: this.evaluateSparql(queryStr)
+            body: this.evaluateSparql(queryStr, defaultGraphs, namedGraphs)
         };
     """.
-
-:queryStr a owl:DatatypeProperty, owl:FunctionalProperty;
-    rdfs:domain :GetQueryResult;
-    rdfs:range xsd:string;
-    msg:param "query".
 
 # POST application/x-www-form-urlencoded
 :PostPercentEncoded rdfs:subClassOf msg:Message;
@@ -106,12 +118,12 @@
             return {
                 status: 200,
                 message: "OK",
-                body: this.evaluateSparql(map.get("query")[0])
+                body: this.evaluateSparql(map.get("query")[0], map.get("default-graph-uri"), map.get("named-graph-uri"))
             };
         if (!map || !map.containsKey("update"))
             throw new org.openrdf.http.object.exceptions.BadRequest("Missing query");
         try {
-            this.executeSparql(map.get("update")[0]);
+            this.executeSparql(map.get("update")[0], map.get("default-graph-uri"), map.get("named-graph-uri"));
             return null;
         } catch (e if e.javaException instanceof MalformedQueryException) {
             throw new BadRequest(e.javaException.toString());
@@ -128,8 +140,7 @@
 ################################
 
 # POST application/sparql-query
-:PostQuery rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfDatasource>];
+:PostQuery rdfs:subClassOf :SparqlDatasourceRequest;
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
     msg:method "POST";
     calli:requires calli:reader;
@@ -140,7 +151,7 @@
         return {
             status: 200,
             message: "OK",
-            body: this.evaluateSparql(new java.lang.String(query, "UTF-8"))
+            body: this.evaluateSparql(new java.lang.String(query, "UTF-8"), defaultGraphs, namedGraphs)
         };
     """.
 
@@ -150,8 +161,7 @@
     msg:type "application/sparql-query".
 
 # POST application/sparql-update
-:PostUpdate rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfDatasource>];
+:PostUpdate rdfs:subClassOf :SparqlDatasourceRequest;
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     msg:method "POST";
     calli:requires calli:editor;
@@ -161,7 +171,7 @@
         if (!update)
             throw new BadRequest("Missing update body");
         try {
-            this.executeSparql(new java.lang.String(update, "UTF-8"));
+            this.executeSparql(new java.lang.String(update, "UTF-8"), defaultGraphs, namedGraphs);
         } catch (e if e.javaException instanceof MalformedQueryException) {
             throw new BadRequest(e.javaException.toString());
         }
@@ -360,6 +370,18 @@
 # Callimachus UI               #
 ################################
 
+# GET query parameter
+:GetHtmlResults rdfs:subClassOf :SparqlDatasourceRequest;
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    msg:method "GET";
+    msg:path "\\?(.*\\&)?query=";
+    calli:requires calli:reader;
+    msg:type "text/html";
+    msg:header "cache-control:no-validate";
+    calli:script """
+        return this.TransformResult(this.evaluateSparql(queryStr, defaultGraphs, namedGraphs).content);
+    """.
+
 :GetHtmlDescribeService rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfDatasource>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
@@ -376,28 +398,6 @@
     rdfs:range rdfs:Resource;
     msg:type "text/uri-list";
     msg:param "uri".
-
-# GET query parameter
-:GetHtmlResults rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfDatasource>];
-    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-    msg:method "GET";
-    msg:path "?query";
-    calli:requires calli:reader;
-    msg:type "text/html";
-    msg:header "cache-control:no-validate";
-    calli:script """
-        var resp = this.GetQueryResult(htmlQueryStr);
-        var stream = resp && resp.body ? resp.body.content : resp && resp.entity ? resp.entity.content : null;
-        if (stream)
-            return this.TransformResult(stream);
-        return null;
-    """.
-
-:htmlQueryStr a owl:DatatypeProperty, owl:FunctionalProperty;
-    rdfs:domain :GetHtmlResults;
-    rdfs:range xsd:string;
-    msg:param "query".
 
 # POST application/x-www-form-urlencoded
 :PostWebForm rdfs:subClassOf msg:Message;

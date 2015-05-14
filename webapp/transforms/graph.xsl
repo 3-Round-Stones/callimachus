@@ -36,12 +36,6 @@
             <xsl:apply-templates select="*" />
         </div>
         <script type="text/javascript">
-            if ($('.literal[property="http://callimachusproject.org/rdf/2009/framework#hasResultLimit"]').length) {
-                if (window.location.search.indexOf("?query=") === 0) {
-                    var qs = window.location.search.substring(1);
-                    window.location.replace(window.location.pathname + '#' + qs + '&amp;error=Too+Many+Results');
-                }
-            }
             $('ul.properties').each(function(){
                 $(this).children('li').sort(calli.compareElementsBy('.predicate')).appendTo(this);
             });

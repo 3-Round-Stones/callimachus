@@ -39,6 +39,26 @@
                         .datatype, .language { color: gray; }
                         .predicate { color: darkgreen; }
                     </style>
+                    <xsl:if test="rdf:RDF">
+                        <script type="text/javascript">
+                            if ($('.literal[property="http://callimachusproject.org/rdf/2009/framework#hasResultLimit"]').length) {
+                                var qs = window.location.search.substring(1);
+                                window.location.replace(window.location.pathname + '#' + qs + '&amp;error=Too+Many+Results');
+                            }
+                        </script>
+                    </xsl:if>
+                    <script type="text/javascript">
+                    <![CDATA[
+                        var qs = window.location.search.replace(/query=[^&]*&?/,'');
+                        if (qs && qs != '?') {
+                            jQuery(function($){
+                                $('a.describe').each(function(){
+                                    this.href = this.href + '&' + qs.substring(1);
+                                });
+                            });
+                        }
+                    ]]>
+                    </script>
                 </head>
                 <body>
                     <div class="container">

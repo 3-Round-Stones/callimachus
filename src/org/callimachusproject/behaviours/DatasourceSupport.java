@@ -81,7 +81,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class DatasourceSupport implements CalliObject {
-	private static final int MAX_GRAPH_SIZE = 10001;
 	private static final String GET_GRAPH = "CONSTRUCT { ?s ?p ?o } WHERE { GRAPH $graph { ?s ?p ?o } }";
 	private static final String GET_DEFAULT = "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }";
 	private static final String PREFIX = "PREFIX sd:<http://www.w3.org/ns/sparql-service-description#>\n";
@@ -207,18 +206,20 @@ public abstract class DatasourceSupport implements CalliObject {
 		}
 	}
 
-	public HttpEntity evaluateSparql(String qry, String[] defG, String[] nmdG)
+	public HttpEntity evaluateSparql(String qry, Map<String, String[]> param)
 			throws OpenRDFException, IOException, FluidException,
 			DatatypeConfigurationException {
+		String[] defG = param.get("default-graph-uri");
+		String[] nmdG = param.get("named-graph-uri");
 		Collection<String> defURIs = defG == null ? null : Arrays.asList(defG);
 		Collection<String> nmdURIs = nmdG == null ? null : Arrays.asList(nmdG);
-		return evaluateSparql(qry, defURIs, nmdURIs);
+		return evaluateSparql(qry, defURIs, nmdURIs, -1);
 	}
 
 	public HttpEntity evaluateSparql(String qry,
-			Collection<String> defaultGraphs, Collection<String> namedGraphs)
-			throws OpenRDFException, IOException, FluidException,
-			DatatypeConfigurationException {
+			Collection<String> defaultGraphs, Collection<String> namedGraphs,
+			long maximumNumberOfTriples) throws OpenRDFException, IOException,
+			FluidException, DatatypeConfigurationException {
 		if (qry == null || qry.length() == 0)
 			throw new BadRequest("Missing query");
 		if (!isQuerySupported())
@@ -244,22 +245,25 @@ public abstract class DatasourceSupport implements CalliObject {
 				type = java.lang.Boolean.TYPE;
 			} else if (parsed instanceof ParsedGraphQuery) {
 				mime = "application/rdf+xml";
+				final long maxGraphSize = maximumNumberOfTriples + 1;
 				GraphQuery pq = con.prepareGraphQuery(QueryLanguage.SPARQL, query, base);
 				if (defaultGraphs != null || namedGraphs != null) {
 					pq.setDataset(createDataset(defaultGraphs, namedGraphs));
 				}
 				GraphQueryResult res = pq.evaluate();
 				rs = new GraphQueryResultImpl(res.getNamespaces(), res) {
-					private int count;
+					private long count;
 
 					@Override
 					public boolean hasNext() throws QueryEvaluationException {
-						return count < MAX_GRAPH_SIZE && super.hasNext();
+						if (maxGraphSize > 0 && count >= maxGraphSize)
+							return false;
+						return super.hasNext();
 					}
 
 					@Override
 					public Statement next() throws QueryEvaluationException {
-						if (++count >= MAX_GRAPH_SIZE) {
+						if (maxGraphSize > 0 && ++count >= maxGraphSize) {
 							return new StatementImpl(vf.createURI(base),
 									vf.createURI(TOO_MANY_RESULTS),
 									vf.createLiteral(count - 1));
@@ -306,9 +310,11 @@ public abstract class DatasourceSupport implements CalliObject {
 		}
 	}
 
-	public void executeSparql(String ru, String[] defG, String[] nmdG)
+	public void executeSparql(String ru, Map<String, String[]> param)
 			throws OpenRDFException, IOException,
 			DatatypeConfigurationException {
+		String[] defG = param.get("using-graph-uri");
+		String[] nmdG = param.get("using-named-graph-uri");
 		Collection<String> defURIs = defG == null ? null : Arrays.asList(defG);
 		Collection<String> nmdURIs = nmdG == null ? null : Arrays.asList(nmdG);
 		executeSparql(ru, defURIs, nmdURIs);
@@ -351,6 +357,10 @@ public abstract class DatasourceSupport implements CalliObject {
 				try {
 					URI uri = vf.createURI(defaultGraphURI);
 					dataset.addDefaultGraph(uri);
+					dataset.addDefaultRemoveGraph(uri);
+					if (defaultGraphURIs.size() == 1) {
+						dataset.setDefaultInsertGraph(uri);
+					}
 				} catch (IllegalArgumentException e) {
 					throw new BadRequest("Illegal URI for default graph: "
 							+ defaultGraphURI);

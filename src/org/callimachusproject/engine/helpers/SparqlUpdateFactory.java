@@ -26,11 +26,10 @@ import java.util.Map;
 import org.apache.clerezza.rdf.core.BNode;
 import org.callimachusproject.engine.events.DeleteWhere;
 import org.callimachusproject.engine.events.Document;
-import org.callimachusproject.engine.events.Insert;
+import org.callimachusproject.engine.events.InsertData;
 import org.callimachusproject.engine.events.Namespace;
 import org.callimachusproject.engine.events.Triple;
 import org.callimachusproject.engine.events.TriplePattern;
-import org.callimachusproject.engine.events.Where;
 import org.callimachusproject.engine.model.AbsoluteTermFactory;
 import org.callimachusproject.engine.model.IRI;
 import org.callimachusproject.engine.model.Node;
@@ -127,7 +126,7 @@ public class SparqlUpdateFactory {
 					asVarOrTerm(pred), asVarOrTerm(obj)));
 		}
 		writer.write(new DeleteWhere(false, null));
-		writer.write(new Insert(true, null));
+		writer.write(new InsertData(true, null));
 		for (Statement st : added) {
 			Resource subj = st.getSubject();
 			URI pred = st.getPredicate();
@@ -135,9 +134,7 @@ public class SparqlUpdateFactory {
 			writer.write(new Triple((Node) asTerm(subj), (IRI) asTerm(pred),
 					asTerm(obj)));
 		}
-		writer.write(new Insert(false, null));
-		writer.write(new Where(true, null));
-		writer.write(new Where(false, null));
+		writer.write(new InsertData(false, null));
 		writer.write(new Document(false, null));
 		writer.close();
 		return str.toString();

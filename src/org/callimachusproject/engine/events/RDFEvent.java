@@ -104,6 +104,14 @@ public class RDFEvent {
 		return isEnd() && this instanceof Where;
 	}
 
+	public boolean isStartInsertData() {
+		return isStart() && this instanceof InsertData;
+	}
+
+	public boolean isEndInsertData() {
+		return isEnd() && this instanceof InsertData;
+	}
+
 	public boolean isStartInsert() {
 		return isStart() && this instanceof Insert;
 	}
@@ -112,12 +120,24 @@ public class RDFEvent {
 		return isEnd() && this instanceof Insert;
 	}
 
+	public boolean isStartDelete() {
+		return isStart() && this instanceof Delete;
+	}
+
+	public boolean isEndDelete() {
+		return isEnd() && this instanceof Delete;
+	}
+
 	public boolean isStartDeleteWhere() {
 		return isStart() && this instanceof DeleteWhere;
 	}
 
 	public boolean isEndDeleteWhere() {
 		return isEnd() && this instanceof DeleteWhere;
+	}
+
+	public boolean isDrop() {
+		return this instanceof Drop;
 	}
 
 	public boolean isStartExists() {
@@ -190,6 +210,14 @@ public class RDFEvent {
 
 	public boolean isEndBuiltInCall() {
 		return isEnd() && this instanceof BuiltInCall;
+	}
+
+	public boolean isOrExpression() {
+		return this instanceof OrExpression;
+	}
+
+	public boolean isAndExpression() {
+		return this instanceof AndExpression;
 	}
 
 	public boolean isVarOrTerm() {

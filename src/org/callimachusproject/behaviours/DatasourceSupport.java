@@ -18,53 +18,62 @@ package org.callimachusproject.behaviours;
 
 import static org.openrdf.query.QueryLanguage.SPARQL;
 
+import java.io.BufferedInputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.regex.Pattern;
 
-import javax.xml.datatype.DatatypeConfigurationException;
-
-import org.apache.http.HttpEntity;
-import org.callimachusproject.io.DescribeResult;
+import org.apache.http.Consts;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpVersion;
+import org.apache.http.message.BasicHttpResponse;
+import org.callimachusproject.annotations.requires;
+import org.callimachusproject.io.SparqlInsertDataParser;
 import org.callimachusproject.repository.auditing.ActivityFactory;
 import org.callimachusproject.repository.auditing.AuditingRepositoryConnection;
 import org.callimachusproject.server.helpers.RequestActivityFactory;
 import org.callimachusproject.traits.CalliObject;
 import org.openrdf.OpenRDFException;
+import org.openrdf.annotations.HeaderParam;
+import org.openrdf.annotations.Method;
+import org.openrdf.annotations.Param;
+import org.openrdf.annotations.Path;
 import org.openrdf.annotations.Sparql;
+import org.openrdf.annotations.Type;
 import org.openrdf.http.object.client.CloseableEntity;
+import org.openrdf.http.object.client.HttpUriResponse;
 import org.openrdf.http.object.exceptions.BadRequest;
 import org.openrdf.http.object.exceptions.InternalServerError;
+import org.openrdf.http.object.exceptions.ResponseException;
 import org.openrdf.http.object.fluid.FluidBuilder;
 import org.openrdf.http.object.fluid.FluidException;
 import org.openrdf.http.object.fluid.FluidFactory;
+import org.openrdf.http.object.fluid.FluidType;
+import org.openrdf.model.Model;
 import org.openrdf.model.Namespace;
-import org.openrdf.model.Statement;
+import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
-import org.openrdf.model.impl.StatementImpl;
 import org.openrdf.query.BooleanQuery;
 import org.openrdf.query.Dataset;
 import org.openrdf.query.GraphQuery;
-import org.openrdf.query.GraphQueryResult;
 import org.openrdf.query.MalformedQueryException;
-import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.QueryLanguage;
 import org.openrdf.query.TupleQuery;
 import org.openrdf.query.Update;
 import org.openrdf.query.impl.DatasetImpl;
-import org.openrdf.query.impl.GraphQueryResultImpl;
 import org.openrdf.query.parser.ParsedBooleanQuery;
 import org.openrdf.query.parser.ParsedGraphQuery;
 import org.openrdf.query.parser.ParsedQuery;
 import org.openrdf.query.parser.ParsedTupleQuery;
 import org.openrdf.query.parser.QueryParser;
 import org.openrdf.query.parser.QueryParserRegistry;
+import org.openrdf.query.resultio.BooleanQueryResultFormat;
+import org.openrdf.query.resultio.BooleanQueryResultWriterRegistry;
+import org.openrdf.query.resultio.TupleQueryResultFormat;
+import org.openrdf.query.resultio.TupleQueryResultWriterRegistry;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -75,20 +84,21 @@ import org.openrdf.repository.contextaware.ContextAwareConnection;
 import org.openrdf.repository.manager.RepositoryManager;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.sail.config.SailRepositoryConfig;
-import org.openrdf.rio.RDFFormat;
+import org.openrdf.repository.util.RDFInserter;
+import org.openrdf.rio.RDFHandlerException;
+import org.openrdf.rio.RDFParser;
 import org.openrdf.sail.nativerdf.config.NativeStoreConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class DatasourceSupport implements CalliObject {
-	private static final String GET_GRAPH = "CONSTRUCT { ?s ?p ?o } WHERE { GRAPH $graph { ?s ?p ?o } }";
-	private static final String GET_DEFAULT = "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }";
+public abstract class DatasourceSupport extends GraphStoreSupport implements CalliObject {
+	private static final int MAX_RU_SIZE = 10240; // 10KiB
 	private static final String PREFIX = "PREFIX sd:<http://www.w3.org/ns/sparql-service-description#>\n";
-	private static final Pattern HAS_PREFIX = Pattern.compile("^[^#]*\\bPREFIX\\b",
-			Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
 	static final String TOO_MANY_RESULTS = "http://callimachusproject.org/rdf/2009/framework#hasResultLimit";
 
 	final Logger logger = LoggerFactory.getLogger(DatasourceSupport.class);
+	private final BooleanQueryResultWriterRegistry bool = BooleanQueryResultWriterRegistry.getInstance();
+	private final TupleQueryResultWriterRegistry tuple = TupleQueryResultWriterRegistry.getInstance();
 
 	@Sparql(PREFIX + "ASK { $this sd:supportedLanguage sd:SPARQL11Query }")
 	public abstract boolean isQuerySupported();
@@ -96,147 +106,34 @@ public abstract class DatasourceSupport implements CalliObject {
 	@Sparql(PREFIX + "ASK { $this sd:supportedLanguage sd:SPARQL11Update }")
 	public abstract boolean isUpdateSupported();
 
-	public GraphQueryResult describeResource(URI uri)
-			throws OpenRDFException, IOException, DatatypeConfigurationException {
-		if (uri == null)
-			throw new BadRequest("Missing uri");
-		if (!isQuerySupported())
-			throw new BadRequest("SPARQL Query is not supported on this service");
-		return new DescribeResult(uri, openConnection(), true);
-	}
-
-	public GraphQueryResult constructGraph(URI graph)
-			throws OpenRDFException, IOException, DatatypeConfigurationException {
-		boolean success = false;
-		final RepositoryConnection con = openConnection();
-		try {
-			GraphQuery rq;
-			if (graph == null) {
-				rq = con.prepareGraphQuery(SPARQL, GET_DEFAULT);
-			} else {
-				rq = con.prepareGraphQuery(SPARQL, GET_GRAPH);
-				rq.setBinding("graph", graph);
-			}
-			GraphQueryResult rdf = rq.evaluate();
-			rdf = new GraphQueryResultImpl(rdf.getNamespaces(), rdf) {
-				protected void handleClose() throws QueryEvaluationException {
-					super.handleClose();
-					try {
-						con.close();
-					} catch (RepositoryException e) {
-						throw new QueryEvaluationException(e);
-					}
-				}
-			};
-			success = true;
-			return rdf;
-		} finally {
-			if (!success) {
-				con.close();
-			}
-		}
-	}
-
-	public void dropGraph(URI graph)
-			throws OpenRDFException, IOException, DatatypeConfigurationException {
-		final RepositoryConnection con = openConnection();
-		try {
-			if (graph == null) {
-				con.prepareUpdate(SPARQL, "DROP DEFAULT").execute();
-			} else {
-				if (graph.stringValue().contains(">"))
-					throw new BadRequest("Invalid graph URI: " + graph);
-				String ru = "DROP GRAPH <" + graph.stringValue() + ">";
-				con.prepareUpdate(SPARQL, ru, this.toString()).execute();
-			}
-		} finally {
-			con.close();
-		}
-	}
-
-	public boolean loadGraph(InputStream rdf, String type, URI graph)
-			throws OpenRDFException, IOException, DatatypeConfigurationException {
-		final RepositoryConnection con = openConnection();
-		try {
-			con.begin();
-			boolean created = !con.hasStatement(null, null, null, true, graph);
-			con.add(rdf, this.toString(), RDFFormat.forMIMEType(type), graph);
-			con.commit();
-			mergeNamespaces(con.getNamespaces());
-			return created;
-		} finally {
-			con.rollback();
-			con.close();
-		}
-	}
-
-	public boolean clearAndLoadGraph(InputStream rdf, String type, URI graph)
-			throws OpenRDFException, IOException, DatatypeConfigurationException {
-		final RepositoryConnection con = openConnection();
-		try {
-			con.begin();
-			boolean created = !con.hasStatement(null, null, null, true, graph);
-			con.clear(graph);
-			con.add(rdf, this.toString(), RDFFormat.forMIMEType(type), graph);
-			con.commit();
-			mergeNamespaces(con.getNamespaces());
-			return created;
-		} finally {
-			con.rollback();
-			con.close();
-		}
-	}
-
-	public void patchGraph(String sparql, URI graph)
-			throws OpenRDFException, IOException, DatatypeConfigurationException {
-		final RepositoryConnection con = openConnection();
-		try {
-			con.begin();
-			Update ru = con.prepareUpdate(SPARQL, sparql, this.toString());
-			DatasetImpl ds = new DatasetImpl();
-			ds.setDefaultInsertGraph(graph);
-			ds.addDefaultGraph(graph);
-			ds.addDefaultRemoveGraph(graph);
-			ru.setDataset(ds);
-			ru.execute();
-			con.commit();
-		} finally {
-			con.rollback();
-			con.close();
-		}
-	}
-
-	public HttpEntity evaluateSparql(String qry, Map<String, String[]> param)
-			throws OpenRDFException, IOException, FluidException,
-			DatatypeConfigurationException {
-		String[] defG = param.get("default-graph-uri");
-		String[] nmdG = param.get("named-graph-uri");
-		Collection<String> defURIs = defG == null ? null : Arrays.asList(defG);
-		Collection<String> nmdURIs = nmdG == null ? null : Arrays.asList(nmdG);
-		return evaluateSparql(qry, defURIs, nmdURIs, -1);
-	}
-
-	public HttpEntity evaluateSparql(String qry,
-			Collection<String> defaultGraphs, Collection<String> namedGraphs,
-			long maximumNumberOfTriples) throws OpenRDFException, IOException,
-			FluidException, DatatypeConfigurationException {
-		if (qry == null || qry.length() == 0)
+	@Override
+	@Method("POST")
+	@Path("\\?.*|$")
+	@requires(READER)
+	public HttpUriResponse postQuery(
+			@Param("default-graph-uri") String[] defaultGraphs,
+			@Param("named-graph-uri") String[] namedGraphs,
+			@HeaderParam("Accept") String accept,
+			@HeaderParam("Content-Location") String loc,
+			@Type("application/sparql-query") byte[] rq) throws IOException,
+			OpenRDFException {
+		if (rq == null || rq.length == 0)
 			throw new BadRequest("Missing query");
 		if (!isQuerySupported())
 			throw new BadRequest("SPARQL Query is not supported on this service");
-		String query = addPrefix(qry);
+		String query = new String(rq, Consts.UTF_8);
+		boolean close = true;
 		final RepositoryConnection con = openConnection();
 		try {
-			final ValueFactory vf = con.getValueFactory();
 			String mime;
 			Object rs;
 			Class<?> type;
 			final String base = this.getResource().stringValue();
 			QueryParserRegistry reg = QueryParserRegistry.getInstance();
 			QueryParser parser = reg.get(QueryLanguage.SPARQL).getParser();
-			ParsedQuery parsed = parser.parseQuery(query, base);
+			ParsedQuery parsed = parser.parseQuery(query, loc == null ? base : loc);
 			if (parsed instanceof ParsedBooleanQuery) {
-				mime = "application/sparql-results+xml";
+				mime = getAcceptableBooleanFormat(accept).getDefaultMIMEType();
 				BooleanQuery pq = con.prepareBooleanQuery(QueryLanguage.SPARQL, query, base);
 				if (defaultGraphs != null || namedGraphs != null) {
 					pq.setDataset(createDataset(defaultGraphs, namedGraphs));
@@ -244,36 +141,15 @@ public abstract class DatasourceSupport implements CalliObject {
 				rs = pq.evaluate();
 				type = java.lang.Boolean.TYPE;
 			} else if (parsed instanceof ParsedGraphQuery) {
-				mime = "application/rdf+xml";
-				final long maxGraphSize = maximumNumberOfTriples + 1;
+				mime = getAcceptableRDFFormat(accept).getDefaultMIMEType();
 				GraphQuery pq = con.prepareGraphQuery(QueryLanguage.SPARQL, query, base);
 				if (defaultGraphs != null || namedGraphs != null) {
 					pq.setDataset(createDataset(defaultGraphs, namedGraphs));
 				}
-				GraphQueryResult res = pq.evaluate();
-				rs = new GraphQueryResultImpl(res.getNamespaces(), res) {
-					private long count;
-
-					@Override
-					public boolean hasNext() throws QueryEvaluationException {
-						if (maxGraphSize > 0 && count >= maxGraphSize)
-							return false;
-						return super.hasNext();
-					}
-
-					@Override
-					public Statement next() throws QueryEvaluationException {
-						if (maxGraphSize > 0 && ++count >= maxGraphSize) {
-							return new StatementImpl(vf.createURI(base),
-									vf.createURI(TOO_MANY_RESULTS),
-									vf.createLiteral(count - 1));
-						}
-						return super.next();
-					}
-				};
+				rs = pq.evaluate();
 				type = rs.getClass();
 			} else if (parsed instanceof ParsedTupleQuery) {
-				mime = "application/sparql-results+xml";
+				mime = getAcceptableTupleFormat(accept).getDefaultMIMEType();
 				TupleQuery pq = con.prepareTupleQuery(QueryLanguage.SPARQL, query, base);
 				if (defaultGraphs != null || namedGraphs != null) {
 					pq.setDataset(createDataset(defaultGraphs, namedGraphs));
@@ -285,7 +161,8 @@ public abstract class DatasourceSupport implements CalliObject {
 						+ parsed.getClass());
 			}
 			FluidBuilder fb = FluidFactory.getInstance().builder();
-			return new CloseableEntity(fb.consume(rs, base, type, mime)
+			BasicHttpResponse res = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
+			res.setEntity(new CloseableEntity(fb.consume(rs, base, type, mime)
 					.asHttpEntity(), new Closeable() {
 				public void close() throws IOException {
 					try {
@@ -294,48 +171,83 @@ public abstract class DatasourceSupport implements CalliObject {
 						logger.error(e.toString(), e);
 					}
 				}
-			});
+			}));
+			close = false;
+			return new HttpUriResponse(this.toString(), res);
+		} catch (FluidException e) {
+			throw new InternalServerError(e);
 		} catch (MalformedQueryException e) {
-			con.close();
 			throw new BadRequest(e.toString());
 		} catch (IllegalArgumentException e) {
-			con.close();
 			throw new BadRequest("Missing accept header: " + e.getMessage());
-		} catch (RuntimeException e) {
-			con.close();
-			throw e;
-		} catch (Error e) {
-			con.close();
-			throw e;
+		} finally {
+			if (close) {
+				con.close();
+			}
 		}
 	}
 
-	public void executeSparql(String ru, Map<String, String[]> param)
-			throws OpenRDFException, IOException,
-			DatatypeConfigurationException {
-		String[] defG = param.get("using-graph-uri");
-		String[] nmdG = param.get("using-named-graph-uri");
-		Collection<String> defURIs = defG == null ? null : Arrays.asList(defG);
-		Collection<String> nmdURIs = nmdG == null ? null : Arrays.asList(nmdG);
-		executeSparql(ru, defURIs, nmdURIs);
-	}
-
-	public void executeSparql(String ru, Collection<String> defaultGraphs,
-			Collection<String> namedGraphs) throws OpenRDFException, IOException,
-			DatatypeConfigurationException {
+	@Override
+	@Method("POST")
+	@Path("\\?.*|$")
+	@requires(EDITOR)
+	public HttpResponse postUpdate(
+			@Param("using-graph-uri") final String[] defaultGraphs,
+			@Param("using-named-graph-uri") final String[] namedGraphs,
+			@HeaderParam("Content-Location") String loc,
+			@Type("application/sparql-update") InputStream ru)
+			throws IOException, OpenRDFException {
 		if (!isUpdateSupported())
 			throw new BadRequest("SPARQL Update is not supported on this service");
-		String update = addPrefix(ru);
-		RepositoryConnection con = openConnection();
+		BufferedInputStream bin = new BufferedInputStream(ru, MAX_RU_SIZE);
+		bin.mark(MAX_RU_SIZE);
+		int skipped = (int) bin.skip(MAX_RU_SIZE);
+		bin.reset();
+		String base = loc == null ? this.getResource().stringValue() : loc;
+		final RepositoryConnection con = openConnection();
 		try {
-			String base = this.getResource().stringValue();
-			Update pu = con.prepareUpdate(QueryLanguage.SPARQL, update, base);
-			if (defaultGraphs != null || namedGraphs != null) {
-				pu.setDataset(createDataset(defaultGraphs, namedGraphs));
+			if (MAX_RU_SIZE > skipped) {
+				byte[] buf = new byte[skipped];
+				try {
+					bin.read(buf);
+				} finally {
+					bin.close();
+				}
+				String update = new String(buf, Consts.UTF_8);
+				Update pu = con.prepareUpdate(SPARQL, update, base);
+				if (defaultGraphs != null || namedGraphs != null) {
+					pu.setDataset(createDataset(defaultGraphs, namedGraphs));
+				}
+				pu.execute();
+				logger.info(update);
+				mergeNamespaces(con.getNamespaces());
+			} else if (defaultGraphs == null || defaultGraphs.length == 1 && namedGraphs == null) {
+				// large INSERT DATA
+				try {
+					RDFParser parser = new SparqlDropInsertDataParser(
+							defaultGraphs, namedGraphs, con);
+					RDFInserter inserter = new RDFInserter(con);
+					if (defaultGraphs != null && defaultGraphs.length == 1) {
+						inserter.enforceContext(vf.createURI(defaultGraphs[0]));
+						logger.info("INSERT DATA { GRAPH <{}> }",
+								defaultGraphs[0]);
+					} else {
+						logger.info("INSERT DATA", defaultGraphs[0]);
+					}
+					parser.setRDFHandler(inserter);
+					parser.parse(bin, base);
+				} finally {
+					bin.close();
+				}
+			} else {
+				bin.close();
+				throw new ResponseException("Request Entity Too Large") {
+					public int getStatusCode() {
+						return 413;
+					}
+				};
 			}
-			pu.execute();
-			logger.info(update);
-			mergeNamespaces(con.getNamespaces());
+			return new BasicHttpResponse(HttpVersion.HTTP_1_1, 204, "No Content");
 		} finally {
 			con.close();
 		}
@@ -348,8 +260,24 @@ public abstract class DatasourceSupport implements CalliObject {
 		manager.removeRepository(id);
 	}
 
-	private Dataset createDataset(Collection<String> defaultGraphURIs,
-			Collection<String> namedGraphURIs) {
+	private BooleanQueryResultFormat getAcceptableBooleanFormat(String accept) {
+		String type = new FluidType(Model.class, "text/boolean",
+				"application/json", "application/sparql-results+xml").as(
+				accept.split("\\s*,\\s*")).preferred();
+		return bool.getFileFormatForMIMEType(type,
+				BooleanQueryResultFormat.TEXT);
+	}
+
+	private TupleQueryResultFormat getAcceptableTupleFormat(String accept) {
+		String type = new FluidType(Model.class, "text/csv",
+				"application/json", "application/sparql-results+xml",
+				"text/tab-separated-values").as(accept.split("\\s*,\\s*"))
+				.preferred();
+		return tuple.getFileFormatForMIMEType(type, TupleQueryResultFormat.CSV);
+	}
+
+	private Dataset createDataset(String[] defaultGraphURIs,
+			String[] namedGraphURIs) {
 		ValueFactory vf = this.getObjectConnection().getValueFactory();
 		DatasetImpl dataset = new DatasetImpl();
 		if (defaultGraphURIs != null) {
@@ -358,7 +286,7 @@ public abstract class DatasourceSupport implements CalliObject {
 					URI uri = vf.createURI(defaultGraphURI);
 					dataset.addDefaultGraph(uri);
 					dataset.addDefaultRemoveGraph(uri);
-					if (defaultGraphURIs.size() == 1) {
+					if (defaultGraphURIs.length == 1) {
 						dataset.setDefaultInsertGraph(uri);
 					}
 				} catch (IllegalArgumentException e) {
@@ -381,30 +309,8 @@ public abstract class DatasourceSupport implements CalliObject {
 		return dataset;
 	}
 
-	private String addPrefix(String inputString) throws RepositoryException {
-		if (HAS_PREFIX.matcher(inputString).find())
-			return inputString;
-		StringBuilder sb = new StringBuilder();
-		ObjectConnection con = this.getObjectConnection();
-		RepositoryResult<Namespace> namespaces = con.getNamespaces();
-		try {
-			while (namespaces.hasNext()) {
-				Namespace namespace = namespaces.next();
-				String prefix = namespace.getPrefix();
-				String uri = namespace.getName();
-				if (inputString.indexOf(prefix) >= 0) {
-					sb.append("PREFIX ").append(prefix);
-					sb.append(":<").append(uri).append(">\n");
-				}
-			}
-			return sb.append(inputString).toString();
-		} finally {
-			namespaces.close();
-		}
-	}
-
 	private RepositoryConnection openConnection() throws OpenRDFException,
-			IOException, DatatypeConfigurationException {
+			IOException {
 		URI uri = (URI) this.getResource();
 		ObjectConnection con1 = this.getObjectConnection();
 		URI bundle = con1.getVersionBundle();
@@ -473,5 +379,73 @@ public abstract class DatasourceSupport implements CalliObject {
 			return findAuditing(((RepositoryConnectionWrapper) con)
 					.getDelegate());
 		return null;
+	}
+
+	static class SparqlDropInsertDataParser extends SparqlInsertDataParser {
+		private final String[] namedGraphs;
+		private final RepositoryConnection con;
+		private final String[] defaultGraphs;
+		private final ValueFactory vf;
+	
+		SparqlDropInsertDataParser(String[] defaultGraphs,
+				String[] namedGraphs, RepositoryConnection con) {
+			super(con.getValueFactory());
+			this.namedGraphs = namedGraphs;
+			this.con = con;
+			this.defaultGraphs = defaultGraphs;
+			this.vf = con.getValueFactory();
+		}
+	
+		@Override
+		protected void reportDropGraph(URI graph)
+				throws RDFHandlerException {
+			try {
+				con.clear(graph);
+			} catch (RepositoryException e) {
+				throw new RDFHandlerException(e);
+			}
+		}
+	
+		@Override
+		protected void reportDropDefault()
+				throws RDFHandlerException {
+			try {
+				if (defaultGraphs != null && defaultGraphs.length > 0) {
+					Resource[] contexts = new Resource[defaultGraphs.length];
+					for (int i=0;i<defaultGraphs.length;i++) {
+						contexts[i] = vf.createURI(defaultGraphs[i]);
+					}
+					con.clear(contexts);
+				} else {
+					con.clear((Resource) null);
+				}
+			} catch (RepositoryException e) {
+				throw new RDFHandlerException(e);
+			}
+		}
+	
+		@Override
+		protected void reportDropNamed() throws RDFHandlerException {
+			try {
+				if (namedGraphs != null && namedGraphs.length > 0) {
+					Resource[] contexts = new Resource[namedGraphs.length];
+					for (int i=0;i<namedGraphs.length;i++) {
+						contexts[i] = vf.createURI(namedGraphs[i]);
+					}
+					con.clear(contexts);
+				}
+			} catch (RepositoryException e) {
+				throw new RDFHandlerException(e);
+			}
+		}
+	
+		@Override
+		protected void reportDropAll() throws RDFHandlerException {
+			try {
+				con.clear();
+			} catch (RepositoryException e) {
+				throw new RDFHandlerException(e);
+			}
+		}
 	}
 }

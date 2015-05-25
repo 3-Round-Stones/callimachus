@@ -55,7 +55,7 @@ public class PurlIntegrationTest extends TemporaryServerIntegrationTestCase {
 	public void testStaticCanonical() throws Exception {
 		WebResource purl = getHomeFolder().createPurl("google", "canonical", "http://www.google.ca/");
 		try {
-			assertEquals("http://www.google.ca/", purl.getRedirectLocation());
+			assertEquals("http://www.google.ca/", purl.getRedirectTarget().toString());
 			assertEquals(301, purl.headCode());
 		} finally {
 			purl.rel("describedby").delete();
@@ -65,7 +65,7 @@ public class PurlIntegrationTest extends TemporaryServerIntegrationTestCase {
 	public void testStaticAlternate() throws Exception {
 		WebResource purl = getHomeFolder().createPurl("alternate", "alternate", "http://www.google.ca/");
 		try {
-			assertEquals("http://www.google.ca/", purl.getRedirectLocation());
+			assertEquals("http://www.google.ca/", purl.getRedirectTarget().toString());
 			assertEquals(302, purl.headCode());
 		} finally {
 			purl.rel("describedby").delete();
@@ -75,7 +75,7 @@ public class PurlIntegrationTest extends TemporaryServerIntegrationTestCase {
 	public void testStaticDescribedBy() throws Exception {
 		WebResource purl = getHomeFolder().createPurl("describing", "describedby", "http://www.google.ca/");
 		try {
-			assertEquals("http://www.google.ca/", purl.getRedirectLocation());
+			assertEquals("http://www.google.ca/", purl.getRedirectTarget().toString());
 			assertEquals(303, purl.headCode());
 		} finally {
 			purl.rel("describedby").delete();
@@ -85,7 +85,7 @@ public class PurlIntegrationTest extends TemporaryServerIntegrationTestCase {
 	public void testStaticResides() throws Exception {
 		WebResource purl = getHomeFolder().createPurl("resides", "resides", "http://www.google.ca/");
 		try {
-			assertEquals("http://www.google.ca/", purl.getRedirectLocation());
+			assertEquals("http://www.google.ca/", purl.getRedirectTarget().toString());
 			assertEquals(307, purl.headCode());
 		} finally {
 			purl.rel("describedby").delete();
@@ -95,7 +95,7 @@ public class PurlIntegrationTest extends TemporaryServerIntegrationTestCase {
 	public void testStaticMoved() throws Exception {
 		WebResource purl = getHomeFolder().createPurl("moved", "moved", "http://www.google.ca/");
 		try {
-			assertEquals("http://www.google.ca/", purl.getRedirectLocation());
+			assertEquals("http://www.google.ca/", purl.getRedirectTarget().toString());
 			assertEquals(308, purl.headCode());
 		} finally {
 			purl.rel("describedby").delete();
@@ -123,7 +123,7 @@ public class PurlIntegrationTest extends TemporaryServerIntegrationTestCase {
 	public void testPreserveQueryString() throws Exception {
 		WebResource purl = getHomeFolder().createPurl("preserve", "alternate", "http://www.google.ca/search");
 		try {
-			assertEquals("http://www.google.ca/search?q=callimachus", purl.ref("?q=callimachus").getRedirectLocation());
+			assertEquals("http://www.google.ca/search?q=callimachus", purl.ref("?q=callimachus").getRedirectTarget().toString());
 			WebResource url = purl.ref("?search=callimachus");
 			assertEquals(302, url.headCode());
 		} finally {
@@ -135,7 +135,7 @@ public class PurlIntegrationTest extends TemporaryServerIntegrationTestCase {
 		WebResource purl = getHomeFolder().createPurl("change", "alternate", "http://www.google.ca/search?q={search}");
 		try {
 			WebResource url = purl.ref("?search=callimachus");
-			assertEquals("http://www.google.ca/search?q=callimachus", url.getRedirectLocation());
+			assertEquals("http://www.google.ca/search?q=callimachus", url.getRedirectTarget().toString());
 			assertEquals(302, url.headCode());
 		} finally {
 			purl.rel("describedby").delete();

@@ -16,7 +16,6 @@ org.callimachusproject.behaviours.XQuerySupport		= http://callimachusproject.org
 org.callimachusproject.behaviours.XslTransformSupport		= http://callimachusproject.org/rdf/2009/framework#XslTransform
 org.callimachusproject.behaviours.CredentialSupport	= http://callimachusproject.org/rdf/2009/framework#Credential
 org.callimachusproject.behaviours.PurlSupport		= http://callimachusproject.org/rdf/2009/framework#Purl
-org.callimachusproject.behaviours.DatasourceSupport	= http://callimachusproject.org/rdf/2009/framework#RdfDatasource
 org.callimachusproject.behaviours.FacebookManagerSupport
 org.callimachusproject.behaviours.OpenIDManagerSupport
 org.callimachusproject.behaviours.DocumentSupport	= http://xmlns.com/foaf/0.1/Document

@@ -141,7 +141,7 @@ public class WebResource {
 		sb.append("PREFIX calli: <http://callimachusproject.org/rdf/2009/framework#>\n");
 		sb.append("PREFIX sd: <http://www.w3.org/ns/sparql-service-description#>\n");
 		sb.append("<").append(slug).append(">");
-		sb.append(" a sd:Service, calli:RdfDatasource, </callimachus/1.5/types/RdfDatasource>;\n");
+		sb.append(" a calli:RdfDatasource;\n");
 		sb.append("rdfs:label \"").append(slug).append("\";\n");
 		sb.append("sd:endpoint <").append(slug).append(">;\n");
 		sb.append("sd:supportedLanguage sd:SPARQL11Query;\n");
@@ -155,14 +155,27 @@ public class WebResource {
 		return rel("describedby").create("text/turtle", sb.toString().getBytes("UTF-8")).rev("describedby");
 	}
 
-	public String getRedirectLocation() throws IOException {
+	public WebResource createRemoteRdfSource(String slug, String endpoint) throws IOException {
+		StringBuilder sb = new StringBuilder();
+		sb.append("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n");
+		sb.append("PREFIX calli: <http://callimachusproject.org/rdf/2009/framework#>\n");
+		sb.append("PREFIX sd: <http://www.w3.org/ns/sparql-service-description#>\n");
+		sb.append("<").append(slug).append(">");
+		sb.append(" a calli:RemoteRdfSource;\n");
+		sb.append("rdfs:label \"").append(slug).append("\";\n");
+		sb.append("calli:queryEndpoint <").append(endpoint).append(">;\n");
+		sb.append("calli:updateEndpoint <").append(endpoint).append(">.\n");
+		return rel("describedby").create("text/turtle", sb.toString().getBytes("UTF-8")).rev("describedby");
+	}
+
+	public WebResource getRedirectTarget() throws IOException {
 		HttpURLConnection con = (HttpURLConnection) new URL(uri).openConnection();
 		con.setInstanceFollowRedirects(false);
 		con.setRequestMethod("HEAD");
 		int code = con.getResponseCode();
 		if (!(code == 301 || code == 303 || code == 302 || code == 307 || code == 308))
 			Assert.assertEquals(con.getResponseMessage(), 302, code);
-		return con.getHeaderField("Location");
+		return ref(con.getHeaderField("Location"));
 	}
 
 	public int headCode() throws IOException {
@@ -170,6 +183,13 @@ public class WebResource {
 		con.setInstanceFollowRedirects(false);
 		con.setRequestMethod("HEAD");
 		return con.getResponseCode();
+	}
+
+	public String headETag() throws IOException {
+		HttpURLConnection con = (HttpURLConnection) new URL(uri).openConnection();
+		con.setInstanceFollowRedirects(false);
+		con.setRequestMethod("HEAD");
+		return con.getHeaderField("ETag");
 	}
 
 	public byte[] get(String type) throws IOException {
@@ -240,9 +260,15 @@ public class WebResource {
 	}
 
 	public void put(String type, byte[] body) throws IOException {
+		putIf("*", type, body);
+	}
+
+	public void putIf(String match, String type, byte[] body) throws IOException {
 		HttpURLConnection con = (HttpURLConnection) new URL(uri).openConnection();
 		con.setRequestMethod("PUT");
-		con.setRequestProperty("If-Match", "*");
+		if (match != null) {
+			con.setRequestProperty("If-Match", match);
+		}
 		con.setRequestProperty("Content-Type", type);
 		con.setDoOutput(true);
 		OutputStream out = con.getOutputStream();
@@ -321,20 +347,6 @@ public class WebResource {
 	public WebResource query(String sparql) throws Exception {
 		String encoded = URLEncoder.encode(sparql, "UTF-8");
 		return ref("?query=" + encoded);
-	}
-
-	public void update(String sparql) throws Exception {
-		HttpURLConnection con = (HttpURLConnection) new URL(uri).openConnection();
-		con.setRequestMethod("POST");
-		con.setRequestProperty("Content-Type", "application/sparql-update");
-		con.setDoOutput(true);
-		OutputStream out = con.getOutputStream();
-		try {
-			out.write(sparql.getBytes("UTF-8"));
-		} finally {
-			out.close();
-		}
-		Assert.assertEquals(con.getResponseMessage(), 204, con.getResponseCode());
 	}
 
 	@Override

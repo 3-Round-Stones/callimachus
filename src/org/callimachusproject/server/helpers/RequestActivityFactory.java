@@ -42,16 +42,20 @@ public class RequestActivityFactory implements ActivityFactory {
 	private final long receivedOn;
 
 	public RequestActivityFactory(URI activity, ActivityFactory delegate,
-			HttpContext ctx, long receivedOn) throws DatatypeConfigurationException {
+			HttpContext ctx, long receivedOn) {
 		this.activity = activity;
 		this.delegate = delegate;
 		this.ctx = ctx;
 		this.receivedOn = receivedOn;
-		this.df = DatatypeFactory.newInstance();
+		try {
+			this.df = DatatypeFactory.newInstance();
+		} catch (DatatypeConfigurationException e) {
+			throw new AssertionError(e);
+		}
 	}
 
 	public RequestActivityFactory(RequestActivityFactory copyOf,
-			ActivityFactory delegate) throws DatatypeConfigurationException {
+			ActivityFactory delegate) {
 		this(copyOf.activity, delegate, copyOf.ctx, copyOf.receivedOn);
 	}
 

@@ -21,11 +21,14 @@ package org.callimachusproject.engine.helpers;
 import java.io.Closeable;
 import java.io.Flushable;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.http.Consts;
 import org.callimachusproject.engine.RDFEventReader;
 import org.callimachusproject.engine.RDFParseException;
 import org.callimachusproject.engine.events.RDFEvent;
@@ -68,6 +71,10 @@ public class SPARQLWriter implements Closeable, Flushable {
 	private RDFEvent previous;
 	//private boolean filtering;
 	private int builtin;
+
+	public SPARQLWriter(OutputStream out) {
+		this(new OutputStreamWriter(out, Consts.UTF_8));
+	}
 
 	public SPARQLWriter(Writer writer) {
 		this.writer = writer;
@@ -122,6 +129,15 @@ public class SPARQLWriter implements Closeable, Flushable {
 			indent--;
 			indent(indent);
 			writer.append("}\n");
+		} else if (event.isStartInsertData()) {
+			flushInternalState();
+			indent(indent);
+			writer.append("INSERT DATA {\n");
+			indent++;
+		} else if (event.isEndInsertData()) {
+			indent--;
+			indent(indent);
+			writer.append("};\n");
 		} else if (event.isStartInsert()) {
 			flushInternalState();
 			indent(indent);
@@ -130,7 +146,16 @@ public class SPARQLWriter implements Closeable, Flushable {
 		} else if (event.isEndInsert()) {
 			indent--;
 			indent(indent);
-			writer.append("}\n");
+			writer.append("} ");
+		} else if (event.isStartDelete()) {
+			flushInternalState();
+			indent(indent);
+			writer.append("DELETE {\n");
+			indent++;
+		} else if (event.isEndDelete()) {
+			indent--;
+			indent(indent);
+			writer.append("} ");
 		} else if (event.isStartDeleteWhere()) {
 			flushInternalState();
 			indent(indent);
@@ -140,6 +165,9 @@ public class SPARQLWriter implements Closeable, Flushable {
 			indent--;
 			indent(indent);
 			writer.append("};\n");
+		} else if (event.isDrop()) {
+			flushInternalState();
+			writer.append(event.toString()).append("\n");
 		} else if (event.isStartExists()) {
 			indent(indent);
 			writer.append("EXISTS {\n");
@@ -198,6 +226,10 @@ public class SPARQLWriter implements Closeable, Flushable {
 		} else if (event.isEndBuiltInCall()) {
 			writer.append(")");
 			builtin--;
+		} else if (event.isOrExpression()) {
+			writer.append("||");
+		} else if (event.isAndExpression()) {
+			writer.append("&&");
 		} else if (event.isVarOrTerm()) {
 			writer.append(term(event.asVarOrTerm()));
 		}

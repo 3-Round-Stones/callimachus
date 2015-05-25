@@ -41,7 +41,8 @@
     calli:thumbnail <../images/datasource.svg>;
     calli:view <../templates/rdf-datasource-view.xhtml>;
     calli:edit <../templates/rdf-datasource-edit.xhtml>;
-    calli:create <../templates/rdf-datasource-create.xhtml>.
+    calli:create <../templates/rdf-datasource-create.xhtml>;
+    msg:mixin "org.callimachusproject.behaviours.DatasourceSupport".
 
 :DeleteDatasource owl:intersectionOf ( <serviceable.ttl#Delete>
         [owl:onProperty msg:target; owl:allValuesFrom <RdfDatasource>]);
@@ -50,365 +51,45 @@
         return proceed();
     """.
 
-:GetRdfDescribeService rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfDatasource>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.openrdf.query.GraphQueryResult>];
-    msg:method "GET";
-    msg:path "?uri";
-    calli:requires calli:reader;
-    msg:type "application/rdf+xml;q=0.4", "text/turtle;q=0.6", "application/ld+json;q=0.5";
-    calli:script """
-        if (!rdfResource) rdfResource = this;
-        return this.describeResource(rdfResource.resource);
-    """.
-
-:rdfResource a owl:ObjectProperty, owl:FunctionalProperty;
-    rdfs:domain :GetRdfDescribeService;
-    rdfs:range rdfs:Resource;
-    msg:type "text/uri-list";
-    msg:param "uri".
-
-################################
-# SPARQL Protocol 1.0          #
-################################
-
-:QueryResult rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfDatasource>].
-
-:defaultGraphs a owl:DatatypeProperty;
-    rdfs:domain :QueryResult;
-    rdfs:range xsd:string;
-    msg:param "default-graph-uri".
-
-:namedGraphs a owl:DatatypeProperty;
-    rdfs:domain :QueryResult;
-    rdfs:range xsd:string;
-    msg:param "named-graph-uri".
-
-:queryStr a owl:DatatypeProperty, owl:FunctionalProperty;
-    rdfs:domain :QueryResult;
-    rdfs:range xsd:string;
-    msg:param "query".
-
-# GET query parameter
-:GetQueryResult rdfs:subClassOf :QueryResult;
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
-    msg:method "GET";
-    msg:path "\\?(.*\\&)?query=";
-    calli:requires calli:reader;
-    msg:header "cache-control:no-validate";
-    calli:script """
-        return {
-            status: 200,
-            message: "OK",
-            body: this.evaluateSparql(queryStr, defaultGraphs, namedGraphs, -1)
-        };
-    """.
-
-# POST application/x-www-form-urlencoded
-:PostPercentEncoded rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfDatasource>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
-    msg:method "POST";
-    calli:requires calli:editor;
-    calli:imports <java:org.openrdf.query.MalformedQueryException>;
-    calli:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
-    calli:script """
-        if (map && map.containsKey("query"))
-            return {
-                status: 200,
-                message: "OK",
-                body: this.evaluateSparql(map.get("query")[0], map)
-            };
-        if (!map || !map.containsKey("update"))
-            throw new org.openrdf.http.object.exceptions.BadRequest("Missing query");
-        try {
-            this.executeSparql(map.get("update")[0], map);
-            return null;
-        } catch (e if e.javaException instanceof MalformedQueryException) {
-            throw new BadRequest(e.javaException.toString());
-        }
-    """.
-
-:map a owl:ObjectProperty, owl:FunctionalProperty;
-    rdfs:domain :PostPercentEncoded;
-    rdfs:range <java:java.util.Map>;
-    msg:type "application/x-www-form-urlencoded".
-
-################################
-# SPARQL Protocol 1.1          #
-################################
-
-# POST application/sparql-query
-:PostQuery rdfs:subClassOf :QueryResult;
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
-    msg:method "POST";
-    calli:requires calli:reader;
-    calli:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
-    calli:script """
-        if (!query)
-            throw new BadRequest("Missing query body");
-        return {
-            status: 200,
-            message: "OK",
-            body: this.evaluateSparql(new java.lang.String(query, "UTF-8"), defaultGraphs, namedGraphs, -1)
-        };
-    """.
-
-:query a owl:DatatypeProperty, owl:FunctionalProperty;
-    rdfs:domain :PostQuery;
-    rdfs:range xsd:hexBinary;
-    msg:type "application/sparql-query".
-
-# POST application/sparql-update
-:PostUpdate rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfDatasource>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-    msg:method "POST";
-    calli:requires calli:editor;
-    calli:imports <java:org.openrdf.query.MalformedQueryException>;
-    calli:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
-    calli:script """
-        if (!update)
-            throw new BadRequest("Missing update body");
-        try {
-            this.executeSparql(new java.lang.String(update, "UTF-8"), usingGraphs, usingNamedGraphs);
-        } catch (e if e.javaException instanceof MalformedQueryException) {
-            throw new BadRequest(e.javaException.toString());
-        }
-    """.
-
-:update a owl:DatatypeProperty, owl:FunctionalProperty;
-    rdfs:domain :PostUpdate;
-    rdfs:range xsd:hexBinary;
-    msg:type "application/sparql-update".
-
-:usingGraphs a owl:DatatypeProperty;
-    rdfs:domain :PostUpdate;
-    rdfs:range xsd:string;
-    msg:param "using-graph-uri".
-
-:usingNamedGraphs a owl:DatatypeProperty;
-    rdfs:domain :PostUpdate;
-    rdfs:range xsd:string;
-    msg:param "using-named-graph-uri".
-
-################################
-# Graph Store HTTP Protocol    #
-################################
-
-:IndirectGraph rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfDatasource>].
-
-:graph a owl:DatatypeProperty, owl:FunctionalProperty;
-    rdfs:domain :IndirectGraph;
-    rdfs:range rdfs:Resource;
-    msg:type "text/uri-list";
-    msg:param "graph".
-
-# GET default parameter
-:GetDefaultGraph rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfDatasource>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.openrdf.query.GraphQueryResult>];
-    msg:method "GET";
-    msg:path "?default";
-    calli:requires calli:reader;
-    msg:type "application/rdf+xml;q=0.4", "text/turtle;q=0.6", "application/ld+json;q=0.5";
-    calli:script """
-        return this.constructGraph(null);
-    """.
-
-# GET graph parameter
-:GetNamedGraph rdfs:subClassOf :IndirectGraph;
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.openrdf.query.GraphQueryResult>];
-    msg:method "GET";
-    msg:path "?graph";
-    calli:requires calli:reader;
-    msg:type "application/rdf+xml;q=0.4", "text/turtle;q=0.6", "application/ld+json;q=0.5";
-    calli:script """
-        if (!graph) graph = this;
-        return this.constructGraph(graph.resource);
-    """.
-
-# DELETE default parameter
-:DeleteDefaultGraph rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfDatasource>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-    msg:method "DELETE";
-    msg:path "?default";
-    calli:requires calli:editor;
-    calli:script """
-        this.dropGraph(null);
-    """.
-
-# DELETE graph parameter
-:DeleteNamedGraph rdfs:subClassOf :IndirectGraph;
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-    msg:method "DELETE";
-    msg:path "?graph";
-    calli:requires calli:editor;
-    calli:script """
-        if (!graph) graph = this;
-        this.dropGraph(graph.resource);
-    """.
-
-:IndirectPayload rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfDatasource>].
-
-:rdfType a owl:DatatypeProperty, owl:FunctionalProperty;
-    rdfs:domain :IndirectPayload;
-    rdfs:range xsd:string;
-    msg:headerParam "Content-Type";
-    msg:type "text/plain".
-
-:rdfPayload a owl:DatatypeProperty, owl:FunctionalProperty;
-    rdfs:domain :IndirectPayload;
-    rdfs:range <java:java.io.InputStream>;
-    msg:type "application/rdf+xml", "text/turtle", "application/ld+json".
-
-# PUT default parameter
-:PutDefaultGraph rdfs:subClassOf :IndirectPayload;
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-    msg:method "PUT";
-    msg:path "?default";
-    calli:requires calli:editor;
-    calli:script """
-        this.clearAndLoadGraph(rdfPayload, rdfType, null);
-    """.
-
-# PUT graph parameter
-:PutNamedGraph rdfs:subClassOf :IndirectGraph, :IndirectPayload;
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
-    msg:method "PUT";
-    msg:path "?graph";
-    calli:requires calli:editor;
-    calli:script """
-        if (!graph) graph = this;
-        if (this.clearAndLoadGraph(rdfPayload, rdfType, graph.resource)) {
-            return {
-                status: 201, message: "Created",
-                headers: {
-                    "Content-Type": "text/uri-list",
-                    "Location": graph.toString()
-                },
-                body: graph.toString()
-            };
-        } else {
-            return null;
-        }
-    """.
-
-# POST default parameter
-:PostDefaultGraph rdfs:subClassOf :IndirectPayload;
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-    msg:method "POST";
-    msg:path "?default";
-    calli:requires calli:editor;
-    calli:script """
-        this.loadGraph(rdfPayload, rdfType, null);
-    """.
-
-# POST graph parameter
-:PostNamedGraph rdfs:subClassOf :IndirectGraph, :IndirectPayload;
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
-    msg:method "POST";
-    msg:path "?graph";
-    calli:requires calli:editor;
-    calli:script """
-        if (!graph) graph = this;
-        if (this.loadGraph(rdfPayload, rdfType, graph.resource)) {
-            return {
-                status: 201, message: "Created",
-                headers: {
-                    "Content-Type": "text/uri-list",
-                    "Location": graph.toString()
-                },
-                body: graph.toString()
-            };
-        } else {
-            return null;
-        }
-    """.
-
-# POST graph store
-:PostNewGraph rdfs:subClassOf :IndirectPayload;
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
-    msg:method "POST";
-    calli:requires calli:editor;
-    calli:script """
-        var graph = this.objectConnection.insertContext;
-        this.loadGraph(rdfPayload, rdfType, graph);
-        return {
-            status: 201, message: "Created",
-            headers: {
-                "Content-Type": "text/uri-list",
-                "Location": graph.stringValue()
-            },
-            body: graph.stringValue()
-        };
-    """.
-
-:IndirectPatchGraph rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfDatasource>].
-
-:patchUpdate a owl:DatatypeProperty, owl:FunctionalProperty;
-    rdfs:domain :IndirectPatchGraph;
-    rdfs:range xsd:hexBinary;
-    msg:type "application/sparql-update".
-
-# PATCH default parameter
-:PatchDefaultGraph rdfs:subClassOf :IndirectPatchGraph;
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-    msg:method "PATCH";
-    msg:path "?default";
-    calli:requires calli:editor;
-    calli:script """
-        this.patchGraph(new java.lang.String(patchUpdate, "UTF-8"), null);
-    """.
-
-# PATCH graph parameter
-:PatchNamedGraph rdfs:subClassOf :IndirectGraph, :IndirectPatchGraph;
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-    msg:method "PATCH";
-    msg:path "?graph";
-    calli:requires calli:editor;
-    calli:script """
-        if (!graph) graph = this;
-        this.patchGraph(new java.lang.String(patchUpdate, "UTF-8"), graph.resource);
-    """.
-
 ################################
 # Callimachus UI               #
 ################################
 
 # GET query parameter
-:GetHtmlResults rdfs:subClassOf :QueryResult;
+:GetHtmlResults rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfDatasource>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
     msg:method "GET";
-    msg:path "\\?(.*\\&)?query=";
+    msg:path "\\?((.*&)?query=.*)";
     calli:requires calli:reader;
     msg:type "text/html";
     msg:header "cache-control:no-validate";
     calli:script """
-        return this.TransformResult(this.evaluateSparql(queryStr, defaultGraphs, namedGraphs, 10000).content);
+        return this.TransformResult(this.postPercentEncoded("application/xml", this.toString(), queryString).entity.content);
     """.
+
+:queryString a owl:ObjectProperty, owl:FunctionalProperty;
+    rdfs:domain :GetHtmlResults;
+    rdfs:range <java:java.util.Map>;
+    msg:param "1";
+    msg:type "application/x-www-form-urlencoded".
 
 :GetHtmlDescribeService rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfDatasource>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
     msg:method "GET";
-    msg:path "?uri";
+    msg:path "?resource=";
     calli:requires calli:reader;
     msg:type "text/html";
     calli:script """
-        return this.TransformDescribeService(this.GetRdfDescribeService(htmlResource));
+        return this.TransformDescribeService(this.getIndirectResource(htmlResource, "application/rdf+xml").entity.content);
     """.
 
 :htmlResource a owl:ObjectProperty, owl:FunctionalProperty;
     rdfs:domain :GetHtmlDescribeService;
     rdfs:range rdfs:Resource;
     msg:type "text/uri-list";
-    msg:param "uri".
+    msg:param "resource".
 
 # POST application/x-www-form-urlencoded
 :PostWebForm rdfs:subClassOf msg:Message;
@@ -418,10 +99,9 @@
     calli:requires calli:editor;
     msg:type "text/html";
     calli:script """
-        var resp = this.PostPercentEncoded(formMap);
-        var stream = resp && resp.body ? resp.body.content : resp && resp.entity ? resp.entity.content : null;
-        if (stream)
-            return this.TransformResult(stream);
+        var resp = this.postPercentEncoded("application/xml", this.toString(), formMap);
+        if (resp && resp.entity && resp.entity.content)
+            return this.TransformResult(resp.entity.content);
         return null;
     """.
 
@@ -438,7 +118,7 @@
 
 :graphResult a owl:ObjectProperty, owl:FunctionalProperty;
     rdfs:domain :TransformDescribeService;
-    rdfs:range <java:org.openrdf.query.GraphQueryResult>;
+    rdfs:range <java:java.io.InputStream>;
     msg:type "application/rdf+xml".
 
 # Transformer

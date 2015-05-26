@@ -8,10 +8,23 @@
 <head>
     <title>New RDF Datasource</title>
     <link rel="help" href="../../callimachus-reference#RDF_Datasources" target="_blank" title="Help" />
+    <script type="text/javascript">
+    <![CDATA[
+        jQuery(function($){
+            $('#form').submit(function(event){
+                var resource = calli.slugify($('#label').val());
+                if ($('#direct').attr('checked')) {
+                    resource = resource.replace(/\/?$/,'/');
+                }
+                $('#endpoint').attr('resource',resource);
+                calli.submitTurtle(event, resource);
+            });
+        });
+    ]]>
+    </script>
 </head>
 <body>
-    <form role="form" method="POST" action="" enctype="text/turtle" typeof="calli:RdfDatasource sd:Service" class="container"
-            onsubmit="var resource=calli.slugify($('#label').val());$('#endpoint').attr('resource',resource);calli.submitTurtle(event, resource);">
+    <form id="form" role="form" method="POST" action="" enctype="text/turtle" typeof="sd:Service" class="container">
         <div class="page-header">
             <h1>New RDF Datasource</h1>
         </div>
@@ -44,15 +57,21 @@
                 	</div>
                 </div>
                 <div>
-                    <span rel="calli:editor" />
-                    <span rel="sd:supportedLanguage" />
-                    <span id="endpoint" rel="sd:endpoint" />
-                    <span rel="sd:feature" resource="http://www.w3.org/ns/sparql-service-description#BasicFederatedQuery" />
-                    <span rel="sd:feature" resource="http://www.w3.org/ns/sparql-service-description#UnionDefaultGraph" />
-                    <span rel="sd:inputFormat" resource="http://www.w3.org/ns/formats/RDF_XML" />
-                    <span rel="sd:inputFormat" resource="http://www.w3.org/ns/formats/Turtle" />
-                    <span rel="sd:resultFormat" resource="http://www.w3.org/ns/formats/RDF_XML" />
-                    <span rel="sd:resultFormat" resource="http://www.w3.org/ns/formats/SPARQL_Results_XML" />
+                    <span rel="calli:editor"></span>
+                    <span rel="sd:supportedLanguage"></span>
+                    <span rel="sd:feature"></span>
+                    <span id="endpoint" rel="sd:endpoint"></span>
+                    <span rel="sd:feature" resource="http://www.w3.org/ns/sparql-service-description#UnionDefaultGraph"></span>
+                    <span rel="sd:inputFormat" resource="http://www.w3.org/ns/formats/RDF_XML"></span>
+                    <span rel="sd:inputFormat" resource="http://www.w3.org/ns/formats/Turtle"></span>
+                    <span rel="sd:inputFormat" resource="http://www.w3.org/ns/formats/JSON-LD"></span>
+                    <span rel="sd:resultFormat" resource="http://www.w3.org/ns/formats/RDF_XML"></span>
+                    <span rel="sd:resultFormat" resource="http://www.w3.org/ns/formats/Turtle"></span>
+                    <span rel="sd:resultFormat" resource="http://www.w3.org/ns/formats/JSON-LD"></span>
+                    <span rel="sd:resultFormat" resource="http://www.w3.org/ns/formats/SPARQL_Results_XML"></span>
+                    <span rel="sd:resultFormat" resource="http://www.w3.org/ns/formats/SPARQL_Results_JSON"></span>
+                    <span rel="sd:resultFormat" resource="http://www.w3.org/ns/formats/SPARQL_Results_CSV"></span>
+                    <span rel="sd:resultFormat" resource="http://www.w3.org/ns/formats/SPARQL_Results_TSV"></span>
                 </div>
                 <div class="form-group">
             		<div class="checkbox">
@@ -69,6 +88,20 @@
                                 resource="http://www.w3.org/ns/sparql-service-description#SPARQL11Update"
                                 onchange="calli.updateResource(event, 'sd:supportedLanguage')"/>
             				SPARQL Update
+            			</label>
+            		</div>
+                	<div class="checkbox">
+                		<label>
+            				<input type="checkbox" name="support" checked="checked"
+                                resource="http://www.w3.org/ns/sparql-service-description#BasicFederatedQuery"
+                                onchange="calli.updateResource(event, 'sd:feature')"/>
+            				Basic Federated Query
+            			</label>
+            		</div>
+                	<div class="checkbox">
+                		<label>
+            				<input id="direct" type="checkbox" name="support" checked="checked" />
+            				Direct Graph and Resource Identification
             			</label>
             		</div>
                 </div>

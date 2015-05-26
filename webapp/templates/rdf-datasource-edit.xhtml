@@ -50,9 +50,21 @@
                 			</label>
                         </div>
             		</div>
+            		<div id="feature">
+                    	<div class="checkbox">
+                    		<label>
+                				<input type="checkbox" name="support"
+                                    resource="http://www.w3.org/ns/sparql-service-description#BasicFederatedQuery"
+                                    onchange="calli.updateResource(event, 'sd:feature')"/>
+                				Basic Federated Query
+                			</label>
+                		</div>
+            		</div>
                     <div class="hidden" rel="sd:supportedLanguage" resource="?support"></div>
+                    <div class="hidden" rel="sd:feature" resource="?feature"></div>
                     <script type="text/javascript">
                         $('[rel="sd:supportedLanguage"].hidden').filter(calli.checkEachResourceIn('#support')).remove();
+                        $('[rel="sd:feature"].hidden').filter(calli.checkEachResourceIn('#feature')).remove();
                     </script>
                 </div>
             </fieldset>

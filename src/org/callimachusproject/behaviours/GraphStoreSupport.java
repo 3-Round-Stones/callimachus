@@ -2,6 +2,7 @@ package org.callimachusproject.behaviours;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -278,8 +279,9 @@ public abstract class GraphStoreSupport {
 			res = getIndirectGraph(this + path, accept);
 			StatusLine status = res.getStatusLine();
 			msg = status.getReasonPhrase();
-			if (status.getStatusCode() != 404 && status.getStatusCode() != 405
-					&& !isGraphEmpty(res))
+			int code = status.getStatusCode();
+			boolean ok = code == 200 || code == 203;
+			if (code != 404 && code != 405 && !ok || ok && !isGraphEmpty(res))
 				return res;
 		} catch (NotFound e) {
 			msg = e.getMessage();
@@ -638,9 +640,16 @@ public abstract class GraphStoreSupport {
 		}
 		bin.mark(512);
 		String b = res.getSystemId();
-		Model graph = parseRDF(res.getFirstHeader("Content-Type"), bin, b);
-		bin.reset();
-		return graph.isEmpty();
+		try {
+			return parseRDF(entity.getContentType(),
+					new FilterInputStream(bin) {
+						public void close() throws IOException {
+							// don't allow xerces to close stream
+						}
+					}, b).isEmpty();
+		} finally {
+			bin.reset();
+		}
 	}
 
 	private HttpResponse limitContentLength(HttpUriResponse res,

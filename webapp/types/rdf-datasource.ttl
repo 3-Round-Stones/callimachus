@@ -84,7 +84,7 @@
     calli:script """
         try {
             return this.TransformResult(this.getIndirectResource(htmlResource, ["application/rdf+xml"]).entity.content);
-        } catch (e if e.javaException instanceof org.openrdf.http.object.exceptions.BadRequest) {
+        } catch (e if e.javaException) {
             var url = this + '#query=' + encodeURIComponent('DESCRIBE<' + htmlResource + '>') + '&amp;error=' + encodeURIComponent(e.javaException.message);
             return [
                 '<html>',

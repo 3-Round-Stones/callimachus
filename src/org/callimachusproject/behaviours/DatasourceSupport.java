@@ -39,7 +39,6 @@ import org.openrdf.OpenRDFException;
 import org.openrdf.annotations.HeaderParam;
 import org.openrdf.annotations.Method;
 import org.openrdf.annotations.Param;
-import org.openrdf.annotations.Path;
 import org.openrdf.annotations.Sparql;
 import org.openrdf.annotations.Type;
 import org.openrdf.http.object.client.CloseableEntity;
@@ -115,7 +114,6 @@ public abstract class DatasourceSupport extends GraphStoreSupport implements Cal
 
 	@Override
 	@Method("POST")
-	@Path("\\?.*|$")
 	@requires(READER)
 	public HttpUriResponse postQuery(
 			@Param("default-graph-uri") String[] defaultGraphs,
@@ -198,7 +196,6 @@ public abstract class DatasourceSupport extends GraphStoreSupport implements Cal
 
 	@Override
 	@Method("POST")
-	@Path("\\?.*|$")
 	@requires(EDITOR)
 	public HttpResponse postUpdate(
 			@Param("using-graph-uri") final String[] defaultGraphs,

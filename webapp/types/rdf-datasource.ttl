@@ -82,7 +82,22 @@
     calli:requires calli:reader;
     msg:type "text/html";
     calli:script """
-        return this.TransformResult(this.getIndirectResource(htmlResource, "application/rdf+xml").entity.content);
+        try {
+            return this.TransformResult(this.getIndirectResource(htmlResource, "application/rdf+xml").entity.content);
+        } catch (e if e.javaException instanceof org.openrdf.http.object.exceptions.BadRequest) {
+            var url = this + '#query=' + encodeURIComponent('DESCRIBE<' + htmlResource + '>') + '&amp;error=' + encodeURIComponent(e.javaException.message);
+            return [
+                '<html>',
+                '<head>',
+                '<meta http-equiv="refresh" content="0; url=' + url + '"/>',
+                '<script type="text/javascript">window.location.replace("' + url + '");</script>',
+                '</head>',
+                '<body>',
+                '<h1>' + e.javaException.message.replace('&','&amp;') + '</h1>',
+                '</body>',
+                '</html>'
+            ].join('\n');
+        }
     """.
 
 :htmlResource a owl:ObjectProperty, owl:FunctionalProperty;

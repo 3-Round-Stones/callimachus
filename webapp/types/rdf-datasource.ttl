@@ -30,7 +30,7 @@
     foaf:primaryTopic <RdfDatasource>.
 
 <RdfDatasource> a <Creatable>, owl:Class;
-    rdfs:subClassOf <Viewable>, <Editable>, calli:RdfDatasource;
+    rdfs:subClassOf <Viewable>, <Editable>, sd:Service;
     owl:equivalentClass </callimachus/1.0/types/Datasource>, </callimachus/1.3/types/RdfDatasource>, </callimachus/1.4/types/RdfDatasource>;
     rdfs:label "RDF datasource";
     rdfs:comment "A SPARQL endpoint service for a mutable dataset";
@@ -82,7 +82,7 @@
     calli:requires calli:reader;
     msg:type "text/html";
     calli:script """
-        return this.TransformDescribeService(this.getIndirectResource(htmlResource, "application/rdf+xml").entity.content);
+        return this.TransformResult(this.getIndirectResource(htmlResource, "application/rdf+xml").entity.content);
     """.
 
 :htmlResource a owl:ObjectProperty, owl:FunctionalProperty;
@@ -109,17 +109,6 @@
     rdfs:domain :PostWebForm;
     rdfs:range <java:java.util.Map>;
     msg:type "application/x-www-form-urlencoded".
-
-:TransformDescribeService rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfDatasource>];
-    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-    msg:type "text/html";
-    calli:post "../pipelines/describe.xpl?results&target={this}".
-
-:graphResult a owl:ObjectProperty, owl:FunctionalProperty;
-    rdfs:domain :TransformDescribeService;
-    rdfs:range <java:java.io.InputStream>;
-    msg:type "application/rdf+xml".
 
 # Transformer
 :TransformResult rdfs:subClassOf msg:Message;

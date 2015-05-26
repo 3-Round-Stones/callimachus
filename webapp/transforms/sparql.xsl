@@ -39,26 +39,6 @@
                         .datatype, .language { color: gray; }
                         .predicate { color: darkgreen; }
                     </style>
-                    <xsl:if test="rdf:RDF">
-                        <script type="text/javascript">
-                            if ($('.literal[property="http://callimachusproject.org/rdf/2009/framework#hasResultLimit"]').length) {
-                                var qs = window.location.search.substring(1);
-                                window.location.replace(window.location.pathname + '#' + qs + '&amp;error=Too+Many+Results');
-                            }
-                        </script>
-                    </xsl:if>
-                    <script type="text/javascript">
-                    <![CDATA[
-                        var qs = window.location.search.replace(/query=[^&]*&?/,'');
-                        if (qs && qs != '?') {
-                            jQuery(function($){
-                                $('a.describe').each(function(){
-                                    this.href = this.href + '&' + qs.substring(1);
-                                });
-                            });
-                        }
-                    ]]>
-                    </script>
                 </head>
                 <body>
                     <div class="container">
@@ -73,11 +53,11 @@
     </xsl:template>
     <xsl:template mode="describe" match="*[@rdf:resource]">
         <xsl:text> </xsl:text>
-        <a href="?query=describe%3C{encode-for-uri(@rdf:resource)}%3E" class="describe glyphicon glyphicon-chevron-right"></a>
+        <a href="?resource={encode-for-uri(@rdf:resource)}" class="describe glyphicon glyphicon-chevron-right"></a>
     </xsl:template>
     <xsl:template mode="describe" match="*[@rdf:about]">
         <xsl:text> </xsl:text>
-        <a href="?query=describe%3C{encode-for-uri(@rdf:about)}%3E" class="describe glyphicon glyphicon-chevron-left"></a>
+        <a href="?resource={encode-for-uri(@rdf:about)}" class="describe glyphicon glyphicon-chevron-left"></a>
     </xsl:template>
     <xsl:template match="sparql:sparql">
         <table id="sparql">
@@ -129,7 +109,7 @@
             </xsl:call-template>
         </a>
         <xsl:text> </xsl:text>
-        <a href="?query=describe%3C{encode-for-uri(text())}%3E" class="describe glyphicon glyphicon-chevron-right"></a>
+        <a href="?resource={encode-for-uri(text())}" class="describe glyphicon glyphicon-chevron-right"></a>
     </xsl:template>
     <xsl:template match="sparql:bnode">
         <a class="bnode" resource="_:{text()}" name="{text()}">

@@ -35,7 +35,9 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
@@ -67,8 +69,10 @@ public class AlternativeHandler implements HttpRequestChainInterceptor {
 	private static final Charset UTF8 = Charset.forName("UTF-8");
 	private static final StatusLine _302 = new BasicStatusLine(HttpVersion.HTTP_1_1, 302, "Found");
 	private static final StatusLine _303 = new BasicStatusLine(HttpVersion.HTTP_1_1, 303, "See Other");
+	private static final Pattern STRIP_REGEX = Pattern
+			.compile("(?<!^|\\\\)[\\.\\$\\|\\(\\)\\[\\]\\{\\}\\^\\?\\*\\+]|\\\\(.)");
 	private final Pattern SIMPLE = Pattern
-			.compile("^\\??([^\\.\\$\\|\\(\\)\\[\\{\\^\\?\\*\\+\\\\]|\\\\[^a-zA-Z0-9])*$");
+			.compile("^\\??([^\\.\\$\\|\\[\\]\\{\\}\\^\\?\\*\\+\\\\]|\\\\[^a-zA-Z0-9])*");
 
 	@Override
 	public HttpResponse intercept(HttpRequest request, HttpContext context)
@@ -148,16 +152,28 @@ public class AlternativeHandler implements HttpRequestChainInterceptor {
 				if (!rel.equals(value))
 					continue;
 				for (String regex : p.value()) {
-					if (SIMPLE.matcher(regex).matches()) {
-						String suffix = regex.replace("\\", "");
-						HttpRequest alt = addSuffix(request, suffix);
-						if (method.equals(resource.getHandlerMethod(alt)))
-							return suffix;
+					String strip = strip(regex);
+					if (strip == null || strip.length() < 1)
+						continue;
+					Matcher match = SIMPLE.matcher(regex);
+					try {
+						if (match.matches() || match.find()
+								&& Pattern.matches(regex, strip)) {
+							HttpRequest alt = addSuffix(request, strip);
+							if (method.equals(resource.getHandlerMethod(alt)))
+								return strip;
+						}
+					} catch (PatternSyntaxException e) {
+						// ignore
 					}
 				}
 			}
 		}
 		return null;
+	}
+
+	private String strip(String regex) {
+		return STRIP_REGEX.matcher(regex).replaceAll("$1");
 	}
 
 	private HttpRequest addSuffix(HttpRequest request, String suffix) {

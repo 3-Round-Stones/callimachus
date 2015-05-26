@@ -51,11 +51,13 @@
             calli.fillElement('#sparql');
             $('#evaluate').click(function(event){
                 $(event.target).button('loading');
+                $('#sparql').val(addPrefix($('#sparql').val()));
             });
             $('#execute').click(function(event){
                 var btn = $(event.target);
                 var form = btn.closest('form')[0];
                 btn.button('loading');
+                $('#sparql').val(addPrefix($('#sparql').val()));
                 var action = calli.getFormAction(form);
                 var sparql = $('#sparql').val();
                 var data = 'update=' + encodeURIComponent(sparql);
@@ -66,6 +68,29 @@
                     return calli.error(error);
                 });
             });
+            var profile = [];
+            $.ajax({
+                url: $('#profile')[0].href.replace('?view', ''),
+                accepts: "application/ld+json",
+                success: function(json) {
+                    profile = json;
+                }
+            });
+            function addPrefix(sparql) {
+                if (sparql.indexOf('PREFIX') >= 0 || sparql.indexOf('prefix') >= 0)
+                    return sparql;
+                var prolog = [];
+                for (var i=0; i<profile.length; i++) {
+                    var prefix = profile[i]["http://www.w3.org/ns/rdfa#prefix"][0]['@value'];
+                    var uri = profile[i]["http://www.w3.org/ns/rdfa#uri"][0]['@value'];
+                    if (prefix && sparql.indexOf(prefix) > 0) {
+                        prolog.push('PREFIX ' + prefix + ':<' + uri + '>');
+                    }
+                }
+                if (prolog.length)
+                    return prolog.join('\n') + '\n' + sparql;
+                return sparql;
+            }
         });
     ]]>
     </script>
@@ -100,7 +125,7 @@
                 </aside>
                 <aside class="well">
                     <p>Query the database using the SPARQL language</p>
-                    <p>Namespace prefixes are optional and if omitted the default <a href="../../profile?view">SPARQL Profile</a> will be used</p>
+                    <p>Namespace prefixes are optional and if omitted the default <a id="profile" href="../../profile?view">SPARQL Profile</a> will be used</p>
                     <p>Additional RDF graphs can be uploaded from the home folder</p>
                     <p>To get started (if your database isn't too big) try listing some of the different types available in the database</p>
 <pre>

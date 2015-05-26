@@ -120,7 +120,7 @@ public abstract class DatasourceSupport extends GraphStoreSupport implements Cal
 	public HttpUriResponse postQuery(
 			@Param("default-graph-uri") String[] defaultGraphs,
 			@Param("named-graph-uri") String[] namedGraphs,
-			@HeaderParam("Accept") String accept,
+			@HeaderParam("Accept") String[] accept,
 			@HeaderParam("Content-Location") String loc,
 			@Type("application/sparql-query") byte[] rq) throws IOException,
 			OpenRDFException {
@@ -266,7 +266,7 @@ public abstract class DatasourceSupport extends GraphStoreSupport implements Cal
 	}
 
 	public void purgeDatasource() throws OpenRDFException, IOException {
-		URI uri = (URI) this.getResource();
+		String uri = this.getResource().stringValue();
 		String id = getCalliRepository().getDatasourceRepositoryId(uri);
 		RepositoryManager manager = getCalliRepository().getRepositoryManager();
 		manager.removeRepository(id);
@@ -283,23 +283,22 @@ public abstract class DatasourceSupport extends GraphStoreSupport implements Cal
 		});
 	}
 
-	private BooleanQueryResultFormat getAcceptableBooleanFormat(String accept) {
+	private BooleanQueryResultFormat getAcceptableBooleanFormat(String[] accept) {
 		if (accept == null)
 			return BooleanQueryResultFormat.TEXT;
 		String type = new FluidType(Model.class, "text/boolean",
 				"application/json", "application/sparql-results+xml").as(
-				accept.split("\\s*,\\s*")).preferred();
+				split(accept)).preferred();
 		return bool.getFileFormatForMIMEType(type,
 				BooleanQueryResultFormat.TEXT);
 	}
 
-	private TupleQueryResultFormat getAcceptableTupleFormat(String accept) {
+	private TupleQueryResultFormat getAcceptableTupleFormat(String[] accept) {
 		if (accept == null)
 			return TupleQueryResultFormat.CSV;
 		String type = new FluidType(Model.class, "text/csv",
 				"application/json", "application/sparql-results+xml",
-				"text/tab-separated-values").as(accept.split("\\s*,\\s*"))
-				.preferred();
+				"text/tab-separated-values").as(split(accept)).preferred();
 		return tuple.getFileFormatForMIMEType(type, TupleQueryResultFormat.CSV);
 	}
 
@@ -338,7 +337,7 @@ public abstract class DatasourceSupport extends GraphStoreSupport implements Cal
 
 	private RepositoryConnection openConnection() throws OpenRDFException,
 			IOException {
-		URI uri = (URI) this.getResource();
+		String uri = this.getResource().stringValue();
 		ObjectConnection con1 = this.getObjectConnection();
 		URI bundle = con1.getVersionBundle();
 		AuditingRepositoryConnection audit1 = findAuditing(con1);
@@ -348,8 +347,9 @@ public abstract class DatasourceSupport extends GraphStoreSupport implements Cal
 			throw new IllegalArgumentException(
 					"Datasources are not configured correctly");
 		if (!manager.hasRepositoryConfig(id)) {
-			manager.addRepositoryConfig(new RepositoryConfig(id, uri
-					.stringValue(), getDefaultConfig()));
+			// Can't use full URI here, to keep ObjectServer from serving from it
+			String path = uri.substring(uri.indexOf("://") + 1);
+			manager.addRepositoryConfig(new RepositoryConfig(id, path, getDefaultConfig()));
 		
 		}
 		Repository repo2 = manager.getRepository(id);

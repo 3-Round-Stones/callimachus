@@ -163,10 +163,10 @@ public class CalliRepository extends RepositoryWrapper {
 		return auth;
 	}
 
-	public String getDatasourceRepositoryId(URI uri) {
-		int hash = uri.stringValue().hashCode();
+	public String getDatasourceRepositoryId(String uri) {
+		int hash = uri.hashCode();
 		String code = Integer.toHexString(Math.abs(hash));
-		String local = uri.getLocalName().replaceAll("[^a-zA-Z0-9\\-.]", "_");
+		String local = uri.replaceAll(".*/", "").replaceAll("[^a-zA-Z0-9\\-.]", "_");
 		String id = getRepositoryID();
 		StringBuilder sb = new StringBuilder();
 		if (id != null) {

@@ -7,6 +7,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -99,7 +102,7 @@ public abstract class GraphStoreSupport {
 			@Param("default-graph-uri") String[] defaultGraphUri,
 			@Param("named-graph-uri") String[] namedGraphUri,
 			@Param("max-content-length") Integer maxLength,
-			@HeaderParam("Accept") String accept) throws IOException,
+			@HeaderParam("Accept") String[] accept) throws IOException,
 			OpenRDFException {
 		HttpUriResponse res = postQuery(defaultGraphUri, namedGraphUri, accept,
 				this.toString(), query.getBytes(UTF8));
@@ -122,7 +125,7 @@ public abstract class GraphStoreSupport {
 	@Method("POST")
 	@requires(EDITOR)
 	public HttpResponse postPercentEncoded(
-			@HeaderParam("Accept") String accept,
+			@HeaderParam("Accept") String[] accept,
 			@HeaderParam("Content-Location") String base,
 			@Type("application/x-www-form-urlencoded") Map<String, String[]> map)
 			throws IOException, OpenRDFException {
@@ -145,7 +148,7 @@ public abstract class GraphStoreSupport {
 	// SPARQL 1.1
 
 	public abstract HttpUriResponse postQuery(String[] defaultGraphUri,
-			String[] namedGraphUri, String accept, String base, byte[] query)
+			String[] namedGraphUri, String[] accept, String base, byte[] query)
 			throws IOException, OpenRDFException;
 
 	public abstract HttpResponse postUpdate(String[] usingGraphUri,
@@ -157,10 +160,10 @@ public abstract class GraphStoreSupport {
 	@Method("GET")
 	@Path("?default")
 	@requires(READER)
-	public HttpResponse getDefaultGraph(@HeaderParam("Accept") String accept)
+	public HttpResponse getDefaultGraph(@HeaderParam("Accept") String[] accept)
 			throws IOException, OpenRDFException {
 		HttpUriResponse res = postQuery(
-				"CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }", accept, null);
+				"CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }", null, accept);
 		if (res.getStatusLine().getStatusCode() == 200 && isGraphEmpty(res)) {
 			res.close();
 			EntityUtils.consumeQuietly(res.getEntity());
@@ -205,12 +208,12 @@ public abstract class GraphStoreSupport {
 	@Path("?graph=")
 	@requires(READER)
 	public HttpUriResponse getIndirectGraph(@Param("graph") String graph,
-			@HeaderParam("Accept") String accept) throws IOException,
+			@HeaderParam("Accept") String[] accept) throws IOException,
 			OpenRDFException {
 		String iri = resolve(graph);
 		HttpUriResponse res = postQuery(
 				"CONSTRUCT { ?s ?p ?o } WHERE { GRAPH <" + iri
-						+ "> { ?s ?p ?o } }", accept, null);
+						+ "> { ?s ?p ?o } }", null, accept);
 		if (res.getStatusLine().getStatusCode() == 200 && isGraphEmpty(res)) {
 			res.close();
 			EntityUtils.consumeQuietly(res.getEntity());
@@ -267,7 +270,7 @@ public abstract class GraphStoreSupport {
 	@Path("[^?].*")
 	@requires(READER)
 	public HttpResponse getDirectGraph(@Param("0") String path,
-			@HeaderParam("Accept") String accept) throws IOException,
+			@HeaderParam("Accept") String[] accept) throws IOException,
 			OpenRDFException {
 		HttpUriResponse res = null;
 		String msg;
@@ -339,7 +342,7 @@ public abstract class GraphStoreSupport {
 	@Header("Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"")
 	public HttpResponse headIndirectResource(
 			@Param("resource") String resource,
-			@HeaderParam("Accept") String accept) throws IOException,
+			@HeaderParam("Accept") String[] accept) throws IOException,
 			OpenRDFException {
 		String iri = resolve(resource);
 		final String base = this.toString() + "?resource=" + resource;
@@ -364,7 +367,7 @@ public abstract class GraphStoreSupport {
 	@requires(READER)
 	@Header("Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"")
 	public HttpResponse getIndirectResource(@Param("resource") String resource,
-			@HeaderParam("Accept") String accept) throws IOException,
+			@HeaderParam("Accept") String[] accept) throws IOException,
 			OpenRDFException {
 		String iri = resolve(resource);
 		final String base = this.toString() + "?resource=" + resource;
@@ -372,8 +375,7 @@ public abstract class GraphStoreSupport {
 				.getDescriptionGraph();
 		BasicHttpResponse res;
 		if (model.isEmpty()) {
-			res = new BasicHttpResponse(HTTP11, 404, "Nothing is known about "
-					+ iri);
+			throw new NotFound("Nothing is known about " + iri);
 		} else {
 			res = new BasicHttpResponse(HTTP11, 200, "OK");
 		}
@@ -474,7 +476,7 @@ public abstract class GraphStoreSupport {
 
 	void evaluateRemotely(String construct, final String iri, final String doc,
 			RDFHandler handler) throws IOException, OpenRDFException {
-		HttpUriResponse res = postQuery(construct, "text/turtle", doc);
+		HttpUriResponse res = postQuery(construct, doc, "text/turtle");
 		InputStream in = res.getEntity().getContent();
 		try {
 			final RDFHandlerWrapper h = new RDFHandlerWrapper(handler) {
@@ -497,20 +499,39 @@ public abstract class GraphStoreSupport {
 		}
 	}
 
-	protected RDFFormat getAcceptableRDFFormat(String accept) {
+	protected String[] split(String[] accept) {
+		boolean comma = false;
+		for (String a : accept) {
+			if (a.indexOf(',') >= 0) {
+				comma = true;
+				break;
+			}
+		}
+		if (!comma)
+			return accept;
+		if (accept.length == 1)
+			return accept[0].split("\\s*,\\s*");
+		List<String> list = new ArrayList<String>();
+		for (String a : accept) {
+			list.addAll(Arrays.asList(a.split("\\s*,\\s*")));
+		}
+		return list.toArray(new String[list.size()]);
+	}
+
+	protected RDFFormat getAcceptableRDFFormat(String... accept) {
 		if (accept == null)
 			return RDFFormat.TURTLE;
 		String type = new FluidType(Model.class, "text/turtle",
 				"application/ld+json", "application/rdf+xml").as(
-				accept.split("\\s*,\\s*")).preferred();
+				split(accept)).preferred();
 		return reg.getFileFormatForMIMEType(type, RDFFormat.TURTLE);
 	}
 
-	private boolean preferHtml(String accept, String over) {
+	private boolean preferHtml(String[] accept, String over) {
 		if (accept == null)
 			return true;
 		String type = new FluidType(Model.class, "text/html", over).as(
-				accept.split("\\s*,\\s*")).preferred();
+				split(accept)).preferred();
 		return type.startsWith("text/html");
 	}
 
@@ -583,7 +604,7 @@ public abstract class GraphStoreSupport {
 				+ Integer.toHexString(media.hashCode()) + "\"";
 	}
 
-	private HttpUriResponse postQuery(String query, String accept, String base)
+	private HttpUriResponse postQuery(String query, String base, String... accept)
 			throws IOException, OpenRDFException {
 		return postQuery(null, null, accept, base, query.getBytes(UTF8));
 	}

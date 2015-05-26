@@ -47,19 +47,20 @@ public class SparqlEndpointProvider extends UpdateProvider {
 			public boolean update(String webapp, CalliRepository repository)
 					throws IOException, OpenRDFException {
 				ValueFactory vf = repository.getValueFactory();
-				URI uri = vf.createURI(origin + "/sparql");
+				String uri = origin + "/sparql";
 				String proxiedID = repository.getRepositoryID();
 				String datasourceID = repository.getDatasourceRepositoryId(uri);
 				RepositoryManager manager = repository.getRepositoryManager();
-				if (proxiedID != null && !manager.hasRepositoryConfig(datasourceID)) {
+				if (proxiedID != null
+						&& !manager.hasRepositoryConfig(datasourceID)) {
 					manager.addRepositoryConfig(new RepositoryConfig(
-							datasourceID, uri.stringValue(),
-							new ProxyRepositoryConfig(proxiedID)));
+							datasourceID, uri, new ProxyRepositoryConfig(
+									proxiedID)));
 					ObjectConnection con = repository.getConnection();
 					try {
 						con.begin();
 						TermFactory tf = TermFactory.newInstance(webapp);
-						if (addMetadata(origin, tf, uri, vf, con)) {
+						if (addMetadata(origin, tf, vf.createURI(uri), vf, con)) {
 							con.commit();
 						}
 					} finally {

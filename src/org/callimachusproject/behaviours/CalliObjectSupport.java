@@ -118,7 +118,11 @@ public abstract class CalliObjectSupport implements CalliObject {
 			File dataDir = repository.getDataDir();
 			if (dataDir == null)
 				throw new IllegalArgumentException("Not a local repsitory: " + repository);
-			File dir = dataDir.getParentFile().getParentFile();
+			File dir = dataDir.getParentFile();
+			while (!dir.getName().equalsIgnoreCase("repositories")) {
+				dir = dir.getParentFile();
+			}
+			dir = dir.getParentFile();
 			LocalRepositoryManager manager = RepositoryProvider.getRepositoryManager(dir);
 			String id = RepositoryProvider.getRepositoryIdOfRepository(dataDir.toURI().toASCIIString());
 			CalliRepository result = new CalliRepository(id, repository, manager);

@@ -65,7 +65,7 @@
     msg:type "text/html";
     msg:header "cache-control:no-validate";
     calli:script """
-        return this.TransformResult(this.postPercentEncoded("application/xml", this.toString(), queryString).entity.content);
+        return this.TransformResult(this.postPercentEncoded(["application/xml"], this.toString(), queryString).entity.content);
     """.
 
 :queryString a owl:ObjectProperty, owl:FunctionalProperty;
@@ -83,7 +83,7 @@
     msg:type "text/html";
     calli:script """
         try {
-            return this.TransformResult(this.getIndirectResource(htmlResource, "application/rdf+xml").entity.content);
+            return this.TransformResult(this.getIndirectResource(htmlResource, ["application/rdf+xml"]).entity.content);
         } catch (e if e.javaException instanceof org.openrdf.http.object.exceptions.BadRequest) {
             var url = this + '#query=' + encodeURIComponent('DESCRIBE<' + htmlResource + '>') + '&amp;error=' + encodeURIComponent(e.javaException.message);
             return [
@@ -96,7 +96,7 @@
                 '<h1>' + e.javaException.message.replace('&','&amp;') + '</h1>',
                 '</body>',
                 '</html>'
-            ].join('\n');
+            ].join('\\n');
         }
     """.
 
@@ -114,7 +114,7 @@
     calli:requires calli:editor;
     msg:type "text/html";
     calli:script """
-        var resp = this.postPercentEncoded("application/xml", this.toString(), formMap);
+        var resp = this.postPercentEncoded(["application/xml"], this.toString(), formMap);
         if (resp && resp.entity && resp.entity.content)
             return this.TransformResult(resp.entity.content);
         return null;

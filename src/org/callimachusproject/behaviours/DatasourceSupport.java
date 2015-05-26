@@ -63,11 +63,14 @@ import org.openrdf.query.MalformedQueryException;
 import org.openrdf.query.QueryLanguage;
 import org.openrdf.query.TupleQuery;
 import org.openrdf.query.Update;
+import org.openrdf.query.algebra.QueryModelNode;
+import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
 import org.openrdf.query.impl.DatasetImpl;
 import org.openrdf.query.parser.ParsedBooleanQuery;
 import org.openrdf.query.parser.ParsedGraphQuery;
 import org.openrdf.query.parser.ParsedQuery;
 import org.openrdf.query.parser.ParsedTupleQuery;
+import org.openrdf.query.parser.ParsedUpdate;
 import org.openrdf.query.parser.QueryParser;
 import org.openrdf.query.parser.QueryParserRegistry;
 import org.openrdf.query.resultio.BooleanQueryResultFormat;
@@ -86,7 +89,7 @@ import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.sail.config.SailRepositoryConfig;
 import org.openrdf.repository.util.RDFInserter;
 import org.openrdf.rio.RDFHandlerException;
-import org.openrdf.rio.RDFParser;
+import org.openrdf.rio.RDFParseException;
 import org.openrdf.sail.nativerdf.config.NativeStoreConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,12 +102,16 @@ public abstract class DatasourceSupport extends GraphStoreSupport implements Cal
 	final Logger logger = LoggerFactory.getLogger(DatasourceSupport.class);
 	private final BooleanQueryResultWriterRegistry bool = BooleanQueryResultWriterRegistry.getInstance();
 	private final TupleQueryResultWriterRegistry tuple = TupleQueryResultWriterRegistry.getInstance();
+	private final QueryParserRegistry reg = QueryParserRegistry.getInstance();
 
 	@Sparql(PREFIX + "ASK { $this sd:supportedLanguage sd:SPARQL11Query }")
 	public abstract boolean isQuerySupported();
 
 	@Sparql(PREFIX + "ASK { $this sd:supportedLanguage sd:SPARQL11Update }")
 	public abstract boolean isUpdateSupported();
+
+	@Sparql(PREFIX + "ASK { $this sd:feature sd:BasicFederatedQuery }")
+	public abstract boolean isFederatedSupported();
 
 	@Override
 	@Method("POST")
@@ -129,9 +136,11 @@ public abstract class DatasourceSupport extends GraphStoreSupport implements Cal
 			Object rs;
 			Class<?> type;
 			final String base = this.getResource().stringValue();
-			QueryParserRegistry reg = QueryParserRegistry.getInstance();
 			QueryParser parser = reg.get(QueryLanguage.SPARQL).getParser();
 			ParsedQuery parsed = parser.parseQuery(query, loc == null ? base : loc);
+			if (!isFederatedSupported()) {
+				checkFederated(parsed.getTupleExpr());
+			}
 			if (parsed instanceof ParsedBooleanQuery) {
 				mime = getAcceptableBooleanFormat(accept).getDefaultMIMEType();
 				BooleanQuery pq = con.prepareBooleanQuery(QueryLanguage.SPARQL, query, base);
@@ -214,6 +223,13 @@ public abstract class DatasourceSupport extends GraphStoreSupport implements Cal
 					bin.close();
 				}
 				String update = new String(buf, Consts.UTF_8);
+				QueryParser parser = reg.get(QueryLanguage.SPARQL).getParser();
+				ParsedUpdate parsed = parser.parseUpdate(update, base);
+				if (!isFederatedSupported()) {
+					for (QueryModelNode node : parsed.getUpdateExprs()) {
+						checkFederated(node);
+					}
+				}
 				Update pu = con.prepareUpdate(SPARQL, update, base);
 				if (defaultGraphs != null || namedGraphs != null) {
 					pu.setDataset(createDataset(defaultGraphs, namedGraphs));
@@ -224,18 +240,14 @@ public abstract class DatasourceSupport extends GraphStoreSupport implements Cal
 			} else if (defaultGraphs == null || defaultGraphs.length == 1 && namedGraphs == null) {
 				// large INSERT DATA
 				try {
-					RDFParser parser = new SparqlDropInsertDataParser(
-							defaultGraphs, namedGraphs, con);
-					RDFInserter inserter = new RDFInserter(con);
 					if (defaultGraphs != null && defaultGraphs.length == 1) {
-						inserter.enforceContext(vf.createURI(defaultGraphs[0]));
 						logger.info("INSERT DATA { GRAPH <{}> }",
 								defaultGraphs[0]);
 					} else {
 						logger.info("INSERT DATA", defaultGraphs[0]);
 					}
-					parser.setRDFHandler(inserter);
-					parser.parse(bin, base);
+					new SparqlDropInserter(defaultGraphs, namedGraphs, con)
+							.execute(bin, base);
 				} finally {
 					bin.close();
 				}
@@ -260,7 +272,20 @@ public abstract class DatasourceSupport extends GraphStoreSupport implements Cal
 		manager.removeRepository(id);
 	}
 
+	protected void checkFederated(QueryModelNode node) throws BadRequest {
+		node.visit(new QueryModelVisitorBase<BadRequest>() {
+			@Override
+			public void meet(org.openrdf.query.algebra.Service node)
+					throws RuntimeException {
+				throw new BadRequest(
+						"Basic SPARQL federation is not supported on this service");
+			}
+		});
+	}
+
 	private BooleanQueryResultFormat getAcceptableBooleanFormat(String accept) {
+		if (accept == null)
+			return BooleanQueryResultFormat.TEXT;
 		String type = new FluidType(Model.class, "text/boolean",
 				"application/json", "application/sparql-results+xml").as(
 				accept.split("\\s*,\\s*")).preferred();
@@ -269,6 +294,8 @@ public abstract class DatasourceSupport extends GraphStoreSupport implements Cal
 	}
 
 	private TupleQueryResultFormat getAcceptableTupleFormat(String accept) {
+		if (accept == null)
+			return TupleQueryResultFormat.CSV;
 		String type = new FluidType(Model.class, "text/csv",
 				"application/json", "application/sparql-results+xml",
 				"text/tab-separated-values").as(accept.split("\\s*,\\s*"))
@@ -381,21 +408,41 @@ public abstract class DatasourceSupport extends GraphStoreSupport implements Cal
 		return null;
 	}
 
-	static class SparqlDropInsertDataParser extends SparqlInsertDataParser {
+	static class SparqlDropInserter extends SparqlInsertDataParser {
 		private final String[] namedGraphs;
 		private final RepositoryConnection con;
 		private final String[] defaultGraphs;
 		private final ValueFactory vf;
 	
-		SparqlDropInsertDataParser(String[] defaultGraphs,
+		SparqlDropInserter(String[] defaultGraphs,
 				String[] namedGraphs, RepositoryConnection con) {
 			super(con.getValueFactory());
 			this.namedGraphs = namedGraphs;
 			this.con = con;
 			this.defaultGraphs = defaultGraphs;
 			this.vf = con.getValueFactory();
+			RDFInserter inserter = new RDFInserter(con);
+			if (defaultGraphs != null && defaultGraphs.length == 1) {
+				inserter.enforceContext(vf.createURI(defaultGraphs[0]));
+			}
+			this.setRDFHandler(inserter);
 		}
 	
+		public void execute(InputStream in, String baseURI)
+				throws IOException, RDFParseException, RepositoryException {
+			try {
+				parse(in, baseURI);
+			} catch (RDFHandlerException e) {
+				try {
+					throw e.getCause();
+				} catch (RepositoryException cause) {
+					throw cause;
+				} catch (Throwable cause) {
+					throw new RepositoryException(cause);
+				}
+			}
+		}
+
 		@Override
 		protected void reportDropGraph(URI graph)
 				throws RDFHandlerException {

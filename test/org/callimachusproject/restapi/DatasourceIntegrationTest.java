@@ -25,6 +25,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.openrdf.model.Statement;
+import org.openrdf.model.URI;
+import org.openrdf.model.ValueFactory;
+import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.model.vocabulary.RDFS;
 import org.openrdf.rio.helpers.StatementCollector;
@@ -33,6 +36,7 @@ import org.openrdf.rio.turtle.TurtleParser;
 
 public class DatasourceIntegrationTest extends TemporaryServerIntegrationTestCase {
 
+	private static final String sdService = "http://www.w3.org/ns/sparql-service-description#Service";
 	private static final String PREFIX = "PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>\n"
 			+ "PREFIX sd: <http://www.w3.org/ns/sparql-service-description#>\n";
 	private static final String QUERY = "application/sparql-query";
@@ -53,6 +57,19 @@ public class DatasourceIntegrationTest extends TemporaryServerIntegrationTestCas
 	public void tearDown() throws Exception {
 		datasource.rel("describedby").delete();
 		super.tearDown();
+	}
+
+	@Test
+	public void testServiceDescription() throws Exception {
+		ValueFactory vf = ValueFactoryImpl.getInstance();
+		byte[] graph = datasource.get("text/turtle");
+		StatementCollector sc = new StatementCollector();
+		TurtleParser parser = new TurtleParser();
+		parser.setRDFHandler(sc);
+		parser.parse(new ByteArrayInputStream(graph), datasource.toString());
+		URI s = vf.createURI(datasource.toString());
+		Statement st = vf.createStatement(s, RDF.TYPE, vf.createURI(sdService));
+		assertTrue(sc.getStatements().contains(st));
 	}
 
 	@Test
@@ -141,7 +158,7 @@ public class DatasourceIntegrationTest extends TemporaryServerIntegrationTestCas
 				super.handleStatement(st);
 				assertEquals(graph.toString(), st.getSubject().stringValue());
 				assertEquals(RDF.TYPE, st.getPredicate());
-				assertEquals("http://www.w3.org/ns/sparql-service-description#Service", st.getObject().stringValue());
+				assertEquals(sdService, st.getObject().stringValue());
 			}
 		};
 		TurtleParser parser = new TurtleParser();
@@ -163,7 +180,7 @@ public class DatasourceIntegrationTest extends TemporaryServerIntegrationTestCas
 				assertEquals(RDF.TYPE, st.getPredicate());
 				if (!st.getSubject().equals(st.getObject())) {
 					assertEquals(graph.toString(), st.getSubject().stringValue());
-					assertEquals("http://www.w3.org/ns/sparql-service-description#Service", st.getObject().stringValue());
+					assertEquals(sdService, st.getObject().stringValue());
 				}
 			}
 		};
@@ -208,7 +225,7 @@ public class DatasourceIntegrationTest extends TemporaryServerIntegrationTestCas
 				super.handleStatement(st);
 				assertEquals(RDF.TYPE, st.getPredicate());
 				assertEquals(graph.toString(), st.getSubject().stringValue());
-				assertEquals("http://www.w3.org/ns/sparql-service-description#Service", st.getObject().stringValue());
+				assertEquals(sdService, st.getObject().stringValue());
 			}
 		};
 		TurtleParser parser = new TurtleParser();
@@ -229,7 +246,7 @@ public class DatasourceIntegrationTest extends TemporaryServerIntegrationTestCas
 				assertEquals(RDF.TYPE, st.getPredicate());
 				if (!st.getSubject().equals(st.getObject())) {
 					assertEquals(datasource.toString(), st.getSubject().stringValue());
-					assertEquals("http://www.w3.org/ns/sparql-service-description#Service", st.getObject().stringValue());
+					assertEquals(sdService, st.getObject().stringValue());
 				}
 			}
 		};
@@ -252,7 +269,7 @@ public class DatasourceIntegrationTest extends TemporaryServerIntegrationTestCas
 				assertEquals(RDF.TYPE, st.getPredicate());
 				if (!st.getSubject().equals(st.getObject())) {
 					assertEquals(graph.toString(), st.getSubject().stringValue());
-					assertEquals("http://www.w3.org/ns/sparql-service-description#Service", st.getObject().stringValue());
+					assertEquals(sdService, st.getObject().stringValue());
 				}
 			}
 		};
@@ -298,7 +315,7 @@ public class DatasourceIntegrationTest extends TemporaryServerIntegrationTestCas
 				super.handleStatement(st);
 				assertEquals(RDF.TYPE, st.getPredicate());
 				assertEquals(graph.toString(), st.getSubject().stringValue());
-				assertEquals("http://www.w3.org/ns/sparql-service-description#Service", st.getObject().stringValue());
+				assertEquals(sdService, st.getObject().stringValue());
 			}
 		};
 		TurtleParser parser = new TurtleParser();
@@ -319,7 +336,7 @@ public class DatasourceIntegrationTest extends TemporaryServerIntegrationTestCas
 				assertEquals(RDF.TYPE, st.getPredicate());
 				if (!st.getSubject().equals(st.getObject())) {
 					assertEquals(datasource.toString(), st.getSubject().stringValue());
-					assertEquals("http://www.w3.org/ns/sparql-service-description#Service", st.getObject().stringValue());
+					assertEquals(sdService, st.getObject().stringValue());
 				}
 			}
 		};
@@ -342,7 +359,7 @@ public class DatasourceIntegrationTest extends TemporaryServerIntegrationTestCas
 				assertEquals(RDF.TYPE, st.getPredicate());
 				if (!st.getSubject().equals(st.getObject())) {
 					assertEquals(graph.toString(), st.getSubject().stringValue());
-					assertEquals("http://www.w3.org/ns/sparql-service-description#Service", st.getObject().stringValue());
+					assertEquals(sdService, st.getObject().stringValue());
 				}
 			}
 		};

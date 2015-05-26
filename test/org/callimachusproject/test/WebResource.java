@@ -80,9 +80,14 @@ public class WebResource {
 		con.setRequestProperty("ACCEPT", "application/atom+xml");
 		Assert.assertEquals(con.getResponseMessage(), 203, con.getResponseCode());
 		InputStream stream = con.getInputStream();
-		String text = new java.util.Scanner(stream).useDelimiter("\\A").next();
-		String result = getQuoteAfter("<app:collection", text);
-		return ref(result);
+		java.util.Scanner scanner = new java.util.Scanner(stream);
+		try {
+			String text = scanner.useDelimiter("\\A").next();
+			String result = getQuoteAfter("<app:collection", text);
+			return ref(result);
+		} finally {
+			scanner.close();
+		}
 	}
 
 	public WebResource create(String type, byte[] body) throws IOException {
@@ -141,7 +146,7 @@ public class WebResource {
 		sb.append("PREFIX calli: <http://callimachusproject.org/rdf/2009/framework#>\n");
 		sb.append("PREFIX sd: <http://www.w3.org/ns/sparql-service-description#>\n");
 		sb.append("<").append(slug).append(">");
-		sb.append(" a calli:RdfDatasource;\n");
+		sb.append(" a sd:Service;\n");
 		sb.append("rdfs:label \"").append(slug).append("\";\n");
 		sb.append("sd:endpoint <").append(slug).append(">;\n");
 		sb.append("sd:supportedLanguage sd:SPARQL11Query;\n");
@@ -150,8 +155,14 @@ public class WebResource {
 		sb.append("sd:feature sd:BasicFederatedQuery;\n");
 		sb.append("sd:inputFormat <http://www.w3.org/ns/formats/RDF_XML>;\n");
 		sb.append("sd:inputFormat <http://www.w3.org/ns/formats/Turtle>;\n");
+		sb.append("sd:inputFormat <http://www.w3.org/ns/formats/JSON-LD>;\n");
 		sb.append("sd:resultFormat <http://www.w3.org/ns/formats/RDF_XML>;\n");
-		sb.append("sd:resultFormat <http://www.w3.org/ns/formats/SPARQL_Results_XML>.\n");
+		sb.append("sd:resultFormat <http://www.w3.org/ns/formats/Turtle>;\n");
+		sb.append("sd:resultFormat <http://www.w3.org/ns/formats/JSON-LD>;\n");
+		sb.append("sd:resultFormat <http://www.w3.org/ns/formats/SPARQL_Results_XML>;\n");
+		sb.append("sd:resultFormat <http://www.w3.org/ns/formats/SPARQL_Results_JSON>;\n");
+		sb.append("sd:resultFormat <http://www.w3.org/ns/formats/SPARQL_Results_CSV>;\n");
+		sb.append("sd:resultFormat <http://www.w3.org/ns/formats/SPARQL_Results_TSV>.\n");
 		return rel("describedby").create("text/turtle", sb.toString().getBytes("UTF-8")).rev("describedby");
 	}
 
@@ -161,10 +172,25 @@ public class WebResource {
 		sb.append("PREFIX calli: <http://callimachusproject.org/rdf/2009/framework#>\n");
 		sb.append("PREFIX sd: <http://www.w3.org/ns/sparql-service-description#>\n");
 		sb.append("<").append(slug).append(">");
-		sb.append(" a calli:RemoteRdfSource;\n");
+		sb.append(" a sd:Service, calli:RemoteRdfSource;\n");
 		sb.append("rdfs:label \"").append(slug).append("\";\n");
 		sb.append("calli:queryEndpoint <").append(endpoint).append(">;\n");
-		sb.append("calli:updateEndpoint <").append(endpoint).append(">.\n");
+		sb.append("calli:updateEndpoint <").append(endpoint).append(">;\n");
+		sb.append("sd:endpoint <").append(slug).append(">;\n");
+		sb.append("sd:supportedLanguage sd:SPARQL11Query;\n");
+		sb.append("sd:supportedLanguage sd:SPARQL11Update;\n");
+		sb.append("sd:feature sd:UnionDefaultGraph;\n");
+		sb.append("sd:feature sd:BasicFederatedQuery;\n");
+		sb.append("sd:inputFormat <http://www.w3.org/ns/formats/RDF_XML>;\n");
+		sb.append("sd:inputFormat <http://www.w3.org/ns/formats/Turtle>;\n");
+		sb.append("sd:inputFormat <http://www.w3.org/ns/formats/JSON-LD>;\n");
+		sb.append("sd:resultFormat <http://www.w3.org/ns/formats/RDF_XML>;\n");
+		sb.append("sd:resultFormat <http://www.w3.org/ns/formats/Turtle>;\n");
+		sb.append("sd:resultFormat <http://www.w3.org/ns/formats/JSON-LD>;\n");
+		sb.append("sd:resultFormat <http://www.w3.org/ns/formats/SPARQL_Results_XML>;\n");
+		sb.append("sd:resultFormat <http://www.w3.org/ns/formats/SPARQL_Results_JSON>;\n");
+		sb.append("sd:resultFormat <http://www.w3.org/ns/formats/SPARQL_Results_CSV>;\n");
+		sb.append("sd:resultFormat <http://www.w3.org/ns/formats/SPARQL_Results_TSV>.\n");
 		return rel("describedby").create("text/turtle", sb.toString().getBytes("UTF-8")).rev("describedby");
 	}
 

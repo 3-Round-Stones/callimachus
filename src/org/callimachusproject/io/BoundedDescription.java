@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -12,10 +13,11 @@ import org.callimachusproject.engine.events.BuiltInCall;
 import org.callimachusproject.engine.events.Construct;
 import org.callimachusproject.engine.events.Delete;
 import org.callimachusproject.engine.events.Filter;
-import org.callimachusproject.engine.events.Optional;
+import org.callimachusproject.engine.events.Group;
 import org.callimachusproject.engine.events.OrExpression;
 import org.callimachusproject.engine.events.RDFEvent;
 import org.callimachusproject.engine.events.TriplePattern;
+import org.callimachusproject.engine.events.Union;
 import org.callimachusproject.engine.events.VarOrTermExpression;
 import org.callimachusproject.engine.events.Where;
 import org.callimachusproject.engine.helpers.SPARQLWriter;
@@ -23,6 +25,7 @@ import org.callimachusproject.engine.model.AbsoluteTermFactory;
 import org.callimachusproject.engine.model.Var;
 import org.callimachusproject.engine.model.VarOrTerm;
 import org.openrdf.OpenRDFException;
+import org.openrdf.http.object.exceptions.BadRequest;
 import org.openrdf.http.object.exceptions.MethodNotAllowed;
 import org.openrdf.model.BNode;
 import org.openrdf.model.Literal;
@@ -36,14 +39,19 @@ import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.rio.RDFHandler;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.helpers.ContextStatementCollector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class BoundedDescription {
 	private static final String DESCRIBE_RESOURCE = "CONSTRUCT { <$resource> ?p ?o } WHERE { <$resource> ?p ?o }";
 
+	private final Logger logger = LoggerFactory.getLogger(BoundedDescription.class);
 	private final AbsoluteTermFactory tf = AbsoluteTermFactory.newInstance();
 	private final String resource;
+	private final String frag;
+	private final String qs;
 	final int limit;
-	private Collection<RDFEvent> pattern;
+	private Collection<? extends RDFEvent> pattern;
 	private String query;
 	private Model graph;
 
@@ -51,6 +59,21 @@ public abstract class BoundedDescription {
 		assert resource != null;
 		this.resource = resource;
 		this.limit = limit;
+		int fidx = resource.indexOf('#');
+		int qidx = resource.indexOf('?');
+		if (fidx < 0 && qidx < 0) {
+			frag = resource + '#';
+			qs = resource + '?';
+		} else if (fidx < 0) {
+			frag = resource + '#';
+			qs = resource.substring(0, qidx + 1);
+		} else if (qidx < 0) {
+			frag = resource.substring(0, fidx + 1);
+			qs = resource.substring(0, fidx) + '?';
+		} else {
+			frag = resource.substring(0, fidx + 1);
+			qs = resource.substring(0, qidx + 1);
+		}
 	}
 
 	public synchronized Model getDescriptionGraph() throws IOException, OpenRDFException {
@@ -74,20 +97,53 @@ public abstract class BoundedDescription {
 		return asSparqlDelete(pattern);
 	}
 
+	public void verifyDescriptionGraph(Model model, Model permitted) {
+		for (Resource subj : model.subjects()) {
+			if (subj instanceof URI && !subj.stringValue().equals(resource)
+					&& !subj.stringValue().startsWith(frag)
+					&& !subj.stringValue().startsWith(qs)) {
+				if (isDescriptionDifferent(subj, model, permitted))
+					throw new BadRequest(subj
+							+ " is not part of the bounded description of "
+							+ resource);
+			} else if (!isConnected(resource, subj, model,
+					new ArrayList<Resource>())) {
+				throw new BadRequest(subj + " must be connected to " + resource);
+			}
+		}
+	}
+
 	protected abstract void evaluate(String construct, RDFHandler handler) throws IOException, OpenRDFException;
+
+	boolean isDescriptionDifferent(Resource resource, Model a, Model b) {
+		return !a.filter(resource, null, null).equals(
+				b.filter(resource, null, null));
+	}
+
+	private boolean isConnected(String root, Resource subj, Model model,
+			Collection<Resource> exclude) {
+		if (root.equals(subj.stringValue()))
+			return true;
+		for (Resource s : model.filter(null, null, subj).subjects()) {
+			if (exclude.add(s) && isConnected(root, s, model, exclude))
+				return true;
+		}
+		return false;
+	}
 
 	private synchronized void buildDescription() throws IOException, OpenRDFException {
 		String describe = getDescribeResource(resource);
 		Model model = evaluate(describe);
-		Collection<RDFEvent> where = buildDescribeQuery(resource, model);
-		while (!isBounded(resource, model)) {
+		Collection<? extends RDFEvent> where = buildDescribeQuery(model);
+		while (!isBounded(model)) {
 			String rq = asSparqlConstruct(where);
 			if (describe.equals(rq))
 				break;
 			describe = rq;
 			model = evaluate(describe);
-			where = buildDescribeQuery(resource, model);
+			where = buildDescribeQuery(model);
 		}
+		logger.info(describe);
 		pattern = where;
 		graph = model;
 		query = describe;
@@ -96,7 +152,6 @@ public abstract class BoundedDescription {
 	private Model evaluate(String query) throws IOException, OpenRDFException {
 		final Model model = new TreeModel();
 		evaluate(query, new ContextStatementCollector(model, ValueFactoryImpl.getInstance(), (Resource) null) {
-			private int size;
 			@Override
 			public void handleNamespace(String prefix, String uri)
 					throws RDFHandlerException {
@@ -105,7 +160,7 @@ public abstract class BoundedDescription {
 
 			@Override
 			public void handleStatement(Statement st) {
-				if (++size > limit) 
+				if (model.size() > limit) 
 					throw new MethodNotAllowed("Resource description is too large");
 				super.handleStatement(st);
 			}
@@ -117,15 +172,15 @@ public abstract class BoundedDescription {
 		return DESCRIBE_RESOURCE.replace("$resource", resource);
 	}
 
-	private Collection<RDFEvent> buildDescribeQuery(String iri, Model model)
+	private Collection<? extends RDFEvent> buildDescribeQuery(Model model)
 			throws IOException {
-		String frag = iri + "#";
-		String qs = iri + "?";
-		TriplePattern outbound = new TriplePattern(tf.iri(iri), tf.var("p"), tf.var("o"));
+		TriplePattern outbound = new TriplePattern(tf.iri(resource), tf.var("p"), tf.var("o"));
 		List<List<String>> paths = new ArrayList<List<String>>();
 		for (Statement st : model) {
 			Value obj = st.getObject();
 			if (obj instanceof Literal)
+				continue;
+			if (obj.stringValue().equals(resource))
 				continue;
 			if (model.contains((Resource) obj, null, null))
 				continue;
@@ -136,10 +191,8 @@ public abstract class BoundedDescription {
 		return buildWhereClause(outbound, paths, frag, qs);
 	}
 
-	private boolean isBounded(String iri, Model model)
+	private boolean isBounded(Model model)
 			throws IOException {
-		String frag = iri + "#";
-		String qs = iri + "?";
 		for (Statement st : model) {
 			Value obj = st.getObject();
 			if (obj instanceof Literal)
@@ -157,8 +210,10 @@ public abstract class BoundedDescription {
 		for (Statement st : model.filter(null, null, obj)) {
 			String subj = st.getSubject().stringValue();
 			String pred = st.getPredicate().stringValue();
-			if (st.getSubject() instanceof URI && subj.indexOf('#') < 0 && subj.indexOf('?') < 0) {
-				return new ArrayList<String>();
+			if (st.getSubject() instanceof URI && subj.equals(resource)) {
+				ArrayList<String> list = new ArrayList<String>();
+				list.add(pred);
+				return list;
 			} else {
 				List<String> list = getPath(st.getSubject(), model);
 				if (list == null)
@@ -185,20 +240,24 @@ public abstract class BoundedDescription {
 		return paths;
 	}
 
-	private Collection<RDFEvent> buildWhereClause(TriplePattern outbound,
+	private Collection<? extends RDFEvent> buildWhereClause(TriplePattern outbound,
 			List<List<String>> paths, String frag, String qs) throws IOException {
+		if (paths.isEmpty())
+			return Collections.singleton(outbound);
 		List<RDFEvent> writer = new ArrayList<RDFEvent>();
+		writer.add(new Group(true, null));
 		writer.add(outbound);
+		writer.add(new Group(false, null));
 		for (int i=0,n=paths.size();i<n;i++) {
 			List<String> path = paths.get(i);
 			VarOrTerm term = outbound.getSubject();
 			String prefix = "r" + Integer.toHexString(i);
-			addOptional(term, prefix, 0, path, frag, qs, writer);
+			addUnion(term, prefix, 0, path, frag, qs, writer);
 		}
 		return writer;
 	}
 
-	private String asSparqlConstruct(Collection<RDFEvent> queue) throws IOException {
+	private String asSparqlConstruct(Collection<? extends RDFEvent> queue) throws IOException {
 		StringWriter sw = new StringWriter();
 		SPARQLWriter writer = new SPARQLWriter(sw);
 		writer.write(new Construct(true, null));
@@ -217,7 +276,7 @@ public abstract class BoundedDescription {
 		return sw.toString();
 	}
 
-	private String asSparqlDelete(Collection<RDFEvent> queue) throws IOException {
+	private String asSparqlDelete(Collection<? extends RDFEvent> queue) throws IOException {
 		StringWriter sw = new StringWriter();
 		SPARQLWriter writer = new SPARQLWriter(sw);
 		writer.write(new Delete(true, null));
@@ -236,22 +295,27 @@ public abstract class BoundedDescription {
 		return sw.toString();
 	}
 
-	private void addOptional(VarOrTerm term, String prefix, int j,
+	private void addUnion(VarOrTerm term, String prefix, int j,
 			List<String> path, String frag, String qs, Collection<RDFEvent> queue)
 			throws IOException {
 		assert !path.isEmpty();
-		queue.add(new Optional(true, null));
+		queue.add(new Union(null));
+		queue.add(new Group(true, null));
 		String first = path.get(0);
 		String name = prefix + Integer.toHexString(j);
 		Var var = tf.var(name);
 		queue.add(new TriplePattern(term, tf.iri(first), var));
 		filterBlankOrStrStarts(var, frag, qs, queue);
-		queue.add(outbound(name));
 		int size = path.size();
-		if (size > 2) {
-			addOptional(var, prefix, j + 1, path.subList(1, size), frag, qs, queue);
+		if (size < 2) {
+			queue.add(outbound(name));
+		} else {
+			queue.add(new Group(true, null));
+			queue.add(outbound(name));
+			queue.add(new Group(false, null));
+			addUnion(var, prefix, j + 1, path.subList(1, size), frag, qs, queue);
 		}
-		queue.add(new Optional(false, null));
+		queue.add(new Group(false, null));
 	}
 
 	private void filterBlankOrStrStarts(Var var, String frag, String qs,

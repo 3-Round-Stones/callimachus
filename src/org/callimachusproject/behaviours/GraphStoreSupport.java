@@ -7,8 +7,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -54,7 +52,6 @@ import org.openrdf.http.object.io.TurtleStreamWriter;
 import org.openrdf.http.object.util.URLUtil;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Model;
-import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
@@ -355,7 +352,10 @@ public abstract class GraphStoreSupport {
 		} else {
 			res = new BasicHttpResponse(HTTP11, 200, "OK");
 		}
-		res.setHeader("ETag", getETag(model));
+		RDFFormat format = getAcceptableRDFFormat(accept);
+		if (!preferHtml(accept, format.getDefaultMIMEType())) {
+			res.setHeader("ETag", getETag(model, format.getDefaultMIMEType()));
+		}
 		return res;
 	}
 
@@ -377,8 +377,9 @@ public abstract class GraphStoreSupport {
 		} else {
 			res = new BasicHttpResponse(HTTP11, 200, "OK");
 		}
-		res.setHeader("ETag", getETag(model));
-		res.setEntity(asGraphEntity(model, accept, base));
+		RDFFormat format = getAcceptableRDFFormat(accept);
+		res.setHeader("ETag", getETag(model, format.getDefaultMIMEType()));
+		res.setEntity(asGraphEntity(model, format, base));
 		return res;
 	}
 
@@ -393,12 +394,13 @@ public abstract class GraphStoreSupport {
 		String base = this.toString() + "?resource=" + resource;
 		BoundedDescription description = getBoundedDescription(iri, base);
 		Model graph = description.getDescriptionGraph();
-		String eTag = getETag(graph);
+		RDFFormat format = getAcceptableRDFFormat("text/turtle");
+		String eTag = getETag(graph, format.getDefaultMIMEType());
 		if (ifMatch != null && !ifMatch.equals("*") && !ifMatch.equals(eTag)) {
 			BasicHttpResponse res = new BasicHttpResponse(HTTP11, 412,
 					"Precondition Failed");
 			res.setHeader("ETag", eTag);
-			res.setEntity(asGraphEntity(graph, "text/turtle", base));
+			res.setEntity(asGraphEntity(graph, format, base));
 			return res;
 		}
 		return postDescriptionUpdate(iri, base, description.getDeleteUpdate());
@@ -417,7 +419,8 @@ public abstract class GraphStoreSupport {
 		String base = this.toString() + "?resource=" + resource;
 		BoundedDescription description = getBoundedDescription(iri, base);
 		Model deleteData = description.getDescriptionGraph();
-		String eTag = getETag(deleteData);
+		RDFFormat format = getAcceptableRDFFormat("text/turtle");
+		String eTag = getETag(deleteData, format.getDefaultMIMEType());
 		if (ifMatch == null) {
 			throw new PreconditionRequired(
 					"If-Match request header is required");
@@ -425,10 +428,10 @@ public abstract class GraphStoreSupport {
 			BasicHttpResponse res = new BasicHttpResponse(HTTP11, 412,
 					"Precondition Failed");
 			res.setHeader("ETag", eTag);
-			res.setEntity(asGraphEntity(deleteData, "text/turtle", base));
+			res.setEntity(asGraphEntity(deleteData, format, base));
 			return res;
 		}
-		verifyBoundedDescription(iri, replacementData, deleteData);
+		description.verifyDescriptionGraph(replacementData, deleteData);
 		SparqlUpdateFactory factory = new SparqlUpdateFactory(base);
 		String sparql = factory.replacement(deleteData, replacementData);
 		return postDescriptionUpdate(iri, base, sparql);
@@ -495,15 +498,24 @@ public abstract class GraphStoreSupport {
 	}
 
 	protected RDFFormat getAcceptableRDFFormat(String accept) {
+		if (accept == null)
+			return RDFFormat.TURTLE;
 		String type = new FluidType(Model.class, "text/turtle",
 				"application/ld+json", "application/rdf+xml").as(
 				accept.split("\\s*,\\s*")).preferred();
 		return reg.getFileFormatForMIMEType(type, RDFFormat.TURTLE);
 	}
 
-	private InputStreamEntity asGraphEntity(final Model model, String accept,
+	private boolean preferHtml(String accept, String over) {
+		if (accept == null)
+			return true;
+		String type = new FluidType(Model.class, "text/html", over).as(
+				accept.split("\\s*,\\s*")).preferred();
+		return type.startsWith("text/html");
+	}
+
+	InputStreamEntity asGraphEntity(final Model model, final RDFFormat format,
 			final String base) throws IOException {
-		final RDFFormat format = getAcceptableRDFFormat(accept);
 		return new InputStreamEntity(new ProducerStream(new OutputProducer() {
 			public void produce(OutputStream out) throws IOException {
 				try {
@@ -566,44 +578,9 @@ public abstract class GraphStoreSupport {
 		parser.parse(in, base);
 	}
 
-	private String getETag(final Model model) {
-		return "\\W\"" + Integer.toHexString(model.hashCode()) + "\"";
-	}
-
-	private void verifyBoundedDescription(String iri, Model model,
-			Model permitted) {
-		String frag = iri + "#";
-		String qs = iri + "?";
-		URI root = vf.createURI(iri);
-		for (Resource subj : model.subjects()) {
-			if (subj instanceof URI && !subj.equals(root)
-					&& !subj.stringValue().startsWith(frag)
-					&& !subj.stringValue().startsWith(qs)) {
-				if (isDescriptionDifferent(subj, model, permitted))
-					throw new BadRequest(subj
-							+ " is not part of the bounded description of "
-							+ iri);
-			} else if (!isConnected(root, subj, model,
-					new ArrayList<Resource>())) {
-				throw new BadRequest(subj + " must be connected to " + iri);
-			}
-		}
-	}
-
-	boolean isDescriptionDifferent(Resource resource, Model a, Model b) {
-		return !a.filter(resource, null, null).equals(
-				b.filter(resource, null, null));
-	}
-
-	private boolean isConnected(URI root, Resource subj, Model model,
-			Collection<Resource> exclude) {
-		if (root.equals(subj))
-			return true;
-		for (Resource s : model.filter(null, null, subj).subjects()) {
-			if (exclude.add(s) && isConnected(root, s, model, exclude))
-				return true;
-		}
-		return false;
+	private String getETag(final Model model, String media) {
+		return "\\W\"" + Integer.toHexString(model.hashCode()) + '-'
+				+ Integer.toHexString(media.hashCode()) + "\"";
 	}
 
 	private HttpUriResponse postQuery(String query, String accept, String base)

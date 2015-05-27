@@ -1,0 +1,150 @@
+<html version="XHTML+RDFa 1.0" xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:sd="http://www.w3.org/ns/sparql-service-description#"
+    xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
+<head>
+    <title resource="?this">{rdfs:label}</title>
+    <link rel="comments" href="?discussion" />
+    <link rel="version-history" href="?history" />
+    <link rel="help" href="../../callimachus-reference#RDF_Datasources" target="_blank" title="Help" />
+    <link href="../../callimachus-reference#SPARQL_Reference" target="_blank" title="Reference" />
+    <link href="http://www.w3.org/TR/sparql11-query/" target="_blank" title="SPARQL Query Language" />
+    <link href="http://www.w3.org/TR/sparql11-update/" target="_blank" title="SPARQL Update" />
+    <script type="text/javascript">
+    <![CDATA[
+        $(function(){
+            var sd = "http://www.w3.org/ns/sparql-service-description#";
+            if (!$('span[rel="sd:supportedLanguage"][resource="' + sd + 'SPARQL11Query"]').length) {
+                $('.SPARQL11Query').hide();
+            }
+            if (!$('span[rel="sd:supportedLanguage"][resource="' + sd + 'SPARQL11Update"]').length) {
+                $('.SPARQL11Update').hide();
+            }
+            if (window.location.hash.indexOf('query=') > 0) {
+                var query = window.location.hash.match(/query=([^&]*)/)[1];
+                $('#sparql').val(decodeURIComponent(query.replace(/\+/g, ' ')));
+            }
+            if (window.location.hash.indexOf('error=') > 0) {
+                var error = window.location.hash.match(/error=([^&]*)/)[1];
+                calli.error(decodeURIComponent(error.replace(/\+/g, ' ')));
+            }
+            var m;
+            var defaultGraphs = /default-graph-uri=([^&]*)/g;
+            while (m = defaultGraphs.exec(window.location.hash)) {
+                var value = decodeURIComponent(m[1].replace(/\+/g, ' '));
+                $('<input/>', {
+                    type: "hidden",
+                    name: "default-graph-uri",
+                    value: value
+                }).insertAfter('#sparql');
+            }
+            var namdeGraphs = /named-graph-uri=([^&]*)/g;
+            while (m = namdeGraphs.exec(window.location.hash)) {
+                var value = decodeURIComponent(m[1].replace(/\+/g, ' '));
+                $('<input/>', {
+                    type: "hidden",
+                    name: "named-graph-uri",
+                    value: value
+                }).insertAfter('#sparql');
+            }
+            calli.fillElement('#sparql');
+            $('#evaluate').click(function(event){
+                $(event.target).button('loading');
+                $('#sparql').val(addPrefix($('#sparql').val()));
+            });
+            $('#execute').click(function(event){
+                var btn = $(event.target);
+                var form = btn.closest('form')[0];
+                btn.button('loading');
+                $('#sparql').val(addPrefix($('#sparql').val()));
+                var action = calli.getFormAction(form);
+                var sparql = $('#sparql').val();
+                var data = 'update=' + encodeURIComponent(sparql);
+                calli.postText(action, data, 'application/x-www-form-urlencoded').then(function(){
+                    btn.button('reset');
+                }, function(error){
+                    btn.button('reset');
+                    return calli.error(error);
+                });
+            });
+            var profile = [];
+            $.ajax({
+                url: $('#profile')[0].href.replace('?view', ''),
+                accepts: "application/ld+json",
+                success: function(json) {
+                    profile = json;
+                }
+            });
+            function addPrefix(sparql) {
+                if (sparql.indexOf('PREFIX') >= 0 || sparql.indexOf('prefix') >= 0)
+                    return sparql;
+                var prolog = [];
+                for (var i=0; i<profile.length; i++) {
+                    var prefix = profile[i]["http://www.w3.org/ns/rdfa#prefix"][0]['@value'];
+                    var uri = profile[i]["http://www.w3.org/ns/rdfa#uri"][0]['@value'];
+                    if (prefix && sparql.indexOf(prefix) > 0) {
+                        prolog.push('PREFIX ' + prefix + ':<' + uri + '>');
+                    }
+                }
+                if (prolog.length)
+                    return prolog.join('\n') + '\n' + sparql;
+                return sparql;
+            }
+        });
+    ]]>
+    </script>
+</head>
+<body resource="?this">
+    <form role="form" id="form" action="{?this}" method="GET" class="container">
+        <div class="row">
+            <fieldset class="col-sm-8">
+                <textarea id="sparql" name="query" class="form-control" required="required" autofocus="autofocus"
+                    onchange="$(form).find('button').removeAttr('disabled')"></textarea>
+                <div resource="?this" typeof="sd:Service">
+                    <span rel="sd:endpoint" resource="?endpoint"></span>
+                    <span rel="sd:feature" resource="?feature"></span>
+                    <span rel="sd:inputFormat" resource="?inputFormat"></span>
+                    <span rel="sd:resultFormat" resource="?resultFormat"></span>
+                    <span rel="sd:supportedLanguage" resource="?support"></span>
+                </div>
+                <div class="form-group">
+                    <button id="evaluate" type="submit" class="btn btn-primary SPARQL11Query">Evaluate Query</button>
+                    <button id="execute" type="button" class="btn btn-warning SPARQL11Update">Execute Update</button>
+                    <button type="button" onclick="history.back()" class="btn btn-default">Cancel</button>
+                </div>
+            </fieldset>
+            <div class="col-sm-4">
+                <aside class="panel panel-default">
+                    <div class="panel-heading">
+                        <h1 class="panel-title" property="rdfs:label"></h1>
+                    </div>
+                    <div class="panel-body">
+                        <p property="rdfs:comment"></p>
+                    </div>
+                </aside>
+                <aside class="panel panel-default">
+                    <div class="panel-body">
+                        <img src="{calli:endpointLogo}"  class="center-block" />
+                    </div>
+                </aside>
+                <aside class="well">
+                    <p>Query the database using the SPARQL language</p>
+                    <p>Namespace prefixes are optional and if omitted the default <a id="profile" href="../../profile?view">SPARQL Profile</a> will be used</p>
+                    <p>Additional RDF graphs can be uploaded from the home folder</p>
+                    <p>To get started (if your database isn't too big) try listing some of the different types available in the database</p>
+<pre>
+SELECT DISTINCT ?type
+WHERE {
+  ?thing a ?type
+}
+ORDER BY ?type
+LIMIT 50
+</pre>
+                </aside>
+            </div>
+        </div>
+    </form>
+</body>
+</html>

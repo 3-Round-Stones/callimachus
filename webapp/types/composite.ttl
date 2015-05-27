@@ -846,6 +846,20 @@
                 ?superClass rdfs:subClassOf+ ?type .
                 ?superClass a [rdfs:subClassOf* <Creatable>] .
                 FILTER (?superClass != ?creatable)
+                FILTER NOT EXISTS {
+                    $for a ?another
+                    FILTER (?type != ?another)
+                    FILTER NOT EXISTS {
+                        ?superClass rdfs:subClassOf+ ?another
+                    }
+                }
+            }
+            FILTER NOT EXISTS {
+                $for a ?another
+                FILTER (?type != ?another)
+                FILTER NOT EXISTS {
+                    ?creatable rdfs:subClassOf+ ?another
+                }
             }
         }
     """.

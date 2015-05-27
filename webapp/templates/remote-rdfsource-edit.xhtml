@@ -1,0 +1,111 @@
+<html version="XHTML+RDFa 1.0" xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:sd="http://www.w3.org/ns/sparql-service-description#"
+    xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
+    xmlns:dcterms="http://purl.org/dc/terms/">
+<head>
+    <title resource="?this">{rdfs:label}</title>
+    <link rel="help" href="../../callimachus-reference#RDF_Datasources" target="_blank" title="Help" />
+    <style type="text/css">.selectize-dropdown-content { max-height: none; }</style>
+    <script src="../scripts/remote-rdfsource.js"></script>
+</head>
+<body resource="?this" onload="comparison=calli.copyResourceData('#edit')">
+    <form id="edit" role="form" method="POST" action="" enctype="application/sparql-update" resource="?this" class="container"
+            onsubmit="calli.submitUpdate(comparison, event)">
+        <div class="page-header">
+            <h1>{rdfs:label}</h1>
+        </div>
+        <div class="row">
+            <fieldset class="col-sm-4">
+                <div class="form-group">
+                    <label for="label">Label</label>
+                    <div>
+                        <input type="text" class="form-control" id="label" value="{rdfs:label}" required="required"
+                            onchange="calli.updateProperty(event, 'rdfs:label')" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="comment">Comment</label>
+                    <div>
+                        <textarea id="comment" class="form-control"
+                            onchange="calli.updateProperty(event, 'rdfs:comment')">{rdfs:comment}</textarea>
+                    </div>
+                </div>
+            </fieldset>
+            <fieldset class="col-sm-4">
+                <div class="form-group">
+                    <label for="support">Support</label>
+            		<div>
+                        <div class="checkbox support">
+                        	<label>
+                				<input type="checkbox" name="support" resource="http://www.w3.org/ns/sparql-service-description#SPARQL11Query"
+                                    onchange="calli.updateResource(event, 'sd:supportedLanguage')" />
+                				<span>Evaluate client supplied SPARQL queries</span>
+                			</label>
+                        </div>
+                        <div class="checkbox support">
+                    		<label>
+                				<input type="checkbox" name="support" resource="http://www.w3.org/ns/sparql-service-description#SPARQL11Update"
+                                    onchange="calli.updateResource(event, 'sd:supportedLanguage')" />
+                				<span>Execute client supplied SPARQL updates</span>
+                			</label>
+                        </div>
+                    	<div class="checkbox feature">
+                    		<label>
+                				<input type="checkbox" name="support"
+                                    resource="http://www.w3.org/ns/sparql-service-description#BasicFederatedQuery"
+                                    onchange="calli.updateResource(event, 'sd:feature')"/>
+                				Evaluate basic federated queries
+                			</label>
+                		</div>
+            		</div>
+                    <div class="hidden" rel="sd:supportedLanguage" resource="?support"></div>
+                    <div class="hidden" rel="sd:feature" resource="?feature"></div>
+                    <script type="text/javascript">
+                        $('[rel="sd:supportedLanguage"].hidden').filter(calli.checkEachResourceIn('.checkbox.support')).remove();
+                        $('[rel="sd:feature"].hidden').filter(calli.checkEachResourceIn('.checkbox.feature')).remove();
+                    </script>
+                </div>
+            </fieldset>
+            <fieldset class="col-sm-4">
+                <label for="protocol">RDF Source Protocol</label>
+                <div>
+                    <select id="protocol" class="form-control" placeholder="Choose an implementation">
+                        <option selected="selected" rel="calli:endpointLogo" resource="?endpointLogo" value="{?endpointLogo}">{rdfs:label}</option>
+                        <option resource="../images/sparql_logo.png" value="sparql">SPARQL 1.1</option>
+                        <option resource="../images/callimachus-logo.png" value="callimachus">Callimachus</option>
+                        <option resource="../images/sesame-logo.png" value="sesame">Sesame 2.5+</option>
+                        <option resource="../images/sdog.png" value="stardog">Stardog</option>
+                        <option resource="../images/oplogo_std_150x60.png" value="virtuoso">Virtuoso</option>
+                    </select>
+                </div>
+            </fieldset>
+        </div>
+        <fieldset class="row form-group">
+            <div class="col-sm-6">
+                <label for="queryEndpoint">SPARQL Query Endpoint</label>
+                <div>
+                    <input type="url" id="queryEndpoint" value="{calli:queryEndpoint}" class="form-control" required="required"
+                        onchange="calli.updateResource(event, 'calli:queryEndpoint')" />
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <label for="updateEndpoint">SPARQL Update Endpoint</label>
+                <div>
+                    <input type="url" id="updateEndpoint" value="{calli:updateEndpoint}" class="form-control" required="required"
+                        onchange="calli.updateResource(event, 'calli:updateEndpoint')" />
+                </div>
+            </div>
+        </fieldset>
+        <fieldset class="form-group">
+            <button id="save-datasource" type="submit" class="btn btn-primary">Save</button>
+            <button id="cancel-datasource" type="button" class="btn btn-default"
+                onclick="window.location.replace('?view')">Cancel</button>
+            <button id="delete-datasource" type="button" class="btn btn-danger"
+                onclick="calli.deleteResource(event)">Delete</button>
+        </fieldset>
+    </form>
+</body>
+</html>

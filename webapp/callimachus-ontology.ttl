@@ -154,10 +154,10 @@ calli:XslTransform a owl:Class;
     rdfs:comment "A Callimachus XSL file";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
-calli:RdfDatasource a owl:Class;
-    rdfs:subClassOf sd:Service;
-    rdfs:label "RDF Datasource";
-    rdfs:comment "An RDF source";
+calli:RemoteRdfSource a owl:Class;
+    rdfs:subClassOf sd:Service, calli:Purl;
+    rdfs:label "Remote RDF Source";
+    rdfs:comment "An RDF source stored remotely";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:SqlDatasource a owl:Class;
@@ -534,6 +534,24 @@ calli:layout a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:label "layout";
     rdfs:comment "An XQuery transform to add header/footer markup to page templates";
     rdfs:domain calli:Realm;
+    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
+calli:queryEndpoint a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:label "query endpoint";
+    rdfs:comment "The SPARQL endpoint for querying the RDF source";
+    rdfs:domain calli:RemoteRdfSource;
+    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
+calli:updateEndpoint a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:label "query endpoint";
+    rdfs:comment "The SPARQL endpoint for updating the RDF source";
+    rdfs:domain calli:RemoteRdfSource;
+    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
+calli:endpointLogo a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:label "endpoint logo";
+    rdfs:comment "The logo used to identify this SPARQL endpoint";
+    rdfs:domain calli:RemoteRdfSource;
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:jdbcUrl a owl:FunctionalProperty, owl:DatatypeProperty;

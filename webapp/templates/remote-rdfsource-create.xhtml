@@ -1,0 +1,141 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:sd="http://www.w3.org/ns/sparql-service-description#"
+    xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
+<head>
+    <title>New Remote RDF Source</title>
+    <link rel="help" href="../../callimachus-reference#RDF_Datasources" target="_blank" title="Help" />
+    <style type="text/css">.selectize-dropdown-content { max-height: none; }</style>
+    <script src="../scripts/remote-rdfsource.js"></script>
+</head>
+<body>
+    <form id="create" role="form" method="POST" action="" enctype="text/turtle" typeof="sd:Service calli:RemoteRdfSource" class="container">
+        <div class="page-header">
+            <h1>New RDF Datasource</h1>
+        </div>
+        <div class="row">
+            <fieldset class="col-sm-6">
+                <div class="form-group">
+                    <label for="label">Label</label>
+                    <div>
+                        <input type="text" class="form-control" id="label" value="{rdfs:label}" required="required" autofocus="autofocus"
+                            onchange="calli.updateProperty(event, 'rdfs:label')" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="comment">Comment</label>
+                    <div>
+                        <textarea id="comment" class="form-control"
+                            onchange="calli.updateProperty(event, 'rdfs:comment')">{rdfs:comment}</textarea>
+                    </div>
+                </div>
+            </fieldset>
+            <fieldset class="col-sm-6">
+                <div class="form-group">
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" name="editor" checked="checked"
+                                resource="/auth/groups/system"
+                                onchange="calli.updateResource(event, 'calli:editor')" />
+                			Grant anonymous localhost to modify datasource
+                		</label>
+                	</div>
+                </div>
+                <div>
+                    <span rel="calli:editor"></span>
+                    <span rel="sd:supportedLanguage"></span>
+                    <span rel="sd:feature"></span>
+                    <span id="endpoint" rel="sd:endpoint"></span>
+                    <span rel="sd:feature" resource="http://www.w3.org/ns/sparql-service-description#UnionDefaultGraph"></span>
+                    <span rel="sd:inputFormat" resource="http://www.w3.org/ns/formats/RDF_XML"></span>
+                    <span rel="sd:inputFormat" resource="http://www.w3.org/ns/formats/Turtle"></span>
+                    <span rel="sd:inputFormat" resource="http://www.w3.org/ns/formats/JSON-LD"></span>
+                    <span rel="sd:resultFormat" resource="http://www.w3.org/ns/formats/RDF_XML"></span>
+                    <span rel="sd:resultFormat" resource="http://www.w3.org/ns/formats/Turtle"></span>
+                    <span rel="sd:resultFormat" resource="http://www.w3.org/ns/formats/JSON-LD"></span>
+                    <span rel="sd:resultFormat" resource="http://www.w3.org/ns/formats/SPARQL_Results_XML"></span>
+                    <span rel="sd:resultFormat" resource="http://www.w3.org/ns/formats/SPARQL_Results_JSON"></span>
+                    <span rel="sd:resultFormat" resource="http://www.w3.org/ns/formats/SPARQL_Results_CSV"></span>
+                    <span rel="sd:resultFormat" resource="http://www.w3.org/ns/formats/SPARQL_Results_TSV"></span>
+                </div>
+                <div class="form-group">
+            		<div class="checkbox">
+            			<label>
+            				<input type="checkbox" name="support" checked="checked"
+                                resource="http://www.w3.org/ns/sparql-service-description#SPARQL11Query"
+                                onchange="calli.updateResource(event, 'sd:supportedLanguage')"/>
+            				Evaluate client supplied SPARQL queries
+            			</label>
+                    </div>
+                	<div class="checkbox">
+                		<label>
+            				<input type="checkbox" name="support" checked="checked"
+                                resource="http://www.w3.org/ns/sparql-service-description#SPARQL11Update"
+                                onchange="calli.updateResource(event, 'sd:supportedLanguage')"/>
+            				Execute client supplied SPARQL updates
+            			</label>
+            		</div>
+                	<div class="checkbox">
+                		<label>
+            				<input type="checkbox" name="support" checked="checked"
+                                resource="http://www.w3.org/ns/sparql-service-description#BasicFederatedQuery"
+                                onchange="calli.updateResource(event, 'sd:feature')"/>
+            				Evaluate basic federated queries
+            			</label>
+            		</div>
+                	<div class="checkbox">
+                		<label>
+            				<input id="direct" type="checkbox" name="support" checked="checked" />
+            				Direct graph and resource identification
+            			</label>
+            		</div>
+                </div>
+            </fieldset>
+        </div>
+        <fieldset class="row form-group">
+            <div class="col-sm-6">
+                <label for="url">RDF Source URL</label>
+                <div>
+                    <input type="url" id="url" class="form-control" required="required" autofocus="autofocus" />
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <label for="protocol">RDF Source Protocol</label>
+                <div>
+                    <select id="protocol" class="form-control" placeholder="Choose an implementation">
+                        <option selected="selected" rel="calli:endpointLogo" resource="?endpointLogo" value="{?endpointLogo}">{rdfs:label}</option>
+                        <option value="autodetect"></option>
+                        <option resource="../images/sparql_logo.png" value="sparql">SPARQL 1.1</option>
+                        <option value="separate">Separate Update endpoint</option>
+                        <option resource="../images/callimachus-logo.png" value="callimachus">Callimachus</option>
+                        <option resource="../images/sesame-logo.png" value="sesame">Sesame 2.5+</option>
+                        <option resource="../images/sdog.png" value="stardog">Stardog</option>
+                        <option resource="../images/oplogo_std_150x60.png" value="virtuoso">Virtuoso</option>
+                    </select>
+                </div>
+            </div>
+        </fieldset>
+        <fieldset id="separate" class="row form-group hidden">
+            <div class="col-sm-6">
+                <label for="queryEndpoint">SPARQL Query Endpoint</label>
+                <div>
+                    <input type="url" id="queryEndpoint" value="{calli:queryEndpoint}" class="form-control" required="required"
+                        onchange="calli.updateResource(event, 'calli:queryEndpoint')" />
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <label for="updateEndpoint">SPARQL Update Endpoint</label>
+                <div>
+                    <input type="url" id="updateEndpoint" value="{calli:updateEndpoint}" class="form-control" required="required"
+                        onchange="calli.updateResource(event, 'calli:updateEndpoint')" />
+                </div>
+            </div>
+        </fieldset>
+        <fieldset class="form-group">
+            <button id="create-datasource" type="submit" class="btn btn-success">Create</button>
+        </fieldset>
+    </form>
+</body>
+</html>

@@ -29,18 +29,13 @@ import org.apache.http.Consts;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.message.BasicHttpResponse;
-import org.callimachusproject.annotations.requires;
 import org.callimachusproject.io.SparqlInsertDataParser;
 import org.callimachusproject.repository.auditing.ActivityFactory;
 import org.callimachusproject.repository.auditing.AuditingRepositoryConnection;
 import org.callimachusproject.server.helpers.RequestActivityFactory;
 import org.callimachusproject.traits.CalliObject;
 import org.openrdf.OpenRDFException;
-import org.openrdf.annotations.HeaderParam;
-import org.openrdf.annotations.Method;
-import org.openrdf.annotations.Param;
 import org.openrdf.annotations.Sparql;
-import org.openrdf.annotations.Type;
 import org.openrdf.http.object.client.CloseableEntity;
 import org.openrdf.http.object.client.HttpUriResponse;
 import org.openrdf.http.object.exceptions.BadRequest;
@@ -69,7 +64,6 @@ import org.openrdf.query.parser.ParsedBooleanQuery;
 import org.openrdf.query.parser.ParsedGraphQuery;
 import org.openrdf.query.parser.ParsedQuery;
 import org.openrdf.query.parser.ParsedTupleQuery;
-import org.openrdf.query.parser.ParsedUpdate;
 import org.openrdf.query.parser.QueryParser;
 import org.openrdf.query.parser.QueryParserRegistry;
 import org.openrdf.query.resultio.BooleanQueryResultFormat;
@@ -103,29 +97,20 @@ public abstract class DatasourceSupport extends GraphStoreSupport implements Cal
 	private final TupleQueryResultWriterRegistry tuple = TupleQueryResultWriterRegistry.getInstance();
 	private final QueryParserRegistry reg = QueryParserRegistry.getInstance();
 
-	@Sparql(PREFIX + "ASK { $this sd:supportedLanguage sd:SPARQL11Query }")
-	public abstract boolean isQuerySupported();
-
-	@Sparql(PREFIX + "ASK { $this sd:supportedLanguage sd:SPARQL11Update }")
-	public abstract boolean isUpdateSupported();
-
 	@Sparql(PREFIX + "ASK { $this sd:feature sd:BasicFederatedQuery }")
 	public abstract boolean isFederatedSupported();
 
+	public void purgeDatasource() throws OpenRDFException, IOException {
+		String uri = this.getResource().stringValue();
+		String id = getCalliRepository().getDatasourceRepositoryId(uri);
+		RepositoryManager manager = getCalliRepository().getRepositoryManager();
+		manager.removeRepository(id);
+	}
+
 	@Override
-	@Method("POST")
-	@requires(READER)
-	public HttpUriResponse postQuery(
-			@Param("default-graph-uri") String[] defaultGraphs,
-			@Param("named-graph-uri") String[] namedGraphs,
-			@HeaderParam("Accept") String[] accept,
-			@HeaderParam("Content-Location") String loc,
-			@Type("application/sparql-query") byte[] rq) throws IOException,
-			OpenRDFException {
-		if (rq == null || rq.length == 0)
-			throw new BadRequest("Missing query");
-		if (!isQuerySupported())
-			throw new BadRequest("SPARQL Query is not supported on this service");
+	protected HttpUriResponse evaluateQuery(String[] defaultGraphs,
+			String[] namedGraphs, String[] accept, String loc, byte[] rq)
+			throws IOException, OpenRDFException {
 		String query = new String(rq, Consts.UTF_8);
 		boolean close = true;
 		final RepositoryConnection con = openConnection();
@@ -195,16 +180,9 @@ public abstract class DatasourceSupport extends GraphStoreSupport implements Cal
 	}
 
 	@Override
-	@Method("POST")
-	@requires(EDITOR)
-	public HttpResponse postUpdate(
-			@Param("using-graph-uri") final String[] defaultGraphs,
-			@Param("using-named-graph-uri") final String[] namedGraphs,
-			@HeaderParam("Content-Location") String loc,
-			@Type("application/sparql-update") InputStream ru)
+	protected HttpResponse executeUpdate(String[] defaultGraphs,
+			String[] namedGraphs, String loc, InputStream ru)
 			throws IOException, OpenRDFException {
-		if (!isUpdateSupported())
-			throw new BadRequest("SPARQL Update is not supported on this service");
 		BufferedInputStream bin = new BufferedInputStream(ru, MAX_RU_SIZE);
 		bin.mark(MAX_RU_SIZE);
 		int skipped = (int) bin.skip(MAX_RU_SIZE);
@@ -220,13 +198,6 @@ public abstract class DatasourceSupport extends GraphStoreSupport implements Cal
 					bin.close();
 				}
 				String update = new String(buf, Consts.UTF_8);
-				QueryParser parser = reg.get(QueryLanguage.SPARQL).getParser();
-				ParsedUpdate parsed = parser.parseUpdate(update, base);
-				if (!isFederatedSupported()) {
-					for (QueryModelNode node : parsed.getUpdateExprs()) {
-						checkFederated(node);
-					}
-				}
 				Update pu = con.prepareUpdate(SPARQL, update, base);
 				if (defaultGraphs != null || namedGraphs != null) {
 					pu.setDataset(createDataset(defaultGraphs, namedGraphs));
@@ -260,13 +231,6 @@ public abstract class DatasourceSupport extends GraphStoreSupport implements Cal
 		} finally {
 			con.close();
 		}
-	}
-
-	public void purgeDatasource() throws OpenRDFException, IOException {
-		String uri = this.getResource().stringValue();
-		String id = getCalliRepository().getDatasourceRepositoryId(uri);
-		RepositoryManager manager = getCalliRepository().getRepositoryManager();
-		manager.removeRepository(id);
 	}
 
 	protected void checkFederated(QueryModelNode node) throws BadRequest {

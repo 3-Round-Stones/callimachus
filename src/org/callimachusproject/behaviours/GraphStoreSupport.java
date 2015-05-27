@@ -43,9 +43,11 @@ import org.openrdf.annotations.HeaderParam;
 import org.openrdf.annotations.Method;
 import org.openrdf.annotations.Param;
 import org.openrdf.annotations.Path;
+import org.openrdf.annotations.Sparql;
 import org.openrdf.annotations.Type;
 import org.openrdf.http.object.client.HttpUriResponse;
 import org.openrdf.http.object.exceptions.BadRequest;
+import org.openrdf.http.object.exceptions.MethodNotAllowed;
 import org.openrdf.http.object.exceptions.NotFound;
 import org.openrdf.http.object.exceptions.PreconditionRequired;
 import org.openrdf.http.object.fluid.FluidType;
@@ -82,6 +84,7 @@ public abstract class GraphStoreSupport {
 	private static final Charset UTF8 = Consts.UTF_8;
 	private static final HttpVersion HTTP11 = HttpVersion.HTTP_1_1;
 	private static final String CALLI = "http://callimachusproject.org/rdf/2009/framework#";
+	private static final String PREFIX = "PREFIX sd:<http://www.w3.org/ns/sparql-service-description#>\n";
 	static final String READER = CALLI + "reader";
 	static final String EDITOR = CALLI + "editor";
 
@@ -92,6 +95,12 @@ public abstract class GraphStoreSupport {
 	private final AbsoluteTermFactory tf = AbsoluteTermFactory.newInstance();
 	private final RDFWriterRegistry reg = RDFWriterRegistry.getInstance();
 	private final Map<String, BoundedDescription> descriptions = new TreeMap<String, BoundedDescription>();
+
+	@Sparql(PREFIX + "ASK { $this sd:supportedLanguage sd:SPARQL11Query }")
+	public abstract boolean isQuerySupported();
+
+	@Sparql(PREFIX + "ASK { $this sd:supportedLanguage sd:SPARQL11Update }")
+	public abstract boolean isUpdateSupported();
 
 	// SPARQL 1.0
 
@@ -148,13 +157,34 @@ public abstract class GraphStoreSupport {
 
 	// SPARQL 1.1
 
-	public abstract HttpUriResponse postQuery(String[] defaultGraphUri,
-			String[] namedGraphUri, String[] accept, String base, byte[] query)
-			throws IOException, OpenRDFException;
+	@Method("POST")
+	@requires(READER)
+	public HttpUriResponse postQuery(
+			@Param("default-graph-uri") String[] defaultGraphUri,
+			@Param("named-graph-uri") String[] namedGraphUri,
+			@HeaderParam("Accept") String[] accept,
+			@HeaderParam("Content-Location") String base,
+			@Type("application/sparql-query") byte[] query) throws IOException,
+			OpenRDFException {
+		if (query == null || query.length == 0)
+			throw new BadRequest("Missing query");
+		if (!isQuerySupported())
+			throw new MethodNotAllowed("SPARQL Query is not supported on this service");
+		return evaluateQuery(defaultGraphUri, namedGraphUri, accept, base, query);
+	}
 
-	public abstract HttpResponse postUpdate(String[] usingGraphUri,
-			String[] usingNamedGraphUri, String base, InputStream update)
-			throws IOException, OpenRDFException;
+	@Method("POST")
+	@requires(EDITOR)
+	public HttpResponse postUpdate(
+			@Param("using-graph-uri") final String[] usingGraphUri,
+			@Param("using-named-graph-uri") final String[] usingNamedGraphUri,
+			@HeaderParam("Content-Location") String base,
+			@Type("application/sparql-update") InputStream update)
+			throws IOException, OpenRDFException {
+		if (!isUpdateSupported())
+			throw new MethodNotAllowed("SPARQL Update is not supported on this service");
+		return executeUpdate(usingGraphUri, usingNamedGraphUri, base, update);
+	}
 
 	// SPARQL Default Graph
 
@@ -163,7 +193,7 @@ public abstract class GraphStoreSupport {
 	@requires(READER)
 	public HttpResponse getDefaultGraph(@HeaderParam("Accept") String[] accept)
 			throws IOException, OpenRDFException {
-		HttpUriResponse res = postQuery(
+		HttpUriResponse res = evaluateQuery(
 				"CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }", null, accept);
 		if (res.getStatusLine().getStatusCode() == 200 && isGraphEmpty(res)) {
 			res.close();
@@ -178,7 +208,7 @@ public abstract class GraphStoreSupport {
 	@requires(EDITOR)
 	public HttpResponse deleteDefaultGraph() throws IOException,
 			OpenRDFException {
-		return postUpdate("DROP DEFAULT", null);
+		return executeUpdate("DROP DEFAULT", null);
 	}
 
 	@Method("PUT")
@@ -189,7 +219,7 @@ public abstract class GraphStoreSupport {
 			@HeaderParam("Content-Location") String base,
 			@Type({ "text/turtle", "application/ld+json", "application/rdf+xml" }) final GraphQueryResult payload)
 			throws IOException, OpenRDFException {
-		return postUpdate(asInsertData(payload, null, true), base);
+		return executeUpdate(asInsertData(payload, null, true), base);
 	}
 
 	@Method("POST")
@@ -200,7 +230,7 @@ public abstract class GraphStoreSupport {
 			@HeaderParam("Content-Location") String base,
 			@Type({ "text/turtle", "application/ld+json", "application/rdf+xml" }) final GraphQueryResult payload)
 			throws IOException, OpenRDFException {
-		return postUpdate(asInsertData(payload, null, false), base);
+		return executeUpdate(asInsertData(payload, null, false), base);
 	}
 
 	// SPARQL Indirect Graph Store
@@ -212,7 +242,7 @@ public abstract class GraphStoreSupport {
 			@HeaderParam("Accept") String[] accept) throws IOException,
 			OpenRDFException {
 		String iri = resolve(graph);
-		HttpUriResponse res = postQuery(
+		HttpUriResponse res = evaluateQuery(
 				"CONSTRUCT { ?s ?p ?o } WHERE { GRAPH <" + iri
 						+ "> { ?s ?p ?o } }", null, accept);
 		if (res.getStatusLine().getStatusCode() == 200 && isGraphEmpty(res)) {
@@ -228,7 +258,7 @@ public abstract class GraphStoreSupport {
 	@requires(EDITOR)
 	public HttpResponse deleteIndirectGraph(@Param("graph") String graph)
 			throws IOException, OpenRDFException {
-		return postUpdate("DROP GRAPH <" + resolve(graph) + ">", null);
+		return executeUpdate("DROP GRAPH <" + resolve(graph) + ">", null);
 	}
 
 	@Method("PUT")
@@ -240,7 +270,7 @@ public abstract class GraphStoreSupport {
 			@HeaderParam("Content-Location") String base,
 			@Type({ "text/turtle", "application/ld+json", "application/rdf+xml" }) final GraphQueryResult payload)
 			throws IOException, OpenRDFException {
-		return postUpdate(asInsertData(payload, resolve(graph), true), base);
+		return executeUpdate(asInsertData(payload, resolve(graph), true), base);
 	}
 
 	@Method("POST")
@@ -252,7 +282,7 @@ public abstract class GraphStoreSupport {
 			@HeaderParam("Content-Location") String base,
 			@Type({ "text/turtle", "application/ld+json", "application/rdf+xml" }) final GraphQueryResult payload)
 			throws IOException, OpenRDFException {
-		return postUpdate(asInsertData(payload, resolve(graph), false), base);
+		return executeUpdate(asInsertData(payload, resolve(graph), false), base);
 	}
 
 	@Method("PATCH")
@@ -407,7 +437,7 @@ public abstract class GraphStoreSupport {
 			res.setEntity(asGraphEntity(graph, format, base));
 			return res;
 		}
-		return postDescriptionUpdate(iri, base, description.getDeleteUpdate());
+		return executeDescriptionUpdate(iri, base, description.getDeleteUpdate());
 	}
 
 	@Method("PUT")
@@ -438,8 +468,16 @@ public abstract class GraphStoreSupport {
 		description.verifyDescriptionGraph(replacementData, deleteData);
 		SparqlUpdateFactory factory = new SparqlUpdateFactory(base);
 		String sparql = factory.replacement(deleteData, replacementData);
-		return postDescriptionUpdate(iri, base, sparql);
+		return executeDescriptionUpdate(iri, base, sparql);
 	}
+
+	protected abstract HttpUriResponse evaluateQuery(String[] defaultGraphUri,
+			String[] namedGraphUri, String[] accept, String base, byte[] query)
+			throws IOException, OpenRDFException;
+
+	protected abstract HttpResponse executeUpdate(String[] usingGraphUri,
+			String[] usingNamedGraphUri, String base, InputStream update)
+			throws IOException, OpenRDFException;
 
 	String resolve(String iri) {
 		if (iri == null || iri.contains(">"))
@@ -465,10 +503,10 @@ public abstract class GraphStoreSupport {
 		}
 	}
 
-	private HttpResponse postDescriptionUpdate(String iri, String base,
+	private HttpResponse executeDescriptionUpdate(String iri, String base,
 			String sparql) throws IOException, OpenRDFException {
 		try {
-			return postUpdate(sparql, base);
+			return executeUpdate(sparql, base);
 		} finally {
 			synchronized (descriptions) {
 				descriptions.remove(iri);
@@ -478,7 +516,7 @@ public abstract class GraphStoreSupport {
 
 	void evaluateRemotely(String construct, final String iri, final String doc,
 			RDFHandler handler) throws IOException, OpenRDFException {
-		HttpUriResponse res = postQuery(construct, doc, "text/turtle");
+		HttpUriResponse res = evaluateQuery(construct, doc, "text/turtle");
 		InputStream in = res.getEntity().getContent();
 		try {
 			final RDFHandlerWrapper h = new RDFHandlerWrapper(handler) {
@@ -606,19 +644,19 @@ public abstract class GraphStoreSupport {
 				+ Integer.toHexString(media.hashCode()) + "\"";
 	}
 
-	private HttpUriResponse postQuery(String query, String base, String... accept)
+	private HttpUriResponse evaluateQuery(String query, String base, String... accept)
 			throws IOException, OpenRDFException {
-		return postQuery(null, null, accept, base, query.getBytes(UTF8));
+		return evaluateQuery(null, null, accept, base, query.getBytes(UTF8));
 	}
 
-	private HttpResponse postUpdate(String update, String base)
+	private HttpResponse executeUpdate(String update, String base)
 			throws IOException, OpenRDFException {
-		return postUpdate(new ByteArrayInputStream(update.getBytes(UTF8)), base);
+		return executeUpdate(new ByteArrayInputStream(update.getBytes(UTF8)), base);
 	}
 
-	private HttpResponse postUpdate(InputStream update, String base)
+	private HttpResponse executeUpdate(InputStream update, String base)
 			throws IOException, OpenRDFException {
-		return postUpdate(null, null, base, update);
+		return executeUpdate(null, null, base, update);
 	}
 
 	private boolean isGraphEmpty(HttpUriResponse res) throws IOException,

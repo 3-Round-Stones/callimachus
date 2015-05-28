@@ -41,7 +41,7 @@
         a.setAttribute('href', url);
         return calli.getText(a.href).then(function(doc) {
             return handleDiscussion($(element), a.href, doc);
-        }, calli.error);
+        }, function(){});
     }
 
     function handleDiscussion(tab, key, data) {

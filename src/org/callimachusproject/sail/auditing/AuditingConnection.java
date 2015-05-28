@@ -56,7 +56,6 @@ import org.openrdf.sail.SailConnection;
 import org.openrdf.sail.SailException;
 import org.openrdf.sail.UpdateContext;
 import org.openrdf.sail.helpers.SailConnectionWrapper;
-import org.openrdf.sail.optimistic.helpers.MemoryOverflowModel;
 
 /**
  * Intercepts the add and remove operations and add a revision to each resource.
@@ -80,7 +79,6 @@ public class AuditingConnection extends SailConnectionWrapper {
 		}
 	};
 	private final Set<Resource> modified = new HashSet<Resource>();
-	private final MemoryOverflowModel metadata = new MemoryOverflowModel();
 	private final List<Statement> arch = new ArrayList<Statement>();
 	private final OperationEntityResolver entityResolver;
 	private final URI influencedBy;
@@ -160,7 +158,6 @@ public class AuditingConnection extends SailConnectionWrapper {
 	@Override
 	public synchronized void commit() throws SailException {
 		super.commit();
-		metadata.clear();
 		revised.clear();
 		modified.clear();
 		arch.clear();
@@ -168,7 +165,6 @@ public class AuditingConnection extends SailConnectionWrapper {
 
 	@Override
 	public synchronized void rollback() throws SailException {
-		metadata.clear();
 		revised.clear();
 		modified.clear();
 		arch.clear();

@@ -27,7 +27,10 @@ import org.openrdf.annotations.Path;
 import org.openrdf.annotations.Sparql;
 import org.openrdf.annotations.Type;
 import org.openrdf.query.GraphQueryResult;
+import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.TupleQueryResult;
+import org.openrdf.repository.RepositoryException;
+import org.openrdf.repository.object.RDFObject;
 
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterfaceException;
@@ -39,7 +42,7 @@ public class RequestCacheTest extends MetadataServerTestCase {
 	private WebResource clock;
 
 	@Iri("urn:mimetype:application/clock")
-	public static class Clock {
+	public static abstract class Clock implements RDFObject {
 		@Iri("urn:test:display")
 		private Display display;
 
@@ -47,15 +50,17 @@ public class RequestCacheTest extends MetadataServerTestCase {
 		@Path("?display")
 		@requires("urn:test:grant")
 		@Type("text/uri-list")
-		public Display getDisplay() {
-			return display;
+		public String getDisplay() {
+			return display.toString();
 		}
 
 		@Method("PUT")
 		@Path("?display")
 		@requires("urn:test:grant")
-		public void setDisplay(@Type("*/*") Display display) {
-			this.display = display;
+		public void setDisplay(@Type("text/uri-list") String display)
+				throws RepositoryException, QueryEvaluationException {
+			this.display = getObjectConnection().getObject(Display.class,
+					display);
 		}
 
 		@Method("PUT")

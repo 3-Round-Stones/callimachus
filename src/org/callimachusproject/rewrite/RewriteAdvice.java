@@ -20,15 +20,12 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHeader;
@@ -45,8 +42,6 @@ import org.openrdf.http.object.fluid.FluidBuilder;
 import org.openrdf.http.object.fluid.FluidException;
 import org.openrdf.http.object.fluid.FluidFactory;
 import org.openrdf.http.object.fluid.FluidType;
-import org.openrdf.repository.object.ObjectConnection;
-import org.openrdf.repository.object.RDFObject;
 import org.openrdf.repository.object.advice.Advice;
 import org.openrdf.repository.object.traits.ObjectMessage;
 
@@ -75,16 +70,9 @@ public abstract class RewriteAdvice implements Advice {
 	public Object intercept(ObjectMessage message) throws GatewayTimeout,
 			IOException, FluidException, OpenRDFException {
 		Object target = message.getTarget();
-		String uri;
-		ObjectConnection con = null;
-		if (target instanceof RDFObject) {
-			con = ((RDFObject) target).getObjectConnection();
-			uri = ((RDFObject) target).getResource().stringValue();
-		} else {
-			uri = target.toString();
-		}
+		String uri = target.toString();
 		HeaderGroup headers = new HeaderGroup();
-		FluidBuilder fb = FluidFactory.getInstance().builder(con);
+		FluidBuilder fb = FluidFactory.getInstance().builder();
 		Object[] parameters = message.getParameters();
 		String substitute = substitute(uri, getVariables(parameters, uri, fb));
 		int n = substitute.indexOf('\n');
@@ -192,19 +180,6 @@ public abstract class RewriteAdvice implements Advice {
 			return null;
 		String uri = PercentCodec.encodeOthers(path, PercentCodec.ALLOWED);
 		return systemId.resolve(uri);
-	}
-
-	private Header[] readHeaders(String[] lines) {
-		List<Header> headers = new ArrayList<Header>();
-		for (int i = 1; i < lines.length; i++) {
-			int colon = lines[i].indexOf(':');
-			if (colon > 0) {
-				String name = lines[i].substring(0, colon).trim();
-				String value = lines[i].substring(colon + 1).trim();
-				headers.add(new BasicHeader(name, value));
-			}
-		}
-		return headers.toArray(new Header[headers.size()]);
 	}
 
 }

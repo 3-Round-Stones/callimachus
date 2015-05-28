@@ -27,6 +27,9 @@ import org.openrdf.annotations.Iri;
 import org.openrdf.annotations.Method;
 import org.openrdf.annotations.Path;
 import org.openrdf.annotations.Type;
+import org.openrdf.query.QueryEvaluationException;
+import org.openrdf.repository.RepositoryException;
+import org.openrdf.repository.object.RDFObject;
 
 import com.sun.jersey.api.client.WebResource;
 
@@ -36,23 +39,25 @@ public class ResponseCacheTest extends MetadataServerTestCase {
 	private WebResource seq;
 
 	@Iri("urn:mimetype:application/clock")
-	public static class Clock {
+	public static abstract class Clock implements RDFObject {
 		@Iri("urn:test:display")
 		private Display display;
 
 		@Method("GET")
 		@Path("?display")
-		@Type("text/uri-list")
 		@requires("urn:test:grant")
-		public Display getDisplay() {
-			return display;
+		@Type("text/uri-list")
+		public String getDisplay() {
+			return display.toString();
 		}
 
 		@Method("PUT")
 		@Path("?display")
 		@requires("urn:test:grant")
-		public void setDisplay(@Type("*/*") Display display) {
-			this.display = display;
+		public void setDisplay(@Type("text/uri-list") String display)
+				throws RepositoryException, QueryEvaluationException {
+			this.display = getObjectConnection().getObject(Display.class,
+					display);
 		}
 
 		@Method("PUT")

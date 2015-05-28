@@ -25,8 +25,6 @@ import org.openrdf.annotations.Type;
 import org.openrdf.http.object.fluid.Fluid;
 import org.openrdf.http.object.fluid.FluidBuilder;
 import org.openrdf.http.object.fluid.FluidFactory;
-import org.openrdf.repository.object.ObjectConnection;
-import org.openrdf.repository.object.RDFObject;
 import org.openrdf.repository.object.advice.Advice;
 import org.openrdf.repository.object.traits.ObjectMessage;
 
@@ -42,12 +40,7 @@ public class MissingAdvice implements Advice {
 	}
 
 	public Object intercept(ObjectMessage message) throws Exception {
-		Object target = message.getTarget();
-		ObjectConnection con = null;
-		if (target instanceof RDFObject) {
-			con = ((RDFObject) target).getObjectConnection();
-		}
-		FluidBuilder fb = FluidFactory.getInstance().builder(con);
+		FluidBuilder fb = FluidFactory.getInstance().builder();
 		return service(fb).as(returnType, returnMedia);
 	}
 

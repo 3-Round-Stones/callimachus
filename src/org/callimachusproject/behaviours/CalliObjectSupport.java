@@ -119,22 +119,29 @@ public abstract class CalliObjectSupport implements CalliObject {
 			if (dataDir == null)
 				throw new IllegalArgumentException("Not a local repsitory: " + repository);
 			File dir = dataDir.getParentFile();
-			while (!dir.getName().equalsIgnoreCase("repositories")) {
+			while (dir != null && !dir.getName().equalsIgnoreCase("repositories")) {
 				dir = dir.getParentFile();
 			}
-			dir = dir.getParentFile();
-			LocalRepositoryManager manager = RepositoryProvider.getRepositoryManager(dir);
-			String id = RepositoryProvider.getRepositoryIdOfRepository(dataDir.toURI().toASCIIString());
-			CalliRepository result = new CalliRepository(id, repository, manager);
-			String desc = manager.getRepositoryInfo(id).getDescription();
-			if (desc != null) {
-				Matcher m = URL_PATTERN.matcher(desc);
-				if (m.find()) {
-					result.setChangeFolder(result.getCallimachusUrl(m.group(), CHANGES_PATH));
+			if (dir == null) {
+				LocalRepositoryManager manager = RepositoryProvider.getRepositoryManager(dataDir);
+				CalliRepository result = new CalliRepository(null, repository, manager);
+				associate(result, repository);
+				return result;
+			} else {
+				dir = dir.getParentFile();
+				LocalRepositoryManager manager = RepositoryProvider.getRepositoryManager(dir);
+				String id = RepositoryProvider.getRepositoryIdOfRepository(dataDir.toURI().toASCIIString());
+				CalliRepository result = new CalliRepository(id, repository, manager);
+				String desc = manager.getRepositoryInfo(id).getDescription();
+				if (desc != null) {
+					Matcher m = URL_PATTERN.matcher(desc);
+					if (m.find()) {
+						result.setChangeFolder(result.getCallimachusUrl(m.group(), CHANGES_PATH));
+					}
 				}
+				associate(result, repository);
+				return result;
 			}
-			associate(result, repository);
-			return result;
 		}
 	}
 

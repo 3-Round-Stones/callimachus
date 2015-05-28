@@ -124,18 +124,21 @@
                     </div>
                 </aside>
                 <aside class="well">
-                    <p>Query the database using the SPARQL language</p>
+                    <p>Query the database using the <a href="http://www.w3.org/TR/sparql11-query/">SPARQL language</a></p>
                     <p>Namespace prefixes are optional and if omitted the default <a id="profile" href="../../profile?view">SPARQL Profile</a> will be used</p>
-                    <p>Additional RDF graphs can be uploaded from the home folder</p>
-                    <p>To get started (if your database isn't too big) try listing some of the different types available in the database</p>
-<pre>
-SELECT DISTINCT ?type
-WHERE {
-  ?thing a ?type
-}
-ORDER BY ?type
-LIMIT 50
-</pre>
+                </aside>
+                <aside class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">RDF scanning queries</h3>
+                    </div>
+                    <p class="panel-body">
+                        If your database isn't too big, try some of the following queries.
+                    </p>
+                    <ul class="list-group">
+                        <li class="list-group-item"><a href="?query=SELECT+REDUCED+?Graph%7BGRAPH+?Graph%7B?s+?p+?o%7D%7DLIMIT+50">Graphs</a></li>
+                        <li class="list-group-item"><a href="?query=SELECT+REDUCED+?Subject%7B?Subject+?p+?o%7DLIMIT+50">Subjects</a></li>
+                        <li class="list-group-item"><a href="?query=SELECT+DISTINCT+?Type%7B?s+a+?Type%7DLIMIT+50">Types</a></li>
+                    </ul>
                 </aside>
             </div>
         </div>

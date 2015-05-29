@@ -128,7 +128,7 @@
 
 :realm a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :GetTemplate;
-    rdfs:range <Realm>;
+    rdfs:range xsd:anyURI;
     msg:type "text/uri-list";
     msg:param "realm".
 
@@ -156,7 +156,7 @@
         var bindings = new org.openrdf.query.impl.MapBindingSet();
         bindings.addBinding("this", resource.resource);
         var results = template.evaluate(bindings, con);
-        return this.Render(template.toString(), resource, resourceQuery, '/1', results);
+        return this.Render(template.toString(), resource.toString(), resourceQuery, '/1', results);
     """.
 
 :resource a owl:FunctionalProperty, owl:ObjectProperty;
@@ -176,7 +176,7 @@
         var bindings = new org.openrdf.query.impl.MapBindingSet();
         bindings.addBinding("this", rawConstructTarget.resource);
         var results = this.getTemplateFor(this.toString()).evaluate(bindings, con);
-        return this.Render(this.toString(), rawConstructTarget, '', '/1', results);
+        return this.Render(this.toString(), rawConstructTarget.toString(), '', '/1', results);
     """.
 
 :rawConstructTarget a owl:FunctionalProperty, owl:ObjectProperty;
@@ -227,7 +227,8 @@
     rdfs:range xsd:string.
 
 :renderResource a owl:FunctionalProperty, owl:ObjectProperty;
-    rdfs:domain :Render.
+    rdfs:domain :Render;
+    rdfs:range xsd:string.
 
 :renderResourceQuery a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :Render;

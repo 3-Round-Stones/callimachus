@@ -39,6 +39,7 @@
 
 :GetViewPage owl:intersectionOf (<viewable.ttl#GetViewPage>
         [owl:onProperty msg:target; owl:allValuesFrom <File> ]);
+    calli:rel "alternate";
     msg:method "GET";
     msg:path "?view";
     calli:requires calli:subscriber;

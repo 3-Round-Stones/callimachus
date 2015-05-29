@@ -79,7 +79,7 @@
         var sparql = temp.getQueryString(query.prepare(viewParameters));
         var qry = con.prepareTupleQuery(QueryLanguage.SPARQL, sparql, this.toString());
         var results = query.evaluate(viewParameters, qry);
-        return page.Render(temp.toString(), this, 'view', '/1', results);
+        return page.Render(temp.toString(), this.toString(), 'view', '/1', results);
     """.
 
 :viewParameters a owl:FunctionalProperty, owl:ObjectProperty;

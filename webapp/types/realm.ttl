@@ -102,7 +102,7 @@
 
 :registerChoice a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :GetRegisterUserPage;
-    rdfs:range calli:AuthenticationManager;
+    rdfs:range xsd:string;
     msg:param "choice";
     msg:type "text/uri-list".
 
@@ -192,7 +192,7 @@
 
 :loginChoice a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :GetLogin;
-    rdfs:range calli:AuthenticationManager;
+    rdfs:range xsd:string;
     msg:param "choice";
     msg:type "text/uri-list".
 

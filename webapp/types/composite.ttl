@@ -196,6 +196,7 @@
 
 :create a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain [owl:unionOf (:GetCreatorPage :PostLDPCreate :FindCreatableVersion :LookupConstructor)];
+    rdfs:range <java:org.openrdf.model.URI>;
     msg:param "create";
     msg:type "text/uri-list".
 
@@ -236,22 +237,23 @@
     calli:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
     calli:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
     calli:script """
-        if (!(create instanceof Creatable)) {
+        var createObject = this.objectConnection.getObject(create);
+        if (!(createObject instanceof Creatable)) {
             var createAlternate = this.FindCreatableVersion(create);
             if (!(createAlternate instanceof Creatable))
                 throw new BadRequest("Cannot create: " + create);
-            create = createAlternate;
+            createObject = createAlternate;
         }
-        if (!create.calliCreate || create.calliCreate.isEmpty())
+        if (!createObject.calliCreate || createObject.calliCreate.isEmpty())
             throw new InternalServerError("No create template");
-        if (create.calliCreate.size() != 1)
+        if (createObject.calliCreate.size() != 1)
             throw new InternalServerError("Multiple create templates");
-        var page = create.calliCreate.iterator().next();
+        var page = createObject.calliCreate.iterator().next();
         var stream = page.openInputStream();
         if (!stream)
             throw new InternalServerError(page + " does not exist");
         try {
-            return this.TransformCreatePage(page, stream);
+            return this.TransformCreatePage(page.toString(), stream);
         } finally {
             stream.close();
         }
@@ -263,7 +265,8 @@
     calli:post "../pipelines/creatable-html.xpl?results&target={this}\nContent-Location: {+createPage}\nContent-Type: application/xhtml+xml".
 
 :createPage a owl:FunctionalProperty, owl:ObjectProperty;
-    rdfs:domain :TransformCreatePage.
+    rdfs:domain :TransformCreatePage;
+    rdfs:range xsd:string.
 
 :createPageStream a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :TransformCreatePage;
@@ -389,8 +392,8 @@
         var statements = new StatementCollector();
         var created = this.insertComponentGraph(rdfData, type, createdUri, statements);
         if (create) {
-            created = created.objectConnection.addDesignation(created, create.toString());
-            create.touchRevision(); // FIXME this shouldn't be needed
+            created = created.objectConnection.addDesignation(created, create);
+            this.objectConnection.getObject(create).touchRevision(); // FIXME this shouldn't be needed
         }
         var iter = this.FindCreatablesOf(created).iterator();
         if (!iter.hasNext()) {
@@ -609,7 +612,7 @@
         var bio = new org.openrdf.http.object.io.LatencyInputStream(nrData);
         try {
             if (type.indexOf("text/xml") == 0 || type.indexOf("application/xml") == 0 ||
-                    type.indexOf("+xml") > 0) {
+                    type.indexOf("+xml") > 0 || type.indexOf("text/xsl") == 0) {
                 bio.mark(65536);
                 var xmlFactory = XMLEventReaderFactory.newInstance();
                 var xml = xmlFactory.createXMLEventReader(createdUri, bio);
@@ -632,7 +635,9 @@
         } catch (e if e.javaException) {
             throw new BadRequest(e.javaException);
         }
-        var construct = this.LookupConstructor(create || fileClass, documentTag, type.replace(/\\s*;.*/,''));
+        var construct = this.LookupConstructor(create || fileClass.resource, documentTag, type.replace(/\\s*;.*/,''));
+        if (documentTag && fileClass.equals(construct))
+            throw new UnsupportedMediaType("XML file schema is not recognized: " + documentTag + " for " + createdUri);
         if (fileClass.equals(construct))
             throw new UnsupportedMediaType("File format is not recognized: " + type + " for " + createdUri);
         var iter = this.FindCreator(created).iterator();

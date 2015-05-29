@@ -62,6 +62,8 @@ public class SecretOriginProvider extends UpdateProvider {
 						con.add(subj, vf.createURI(CALLI_SECRET), secret);
 						con.commit();
 						return true;
+					} else {
+						con.commit();
 					}
 					return false;
 				} finally {

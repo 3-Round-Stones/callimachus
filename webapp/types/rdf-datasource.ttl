@@ -102,7 +102,7 @@
 
 :htmlResource a owl:ObjectProperty, owl:FunctionalProperty;
     rdfs:domain :GetHtmlDescribeService;
-    rdfs:range rdfs:Resource;
+    rdfs:range xsd:string;
     msg:type "text/uri-list";
     msg:param "resource".
 

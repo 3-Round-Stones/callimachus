@@ -388,7 +388,10 @@ public abstract class GraphStoreSupport {
 			res = new BasicHttpResponse(HTTP11, 200, "OK");
 		}
 		RDFFormat format = getAcceptableRDFFormat(accept);
-		if (!preferHtml(accept, format.getDefaultMIMEType())) {
+		if (preferHtml(accept, format.getDefaultMIMEType())) {
+			// external HTML transform will convert response
+			res.setHeader("ETag", getETag(model, "text/html"));
+		} else {
 			res.setHeader("ETag", getETag(model, format.getDefaultMIMEType()));
 		}
 		return res;
@@ -430,7 +433,9 @@ public abstract class GraphStoreSupport {
 		Model graph = description.getDescriptionGraph();
 		RDFFormat format = getAcceptableRDFFormat("text/turtle");
 		String eTag = getETag(graph, format.getDefaultMIMEType());
-		if (ifMatch != null && !ifMatch.equals("*") && !ifMatch.equals(eTag)) {
+		// ETags for each media start with the same prefix
+		String prefix = eTag.substring(0, eTag.indexOf('-') + 1);
+		if (ifMatch != null && !ifMatch.equals("*") && !ifMatch.startsWith(prefix)) {
 			BasicHttpResponse res = new BasicHttpResponse(HTTP11, 412,
 					"Precondition Failed");
 			res.setHeader("ETag", eTag);
@@ -453,7 +458,7 @@ public abstract class GraphStoreSupport {
 		String base = this.toString() + "?resource=" + resource;
 		BoundedDescription description = getBoundedDescription(iri, base);
 		Model deleteData = description.getDescriptionGraph();
-		RDFFormat format = getAcceptableRDFFormat("text/turtle");
+		RDFFormat format = getAcceptableRDFFormat(contentType);
 		String eTag = getETag(deleteData, format.getDefaultMIMEType());
 		if (ifMatch == null) {
 			throw new PreconditionRequired(
@@ -640,7 +645,7 @@ public abstract class GraphStoreSupport {
 	}
 
 	private String getETag(final Model model, String media) {
-		return "\\W\"" + Integer.toHexString(model.hashCode()) + '-'
+		return "W/\"" + Integer.toHexString(model.hashCode()) + '-'
 				+ Integer.toHexString(media.hashCode()) + "\"";
 	}
 

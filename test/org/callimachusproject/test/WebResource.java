@@ -211,10 +211,11 @@ public class WebResource {
 		return con.getResponseCode();
 	}
 
-	public String headETag() throws IOException {
+	public String headETag(String accept) throws IOException {
 		HttpURLConnection con = (HttpURLConnection) new URL(uri).openConnection();
 		con.setInstanceFollowRedirects(false);
 		con.setRequestMethod("HEAD");
+		con.setRequestProperty("Accept", accept);
 		return con.getHeaderField("ETag");
 	}
 
@@ -339,8 +340,15 @@ public class WebResource {
 	}
 
 	public void delete() throws IOException {
+		deleteIf(null);
+	}
+
+	public void deleteIf(String match) throws IOException {
 		HttpURLConnection con = (HttpURLConnection) new URL(uri).openConnection();
 		con.setRequestMethod("DELETE");
+		if (match != null) {
+			con.setRequestProperty("If-Match", match);
+		}
 		int code = con.getResponseCode();
 		if (code != 200 && code != 204) {
 			Assert.assertEquals(con.getResponseMessage(), 204, code);

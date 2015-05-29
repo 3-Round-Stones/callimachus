@@ -420,10 +420,46 @@ public class DatasourceIntegrationTest extends TemporaryServerIntegrationTestCas
 	}
 
 	@Test
-	public void testDeleteIndirectResource() throws Exception {
+	public void testDeleteNoMatchIndirectResource() throws Exception {
 		datasource.post(UPDATE, "INSERT DATA { <resource> a rdfs:Resource }".getBytes());
 		WebResource resource = datasource.ref("?resource=resource");
 		resource.delete();
+		assertEquals(404, resource.headCode());
+	}
+
+	@Test
+	public void testDeleteNotMatchIndirectResource() throws Exception {
+		datasource.post(UPDATE, "INSERT DATA { <resource> a rdfs:Resource }".getBytes());
+		WebResource resource = datasource.ref("?resource=resource");
+		try {
+			resource.deleteIf("invalid");
+			fail();
+		} catch (junit.framework.AssertionFailedError e) {
+			// If-Match does not match
+		}
+	}
+
+	@Test
+	public void testDeleteAnyIndirectResource() throws Exception {
+		datasource.post(UPDATE, "INSERT DATA { <resource> a rdfs:Resource }".getBytes());
+		WebResource resource = datasource.ref("?resource=resource");
+		resource.deleteIf("*");
+		assertEquals(404, resource.headCode());
+	}
+
+	@Test
+	public void testDeleteMatchHtmlIndirectResource() throws Exception {
+		datasource.post(UPDATE, "INSERT DATA { <resource> a rdfs:Resource }".getBytes());
+		WebResource resource = datasource.ref("?resource=resource");
+		resource.deleteIf(resource.headETag("text/html"));
+		assertEquals(404, resource.headCode());
+	}
+
+	@Test
+	public void testDeleteMatchTurtleIndirectResource() throws Exception {
+		datasource.post(UPDATE, "INSERT DATA { <resource> a rdfs:Resource }".getBytes());
+		WebResource resource = datasource.ref("?resource=resource");
+		resource.deleteIf(resource.headETag("text/turtle"));
 		assertEquals(404, resource.headCode());
 	}
 
@@ -485,7 +521,7 @@ public class DatasourceIntegrationTest extends TemporaryServerIntegrationTestCas
 		datasource.post(UPDATE, "INSERT DATA { <resource> a rdfs:Resource }".getBytes());
 		final WebResource resource = datasource.ref("resource");
 		final WebResource target = resource.getRedirectTarget();
-		target.putIf(target.headETag(), "text/turtle",
+		target.putIf(target.headETag("text/turtle"), "text/turtle",
 				(PREFIX + "<resource> a rdfs:Resource; rdfs:label 'resource'.")
 						.getBytes("UTF-8"));
 		byte[] turtle = target.get("text/turtle");

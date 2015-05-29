@@ -143,7 +143,7 @@ public abstract class BoundedDescription {
 			model = evaluate(describe);
 			where = buildDescribeQuery(model);
 		}
-		logger.info(describe);
+		logger.debug(describe);
 		pattern = where;
 		graph = model;
 		query = describe;

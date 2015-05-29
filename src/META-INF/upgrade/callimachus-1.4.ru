@@ -50,6 +50,20 @@ DELETE {
     BIND (str(<../1.5/pages/invite-users.xhtml?view>) AS ?insertTarget)
 };
 
+DELETE {
+?dataset void:uriLookupEndpoint </sparql?uri=>.
+} INSERT {
+?void calli:subscriber </auth/groups/power>, </auth/groups/admin>.
+?dataset void:uriLookupEndpoint </sparql?resource=>.
+} WHERE {
+    BIND (iri(concat(str($origin),".well-known/void")) AS ?void)
+    BIND (iri(concat(str($origin),".well-known/void#dataset")) AS ?dataset)
+    ?void foaf:primaryTopic ?dataset.
+    ?dataset a void:Dataset;
+        void:sparqlEndpoint </sparql>;
+        void:uriLookupEndpoint </sparql?uri=>.
+};
+
 # Setup process determins upgrade file based on versionInfo
 DELETE {
 	</callimachus/ontology> owl:versionInfo "1.4"

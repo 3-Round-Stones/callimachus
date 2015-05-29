@@ -91,12 +91,13 @@ $origin calli:hasComponent ?wellknown.
 ?void a <types/Serviceable>, void:DatasetDescription;
     rdfs:label "void";
     foaf:primaryTopic ?dataset;
-    calli:reader </auth/groups/public>.
+    calli:reader </auth/groups/public>;
+    calli:subscriber </auth/groups/power>, </auth/groups/admin>.
 
 ?dataset a void:Dataset;
     foaf:homepage $origin;
     void:sparqlEndpoint </sparql>;
-    void:uriLookupEndpoint </sparql?uri=>;
+    void:uriLookupEndpoint </sparql?resource=>;
     void:uriSpace $origin;
     void:rootResource $origin;
     void:openSearchDescription ?search.

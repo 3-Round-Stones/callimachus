@@ -489,7 +489,8 @@ public class WebappArchiveImporter {
 			throws IOException, XMLStreamException {
 		if (type.indexOf("text/xml") != 0
 				&& type.indexOf("application/xml") != 0
-				&& type.indexOf("+xml") < 0)
+				&& type.indexOf("+xml") < 0
+				&& type.indexOf("text/xsl") != 0)
 			return null;
 		InputStream in = file.openInputStream();
 		try {

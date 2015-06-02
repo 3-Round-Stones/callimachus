@@ -20,10 +20,9 @@ import static org.openrdf.query.QueryLanguage.SPARQL;
 import info.aduna.net.ParsedURI;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Reader;
-import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
-import java.io.Writer;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -255,7 +254,7 @@ public class DetachedRealm {
 		return false;
 	}
 
-	public void transformErrorPage(String xhtml, Writer writer, String target, String query) throws IOException {
+	public InputStream transformErrorPage(InputStream in, String target, String query) throws IOException {
 		if (error != null && inError.get() == null
 				&& activeErrors.get() < MAX_PRETTY_CONCURRENT_ERRORS) {
 			String id = error.getSystemId();
@@ -263,13 +262,11 @@ public class DetachedRealm {
 				try {
 					inError.set(true);
 					activeErrors.incrementAndGet();
-					Pipe pb = error.pipeReader(new StringReader(xhtml), target);
+					Pipe pb = error.pipeStream(in, target);
 					try {
 						pb.passOption("target", target);
 						pb.passOption("query", query);
-						String body = pb.asString();
-						writer.append(body);
-						return;
+						return pb.asStream();
 					} finally {
 						pb.close();
 					}
@@ -281,7 +278,7 @@ public class DetachedRealm {
 				}
 			}
 		}
-		writer.write(xhtml);
+		return in;
 	}
 
 	public final HttpResponse forbidden(String method, Object resource,

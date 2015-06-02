@@ -4,3 +4,4 @@ org.callimachusproject.interceptors.LinksFilter
 org.callimachusproject.interceptors.ActivityProcessor
 org.callimachusproject.interceptors.SchemaGraphSynchronizer
 org.callimachusproject.interceptors.HttpClientConnectionFilter
+org.callimachusproject.interceptors.ErrorPageInterceptor

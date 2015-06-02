@@ -28,6 +28,16 @@
 
     <p:import href="page-layout-html.xpl" />
 
+    <p:choose>
+        <p:when test="/c:data/@content-type='text/html'">
+            <p:unescape-markup content-type="text/html" />
+            <p:unwrap match="/c:data" />
+        </p:when>
+        <p:otherwise>
+            <p:identity />
+        </p:otherwise>
+    </p:choose>
+
     <calli:page-layout-html>
         <p:with-option name="target"  select="$target" />
         <p:with-option name="query" select="$query" />

@@ -70,6 +70,7 @@ import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.LinkedHashModel;
+import org.openrdf.model.impl.TreeModel;
 import org.openrdf.model.util.Models;
 import org.openrdf.model.vocabulary.DCTERMS;
 import org.openrdf.model.vocabulary.OWL;
@@ -339,10 +340,15 @@ public class WebappArchiveImporter {
 		con.add(mediaSources);
 		updatedSources.addAll(updatedNonSources.keySet());
 		Set<URI> notValidated = validateSources(updatedSources, con);
-		if (!notValidated.isEmpty() && recompile(schema, con)) {
+		boolean recompiled = recompile(schema, con);
+		if (!notValidated.isEmpty() && recompiled) {
 			ObjectConnection con2 = con.getRepository().getConnection();
 			try {
+				con2.begin();
 				Set<URI> couldNotValidate = validateSources(notValidated, con2);
+				if (!couldNotValidate.equals(notValidated)) {
+					recompile(new TreeModel(), con2);
+				}
 				if (!couldNotValidate.isEmpty()) {
 					if (couldNotValidate.equals(updatedSources)) {
 						logger.error("Could not validate anything in {}", folderUri);
@@ -350,6 +356,7 @@ public class WebappArchiveImporter {
 						logger.warn("Could not validate: {}", couldNotValidate);
 					}
 				}
+				con2.commit();
 			} finally {
 				con2.close();
 			}

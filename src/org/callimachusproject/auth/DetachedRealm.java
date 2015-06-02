@@ -77,6 +77,9 @@ import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.store.blob.BlobObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
+
+import com.xmlcalabash.core.XProcException;
 
 public class DetachedRealm {
 	private static final String PREF_AUTH = "prefAuth";
@@ -254,7 +257,8 @@ public class DetachedRealm {
 		return false;
 	}
 
-	public InputStream transformErrorPage(InputStream in, String target, String query) throws IOException {
+	public InputStream transformErrorPage(InputStream in, String target,
+			String query) throws IOException, XProcException, SAXException {
 		if (error != null && inError.get() == null
 				&& activeErrors.get() < MAX_PRETTY_CONCURRENT_ERRORS) {
 			String id = error.getSystemId();
@@ -270,8 +274,6 @@ public class DetachedRealm {
 					} finally {
 						pb.close();
 					}
-				} catch (Throwable exc) {
-					logger.error(exc.toString(), exc);
 				} finally {
 					inError.remove();
 					activeErrors.decrementAndGet();

@@ -2,7 +2,6 @@ package org.callimachusproject.behaviours;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
-import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -15,6 +14,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.apache.http.Consts;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.StatusLine;
@@ -45,7 +45,9 @@ import org.openrdf.annotations.Param;
 import org.openrdf.annotations.Path;
 import org.openrdf.annotations.Sparql;
 import org.openrdf.annotations.Type;
+import org.openrdf.http.object.client.HttpUriEntity;
 import org.openrdf.http.object.client.HttpUriResponse;
+import org.openrdf.http.object.client.StreamingHttpEntity;
 import org.openrdf.http.object.exceptions.BadRequest;
 import org.openrdf.http.object.exceptions.MethodNotAllowed;
 import org.openrdf.http.object.exceptions.NotFound;
@@ -87,6 +89,7 @@ public abstract class GraphStoreSupport {
 	private static final String PREFIX = "PREFIX sd:<http://www.w3.org/ns/sparql-service-description#>\n";
 	static final String READER = CALLI + "reader";
 	static final String EDITOR = CALLI + "editor";
+	private static final int MAX_EMPTY_SIZE = 512;
 
 	final ValueFactoryImpl vf = ValueFactoryImpl.getInstance();
 	final URI rdfSource = vf.createURI("http://www.w3.org/ns/ldp#RDFSource");
@@ -666,33 +669,52 @@ public abstract class GraphStoreSupport {
 
 	private boolean isGraphEmpty(HttpUriResponse res) throws IOException,
 			OpenRDFException {
-		long contentLength = res.getEntity().getContentLength();
+		HttpUriEntity entity = res.getEntity();
+		long contentLength = entity.getContentLength();
 		if (contentLength > 512)
 			return false;
-		InputStream in = res.getEntity().getContent();
-		BufferedInputStream bin = new BufferedInputStream(in, 512);
-		InputStreamEntity entity = new InputStreamEntity(bin, contentLength);
-		entity.setContentType(res.getEntity().getContentType());
-		res.setEntity(entity);
-		bin.mark(512);
-		try {
-			if (bin.skip(512) >= 512)
-				return false;
-		} finally {
-			bin.reset();
-		}
-		bin.mark(512);
+		final BufferedInputStream bin = bufferAll(res, MAX_EMPTY_SIZE);
+		if (bin == null)
+			return false;
 		String b = res.getSystemId();
 		try {
-			return parseRDF(entity.getContentType(),
-					new FilterInputStream(bin) {
-						public void close() throws IOException {
-							// don't allow xerces to close stream
-						}
-					}, b).isEmpty();
+			return parseRDF(entity.getContentType(), bin, b).isEmpty();
 		} finally {
 			bin.reset();
 		}
+	}
+
+	private BufferedInputStream bufferAll(HttpResponse res, int size)
+			throws IOException {
+		HttpEntity entity = res.getEntity();
+		long contentLength = entity.getContentLength();
+		if (contentLength > size)
+			return null;
+		InputStream in = entity.getContent();
+		final BufferedInputStream bin = new BufferedInputStream(in, size) {
+			public void close() throws IOException {
+				// don't allow xerces to close stream
+			}
+		};
+		override(res, bin);
+		bin.mark(size);
+		long skipped = bin.skip(size);
+		bin.reset();
+		if (skipped < size) {
+			bin.mark(size);
+			return bin;
+		}
+		return null; // too big
+	}
+
+	private void override(HttpResponse res, final InputStream bin) {
+		HttpEntity entity = res.getEntity();
+		res.setEntity(new StreamingHttpEntity(entity) {
+			@Override
+			protected InputStream getDelegateContent() throws IOException {
+				return bin;
+			}
+		});
 	}
 
 	private HttpResponse limitContentLength(HttpUriResponse res,

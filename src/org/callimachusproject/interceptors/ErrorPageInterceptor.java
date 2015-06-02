@@ -25,15 +25,18 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
-import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.auth.DetachedRealm;
 import org.callimachusproject.traits.CalliObject;
 import org.openrdf.OpenRDFException;
 import org.openrdf.http.object.chain.HttpRequestChainInterceptor;
+import org.openrdf.http.object.client.StreamingHttpEntity;
 import org.openrdf.http.object.helpers.ObjectContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
+
+import com.xmlcalabash.core.XProcException;
 
 public class ErrorPageInterceptor implements HttpRequestChainInterceptor {
 	private static final int MAX_PAGE_SIZE = 1024 * 1024; // 1MiB
@@ -48,9 +51,10 @@ public class ErrorPageInterceptor implements HttpRequestChainInterceptor {
 	@Override
 	public void process(HttpRequest request, HttpResponse response,
 			HttpContext context) throws HttpException, IOException {
-		if (response.getStatusLine().getStatusCode() >= 400 && isHtml(response)) {
+		int code = response.getStatusLine().getStatusCode();
+		if (code >= 400 && code != 401 && isHtml(response)) {
 			String uri = request.getRequestLine().getUri();
-			response.setEntity(format(uri, response.getEntity(), context));
+			format(uri, response, context);
 		}
 	}
 
@@ -63,35 +67,66 @@ public class ErrorPageInterceptor implements HttpRequestChainInterceptor {
 		return contentType != null && contentType.getValue().startsWith("text/html");
 	}
 
-	private HttpEntity format(String reqUri, HttpEntity entity, HttpContext context) throws IOException {
-		Header contentType = entity.getContentType();
-		BufferedInputStream bin = new BufferedInputStream(entity.getContent(), MAX_PAGE_SIZE);
-		bin.mark(MAX_PAGE_SIZE);
-		long skipped = bin.skip(MAX_PAGE_SIZE);
-		if (skipped < MAX_PAGE_SIZE) {
-			ObjectContext ctx = ObjectContext.adapt(context);
-			CalliObject target = (CalliObject) ctx.getResourceTarget().getTargetObject();
-			try {
-				DetachedRealm realm = target.getRealm();
-				int qidx = reqUri.indexOf('?');
-				String qs = qidx < 0 ? "" : reqUri.substring(qidx + 1);
+	private void format(String reqUri, HttpResponse response,
+			HttpContext context) throws IOException {
+		BufferedInputStream bin = bufferAll(response, MAX_PAGE_SIZE);
+		if (bin == null)
+			return;
+		ObjectContext ctx = ObjectContext.adapt(context);
+		CalliObject target = (CalliObject) ctx.getResourceTarget().getTargetObject();
+		try {
+			DetachedRealm realm = target.getRealm();
+			int qidx = reqUri.indexOf('?');
+			String qs = qidx < 0 ? "" : reqUri.substring(qidx + 1);
+			bin.reset();
+			override(response, realm.transformErrorPage(bin, target.toString(), qs));
+			bin = null;
+		} catch (OpenRDFException e) {
+			logger.error(e.toString(), e);
+		} catch (IOException e) {
+			logger.error(e.toString(), e);
+		} catch (XProcException e) {
+			logger.error(e.toString(), e);
+		} catch (SAXException e) {
+			logger.error(e.toString(), e);
+		} finally {
+			if (bin != null) {
 				bin.reset();
-				InputStream page = realm.transformErrorPage(bin, target.toString(), qs);
-				return entity(page, contentType);
-			} catch (OpenRDFException e) {
-				logger.error(e.toString(), e);
-			} catch (IOException e) {
-				logger.error(e.toString(), e);
 			}
 		}
-		bin.reset();
-		return entity(bin, contentType);
 	}
 
-	private InputStreamEntity entity(InputStream bin, Header contentType) {
-		InputStreamEntity replacement = new InputStreamEntity(bin);
-		replacement.setContentType(contentType);
-		return replacement;
+	private BufferedInputStream bufferAll(HttpResponse res, int size)
+			throws IOException {
+		HttpEntity entity = res.getEntity();
+		long contentLength = entity.getContentLength();
+		if (contentLength > size)
+			return null;
+		InputStream in = entity.getContent();
+		final BufferedInputStream bin = new BufferedInputStream(in, size) {
+			public void close() throws IOException {
+				// don't allow xerces to close stream
+			}
+		};
+		override(res, bin);
+		bin.mark(size);
+		long skipped = bin.skip(size);
+		bin.reset();
+		if (skipped < size) {
+			bin.mark(size);
+			return bin;
+		}
+		return null; // too big
+	}
+
+	private void override(HttpResponse res, final InputStream bin) {
+		HttpEntity entity = res.getEntity();
+		res.setEntity(new StreamingHttpEntity(entity) {
+			@Override
+			protected InputStream getDelegateContent() throws IOException {
+				return bin;
+			}
+		});
 	}
 
 }

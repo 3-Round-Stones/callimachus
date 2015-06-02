@@ -18,12 +18,14 @@ package org.callimachusproject.xml;
 
 import info.aduna.net.ParsedURI;
 
+import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
@@ -196,10 +198,10 @@ public class InputSourceResolver implements EntityResolver, URIResolver, ModuleU
 	 * returns null for 404 resources.
 	 */
 	private InputSource resolveURL(String systemId) throws IOException {
-		URLConnection con = new URL(systemId).openConnection();
-		con.addRequestProperty("Accept", getAcceptHeader());
-		con.addRequestProperty("Accept-Encoding", "gzip");
 		try {
+			URLConnection con = new URL(systemId).openConnection();
+			con.addRequestProperty("Accept", getAcceptHeader());
+			con.addRequestProperty("Accept-Encoding", "gzip");
 			String base = con.getURL().toExternalForm();
 			String type = con.getContentType();
 			String encoding = con.getHeaderField("Content-Encoding");
@@ -208,6 +210,9 @@ public class InputSourceResolver implements EntityResolver, URIResolver, ModuleU
 				in = new GZIPInputStream(in);
 			}
 			return create(type, in, base);
+		} catch (MalformedURLException  e) {
+			logger.warn("{} has {}", systemId, e.getMessage());
+			return new InputSource(new ByteArrayInputStream(new byte[0]));
 		} catch (FileNotFoundException e) {
 			return null;
 		} catch (IOException e) {

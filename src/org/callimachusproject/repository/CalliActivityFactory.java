@@ -200,7 +200,7 @@ public final class CalliActivityFactory implements ActivityFactory {
 		ValueFactory vf = con.getValueFactory();
 		if (uriSpace.equals(folder.stringValue()))
 			return false;
-		if (con.hasStatement(folder, RDF.TYPE, folderType, true))
+		if (con.hasStatement(folder, RDF.TYPE, null, true))
 			return false;
 		String str = folder.stringValue();
 		assert str.endsWith("/");

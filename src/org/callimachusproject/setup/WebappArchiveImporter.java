@@ -353,7 +353,7 @@ public class WebappArchiveImporter {
 			} finally {
 				con2.close();
 			}
-		} else if (notValidated.equals(updatedSources)) {
+		} else if (!notValidated.isEmpty() && notValidated.equals(updatedSources)) {
 			logger.error("Could not validate anything in {}", folderUri);
 		} else if (!notValidated.isEmpty()) {
 			logger.warn("Could not validate: {}", notValidated);

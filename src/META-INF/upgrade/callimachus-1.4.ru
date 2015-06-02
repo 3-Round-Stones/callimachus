@@ -31,25 +31,6 @@ DELETE {
     <../> a calli:Folder
 };
 
-# Setup process determins the Callimachus webapp location based on Origin path
-DELETE {
-	</> a <../1.4/types/Origin>
-} INSERT {
-	</> a <../1.5/types/Origin>
-} WHERE {
-	</> a <../1.4/types/Origin>
-};
-
-DELETE {
-    </admin> calli:alternate ?target
-} INSERT {
-    </admin> calli:alternate ?insertTarget
-} WHERE {
-    </admin> calli:alternate ?target
-    FILTER (str(?target) = str(<../1.4/pages/invite-users.xhtml?view>))
-    BIND (str(<../1.5/pages/invite-users.xhtml?view>) AS ?insertTarget)
-};
-
 DELETE {
 ?dataset void:uriLookupEndpoint </sparql?uri=>.
 } INSERT {
@@ -62,6 +43,45 @@ DELETE {
     ?dataset a void:Dataset;
         void:sparqlEndpoint </sparql>;
         void:uriLookupEndpoint </sparql?uri=>.
+};
+
+# Update /callimachus/profile
+DELETE {
+    <../profile> a <../1.4/types/RdfProfile>
+} INSERT {
+    <../profile> a <../1.5/types/RdfProfile>
+} WHERE {
+    <../profile> a <../1.4/types/RdfProfile>
+};
+
+# Update Folders (/callimachus/ is excluded from auto-upgrade)
+DELETE {
+    <../> a <../1.4/types/Folder>
+} INSERT {
+    <../> a <../1.5/types/PathSegment>
+} WHERE {
+    <../> a <../1.4/types/Folder>
+};
+
+# Update PURL targets
+DELETE {
+    ?purl a <../1.4/types/Purl>; calli:alternate ?previous
+} INSERT {
+    ?purl a <../1.5/types/Purl>; calli:alternate ?currently
+} WHERE {
+    { <../> calli:hasComponent ?purl } UNION { </> calli:hasComponent ?purl }
+    ?purl a <../1.4/types/Purl>; calli:alternate ?previous .
+    FILTER strstarts(str(?previous), str(</callimachus/1.4/>))
+    BIND (concat(str(<../1.5/>), strafter(str(?previous),str(<../1.4/>))) AS ?currently)
+};
+
+# Setup process determins the Callimachus webapp location based on Origin path
+DELETE {
+	</> a <../1.4/types/Origin>
+} INSERT {
+	</> a <../1.5/types/Origin>
+} WHERE {
+	</> a <../1.4/types/Origin>
 };
 
 # Setup process determins upgrade file based on versionInfo

@@ -65,7 +65,10 @@
     msg:type "text/html";
     msg:header "cache-control:no-validate";
     calli:script """
-        return this.TransformResult(this.postPercentEncoded(["application/xml"], this.toString(), queryString).entity.content);
+        var res = this.postPercentEncoded(["application/xml"], this.toString(), queryString);
+        if (res.statusLine.statusCode >= 300)
+            throw org.openrdf.http.object.exceptions.ResponseException.create(res);
+        return this.TransformResult(res.entity.content);
     """.
 
 :queryString a owl:ObjectProperty, owl:FunctionalProperty;
@@ -83,7 +86,10 @@
     msg:type "text/html";
     calli:script """
         try {
-            return this.TransformResult(this.getIndirectResource(htmlResource, ["application/rdf+xml"]).entity.content);
+            var res = this.getIndirectResource(htmlResource, ["application/rdf+xml"]);
+            if (res.statusLine.statusCode >= 300)
+                throw org.openrdf.http.object.exceptions.ResponseException.create(res);
+            return this.TransformResult(res.entity.content);
         } catch (e if e.javaException) {
             var url = this + '#query=' + encodeURIComponent('DESCRIBE<' + htmlResource + '>') + '&amp;error=' + encodeURIComponent(e.javaException.message);
             return [
@@ -115,9 +121,9 @@
     msg:type "text/html";
     calli:script """
         var resp = this.postPercentEncoded(["application/xml"], this.toString(), formMap);
-        if (resp && resp.entity && resp.entity.content)
+        if (resp.statusLine.statusCode < 300)
             return this.TransformResult(resp.entity.content);
-        return null;
+        throw org.openrdf.http.object.exceptions.ResponseException.create(resp);
     """.
 
 :formMap a owl:ObjectProperty, owl:FunctionalProperty;

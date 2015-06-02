@@ -71,7 +71,7 @@
             var profile = [];
             $.ajax({
                 url: $('#profile')[0].href.replace('?view', ''),
-                accepts: "application/ld+json",
+                headers: {"Accept": "application/ld+json"},
                 success: function(json) {
                     profile = json;
                 }

@@ -52,6 +52,9 @@ import org.apache.http.ProtocolVersion;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.NTCredentials;
 import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.SystemDefaultCredentialsProvider;
 import org.apache.http.message.BasicHttpResponse;
@@ -59,12 +62,11 @@ import org.apache.http.message.BasicStatusLine;
 import org.apache.http.util.EntityUtils;
 import org.callimachusproject.concepts.AuthenticationManager;
 import org.callimachusproject.engine.model.TermFactory;
-import org.callimachusproject.xproc.Pipe;
-import org.callimachusproject.xproc.Pipeline;
-import org.callimachusproject.xproc.PipelineFactory;
+import org.callimachusproject.util.PercentCodec;
 import org.openrdf.OpenRDFException;
 import org.openrdf.http.object.client.HttpClientFactory;
 import org.openrdf.http.object.client.HttpUriClient;
+import org.openrdf.http.object.client.HttpUriResponse;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
@@ -77,9 +79,6 @@ import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.store.blob.BlobObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
-
-import com.xmlcalabash.core.XProcException;
 
 public class DetachedRealm {
 	private static final String PREF_AUTH = "prefAuth";
@@ -145,7 +144,7 @@ public class DetachedRealm {
 	private final Resource self;
 	private HttpUriClient client;
 	private String secret;
-	private Pipeline error;
+	private String error;
 	private String forbidden;
 	private String unauthorized;
 
@@ -156,7 +155,6 @@ public class DetachedRealm {
 	public void init(ObjectConnection con, RealmManager manager)
 			throws OpenRDFException, IOException {
 		credentials.clear();
-		String errorPipelineUrl = null;
 		Map<Value, String> protects = new LinkedHashMap<Value, String>();
 		ValueFactory vf = con.getValueFactory();
 		TupleQuery query = con.prepareTupleQuery(SPARQL, SELECT_REALM);
@@ -172,7 +170,7 @@ public class DetachedRealm {
 					secret = readString(con.getBlobObject(uri));
 				}
 				if (result.hasBinding("error")) {
-					errorPipelineUrl = result.getValue("error").stringValue();
+					error = result.getValue("error").stringValue();
 				}
 				if (result.hasBinding("forbidden")) {
 					forbidden = result.getValue("forbidden").stringValue();
@@ -205,9 +203,6 @@ public class DetachedRealm {
 		}
 		this.client = new HttpUriClient(HttpClientFactory.getInstance()
 				.createHttpClient(self.stringValue(), getCredentialsProvider()));
-		if (errorPipelineUrl != null) {
-			error = PipelineFactory.newInstance().createPipeline(errorPipelineUrl, client);
-		}
 		for (Map.Entry<Value, String> e : protects.entrySet()) {
 			Resource uri = (Resource) e.getKey();
 			DetachedAuthenticationManager dam = detach(uri, e.getValue(),
@@ -258,22 +253,22 @@ public class DetachedRealm {
 	}
 
 	public InputStream transformErrorPage(InputStream in, String target,
-			String query) throws IOException, XProcException, SAXException {
+			String query) throws IOException {
 		if (error != null && inError.get() == null
 				&& activeErrors.get() < MAX_PRETTY_CONCURRENT_ERRORS) {
-			String id = error.getSystemId();
-			if (id == null || !id.equals(target)) {
+			if (!error.equals(target)) {
 				try {
 					inError.set(true);
 					activeErrors.incrementAndGet();
-					Pipe pb = error.pipeStream(in, target);
-					try {
-						pb.passOption("target", target);
-						pb.passOption("query", query);
-						return pb.asStream();
-					} finally {
-						pb.close();
-					}
+					String url = error + "?results&target="
+							+ PercentCodec.encode(target) + "&query="
+							+ PercentCodec.encode(query);
+					HttpUriClient client = getHttpClient();
+					HttpPost post = new HttpPost(url);
+					post.setHeader("Accept", "text/html");
+					post.setEntity(new InputStreamEntity(in, ContentType.TEXT_HTML));
+					HttpUriResponse resp = client.getResponse(post);
+					return resp.getEntity().getContent();
 				} finally {
 					inError.remove();
 					activeErrors.decrementAndGet();

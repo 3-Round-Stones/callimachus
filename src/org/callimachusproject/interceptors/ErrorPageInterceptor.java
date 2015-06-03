@@ -28,15 +28,11 @@ import org.apache.http.HttpResponse;
 import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.auth.DetachedRealm;
 import org.callimachusproject.traits.CalliObject;
-import org.openrdf.OpenRDFException;
 import org.openrdf.http.object.chain.HttpRequestChainInterceptor;
 import org.openrdf.http.object.client.StreamingHttpEntity;
 import org.openrdf.http.object.helpers.ObjectContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
-
-import com.xmlcalabash.core.XProcException;
 
 public class ErrorPageInterceptor implements HttpRequestChainInterceptor {
 	private static final int MAX_PAGE_SIZE = 1024 * 1024; // 1MiB
@@ -81,13 +77,7 @@ public class ErrorPageInterceptor implements HttpRequestChainInterceptor {
 			bin.reset();
 			override(response, realm.transformErrorPage(bin, target.toString(), qs));
 			bin = null;
-		} catch (OpenRDFException e) {
-			logger.error(e.toString(), e);
-		} catch (IOException e) {
-			logger.error(e.toString(), e);
-		} catch (XProcException e) {
-			logger.error(e.toString(), e);
-		} catch (SAXException e) {
+		} catch (Exception e) {
 			logger.error(e.toString(), e);
 		} finally {
 			if (bin != null) {

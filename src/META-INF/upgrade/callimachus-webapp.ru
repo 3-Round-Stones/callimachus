@@ -208,6 +208,7 @@ INSERT {
 <../error.xpl> a <types/Purl>, calli:Purl ;
 	rdfs:label "error.xpl";
 	calli:alternate ?alternate;
+	calli:post ?alternate;
 	calli:administrator </auth/groups/super>;
 	calli:reader </auth/groups/public> .
 } WHERE {

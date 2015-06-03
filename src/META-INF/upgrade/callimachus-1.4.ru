@@ -45,6 +45,13 @@ DELETE {
         void:uriLookupEndpoint </sparql?uri=>.
 };
 
+INSERT {
+    <../error.xpl> calli:post ?alternate
+} WHERE {
+    <../error.xpl> calli:alternate ?alternate
+	FILTER NOT EXISTS { <../error.xpl> calli:post ?alternate }
+};
+
 # Update /callimachus/profile
 DELETE {
     <../profile> a <../1.4/types/RdfProfile>
@@ -63,7 +70,7 @@ DELETE {
     <../> a <../1.4/types/Folder>
 };
 
-# Update PURL targets
+# Update PURL alternate targets
 DELETE {
     ?purl a <../1.4/types/Purl>; calli:alternate ?previous
 } INSERT {

@@ -29,7 +29,7 @@
     <p:import href="page-layout-html.xpl" />
 
     <p:choose>
-        <p:when test="/c:data/@content-type='text/html'">
+        <p:when test="/c:data[starts-with(@content-type,'text/html')]">
             <p:unescape-markup content-type="text/html" />
             <p:unwrap match="/c:data" />
         </p:when>

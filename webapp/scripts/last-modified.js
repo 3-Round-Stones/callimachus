@@ -51,13 +51,17 @@ calli.lastModified = function(url, value) {
         return undefined;
     }
 };
-if (window.sessionStorage) {
-    if (bug4363()) {
-        calli.lastModified(calli.getPageUrl(), new Date(document.lastModified + ' GMT').toUTCString());
+try {
+    if (window.sessionStorage) {
+        if (bug4363()) {
+            calli.lastModified(calli.getPageUrl(), new Date(document.lastModified + ' GMT').toUTCString());
+        } else {
+            calli.lastModified(calli.getPageUrl(), new Date(document.lastModified).toUTCString());
+        }
     } else {
-        calli.lastModified(calli.getPageUrl(), new Date(document.lastModified).toUTCString());
+        calli.lastModified = function(){return undefined;};
     }
-} else {
+} catch (e) {
     calli.lastModified = function(){return undefined;};
 }
 

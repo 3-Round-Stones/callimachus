@@ -34,22 +34,91 @@ jQuery(function($) {
         if (url) updateEndpoints(url, protocol);
         calli.updateResource(event, 'calli:endpointLogo');
         $('#protocol option').each(function(){
-            this.setAttribute("resource", img[this.value]);
+            this.setAttribute("resource", img[this.value] || img.sparql);
         });
     });
-    $('#create').submit(function(event){
-        var resource = calli.slugify($('#label').val());
-        if ($('#direct').attr('checked')) {
-            resource = resource.replace(/\/?$/,'/');
+    $('#modification').change(function(event){
+        if ($('#modification').prop("checked")) {
+            $('#updateEndpoint').removeAttr("disabled");
+            if (!$('#updateEndpoint').val()) {
+                $('#updateEndpoint').val($('#queryEndpoint').val());
+            }
+        } else {
+            $('#updateEndpoint').attr('disabled', "disabled").val('').change();
         }
-        $('#endpoint').attr('resource',resource);
-        calli.submitTurtle(event, resource);
+    });
+    $('#create').submit(function(event){
+        var slug = calli.slugify($('#label').val());
+        if ($('#direct').prop('checked')) {
+            slug = slug.replace(/\/?$/,'/');
+        }
+        var ns = window.location.pathname.replace(/\/?$/, '/');
+        var resource = ns + slug;
+        $('#endpoint').attr('resource', resource);
+        event.preventDefault();
+        var form = event.target;
+        var btn = $(form).find('button[type="submit"]');
+        btn.button('loading');
+        return calli.resolve(form).then(function(form){
+            form.setAttribute("resource", resource);
+            return calli.copyResourceData(form);
+        }).then(function(data){
+            data.results.bindings.push({
+                s: {type:'uri', value: data.head.link[0]},
+                p: {type:'uri', value: 'http://purl.org/dc/terms/created'},
+                o: {
+                    type:'literal',
+                    value: new Date().toISOString(),
+                    datatype: "http://www.w3.org/2001/XMLSchema#dateTime"
+                }
+            });
+            return data;
+        }).then(function(data){
+            return calli.postTurtle(calli.getFormAction(form), data, slug);
+        }).then(function(redirect){
+            if ($('#protocol').val() != 'autodetect')
+                return redirect;
+            return calli.getJSON(redirect + '?describe').then(function(json){
+                var server = json[0]["http://callimachusproject.org/rdf/2009/framework#endpointSoftware"][0]["@value"];
+                if (server.indexOf('Apache-Coyote') >= 0 && $('#url').val().indexOf('/repositories/') >= 0) {
+                    return 'sesame';
+                } else if (server.indexOf('Stardog') >= 0) {
+                    return 'stardog';
+                } else if (server.indexOf('Virtuoso') >= 0) {
+                    return 'virtuoso';
+                } else if (server.indexOf('Callimachus') >= 0) {
+                    return 'callimachus';
+                } else {
+                    return null;
+                }
+            }).then(function(protocol){
+                if (!protocol) return redirect;
+                $('#protocol').attr("resource", resource);
+                var deleteData = calli.copyResourceData($('#protocol')[0]);
+                selectize.setValue(protocol);
+                var insertData = calli.copyResourceData($('#protocol')[0]);
+                return calli.postUpdate(redirect + "?edit", deleteData, insertData);
+            }).then(Promise.resolve.bind(Promise, redirect), function(error){
+                if (console) console.log(error);
+                return redirect;
+            });
+        }).then(function(redirect){
+            if (redirect) {
+                if (window.parent != window && parent.postMessage) {
+                    parent.postMessage('POST resource\n\n' + redirect, '*');
+                }
+                window.location.replace(redirect);
+            } else {
+                btn.button('reset');
+            }
+        }, function(error){
+            btn.button('reset');
+            return calli.error(error);
+        });
     });
 
     function updateEndpoints(url, protocol) {
-        if (protocol == 'autodetect') {
-            return updateEndpoints(url, autodetect(url));
-        } else if (protocol == 'sesame') {
+        if (protocol == 'sesame') {
             $('#queryEndpoint').val(url).change();
             $('#updateEndpoint').val(url + '/statements').change();
         } else if (protocol == 'stardog') {
@@ -62,14 +131,7 @@ jQuery(function($) {
             $('#queryEndpoint').val(url).change();
             $('#updateEndpoint').val(url).change();
         }
+        $('#modification').change();
         return protocol;
-    }
-    function autodetect(url) {
-        var origin = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port: '');
-        if (url.indexOf(origin) === 0) return 'callimachus';
-        else if (url.match(/.*\/repositories\/.+/)) return 'sesame';
-        else if (url.match(/https?:\/\/[^/]+\/[^/]+$/)) return 'stardog';
-        else if (url.match(/https?:\/\/[^/]+(\/sparql)?\/$/i)) return 'virtuoso';
-        else return 'sparql';
     }
 });

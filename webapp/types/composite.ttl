@@ -442,13 +442,6 @@
                 }
             }
         }
-
-        try {
-            created.Validate();
-        } catch (e if e.javaException instanceof ServiceUnavailable) {
-            java.lang.System.err.println("Storing " + this);
-        }
-
         if (verify) {
             this.calliVerifyCreatedResource(created, templates, statements.getStatements(), createdUri);
             //# Add permissions and component membership
@@ -466,6 +459,12 @@
             this.provWasGeneratedBy = revision; // restore the previous revision
         } else {
             this.calliHasComponent.add(created);
+        }
+
+        try {
+            created.Validate();
+        } catch (e if e.javaException instanceof ServiceUnavailable) {
+            java.lang.System.err.println("Storing " + this);
         }
 
         var partners = statements.getStatements().iterator();

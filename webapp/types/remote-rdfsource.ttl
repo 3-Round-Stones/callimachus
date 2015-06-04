@@ -41,3 +41,14 @@
     calli:create <../templates/remote-rdfsource-create.xhtml>;
     msg:mixin "org.callimachusproject.behaviours.RemoteRdfSourceSupport".
 
+:ValidateRemoteRdfSource owl:intersectionOf (<serviceable.ttl#Validate>
+        [owl:onProperty msg:target; owl:allValuesFrom <RemoteRdfSource>]);
+    calli:imports <java:org.openrdf.http.object.exceptions.Conflict>;
+    calli:imports <java:org.openrdf.model.vocabulary.RDF>;
+    calli:imports <java:org.callimachusproject.io.DescribeResult>;
+    calli:script """
+        var ret = proceed();
+        this.updateEndpointInfo();
+        return ret;
+    """.
+

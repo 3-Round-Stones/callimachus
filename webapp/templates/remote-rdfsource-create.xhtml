@@ -87,6 +87,12 @@
             		</div>
                 	<div class="checkbox">
                 		<label>
+            				<input id="modification" type="checkbox" name="support" checked="checked" />
+            				Allow modification
+            			</label>
+            		</div>
+                	<div class="checkbox">
+                		<label>
             				<input id="direct" type="checkbox" name="support" checked="checked" />
             				Direct graph and resource identification
             			</label>
@@ -106,11 +112,11 @@
                 <div>
                     <select id="protocol" class="form-control" placeholder="Choose an implementation">
                         <option selected="selected" rel="calli:endpointLogo" resource="?endpointLogo" value="{?endpointLogo}">{rdfs:label}</option>
-                        <option value="autodetect"></option>
+                        <option value="autodetect">Autodetect</option>
                         <option resource="../images/sparql_logo.png" value="sparql">SPARQL 1.1</option>
                         <option value="separate">Separate Update endpoint</option>
                         <option resource="../images/callimachus-logo.png" value="callimachus">Callimachus</option>
-                        <option resource="../images/sesame-logo.png" value="sesame">Sesame 2.5+</option>
+                        <option resource="../images/sesame-logo.png" value="sesame">Sesame 2.8.3+</option>
                         <option resource="../images/sdog.png" value="stardog">Stardog</option>
                         <option resource="../images/oplogo_std_150x60.png" value="virtuoso">Virtuoso</option>
                     </select>
@@ -128,7 +134,7 @@
             <div class="col-sm-6">
                 <label for="updateEndpoint">SPARQL Update Endpoint</label>
                 <div>
-                    <input type="url" id="updateEndpoint" value="{calli:updateEndpoint}" class="form-control" required="required"
+                    <input type="url" id="updateEndpoint" value="{calli:updateEndpoint}" class="form-control"
                         onchange="calli.updateResource(event, 'calli:updateEndpoint')" />
                 </div>
             </div>

@@ -117,6 +117,7 @@ calli.getJSON = function(url) {
         type: 'GET',
         url: url,
         dataType: 'json',
+        headers: {"Accept": "application/json"},
         cache: true,
         xhrFields: {
           withCredentials: true
@@ -129,6 +130,7 @@ calli.getXML = function(url) {
         type: 'GET',
         url: url,
         dataType: 'xml',
+        headers: {"Accept": "application/xml, text/xml"},
         cache: true,
         xhrFields: {
           withCredentials: true

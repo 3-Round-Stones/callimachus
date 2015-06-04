@@ -36,9 +36,8 @@
                         <div class="form-group">
                             <label for="allowOrigin">Allowed origins</label>
                             <div>
-                                <div property="calli:allowOrigin" content="?allowOrigin">
-                                    <input type="text" class="form-control" value="{?allowOrigin}" />
-                                </div>
+                                <input type="text" class="form-control" property="calli:allowOrigin" content="?allowOrigin" value="{?allowOrigin}"
+                                    onchange="calli.updateProperty(event,'calli:allowOrigin')" />
                                 <a href="javascript:void(0)" title="More" onclick="calli.addResource(event)" class="glyphicon glyphicon-plus" />
                             </div>
                         </div>

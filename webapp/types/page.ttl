@@ -194,13 +194,12 @@
     calli:script """
         if (!optionsElement)
             throw new BadRequest("Missing element parameter");
-        var partner = optionsResource  ? optionsResource.resource : null;
         var con = this.objectConnection;
         var template = this.getTemplateFor(this.toString()).getElement(optionsElement);
         var attrs = template.getAttributes();
         if (!optionsResource) throw new BadRequest("Missing resource parameter");
         if (attrs.containsKey("data-construct")) {
-            var results = template.evaluatePartner(partner, con);
+            var results = template.evaluatePartner(optionsResource, con);
             return this.Render(template.toString(), null, null, optionsElement, results);
         }
         throw new BadRequest("Bad element parameter");
@@ -213,6 +212,7 @@
 
 :optionsResource a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :GetElementOptions;
+    rdfs:range <java:org.openrdf.model.URI>;
     msg:type "text/uri-list";
     msg:param "resource".
 

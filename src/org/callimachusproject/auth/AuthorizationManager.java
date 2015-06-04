@@ -170,13 +170,15 @@ public class AuthorizationManager {
 				return resp;
 			}
 			noRealm = false;
-			validOrigin = or == null || isOriginAllowed(allowed, or);
+			validOrigin = or.length == 0 || isOriginAllowed(allowed, or);
 			try {
-				if (cred == null) {
+				if (cred == null && validOrigin) {
 					unauth = choose(unauth,
 							realm.unauthorized(m, target, map, getRequestEntity(request)));
-				} else {
+				} else if (validOrigin) {
 					unauth = choose(unauth, realm.forbidden(m, target, map));
+				} else {
+					unauth = choose(unauth, realm.notAllowed(m, target, map));
 				}
 			} catch (ResponseException exc) {
 				if (unauth != null) {
@@ -187,13 +189,13 @@ public class AuthorizationManager {
 				logger.error(exc.toString(), exc);
 			}
 		}
-		if (unauth != null)
-			return unauth;
 		if (noRealm) {
 			logger.info("No active realm for {}", request);
 		} else if (!validOrigin) {
 			logger.info("Origin {} not allowed for {}", or, request);
 		}
+		if (unauth != null)
+			return unauth;
 		StringEntity body = new StringEntity("Forbidden", Charset.forName("UTF-8"));
 		body.setContentType("text/plain");
 		HttpResponse resp = new BasicHttpResponse(_403);

@@ -48,34 +48,42 @@ public class ErrorPageInterceptor implements HttpRequestChainInterceptor {
 	public void process(HttpRequest request, HttpResponse response,
 			HttpContext context) throws HttpException, IOException {
 		int code = response.getStatusLine().getStatusCode();
-		if (code >= 400 && code != 401 && isHtml(response)) {
+		Header contentType = getContentType(response);
+		if (code >= 400 && code != 401 && isHtml(contentType)) {
 			String uri = request.getRequestLine().getUri();
-			format(uri, response, context);
+			format(uri, contentType, response, context);
 		}
 	}
 
-	private boolean isHtml(HttpResponse response) {
+	private Header getContentType(HttpResponse response) {
 		HttpEntity entity = response.getEntity();
-		return isHtml(response.getFirstHeader("Content-Type")) || entity != null && isHtml(entity.getContentType());
+		Header contentType = response.getFirstHeader("Content-Type");
+		if (contentType == null && entity != null)
+			return entity.getContentType();
+		return contentType;
 	}
 
 	private boolean isHtml(Header contentType) {
 		return contentType != null && contentType.getValue().startsWith("text/html");
 	}
 
-	private void format(String reqUri, HttpResponse response,
-			HttpContext context) throws IOException {
+	private void format(String reqUri, Header contentType,
+			HttpResponse response, HttpContext context) throws IOException {
 		BufferedInputStream bin = bufferAll(response, MAX_PAGE_SIZE);
 		if (bin == null)
 			return;
 		ObjectContext ctx = ObjectContext.adapt(context);
-		CalliObject target = (CalliObject) ctx.getResourceTarget().getTargetObject();
+		CalliObject target = (CalliObject) ctx.getResourceTarget()
+				.getTargetObject();
 		try {
 			DetachedRealm realm = target.getRealm();
 			int qidx = reqUri.indexOf('?');
 			String qs = qidx < 0 ? "" : reqUri.substring(qidx + 1);
 			bin.reset();
-			override(response, realm.transformErrorPage(bin, target.toString(), qs));
+			override(
+					response,
+					realm.transformErrorPage(bin, contentType,
+							target.toString(), qs));
 			bin = null;
 		} catch (Exception e) {
 			logger.error(e.toString(), e);

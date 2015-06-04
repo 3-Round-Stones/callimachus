@@ -53,7 +53,6 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.NTCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ContentType;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.SystemDefaultCredentialsProvider;
@@ -101,12 +100,14 @@ public class DetachedRealm {
 	private static final AtomicInteger activeErrors = new AtomicInteger();
 	private static final BasicStatusLine _204;
 	private static final BasicStatusLine _401;
-	private static final BasicStatusLine _403;
+	private static final BasicStatusLine FORBIDDEN_403;
+	private static final BasicStatusLine NOT_ALLOWED_403;
 	static {
 		ProtocolVersion HTTP11 = HttpVersion.HTTP_1_1;
 		_204 = new BasicStatusLine(HTTP11, 401, "No Content");
 		_401 = new BasicStatusLine(HTTP11, 401, "Unauthorized");
-		_403 = new BasicStatusLine(HTTP11, 403, "Forbidden");
+		FORBIDDEN_403 = new BasicStatusLine(HTTP11, 403, "Forbidden");
+		NOT_ALLOWED_403 = new BasicStatusLine(HTTP11, 403, "Origin is Not Allowed");
 	}
 
 	public static String getPreferredManagerCookie(String realm, String manager) {
@@ -252,8 +253,8 @@ public class DetachedRealm {
 		return false;
 	}
 
-	public InputStream transformErrorPage(InputStream in, String target,
-			String query) throws IOException {
+	public InputStream transformErrorPage(InputStream in, Header contentType,
+			String target, String query) throws IOException {
 		if (error != null && inError.get() == null
 				&& activeErrors.get() < MAX_PRETTY_CONCURRENT_ERRORS) {
 			if (!error.equals(target)) {
@@ -266,7 +267,8 @@ public class DetachedRealm {
 					HttpUriClient client = getHttpClient();
 					HttpPost post = new HttpPost(url);
 					post.setHeader("Accept", "text/html");
-					post.setEntity(new InputStreamEntity(in, ContentType.TEXT_HTML));
+					post.setHeader(contentType);
+					post.setEntity(new InputStreamEntity(in));
 					HttpUriResponse resp = client.getResponse(post);
 					return resp.getEntity().getContent();
 				} finally {
@@ -278,11 +280,31 @@ public class DetachedRealm {
 		return in;
 	}
 
+	public final HttpResponse notAllowed(String method, Object resource,
+			Map<String, String[]> request) throws Exception {
+		if (forbidden == null)
+			return null;
+		HttpResponse resp = new BasicHttpResponse(NOT_ALLOWED_403);
+		resp.setHeader("Cache-Control", "no-store");
+		try {
+			if (inForbidden.get() == null) {
+				inForbidden.set(true);
+				HttpEntity entity = client.getEntity(forbidden, "text/html;charset=UTF-8");
+				resp.setEntity(entity);
+			} else {
+				resp.setEntity(new StringEntity("Forbidden"));
+			}
+			return resp;
+		} finally {
+			inForbidden.remove();
+		}
+	}
+
 	public final HttpResponse forbidden(String method, Object resource,
 			Map<String, String[]> request) throws Exception {
 		if (forbidden == null)
 			return null;
-		HttpResponse resp = new BasicHttpResponse(_403);
+		HttpResponse resp = new BasicHttpResponse(FORBIDDEN_403);
 		resp.setHeader("Cache-Control", "no-store");
 		try {
 			if (inForbidden.get() == null) {

@@ -223,7 +223,7 @@ INSERT {
 	calli:administrator </auth/groups/super>;
 	calli:reader </auth/groups/public> .
 } WHERE {
-    BIND (str(<pages/forbidden.xhtml?html>) AS ?alternate)
+    BIND (str(<pages/forbidden.html>) AS ?alternate)
 	FILTER NOT EXISTS { <../forbidden.html> a calli:Purl }
 };
 

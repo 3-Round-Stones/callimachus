@@ -45,6 +45,16 @@ DELETE {
         void:uriLookupEndpoint </sparql?uri=>.
 };
 
+DELETE {
+<../forbidden.html> calli:alternate ?previously
+} INSERT {
+<../forbidden.html> calli:alternate ?currently
+} WHERE {
+    BIND (str(<pages/forbidden.html>) AS ?currently)
+    <../forbidden.html> calli:alternate ?previously
+    FILTER (str(<pages/forbidden.xhtml?html>) = ?previously)
+};
+
 INSERT {
     <../error.xpl> calli:post ?alternate
 } WHERE {

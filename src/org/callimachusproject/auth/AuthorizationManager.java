@@ -151,9 +151,9 @@ public class AuthorizationManager {
 					if (cred == null) {
 						ObjectConnection con = target.getObjectConnection();
 						cred = realm.authenticateRequest(m, target, map, con);
+						ctx.setAttribute(CREDENTIAL_ATTR, cred);
 					}
 					if (cred != null && isMember(cred, from, groups)) {
-						ctx.setAttribute(CREDENTIAL_ATTR, cred);
 						return null; // this request is good
 					}
 				}

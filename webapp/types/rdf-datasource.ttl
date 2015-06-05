@@ -66,7 +66,7 @@
     msg:header "cache-control:no-validate";
     calli:script """
         var res = this.postPercentEncoded(["application/xml"], this.toString(), queryString);
-        if (res.statusLine.statusCode >= 300)
+        if (res.statusLine.statusCode >= 300 || !res.entity)
             throw org.openrdf.http.object.exceptions.ResponseException.create(res);
         return this.TransformResult(res.entity.content);
     """.
@@ -87,7 +87,7 @@
     calli:script """
         try {
             var res = this.getIndirectResource(htmlResource, ["application/rdf+xml"]);
-            if (res.statusLine.statusCode >= 300)
+            if (res.statusLine.statusCode >= 300 || !res.entity)
                 throw org.openrdf.http.object.exceptions.ResponseException.create(res);
             return this.TransformResult(res.entity.content);
         } catch (e if e.javaException) {
@@ -121,8 +121,10 @@
     msg:type "text/html";
     calli:script """
         var resp = this.postPercentEncoded(["application/xml"], this.toString(), formMap);
-        if (resp.statusLine.statusCode < 300)
+        if (resp.statusLine.statusCode < 300 && resp.entity)
             return this.TransformResult(resp.entity.content);
+        else if (resp.statusLine.statusCode == 204)
+            return null;
         throw org.openrdf.http.object.exceptions.ResponseException.create(resp);
     """.
 

@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.http.Consts;
 import org.apache.http.HttpResponse;
@@ -36,7 +38,9 @@ import org.callimachusproject.server.helpers.RequestActivityFactory;
 import org.callimachusproject.traits.CalliObject;
 import org.openrdf.OpenRDFException;
 import org.openrdf.annotations.Sparql;
+import org.openrdf.http.client.SesameClientImpl;
 import org.openrdf.http.object.client.CloseableEntity;
+import org.openrdf.http.object.client.HttpUriClient;
 import org.openrdf.http.object.client.HttpUriResponse;
 import org.openrdf.http.object.exceptions.BadRequest;
 import org.openrdf.http.object.exceptions.InternalServerError;
@@ -58,6 +62,8 @@ import org.openrdf.query.QueryLanguage;
 import org.openrdf.query.TupleQuery;
 import org.openrdf.query.Update;
 import org.openrdf.query.algebra.QueryModelNode;
+import org.openrdf.query.algebra.evaluation.federation.FederatedServiceResolverClient;
+import org.openrdf.query.algebra.evaluation.federation.FederatedServiceResolverImpl;
 import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
 import org.openrdf.query.impl.DatasetImpl;
 import org.openrdf.query.parser.ParsedBooleanQuery;
@@ -91,6 +97,7 @@ public abstract class DatasourceSupport extends GraphStoreSupport implements Cal
 	private static final int MAX_RU_SIZE = 10240; // 10KiB
 	private static final String PREFIX = "PREFIX sd:<http://www.w3.org/ns/sparql-service-description#>\n";
 	static final String TOO_MANY_RESULTS = "http://callimachusproject.org/rdf/2009/framework#hasResultLimit";
+	private static final ExecutorService executor = Executors.newCachedThreadPool();
 
 	final Logger logger = LoggerFactory.getLogger(DatasourceSupport.class);
 	private final BooleanQueryResultWriterRegistry bool = BooleanQueryResultWriterRegistry.getInstance();
@@ -121,7 +128,9 @@ public abstract class DatasourceSupport extends GraphStoreSupport implements Cal
 			final String base = this.getResource().stringValue();
 			QueryParser parser = reg.get(QueryLanguage.SPARQL).getParser();
 			ParsedQuery parsed = parser.parseQuery(query, loc == null ? base : loc);
-			if (!isFederatedSupported()) {
+			if (isFederatedSupported()) {
+				setHttpClient(con, this.getHttpClient());
+			} else {
 				checkFederated(parsed.getTupleExpr());
 			}
 			if (parsed instanceof ParsedBooleanQuery) {
@@ -198,6 +207,9 @@ public abstract class DatasourceSupport extends GraphStoreSupport implements Cal
 					bin.close();
 				}
 				String update = new String(buf, Consts.UTF_8);
+				if (isFederatedSupported()) {
+					setHttpClient(con, this.getHttpClient());
+				}
 				Update pu = con.prepareUpdate(SPARQL, update, base);
 				if (defaultGraphs != null || namedGraphs != null) {
 					pu.setDataset(createDataset(defaultGraphs, namedGraphs));
@@ -242,6 +254,17 @@ public abstract class DatasourceSupport extends GraphStoreSupport implements Cal
 						"Basic SPARQL federation is not supported on this service");
 			}
 		});
+	}
+
+	private void setHttpClient(RepositoryConnection con,
+			HttpUriClient client) {
+		if (con instanceof FederatedServiceResolverClient) {
+			FederatedServiceResolverImpl resolver = new FederatedServiceResolverImpl();
+			resolver.setSesameClient(new SesameClientImpl(client, executor));
+			((FederatedServiceResolverClient) con).setFederatedServiceResolver(resolver);
+		} else if (con instanceof RepositoryConnectionWrapper) {
+			setHttpClient(((RepositoryConnectionWrapper) con).getDelegate(), client);
+		}
 	}
 
 	private BooleanQueryResultFormat getAcceptableBooleanFormat(String[] accept) {

@@ -194,7 +194,11 @@ public class Setup {
 						email = null;
 						String hostname = DomainNameSystemResolver
 								.getInstance().getCanonicalLocalHostName();
-						defaultEmail = System.getProperty("user.name") + "@"
+						String user = System.getProperty("user.name");
+						if ("root".equals(user) && System.getenv("SUDO_USER") != null) {
+							user = System.getenv("SUDO_USER");
+						}
+						defaultEmail = user + "@"
 								+ hostname;
 						CallimachusSetup.validateEmail(defaultEmail);
 					}

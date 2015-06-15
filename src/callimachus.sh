@@ -433,9 +433,7 @@ if [ ! -z "$DAEMON_USER" ] ; then
   chown -R "$DAEMON_USER" "$BASEDIR/backups"
   chown "$DAEMON_USER" "$MAIL"
   chown "$DAEMON_USER" "$CONFIG"
-  if [ "$DAEMON" != "$JSVC" ] ; then
-    chown "$DAEMON_USER" "$(dirname "$PIDFILE")"
-  fi
+  chown "$DAEMON_USER" "$(dirname "$PIDFILE")"
   if [ ! -z "$DAEMON_GROUP" ] ; then
     chown ":$DAEMON_GROUP" "$BASEDIR"
     chown -R ":$DAEMON_GROUP" "$BASEDIR/log"
@@ -443,9 +441,7 @@ if [ ! -z "$DAEMON_USER" ] ; then
     chown -R ":$DAEMON_GROUP" "$BASEDIR/backups"
     chown ":$DAEMON_GROUP" "$MAIL"
     chown ":$DAEMON_GROUP" "$CONFIG"
-    if [ "$DAEMON" != "$JSVC" ] ; then
-      chown ":$DAEMON_GROUP" "$(dirname "$PIDFILE")"
-    fi
+    chown ":$DAEMON_GROUP" "$(dirname "$PIDFILE")"
   fi
   if [ -r "$SSL" ]; then
     KEYSTORE=$(grep -E '^javax.net.ssl.keyStore=' $SSL |perl -pe 's/^javax.net.ssl.keyStore=(.*)/$1/' 2>/dev/null)

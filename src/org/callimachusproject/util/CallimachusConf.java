@@ -36,10 +36,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.openrdf.OpenRDFException;
-import org.openrdf.model.Graph;
+import org.openrdf.model.Model;
 import org.openrdf.model.Resource;
-import org.openrdf.model.impl.GraphImpl;
-import org.openrdf.model.util.GraphUtil;
+import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.repository.config.RepositoryConfig;
 import org.openrdf.repository.config.RepositoryConfigSchema;
@@ -53,7 +52,7 @@ public class CallimachusConf {
 	private static final String DEFAULT_REPOSITORY_ID;
 	static {
 		File repositoryConfig = SystemProperties.getRepositoryConfigFile();
-		Graph graph = new GraphImpl();
+		Model graph = new LinkedHashModel();
 		RDFParser rdfParser = Rio.createParser(RDFFormat.TURTLE);
 		rdfParser.setRDFHandler(new StatementCollector(graph));
 		String base = new File(".").getAbsoluteFile().toURI().toASCIIString();
@@ -65,8 +64,8 @@ public class CallimachusConf {
 			} finally {
 				reader.close();
 			}
-			Resource node = GraphUtil.getUniqueSubject(graph, RDF.TYPE,
-					RepositoryConfigSchema.REPOSITORY);
+			Resource node = graph.filter(null, RDF.TYPE,
+					RepositoryConfigSchema.REPOSITORY).subjectResource();
 			RepositoryConfig config = RepositoryConfig.create(graph, node);
 			DEFAULT_REPOSITORY_ID = config.getID();
 		} catch (MalformedURLException e) {
@@ -112,9 +111,9 @@ public class CallimachusConf {
 		for (String item : items) {
 			int idx = item.indexOf('#');
 			if (idx < 0) {
-				map.put(item.toLowerCase(), DEFAULT_REPOSITORY_ID);
+				map.put(normalizeOrigin(item), DEFAULT_REPOSITORY_ID);
 			} else {
-				map.put(item.substring(0, idx).toLowerCase(), item.substring(idx + 1));
+				map.put(normalizeOrigin(item.substring(0, idx)), item.substring(idx + 1));
 			}
 		}
 		return map;
@@ -199,6 +198,20 @@ public class CallimachusConf {
 			}
 		}
 		setProperty("SSLPORT", sb.toString());
+	}
+
+	private String normalizeOrigin(String origin) {
+		if (origin.endsWith("/"))
+			return normalizeOrigin(origin.substring(0, origin.length() - 1));
+		if (origin.substring(0, "http:".length()).equalsIgnoreCase("http:")
+				&& origin.endsWith(":80"))
+			return normalizeOrigin(origin.substring(0,
+					origin.length() - ":80".length()));
+		if (origin.substring(0, "https:".length()).equalsIgnoreCase("https:")
+				&& origin.endsWith(":443"))
+			return normalizeOrigin(origin.substring(0,
+					origin.length() - ":443".length()));
+		return origin.toLowerCase();
 	}
 
 	private synchronized String getProperty(String key) throws IOException {

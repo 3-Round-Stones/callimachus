@@ -30,7 +30,7 @@ installation directory.
 | prerequisites |
 -----------------
 
-You must have at least Java JDK 7 installed and available with ECMAScript 5
+You must have Java JDK 7 installed and available with ECMAScript 5
 support. Oracle introduced EMCAScript 5 support in Java™ SE 7 Update 1.
 
 Callimachus is expected to work on the following server platforms:
@@ -79,7 +79,9 @@ character ('#') in the .conf file.
 
 To register a Callimachus daemon with the Linux system (to stop Callimachus
 on machine shut down) run the bin/callimachus-install.sh script. The
-Callimachus daemon is only available for Linux.
+Callimachus daemon is only available for Linux. As part of the installation, the
+script will ask to generate a server certificate. This certificate is used for
+all https origins and for remote JMX administration.
 
 Execute a callimachus-setup script located in the bin/ directory to initialize
 the repository. Open your Web browser to http://localhost:8080/ to access the

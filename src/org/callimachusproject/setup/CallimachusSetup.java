@@ -309,8 +309,10 @@ public class CallimachusSetup {
 			URI folder = webapp(origin, INVITED_USERS);
 			URI subj = vf.createURI(folder.stringValue(), slugify(email));
 			URI calliEmail = vf.createURI(CALLI_EMAIL);
-			if (con.hasStatement(subj, RDF.TYPE, vf.createURI(CALLI_USER)))
+			if (con.hasStatement(subj, RDF.TYPE, vf.createURI(CALLI_USER))) {
+				con.commit();
 				return false;
+			}
 			logger.info("Inviting user {}", email);
 			URI power = webapp(origin, GROUP_POWER);
 			URI admin = webapp(origin, GROUP_ADMIN);

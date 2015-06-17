@@ -49,8 +49,8 @@ public class DatasourceFunctionalTest extends BrowserFunctionalTestCase {
 		view.query("ASK { ?s ?p ?o }").evaluate().waitUntilResult("true")
 				.back();
 		logger.info("Delete datasource {}", datasourceName);
-		page.open(datasourceName + "?view").waitUntilTitle(datasourceLabel)
-				.openEdit(DatasourceEdit.class).delete(datasourceLabel);
+		view.waitUntilTitle(datasourceLabel).openEdit(DatasourceEdit.class)
+				.delete(datasourceLabel);
 	}
 
 }

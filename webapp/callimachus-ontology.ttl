@@ -49,15 +49,15 @@ calli:Composite a owl:Class;
     rdfs:comment "Class of resources that contain nested components, where the component URIs have their parent URI as a prefix";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
-calli:PathSegment a owl:Class;
+calli:Folder a owl:Class;
     owl:equivalentClass calli:Folder;
     rdfs:subClassOf calli:Composite, calli:Purl;
-    rdfs:label "Path Segment";
+    rdfs:label "Folder";
     rdfs:comment "A resource URI namespace ending in a slash";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:Realm a owl:Class;
-    rdfs:subClassOf calli:PathSegment;
+    rdfs:subClassOf calli:Folder;
     rdfs:label "Realm";
     rdfs:comment "Web application realm";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
@@ -395,9 +395,9 @@ calli:authButton a owl:FunctionalProperty, owl:ObjectProperty;
 
 calli:authNamespace a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:label "auth namespace";
-    rdfs:comment "Path Segment of users that can be authenticated by this realm";
+    rdfs:comment "Folder of users that can be authenticated by this realm";
     rdfs:domain calli:DigestManager;
-    rdfs:range calli:PathSegment;
+    rdfs:range calli:Folder;
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:authName a owl:FunctionalProperty, owl:DatatypeProperty;

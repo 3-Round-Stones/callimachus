@@ -51,7 +51,7 @@ public class EditResourceIntegrationTest extends TemporaryServerIntegrationTestC
 			"@prefix owl:<http://www.w3.org/2002/07/owl#>.",
 			"@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.",
 			"",
-			"</my-resource> a calli:PathSegment; rdfs:label \"my resource\".");
+			"</my-resource> a calli:Folder; rdfs:label \"my resource\".");
 	private static String RESOURCE_UPDATE1 = cat("PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>",
 			"DELETE {",
 			"	</my-resource> rdfs:label \"my resource\" .",

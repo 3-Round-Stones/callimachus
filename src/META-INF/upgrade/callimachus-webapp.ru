@@ -45,7 +45,7 @@ INSERT {
 };
 
 INSERT {
-<../> a <types/PathSegment>, calli:PathSegment;
+<../> a <types/Folder>, calli:Folder;
     rdfs:label "callimachus";
     calli:reader </auth/groups/public>;
     calli:administrator </auth/groups/super>;
@@ -69,7 +69,7 @@ INSERT {
         <../xml-editor.html>,
         <../xquery-editor.html>.
 } WHERE {
-	FILTER NOT EXISTS { <../> a calli:PathSegment }
+	FILTER NOT EXISTS { <../> a calli:Folder }
 };
 
 INSERT {
@@ -84,11 +84,11 @@ INSERT {
 };
 
 INSERT {
-<../changes/> a <types/PathSegment>, calli:PathSegment;
+<../changes/> a <types/Folder>, calli:Folder;
     rdfs:label "changes";
     calli:subscriber </auth/groups/power>,</auth/groups/admin>.
 } WHERE {
-	FILTER NOT EXISTS { <../changes/> a calli:PathSegment }
+	FILTER NOT EXISTS { <../changes/> a calli:Folder }
 };
 
 INSERT {
@@ -449,45 +449,45 @@ INSERT {
 
 INSERT {
 </auth/> calli:hasComponent </auth/invited-users/>.
-</auth/invited-users/> a <types/PathSegment>, calli:PathSegment;
+</auth/invited-users/> a <types/Folder>, calli:Folder;
     rdfs:label "invited users";
     calli:subscriber </auth/groups/power>;
     calli:administrator </auth/groups/admin>.
 } WHERE {
-	FILTER NOT EXISTS { </auth/invited-users/> a calli:PathSegment }
+	FILTER NOT EXISTS { </auth/invited-users/> a calli:Folder }
 };
 
 INSERT {
 </auth/> calli:hasComponent </auth/digest-users/>.
-</auth/digest-users/> a <types/PathSegment>, calli:PathSegment;
+</auth/digest-users/> a <types/Folder>, calli:Folder;
     rdfs:label "digest users";
     calli:subscriber </auth/groups/power>;
     calli:administrator </auth/groups/admin>.
 } WHERE {
-	FILTER NOT EXISTS { </auth/digest-users/> a calli:PathSegment }
+	FILTER NOT EXISTS { </auth/digest-users/> a calli:Folder }
 };
 
 INSERT {
 </auth/> calli:hasComponent </auth/secrets/>.
-</auth/secrets/> a <types/PathSegment>, calli:PathSegment;
+</auth/secrets/> a <types/Folder>, calli:Folder;
     rdfs:label "secrets";
     calli:editor </auth/groups/admin>.
 } WHERE {
-	FILTER NOT EXISTS { </auth/secrets/> a calli:PathSegment }
+	FILTER NOT EXISTS { </auth/secrets/> a calli:Folder }
 };
 
 INSERT {
 </auth/> calli:hasComponent </auth/credentials/>.
-</auth/credentials/> a <types/PathSegment>, calli:PathSegment;
+</auth/credentials/> a <types/Folder>, calli:Folder;
     rdfs:label "credentials";
     calli:editor </auth/groups/admin>.
 } WHERE {
-	FILTER NOT EXISTS { </auth/credentials/> a calli:PathSegment }
+	FILTER NOT EXISTS { </auth/credentials/> a calli:Folder }
 };
 
 INSERT {
 </auth/> calli:hasComponent </auth/groups/>.
-</auth/groups/> a <types/PathSegment>, calli:PathSegment;
+</auth/groups/> a <types/Folder>, calli:Folder;
     rdfs:label "groups";
     calli:subscriber </auth/groups/power>;
     calli:administrator </auth/groups/admin>;
@@ -549,5 +549,5 @@ INSERT {
     calli:administrator </auth/groups/admin>;
     calli:anonymousFrom ".".
 } WHERE {
-	FILTER NOT EXISTS { </auth/groups/> a calli:PathSegment }
+	FILTER NOT EXISTS { </auth/groups/> a calli:Folder }
 };

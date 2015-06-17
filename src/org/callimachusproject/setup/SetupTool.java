@@ -66,9 +66,9 @@ import org.slf4j.LoggerFactory;
 public class SetupTool {
 	private static final String ADMIN_GROUP = "/auth/groups/admin";
 	private static final String REALM_TYPE = "types/Realm";
-	private static final String FOLDER_TYPE = "types/PathSegment";
+	private static final String FOLDER_TYPE = "types/Folder";
 	private static final String CALLI = "http://callimachusproject.org/rdf/2009/framework#";
-	private static final String CALLI_FOLDER = CALLI + "PathSegment";
+	private static final String CALLI_FOLDER = CALLI + "Folder";
 	private static final String CALLI_REALM = CALLI + "Realm";
 	private static final String CALLI_HASCOMPONENT = CALLI + "hasComponent";
 	private static final String CALLI_AUTHENTICATION = CALLI + "authentication";

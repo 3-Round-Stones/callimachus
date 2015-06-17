@@ -101,7 +101,7 @@ public class WebappArchiveImporter {
 	private static final TimeZone UTC = TimeZone.getTimeZone("UTC");
 	private static final String REALM_TYPE = "types/Realm";
 	private static final String ORIGIN_TYPE = "types/Origin";
-	private static final String FOLDER_TYPE = "types/PathSegment";
+	private static final String FOLDER_TYPE = "types/Folder";
 	private static final String CALLI = "http://callimachusproject.org/rdf/2009/framework#";
 	private static final String PREFIX = "PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>\n"
 			+ "PREFIX owl:<http://www.w3.org/2002/07/owl#>\n"
@@ -169,8 +169,7 @@ public class WebappArchiveImporter {
 	private final URI hasComponent;
 	private final URI calliDocumentTag;
 	private final URI calliMediaType;
-	private final URI calliPathSegment;
-	private final URI pathSegment;
+	private final URI calliFolder;
 	private final URI rdfSchemaGraph;
 	private final URI typesFile;
 	private final URI realm;
@@ -192,8 +191,7 @@ public class WebappArchiveImporter {
 		hasComponent = vf.createURI(CALLI, "hasComponent");
 		calliDocumentTag = vf.createURI(CALLI, "documentTag");
 		calliMediaType = vf.createURI(CALLI, "mediaType");
-		calliPathSegment = vf.createURI(CALLI, "PathSegment");
-		pathSegment = vf.createURI(webapp + FOLDER_TYPE);
+		calliFolder = vf.createURI(CALLI, "Folder");
 		rdfSchemaGraph = vf.createURI(webapp + "types/RdfSchemaGraph");
 		typesFile = vf.createURI(webapp + "types/File");
 		realm = vf.createURI(webapp + REALM_TYPE);
@@ -842,7 +840,7 @@ public class WebappArchiveImporter {
 				return uri;
 			if (con.hasStatement(uri, RDF.TYPE, realm))
 				return uri;
-			if (con.hasStatement(uri, RDF.TYPE, pathSegment))
+			if (con.hasStatement(uri, RDF.TYPE, vf.createURI(webapp + FOLDER_TYPE)))
 				return uri;
 			URI container = vf.createURI(parent);
 			if (con.hasStatement(container, hasComponent, uri))
@@ -851,8 +849,8 @@ public class WebappArchiveImporter {
 			con.add(container, hasComponent, uri);
 			String label = folder.substring(parent.length())
 					.replace("/", "").replace('-', ' ');
-			con.add(uri, RDF.TYPE, calliPathSegment);
-			con.add(uri, RDF.TYPE, pathSegment);
+			con.add(uri, RDF.TYPE, calliFolder);
+			con.add(uri, RDF.TYPE, vf.createURI(webapp + FOLDER_TYPE));
 			con.add(uri, RDFS.LABEL, vf.createLiteral(label));
 			for (Statement st : constructPermissions(container, con)) {
 				con.add(uri, st.getPredicate(), st.getObject());

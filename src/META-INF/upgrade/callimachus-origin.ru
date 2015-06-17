@@ -12,7 +12,7 @@ PREFIX msg:<http://www.openrdf.org/rdf/2011/messaging#>
 PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
 
 INSERT {
-	$origin a <types/Origin>, calli:Origin, calli:Realm, calli:PathSegment;
+	$origin a <types/Origin>, calli:Origin, calli:Realm, calli:Folder;
 		rdfs:label ?label;
 		calli:reader </auth/groups/public>,</auth/groups/system>;
 		calli:subscriber </auth/groups/everyone>;
@@ -50,7 +50,7 @@ INSERT {
 INSERT {
 	$origin calli:authentication ?digest;
 		calli:hasComponent ?auth .
-	?auth a <types/PathSegment>, calli:PathSegment;
+	?auth a <types/Folder>, calli:Folder;
 	    rdfs:label "auth";
 		calli:reader </auth/groups/public>;
 		calli:subscriber </auth/groups/everyone>;
@@ -81,7 +81,7 @@ INSERT {
 
 INSERT {
 $origin calli:hasComponent ?wellknown.
-?wellknown a <types/PathSegment>, calli:PathSegment;
+?wellknown a <types/Folder>, calli:Folder;
     rdfs:label ".well known";
     calli:reader </auth/groups/public>;
     calli:subscriber </auth/groups/power>;

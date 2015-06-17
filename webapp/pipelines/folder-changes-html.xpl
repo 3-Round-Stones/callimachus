@@ -29,12 +29,12 @@
     <p:load>
         <p:with-option 
             name="href" 
-            select="concat('../queries/path-changes.rq?results&amp;target=', encode-for-uri($target))"/>
+            select="concat('../queries/folder-changes.rq?results&amp;target=', encode-for-uri($target))"/>
     </p:load>
     <p:xslt>
         <p:with-param name="systemId" select="$target" />
         <p:input port="stylesheet">
-            <p:document href="../transforms/path-changes.xsl" />
+            <p:document href="../transforms/folder-changes.xsl" />
         </p:input>
     </p:xslt>
     <calli:page-layout-html query="changes">

@@ -15,7 +15,7 @@ calli.submitTurtleAs = function(event, fileName, create, folder) {
     var resource = form.attr("about") || form.attr("resource") || '';
     var local = fileName || localPart(resource);
     btn.button('loading');
-    return calli.promptForNewResource(folder, local).then(function(two){
+    calli.promptForNewResource(folder, local).then(function(two){
         if (!two) return undefined;
         var url = two.container + '?create=' + encodeURIComponent(create);
         var iri = two.container.replace(/\/?$/, '/') + two.slug.replace(/%20/g, '+');
@@ -52,7 +52,7 @@ calli.submitTurtleAs = function(event, fileName, create, folder) {
         }
     }, function(error){
         btn.button('reset');
-        return calli.error(error);
+        calli.error(error);
     });
 };
 

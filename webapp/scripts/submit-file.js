@@ -29,7 +29,7 @@ calli.submitFile = function(event) {
     var files = $(form).find('input[type="file"]').toArray().reduce(function(files, input) {
         return Array.prototype.concat.apply(files, input.files);
     }, []);
-    return calli.putText(action, files[0], enctype).then(function(){
+    calli.putText(action, files[0], enctype).then(function(){
         if (window.parent != window && parent.postMessage) {
             parent.postMessage('POST resource\n\n' + resource, '*');
         }

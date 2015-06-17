@@ -15,7 +15,7 @@ calli.submitUpdate = function(comparedData, event) {
     var form = calli.fixEvent(event).target;
     var btn = $(form).find('button[type="submit"]');
     btn.button('loading');
-    return calli.resolve(form).then(function(form){
+    calli.resolve(form).then(function(form){
         return calli.copyResourceData(form);
     }).then(function(insertData){
         insertData.results.bindings.push({
@@ -35,7 +35,7 @@ calli.submitUpdate = function(comparedData, event) {
         window.location.replace(redirect);
     }, function(error){
         btn.button('reset');
-        return calli.error(error);
+        calli.error(error);
     });
 };
 

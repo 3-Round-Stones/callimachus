@@ -59,7 +59,7 @@ jQuery(function($) {
         var form = event.target;
         var btn = $(form).find('button[type="submit"]');
         btn.button('loading');
-        return calli.resolve(form).then(function(form){
+        calli.resolve(form).then(function(form){
             form.setAttribute("resource", resource);
             return calli.copyResourceData(form);
         }).then(function(data){
@@ -113,7 +113,7 @@ jQuery(function($) {
             }
         }, function(error){
             btn.button('reset');
-            return calli.error(error);
+            calli.error(error);
         });
     });
 

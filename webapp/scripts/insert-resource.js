@@ -16,7 +16,7 @@ calli.insertResource = function(event, container) {
     }
     var errorMessage = event.errorMessage ? event.errorMessage : "Invalid Relationship";
     var script = container ? $(container) : select($(event.target), '[rel]');
-    return calli.all(listResourceIRIs(text).map(function(iri) {
+    calli.all(listResourceIRIs(text).map(function(iri) {
         return addSetItem(iri, script, errorMessage);
     })).then(undefined, calli.error);
 };

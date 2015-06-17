@@ -15,7 +15,7 @@ calli.submitForm = function(event) {
     var finalTarget = form.target;
     var btn = $(form).find('button[type="submit"]');
     btn.button('loading');
-    return calli.postForm(form).then(function(redirect){
+    calli.postForm(form).then(function(redirect){
         if (finalTarget && window.frames[finalTarget]) {
             window.frames[finalTarget].location.href = redirect + "?view";
         } else {
@@ -26,7 +26,7 @@ calli.submitForm = function(event) {
         }
     }, function(error) {
         btn.button('reset');
-        return calli.error(error);
+        calli.error(error);
     });
 };
 

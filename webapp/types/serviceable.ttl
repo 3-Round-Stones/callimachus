@@ -342,7 +342,7 @@ skos:editorialNote a owl:AnnotationProperty.
                 stmts.close();
             }
         }
-
+        this.removeSchemaGraph(this.resource); //# clear schema graph
         con.clear([this.resource]); //# clear graph
         var hash = this.resource.stringValue() + '#';
         var qry = this.resource.stringValue() + '?';

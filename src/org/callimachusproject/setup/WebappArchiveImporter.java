@@ -25,6 +25,7 @@ import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayDeque;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.GregorianCalendar;
@@ -203,9 +204,17 @@ public class WebappArchiveImporter {
 		ObjectConnection con = repository.getConnection();
 		try {
 			con.begin();
-			Set<URI> absent = Collections.singleton(vf.createURI(folder));
+			Set<Resource> absent = Collections.singleton((Resource) vf.createURI(folder));
 			absent = deleteComponents(absent, con);
 			con.commit();
+			if (absent != null && absent.size() > 0) {
+				RepositoryConnection scon = this.openSchemaConnection();
+				try {
+					scon.clear(absent.toArray(new Resource[absent.size()]));
+				} finally {
+					scon.close();
+				}
+			}
 		} finally {
 			con.close();
 		}
@@ -313,7 +322,7 @@ public class WebappArchiveImporter {
 			car.close();
 		}
 		updatedNonSources.keySet().removeAll(includedSources);
-		Set<URI> absent = new HashSet<URI>(existingSources);
+		Set<Resource> absent = new HashSet<Resource>(existingSources);
 		absent.removeAll(includedSources);
 		absent.removeAll(updatedNonSources.keySet());
 		absent = deleteComponents(absent, con);
@@ -366,8 +375,9 @@ public class WebappArchiveImporter {
 		}
 	}
 
-	private boolean recompile(Model schema, Set<URI> absent, ObjectConnection con)
+	private boolean recompile(Model schema, Collection<Resource> absent, ObjectConnection con)
 			throws RepositoryException {
+		absent.addAll(Arrays.asList(CalliObjectSupport.getRemovedSchemaGraphsFor(con)));
 		Model graphs = CalliObjectSupport.getSchemaModelFor(con);
 		if (schema == null) {
 			schema = graphs;
@@ -742,8 +752,8 @@ public class WebappArchiveImporter {
 		}
 	}
 
-	private Set<URI> deleteComponents(Set<URI> deletedSources, ObjectConnection con) throws OpenRDFException {
-		Set<URI> resources = new HashSet<URI>(deletedSources.size());
+	private Set<Resource> deleteComponents(Set<Resource> deletedSources, ObjectConnection con) throws OpenRDFException {
+		Set<Resource> resources = new HashSet<Resource>(deletedSources.size());
 		for (Resource resource : followResources(deletedSources, con)) {
 			if (resource instanceof URI) {
 				resources.add((URI) resource);
@@ -756,7 +766,7 @@ public class WebappArchiveImporter {
 		return resources;
 	}
 
-	private Set<Resource> followResources(Set<URI> resources,
+	private Set<Resource> followResources(Set<Resource> resources,
 			ObjectConnection con) throws RepositoryException {
 		Set<Resource> result = new LinkedHashSet<Resource>(resources.size());
 		Queue<Resource> queue = new ArrayDeque<Resource>(resources);

@@ -601,6 +601,12 @@ public class CallimachusSetup {
 						throw new UnsupportedOperationException();
 					}
 
+					@Override
+					public void removeSchemaGraph(URI graph)
+							throws OpenRDFException, IOException {
+						throw new UnsupportedOperationException();
+					}
+
 					public void setSchemaGraph(URI graph,
 							GraphQueryResult schema) throws OpenRDFException,
 							IOException {

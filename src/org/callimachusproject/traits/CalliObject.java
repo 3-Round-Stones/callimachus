@@ -71,6 +71,8 @@ public interface CalliObject extends RDFObject {
 
 	Model getSchemaModel();
 
+	void removeSchemaGraph(URI graph) throws OpenRDFException, IOException;
+
 	void setSchemaGraph(URI graph, GraphQueryResult schema) throws OpenRDFException, IOException;
 
 	void setSchemaGraph(URI graph, Reader reader, RDFFormat format) throws OpenRDFException, IOException;

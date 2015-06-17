@@ -12,3 +12,6 @@
 /build.properties
 /downloads
 /test/lib
+/.settings/
+/.externalToolBuilders/
+/.gitattributes

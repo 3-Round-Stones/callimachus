@@ -203,7 +203,8 @@ public class WebappArchiveImporter {
 		ObjectConnection con = repository.getConnection();
 		try {
 			con.begin();
-			deleteComponents(Collections.singleton(vf.createURI(folder)), con);
+			Set<URI> absent = Collections.singleton(vf.createURI(folder));
+			absent = deleteComponents(absent, con);
 			con.commit();
 		} finally {
 			con.close();
@@ -315,7 +316,7 @@ public class WebappArchiveImporter {
 		Set<URI> absent = new HashSet<URI>(existingSources);
 		absent.removeAll(includedSources);
 		absent.removeAll(updatedNonSources.keySet());
-		deleteComponents(absent, con);
+		absent = deleteComponents(absent, con);
 		missingDependees.removeAll(includedSources);
 		missingDependees.removeAll(updatedNonSources.keySet());
 		checkForMissingDependees(missingDependees, con);
@@ -338,14 +339,14 @@ public class WebappArchiveImporter {
 		con.add(mediaSources);
 		updatedSources.addAll(updatedNonSources.keySet());
 		Set<URI> notValidated = validateSources(updatedSources, con);
-		boolean recompiled = recompile(schema, con);
+		boolean recompiled = recompile(schema, absent, con);
 		if (!notValidated.isEmpty() && recompiled) {
 			ObjectConnection con2 = con.getRepository().getConnection();
 			try {
 				con2.begin();
 				Set<URI> couldNotValidate = validateSources(notValidated, con2);
 				if (!couldNotValidate.equals(notValidated)) {
-					recompile(new TreeModel(), con2);
+					recompile(new TreeModel(), null, con2);
 				}
 				if (!couldNotValidate.isEmpty()) {
 					if (couldNotValidate.equals(updatedSources)) {
@@ -365,7 +366,7 @@ public class WebappArchiveImporter {
 		}
 	}
 
-	private boolean recompile(Model schema, ObjectConnection con)
+	private boolean recompile(Model schema, Set<URI> absent, ObjectConnection con)
 			throws RepositoryException {
 		Model graphs = CalliObjectSupport.getSchemaModelFor(con);
 		if (schema == null) {
@@ -384,7 +385,12 @@ public class WebappArchiveImporter {
 		RepositoryConnection scon = this.openSchemaConnection();
 		try {
 			scon.begin();
-			scon.clear(schema.contexts().toArray(new Resource[0]));
+			if (absent != null && absent.size() > 0) {
+				scon.clear(absent.toArray(new Resource[absent.size()]));
+			}
+			if (schema.size() > 0) {
+				scon.clear(schema.contexts().toArray(new Resource[0]));
+			}
 			for (Namespace ns : schema.getNamespaces()) {
 				scon.setNamespace(ns.getPrefix(), ns.getName());
 			}
@@ -736,15 +742,18 @@ public class WebappArchiveImporter {
 		}
 	}
 
-	private void deleteComponents(Set<URI> deletedSources, ObjectConnection con) throws OpenRDFException {
+	private Set<URI> deleteComponents(Set<URI> deletedSources, ObjectConnection con) throws OpenRDFException {
+		Set<URI> resources = new HashSet<URI>(deletedSources.size());
 		for (Resource resource : followResources(deletedSources, con)) {
 			if (resource instanceof URI) {
+				resources.add((URI) resource);
 				con.clear(resource);
 				con.getBlobObject((URI) resource).delete();
 				con.remove((Resource) null, hasComponent, resource);
 			}
 			con.remove(resource, null, null);
 		}
+		return resources;
 	}
 
 	private Set<Resource> followResources(Set<URI> resources,

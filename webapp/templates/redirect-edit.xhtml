@@ -16,15 +16,8 @@
             <h1 property="rdfs:label"></h1>
         </div>
         <div id="loadedRules" style="display:none">
-            <input type="hidden" property="calli:copy" content="?copy" value="{?copy}"/>
             <input type="hidden" property="calli:canonical" content="?canonical" value="{?canonical}"/>
             <input type="hidden" property="calli:alternate" content="?alternate" value="{?alternate}"/>
-            <input type="hidden" property="calli:describedby" content="?describedby" value="{?describedby}"/>
-            <input type="hidden" property="calli:resides" content="?resides" value="{?resides}"/>
-            <input type="hidden" property="calli:moved" content="?moved" value="{?moved}"/>
-            <input type="hidden" property="calli:missing" content="?missing" value="{?missing}"/>
-            <input type="hidden" property="calli:gone" content="?gone" value="{?gone}"/>
-            <input type="hidden" property="calli:illegal" content="?illegal" value="{?illegal}"/>
         </div>
         <div class="row">
             <div class="col-sm-8">
@@ -57,15 +50,8 @@
                             <label for="type">Redirect HTTP status</label>
                             <div>
                                 <select id="type" class="form-control responseType">
-                                    <option value="calli:copy">Copy (200)</option>
                                     <option value="calli:canonical">Canonical (301)</option>
                                     <option value="calli:alternate" selected="selected">Alternate (302)</option>
-                                    <option value="calli:describedby" selected="selected">Described by (303)</option>
-                                    <option value="calli:resides">Resides (307)</option>
-                                    <option value="calli:moved">Moved (308)</option>
-                                    <option value="calli:missing">Missing (404)</option>
-                                    <option value="calli:gone">Gone (410)</option>
-                                    <option value="calli:illegal">Illegal (451)</option>
                                 </select>
                             </div>
                         </div>
@@ -73,17 +59,6 @@
                             <label>Target</label>
                             <div>
                                 <input class="pattern form-control purlTarget"/>
-                            </div>
-                        </div>
-                    </fieldset>
-                </div>
-                <div class="row">
-                    <fieldset>
-                        <div class="form-group col-sm-4">
-                            <label for="cache">Cache control</label>
-                            <div>
-                            	<input type="text" id="cache" value="{calli:cacheControl}" placeholder="max-age=3600" class="form-control"
-                                    onchange="calli.updateProperty(event, 'calli:cacheControl')" />
                             </div>
                         </div>
                     </fieldset>
@@ -98,26 +73,12 @@
                 <aside class="well">
                     <p>PURLs are used to curate the URL resolution process, thus solving
                     the problem of transitory URIs in location-based URI schemes like HTTP.</p>
-                    <p>This class of PURL deals with cases where there are alternative data representations describing a resource or cases where a resource is unavailable.</p>
+                    <p>This is the most basic class of PURL that performs a simple HTTP redirection of a GET request.</p>
                     <dl>
-                        <dt>Copy (200)</dt>
-                        <dd>Expose content from one location to another, possibly including limiting access to read-only</dd>
                         <dt>Canonical (301)</dt>
                         <dd>Moved permanently to a target URL</dd>
                         <dt>Alternate (302)</dt>
                         <dd>Simple redirection to a target URL</dd>
-                        <dt>Described by (303)</dt>
-                        <dd>See other URL, indicates that the target is data describing some other resource, maybe in the real world</dd>
-                        <dt>Resides (307)</dt>
-                        <dd>Indicates that the redirection is temporary</dd>
-                        <dt>Moved (308)</dt>
-                        <dd>Indicates that the target URL has been permanently moved</dd>
-                        <dt>Missing (404)</dt>
-                        <dd>Indicates that the target URL is unavailable, which might be temporary</dd>
-                        <dt>Gone (410)</dt>
-                        <dd>Indicates that the target URL is permanently gone</dd>
-                        <dt>Illegal (451)</dt>
-                        <dd>Intended to be used when resource access is denied for legal reasons, e.g. censorship or government-mandated blocked access</dd>
                     </dl>
                     <p>For more advanced features use a RewriteRule instead.</p>
                 </aside>

@@ -1,0 +1,176 @@
+<html version="XHTML+RDFa 1.0" xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:dcterms="http://purl.org/dc/terms/"
+    xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
+<head>
+    <title>New Rewrite Rule</title>
+    <link rel="help" href="../../callimachus-reference#PURL" target="_blank" title="Help" />
+    <style>
+        form#form textarea.pattern {
+            white-space: pre;
+            word-wrap: normal;
+        }
+        #ruleTable th, #ruleTable td { 
+            padding-left: 4px; 
+            padding-right: 4px; 
+        }
+        #ruleTable>thead>tr:first-child>th { 
+            text-align: center;
+        }
+        #ruleTable>thead { 
+            border-bottom:1px solid black;
+        }
+        #ruleTable>thead>tr:nth-child(1)>th:nth-child(1), 
+        #ruleTable>thead>tr:nth-child(2)>th:nth-child(2),
+        #ruleTable td:nth-child(2) { 
+            border-right:1px solid black;
+        }
+        .selectize-input {
+            margin-top:4px;
+        }
+    </style>
+    <script type="text/javascript" src="../scripts/purl.js"></script>
+</head>
+<body>
+    <form role="form" id="form" method="POST" action="" enctype="text/turtle" typeof="calli:RewriteRule" class="container">
+        <div class="page-header">
+            <h1>New Rewrite Rule</h1>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <fieldset>
+                    <div class="form-group">
+                        <label for="local">Local name</label>
+                        <div>
+                            <input type="text" id="local" value="{rdfs:label}" class="form-control" required="required" autofocus="autofocus"
+                                onchange="calli.updateProperty(event, 'rdfs:label')" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="comment">Comment</label>
+                        <div>
+                            <textarea id="comment" class="form-control"
+                                onchange="calli.updateProperty(event, 'rdfs:comment')">{rdfs:comment}</textarea>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="col-sm-6">
+                <aside class="well">
+                    <p>PURLs are used to curate the URL resolution process, thus solving
+                    the problem of transitory URIs in location-based URI schemes like HTTP.</p>
+                    <p>Partial PURLs are a special class of PURL that must end with a '/' and 
+                    allow a hierarchy of URLs to be mapped to another resource. The request pattern
+                    may include regular expressions in the path subsequent to the PURL name.</p>
+                    <p>Other URLs cannot end with a '/' and the request pattern only applies to the query string.</p>
+                </aside>
+            </div>
+        </div>        
+                
+        <div id="ruleOptions" style="display:none">
+            <!-- These are not used by the template but are required for validation when the resource is created -->
+            <input type="hidden" property="calli:copy" content="?copy" value="{?copy}"/>
+            <input type="hidden" property="calli:canonical" content="?canonical" value="{?canonical}"/>
+            <input type="hidden" property="calli:alternate" content="?alternate" value="{?alternate}"/>
+            <input type="hidden" property="calli:describedby" content="?describedby" value="{?describedby}"/>
+            <input type="hidden" property="calli:resides" content="?resides" value="{?resides}"/>
+            <input type="hidden" property="calli:moved" content="?moved" value="{?moved}"/>
+            <input type="hidden" property="calli:missing" content="?missing" value="{?missing}"/>
+            <input type="hidden" property="calli:gone" content="?gone" value="{?gone}"/>
+            <input type="hidden" property="calli:illegal" content="?illegal" value="{?illegal}"/>
+            <input type="hidden" property="calli:post" content="?post" value="{?post}"/>
+            <input type="hidden" property="calli:put" content="?put" value="{?put}"/>
+            <input type="hidden" property="calli:patch" content="?patch" value="{?patch}"/>
+            <input type="hidden" property="calli:delete" content="?delete" value="{?delete}"/>            
+        </div>
+                
+        <div class="row">
+            <div class="col-sm-12">
+                <label>Rules
+                    <a href="javascript:void(0)" title="More" onclick="addRule('#rules')" class="glyphicon glyphicon-plus" />
+                </label>
+                <table id="ruleTable" class="table-condensed col-sm-12">
+                    <thead>
+                        <tr>
+                            <th class="col-sm-5" colspan="2">Request</th>
+                            <th class="col-sm-6" colspan="2">Response</th>
+                            <th class="col-sm-1"></th>
+                        </tr>
+                        <tr>
+                            <th class="col-sm-2">Methods</th>
+                            <th class="col-sm-3">Pattern</th>
+                            <th class="col-sm-2">Method/Status</th>
+                            <th class="col-sm-4">Template</th>
+                            <th class="col-sm-1"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="rules">
+                    </tbody>
+                    <tfoot style="display:none">
+                        <tr class="rule">
+                            <td>
+                                <select multiple="multiple" class="form-control requestMethod">
+                                    <option value="GET" selected="selected">GET</option>
+                                    <option value="POST">POST</option>
+                                    <option value="PUT">PUT</option>
+                                    <option value="PATCH">PATCH</option>
+                                    <option value="DELETE">DELETE</option>
+                                </select>
+                            </td>
+                            <td>
+                                <input type="text" class="form-control requestPattern" value=".*" onchange="" placeholder=".*"/>
+                            </td>
+                            <td>
+                                <select class="form-control responseType">
+                                    <!-- GET responses -->
+                                    <optgroup label="GET responses">
+                                        <option value="calli:copy">Copy (200)</option>
+                                        <option value="calli:canonical">Canonical (301)</option>
+                                        <option value="calli:alternate" selected="selected">Alternate (302)</option>
+                                        <option value="calli:describedby">Described by (303)</option>
+                                        <option value="calli:resides">Resides (307)</option>
+                                        <option value="calli:moved">Moved (308)</option>
+                                        <option value="calli:missing">Missing (404)</option>
+                                        <option value="calli:gone">Gone (410)</option>
+                                        <option value="calli:illegal">Illegal (451)</option>
+                                    </optgroup>
+                                    <!-- Other responses -->
+                                    <optgroup label="Other responses">
+                                        <option value="calli:post">POST</option>
+                                        <option value="calli:put">PUT</option>
+                                        <option value="calli:patch">PATCH</option>
+                                        <option value="calli:delete">DELETE</option>
+                                    </optgroup>
+                                </select>
+                            </td>
+                            <td>
+                                <textarea class="pattern form-control purlTarget" rows="1"></textarea>
+                            </td>
+                            <td class="text-center">
+                                <a href="javascript:void(0)" title="Delete" onclick="deleteRule(event, '#rules')" class="glyphicon glyphicon-minus"/>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        <div class="row">
+            <fieldset>
+                <div class="form-group col-sm-2">
+                    <label for="cache">GET cache control</label>
+                    <div>
+                        <input type="text" id="cache" value="{calli:cacheControl}" placeholder="max-age=3600" class="form-control"
+                            onchange="calli.updateProperty(event, 'calli:cacheControl')" />
+                    </div>
+                </div>
+            </fieldset>
+            <fieldset class="form-group col-sm-2">
+                <button id="create" type="submit" class="btn btn-success">Create</button>
+            </fieldset>
+        </div>
+    </form>
+</body>
+</html>

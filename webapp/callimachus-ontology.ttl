@@ -44,6 +44,24 @@ calli:Purl a owl:Class;
     rdfs:comment "Persistent Uniform Resource Location of a Web resource";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
+calli:Redirect a owl:Class;
+    rdfs:subClassOf calli:Purl;
+    rdfs:label "Redirect";
+    rdfs:comment "Persistent Uniform Resource Location of a Web resource for simple redirection";
+    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
+calli:Proxy a owl:Class;
+    rdfs:subClassOf calli:Purl;
+    rdfs:label "Proxy";
+    rdfs:comment "Persistent Uniform Resource Location for proxying web content or constructing dynamic pages";
+    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
+calli:RewriteRule a owl:Class;
+    rdfs:subClassOf calli:Purl;
+    rdfs:label "Rewrite Rule";
+    rdfs:comment "Persistent Uniform Resource Location of a Web resource with full PURL functionality";
+    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
 calli:Composite a owl:Class;
     rdfs:label "Composite";
     rdfs:comment "Class of resources that contain nested components, where the component URIs have their parent URI as a prefix";

@@ -377,7 +377,10 @@ public class WebappArchiveImporter {
 
 	private boolean recompile(Model schema, Collection<Resource> absent, ObjectConnection con)
 			throws RepositoryException {
-		absent.addAll(Arrays.asList(CalliObjectSupport.getRemovedSchemaGraphsFor(con)));
+		Resource[] removedSchemaGraphs = CalliObjectSupport.getRemovedSchemaGraphsFor(con);
+		if (removedSchemaGraphs != null) {
+			absent.addAll(Arrays.asList(removedSchemaGraphs));
+		}
 		Model graphs = CalliObjectSupport.getSchemaModelFor(con);
 		if (schema == null) {
 			schema = graphs;

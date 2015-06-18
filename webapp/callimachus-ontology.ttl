@@ -155,7 +155,7 @@ calli:XslTransform a owl:Class;
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:RemoteRdfSource a owl:Class;
-    rdfs:subClassOf sd:Service, calli:Purl;
+    rdfs:subClassOf sd:Service;
     rdfs:label "Remote RDF Source";
     rdfs:comment "An RDF source stored remotely";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.

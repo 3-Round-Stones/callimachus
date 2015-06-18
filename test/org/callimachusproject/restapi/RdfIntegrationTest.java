@@ -36,7 +36,7 @@ public class RdfIntegrationTest extends TemporaryServerIntegrationTestCase {
 									+ " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n"
 									+ " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n"
 									+ " prefix skos: <http://www.w3.org/2004/02/skos/core#> \n "
-									+ "<created-concept> a skos:Concept, </callimachus/Concept> ;  \n"
+									+ "<created-concept> a skos:Concept ;  \n"
 									+ " skos:prefLabel \"concept\" .",
 							"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n"
 									+ " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n"
@@ -61,7 +61,7 @@ public class RdfIntegrationTest extends TemporaryServerIntegrationTestCase {
 							"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n"
 									+ " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n"
 									+ " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n"
-									+ "<created-testGroup> a calli:Party, calli:Group, </callimachus/Group> ;  \n"
+									+ "<created-testGroup> a calli:Group ;  \n"
 									+ " rdfs:label \"testGroup\" .",
 							"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n"
 									+ " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n"
@@ -73,7 +73,7 @@ public class RdfIntegrationTest extends TemporaryServerIntegrationTestCase {
 							"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n"
 									+ " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n"
 									+ " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n"
-									+ "<created-purl> a calli:Purl, </callimachus/PURL> ;  \n"
+									+ "<created-purl> a calli:Purl ;  \n"
 									+ " rdfs:label \"purl\" ; calli:alternate \"http://purl.org/\" .",
 							"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n"
 									+ " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n"

@@ -38,7 +38,9 @@ import java.lang.management.ManagementFactory;
 import java.lang.ref.WeakReference;
 import java.net.MalformedURLException;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -65,7 +67,6 @@ import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.query.GraphQueryResult;
-import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.base.RepositoryConnectionWrapper;
@@ -91,6 +92,7 @@ public abstract class CalliObjectSupport implements CalliObject {
 			.compile("https?://[a-zA-Z0-9\\-\\._~%!\\$\\&'\\(\\)\\*\\+,;=:/\\[\\]@]+/(?![a-zA-Z0-9\\-\\._~%!\\$\\&'\\(\\)\\*\\+,;=:/\\?\\#\\[\\]@])");
 	private final static Map<ObjectRepository, WeakReference<CalliRepository>> repositories = new WeakHashMap<ObjectRepository, WeakReference<CalliRepository>>();
 	private final static WeakHashMap<ObjectConnection, Model> schemas = new WeakHashMap<ObjectConnection, Model>();
+	private final static WeakHashMap<ObjectConnection, Set<URI>> removed = new WeakHashMap<ObjectConnection, Set<URI>>();
 
 	public static void associate(CalliRepository repository,
 			ObjectRepository repo) throws MalformedURLException {
@@ -148,6 +150,15 @@ public abstract class CalliObjectSupport implements CalliObject {
 	public static Model getSchemaModelFor(ObjectConnection con) {
 		synchronized (schemas) {
 			return schemas.get(con);
+		}
+	}
+
+	public static Resource[] getRemovedSchemaGraphsFor(ObjectConnection con) {
+		synchronized (schemas) {
+			Set<URI> set = removed.get(con);
+			if (set == null || set.isEmpty())
+				return null;
+			return set.toArray(new Resource[set.size()]);
 		}
 	}
 
@@ -226,10 +237,24 @@ public abstract class CalliObjectSupport implements CalliObject {
 	}
 
 	@Override
+	public void removeSchemaGraph(URI graph) throws OpenRDFException,
+			IOException {
+		ObjectConnection con = getObjectConnection();
+		synchronized (schemas) {
+			Set<URI> set = removed.get(con);
+			if (set == null) {
+				removed.put(con, set = new LinkedHashSet<URI>());
+			}
+			set.add(graph);
+		}
+	}
+
+	@Override
 	public void setSchemaGraph(URI graph, GraphQueryResult result)
-			throws QueryEvaluationException {
+			throws OpenRDFException, IOException {
 		Model schema = getSchemaModel();
 		synchronized (schema) {
+			removeSchemaGraph(graph);
 			for (Map.Entry<String, String> e : result.getNamespaces().entrySet()) {
 				schema.setNamespace(e.getKey(), e.getValue());
 			}
@@ -248,6 +273,7 @@ public abstract class CalliObjectSupport implements CalliObject {
 		RDFLoader loader = new RDFLoader(con.getParserConfig(), vf);
 		final Model schema = getSchemaModel();
 		synchronized (schema) {
+			removeSchemaGraph(g);
 			RDFHandler handler = new ContextStatementCollector(schema, vf, g) {
 				public void handleNamespace(String prefix, String uri)
 						throws RDFHandlerException {
@@ -266,6 +292,7 @@ public abstract class CalliObjectSupport implements CalliObject {
 		RDFLoader loader = new RDFLoader(con.getParserConfig(), vf);
 		final Model schema = getSchemaModel();
 		synchronized (schema) {
+			removeSchemaGraph(g);
 			RDFHandler handler = new ContextStatementCollector(schema, vf, g) {
 				public void handleNamespace(String prefix, String uri)
 						throws RDFHandlerException {

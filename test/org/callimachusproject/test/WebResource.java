@@ -135,7 +135,7 @@ public class WebResource {
 		sb.append("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n");
 		sb.append("PREFIX calli: <http://callimachusproject.org/rdf/2009/framework#>\n");
 		sb.append("<").append(slug).append(">");
-		sb.append(" a calli:PathSegment, </callimachus/1.5/types/PathSegment>;\n");
+		sb.append(" a calli:Folder;\n");
 		sb.append("rdfs:label \"").append(slug).append("\".\n");
 		return rel("describedby").create("text/turtle", sb.toString().getBytes("UTF-8")).rev("describedby");
 	}

@@ -169,13 +169,13 @@
 
 :SelectContainer rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Purl>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <PathSegment>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <Folder>];
     msg:sparql """
         PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
         PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
         SELECT ?container {
             ?container calli:hasComponent $this ; a ?type .
-            ?type rdfs:subClassOf* <PathSegment>
+            ?type rdfs:subClassOf* <Folder>
         }
     """.
 

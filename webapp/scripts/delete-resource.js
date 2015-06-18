@@ -13,7 +13,7 @@ calli.deleteResource = function(event) {
         return;
     var btn = $(calli.fixEvent(event).target);
     btn.button('loading');
-    return calli.resolve(btn).then(function(btn){
+    calli.resolve(btn).then(function(btn){
         return btn.closest('form')[0];
     }).then(function(form){
         return calli.getFormAction(form);
@@ -23,7 +23,7 @@ calli.deleteResource = function(event) {
         window.location.replace(redirect);
     }, function(error){
         btn.button('reset');
-        return calli.error(error);
+        calli.error(error);
     });
 };
 

@@ -41,30 +41,44 @@ public class SchemaGraphSynchronizer implements HttpRequestChainInterceptor {
 		RDFObject target = ctx.getResourceTarget().getTargetObject();
 		ObjectConnection con = target.getObjectConnection();
 		try {
+			Resource[] graphs = CalliObjectSupport.getRemovedSchemaGraphsFor(con);
 			Model schema = CalliObjectSupport.getSchemaModelFor(con);
-			if (schema == null)
+			if (graphs == null && schema == null)
 				return;
-			synchronized (schema) {
-				if (schema.isEmpty())
-					return;
+			if (graphs == null && schema != null) {
+				synchronized (schema) {
+					if (schema.isEmpty())
+						return;
+				}
 			}
 			con.commit();
 			con.begin();
 			CalliRepository crepo = CalliObjectSupport
 					.getCalliRepositroyFor(con.getRepository());
-			synchronized (schema) {
+			if (schema == null) {
 				RepositoryConnection scon = crepo.openSchemaConnection();
 				try {
-					scon.begin();
-					scon.clear(schema.contexts().toArray(new Resource[0]));
-					for (Namespace ns : schema.getNamespaces()) {
-						scon.setNamespace(ns.getPrefix(), ns.getName());
-					}
-					scon.add(schema);
-					scon.commit();
-					schema.clear();
+					scon.clear(graphs);
 				} finally {
 					scon.close();
+				}
+			} else {
+				synchronized (schema) {
+					RepositoryConnection scon = crepo.openSchemaConnection();
+					try {
+						scon.begin();
+						if (graphs != null) {
+							scon.clear(graphs);
+						}
+						for (Namespace ns : schema.getNamespaces()) {
+							scon.setNamespace(ns.getPrefix(), ns.getName());
+						}
+						scon.add(schema);
+						scon.commit();
+						schema.clear();
+					} finally {
+						scon.close();
+					}
 				}
 			}
 		} catch (OpenRDFException e) {

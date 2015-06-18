@@ -86,7 +86,7 @@ public final class CalliActivityFactory implements ActivityFactory {
 			+ "}   }";
 	private static final String INSERT_FOLDER = PREFIX + "INSERT {\n"
 			+ "$parent calli:hasComponent $folder .\n"
-			+ "$folder a calli:PathSegment, $folderType;\n" + "rdfs:label $label;\n"
+			+ "$folder a calli:Folder, $folderType;\n" + "rdfs:label $label;\n"
 			+ "calli:administrator ?administrator;\n"
 			+ "calli:editor ?editor;\n" + "calli:subscriber ?subscriber;\n"
 			+ "calli:reader ?reader\n" + "} WHERE {\n"

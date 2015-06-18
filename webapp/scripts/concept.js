@@ -41,7 +41,7 @@ jQuery(function($){
         var text = event.dataTransfer.getData('URL') || event.dataTransfer.getData('Text');
         if (!text) return calli.resolve();
         var iri = text.trim().replace(/\?.*/,'');
-        return lookupConcept(iri).then(function(data){
+        lookupConcept(iri).then(function(data){
             if (!data) return;
             selectize.addOption(data);
             var value = selectize.getValue() || [];
@@ -77,7 +77,7 @@ jQuery(function($){
             });
         }).then(callback, function(error){
             callback();
-            return calli.error(error);
+            calli.error(error);
         });
     }
 
@@ -95,7 +95,7 @@ jQuery(function($){
             return resource && lookupConcept(resource);
         }).then(callback, function(error){
             callback();
-            return calli.error(error);
+            calli.error(error);
         });
     }
 });

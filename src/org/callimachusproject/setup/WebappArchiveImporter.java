@@ -25,6 +25,7 @@ import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayDeque;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.GregorianCalendar;
@@ -101,7 +102,7 @@ public class WebappArchiveImporter {
 	private static final TimeZone UTC = TimeZone.getTimeZone("UTC");
 	private static final String REALM_TYPE = "types/Realm";
 	private static final String ORIGIN_TYPE = "types/Origin";
-	private static final String FOLDER_TYPE = "types/PathSegment";
+	private static final String FOLDER_TYPE = "types/Folder";
 	private static final String CALLI = "http://callimachusproject.org/rdf/2009/framework#";
 	private static final String PREFIX = "PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>\n"
 			+ "PREFIX owl:<http://www.w3.org/2002/07/owl#>\n"
@@ -169,8 +170,7 @@ public class WebappArchiveImporter {
 	private final URI hasComponent;
 	private final URI calliDocumentTag;
 	private final URI calliMediaType;
-	private final URI calliPathSegment;
-	private final URI pathSegment;
+	private final URI calliFolder;
 	private final URI rdfSchemaGraph;
 	private final URI typesFile;
 	private final URI realm;
@@ -192,8 +192,7 @@ public class WebappArchiveImporter {
 		hasComponent = vf.createURI(CALLI, "hasComponent");
 		calliDocumentTag = vf.createURI(CALLI, "documentTag");
 		calliMediaType = vf.createURI(CALLI, "mediaType");
-		calliPathSegment = vf.createURI(CALLI, "PathSegment");
-		pathSegment = vf.createURI(webapp + FOLDER_TYPE);
+		calliFolder = vf.createURI(CALLI, "Folder");
 		rdfSchemaGraph = vf.createURI(webapp + "types/RdfSchemaGraph");
 		typesFile = vf.createURI(webapp + "types/File");
 		realm = vf.createURI(webapp + REALM_TYPE);
@@ -205,8 +204,17 @@ public class WebappArchiveImporter {
 		ObjectConnection con = repository.getConnection();
 		try {
 			con.begin();
-			deleteComponents(Collections.singleton(vf.createURI(folder)), con);
+			Set<Resource> absent = Collections.singleton((Resource) vf.createURI(folder));
+			absent = deleteComponents(absent, con);
 			con.commit();
+			if (absent != null && absent.size() > 0) {
+				RepositoryConnection scon = this.openSchemaConnection();
+				try {
+					scon.clear(absent.toArray(new Resource[absent.size()]));
+				} finally {
+					scon.close();
+				}
+			}
 		} finally {
 			con.close();
 		}
@@ -314,10 +322,10 @@ public class WebappArchiveImporter {
 			car.close();
 		}
 		updatedNonSources.keySet().removeAll(includedSources);
-		Set<URI> absent = new HashSet<URI>(existingSources);
+		Set<Resource> absent = new HashSet<Resource>(existingSources);
 		absent.removeAll(includedSources);
 		absent.removeAll(updatedNonSources.keySet());
-		deleteComponents(absent, con);
+		absent = deleteComponents(absent, con);
 		missingDependees.removeAll(includedSources);
 		missingDependees.removeAll(updatedNonSources.keySet());
 		checkForMissingDependees(missingDependees, con);
@@ -340,14 +348,14 @@ public class WebappArchiveImporter {
 		con.add(mediaSources);
 		updatedSources.addAll(updatedNonSources.keySet());
 		Set<URI> notValidated = validateSources(updatedSources, con);
-		boolean recompiled = recompile(schema, con);
+		boolean recompiled = recompile(schema, absent, con);
 		if (!notValidated.isEmpty() && recompiled) {
 			ObjectConnection con2 = con.getRepository().getConnection();
 			try {
 				con2.begin();
 				Set<URI> couldNotValidate = validateSources(notValidated, con2);
 				if (!couldNotValidate.equals(notValidated)) {
-					recompile(new TreeModel(), con2);
+					recompile(new TreeModel(), null, con2);
 				}
 				if (!couldNotValidate.isEmpty()) {
 					if (couldNotValidate.equals(updatedSources)) {
@@ -367,8 +375,9 @@ public class WebappArchiveImporter {
 		}
 	}
 
-	private boolean recompile(Model schema, ObjectConnection con)
+	private boolean recompile(Model schema, Collection<Resource> absent, ObjectConnection con)
 			throws RepositoryException {
+		absent.addAll(Arrays.asList(CalliObjectSupport.getRemovedSchemaGraphsFor(con)));
 		Model graphs = CalliObjectSupport.getSchemaModelFor(con);
 		if (schema == null) {
 			schema = graphs;
@@ -386,7 +395,12 @@ public class WebappArchiveImporter {
 		RepositoryConnection scon = this.openSchemaConnection();
 		try {
 			scon.begin();
-			scon.clear(schema.contexts().toArray(new Resource[0]));
+			if (absent != null && absent.size() > 0) {
+				scon.clear(absent.toArray(new Resource[absent.size()]));
+			}
+			if (schema.size() > 0) {
+				scon.clear(schema.contexts().toArray(new Resource[0]));
+			}
 			for (Namespace ns : schema.getNamespaces()) {
 				scon.setNamespace(ns.getPrefix(), ns.getName());
 			}
@@ -738,18 +752,21 @@ public class WebappArchiveImporter {
 		}
 	}
 
-	private void deleteComponents(Set<URI> deletedSources, ObjectConnection con) throws OpenRDFException {
+	private Set<Resource> deleteComponents(Set<Resource> deletedSources, ObjectConnection con) throws OpenRDFException {
+		Set<Resource> resources = new HashSet<Resource>(deletedSources.size());
 		for (Resource resource : followResources(deletedSources, con)) {
 			if (resource instanceof URI) {
+				resources.add((URI) resource);
 				con.clear(resource);
 				con.getBlobObject((URI) resource).delete();
 				con.remove((Resource) null, hasComponent, resource);
 			}
 			con.remove(resource, null, null);
 		}
+		return resources;
 	}
 
-	private Set<Resource> followResources(Set<URI> resources,
+	private Set<Resource> followResources(Set<Resource> resources,
 			ObjectConnection con) throws RepositoryException {
 		Set<Resource> result = new LinkedHashSet<Resource>(resources.size());
 		Queue<Resource> queue = new ArrayDeque<Resource>(resources);
@@ -842,7 +859,7 @@ public class WebappArchiveImporter {
 				return uri;
 			if (con.hasStatement(uri, RDF.TYPE, realm))
 				return uri;
-			if (con.hasStatement(uri, RDF.TYPE, pathSegment))
+			if (con.hasStatement(uri, RDF.TYPE, vf.createURI(webapp + FOLDER_TYPE)))
 				return uri;
 			URI container = vf.createURI(parent);
 			if (con.hasStatement(container, hasComponent, uri))
@@ -851,8 +868,8 @@ public class WebappArchiveImporter {
 			con.add(container, hasComponent, uri);
 			String label = folder.substring(parent.length())
 					.replace("/", "").replace('-', ' ');
-			con.add(uri, RDF.TYPE, calliPathSegment);
-			con.add(uri, RDF.TYPE, pathSegment);
+			con.add(uri, RDF.TYPE, calliFolder);
+			con.add(uri, RDF.TYPE, vf.createURI(webapp + FOLDER_TYPE));
 			con.add(uri, RDFS.LABEL, vf.createLiteral(label));
 			for (Statement st : constructPermissions(container, con)) {
 				con.add(uri, st.getPredicate(), st.getObject());

@@ -63,18 +63,18 @@ import org.openrdf.rio.RDFWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class PathSegmentSupport implements RDFObject, RDFObjectBehaviour, CalliObject, Composite {
+public abstract class FolderSupport implements RDFObject, RDFObjectBehaviour, CalliObject, Composite {
 	private static final String PHONE = "http://www.openrdf.org/rdf/2011/keyword#phone";
 	private static final String GENERATED_BY = "http://www.w3.org/ns/prov#wasGeneratedBy";
 	private static final String TURTLE = "text/turtle;charset=UTF-8";
 	private static final String PREFIX = "PREFIX owl:<http://www.w3.org/2002/07/owl#>\n"
 			+ "PREFIX prov:<http://www.w3.org/ns/prov#>\n"
 			+ "PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>\n";
-	private static final String CALLI_FOLDER = "http://callimachusproject.org/rdf/2009/framework#PathSegment";
-	final Logger logger = LoggerFactory.getLogger(PathSegmentSupport.class);
+	private static final String CALLI_FOLDER = "http://callimachusproject.org/rdf/2009/framework#Folder";
+	final Logger logger = LoggerFactory.getLogger(FolderSupport.class);
 
 	/**
-	 * Called from path.ttl and origin.ttl
+	 * Called from folder.ttl and origin.ttl
 	 */
 	public String resolve(String reference) {
 		String uri = this.getResource().stringValue();
@@ -188,7 +188,7 @@ public abstract class PathSegmentSupport implements RDFObject, RDFObjectBehaviou
 	@Sparql(PREFIX
 			+ "ASK {\n"
 			+ "$this calli:hasComponent+ ?component .\n"
-			+ "?component a calli:PathSegment .\n"
+			+ "?component a calli:Folder .\n"
 			+ "{ ?component calli:alternate ?target }\n"
 			+ "UNION { ?component calli:canonical ?target }\n"
 			+ "UNION { ?component calli:copy ?target }\n"
@@ -221,7 +221,7 @@ public abstract class PathSegmentSupport implements RDFObject, RDFObjectBehaviou
 			+ "$this calli:hasComponent+ ?component .\n"
 			+ "OPTIONAL { ?component prov:wasGeneratedBy/prov:endedAtTime ?lastmod }\n"
 			+ "OPTIONAL { ?component a [calli:mediaType ?fileType] }\n"
-			+ "OPTIONAL { ?component a calli:PathSegment BIND (true AS ?folder) }\n"
+			+ "OPTIONAL { ?component a calli:Folder BIND (true AS ?folder) }\n"
 			+ "OPTIONAL { ?component a owl:Class BIND (true AS ?class)}" + "}")
 	protected abstract TupleQueryResult loadComponents()
 			throws OpenRDFException;

@@ -64,7 +64,7 @@ jQuery(function($){
                 });
             }).then(callback, function(error){
                 callback();
-                return calli.error(error);
+                calli.error(error);
             });
         },
         create: function(label, callback) {
@@ -85,7 +85,7 @@ jQuery(function($){
                 });
             }).then(callback, function(error){
                 callback();
-                return calli.error(error);
+                calli.error(error);
             });
         }
     });

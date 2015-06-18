@@ -14,7 +14,7 @@ calli.submitTurtle = function(event, local) {
     var slug = encodeURI(local || '').replace(/%25(\w\w)/g, '%$1').replace(/%20/g, '+');
     var btn = $(form).find('button[type="submit"]');
     btn.button('loading');
-    return calli.resolve(form).then(function(form){
+    calli.resolve(form).then(function(form){
         var previously = form.getAttribute("resource");
         var ns = window.location.pathname.replace(/\/?$/, '/');
         var resource = ns + slug;
@@ -50,7 +50,7 @@ calli.submitTurtle = function(event, local) {
         }
     }, function(error){
         btn.button('reset');
-        return calli.error(error);
+        calli.error(error);
     });
 };
 

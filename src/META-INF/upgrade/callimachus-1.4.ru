@@ -24,11 +24,19 @@ INSERT {
 };
 
 DELETE {
-    <../> a calli:Folder
+    ?folder a calli:PathSegment
 } INSERT {
-    <../> a calli:PathSegment
+    ?folder a calli:Folder
 } WHERE {
-    <../> a calli:Folder
+    ?folder a calli:PathSegment
+};
+
+DELETE {
+    ?folder a <../1.5/types/PathSegment>
+} INSERT {
+    ?folder a <../1.5/types/Folder>
+} WHERE {
+    ?folder a <../1.5/types/PathSegment>
 };
 
 DELETE {
@@ -75,7 +83,7 @@ DELETE {
 DELETE {
     <../> a <../1.4/types/Folder>
 } INSERT {
-    <../> a <../1.5/types/PathSegment>
+    <../> a <../1.5/types/Folder>
 } WHERE {
     <../> a <../1.4/types/Folder>
 };

@@ -59,7 +59,7 @@ jQuery(function($){
         var resource = calli.slugify($('#email').val());
         var btn = $('#invite');
         btn.button('loading');
-        return calli.resolve(form).then(function(form){
+        calli.resolve(form).then(function(form){
             form.setAttribute("resource", resource);
             return calli.copyResourceData(form);
         }).then(function(data){
@@ -80,7 +80,7 @@ jQuery(function($){
             $('#msgForm').attr("action", resource + '?invite').submit();
         }).then(undefined, function(error){
             btn.button('reset');
-            return calli.error(error);
+            calli.error(error);
         });
     });
 

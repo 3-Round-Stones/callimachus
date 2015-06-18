@@ -28,7 +28,7 @@ $('form[typeof~="calli:Credential"][enctype="text/turtle"]').submit(function(eve
     var btn = $(form).find('button[type="submit"]');
     btn.button('loading');
     $('#label').val(username + '@' + authority).change();
-    return calli.resolve(form).then(function(form){
+    calli.resolve(form).then(function(form){
         form.setAttribute("resource", local);
         return calli.copyResourceData(form);
     }).then(function(data){
@@ -54,7 +54,7 @@ $('form[typeof~="calli:Credential"][enctype="text/turtle"]').submit(function(eve
         window.location.replace(redirect);
     }, function(error){
         btn.button('reset');
-        return calli.error(error);
+        calli.error(error);
     });
 });
 
@@ -77,7 +77,7 @@ $('form[typeof~="calli:Credential"][enctype="application/sparql-update"]').each(
             return calli.submitUpdate(comparison, event);
         }, function(error){
             btn.button('reset');
-            return calli.error(error);
+            calli.error(error);
         });
     });
 });

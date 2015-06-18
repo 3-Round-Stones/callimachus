@@ -71,14 +71,17 @@ calli.error = function(message, stack) {
         if (window.console && window.console.error) {
             console.error(message);
         }
-        if (!flash(mhtml, shtml) && parent != window && parent.postMessage) {
-            if (shtml) {
-                parent.postMessage('ERROR ' + mhtml + '\n\n' + shtml, '*');
+        if (!flash(mhtml, shtml)) {
+            if (parent != window && parent.postMessage) {
+                if (shtml) {
+                    parent.postMessage('ERROR ' + mhtml + '\n\n' + shtml, '*');
+                } else {
+                    parent.postMessage('ERROR ' + mhtml, '*');
+                }
             } else {
-                parent.postMessage('ERROR ' + mhtml, '*');
+                return calli.reject(message);
             }
         }
-        return calli.reject(message);
     }
 };
 

@@ -80,7 +80,7 @@ jQuery(function($){
                 window.location.replace(redirect + '?view');
             }, function(error){
                 btn.button('reset');
-                return calli.error(error);
+                calli.error(error);
             });
         });
     });

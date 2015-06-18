@@ -85,7 +85,7 @@ jQuery(function($) {
         var form = this;
         var btn = $(form).find('button[type="submit"]');
         btn.button('loading');
-        return calli.resolve(form).then(function(form){
+        calli.resolve(form).then(function(form){
             return calli.copyResourceData(form);
         }).then(function(insertData){
             var action = calli.getFormAction(form);
@@ -94,7 +94,7 @@ jQuery(function($) {
             $('#cancel').click();
         }, function(error){
             btn.button('reset');
-            return calli.error(error);
+            calli.error(error);
         });
     });
     $('#cancel').click(function(){
@@ -131,7 +131,7 @@ jQuery(function($) {
         if (!text) return calli.resolve();
         var iri = text.trim().replace(/\?.*/,'');
         var url = template.replace('{iri}', encodeURIComponent(iri));
-        return calli.getJSON(url).then(function(json){
+        calli.getJSON(url).then(function(json){
             return json.results.bindings[0];
         }).then(function(bindings){
             if (!bindings) return;
@@ -162,7 +162,7 @@ jQuery(function($) {
             });
         }).then(callback, function(error){
             callback();
-            return calli.error(error);
+            calli.error(error);
         });
     }
 });

@@ -282,7 +282,7 @@ declare function calli:profile-href($a as element()) as element()+ {
 declare function calli:logout-href($a as element()) as element() {
     element {node-name($a)} {
         attribute href {$calli:realm},
-        attribute onclick {concat('calli.logout("',$calli:realm,'").then(location.assign.bind(location,"',$calli:realm,'"));return false')},
+        attribute onclick {concat('calli.logout("',$calli:realm,'").then(location.assign.bind(location,"',$calli:realm,'")).then(undefined, calli.loading(event.target));return false')},
         $a/@*[name()!='href' and name()!='id'],
         $a/node()
     }

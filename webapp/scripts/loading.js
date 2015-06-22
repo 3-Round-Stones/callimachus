@@ -19,7 +19,7 @@ calli.loading = function(target, callback) {
     $target.addClass("loading disabled").attr("disabled", "disabled");
     var selector = 'i.glyphicon.glyphicon-refresh';
     var prepend = $('<i class="glyphicon glyphicon-refresh"></i>').add(document.createTextNode(' '));
-    if (timeout === undefined && $target.is(".btn")) timeout = self.setTimeout(function(){
+    if (timeout === undefined && $target.is("a,button")) timeout = self.setTimeout(function(){
         if ($target.is(".loading") && !$target.children(selector).length) {
             $target.prepend(prepend);
         }

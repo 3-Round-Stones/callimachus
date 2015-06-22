@@ -143,6 +143,7 @@ public class DigestUserFunctionalTest extends BrowserFunctionalTestCase {
 				long seconds = (System.currentTimeMillis() - since) / 1000;
 				if (messages.length == 0) {
 					logger.info("Waiting for {} email for {}s", subject, seconds);
+					browser.reload();
 					Thread.sleep(i * 1000);
 				} else {
 					int m = 0;
@@ -152,6 +153,7 @@ public class DigestUserFunctionalTest extends BrowserFunctionalTestCase {
 					}
 					if (message == null) {
 						logger.info("Waiting for {} email for {}s", subject, seconds);
+						browser.reload();
 						Thread.sleep(i * 1000);
 					} else {
 						message.setFlag(Flags.Flag.DELETED, true);

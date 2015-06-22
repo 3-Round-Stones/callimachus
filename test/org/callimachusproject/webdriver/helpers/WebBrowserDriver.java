@@ -73,9 +73,12 @@ public class WebBrowserDriver {
 		waitForScript();
 	}
 	
+	public void reload() {
+		driver.navigate().refresh();
+	}
+
 	public String getCurrentUrl() {
-		String url = driver.getCurrentUrl();
-		return url;
+		return driver.getCurrentUrl();
 	}
 
 	public void innerHTML(By locator, String html) {

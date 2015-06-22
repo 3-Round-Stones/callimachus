@@ -62,6 +62,21 @@ img.icon {
     padding:0;
 }
 
+/* annimate loading icons */
+.loading>.glyphicon {
+  animation: calli-spin 2s infinite linear;
+}
+@keyframes calli-spin {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(359deg);
+    transform: rotate(359deg);
+  }
+}
+
 /* theme rules */
 
 div, footer, iframe { 
@@ -82,11 +97,6 @@ form iframe {
     border: 1px solid @gray-light;
     transition: background-color 100ms linear;
     transition: border-color 100ms linear;
-}
-
-.wait form iframe {
-    border-color: @state-warning-border;
-    background-color: @state-warning-bg;
 }
 
 form {

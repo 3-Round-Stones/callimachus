@@ -32,7 +32,7 @@ jQuery(function($){
         calli.deleteText('?archive').then(function() {
             event.message = '';
             calli.deleteResource(event);
-        }).then(undefined, calli.error);
+        }).then(undefined, calli.error).then(calli.loading(event.target));
     });
     $('#layout').on("dragenter dragover dragleave", function(event){
         event.preventDefault();
@@ -86,7 +86,7 @@ jQuery(function($){
             }).then(callback, function(error){
                 callback();
                 calli.error(error);
-            });
+            }).then(calli.loading('#layout select'));
         }
     });
     $('#form').submit(calli.submitUpdate.bind(calli, calli.copyResourceData('#form')));

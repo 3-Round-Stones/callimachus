@@ -13,8 +13,6 @@ var calli = window.calli || (window.calli={});
 calli.submitUpdate = function(comparedData, event) {
     event.preventDefault();
     var form = calli.fixEvent(event).target;
-    var btn = $(form).find('button[type="submit"]');
-    btn.button('loading');
     calli.resolve(form).then(function(form){
         return calli.copyResourceData(form);
     }).then(function(insertData){
@@ -33,10 +31,7 @@ calli.submitUpdate = function(comparedData, event) {
         return calli.postUpdate(action, comparedData, insertData);
     }).then(function(redirect){
         window.location.replace(redirect);
-    }, function(error){
-        btn.button('reset');
-        calli.error(error);
-    });
+    }, calli.loading(form, calli.error));
 };
 
 calli.postUpdate = function(url, deleteData, insertData) {

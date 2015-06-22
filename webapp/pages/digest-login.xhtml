@@ -40,15 +40,16 @@
                     }
                     window.location.replace(return_to);
                 },
-                error: calli.error
+                error: calli.error,
+                complete: calli.loading(event.target)
             };
             try {
-                calli.resolve($.ajax(options));
+                $.ajax(options);
             } catch (e) {
                 // Opera don't support spaces in ajax passwords
                 if (options.password) {
                     delete options.password;
-                    calli.resolve($.ajax(options));
+                    $.ajax(options);
                 }
             }
             event.preventDefault();

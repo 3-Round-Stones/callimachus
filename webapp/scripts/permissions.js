@@ -83,8 +83,6 @@ jQuery(function($) {
     $('#form').submit(function(event){
         event.preventDefault();
         var form = this;
-        var btn = $(form).find('button[type="submit"]');
-        btn.button('loading');
         calli.resolve(form).then(function(form){
             return calli.copyResourceData(form);
         }).then(function(insertData){
@@ -92,10 +90,7 @@ jQuery(function($) {
             return calli.postUpdate(action, comparison, insertData);
         }).then(function(redirect){
             $('#cancel').click();
-        }, function(error){
-            btn.button('reset');
-            calli.error(error);
-        });
+        }, calli.loading(event.target, calli.error));
     });
     $('#cancel').click(function(){
         if (window.parent != window) {

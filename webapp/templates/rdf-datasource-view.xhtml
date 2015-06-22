@@ -50,23 +50,20 @@
             }
             calli.fillElement('#sparql');
             $('#evaluate').click(function(event){
-                $(event.target).button('loading');
+                event.preventDefault();
+                calli.loading(event.target);
                 $('#sparql').val(addPrefix($('#sparql').val()));
+                $(event.target).closest('form').submit();
             });
             $('#execute').click(function(event){
-                var btn = $(event.target);
-                var form = btn.closest('form')[0];
-                btn.button('loading');
+                var form = $(event.target).closest('form')[0];
                 $('#sparql').val(addPrefix($('#sparql').val()));
                 var action = calli.getFormAction(form);
                 var sparql = $('#sparql').val();
                 var data = 'update=' + encodeURIComponent(sparql);
-                calli.postText(action, data, 'application/x-www-form-urlencoded').then(function(){
-                    btn.button('reset');
-                }, function(error){
-                    btn.button('reset');
-                    calli.error(error);
-                });
+                calli.postText(action, data, 'application/x-www-form-urlencoded')
+                    .then(undefined, calli.error)
+                    .then(calli.loading(event.target));
             });
             var profile = [];
             $.ajax({

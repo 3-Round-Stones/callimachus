@@ -43,8 +43,6 @@ calli.loadEditor = function(event, url) {
 calli.submitEditor = function(event, local) {
     event.preventDefault();
     var form = $(calli.fixEvent(event).target).closest('form');
-    var btn = form.find('button[type="submit"]');
-    btn.button('loading');
     return calli.resolve(form).then(function(form){
         var editor = form.find('iframe')[0].contentWindow;
         return calli.readEditorText(editor);
@@ -72,12 +70,9 @@ calli.submitEditor = function(event, local) {
             }
             window.location.href = redirect + '?view';
         } else {
-            btn.button('reset');
+            calli.loading(form)();
         }
-    }, function(error) {
-        btn.button('reset');
-        return calli.error(error);
-    });
+    }, calli.loading(form, calli.error));
 };
 
 window.calli.submitEditorAs = function(event, local, create, folder) {
@@ -85,7 +80,6 @@ window.calli.submitEditorAs = function(event, local, create, folder) {
     var button = calli.fixEvent(event).target;
     var form = $(button).closest('form');
     var btn = $(button).filter('button');
-    btn.button('loading');
     return calli.resolve(form).then(function(form){
         var editor = form.find('iframe')[0].contentWindow;
         return calli.readEditorText(editor);
@@ -105,12 +99,9 @@ window.calli.submitEditorAs = function(event, local, create, folder) {
         if (redirect) {
             window.location.href = redirect;
         } else {
-            btn.button('reset');
+            calli.loading(btn)();
         }
-    }, function(error){
-        btn.button('reset');
-        return calli.error(error);
-    });
+    }, calli.loading(btn, calli.error));
 };
 
 var waiting = [];
@@ -159,7 +150,9 @@ function bindEditorEvents(form, editor, idempotent) {
             if (msg.indexOf('PUT text\n\n') === 0 && form.getAttribute("method") == "PUT") {
                 var text = msg.substring('PUT text\n\n'.length);
                 var action = calli.getFormAction(form);
-                calli.putText(action, text, form.getAttribute("enctype")).then(undefined, calli.error);
+                calli.putText(action, text, form.getAttribute("enctype"))
+                    .then(undefined, calli.error)
+                    .then(calli.loading($(form).find('button[type="submit"]')));
             } else if (msg.indexOf('Error\n\n') === 0) {
                 calli.error(msg.substring(msg.indexOf('\n\n', msg.indexOf('\n\n') + 2) + 2));
             }

@@ -40,7 +40,7 @@ calli.sleep = function(milliseconds) {
     });
 };
 
-var polyfill = waitForPromise((typeof self.Promise == 'function' ? self.Promise.resolve.bind(self.Promise) : function(){
+var polyfill = (typeof self.Promise == 'function' ? self.Promise.resolve.bind(self.Promise) : function(){
     var delayed = delayedPromise();
     $.ajax({
         url: calli.getCallimachusUrl("assets/promise-1.0.0.js"),
@@ -52,7 +52,7 @@ var polyfill = waitForPromise((typeof self.Promise == 'function' ? self.Promise.
         delayed._apply(self.Promise.reject(xhr));
     });
     return delayed;
-})());
+})();
 
 calli.ready = function(obj) {
     return ready.then(function(){
@@ -117,41 +117,6 @@ function delayedPromise() {
                 call.delayed._apply(context[call.name].apply(context, call.args));
             });
             promise = context;
-        }
-    };
-}
-
-var waiting;
-function waitMore() {
-    if (waiting) {
-        waiting++;
-    } else {
-        $(document.documentElement).addClass("wait");
-        waiting = 1;
-    }
-}
-function waitLess() {
-    waiting--;
-    if (!waiting) {
-        $(document.documentElement).removeClass("wait");
-    }
-}
-
-function waitForPromise(promise) {
-    waitMore();
-    var p = promise.then(function(resolve){
-        waitLess();
-        return resolve;
-    }, function(reject) {
-        waitLess();
-        return self.Promise.reject(reject);
-    });
-    return {
-        "then": function() {
-            return waitForPromise(p.then.apply(promise, arguments));
-        },
-        "catch": function() {
-            return waitForPromise(p["catch"].apply(promise, arguments));
         }
     };
 }

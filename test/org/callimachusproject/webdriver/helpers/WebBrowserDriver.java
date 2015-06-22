@@ -376,25 +376,22 @@ public class WebBrowserDriver {
 	}
 
 	public void waitForScript() {
-		Wait<WebDriver> wait = new WebDriverWait(driver, 240);
-		assertTrue(wait.until(new ExpectedCondition<Boolean>() {
-			public Boolean apply(WebDriver wd) {
-				String js = "try {\n" + "if (document.documentElement)\n"
-						+ "    return document.documentElement.className;\n"
-						+ "else if (document.body)\n" + "    return '';\n"
-						+ "} catch(e) {}\n" + "    return 'wait';";
-				try {
-					Object className = driver.executeScript(js);
-					return !String.valueOf(className).contains("wait");
-				} catch (WebDriverException e) {
-					return null;
+		try {
+			driver.manage().timeouts().implicitlyWait(0, TimeUnit.SECONDS);
+			Wait<WebDriver> wait = new WebDriverWait(driver, 240);
+			assertTrue(wait.until(new ExpectedCondition<Boolean>() {
+				public Boolean apply(WebDriver wd) {
+					return wd.findElements(By.cssSelector(".loading")).isEmpty();
 				}
-			}
 
-			public String toString() {
-				return "script to be ready";
-			}
-		}));
+				public String toString() {
+					return "script to be ready";
+				}
+			}));
+		} finally {
+			driver.manage().timeouts().implicitlyWait(IMPLICITLY_WAIT, TimeUnit.SECONDS);
+		}
+	
 	}
 
 	public void waitUntilModalOpen() {

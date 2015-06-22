@@ -9,7 +9,7 @@
             $("#success").hide();
             calli.postText(this.action, $(this).serialize(), "application/x-www-form-urlencoded").then(function() {
                 $("#success").show();
-            }, calli.error);
+            }, calli.error).then(calli.loading(event.target));
             return false;
         });
     });

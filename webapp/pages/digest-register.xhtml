@@ -37,7 +37,7 @@
                     password: [hash1, hash2]
                 }, true), "application/x-www-form-urlencoded").then(function() {
                     window.location.replace('?login&return_to=' + encodeURIComponent(parameter('return_to')));
-                }).then(undefined, calli.error);
+                }).then(undefined, calli.error).then(calli.loading(form));
                 return false;
             }});
         });

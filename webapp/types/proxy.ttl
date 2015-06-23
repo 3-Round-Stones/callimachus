@@ -27,7 +27,7 @@
     foaf:primaryTopic <Proxy>.
 
 <Proxy> a <Creatable>, owl:Class;
-    rdfs:subClassOf <Viewable>, <Editable>, <Purl>, calli:Purl;
+    rdfs:subClassOf <Viewable>, <Editable>, <Purl>, calli:Proxy;
     rdfs:label "Proxy";
     rdfs:comment "A PURL for proxying web content or constructing dynamic pages.";
     rdfs:isDefinedBy <../../ontology>;

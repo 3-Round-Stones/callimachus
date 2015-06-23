@@ -27,7 +27,7 @@
     foaf:primaryTopic <RewriteRule>.
 
 <RewriteRule> a <Creatable>, owl:Class;
-    rdfs:subClassOf <Viewable>, <Editable>, <Purl>, calli:Purl;
+    rdfs:subClassOf <Viewable>, <Editable>, <Purl>, calli:RewriteRule;
     rdfs:label "Rewrite Rule";
     rdfs:comment "A PURL for all URI management purposes.";
     rdfs:isDefinedBy <../../ontology>;

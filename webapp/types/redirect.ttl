@@ -27,7 +27,7 @@
     foaf:primaryTopic <Redirect>.
 
 <Redirect> a <Creatable>, owl:Class;
-    rdfs:subClassOf <Viewable>, <Editable>, <Purl>, calli:Purl;
+    rdfs:subClassOf <Viewable>, <Editable>, <Purl>, calli:Redirect;
     rdfs:label "Redirect";
     rdfs:comment "A PURL for redirecting URIs.";
     rdfs:isDefinedBy <../../ontology>;

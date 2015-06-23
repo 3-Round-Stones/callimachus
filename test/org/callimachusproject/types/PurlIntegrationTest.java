@@ -210,5 +210,35 @@ public class PurlIntegrationTest extends TemporaryServerIntegrationTestCase {
 			purl.rel("describedby").delete();
 		}
 	}
+	
+	// Test subclasses of Purl - same server-side functionality so a single test is sufficient
+	public void testRedirectStaticAlternate() throws Exception {
+		WebResource purl = getHomeFolder().createRedirect("alternate", "alternate", "http://www.google.ca/");
+		try {
+			assertEquals("http://www.google.ca/", purl.getRedirectTarget().toString());
+			assertEquals(302, purl.headCode());
+		} finally {
+			purl.rel("describedby").delete();
+		}
+	}
+
+	public void testProxyStaticCopy() throws Exception {
+		WebResource purl = getHomeFolder().createProxy("humans.txt", "copy", file.toString());
+		try {
+			assertEquals(new String(file.get("text/plain")), new String(purl.get("text/plain")));
+		} finally {
+			purl.rel("describedby").delete();
+		}
+	}
+
+	public void testRewriteRuleStaticAlternate() throws Exception {
+		WebResource purl = getHomeFolder().createRewriteRule("alternate", "alternate", "http://www.google.ca/");
+		try {
+			assertEquals("http://www.google.ca/", purl.getRedirectTarget().toString());
+			assertEquals(302, purl.headCode());
+		} finally {
+			purl.rel("describedby").delete();
+		}
+	}
 
 }

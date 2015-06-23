@@ -22,6 +22,8 @@
                 if (nothere.indexOf(uri) === 0) {
                     event.preventDefault();
                     calli.error("Cannot replace this folder's contents; try using a different folder");
+                } else {
+                    calli.loading('#import');
                 }
             });
         });

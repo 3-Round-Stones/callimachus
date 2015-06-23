@@ -12,15 +12,15 @@
                 var m = regex.exec(window.location.search);
                 return m ? decodeURIComponent(m[1]) : null;
             }
-            $("#form").submit(function(form) {
-                calli.postText(form.action, $.param({
+            $("#form").submit(function(event) {
+                calli.postText(event.target.action, $.param({
                     nonce: parameter("nonce"),
                     token: parameter("token"),
                     email: parameter("email"),
                     fullname: parameter("fullname") || parameter("email").replace(/@.*/,'')
                 }, true), "application/x-www-form-urlencoded").then(function() {
                     window.location.replace('?login&return_to=' + encodeURIComponent(parameter('return_to')));
-                }).then(undefined, calli.error);
+                }).then(undefined, calli.error).then(calli.loading(event.target));
                 return false;
                });
         });

@@ -57,25 +57,26 @@
     rdf:_30 <rdfaparser.js>;
     rdf:_31 <turtle-serializer.js>;
     rdf:_32 <fix-event.js>;
-    rdf:_33 <add-resource.js>;
-    rdf:_34 <remove-resource.js>;
-    rdf:_35 <dialog.js>;
-    rdf:_36 <create-resource.js>;
-    rdf:_37 <prompt-for-new-resource.js>;
-    rdf:_38 <select-resource.js>;
-    rdf:_39 <submit-turtle.js>;
-    rdf:_40 <submit-turtle-as.js>;
-    rdf:_41 <submit-form.js>;
-    rdf:_42 <copy-resource-data.js>;
-    rdf:_43 <submit-update.js>;
-    rdf:_44 <delete-resource.js>;
-    rdf:_45 <insert-resource.js>;
-    rdf:_46 <update-resource.js>;
-    rdf:_47 <each-resource-in.js>;
-    rdf:_48 <discussion.js>;
-    rdf:_49 <decode-html.js>;
-    rdf:_50 <load-editor.js>;
-    rdf:_51 <submit-file.js>.
+    rdf:_33 <loading.js>;
+    rdf:_34 <add-resource.js>;
+    rdf:_35 <remove-resource.js>;
+    rdf:_36 <dialog.js>;
+    rdf:_37 <create-resource.js>;
+    rdf:_38 <prompt-for-new-resource.js>;
+    rdf:_39 <select-resource.js>;
+    rdf:_40 <submit-turtle.js>;
+    rdf:_41 <submit-turtle-as.js>;
+    rdf:_42 <submit-form.js>;
+    rdf:_43 <copy-resource-data.js>;
+    rdf:_44 <submit-update.js>;
+    rdf:_45 <delete-resource.js>;
+    rdf:_46 <insert-resource.js>;
+    rdf:_47 <update-resource.js>;
+    rdf:_48 <each-resource-in.js>;
+    rdf:_49 <discussion.js>;
+    rdf:_50 <decode-html.js>;
+    rdf:_51 <load-editor.js>;
+    rdf:_52 <submit-file.js>.
 
 <text_bundle> a calli:ScriptBundle;
     calli:reader </auth/groups/public>;

@@ -12,8 +12,6 @@ calli.submitTurtle = function(event, local) {
     event.preventDefault();
     var form = calli.fixEvent(event).target;
     var slug = encodeURI(local || '').replace(/%25(\w\w)/g, '%$1').replace(/%20/g, '+');
-    var btn = $(form).find('button[type="submit"]');
-    btn.button('loading');
     calli.resolve(form).then(function(form){
         var previously = form.getAttribute("resource");
         var ns = window.location.pathname.replace(/\/?$/, '/');
@@ -46,12 +44,9 @@ calli.submitTurtle = function(event, local) {
             }
             window.location.replace(redirect);
         } else {
-            btn.button('reset');
+            calli.loading(form)();
         }
-    }, function(error){
-        btn.button('reset');
-        calli.error(error);
-    });
+    }, calli.loading(form, calli.error));
 };
 
 calli.postTurtle = function(url, data, headers) {

@@ -51,6 +51,6 @@ jQuery(function($){
                     window.location.replace(resource + '?view');
                 });
             }));
-        }).then(undefined, calli.error);
+        }).then(undefined, calli.error).then(calli.loading(event.target));
     });
 });

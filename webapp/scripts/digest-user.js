@@ -40,7 +40,7 @@ jQuery(function($){
                         window.location.replace('./');
                     }
                 });
-            }).then(undefined, calli.error);
+            }).then(undefined, calli.error).then(calli.loading(event.target));
         }
     });
 });

@@ -57,8 +57,6 @@ jQuery(function($){
         var form = this;
         event.preventDefault();
         var resource = calli.slugify($('#email').val());
-        var btn = $('#invite');
-        btn.button('loading');
         calli.resolve(form).then(function(form){
             form.setAttribute("resource", resource);
             return calli.copyResourceData(form);
@@ -78,10 +76,7 @@ jQuery(function($){
         }).then(function(redirect){
             $('#fullname').val($('#label').val());
             $('#msgForm').attr("action", resource + '?invite').submit();
-        }).then(undefined, function(error){
-            btn.button('reset');
-            calli.error(error);
-        });
+        }).then(undefined, calli.loading('#invite', calli.error));
     });
 
 });

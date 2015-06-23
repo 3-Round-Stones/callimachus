@@ -25,8 +25,6 @@ $('form[typeof~="calli:Credential"][enctype="text/turtle"]').submit(function(eve
     var password = $('#password').val();
     var authority = $('#authority').val();
     var local = encodeURI(username) + '@' + authority;
-    var btn = $(form).find('button[type="submit"]');
-    btn.button('loading');
     $('#label').val(username + '@' + authority).change();
     calli.resolve(form).then(function(form){
         form.setAttribute("resource", local);
@@ -52,10 +50,7 @@ $('form[typeof~="calli:Credential"][enctype="text/turtle"]').submit(function(eve
         });
     }).then(function(redirect){
         window.location.replace(redirect);
-    }, function(error){
-        btn.button('reset');
-        calli.error(error);
-    });
+    }, calli.loading($(form).find('button[type="submit"]'), calli.error));
 });
 
 $('form[typeof~="calli:Credential"][enctype="application/sparql-update"]').each(function(){
@@ -63,8 +58,6 @@ $('form[typeof~="calli:Credential"][enctype="application/sparql-update"]').each(
     var comparison = calli.copyResourceData(form);
     $(form).submit(function(event){
         event.preventDefault();
-        var btn = $(form).find('button[type="submit"]');
-        btn.button('loading');
         calli.resolve($('#password').val()).then(function(password){
             if (password) {
                 var resource = $(form).attr('resource');
@@ -75,10 +68,7 @@ $('form[typeof~="calli:Credential"][enctype="application/sparql-update"]').each(
             }
         }).then(function(){
             return calli.submitUpdate(comparison, event);
-        }, function(error){
-            btn.button('reset');
-            calli.error(error);
-        });
+        }, calli.loading(event.target, calli.error));
     });
 });
 

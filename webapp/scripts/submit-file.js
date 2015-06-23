@@ -34,7 +34,7 @@ calli.submitFile = function(event) {
             parent.postMessage('POST resource\n\n' + resource, '*');
         }
         window.location.replace(resource + '?view');
-    }).then(undefined, calli.error);
+    }).then(undefined, calli.error).then(calli.loading(form));
 };
 
 })(jQuery);

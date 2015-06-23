@@ -25,7 +25,7 @@ jQuery(function($){
     });
 
     function renderConceptItem(data, escape){
-        return '<div title="' + escape(data.value) + '" onclick="calli.createResource(this, this.title + \'?edit\').then(undefined, calli.error)">' + escape(data.text) + '</div>';
+        return '<div title="' + escape(data.value) + '" onclick="calli.createResource(this, this.title + \'?edit\').then(undefined, calli.error).then(calli.loading(this))">' + escape(data.text) + '</div>';
     }
 
     function renderConceptOption(data, escape){
@@ -47,7 +47,7 @@ jQuery(function($){
             var value = selectize.getValue() || [];
             selectize.setValue(value.concat(data.value));
             return data;
-        }).then(undefined, calli.error);
+        }).then(undefined, calli.error).then(calli.loading(event.target));
     }
 
     function lookupConcept(iri) {
@@ -96,6 +96,6 @@ jQuery(function($){
         }).then(callback, function(error){
             callback();
             calli.error(error);
-        });
+        }).then(calli.loading(selector));
     }
 });

@@ -62,7 +62,7 @@ public class CarInputStream implements Closeable {
 	private static final Pattern SOURCE_NAME = Pattern
 			.compile("[^/]+\\.source\\.ttl$");
 	private static final Pattern FILE_NAME = Pattern
-			.compile("[^/]+\\.[a-zA-Z]+$");
+			.compile("[^/]+\\.[a-zA-Z]\\w*$");
 	private final ZipArchiveInputStream zipStream;
 	private final FileTypeMap mimetypes;
 	ZipArchiveEntry entry;

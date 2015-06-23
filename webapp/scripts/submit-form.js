@@ -13,8 +13,6 @@ calli.submitForm = function(event) {
     event.preventDefault();
     var form = $(event.target).closest('form')[0];
     var finalTarget = form.target;
-    var btn = $(form).find('button[type="submit"]');
-    btn.button('loading');
     calli.postForm(form).then(function(redirect){
         if (finalTarget && window.frames[finalTarget]) {
             window.frames[finalTarget].location.href = redirect + "?view";
@@ -24,10 +22,7 @@ calli.submitForm = function(event) {
             }
             window.location.href = redirect + "?view";
         }
-    }, function(error) {
-        btn.button('reset');
-        calli.error(error);
-    });
+    }, calli.loading(event.target, calli.error));
 };
 
 calli.postForm = function(form) {

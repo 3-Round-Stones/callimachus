@@ -12,7 +12,6 @@ calli.deleteResource = function(event) {
     if (!confirm("Are you sure you want to delete " + document.title + "?"))
         return;
     var btn = $(calli.fixEvent(event).target);
-    btn.button('loading');
     calli.resolve(btn).then(function(btn){
         return btn.closest('form')[0];
     }).then(function(form){
@@ -21,10 +20,7 @@ calli.deleteResource = function(event) {
         return calli.deleteText(url);
     }).then(function(redirect){
         window.location.replace(redirect);
-    }, function(error){
-        btn.button('reset');
-        calli.error(error);
-    });
+    }, calli.loading(btn, calli.error));
 };
 
 })(jQuery);

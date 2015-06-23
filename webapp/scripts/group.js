@@ -48,7 +48,7 @@ jQuery(function($){
             else
                 selectize.setValue(data.value);
             return data;
-        }).then(undefined, calli.error);
+        }).then(undefined, calli.error).then(calli.loading(event.target));
     }
 
     function resourceLookup(template, iri) {
@@ -95,6 +95,6 @@ jQuery(function($){
         }).then(callback, function(error){
             callback();
             calli.error(error);
-        });
+        }).then(calli.loading(selector));
     }
 });

@@ -12,20 +12,17 @@
         $(function(){
             calli.fillElement('#sql');
             $('#evaluate').click(function(event){
-                $(event.target).button('loading');
+                event.preventDefault();
+                calli.loading(event.target);
+                $(event.target).closest('form').submit();
             });
             $('#execute').click(function(event){
-                var btn = $(event.target);
-                var form = btn.closest('form')[0];
-                btn.button('loading');
+                var form = $(event.target).closest('form')[0];
                 var action = calli.getFormAction(form);
                 var sql = $('#sql').val();
-                calli.postText(action, sql, 'application/sql').then(function(){
-                    btn.button('reset');
-                }, function(error) {
-                    btn.button('reset');
-                    calli.error(error);
-                });
+                calli.postText(action, sql, 'application/sql')
+                    .then(undefined, calli.error)
+                    .then(calli.loading(event.target));
             });
         });
     </script>
@@ -48,10 +45,10 @@
             <div class="col-sm-4">
                 <aside class="panel panel-default">
                     <div class="panel-heading">
-                        <h1 class="panel-title" property="rdfs:label" />
+                        <h1 class="panel-title" property="rdfs:label"></h1>
                     </div>
                     <div class="panel-body">
-                        <p property="rdfs:comment" />
+                        <p property="rdfs:comment"></p>
                     </div>
                 </aside>
                 <aside class="well">

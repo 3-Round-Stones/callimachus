@@ -57,8 +57,6 @@ jQuery(function($) {
         $('#endpoint').attr('resource', resource);
         event.preventDefault();
         var form = event.target;
-        var btn = $(form).find('button[type="submit"]');
-        btn.button('loading');
         calli.resolve(form).then(function(form){
             form.setAttribute("resource", resource);
             return calli.copyResourceData(form);
@@ -103,18 +101,11 @@ jQuery(function($) {
                 return redirect;
             });
         }).then(function(redirect){
-            if (redirect) {
-                if (window.parent != window && parent.postMessage) {
-                    parent.postMessage('POST resource\n\n' + redirect, '*');
-                }
-                window.location.replace(redirect);
-            } else {
-                btn.button('reset');
+            if (window.parent != window && parent.postMessage) {
+                parent.postMessage('POST resource\n\n' + redirect, '*');
             }
-        }, function(error){
-            btn.button('reset');
-            calli.error(error);
-        });
+            window.location.replace(redirect);
+        }, calli.loading(event.target, calli.error));
     });
 
     function updateEndpoints(url, protocol) {

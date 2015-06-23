@@ -17,7 +17,7 @@
  */
 
 jQuery(function($) {
-    $('#create-menu').one('click', function() {
+    $('#create-menu').one('click', function(event) {
         calli.getCurrentUserAccount().then(function(iri){
             return $('#create-menu-json')[0].href + encodeURIComponent(iri);
         }).then(function(url){
@@ -51,7 +51,8 @@ jQuery(function($) {
                 li.append(a);
                 ul.append(li);
             });
-        }).then(undefined, calli.error);
+        }).then(calli.loading(event.target), calli.error);
+        $(event.target).removeClass('disabled');
         return true;
     });
 });

@@ -32,6 +32,7 @@ import javax.mail.Session;
 import javax.mail.Store;
 import javax.mail.search.SubjectTerm;
 
+import junit.framework.AssertionFailedError;
 import junit.framework.TestSuite;
 
 import org.callimachusproject.util.MailProperties;
@@ -131,15 +132,19 @@ public class DigestUserFunctionalTest extends BrowserFunctionalTestCase {
 		folder.open(Folder.READ_WRITE);
 	
 		try {
-			for (int i = 0; i < 60; i++) {
+			long since = System.currentTimeMillis();
+			for (int i = 1; i < 25; i++) {
 				Message[] messages;
 				if (subject == null) {
 					messages = folder.getMessages();
 				} else {
 					messages = folder.search(new SubjectTerm(subject));
 				}
+				long seconds = (System.currentTimeMillis() - since) / 1000;
 				if (messages.length == 0) {
-					Thread.sleep(1000);
+					logger.info("Waiting for {} email for {}s", subject, seconds);
+					browser.reload();
+					Thread.sleep(i * 1000);
 				} else {
 					int m = 0;
 					Message message = null;
@@ -147,14 +152,17 @@ public class DigestUserFunctionalTest extends BrowserFunctionalTestCase {
 						message = messages[m++]; // might be null
 					}
 					if (message == null) {
-						Thread.sleep(1000);
+						logger.info("Waiting for {} email for {}s", subject, seconds);
+						browser.reload();
+						Thread.sleep(i * 1000);
 					} else {
 						message.setFlag(Flags.Flag.DELETED, true);
 						return getPart(message, contentType);
 					}
 				}
 			}
-			return null;
+			fail("Could not find " + subject + " email");
+            throw new AssertionFailedError();
 		} finally {
 			folder.close(true);
 			store.close();

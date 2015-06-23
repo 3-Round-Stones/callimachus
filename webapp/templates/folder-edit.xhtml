@@ -18,8 +18,6 @@
     // <![CDATA[
     jQuery(function($){
         $('#delete-path').click(function(event) {
-            var btn = $(this);
-            btn.button('loading');
             if (!confirm("Are you sure you want to delete this folder and all the contents of this folder?")) {
                 return false;
             }
@@ -27,10 +25,7 @@
                 return calli.deleteText(window.location.href);
             }).then(function(redirect){
                 window.location.replace(redirect);
-            }, function(error){
-                btn.button('reset');
-                calli.error(error);
-            });
+            }, calli.loading(event.target, calli.error));
         });
     });
     // ]]>

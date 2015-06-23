@@ -47,8 +47,6 @@ jQuery(function($){
         var comparison = calli.copyResourceData(form);
         $(form).submit(function(event){
             event.preventDefault();
-            var btn = $(form).find('button[type="submit"]');
-            btn.button('loading');
             calli.resolve($(form).attr("enctype")).then(function(enctype){
                 var errors = [];
                 validate(mode, enctype, errors);
@@ -100,10 +98,7 @@ jQuery(function($){
                     parent.postMessage('POST resource\n\n' + redirect, '*');
                 }
                 window.location.replace(redirect + '?view');
-            }, function(error){
-                btn.button('reset');
-                calli.error(error);
-            });
+            }, calli.loading(event.target, calli.error));
         });
     });
     

@@ -26,6 +26,7 @@
             <input type="hidden" property="calli:gone" content="?gone" value="{?gone}"/>
             <input type="hidden" property="calli:illegal" content="?illegal" value="{?illegal}"/>
         </div>
+        <input id="cacheProperty" type="hidden" property="calli:cacheControl" content="?cache" value="{?cache}" onchange="calli.updateProperty(event, 'calli:cacheControl')"/>
         <div class="row">
             <div class="col-sm-8">
                 <div class="row">
@@ -41,26 +42,20 @@
                 </div>
                 <div class="row">
                     <fieldset id="rules" class="rule">
-                        <div class="form-group col-sm-3">
-                            <label for="type">Request methods</label>
+                        <div class="form-group col-sm-12">
+                            <label>Target</label>
                             <div>
-                                <select multiple="multiple" class="form-control requestMethod">
-                                    <option value="GET" selected="selected">GET</option>
-                                    <option value="POST">POST</option>
-                                    <option value="PUT">PUT</option>
-                                    <option value="PATCH">PATCH</option>
-                                    <option value="DELETE">DELETE</option>
-                                </select>
+                                <input class="pattern form-control purlTarget"/>
                             </div>
                         </div>
                         <div class="form-group col-sm-3">
                             <label for="type">Redirect status</label>
                             <div>
-                                <select id="type" class="form-control responseType">
+                                <select id="type" class="form-control actionType">
                                     <option value="calli:copy">Copy (200)</option>
                                     <option value="calli:canonical">Canonical (301)</option>
                                     <option value="calli:alternate" selected="selected">Alternate (302)</option>
-                                    <option value="calli:describedby" selected="selected">Described by (303)</option>
+                                    <option value="calli:describedby">Described by (303)</option>
                                     <option value="calli:resides">Resides (307)</option>
                                     <option value="calli:moved">Moved (308)</option>
                                     <option value="calli:missing">Missing (404)</option>
@@ -69,21 +64,24 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="form-group col-sm-6">
-                            <label>Target</label>
-                            <div>
-                                <input class="pattern form-control purlTarget"/>
-                            </div>
-                        </div>
-                    </fieldset>
-                </div>
-                <div class="row">
-                    <fieldset>
-                        <div class="form-group col-sm-4">
+                        <div class="form-group col-sm-3">
                             <label for="cache">Cache control</label>
                             <div>
-                            	<input type="text" id="cache" value="{calli:cacheControl}" placeholder="max-age=3600" class="form-control"
-                                    onchange="calli.updateProperty(event, 'calli:cacheControl')" />
+                                <select id="cache" class="form-control">
+                                    <option value=""></option>
+                                    <option value="no-store">Don't cache</option>
+                                    <option value="max-age=1">1 sec</option>
+                                    <option value="max-age=30">30 sec</option>
+                                    <option value="max-age=60">1 min</option>
+                                    <option value="max-age=300">5 mins</option>
+                                    <option value="max-age=600">10 mins</option>
+                                    <option value="max-age=1800">30 mins</option>
+                                    <option value="max-age=3600">1 hour</option>
+                                    <option value="max-age=10800">3 hours</option>
+                                    <option value="max-age=21600">6 hours</option>
+                                    <option value="max-age=43200">12 hours</option>
+                                    <option value="max-age=86400">1 day</option>
+                                </select>
                             </div>
                         </div>
                     </fieldset>
@@ -119,7 +117,6 @@
                         <dt>Illegal (451)</dt>
                         <dd>Intended to be used when resource access is denied for legal reasons, e.g. censorship or government-mandated blocked access</dd>
                     </dl>
-                    <p>For more advanced features use a RewriteRule instead.</p>
                 </aside>
             </div>
         </div>

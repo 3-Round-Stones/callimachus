@@ -41,32 +41,20 @@
                 </div>
                 <div class="row">
                     <fieldset id="rules" class="rule">
-                        <div class="form-group col-sm-3">
-                            <label for="type">Request methods</label>
+                        <div class="form-group col-sm-12">
+                            <label>Target</label>
                             <div>
-                                <select multiple="multiple" class="form-control requestMethod">
-                                    <option value="GET" selected="selected">GET</option>
-                                    <option value="POST">POST</option>
-                                    <option value="PUT">PUT</option>
-                                    <option value="PATCH">PATCH</option>
-                                    <option value="DELETE">DELETE</option>
-                                </select>
+                                <input class="pattern form-control purlTarget"/>
+                                <input type="hidden" property="calli:alternate"/>
                             </div>
                         </div>
                         <div class="form-group col-sm-3">
                             <label for="type">Redirect status</label>
                             <div>
-                                <select class="form-control responseType">
+                                <select class="form-control actionType">
                                     <option value="calli:canonical">Canonical (301)</option>
                                     <option value="calli:alternate" selected="selected">Alternate (302)</option>
                                 </select>
-                            </div>
-                        </div>
-                        <div class="form-group col-sm-6">
-                            <label>Target</label>
-                            <div>
-                                <input class="pattern form-control purlTarget"/>
-                                <input type="hidden" property="calli:alternate"/>
                             </div>
                         </div>
                     </fieldset>
@@ -86,7 +74,6 @@
                         <dt>Alternate (302)</dt>
                         <dd>Simple redirection to a target URL</dd>
                     </dl>
-                    <p>For more advanced features use a RewriteRule instead.</p>
                 </aside>
             </div>
         </div>

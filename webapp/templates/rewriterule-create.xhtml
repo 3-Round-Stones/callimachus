@@ -12,23 +12,8 @@
             white-space: pre;
             word-wrap: normal;
         }
-        #ruleTable th, #ruleTable td { 
-            padding-left: 4px; 
-            padding-right: 4px; 
-        }
-        #ruleTable>thead>tr:first-child>th { 
-            text-align: center;
-        }
-        #ruleTable>thead { 
-            border-bottom:1px solid black;
-        }
-        #ruleTable>thead>tr:nth-child(1)>th:nth-child(1), 
-        #ruleTable>thead>tr:nth-child(2)>th:nth-child(2),
-        #ruleTable td:nth-child(2) { 
-            border-right:1px solid black;
-        }
-        .selectize-input {
-            margin-top:4px;
+        a.glyphicon:link, a.glyphicon:visited, a.glyphicon:hover {
+            text-decoration:none;
         }
     </style>
     <script type="text/javascript" src="../scripts/purl.js"></script>
@@ -87,90 +72,86 @@
         </div>
                 
         <div class="row">
-            <div class="col-sm-12">
+            <div id="rules" class="col-sm-12">
                 <label>Rules
-                    <a href="javascript:void(0)" title="More" onclick="addRule('#rules')" class="glyphicon glyphicon-plus" />
+                    <a href="javascript:void(0)" title="More" onclick="addRule('#rules')" class="glyphicon glyphicon-plus"/>
                 </label>
-                <table id="ruleTable" class="table-condensed col-sm-12">
-                    <thead>
-                        <tr>
-                            <th class="col-sm-5" colspan="2">When request matches...</th>
-                            <th class="col-sm-6" colspan="2">Take the following action...</th>
-                            <th class="col-sm-1"></th>
-                        </tr>
-                        <tr>
-                            <th class="col-sm-2">Methods</th>
-                            <th class="col-sm-3">Pattern</th>
-                            <th class="col-sm-2">Action</th>
-                            <th class="col-sm-4">Target template</th>
-                            <th class="col-sm-1"></th>
-                        </tr>
-                    </thead>
-                    <tbody id="rules">
-                    </tbody>
-                    <tfoot style="display:none">
-                        <tr class="rule">
-                            <td>
-                                <select multiple="multiple" class="form-control requestMethod">
-                                    <option value="GET" selected="selected">GET</option>
-                                    <option value="POST">POST</option>
-                                    <option value="PUT">PUT</option>
-                                    <option value="PATCH">PATCH</option>
-                                    <option value="DELETE">DELETE</option>
-                                </select>
-                            </td>
-                            <td>
-                                <input type="text" class="form-control requestPattern" value=".*" onchange="" placeholder=".*"/>
-                            </td>
-                            <td>
-                                <select class="form-control responseType">
-                                    <!-- GET responses -->
-                                    <optgroup label="GET responses">
-                                        <option value="calli:copy">Copy (200)</option>
-                                        <option value="calli:canonical">Canonical (301)</option>
-                                        <option value="calli:alternate" selected="selected">Alternate (302)</option>
-                                        <option value="calli:describedby">Described by (303)</option>
-                                        <option value="calli:resides">Resides (307)</option>
-                                        <option value="calli:moved">Moved (308)</option>
-                                        <option value="calli:missing">Missing (404)</option>
-                                        <option value="calli:gone">Gone (410)</option>
-                                        <option value="calli:illegal">Illegal (451)</option>
-                                    </optgroup>
-                                    <!-- Other requests -->
-                                    <optgroup label="Other requests">
-                                        <option value="calli:post">POST</option>
-                                        <option value="calli:put">PUT</option>
-                                        <option value="calli:patch">PATCH</option>
-                                        <option value="calli:delete">DELETE</option>
-                                    </optgroup>
-                                </select>
-                            </td>
-                            <td>
-                                <textarea class="pattern form-control purlTarget" rows="1"></textarea>
-                            </td>
-                            <td class="text-center">
-                                <a href="javascript:void(0)" title="Delete" onclick="deleteRule(event, '#rules')" class="glyphicon glyphicon-minus"/>
-                            </td>
-                        </tr>
-                    </tfoot>
-                </table>
             </div>
+            <div id="blankRule" style="display:none">
+                <div class="panel panel-default rule">
+                    <div class="panel-body">
+                        <div class="row">
+                            <h4 class="col-sm-12">When request matches...
+                                <a href="javascript:void(0)" title="Delete" onclick="deleteRule(event, '#rules')" class="glyphicon glyphicon-minus pull-right"/>
+                            </h4>
+                        </div>
+                        <div class="form-group col-sm-3">
+                            <label>Methods</label>
+                            <select multiple="multiple" class="form-control requestMethod">
+                                <option value="GET" selected="selected">GET</option>
+                                <option value="POST">POST</option>
+                                <option value="PUT">PUT</option>
+                                <option value="PATCH">PATCH</option>
+                                <option value="DELETE">DELETE</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-9">
+                            <label>Pattern</label>
+                            <input type="text" class="form-control requestPattern" value="" placeholder="Regular expression"/>
+                        </div>
+                        <div class="row">
+                            <h4 class="col-sm-12">Take the following action...</h4>
+                        </div>
+                        <div class="form-group col-sm-3">
+                            <label>Action</label>
+                            <select class="form-control actionType">
+                                <optgroup label="Redirects">
+                                    <option value="calli:canonical">Canonical (301)</option>
+                                    <option value="calli:alternate" selected="selected">Alternate (302)</option>
+                                    <option value="calli:describedby">Described by (303)</option>
+                                    <option value="calli:resides">Resides (307)</option>
+                                    <option value="calli:moved">Moved (308)</option>
+                                </optgroup>
+                                <optgroup label="GET requests">
+                                    <option value="calli:copy">Copy (200)</option>
+                                    <option value="calli:missing">Missing (404)</option>
+                                    <option value="calli:gone">Gone (410)</option>
+                                    <option value="calli:illegal">Illegal (451)</option>
+                                </optgroup>
+                                <optgroup label="Other requests">
+                                    <option value="calli:post">POST</option>
+                                    <option value="calli:put">PUT</option>
+                                    <option value="calli:patch">PATCH</option>
+                                    <option value="calli:delete">DELETE</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-9">
+                            <label>Target template</label>
+                            <div>
+                                <textarea class="pattern form-control purlTarget" rows="1"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>            
+            </div>            
         </div>
 
-        <div class="row">
-            <fieldset>
-                <div class="form-group col-sm-2">
-                    <label for="cache">GET cache control</label>
-                    <div>
-                        <input type="text" id="cache" value="{calli:cacheControl}" placeholder="max-age=3600" class="form-control"
-                            onchange="calli.updateProperty(event, 'calli:cacheControl')" />
-                    </div>
+        <fieldset>
+            <div class="form-group row">
+                <label for="cache" class="col-sm-12">GET Cache-Control</label>
+                <div class="col-sm-3">
+                    <input type="text" id="cache" value="{calli:cacheControl}" placeholder="max-age=3600" class="form-control"
+                        onchange="calli.updateProperty(event, 'calli:cacheControl')" />
+                    <p class="help-block">Response directive</p>
                 </div>
-            </fieldset>
-            <fieldset class="form-group col-sm-2">
+            </div>
+        </fieldset>
+        <fieldset class="form-group row">
+            <div class="col-sm-2">
                 <button id="create" type="submit" class="btn btn-success">Create</button>
-            </fieldset>
-        </div>
+            </div>
+        </fieldset>
     </form>
 </body>
 </html>

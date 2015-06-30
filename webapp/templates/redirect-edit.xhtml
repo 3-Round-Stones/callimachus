@@ -40,7 +40,7 @@
                                 <input class="pattern form-control purlTarget"/>
                             </div>
                         </div>
-                        <div class="form-group col-sm-3">
+                        <div id="redirectStatus" class="form-group col-sm-3">
                             <label for="type">Redirect status</label>
                             <div>
                                 <select id="type" class="form-control actionType">
@@ -62,7 +62,8 @@
                     <p>PURLs are used to curate the URL resolution process, thus solving
                     the problem of transitory URIs in location-based URI schemes like HTTP.</p>
                     <p>This is the most basic class of PURL that performs a simple HTTP redirection of a GET request.</p>
-                    <dl>
+                    <h4>Status codes returned:</h4>
+                    <dl id="actionDefinitions">
                         <dt>Canonical (301)</dt>
                         <dd>Moved permanently to a target URL</dd>
                         <dt>Alternate (302)</dt>

@@ -3,41 +3,41 @@
    Copyright (c) 2014 3 Round Stones Inc., Some Rights Reserved
    Licensed under the Apache License, Version 2.0, http://www.apache.org/licenses/LICENSE-2.0
 */
-var actionTypeOptions = [
-    { value: 'calli:copy', text: 'Copy (200)' },
-    { value: 'calli:canonical', text: 'Canonical (301)' },
-    { value: 'calli:alternate', text: 'Alternate (302)' },
-    { value: 'calli:describedby', text: 'Described by (303)' },
-    { value: 'calli:resides', text: 'Resides (307)' },
-    { value: 'calli:moved', text: 'Moved (308)' },
-    { value: 'calli:missing', text: 'Missing (404)' },
-    { value: 'calli:gone', text: 'Gone (410)' },
-    { value: 'calli:illegal', text: 'Illegal (451)' },
-    { value: 'calli:post', text: 'POST' },
-    { value: 'calli:put', text: 'PUT' },
-    { value: 'calli:patch', text: 'PATCH' },
-    { value: 'calli:delete', text: 'DELETE' }
-];
-
-var redirectActions = {
-    '301': actionTypeOptions[1],
-    '302': actionTypeOptions[2]
-}
-
-var purlActions = {
-    '200': actionTypeOptions[0],
-    '301': actionTypeOptions[1],
-    '302': actionTypeOptions[2],
-    '303': actionTypeOptions[3],
-    '307': actionTypeOptions[4],
-    '308': actionTypeOptions[5],
-    '404': actionTypeOptions[6],
-    '410': actionTypeOptions[7],
-    '451': actionTypeOptions[8]
-}
-
 jQuery(function($){
     var mode = getMode();   // get the subclass of PURL being created/edited
+    
+    var actionTypeOptions = [
+        { value: 'calli:copy', text: 'Copy (200)' },
+        { value: 'calli:canonical', text: 'Canonical (301)' },
+        { value: 'calli:alternate', text: 'Alternate (302)' },
+        { value: 'calli:describedby', text: 'Described by (303)' },
+        { value: 'calli:resides', text: 'Resides (307)' },
+        { value: 'calli:moved', text: 'Moved (308)' },
+        { value: 'calli:missing', text: 'Missing (404)' },
+        { value: 'calli:gone', text: 'Gone (410)' },
+        { value: 'calli:illegal', text: 'Illegal (451)' },
+        { value: 'calli:post', text: 'POST' },
+        { value: 'calli:put', text: 'PUT' },
+        { value: 'calli:patch', text: 'PATCH' },
+        { value: 'calli:delete', text: 'DELETE' }
+    ];
+    
+    var redirectActions = {
+        '301': actionTypeOptions[1],
+        '302': actionTypeOptions[2]
+    };
+    
+    var purlActions = {
+        '200': actionTypeOptions[0],
+        '301': actionTypeOptions[1],
+        '302': actionTypeOptions[2],
+        '303': actionTypeOptions[3],
+        '307': actionTypeOptions[4],
+        '308': actionTypeOptions[5],
+        '404': actionTypeOptions[6],
+        '410': actionTypeOptions[7],
+        '451': actionTypeOptions[8]
+    };
 
     // check for limited action types in the query string
     var params = parseQueryString();
@@ -53,6 +53,7 @@ jQuery(function($){
                 allowedActions.push(list[val[i]]);
             }
         }
+        removeDefinitions(allowedActions);
     }
 
     if (mode === 'Proxy') {
@@ -192,17 +193,15 @@ jQuery(function($){
         }
     }
 
-    if (mode === 'Purl' || mode === 'Proxy') {
-        $('#cache').val($('#cacheProperty').val());
-        if ($('#cacheProperty').length === 0) {
-            $('#loadedRules').after('<input id="cacheProperty" type="hidden" property="calli:cacheControl" onchange="calli.updateProperty(event, \'calli:cacheControl\')"/>');
+    if (mode === 'Purl' || mode === 'Proxy' || mode === 'RewriteRule') {
+        var selectionValue = $('#cache>option:selected').val();
+        if (selectionValue && $('#cache>option[value="'+selectionValue+'"]').length === 2) {
+            $('#cache>option:selected').remove();
+            $('#cache').val(selectionValue);
         }
         $('#cache').selectize({
             allowEmptyOption:true,
-            onChange: function(value) {
-                $('#cacheProperty').val(value);
-                $('#cacheProperty').change();
-            }
+            create:true
         });
     }
 });
@@ -386,6 +385,9 @@ function encodePurl(purl, mode) {
             // .* is default so not required if method is default for the action type
             purl.pattern = null;
         }
+    } else {
+        // Method is GET only so pattern is also required
+        purl.pattern = '.*';
     }
     var encodedPurl = 
         (purl.methods?purl.methods.join(',')+' ':'') + 
@@ -400,8 +402,9 @@ function setupRuleSelects(container, mode, allowedActions) {
     }
 
     if (mode === 'Folder') {
+        /*
         container.find('select.actionType').selectize({
-            options: actionTypeOptions,
+            options: actionTypeOptions, // IS THIS NEEDED?
             onFocus: function() { 
                 setRemainingOptions(this, actionTypeOptions, $('#rules select.actionType'));
             },
@@ -409,12 +412,14 @@ function setupRuleSelects(container, mode, allowedActions) {
                 this.addItem('calli:alternate');
             }
         });
+        */
     } else {
         if ((mode === 'Redirect' || mode === 'Purl') && allowedActions.length !== 0) {
             if (allowedActions.length === 1) {
                 container.find('select.actionType').replaceWith(
-                    "<input class='form-control actionType' type='text' placeholder='"+allowedActions[0].text+"' readonly='readonly' data-value='"+allowedActions[0].value+"'/>"
+                    "<input type='hidden' data-value='"+allowedActions[0].value+"'/>"
                 );
+                $('#redirectStatus').hide();
             } else {
                 var select = container.find('select.actionType').selectize()[0].selectize;
                 select.clearOptions();
@@ -468,4 +473,23 @@ function parseQueryString() {
         else query[first] = [query[first], second];
     }
     return query;
+}
+
+function removeDefinitions(allowedActions) {
+    if (allowedActions.length !== 0) {
+        $('#actionDefinitions>dt').each(function() {
+            var found = false;
+            var action = $(this).text();
+            for (var i in allowedActions) {
+                if (allowedActions[i].text === action) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                $(this).hide();
+                $(this).next().hide();
+            }
+        });
+    }
 }

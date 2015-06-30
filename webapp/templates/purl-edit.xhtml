@@ -26,29 +26,29 @@
             <input type="hidden" property="calli:gone" content="?gone" value="{?gone}"/>
             <input type="hidden" property="calli:illegal" content="?illegal" value="{?illegal}"/>
         </div>
-        <input id="cacheProperty" type="hidden" property="calli:cacheControl" content="?cache" value="{?cache}" onchange="calli.updateProperty(event, 'calli:cacheControl')"/>
+
         <div class="row">
             <div class="col-sm-8">
-                <div class="row">
-                    <fieldset>
-                        <div class="form-group col-sm-12">
-                            <label for="comment">Comment</label>
-                            <div>
-                                <textarea id="comment" class="form-control"
-                                    onchange="calli.updateProperty(event, 'rdfs:comment')">{rdfs:comment}</textarea>
-                            </div>
+                <fieldset class="row">
+                    <div class="form-group col-sm-12">
+                        <label for="comment">Comment</label>
+                        <div>
+                            <textarea id="comment" class="form-control"
+                                onchange="calli.updateProperty(event, 'rdfs:comment')">{rdfs:comment}</textarea>
                         </div>
-                    </fieldset>
-                </div>
-                <div class="row">
-                    <fieldset id="rules" class="rule">
+                    </div>
+                </fieldset>
+                <fieldset id="rules" class="rule">
+                    <div class="row">
                         <div class="form-group col-sm-12">
                             <label>Target</label>
                             <div>
                                 <input class="pattern form-control purlTarget"/>
                             </div>
                         </div>
-                        <div class="form-group col-sm-3">
+                    </div>
+                    <div class="row">
+                        <div id="redirectStatus" class="form-group col-sm-6">
                             <label for="type">Redirect status</label>
                             <div>
                                 <select id="type" class="form-control actionType">
@@ -64,10 +64,11 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="form-group col-sm-3">
+                        <div class="form-group col-sm-6">
                             <label for="cache">Cache control</label>
                             <div>
-                                <select id="cache" class="form-control">
+                                <select id="cache" class="form-control" onchange="calli.updateProperty(event,'calli:cacheControl')">
+                                    <option property="calli:cacheControl" selected="selected" content="?cache" value="{?cache}">{?cache}</option>
                                     <option value=""></option>
                                     <option value="no-store">Don't cache</option>
                                     <option value="max-age=1">1 sec</option>
@@ -84,8 +85,8 @@
                                 </select>
                             </div>
                         </div>
-                    </fieldset>
-                </div>
+                    </div>
+                </fieldset>
                 <fieldset class="form-group">
                     <button id="save" type="submit" class="btn btn-primary">Save</button>
                     <button id="cancel" type="button" onclick="window.location.replace('?view')" class="btn btn-default">Cancel</button>
@@ -97,7 +98,8 @@
                     <p>PURLs are used to curate the URL resolution process, thus solving
                     the problem of transitory URIs in location-based URI schemes like HTTP.</p>
                     <p>This class of PURL deals with cases where there are alternative data representations describing a resource or cases where a resource is unavailable.</p>
-                    <dl>
+                    <h4>Status codes returned:</h4>
+                    <dl id="actionDefinitions">
                         <dt>Copy (200)</dt>
                         <dd>Expose content from one location to another, possibly including limiting access to read-only</dd>
                         <dt>Canonical (301)</dt>

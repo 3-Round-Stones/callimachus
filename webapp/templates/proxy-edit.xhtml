@@ -44,7 +44,6 @@
             <input type="hidden" property="calli:patch" content="?patch" value="{?patch}"/>
             <input type="hidden" property="calli:delete" content="?delete" value="{?delete}"/>            
         </div>
-        <input id="cacheProperty" type="hidden" property="calli:cacheControl" content="?cache" value="{?cache}" onchange="calli.updateProperty(event, 'calli:cacheControl')"/>
         
         <div class="row">
             <div id="rules" class="col-sm-12">
@@ -63,16 +62,16 @@
                                 <label for="getActionType">Action</label>
                                 <div>
                                     <select id="getActionType" class="form-control actionType">
-                                        <option value="calli:copy">Copy (200)</option>
-                                        <option value="calli:post">POST</option>
-                                        <option value="calli:put">PUT</option>
-                                        <option value="calli:patch">PATCH</option>
-                                        <option value="calli:delete">DELETE</option>
+                                        <option value="calli:copy">Perform GET</option>
+                                        <option value="calli:post">Perform POST</option>
+                                        <option value="calli:put">Perform PUT</option>
+                                        <option value="calli:patch">Perform PATCH</option>
+                                        <option value="calli:delete">Perform DELETE</option>
                                     </select>
                                 </div>
                             </div>
                             <div class="form-group col-sm-7">
-                                <label for="getPattern">URL Pattern</label>
+                                <label for="getPattern">GET URL Pattern</label>
                                 <div>
                                     <input type="text" class="form-control requestPattern" placeholder="Pattern for variables"/>
                                 </div>
@@ -80,7 +79,8 @@
                             <div class="form-group col-sm-3">
                                 <label for="">Cache control</label>
                                 <div>
-                                    <select id="cache" class="form-control">
+                                    <select id="cache" class="form-control" onchange="calli.updateProperty(event,'calli:cacheControl')">
+                                        <option property="calli:cacheControl" selected="selected" content="?cache" value="{?cache}">{?cache}</option>
                                         <option value=""></option>
                                         <option value="no-store">Don't cache</option>
                                         <option value="max-age=1">1 sec</option>
@@ -121,16 +121,16 @@
                                 <label for="postActionType">Action</label>
                                 <div>
                                     <select id="getActionType" class="form-control actionType">
-                                        <option value="calli:copy">Copy (200)</option>
-                                        <option value="calli:post">POST</option>
-                                        <option value="calli:put">PUT</option>
-                                        <option value="calli:patch">PATCH</option>
-                                        <option value="calli:delete">DELETE</option>
+                                        <option value="calli:copy">Perform GET</option>
+                                        <option value="calli:post">Perform POST</option>
+                                        <option value="calli:put">Perform PUT</option>
+                                        <option value="calli:patch">Perform PATCH</option>
+                                        <option value="calli:delete">Perform DELETE</option>
                                     </select>
                                 </div>
                             </div>
                             <div class="form-group col-sm-7">
-                                <label for="postPattern">URL Pattern</label>
+                                <label for="postPattern">POST URL Pattern</label>
                                 <div>
                                     <input type="text" class="form-control requestPattern" placeholder="Pattern for variables"/>
                                 </div>
@@ -159,16 +159,16 @@
                                 <label for="putActionType">Action</label>
                                 <div>
                                     <select id="getActionType" class="form-control actionType">
-                                        <option value="calli:copy">Copy (200)</option>
-                                        <option value="calli:post">POST</option>
-                                        <option value="calli:put">PUT</option>
-                                        <option value="calli:patch">PATCH</option>
-                                        <option value="calli:delete">DELETE</option>
+                                        <option value="calli:copy">Perform GET</option>
+                                        <option value="calli:post">Perform POST</option>
+                                        <option value="calli:put">Perform PUT</option>
+                                        <option value="calli:patch">Perform PATCH</option>
+                                        <option value="calli:delete">Perform DELETE</option>
                                     </select>
                                 </div>
                             </div>
                             <div class="form-group col-sm-7">
-                                <label for="putPattern">URL Pattern</label>
+                                <label for="putPattern">PUT URL Pattern</label>
                                 <div>
                                     <input type="text" class="form-control requestPattern" placeholder="Pattern for variables"/>
                                 </div>
@@ -197,16 +197,16 @@
                                 <label for="patchActionType">Action</label>
                                 <div>
                                     <select id="getActionType" class="form-control actionType">
-                                        <option value="calli:copy">Copy (200)</option>
-                                        <option value="calli:post">POST</option>
-                                        <option value="calli:put">PUT</option>
-                                        <option value="calli:patch">PATCH</option>
-                                        <option value="calli:delete">DELETE</option>
+                                        <option value="calli:copy">Perform GET</option>
+                                        <option value="calli:post">Perform POST</option>
+                                        <option value="calli:put">Perform PUT</option>
+                                        <option value="calli:patch">Perform PATCH</option>
+                                        <option value="calli:delete">Perform DELETE</option>
                                     </select>
                                 </div>
                             </div>
                             <div class="form-group col-sm-7">
-                                <label for="patchPattern">URL Pattern</label>
+                                <label for="patchPattern">PATCH URL Pattern</label>
                                 <div>
                                     <input type="text" class="form-control requestPattern" placeholder="Pattern for variables"/>
                                 </div>
@@ -235,16 +235,16 @@
                                 <label for="deleteActionType">Action</label>
                                 <div>
                                     <select id="getActionType" class="form-control actionType">
-                                        <option value="calli:copy">Copy (200)</option>
-                                        <option value="calli:post">POST</option>
-                                        <option value="calli:put">PUT</option>
-                                        <option value="calli:patch">PATCH</option>
-                                        <option value="calli:delete">DELETE</option>
+                                        <option value="calli:copy">Perform GET</option>
+                                        <option value="calli:post">Perform POST</option>
+                                        <option value="calli:put">Perform PUT</option>
+                                        <option value="calli:patch">Perform PATCH</option>
+                                        <option value="calli:delete">Perform DELETE</option>
                                     </select>
                                 </div>
                             </div>
                             <div class="form-group col-sm-7">
-                                <label for="deletePattern">URL Pattern</label>
+                                <label for="deletePattern">DELETE URL Pattern</label>
                                 <div>
                                     <input type="text" class="form-control requestPattern" placeholder="Pattern for variables"/>
                                 </div>

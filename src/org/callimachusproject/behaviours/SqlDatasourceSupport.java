@@ -30,6 +30,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -126,7 +127,11 @@ public abstract class SqlDatasourceSupport implements SqlDatasource,
 			conn.setAutoCommit(false);
 			verifyTableExists(tablename, conn);
 			conn.createStatement().execute("DELETE FROM \"" + tablename + "\"");
-			loadIntoTable(rows, tablename, conn);
+			if (rows == null) {
+				logger.warn("Cleared table {}", tablename);
+			} else {
+				loadIntoTable(rows, tablename, conn);
+			}
 			conn.commit();
 		} finally {
 			conn.close();
@@ -135,6 +140,8 @@ public abstract class SqlDatasourceSupport implements SqlDatasource,
 
 	public void loadIntoTable(TupleQueryResult rows, String tablename)
 			throws SQLException, OpenRDFException, IOException {
+		if (rows == null)
+			throw new BadRequest("No content");
 		Connection conn = getConnection();
 		try {
 			conn.setAutoCommit(false);
@@ -246,7 +253,7 @@ public abstract class SqlDatasourceSupport implements SqlDatasource,
 		Exception cause = null;
 		String url = this.getCalliJdbcUrl();
 		List<String> classnames = new ArrayList<String>(this.getCalliDriverClassName());
-		ClassLoader cl = createClassLoader();
+		URLClassLoader cl = createClassLoader();
 		for (String classname : classnames) {
 			try {
 				Object d = Class.forName(classname, true, cl).newInstance();
@@ -274,6 +281,8 @@ public abstract class SqlDatasourceSupport implements SqlDatasource,
 					manager.registerDriver(name, driver, url, props, config,
 							this.getCalliValidationQuery());
 					return;
+				} else {
+					logger.error("{} does not accept {}", classname, url);
 				}
 			} catch (ClassNotFoundException e) {
 				cause = e;
@@ -293,11 +302,11 @@ public abstract class SqlDatasourceSupport implements SqlDatasource,
 		reset();
 		if (cause instanceof SQLException)
 			throw (SQLException) cause;
+		String msg = "Could not load driver " + classnames + " from "
+				+ Arrays.asList(cl.getURLs());
 		if (cause != null)
-			throw new SQLException("Could not load driver "
-					+ classnames, cause);
-		throw new SQLException("Could not load driver "
-				+ classnames);
+			throw new SQLException(msg, cause);
+		throw new SQLException(msg);
 	}
 
 	private Credentials getCredential(String url) throws OpenRDFException,
@@ -313,7 +322,7 @@ public abstract class SqlDatasourceSupport implements SqlDatasource,
 		return creds.getCredentials(new AuthScope(host, port));
 	}
 
-	private ClassLoader createClassLoader() {
+	private URLClassLoader createClassLoader() {
 		List<URL> urls = new ArrayList<URL>();
 		for (RDFObject jar : this.getCalliDriverJar()) {
 			try {

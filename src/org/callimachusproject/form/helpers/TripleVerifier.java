@@ -78,7 +78,7 @@ public final class TripleVerifier implements Cloneable {
 		disconnected = new HashMap<Resource, Set<Statement>>();
 		allTypes = new LinkedHashSet<URI>();
 		types = new HashMap<Resource, Set<URI>>();
-		ldpURIs = new HashSet<>();
+		ldpURIs = new HashSet<URI>();
 		empty = true;
 	}
 
@@ -94,7 +94,7 @@ public final class TripleVerifier implements Cloneable {
 		disconnected = new HashMap<Resource, Set<Statement>>(cloned.disconnected);
 		allTypes = new LinkedHashSet<URI>(cloned.allTypes);
 		types = new HashMap<Resource, Set<URI>>(cloned.types);
-		ldpURIs = new HashSet<>(cloned.ldpURIs);
+		ldpURIs = new HashSet<URI>(cloned.ldpURIs);
 		empty = cloned.empty;
 		patterns = cloned.patterns;
 	}

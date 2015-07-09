@@ -360,7 +360,10 @@ public class DigestPasswordAccessor implements DigestAccessor {
 			} finally {
 				reader.close();
 			}
-		} catch (IOException | NoSuchElementException e) {
+		} catch (IOException e) {
+			logger.error(file.toUri().toASCIIString(), e);
+			return null;
+		} catch (NoSuchElementException e) {
 			logger.error(file.toUri().toASCIIString(), e);
 			return null;
 		}

@@ -228,7 +228,7 @@ public class OptionsHandler implements AsyncExecChain {
 	}
 
 	private String getAccept(ResourceOperation trans, String req_method) {
-		Collection<String> types = new HashSet<>();
+		Collection<String> types = new HashSet<String>();
 		for (Method method : trans.findMethodHandlers(req_method)) {
 			for (Annotation[] anns : method.getParameterAnnotations()) {
 				if (trans.getParameterNames(anns) != null

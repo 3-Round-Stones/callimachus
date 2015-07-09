@@ -85,6 +85,7 @@ public abstract class ZipArchiveSupport implements CalliObject, FileObject {
 	}
 
 	public InputStream readZipEntry(String match) throws IOException {
+		boolean close = true;
 		InputStream in = this.openInputStream();
 		try {
 			ZipArchiveInputStream zip = new ZipArchiveInputStream(in);
@@ -92,6 +93,7 @@ public abstract class ZipArchiveSupport implements CalliObject, FileObject {
 			ZipArchiveEntry entry = zip.getNextZipEntry();
 			do {
 				if (entry.getName().equals(match)) {
+					close = false;
 					return zip;
 				}
 				long size = entry.getSize();
@@ -104,9 +106,10 @@ public abstract class ZipArchiveSupport implements CalliObject, FileObject {
 				entry = zip.getNextZipEntry();
 			} while (entry != null);
 			zip.close();
-		} catch (RuntimeException | Error | IOException e) {
-			in.close();
-			throw e;
+		} finally {
+			if (close) {
+				in.close();
+			}
 		}
 		return null;
 	}

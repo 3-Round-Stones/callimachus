@@ -76,7 +76,7 @@ import org.openrdf.rio.helpers.BasicParserSettings;
 
 public class TripleAnalyzer extends QueryModelVisitorBase<RDFHandlerException> implements RDFHandler {
 	private final List<TripleVerifier> verifiers = new ArrayList<TripleVerifier>();
-	private final ValueFactory vf = new ValueFactoryImpl();
+	final ValueFactory vf = new ValueFactoryImpl();
 	private final Map<String, Resource> anonymous = new HashMap<String, Resource>();
 	private final Set<Statement> connections = new HashSet<Statement>();
 	private TripleVerifier deleteVerifier = new TripleVerifier();
@@ -265,7 +265,9 @@ public class TripleAnalyzer extends QueryModelVisitorBase<RDFHandlerException> i
 		parser.setRDFHandler(this);
 		try {
 			parser.parse(new ByteArrayInputStream(node.getDataBlock().getBytes()), "");
-		} catch (org.openrdf.rio.RDFParseException | IOException e) {
+		} catch (org.openrdf.rio.RDFParseException e) {
+			throw new RDFHandlerException(e);
+		} catch (IOException e) {
 			throw new RDFHandlerException(e);
 		}
 		verifiers.add(verifier);
@@ -282,7 +284,9 @@ public class TripleAnalyzer extends QueryModelVisitorBase<RDFHandlerException> i
 		parser.getParserConfig().addNonFatalError(BasicParserSettings.FAIL_ON_UNKNOWN_DATATYPES);
 		try {
 			parser.parse(new ByteArrayInputStream(node.getDataBlock().getBytes()), "");
-		} catch (org.openrdf.rio.RDFParseException | IOException e) {
+		} catch (org.openrdf.rio.RDFParseException e) {
+			throw new RDFHandlerException(e);
+		} catch (IOException e) {
 			throw new RDFHandlerException(e);
 		}
 		verifiers.add(verifier);

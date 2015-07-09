@@ -67,7 +67,7 @@ import org.openrdf.rio.helpers.BasicParserSettings;
  */
 public abstract class BasicGraphPatternVisitor extends
 		QueryModelVisitorBase<QueryEvaluationException> implements RDFHandler {
-	private final ValueFactory vf = ValueFactoryImpl.getInstance();
+	final ValueFactory vf = ValueFactoryImpl.getInstance();
 
 	@Override
 	public abstract void meet(StatementPattern node)
@@ -144,7 +144,11 @@ public abstract class BasicGraphPatternVisitor extends
 		parser.setRDFHandler(this);
 		try {
 			parser.parse(new ByteArrayInputStream(node.getDataBlock().getBytes()), "");
-		} catch (org.openrdf.rio.RDFParseException | IOException | RDFHandlerException e) {
+		} catch (org.openrdf.rio.RDFParseException e) {
+			throw new QueryEvaluationException(e);
+		} catch (IOException e) {
+			throw new QueryEvaluationException(e);
+		} catch (RDFHandlerException e) {
 			throw new QueryEvaluationException(e);
 		}
 	}
@@ -157,7 +161,11 @@ public abstract class BasicGraphPatternVisitor extends
 		parser.getParserConfig().addNonFatalError(BasicParserSettings.FAIL_ON_UNKNOWN_DATATYPES);
 		try {
 			parser.parse(new ByteArrayInputStream(node.getDataBlock().getBytes()), "");
-		} catch (org.openrdf.rio.RDFParseException | IOException | RDFHandlerException e) {
+		} catch (org.openrdf.rio.RDFParseException e) {
+			throw new QueryEvaluationException(e);
+		} catch (IOException e) {
+			throw new QueryEvaluationException(e);
+		} catch (RDFHandlerException e) {
 			throw new QueryEvaluationException(e);
 		}
 	}

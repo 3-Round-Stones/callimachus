@@ -47,7 +47,7 @@ public class Group {
 	private final PrefixMap<String> everyoneFrom = new PrefixMap<String>();
 	private final PrefixMap<String> nobodyFrom = new PrefixMap<String>();
 	private final TreeSet<String> members = new TreeSet<String>();
-	private final Set<InetAddress> fromHosts = new HashSet<>();
+	private final Set<InetAddress> fromHosts = new HashSet<InetAddress>();
 	@SuppressWarnings("unchecked")
 	private final PrefixMap<String>[] sets = new PrefixMap[]{anonymousFrom,
 			everyoneFrom, nobodyFrom};

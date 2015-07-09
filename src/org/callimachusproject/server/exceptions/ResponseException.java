@@ -49,7 +49,7 @@ import org.apache.http.util.EntityUtils;
  * Base class for HTTP exceptions.
  */
 public abstract class ResponseException extends RuntimeException {
-	private final List<Header> headers = new ArrayList<>();
+	private final List<Header> headers = new ArrayList<Header>();
 
 	public static ResponseException create(HttpResponse resp) throws IOException {
 		return create(resp, null);

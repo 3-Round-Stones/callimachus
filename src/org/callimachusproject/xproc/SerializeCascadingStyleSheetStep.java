@@ -71,10 +71,8 @@ public class SerializeCascadingStyleSheetStep implements XProcStep {
 
 	@Override
 	public void setOption(QName name, RuntimeValue value) {
-		switch (name.getLocalName()) {
-		case "content-type":
+		if ("content-type".equals(name.getLocalName())) {
 			contentType = value.getString();
-			break;
 		}
 	}
 

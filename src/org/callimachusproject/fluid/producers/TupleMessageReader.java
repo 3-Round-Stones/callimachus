@@ -32,6 +32,8 @@ package org.callimachusproject.fluid.producers;
 import java.io.IOException;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
+import java.util.Collections;
+import java.util.List;
 
 import org.callimachusproject.fluid.producers.base.MessageReaderBase;
 import org.callimachusproject.io.ChannelUtil;
@@ -67,6 +69,8 @@ public class TupleMessageReader
 		if (in == null)
 			return null;
 		TupleQueryResultBuilder builder = new TupleQueryResultBuilder();
+		List<String> emptyList = Collections.emptyList();
+		builder.startQueryResult(emptyList);
 		TupleQueryResultParser parser = factory.getParser();
 		parser.setTupleQueryResultHandler(builder);
 		parser.parse(ChannelUtil.newInputStream(in));

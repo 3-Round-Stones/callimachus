@@ -29,6 +29,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.GregorianCalendar;
@@ -386,7 +387,7 @@ public abstract class SqlDatasourceSupport implements SqlDatasource,
 				BindingSet row = rows.next();
 				for (int i = 0, n = columns.size(); i < n; i++) {
 					String column = columns.get(i);
-					Integer type = columnTypes.get(column);
+					int type = columnTypes.get(column);
 					Value value = row.getValue(column);
 					int col = i + 1;
 					setValue(insert, col, value, type);
@@ -442,19 +443,29 @@ public abstract class SqlDatasourceSupport implements SqlDatasource,
 	}
 
 	private void setValue(PreparedStatement insert, int col, Value value,
-			Integer type) throws SQLException {
+			int type) throws SQLException {
 		if (value == null) {
 			insert.setNull(col, type);
 		} else if (value instanceof Literal) {
 			Literal lit = (Literal) value;
 			URI datatype = lit.getDatatype();
-			if (datatype == null) {
-				insert.setString(col, value.stringValue());
-			} else if (XMLDatatypeUtil.isCalendarDatatype(datatype)) {
+			if (Types.TIMESTAMP == type) {
+				GregorianCalendar cal = lit.calendarValue()
+						.toGregorianCalendar();
+				insert.setTimestamp(col,
+						new java.sql.Timestamp(cal.getTimeInMillis()), cal);
+			} else if (Types.DATE == type) {
 				GregorianCalendar cal = lit.calendarValue()
 						.toGregorianCalendar();
 				insert.setDate(col, new java.sql.Date(cal.getTimeInMillis()),
 						cal);
+			} else if (datatype == null) {
+				insert.setString(col, value.stringValue());
+			} else if (XMLDatatypeUtil.isCalendarDatatype(datatype)) {
+				GregorianCalendar cal = lit.calendarValue()
+						.toGregorianCalendar();
+				insert.setTimestamp(col,
+						new java.sql.Timestamp(cal.getTimeInMillis()), cal);
 			} else {
 				insert.setString(col, value.stringValue());
 			}

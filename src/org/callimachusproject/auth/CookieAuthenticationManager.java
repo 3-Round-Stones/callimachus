@@ -62,7 +62,7 @@ public class CookieAuthenticationManager implements
 	private static final BasicStatusLine _303 = new BasicStatusLine(
 			HttpVersion.HTTP_1_1, 303, "See Other");
 	private static final Pattern SID_SPLIT = Pattern
-			.compile("^(.*?):(.*?):(.*?):(.*)$");
+			.compile("^(.*?):(\\w*?):(\\w*?):(.*)$");
 	private static final int LOGIN_GRP = 1;
 	private static final int HASH_GRP = 2;
 	private static final int NONCE_GRP = 3;

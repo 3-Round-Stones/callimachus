@@ -76,7 +76,7 @@ import org.openrdf.rio.helpers.BasicParserSettings;
 
 public class TripleAnalyzer extends QueryModelVisitorBase<RDFHandlerException> implements RDFHandler {
 	private final List<TripleVerifier> verifiers = new ArrayList<TripleVerifier>();
-	private final ValueFactory vf = new ValueFactoryImpl();
+	final ValueFactory vf = new ValueFactoryImpl();
 	private final Map<String, Resource> anonymous = new HashMap<String, Resource>();
 	private final Set<Statement> connections = new HashSet<Statement>();
 	private TripleVerifier deleteVerifier = new TripleVerifier();

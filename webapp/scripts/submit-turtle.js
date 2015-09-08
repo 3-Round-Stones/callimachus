@@ -14,7 +14,7 @@ calli.submitTurtle = function(event, local) {
     var slug = encodeURI(local || '').replace(/%25(\w\w)/g, '%$1').replace(/%20/g, '+');
     calli.resolve(form).then(function(form){
         var previously = form.getAttribute("resource");
-        var ns = window.location.pathname.replace(/\/?$/, '/');
+        var ns = calli.getFormAction(event.target).replace(/\?.*/,'').replace(/\/?$/, '/');
         var resource = ns + slug;
         form.setAttribute("resource", resource);
         try {
@@ -36,7 +36,7 @@ calli.submitTurtle = function(event, local) {
         });
         return data;
     }).then(function(data){
-        return calli.postTurtle(calli.getFormAction(form), data, slug);
+        return calli.postTurtle(calli.getFormAction(form), data, {slug: slug});
     }).then(function(redirect){
         if (redirect) {
             if (window.parent != window && parent.postMessage) {

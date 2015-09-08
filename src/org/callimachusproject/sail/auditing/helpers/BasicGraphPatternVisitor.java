@@ -67,7 +67,7 @@ import org.openrdf.rio.helpers.BasicParserSettings;
  */
 public abstract class BasicGraphPatternVisitor extends
 		QueryModelVisitorBase<QueryEvaluationException> implements RDFHandler {
-	private final ValueFactory vf = ValueFactoryImpl.getInstance();
+	final ValueFactory vf = ValueFactoryImpl.getInstance();
 
 	@Override
 	public abstract void meet(StatementPattern node)

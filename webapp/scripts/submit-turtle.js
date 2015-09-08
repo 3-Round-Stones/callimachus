@@ -20,7 +20,7 @@ calli.submitTurtle = function(event, local) {
             return calli.resolve(form).then(function(form){
                 if (!local) return calli.copyResourceData(form);
                 var previously = form.getAttribute("resource");
-                var ns = window.location.pathname.replace(/\/?$/, '/');
+                var ns = calli.getFormAction(event.target).replace(/\?.*/,'').replace(/\/?$/, '/');
                 var resource = ns + slug;
                 form.setAttribute("resource", resource);
                 try {

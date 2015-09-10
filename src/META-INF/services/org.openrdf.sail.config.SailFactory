@@ -1,1 +1,2 @@
 org.callimachusproject.sail.auditing.config.AuditingFactory
+org.callimachusproject.sail.keyword.config.KeywordFactory

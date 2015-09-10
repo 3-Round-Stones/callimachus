@@ -26,18 +26,12 @@
         rep:delegate [
             rep:repositoryType "openrdf:SailRepository" ;
             sr:sailImpl [
-                sail:sailType "openrdf:OptimisticSail" ;
-                opt:readSnapshot true ;
-                opt:snapshot false ;
-                opt:serializable false ;
+                sail:sailType "openrdf:AuditingSail" ;
                 sail:delegate [
-                    sail:sailType "openrdf:AuditingSail" ;
+                    sail:sailType "openrdf:KeywordSail" ;
                     sail:delegate [
-                        sail:sailType "openrdf:KeywordSail" ;
-                        sail:delegate [
-                            sail:sailType "openrdf:NativeStore" ;
-                            ns:tripleIndexes "spoc,pocs,oscp,cspo"
-                        ]
+                        sail:sailType "openrdf:NativeStore" ;
+                        ns:tripleIndexes "spoc,pocs,oscp,cspo"
                     ]
                 ]
             ]

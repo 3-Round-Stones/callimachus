@@ -35,7 +35,7 @@ calli.logout = function(realm) {
 };
 
 calli.getCurrentUserAccount = function() {
-    return calli.resolve().then(function(){
+    return calli.getCurrentUserName().then(function(){
         try {
             return window.localStorage.getItem('userIri');
         } catch(e) {}

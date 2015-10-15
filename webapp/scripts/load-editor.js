@@ -107,7 +107,7 @@ window.calli.submitEditorAs = function(event, local, create, folder) {
 var waiting = [];
 $(window).bind('message', function(event) {
     var msg = event.originalEvent.data;
-    if (msg.indexOf('OK\n\nGET text\nCallbackID: ') === 0) {
+    if (typeof msg == 'string' && msg.indexOf('OK\n\nGET text\nCallbackID: ') === 0) {
         var start = 'OK\n\nGET text\nCallbackID: '.length;
         var end = msg.indexOf('\n\n', start);
         var idx = msg.substring(start, end);
@@ -117,7 +117,7 @@ $(window).bind('message', function(event) {
             delete sourceCallbacks[idx];
             callback(text);
         }
-    } else if (msg.indexOf('OK\n\nPUT text') === 0) {
+    } else if (typeof msg == 'string' && msg.indexOf('OK\n\nPUT text') === 0) {
         if (waiting.length) {
             waiting.shift()();
         }

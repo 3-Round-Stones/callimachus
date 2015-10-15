@@ -23,7 +23,7 @@ var calli = window.calli || (window.calli={});
 $(window).bind('message', function(event) {
     if ($('iframe').filter(function(){return this.contentWindow == event.originalEvent.source;}).length) {
         var msg = event.originalEvent.data;
-        if (msg.indexOf('ERROR ') === 0) {
+        if (typeof msg == 'string' && msg.indexOf('ERROR ') === 0) {
             if (msg.indexOf('\n\n') > 0) {
                 var message = msg.substring('ERROR '.length, msg.indexOf('\n\n'));
                 var stack = msg.substring(msg.indexOf('\n\n') + 2);

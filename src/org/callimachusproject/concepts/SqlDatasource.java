@@ -16,6 +16,8 @@
  */
 package org.callimachusproject.concepts;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Set;
 
 import org.openrdf.annotations.Iri;
@@ -73,4 +75,5 @@ public interface SqlDatasource {
 	@Iri("http://callimachusproject.org/rdf/2009/framework#validationQuery")
 	void setCalliValidationQuery(String calliValidationQuery);
 
+	Connection getConnection() throws SQLException;
 }

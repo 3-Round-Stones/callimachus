@@ -174,6 +174,20 @@ public abstract class SqlDatasourceSupport implements SqlDatasource,
 		return results;
 	}
 
+	public Connection getConnection() throws SQLException {
+		String name = this.getResource().stringValue();
+		PoolableDriverConnection conn = manager.getConnection(name);
+		if (conn != null)
+			return conn;
+		synchronized (manager) {
+			conn = manager.getConnection(name);
+			if (conn != null)
+				return conn;
+			registerConnectionDriver(name, manager);
+			return manager.getConnection(name);
+		}
+	}
+
 	private TupleQueryResult evaluateSql(String sql, Connection conn)
 			throws SQLException, IOException, DatatypeConfigurationException {
 		Statement stmt = null;
@@ -226,24 +240,8 @@ public abstract class SqlDatasourceSupport implements SqlDatasource,
 		}
 	}
 
-	private Connection getConnection() throws SQLException, OpenRDFException,
-			IOException {
-		String name = this.getResource().stringValue();
-		PoolableDriverConnection conn = manager.getConnection(name);
-		if (conn != null)
-			return conn;
-		synchronized (manager) {
-			conn = manager.getConnection(name);
-			if (conn != null)
-				return conn;
-			registerConnectionDriver(name, manager);
-			return manager.getConnection(name);
-		}
-	}
-
 	private void registerConnectionDriver(String name,
-			DriverConnectionPoolManager manager) throws SQLException,
-			OpenRDFException, IOException {
+			DriverConnectionPoolManager manager) throws SQLException {
 		Exception cause = null;
 		String url = this.getCalliJdbcUrl();
 		List<String> classnames = new ArrayList<String>(this.getCalliDriverClassName());

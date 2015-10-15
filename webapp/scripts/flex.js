@@ -83,7 +83,7 @@ if (window.parent != window) {
     $(window).bind('message', function(event) {
         var source = event.originalEvent.source;
         var data = event.originalEvent.data;
-        if (data.indexOf('PUT height\n\n') === 0) {
+        if (typeof data == 'string' && data.indexOf('PUT height\n\n') === 0) {
             $('iframe.flex').each(function() {
                 if (this.contentWindow == source) {
                     var innerHeight = window.innerHeight || document.documentElement.clientHeight;
@@ -93,7 +93,7 @@ if (window.parent != window) {
                     this.contentWindow.postMessage('OK\n\nPUT height', '*');
                 }
             });
-        } else if (data.indexOf('PUT width\n\n') === 0) {
+        } else if (typeof data == 'string' && data.indexOf('PUT width\n\n') === 0) {
             $('iframe.flex').each(function() {
                 if (this.contentWindow == source) {
                     var width = parseInt(data.substring(data.indexOf('\n\n') + 2));

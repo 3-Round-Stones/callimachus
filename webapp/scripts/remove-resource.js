@@ -12,7 +12,7 @@ calli.removeResource = function(event) {
     event = calli.fixEvent(event);
     event.preventDefault();
     var node = event.target;
-    var selector = "[about][resource][property],[typeof],[typeof='']";
+    var selector = "[about],[resource],[property],[typeof],[typeof='']";
     var pNodes = $(node).closest(selector);
     if (pNodes.length) {
         $(pNodes[0]).remove();

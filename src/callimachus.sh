@@ -424,13 +424,9 @@ if [ ! -z "$DAEMON_USER" ] ; then
   if [ ! -e "$BASEDIR/repositories" ]; then
     mkdir "$BASEDIR/repositories"
   fi
-  if [ ! -e "$BASEDIR/backups" ]; then
-    mkdir "$BASEDIR/backups"
-  fi
   chown "$DAEMON_USER" "$BASEDIR"
   chown -R "$DAEMON_USER" "$BASEDIR/log"
   chown -R "$DAEMON_USER" "$BASEDIR/repositories"
-  chown -R "$DAEMON_USER" "$BASEDIR/backups"
   chown "$DAEMON_USER" "$MAIL"
   chown "$DAEMON_USER" "$CONFIG"
   chown "$DAEMON_USER" "$(dirname "$PIDFILE")"
@@ -438,7 +434,6 @@ if [ ! -z "$DAEMON_USER" ] ; then
     chown ":$DAEMON_GROUP" "$BASEDIR"
     chown -R ":$DAEMON_GROUP" "$BASEDIR/log"
     chown -R ":$DAEMON_GROUP" "$BASEDIR/repositories"
-    chown -R ":$DAEMON_GROUP" "$BASEDIR/backups"
     chown ":$DAEMON_GROUP" "$MAIL"
     chown ":$DAEMON_GROUP" "$CONFIG"
     chown ":$DAEMON_GROUP" "$(dirname "$PIDFILE")"
@@ -656,7 +651,6 @@ do_start()
     -Djava.util.logging.config.file="$LOGGING" \
     -Djava.mail.properties="$MAIL" \
     -Dorg.callimachusproject.config.repository="$REPOSITORY_CONFIG" \
-    -Dorg.callimachusproject.config.backups="$BASEDIR/backups" \
     -classpath "$CLASSPATH" \
     -Djava.awt.headless=true \
     -XX:OnOutOfMemoryError="kill %p" \
@@ -811,7 +805,6 @@ do_run() {
     -Djava.util.logging.config.file="$LOGGING" \
     -Djava.mail.properties="$MAIL" \
     -Dorg.callimachusproject.config.repository="$REPOSITORY_CONFIG" \
-    -Dorg.callimachusproject.config.backups="$BASEDIR/backups" \
     -Djava.awt.headless=true \
     -XX:OnOutOfMemoryError="kill %p" \
     -classpath "$CLASSPATH" \

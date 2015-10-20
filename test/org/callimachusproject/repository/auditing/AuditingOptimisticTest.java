@@ -27,9 +27,6 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.callimachusproject.repository.auditing.ActivityFactory;
-import org.callimachusproject.repository.auditing.AuditingRepository;
-import org.callimachusproject.repository.auditing.AuditingRepositoryConnection;
 import org.callimachusproject.sail.auditing.AuditingSail;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.BNode;
@@ -53,7 +50,6 @@ import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.trig.TriGWriter;
 import org.openrdf.sail.Sail;
 import org.openrdf.sail.memory.MemoryStore;
-import org.openrdf.sail.optimistic.OptimisticSail;
 
 public class AuditingOptimisticTest extends TestCase {
 	private static final String PREFIX = "PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
@@ -179,7 +175,7 @@ public class AuditingOptimisticTest extends TestCase {
 	public void setUp() throws Exception {
 		Sail sail = new MemoryStore();
 		sail = new AuditingSail(sail);
-		Repository r = new SailRepository(new OptimisticSail(sail));
+		Repository r = new SailRepository(sail);
 		repo = new AuditingRepository(r);
 		repo.initialize();
 		vf = repo.getValueFactory();

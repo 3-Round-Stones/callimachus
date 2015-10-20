@@ -16,7 +16,7 @@
  */
 package org.callimachusproject.form;
 
-import org.callimachusproject.form.helpers.TripleAnalyzer;
+import org.callimachusproject.engine.helpers.TripleAnalyzer;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

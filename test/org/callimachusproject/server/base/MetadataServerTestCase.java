@@ -48,7 +48,6 @@ import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.rio.trig.TriGWriter;
 import org.openrdf.sail.Sail;
 import org.openrdf.sail.memory.MemoryStore;
-import org.openrdf.sail.optimistic.OptimisticSail;
 
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientHandlerException;
@@ -219,7 +218,7 @@ public abstract class MetadataServerTestCase extends TestCase {
 	private ObjectRepository createRepository() throws Exception {
 		Sail sail = new MemoryStore(dataDir);
 		sail = new AuditingSail(sail);
-		Repository delegate = new SailRepository(new OptimisticSail(sail));
+		Repository delegate = new SailRepository(sail);
 		AuditingRepositoryFactory af = new AuditingRepositoryFactory();
 		AuditingRepository auditing = af.getRepository(af.getConfig());
 		auditing.setDelegate(delegate);

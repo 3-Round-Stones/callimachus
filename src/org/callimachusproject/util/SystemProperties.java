@@ -17,9 +17,12 @@
 package org.callimachusproject.util;
 
 import java.io.File;
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
+import org.apache.http.Header;
+import org.apache.http.message.BasicHeader;
 import org.callimachusproject.Version;
 
 public class SystemProperties {
@@ -28,32 +31,11 @@ public class SystemProperties {
 	private static final String VERSION_CODE = Version.getInstance().getVersionCode();
 	private static final String WEBAPP_CAR = "lib/callimachus-webapp-" + VERSION_CODE + ".car";
 
-	public static char[] getKeyStorePassword() throws IOException {
-		String password = getProperty("javax.net.ssl.keyStorePassword");
-		if (password == null)
-			return "changeit".toCharArray();
-		return password.toCharArray();
-	}
-
-	public static File getKeyStoreFile() throws IOException {
-		String keyStore = getProperty("javax.net.ssl.keyStore");
-		if (keyStore == null)
-			return new File(".keystore");
-		return new File(keyStore);
-	}
-
 	public static File getMailPropertiesFile() {
 		String mail = getProperty("java.mail.properties");
 		if (mail == null)
 			return new File("etc/mail.properties");
 		return new File(mail);
-	}
-
-	public static File getLoggingPropertiesFile() {
-		String file = System.getProperty("java.util.logging.config.file");
-		if (file == null)
-			return new File("etc/logging.properties");
-		return new File(file);
 	}
 
 	public static File getRepositoryConfigFile() {
@@ -77,13 +59,6 @@ public class SystemProperties {
 		return new File(SERVER_DEFAULT_CONF);
 	}
 
-	public static File getBackupDirectory() {
-		String defaultFile = getProperty("org.callimachusproject.config.backups");
-		if (defaultFile != null)
-			return new File(defaultFile);
-		return null;
-	}
-
 	public static int getUnlockAfter() {
 		String unlockAfter = getProperty("org.callimachusproject.auth.unlockAfter");
 		if (unlockAfter != null && Pattern.matches("\\d+", unlockAfter))
@@ -98,11 +73,22 @@ public class SystemProperties {
 		return 1000;
 	}
 
-	public static long getClientKeepAliveTimeout() {
-		String keepAliveTimeout = getProperty("org.callimachusproject.client.keepAliveTimeout");
-		if (keepAliveTimeout != null && Pattern.matches("\\d+", keepAliveTimeout))
-			return Math.abs(Long.parseLong(keepAliveTimeout));
-		return 4000;
+	public static Header[] getStaticResponseHeaders() {
+		String headers = System.getProperty("org.callimachusproject.auth.headers");
+		if (headers == null)
+			return null;
+		List<Header> list = new ArrayList<Header>();
+		for (String header : headers.split(",")) {
+			if (header.indexOf(":") > 0) {
+				String[] pair = header.split(":", 2);
+				list.add(new BasicHeader(pair[0].trim(), pair[1].trim()));
+			} else if (!list.isEmpty()) {
+				Header last = list.remove(list.size() - 1);
+				String value = last.getValue() + "," + header;
+				list.add(new BasicHeader(last.getName(), value));
+			}
+		}
+		return list.toArray(new Header[list.size()]);
 	}
 
 	private static String getProperty(String key) {

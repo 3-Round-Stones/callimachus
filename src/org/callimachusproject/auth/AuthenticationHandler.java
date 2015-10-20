@@ -49,6 +49,7 @@ import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.annotations.requires;
 import org.callimachusproject.traits.CalliObject;
+import org.callimachusproject.util.SystemProperties;
 import org.openrdf.OpenRDFException;
 import org.openrdf.annotations.HeaderParam;
 import org.openrdf.http.object.chain.HttpRequestChainInterceptor;
@@ -63,6 +64,7 @@ import org.openrdf.repository.object.RDFObject;
  * 
  */
 public class AuthenticationHandler implements HttpRequestChainInterceptor {
+	private static final String SECURITY_POLICY = "Content-Security-Policy";
 	private static final String ALLOW_ORIGIN = "Access-Control-Allow-Origin";
 	private static final String ALLOW_CREDENTIALS = "Access-Control-Allow-Credentials";
 	private static final String EXPOSE_HEADERS = "Access-Control-Expose-Headers";
@@ -70,6 +72,7 @@ public class AuthenticationHandler implements HttpRequestChainInterceptor {
 			"Content-Length", "Content-Encoding", "Date", "Server" };
 	private static final Set<String> PRIVATE_HEADERS = new HashSet<String>(
 			Arrays.asList("set-cookie", "set-cookie2"));
+	private final Header[] additionalHeaders = SystemProperties.getStaticResponseHeaders();
 
 	@Override
 	public HttpResponse intercept(HttpRequest request, HttpContext context)
@@ -108,6 +111,23 @@ public class AuthenticationHandler implements HttpRequestChainInterceptor {
 
 	void allow(HttpRequest request, AuthorizationManager manager, HttpResponse rb,
 			String allowedOrigin, HttpContext context) throws OpenRDFException, IOException {
+		if (additionalHeaders != null) {
+			for (Header hd : additionalHeaders) {
+				if (!rb.containsHeader(hd.getName())) {
+					rb.setHeader(hd);
+				}
+			}
+		}
+		if (allowedOrigin != null && !"*".equals(allowedOrigin)
+				&& !rb.containsHeader(SECURITY_POLICY)) {
+			StringBuilder policy = new StringBuilder();
+			policy.append("connect-src ").append(allowedOrigin).append(';');
+			policy.append("form-action ").append(allowedOrigin).append(';');
+			policy.append("frame-ancestors ").append(allowedOrigin).append(';');
+			policy.append("script-src 'unsafe-inline' 'unsafe-eval' *;");
+			policy.append("style-src 'unsafe-inline' *;");
+			rb.setHeader(SECURITY_POLICY, policy.toString());
+		}
 		if (allowedOrigin != null && !rb.containsHeader(ALLOW_ORIGIN)) {
 			rb.setHeader(ALLOW_ORIGIN, allowedOrigin);
 		}

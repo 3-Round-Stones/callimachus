@@ -19,6 +19,7 @@
         xmlns:p=     "http://www.w3.org/ns/xproc"
         xmlns:c=     "http://www.w3.org/ns/xproc-step"
         xmlns:l     ="http://xproc.org/library"
+        xmlns:xhtml ="http://www.w3.org/1999/xhtml"
         xmlns:calli ="http://callimachusproject.org/rdf/2009/framework#">
 
     <p:serialization port="result" media-type="text/html" method="html" doctype-system="about:legacy-compat" />
@@ -37,6 +38,42 @@
             <p:identity />
         </p:otherwise>
     </p:choose>
+
+    <p:identity name="page" />
+
+    <p:identity>
+        <p:input port="source">
+            <p:inline>
+                <html xmlns="http://www.w3.org/1999/xhtml">
+                    <head>
+                        <title></title>
+                    </head>
+                    <body>
+                        <h1></h1>
+                        <pre></pre>
+                    </body>
+                </html>
+            </p:inline>
+        </p:input>
+    </p:identity>
+
+    <p:replace match="xhtml:title">
+        <p:input port="replacement" select="//xhtml:title">
+            <p:pipe step="page" port="result" />
+        </p:input>
+    </p:replace>
+
+    <p:replace match="xhtml:h1">
+        <p:input port="replacement" select="//xhtml:h1">
+            <p:pipe step="page" port="result" />
+        </p:input>
+    </p:replace>
+
+    <p:replace match="xhtml:pre">
+        <p:input port="replacement" select="//xhtml:pre">
+            <p:pipe step="page" port="result" />
+        </p:input>
+    </p:replace>
 
     <calli:page-layout-html>
         <p:with-option name="target"  select="$target" />

@@ -144,7 +144,7 @@
     calli:requires calli:editor;
     calli:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
     calli:imports <java:org.openrdf.http.object.exceptions.ServiceUnavailable>;
-    calli:imports <java:org.callimachusproject.form.helpers.EntityUpdater>;
+    calli:imports <java:org.callimachusproject.engine.helpers.EntityUpdater>;
     calli:imports <java:org.openrdf.query.impl.MapBindingSet>;
     calli:script """
         var con = this.getObjectConnection();

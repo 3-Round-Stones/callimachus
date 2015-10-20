@@ -14,7 +14,7 @@
  * limitations under the License.
  *
  */
-package org.callimachusproject.server.helpers;
+package org.callimachusproject.sail.auditing.helpers;
 
 import java.util.GregorianCalendar;
 import java.util.TimeZone;

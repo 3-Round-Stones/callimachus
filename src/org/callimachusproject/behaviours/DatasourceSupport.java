@@ -34,7 +34,7 @@ import org.apache.http.message.BasicHttpResponse;
 import org.callimachusproject.io.SparqlInsertDataParser;
 import org.callimachusproject.repository.auditing.ActivityFactory;
 import org.callimachusproject.repository.auditing.AuditingRepositoryConnection;
-import org.callimachusproject.server.helpers.RequestActivityFactory;
+import org.callimachusproject.sail.auditing.helpers.RequestActivityFactory;
 import org.callimachusproject.traits.CalliObject;
 import org.openrdf.OpenRDFException;
 import org.openrdf.annotations.Sparql;

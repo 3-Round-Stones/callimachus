@@ -231,7 +231,7 @@ skos:editorialNote a owl:AnnotationProperty.
     msg:method "POST", "PATCH";
     msg:path "?describe";
     calli:requires calli:administrator;
-    calli:imports <java:org.callimachusproject.form.helpers.EntityUpdater>;
+    calli:imports <java:org.callimachusproject.engine.helpers.EntityUpdater>;
     calli:imports <java:org.openrdf.http.object.exceptions.ServiceUnavailable>;
     calli:script """
         var con = this.objectConnection;
@@ -418,7 +418,7 @@ skos:editorialNote a owl:AnnotationProperty.
     msg:method "POST";
     msg:path "?permissions";
     calli:requires calli:administrator;
-    calli:imports <java:org.callimachusproject.form.helpers.EntityUpdater>;
+    calli:imports <java:org.callimachusproject.engine.helpers.EntityUpdater>;
     calli:script """
         this.PatchDeleteInsert(inputStream);
         return {

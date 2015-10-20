@@ -48,9 +48,9 @@ import javax.xml.stream.events.XMLEvent;
 
 import org.apache.clerezza.rdf.core.BNode;
 import org.callimachusproject.behaviours.CalliObjectSupport;
+import org.callimachusproject.engine.helpers.EntityUpdater;
 import org.callimachusproject.engine.helpers.SparqlUpdateFactory;
-import org.callimachusproject.form.helpers.EntityUpdater;
-import org.callimachusproject.form.helpers.TripleInserter;
+import org.callimachusproject.engine.helpers.TripleInserter;
 import org.callimachusproject.io.CarInputStream;
 import org.callimachusproject.io.DescribeResult;
 import org.callimachusproject.repository.CalliRepository;
@@ -529,7 +529,9 @@ public class WebappArchiveImporter {
 				if (tag.isStartElement()) {
 					QName qname = tag.asStartElement().getName();
 					String ns = qname.getNamespaceURI();
-					if (ns.indexOf('#') < 0
+					if (ns == null || ns.indexOf(":") < 0) {
+						return null;
+					} else if (ns.indexOf('#') < 0
 							&& ns.lastIndexOf('/') < ns.length() - 1
 							&& ns.lastIndexOf(':') < ns.length() - 1) {
 						ns = ns + '#';
@@ -555,6 +557,8 @@ public class WebappArchiveImporter {
 	private URI lookupConstructor(URI documentTag, String media,
 			ObjectConnection con, Model schema) throws OpenRDFException {
 		for (Resource cls : getFileClass(documentTag, media, schema)) {
+			if (documentTag == null && schema.contains(cls, calliDocumentTag, null))
+				continue;
 			HashSet<Value> exclude = new HashSet<Value>();
 			if (cls instanceof URI
 					&& isSubClassOf(cls, typesFile, schema, exclude))

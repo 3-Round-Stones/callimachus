@@ -17,7 +17,7 @@
     <form role="form" id="form" method="POST" action="" enctype="application/sparql-update" resource="?this" class="container"
             onsubmit="calli.submitUpdate(comparison, event)">
         <div class="page-header">
-            <h1><span property="rdfs:label" /> Group</h1>
+            <h1><span property="rdfs:label"></span> Group</h1>
         </div>
         <div class="row">
             <div class="col-sm-8">
@@ -49,10 +49,9 @@
             </div>
             <div class="col-sm-4">
                 <aside class="well">
-                    <p>Use Wiki text to describe the purpose of this group</p>
-                    <p>Use the <a class="glyphicon glyphicon-plus" /> icon to add a user to this group</p>
-                    <p>Use the <a class="glyphicon glyphicon-remove" /> icon to remove a user from this group without deleting the user account</p>
-                    <p>To delete a user account: click the user link on the view tab and use the edit tab of the user account</p>
+                    <p>Include a comment in the <label>Description</label> to describe the purpose of this group</p>
+                    <p>Use the <label>Members</label> field to add or remove users from this group</p>
+                    <p>To delete a user account: click the user link from this group's view tab and use the edit tab of the user account</p>
                 </aside>
             </div>
         </div>

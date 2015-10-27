@@ -13,7 +13,7 @@ jQuery(function($){
     }).on('drop', dropResourceURL.bind(this, $('#user-lookup').prop('href'), $('#members').selectize({
         load: resourceSearch.bind(this, $('#user-search').prop('href')),
         searchField: ['text', 'email'],
-            create: createUser.bind(this, '#members'),
+            create: createUser.bind(this, $('#user-lookup').prop('href'), '#members'),
         render: {
             option: renderOption,
             item: renderItem
@@ -84,11 +84,15 @@ jQuery(function($){
         });
     }
 
-    function createUser(selector, label, callback) {
+    function createUser(template, selector, label, callback) {
         if (!label) return callback();
         var url = calli.getCallimachusUrl('/auth/invited-users/') + '?create=' + encodeURIComponent($('#invitedUser').prop('href')) + '#' + encodeURIComponent(label);
         calli.createResource(selector, url).then(function(resource){
-            return resource && {
+            if (!resource) return;
+            else return resourceLookup(template, resource);
+        }).then(function(data){
+            if (data) return data;
+            else return {
                 value: resource,
                 text: resource.replace(/.*\//,'')
             };

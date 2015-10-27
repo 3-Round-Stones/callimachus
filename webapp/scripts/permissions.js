@@ -45,6 +45,9 @@ jQuery(function($) {
             render: {
                 option: renderOption,
                 item: renderItem
+            },
+            onDelete: function(){
+                $('#party-fieldset .item').popover('destroy');
             }
         })[0].selectize));
     });

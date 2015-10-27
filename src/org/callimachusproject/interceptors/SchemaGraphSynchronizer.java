@@ -75,12 +75,12 @@ public class SchemaGraphSynchronizer implements HttpRequestChainInterceptor {
 						}
 						scon.add(schema);
 						scon.commit();
-						schema.clear();
 					} finally {
 						scon.close();
 					}
 				}
 			}
+			CalliObjectSupport.resetSchemaChangesFor(con);
 		} catch (OpenRDFException e) {
 			logger.error(e.toString(), e);
 		}

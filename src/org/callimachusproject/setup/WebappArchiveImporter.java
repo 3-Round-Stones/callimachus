@@ -409,10 +409,10 @@ public class WebappArchiveImporter {
 			}
 			scon.add(schema);
 			scon.commit();
-			schema.clear();
 		} finally {
 			scon.close(); // recompiling
 		}
+		CalliObjectSupport.resetSchemaChangesFor(con);
 		con.begin();
 		return true;
 	}

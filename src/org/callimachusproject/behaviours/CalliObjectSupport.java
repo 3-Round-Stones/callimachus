@@ -162,6 +162,13 @@ public abstract class CalliObjectSupport implements CalliObject {
 		}
 	}
 
+	public static void resetSchemaChangesFor(ObjectConnection con) {
+		synchronized (schemas) {
+			schemas.remove(con);
+			removed.remove(con);
+		}
+	}
+
 	public void resetAllCache() {
 		MBeanServer mbsc = ManagementFactory.getPlatformMBeanServer();
 		QueryExp instanceOf = Query.isInstanceOf(Query.value(ObjectServerMBean.class.getName()));

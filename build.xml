@@ -245,7 +245,6 @@
             <patternset>
                 <include name="*/lib/saxon*.jar" />
                 <include name="*/lib/commons-codec-*.jar" />
-                <include name="*/lib/commons-io-*.jar" />
                 <include name="*/calabash*.jar" />
             </patternset>
             <mapper type="flatten" />

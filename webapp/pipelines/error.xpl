@@ -49,31 +49,71 @@
                         <title></title>
                     </head>
                     <body>
-                        <h1></h1>
-                        <pre></pre>
+                        <div class="container">
+                            <h1></h1>
+                            <pre></pre>
+                        </div>
                     </body>
                 </html>
             </p:inline>
         </p:input>
     </p:identity>
 
-    <p:replace match="xhtml:title">
-        <p:input port="replacement" select="//xhtml:title">
+    <p:choose>
+        <p:xpath-context>
             <p:pipe step="page" port="result" />
-        </p:input>
-    </p:replace>
-
-    <p:replace match="xhtml:h1">
-        <p:input port="replacement" select="//xhtml:h1">
-            <p:pipe step="page" port="result" />
-        </p:input>
-    </p:replace>
-
-    <p:replace match="xhtml:pre">
-        <p:input port="replacement" select="//xhtml:pre">
-            <p:pipe step="page" port="result" />
-        </p:input>
-    </p:replace>
+        </p:xpath-context>
+        <p:when test="//xhtml:pre and //xhtml:h1 and //xhtml:title">
+            <p:replace match="xhtml:title">
+                <p:input port="replacement" select="//xhtml:title">
+                    <p:pipe step="page" port="result" />
+                </p:input>
+            </p:replace>
+            <p:replace match="xhtml:h1">
+                <p:input port="replacement" select="//xhtml:h1">
+                    <p:pipe step="page" port="result" />
+                </p:input>
+            </p:replace>
+            <p:replace match="xhtml:pre">
+                <p:input port="replacement" select="//xhtml:pre">
+                    <p:pipe step="page" port="result" />
+                </p:input>
+            </p:replace>
+        </p:when>
+        <p:when test="//xhtml:h1 and //xhtml:title">
+            <p:replace match="xhtml:title">
+                <p:input port="replacement" select="//xhtml:title">
+                    <p:pipe step="page" port="result" />
+                </p:input>
+            </p:replace>
+            <p:replace match="xhtml:h1">
+                <p:input port="replacement" select="//xhtml:h1">
+                    <p:pipe step="page" port="result" />
+                </p:input>
+            </p:replace>
+            <p:delete match="xhtml:pre" />
+        </p:when>
+        <p:when test="//xhtml:title">
+            <p:replace match="xhtml:title">
+                <p:input port="replacement" select="//xhtml:title">
+                    <p:pipe step="page" port="result" />
+                </p:input>
+            </p:replace>
+            <p:replace match="xhtml:h1">
+                <p:input port="replacement" select="//xhtml:title">
+                    <p:pipe step="page" port="result" />
+                </p:input>
+            </p:replace>
+            <p:delete match="xhtml:pre" />
+        </p:when>
+        <p:otherwise>
+            <p:identity>
+                <p:input port="source">
+                    <p:pipe step="page" port="result" />
+                </p:input>
+            </p:identity>
+        </p:otherwise>
+    </p:choose>
 
     <calli:page-layout-html>
         <p:with-option name="target"  select="$target" />

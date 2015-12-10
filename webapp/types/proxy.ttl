@@ -34,7 +34,7 @@
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/power>,</auth/groups/admin>;
     calli:icon <../images/proxy.png>;
-    calli:thumbnail <../images/purl.svg>;
+    calli:thumbnail <../images/proxy.svg>;
     calli:view <../templates/rewriterule-view.xhtml>;
     calli:edit <../templates/proxy-edit.xhtml>;
     calli:create <../templates/proxy-create.xhtml>.

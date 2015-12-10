@@ -34,7 +34,7 @@
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/power>,</auth/groups/admin>;
     calli:icon <../images/rewriterule.png>;
-    calli:thumbnail <../images/purl.svg>;
+    calli:thumbnail <../images/rewriterule.svg>;
     calli:view <../templates/rewriterule-view.xhtml>;
     calli:edit <../templates/rewriterule-edit.xhtml>;
     calli:create <../templates/rewriterule-create.xhtml>.

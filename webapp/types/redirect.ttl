@@ -34,7 +34,7 @@
     calli:administrator </auth/groups/super>;
     calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/power>,</auth/groups/admin>;
     calli:icon <../images/redirect.png>;
-    calli:thumbnail <../images/purl.svg>;
+    calli:thumbnail <../images/redirect.svg>;
     calli:view <../templates/purl-view.xhtml>;
     calli:edit <../templates/redirect-edit.xhtml>;
     calli:create <../templates/redirect-create.xhtml>.

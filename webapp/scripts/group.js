@@ -12,7 +12,7 @@ jQuery(function($){
         return false;
     }).on('drop', dropResourceURL.bind(this, $('#user-lookup').prop('href'), $('#members').selectize({
         load: resourceSearch.bind(this, $('#user-search').prop('href')),
-        searchField: ['text', 'email'],
+        searchField: ['text', 'email', 'name'],
             create: createUser.bind(this, $('#user-lookup').prop('href'), '#members'),
         render: {
             option: renderOption,
@@ -73,6 +73,7 @@ jQuery(function($){
             return json.results.bindings.map(function(bindings){
                 return {
                     value: bindings.resource.value,
+                    name: bindings.resource.value.replace(/.*\//,''),
                     text: bindings.label.value,
                     email: bindings.email.value,
                     comment: bindings.comment ? bindings.comment.value : ''

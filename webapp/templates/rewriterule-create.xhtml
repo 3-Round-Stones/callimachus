@@ -53,12 +53,10 @@
             </div>
             <div class="col-sm-6">
                 <aside class="well">
-                    <p>PURLs are used to curate the URL resolution process, thus solving
-                    the problem of transitory URIs in location-based URI schemes like HTTP.</p>
-                    <p>Partial PURLs are a special class of PURL that must end with a '/' and 
-                    allow a hierarchy of URLs to be mapped to another resource. The request pattern
-                    may include regular expressions in the path subsequent to the PURL name.</p>
-                    <p>Other URLs cannot end with a '/' and the request pattern only applies to the query string.</p>
+                    <p>Rewrite Rule is a special class of PURL that must end with a '/' and 
+                    allow a hierarchy of URLs to be mapped to other resources. The request pattern
+                    may include regular expressions in the path, subsequent to the PURL name,
+                    to match request URIs and extract variables used in the target template.</p>
                 </aside>
             </div>
         </div>        
@@ -83,12 +81,12 @@
         <div class="row">
             <div id="rules" class="col-sm-12">
                 <label>Rules
-                    <a href="javascript:void(0)" title="More" onclick="addRule('#rules')" class="glyphicon glyphicon-plus"/>
+                    <a href="javascript:void(0)" title="More" onclick="addRule('#rules')" class="glyphicon glyphicon-plus"></a>
                 </label>
             </div>
             <div id="blankRule" style="display:none">
                 <div class="panel panel-default rule">
-                    <a href="javascript:void(0)" title="Delete" onclick="deleteRule(event, '#rules')" class="glyphicon glyphicon-minus topright"/>
+                    <a href="javascript:void(0)" title="Delete" onclick="deleteRule(event, '#rules')" class="glyphicon glyphicon-minus topright"></a>
                     <div class="panel-body">
                         <div class="row">
                             <div class="form-group col-sm-3">

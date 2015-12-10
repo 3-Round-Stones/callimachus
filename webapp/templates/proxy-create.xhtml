@@ -36,7 +36,7 @@
                     <div class="form-group">
                         <label for="comment">Comment</label>
                         <div>
-                            <textarea id="comment" class="form-control"
+                            <textarea id="comment" class="form-control" rows="3"
                                 onchange="calli.updateProperty(event, 'rdfs:comment')">{rdfs:comment}</textarea>
                         </div>
                     </div>
@@ -44,11 +44,10 @@
             </div>
             <div class="col-sm-6">
                 <aside class="well">
-                    <p>A Proxy PURL is used to expose content from one location to another, possibly including limiting access to read-only.</p>
-                    <p>Partial PURLs are a special class of PURL that must end with a '/' and 
+                    <p>A Proxy is used to expose content from one location to another, possibly including limiting access to read-only.</p>
+                    <p>Proxies are a special class of PURL that must end with a '/' and 
                     allow a hierarchy of URLs to be mapped to another resource. The request pattern
-                    may include regular expressions in the path subsequent to the PURL name.</p>
-                    <p>Other PURLs cannot end with a '/' and the request pattern only applies to the query string.</p>
+                    may include regular expressions in the path subsequent to the Proxy name.</p>
                 </aside>
             </div>
         </div>        

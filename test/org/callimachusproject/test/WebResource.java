@@ -130,6 +130,39 @@ public class WebResource {
 		return rel("describedby").create("text/turtle", sb.toString().getBytes("UTF-8")).rev("describedby");
 	}
 
+	public WebResource createRedirect(String slug, String property, String target) throws IOException {
+		StringBuilder sb = new StringBuilder();
+		sb.append("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n");
+		sb.append("PREFIX calli: <http://callimachusproject.org/rdf/2009/framework#>\n");
+		sb.append("<").append(slug).append(">");
+		sb.append(" a calli:Redirect;\n");
+		sb.append("rdfs:label \"").append(slug).append("\" ;\n");
+		sb.append("calli:").append(property).append(" \"\"\"").append(target).append("\"\"\".\n");
+		return rel("describedby").create("text/turtle", sb.toString().getBytes("UTF-8")).rev("describedby");
+	}
+
+	public WebResource createProxy(String slug, String property, String target) throws IOException {
+		StringBuilder sb = new StringBuilder();
+		sb.append("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n");
+		sb.append("PREFIX calli: <http://callimachusproject.org/rdf/2009/framework#>\n");
+		sb.append("<").append(slug).append(">");
+		sb.append(" a calli:Proxy;\n");
+		sb.append("rdfs:label \"").append(slug).append("\" ;\n");
+		sb.append("calli:").append(property).append(" \"\"\"").append(target).append("\"\"\".\n");
+		return rel("describedby").create("text/turtle", sb.toString().getBytes("UTF-8")).rev("describedby");
+	}
+
+	public WebResource createRewriteRule(String slug, String property, String target) throws IOException {
+		StringBuilder sb = new StringBuilder();
+		sb.append("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n");
+		sb.append("PREFIX calli: <http://callimachusproject.org/rdf/2009/framework#>\n");
+		sb.append("<").append(slug).append(">");
+		sb.append(" a calli:RewriteRule;\n");
+		sb.append("rdfs:label \"").append(slug).append("\" ;\n");
+		sb.append("calli:").append(property).append(" \"\"\"").append(target).append("\"\"\".\n");
+		return rel("describedby").create("text/turtle", sb.toString().getBytes("UTF-8")).rev("describedby");
+	}
+
 	public WebResource createFolder(String slug) throws IOException {
 		StringBuilder sb = new StringBuilder();
 		sb.append("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n");

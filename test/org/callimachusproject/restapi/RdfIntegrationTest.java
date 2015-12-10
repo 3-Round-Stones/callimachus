@@ -79,7 +79,44 @@ public class RdfIntegrationTest extends TemporaryServerIntegrationTestCase {
 									+ " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n"
 									+ " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n"
 									+ " DELETE { <created-purl> rdfs:label \"purl\" } INSERT { <created-purl> rdfs:label \"UPDATED\" } WHERE {}" });
+
+			put("Redirect",
+					new String[] {
+							"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n"
+									+ " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n"
+									+ " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n"
+									+ "<created-redirect> a calli:Redirect ;  \n"
+									+ " rdfs:label \"redirect\" ; calli:alternate \"http://purl.org/\" .",
+							"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n"
+									+ " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n"
+									+ " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n"
+									+ " DELETE { <created-redirect> rdfs:label \"redirect\" } INSERT { <created-redirect> rdfs:label \"UPDATED\" } WHERE {}" });
+
+			put("Proxy",
+					new String[] {
+							"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n"
+									+ " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n"
+									+ " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n"
+									+ "<created-proxy> a calli:Proxy ;  \n"
+									+ " rdfs:label \"proxy\" ; calli:copy \"http://purl.org/\" .",
+							"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n"
+									+ " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n"
+									+ " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n"
+									+ " DELETE { <created-proxy> rdfs:label \"proxy\" } INSERT { <created-proxy> rdfs:label \"UPDATED\" } WHERE {}" });
+
+			put("RewriteRule",
+					new String[] {
+							"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n"
+									+ " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n"
+									+ " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n"
+									+ "<created-rewriterule> a calli:RewriteRule ;  \n"
+									+ " rdfs:label \"rewriterule\" ; calli:alternate \"http://purl.org/\" .",
+							"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n"
+									+ " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n"
+									+ " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n"
+									+ " DELETE { <created-rewriterule> rdfs:label \"rewriterule\" } INSERT { <created-rewriterule> rdfs:label \"UPDATED\" } WHERE {}" });
 		}
+
 	};
 
 	public static TestSuite suite() throws Exception {

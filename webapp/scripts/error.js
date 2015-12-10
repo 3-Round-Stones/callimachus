@@ -57,7 +57,8 @@ calli.error = function(message, stack) {
         } else if (message.description) {
             return calli.error(message.description, stack || message.stack);
         }
-    } else if (typeof message == 'function' && typeof message.toSource == 'function') {
+    } 
+    if (typeof message == 'function' && typeof message.toSource == 'function') {
         return calli.error(message.toSource(), stack);
     } else {
         var mhtml, shtml;

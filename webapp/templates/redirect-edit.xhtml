@@ -1,0 +1,77 @@
+<html version="XHTML+RDFa 1.0" xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:dcterms="http://purl.org/dc/terms/"
+    xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
+<head>
+    <title resource="?this">{rdfs:label}</title>
+    <link rel="help" href="../../callimachus-reference#PURL" target="_blank" title="Help" />
+    <script type="text/javascript" src="../scripts/purl.js"></script>
+</head>
+<body resource="?this" onload="comparison=calli.copyResourceData('#form')">
+    <form role="form" id="form" method="POST" action="" enctype="application/sparql-update" resource="?this" class="container">
+        <div style="display:none" property="rdf:type"></div>
+        <div class="page-header">
+            <h1 property="rdfs:label"></h1>
+        </div>
+        <div id="loadedRules" style="display:none">
+            <input type="hidden" property="calli:canonical" content="?canonical" value="{?canonical}"/>
+            <input type="hidden" property="calli:alternate" content="?alternate" value="{?alternate}"/>
+        </div>
+        <div class="row">
+            <div class="col-sm-8">
+                <div class="row">
+                    <fieldset>
+                        <div class="form-group col-sm-12">
+                            <label for="comment">Comment</label>
+                            <div>
+                                <textarea id="comment" class="form-control"
+                                    onchange="calli.updateProperty(event, 'rdfs:comment')">{rdfs:comment}</textarea>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+                <div class="row">
+                    <fieldset id="rules" class="rule">
+                        <div class="form-group col-sm-12">
+                            <label>Target</label>
+                            <div>
+                                <input class="pattern form-control purlTarget"/>
+                            </div>
+                        </div>
+                        <div id="redirectStatus" class="form-group col-sm-3">
+                            <label for="type">Redirect status</label>
+                            <div>
+                                <select id="type" class="form-control actionType">
+                                    <option value="calli:canonical">Canonical (301)</option>
+                                    <option value="calli:alternate" selected="selected">Alternate (302)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+                <fieldset class="form-group">
+                    <button id="save" type="submit" class="btn btn-primary">Save</button>
+                    <button id="cancel" type="button" onclick="window.location.replace('?view')" class="btn btn-default">Cancel</button>
+                    <button id="delete" type="button" onclick="calli.deleteResource(event)" class="btn btn-danger">Delete</button>
+                </fieldset>
+            </div>
+            <div class="col-sm-4">
+                <aside class="well">
+                    <p>PURLs are used to curate the URL resolution process, thus solving
+                    the problem of transitory URIs in location-based URI schemes like HTTP.</p>
+                    <p>This is the most basic class of PURL that performs a simple HTTP redirection of a GET request.</p>
+                    <h4>Status codes returned:</h4>
+                    <dl id="actionDefinitions">
+                        <dt>Canonical (301)</dt>
+                        <dd>Moved permanently to a target URL</dd>
+                        <dt>Alternate (302)</dt>
+                        <dd>Simple redirection to a target URL</dd>
+                    </dl>
+                </aside>
+            </div>
+        </div>
+    </form>
+</body>
+</html>

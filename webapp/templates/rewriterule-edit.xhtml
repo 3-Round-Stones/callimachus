@@ -1,0 +1,159 @@
+<html version="XHTML+RDFa 1.0" xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:dcterms="http://purl.org/dc/terms/"
+    xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
+<head>
+    <title resource="?this">{rdfs:label}</title>
+    <link rel="help" href="../../callimachus-reference#PURL" target="_blank" title="Help" />
+    <style>
+        form#form textarea.pattern {
+            white-space: pre;
+            word-wrap: normal;
+        }
+        a.glyphicon:link, a.glyphicon:visited, a.glyphicon:hover {
+            text-decoration:none;
+        }
+        .rule {
+            position: relative;
+        }
+        .topright {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            z-index: 10;
+        }
+    </style>
+    <script type="text/javascript" src="../scripts/purl.js"></script>
+</head>
+<body resource="?this" onload="comparison=calli.copyResourceData('#form')">
+    <form role="form" id="form" method="POST" action="" enctype="application/sparql-update" resource="?this" class="container">
+        <div style="display:none" property="rdf:type"></div>
+        <div class="page-header">
+            <h1 property="rdfs:label"></h1>
+        </div>
+        <div class="row">
+            <fieldset class="col-sm-12">
+                <div class="form-group">
+                    <label for="comment">Comment</label>
+                    <div>
+                        <textarea id="comment" class="form-control"
+                            onchange="calli.updateProperty(event, 'rdfs:comment')">{rdfs:comment}</textarea>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+        
+        <div id="loadedRules" style="display:none">
+            <input type="hidden" property="calli:copy" content="?copy" value="{?copy}"/>
+            <input type="hidden" property="calli:canonical" content="?canonical" value="{?canonical}"/>
+            <input type="hidden" property="calli:alternate" content="?alternate" value="{?alternate}"/>
+            <input type="hidden" property="calli:describedby" content="?describedby" value="{?describedby}"/>
+            <input type="hidden" property="calli:resides" content="?resides" value="{?resides}"/>
+            <input type="hidden" property="calli:moved" content="?moved" value="{?moved}"/>
+            <input type="hidden" property="calli:missing" content="?missing" value="{?missing}"/>
+            <input type="hidden" property="calli:gone" content="?gone" value="{?gone}"/>
+            <input type="hidden" property="calli:illegal" content="?illegal" value="{?illegal}"/>
+            <input type="hidden" property="calli:post" content="?post" value="{?post}"/>
+            <input type="hidden" property="calli:put" content="?put" value="{?put}"/>
+            <input type="hidden" property="calli:patch" content="?patch" value="{?patch}"/>
+            <input type="hidden" property="calli:delete" content="?delete" value="{?delete}"/>            
+        </div>
+        
+        <div class="row">
+            <div id="rules" class="col-sm-12">
+                <label>Rules
+                    <a href="javascript:void(0)" title="More" onclick="addRule('#rules')" class="glyphicon glyphicon-plus"/>
+                </label>
+            </div>
+            <div id="blankRule" style="display:none">
+                <div class="panel panel-default rule">
+                    <a href="javascript:void(0)" title="Delete" onclick="deleteRule(event, '#rules')" class="glyphicon glyphicon-minus topright"/>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="form-group col-sm-3">
+                                <label>On request method</label>
+                                <select multiple="multiple" class="form-control requestMethod">
+                                    <option value="GET" selected="selected">GET</option>
+                                    <option value="POST">POST</option>
+                                    <option value="PUT">PUT</option>
+                                    <option value="PATCH">PATCH</option>
+                                    <option value="DELETE">DELETE</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-sm-9">
+                                <label>With request URL pattern matching</label>
+                                <input type="text" class="form-control requestPattern" value="" placeholder="Regular expression"/>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-sm-3">
+                                <label>Perform the following action</label>
+                                <select class="form-control actionType">
+                                    <optgroup label="Redirect">
+                                        <option value="calli:canonical">Canonical (301)</option>
+                                        <option value="calli:alternate" selected="selected">Alternate (302)</option>
+                                        <option value="calli:describedby">Described by (303)</option>
+                                        <option value="calli:resides">Resides (307)</option>
+                                        <option value="calli:moved">Moved (308)</option>
+                                    </optgroup>
+                                    <optgroup label="GET request with status">
+                                        <option value="calli:copy">Copy (200)</option>
+                                        <option value="calli:missing">Missing (404)</option>
+                                        <option value="calli:gone">Gone (410)</option>
+                                        <option value="calli:illegal">Illegal (451)</option>
+                                    </optgroup>
+                                    <optgroup label="Execute request">
+                                        <option value="calli:post">POST</option>
+                                        <option value="calli:put">PUT</option>
+                                        <option value="calli:patch">PATCH</option>
+                                        <option value="calli:delete">DELETE</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                            <div class="form-group col-sm-9">
+                                <label>Against target template</label>
+                                <div>
+                                    <textarea class="pattern form-control purlTarget" rows="1"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>            
+            </div>            
+        </div>
+
+        <fieldset class="form-group row">
+            <div class="col-sm-3">
+                <label for="cache">GET Cache-Control</label>
+                <select id="cache" class="form-control" onchange="calli.updateProperty(event,'calli:cacheControl')">
+                    <option property="calli:cacheControl" selected="selected" content="?cache" value="{?cache}">{?cache}</option>
+                    <option value=""></option>
+                    <option value="no-store">Don't cache</option>
+                    <option value="max-age=1">1 sec</option>
+                    <option value="max-age=30">30 sec</option>
+                    <option value="max-age=60">1 min</option>
+                    <option value="max-age=300">5 mins</option>
+                    <option value="max-age=600">10 mins</option>
+                    <option value="max-age=1800">30 mins</option>
+                    <option value="max-age=3600">1 hour</option>
+                    <option value="max-age=10800">3 hours</option>
+                    <option value="max-age=21600">6 hours</option>
+                    <option value="max-age=43200">12 hours</option>
+                    <option value="max-age=86400">1 day</option>
+                </select>
+                <p class="help-block">Response directive</p>
+            </div>
+        </fieldset>
+        <fieldset class="form-group row">
+            <div class="col-sm-4">
+                <button id="save" type="submit" class="btn btn-primary">Save</button>
+                <button id="cancel" type="button" onclick="window.location.replace('?view')" class="btn btn-default">Cancel</button>
+                <button id="delete" type="button" onclick="calli.deleteResource(event)" class="btn btn-danger">Delete</button>
+            </div>
+        </fieldset>
+
+    </form>
+</body>
+</html>

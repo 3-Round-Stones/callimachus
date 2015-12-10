@@ -1,0 +1,302 @@
+<html version="XHTML+RDFa 1.0" xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:dcterms="http://purl.org/dc/terms/"
+    xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
+<head>
+    <title>New Proxy</title>
+    <link rel="help" href="../../callimachus-reference#PURL" target="_blank" title="Help" />
+    <style>
+        form#form textarea.pattern {
+            white-space: pre;
+            word-wrap: normal;
+        }
+        a.glyphicon:link, a.glyphicon:visited, a.glyphicon:hover {
+            text-decoration:none;
+        }
+    </style>
+    <script type="text/javascript" src="../scripts/purl.js"></script>
+</head>
+<body>
+    <form role="form" id="form" method="POST" action="" enctype="text/turtle" typeof="calli:Proxy" class="container">
+        <div class="page-header">
+            <h1>New Proxy</h1>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <fieldset>
+                    <div class="form-group">
+                        <label for="local">Local name</label>
+                        <div>
+                            <input type="text" id="local" value="{rdfs:label}" class="form-control" required="required" autofocus="autofocus"
+                                onchange="calli.updateProperty(event, 'rdfs:label')" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="comment">Comment</label>
+                        <div>
+                            <textarea id="comment" class="form-control"
+                                onchange="calli.updateProperty(event, 'rdfs:comment')">{rdfs:comment}</textarea>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="col-sm-6">
+                <aside class="well">
+                    <p>A Proxy PURL is used to expose content from one location to another, possibly including limiting access to read-only.</p>
+                    <p>Partial PURLs are a special class of PURL that must end with a '/' and 
+                    allow a hierarchy of URLs to be mapped to another resource. The request pattern
+                    may include regular expressions in the path subsequent to the PURL name.</p>
+                    <p>Other PURLs cannot end with a '/' and the request pattern only applies to the query string.</p>
+                </aside>
+            </div>
+        </div>        
+                
+        <div id="ruleOptions" style="display:none">
+            <!-- These are not used by the template but are required for validation when the resource is created -->
+            <input type="hidden" property="calli:alternate" content="?alternate" value="{?alternate}"/><!-- special case for viewing when no GET rule -->
+            <input type="hidden" property="calli:copy" content="?copy" value="{?copy}"/>
+            <input type="hidden" property="calli:post" content="?post" value="{?post}"/>
+            <input type="hidden" property="calli:put" content="?put" value="{?put}"/>
+            <input type="hidden" property="calli:patch" content="?patch" value="{?patch}"/>
+            <input type="hidden" property="calli:delete" content="?delete" value="{?delete}"/>            
+        </div>
+
+        <div class="row">
+            <div id="rules" class="col-sm-12">
+                <label>Handlers</label>
+
+                <div class="panel panel-default rule" data-method="GET">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">GET Handler
+                            <span class="pull-right">
+                                <a href="#getHandler" data-toggle="collapse" class="glyphicon glyphicon-minus"></a>
+                            </span>
+                        </h3>
+                    </div>
+                    <div class="panel-body collapse in" id="getHandler">
+                        <fieldset class="row">
+                            <div class="form-group col-sm-2">
+                                <label for="getActionType">Action</label>
+                                <div>
+                                    <select id="getActionType" class="form-control actionType">
+                                        <option value="calli:copy">Perform GET</option>
+                                        <option value="calli:post">Perform POST</option>
+                                        <option value="calli:put">Perform PUT</option>
+                                        <option value="calli:patch">Perform PATCH</option>
+                                        <option value="calli:delete">Perform DELETE</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-7">
+                                <label for="getPattern">GET URL Pattern</label>
+                                <div>
+                                    <input type="text" class="form-control requestPattern" placeholder="Pattern for variables"/>
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-3">
+                                <label for="cache">Cache control</label>
+                                <div>
+                                    <select id="cache" class="form-control" onchange="calli.updateProperty(event,'calli:cacheControl')">
+                                        <option property="calli:cacheControl" selected="selected" content="?cache" value="{?cache}">{?cache}</option>
+                                        <option value=""></option>
+                                        <option value="no-store">Don't cache</option>
+                                        <option value="max-age=1">1 sec</option>
+                                        <option value="max-age=30">30 sec</option>
+                                        <option value="max-age=60">1 min</option>
+                                        <option value="max-age=300">5 mins</option>
+                                        <option value="max-age=600">10 mins</option>
+                                        <option value="max-age=1800">30 mins</option>
+                                        <option value="max-age=3600">1 hour</option>
+                                        <option value="max-age=10800">3 hours</option>
+                                        <option value="max-age=21600">6 hours</option>
+                                        <option value="max-age=43200">12 hours</option>
+                                        <option value="max-age=86400">1 day</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-12">
+                                <label for="getTarget">Target template</label>
+                                <div>
+                                    <textarea id="getTarget" class="pattern form-control purlTarget" rows="1"></textarea>
+                                </div>
+                            </div>
+                            <input type="hidden" value="" property=""/>
+                        </fieldset>
+                    </div>                
+                </div>
+                <div class="panel panel-default rule" data-method="POST">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">POST Handler
+                            <span class="pull-right">
+                                <a href="#postHandler" data-toggle="collapse" class="glyphicon glyphicon-plus"></a>
+                            </span>
+                        </h3>
+                    </div>
+                    <div class="panel-body collapse" id="postHandler">
+                        <fieldset class="row">
+                            <div class="form-group col-sm-2">
+                                <label for="postActionType">Action</label>
+                                <div>
+                                    <select id="getActionType" class="form-control actionType">
+                                        <option value="calli:copy">Perform GET</option>
+                                        <option value="calli:post">Perform POST</option>
+                                        <option value="calli:put">Perform PUT</option>
+                                        <option value="calli:patch">Perform PATCH</option>
+                                        <option value="calli:delete">Perform DELETE</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-7">
+                                <label for="postPattern">POST URL Pattern</label>
+                                <div>
+                                    <input type="text" class="form-control requestPattern" placeholder="Pattern for variables"/>
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-12">
+                                <label for="postTarget">Target template</label>
+                                <div>
+                                    <textarea id="postTarget" class="pattern form-control purlTarget" rows="1"></textarea>
+                                </div>
+                            </div>
+                            <input type="hidden" value="" property=""/>
+                        </fieldset>
+                    </div>  
+                </div>
+                <div class="panel panel-default rule" data-method="PUT">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">PUT Handler
+                            <span class="pull-right">
+                                <a href="#putHandler" data-toggle="collapse" class="glyphicon glyphicon-plus"></a>
+                            </span>
+                        </h3>
+                    </div>
+                    <div class="panel-body collapse" id="putHandler">
+                        <fieldset class="row">
+                            <div class="form-group col-sm-2">
+                                <label for="putActionType">Action</label>
+                                <div>
+                                    <select id="getActionType" class="form-control actionType">
+                                        <option value="calli:copy">Perform GET</option>
+                                        <option value="calli:post">Perform POST</option>
+                                        <option value="calli:put">Perform PUT</option>
+                                        <option value="calli:patch">Perform PATCH</option>
+                                        <option value="calli:delete">Perform DELETE</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-7">
+                                <label for="putPattern">PUT URL Pattern</label>
+                                <div>
+                                    <input type="text" class="form-control requestPattern" placeholder="Pattern for variables"/>
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-12">
+                                <label for="putTarget">Target template</label>
+                                <div>
+                                    <textarea id="putTarget" class="pattern form-control purlTarget" rows="1"></textarea>
+                                </div>
+                            </div>
+                            <input type="hidden" value="" property=""/>
+                        </fieldset>
+                    </div>  
+                </div>
+                <div class="panel panel-default rule" data-method="PATCH">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">PATCH Handler
+                            <span class="pull-right">
+                                <a href="#patchHandler" data-toggle="collapse" class="glyphicon glyphicon-plus"></a>
+                            </span>
+                        </h3>
+                    </div>
+                    <div class="panel-body collapse" id="patchHandler">
+                        <fieldset class="row">
+                            <div class="form-group col-sm-2">
+                                <label for="patchActionType">Action</label>
+                                <div>
+                                    <select id="getActionType" class="form-control actionType">
+                                        <option value="calli:copy">Perform GET</option>
+                                        <option value="calli:post">Perform POST</option>
+                                        <option value="calli:put">Perform PUT</option>
+                                        <option value="calli:patch">Perform PATCH</option>
+                                        <option value="calli:delete">Perform DELETE</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-7">
+                                <label for="patchPattern">PATCH URL Pattern</label>
+                                <div>
+                                    <input type="text" class="form-control requestPattern" placeholder="Pattern for variables"/>
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-12">
+                                <label for="patchTarget">Target template</label>
+                                <div>
+                                    <textarea id="patchTarget" class="pattern form-control purlTarget" rows="1"></textarea>
+                                </div>
+                            </div>
+                            <input type="hidden" value="" property=""/>
+                        </fieldset>
+                    </div>  
+                </div>
+                <div class="panel panel-default rule" data-method="DELETE">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">DELETE Handler
+                            <span class="pull-right">
+                                <a href="#deleteHandler" data-toggle="collapse" class="glyphicon glyphicon-plus"></a>
+                            </span>
+                        </h3>
+                    </div>
+                    <div class="panel-body collapse" id="deleteHandler">
+                        <fieldset class="row">
+                            <div class="form-group col-sm-2">
+                                <label for="deleteActionType">Action</label>
+                                <div>
+                                    <select id="getActionType" class="form-control actionType">
+                                        <option value="calli:copy">Perform GET</option>
+                                        <option value="calli:post">Perform POST</option>
+                                        <option value="calli:put">Perform PUT</option>
+                                        <option value="calli:patch">Perform PATCH</option>
+                                        <option value="calli:delete">Perform DELETE</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-7">
+                                <label for="deletePattern">DELETE URL Pattern</label>
+                                <div>
+                                    <input type="text" class="form-control requestPattern" placeholder="Pattern for variables"/>
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-12">
+                                <label for="deleteTarget">Target template</label>
+                                <div>
+                                    <textarea id="deleteTarget" class="pattern form-control purlTarget" rows="1"></textarea>
+                                </div>
+                            </div>
+                            <input type="hidden" value="" property=""/>
+                        </fieldset>
+                    </div>  
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!--
+            <fieldset>
+                <div class="form-group col-sm-2">
+                    <label for="cache">GET cache control</label>
+                    <div>
+                        <input type="text" id="cache" value="{calli:cacheControl}" placeholder="max-age=3600" class="form-control"
+                            onchange="calli.updateProperty(event, 'calli:cacheControl')" />
+                    </div>
+                </div>
+            </fieldset>
+            -->
+            <fieldset class="form-group col-sm-2">
+                <button id="create" type="submit" class="btn btn-success">Create</button>
+            </fieldset>
+        </div>
+    </form>
+</body>
+</html>

@@ -1,0 +1,40 @@
+# 
+#    Copyright (c) 2011 3 Round Stones Inc, Some Rights Reserved
+# 
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+# 
+#        http://www.apache.org/licenses/LICENSE-2.0
+# 
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+
+@prefix xsd:<http://www.w3.org/2001/XMLSchema#>.
+@prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
+@prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix skosxl:<http://www.w3.org/2008/05/skos-xl#>.
+@prefix foaf:<http://xmlns.com/foaf/0.1/>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
+@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+@prefix :<#>.
+
+<> a <RdfSchemaGraph>;
+    foaf:primaryTopic <Redirect>.
+
+<Redirect> a <Creatable>, owl:Class;
+    rdfs:subClassOf <Viewable>, <Editable>, <Purl>, calli:Redirect;
+    rdfs:label "Redirect";
+    rdfs:comment "A PURL for redirecting URIs.";
+    rdfs:isDefinedBy <../../ontology>;
+    calli:administrator </auth/groups/super>;
+    calli:author </auth/groups/users>,</auth/groups/staff>,</auth/groups/power>,</auth/groups/admin>;
+    calli:icon <../images/redirect.png>;
+    calli:thumbnail <../images/purl.svg>;
+    calli:view <../templates/purl-view.xhtml>;
+    calli:edit <../templates/redirect-edit.xhtml>;
+    calli:create <../templates/redirect-create.xhtml>.

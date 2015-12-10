@@ -1,0 +1,83 @@
+<html version="XHTML+RDFa 1.0" xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:dcterms="http://purl.org/dc/terms/"
+    xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
+<head>
+    <title>New Redirect</title>
+    <link rel="help" href="../../callimachus-reference#PURL" target="_blank" title="Help" />
+    <script type="text/javascript" src="../scripts/purl.js"></script>
+</head>
+<body>
+    <form role="form" id="form" method="POST" action="" enctype="text/turtle" typeof="calli:Redirect" class="container">
+        <div class="page-header">
+            <h1>New Redirect</h1>
+        </div>
+        <div id="ruleOptions" style="display:none">
+            <!-- These are not used by the template but are required for validation when the resource is created -->
+            <input type="hidden" property="calli:canonical" content="?canonical" value="{?canonical}"/>
+            <input type="hidden" property="calli:alternate" content="?alternate" value="{?alternate}"/>
+        </div>
+        <div class="row">
+            <div class="col-sm-8">
+                <div class="row">
+                    <fieldset>
+                        <div class="form-group col-sm-12">
+                            <label for="local">Local name</label>
+                            <div>
+                                <input type="text" id="local" value="{rdfs:label}" class="form-control" required="required" autofocus="autofocus"
+                                    onchange="calli.updateProperty(event, 'rdfs:label')" />
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12">
+                            <label for="comment">Comment</label>
+                            <div>
+                                <textarea id="comment" class="form-control"
+                                    onchange="calli.updateProperty(event, 'rdfs:comment')">{rdfs:comment}</textarea>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+                <div class="row">
+                    <fieldset id="rules" class="rule">
+                        <div class="form-group col-sm-12">
+                            <label>Target</label>
+                            <div>
+                                <input class="pattern form-control purlTarget"/>
+                                <input type="hidden" property="calli:alternate"/>
+                            </div>
+                        </div>
+                        <div id="redirectStatus" class="form-group col-sm-3">
+                            <label for="type">Redirect status</label>
+                            <div>
+                                <select class="form-control actionType">
+                                    <option value="calli:canonical">Canonical (301)</option>
+                                    <option value="calli:alternate" selected="selected">Alternate (302)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+                <fieldset class="form-group">
+                    <button id="create" type="submit" class="btn btn-success">Create</button>
+                </fieldset>
+            </div>
+            <div class="col-sm-4">
+                <aside class="well">
+                    <p>PURLs are used to curate the URL resolution process, thus solving
+                    the problem of transitory URIs in location-based URI schemes like HTTP.</p>
+                    <p>This is the most basic class of PURL that performs a simple HTTP redirection of a GET request.</p>
+                    <h4>Status codes returned:</h4>
+                    <dl id="actionDefinitions">
+                        <dt>Canonical (301)</dt>
+                        <dd>Moved permanently to a target URL</dd>
+                        <dt>Alternate (302)</dt>
+                        <dd>Simple redirection to a target URL</dd>
+                    </dl>
+                </aside>
+            </div>
+        </div>
+    </form>
+</body>
+</html>

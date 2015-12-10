@@ -9,21 +9,21 @@
     <link rel="comments" href="?discussion" />
     <link rel="version-history" href="?history" />
     <link rel="help" href="../../callimachus-reference#PURL" target="_blank" title="Help" />
-    <script type="text/javascript" src="../scripts/purl.js"></script>
     <style>
-        #rule>tbody>tr:first-child>td, #rule>tbody>tr:first-child>th { 
-            border-top: 0px;
+        #ruleTable>thead>tr:first-child>th { 
+            text-align: center;
         }
     </style>
+    <script type="text/javascript" src="../scripts/purl.js"></script>
 </head>
 <body resource="?this">
-    <div style="display:none" property="rdf:type"></div>
     <div class="container">
         <div class="page-header">
             <h1 property="rdfs:label" />
         </div>
         <p property="rdfs:comment" />
-        <div id="loadedRule" style="display:none">
+        <div style="display:none" property="rdf:type"></div>
+        <div id="loadedRules" style="display:none">
             <p property="calli:copy" content="?copy">Copy (200)</p>
             <p property="calli:canonical" content="?canonical">Canonical (301)</p>
             <p property="calli:alternate" content="?alternate">Alternate (302)</p>
@@ -33,8 +33,26 @@
             <p property="calli:missing" content="?missing">Missing (404)</p>
             <p property="calli:gone" content="?gone">Gone (410)</p>
             <p property="calli:illegal" content="?illegal">Illegal (451)</p>
+            <p property="calli:post" content="?post">POST</p>
+            <p property="calli:put" content="?put">PUT</p>
+            <p property="calli:patch" content="?patch">PATCH</p>
+            <p property="calli:delete" content="?delete">DELETE</p>
         </div>
-        <table id="rule" class="table">
+        <table id="ruleTable" class="table table-bordered col-sm-12">
+            <thead>
+                <tr>
+                    <th colspan="2">Request</th>
+                    <th colspan="2">Response</th>
+                </tr>
+                <tr>
+                    <th>Methods</th>
+                    <th>Pattern</th>
+                    <th>Method/Status</th>
+                    <th>Template</th>
+                </tr>
+            </thead>
+            <tbody id="rules">
+            </tbody>
         </table>
         <p property="calli:cacheControl" content="?cacheControl">Cache-Control: {?cacheControl}</p>
     </div>

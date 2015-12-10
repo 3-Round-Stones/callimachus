@@ -33,7 +33,7 @@
     rdfs:label "Invited User";
     rdfs:isDefinedBy <../../ontology>;
     calli:administrator </auth/groups/super>;
-    calli:author </auth/groups/admin>;
+    calli:author </auth/groups/staff>, </auth/groups/power>, </auth/groups/admin>;
     calli:icon <../images/user.png>;
     calli:thumbnail <../images/user.svg>;
     calli:view <../templates/invited-user-view.xhtml>;
@@ -51,7 +51,7 @@ rdfs:label a rdf:Property.
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
     msg:method "POST";
     msg:path "?invite";
-    calli:requires calli:administrator;
+    calli:requires calli:editor;
     calli:imports <java:javax.mail.util.ByteArrayDataSource>;
     calli:imports <java:javax.mail.internet.MimeMultipart>;
     calli:imports <java:org.openrdf.http.object.exceptions.BadRequest>;

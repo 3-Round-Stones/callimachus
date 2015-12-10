@@ -53,3 +53,26 @@ DELETE {
 		<transforms/> calli:hasComponent? ?file . ?file calli:reader </auth/groups/public>
 	}
 };
+
+# staff, power and admin can assign users to groups
+INSERT {
+	<queries/user-search.rq> calli:reader </auth/groups/staff>
+} WHERE {
+	<queries/user-search.rq> a foaf:Document
+	FILTER NOT EXISTS { <queries/user-search.rq> calli:reader </auth/groups/staff> }
+};
+
+INSERT {
+	<queries/user-search.rq> calli:reader </auth/groups/power>
+} WHERE {
+	<queries/user-search.rq> a foaf:Document
+	FILTER NOT EXISTS { <queries/user-search.rq> calli:reader </auth/groups/power> }
+};
+
+# everyone can read folder create menu
+INSERT {
+	<queries/folder-create-menu.rq> calli:reader </auth/groups/public>
+} WHERE {
+	<queries/folder-create-menu.rq> a foaf:Document
+	FILTER NOT EXISTS { <queries/folder-create-menu.rq> calli:reader </auth/groups/public> }
+};

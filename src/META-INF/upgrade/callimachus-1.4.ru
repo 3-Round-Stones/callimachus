@@ -70,6 +70,15 @@ INSERT {
 	FILTER NOT EXISTS { <../error.xpl> calli:post ?alternate }
 };
 
+INSERT {
+    </auth/invited-users/> calli:contributor </auth/groups/power>, </auth/groups/staff>
+} WHERE {
+    </auth/invited-users/> a calli:Folder
+	FILTER NOT EXISTS {
+	    </auth/invited-users/> calli:contributor </auth/groups/power>, </auth/groups/staff>
+	}
+};
+
 # Update /callimachus/profile
 DELETE {
     <../profile> a <../1.4/types/RdfProfile>

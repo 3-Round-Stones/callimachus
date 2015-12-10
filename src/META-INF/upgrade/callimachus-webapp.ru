@@ -451,7 +451,8 @@ INSERT {
 </auth/> calli:hasComponent </auth/invited-users/>.
 </auth/invited-users/> a <types/Folder>, calli:Folder;
     rdfs:label "invited users";
-    calli:subscriber </auth/groups/power>;
+    calli:contributor </auth/groups/power>;
+    calli:contributor </auth/groups/staff>;
     calli:administrator </auth/groups/admin>.
 } WHERE {
 	FILTER NOT EXISTS { </auth/invited-users/> a calli:Folder }

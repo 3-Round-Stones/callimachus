@@ -133,7 +133,7 @@ echo The JDK_HOME environment variable is needed to run this server
 goto end
 :gotJdkHome
 
-if not "%SERVER_VERSION%" == " goto gotServerVersion
+if not "%SERVER_VERSION%" == "" goto gotServerVersion
 for /f "delims=" %%a in ('"%JAVA_HOME%\bin\java.exe" -cp "%BASEDIR%\lib\*" %VERSIONCLASS%') do @set SERVER_VERSION=%%a
 :gotServerVersion
 

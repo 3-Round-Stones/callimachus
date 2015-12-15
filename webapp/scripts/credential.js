@@ -41,7 +41,13 @@ $('form[typeof~="calli:Credential"][enctype="text/turtle"]').submit(function(eve
         });
         return data;
     }).then(function(data){
-        return calli.postTurtle(calli.getFormAction(form), data);
+        return calli.postTurtle(calli.getFormAction(form), data).catch(function(error){
+            return calli.headText(local).then(function(){
+                return local;
+            }, function(){
+                return Promise.reject(error);
+            });
+        });
     }).then(function(redirect){
         var url = local + '?password';
         var text = rstr2b64(str2rstr_utf8(password));

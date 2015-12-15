@@ -244,7 +244,7 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
     <xsl:apply-templates select="xhtml:pre" />
 </xsl:template>
 
-<xsl:template match="xhtml:pre[not(@class='prettyprint')][not(xhtml:code)]">
+<xsl:template match="xhtml:pre[not(@class='prettyprint')][not(xhtml:code[not(@class)])]">
     <screen>
         <xsl:call-template name="id" />
         <xsl:apply-templates select="@*" />
@@ -259,11 +259,11 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
     </programlisting>
 </xsl:template>
 
-<xsl:template match="xhtml:pre[xhtml:code]">
+<xsl:template match="xhtml:pre[xhtml:code[not(@class)]]">
     <xsl:apply-templates select="xhtml:code" />
 </xsl:template>
 
-<xsl:template match="xhtml:pre/xhtml:code">
+<xsl:template match="xhtml:pre/xhtml:code[not(@class)]">
     <programlisting>
         <xsl:call-template name="id" />
         <xsl:if test="matches(@class,'language-\S')">

@@ -1,0 +1,6 @@
+<article xmlns='http://docbook.org/ns/docbook' version="5.0">
+    <title>Command Screen</title>
+   <screen>
+      <command>command</command>
+   </screen>
+</article>

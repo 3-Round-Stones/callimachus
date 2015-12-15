@@ -72,16 +72,18 @@ import org.slf4j.LoggerFactory;
 public class DigestPasswordAccessor implements DigestAccessor {
 	private static final String PREFIX = "PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>\n";
 	private static final String SELECT_PASSWORD = PREFIX
-			+ "SELECT (str(?user) AS ?id) ?encoded ?passwordDigest {{\n"
+			+ "SELECT (str(?user) AS ?id) ?email ?encoded ?passwordDigest {{\n"
 			+ "?user calli:name $name .\n"
 			+ "$this calli:authNamespace ?folder .\n"
 			+ "?folder calli:hasComponent ?user .\n"
 			+ "FILTER (str(?user) = concat(str(?folder), $name))\n"
+			+ "OPTIONAL { ?user calli:email ?email }\n"
 			+ "OPTIONAL { ?user calli:encoded ?encoded; calli:algorithm \"MD5\" }\n"
 			+ "OPTIONAL { ?user calli:passwordDigest ?passwordDigest }\n"
 			+ "} UNION {\n" + "?user calli:email $name .\n"
 			+ "$this calli:authNamespace ?folder .\n"
 			+ "?folder calli:hasComponent ?user .\n"
+			+ "OPTIONAL { ?user calli:email ?email }\n"
 			+ "OPTIONAL { ?user calli:passwordDigest ?passwordDigest }\n"
 			+ "}} LIMIT 10";
 	private static final String COPY_PERM = PREFIX
@@ -275,6 +277,13 @@ public class DigestPasswordAccessor implements DigestAccessor {
 				int d = getHalfDay(now);
 				map.put(md5(usrlm + getDaypass(d, username, secret)), iri);
 				map.put(md5(usrlm + getDaypass(d - 1, username, secret)), iri);
+				if (result.hasBinding("email")) {
+					String email = result.getBinding("email").getValue().stringValue();
+					if (!email.equals(username)) {
+						map.put(md5(usrlm + getDaypass(d, email, secret)), iri);
+						map.put(md5(usrlm + getDaypass(d - 1, email, secret)), iri);
+					}
+				}
 			}
 			return map;
 		} finally {

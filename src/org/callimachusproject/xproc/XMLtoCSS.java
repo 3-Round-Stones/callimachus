@@ -23,7 +23,7 @@ import net.sf.saxon.s9api.Axis;
 import net.sf.saxon.s9api.QName;
 import net.sf.saxon.s9api.XdmNode;
 
-import com.xmlcalabash.util.RelevantNodes;
+import com.xmlcalabash.util.AxisNodes;
 
 public class XMLtoCSS {
 	private static final String INDENT = "\t";
@@ -69,7 +69,7 @@ public class XMLtoCSS {
 		} else if (_property.equals(name)) {
 			writeProperty(sheet, indent);
 		} else {
-			for (XdmNode child : new RelevantNodes(sheet, Axis.CHILD, true)) {
+			for (XdmNode child : new AxisNodes(sheet, Axis.CHILD)) {
 				writeStyleSheet(child, 0);
 			}
 		}
@@ -84,7 +84,7 @@ public class XMLtoCSS {
 			writer.write(" ");
 		}
 		writer.write("{\n");
-		for (XdmNode node : new RelevantNodes(rule, Axis.CHILD, true)) {
+		for (XdmNode node : new AxisNodes(rule, Axis.CHILD)) {
 			writeStyleSheet(node, indent + 1);
 		}
 		writer.write(indent(indent));
@@ -100,7 +100,7 @@ public class XMLtoCSS {
 			writer.write(" ");
 		}
 		writer.write("{\n");
-		for (XdmNode property : new RelevantNodes(rule, _property)) {
+		for (XdmNode property : new AxisNodes(rule, Axis.CHILD)) {
 			if (_property.equals(property.getNodeName())) {
 				writeProperty(property, indent + 1);
 			}
@@ -117,7 +117,7 @@ public class XMLtoCSS {
 			writer.write(" ");
 		}
 		writer.write("{\n");
-		for (XdmNode property : new RelevantNodes(rule, _property)) {
+		for (XdmNode property : new AxisNodes(rule, Axis.CHILD)) {
 			if (_property.equals(property.getNodeName())) {
 				writeProperty(property, indent + 1);
 			}

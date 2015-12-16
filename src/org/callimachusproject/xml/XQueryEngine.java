@@ -56,7 +56,6 @@ public class XQueryEngine {
 
 	public void validate(InputStream queryStream) throws IOException {
 		Configuration config = Configuration.newConfiguration();
-        config.setHostLanguage(Configuration.XQUERY);
         StaticQueryContext staticEnv = config.newStaticQueryContext();
         staticEnv.setBaseURI(baseURI);
         staticEnv.setErrorListener(messages);
@@ -81,7 +80,7 @@ public class XQueryEngine {
 	public InputStream evaluateResult(InputStream queryStream,
 			Map<String, String[]> parameters, InputStream documentStream,
 			String documentId) throws IOException, SaxonApiException, SAXException {
-		Processor qtproc = new Processor(false);
+		final Processor qtproc = new Processor(false);
 		XdmNodeFactory resolver = new XdmNodeFactory(qtproc, client);
 		XQueryCompiler xqcomp = qtproc.newXQueryCompiler();
 		xqcomp.setBaseURI(URI.create(baseURI));
@@ -104,7 +103,7 @@ public class XQueryEngine {
 		}
 		return new ProducerStream(new OutputProducer() {
 			public void produce(OutputStream out) throws IOException {
-				xqeval.setDestination(new Serializer(out));
+				xqeval.setDestination(qtproc.newSerializer(out));
 				try {
 					xqeval.run();
 				} catch (SaxonApiException e) {

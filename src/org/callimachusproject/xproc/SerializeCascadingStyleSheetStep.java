@@ -37,7 +37,7 @@ import com.xmlcalabash.io.ReadablePipe;
 import com.xmlcalabash.io.WritablePipe;
 import com.xmlcalabash.model.RuntimeValue;
 import com.xmlcalabash.runtime.XAtomicStep;
-import com.xmlcalabash.util.RelevantNodes;
+import com.xmlcalabash.util.AxisNodes;
 import com.xmlcalabash.util.S9apiUtils;
 import com.xmlcalabash.util.TreeWriter;
 
@@ -131,7 +131,7 @@ public class SerializeCascadingStyleSheetStep implements XProcStep {
 	private boolean isStyleSheet(XdmNode doc) {
 		if (_styleSheet.equals(doc.getNodeName()))
 			return true;
-        for (XdmNode node : new RelevantNodes(doc, Axis.CHILD,true)) {
+        for (XdmNode node : new AxisNodes(doc, Axis.CHILD)) {
             if (_styleSheet.equals(node.getNodeName())) {
                 return true;
             }

@@ -243,9 +243,12 @@
         </untar>
         <unzip overwrite="false" src="${downloads}/${calabash.zip}" dest="${lib}">
             <patternset>
-                <include name="*/lib/saxon*.jar" />
-                <include name="*/lib/commons-codec-*.jar" />
-                <include name="*/calabash*.jar" />
+                <include name="*/lib/*.jar" />
+                <include name="*/*calabash*.jar" />
+                <exclude name="*/lib/commons-codec*.jar" />
+                <exclude name="*/lib/commons-logging*.jar" />
+                <exclude name="*/lib/http*.jar" />
+                <exclude name="*/lib/ant*.jar" />
             </patternset>
             <mapper type="flatten" />
         </unzip>

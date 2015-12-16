@@ -10,8 +10,8 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.dom.DOMLocator;
 
 import net.sf.saxon.expr.instruct.AttributeSet;
+import net.sf.saxon.expr.instruct.ComponentBody;
 import net.sf.saxon.expr.instruct.Instruction;
-import net.sf.saxon.expr.instruct.Procedure;
 import net.sf.saxon.expr.instruct.Template;
 import net.sf.saxon.expr.instruct.UserFunction;
 import net.sf.saxon.lib.NamespaceConstant;
@@ -104,7 +104,7 @@ public class ErrorListListener implements ErrorListener {
 		    }
 		    systemId = loc.getSystemId();
 		    lineNumber = loc.getLineNumber();
-		} else if (loc instanceof Procedure) {
+		} else if (loc instanceof ComponentBody) {
 		    String kind = "procedure";
 		    if (loc instanceof UserFunction) {
 		        kind = "function";

@@ -116,7 +116,6 @@
         <basename file="${download-lunix-x86_64.url}" property="daemon-linux-x86_64.tar.gz" />
         <basename file="${mail.url}" property="mail.jar" />
         <basename file="${compress.url}" property="compress.tar.gz" />
-        <basename file="${jing.url}" property="jing.zip" />
         <basename file="${httpclient.url}" property="httpclient.zip" />
         <basename file="${tagsoup.url}" property="tagsoup.jar" />
         <basename file="${htmlparser.url}" property="htmlparser.zip" />
@@ -143,7 +142,6 @@
             <url url="${download-lunix-x86_64.url}" />
             <url url="${mail.url}" />
             <url url="${compress.url}" />
-            <url url="${jing.url}" />
             <url url="${tagsoup.url}" />
             <url url="${htmlparser.url}" />
             <url url="${httpclient.url}" />
@@ -245,16 +243,13 @@
             <patternset>
                 <include name="*/lib/*.jar" />
                 <include name="*/*calabash*.jar" />
+                <exclude name="*/lib/commons-io*.jar" />
                 <exclude name="*/lib/commons-codec*.jar" />
                 <exclude name="*/lib/commons-logging*.jar" />
                 <exclude name="*/lib/http*.jar" />
                 <exclude name="*/lib/ant*.jar" />
-            </patternset>
-            <mapper type="flatten" />
-        </unzip>
-        <unzip overwrite="false" src="${downloads}/${jing.zip}" dest="${lib}">
-            <patternset>
-                <include name="jing*/bin/jing*.jar" />
+                <exclude name="*/lib/junit*.jar" />
+                <exclude name="*/lib/log4j-slf4j-impl*.jar" />
             </patternset>
             <mapper type="flatten" />
         </unzip>

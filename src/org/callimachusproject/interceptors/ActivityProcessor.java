@@ -87,7 +87,7 @@ public class ActivityProcessor implements HttpRequestChainInterceptor {
 			response.setHeader("ETag", entityTag);
 		}
 		long lastModified = getLastModified(req, response, (CalliObject) target);
-		if (lastModified > 0) {
+		if (lastModified > 0 && !response.containsHeader("Last-Modified")) {
 			response.setHeader("Last-Modified", format.format(lastModified));
 		}
 	}

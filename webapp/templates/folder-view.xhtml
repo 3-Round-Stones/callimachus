@@ -48,16 +48,16 @@
                     </nav>
                 </span>
                 <h3 class="panel-title text-center btn-sm">
-                    <span rev="calli:hasComponent" resource="?parent" class="muted">
+                    <span rev="calli:hasComponent" resource="?parent">
                         <a href="{?parent}?view">{rdfs:label}</a>
                         <span> / </span>
                     </span>
-                    <span property="rdfs:label"/>
+                    <span property="rdfs:label"></span>
                 </h3>
                 <div class="clearfix"></div>
             </div>
             <table id="table" class="table table-hover table-condensed table-responsive">
-                <colgroup class="filecol" />
+                <colgroup class="filecol"></colgroup>
                 <thead>
                     <tr>
                         <th>File</th>
@@ -75,35 +75,38 @@
                             <a href="{?folder}?view" property="rdfs:label" content="?flabel">
                                 <img class="icon" src="../images/folder.png" /><span>{?flabel}</span>
                             </a>
+                            <a href="{?folder}?edit" class="text-muted pull-right">
+                                <span class="glyphicon glyphicon-pencil"></span>
+                            </a>
                         </td>
                         <td class="timecell">
                             <span rel="prov:wasGeneratedBy" resource="?activity">
-                                <time datetime="{prov:endedAtTime}"/>
+                                <time datetime="{prov:endedAtTime}"></time>
                             </span>
                         </td>
                         <td class="hidden-xs hidden-sm">
                             <a rel="calli:reader" href="?reader">
-                                <span property="rdfs:label"/>
+                                <span property="rdfs:label"></span>
                             </a>
                         </td>
                         <td class="hidden-xs hidden-sm">
                             <a rel="calli:subscriber" href="?subscriber">
-                                <span property="rdfs:label"/>
+                                <span property="rdfs:label"></span>
                             </a>
                         </td>
                         <td class="hidden-xs hidden-sm">
                             <a rel="calli:contributor" href="?contributor">
-                                <span property="rdfs:label"/>
+                                <span property="rdfs:label"></span>
                             </a>
                         </td>
                         <td class="hidden-xs hidden-sm">
                             <a rel="calli:editor" href="?editor">
-                                <span property="rdfs:label"/>
+                                <span property="rdfs:label"></span>
                             </a>
                         </td>
                         <td class="hidden-xs hidden-sm">
                             <a rel="calli:administrator" href="?administrator">
-                                <span property="rdfs:label"/>
+                                <span property="rdfs:label"></span>
                             </a>
                         </td>
                     </tr>
@@ -113,7 +116,7 @@
             </table>
             <div class="panel-footer">
                 <div id="result-status">
-                    <span>Showing results <span id="totalEntries" /> of <span id="totalResults" /></span>
+                    <span>Showing results <span id="totalEntries"></span> of <span id="totalResults"></span></span>
                 </div>
             </div>
         </div>

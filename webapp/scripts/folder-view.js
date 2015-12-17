@@ -69,6 +69,15 @@
             a.prepend(img);
         }
         td.append(a);
+        if (url) {
+            td.append(' ');
+            td.append($('<a></a>', {
+                href: url + '?edit',
+                "class": "text-muted pull-right"
+            }).append($('<span></span>', {
+                "class": "glyphicon glyphicon-pencil"
+            })));
+        }
         return td;
     }
     function createTimeCell(text) {

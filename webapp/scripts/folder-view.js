@@ -68,16 +68,16 @@
             img.attr('src', src);
             a.prepend(img);
         }
-        td.append(a);
         if (url) {
-            td.append(' ');
             td.append($('<a></a>', {
                 href: url + '?edit',
                 "class": "text-muted pull-right"
             }).append($('<span></span>', {
                 "class": "glyphicon glyphicon-pencil"
             })));
+            td.append(' ');
         }
+        td.append(a);
         return td;
     }
     function createTimeCell(text) {

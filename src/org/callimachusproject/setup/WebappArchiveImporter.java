@@ -644,19 +644,22 @@ public class WebappArchiveImporter {
 		}
 	}
 
-	private Model getRDFSource(URI entity, URI doc, ObjectConnection con) throws OpenRDFException {
+	private Model getRDFSource(URI entity, URI doc, ObjectConnection con)
+			throws OpenRDFException {
 		Model model = new LinkedHashModel();
-        model.add(doc, rdfType, rdfSource);
-        model.add(doc, primaryTopic, entity);
-        DescribeResult result = new DescribeResult(entity, con);
-        try {
-        	while (result.hasNext()) {
-        		model.add(result.next());
-        	}
-        } finally {
-        	result.close();
-        }
-        return model;
+		if (!entity.equals(doc)) {
+			model.add(doc, rdfType, rdfSource);
+			model.add(doc, primaryTopic, entity);
+		}
+		DescribeResult result = new DescribeResult(entity, con);
+		try {
+			while (result.hasNext()) {
+				model.add(result.next());
+			}
+		} finally {
+			result.close();
+		}
+		return model;
 	}
 
 	private URI findContainer(URI uri, ObjectConnection con)

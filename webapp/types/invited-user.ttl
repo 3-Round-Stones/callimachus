@@ -86,7 +86,7 @@ rdfs:label a rdf:Property.
         var fromUser = this.FindUserCreator();
         if (!fromUser || !fromUser.sendMessage)
             fromUser = this;
-        fromUser.sendMessage(subject + '\\n' + body, this.rdfsLabel + " <" + this.calliEmail + ">");
+        fromUser.sendMessage(subject + '\\n' + body, this.rdfsLabel, this.calliEmail);
         return {
             status: 303, message: "See Other",
             headers: {

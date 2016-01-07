@@ -336,7 +336,7 @@ rdfs:comment a rdf:Property.
                 var password = this.getDaypass(user, userEmail);
                 var body = mail_digest_daypass_xhtml.RawConstruct(user);
                 body = body.replace(/@@PASSWORD@@/g, password);
-                user.sendMessage(body, user.rdfsLabel.iterator().next() + " <" + userEmail + ">");
+                user.sendMessage(body, user.rdfsLabel.iterator().next(), userEmail);
             }
             java.lang.Thread.sleep(new java.util.Random().nextInt() % 1000 + 1000);
         } else {

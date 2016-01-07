@@ -35,6 +35,12 @@ import org.callimachusproject.util.Mailer;
  */
 public abstract class MailSubmitterSupport implements User {
 
+	public void sendMessage(String html, String name, String email) throws IOException,
+			MessagingException, NamingException {
+		String address = "\"" + name.replace('"', '\'') + "\" <" + email + ">";
+		sendMessage(html, Collections.singleton(address));
+	}
+
 	public void sendMessage(String html, String recipient) throws IOException,
 			MessagingException, NamingException {
 		sendMessage(html, Collections.singleton(recipient));

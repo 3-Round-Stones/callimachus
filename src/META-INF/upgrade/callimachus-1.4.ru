@@ -64,13 +64,6 @@ DELETE {
 };
 
 INSERT {
-    <../error.xpl> calli:post ?alternate
-} WHERE {
-    <../error.xpl> calli:alternate ?alternate
-	FILTER NOT EXISTS { <../error.xpl> calli:post ?alternate }
-};
-
-INSERT {
     </auth/invited-users/> calli:contributor </auth/groups/power>, </auth/groups/staff>
 } WHERE {
     </auth/invited-users/> a calli:Folder
@@ -107,6 +100,16 @@ DELETE {
     ?purl a <../1.4/types/Purl>; calli:alternate ?previous .
     FILTER strstarts(str(?previous), str(</callimachus/1.4/>))
     BIND (concat(str(<../1.5/>), strafter(str(?previous),str(<../1.4/>))) AS ?currently)
+};
+
+DELETE {
+    <../error.xpl> a calli:Purl,  <../1.4/types/Purl>
+} INSERT {
+    <../error.xpl> a calli:Proxy,  <../1.5/types/Proxy>;
+        calli:post ?alternate
+} WHERE {
+    <../error.xpl> a calli:Purl; calli:alternate ?alternate
+	FILTER NOT EXISTS { <../error.xpl> a calli:Proxy }
 };
 
 # Setup process determins the Callimachus webapp location based on Origin path

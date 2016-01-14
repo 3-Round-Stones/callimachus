@@ -97,6 +97,8 @@ public class ErrorPageInterceptor implements HttpRequestChainInterceptor {
 	private BufferedInputStream bufferAll(HttpResponse res, int size)
 			throws IOException {
 		HttpEntity entity = res.getEntity();
+		if (entity == null)
+			return null;
 		long contentLength = entity.getContentLength();
 		if (contentLength > size)
 			return null;

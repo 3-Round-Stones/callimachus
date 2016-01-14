@@ -131,10 +131,11 @@ jQuery(function($){
     $('#loadedRules input').each(function() {
         var purl = decodePurl($(this).attr('property'), $(this).val().trim());
         var rule = null;
-        if (mode === 'Redirect' || mode === 'Purl') {
-            // single rule inputs
-            rule = $('#rules');
-        } else if (mode === 'Proxy') {
+        if ($('#blankRule').length){
+            // multiple rule table row
+            rule = $('#blankRule>div').clone();
+            $('#rules').append(rule);
+        } else if ($('#rules div.rule[data-method]').length) {
             if (purl.action === 'calli:alternate') {
                 // ignore the calli:alternate rule that is a special view case when there is no GET
                 $(this).remove();
@@ -148,9 +149,8 @@ jQuery(function($){
             rule.find('.panel-body').collapse('show');
             rule.find('input[type="hidden"]').remove(); // remove dummy rule
         } else {
-            // multiple rule table row
-            rule = $('#blankRule>div').clone();
-            $('#rules').append(rule);
+            // single rule inputs
+            rule = $('#rules');
         }
         rule.find('.requestMethod').val(purl.methods.split(','));
         rule.find('.requestPattern').val(purl.pattern);
@@ -193,7 +193,7 @@ jQuery(function($){
         }
     }
 
-    if (mode === 'Purl' || mode === 'Proxy' || mode === 'RewriteRule') {
+    if ($('#cache').length) {
         var selectionValue = $('#cache>option:selected').val();
         if (selectionValue && $('#cache>option[value="'+selectionValue+'"]').length === 2) {
             $('#cache>option:selected').remove();
@@ -288,7 +288,7 @@ function validate(mode, enctype, errors) {
         var rule = $(this).parents('.rule');
         if (mode !== 'Proxy' || rule.find('.panel-body').hasClass("in")) {
             // for a proxy, ignore collapsed panels
-            var purl = validateRule(rule, idx, errors, mode);
+            var purl = validateRule(rule, idx, errors);
 
             // build full template for the rule if it is valid
             if (purl) {
@@ -312,25 +312,27 @@ function validate(mode, enctype, errors) {
     }
 }
 
-function validateRule(rule, idx, errors, mode) {
+function validateRule(rule, idx, errors) {
     var purl = {};
     var ruleError = false;
     // validate user entries
-    if (mode === 'Redirect' || mode === 'Purl') {
-        // this is a fixed method
-        purl.methods = ['GET'];
-    } else if (mode === 'Proxy') {
+    if (rule.find('.requestMethod').length) {
+        purl.methods = rule.find('.requestMethod').val();
+    } else if (rule.attr('data-method')) {
         purl.methods = [rule.attr('data-method')];
     } else {
-        purl.methods = rule.find('.requestMethod').val();
+        // this is a fixed method
+        purl.methods = ['GET'];
     }
     if (purl.methods === null) {
         errors.push('Rule '+(idx+1)+': Request method is mandatory.');
         ruleError = true;
     }
-    purl.pattern = rule.find('.requestPattern').val();
-    if (purl.pattern) {
-        purl.pattern = purl.pattern.trim();
+    if (rule.find('.requestPattern').length) {
+        purl.pattern = rule.find('.requestPattern').val().trim();
+    } else {
+        // Method is GET only so pattern is also required
+        purl.pattern = '.*';
     }
     purl.template = rule.find('.purlTarget').val() || null;
     if (purl.template) {
@@ -380,10 +382,6 @@ function encodePurl(purl, mode) {
                 // this is the default method for this action type so not required in the PURL
                 purl.methods = null;
             }
-        }
-        if (purl.pattern === '.*' && purl.methods === null) {
-            // .* is default so not required if method is default for the action type
-            purl.pattern = null;
         }
     } else {
         // Method is GET only so pattern is also required

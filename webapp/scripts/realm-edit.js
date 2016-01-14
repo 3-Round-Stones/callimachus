@@ -89,5 +89,4 @@ jQuery(function($){
             }).then(calli.loading('#layout select'));
         }
     });
-    $('#form').submit(calli.submitUpdate.bind(calli, calli.copyResourceData('#form')));
 });

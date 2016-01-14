@@ -15,117 +15,205 @@
     <link id="auth-folder" href="/auth/" />
     <link id="credentials-folder" href="/auth/credentials/" />
     <script type="text/javascript" src="../scripts/realm-edit.js"></script>
+    <script type="text/javascript" src="../scripts/purl.js"></script>
 </head>
 <body resource="?this">
     <form role="form" id='form' method="POST" action="" enctype="application/sparql-update" resource="?this" class="container">
+        <div class="page-header">
+            <h1 property="rdfs:label"></h1>
+        </div>
         <div class="row">
-            <div class="col-sm-8">
-                <div class="page-header">
-                    <h1 property="rdfs:label" />
-                </div>
-                <div class="row">
-                    <fieldset class="col-sm-6">
-                        <legend>Realm settings</legend>
-                        <div id="layout" dropzone="link string:text/uri-list" class="form-group">
-                            <label>Layout</label>
-                            <select placeholder="Choose a layout" class="form-control" onchange="calli.updateResource(event,'calli:layout')">
-                                <option selected="selected" rel="calli:layout" resource="?layout" value="{?layout}">{rdfs:label}</option>
-                                <option resource="../../default-layout.xq">Default layout</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="allowOrigin">Allowed origins</label>
-                            <div>
-                                <input type="text" class="form-control" property="calli:allowOrigin" content="?allowOrigin" value="{?allowOrigin}"
-                                    onchange="calli.updateProperty(event,'calli:allowOrigin')" />
-                                <a href="javascript:void(0)" title="More" onclick="calli.addResource(event)" class="glyphicon glyphicon-plus" />
-                            </div>
-                        </div>
-                        <div dropzone="link string:text/uri-list" class="form-group"
-                                ondrop="calli.insertResource(event)">
-                          <label>Authentication <a href="../types/AuthManager" title="Create authentication manager"
-                              onclick="calli.createResource(event, $('#auth-folder').attr('href') + '?create=' + encodeURIComponent(this.href) + '#' + $('#form').attr('resource'))" class="glyphicon glyphicon-list-alt" /></label>
-                          <div id="authentication" rel="calli:authentication">
-                            <span resource="?authentication" typeof="calli:AuthenticationManager" class="label label-info">
-                                <span property="rdfs:label" />
-                                <a href="{?authentication}" title="Don't use this authentication here" onclick="calli.removeResource(event)" class="glyphicon glyphicon-remove" />
-                            </span>
-                          </div>
-                        </div>
-                        <div dropzone="link string:text/uri-list" class="form-group"
-                                ondrop="calli.insertResource(event)">
-                          <label>Credentials <a href="../types/Credential" title="Create credential"
-                              onclick="calli.createResource(event, $('#credentials-folder').attr('href') + '?create=' + encodeURIComponent(this.href))" class="glyphicon glyphicon-list-alt" /></label>
-                          <div id="credentials" rel="calli:credentials">
-                            <span resource="?credential" typeof="calli:Credential" class="label label-info">
-                                <span property="rdfs:label" />
-                                <a href="{?credential}" title="Don't use this credential here" onclick="calli.removeResource(event)" class="glyphicon glyphicon-remove" />
-                            </span>
-                          </div>
-                        </div>
-                    </fieldset>
-                    <fieldset class="col-sm-6">
-                        <legend>Directory index</legend>
-                        <div class="form-group">
-                            <label for="type">Type</label>
-                            <div>
-                                <select id="type" class="form-control">
-                                    <option value="calli:copy">Copy (200)</option>
-                                    <option value="calli:canonical">Canonical (301)</option>
-                                    <option value="calli:alternate">Alternate (302)</option>
-                                    <option value="calli:describedby" selected="selected">Described by (303)</option>
-                                    <option value="calli:resides">Resides (307)</option>
-                                    <option value="calli:moved">Moved (308)</option>
-                                    <option value="calli:missing">Missing (404)</option>
-                                    <option value="calli:gone">Gone (410)</option>
-                                    <option value="calli:illegal">Illegal (451)</option>
+            <div class="col-sm-7">
+                <fieldset>
+                    <legend>Realm settings</legend>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div id="layout" dropzone="link string:text/uri-list" class="form-group">
+                                <label>Layout</label>
+                                <select placeholder="Choose a layout" class="form-control" onchange="calli.updateResource(event,'calli:layout')">
+                                    <option selected="selected" rel="calli:layout" resource="?layout" value="{?layout}">{rdfs:label}</option>
+                                    <option resource="../../default-layout.xq">Default layout</option>
                                 </select>
                             </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="pattern">Content location</label>
-                            <div>
-                                <input type="text" class="form-control" id="pattern" size="40" value="" />
-                                <span class="pattern" property="calli:copy" content="?copy" />
-                                <span class="pattern" property="calli:canonical" content="?canonical" />
-                                <span class="pattern" property="calli:alternate" content="?alternate" />
-                                <span class="pattern" property="calli:describedby" content="?describedby" />
-                                <span class="pattern" property="calli:resides" content="?resides" />
-                                <span class="pattern" property="calli:moved" content="?moved" />
-                                <span class="pattern" property="calli:missing" content="?missing" />
-                                <span class="pattern" property="calli:gone" content="?gone" />
-                                <span class="pattern" property="calli:illegal" content="?illegal" />
+                            <div class="form-group">
+                                <label for="allowOrigin">Allowed origins</label>
+                                <div>
+                                    <input type="text" class="form-control" property="calli:allowOrigin" content="?allowOrigin" value="{?allowOrigin}"
+                                        onchange="calli.updateProperty(event,'calli:allowOrigin')" />
+                                    <a href="javascript:void(0)" title="More" onclick="calli.addResource(event)" class="glyphicon glyphicon-plus"></a>
+                                </div>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label for="cache">Cache control</label>
-                            <div>
-                            	<input type="text" class="form-control"  id="cache" value="{calli:cacheControl}" placeholder="max-age=3600"
-                                    onchange="calli.updateProperty(event, 'calli:cacheControl')" />
+                        <div class="col-sm-6">
+                            <div dropzone="link string:text/uri-list" class="form-group"
+                                    ondrop="calli.insertResource(event)">
+                              <label>Authentication <a href="../types/AuthManager" title="Create authentication manager"
+                                  onclick="calli.createResource(event, $('#auth-folder').attr('href') + '?create=' + encodeURIComponent(this.href) + '#' + $('#form').attr('resource'))" class="glyphicon glyphicon-list-alt"></a></label>
+                              <div id="authentication" rel="calli:authentication">
+                                <span resource="?authentication" typeof="calli:AuthenticationManager" class="label label-info">
+                                    <span property="rdfs:label"></span>
+                                    <a href="{?authentication}" title="Don't use this authentication here" onclick="calli.removeResource(event)" class="glyphicon glyphicon-remove"></a>
+                                </span>
+                              </div>
+                            </div>
+                            <div dropzone="link string:text/uri-list" class="form-group"
+                                    ondrop="calli.insertResource(event)">
+                              <label>Credentials <a href="../types/Credential" title="Create credential"
+                                  onclick="calli.createResource(event, $('#credentials-folder').attr('href') + '?create=' + encodeURIComponent(this.href))" class="glyphicon glyphicon-list-alt"></a></label>
+                              <div id="credentials" rel="calli:credentials">
+                                <span resource="?credential" typeof="calli:Credential" class="label label-info">
+                                    <span property="rdfs:label"></span>
+                                    <a href="{?credential}" title="Don't use this credential here" onclick="calli.removeResource(event)" class="glyphicon glyphicon-remove"></a>
+                                </span>
+                              </div>
                             </div>
                         </div>
-                    </fieldset>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="col-sm-5">
+                <aside class="well">
+                    <p><strong>Layout</strong> is the extra markup that is applied to every xhtml template within this realm</p>
+                    <p><strong>Allow origins</strong> are the origins of scripts that can make requests to resources within this realm</p>
+                    <p><strong>Authentication</strong> lists the services that can authenticate (sign-in) users</p>
+                    <p><strong>Credentials</strong> are the username and passwords that should be used for outgoing requests from scripts within this realm</p>
+                </aside>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-7">
+                <div id="loadedRules" style="display:none">
+                    <input type="hidden" property="calli:copy" content="?copy" value="{?copy}"/>
+                    <input type="hidden" property="calli:canonical" content="?canonical" value="{?canonical}"/>
+                    <input type="hidden" property="calli:alternate" content="?alternate" value="{?alternate}"/>
+                    <input type="hidden" property="calli:describedby" content="?describedby" value="{?describedby}"/>
+                    <input type="hidden" property="calli:resides" content="?resides" value="{?resides}"/>
+                    <input type="hidden" property="calli:moved" content="?moved" value="{?moved}"/>
+                    <input type="hidden" property="calli:missing" content="?missing" value="{?missing}"/>
+                    <input type="hidden" property="calli:gone" content="?gone" value="{?gone}"/>
+                    <input type="hidden" property="calli:illegal" content="?illegal" value="{?illegal}"/>   
                 </div>
+                <fieldset id="rules" class="rule">
+                    <legend>Handle missing GET resources</legend>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div id="redirectStatus" class="form-group">
+                                <label for="type">Resource status</label>
+                                <div>
+                                    <select id="type" class="form-control actionType">
+                                        <option value="calli:copy">Copy (200)</option>
+                                        <option value="calli:canonical">Canonical (301)</option>
+                                        <option value="calli:alternate">Alternate (302)</option>
+                                        <option value="calli:describedby">Described by (303)</option>
+                                        <option value="calli:resides">Resides (307)</option>
+                                        <option value="calli:moved">Moved (308)</option>
+                                        <option value="calli:missing" selected="selected">Missing (404)</option>
+                                        <option value="calli:gone">Gone (410)</option>
+                                        <option value="calli:illegal">Illegal (451)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="">Cache control</label>
+                                <div>
+                                    <select id="cache" class="form-control" onchange="calli.updateProperty(event,'calli:cacheControl')">
+                                        <option property="calli:cacheControl" selected="selected" content="?cache" value="{?cache}">{?cache}</option>
+                                        <option value=""></option>
+                                        <option value="no-store">Don't cache</option>
+                                        <option value="max-age=1">1 sec</option>
+                                        <option value="max-age=30">30 sec</option>
+                                        <option value="max-age=60">1 min</option>
+                                        <option value="max-age=300">5 mins</option>
+                                        <option value="max-age=600">10 mins</option>
+                                        <option value="max-age=1800">30 mins</option>
+                                        <option value="max-age=3600">1 hour</option>
+                                        <option value="max-age=10800">3 hours</option>
+                                        <option value="max-age=21600">6 hours</option>
+                                        <option value="max-age=43200">12 hours</option>
+                                        <option value="max-age=86400">1 day</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="getPattern">GET URL Pattern</label>
+                        <div>
+                            <input type="text" class="form-control requestPattern" placeholder="Pattern for variables"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="getTarget">Target template</label>
+                        <div>
+                            <textarea id="getTarget" class="pattern form-control purlTarget" rows="1"></textarea>
+                        </div>
+                    </div>
+                    <input type="hidden" value="" property=""/>
+                </fieldset>
                 <fieldset class="form-group">
                     <button id="save" type="submit" class="btn btn-primary">Save</button>
                     <button id="cancel" type="button" onclick="window.location.replace('?view')" class="btn btn-default">Cancel</button>
                     <button id="delete" type="button" class="btn btn-danger">Delete</button>
                 </fieldset>
             </div>
-            <div class="col-sm-4">
+            <div class="col-sm-5">
                 <aside class="well">
-                    <p>Layout is the extra markup that is applied to every xhtml template within this realm</p>
-                    <p>Allow origins are the origins of scripts that can make requests to resources within this realm</p>
-                    <p>Credentials are the username and passwords that should be used for outgoing requests from scripts within this realm</p>
-                </aside>
-                <aside class="well">
-                    <p>Directory index determines how requests directly to this folder should be handled</p>
-                    <p>The type is the response code that is sent</p>
-                    <p>Content location is what should be returned to the browser</p>
-                    <p>Cache control explains how frequently this is expected to change</p>
+                    <p>Virtual resources, that do not exist in the folder listing, can be defined by by an external handler</p>
+                    <p><strong>Resource status</strong> defines the relationship between the request resource and the response</p>
+                    <p><strong>Cache control</strong> defines the duration the system must re-evaluate the handler</p>
+                    <p><strong>GET URL Pattern</strong> must be used for any nested resources to identify matching requests, such as <code>.*</code></p>
+                    <p><strong>Target template</strong> is populated with the pattern variables to identify the resource used in the response</p>
                 </aside>
             </div>
         </div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Redirect status</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Copy (200)</td>
+                    <td>Expose content from one location to another, possibly including limiting access to read-only</td>
+                </tr>
+                <tr>
+                    <td>Canonical (301)</td>
+                    <td>Moved permanently to a target URL</td>
+                </tr>
+                <tr>
+                    <td>Alternate (302)</td>
+                    <td>Simple redirection to a target URL</td>
+                </tr>
+                <tr>
+                    <td>Described by (303)</td>
+                    <td>See other URL, indicates that the target is data describing some other resource, maybe in the real world</td>
+                </tr>
+                <tr>
+                    <td>Resides (307)</td>
+                    <td>Indicates that the redirection is temporary</td>
+                </tr>
+                <tr>
+                    <td>Moved (308)</td>
+                    <td>Indicates that the target URL has been permanently moved</td>
+                </tr>
+                <tr>
+                    <td>Missing (404)</td>
+                    <td>Indicates that the target URL is unavailable, which might be temporary</td>
+                </tr>
+                <tr>
+                    <td>Gone (410)</td>
+                    <td>Indicates that the target URL is permanently gone</td>
+                </tr>
+                <tr>
+                    <td>Illegal (451)</td>
+                    <td>Intended to be used when resource access is denied for legal reasons, e.g. censorship or government-mandated blocked access</td>
+                </tr>
+            </tbody>
+        </table>
     </form>
 </body>
 </html>

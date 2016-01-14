@@ -33,92 +33,146 @@
 </head>
 <body resource="?this" onload="comparison=calli.copyResourceData('#form')">
     <form role="form" id="form" method="POST" action="" enctype="application/sparql-update" resource="?this" class="container">
-        <div class="page-header">
-            <h1 property="rdfs:label"></h1>
-        </div>
         <div class="row">
-            <fieldset class="col-sm-6">
-                <div class="form-group">
-                    <label for="comment">Comment</label>
-                    <div>
-                        <textarea id="comment" class="form-control"
-                            onchange="calli.updateProperty(event, 'rdfs:comment')">{rdfs:comment}</textarea>
-                    </div>
+            <div class="col-sm-6">
+                <div class="page-header">
+                    <h1 property="rdfs:label"></h1>
                 </div>
-                <div class="form-group">
-                    <label for="type">GET status</label>
-                    <div>
-                        <select id="type" class="form-control">
-                            <option value="calli:copy">Copy (200)</option>
-                            <option value="calli:canonical">Canonical (301)</option>
-                            <option value="calli:alternate" selected="selected">Alternate (302)</option>
-                            <option value="calli:describedby">Described by (303)</option>
-                            <option value="calli:resides">Resides (307)</option>
-                            <option value="calli:moved">Moved (308)</option>
-                            <option value="calli:missing">Missing (404)</option>
-                            <option value="calli:gone">Gone (410)</option>
-                            <option value="calli:illegal">Illegal (451)</option>
-                        </select>
+                <fieldset>
+                    <div class="form-group">
+                        <label for="comment">Comment</label>
+                        <div>
+                            <textarea id="comment" class="form-control" rows="5"
+                                onchange="calli.updateProperty(event, 'rdfs:comment')">{rdfs:comment}</textarea>
+                        </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label>GET content location</label>
-                    <div id="get">
-                        <textarea class="pattern form-control" rows="1" property="calli:copy"></textarea>
-                        <textarea class="pattern form-control" rows="1" property="calli:canonical"></textarea>
-                        <textarea class="pattern form-control" rows="1" property="calli:alternate"></textarea>
-                        <textarea class="pattern form-control" rows="1" property="calli:describedby"></textarea>
-                        <textarea class="pattern form-control" rows="1" property="calli:resides"></textarea>
-                        <textarea class="pattern form-control" rows="1" property="calli:moved"></textarea>
-                        <textarea class="pattern form-control" rows="1" property="calli:missing"></textarea>
-                        <textarea class="pattern form-control" rows="1" property="calli:gone"></textarea>
-                        <textarea class="pattern form-control" rows="1" property="calli:illegal"></textarea>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="cache">GET cache control</label>
-                    <div>
-                    	<input type="text" id="cache" value="{calli:cacheControl}" placeholder="max-age=3600" class="form-control"
-                            onchange="calli.updateProperty(event, 'calli:cacheControl')" />
-                    </div>
-                </div>
-            </fieldset>
-            <fieldset class="col-sm-6">
-                <div class="form-group">
-                    <label for="post">POST request target</label>
-                    <div>
-                        <textarea id="post" class="form-control pattern" rows="1"
-                            onchange="calli.updateProperty(event, 'calli:post')">{calli:post}</textarea>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="put">PUT request target</label>
-                    <div>
-                        <textarea id="put" class="form-control pattern" rows="1"
-                            onchange="calli.updateProperty(event, 'calli:put')">{calli:put}</textarea>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="patch">PATCH request target</label>
-                    <div>
-                        <textarea id="patch" class="form-control pattern" rows="1"
-                            onchange="calli.updateProperty(event, 'calli:patch')">{calli:patch}</textarea>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="delete">DELETE request target</label>
-                    <div>
-                        <textarea id="delete" class="form-control pattern" rows="1"
-                            onchange="calli.updateProperty(event, 'calli:delete')">{calli:delete}</textarea>
-                    </div>
-                </div>
-            </fieldset>
+                </fieldset>
+            </div>
+            <div class="col-sm-6">
+                <aside class="well">
+                    <p>Virtual resources, that do not exist in the folder listing, can be defined by by an external handler</p>
+                    <p><strong>Resource status</strong> defines the relationship between the request resource and the response</p>
+                    <p><strong>GET URL Pattern</strong> must be used for any nested resources to identify matching requests, such as <code>.*</code></p>
+                    <p><strong>Cache control</strong> defines the duration the system must re-evaluate the handler</p>
+                    <p><strong>Target template</strong> is populated with the pattern variables to identify the resource used in the response</p>
+                </aside>
+            </div>
         </div>
+        <div id="loadedRules" style="display:none">
+            <input type="hidden" property="calli:copy" content="?copy" value="{?copy}"/>
+            <input type="hidden" property="calli:canonical" content="?canonical" value="{?canonical}"/>
+            <input type="hidden" property="calli:alternate" content="?alternate" value="{?alternate}"/>
+            <input type="hidden" property="calli:describedby" content="?describedby" value="{?describedby}"/>
+            <input type="hidden" property="calli:resides" content="?resides" value="{?resides}"/>
+            <input type="hidden" property="calli:moved" content="?moved" value="{?moved}"/>
+            <input type="hidden" property="calli:missing" content="?missing" value="{?missing}"/>
+            <input type="hidden" property="calli:gone" content="?gone" value="{?gone}"/>
+            <input type="hidden" property="calli:illegal" content="?illegal" value="{?illegal}"/>   
+        </div>
+        <fieldset id="rules" class="row rule">
+            <legend>Handle missing GET resources</legend>
+            <div id="redirectStatus" class="form-group col-sm-4 col-md-3 col-lg-2">
+                <label for="type">Resource status</label>
+                <div>
+                    <select id="type" class="form-control actionType">
+                        <option value="calli:copy">Copy (200)</option>
+                        <option value="calli:canonical">Canonical (301)</option>
+                        <option value="calli:alternate">Alternate (302)</option>
+                        <option value="calli:describedby">Described by (303)</option>
+                        <option value="calli:resides">Resides (307)</option>
+                        <option value="calli:moved">Moved (308)</option>
+                        <option value="calli:missing" selected="selected">Missing (404)</option>
+                        <option value="calli:gone">Gone (410)</option>
+                        <option value="calli:illegal">Illegal (451)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group col-sm-5 col-md-7 col-lg-8">
+                <label for="getPattern">GET URL Pattern</label>
+                <div>
+                    <input type="text" class="form-control requestPattern" placeholder="Pattern for variables"/>
+                </div>
+            </div>
+            <div class="form-group col-sm-3 col-md-2 col-lg-2">
+                <label for="">Cache control</label>
+                <div>
+                    <select id="cache" class="form-control" onchange="calli.updateProperty(event,'calli:cacheControl')">
+                        <option property="calli:cacheControl" selected="selected" content="?cache" value="{?cache}">{?cache}</option>
+                        <option value=""></option>
+                        <option value="no-store">Don't cache</option>
+                        <option value="max-age=1">1 sec</option>
+                        <option value="max-age=30">30 sec</option>
+                        <option value="max-age=60">1 min</option>
+                        <option value="max-age=300">5 mins</option>
+                        <option value="max-age=600">10 mins</option>
+                        <option value="max-age=1800">30 mins</option>
+                        <option value="max-age=3600">1 hour</option>
+                        <option value="max-age=10800">3 hours</option>
+                        <option value="max-age=21600">6 hours</option>
+                        <option value="max-age=43200">12 hours</option>
+                        <option value="max-age=86400">1 day</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group col-sm-12">
+                <label for="getTarget">Target template</label>
+                <div>
+                    <textarea id="getTarget" class="pattern form-control purlTarget" rows="1"></textarea>
+                </div>
+            </div>
+            <input type="hidden" value="" property=""/>
+        </fieldset>
         <fieldset class="form-group">
             <button id="save-path" type="submit" class="btn btn-primary">Save</button>
             <button id="cancel-path" type="button" onclick="window.location.replace('?view')" class="btn btn-default">Cancel</button>
             <button id="delete-path" type="button" class="btn btn-danger">Delete</button>
         </fieldset>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Redirect status</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Copy (200)</td>
+                    <td>Expose content from one location to another, possibly including limiting access to read-only</td>
+                </tr>
+                <tr>
+                    <td>Canonical (301)</td>
+                    <td>Moved permanently to a target URL</td>
+                </tr>
+                <tr>
+                    <td>Alternate (302)</td>
+                    <td>Simple redirection to a target URL</td>
+                </tr>
+                <tr>
+                    <td>Described by (303)</td>
+                    <td>See other URL, indicates that the target is data describing some other resource, maybe in the real world</td>
+                </tr>
+                <tr>
+                    <td>Resides (307)</td>
+                    <td>Indicates that the redirection is temporary</td>
+                </tr>
+                <tr>
+                    <td>Moved (308)</td>
+                    <td>Indicates that the target URL has been permanently moved</td>
+                </tr>
+                <tr>
+                    <td>Missing (404)</td>
+                    <td>Indicates that the target URL is unavailable, which might be temporary</td>
+                </tr>
+                <tr>
+                    <td>Gone (410)</td>
+                    <td>Indicates that the target URL is permanently gone</td>
+                </tr>
+                <tr>
+                    <td>Illegal (451)</td>
+                    <td>Intended to be used when resource access is denied for legal reasons, e.g. censorship or government-mandated blocked access</td>
+                </tr>
+            </tbody>
+        </table>
     </form>
 </body>
 </html>

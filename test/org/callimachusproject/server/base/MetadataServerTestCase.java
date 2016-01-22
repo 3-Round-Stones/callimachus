@@ -216,6 +216,7 @@ public abstract class MetadataServerTestCase extends TestCase {
 	}
 
 	private ObjectRepository createRepository() throws Exception {
+		dataDir.mkdirs();
 		Sail sail = new MemoryStore(dataDir);
 		sail = new AuditingSail(sail);
 		Repository delegate = new SailRepository(sail);

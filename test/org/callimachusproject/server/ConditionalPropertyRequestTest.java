@@ -52,6 +52,7 @@ public class ConditionalPropertyRequestTest extends MetadataServerTestCase {
 		public HttpResponse head() {
 			HttpResponse head = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
 			head.setHeader("Cache-Control", "no-store");
+			head.setHeader("Content-Type", "text/plain");
 			return head;
 		}
 		@Method("GET")

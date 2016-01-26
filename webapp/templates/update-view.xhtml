@@ -1,0 +1,25 @@
+<html version="XHTML+RDFa 1.0" xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
+<head>
+    <title resource="?this">{rdfs:label}</title>
+    <link rel="edit-form" href="?edit" />
+    <link rel="comments" href="?discussion" />
+    <link rel="version-history" href="?history" />
+    <link rel="edit-media" href="?" title="Raw SPARQL file" type="application/sparql-update" />
+    <script type="text/javascript">
+        calli.getText(window.location.pathname).then(function(text){
+            jQuery(function($) {
+                $('#pre').text(text);
+            });
+        }).then(undefined, calli.error);
+    </script>
+</head>
+<body>
+    <div class="container">
+        <pre id="pre"></pre>
+    </div>
+</body>
+</html>
+

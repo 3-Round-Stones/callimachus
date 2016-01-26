@@ -1,0 +1,81 @@
+# 
+#    Copyright (c) 2015 3 Round Stones Inc, Some Rights Reserved
+# 
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+# 
+#        http://www.apache.org/licenses/LICENSE-2.0
+# 
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+
+@prefix xsd:<http://www.w3.org/2001/XMLSchema#>.
+@prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
+@prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix foaf:<http://xmlns.com/foaf/0.1/>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
+@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+@prefix :<#>.
+
+<> a <RdfSchemaGraph>;
+    foaf:primaryTopic <RdfUpdate>.
+
+<RdfUpdate> a <Creatable>, owl:Class;
+    rdfs:subClassOf <File>;
+    rdfs:label "SPARQL update";
+    rdfs:comment "A SPARQL update saved as a resolvable resource.";
+    rdfs:isDefinedBy <../../ontology>;
+    calli:administrator </auth/groups/super>;
+    calli:author </auth/groups/power>,</auth/groups/admin>;
+    calli:icon <../images/query.png>;
+    calli:thumbnail <../images/query.svg>;
+    calli:view <../templates/update-view.xhtml>;
+    calli:edit <../templates/update-edit.xhtml>;
+    calli:create <../templates/update-create.xhtml>;
+    calli:mediaType "application/sparql-update".
+
+# GET /query/my-update.rq
+:GetRdfUpdate rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfUpdate>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+    msg:method "GET";
+    calli:rel "edit-media";
+    calli:requires calli:reader;
+    msg:type "application/sparql-update";
+    msg:header "cache-control:no-cache";
+    msg:header "cache-control:cache-range";
+    msg:header "Link:<http://www.w3.org/ns/ldp#Resource>;rel=\"type\"";
+    calli:script "return this.openInputStream()".
+
+# PUT /query/my-update.rq
+:UploadRdfUpdate rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <RdfUpdate>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+    msg:method "PUT";
+    calli:requires calli:editor;
+    calli:script "return this.ReplaceFileContent(stream, 'application/sparql-update', true);".
+
+:stream a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :UploadRdfUpdate;
+    rdfs:range <java:java.io.InputStream>;
+    msg:type "application/sparql-update".
+
+:ValidateRdfUpdate owl:intersectionOf (<serviceable.ttl#Validate>
+        [owl:onProperty msg:target; owl:allValuesFrom <RdfUpdate>]);
+    calli:imports <java:org.openrdf.query.parser.QueryParserUtil>;
+    calli:imports <java:org.openrdf.query.QueryLanguage>;
+    calli:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
+    calli:script """
+        try {
+            var ql = QueryLanguage.SPARQL;
+            var update = this.getCharContent(false);
+            QueryParserUtil.parseUpdate(ql, update, this.toString());
+        } catch (e) {
+            throw new BadRequest("Could not parse " + this + " " + e.javaException.getMessage(), e);
+        }
+    """.

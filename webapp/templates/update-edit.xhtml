@@ -1,0 +1,32 @@
+<html version="XHTML+RDFa 1.0" xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
+<head>
+    <title resource="?this">{rdfs:label}</title>
+    <link rel="help" href="../../callimachus-reference#Named_query" target="_blank" title="Help" />
+    <link href="https://github.com/ajaxorg/ace/wiki/Default-Keyboard-Shortcuts" target="_blank" title="Keyboard Shortcuts" />
+    <link href="../../callimachus-reference#SPARQL_Reference" target="_blank" title="Reference" />
+    <link href="http://www.w3.org/TR/sparql11-update/" target="_blank" title="SPARQL Update Language" />
+    <link rel="edit-media" href="?" type="application/sparql-update" />
+    <script type="text/javascript">
+        $(calli.fillElement.bind(this, '#editor-iframe'));
+    </script>
+</head>
+<body resource="?this">
+    <form role="form" id="form" method="PUT" action="?" enctype="application/sparql-update" class="container"
+            onsubmit="calli.submitEditor(event)">
+        <fieldset class="form-group">
+            <iframe id="editor-iframe" name="editor-iframe" src="../../sparql-editor.html" onload="calli.loadEditor(event,'?')"> </iframe>
+        </fieldset>
+        <fieldset class="form-group">
+            <button type="submit" class="btn btn-primary">Save</button>
+            <button id="saveas" type="button" class="btn btn-info" rev="calli:hasComponent" resource="?folder"
+                onclick="calli.submitEditorAs(event, 'untitled.rq', calli.getCallimachusUrl('types/RdfQuery'), this.getAttribute('resource'))">Save as...</button>
+            <button type="button" onclick="window.location.replace('?view')" class="btn btn-default">Cancel</button>
+            <button type="button" onclick="calli.deleteResource(event)" class="btn btn-danger">Delete</button>
+        </fieldset>
+    </form>
+</body>
+</html>
+

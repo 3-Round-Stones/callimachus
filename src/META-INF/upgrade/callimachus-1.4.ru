@@ -125,7 +125,7 @@ DELETE {
 DELETE {
 	</callimachus/ontology> owl:versionInfo "1.4"
 } INSERT {
-	</callimachus/ontology> owl:versionInfo "1.4"
+	</callimachus/ontology> owl:versionInfo "1.5"
 } WHERE {
 	</callimachus/ontology> owl:versionInfo "1.4"
 };

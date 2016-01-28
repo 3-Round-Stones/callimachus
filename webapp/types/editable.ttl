@@ -234,10 +234,9 @@
 # DELETE
 ################################
 
-:DeleteEditable rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Editable>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
+:DeleteEditable owl:intersectionOf ( <serviceable.ttl#DeleteIfNotUsed>
+        [owl:onProperty msg:target; owl:allValuesFrom <Editable>]);
     msg:method "DELETE";
-    msg:path "?edit";
+    msg:path "?edit", "?describe";
     calli:requires calli:editor;
-    calli:script "return this.DeleteIfNotUsed()".
+    calli:script "return proceed()".

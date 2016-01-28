@@ -163,7 +163,7 @@
         if (resp) return resp;
         var container = this.SelectContainer();
         if (container && container.DeleteRedirect)
-            return container.DeleteRedirect((this + suffix).substring(container.toString()));
+            return container.DeleteRedirect((this + suffix).substring(container.toString().length));
         throw new org.openrdf.http.object.exceptions.MethodNotAllowed("No such method for " + this + suffix);
     """.
 

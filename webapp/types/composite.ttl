@@ -799,7 +799,7 @@
         }
     """.
 
-:DeleteComposite owl:intersectionOf ( <serviceable.ttl#DeleteIfNotUsed>
+:DeleteComposite owl:intersectionOf ( <editable.ttl#DeleteEditable>
         [owl:onProperty msg:target; owl:allValuesFrom [owl:intersectionOf (<Editable> <Composite>)]]);
     msg:method "DELETE";
     msg:path "?edit", "?describe";

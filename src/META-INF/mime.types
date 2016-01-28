@@ -33,6 +33,7 @@ application/rtf rtf
 application/set-payment-initiation setpay
 application/set-registration-initiation setreg
 application/sparql-query rq
+application/sparql-update ru
 application/sparql-results+xml srx
 application/vnd.ms-excel xla
 application/vnd.ms-excel xlc

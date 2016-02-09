@@ -43,6 +43,7 @@ The Callimachus server requires Java JDK 1.7 on the server to run.
    label until they are modified as well or the callimachus-reset script is run.
  * Template variables are only bound if there is at least one triple binding after them.
  * Large folder imports will only succeed if importing into an empty folder.
+ * On Windows systems with certain installations of Git you may see an error on startup e.g. 'couldn't find "#"'. If this happens, make sure that the System32 folder is before Git's tools folder on the path so that the correct version of "find" is found.
 
 ## HOWTO UPGRADE
 

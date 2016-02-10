@@ -121,7 +121,7 @@ To test the build run "ant test".
 
 Additional documentation regarding usage and application development may
 be found on the project's wiki at:
->  http://callimachusproject.org/docs/1.4/getting-started-with-callimachus.docbook?view
+>  http://callimachusproject.org/getting-started-with-callimachus
 
 Details of browser support may be found at:
 >  http://callimachusproject.org/docs/1.2/articles/browser-support.docbook?view

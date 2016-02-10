@@ -146,10 +146,10 @@ public class DigestUserFunctionalTest extends BrowserFunctionalTestCase {
 					browser.reload();
 					Thread.sleep(i * 1000);
 				} else {
-					int m = 0;
+					int m = messages.length;
 					Message message = null;
-					while (message == null && m < messages.length) {
-						message = messages[m++]; // might be null
+					while (message == null && m > 0) {
+						message = messages[--m]; // might be null
 					}
 					if (message == null) {
 						logger.info("Waiting for {} email for {}s", subject, seconds);

@@ -342,7 +342,7 @@
         <uptodate srcfile="${dist}/${artifact.name}-webapp-${Version}.car" targetfile="${triples.file}" property="repositories.uptodate" />
     </target>
 
-    <target name="test" depends="unittest,integrationtest,functionaltest" description="run all the tests" />
+    <target name="test" depends="unittest,integrationtest" description="run all the tests" />
 
     <target name="test-dependencies" depends="init">
         <basename file="${junit.url}" property="junit.jar" />

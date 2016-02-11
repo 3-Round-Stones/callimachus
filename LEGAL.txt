@@ -1,4 +1,4 @@
-Callimachus Enterprise Legal Statements
+Callimachus Legal Statements
 
 This project includes source code and/or binary distributions from other
 projects and companies. It is our intent to list each of them here. If
@@ -106,7 +106,7 @@ the URL provided for each project.
 
 Please note:
 
-  Callimachus Enterprise and The Callimachus Project are trademarks or
+  Callimachus Enterprise (tm) and The Callimachus Project are trademarks or
   registered trademarks of 3 Round Stones Inc. in the United States and
   other countries.
 

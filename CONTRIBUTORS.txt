@@ -14,8 +14,8 @@ Institutional Sponsors:
 
 Individual Contributors:
 	
-  The Callimachus Project is led by James Leigh, David Wood, Bernadette Hyland
-  and Luke Ruth.
+  The Callimachus Project is led by James Leigh, David Wood, Pete Edwards,
+  Bernadette Hyland and Luke Ruth.
 
   Special thanks to Dean Allemang, Steve Battle, David Booth, Matteo Busanelli,
   Benjamin Nowack, Peter Edwards, Richard Howlett, Juha Nurmi and other members

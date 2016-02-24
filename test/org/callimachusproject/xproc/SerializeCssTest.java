@@ -192,8 +192,11 @@ public class SerializeCssTest extends TestCase {
 	private void assertRoundTrip(String expected) throws IOException,
 			SAXException, ParserConfigurationException {
 		String actual = pipe(expected, IDENTITY);
-		assertEquals(expected.replaceAll("\\s+", " ").trim(), actual
-				.replaceAll("\\s+", " ").trim());
+		assertEquals(normalize(expected), normalize(actual));
+	}
+
+	private String normalize(String css) {
+		return css.replaceAll(",\\s*", ",").replaceAll("\\s+", " ").trim();
 	}
 
 	private String pipe(String source, String pipeline) throws IOException,

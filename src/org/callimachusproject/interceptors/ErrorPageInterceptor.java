@@ -77,6 +77,8 @@ public class ErrorPageInterceptor implements HttpRequestChainInterceptor {
 				.getTargetObject();
 		try {
 			DetachedRealm realm = target.getRealm();
+			if (realm == null)
+				return;
 			int qidx = reqUri.indexOf('?');
 			String qs = qidx < 0 ? "" : reqUri.substring(qidx + 1);
 			bin.reset();

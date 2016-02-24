@@ -138,7 +138,10 @@ public abstract class CalliObjectSupport implements CalliObject {
 				if (desc != null) {
 					Matcher m = URL_PATTERN.matcher(desc);
 					if (m.find()) {
-						result.setChangeFolder(result.getCallimachusUrl(m.group(), CHANGES_PATH));
+						String path = result.getCallimachusUrl(m.group(), CHANGES_PATH);
+						if (path != null) {
+							result.setChangeFolder(path);
+						}
 					}
 				}
 				associate(result, repository);

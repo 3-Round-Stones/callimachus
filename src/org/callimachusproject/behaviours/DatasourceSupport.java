@@ -193,9 +193,7 @@ public abstract class DatasourceSupport extends GraphStoreSupport implements Cal
 			String[] namedGraphs, String loc, InputStream ru)
 			throws IOException, OpenRDFException {
 		BufferedInputStream bin = new BufferedInputStream(ru, MAX_RU_SIZE);
-		bin.mark(MAX_RU_SIZE);
-		int skipped = (int) bin.skip(MAX_RU_SIZE);
-		bin.reset();
+		int skipped = buffer(bin, MAX_RU_SIZE);
 		String base = loc == null ? this.getResource().stringValue() : loc;
 		final RepositoryConnection con = openConnection();
 		try {

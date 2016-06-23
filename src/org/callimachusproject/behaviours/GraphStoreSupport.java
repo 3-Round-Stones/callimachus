@@ -547,6 +547,44 @@ public abstract class GraphStoreSupport {
 		}
 	}
 
+	/**
+	 * Buffers <code>n</code> bytes of data from the input stream. If the end of
+	 * file is reached before <code>n</code> bytes have been buffered. The
+	 * actual number of bytes buffered is returned.
+	 * <p>
+	 * This method marks the stream, creates a byte array and then repeatedly
+	 * reads into it until <code>n</code> bytes have been read or the end of the
+	 * stream has been reached, then resets the stream.
+	 *
+	 * @param in
+	 *            the input stream to use while buffered
+	 * @param n
+	 *            the number of bytes to be buffered.
+	 * @return the actual number of bytes buffered.
+	 * @exception IOException
+	 *                if the stream does not support seek, or if some other I/O
+	 *                error occurs.
+	 */
+	protected static int buffer(BufferedInputStream bin, int n) throws IOException {
+		int remaining = n;
+		int nr;
+		if (n <= 0) {
+			return 0;
+		}
+		int size = Math.min(2048, remaining);
+		byte[] skipBuffer = new byte[size];
+		bin.mark(n);
+		while (remaining > 0) {
+			nr = bin.read(skipBuffer, 0, Math.min(size, remaining));
+			if (nr < 0) {
+				break;
+			}
+			remaining -= nr;
+		}
+		bin.reset();
+		return n - remaining;
+	}
+
 	protected String[] split(String[] accept) {
 		boolean comma = false;
 		for (String a : accept) {
@@ -684,9 +722,11 @@ public abstract class GraphStoreSupport {
 		}
 	}
 
-	private BufferedInputStream bufferAll(HttpResponse res, int size)
+	public static BufferedInputStream bufferAll(HttpResponse res, int size)
 			throws IOException {
 		HttpEntity entity = res.getEntity();
+		if (entity == null)
+			return null;
 		long contentLength = entity.getContentLength();
 		if (contentLength > size)
 			return null;
@@ -697,9 +737,7 @@ public abstract class GraphStoreSupport {
 			}
 		};
 		override(res, bin);
-		bin.mark(size);
-		long skipped = bin.skip(size);
-		bin.reset();
+		long skipped = buffer(bin, size);
 		if (skipped < size) {
 			bin.mark(size);
 			return bin;
@@ -707,7 +745,7 @@ public abstract class GraphStoreSupport {
 		return null; // too big
 	}
 
-	private void override(HttpResponse res, final InputStream bin) {
+	private static void override(HttpResponse res, final InputStream bin) {
 		HttpEntity entity = res.getEntity();
 		res.setEntity(new StreamingHttpEntity(entity) {
 			@Override
@@ -729,13 +767,12 @@ public abstract class GraphStoreSupport {
 		}
 		InputStream in = res.getEntity().getContent();
 		BufferedInputStream bin = new BufferedInputStream(in, maxLength);
-		long length = bin.skip(maxLength + 1);
+		long length = buffer(bin, maxLength);
 		if (length >= maxLength) {
 			res.close();
 			EntityUtils.consumeQuietly(res.getEntity());
 			return redirect("Result is too long", redirect.toString());
 		} else {
-			bin.reset();
 			InputStreamEntity entity = new InputStreamEntity(bin, length);
 			entity.setContentType(res.getEntity().getContentType());
 			res.setEntity(entity);

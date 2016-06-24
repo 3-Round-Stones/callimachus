@@ -27,6 +27,7 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.protocol.HttpContext;
 import org.callimachusproject.auth.DetachedRealm;
+import org.callimachusproject.behaviours.GraphStoreSupport;
 import org.callimachusproject.traits.CalliObject;
 import org.openrdf.http.object.chain.HttpRequestChainInterceptor;
 import org.openrdf.http.object.client.StreamingHttpEntity;
@@ -69,7 +70,7 @@ public class ErrorPageInterceptor implements HttpRequestChainInterceptor {
 
 	private void format(String reqUri, Header contentType,
 			HttpResponse response, HttpContext context) throws IOException {
-		BufferedInputStream bin = bufferAll(response, MAX_PAGE_SIZE);
+		BufferedInputStream bin = GraphStoreSupport.bufferAll(response, MAX_PAGE_SIZE);
 		if (bin == null)
 			return;
 		ObjectContext ctx = ObjectContext.adapt(context);
@@ -94,31 +95,6 @@ public class ErrorPageInterceptor implements HttpRequestChainInterceptor {
 				bin.reset();
 			}
 		}
-	}
-
-	private BufferedInputStream bufferAll(HttpResponse res, int size)
-			throws IOException {
-		HttpEntity entity = res.getEntity();
-		if (entity == null)
-			return null;
-		long contentLength = entity.getContentLength();
-		if (contentLength > size)
-			return null;
-		InputStream in = entity.getContent();
-		final BufferedInputStream bin = new BufferedInputStream(in, size) {
-			public void close() throws IOException {
-				// don't allow xerces to close stream
-			}
-		};
-		override(res, bin);
-		bin.mark(size);
-		long skipped = bin.skip(size);
-		bin.reset();
-		if (skipped < size) {
-			bin.mark(size);
-			return bin;
-		}
-		return null; // too big
 	}
 
 	private void override(HttpResponse res, final InputStream bin) {

@@ -33,7 +33,7 @@ calli.loading = function(target, callback) {
         $target.children(selector).remove();
         $target.contents().each(function(){
             if (!this.previousSibling && this.nodeValue == ' ' && this.nodeType == 3) {
-                this.remove();
+                this.parentNode.removeChild(this);
             }
         });
         $target.removeClass("loading disabled").removeAttr("disabled");

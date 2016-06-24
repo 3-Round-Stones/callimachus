@@ -224,7 +224,7 @@ public abstract class DatasourceSupport extends GraphStoreSupport implements Cal
 						logger.info("INSERT DATA { GRAPH <{}> }",
 								defaultGraphs[0]);
 					} else {
-						logger.info("INSERT DATA", defaultGraphs[0]);
+						logger.info("INSERT DATA");
 					}
 					new SparqlDropInserter(defaultGraphs, namedGraphs, con)
 							.execute(bin, base);

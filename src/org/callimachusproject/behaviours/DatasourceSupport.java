@@ -196,6 +196,8 @@ public abstract class DatasourceSupport extends GraphStoreSupport implements Cal
 		int skipped = buffer(bin, MAX_RU_SIZE);
 		String base = loc == null ? this.getResource().stringValue() : loc;
 		final RepositoryConnection con = openConnection();
+		boolean rollback = true;
+		con.begin();
 		try {
 			if (MAX_RU_SIZE > skipped) {
 				byte[] buf = new byte[skipped];
@@ -237,8 +239,13 @@ public abstract class DatasourceSupport extends GraphStoreSupport implements Cal
 					}
 				};
 			}
+			con.commit();
+			rollback = false;
 			return new BasicHttpResponse(HttpVersion.HTTP_1_1, 204, "No Content");
 		} finally {
+			if (rollback) {
+				con.rollback();
+			}
 			con.close();
 		}
 	}

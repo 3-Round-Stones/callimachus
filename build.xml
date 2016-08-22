@@ -297,6 +297,10 @@
             </manifest>
         </jar>
         <zip destfile="${dist}/${artifact.name}-${Version}.zip">
+            <mappedresources>
+                <fileset file="${src}/META-INF/mime.types" />
+                <globmapper from="mime.types" to=".mime.types" />
+            </mappedresources>
             <zipfileset dir="." includes="*.txt" />
             <zipfileset dir="${src}" prefix="src" />
             <zipfileset dir="${webapp}" prefix="src/webapp" />
